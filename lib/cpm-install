@@ -1,10 +1,12 @@
 #!/bin/bash
+set -e
 
+filename=${0##*/cpm-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm--help" 'install' 'None'
-elif [[ "$#" -ge 1 ]]; then
-	echo "cpm install: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm--help" 'install' 'None'
+	exec "${CPM_ROOT}/lib/cpm--help" $filename 'None'
+elif [[ "$@" =~ '-' ]]; then
+	echo "cpm ${filename}: illegal option -- $@"
+	exec "${CPM_ROOT}/lib/cpm--help" $filename 'None'
 else
-	echo ''
+	echo 'done.'
 fi

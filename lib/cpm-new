@@ -1,3 +1,12 @@
 #!/bin/bash
+set -e
 
-echo "newww"
+filename=${0##*/cpm-}
+if [[ "$1" == '--help' || "$1" == '-h' ]]; then
+	exec "${CPM_ROOT}/lib/cpm--help" $filename 0
+elif [[ "$#" -ge 1 ]]; then
+	echo "cpm ${filename}: illegal option -- $@"
+	exec "${CPM_ROOT}/lib/cpm--help" $filename 0
+else
+	echo 'done.'
+fi
