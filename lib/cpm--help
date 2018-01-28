@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+if [[ -z "$1" ]]; then
+	echo 'Usage: cpm <command> [<args>]'
+	echo
+	echo 'Available commands:'
+	printf "   %-5s   %s\n" "help" "Prints this."
+elif [[ "$2" == 0 ]]; then
+	echo "Usage: cpm $1"
+elif [[ "$2" == 1 ]]; then
+	echo "Usage: cpm $1 <arg>"
+elif [[ "$2" == 'None' ]]; then
+	echo "Usage: cpm $1 [<args>]"
+fi

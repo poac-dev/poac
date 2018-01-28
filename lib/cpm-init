@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ "$1" == '--help' || "$1" == '-h' ]]; then
+	exec "${CPM_ROOT}/lib/cpm--help" 'init' 0
+elif [[ "$#" -ge 1 ]]; then
+	echo "cpm init: illegal option -- $@"
+	exec "${CPM_ROOT}/lib/cpm--help" 'init' 0
+else
+	echo ''
+fi

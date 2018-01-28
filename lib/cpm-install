@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ "$1" == '--help' || "$1" == '-h' ]]; then
+	exec "${CPM_ROOT}/lib/cpm--help" 'install' 'None'
+elif [[ "$#" -ge 1 ]]; then
+	echo "cpm install: illegal option -- $@"
+	exec "${CPM_ROOT}/lib/cpm--help" 'install' 'None'
+else
+	echo ''
+fi
