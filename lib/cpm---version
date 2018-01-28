@@ -1,3 +1,11 @@
 #!/bin/bash
+set -e
 
-echo "version"
+version="0.0.1"
+
+pushd "$CPM_ROOT" >/dev/null
+git_revision="$(git describe --tags HEAD 2>/dev/null || true)"
+git_revision="${git_revision#v}"
+popd >/dev/null
+
+echo "${git_revision:-$version}"
