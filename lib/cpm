@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+# sub-commandは，別のスクリプトへ流して，flagは，そのコマンド内で処理させるのが普通であると思う．
+# $ cpm -v => lib/cpm -v
+# $ cpm version => lib/cpm-version
+# $ cpm version -a => lib/cpm-version -a
+# $ cpm install -h => lib/cpm-install -h
+
+# flag(-v --version) sub-command(version)
+
+isin () { for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done; return 1; }
+matchin () { for e in "${@:2}"; do [[ "$e" =~ "$1" ]] && return 0; done; return 1; }
+
+declare -a flags=('help' 'version')
+declare -a subcommands=('init' 'new' 'install')
+
+count=`echo -n $1 | sed -e 's/[^-]//g' | wc -c | awk '{print $0-1}'`
+
+if [[ $count == 2 ]] && `isin "${1//-}" "${flags[@]}"`; then
+	exec "${CPM_ROOT}/lib/cpm$1"
+elif [[ $count == 1 ]] && [[ ${#1} == 2 ]]; then
+	echo 'Short flag' # 先頭のみ一致の感じで探して欲しい．・
+elif [[ $count == 0 ]] && `isin "$1" "${subcommands[@]}"`; then
+	exec "${CPM_ROOT}/lib/cpm-$1" "${@:2}"
+else
+	exec "${CPM_ROOT}/lib/cpm--help"
+fi

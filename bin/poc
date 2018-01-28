@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+export CPM_ROOT=`readlink $0`
+exec "$(dirname "$(dirname $CPM_ROOT)")/lib/cpm" "$@"
