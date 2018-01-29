@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Summary: hoge
+#
 set -e
 
 version="0.0.1"

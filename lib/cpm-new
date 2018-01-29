@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Summary: neww hoge
+#
 set -e
 
 filename=${0##*/cpm-}

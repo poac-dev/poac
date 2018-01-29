@@ -25,4 +25,9 @@
 # ok=`isin 'help' "${commands[@]}" && echo $?`
 # echo $ok
 
-touch test.txt
+# touch test.txt
+
+declare -a array=('ok' 'ok2' 'ok3')
+
+
+
