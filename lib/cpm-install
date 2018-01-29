@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Summary: install hoge
+#
 set -e
 
 filename=${0##*/cpm-}
