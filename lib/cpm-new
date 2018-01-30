@@ -1,15 +1,28 @@
 #!/bin/bash
 #
-# Summary: neww hoge
+# Summary: Create a new project.
+# Options: <project-name>
 #
 set -e
 
 subcommand=${0##*/cpm-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm--help" $subcommand 0
-elif [[ "$#" -ge 1 ]]; then
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
+elif [[ "$#" != 1 ]]; then
 	echo "cpm ${subcommand}: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm--help" $subcommand 0
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
 else
-	echo 'done.'
+	mkdir -v $1 1>/dev/null 2>/dev/null || \
+	printf "\e[32mThe directory \"$1\" already exists.\e[m\n\n"
+	cp -i ${CPM_ROOT}/tmpl/* ${CPM_ROOT}/tmpl/.[^\.]* ./$1 && \
+	echo && \
+	echo "Your \"$1\" project was created successfully." && \
+	echo && \
+	echo && \
+	echo "Go into your project by running:" && \
+	echo "    $ cd $1" && \
+	echo && \
+	echo "Start your project with:" && \
+	echo "    $ cpm main.cpp" && \
+	echo
 fi
