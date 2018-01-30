@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Summary: init hoge
+# Options: [--yes | -y]
 #
 set -e
 
@@ -45,18 +46,17 @@ make_json () {
 			.package.authors = $authors |
 			.package.license = $license |
 			.package.links = $links |
-			del(.deps)
-			'`
+			del(.deps)'`
 	echo $json | jq
 	echo $json | jq . > ./poc.json
 }
 
 subcommand=${0##*/cpm-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm---help" $subcommand 0
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
 elif [[ "$1" == '--yes' || "$1" == '-y' || "$#" == 0 ]]; then
 	[ -f './poc.json' ] && print_warning "$#" && make_json "$#" || printf "\ncanceled\n"
 else
 	echo "cpm ${subcommand}: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm---help" $subcommand "[--yes | -y]"
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
 fi

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Summary: Display help for a command.
+# Options: []
 #
 set -e
 
@@ -20,5 +21,5 @@ if [[ -z "$1" ]]; then
 	echo 'See `cpm <command> --help` for information on a specific command.'
 	echo 'For full documentation, see: https://github.com/pocpm/cpm#readme'
 else
-	echo "Usage: cpm $1 $2"
+	echo "Usage: cpm $1 `grep "# Options: " "${CPM_ROOT}/lib/cpm-$1" | head -1 | awk -F ": " '{print $2}'`"
 fi
