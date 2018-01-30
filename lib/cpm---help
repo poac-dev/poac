@@ -4,7 +4,6 @@
 #
 set -e
 
-
 # lib内の，cpm以外のファイルをparseする．
 print_docs () {
 	for filename in `find $1 -maxdepth 1 -type f -name 'cpm-*'`; do
@@ -20,10 +19,6 @@ if [[ -z "$1" ]]; then
 	echo
 	echo 'See `cpm <command> --help` for information on a specific command.'
 	echo 'For full documentation, see: https://github.com/pocpm/cpm#readme'
-elif [[ "$2" == 0 ]]; then
-	echo "Usage: cpm $1"
-elif [[ "$2" == 1 ]]; then
-	echo "Usage: cpm $1 <arg>"
-elif [[ "$2" == 'None' ]]; then
-	echo "Usage: cpm $1 [<args>]"
+else
+	echo "Usage: cpm $1 $2"
 fi
