@@ -1,0 +1,3 @@
+#!/bin/bash
+# Summary: Display the root directory.
+echo $CPM_ROOT
