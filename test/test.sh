@@ -26,8 +26,9 @@
 # echo $ok
 
 # touch test.txt
-
-declare -a array=('ok' 'ok2' 'ok3')
+read -p "package name (${PWD##*/}): " name
+echo $name
+# declare -a array=('ok' 'ok2' 'ok3')
 
 
 

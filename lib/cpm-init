@@ -4,12 +4,59 @@
 #
 set -e
 
-filename=${0##*/cpm-}
+print_warning () {
+	printf '\e[32mAlready poc.json exists.\e[m\n'
+	echo
+	printf '\e[32mSee `cpm init --help`\e[m\n'
+	echo
+	printf '\e[32mUse `cpm install <pkg>` afterwards to install a package and\e[m\n'
+	printf '\e[32msave it as a dependency in the poc.json file.\e[m\n'
+	echo
+	printf "\e[32mDo you want overwrite? (y/n): \e[m" && read ans
+	ans=`echo $ans | tr '[:upper:]' '[:lower:]'`
+	[[ $ans == 'y' || $ans == 'yes' ]] && return 0 || return 1
+}
+
+make_json () {
+	echo
+	if [[ "$1" == 0 ]]; then
+		read -p "app (${PWD##*/}): " app
+		read -p "version (0.0.1): " version
+		read -p "cpp : " cpp
+		read -p "description: " description
+		read -p "authors: " authors
+		read -p "license (ISC): " license
+		read -p "links": links
+		echo
+	fi
+	json=`cat "${CPM_ROOT}/tmpl/poc.json" | \
+		jq --arg app ${app:-${PWD##*/}} \
+		   --arg version ${version:-"0.0.1"} \
+		   --arg cpp ${cpp:-""} \
+		   --arg description ${description:-""} \
+		   --arg authors ${authors:-""} \
+		   --arg license ${license:-"ISC"} \
+		   --arg links ${links:-""} \
+		   '. |
+			.app = $app |
+			.version = $version |
+			.cpp = $cpp |
+			.description = $description |
+			.package.authors = $authors |
+			.package.license = $license |
+			.package.links = $links |
+			del(.deps)
+			'`
+	echo $json | jq
+	echo $json | jq . > ./poc.json
+}
+
+subcommand=${0##*/cpm-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm--help" $filename 0
-elif [[ "$#" -ge 1 ]]; then
-	echo "cpm ${filename}: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm--help" $filename 0
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand 0
+elif [[ "$1" == '--yes' || "$1" == '-y' || "$#" == 0 ]]; then
+	[ -f './poc.json' ] && print_warning "$#" && make_json "$#" || printf "\ncanceled\n"
 else
-	echo 'done.'
+	echo "cpm ${subcommand}: illegal option -- $@"
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand "[--yes | -y]"
 fi
