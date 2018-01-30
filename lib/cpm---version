@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Summary: hoge
+# Summary: Show the current cpm version.
+# Options: Anything is fine but doesn't make sense.
 #
 set -e
 
