@@ -1,15 +1,16 @@
 #!/bin/bash
 #
 # Summary: install hoge
+# Options: 
 #
 set -e
 
 subcommand=${0##*/cpm-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm--help" $subcommand 'None'
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
 elif [[ "$@" =~ '-' ]]; then
 	echo "cpm ${subcommand}: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm--help" $subcommand 'None'
+	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
 else
 	echo 'done.'
 fi

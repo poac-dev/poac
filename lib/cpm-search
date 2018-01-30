@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 # Summary: search hoge
+# Options: 
 #
+set -e
 
 
