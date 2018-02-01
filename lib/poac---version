@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# Summary: Show the current cpm version.
+# Summary: Show the current poac version.
 # Options: Anything is fine but doesn't make sense.
 #
 set -e
 
 version="0.0.1"
 
-pushd "$CPM_ROOT" >/dev/null
+pushd "$POAC_ROOT" >/dev/null
 git_revision="$(git describe --tags HEAD 2>/dev/null || true)"
 git_revision="${git_revision#v}"
 popd >/dev/null

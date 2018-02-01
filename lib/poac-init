@@ -8,9 +8,9 @@ set -e
 print_warning () {
 	printf '\e[32mAlready poc.json exists.\e[m\n'
 	echo
-	printf '\e[32mSee `cpm init --help`\e[m\n'
+	printf '\e[32mSee `poac init --help`\e[m\n'
 	echo
-	printf '\e[32mUse `cpm install <pkg>` afterwards to install a package and\e[m\n'
+	printf '\e[32mUse `poac install <pkg>` afterwards to install a package and\e[m\n'
 	printf '\e[32msave it as a dependency in the poc.json file.\e[m\n'
 	echo
 	printf "\e[32mDo you want overwrite? (y/n): \e[m" && read ans
@@ -27,10 +27,9 @@ make_json () {
 		read -p "description: " description
 		read -p "authors: " authors
 		read -p "license (ISC): " license
-		read -p "links": links
 		echo
 	fi
-	json=`cat "${CPM_ROOT}/tmpl/poc.json" | \
+	json=`cat "${POAC_ROOT}/tmpl/poac.json" | \
 		jq --arg app ${app:-${PWD##*/}} \
 		   --arg version ${version:-"0.0.1"} \
 		   --arg cpp ${cpp:-""} \
@@ -43,9 +42,9 @@ make_json () {
 			.version = $version |
 			.cpp = $cpp |
 			.description = $description |
-			.package.authors = $authors |
+			.package.authors = [$authors] |
 			.package.license = $license |
-			.package.links = $links |
+			.package.links = {$links} |
 			del(.deps)'`
 	echo $json | jq
 	echo $json | jq . > ./poac.json
@@ -53,9 +52,9 @@ make_json () {
 	echo 'poac.json was created.'
 }
 
-subcommand=${0##*/cpm-}
+subcommand=${0##*/poac-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
+	exec "${POAC_ROOT}/lib/poac---help" $subcommand
 elif [[ "$1" == '--yes' || "$1" == '-y' || "$#" == 0 ]]; then
 	if [ -f './poac.json' ]; then
 		print_warning "$#" && make_json "$#" || printf "\ncanceled\n"
@@ -63,6 +62,6 @@ elif [[ "$1" == '--yes' || "$1" == '-y' || "$#" == 0 ]]; then
 		make_json "$#"
 	fi
 else
-	echo "cpm ${subcommand}: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
+	echo "poac ${subcommand}: illegal option -- $@"
+	exec "${POAC_ROOT}/lib/poac---help" $subcommand
 fi
