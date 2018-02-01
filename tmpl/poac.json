@@ -4,7 +4,9 @@
   "cpp": "",
   "description": "Sample",
   "package": {
-    "authors": ["good author"],
+    "authors": [
+      "good author"
+    ],
     "license": "ISC",
     "links": {
       "GitHub": "https://github.com"

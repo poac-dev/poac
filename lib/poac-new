@@ -5,16 +5,16 @@
 #
 set -e
 
-subcommand=${0##*/cpm-}
+subcommand=${0##*/poac-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
-	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
+	exec "${POAC_ROOT}/lib/poac---help" $subcommand
 elif [[ "$#" != 1 ]]; then
-	echo "cpm ${subcommand}: illegal option -- $@"
-	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
+	echo "poac ${subcommand}: illegal option -- $@"
+	exec "${POAC_ROOT}/lib/poac---help" $subcommand
 else
 	mkdir -v $1 1>/dev/null 2>/dev/null || \
 	printf "\e[32mThe directory \"$1\" already exists.\e[m\n\n"
-	cp -i ${CPM_ROOT}/tmpl/* ${CPM_ROOT}/tmpl/.[^\.]* ./$1 && \
+	cp -i ${POAC_ROOT}/tmpl/* ${POAC_ROOT}/tmpl/.[^\.]* ./$1 && \
 	echo && \
 	echo "Your \"$1\" project was created successfully." && \
 	echo && \
@@ -23,6 +23,6 @@ else
 	echo "    $ cd $1" && \
 	echo && \
 	echo "Start your project with:" && \
-	echo "    $ cpm main.cpp" && \
+	echo "    $ poac main.cpp" && \
 	echo
 fi
