@@ -1,0 +1,11 @@
+{
+  "app": "cpm",
+  "version": "0.0.1",
+  "cpp": "",
+  "description": "",
+  "package": {
+    "authors": "",
+    "license": "ISC",
+    "links": ""
+  }
+}
