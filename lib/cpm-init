@@ -23,7 +23,7 @@ make_json () {
 	if [[ "$1" == 0 ]]; then
 		read -p "app (${PWD##*/}): " app
 		read -p "version (0.0.1): " version
-		read -p "cpp : " cpp
+		read -p "cpp version: " cpp
 		read -p "description: " description
 		read -p "authors: " authors
 		read -p "license (ISC): " license
@@ -48,14 +48,20 @@ make_json () {
 			.package.links = $links |
 			del(.deps)'`
 	echo $json | jq
-	echo $json | jq . > ./poc.json
+	echo $json | jq . > ./poac.json
+	echo
+	echo 'poac.json was created.'
 }
 
 subcommand=${0##*/cpm-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
 	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
 elif [[ "$1" == '--yes' || "$1" == '-y' || "$#" == 0 ]]; then
-	[ -f './poc.json' ] && print_warning "$#" && make_json "$#" || printf "\ncanceled\n"
+	if [ -f './poac.json' ]; then
+		print_warning "$#" && make_json "$#" || printf "\ncanceled\n"
+	else
+		make_json "$#"
+	fi
 else
 	echo "cpm ${subcommand}: illegal option -- $@"
 	exec "${CPM_ROOT}/lib/cpm---help" $subcommand
