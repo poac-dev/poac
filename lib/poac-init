@@ -6,60 +6,54 @@
 set -e
 
 print_warning () {
-	printf '\e[32mAlready poc.json exists.\e[m\n'
+	printf '\e[32mAlready poac.yml exists.\e[m\n'
 	echo
 	printf '\e[32mSee `poac init --help`\e[m\n'
 	echo
 	printf '\e[32mUse `poac install <pkg>` afterwards to install a package and\e[m\n'
-	printf '\e[32msave it as a dependency in the poc.json file.\e[m\n'
+	printf '\e[32msave it as a dependency in the poac.yml file.\e[m\n'
 	echo
 	printf "\e[32mDo you want overwrite? (y/n): \e[m" && read ans
 	ans=`echo $ans | tr '[:upper:]' '[:lower:]'`
 	[[ $ans == 'y' || $ans == 'yes' ]] && return 0 || return 1
 }
 
-make_json () {
+make_yml () {
 	echo
 	if [[ "$1" == 0 ]]; then
 		read -p "app (${PWD##*/}): " app
 		read -p "version (0.0.1): " version
 		read -p "cpp version: " cpp
 		read -p "description: " description
-		read -p "authors: " authors
+		read -p "author: " author
 		read -p "license (ISC): " license
 		echo
 	fi
-	json=`cat "${POAC_ROOT}/tmpl/poac.json" | \
-		jq --arg app ${app:-${PWD##*/}} \
-		   --arg version ${version:-"0.0.1"} \
-		   --arg cpp ${cpp:-""} \
-		   --arg description ${description:-""} \
-		   --arg authors ${authors:-""} \
-		   --arg license ${license:-"ISC"} \
-		   --arg links ${links:-""} \
-		   '. |
-			.app = $app |
-			.version = $version |
-			.cpp = $cpp |
-			.description = $description |
-			.package.authors = [$authors] |
-			.package.license = $license |
-			.package.links = {$links} |
-			del(.deps)'`
-	echo $json | jq
-	echo $json | jq . > ./poac.json
+	yml="app: ${app:-${PWD##*/}}
+version: ${version:-"0.0.1"}
+cpp: ${cpp:-"\"\""}
+description: ${description:-"\"\""}
+package:
+  authors:
+    - ${author:-"\"\""}
+  license: ${license:-"ISC"}
+  links:
+    - GitHub: https://github.com
+"
+	printf "$yml"
+	printf "$yml" > ./poac.yml
 	echo
-	echo 'poac.json was created.'
+	echo 'poac.yml was created.'
 }
 
 subcommand=${0##*/poac-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
 	exec "${POAC_ROOT}/lib/poac---help" $subcommand
 elif [[ "$1" == '--yes' || "$1" == '-y' || "$#" == 0 ]]; then
-	if [ -f './poac.json' ]; then
-		print_warning "$#" && make_json "$#" || printf "\ncanceled\n"
+	if [ -f './poac.yml' ]; then
+		print_warning "$#" && make_yml "$#" || printf "\ncanceled\n"
 	else
-		make_json "$#"
+		make_yml "$#"
 	fi
 else
 	echo "poac ${subcommand}: illegal option -- $@"
