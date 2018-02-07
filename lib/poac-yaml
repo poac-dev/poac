@@ -1,0 +1,41 @@
+#!/bin/bash
+# Summary: Convert from yaml to bash(v4 or higher only) variables.
+set -e
+
+cat - | \
+grep -vE '\s*#' | grep -v 'package:' | \
+awk -F '\n' -v 'RS=' '{
+	for (i = 1; i <= NF; i++) {
+		if (sub(": ", "=", $i)) {
+			split($i, out, "=");
+			print out[1] "=" "\"" out[2] "\"";
+		} else {
+			tmp = substr($i, 0, length($i)-1);
+			gsub("  ", "", tmp);
+			i++;
+			if ($i ~ "-" && $i !~ ": ") {
+				print "declare -a " tmp;
+				sub("  ", "", $i);
+				do {
+					gsub("  ", "", $i);
+					sub("- ", "", $i);
+					print tmp "+=(\"" $i "\")";
+					i++;
+					sub("  ", "", $i);
+				} while (substr($i, 0, 2) == "  ");
+			} else {
+				print "declare -A " tmp;
+				sub("  ", "", $i);
+				do {
+					gsub("  ", "", $i);
+					sub("- ", "", $i);
+					sub(": ", "\"]=\"", $i);
+					print tmp "[\"" $i "\"";
+					i++;
+					sub("  ", "", $i);
+				} while (substr($i, 0, 2) == "  ");
+			}
+			i--;
+		}
+	}
+}'

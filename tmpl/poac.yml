@@ -1,0 +1,13 @@
+# This is a comment.
+app: sample
+version: 0.0.1
+cpp: ""
+description: "This is a Sample file."
+package:
+  authors:
+    - "good author"
+  license: ISC
+  links:
+    - GitHub: https://github.com
+deps:
+  - boost: 1.66.0
