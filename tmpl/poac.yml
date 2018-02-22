@@ -10,4 +10,4 @@ package:
   links:
     - GitHub: https://github.com
 deps:
-  - boost: 1.66.0
+  - hello: 1.0.0
