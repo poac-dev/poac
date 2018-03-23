@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Summary: Display help for a command.
-# Options: []
+# Options: None
 #
 set -e
 

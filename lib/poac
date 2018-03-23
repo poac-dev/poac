@@ -13,10 +13,10 @@ count=`echo -n $1 | sed -e 's/[^-]//g' | wc -c | awk '{print $0-1}'`
 
 # Long flag.
 if [[ $count == 2 ]] && `isin "$1" "${flags[@]}"`; then
-	exec "${POAC_ROOT}/lib/poac-$1"
+	exec "${POAC_ROOT}/lib/poac-$1" "${@:2}"
 # Short flag.
 elif [[ $count == 1 && ${#1} == 2 ]] && `topin "${1:1}" "${flags[@]}"`; then
-	exec `find "${POAC_ROOT}/lib" -name "poac--$1*"`
+	exec `find "${POAC_ROOT}/lib" -name "poac--$1*"` "${@:2}"
 # Sub command.
 elif [[ $count == 0 ]] && `isin "$1" "${subcommands[@]}"`; then
 	exec "${POAC_ROOT}/lib/poac-$1" "${@:2}"

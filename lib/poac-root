@@ -1,4 +1,4 @@
 #!/bin/bash
 # Summary: Display the root directory.
-# Options: Anything is fine but doesn't make sense.
+# Options: <Nothing>
 echo $POAC_ROOT

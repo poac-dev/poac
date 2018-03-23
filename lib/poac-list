@@ -1,1 +1,7 @@
-# installしたやつ，リスト表示するコマンド
+#!/bin/bash
+#
+# Summary: installしたやつ，リスト表示するコマンド
+# Options: <project-name>
+#
+set -e
+

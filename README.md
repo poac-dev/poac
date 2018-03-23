@@ -2,15 +2,12 @@
 外部依存など！！！
 * bashのバージョンは4以上．
 
-セキュリティ
-aws ssh bation
-security group
-> しかし、AWSのSecurity Groupは「役割ごと」に1つずつ作成するのが良いとされています。従ってここでは「80番のみを通す "web"」と「22番のみを通す "ssh"」という2つのSecurity Groupを作成しましょう。
+```bash
+$ poac init --help ◯
+$ poac --help init x # 可読性にかけるため，完全に禁止
+```
 
-https://tech.recruit-mp.co.jp/infrastructure/retry-aws-bastion-host-vpc/
-
-https://dev.classmethod.jp/cloud/aws/bastion-host-on-amazon-vpc/
-
+**/usr/local/binにリンクを貼る**
 
 manページを書く
 man hoge で，manページが開かれる機構は，システム上のmanディレクトリに
@@ -60,13 +57,15 @@ http://blog.tokoyax.com/entry/elixir/register-to-hex
 
 publish時に，登録時のパスフレーズを入力する．しかし，そもそもregisterでアカウント作成していない場合，API Keyがmixの管理下に存在しないため，使えない．
 
-疑問点 => 別PCで作成したアカウントにログインのみしたい場合，registerコマンドで，ログインのみができるのか？？
+別PCで作成したアカウントにログインのみしたい場合，registerコマンドで，ログインのみができるのか？？
 それとも，API Keyを移行する必要があるのか？？？
 それとも，publish時？？
+No: API Keyを，~/.poac/に以降するか，poac signinコマンドでパスワードとユーザーIDを入力すれば，同じAPI Keyが作成されます．
 
 https://www.google.co.jp/search?tbm=isch&q=poach
 アイコンはこれをイラスト化？？？
 （ただし，poach自体には，奪うや引き抜くなどのbadなイメージがあるので，それに繋げない方が良い？？）
 
-https://ubiteku.oinker.me/2016/02/08/elixir-phoenix-auto-hot-deploy/
-Exrmは，これを参考？？？
+libyamlに依存する！！
+で，homebrewでのインストール時などに，gcc -lyaml main.cなどでコンパイルしておく！
+

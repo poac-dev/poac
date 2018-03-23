@@ -12,17 +12,20 @@ elif [[ "$#" != 1 ]]; then
 	echo "poac ${subcommand}: illegal option -- $@"
 	exec "${POAC_ROOT}/lib/poac---help" $subcommand
 else
-	mkdir -v $1 1>/dev/null 2>/dev/null || \
-	printf "\e[32mThe directory \"$1\" already exists.\e[m\n\n"
-	cp -i ${POAC_ROOT}/tmpl/* ${POAC_ROOT}/tmpl/.[^\.]* ./$1 && \
-	echo && \
-	echo "Your \"$1\" project was created successfully." && \
-	echo && \
-	echo && \
-	echo "Go into your project by running:" && \
-	echo "    $ cd $1" && \
-	echo && \
-	echo "Start your project with:" && \
-	echo "    $ poac main.cpp" && \
-	echo
+	if [[ -d ./$1 ]]; then
+		printf "\e[31mThe \"$1\" directory already exists.\e[m\n"
+		exit 1
+	else
+		cp -i -r ${POAC_ROOT}/tmpl ./$1
+		echo
+		echo "Your \"$1\" project was created successfully."
+		echo
+		echo
+		echo "Go into your project by running:"
+		echo "    $ cd $1"
+		echo
+		echo "Start your project with:"
+		echo "    $ poac main.cpp"
+		echo
+	fi
 fi
