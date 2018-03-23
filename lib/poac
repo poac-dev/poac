@@ -5,20 +5,20 @@ isin () { for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done; return 1; 
 topin () { for e in "${@:2}"; do [[ "${e:2:1}" == "$1" ]] && return 0; done; return 1; }
 
 # e.g. --help, --version
-declare -a flags=(`find "${POAC_ROOT}/lib" -maxdepth 1 -type f -name 'poac-*' | awk -F '/' '{print $NF}' | awk -F 'poac-' '$2 ~ /-/ { print $2 }'`)
+declare -a flags=($(find "${POAC_ROOT}/lib" -maxdepth 1 -type f -name 'poac-*' | awk -F '/' '{print $NF}' | awk -F 'poac-' '$2 ~ /-/ { print $2 }'))
 # e.g. init, new, install
-declare -a subcommands=(`find "${POAC_ROOT}/lib" -maxdepth 1 -type f -name 'poac-*' | awk -F '/' '{print $NF}' | awk -F 'poac-' '$2 !~ /-/ { print $2 }'`)
+declare -a subcommands=($(find "${POAC_ROOT}/lib" -maxdepth 1 -type f -name 'poac-*' | awk -F '/' '{print $NF}' | awk -F 'poac-' '$2 !~ /-/ { print $2 }'))
 
-count=`echo -n $1 | sed -e 's/[^-]//g' | wc -c | awk '{print $0-1}'`
+count=$(echo -n $1 | sed -e 's/[^-]//g' | wc -c | awk '{print $0-1}')
 
 # Long flag.
-if [[ $count == 2 ]] && `isin "$1" "${flags[@]}"`; then
+if [[ $count == 2 ]] && $(isin "$1" "${flags[@]}"); then
 	exec "${POAC_ROOT}/lib/poac-$1" "${@:2}"
 # Short flag.
-elif [[ $count == 1 && ${#1} == 2 ]] && `topin "${1:1}" "${flags[@]}"`; then
-	exec `find "${POAC_ROOT}/lib" -name "poac--$1*"` "${@:2}"
+elif [[ $count == 1 && ${#1} == 2 ]] && $(topin "${1:1}" "${flags[@]}"); then
+	exec $(find "${POAC_ROOT}/lib" -name "poac--$1*") "${@:2}"
 # Sub command.
-elif [[ $count == 0 ]] && `isin "$1" "${subcommands[@]}"`; then
+elif [[ $count == 0 ]] && $(isin "$1" "${subcommands[@]}"); then
 	exec "${POAC_ROOT}/lib/poac-$1" "${@:2}"
 # Other.
 else

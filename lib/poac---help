@@ -1,25 +1,31 @@
 #!/bin/bash
 #
 # Summary: Display help for a command.
-# Options: None
+# Options: <Nothing>
 #
 set -e
 
-# lib内の，poac以外のファイルをparseする．
 print_docs () {
-	for filename in `find $1 -maxdepth 1 -type f -name 'poac-*'`; do
-		printf "   %-9s   %s\n" ${filename##*/poac-} "`grep "# Summary: " ${filename} | head -1 | awk -F ": " '{print $2}'`"
+	for filename in $@; do
+		printf "   %-9s   %s\n" \
+		       ${filename##*/poac-} \
+		       "$(grep "# Summary: " ${filename} | \
+		          head -1 | \
+		          awk -F ": " '{print $2}')"
 	done
 }
 
 if [[ -z "$1" ]]; then
 	echo 'Usage: poac <command> [<args>]'
 	echo
-	echo 'Available commands:'
-	print_docs "${POAC_ROOT}/lib"
+	echo 'Available subcommands:'
+	print_docs $(find ${POAC_ROOT}/lib -maxdepth 1 -type f -name 'poac-*' -not -name 'poac---*')
+	echo
+	echo 'Available flags:'
+	print_docs $(find ${POAC_ROOT}/lib -maxdepth 1 -type f -name 'poac---*')
 	echo
 	echo 'See `poac <command> --help` for information on a specific command.'
 	echo 'For full documentation, see: https://github.com/poacpm/poac#readme'
 else
-	echo "Usage: poac $1 `grep "# Options: " "${POAC_ROOT}/lib/poac-$1" | head -1 | awk -F ": " '{print $2}'`"
+	echo "Usage: poac $1 $(grep "# Options: " "${POAC_ROOT}/lib/poac-$1" | head -1 | awk -F ": " '{print $2}')"
 fi

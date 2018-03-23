@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Summary: Create a new project.
+# Summary: Create a new poacpm project
 # Options: <project-name>
 #
 set -e
@@ -25,7 +25,8 @@ else
 		echo "    $ cd $1"
 		echo
 		echo "Start your project with:"
-		echo "    $ poac main.cpp"
+		echo "    $ poac install hello-world"
+		echo "    $ poac run main.cpp"
 		echo
 	fi
 fi

@@ -2,10 +2,6 @@
 外部依存など！！！
 * bashのバージョンは4以上．
 
-```bash
-$ poac init --help ◯
-$ poac --help init x # 可読性にかけるため，完全に禁止
-```
 
 **/usr/local/binにリンクを貼る**
 

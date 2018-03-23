@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-export POAC_ROOT=$(dirname "$(dirname `readlink $0`)")
+export POAC_ROOT=$(dirname "$(dirname $(readlink $0))")
 exec "${POAC_ROOT}/lib/poac" "$@"
