@@ -1,1 +1,6 @@
-test/
+.DS_Store
+test/*
+
+# CLion
+.idea
+cmake-build-debug

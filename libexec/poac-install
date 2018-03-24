@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Summary: Install packages.
+# Options: [<pkg-name>]
+#
+set -e
+
+subcommand=${0##*/poac-}
+if [[ "$1" == '--help' || "$1" == '-h' ]]; then
+	exec "${POAC_ROOT}/libexec/poac---help" $subcommand
+elif [[ "$#" -gt 0 ]]; then
+	
+else
+	echo "poac ${subcommand}: illegal option -- $@"
+	exec "${POAC_ROOT}/libexec/poac---help" $subcommand
+fi
+# pkg=("$@")
+# $(poac search ${pkg[0]})
+# curl -fsSLO hogehogheohgoe.tar.gz

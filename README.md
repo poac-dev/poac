@@ -4,6 +4,7 @@
 
 
 **/usr/local/binにリンクを貼る**
+**poac-listコマンド廃止・理由：poac.yamlを見れば良い**
 
 manページを書く
 man hoge で，manページが開かれる機構は，システム上のmanディレクトリに
