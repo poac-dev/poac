@@ -1,8 +1,0 @@
-#!/bin/bash
-#
-# Summary: installしたやつ，uninstallする
-# Options: [<pkg-name>]
-#
-set -e
-
-

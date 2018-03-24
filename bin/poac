@@ -2,4 +2,4 @@
 set -e
 
 export POAC_ROOT=$(dirname "$(dirname $(readlink $0))")
-exec "${POAC_ROOT}/lib/poac" "$@"
+exec "${POAC_ROOT}/libexec/poac" "$@"

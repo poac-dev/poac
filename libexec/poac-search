@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Summary: Search poacpm for packages.
+# Options: 
+#
+set -e
+
+

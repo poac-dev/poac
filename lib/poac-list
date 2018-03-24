@@ -1,8 +1,0 @@
-#!/bin/bash
-#
-# Summary: installしたやつ，リスト表示するコマンド
-# Options: <Nothing>
-#
-set -e
-
-
