@@ -10,5 +10,5 @@ package:
   links:
     - GitHub: https://github.com
 deps:
-  - hello-world: 1.0.0
+  - hello_world: 1.0.0
   - ok: 0.9
