@@ -9,7 +9,8 @@ subcommand=${0##*/poac-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
 	exec "${POAC_ROOT}/libexec/poac---help" $subcommand
 elif [[ "$#" -gt 0 ]]; then
-	
+	source "${POAC_ROOT}/libexec/poac-yaml" ./poac.yml
+	echo $app
 else
 	echo "poac ${subcommand}: illegal option -- $@"
 	exec "${POAC_ROOT}/libexec/poac---help" $subcommand

@@ -25,7 +25,7 @@ else
 		echo "    $ cd $1"
 		echo
 		echo "Start your project with:"
-		echo "    $ poac install hello-world"
+		echo "    $ poac install hello_world"
 		echo "    $ poac run main.cpp"
 		echo
 	fi

@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Summary: Uninstall packages.
+# Options: [<pkg-name>]
+#
+set -e
+
+subcommand=${0##*/poac-}
+if [[ "$1" == '--help' || "$1" == '-h' ]]; then
+	exec "${POAC_ROOT}/libexec/poac---help" $subcommand
+elif [[ "$#" == 0 ]]; then
+	source "${POAC_ROOT}/libexec/poac-yaml" ./poac.yml
+	# TODO: poac.ymlの検証を行ってから...
+	TMPDIR=$(mktemp -d)
+	# trap "rm -r $TMPDIR" 0
+	echo $TMPDIR
+	if [[ -f ./.gitignore ]]; then
+		tar cvzf ${TMPDIR}/${version}.tar.gz --exclude '.git' -X ./.gitignore ../$name
+	else
+		tar cvzf ${TMPDIR}/${version}.tar.gz --exclude '.git' ../$name
+	fi
+	# curl -X POST hoge
+else
+	echo "poac ${subcommand}: illegal option -- $@"
+	exec "${POAC_ROOT}/libexec/poac---help" $subcommand
+fi

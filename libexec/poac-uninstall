@@ -9,7 +9,7 @@ subcommand=${0##*/poac-}
 if [[ "$1" == '--help' || "$1" == '-h' ]]; then
 	exec "${POAC_ROOT}/libexec/poac---help" $subcommand
 elif [[ "$#" -gt 0 ]]; then
-	# 依存関係の解決はできていない．
+	# TODO: 依存関係の解決はできていない．あと，poac.ymlから書き換える．
 	if [[ ! -d ./deps ]]; then
 		printf '\e[1;31mdeps directory is not founded!\n'
 		echo
