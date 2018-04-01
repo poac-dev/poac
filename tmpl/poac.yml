@@ -1,14 +1,12 @@
 # This is a comment.
-app: sample
+name: sample
 version: 0.0.1
-cpp: ""
+cpp_version: ""
 description: "This is a Sample file."
-package:
-  authors:
-    - "good author"
-  license: ISC
-  links:
-    - GitHub: https://github.com
+authors:
+  - "good author"
+license: ISC
+links:
+  - GitHub: https://github.com
 deps:
   - hello_world: 1.0.0
-  - ok: 0.9
