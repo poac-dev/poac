@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 # print_summaries() {
 #   for command; do
 #     echo "$command"
@@ -26,9 +26,12 @@
 # echo $ok
 
 # touch test.txt
-read -p "package name (${PWD##*/}): " name
-echo $name
+# read -p "package name (${PWD##*/}): " name
+# echo $name
 # declare -a array=('ok' 'ok2' 'ok3')
 
-
+hoge () {
+	echo ${funcsourcetrace[1]}
+}
+hoge
 
