@@ -7,7 +7,7 @@ set(Boost_USE_STATIC_LIBS         OFF)
 set(Boost_USE_MULTITHREADED       OFF)
 set(Boost_USE_STATIC_RUNTIME      OFF)
 
-file(GLOB SOURCES libcpp/*.cpp)
+file(GLOB SOURCES libcpp/*)
 
 find_package(Boost 1.66.0 COMPONENTS filesystem)
 if (Boost_FOUND)
