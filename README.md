@@ -11,9 +11,6 @@ manページを書く
 man hoge で，manページが開かれる機構は，システム上のmanディレクトリに
 リンクを貼るとかしなくても大丈夫なものなのか？？？
 
-brew install 可能にする
-apt-getやyumなども．
-
 makefileで，ln -s などをする．
 
 depsを，githubからもインストール可能にする．
