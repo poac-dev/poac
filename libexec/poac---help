@@ -21,7 +21,7 @@ if [[ -z "$1" ]]; then
 	echo 'Available subcommands:'
 	print_docs $(find ${POAC_ROOT}/libexec -maxdepth 1 -type f -name 'poac-*' -not -name 'poac---*')
 	echo
-	echo 'Available flags:'
+	echo 'Available options:'
 	print_docs $(find ${POAC_ROOT}/libexec -maxdepth 1 -type f -name 'poac---*')
 	echo
 	echo 'See `poac <command> --help` for information on a specific command.'

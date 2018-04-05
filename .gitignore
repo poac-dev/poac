@@ -1,5 +1,6 @@
 .DS_Store
 test/*
+libexec
 
 # CLion
 .idea/

@@ -1,18 +1,28 @@
 cmake_minimum_required(VERSION 3.9)
 project(poac)
 
-add_definitions( -std=c++17 -Wall -Wextra )
+# preprocessor definitions
+add_definitions( -DPOAC_ROOT="${CMAKE_SOURCE_DIR}" )
+add_definitions( -fdiagnostics-color -Wall -Werror -Wextra )
 
-set(Boost_USE_STATIC_LIBS         OFF)
-set(Boost_USE_MULTITHREADED       OFF)
-set(Boost_USE_STATIC_RUNTIME      OFF)
+# Check of c++17
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(COMPILER_SUPPORTS_CXX17)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+else()
+    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
+endif()
 
-file(GLOB SOURCES libcpp/*)
+file(GLOB_RECURSE SOURCES libcpp/*)
 
-find_package(Boost 1.66.0 COMPONENTS filesystem)
+# Boost
+find_package(Boost 1.66 COMPONENTS system filesystem)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIR})
     add_executable(${PROJECT_NAME} ${SOURCES})
     target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+else()
+    message(WARNING "The Boost was not found.")
 endif ()
