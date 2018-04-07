@@ -6,28 +6,16 @@
 #define POAC_OPTION_HELP_HPP
 
 #include <iostream>
-#include <map>
 #include <string>
-#include <functional>
-#include <type_traits>
 
 
-namespace poac { namespace option { class help {
-//    static constexpr int nothing = -1;
-//    static constexpr int illegal = 1;
-//    void run([[maybe_unused]] std::vector<std::string>&& argv) {
-//        std::cout << "Usage: poac <command> [<args>]"
-//                  << std::endl
-//                  << "Available subcommands:"
-//                  << "hoge function"
-//                  << std::endl
-//                  << "Available flags:"
-//                  << "hoge function";
-//    }
-//    void run([[maybe_unused]] int a) {
-//        if (a == nothing) {
-//            //hoge~~~~~~
-//        }
-//    }
+namespace poac { namespace option { struct help {
+    static const std::string summary() { return "Display help for a command."; }
+    static const std::string options() { return "<Nothing>"; }
+
+    void operator()() {
+//        poac::inference::print_summary_all();
+        ; // Nothing to do, because define `help function` in inference.hpp.
+    }
 };}} // end namespace
 #endif
