@@ -2,7 +2,7 @@
 #define POAC_HPP
 
 #include "poac/config.hpp"
-#include "poac/exec.hpp"
+#include "poac/inference.hpp"
 #include "poac/option.hpp"
 #include "poac/subcmd.hpp"
 
