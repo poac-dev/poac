@@ -1,0 +1,103 @@
+// 文字列から推論してくれる優しいやつ
+#ifndef POAC_INFERENCE_HPP
+#define POAC_INFERENCE_HPP
+
+#include <iostream>
+#include <string>
+#include <stdexcept>
+#include <unordered_map>
+#include <functional>
+
+#include "option.hpp"
+#include "subcmd.hpp"
+
+
+namespace poac { namespace inference {
+    // T から const/volatile/reference を除いた型
+    template <typename T>
+    using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+    // C++20, std::remove_cvref_t<T>
+
+    // T0,...,Ts の中で T が出現する最初の位置
+    template <size_t I, typename T, typename T0, typename... Ts>
+    struct index_of_impl {
+        static const size_t value = std::is_same_v<T, T0> ? I : index_of_impl<I+1, T, Ts...>::value;
+    };
+    // T0,...,Ts の中で T が出現する最初の位置
+    template <size_t I, typename T, typename T0>
+    struct index_of_impl<I, T, T0> {
+        static const size_t value = std::is_same_v<T, T0> ? I : static_cast<size_t>(-1);
+    };
+    // T0,...,Ts の中で I 番目の型
+    template <size_t I, typename T0, typename... Ts>
+    struct at_impl {
+        using type = std::conditional_t<I==0, T0, typename at_impl<I-1, Ts...>::type>;
+    };
+    // T0,...,Ts の中で I 番目の型
+    template <size_t I, typename T0>
+    struct at_impl<I, T0> {
+        using type = std::conditional_t<I==0, T0, void>;
+    };
+    // 型のリスト
+    template <typename... Ts>
+    struct type_list_t {
+        // 型数
+        static constexpr size_t size() { return sizeof...(Ts); };
+        // T が最初に現れる位置
+        template <typename T>
+        static constexpr int index_of() {
+            return static_cast<int>(index_of_impl<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>::value);
+        }
+        // I 番目の型
+        template <int I>
+        using at_t = typename at_impl<I, Ts...>::type;
+        // idx 番目の型 T について, f.operator()<T>() を実行する
+        template <typename F, typename Index>
+        static auto apply(F&& f, Index idx) -> decltype(auto) {
+            using R = decltype(f.template operator()<at_t<0>>());  // 戻り値の型
+            static std::make_index_sequence<size()> seq;  // 整数シーケンス
+            return apply<R>(seq, std::forward<F>(f), static_cast<int>(idx));
+        }
+    private:
+        // idx 番目の型 T について, f.operator()<T>() を実行する
+        template <typename R, typename F, size_t... Is>
+        static R apply(std::index_sequence<Is...>, F&& f, int idx) {
+            using func_t = decltype(&apply<R, F, at_t<0>>);  // 関数ポインタの型
+            // 関数ポインタテーブルを生成
+            // idx 番目の関数ポインタは apply<R, F, at_t<idx>> である
+            static func_t func_table[] = { &apply<R, F, at_t<Is>>... };
+            return func_table[idx](std::forward<F>(f));
+        }
+        // 型 T について, f.operator()<T>() を実行する
+        template <typename R, typename F, typename T>
+        static R apply(F&& f) { return f.template operator()<T>(); }
+    };
+    using op_type_list_t = type_list_t<poac::option::version::t, poac::subcmd::root::t>;
+    enum class op_type_e : int {
+        version = op_type_list_t::index_of<poac::option::version::t>(),
+        root    = op_type_list_t::index_of<poac::subcmd::root::t>()
+    };
+    const std::unordered_map<std::string, op_type_e> cmdmap {
+        { "--version", op_type_e::version },
+        { "root", op_type_e::root }
+    };
+    struct calculator_t {
+        template <typename Op>
+        void operator()() { Op()(); }
+    };
+
+    void exec(const std::string& cmd) {
+        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end()) {
+            op_type_list_t::apply(calculator_t{}, itr->second);
+        }
+        else
+            throw std::invalid_argument("invalid argument");
+    }
+//    template <typename T>
+//    vid summary(T&& ok) {
+////    }o
+//    template <typename T>
+//    void options(T&& ok) {
+//    }
+}}
+#endif

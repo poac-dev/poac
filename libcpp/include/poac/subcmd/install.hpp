@@ -20,7 +20,7 @@
 
 
 
-namespace poac { namespace install {
+namespace poac { namespace subcmd { namespace install {
 //namespace fs = boost::filesystem;
 //
 //std::tuple<std::string, std::string> analyze(std::string tmp) {
@@ -63,5 +63,5 @@ namespace poac { namespace install {
 ////        std::exit(EXIT_FAILURE);
 ////    }
 //}
-}} // end install namespace // end poac namespace
+}}} // end install namespace // end poac namespace
 #endif

@@ -17,12 +17,13 @@ endif()
 file(GLOB_RECURSE SOURCES libcpp/*)
 
 # Boost
-find_package(Boost 1.66 COMPONENTS system filesystem)
+find_package(Boost 1.66 REQUIRED COMPONENTS system filesystem)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIR})
-    add_executable(${PROJECT_NAME} ${SOURCES})
-    target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 else()
     message(WARNING "The Boost was not found.")
 endif ()
+
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})

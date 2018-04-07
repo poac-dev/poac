@@ -2,8 +2,8 @@
 // Summary: Display the root directory.
 // Options: <Nothing>
 //
-#ifndef __POAC_ROOT_HPP__
-#define __POAC_ROOT_HPP__
+#ifndef POAC_SUBCMD_ROOT_HPP
+#define POAC_SUBCMD_ROOT_HPP
 
 #include <iostream>
 #include <string>
@@ -14,11 +14,8 @@ namespace poac { namespace subcmd { namespace root {
     static const char* summary = "Display the root directory.";
     static const char* options = "<Nothing>";
 
-    struct run {
-        const std::string operator()() {
-            std::cout << POAC_ROOT << std::endl;
-            return std::string(POAC_ROOT);
-        }
+    struct t {
+        void operator()() { std::cout << POAC_ROOT << std::endl; }
     };
-}}} // end root namespace // end subcmd namespace // end poac namespace
+}}} // end namespace
 #endif

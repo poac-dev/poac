@@ -2,13 +2,14 @@
 // Summary: Display help for a command.
 // Options: <Nothing>
 //
-#ifndef POAC_HELP_HPP
-#define POAC_HELP_HPP
+#ifndef POAC_OPTION_HELP_HPP
+#define POAC_OPTION_HELP_HPP
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <functional>
+#include <type_traits>
 
 
 namespace poac { namespace option { class help {
@@ -28,5 +29,5 @@ namespace poac { namespace option { class help {
 //            //hoge~~~~~~
 //        }
 //    }
-};}} // end help namespace // end poac namespace
+};}} // end namespace
 #endif
