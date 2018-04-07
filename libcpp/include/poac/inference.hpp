@@ -46,9 +46,7 @@ namespace poac { namespace inference {
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
         // T が最初に現れる位置
         template <typename T>
-        static constexpr int index_of() {
-            return static_cast<int>(index_of_impl<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>::value);
-        }
+        static constexpr int index_of = static_cast<int>(index_of_impl<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>::value);
         // I 番目の型
         template <int I>
         using at_t = typename at_impl<I, Ts...>::type;
@@ -79,9 +77,9 @@ namespace poac { namespace inference {
             poac::subcmd::root
     >;
     enum class op_type_e : int {
-        help    = op_type_list_t::index_of<poac::option::help>(),
-        version = op_type_list_t::index_of<poac::option::version>(),
-        root    = op_type_list_t::index_of<poac::subcmd::root>()
+        help    = op_type_list_t::index_of<poac::option::help>,
+        version = op_type_list_t::index_of<poac::option::version>,
+        root    = op_type_list_t::index_of<poac::subcmd::root>
     };
     static const std::unordered_map<std::string, op_type_e> cmdmap {
         { "--help", op_type_e::help },
