@@ -3,6 +3,7 @@
 #define POAC_INFERENCE_HPP
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <stdexcept>
 #include <unordered_map>
@@ -42,7 +43,7 @@ namespace poac { namespace inference {
     template <typename... Ts>
     struct type_list_t {
         // 型数
-        static constexpr size_t size() { return sizeof...(Ts); };
+        static constexpr size_t size() noexcept { return sizeof...(Ts); };
         // T が最初に現れる位置
         template <typename T>
         static constexpr int index_of() {
@@ -72,32 +73,80 @@ namespace poac { namespace inference {
         template <typename R, typename F, typename T>
         static R apply(F&& f) { return f.template operator()<T>(); }
     };
-    using op_type_list_t = type_list_t<poac::option::version::t, poac::subcmd::root::t>;
+    using op_type_list_t = type_list_t<
+            poac::option::help,
+            poac::option::version,
+            poac::subcmd::root
+    >;
     enum class op_type_e : int {
-        version = op_type_list_t::index_of<poac::option::version::t>(),
-        root    = op_type_list_t::index_of<poac::subcmd::root::t>()
+        help    = op_type_list_t::index_of<poac::option::help>(),
+        version = op_type_list_t::index_of<poac::option::version>(),
+        root    = op_type_list_t::index_of<poac::subcmd::root>()
     };
-    const std::unordered_map<std::string, op_type_e> cmdmap {
+    static const std::unordered_map<std::string, op_type_e> cmdmap {
+        { "--help", op_type_e::help },
         { "--version", op_type_e::version },
         { "root", op_type_e::root }
     };
-    struct calculator_t {
-        template <typename Op>
-        void operator()() { Op()(); }
+    struct exec_t {
+        template <typename T>
+        void operator()() { T()(); }
+    };
+    struct summary_t {
+        template <typename T>
+        std::string operator()() { return T::summary(); }
+    };
+    struct options_t {
+        template <typename T>
+        std::string operator()() { return T::options(); }
     };
 
     void exec(const std::string& cmd) {
-        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end()) {
-            op_type_list_t::apply(calculator_t{}, itr->second);
-        }
+        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+            op_type_list_t::apply(exec_t{}, itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
-//    template <typename T>
-//    vid summary(T&& ok) {
-////    }o
-//    template <typename T>
-//    void options(T&& ok) {
-//    }
+    std::string summary(const std::string& cmd) {
+        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+            return op_type_list_t::apply(summary_t{}, itr->second);
+        else
+            throw std::invalid_argument("invalid argument");
+    }
+    template <typename T, typename U>
+    void _help(const T& key, const U& value) {
+        std::cout << "   "
+                  << std::setw(9)
+                  << std::left
+                  << key
+                  << "   "
+                  << op_type_list_t::apply(summary_t{}, value)
+                  << std::endl;
+    }
+    static void help() { // summary_all
+        std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl
+                  << "Available subcommands:" << std::endl;
+        bool tmp{ false };
+        for (const auto& [key, value] : cmdmap) {
+            if (key[0] != '-')
+                _help(key, value);
+            else if (!tmp) {
+                tmp = !tmp;
+                std::cout << "Available options:" << std::endl;
+                _help(key, value);
+            }
+            else
+                _help(key, value);
+        }
+        std::cout << std::endl
+                  << "See `poac <command> --help` for information on a specific command." << std::endl
+                  << "For full documentation, see: https://github.com/poacpm/poac#readme" << std::endl;
+    }
+    std::string options(const std::string& cmd) {
+        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+            return op_type_list_t::apply(options_t{}, itr->second);
+        else
+            throw std::invalid_argument("invalid argument");
+    }
 }}
 #endif
