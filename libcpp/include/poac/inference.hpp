@@ -19,7 +19,7 @@ namespace poac { namespace inference {
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
     // C++20, std::remove_cvref_t<T>
 
-    // T0,...,Ts の中で T が出現する最初の位置
+    // T0,...,Ts の中で T が出現する最初の位置 -> size_t
     template <size_t I, typename T, typename T0, typename... Ts>
     struct index_of_impl {
         static const size_t value = std::is_same_v<T, T0> ? I : index_of_impl<I+1, T, Ts...>::value;
@@ -29,7 +29,7 @@ namespace poac { namespace inference {
     struct index_of_impl<I, T, T0> {
         static const size_t value = std::is_same_v<T, T0> ? I : static_cast<size_t>(-1);
     };
-    // T0,...,Ts の中で I 番目の型
+    // T0,...,Ts の中で I 番目の型 -> type
     template <size_t I, typename T0, typename... Ts>
     struct at_impl {
         using type = std::conditional_t<I==0, T0, typename at_impl<I-1, Ts...>::type>;
@@ -74,18 +74,22 @@ namespace poac { namespace inference {
     using op_type_list_t = type_list_t<
             poac::option::help,
             poac::option::version,
+            poac::subcmd::init,
             poac::subcmd::root
     >;
     enum class op_type_e : int {
         help    = op_type_list_t::index_of<poac::option::help>,
         version = op_type_list_t::index_of<poac::option::version>,
+        init    = op_type_list_t::index_of<poac::subcmd::init>,
         root    = op_type_list_t::index_of<poac::subcmd::root>
     };
     static const std::unordered_map<std::string, op_type_e> cmdmap {
         { "--help", op_type_e::help },
         { "--version", op_type_e::version },
+        { "init", op_type_e::init },
         { "root", op_type_e::root }
     };
+    // TODO: struct作るのではなく，applyをそれぞれ作る方が良い？？？
     struct exec_t {
         template <typename T>
         void operator()() { T()(); }
@@ -99,18 +103,6 @@ namespace poac { namespace inference {
         std::string operator()() { return T::options(); }
     };
 
-    void exec(const std::string& cmd) {
-        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
-            op_type_list_t::apply(exec_t{}, itr->second);
-        else
-            throw std::invalid_argument("invalid argument");
-    }
-    std::string summary(const std::string& cmd) {
-        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
-            return op_type_list_t::apply(summary_t{}, itr->second);
-        else
-            throw std::invalid_argument("invalid argument");
-    }
     template <typename T, typename U>
     void _help(const T& key, const U& value) {
         std::cout << "   "
@@ -124,21 +116,37 @@ namespace poac { namespace inference {
     static void help() { // summary_all
         std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl
                   << "Available subcommands:" << std::endl;
-        bool tmp{ false };
+        bool flag{ false };
         for (const auto& [key, value] : cmdmap) {
-            if (key[0] != '-')
+            if (key[0] != '-') {
                 _help(key, value);
-            else if (!tmp) {
-                tmp = !tmp;
+            }
+            else if (!flag) {
+                flag = !flag;
                 std::cout << "Available options:" << std::endl;
                 _help(key, value);
             }
-            else
+            else {
                 _help(key, value);
+            }
         }
         std::cout << std::endl
                   << "See `poac <command> --help` for information on a specific command." << std::endl
                   << "For full documentation, see: https://github.com/poacpm/poac#readme" << std::endl;
+    }
+    void exec(const std::string& cmd) {
+        if (cmd == "--help" || cmd == "-h")
+            help();
+        else if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+            op_type_list_t::apply(exec_t{}, itr->second);
+        else
+            throw std::invalid_argument("invalid argument");
+    }
+    std::string summary(const std::string& cmd) {
+        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+            return op_type_list_t::apply(summary_t{}, itr->second);
+        else
+            throw std::invalid_argument("invalid argument");
     }
     std::string options(const std::string& cmd) {
         if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
