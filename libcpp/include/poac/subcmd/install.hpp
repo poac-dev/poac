@@ -19,9 +19,15 @@
 #include <boost/filesystem.hpp>
 
 
-namespace poac { namespace subcmd { struct install {
+namespace poac::subcmd { struct install {
     static const std::string summary() { return "Install packages."; }
     static const std::string options() { return "[<pkg-name>]"; }
+
+    void operator()() { _install(); }
+
+    void _install() {
+
+    }
 //namespace fs = boost::filesystem;
 //
 //std::tuple<std::string, std::string> analyze(std::string tmp) {
@@ -64,5 +70,5 @@ namespace poac { namespace subcmd { struct install {
 ////        std::exit(EXIT_FAILURE);
 ////    }
 //}
-};}} // end namespace
+};} // end namespace
 #endif

@@ -12,7 +12,7 @@
 #include <boost/filesystem.hpp>
 
 
-namespace poac { namespace subcmd { struct init {
+namespace poac::subcmd { struct init {
     static const std::string summary() { return "Create the poac.yml."; }
     static const std::string options() { return "<Nothing>"; }
 
@@ -78,5 +78,5 @@ namespace poac { namespace subcmd { struct init {
         namespace fs = boost::filesystem;
         return fs::absolute(fs::path(".")).parent_path();
     }
-};}} // end namespace
+};} // end namespace
 #endif

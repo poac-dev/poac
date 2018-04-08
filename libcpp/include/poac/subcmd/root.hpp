@@ -10,10 +10,10 @@
 #include <cstdlib>
 
 
-namespace poac { namespace subcmd { struct root {
+namespace poac::subcmd { struct root {
     static const std::string summary() { return "Display the root directory."; }
     static const std::string options() { return "<Nothing>"; }
 
     void operator()() { std::cout << POAC_ROOT << std::endl; }
-};}} // end namespace
+};} // end namespace
 #endif

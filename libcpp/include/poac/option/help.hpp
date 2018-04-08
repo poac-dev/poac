@@ -9,7 +9,7 @@
 #include <string>
 
 
-namespace poac { namespace option { struct help {
+namespace poac::option { struct help {
     static const std::string summary() { return "Display help for a command."; }
     static const std::string options() { return "<Nothing>"; }
 
@@ -17,5 +17,5 @@ namespace poac { namespace option { struct help {
 //        poac::inference::print_summary_all();
         ; // Nothing to do, because define `help function` in inference.hpp.
     }
-};}} // end namespace
+};} // end namespace
 #endif

@@ -10,10 +10,10 @@
 #include <iostream>
 
 
-namespace poac { namespace option { struct version {
+namespace poac::option { struct version {
     static const std::string summary() { return "Show the current poac version."; }
     static const std::string options() { return "<Nothing>"; }
 
     void operator()() { std::cout << POAC_VERSION << std::endl; }
-};}} // end namespace
+};} // end namespace
 #endif

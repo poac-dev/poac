@@ -11,6 +11,5 @@
 #include "subcmd/signin.hpp"
 #include "subcmd/signup.hpp"
 #include "subcmd/uninstall.hpp"
-#include "subcmd/yaml.hpp"
 
 #endif // !POAC_SUBCMD_HPP
