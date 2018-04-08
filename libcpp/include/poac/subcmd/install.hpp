@@ -2,8 +2,8 @@
 // Summary: Install packages.
 // Options: [<pkg-name>]
 //
-#ifndef __POAC_INSTALL_HPP__
-#define __POAC_INSTALL_HPP__
+#ifndef POAC_SUBCMD_INSTALL_HPP
+#define POAC_SUBCMD_INSTALL_HPP
 
 #include <iostream>
 #include <algorithm>
@@ -19,8 +19,9 @@
 #include <boost/filesystem.hpp>
 
 
-
-namespace poac { namespace subcmd { namespace install {
+namespace poac { namespace subcmd { struct install {
+    static const std::string summary() { return "Install packages."; }
+    static const std::string options() { return "[<pkg-name>]"; }
 //namespace fs = boost::filesystem;
 //
 //std::tuple<std::string, std::string> analyze(std::string tmp) {
@@ -63,5 +64,5 @@ namespace poac { namespace subcmd { namespace install {
 ////        std::exit(EXIT_FAILURE);
 ////    }
 //}
-}}} // end install namespace // end poac namespace
+};}} // end namespace
 #endif
