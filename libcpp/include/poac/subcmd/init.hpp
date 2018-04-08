@@ -20,7 +20,7 @@ namespace poac { namespace subcmd { struct init {
     void _init() {
         boost::filesystem::path filename("poac.yml");
         if (yml_exists(filename)) {
-            std::cout << std::endl << "\033[33mcanceled\033[0m" << std::endl;
+            std::cerr << "\033[33mcanceled\033[0m" << std::endl;
             return;
         }
 
@@ -45,7 +45,7 @@ namespace poac { namespace subcmd { struct init {
     int yml_exists(boost::filesystem::path& filename) {
         boost::system::error_code error;
         if (const bool result = boost::filesystem::exists(filename, error); result && !error) {
-            std::cout << "\033[1;31mAlready poac.yml exists." << std::endl
+            std::cerr << "\033[1;31mAlready poac.yml exists." << std::endl
                       << std::endl
                       << "See `poac init --help`" << std::endl
                       << std::endl
