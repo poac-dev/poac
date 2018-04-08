@@ -11,5 +11,5 @@
 namespace poac::subcmd { struct search {
     static const std::string summary() { return "Search poacpm for packages."; }
     static const std::string options() { return "未定"; }
-};}}
+};}
 #endif
