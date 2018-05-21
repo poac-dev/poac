@@ -18,7 +18,19 @@ namespace poac::subcmd { struct new_ {
     void operator()() { _new(); }
 
     void _new() {
-
+        // Check if the deps directory exists.
+        // Create directory and file(ftemplate).
+        // echo
+        // echo "Your \"$1\" project was created successfully."
+        // echo
+        // echo
+        // echo "Go into your project by running:"
+        // echo "    $ cd $1"
+        // echo
+        // echo "Start your project with:"
+        // echo "    $ poac install hello_world"
+        // echo "    $ poac run main.cpp"
+        // echo
     }
 };} // end namespace
 #endif
