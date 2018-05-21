@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  gcc_6:
+    docker:
+      - image: gcc:6
+    steps:
+      - checkout
+      - run: mkdir -p build && cd build
+      - run: cmake ..
+      - run: make
+      - run: make test
+      - run: ./poac --help
+  gcc_7:
+    docker:
+      - image: gcc:7
+    steps:
+      - checkout
+      - run: mkdir -p build && cd build
+      - run: cmake ..
+      - run: make
+      - run: make test
+      - run: ./poac --help
+  gcc_8:
+    docker:
+      - image: gcc:8
+    steps:
+      - checkout
+      - run: mkdir -p build && cd build
+      - run: cmake ..
+      - run: make
+      - run: make test
+      - run: ./poac --help
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      # GCC
+      - gcc_6
+      - gcc_7
+      - gcc_8
+      # Clang
+
