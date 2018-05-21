@@ -14,8 +14,6 @@ else()
     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 endif()
 
-file(GLOB_RECURSE SOURCES libcpp/*)
-
 # Boost
 find_package(Boost 1.66 REQUIRED COMPONENTS system filesystem)
 if (Boost_FOUND)
@@ -25,7 +23,8 @@ else()
     message(WARNING "The Boost was not found.")
 endif ()
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+file(GLOB_RECURSE SOURCES include/*)
+add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
 install(TARGETS poac DESTINATION bin)
