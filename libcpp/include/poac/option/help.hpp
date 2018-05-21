@@ -15,7 +15,7 @@ namespace poac::option { struct help {
 
     void operator()() {
 //        poac::inference::print_summary_all();
-        ; // Nothing to do, because define `help function` in inference.hpp.
+        ; // Nothing to do because define `help function` in inference.hpp.
     }
 };} // end namespace
 #endif
