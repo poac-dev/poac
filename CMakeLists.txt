@@ -27,4 +27,8 @@ file(GLOB_RECURSE SOURCES include/*)
 add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
+enable_testing()
+file(GLOB_RECURSE TEST_SOURCES test/**/CMakeLists.txt)
+include(${TEST_SOURCES})
+
 install(TARGETS poac DESTINATION bin)
