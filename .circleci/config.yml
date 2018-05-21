@@ -2,7 +2,7 @@ version: 2
 jobs:
   gcc_6:
     docker:
-      - image: rikorose/gcc-cmake:6
+      - image: rikorose/gcc-cmake:gcc-6
     steps:
       - checkout
       - run: mkdir -p build && cd build
@@ -12,7 +12,7 @@ jobs:
       - run: ./poac --help
   gcc_7:
     docker:
-      - image: rikorose/gcc-cmake:7
+      - image: rikorose/gcc-cmake:gcc-7
     steps:
       - checkout
       - run: mkdir -p build && cd build
@@ -22,7 +22,7 @@ jobs:
       - run: ./poac --help
   gcc_8:
     docker:
-      - image: rikorose/gcc-cmake:8
+      - image: rikorose/gcc-cmake:gcc-8
     steps:
       - checkout
       - run: mkdir -p build && cd build
