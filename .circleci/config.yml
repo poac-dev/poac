@@ -5,8 +5,7 @@ jobs:
       - image: rikorose/gcc-cmake:gcc-6
     steps:
       - checkout
-      - run: mkdir -p build && cd build
-      - run: cmake ..
+      - run: cmake .
       - run: make
       - run: make test
       - run: ./poac --help
@@ -15,8 +14,7 @@ jobs:
       - image: rikorose/gcc-cmake:gcc-7
     steps:
       - checkout
-      - run: mkdir -p build && cd build
-      - run: cmake ..
+      - run: cmake .
       - run: make
       - run: make test
       - run: ./poac --help
@@ -25,8 +23,7 @@ jobs:
       - image: rikorose/gcc-cmake:gcc-8
     steps:
       - checkout
-      - run: mkdir -p build && cd build
-      - run: cmake ..
+      - run: cmake .
       - run: make
       - run: make test
       - run: ./poac --help
