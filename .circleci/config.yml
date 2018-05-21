@@ -2,7 +2,7 @@ version: 2
 jobs:
   gcc_6:
     docker:
-      - image: rikorose/gcc-cmake:gcc-6
+      - image: matken11235/gcc-cmake-boost:gcc-6
     steps:
       - checkout
       - run: cmake .
@@ -11,7 +11,7 @@ jobs:
       - run: ./poac --help
   gcc_7:
     docker:
-      - image: rikorose/gcc-cmake:gcc-7
+      - image: matken11235/gcc-cmake-boost:gcc-7
     steps:
       - checkout
       - run: cmake .
@@ -20,7 +20,7 @@ jobs:
       - run: ./poac --help
   gcc_8:
     docker:
-      - image: rikorose/gcc-cmake:gcc-8
+      - image: matken11235/gcc-cmake-boost:gcc-8
     steps:
       - checkout
       - run: cmake .
