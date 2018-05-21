@@ -15,7 +15,7 @@ else()
 endif()
 
 # Boost
-find_package(Boost 1.66 REQUIRED COMPONENTS system filesystem)
+find_package(Boost 1.55 REQUIRED COMPONENTS system filesystem)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIR})
