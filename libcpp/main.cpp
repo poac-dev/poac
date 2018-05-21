@@ -10,7 +10,7 @@
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char** argv) {
 //    if (argc > 1) poac::inference::exec(argv[1]);
     try {
-        poac::inference::exec("init");
+        poac::inference::exec("--help");
     }
     catch (const std::invalid_argument& e) {
         std::cerr << e.what();
