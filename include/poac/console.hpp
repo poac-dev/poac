@@ -5,7 +5,7 @@
 
 
 namespace poac::console {
-    struct out {
+    struct color {
         static void red() {
             std::cout << "\x1b[31m";
         }
@@ -20,23 +20,6 @@ namespace poac::console {
         }
         static void reset() {
             std::cout << "\x1b[0m";
-        }
-    };
-    struct err {
-        static void red() {
-            std::cerr << "\x1b[31m";
-        }
-        static void green() {
-            std::cerr << "\x1b[32m";
-        }
-        static void yellow() {
-            std::cerr << "\x1b[33m";
-        }
-        static void blue() {
-            std::cerr << "\x1b[34m";
-        }
-        static void reset() {
-            std::cerr << "\x1b[0m";
         }
     };
 } // end namespace

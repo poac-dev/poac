@@ -41,7 +41,7 @@ namespace poac::subcmd { struct init {
         yml.close();
         std::cout << current() / filename << " was created.";
     }
-
+    // If poac.yml exists
     int yml_exists(boost::filesystem::path& filename) {
         boost::system::error_code error;
         if (const bool result = boost::filesystem::exists(filename, error); result && !error) {
