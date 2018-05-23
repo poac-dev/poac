@@ -85,14 +85,16 @@ namespace poac::inference {
         root    = op_type_list_t::index_of<poac::subcmd::root>,
         new_    = op_type_list_t::index_of<poac::subcmd::new_>
     };
-    static const std::unordered_map<std::string, op_type_e> cmdmap {
-        { "--help", op_type_e::help },
-        { "--version", op_type_e::version },
-        { "init", op_type_e::init },
-        { "root", op_type_e::root },
-        { "new", op_type_e::new_ }
+    static const std::unordered_map<std::string, op_type_e> subcmd_map {
+            { "init", op_type_e::init },
+            { "root", op_type_e::root },
+            { "new", op_type_e::new_ }
     };
-    // TODO: struct作るのではなく，applyをそれぞれ作る方が良い？？？
+    static const std::unordered_map<std::string, op_type_e> option_map {
+            { "--help", op_type_e::help },
+            { "--version", op_type_e::version }
+    };
+    // TODO: struct作るのではなく，applyをそれぞれ作る方が良い？？？一つに纏めたい．
     struct exec_t {
         template <typename T>
         void operator()() { T()(); }
@@ -117,42 +119,39 @@ namespace poac::inference {
                   << std::endl;
     }
     static void help() { // summary_all
-        std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl
-                  << "Available subcommands:" << std::endl;
-        bool flag{ false };
-        for (const auto& [key, value] : cmdmap) {
-            if (key[0] != '-') {
-                _help(key, value);
-            }
-            else if (!flag) {
-                flag = !flag;
-                std::cout << "Available options:" << std::endl;
-                _help(key, value);
-            }
-            else {
-                _help(key, value);
-            }
-        }
+        std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
+        std::cout << "Available subcommands:" << std::endl;
+        for (const auto& [name, value] : subcmd_map)
+            _help(name, value);
+        std::cout << "Available options:" << std::endl;
+        for (const auto& [name, value] : option_map)
+            _help(name, value);
         std::cout << std::endl
-                  << "See `poac <command> --help` for information on a specific command." << std::endl
-                  << "For full documentation, see: https://github.com/poacpm/poac#readme" << std::endl;
+                  << "See `poac <command> --help` for information on a specific command.\n"
+                     "For full documentation, see: https://github.com/poacpm/poac#readme\n";
     }
     void exec(const std::string& cmd) {
         if (cmd == "--help" || cmd == "-h")
             help();
-        else if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+        else if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
+            op_type_list_t::apply(exec_t{}, itr->second);
+        else if (auto itr = option_map.find(cmd); itr != option_map.end())
             op_type_list_t::apply(exec_t{}, itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
     std::string summary(const std::string& cmd) {
-        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+        if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
+            return op_type_list_t::apply(summary_t{}, itr->second);
+        else if (auto itr = option_map.find(cmd); itr != option_map.end())
             return op_type_list_t::apply(summary_t{}, itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
     std::string options(const std::string& cmd) {
-        if (auto itr = cmdmap.find(cmd); itr != cmdmap.end())
+        if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
+            return op_type_list_t::apply(options_t{}, itr->second);
+        else if (auto itr = option_map.find(cmd); itr != option_map.end())
             return op_type_list_t::apply(options_t{}, itr->second);
         else
             throw std::invalid_argument("invalid argument");
