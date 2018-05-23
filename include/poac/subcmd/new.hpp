@@ -24,7 +24,7 @@ namespace poac::subcmd { struct new_ {
     void operator()() { _main(); }
     void _main() {
         namespace fs = boost::filesystem;
-        // Check if the ARGMENT directory exists.
+        // Check if the ARGUMENT directory exists.
         if (const fs::path dir(fs::path(".") / fs::path("deps")); fs::is_directory(dir) && fs::exists(dir)) {
             poac::console::color::red();
             std::cerr << "hogeee" << std::endl;
