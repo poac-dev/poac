@@ -16,8 +16,8 @@ namespace poac::ftemplate {
         "#include \"hello_world.hpp\"\n"
         "\n"
         "int main() {\n"
-        "▸   constexpr auto a = hello_world::hello<HWLEN>::world;\n"
-        "▸   std::for_each(a.begin(), a.end(), [](char n) { std::cout << n; });\n"
+        "    constexpr auto a = hello_world::hello<HWLEN>::world;\n"
+        "    std::for_each(a.begin(), a.end(), [](char n) { std::cout << n; });\n"
         "}\n"
     );
     std::string poac_lock(
@@ -46,5 +46,4 @@ namespace poac::ftemplate {
         "# PROJECT_NAME\n"
     );
 } // end namespace
-
 #endif // !POAC_FTEMPLATE_HPP
