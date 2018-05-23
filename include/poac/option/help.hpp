@@ -10,10 +10,10 @@
 #include "../inference.hpp"
 
 
-// forward-declaration
+// Forward-declaration
 namespace poac::inference {
     enum class op_type_e : int;
-    std::string summary_all(const op_type_e& type);
+    std::string _summary(const op_type_e& type);
     extern const std::unordered_map<std::string, op_type_e> subcmd_map;
     extern const std::unordered_map<std::string, op_type_e> option_map;
 }
@@ -38,7 +38,7 @@ namespace poac::option { struct help {
     template <typename T, typename U>
     void _help(const T& key, const U& value) {
         std::cout << "   " << std::setw(9) << std::left << key
-                  << "   " << summary_all(value) << std::endl;
+                  << "   " << _summary(value) << std::endl;
     }
 };} // end namespace
 #endif

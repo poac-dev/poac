@@ -108,10 +108,6 @@ namespace poac::inference {
         std::string operator()() { return T::options(); }
     };
 
-    std::string summary_all(const op_type_e& type) {
-        return op_type_list_t::apply(summary_t{}, type);
-    }
-    
     // TODO: これらを一つにまとめたい
     void exec(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
@@ -121,11 +117,12 @@ namespace poac::inference {
         else
             throw std::invalid_argument("invalid argument");
     }
+    std::string _summary(const op_type_e& type) { return op_type_list_t::apply(summary_t{}, type); }
     std::string summary(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            return op_type_list_t::apply(summary_t{}, itr->second);
+            return _summary(itr->second);
         else if (auto itr = option_map.find(cmd); itr != option_map.end())
-            return op_type_list_t::apply(summary_t{}, itr->second);
+            return _summary(itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
