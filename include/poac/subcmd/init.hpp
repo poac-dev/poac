@@ -16,8 +16,8 @@ namespace poac::subcmd { struct init {
     static const std::string summary() { return "Create the poac.yml."; }
     static const std::string options() { return "<Nothing>"; }
 
-    void operator()() { _init(); }
-    void _init() {
+    void operator()() { _main(); }
+    void _main() {
         boost::filesystem::path filename("poac.yml");
         if (yml_exists(filename)) {
             std::cerr << "\033[33mcanceled\033[0m" << std::endl;
