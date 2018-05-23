@@ -18,6 +18,12 @@ namespace poac::console {
         static void blue() {
             std::cout << "\x1b[34m";
         }
+        static void bold() {
+            std::cout << "\x1b[1m";
+        }
+        static void underline() {
+            std::cout << "\x1b[4m";
+        }
         static void reset() {
             std::cout << "\x1b[0m";
         }

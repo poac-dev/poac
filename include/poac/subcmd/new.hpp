@@ -22,7 +22,6 @@ namespace poac::subcmd { struct new_ {
     static const std::string options() { return "<project-name>"; }
 
     void operator()() { _main(); }
-
     void _main() {
         namespace fs = boost::filesystem;
         // Check if the ARGMENT directory exists.
@@ -50,18 +49,20 @@ namespace poac::subcmd { struct new_ {
             echo_result("deps");
         }
     }
-    void echo_result(std::string_view str) {
-        // echo
-        // echo "Your \"$1\" project was created successfully."
-        // echo
-        // echo
-        // echo "Go into your project by running:"
-        // echo "    $ cd $1"
-        // echo
-        // echo "Start your project with:"
-        // echo "    $ poac install hello_world"
-        // echo "    $ poac run main.cpp"
-        // echo
+    void echo_result(const std::string& str) {
+        poac::console::color::bold();
+        std::cout << "\n"
+                     "Your \""+str+"\" project was created successfully.\n"
+                     "\n"
+                     "\n"
+                     "Go into your project by running:\n"
+                     "    $ cd "+str+"\n"
+                     "\n"
+                     "Start your project with:\n"
+                     "    $ poac install hello_world\n"
+                     "    $ poac run main.cpp\n"
+                     "\n";
+        poac::console::color::reset();
     }
 };} // end namespace
 #endif
