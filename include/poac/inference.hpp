@@ -85,12 +85,12 @@ namespace poac::inference {
         root    = op_type_list_t::index_of<poac::subcmd::root>,
         new_    = op_type_list_t::index_of<poac::subcmd::new_>
     };
-    static const std::unordered_map<std::string, op_type_e> subcmd_map {
+    const std::unordered_map<std::string, op_type_e> subcmd_map {
             { "init", op_type_e::init },
             { "root", op_type_e::root },
             { "new", op_type_e::new_ }
     };
-    static const std::unordered_map<std::string, op_type_e> option_map {
+    const std::unordered_map<std::string, op_type_e> option_map {
             { "--help", op_type_e::help },
             { "--version", op_type_e::version }
     };
@@ -108,32 +108,13 @@ namespace poac::inference {
         std::string operator()() { return T::options(); }
     };
 
-    template <typename T, typename U>
-    void _help(const T& key, const U& value) {
-        std::cout << "   "
-                  << std::setw(9)
-                  << std::left
-                  << key
-                  << "   "
-                  << op_type_list_t::apply(summary_t{}, value)
-                  << std::endl;
+    std::string summary_all(const op_type_e& type) {
+        return op_type_list_t::apply(summary_t{}, type);
     }
-    static void help() { // summary_all
-        std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
-        std::cout << "Available subcommands:" << std::endl;
-        for (const auto& [name, value] : subcmd_map)
-            _help(name, value);
-        std::cout << "Available options:" << std::endl;
-        for (const auto& [name, value] : option_map)
-            _help(name, value);
-        std::cout << std::endl
-                  << "See `poac <command> --help` for information on a specific command.\n"
-                     "For full documentation, see: https://github.com/poacpm/poac#readme\n";
-    }
+    
+    // TODO: これらを一つにまとめたい
     void exec(const std::string& cmd) {
-        if (cmd == "--help" || cmd == "-h")
-            help();
-        else if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
+        if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             op_type_list_t::apply(exec_t{}, itr->second);
         else if (auto itr = option_map.find(cmd); itr != option_map.end())
             op_type_list_t::apply(exec_t{}, itr->second);
