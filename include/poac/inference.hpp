@@ -51,10 +51,8 @@ namespace poac::inference {
     template <typename... Ts>
     struct type_list_t {
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
-        // T が最初に現れる位置
         template <typename T>
         static constexpr int index_of = static_cast<int>(index_of_impl<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>::value);
-        // I 番目の型
         template <int I>
         using at_t = typename at_impl<I, Ts...>::type;
 
@@ -62,6 +60,7 @@ namespace poac::inference {
         // Execute function: &func<idx>[idx]()
         template <size_t... Is>
         static auto execute2(std::index_sequence<Is...>, int idx) {
+            // Return ""(empty string) because match the type to the other two functions
             return make_array({ +[]{ using T = at_t<Is>; return (T()(), ""); }... })[idx]();
         }
         template <size_t... Is>
@@ -79,8 +78,10 @@ namespace poac::inference {
                 return execute2(Indices(), static_cast<int>(idx));
             else if (s == "summary")
                 return summary2(Indices(), static_cast<int>(idx));
-            else
+            else if (s == "options")
                 return options2(Indices(), static_cast<int>(idx));
+            else
+                throw std::invalid_argument("invalid argument");
         }
     };
 
@@ -110,35 +111,14 @@ namespace poac::inference {
             { "-v", op_type_e::version }
     };
 
-
-    // TODO: これらを一つにまとめたい．文字列から推論してほしい???
-//    std::string _exec(const op_type_e& type) { return op_type_list_t::execute1(type); }
-    std::string _exec(const op_type_e& type) { return op_type_list_t::apply("exec", type); }
-    void exec(const std::string& cmd) {
-        if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            _exec(itr->second);
-        else if (auto itr = option_map.find(cmd); itr != option_map.end())
-            _exec(itr->second);
-        else
-            throw std::invalid_argument("invalid argument");
+    std::string _apply(std::string&& func, const op_type_e& type) {
+        return op_type_list_t::apply(std::move(func), type);
     }
-//    std::string _summary(const op_type_e& type) { return op_type_list_t::summary1(type); }
-    std::string _summary(const op_type_e& type) { return op_type_list_t::apply("summary", type); }
-    std::string summary(const std::string& cmd) {
+    std::string apply(std::string&& func, const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            return _summary(itr->second);
+            return _apply(std::move(func), itr->second);
         else if (auto itr = option_map.find(cmd); itr != option_map.end())
-            return _summary(itr->second);
-        else
-            throw std::invalid_argument("invalid argument");
-    }
-//    std::string _options(const op_type_e& type) { return op_type_list_t::options1(type); }
-    std::string _options(const op_type_e& type) { return op_type_list_t::apply("options", type); }
-    std::string options(const std::string& cmd) {
-        if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            return _options(itr->second);
-        else if (auto itr = option_map.find(cmd); itr != option_map.end())
-            return _options(itr->second);
+            return _apply(std::move(func), itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
