@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <functional>
+#include <type_traits>
 
 #include "option.hpp"
 #include "subcmd.hpp"
@@ -20,16 +21,22 @@ namespace poac::inference {
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
     // C++20, std::remove_cvref_t<T>
 
-    // T0,...,Ts の中で T が出現する最初の位置 -> size_t
-    template <size_t I, typename T, typename T0, typename... Ts>
-    struct index_of_impl {
-        static const size_t value = std::is_same_v<T, T0> ? I : index_of_impl<I+1, T, Ts...>::value;
-    };
-    // T0,...,Ts の中で T が出現する最初の位置
-    template <size_t I, typename T, typename T0>
-    struct index_of_impl<I, T, T0> {
-        static const size_t value = std::is_same_v<T, T0> ? I : static_cast<size_t>(-1);
-    };
+    // std::conditional for non-type template
+    template <auto Value>
+    struct value_holder { static constexpr auto value = Value; };
+    template <bool B, auto T, auto F>
+    using non_type_conditional = std::conditional<B, value_holder<T>, value_holder<F>>;
+    template <bool B, auto T, auto F>
+    using non_type_conditional_t = std::conditional_t<B, value_holder<T>, value_holder<F>>;
+    template <bool B, auto T, auto F>
+    static constexpr auto non_type_conditional_v = non_type_conditional_t<B, T, F>::value;
+
+    // Index of T
+    // variable template partial specialization
+    template <int I, typename T, typename T0, typename... Ts>
+    static constexpr int index_of_v = non_type_conditional_v<std::is_same_v<T, T0>, I, index_of_v<I+1, T, Ts...>>;
+    template <int I, typename T, typename T0>
+    static constexpr int index_of_v<I, T, T0> = non_type_conditional_v<std::is_same_v<T, T0>, I, -1>;
 
     // T0,...,Ts の中で I 番目の型 -> type
     template <size_t I, typename T0, typename... Ts>
@@ -50,7 +57,7 @@ namespace poac::inference {
     struct type_list_t {
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
         template <typename T>
-        static constexpr int index_of = static_cast<int>(index_of_impl<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>::value);
+        static constexpr int index_of = index_of_v<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>;
         template <int I>
         using at_t = typename at_impl<I, Ts...>::type;
     };
@@ -80,7 +87,6 @@ namespace poac::inference {
             { "--version", op_type_e::version },
             { "-v", op_type_e::version }
     };
-
 
     // Create function pointer table: { &func<0>, &func<1>, ... }
     // Execute function: &func<idx>[idx]()
