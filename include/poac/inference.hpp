@@ -29,6 +29,7 @@ namespace poac::inference {
     struct index_of_impl<I, T, T0> {
         static const size_t value = std::is_same_v<T, T0> ? I : static_cast<size_t>(-1);
     };
+
     // T0,...,Ts の中で I 番目の型 -> type
     template <size_t I, typename T0, typename... Ts>
     struct at_impl {
@@ -39,6 +40,11 @@ namespace poac::inference {
     struct at_impl<I, T0> {
         using type = std::conditional_t<I==0, T0, void>;
     };
+
+    template <typename T>
+    static constexpr std::vector<T> make_array( std::initializer_list<T>&& l ) { return l; }
+
+    // TODO: こういった大きなクラスに依存しない設計にしたい．
     // 型のリスト
     template <typename... Ts>
     struct type_list_t {
@@ -50,27 +56,23 @@ namespace poac::inference {
         // I 番目の型
         template <int I>
         using at_t = typename at_impl<I, Ts...>::type;
-        // idx 番目の型 T について, f.operator()<T>() を実行する
-        template <typename F, typename Index>
-        static auto apply(F&& f, Index idx) -> decltype(auto) {
-            using R = decltype(f.template operator()<at_t<0>>());  // 戻り値の型
-            static std::make_index_sequence<size()> seq;  // 整数シーケンス
-            return apply<R>(seq, std::forward<F>(f), static_cast<int>(idx));
-        }
-    private:
-        // idx 番目の型 T について, f.operator()<T>() を実行する
-        template <typename R, typename F, size_t... Is>
-        static R apply(std::index_sequence<Is...>, F&& f, int idx) {
-            using func_t = decltype(&apply<R, F, at_t<0>>);  // 関数ポインタの型
-            // 関数ポインタテーブルを生成
-            // idx 番目の関数ポインタは apply<R, F, at_t<idx>> である
-            static func_t func_table[] = { &apply<R, F, at_t<Is>>... };
-            return func_table[idx](std::forward<F>(f));
-        }
+
         // 型 T について, f.operator()<T>() を実行する
-        template <typename R, typename F, typename T>
-        static R apply(F&& f) { return f.template operator()<T>(); }
+        template <typename F, typename T>
+        static auto exec(F&& f) { return f.template operator()<T>(); }
+        // Create function pointer table: { &func<0>, &func<1>, ... }
+        // Execute function: &func<idx>[idx]()
+        template <typename F, size_t... Is>
+        static auto _apply(F&& f, std::index_sequence<Is...>, int idx) {
+            return make_array({ &exec<F, at_t<Is>>... })[idx](std::forward<F>(f));
+        }
+        // idx 番目の型 T について, f.operator()<T>() を実行する
+        template <typename F, typename Index, typename Indices=std::make_index_sequence<size()>>
+        static auto apply(F&& f, Index idx) {
+            return _apply(std::forward<F>(f), Indices(), static_cast<int>(idx));
+        }
     };
+
     using op_type_list_t = type_list_t<
             poac::option::help,
             poac::option::version,
@@ -92,9 +94,13 @@ namespace poac::inference {
     };
     const std::unordered_map<std::string, op_type_e> option_map {
             { "--help", op_type_e::help },
-            { "--version", op_type_e::version }
+            { "-h", op_type_e::help },
+            { "--version", op_type_e::version },
+            { "-v", op_type_e::version }
     };
-    // TODO: struct作るのではなく，applyをそれぞれ作る方が良い？？？一つに纏めたい．
+
+
+    // TODO: これらを一つにまとめたい．文字列から推論してほしい???
     struct exec_t {
         template <typename T>
         void operator()() { T()(); }
@@ -107,7 +113,6 @@ namespace poac::inference {
         template <typename T>
         std::string operator()() { return T::options(); }
     };
-
     // TODO: これらを一つにまとめたい
     void exec(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
