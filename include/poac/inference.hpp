@@ -46,8 +46,6 @@ namespace poac::inference {
     template <typename T>
     static constexpr std::vector<T> make_array( std::initializer_list<T>&& l ) { return l; }
 
-
-    // TODO: こういった大きなクラスに依存しない設計にしたい．
     template <typename... Ts>
     struct type_list_t {
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
@@ -55,34 +53,6 @@ namespace poac::inference {
         static constexpr int index_of = static_cast<int>(index_of_impl<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>::value);
         template <int I>
         using at_t = typename at_impl<I, Ts...>::type;
-
-        // Create function pointer table: { &func<0>, &func<1>, ... }
-        // Execute function: &func<idx>[idx]()
-        template <size_t... Is>
-        static auto execute(std::index_sequence<Is...>, int idx) {
-            // Return ""(empty string) because match the type to the other two functions.
-            return make_array({ +[]{ using T = at_t<Is>; return (T()(), ""); }... })[idx]();
-        }
-        template <size_t... Is>
-        static auto summary(std::index_sequence<Is...>, int idx) {
-            return make_array({ +[]{ using T = at_t<Is>; return T::summary(); }... })[idx]();
-        }
-        template <size_t... Is>
-        static auto options(std::index_sequence<Is...>, int idx) {
-            return make_array({ +[]{ using T = at_t<Is>; return T::options(); }... })[idx]();
-        }
-        // Execute function: func2()
-        template <typename S, typename Index, typename Indices=std::make_index_sequence<size()>>
-        static auto apply(S&& s, Index idx) -> decltype(summary(Indices(), static_cast<int>(idx))) {
-            if (s == "exec")
-                return execute(Indices(), static_cast<int>(idx));
-            else if (s == "summary")
-                return summary(Indices(), static_cast<int>(idx));
-            else if (s == "options")
-                return options(Indices(), static_cast<int>(idx));
-            else
-                throw std::invalid_argument("invalid argument");
-        }
     };
 
     using op_type_list_t = type_list_t<
@@ -111,8 +81,37 @@ namespace poac::inference {
             { "-v", op_type_e::version }
     };
 
+
+    // Create function pointer table: { &func<0>, &func<1>, ... }
+    // Execute function: &func<idx>[idx]()
+    template <size_t... Is>
+    static auto execute(std::index_sequence<Is...>, int idx) {
+        // Return ""(empty string) because match the type to the other two functions.
+        return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return (T()(), ""); }... })[idx]();
+    }
+    template <size_t... Is>
+    static auto summary(std::index_sequence<Is...>, int idx) {
+        return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return T::summary(); }... })[idx]();
+    }
+    template <size_t... Is>
+    static auto options(std::index_sequence<Is...>, int idx) {
+        return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return T::options(); }... })[idx]();
+    }
+    // Execute function: func2()
+    template <typename S, typename Index, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
+    static auto hoge(S&& s, Index idx) -> decltype(summary(Indices(), static_cast<int>(idx))) {
+        if (s == "exec")
+            return execute(Indices(), static_cast<int>(idx));
+        else if (s == "summary")
+            return summary(Indices(), static_cast<int>(idx));
+        else if (s == "options")
+            return options(Indices(), static_cast<int>(idx));
+        else
+            throw std::invalid_argument("invalid argument");
+    }
+
     std::string _apply(std::string&& func, const op_type_e& type) {
-        return op_type_list_t::apply(std::move(func), type);
+        return hoge(std::move(func), type);
     }
     std::string apply(std::string&& func, const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
