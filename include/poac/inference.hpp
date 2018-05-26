@@ -59,27 +59,27 @@ namespace poac::inference {
         // Create function pointer table: { &func<0>, &func<1>, ... }
         // Execute function: &func<idx>[idx]()
         template <size_t... Is>
-        static auto execute2(std::index_sequence<Is...>, int idx) {
-            // Return ""(empty string) because match the type to the other two functions
+        static auto execute(std::index_sequence<Is...>, int idx) {
+            // Return ""(empty string) because match the type to the other two functions.
             return make_array({ +[]{ using T = at_t<Is>; return (T()(), ""); }... })[idx]();
         }
         template <size_t... Is>
-        static auto summary2(std::index_sequence<Is...>, int idx) {
+        static auto summary(std::index_sequence<Is...>, int idx) {
             return make_array({ +[]{ using T = at_t<Is>; return T::summary(); }... })[idx]();
         }
         template <size_t... Is>
-        static auto options2(std::index_sequence<Is...>, int idx) {
+        static auto options(std::index_sequence<Is...>, int idx) {
             return make_array({ +[]{ using T = at_t<Is>; return T::options(); }... })[idx]();
         }
         // Execute function: func2()
         template <typename S, typename Index, typename Indices=std::make_index_sequence<size()>>
-        static auto apply(S&& s, Index idx) -> decltype(summary2(Indices(), static_cast<int>(idx))) {
+        static auto apply(S&& s, Index idx) -> decltype(summary(Indices(), static_cast<int>(idx))) {
             if (s == "exec")
-                return execute2(Indices(), static_cast<int>(idx));
+                return execute(Indices(), static_cast<int>(idx));
             else if (s == "summary")
-                return summary2(Indices(), static_cast<int>(idx));
+                return summary(Indices(), static_cast<int>(idx));
             else if (s == "options")
-                return options2(Indices(), static_cast<int>(idx));
+                return options(Indices(), static_cast<int>(idx));
             else
                 throw std::invalid_argument("invalid argument");
         }
