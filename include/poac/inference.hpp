@@ -48,10 +48,8 @@ namespace poac::inference {
 
 
     // TODO: こういった大きなクラスに依存しない設計にしたい．
-    // 型のリスト
     template <typename... Ts>
     struct type_list_t {
-        // 型数
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
         // T が最初に現れる位置
         template <typename T>
@@ -63,8 +61,8 @@ namespace poac::inference {
         // Create function pointer table: { &func<0>, &func<1>, ... }
         // Execute function: &func<idx>[idx]()
         template <size_t... Is>
-        static auto exec2(std::index_sequence<Is...>, int idx) {
-            return make_array({ +[]{ using T = at_t<Is>; return T()(); }... })[idx]();
+        static auto execute2(std::index_sequence<Is...>, int idx) {
+            return make_array({ +[]{ using T = at_t<Is>; return (T()(), ""); }... })[idx]();
         }
         template <size_t... Is>
         static auto summary2(std::index_sequence<Is...>, int idx) {
@@ -75,17 +73,14 @@ namespace poac::inference {
             return make_array({ +[]{ using T = at_t<Is>; return T::options(); }... })[idx]();
         }
         // Execute function: func2()
-        template <typename Index, typename Indices=std::make_index_sequence<size()>>
-        static auto exec1(Index idx) {
-            return exec2(Indices(), static_cast<int>(idx));
-        }
-        template <typename Index, typename Indices=std::make_index_sequence<size()>>
-        static auto summary1(Index idx) {
-            return summary2(Indices(), static_cast<int>(idx));
-        }
-        template <typename Index, typename Indices=std::make_index_sequence<size()>>
-        static auto options1(Index idx) {
-            return options2(Indices(), static_cast<int>(idx));
+        template <typename S, typename Index, typename Indices=std::make_index_sequence<size()>>
+        static auto apply(S&& s, Index idx) -> decltype(summary2(Indices(), static_cast<int>(idx))) {
+            if (s == "exec")
+                return execute2(Indices(), static_cast<int>(idx));
+            else if (s == "summary")
+                return summary2(Indices(), static_cast<int>(idx));
+            else
+                return options2(Indices(), static_cast<int>(idx));
         }
     };
 
@@ -117,7 +112,8 @@ namespace poac::inference {
 
 
     // TODO: これらを一つにまとめたい．文字列から推論してほしい???
-    void _exec(const op_type_e& type) { return op_type_list_t::exec1(type); }
+//    std::string _exec(const op_type_e& type) { return op_type_list_t::execute1(type); }
+    std::string _exec(const op_type_e& type) { return op_type_list_t::apply("exec", type); }
     void exec(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             _exec(itr->second);
@@ -126,7 +122,8 @@ namespace poac::inference {
         else
             throw std::invalid_argument("invalid argument");
     }
-    std::string _summary(const op_type_e& type) { return op_type_list_t::summary1(type); }
+//    std::string _summary(const op_type_e& type) { return op_type_list_t::summary1(type); }
+    std::string _summary(const op_type_e& type) { return op_type_list_t::apply("summary", type); }
     std::string summary(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _summary(itr->second);
@@ -135,7 +132,8 @@ namespace poac::inference {
         else
             throw std::invalid_argument("invalid argument");
     }
-    std::string _options(const op_type_e& type) { return op_type_list_t::options1(type); }
+//    std::string _options(const op_type_e& type) { return op_type_list_t::options1(type); }
+    std::string _options(const op_type_e& type) { return op_type_list_t::apply("options", type); }
     std::string options(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _options(itr->second);
