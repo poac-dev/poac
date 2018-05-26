@@ -14,7 +14,8 @@
 
 
 namespace poac::inference {
-    // T から const/volatile/reference を除いた型
+    // The type referred by T or T itself if it is not a reference,
+    //  with top-level cv-qualifiers removed.
     template <typename T>
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
     // C++20, std::remove_cvref_t<T>
@@ -41,8 +42,10 @@ namespace poac::inference {
         using type = std::conditional_t<I==0, T0, void>;
     };
 
+    // std::initializer_list -> std::vector
     template <typename T>
     static constexpr std::vector<T> make_array( std::initializer_list<T>&& l ) { return l; }
+
 
     // TODO: こういった大きなクラスに依存しない設計にしたい．
     // 型のリスト
@@ -57,19 +60,32 @@ namespace poac::inference {
         template <int I>
         using at_t = typename at_impl<I, Ts...>::type;
 
-        // 型 T について, f.operator()<T>() を実行する
-        template <typename F, typename T>
-        static auto exec(F&& f) { return f.template operator()<T>(); }
         // Create function pointer table: { &func<0>, &func<1>, ... }
         // Execute function: &func<idx>[idx]()
-        template <typename F, size_t... Is>
-        static auto _apply(F&& f, std::index_sequence<Is...>, int idx) {
-            return make_array({ &exec<F, at_t<Is>>... })[idx](std::forward<F>(f));
+        template <size_t... Is>
+        static auto exec2(std::index_sequence<Is...>, int idx) {
+            return make_array({ +[]{ using T = at_t<Is>; return T()(); }... })[idx]();
         }
-        // idx 番目の型 T について, f.operator()<T>() を実行する
-        template <typename F, typename Index, typename Indices=std::make_index_sequence<size()>>
-        static auto apply(F&& f, Index idx) {
-            return _apply(std::forward<F>(f), Indices(), static_cast<int>(idx));
+        template <size_t... Is>
+        static auto summary2(std::index_sequence<Is...>, int idx) {
+            return make_array({ +[]{ using T = at_t<Is>; return T::summary(); }... })[idx]();
+        }
+        template <size_t... Is>
+        static auto options2(std::index_sequence<Is...>, int idx) {
+            return make_array({ +[]{ using T = at_t<Is>; return T::options(); }... })[idx]();
+        }
+        // Execute function: func2()
+        template <typename Index, typename Indices=std::make_index_sequence<size()>>
+        static auto exec1(Index idx) {
+            return exec2(Indices(), static_cast<int>(idx));
+        }
+        template <typename Index, typename Indices=std::make_index_sequence<size()>>
+        static auto summary1(Index idx) {
+            return summary2(Indices(), static_cast<int>(idx));
+        }
+        template <typename Index, typename Indices=std::make_index_sequence<size()>>
+        static auto options1(Index idx) {
+            return options2(Indices(), static_cast<int>(idx));
         }
     };
 
@@ -101,28 +117,16 @@ namespace poac::inference {
 
 
     // TODO: これらを一つにまとめたい．文字列から推論してほしい???
-    struct exec_t {
-        template <typename T>
-        void operator()() { T()(); }
-    };
-    struct summary_t {
-        template <typename T>
-        std::string operator()() { return T::summary(); }
-    };
-    struct options_t {
-        template <typename T>
-        std::string operator()() { return T::options(); }
-    };
-    // TODO: これらを一つにまとめたい
+    void _exec(const op_type_e& type) { return op_type_list_t::exec1(type); }
     void exec(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            op_type_list_t::apply(exec_t{}, itr->second);
+            _exec(itr->second);
         else if (auto itr = option_map.find(cmd); itr != option_map.end())
-            op_type_list_t::apply(exec_t{}, itr->second);
+            _exec(itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
-    std::string _summary(const op_type_e& type) { return op_type_list_t::apply(summary_t{}, type); }
+    std::string _summary(const op_type_e& type) { return op_type_list_t::summary1(type); }
     std::string summary(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _summary(itr->second);
@@ -131,11 +135,12 @@ namespace poac::inference {
         else
             throw std::invalid_argument("invalid argument");
     }
+    std::string _options(const op_type_e& type) { return op_type_list_t::options1(type); }
     std::string options(const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            return op_type_list_t::apply(options_t{}, itr->second);
+            return _options(itr->second);
         else if (auto itr = option_map.find(cmd); itr != option_map.end())
-            return op_type_list_t::apply(options_t{}, itr->second);
+            return _options(itr->second);
         else
             throw std::invalid_argument("invalid argument");
     }
