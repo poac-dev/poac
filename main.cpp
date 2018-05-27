@@ -32,6 +32,6 @@ int exec(VS&& vs) {
 }
 
 int main(int argc, const char** argv) {
-    if (argc > 1) { return exec(argv[1]); }
+    if (argc > 1) { return exec(std::move(argv[1])); }
     else { exec("--help"); return EXIT_FAILURE; }
 } // std::vector<std::string>(argv+1, argv+argc)
