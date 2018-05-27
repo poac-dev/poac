@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <functional>
 #include <type_traits>
+#include <algorithm>
 
 #include <boost/predef.h>
 
@@ -96,19 +97,23 @@ namespace poac::inference {
     static auto summary2() { return T::summary(); }
     template <typename T>
     static auto options2() { return T::options(); }
-    // Create function pointer table: { &func<0>, &func<1>, ... }
-    // Execute function: &func<idx>[idx]()
     template <size_t... Is>
     static auto execute(std::index_sequence<Is...>, int idx) {
-        return make_array({ &execute2<op_type_list_t::at_t<Is>>... })[idx]();
+        using func_t = decltype(&execute2<op_type_list_t::at_t<0>>);
+        static func_t func_table[] = { &execute2<op_type_list_t::at_t<Is>>... };
+        return func_table[idx]();
     }
     template <size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
-        return make_array({ &summary2<op_type_list_t::at_t<Is>>... })[idx]();
+        using func_t = decltype(&summary2<op_type_list_t::at_t<0>>);
+        static func_t func_table[] = { &summary2<op_type_list_t::at_t<Is>>... };
+        return func_table[idx]();
     }
     template <size_t... Is>
     static auto options(std::index_sequence<Is...>, int idx) {
-        return make_array({ &options2<op_type_list_t::at_t<Is>>... })[idx]();
+        using func_t = decltype(&options2<op_type_list_t::at_t<0>>);
+        static func_t func_table[] = { &options2<op_type_list_t::at_t<Is>>... };
+        return func_table[idx]();
     }
 #else
     // Create function pointer table: { &func<0>, &func<1>, ... }
