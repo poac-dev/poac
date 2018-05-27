@@ -20,6 +20,12 @@ int exec(VS&& vs) {
         exec("--help");
         return EXIT_FAILURE;
     }
+    catch (...) {
+        poac::console::color::red();
+        std::cerr << "Error: " << "unexpected error" << std::endl << std::endl;
+        poac::console::color::reset();
+        return EXIT_FAILURE;
+    }
 }
 
 int main(int argc, const char** argv) {
