@@ -7,6 +7,12 @@
 #include "include/poac.hpp"
 
 
+void error_handling(std::string&& s) {
+    poac::console::color::red();
+    std::cerr << "Error: " << s << std::endl << std::endl;
+    poac::console::color::reset();
+}
+
 template <typename VS>
 int exec(VS&& vs) {
     try { // argv[0]: poac, argv[1]: new, ...
@@ -14,16 +20,13 @@ int exec(VS&& vs) {
         return EXIT_SUCCESS;
     }
     catch (const std::invalid_argument& e) {
-        poac::console::color::red();
-        std::cerr << "Error: " << e.what() << std::endl << std::endl;
-        poac::console::color::reset();
+        error_handling(std::move(e.what()));
         exec("--help");
         return EXIT_FAILURE;
     }
     catch (...) {
-        poac::console::color::red();
-        std::cerr << "Error: " << "unexpected error" << std::endl << std::endl;
-        poac::console::color::reset();
+        error_handling("unexpected error");
+        exec("--help");
         return EXIT_FAILURE;
     }
 }
