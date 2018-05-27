@@ -6,6 +6,7 @@
 #define POAC_OPTION_HELP_HPP
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include "../inference.hpp"
 

@@ -3,13 +3,10 @@
 #define POAC_INFERENCE_HPP
 
 #include <iostream>
-#include <iomanip>
 #include <string>
 #include <stdexcept>
 #include <unordered_map>
-#include <functional>
 #include <type_traits>
-#include <algorithm>
 
 #include <boost/predef.h>
 
