@@ -13,7 +13,7 @@ int exec(VS&& vs) {
         poac::inference::apply("exec", vs);
         return EXIT_SUCCESS;
     }
-    catch (const std::invalid_argument &e) {
+    catch (const std::invalid_argument& e) {
         poac::console::color::red();
         std::cerr << "Error: " << e.what() << std::endl << std::endl;
         poac::console::color::reset();
@@ -22,7 +22,7 @@ int exec(VS&& vs) {
     }
 }
 
-int main([[maybe_unused]] int argc, const char** argv) {
+int main(int argc, const char** argv) {
     if (argc > 1) { return exec(argv[1]); }
     else { exec("--help"); return EXIT_FAILURE; }
 } // std::vector<std::string>(argv+1, argv+argc)
