@@ -10,6 +10,8 @@
 #include <functional>
 #include <type_traits>
 
+#include <boost/predef.h>
+
 #include "option.hpp"
 #include "subcmd.hpp"
 
@@ -86,6 +88,29 @@ namespace poac::inference {
             { "-v", op_type_e::version }
     };
 
+// GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
+#if BOOST_COMP_GNUC
+    template <typename T>
+    static auto execute2() { return (T()(), ""); }
+    template <typename T>
+    static auto summary2() { return T::summary(); }
+    template <typename T>
+    static auto options2() { return T::options(); }
+    // Create function pointer table: { &func<0>, &func<1>, ... }
+    // Execute function: &func<idx>[idx]()
+    template <size_t... Is>
+    static auto execute(std::index_sequence<Is...>, int idx) {
+        return make_array({ &execute2<op_type_list_t::at_t<Is>>... })[idx]();
+    }
+    template <size_t... Is>
+    static auto summary(std::index_sequence<Is...>, int idx) {
+        return make_array({ &summary2<op_type_list_t::at_t<Is>>... })[idx]();
+    }
+    template <size_t... Is>
+    static auto options(std::index_sequence<Is...>, int idx) {
+        return make_array({ &options2<op_type_list_t::at_t<Is>>... })[idx]();
+    }
+#else
     // Create function pointer table: { &func<0>, &func<1>, ... }
     // Execute function: &func<idx>[idx]()
     template <size_t... Is>
@@ -101,6 +126,8 @@ namespace poac::inference {
     static auto options(std::index_sequence<Is...>, int idx) {
         return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return T::options(); }... })[idx]();
     }
+#endif
+
     // Execute function: func2()
     template <typename S, typename Index, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
     static auto branch(S&& s, Index idx) -> decltype(summary(Indices(), static_cast<int>(idx))) {
