@@ -7,16 +7,22 @@
 #include "include/poac.hpp"
 
 
-int main([[maybe_unused]] int argc, const char** argv) {
-//    if (argc > 1) poac::inference::exec(argv[1]);
-    try {
-//        poac::inference::exec(argv[1]); // std::vector<std::string>(argv+1, argv+argc)
-        poac::inference::apply("exec", argv[1]);
+template <typename VS>
+int exec(VS&& vs) {
+    try { // argv[0]: poac, argv[1]: new, ...
+        poac::inference::apply("exec", vs);
+        return EXIT_SUCCESS;
     }
-    catch (const std::invalid_argument& e) {
-        std::cerr << e.what();
+    catch (const std::invalid_argument &e) {
+        poac::console::color::red();
+        std::cerr << "Error: " << e.what() << std::endl << std::endl;
+        poac::console::color::reset();
+        exec("--help");
         return EXIT_FAILURE;
     }
-//    else          poac::option::help(std::vector<std::string>(argv+1, argv+argc));
-    return EXIT_SUCCESS;
 }
+
+int main([[maybe_unused]] int argc, const char** argv) {
+    if (argc > 1) { return exec(argv[1]); }
+    else { exec("--help"); return EXIT_FAILURE; }
+} // std::vector<std::string>(argv+1, argv+argc)

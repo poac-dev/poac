@@ -114,7 +114,7 @@ namespace poac::inference {
             throw std::invalid_argument("invalid argument");
     }
 
-    std::string _apply(std::string&& func, const op_type_e& type) {
+    auto _apply(std::string&& func, const op_type_e& type) {
         return branch(std::move(func), type);
     }
     std::string apply(std::string&& func, const std::string& cmd) {

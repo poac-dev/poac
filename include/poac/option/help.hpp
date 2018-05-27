@@ -13,7 +13,7 @@
 // Forward-declaration
 namespace poac::inference {
     enum class op_type_e : int;
-    std::string _apply(const std::string&& func, const op_type_e& type);
+    auto _apply(const std::string&& func, const op_type_e& type);
     extern const std::unordered_map<std::string, op_type_e> subcmd_map;
     extern const std::unordered_map<std::string, op_type_e> option_map;
 }
