@@ -118,15 +118,15 @@ namespace poac::inference {
     template <size_t... Is>
     static auto execute(std::index_sequence<Is...>, int idx) {
         // Return ""(empty string) because match the type to the other two functions.
-        return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return (T()(), ""); }... })[idx]();
+        return make_array({ +[]{ return (op_type_list_t::at_t<Is>()(), ""); }... })[idx]();
     }
     template <size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
-        return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return T::summary(); }... })[idx]();
+        return make_array({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
     }
     template <size_t... Is>
     static auto options(std::index_sequence<Is...>, int idx) {
-        return make_array({ +[]{ using T = op_type_list_t::at_t<Is>; return T::options(); }... })[idx]();
+        return make_array({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
     }
 #endif
 
