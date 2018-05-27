@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run: cmake .
       - run: make
-      - run: make test
+      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
       - run: ./poac --help
   gcc_8:
     docker:
@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run: cmake .
       - run: make
-      - run: make test
+      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
       - run: ./poac --help
 
 workflows:
