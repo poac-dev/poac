@@ -17,9 +17,9 @@
 namespace poac::inference {
     // The type referred by T or T itself if it is not a reference,
     //  with top-level cv-qualifiers removed.
+    // C++20, std::remove_cvref_t<T>
     template <typename T>
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
-    // C++20, std::remove_cvref_t<T>
 
     // std::conditional for non-type template
     template <auto Value>
@@ -38,28 +38,26 @@ namespace poac::inference {
     template <int I, typename T, typename T0>
     static constexpr int index_of_v<I, T, T0> = non_type_conditional_v<std::is_same_v<T, T0>, I, -1>;
 
-    // T0,...,Ts の中で I 番目の型 -> type
+    // type in the index of I
     template <size_t I, typename T0, typename... Ts>
-    struct at_impl {
-        using type = std::conditional_t<I==0, T0, typename at_impl<I-1, Ts...>::type>;
-    };
-    // T0,...,Ts の中で I 番目の型
+    struct at_impl { using type = std::conditional_t<I==0, T0, typename at_impl<I-1, Ts...>::type>; };
     template <size_t I, typename T0>
-    struct at_impl<I, T0> {
-        using type = std::conditional_t<I==0, T0, void>;
-    };
+    struct at_impl<I, T0> { using type = std::conditional_t<I==0, T0, void>; };
+    template <size_t I, typename... Ts>
+    using at_impl_t = typename at_impl<I, Ts...>::type;
 
     // std::initializer_list -> std::vector
     template <typename T>
     static constexpr std::vector<T> make_array( std::initializer_list<T>&& l ) { return l; }
 
+    // type list
     template <typename... Ts>
     struct type_list_t {
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
         template <typename T>
         static constexpr int index_of = index_of_v<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>;
         template <int I>
-        using at_t = typename at_impl<I, Ts...>::type;
+        using at_t = at_impl_t<I, Ts...>;
     };
 
     using op_type_list_t = type_list_t<
@@ -105,7 +103,7 @@ namespace poac::inference {
     }
     // Execute function: func2()
     template <typename S, typename Index, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
-    static auto hoge(S&& s, Index idx) -> decltype(summary(Indices(), static_cast<int>(idx))) {
+    static auto branch(S&& s, Index idx) -> decltype(summary(Indices(), static_cast<int>(idx))) {
         if (s == "exec")
             return execute(Indices(), static_cast<int>(idx));
         else if (s == "summary")
@@ -117,7 +115,7 @@ namespace poac::inference {
     }
 
     std::string _apply(std::string&& func, const op_type_e& type) {
-        return hoge(std::move(func), type);
+        return branch(std::move(func), type);
     }
     std::string apply(std::string&& func, const std::string& cmd) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
