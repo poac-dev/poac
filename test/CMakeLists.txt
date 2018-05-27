@@ -9,6 +9,3 @@ target_link_libraries(unittest
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
         )
-add_test(NAME poac_test
-         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-         COMMAND unittest)
