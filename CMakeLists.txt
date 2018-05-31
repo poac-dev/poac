@@ -24,9 +24,8 @@ else()
     message(WARNING "The Boost was not found.")
 endif ()
 
-file(GLOB_RECURSE SOURCES include/*)
-add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+# src
+add_subdirectory(src)
 
 # Test
 add_subdirectory(test)
@@ -35,4 +34,3 @@ add_test(NAME poac_test
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         COMMAND unittest)
 
-install(TARGETS poac DESTINATION bin)

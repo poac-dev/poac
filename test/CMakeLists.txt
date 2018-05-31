@@ -1,6 +1,5 @@
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-include_directories(${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIR})
-
+include_directories(${CMAKE_SOURCE_DIR}/src/include ${Boost_INCLUDE_DIR})
 file(GLOB_RECURSE TEST_SOURCES ${CMAKE_SOURCE_DIR}/test/*.cpp)
 
 add_executable(unittest ${TEST_SOURCES})

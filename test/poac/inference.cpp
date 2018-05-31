@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <vector>
 #include <string>
-#include "../../include/poac/inference.hpp"
+#include "../../src/include/poac/inference.hpp"
 
 
 BOOST_AUTO_TEST_CASE( test1 )
