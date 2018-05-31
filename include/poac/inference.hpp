@@ -96,7 +96,7 @@ namespace poac::inference {
     static auto options2() { return T::options(); }
     template <size_t... Is, typename VS>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
-        using func_t = decltype(&execute2<op_type_list_t::at_t<0>>);
+        using func_t = decltype(&execute2<op_type_list_t::at_t<0>, VS>);
         static func_t func_table[] = { &execute2<op_type_list_t::at_t<Is>>... };
         return func_table[idx](vs);
     }
