@@ -140,7 +140,7 @@ namespace poac::inference {
         else if (s == "options")
             return options(Indices(), static_cast<int>(idx));
         else
-            throw std::invalid_argument("invalid argument");
+            throw std::invalid_argument("Invalid argument");
     }
 
     auto _apply(std::string&& func, const op_type_e& type) {
@@ -152,7 +152,7 @@ namespace poac::inference {
         else if (auto itr = option_map.find(cmd); itr != option_map.end())
             return _apply(std::move(func), itr->second);
         else
-            throw std::invalid_argument("invalid argument");
+            throw std::invalid_argument("Invalid argument");
     }
 }
 #endif

@@ -29,6 +29,7 @@ namespace poac::subcmd { struct new_ {
             poac::console::color::red();
             std::cerr << "hogeee" << std::endl;
             poac::console::color::reset();
+            throw std::invalid_argument("Invalid argument"); // TODO: helpまで出力されてしまう. e.whatの内容で分岐？？？
         }
         else {
             fs::create_directory(dir);
