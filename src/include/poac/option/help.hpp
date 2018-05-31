@@ -7,6 +7,7 @@
 #include <string>
 
 #include "../inference.hpp"
+#include "../console.hpp"
 
 
 // Forward-declaration
@@ -41,20 +42,33 @@ namespace poac::option { struct help {
     }
     void exec_help() {
         std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
+
+        poac::console::color::bold();
         std::cout << "Available subcommands:" << std::endl;
+        poac::console::color::reset();
         for (const auto& [name, value] : poac::inference::subcmd_map)
             _help(name, value);
+
+        poac::console::color::bold();
         std::cout << "Available options:" << std::endl;
+        poac::console::color::reset();
         for (const auto& [name, value] : poac::inference::option_map)
             _help(name, value);
+
         std::cout << std::endl
                   << "See `poac <command> --help` for information on a specific command.\n"
                      "For full documentation, see: https://github.com/poacpm/poac#readme\n";
     }
     template <typename T, typename U>
     void _help(const T& key, const U& value) {
-        std::cout << "   " << std::setw(9) << std::left << key
-                  << "   " << _apply("summary", value, std::vector<std::string>()) << std::endl;
+        poac::console::color::blue();
+        poac::console::color::bold();
+        std::cout << "   " << std::setw(9) << std::left << key << "   ";
+        poac::console::color::reset();
+
+        poac::console::color::yellow();
+        std::cout << _apply("summary", value, std::vector<std::string>()) << std::endl;
+        poac::console::color::reset();
     }
 };} // end namespace
 #endif // !POAC_OPTION_HELP_HPP
