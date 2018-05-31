@@ -1,7 +1,3 @@
-//
-// Summary: Create a new poacpm project.
-// Options: <project-name>
-//
 #ifndef POAC_SUBCMD_NEW_HPP
 #define POAC_SUBCMD_NEW_HPP
 
@@ -26,46 +22,57 @@ namespace poac::subcmd { struct new_ {
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
         namespace fs = boost::filesystem;
+        if (vs.size() != 1)
+            throw std::runtime_error("new");
         // Check if the ARGUMENT directory exists.
-        if (const fs::path dir(fs::path(".") / fs::path("deps")); fs::is_directory(dir) && fs::exists(dir)) {
-            poac::console::color::red();
-            std::cerr << "hogeee" << std::endl;
-            poac::console::color::reset();
-            throw std::invalid_argument("Invalid argument"); // TODO: helpまで出力されてしまう. e.whatの内容で分岐？？？
-        }
-        else {
-            fs::create_directory(dir);
-            std::ofstream ofs;
-            std::map<fs::path, std::string> file{
-                    { ".gitignore", poac::ftemplate::_gitignore },
-                    { "main.cpp",   poac::ftemplate::main_cpp },
-                    { "poac.lock",  poac::ftemplate::poac_lock },
-                    { "poac.yml",   poac::ftemplate::poac_yml },
-                    { "README.md",  poac::ftemplate::README_md }
-            };
-            for ( const auto& [ name, text ] : file ) {
-                ofs.open((dir / name).string());
-                if (ofs.is_open()) ofs << text;
-                ofs.close();
-                ofs.clear();
-            }
-            echo_result("deps");
-        }
+        else if (const fs::path dir(fs::path(".") / fs::path(vs[0])); fs::is_directory(dir) && fs::exists(dir))
+            exists_error(vs[0]);
+        else
+            exec_new(dir, vs[0]);
     }
-    void echo_result(const std::string& str) {
+    void exists_error(const std::string& arg) {
+        poac::console::color::red();
+        std::cerr << "The "+arg+" directory already exists." << std::endl;
+        poac::console::color::reset();
+        std::exit(EXIT_FAILURE);
+    }
+    void exec_new(const boost::filesystem::path dir, const std::string& arg) {
+        namespace fs = boost::filesystem;
+        fs::create_directory(dir);
+        std::ofstream ofs;
+        std::map<fs::path, std::string> file {
+                { ".gitignore", poac::ftemplate::_gitignore },
+                { "main.cpp",   poac::ftemplate::main_cpp },
+                { "poac.lock",  poac::ftemplate::poac_lock },
+                { "poac.yml",   poac::ftemplate::poac_yml },
+                { "README.md",  poac::ftemplate::README_md }
+        };
+        for (const auto& [name, text] : file) write_to_file(ofs, (dir/name).string(), text);
+        echo_notice(arg);
+    }
+    void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
+        ofs.open(fname);
+        if (ofs.is_open()) ofs << text;
+        ofs.close();
+        ofs.clear();
+    }
+    void echo_notice(const std::string& str) {
         poac::console::color::bold();
-        std::cout << "\n"
-                     "Your \""+str+"\" project was created successfully.\n"
-                     "\n"
-                     "\n"
-                     "Go into your project by running:\n"
-                     "    $ cd "+str+"\n"
-                     "\n"
-                     "Start your project with:\n"
-                     "    $ poac install hello_world\n"
-                     "    $ poac run main.cpp\n"
-                     "\n";
+        std::cout << notice(str);
         poac::console::color::reset();
     }
+    std::string notice(const std::string& str) {
+        return "\n"
+               "Your \""+str+"\" project was created successfully.\n"
+               "\n"
+               "\n"
+               "Go into your project by running:\n"
+               "    $ cd "+str+"\n"
+               "\n"
+               "Start your project with:\n"
+               "    $ poac install hello_world\n"
+               "    $ poac run main.cpp\n"
+               "\n";
+    }
 };} // end namespace
-#endif
+#endif // !POAC_SUBCMD_NEW_HPP

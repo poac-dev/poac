@@ -1,7 +1,3 @@
-//
-// Summary: Display help for a command.
-// Options: <Nothing>
-//
 #ifndef POAC_OPTION_HELP_HPP
 #define POAC_OPTION_HELP_HPP
 
@@ -9,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+
 #include "../inference.hpp"
 
 
@@ -16,18 +13,33 @@
 namespace poac::inference {
     enum class op_type_e : int;
     auto _apply(const std::string&& func, const op_type_e& type, const std::vector<std::string>&& arg);
+    std::string apply(std::string&& func, const std::string& cmd, std::vector<std::string>&& arg);
     extern const std::unordered_map<std::string, op_type_e> subcmd_map;
     extern const std::unordered_map<std::string, op_type_e> option_map;
 }
 
 namespace poac::option { struct help {
     static const std::string summary() { return "Display help for a command."; }
-    static const std::string options() { return "<Nothing>"; }
+    static const std::string options() { return "<subcommad or option>"; }
 
     template <typename VS>
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
+        if (vs.size() == 0) exec_help();
+        else if(vs.size() == 1) echo_option(vs[0]);
+        else throw std::runtime_error("--help"); // show only --help's option
+    }
+    void echo_option(const std::string& arg) {
+        try {
+            const auto &tmp = poac::inference::apply("options", arg, std::vector<std::string>());
+            std::cout << "Usage: poac " << arg << " " << tmp << std::endl;
+        }
+        catch (const std::invalid_argument& e) {
+            throw std::runtime_error("--help");
+        }
+    }
+    void exec_help() {
         std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
         std::cout << "Available subcommands:" << std::endl;
         for (const auto& [name, value] : poac::inference::subcmd_map)
@@ -45,4 +57,4 @@ namespace poac::option { struct help {
                   << "   " << _apply("summary", value, std::vector<std::string>()) << std::endl;
     }
 };} // end namespace
-#endif
+#endif // !POAC_OPTION_HELP_HPP
