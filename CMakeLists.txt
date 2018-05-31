@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.6)
 project(poac)
 
-# preprocessor definitions
+# Preprocessor definitions
 add_definitions( -DPOAC_ROOT="${CMAKE_SOURCE_DIR}" )
+add_definitions( -DPOAC_VERSION="0.0.1" )
 add_definitions( -fdiagnostics-color -Wall -Werror -Wextra )
 
 # Check of c++17
