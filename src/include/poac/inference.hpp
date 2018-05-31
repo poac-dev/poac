@@ -66,21 +66,24 @@ namespace poac::inference {
             poac::subcmd::init,
             poac::subcmd::root,
             poac::subcmd::new_,
-            poac::subcmd::install
+            poac::subcmd::install,
+            poac::subcmd::uninstall
     >;
     enum class op_type_e : int {
-        help    = op_type_list_t::index_of<poac::option::help>,
-        version = op_type_list_t::index_of<poac::option::version>,
-        init    = op_type_list_t::index_of<poac::subcmd::init>,
-        root    = op_type_list_t::index_of<poac::subcmd::root>,
-        new_    = op_type_list_t::index_of<poac::subcmd::new_>,
-        install = op_type_list_t::index_of<poac::subcmd::install>
+        help      = op_type_list_t::index_of<poac::option::help>,
+        version   = op_type_list_t::index_of<poac::option::version>,
+        init      = op_type_list_t::index_of<poac::subcmd::init>,
+        root      = op_type_list_t::index_of<poac::subcmd::root>,
+        new_      = op_type_list_t::index_of<poac::subcmd::new_>,
+        install   = op_type_list_t::index_of<poac::subcmd::install>,
+        uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
             { "init", op_type_e::init },
             { "root", op_type_e::root },
             { "new", op_type_e::new_ },
-            { "install", op_type_e::install }
+            { "install", op_type_e::install },
+            { "uninstall", op_type_e::uninstall }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
             { "--help", op_type_e::help },
