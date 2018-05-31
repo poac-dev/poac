@@ -21,8 +21,10 @@ namespace poac::subcmd { struct new_ {
     static const std::string summary() { return "Create a new poacpm project."; }
     static const std::string options() { return "<project-name>"; }
 
-    void operator()() { _main(); }
-    void _main() {
+    template <typename VS>
+    void operator()(VS&& vs) { _main(vs); }
+    template <typename VS>
+    void _main([[maybe_unused]] VS&& vs) {
         namespace fs = boost::filesystem;
         // Check if the ARGUMENT directory exists.
         if (const fs::path dir(fs::path(".") / fs::path("deps")); fs::is_directory(dir) && fs::exists(dir)) {

@@ -14,7 +14,7 @@ namespace poac::subcmd { struct root {
     static const std::string summary() { return "Display the root directory."; }
     static const std::string options() { return "<Nothing>"; }
 
-    //[[maybe_unused]]
-    void operator()() { std::cout << POAC_ROOT << std::endl; }
+    template <typename VS>
+    void operator()([[maybe_unused]] VS&& vs) { std::cout << POAC_ROOT << std::endl; }
 };} // end namespace
 #endif

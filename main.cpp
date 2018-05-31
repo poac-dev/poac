@@ -7,31 +7,33 @@
 #include "include/poac.hpp"
 
 
-void error_handling(std::string&& s) {
+using VS = std::vector<std::string>;
+
+int error_handling(std::string&& s) {
     poac::console::color::red();
     std::cerr << "Error: " << s << std::endl << std::endl;
     poac::console::color::reset();
+    poac::inference::apply("exec", "--help", VS());
+    return EXIT_FAILURE;
 }
 
-template <typename VS>
-int exec(VS&& vs) {
-    try { // argv[0]: poac, argv[1]: new, ...
-        poac::inference::apply("exec", vs);
+template <typename S, typename VS>
+int exec(S&& s, VS&& vs) {
+    try {
+        poac::inference::apply("exec", s, std::move(vs));
         return EXIT_SUCCESS;
     }
     catch (const std::invalid_argument& e) {
-        error_handling(e.what());
-        exec("--help");
-        return EXIT_FAILURE;
+        return error_handling(e.what());
     }
     catch (...) {
-        error_handling("Unexpected error");
-        exec("--help");
-        return EXIT_FAILURE;
+        return error_handling("Unexpected error");
     }
 }
 
 int main(int argc, const char** argv) {
-    if (argc > 1) { return exec(argv[1]); }
-    else { exec("--help"); return EXIT_FAILURE; }
-} // std::vector<std::string>(argv+1, argv+argc)
+    // argv[0]: poac, argv[1]: new, ...
+    if (argc >= 3) { return exec(argv[1], VS(argv+2, argv+argc)); }
+    else if (argc >= 2) { return exec(argv[1], VS()); }
+    else { poac::inference::apply("exec", "--help", VS()); return EXIT_FAILURE; }
+}
