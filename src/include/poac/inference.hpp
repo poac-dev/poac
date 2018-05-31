@@ -67,7 +67,8 @@ namespace poac::inference {
             poac::subcmd::root,
             poac::subcmd::new_,
             poac::subcmd::install,
-            poac::subcmd::uninstall
+            poac::subcmd::uninstall,
+            poac::subcmd::search
     >;
     enum class op_type_e : int {
         help      = op_type_list_t::index_of<poac::option::help>,
@@ -76,14 +77,16 @@ namespace poac::inference {
         root      = op_type_list_t::index_of<poac::subcmd::root>,
         new_      = op_type_list_t::index_of<poac::subcmd::new_>,
         install   = op_type_list_t::index_of<poac::subcmd::install>,
-        uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>
+        uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>,
+        search    = op_type_list_t::index_of<poac::subcmd::search>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
             { "init", op_type_e::init },
             { "root", op_type_e::root },
             { "new", op_type_e::new_ },
             { "install", op_type_e::install },
-            { "uninstall", op_type_e::uninstall }
+            { "uninstall", op_type_e::uninstall },
+            { "search", op_type_e::search }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
             { "--help", op_type_e::help },
