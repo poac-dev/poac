@@ -146,11 +146,10 @@ namespace poac::inference {
     auto _apply(std::string&& func, const op_type_e& cmd, std::vector<std::string>&& arg) {
         return branch(std::move(func), cmd, std::move(arg));
     }
-    // TODO: template
     std::string apply(std::string&& func, const std::string& cmd, std::vector<std::string>&& arg) {
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));
-        else if (auto itr = option_map.find(cmd); itr != option_map.end()) // TODO: redefined
+        else if (itr = option_map.find(cmd); itr != option_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));
         else
             throw std::invalid_argument("Invalid argument");
