@@ -1,7 +1,3 @@
-//
-// Summary: Display the root directory.
-// Options: <Nothing>
-//
 #ifndef POAC_SUBCMD_ROOT_HPP
 #define POAC_SUBCMD_ROOT_HPP
 
@@ -17,4 +13,4 @@ namespace poac::subcmd { struct root {
     template <typename VS>
     void operator()([[maybe_unused]] VS&& vs) { std::cout << POAC_ROOT << std::endl; }
 };} // end namespace
-#endif
+#endif // !POAC_SUBCMD_ROOT_HPP
