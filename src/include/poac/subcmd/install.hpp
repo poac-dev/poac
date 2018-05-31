@@ -1,7 +1,3 @@
-//
-// Summary: Install packages.
-// Options: [<pkg-name>]
-//
 #ifndef POAC_SUBCMD_INSTALL_HPP
 #define POAC_SUBCMD_INSTALL_HPP
 
@@ -16,17 +12,22 @@
 #include <fstream>
 #include <tuple>
 #include <stdexcept>
+
 #include <boost/filesystem.hpp>
 
 
 namespace poac::subcmd { struct install {
     static const std::string summary() { return "Install packages."; }
-    static const std::string options() { return "[<pkg-name>]"; }
+    static const std::string options() { return "[<pkg-names>]"; }
 
-    void operator()() { _install(); }
-
-    void _install() {
-
+    template <typename VS>
+    void operator()(VS&& vs) { _main(vs); }
+    template <typename VS>
+    void _main([[maybe_unused]] VS&& vs) {
+        // poac install hoge
+        // 無かったら，hoge does not exists
+        // If you want hage ?
+        // みたいに最有力候補を出したい．なるべく一文で．理由は，複数のパッケージのダウンロード毎に複数行はうざいから．
     }
 //namespace fs = boost::filesystem;
 //
@@ -71,4 +72,4 @@ namespace poac::subcmd { struct install {
 ////    }
 //}
 };} // end namespace
-#endif
+#endif // !POAC_SUBCMD_INSTALL_HPP
