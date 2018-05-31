@@ -8,7 +8,7 @@ jobs:
       - run: cmake .
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./poac --help
+      - run: ./src/poac --help
   gcc_8:
     docker:
       - image: matken11235/gcc-cmake-boost:gcc-8
@@ -17,7 +17,7 @@ jobs:
       - run: cmake .
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./poac --help
+      - run: ./src/poac --help
 
 workflows:
   version: 2
