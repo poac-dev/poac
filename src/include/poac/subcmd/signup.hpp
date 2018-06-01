@@ -5,7 +5,7 @@
 
 
 namespace poac::subcmd { struct signup {
-    static const std::string summary() { return "Create new account for poacpm."; }
+    static const std::string summary() { return "Create a new account for poacpm."; }
     static const std::string options() { return "[<pkg-names>]"; }
 
     template <typename VS>
