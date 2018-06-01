@@ -62,14 +62,18 @@ namespace poac::option { struct help {
     }
     template <typename T, typename U>
     void _help(const T& key, const U& value) {
-        poac::console::color::blue();
-        poac::console::color::bold();
-        std::cout << "   " << std::setw(9) << std::left << key << "   ";
-        poac::console::color::reset();
+        // Eliminate -h and -v
+        // It assumes two characters because the regular expression is slow.
+        if (key.size() != 2) {
+            poac::console::color::blue();
+            poac::console::color::bold();
+            std::cout << "   " << std::setw(9) << std::left << key << "   ";
+            poac::console::color::reset();
 
-        poac::console::color::yellow();
-        std::cout << _apply("summary", value, std::vector<std::string>()) << std::endl;
-        poac::console::color::reset();
+            poac::console::color::yellow();
+            std::cout << _apply("summary", value, std::vector<std::string>()) << std::endl;
+            poac::console::color::reset();
+        }
     }
 };} // end namespace
 #endif // !POAC_OPTION_HELP_HPP
