@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 
+#include "../core/except.hpp"
 #include "../inference.hpp"
 #include "../console.hpp"
 
@@ -29,15 +30,15 @@ namespace poac::option { struct help {
     void _main([[maybe_unused]] VS&& vs) {
         if (vs.size() == 0) exec_help();
         else if(vs.size() == 1) echo_option(vs[0]);
-        else throw std::runtime_error("--help"); // show only --help's option
+        else throw poac::core::invalid_second_argument("--help"); // show only --help's option
     }
     void echo_option(const std::string& arg) {
         try {
             const auto &tmp = poac::inference::apply("options", arg, std::vector<std::string>());
             std::cout << "Usage: poac " << arg << " " << tmp << std::endl;
         }
-        catch (const std::invalid_argument& e) {
-            throw std::runtime_error("--help");
+        catch (const poac::core::invalid_first_argument& e) {
+            throw poac::core::invalid_second_argument("--help");
         }
     }
     void exec_help() {

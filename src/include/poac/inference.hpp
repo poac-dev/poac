@@ -10,6 +10,7 @@
 
 #include <boost/predef.h>
 
+#include "core/except.hpp"
 #include "option.hpp"
 #include "subcmd.hpp"
 
@@ -158,7 +159,7 @@ namespace poac::inference {
         else if (s == "options")
             return options(Indices(), static_cast<int>(idx));
         else
-            throw std::invalid_argument("Invalid argument");
+            throw poac::core::invalid_first_argument("Invalid argument");
     }
 
     auto _apply(std::string&& func, const op_type_e& cmd, std::vector<std::string>&& arg) {
@@ -170,7 +171,7 @@ namespace poac::inference {
         else if (itr = option_map.find(cmd); itr != option_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));
         else
-            throw std::invalid_argument("Invalid argument");
+            throw poac::core::invalid_first_argument("Invalid argument");
     }
 }
 #endif

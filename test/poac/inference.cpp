@@ -8,5 +8,5 @@
 
 BOOST_AUTO_TEST_CASE( test1 )
 {
-    BOOST_CHECK_THROW(poac::inference::apply("exec", "nothing", std::vector<std::string>()), std::invalid_argument);
+    BOOST_CHECK_THROW(poac::inference::apply("exec", "nothing", std::vector<std::string>()), poac::core::invalid_first_argument);
 }

@@ -9,6 +9,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include "../core/except.hpp"
 #include "../console.hpp"
 #include "../ftemplate.hpp"
 
@@ -23,7 +24,7 @@ namespace poac::subcmd { struct new_ {
     void _main([[maybe_unused]] VS&& vs) {
         namespace fs = boost::filesystem;
         if (vs.size() != 1)
-            throw std::runtime_error("new");
+            throw poac::core::invalid_second_argument("new");
         // Check if the ARGUMENT directory exists.
         else if (const fs::path dir(fs::path(".") / fs::path(vs[0])); fs::is_directory(dir) && fs::exists(dir))
             exists_error(vs[0]);
