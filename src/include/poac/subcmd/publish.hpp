@@ -1,7 +1,3 @@
-//
-// Summary: Uninstall packages.
-// Options: [<pkg-name>]
-//
 #ifndef POAC_SUBCMD_PUBLISH_HPP
 #define POAC_SUBCMD_PUBLISH_HPP
 
@@ -9,16 +5,17 @@
 
 
 namespace poac::subcmd { struct publish {
-    static const std::string summary() { return "Uninstall packages."; }
+    static const std::string summary() { return "Publish a package."; }
     static const std::string options() { return "[<pkg-name>]"; }
 
-    void operator()() { _publish(); }
-
-    void _publish() {
+    template <typename VS>
+    void operator()(VS&& vs) { _main(vs); }
+    template <typename VS>
+    void _main([[maybe_unused]] VS&& vs) {
         // Validate yaml, directory, ...
         // Ignore deps/
         // Compress to tar
         // Post to API
     }
 };} // end namespace
-#endif
+#endif // !POAC_SUBCMD_PUBLISH_HPP
