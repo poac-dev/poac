@@ -23,11 +23,9 @@ int exec(S&& s, VS&& vs) {
         poac::inference::apply("exec", s, std::move(vs));
         return EXIT_SUCCESS;
     }
-    // Invalid first argument
     catch (const poac::core::invalid_first_argument& e) {
         return error_handling(e.what());
     }
-    // Invalid second argument
     catch (const poac::core::invalid_second_argument& e) {
         VS vs2 = { e.what() };
         poac::inference::apply("exec", "--help", std::move(vs2));
