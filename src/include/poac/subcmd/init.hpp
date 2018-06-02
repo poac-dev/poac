@@ -1,7 +1,3 @@
-//
-// Summary: Create the poac.yml.
-// Options: <Nothing>
-//
 #ifndef POAC_SUBCMD_INIT_HPP
 #define POAC_SUBCMD_INIT_HPP
 
@@ -10,6 +6,8 @@
 #include <string>
 
 #include <boost/filesystem.hpp>
+
+#include "../console.hpp"
 
 
 namespace poac::subcmd { struct init {
@@ -47,14 +45,17 @@ namespace poac::subcmd { struct init {
     int yml_exists(boost::filesystem::path& filename) {
         boost::system::error_code error;
         if (const bool result = boost::filesystem::exists(filename, error); result && !error) {
-            std::cerr << "\033[1;31mAlready poac.yml exists." << std::endl
+            poac::console::color::bold();
+            poac::console::color::red();
+            std::cerr << "Already poac.yml exists." << std::endl
                       << std::endl
                       << "See `poac init --help`" << std::endl
                       << std::endl
                       << "Use `poac install <pkg>` afterwards to install a package and" << std::endl
                       << "save it as a dependency in the poac.yml file." << std::endl
                       << std::endl
-                      << "Do you want overwrite? (y/n): \033[0m";
+                      << "Do you want overwrite? (y/n): ";
+            poac::console::color::reset();
             std::string ans;
             std::cin >> ans;
             std::transform(ans.cbegin(), ans.cend(), ans.begin(), tolower);
@@ -81,4 +82,4 @@ namespace poac::subcmd { struct init {
         return fs::absolute(fs::path(".")).parent_path();
     }
 };} // end namespace
-#endif
+#endif // !POAC_SUBCMD_INIT_HPP
