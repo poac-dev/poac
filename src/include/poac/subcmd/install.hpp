@@ -15,6 +15,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include "../utility/requests.hpp"
+
 
 namespace poac::subcmd { struct install {
     static const std::string summary() { return "Install packages."; }
@@ -24,6 +26,7 @@ namespace poac::subcmd { struct install {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
+        poac::utility::requests::get();
         // poac install hoge
         // 無かったら，hoge does not exists
         // If you want hage ?

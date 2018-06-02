@@ -24,13 +24,16 @@ else()
     message(WARNING "The Boost was not found.")
 endif ()
 
-# src
-add_subdirectory(src)
+# CURL
+set(CURL_LIBRARY "-lcurl")
+add_definitions(-DCURL_STATICLIB)
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
 
-# Test
+
+add_subdirectory(src)
 add_subdirectory(test)
 enable_testing()
 add_test(NAME poac_test
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         COMMAND unittest)
-

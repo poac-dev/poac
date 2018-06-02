@@ -17,6 +17,7 @@ $ poac -v
 depends on
 * boost
 * cmake
+* curl(libcurl)
 ```bash
 $ git clone $THIS_REPO
 $ cd poac
