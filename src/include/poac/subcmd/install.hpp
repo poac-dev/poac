@@ -11,7 +11,6 @@
 #include <cstdlib>
 #include <fstream>
 #include <tuple>
-#include <stdexcept>
 
 #include <boost/filesystem.hpp>
 
