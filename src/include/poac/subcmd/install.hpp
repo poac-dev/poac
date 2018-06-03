@@ -6,7 +6,6 @@
 #include <iterator>
 #include <vector>
 #include <string>
-#include <string_view>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
