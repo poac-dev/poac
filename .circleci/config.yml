@@ -18,6 +18,15 @@ jobs:
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
       - run: ./src/poac --help
+  clang_5:
+    docker:
+      - image: matken11235/clang:5.0
+    steps:
+      - checkout
+      - run: cmake .
+      - run: make
+      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
+      - run: ./src/poac --help
   clang_6:
     docker:
       - image: matken11235/clang:6.0
@@ -37,5 +46,6 @@ workflows:
       - gcc_7
       - gcc_8
       # Clang
+      - clang_5
       - clang_6
 
