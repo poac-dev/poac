@@ -2,7 +2,7 @@ version: 2
 jobs:
   gcc_7:
     docker:
-      - image: matken11235/gcc-cmake-boost:gcc-7
+      - image: matken11235/poac:gcc-7
     steps:
       - checkout
       - run: cmake .
@@ -11,32 +11,27 @@ jobs:
       - run: ./src/poac --help
   gcc_8:
     docker:
-      - image: matken11235/gcc-cmake-boost:gcc-8
+      - image: matken11235/poac:gcc-8
     steps:
       - checkout
       - run: cmake .
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
       - run: ./src/poac --help
-  clang_5:
+  gh_pages:
+    branches:
+      ignore:
+        - gh-pages
+    working_directory: ~/poac/docs
     docker:
-      - image: matken11235/clang:5.0
+      - image: node:10
     steps:
       - checkout
-      - run: cmake .
-      - run: make
-      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./src/poac --help
-  clang_6:
-    docker:
-      - image: matken11235/clang:6.0
-    steps:
-      - checkout
-      - run: cmake .
-      - run: make
-      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./src/poac --help
-
+      - run: git config --global user.name $USERNAME
+      - run: git config --global user.email $EMAIL
+      - run: npm i
+      - run: npm build
+      - run: npm publish
 
 workflows:
   version: 2
@@ -45,7 +40,8 @@ workflows:
       # GCC
       - gcc_7
       - gcc_8
+      - gh_pages
       # Clang
-      - clang_5
-      - clang_6
+#      - clang_5
+#      - clang_6
 
