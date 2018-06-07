@@ -2,7 +2,7 @@ version: 2
 jobs:
   gcc_7:
     docker:
-      - image: matken11235/gcc-cmake-boost:gcc-7
+      - image: matken11235/poac:gcc-7
     steps:
       - checkout
       - run: cmake .
@@ -11,7 +11,7 @@ jobs:
       - run: ./src/poac --help
   gcc_8:
     docker:
-      - image: matken11235/gcc-cmake-boost:gcc-8
+      - image: matken11235/poac:gcc-8
     steps:
       - checkout
       - run: cmake .
@@ -20,7 +20,7 @@ jobs:
       - run: ./src/poac --help
   clang_5:
     docker:
-      - image: matken11235/clang:5.0
+      - image: matken11235/poac:clang-5.0
     steps:
       - checkout
       - run: cmake .
@@ -29,7 +29,7 @@ jobs:
       - run: ./src/poac --help
   clang_6:
     docker:
-      - image: matken11235/clang:6.0
+      - image: matken11235/poac:clang-6.0
     steps:
       - checkout
       - run: cmake .
