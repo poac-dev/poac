@@ -6,3 +6,8 @@ build/
 # CLion
 .idea/
 cmake-build-debug/
+
+# gitbook
+node_modules/
+_book/
+package-lock.json

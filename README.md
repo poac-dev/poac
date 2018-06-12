@@ -1,5 +1,6 @@
 # poac
 [![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
+![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg?style=flat-square)
 
 **It is prohibited to use -(hyphen) as a package name and _ (under bar) is recommended.**
 
@@ -28,6 +29,7 @@ $ make install
 ```
 
 ## Contribute
+[View Contribution Guidelines](.github/CONTRIBUTUING.md)
 ```bash
 $ mkdir build
 $ cd $_

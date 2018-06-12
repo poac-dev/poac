@@ -1,0 +1,20 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "## 0. [Introduction](0_Introduction/0_Introduction.md)",
+  "main": "index.js",
+  "directories": {
+    "man": "man"
+  },
+  "scripts": {
+    "build": "gitbook build",
+    "publish": "gh-pages -d _book -m ':robot_face: Auto publish book'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gh-pages": "^1.2.0",
+    "gitbook-cli": "^2.3.2"
+  }
+}

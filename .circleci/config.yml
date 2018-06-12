@@ -18,6 +18,20 @@ jobs:
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
       - run: ./src/poac --help
+  gh_pages:
+    branches:
+      ignore:
+        - gh-pages
+    working_directory: ~/poac/docs
+    docker:
+      - image: node:10
+    steps:
+      - checkout
+      - run: git config --global user.name $USERNAME
+      - run: git config --global user.email $EMAIL
+      - run: npm i
+      - run: npm build
+      - run: npm publish
 #  clang_5:
 #    docker:
 #      - image: matken11235/poac:clang-5.0
@@ -37,7 +51,6 @@ jobs:
 #      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
 #      - run: ./src/poac --help
 
-
 workflows:
   version: 2
   build_and_test:
@@ -45,6 +58,7 @@ workflows:
       # GCC
       - gcc_7
       - gcc_8
+      - gh_pages
       # Clang
 #      - clang_5
 #      - clang_6
