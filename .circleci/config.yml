@@ -43,5 +43,5 @@ workflows:
       - gh_pages
       # Clang
 #      - clang_5
-#      - clang_6
+#      - clang_6hoge
 
