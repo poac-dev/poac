@@ -1,4 +1,8 @@
 version: 2
+general:
+  branches:
+    ignore:
+      - gh-pages
 jobs:
   gcc_7:
     docker:
@@ -19,9 +23,6 @@ jobs:
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
       - run: ./src/poac --help
   gh_pages:
-    branches:
-      ignore:
-        - gh-pages
     working_directory: ~/poac/docs
     docker:
       - image: node:10
@@ -29,9 +30,9 @@ jobs:
       - checkout
       - run: git config --global user.name $USERNAME
       - run: git config --global user.email $EMAIL
-      - run: npm i
-      - run: npm build
-      - run: npm publish
+      - run: cd docs && npm i
+      - run: cd docs && npm run build
+      - run: cd docs && npm run publish
 #  clang_5:
 #    docker:
 #      - image: matken11235/poac:clang-5.0

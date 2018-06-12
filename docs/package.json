@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "gitbook build",
-    "publish": "gh-pages -d _book -m ':robot_face: Auto publish book'"
+    "publish": "gh-pages -d _book -m ':robot-face: Auto publish book'"
   },
   "keywords": [],
   "author": "",
