@@ -8,7 +8,7 @@
 
 **SAT base**
 
-## Install
+## Installation
 ### Using [Homebrew](https://github.com/Homebrew/brew) (macOS)
 ```bash
 $ brew install poac
@@ -30,10 +30,10 @@ $ make install
 * `curl(libcurl)`:
 
 
-## Documents
+## Documentation
 Please look at [github.io](https://poacpm.github.io/poac/) or [This repo](docs/SUMMARY.md).
 
-## Contribute
+## Contribution
 [View Contribution Guidelines](.github/CONTRIBUTUING.md)
 ```bash
 $ mkdir build
