@@ -8,17 +8,13 @@
 
 **SAT base**
 
-## Install
-### With homebrew
+## Installation
+### Using [Homebrew](https://github.com/Homebrew/brew) (macOS)
 ```bash
 $ brew install poac
 $ poac -v
 ```
-### Manual
-depends on
-* boost
-* cmake
-* curl(libcurl)
+### Manually (Other OS)
 ```bash
 $ git clone $THIS_REPO
 $ cd poac
@@ -28,10 +24,16 @@ $ cmake ..
 $ make install
 ```
 
-## Documents
+## Requirements
+* `boost`: version `1.67.0` or higher
+* `cmake`: version ``
+* `curl(libcurl)`:
+
+
+## Documentation
 Please look at [github.io](https://poacpm.github.io/poac/) or [This repo](docs/SUMMARY.md).
 
-## Contribute
+## Contribution
 [View Contribution Guidelines](.github/CONTRIBUTUING.md)
 ```bash
 $ mkdir build
