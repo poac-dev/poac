@@ -31,7 +31,7 @@ $ make install
 
 
 ## Documentation
-Please look at [github.io](https://poacpm.github.io/poac/) or [This repo](docs/SUMMARY.md).
+Please look at [github.io](https://poacpm.github.io/poac/) or [This repo](docs/).
 
 ## Contribution
 [View Contribution Guidelines](.github/CONTRIBUTUING.md)
