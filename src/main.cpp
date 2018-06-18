@@ -31,7 +31,10 @@ int exec(S&& s, VS&& vs) {
         return EXIT_FAILURE;
     }
     catch (...) {
-        return error_handling("Unexpected error");
+        poac::console::red();
+        std::cerr << "Error: " << "Unexpected error" << std::endl << std::endl;
+        poac::console::reset();
+        return EXIT_FAILURE;
     }
 }
 
