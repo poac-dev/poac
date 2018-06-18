@@ -10,9 +10,9 @@
 using VS = std::vector<std::string>;
 
 int error_handling(std::string&& s) {
-    poac::console::color::red();
+    poac::console::red();
     std::cerr << "Error: " << s << std::endl << std::endl;
-    poac::console::color::reset();
+    poac::console::reset();
     poac::inference::apply("exec", "--help", VS());
     return EXIT_FAILURE;
 }
