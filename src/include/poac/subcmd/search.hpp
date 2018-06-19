@@ -20,14 +20,10 @@ namespace poac::subcmd { struct search {
     template <typename VS>
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
-    void _main([[maybe_unused]] VS&& vs) {
-        _search(vs[0]);
-    }
-
-    void _search(const std::string& word) {
+    void _main(VS&& vs) {
         using namespace boost::property_tree;
 
-        const std::string url("https://poac.pm/api/v1/packages?search=" + word);
+        const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
         std::stringstream ss;
         ss << poac::utility::requests::get(url);
         ptree pt;
@@ -50,15 +46,16 @@ namespace poac::subcmd { struct search {
         if (now_count == 0) echo_not_founded();
     }
     void echo_first_line() {
-        poac::console::underline();
-        std::cout << "Package";
-        std::cout << std::endl;
-        poac::console::reset();
+        std::cout << poac::console::underline
+                  << "Package"
+                  << poac::console::reset
+                  << std::endl;
     }
     void echo_not_founded() {
-        poac::console::red();
-        std::cerr << "package not founded" << std::endl;
-        poac::console::reset();
+        std::cerr << poac::console::red
+                  << "package not founded"
+                  << poac::console::reset
+                  << std::endl;
         std::exit(EXIT_FAILURE);
     }
 };} // end namespace

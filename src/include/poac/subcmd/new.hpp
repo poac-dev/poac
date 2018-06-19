@@ -31,9 +31,10 @@ namespace poac::subcmd { struct new_ {
             exec_new(dir, vs[0]);
     }
     void exists_error(const std::string& arg) {
-        poac::console::red();
-        std::cerr << "The "+arg+" directory already exists." << std::endl;
-        poac::console::reset();
+        std::cerr << poac::console::red
+                  << "The "+arg+" directory already exists."
+                  << poac::console::reset
+                  << std::endl;
         std::exit(EXIT_FAILURE);
     }
     void exec_new(const boost::filesystem::path dir, const std::string& arg) {
@@ -57,9 +58,9 @@ namespace poac::subcmd { struct new_ {
         ofs.clear();
     }
     void echo_notice(const std::string& str) {
-        poac::console::bold();
-        std::cout << notice(str);
-        poac::console::reset();
+        std::cout << poac::console::bold
+                  << notice(str)
+                  << poac::console::reset;
     }
     std::string notice(const std::string& str) {
         return "\n"

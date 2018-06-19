@@ -44,15 +44,17 @@ namespace poac::option { struct help {
     void exec_help() {
         std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
 
-        poac::console::bold();
-        std::cout << "Available subcommands:" << std::endl;
-        poac::console::reset();
+        std::cout << poac::console::bold
+                  << "Available subcommands:"
+                  << poac::console::reset
+                  << std::endl;
         for (const auto& [name, value] : poac::inference::subcmd_map)
             _help(name, value);
 
-        poac::console::bold();
-        std::cout << "Available options:" << std::endl;
-        poac::console::reset();
+        std::cout << poac::console::bold
+                  << "Available options:"
+                  << poac::console::reset
+                  << std::endl;
         for (const auto& [name, value] : poac::inference::option_map)
             _help(name, value);
 
@@ -65,14 +67,14 @@ namespace poac::option { struct help {
         // Eliminate -h and -v
         // It assumes two characters because the regular expression is slow.
         if (key.size() != 2) {
-            poac::console::blue();
-            poac::console::bold();
-            std::cout << "   " << std::setw(9) << std::left << key << "   ";
-            poac::console::reset();
+            std::cout << poac::console::blue << poac::console::bold
+                      << "   " << std::setw(9) << std::left << key << "   "
+                      << poac::console::reset;
 
-            poac::console::yellow();
-            std::cout << _apply("summary", value, std::vector<std::string>()) << std::endl;
-            poac::console::reset();
+            std::cout << poac::console::yellow
+                      << _apply("summary", value, std::vector<std::string>())
+                      << poac::console::reset
+                      << std::endl;
         }
     }
 };} // end namespace
