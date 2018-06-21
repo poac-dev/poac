@@ -6,6 +6,7 @@
 #include <sstream>
 //#include <optional>
 
+#include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -23,6 +24,7 @@ namespace poac::subcmd { struct search {
     void _main(VS&& vs) {
         using namespace boost::property_tree;
 
+        if (vs.size() != 1) throw poac::core::invalid_second_argument("search");
         const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
         std::stringstream ss;
         ss << poac::utility::requests::get(url);
@@ -40,20 +42,21 @@ namespace poac::subcmd { struct search {
                 if (++now_count >= max_count) break;
             }
             else {
-                std::cout << "package is nothing" << std::endl;
+                std::cout << "name is nothing" << std::endl;
             }
         }
-        if (now_count == 0) echo_not_founded();
+        if (now_count == 0) echo_not_founded(vs[0]);
     }
     void echo_first_line() {
-        std::cout << poac::console::underline
-                  << "Package"
-                  << poac::console::reset
+        std::cout << poac::console::underline << "User/Package" << poac::console::reset << "        "
+                  << poac::console::underline << "Description" << poac::console::reset << "                             "
+                  << poac::console::underline << "Version" << poac::console::reset << "        "
+                  << poac::console::underline << "Tags" << poac::console::reset
                   << std::endl;
     }
-    void echo_not_founded() {
+    void echo_not_founded(const std::string& s) {
         std::cerr << poac::console::red
-                  << "package not founded"
+                  << s << " not found"
                   << poac::console::reset
                   << std::endl;
         std::exit(EXIT_FAILURE);
