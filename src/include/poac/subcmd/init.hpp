@@ -45,17 +45,16 @@ namespace poac::subcmd { struct init {
     int yml_exists(boost::filesystem::path& filename) {
         boost::system::error_code error;
         if (const bool result = boost::filesystem::exists(filename, error); result && !error) {
-            poac::console::color::bold();
-            poac::console::color::red();
-            std::cerr << "Already poac.yml exists." << std::endl
+            std::cerr << poac::console::bold << poac::console::red
+                      << "Already poac.yml exists." << std::endl
                       << std::endl
                       << "See `poac init --help`" << std::endl
                       << std::endl
                       << "Use `poac install <pkg>` afterwards to install a package and" << std::endl
                       << "save it as a dependency in the poac.yml file." << std::endl
                       << std::endl
-                      << "Do you want overwrite? (y/n): ";
-            poac::console::color::reset();
+                      << "Do you want overwrite? (y/n): "
+                      << poac::console::reset;
             std::string ans;
             std::cin >> ans;
             std::transform(ans.cbegin(), ans.cend(), ans.begin(), tolower);
