@@ -69,8 +69,7 @@ namespace poac::inference {
             poac::subcmd::install,
             poac::subcmd::uninstall,
             poac::subcmd::search,
-            poac::subcmd::signup,
-            poac::subcmd::signin,
+            poac::subcmd::login,
             poac::subcmd::publish
     >;
     enum class op_type_e : int {
@@ -82,8 +81,7 @@ namespace poac::inference {
         install   = op_type_list_t::index_of<poac::subcmd::install>,
         uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>,
         search    = op_type_list_t::index_of<poac::subcmd::search>,
-        signup    = op_type_list_t::index_of<poac::subcmd::signup>,
-        signin    = op_type_list_t::index_of<poac::subcmd::signin>,
+        login    = op_type_list_t::index_of<poac::subcmd::login>,
         publish   = op_type_list_t::index_of<poac::subcmd::publish>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
@@ -93,8 +91,7 @@ namespace poac::inference {
             { "install", op_type_e::install },
             { "uninstall", op_type_e::uninstall },
             { "search", op_type_e::search },
-            { "signup", op_type_e::signup },
-            { "signin", op_type_e::signin },
+            { "login", op_type_e::login },
             { "publish", op_type_e::publish }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
