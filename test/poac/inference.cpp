@@ -2,10 +2,16 @@
 
 #include <vector>
 #include <string>
+
 #include "../../src/include/poac/inference.hpp"
+#include "../../src/include/poac/core/except.hpp"
 
 
 BOOST_AUTO_TEST_CASE( test1 )
 {
-    BOOST_CHECK_THROW(poac::inference::apply("exec", "nothing", std::vector<std::string>()), poac::core::invalid_first_argument);
+    using namespace std;
+    using namespace poac::inference;
+    using namespace poac::core;
+
+    BOOST_CHECK_THROW(apply("exec", "nothing", vector<string>()), invalid_first_argument);
 }
