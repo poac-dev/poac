@@ -28,6 +28,7 @@ $ make install
 * `boost`: version `1.67.0` or higher
 * `cmake`: version ``
 * `curl(libcurl)`:
+* `yaml-cpp`:
 
 
 ## Documentation

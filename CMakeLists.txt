@@ -30,6 +30,9 @@ add_definitions(-DCURL_STATICLIB)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
+# yaml-cpp
+find_package( yaml-cpp REQUIRED )
+include_directories( ${YAML_CPP_INCLUDE_DIR} )
 
 add_subdirectory(src)
 add_subdirectory(test)

@@ -8,4 +8,5 @@ target_link_libraries(unittest
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
         ${CURL_LIBRARIES}
+        ${YAML_CPP_LIBRARIES}
         )
