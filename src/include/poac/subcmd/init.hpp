@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 
@@ -21,7 +22,7 @@ namespace poac::subcmd { struct init {
         boost::filesystem::path filename("poac.yml");
         if (yml_exists(filename)) {
             std::cerr << "\033[33mcanceled\033[0m" << std::endl;
-            return;
+            std::exit(EXIT_FAILURE);
         }
 
         std::ofstream yml(filename.string());

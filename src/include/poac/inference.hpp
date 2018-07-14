@@ -15,8 +15,9 @@
 
 
 namespace poac::inference {
-    // The type referred by T or T itself if it is not a reference,
-    //  with top-level cv-qualifiers removed.
+    // If the type T is a reference type, provides the member typedef type
+    //  which is the type referred to by T with its topmost cv-qualifiers removed.
+    // Otherwise type is T with its topmost cv-qualifiers removed.
     // C++20, std::remove_cvref_t<T>
     template <typename T>
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
