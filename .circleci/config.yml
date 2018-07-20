@@ -30,6 +30,7 @@ jobs:
       - checkout
       - run: git config --global user.name $USERNAME
       - run: git config --global user.email $EMAIL
+      - run: cp -r .circleci docs
       - run: cd docs && npm i
       - run: cd docs && npm run build
       - run: cd docs && npm run publish
