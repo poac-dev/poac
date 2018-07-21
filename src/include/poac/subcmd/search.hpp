@@ -11,7 +11,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "../console.hpp"
-#include "../utility/requests.hpp"
+#include "../util/requests.hpp"
 
 
 namespace poac::subcmd { struct search {
@@ -27,9 +27,11 @@ namespace poac::subcmd { struct search {
         if (vs.size() != 1) throw poac::core::invalid_second_argument("search");
         const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
         std::stringstream ss;
-        ss << poac::utility::requests::get(url);
+        ss << poac::util::requests::get(url);
         ptree pt;
         json_parser::read_json(ss, pt);
+
+        // TODO: Check if connecting network
 
         unsigned int now_count = 0;
         const unsigned int max_count = 20;

@@ -8,6 +8,6 @@
 #include "poac/inference.hpp"
 #include "poac/option.hpp"
 #include "poac/subcmd.hpp"
-#include "poac/utility.hpp"
+#include "poac/util.hpp"
 
 #endif // !POAC_HPP

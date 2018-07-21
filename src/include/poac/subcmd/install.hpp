@@ -13,7 +13,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../utility/requests.hpp"
+#include "../util/requests.hpp"
 
 
 namespace poac::subcmd { struct install {
@@ -24,7 +24,11 @@ namespace poac::subcmd { struct install {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
-//        poac::utility::requests::get();
+        // TODO: Check if connecting network
+        // TODO: If cache package exists, it use
+        // for (const auto& v : vs )
+
+//        poac::util::requests::get();
         // poac install hoge
         // 無かったら，hoge does not exists
         // If you want hage ?

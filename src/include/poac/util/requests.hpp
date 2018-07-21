@@ -1,5 +1,5 @@
-#ifndef POAC_UTILITY_REQUESTS_HPP
-#define POAC_UTILITY_REQUESTS_HPP
+#ifndef POAC_UTIL_REQUESTS_HPP
+#define POAC_UTIL_REQUESTS_HPP
 
 #include <iostream>
 #include <string>
@@ -7,7 +7,7 @@
 #include <curl/curl.h>
 
 
-namespace poac::utility::requests {
+namespace poac::util::requests {
     size_t callbackWrite(char* ptr, size_t size, size_t nmemb, std::string* stream) {
         int dataLength = size * nmemb;
         stream->append(ptr, dataLength);
@@ -27,4 +27,4 @@ namespace poac::utility::requests {
         return chunk;
     }
 } // end namespace
-#endif // !POAC_UTILITY_REQUESTS_HPP
+#endif // !POAC_UTIL_REQUESTS_HPP
