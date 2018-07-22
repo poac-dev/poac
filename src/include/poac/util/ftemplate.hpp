@@ -1,5 +1,5 @@
-#ifndef __POAC_FTEMPLATE_HPP__
-#define __POAC_FTEMPLATE_HPP__
+#ifndef POAC_UTIL_FTEMPLATE_HPP
+#define POAC_UTIL_FTEMPLATE_HPP
 
 #include <string>
 
@@ -46,4 +46,4 @@ namespace poac::util::ftemplate {
         "# PROJECT_NAME\n"
     );
 } // end namespace
-#endif // !__POAC_FTEMPLATE_HPP__
+#endif // !POAC_UTIL_FTEMPLATE_HPP

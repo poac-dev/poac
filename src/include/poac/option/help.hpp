@@ -1,5 +1,5 @@
-#ifndef __POAC_OPTION_HELP_HPP__
-#define __POAC_OPTION_HELP_HPP__
+#ifndef POAC_OPTION_HELP_HPP
+#define POAC_OPTION_HELP_HPP
 
 #include <iostream>
 #include <iomanip>
@@ -78,4 +78,4 @@ namespace poac::option { struct help {
         }
     }
 };} // end namespace
-#endif // !__POAC_OPTION_HELP_HPP__
+#endif // !POAC_OPTION_HELP_HPP

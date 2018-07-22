@@ -1,5 +1,5 @@
-#ifndef __POAC_IO_CLI_HPP__
-#define __POAC_IO_CLI_HPP__
+#ifndef POAC_IO_CLI_HPP
+#define POAC_IO_CLI_HPP
 
 #include <iostream>
 #include <string_view>
@@ -15,4 +15,4 @@ namespace poac::io::cli {
     static constexpr std::string_view reset = "\x1b[0m";
 } // end namespace
 
-#endif // !__POAC_IO_CLI_HPP__
+#endif // !POAC_IO_CLI_HPP

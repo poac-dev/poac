@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_FILE_HPP
-#define POAC_UTIL_FILE_HPP
+#ifndef POAC_IO_FILE_HPP
+#define POAC_IO_FILE_HPP
 
 #include <iostream>
 #include <string>
@@ -17,4 +17,4 @@ namespace poac::io::file {
             return true;
     }
 } // end namespace
-#endif // !POAC_UTIL_FILE_HPP
+#endif // !POAC_IO_FILE_HPP

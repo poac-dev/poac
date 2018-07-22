@@ -1,5 +1,5 @@
-#ifndef __POAC_SUBCMD_SEARCH_HPP__
-#define __POAC_SUBCMD_SEARCH_HPP__
+#ifndef POAC_SUBCMD_SEARCH_HPP
+#define POAC_SUBCMD_SEARCH_HPP
 
 #include <iostream>
 #include <string>

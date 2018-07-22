@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_NETWORK_HPP
-#define POAC_UTIL_NETWORK_HPP
+#ifndef POAC_IO_NETWORK_HPP
+#define POAC_IO_NETWORK_HPP
 
 #include <iostream>
 #include <string>
@@ -28,4 +28,4 @@ namespace poac::io::network {
         return chunk;
     }
 } // end namespace
-#endif // !POAC_UTIL_NETWORK_HPP
+#endif // !POAC_IO_NETWORK_HPP

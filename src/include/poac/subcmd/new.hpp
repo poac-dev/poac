@@ -1,5 +1,5 @@
-#ifndef __POAC_SUBCMD_NEW_HPP__
-#define __POAC_SUBCMD_NEW_HPP__
+#ifndef POAC_SUBCMD_NEW_HPP
+#define POAC_SUBCMD_NEW_HPP
 
 #include <iostream>
 #include <fstream>
@@ -76,4 +76,4 @@ namespace poac::subcmd { struct new_ {
                "\n";
     }
 };} // end namespace
-#endif // !__POAC_SUBCMD_NEW_HPP__
+#endif // !POAC_SUBCMD_NEW_HPP

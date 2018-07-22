@@ -1,6 +1,6 @@
 // 文字列から推論してくれる優しいやつ
-#ifndef __POAC_INFERENCE_HPP__
-#define __POAC_INFERENCE_HPP__
+#ifndef POAC_CORE_INFERENCE_HPP
+#define POAC_CORE_INFERENCE_HPP
 
 #include <iostream>
 #include <string>
@@ -171,4 +171,4 @@ namespace poac::core::inference {
             throw poac::core::invalid_first_argument("Invalid argument");
     }
 }
-#endif
+#endif // !POAC_CORE_INFERENCE_HPP

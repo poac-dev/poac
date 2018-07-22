@@ -1,5 +1,5 @@
-#ifndef __POAC_SUBCMD_INIT_HPP__
-#define __POAC_SUBCMD_INIT_HPP__
+#ifndef POAC_SUBCMD_INIT_HPP
+#define POAC_SUBCMD_INIT_HPP
 
 #include <iostream>
 #include <fstream>
@@ -82,4 +82,4 @@ namespace poac::subcmd { struct init {
         return fs::absolute(fs::path(".")).parent_path();
     }
 };} // end namespace
-#endif // !__POAC_SUBCMD_INIT_HPP__
+#endif // !POAC_SUBCMD_INIT_HPP

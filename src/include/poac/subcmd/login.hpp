@@ -1,5 +1,5 @@
-#ifndef __POAC_SUBCMD_LOGIN_HPP__
-#define __POAC_SUBCMD_LOGIN_HPP__
+#ifndef POAC_SUBCMD_LOGIN_HPP
+#define POAC_SUBCMD_LOGIN_HPP
 
 #include <iostream>
 #include <cstdlib>
@@ -64,4 +64,4 @@ namespace poac::subcmd { struct login {
         return path;
     }
 };} // end namespace
-#endif // !__POAC_SUBCMD_LOGIN_HPP__
+#endif // !POAC_SUBCMD_LOGIN_HPP

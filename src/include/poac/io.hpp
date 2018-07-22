@@ -1,8 +1,8 @@
-#ifndef __POAC_IO_HPP__
-#define __POAC_IO_HPP__
+#ifndef POAC_IO_HPP
+#define POAC_IO_HPP
 
 #include "io/cli.hpp"
 #include "io/file.hpp"
 #include "io/network.hpp"
 
-#endif // !__POAC_IO_HPP__
+#endif // !POAC_IO_HPP
