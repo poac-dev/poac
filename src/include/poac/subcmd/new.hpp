@@ -10,7 +10,7 @@
 
 #include "../core/except.hpp"
 #include "../io/cli.hpp"
-#include "../ftemplate.hpp"
+#include "../util/ftemplate.hpp"
 
 
 namespace poac::subcmd { struct new_ {
@@ -42,11 +42,11 @@ namespace poac::subcmd { struct new_ {
         fs::create_directory(dir);
         std::ofstream ofs;
         std::map<fs::path, std::string> file {
-                { ".gitignore", poac::ftemplate::_gitignore },
-                { "main.cpp",   poac::ftemplate::main_cpp },
-                { "poac.lock",  poac::ftemplate::poac_lock },
-                { "poac.yml",   poac::ftemplate::poac_yml },
-                { "README.md",  poac::ftemplate::README_md }
+                { ".gitignore", poac::util::ftemplate::_gitignore },
+                { "main.cpp",   poac::util::ftemplate::main_cpp },
+                { "poac.lock",  poac::util::ftemplate::poac_lock },
+                { "poac.yml",   poac::util::ftemplate::poac_yml },
+                { "README.md",  poac::util::ftemplate::README_md }
         };
         for (const auto& [name, text] : file) write_to_file(ofs, (dir/name).string(), text);
         echo_notice(arg);

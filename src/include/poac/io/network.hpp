@@ -7,7 +7,7 @@
 #include <curl/curl.h>
 
 
-namespace poac::util::network {
+namespace poac::io::network {
     size_t callbackWrite(char* ptr, size_t size, size_t nmemb, std::string* stream) {
         int dataLength = size * nmemb;
         stream->append(ptr, dataLength);

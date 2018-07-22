@@ -7,7 +7,7 @@
 #include <boost/filesystem.hpp>
 
 
-namespace poac::util::file {
+namespace poac::io::file {
     namespace fs = boost::filesystem;
     bool file_exists(const fs::path& filename) {
         boost::system::error_code error;

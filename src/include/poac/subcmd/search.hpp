@@ -12,7 +12,7 @@
 
 #include "../core/except.hpp"
 #include "../io/cli.hpp"
-#include "../util/network.hpp"
+#include "../io/network.hpp"
 
 
 namespace poac::subcmd { struct search {
@@ -28,7 +28,7 @@ namespace poac::subcmd { struct search {
         if (vs.size() != 1) throw poac::core::invalid_second_argument("search");
         const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
         std::stringstream ss;
-        ss << poac::util::network::get(url);
+        ss << poac::io::network::get(url);
         ptree pt;
         json_parser::read_json(ss, pt);
 

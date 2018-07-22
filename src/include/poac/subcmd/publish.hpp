@@ -9,7 +9,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io/cli.hpp"
-#include "../util/file.hpp"
+#include "../io/file.hpp"
 
 
 namespace poac::subcmd { struct publish {
