@@ -2,6 +2,6 @@
 #define POAC_UTIL_HPP
 
 #include "util/file.hpp"
-#include "util/requests.hpp"
+#include "util/netio.hpp"
 
 #endif // !POAC_UTIL_HPP
