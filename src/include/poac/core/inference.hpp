@@ -1,6 +1,6 @@
 // 文字列から推論してくれる優しいやつ
-#ifndef POAC_INFERENCE_HPP
-#define POAC_INFERENCE_HPP
+#ifndef __POAC_INFERENCE_HPP__
+#define __POAC_INFERENCE_HPP__
 
 #include <iostream>
 #include <string>
@@ -9,12 +9,12 @@
 
 #include <boost/predef.h>
 
-#include "core/except.hpp"
-#include "option.hpp"
-#include "subcmd.hpp"
+#include "except.hpp"
+#include "../option.hpp"
+#include "../subcmd.hpp"
 
 
-namespace poac::inference {
+namespace poac::core::inference {
     // If the type T is a reference type, provides the member typedef type
     //  which is the type referred to by T with its topmost cv-qualifiers removed.
     // Otherwise type is T with its topmost cv-qualifiers removed.

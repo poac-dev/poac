@@ -7,12 +7,12 @@
 #include <string>
 
 #include "../core/except.hpp"
-#include "../inference.hpp"
+#include "../core/inference.hpp"
 #include "../console.hpp"
 
 
 // Forward-declaration
-namespace poac::inference {
+namespace poac::core::inference {
     enum class op_type_e : int;
     auto _apply(const std::string&& func, const op_type_e& type, const std::vector<std::string>&& arg);
     std::string apply(std::string&& func, const std::string& cmd, std::vector<std::string>&& arg);
@@ -34,7 +34,7 @@ namespace poac::option { struct help {
     }
     void echo_option(const std::string& arg) {
         try {
-            const auto &tmp = poac::inference::apply("options", arg, std::vector<std::string>());
+            const auto &tmp = poac::core::inference::apply("options", arg, std::vector<std::string>());
             std::cout << "Usage: poac " << arg << " " << tmp << std::endl;
         }
         catch (const poac::core::invalid_first_argument& e) {
@@ -48,14 +48,14 @@ namespace poac::option { struct help {
                   << "Available subcommands:"
                   << poac::console::reset
                   << std::endl;
-        for (const auto& [name, value] : poac::inference::subcmd_map)
+        for (const auto& [name, value] : poac::core::inference::subcmd_map)
             _help(name, value);
 
         std::cout << poac::console::bold
                   << "Available options:"
                   << poac::console::reset
                   << std::endl;
-        for (const auto& [name, value] : poac::inference::option_map)
+        for (const auto& [name, value] : poac::core::inference::option_map)
             _help(name, value);
 
         std::cout << std::endl

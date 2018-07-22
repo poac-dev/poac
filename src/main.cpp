@@ -14,21 +14,21 @@ int error_handling(std::string&& s) {
               << "Error: " << s
               << poac::console::reset
               << std::endl << std::endl;
-    poac::inference::apply("exec", "--help", VS());
+    poac::core::inference::apply("exec", "--help", VS());
     return EXIT_FAILURE;
 }
 
 template <typename S, typename VS>
 int exec(S&& s, VS&& vs) {
     try {
-        poac::inference::apply("exec", s, std::move(vs));
+        poac::core::inference::apply("exec", s, std::move(vs));
         return EXIT_SUCCESS;
     }
     catch (const poac::core::invalid_first_argument& e) {
         return error_handling(e.what());
     }
     catch (const poac::core::invalid_second_argument& e) {
-        poac::inference::apply("exec", "--help", std::move(VS({ e.what() })));
+        poac::core::inference::apply("exec", "--help", std::move(VS({ e.what() })));
         return EXIT_FAILURE;
     }
     catch (...) {
