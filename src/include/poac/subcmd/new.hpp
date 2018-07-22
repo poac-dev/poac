@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_NEW_HPP
-#define POAC_SUBCMD_NEW_HPP
+#ifndef __POAC_SUBCMD_NEW_HPP__
+#define __POAC_SUBCMD_NEW_HPP__
 
 #include <iostream>
 #include <fstream>
@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/except.hpp"
-#include "../console.hpp"
+#include "../io/cli.hpp"
 #include "../ftemplate.hpp"
 
 
@@ -31,9 +31,9 @@ namespace poac::subcmd { struct new_ {
             exec_new(dir, vs[0]);
     }
     void exists_error(const std::string& arg) {
-        std::cerr << poac::console::red
+        std::cerr << poac::io::cli::red
                   << "The "+arg+" directory already exists."
-                  << poac::console::reset
+                  << poac::io::cli::reset
                   << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -58,9 +58,9 @@ namespace poac::subcmd { struct new_ {
         ofs.clear();
     }
     void echo_notice(const std::string& str) {
-        std::cout << poac::console::bold
+        std::cout << poac::io::cli::bold
                   << notice(str)
-                  << poac::console::reset;
+                  << poac::io::cli::reset;
     }
     std::string notice(const std::string& str) {
         return "\n"
@@ -76,4 +76,4 @@ namespace poac::subcmd { struct new_ {
                "\n";
     }
 };} // end namespace
-#endif // !POAC_SUBCMD_NEW_HPP
+#endif // !__POAC_SUBCMD_NEW_HPP__

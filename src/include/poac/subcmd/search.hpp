@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_SEARCH_HPP
-#define POAC_SUBCMD_SEARCH_HPP
+#ifndef __POAC_SUBCMD_SEARCH_HPP__
+#define __POAC_SUBCMD_SEARCH_HPP__
 
 #include <iostream>
 #include <string>
@@ -10,7 +10,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../console.hpp"
+#include "../core/except.hpp"
+#include "../io/cli.hpp"
 #include "../util/network.hpp"
 
 
@@ -50,16 +51,16 @@ namespace poac::subcmd { struct search {
         if (now_count == 0) echo_not_founded(vs[0]);
     }
     void echo_first_line() {
-        std::cout << poac::console::underline << "User/Package" << poac::console::reset << "        "
-                  << poac::console::underline << "Description" << poac::console::reset << "                             "
-                  << poac::console::underline << "Version" << poac::console::reset << "        "
-                  << poac::console::underline << "Tags" << poac::console::reset
+        std::cout << poac::io::cli::underline << "User/Package" << poac::io::cli::reset << "        "
+                  << poac::io::cli::underline << "Description" << poac::io::cli::reset << "                             "
+                  << poac::io::cli::underline << "Version" << poac::io::cli::reset << "        "
+                  << poac::io::cli::underline << "Tags" << poac::io::cli::reset
                   << std::endl;
     }
     void echo_not_founded(const std::string& s) {
-        std::cerr << poac::console::red
+        std::cerr << poac::io::cli::red
                   << s << " not found"
-                  << poac::console::reset
+                  << poac::io::cli::reset
                   << std::endl;
         std::exit(EXIT_FAILURE);
     }

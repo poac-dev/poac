@@ -10,9 +10,9 @@
 using VS = std::vector<std::string>;
 
 int error_handling(std::string&& s) {
-    std::cerr << poac::console::red
+    std::cerr << poac::io::cli::red
               << "Error: " << s
-              << poac::console::reset
+              << poac::io::cli::reset
               << std::endl << std::endl;
     poac::core::inference::apply("exec", "--help", VS());
     return EXIT_FAILURE;
@@ -32,9 +32,9 @@ int exec(S&& s, VS&& vs) {
         return EXIT_FAILURE;
     }
     catch (...) {
-        std::cerr << poac::console::red
+        std::cerr << poac::io::cli::red
                   << "Error: " << "Unexpected error"
-                  << poac::console::reset
+                  << poac::io::cli::reset
                   << std::endl << std::endl;
         return EXIT_FAILURE;
     }

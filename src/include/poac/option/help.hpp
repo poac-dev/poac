@@ -1,5 +1,5 @@
-#ifndef POAC_OPTION_HELP_HPP
-#define POAC_OPTION_HELP_HPP
+#ifndef __POAC_OPTION_HELP_HPP__
+#define __POAC_OPTION_HELP_HPP__
 
 #include <iostream>
 #include <iomanip>
@@ -8,7 +8,7 @@
 
 #include "../core/except.hpp"
 #include "../core/inference.hpp"
-#include "../console.hpp"
+#include "../io/cli.hpp"
 
 
 // Forward-declaration
@@ -44,16 +44,16 @@ namespace poac::option { struct help {
     void exec_help() {
         std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
 
-        std::cout << poac::console::bold
+        std::cout << poac::io::cli::bold
                   << "Available subcommands:"
-                  << poac::console::reset
+                  << poac::io::cli::reset
                   << std::endl;
         for (const auto& [name, value] : poac::core::inference::subcmd_map)
             _help(name, value);
 
-        std::cout << poac::console::bold
+        std::cout << poac::io::cli::bold
                   << "Available options:"
-                  << poac::console::reset
+                  << poac::io::cli::reset
                   << std::endl;
         for (const auto& [name, value] : poac::core::inference::option_map)
             _help(name, value);
@@ -67,15 +67,15 @@ namespace poac::option { struct help {
         // Eliminate -h and -v
         // It assumes two characters because the regular expression is slow.
         if (key.size() != 2) {
-            std::cout << poac::console::blue << poac::console::bold
+            std::cout << poac::io::cli::blue << poac::io::cli::bold
                       << "   " << std::setw(9) << std::left << key << "   "
-                      << poac::console::reset;
+                      << poac::io::cli::reset;
 
-            std::cout << poac::console::yellow
+            std::cout << poac::io::cli::yellow
                       << _apply("summary", value, std::vector<std::string>())
-                      << poac::console::reset
+                      << poac::io::cli::reset
                       << std::endl;
         }
     }
 };} // end namespace
-#endif // !POAC_OPTION_HELP_HPP
+#endif // !__POAC_OPTION_HELP_HPP__
