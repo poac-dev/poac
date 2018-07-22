@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_NETIO_HPP
-#define POAC_UTIL_NETIO_HPP
+#ifndef POAC_UTIL_NETWORK_HPP
+#define POAC_UTIL_NETWORK_HPP
 
 #include <iostream>
 #include <string>
@@ -7,7 +7,7 @@
 #include <curl/curl.h>
 
 
-namespace poac::util::netio {
+namespace poac::util::network {
     size_t callbackWrite(char* ptr, size_t size, size_t nmemb, std::string* stream) {
         int dataLength = size * nmemb;
         stream->append(ptr, dataLength);
@@ -28,4 +28,4 @@ namespace poac::util::netio {
         return chunk;
     }
 } // end namespace
-#endif // !POAC_UTIL_NETIO_HPP
+#endif // !POAC_UTIL_NETWORK_HPP

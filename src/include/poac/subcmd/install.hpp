@@ -13,7 +13,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../util/netio.hpp"
+#include "../util/network.hpp"
 
 
 namespace poac::subcmd { struct install {
