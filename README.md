@@ -17,7 +17,7 @@ $ poac -v
 ### Manually (Other OS)
 ```bash
 $ git clone $THIS_REPO
-$ cd poac
+$ cd $(basename ${_##*:} '.git')
 $ mkdir build
 $ cd $_
 $ cmake ..
