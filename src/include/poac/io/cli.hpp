@@ -1,11 +1,11 @@
-#ifndef POAC_CONSOLE_HPP
-#define POAC_CONSOLE_HPP
+#ifndef POAC_IO_CLI_HPP
+#define POAC_IO_CLI_HPP
 
 #include <iostream>
 #include <string_view>
 
 
-namespace poac::console {
+namespace poac::io::cli {
     static constexpr std::string_view red = "\x1b[31m";
 //    static constexpr std::string_view green = "\x1b[32m";
     static constexpr std::string_view yellow = "\x1b[33m";
@@ -15,4 +15,4 @@ namespace poac::console {
     static constexpr std::string_view reset = "\x1b[0m";
 } // end namespace
 
-#endif // !POAC_CONSOLE_HPP
+#endif // !POAC_IO_CLI_HPP

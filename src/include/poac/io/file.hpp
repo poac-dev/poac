@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_FILE_HPP
-#define POAC_UTIL_FILE_HPP
+#ifndef POAC_IO_FILE_HPP
+#define POAC_IO_FILE_HPP
 
 #include <iostream>
 #include <string>
@@ -7,7 +7,7 @@
 #include <boost/filesystem.hpp>
 
 
-namespace poac::util::file {
+namespace poac::io::file {
     namespace fs = boost::filesystem;
     bool file_exists(const fs::path& filename) {
         boost::system::error_code error;
@@ -17,4 +17,4 @@ namespace poac::util::file {
             return true;
     }
 } // end namespace
-#endif // !POAC_UTIL_FILE_HPP
+#endif // !POAC_IO_FILE_HPP

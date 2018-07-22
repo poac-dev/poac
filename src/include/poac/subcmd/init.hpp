@@ -8,7 +8,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../console.hpp"
+#include "../io/cli.hpp"
 
 
 namespace poac::subcmd { struct init {
@@ -46,7 +46,7 @@ namespace poac::subcmd { struct init {
     int yml_exists(boost::filesystem::path& filename) {
         boost::system::error_code error;
         if (const bool result = boost::filesystem::exists(filename, error); result && !error) {
-            std::cerr << poac::console::bold << poac::console::red
+            std::cerr << poac::io::cli::bold << poac::io::cli::red
                       << "Already poac.yml exists." << std::endl
                       << std::endl
                       << "See `poac init --help`" << std::endl
@@ -55,7 +55,7 @@ namespace poac::subcmd { struct init {
                       << "save it as a dependency in the poac.yml file." << std::endl
                       << std::endl
                       << "Do you want overwrite? (y/n): "
-                      << poac::console::reset;
+                      << poac::io::cli::reset;
             std::string ans;
             std::cin >> ans;
             std::transform(ans.cbegin(), ans.cend(), ans.begin(), tolower);

@@ -9,8 +9,8 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/except.hpp"
-#include "../console.hpp"
-#include "../ftemplate.hpp"
+#include "../io/cli.hpp"
+#include "../util/ftemplate.hpp"
 
 
 namespace poac::subcmd { struct new_ {
@@ -31,9 +31,9 @@ namespace poac::subcmd { struct new_ {
             exec_new(dir, vs[0]);
     }
     void exists_error(const std::string& arg) {
-        std::cerr << poac::console::red
+        std::cerr << poac::io::cli::red
                   << "The "+arg+" directory already exists."
-                  << poac::console::reset
+                  << poac::io::cli::reset
                   << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -42,11 +42,11 @@ namespace poac::subcmd { struct new_ {
         fs::create_directory(dir);
         std::ofstream ofs;
         std::map<fs::path, std::string> file {
-                { ".gitignore", poac::ftemplate::_gitignore },
-                { "main.cpp",   poac::ftemplate::main_cpp },
-                { "poac.lock",  poac::ftemplate::poac_lock },
-                { "poac.yml",   poac::ftemplate::poac_yml },
-                { "README.md",  poac::ftemplate::README_md }
+                { ".gitignore", poac::util::ftemplate::_gitignore },
+                { "main.cpp",   poac::util::ftemplate::main_cpp },
+                { "poac.lock",  poac::util::ftemplate::poac_lock },
+                { "poac.yml",   poac::util::ftemplate::poac_yml },
+                { "README.md",  poac::util::ftemplate::README_md }
         };
         for (const auto& [name, text] : file) write_to_file(ofs, (dir/name).string(), text);
         echo_notice(arg);
@@ -58,9 +58,9 @@ namespace poac::subcmd { struct new_ {
         ofs.clear();
     }
     void echo_notice(const std::string& str) {
-        std::cout << poac::console::bold
+        std::cout << poac::io::cli::bold
                   << notice(str)
-                  << poac::console::reset;
+                  << poac::io::cli::reset;
     }
     std::string notice(const std::string& str) {
         return "\n"

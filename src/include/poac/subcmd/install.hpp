@@ -13,7 +13,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../util/requests.hpp"
+#include "../io/network.hpp"
 
 
 namespace poac::subcmd { struct install {

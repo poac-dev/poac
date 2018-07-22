@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/except.hpp"
-#include "../console.hpp"
+#include "../io/cli.hpp"
 
 
 namespace poac::subcmd { struct login {
@@ -35,9 +35,9 @@ namespace poac::subcmd { struct login {
         const fs::path token = root / fs::path("token");
         if (std::ofstream ofs(token.string()); ofs) {
             ofs << vs[0] << std::endl;
-            std::cout << poac::console::bold
+            std::cout << poac::io::cli::bold
                       << "Write to " + token.string()
-                      << poac::console::reset
+                      << poac::io::cli::reset
                       << std::endl;
         }
         else { // file open error

@@ -1,10 +1,10 @@
-#ifndef POAC_FTEMPLATE_HPP
-#define POAC_FTEMPLATE_HPP
+#ifndef POAC_UTIL_FTEMPLATE_HPP
+#define POAC_UTIL_FTEMPLATE_HPP
 
 #include <string>
 
 
-namespace poac::ftemplate {
+namespace poac::util::ftemplate {
     std::string _gitignore(
         "# The directory Mix downloads your dependencies sources to.\n"
         "./deps/\n"
@@ -46,4 +46,4 @@ namespace poac::ftemplate {
         "# PROJECT_NAME\n"
     );
 } // end namespace
-#endif // !POAC_FTEMPLATE_HPP
+#endif // !POAC_UTIL_FTEMPLATE_HPP
