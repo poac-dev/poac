@@ -14,6 +14,8 @@ namespace poac::io::network {
         return dataLength;
     }
 
+    // TODO: Check if connecting network
+
     // TODO: SSL ?
     std::string get(const std::string& url) {
         std::string chunk;
