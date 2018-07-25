@@ -39,11 +39,10 @@ namespace poac::subcmd { struct init {
 
         std::ofstream yml(filename.string());
         std::string basename = poac::subcmd::init::basename(".");
-        std::string sample_url{ "https://github.com/usrname/repository" };
 
+        // TODO: Comment disappears
         YAML::Node node = YAML::Load(util::ftemplate::poac_yml);
         node["name"] = basename;
-        node["links"]["GitHub"] = sample_url;
 
         yml << node;
         yml.close();
