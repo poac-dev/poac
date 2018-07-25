@@ -7,8 +7,11 @@
 #include <cstdlib>
 
 #include <boost/filesystem.hpp>
+#include <yaml-cpp/yaml.h>
 
 #include "../io/cli.hpp"
+#include "../core/except.hpp"
+#include "../util/ftemplate.hpp"
 
 
 namespace poac::subcmd { struct init {
@@ -18,30 +21,34 @@ namespace poac::subcmd { struct init {
     template <typename VS>
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
-    void _main([[maybe_unused]] VS&& vs) {
-        boost::filesystem::path filename("poac.yml");
+    void _main(VS&& vs) {
+        namespace fs   = boost::filesystem;
+        namespace io   = poac::io;
+        namespace util = poac::util;
+
+        if (!vs.empty()) throw poac::core::invalid_second_argument("init");
+
+        fs::path filename("poac.yml");
         if (yml_exists(filename)) {
-            std::cerr << "\033[33mcanceled\033[0m" << std::endl;
+            std::cerr << io::cli::red
+                      << "canceled"
+                      << io::cli::reset
+                      << std::endl;
             std::exit(EXIT_FAILURE);
         }
 
         std::ofstream yml(filename.string());
         std::string basename = poac::subcmd::init::basename(".");
-        std::string sample_url{ "https://github.com/usrname/repository" };
-        yml << "app: \""+basename+"\""          << std::endl
-            << "version: \"0.0.1\""             << std::endl
-            << "cpp: \"\""                      << std::endl
-            << "description: \"\""              << std::endl
-            << "authors:"                       << std::endl
-            << "  - \"\""                       << std::endl
-            << "license: \"ISC\""               << std::endl
-            << "links:"                         << std::endl
-            << "  - GitHub: \""+sample_url+"\"" << std::endl
-            << "deps:"                          << std::endl
-            << "  -"                            << std::endl;
+
+        // TODO: Comment disappears
+        YAML::Node node = YAML::Load(util::ftemplate::poac_yml);
+        node["name"] = basename;
+
+        yml << node;
         yml.close();
-        std::cout << current() / filename << " was created.";
+        std::cout << current() / filename << " was created." << std::endl;
     }
+
     // If poac.yml exists
     int yml_exists(boost::filesystem::path& filename) {
         boost::system::error_code error;
