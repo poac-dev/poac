@@ -38,9 +38,9 @@ namespace poac::util::ftemplate {
         "  - \"good author\"\n"
         "license: ISC\n"
         "links:\n"
-        "  - GitHub: https://github.com\n"
+        "  GitHub: https://github.com\n"
         "deps:\n"
-        "  - hello_world: 1.0.0\n"
+        "  hello_world: 1.0.0\n"
     );
     std::string README_md(
         "# PROJECT_NAME\n"
