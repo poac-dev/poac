@@ -30,6 +30,9 @@ $ make install
 * `curl(libcurl)`:
 * `yaml-cpp`:
 
+## Requirements(Runtime)
+* `tar`
+
 
 ## Documentation
 Please look at [github.io](https://poacpm.github.io/poac/) or [This repo](docs/).
