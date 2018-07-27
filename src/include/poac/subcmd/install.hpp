@@ -1,3 +1,4 @@
+// Beta: It correspond to installation only from GitHub
 #ifndef POAC_SUBCMD_INSTALL_HPP
 #define POAC_SUBCMD_INSTALL_HPP
 
@@ -31,7 +32,7 @@
 // Version 2 will also allow $ poac install [<pkg-names>].
 //   Parse arguments.
 namespace poac::subcmd { struct install {
-    static const std::string summary() { return "Install packages."; }
+    static const std::string summary() { return "Beta: Install packages."; }
     static const std::string options() { return "<Nothing>"; }
 
     template <typename VS>
@@ -58,6 +59,7 @@ namespace poac::subcmd { struct install {
      * ×  Not found
      * ×  Install failed
      */
+    // 
     template <typename VS>
     void _main(VS&& vs) {
         namespace core = poac::core;

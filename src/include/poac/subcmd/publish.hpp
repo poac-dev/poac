@@ -13,7 +13,7 @@
 
 
 namespace poac::subcmd { struct publish {
-    static const std::string summary() { return "Publish a package."; }
+    static const std::string summary() { return "Beta: Publish a package."; }
     static const std::string options() { return "[<pkg-name>]"; }
 
     template <typename VS>
