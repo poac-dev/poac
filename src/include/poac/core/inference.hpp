@@ -82,7 +82,7 @@ namespace poac::core::inference {
         install   = op_type_list_t::index_of<poac::subcmd::install>,
         uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>,
         search    = op_type_list_t::index_of<poac::subcmd::search>,
-        login    = op_type_list_t::index_of<poac::subcmd::login>,
+        login     = op_type_list_t::index_of<poac::subcmd::login>,
         publish   = op_type_list_t::index_of<poac::subcmd::publish>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
