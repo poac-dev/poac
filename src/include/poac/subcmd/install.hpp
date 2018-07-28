@@ -74,18 +74,16 @@ namespace poac::subcmd { struct install {
             std::exit(0);
         }
 
-        const std::vector<bool> is_cache  = check_cache(deps);
-
         const int deps_num = static_cast<int>(deps.size());
         std::vector<std::future<void>> async_funcs;
-        std::vector<bool> check_list;
+        std::vector<bool> check_list; // TODO: できればdepsやasync_funcsなどを消すことでこれと同様の役割を担ってほしい．
 
 
         std::cout << "Some new packages are needed.\n"
                   << "\n";
 
         auto s = std::chrono::system_clock::now();
-        start_install(deps, &async_funcs, &check_list, is_cache);
+        preinstall(deps, &async_funcs, &check_list);
         for (int i = 0; print_status(deps_num, &i, async_funcs, check_list) != deps_num; ++i)
             usleep(100000);
         auto e = std::chrono::system_clock::now();
@@ -98,14 +96,6 @@ namespace poac::subcmd { struct install {
         std::cout << std::endl;
         std::cout << io::cli::bold << " ==> Installation finished successfully!" << std::endl;
     }
-
-
-
-
-
-
-
-
 
 
     std::map<std::string, std::string> check_requirements(const std::vector<std::string>& vs) {
@@ -122,6 +112,7 @@ namespace poac::subcmd { struct install {
         return deps;
     }
 
+    // TODO: できればstatic storageから排除する
     // username/repository -> repository
     static std::string get_name(const std::string& name) {
         if (name.find('/') != std::string::npos)
@@ -160,49 +151,38 @@ namespace poac::subcmd { struct install {
         }
     }
 
-    // TODO: これもthreadでやって欲しく無い？？そうすれば，この変数が不要になるはず　けど，最初のcurrent検索は，だめっぽい．
-    // TODO: thread数の制限掛けたい．
-    std::vector<bool> check_cache(const std::map<std::string, std::string>& deps) {
-        namespace fs = boost::filesystem;
-        if (!fs::exists(io::file::POAC_CACHE_DIR)) {
-            fs::create_directories(io::file::POAC_CACHE_DIR);
-            return std::vector<bool>(deps.size(), false);
-        }
-        else {
-            std::vector<bool> is_cache;
-            for (const auto& [name, tag] : deps)
-                is_cache.push_back(validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag))));
-            return is_cache;
-        }
-    }
-
     // TODO: io周りをもっとスマートにしたい
-    // TODO: preinstall
-    void start_install(
+    void preinstall(
             std::map<std::string, std::string> deps,
             std::vector<std::future<void>>* async_funcs,
-            std::vector<bool>* check_list,
-            const std::vector<bool>& is_cache
+            std::vector<bool>* check_list
     ) {
+        namespace fs = boost::filesystem;
+        // check_cache
+        fs::create_directories(io::file::POAC_CACHE_DIR);
+
         std::string status = "Installing..."; // TODO: Print "from github"
         int i = 0;
-        for (const auto& [key, value] : deps) {
+        for (const auto& [name, tag] : deps) {
+            // check_cache
+            const bool is_cache = validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)));
+
             std::cout << " ";
-            if (is_cache[i])
+            if (is_cache)
                 std::cout << "✔  " << io::cli::yellow << "Found in cache." << io::cli::reset;
             else
                 std::cout << "   " << status;
             std::cout << "         "
-                      << key
+                      << name
                       << ": "
-                      << value
+                      << tag
                       << std::endl;
-            if (!is_cache[i]) {
+            if (!is_cache) {
                 async_funcs->push_back(
-                        std::async(std::launch::async, std::bind(_install, key, value))
+                        std::async(std::launch::async, std::bind(_install, name, tag))
                 );
             }
-            check_list->push_back(is_cache[i]);
+            check_list->push_back(is_cache);
             ++i;
         }
         std::cout << std::endl
