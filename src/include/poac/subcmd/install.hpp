@@ -16,6 +16,8 @@
 #include <thread>
 #include <future>
 #include <functional>
+#include <iomanip>
+#include <utility>
 
 #include <unistd.h>
 
@@ -48,24 +50,25 @@ namespace poac::subcmd { struct install {
      * cacheにも無い場合，githubなどからのインストールを行い，それを，まずcacheディレクトリに保存する
      * 解凍後，cacheからcurrentにコピーを行う．
      * 
-     * GitHubの場合，poac.ymlが確認された場合のみ，依存関係の解決を行う．
-     * 
+     * TODO: Installability from source: GitHub (以下の条件が満たされない場合インストール不可である．)
+     * TODO: 1. プロジェクトルートにpoac.ymlが存在する (poacによる依存関係解決アルゴリズムが使用可能)
+     * TODO: 2-1. プロジェクトルートにCMakeLists.txtが存在する
+     * TODO: 2-2. 2-1が満たされなかったとしても，includeディレクトリが存在する
+     *
      * TODO: Check if connecting network
      * TODO: download途中で，ctl Cされたファイルは消す
+     * TODO: Corresponds to redirect
      * TODO: パッケージの解決順序
      * cache -> poac -> github -> conan -> buckaroo -> None
      * TODO: 各所で探索を行う
      * TODO: 見つかったところを表示する
-     * ⠹  Installing... (found in github)
-     * ✔  Installed! (found in cache)
-     * ×  Not found
-     * ×  Install failed
      */
-    // 
     template <typename VS>
     void _main(VS&& vs) {
+        namespace fs = boost::filesystem;
         namespace core = poac::core;
         namespace io   = poac::io;
+        
 
         std::map<std::string, std::string> deps = check_requirements(vs);
         check_current(deps);
@@ -75,20 +78,25 @@ namespace poac::subcmd { struct install {
         }
 
         const int deps_num = static_cast<int>(deps.size());
-        std::vector<std::future<void>> async_funcs;
-        std::vector<bool> check_list; // TODO: できればdepsやasync_funcsなどを消すことでこれと同様の役割を担ってほしい．
+        // std::vector<std::future<void>> async_funcs;
+        //                    task,              source
+        std::vector<std::pair<std::future<void>, std::string>> async_funcs;
+        // std::vector<bool> check_list;
 
 
         std::cout << "Some new packages are needed.\n"
                   << "\n";
 
         auto s = std::chrono::system_clock::now();
-        preinstall(deps, &async_funcs, &check_list);
-        for (int i = 0; installing(deps_num, &i, async_funcs, check_list) != deps_num; ++i)
+
+        fs::create_directories(io::file::POAC_CACHE_DIR);
+        preinstall(deps, &async_funcs);
+        for (int i = 0; install_now(&i, async_funcs) != deps_num; ++i)
             usleep(100000);
+        
         auto e = std::chrono::system_clock::now();
 
-        std::cout << io::cli::clr_left
+        std::cout << io::cli::clr_line
                   << io::cli::left(30);
         std::cout << "Elapsed time: "
                   << std::chrono::duration_cast<std::chrono::seconds>(e-s).count()
@@ -151,105 +159,114 @@ namespace poac::subcmd { struct install {
         }
     }
 
-    // TODO: io周りをもっとスマートにしたい
+    void set_left() {
+        std::cout << std::setw(34) << std::left;
+    }
+    void installing(const int& index, const std::string& src) {
+        std::cout << " " << io::cli::spinners[index] << "  ";
+        set_left();
+        std::cout << "Installing... (found in " + src + ")";
+    }
+    void installed(const std::string& src) {
+        std::cout << " ✔  " << io::cli::green;
+        set_left();
+        std::cout << "Installed! (found in " + src + ")" << io::cli::reset;
+    }
+    void not_found() {
+        std::cout << " ×  " << io::cli::red;
+        set_left();
+        std::cout << "Not found" << io::cli::reset;
+    }
+    void install_failed() {
+        std::cout << " ×  " << io::cli::red;
+        set_left();
+        std::cout << "Install failed" << io::cli::reset;
+    }
+
     void preinstall(
             std::map<std::string, std::string> deps,
-            std::vector<std::future<void>>* async_funcs,
-            std::vector<bool>* check_list
+            std::vector<std::pair<std::future<void>, std::string>>* async_funcs // 既にインストール完了などありえない．cacheにある場合でも，コピーするタスクがあるはずだ．
     ) {
-        namespace fs = boost::filesystem;
-        // check_cache
-        fs::create_directories(io::file::POAC_CACHE_DIR);
-
-        std::string status = "Installing..."; // TODO: Print "from github"
-        int i = 0;
         for (const auto& [name, tag] : deps) {
             // check_cache
             const bool is_cache = validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)));
+            if (is_cache) {
+                installed("cache");
+                std::cout << name << ": " << tag << std::endl;
 
-            std::cout << " ";
-            if (is_cache)
-                std::cout << "✔  " << io::cli::yellow << "Found in cache." << io::cli::reset;
-            else
-                std::cout << "   " << status;
-            std::cout << "         "
-                      << name
-                      << ": "
-                      << tag
-                      << std::endl;
-
-            if (!is_cache) {
                 async_funcs->push_back(
-                        std::async(std::launch::async, std::bind(_install, name, tag))
+                    std::make_pair(
+                        std::async(std::launch::async, std::bind(_copy, name, tag)),
+                        "cache"
+                    )
                 );
             }
             else {
-                // Copy package to ./deps
-                // If it exists in cache and it is not in the current directory copy it to the current.
-                const std::string folder = make_name(get_name(name), tag);
-                io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
+                installing(0, "github");
+                std::cout << name << ": " << tag << std::endl;
+
+                async_funcs->push_back(
+                    std::make_pair(
+                        std::async(std::launch::async, std::bind(_install, name, tag)),
+                        "github"
+                    )
+                );
             }
-            check_list->push_back(is_cache);
-            ++i;
         }
         std::cout << std::endl
                   << "0/" << deps.size() << " packages installed";
     }
 
-    int installing(
-            int deps_num,
+    int install_now(
             int* index_now,
-            const std::vector<std::future<void>>& async_funcs,
-            std::vector<bool>& check_list
+            const std::vector<std::pair<std::future<void>, std::string>>& async_funcs
     ) {
         if (*index_now >= static_cast<int>(io::cli::spinners.size()))
             *index_now = 0;
 
         // 0/num packages installed|
         // |0/num packages installed
-        std::cout << io::cli::left(30)
+        std::cout << io::cli::left(50)
                   << io::cli::up(1);
 
-        std::cout << io::cli::up(deps_num);
+        std::cout << io::cli::up(async_funcs.size());
 
-        int j = 0;
-        for (int i = 0; i < deps_num; ++i) {
+        int count = 0;
+        for (const auto& fun : async_funcs) {
             // true is finished
-            if (!check_list[i]) {
-                if (std::future_status::ready == async_funcs[j].wait_for(std::chrono::milliseconds(0))) {
-                    std::cout << io::cli::right(2)
-                              << "\b"
-                              << "✔  "
-                              << io::cli::green
-                              << "Installed!"
-                              << io::cli::reset
-                              << "   "
-                              << io::cli::left(17);
-                    check_list[i] = true;
-                    ++j;
-                }
-                else {
-                    std::cout << io::cli::right(2)
-                              << "\b"
-                              << io::cli::spinners[*index_now]
-                              << io::cli::left(2);
-                }
+            if (std::future_status::ready == fun.first.wait_for(std::chrono::milliseconds(0))) {
+                std::cout << io::cli::right(1)
+                            << "\b";
+                installed(fun.second);
+                std::cout << io::cli::left(50);
+                ++count;
+            }
+            else {
+                std::cout << io::cli::right(2)
+                            << "\b"
+                            << io::cli::spinners[*index_now]
+                            << io::cli::left(50);
             }
             std::cout << io::cli::down(1);
         }
-        const int check_list_count = static_cast<int>(std::count_if(check_list.begin(), check_list.end(), [](bool b){return b;}));
         std::cout << std::endl
-                  << check_list_count << "/" << deps_num << " packages installed";
+                  << io::cli::right(1) << '\b'
+                  << count;
         std::cout << std::flush;
 
-        return check_list_count;
+        return count;
     }
 
-
+    static void _copy(const std::string& name, const std::string& tag) {
+        // Copy package to ./deps
+        // If it exists in cache and it is not in the current directory copy it to the current.
+        const std::string folder = make_name(get_name(name), tag);
+        io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
+    }
 
     // TODO: これをもっと分離して，deferredにする
     // TODO: できればラムダ式にする
-    static void _install(std::string& name, const std::string& tag) {
+    static void _install(const std::string& name, const std::string& tag) {
         namespace fs  = boost::filesystem;
         namespace src = poac::sources;
         namespace io  = poac::io;
@@ -271,9 +288,10 @@ namespace poac::subcmd { struct install {
     }
 
 
-    // template < typename ...func >
-    // struct step_functions {
-        
-    // };
+     template < typename Funcs, Funcs ...fs >
+     struct step_functions {
+         const std::vector<Funcs> funcs;
+         step_functions() : funcs({ fs... }) {}
+     };
 };} // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP
