@@ -185,13 +185,11 @@ namespace poac::subcmd { struct install {
 
     void preinstall(
             std::map<std::string, std::string> deps,
-            std::vector<std::pair<std::future<void>, std::string>>* async_funcs // 既にインストール完了などありえない．cacheにある場合でも，コピーするタスクがあるはずだ．
+            std::vector<std::pair<std::future<void>, std::string>>* async_funcs
     ) {
         for (const auto& [name, tag] : deps) {
-            // check_cache
-            const bool is_cache = validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)));
-            if (is_cache) {
-                installed("cache");
+            if (validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)))) {
+                installing(0, "cache");
                 std::cout << name << ": " << tag << std::endl;
 
                 async_funcs->push_back(
@@ -236,7 +234,7 @@ namespace poac::subcmd { struct install {
             // true is finished
             if (std::future_status::ready == fun.first.wait_for(std::chrono::milliseconds(0))) {
                 std::cout << io::cli::right(1)
-                            << "\b";
+                          << "\b";
                 installed(fun.second);
                 std::cout << io::cli::left(50);
                 ++count;
