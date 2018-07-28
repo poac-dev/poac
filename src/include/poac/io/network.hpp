@@ -35,7 +35,7 @@ namespace poac::io::network {
         size_t written = fwrite(buffer, size, nmemb, stream);
         return written;
     }
-    void file_get(const std::string& from, const std::string& to) {
+    void get_file(const std::string& from, const std::string& to) {
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             FILE* fp = fopen(to.data(), "wb");
             curl_easy_setopt(curl, CURLOPT_URL, from.c_str());

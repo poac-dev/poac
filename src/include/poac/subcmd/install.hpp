@@ -84,7 +84,7 @@ namespace poac::subcmd { struct install {
 
         auto s = std::chrono::system_clock::now();
         preinstall(deps, &async_funcs, &check_list);
-        for (int i = 0; print_status(deps_num, &i, async_funcs, check_list) != deps_num; ++i)
+        for (int i = 0; installing(deps_num, &i, async_funcs, check_list) != deps_num; ++i)
             usleep(100000);
         auto e = std::chrono::system_clock::now();
 
@@ -177,10 +177,17 @@ namespace poac::subcmd { struct install {
                       << ": "
                       << tag
                       << std::endl;
+
             if (!is_cache) {
                 async_funcs->push_back(
                         std::async(std::launch::async, std::bind(_install, name, tag))
                 );
+            }
+            else {
+                // Copy package to ./deps
+                // If it exists in cache and it is not in the current directory copy it to the current.
+                const std::string folder = make_name(get_name(name), tag);
+                io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
             }
             check_list->push_back(is_cache);
             ++i;
@@ -189,7 +196,7 @@ namespace poac::subcmd { struct install {
                   << "0/" << deps.size() << " packages installed";
     }
 
-    int print_status(
+    int installing(
             int deps_num,
             int* index_now,
             const std::vector<std::future<void>>& async_funcs,
@@ -249,7 +256,7 @@ namespace poac::subcmd { struct install {
 
         const std::string url  = src::github::resolve(name, tag);
         const std::string filename = io::file::POAC_CACHE_DIR.c_str() + tag + ".tar.gz";
-        io::network::file_get(url, filename);
+        io::network::get_file(url, filename);
 
         // username/repository -> repository
         const std::string folder = get_name(name);
