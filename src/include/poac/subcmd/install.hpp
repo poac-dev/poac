@@ -1,4 +1,5 @@
 // Beta: It correspond to installation only from GitHub
+//       Do not resolve dependencies
 #ifndef POAC_SUBCMD_INSTALL_HPP
 #define POAC_SUBCMD_INSTALL_HPP
 
@@ -39,7 +40,7 @@ namespace poac::subcmd { struct install {
     void operator()(VS&& vs) { _main(vs); }
 
     /*
-     * 最初はdepsを取得します．
+     * ./poac.ymlからdepsの要素を取得
      * その後，current directoryに既に存在する場合(cacheには無い場合も含む)は，インストールタスクから消去します．
      * この時点で，何もインストールするものが無くなれば，Already up-to-dateと表示
      * 次にcacheの確認を行う．
@@ -47,15 +48,16 @@ namespace poac::subcmd { struct install {
      * cacheにも無い場合，githubなどからのインストールを行い，それを，まずcacheディレクトリに保存する
      * 解凍後，cacheからcurrentにコピーを行う．
      * 
+     * GitHubの場合，poac.ymlが確認された場合のみ，依存関係の解決を行う．
+     * 
      * TODO: Check if connecting network
      * TODO: download途中で，ctl Cされたファイルは消す
      * TODO: パッケージの解決順序
      * cache -> poac -> github -> conan -> buckaroo -> None
      * TODO: 各所で探索を行う
      * TODO: 見つかったところを表示する
-     * ✔  Found in cache.
      * ⠹  Installing... (found in github)
-     * ✔  Installed!
+     * ✔  Installed! (found in cache)
      * ×  Not found
      * ×  Install failed
      */
@@ -82,17 +84,10 @@ namespace poac::subcmd { struct install {
         std::cout << "Some new packages are needed.\n"
                   << "\n";
 
-
         auto s = std::chrono::system_clock::now();
-
-        int index_now = 0;
         start_install(deps, &async_funcs, &check_list, is_cache);
-        while(true) {
-            if (print_status(deps_num, &index_now, async_funcs, check_list) == deps_num) break;
-            ++index_now;
+        for (int i = 0; print_status(deps_num, &i, async_funcs, check_list) != deps_num; ++i)
             usleep(100000);
-        }
-
         auto e = std::chrono::system_clock::now();
 
         std::cout << io::cli::clr_left
@@ -105,30 +100,67 @@ namespace poac::subcmd { struct install {
     }
 
 
+
+
+
+
+
+
+
+
+    std::map<std::string, std::string> check_requirements(const std::vector<std::string>& vs) {
+        if (!vs.empty())
+            throw poac::core::invalid_second_argument("install");
+        if (!poac::core::yaml::notfound_handle()) // auto generate poac.yml?
+            throw poac::core::invalid_second_argument("install");
+
+        const YAML::Node config = core::yaml::get_node("deps");
+        const auto deps = config.as<std::map<std::string, std::string>>();
+        if (deps.empty())
+            throw poac::core::invalid_second_argument("install");
+
+        return deps;
+    }
+
+    // username/repository -> repository
+    static std::string get_name(const std::string& name) {
+        if (name.find('/') != std::string::npos)
+            return std::string(name, name.find('/')+1);
+        else
+            return name;
+    }
+
+    // TODO: できればstatic storageから排除する
+    static std::string make_name(const std::string& name, const std::string& tag) {
+        return (name + "-" + tag);
+    }
+
+    // TODO: できればstatic storageから排除する
+    static std::string connect_path(const boost::filesystem::path& pre, const boost::filesystem::path& post) {
+        return (pre / post).c_str();
+    }
+
+    bool validate_dir(const boost::filesystem::path& path) {
+        namespace fs = boost::filesystem;
+        return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
+    }
+
     void check_current(std::map<std::string, std::string>& deps) {
         namespace fs = boost::filesystem;
-        fs::path deps_dir(fs::path(".") / fs::path("deps"));
-
-        if (!fs::exists(deps_dir)) {
+        if (fs::path deps_dir(fs::path(".") / fs::path("deps")); !fs::exists(deps_dir)) {
             fs::create_directories(deps_dir);
         }
         else {
             for (auto itr = deps.begin(); itr != deps.end(); ) {
-                // username/repository -> repository
-                const std::string folder(itr->first, itr->first.find('/')+1);
-                const std::string pkg = (deps_dir / fs::path(folder+"-"+itr->second)).c_str();
-                if (fs::exists(pkg) && fs::is_directory(pkg) && !fs::is_empty(pkg)) {
+                if (validate_dir(connect_path(deps_dir, make_name(get_name(itr->first), itr->second))))
                     deps.erase(itr++);
-                }
-                else {
+                else
                     ++itr;
-                }
             }
         }
-        return;
     }
 
-    // TODO: これもthreadでやって欲しく無い？？けど，最初のcurrent検索は，だめっぽい．
+    // TODO: これもthreadでやって欲しく無い？？そうすれば，この変数が不要になるはず　けど，最初のcurrent検索は，だめっぽい．
     // TODO: thread数の制限掛けたい．
     std::vector<bool> check_cache(const std::map<std::string, std::string>& deps) {
         namespace fs = boost::filesystem;
@@ -138,16 +170,14 @@ namespace poac::subcmd { struct install {
         }
         else {
             std::vector<bool> is_cache;
-            for (const auto& [name, tag] : deps) {
-                // username/repository -> repository
-                const std::string folder(name, name.find('/')+1);
-                const std::string pkg = (io::file::POAC_CACHE_DIR / fs::path(folder+"-"+tag)).c_str();
-                is_cache.push_back(fs::exists(pkg) && fs::is_directory(pkg) && !fs::is_empty(pkg));
-            }
+            for (const auto& [name, tag] : deps)
+                is_cache.push_back(validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag))));
             return is_cache;
         }
     }
 
+    // TODO: io周りをもっとスマートにしたい
+    // TODO: preinstall
     void start_install(
             std::map<std::string, std::string> deps,
             std::vector<std::future<void>>* async_funcs,
@@ -167,8 +197,6 @@ namespace poac::subcmd { struct install {
                       << ": "
                       << value
                       << std::endl;
-            // TODO: push backをしないでほしい．しかし，print_status関数で，deps_numの影響を受けるはず
-            // TODO: それに加え，wait_forでも同様に影響を受ける. できるならば空で入れたい
             if (!is_cache[i]) {
                 async_funcs->push_back(
                         std::async(std::launch::async, std::bind(_install, key, value))
@@ -230,39 +258,35 @@ namespace poac::subcmd { struct install {
         return check_list_count;
     }
 
-    std::map<std::string, std::string> check_requirements(const std::vector<std::string>& vs) {
-        if (!vs.empty())
-            throw poac::core::invalid_second_argument("install");
-        if (!poac::core::yaml::notfound_handle()) // auto generate poac.yml?
-            throw poac::core::invalid_second_argument("install");
 
-        const YAML::Node config = core::yaml::get_node("deps");
-        const auto deps = config.as<std::map<std::string, std::string>>();
-        if (deps.empty())
-            throw poac::core::invalid_second_argument("install");
 
-        return deps;
-    }
-
+    // TODO: これをもっと分離して，deferredにする
+    // TODO: できればラムダ式にする
     static void _install(std::string& name, const std::string& tag) {
-        namespace src = poac::sources;
         namespace fs  = boost::filesystem;
+        namespace src = poac::sources;
+        namespace io  = poac::io;
 
         const std::string url  = src::github::resolve(name, tag);
-        const std::string root = io::file::expand_user("~/.poac");
-        const std::string filename = root + "/cache/" + tag + ".tar.gz";
+        const std::string filename = io::file::POAC_CACHE_DIR.c_str() + tag + ".tar.gz";
         io::network::file_get(url, filename);
 
         // username/repository -> repository
-        const std::string folder(name, name.find('/')+1);
+        const std::string folder = get_name(name);
         // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-        io::file::extract_tar_spec(filename, root + "/cache/"+folder+"-"+tag);
+        io::file::extract_tar_spec(filename, connect_path(io::file::POAC_CACHE_DIR, make_name(folder, tag)));
         fs::remove(filename);
 
         // Create directory ./deps
         fs::create_directories("./deps");
         // Copy package to ./deps
-        io::file::copy_dir(root + "/cache/"+folder+"-"+tag, "./deps/" + folder+"-"+tag);
+        io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(folder, tag)), "./deps/" + make_name(folder, tag));
     }
+
+
+    // template < typename ...func >
+    // struct step_functions {
+        
+    // };
 };} // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP
