@@ -71,7 +71,8 @@ namespace poac::core::inference {
             poac::subcmd::uninstall,
             poac::subcmd::search,
             poac::subcmd::login,
-            poac::subcmd::publish
+            poac::subcmd::publish,
+            poac::subcmd::cache
     >;
     enum class op_type_e : int {
         help      = op_type_list_t::index_of<poac::option::help>,
@@ -83,23 +84,25 @@ namespace poac::core::inference {
         uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>,
         search    = op_type_list_t::index_of<poac::subcmd::search>,
         login     = op_type_list_t::index_of<poac::subcmd::login>,
-        publish   = op_type_list_t::index_of<poac::subcmd::publish>
+        publish   = op_type_list_t::index_of<poac::subcmd::publish>,
+        cache     = op_type_list_t::index_of<poac::subcmd::cache>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
-            { "init", op_type_e::init },
-            { "root", op_type_e::root },
-            { "new", op_type_e::new_ },
-            { "install", op_type_e::install },
+            { "init",      op_type_e::init },
+            { "root",      op_type_e::root },
+            { "new",       op_type_e::new_ },
+            { "install",   op_type_e::install },
             { "uninstall", op_type_e::uninstall },
-            { "search", op_type_e::search },
-            { "login", op_type_e::login },
-            { "publish", op_type_e::publish }
+            { "search",    op_type_e::search },
+            { "login",     op_type_e::login },
+            { "publish",   op_type_e::publish },
+            { "cache",     op_type_e::cache }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
-            { "--help", op_type_e::help },
-            { "-h", op_type_e::help },
+            { "--help",    op_type_e::help },
+            { "-h",        op_type_e::help },
             { "--version", op_type_e::version },
-            { "-v", op_type_e::version }
+            { "-v",        op_type_e::version }
     };
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
