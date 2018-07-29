@@ -61,11 +61,10 @@ namespace poac::subcmd { struct install {
      * TODO: パッケージの解決順序
      * cache -> poac -> github -> conan -> buckaroo -> None
      * TODO: 各所で探索を行う
-     * TODO: 見つかったところを表示する
      */
     template <typename VS>
     void _main(VS&& vs) {
-        namespace fs = boost::filesystem;
+        namespace fs   = boost::filesystem;
         namespace core = poac::core;
         namespace io   = poac::io;
         
@@ -76,20 +75,18 @@ namespace poac::subcmd { struct install {
             std::cout << "Already up-to-date" << std::endl;
             std::exit(0);
         }
-
         const int deps_num = static_cast<int>(deps.size());
-        // std::vector<std::future<void>> async_funcs;
-        //                    task,              source
-        std::vector<std::pair<std::future<void>, std::string>> async_funcs;
-        // std::vector<bool> check_list;
-
 
         std::cout << "Some new packages are needed.\n"
                   << "\n";
 
+
         auto s = std::chrono::system_clock::now();
 
         fs::create_directories(io::file::POAC_CACHE_DIR);
+
+
+        std::vector<std::pair<step_functions, std::string>> async_funcs;
         preinstall(deps, &async_funcs);
         for (int i = 0; install_now(&i, async_funcs) != deps_num; ++i)
             usleep(100000);
@@ -183,10 +180,8 @@ namespace poac::subcmd { struct install {
         std::cout << "Install failed" << io::cli::reset;
     }
 
-    void preinstall(
-            std::map<std::string, std::string> deps,
-            std::vector<std::pair<std::future<void>, std::string>>* async_funcs
-    ) {
+    template <typename Async>
+    void preinstall(std::map<std::string, std::string> deps, Async* async_funcs) {
         for (const auto& [name, tag] : deps) {
             if (validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)))) {
                 installing(0, "cache");
@@ -194,7 +189,7 @@ namespace poac::subcmd { struct install {
 
                 async_funcs->push_back(
                     std::make_pair(
-                        std::async(std::launch::async, std::bind(_copy, name, tag)),
+                        step_functions(std::bind(&_copy, name, tag)),
                         "cache"
                     )
                 );
@@ -205,7 +200,7 @@ namespace poac::subcmd { struct install {
 
                 async_funcs->push_back(
                     std::make_pair(
-                        std::async(std::launch::async, std::bind(_install, name, tag)),
+                        step_functions(std::bind(&_install, name, tag), std::bind(&_copy, name, tag)),
                         "github"
                     )
                 );
@@ -215,10 +210,8 @@ namespace poac::subcmd { struct install {
                   << "0/" << deps.size() << " packages installed";
     }
 
-    int install_now(
-            int* index_now,
-            const std::vector<std::pair<std::future<void>, std::string>>& async_funcs
-    ) {
+    template <typename Async>
+    int install_now(int* index_now, const Async& async_funcs) {
         if (*index_now >= static_cast<int>(io::cli::spinners.size()))
             *index_now = 0;
 
@@ -232,7 +225,7 @@ namespace poac::subcmd { struct install {
         int count = 0;
         for (const auto& fun : async_funcs) {
             // true is finished
-            if (std::future_status::ready == fun.first.wait_for(std::chrono::milliseconds(0))) {
+            if (fun.first.wait_for(std::chrono::milliseconds(0)) == -1) {
                 std::cout << io::cli::right(1)
                           << "\b";
                 installed(fun.second);
@@ -255,15 +248,7 @@ namespace poac::subcmd { struct install {
         return count;
     }
 
-    static void _copy(const std::string& name, const std::string& tag) {
-        // Copy package to ./deps
-        // If it exists in cache and it is not in the current directory copy it to the current.
-        const std::string folder = make_name(get_name(name), tag);
-        io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
-    }
 
-    // TODO: これをもっと分離して，deferredにする
-    // TODO: できればラムダ式にする
     static void _install(const std::string& name, const std::string& tag) {
         namespace fs  = boost::filesystem;
         namespace src = poac::sources;
@@ -278,18 +263,43 @@ namespace poac::subcmd { struct install {
         // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
         io::file::extract_tar_spec(filename, connect_path(io::file::POAC_CACHE_DIR, make_name(folder, tag)));
         fs::remove(filename);
+    }
 
-        // Create directory ./deps
+//    static void _build() {
+//
+//    }
+
+    static void _copy(const std::string& name, const std::string& tag) {
+        namespace fs = boost::filesystem;
+
         fs::create_directories("./deps");
         // Copy package to ./deps
-        io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(folder, tag)), "./deps/" + make_name(folder, tag));
+        // If it exists in cache and it is not in the current directory copy it to the current.
+        const std::string folder = make_name(get_name(name), tag);
+        io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
     }
 
 
-     template < typename Funcs, Funcs ...fs >
-     struct step_functions {
-         const std::vector<Funcs> funcs;
-         step_functions() : funcs({ fs... }) {}
-     };
+    struct step_functions {
+        const std::vector<std::function<void()>> funcs;
+        const size_t size;
+        std::future<void> mutable func_now;
+        unsigned int mutable index = 0;
+
+        template < typename ...Funcs >
+        explicit step_functions(Funcs ...fs) : funcs({fs...}), size(sizeof...(Funcs)) { run(); }
+
+        void run() const { func_now = std::async(std::launch::async, funcs[index]); }
+        int next() const { ++index; run(); return index; }
+        // All done: -1, Now: index
+        template <class Rep, class Period>
+        int wait_for(const std::chrono::duration<Rep, Period>& rel_time) const {
+            if (std::future_status::ready == func_now.wait_for(rel_time)) {
+                if (index < (size-1)) return next();
+                else                  return -1;
+            }
+            else return index;
+        }
+    };
 };} // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP
