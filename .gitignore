@@ -7,11 +7,16 @@ build/
 .idea/
 cmake-build-debug/
 
+# VSCode
+.vscode/
+
 # gitbook
 node_modules/
 _book/
 package-lock.json
 
+# poac
+#deps/
 
 # temporary ignore
 resolver/
