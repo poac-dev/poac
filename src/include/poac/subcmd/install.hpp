@@ -157,12 +157,12 @@ namespace poac::subcmd { struct install {
     }
 
     void set_left() {
-        std::cout << std::setw(34) << std::left;
+        std::cout << std::setw(35) << std::left;
     }
-    void installing(const int& index, const std::string& src) {
+    void progress(const int &index, const std::string& status, const std::string &src) {
         std::cout << " " << io::cli::spinners[index] << "  ";
         set_left();
-        std::cout << "Installing... (found in " + src + ")";
+        std::cout << status + "... (found in " + src + ")";
     }
     void installed(const std::string& src) {
         std::cout << " ✔  " << io::cli::green;
@@ -184,7 +184,7 @@ namespace poac::subcmd { struct install {
     void preinstall(std::map<std::string, std::string> deps, Async* async_funcs) {
         for (const auto& [name, tag] : deps) {
             if (validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)))) {
-                installing(0, "cache");
+                progress(0, "Downloading", "cache");
                 std::cout << name << ": " << tag << std::endl;
 
                 async_funcs->push_back(
@@ -195,12 +195,16 @@ namespace poac::subcmd { struct install {
                 );
             }
             else {
-                installing(0, "github");
+                progress(0, "Downloading", "github");
                 std::cout << name << ": " << tag << std::endl;
 
                 async_funcs->push_back(
                     std::make_pair(
-                        step_functions(std::bind(&_install, name, tag), std::bind(&_copy, name, tag)),
+                        step_functions(
+                                std::bind(&_install, name, tag),
+                                std::bind(&_build, name, tag),
+                                std::bind(&_copy, name, tag)
+                        ),
                         "github"
                     )
                 );
@@ -224,8 +228,9 @@ namespace poac::subcmd { struct install {
 
         int count = 0;
         for (const auto& fun : async_funcs) {
-            // true is finished
-            if (fun.first.wait_for(std::chrono::milliseconds(0)) == -1) {
+            // -1 is finished
+            const int status = fun.first.wait_for(std::chrono::milliseconds(0));
+            if (status == -1) {
                 std::cout << io::cli::right(1)
                           << "\b";
                 installed(fun.second);
@@ -233,10 +238,20 @@ namespace poac::subcmd { struct install {
                 ++count;
             }
             else {
+                const std::string now = [&]() {
+                    if (status == 0)
+                        return "Downloading";
+                    else if (status == 1)
+                        return "Building";
+                    else if (status == 2)
+                        return "Copying";
+                    else
+                        return "Error";
+                }();
                 std::cout << io::cli::right(2)
-                            << "\b"
-                            << io::cli::spinners[*index_now]
-                            << io::cli::left(50);
+                          << "\b";
+                progress(*index_now, now, fun.second);
+                std::cout << io::cli::left(50);
             }
             std::cout << io::cli::down(1);
         }
@@ -258,16 +273,43 @@ namespace poac::subcmd { struct install {
         const std::string filename = io::file::POAC_CACHE_DIR.c_str() + tag + ".tar.gz";
         io::network::get_file(url, filename);
 
-        // username/repository -> repository
-        const std::string folder = get_name(name);
         // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-        io::file::extract_tar_spec(filename, connect_path(io::file::POAC_CACHE_DIR, make_name(folder, tag)));
+        io::file::extract_tar_spec(filename, connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)));
         fs::remove(filename);
     }
 
-//    static void _build() {
-//
-//    }
+    static void _build(const std::string& name, const std::string& tag) {
+        namespace fs = boost::filesystem;
+
+        std::string filename = connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
+        if (fs::exists(connect_path(filename, "CMakeLists.txt"))) {
+            std::string command("cd " + filename + " && mkdir build && cd build && cmake .. 2>&1 && make 2>&1");
+
+            std::array<char, 128> buffer;
+            std::string result;
+
+            FILE* pipe = popen(command.c_str(), "r");
+            // operator bool
+            if (!pipe) {
+                // TODO: core::except
+                // ERROR
+                // throw poac::core::except::hogehoge("Couldn't start command.");
+                // main.cpp
+                // std::cerr << io::cli::red << e.what() << std::endl;
+                //
+                // WARNING
+                // throw poac::core::except::hugahuga("Couldn't start command.");
+                // std::cerr << io::cli::yellow << e.what() << std::endl;
+                std::cerr << "Couldn't start command." << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+            while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
+                result += buffer.data();
+            }
+            [[maybe_unused]] int return_code = pclose(pipe);
+//            std::system(command.c_str());
+        }
+    }
 
     static void _copy(const std::string& name, const std::string& tag) {
         namespace fs = boost::filesystem;
