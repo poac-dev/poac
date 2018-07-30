@@ -38,11 +38,21 @@ int exec(S&& s, VS&& vs) {
         inference::apply("exec", "--help", std::move(VS({ e.what() })));
         return EXIT_FAILURE;
     }
+    catch (const except::error& e) {
+        std::cerr << io::cli::red << e.what() << io::cli::reset << std::endl;
+        return EXIT_FAILURE;
+    }
+    // TODO: warningの基本的なイメージは，一応出すけど即終了ではないため，except::warnは不必要かも．
+    // I use it in subcmd/install.hpp now.
+    catch (const except::warn& e) {
+        std::cout << io::cli::yellow << e.what() << io::cli::reset << std::endl;
+        return EXIT_SUCCESS;
+    }
     catch (...) {
         std::cerr << io::cli::red
                   << "Error: " << "Unexpected error"
                   << io::cli::reset
-                  << std::endl << std::endl;
+                  << std::endl;
         return EXIT_FAILURE;
     }
 }

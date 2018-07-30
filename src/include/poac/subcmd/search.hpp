@@ -49,7 +49,7 @@ namespace poac::subcmd { struct search {
                 std::cout << "name is nothing" << std::endl;
             }
         }
-        if (now_count == 0) echo_not_founded(vs[0]);
+        if (now_count == 0) throw except::error(vs[0] + " not found");
     }
     void echo_first_line() {
         std::cout << poac::io::cli::underline << "User/Package" << poac::io::cli::reset << "        "
@@ -57,13 +57,6 @@ namespace poac::subcmd { struct search {
                   << poac::io::cli::underline << "Version" << poac::io::cli::reset << "        "
                   << poac::io::cli::underline << "Tags" << poac::io::cli::reset
                   << std::endl;
-    }
-    void echo_not_founded(const std::string& s) {
-        std::cerr << poac::io::cli::red
-                  << s << " not found"
-                  << poac::io::cli::reset
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_SEARCH_HPP

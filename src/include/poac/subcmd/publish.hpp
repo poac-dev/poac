@@ -10,6 +10,7 @@
 
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
+#include "../core/except.hpp"
 
 
 namespace poac::subcmd { struct publish {
@@ -20,14 +21,14 @@ namespace poac::subcmd { struct publish {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
-        namespace fs = boost::filesystem;
+        namespace fs     = boost::filesystem;
+        namespace except = poac::core::except;
+
         if (!fs::exists("poac.yml")) {
-            std::cerr << poac::io::cli::red << "ERROR: poac.yml does not exist" << std::endl;
-            std::exit(EXIT_FAILURE);
+            throw except::error("ERROR: poac.yml does not exist");
         }
         else if (!fs::exists("src") || !fs::is_directory("src") || fs::is_empty("src")) {
-            std::cerr << poac::io::cli::red << "ERROR: src directory does not exist" << std::endl;
-            std::exit(EXIT_FAILURE);
+            throw except::error("ERROR: src directory does not exist");
         }
         if (!fs::exists("LICENSE")) {
             std::cerr << poac::io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
@@ -42,9 +43,7 @@ namespace poac::subcmd { struct publish {
             std::cout << "name: " << config["name"].as<std::string>() << std::endl;
         }
         else {
-            std::cerr << poac::io::cli::red << "ERROR: poac.yml is invalid" << std::endl;
-            // I want details
-            std::exit(EXIT_FAILURE);
+            throw except::error("ERROR: poac.yml is invalid");
         }
         // Validate yaml, directory, ...
         // Ignore deps/

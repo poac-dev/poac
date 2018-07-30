@@ -28,16 +28,9 @@ namespace poac::subcmd { struct new_ {
             throw except::invalid_second_arg("new");
         // Check if the ARGUMENT directory exists.
         else if (const fs::path dir(fs::path(".") / fs::path(vs[0])); fs::is_directory(dir) && fs::exists(dir))
-            exists_error(vs[0]);
+            throw except::error("The "+vs[0]+" directory already exists.");
         else
             exec_new(dir, vs[0]);
-    }
-    void exists_error(const std::string& arg) {
-        std::cerr << poac::io::cli::red
-                  << "The "+arg+" directory already exists."
-                  << poac::io::cli::reset
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
     }
     void exec_new(const boost::filesystem::path dir, const std::string& arg) {
         namespace fs = boost::filesystem;

@@ -66,15 +66,14 @@ namespace poac::subcmd { struct install {
     void _main(VS&& vs) {
         namespace fs   = boost::filesystem;
         namespace core = poac::core;
+        namespace except = poac::core::except;
         namespace io   = poac::io;
 
 
         std::map<std::string, std::string> deps = check_requirements(vs);
         check_current(deps);
-        if (deps.empty()) {
-            std::cout << "Already up-to-date" << std::endl;
-            std::exit(0);
-        }
+        if (deps.empty()) throw except::warn("Already up-to-date");
+
         const int deps_num = static_cast<int>(deps.size());
 
         std::cout << "Some new packages are needed.\n"
@@ -284,7 +283,8 @@ namespace poac::subcmd { struct install {
     }
 
     static void _build(const std::string& name, const std::string& tag) {
-        namespace fs = boost::filesystem;
+        namespace fs     = boost::filesystem;
+        namespace except = poac::core::except;
 
         std::string filename = connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
         if (fs::exists(connect_path(filename, "CMakeLists.txt"))) {
@@ -295,19 +295,7 @@ namespace poac::subcmd { struct install {
 
             FILE* pipe = popen(command.c_str(), "r");
             // operator bool
-            if (!pipe) {
-                // TODO: core::except
-                // ERROR
-                // throw poac::core::except::hogehoge("Couldn't start command.");
-                // main.cpp
-                // std::cerr << io::cli::red << e.what() << std::endl;
-                //
-                // WARNING
-                // throw poac::core::except::hugahuga("Couldn't start command.");
-                // std::cerr << io::cli::yellow << e.what() << std::endl;
-                std::cerr << "Couldn't start command." << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
+            if (!pipe) throw except::error("Couldn't start command.");
             while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
                 result += buffer.data();
             }

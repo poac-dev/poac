@@ -31,13 +31,7 @@ namespace poac::subcmd { struct init {
         if (!vs.empty()) throw except::invalid_second_arg("init");
 
         fs::path filename("poac.yml");
-        if (yml_exists(filename)) {
-            std::cerr << io::cli::red
-                      << "canceled"
-                      << io::cli::reset
-                      << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
+        if (yml_exists(filename)) throw except::error("canceled");
 
         std::ofstream yml(filename.string());
         std::string basename = poac::subcmd::init::basename(".");
