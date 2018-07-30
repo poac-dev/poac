@@ -67,7 +67,7 @@ namespace poac::subcmd { struct install {
         namespace fs   = boost::filesystem;
         namespace core = poac::core;
         namespace io   = poac::io;
-        
+
 
         std::map<std::string, std::string> deps = check_requirements(vs);
         check_current(deps);
@@ -104,15 +104,17 @@ namespace poac::subcmd { struct install {
 
 
     std::map<std::string, std::string> check_requirements(const std::vector<std::string>& vs) {
+        namespace except = poac::core::except;
+
         if (!vs.empty())
-            throw poac::core::invalid_second_argument("install");
+            throw except::invalid_second_arg("install");
         if (!poac::core::yaml::notfound_handle()) // auto generate poac.yml?
-            throw poac::core::invalid_second_argument("install");
+            throw except::invalid_second_arg("install");
 
         const YAML::Node config = core::yaml::get_node("deps");
         const auto deps = config.as<std::map<std::string, std::string>>();
         if (deps.empty())
-            throw poac::core::invalid_second_argument("install");
+            throw except::invalid_second_arg("install");
 
         return deps;
     }
@@ -159,7 +161,7 @@ namespace poac::subcmd { struct install {
     void set_left() {
         std::cout << std::setw(35) << std::left;
     }
-    void progress(const int &index, const std::string& status, const std::string &src) {
+    void progress(const int& index, const std::string& status, const std::string& src) {
         std::cout << " " << io::cli::spinners[index] << "  ";
         set_left();
         std::cout << status + "... (found in " + src + ")";
@@ -202,7 +204,7 @@ namespace poac::subcmd { struct install {
                     std::make_pair(
                         step_functions(
                                 std::bind(&_install, name, tag),
-                                std::bind(&_build, name, tag),
+                                std::bind(&_build, name, tag), // 1 or 2-1
                                 std::bind(&_copy, name, tag)
                         ),
                         "github"
@@ -213,6 +215,8 @@ namespace poac::subcmd { struct install {
         std::cout << std::endl
                   << "0/" << deps.size() << " packages installed";
     }
+
+
 
     template <typename Async>
     int install_now(int* index_now, const Async& async_funcs) {
@@ -256,7 +260,8 @@ namespace poac::subcmd { struct install {
             std::cout << io::cli::down(1);
         }
         std::cout << std::endl
-                  << io::cli::right(1) << '\b'
+                  << io::cli::right(1)
+                  << '\b'
                   << count;
         std::cout << std::flush;
 

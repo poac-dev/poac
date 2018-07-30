@@ -22,11 +22,13 @@ namespace poac::subcmd { struct init {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main(VS&& vs) {
-        namespace fs   = boost::filesystem;
-        namespace io   = poac::io;
-        namespace util = poac::util;
+        namespace fs     = boost::filesystem;
+        namespace except = poac::core::except;
+        namespace io     = poac::io;
+        namespace util   = poac::util;
 
-        if (!vs.empty()) throw poac::core::invalid_second_argument("init");
+
+        if (!vs.empty()) throw except::invalid_second_arg("init");
 
         fs::path filename("poac.yml");
         if (yml_exists(filename)) {

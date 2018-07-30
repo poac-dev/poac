@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE( test1 )
 {
     using namespace std;
     using namespace poac::core::inference;
-    using namespace poac::core;
+    using namespace poac::core::except;
 
-    BOOST_CHECK_THROW(apply("exec", "nothing", vector<string>()), invalid_first_argument);
+    BOOST_CHECK_THROW(apply("exec", "nothing", vector<string>()), invalid_first_arg);
 }

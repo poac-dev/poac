@@ -24,8 +24,9 @@ namespace poac::subcmd { struct search {
     template <typename VS>
     void _main(VS&& vs) {
         using namespace boost::property_tree;
+        namespace except = poac::core::except;
 
-        if (vs.size() != 1) throw poac::core::invalid_second_argument("search");
+        if (vs.size() != 1) throw except::invalid_second_arg("search");
         const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
         std::stringstream ss;
         ss << poac::io::network::get(url);

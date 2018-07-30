@@ -21,9 +21,11 @@ namespace poac::subcmd { struct new_ {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
-        namespace fs = boost::filesystem;
+        namespace fs     = boost::filesystem;
+        namespace except = poac::core::except;
+
         if (vs.size() != 1)
-            throw poac::core::invalid_second_argument("new");
+            throw except::invalid_second_arg("new");
         // Check if the ARGUMENT directory exists.
         else if (const fs::path dir(fs::path(".") / fs::path(vs[0])); fs::is_directory(dir) && fs::exists(dir))
             exists_error(vs[0]);
