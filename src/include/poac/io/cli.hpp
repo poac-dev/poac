@@ -21,11 +21,13 @@ namespace poac::io::cli {
     // カーソル位置の行をクリア
     static constexpr std::string_view clr_line  = "\x1b[2K";
     // カーソル位置を移動
-    const std::string_view up(unsigned int y) { return "\x1b["+std::to_string(y)+"A"; }
-    const std::string_view down(unsigned int y) { return "\x1b["+std::to_string(y)+"B"; }
+    const std::string_view up(unsigned int y)    { return "\x1b["+std::to_string(y)+"A"; }
+    const std::string_view down(unsigned int y)  { return "\x1b["+std::to_string(y)+"B"; }
     const std::string_view right(unsigned int x) { return "\x1b["+std::to_string(x)+"C"; }
-    const std::string_view left(unsigned int x) { return "\x1b["+std::to_string(x)+"D"; }
-    const std::string_view location(unsigned int x, unsigned int y) { return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H"; }
+    const std::string_view left(unsigned int x)  { return "\x1b["+std::to_string(x)+"D"; }
+    const std::string_view location(unsigned int x, unsigned int y) {
+        return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H";
+    }
 
     static constexpr std::string_view red = "\x1b[31m";
     static constexpr std::string_view green = "\x1b[32m";
@@ -36,18 +38,6 @@ namespace poac::io::cli {
     static constexpr std::string_view reset = "\x1b[0m";
 
     const std::vector<std::string> spinners{ "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
-    void loading() {
-        for (int i = 0; i < 5; ++i) {
-            for (const std::string& s : spinners) {
-                std::cout << s << "\b" << std::flush;
-                usleep(100000);
-//                std::fflush(stdout);
-//                std::this_thread::sleep_for(std::chrono::seconds(1));
-            }
-        }
-        std::cout << "" << std::endl;
-        
-    }
 } // end namespace
 
 #endif // !POAC_IO_CLI_HPP
