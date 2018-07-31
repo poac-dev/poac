@@ -49,11 +49,6 @@ namespace poac::subcmd { struct install {
      * cacheに存在し，currentにはない場合，コピーのみを行う．
      * cacheにも無い場合，githubなどからのインストールを行い，それを，まずcacheディレクトリに保存する
      * 解凍後，cacheからcurrentにコピーを行う．
-     * 
-     * TODO: Installability from source: GitHub (以下の条件が満たされない場合インストール不可である．)
-     * TODO: 1. プロジェクトルートにpoac.ymlが存在する (poacによる依存関係解決アルゴリズムが使用可能)
-     * TODO: 2-1. プロジェクトルートにCMakeLists.txtが存在する
-     * TODO: 2-2. 2-1が満たされなかったとしても，includeディレクトリが存在する
      *
      * TODO: Check if connecting network
      * TODO: download途中で，ctl Cされたファイルは消す
@@ -64,26 +59,24 @@ namespace poac::subcmd { struct install {
      */
     template <typename VS>
     void _main(VS&& vs) {
-        namespace fs   = boost::filesystem;
-        namespace core = poac::core;
+        namespace fs     = boost::filesystem;
+        namespace core   = poac::core;
         namespace except = poac::core::except;
-        namespace io   = poac::io;
+        namespace io     = poac::io;
 
+        auto s = std::chrono::system_clock::now();
 
         std::map<std::string, std::string> deps = check_requirements(vs);
         check_current(deps);
         if (deps.empty()) throw except::warn("Already up-to-date");
 
-        const int deps_num = static_cast<int>(deps.size());
-
         std::cout << "Some new packages are needed.\n"
                   << "\n";
 
-
-        auto s = std::chrono::system_clock::now();
-
         fs::create_directories(io::file::POAC_CACHE_DIR);
 
+
+        const int deps_num(deps.size());
 
         std::vector<std::pair<step_functions, std::string>> async_funcs;
         preinstall(deps, &async_funcs);
@@ -163,7 +156,12 @@ namespace poac::subcmd { struct install {
     void progress(const int& index, const std::string& status, const std::string& src) {
         std::cout << " " << io::cli::spinners[index] << "  ";
         set_left();
-        std::cout << status + "... (found in " + src + ")";
+        const std::string point = [&index](){
+            if      (index <= 2) return ".  ";
+            else if (index <= 5) return ".. ";
+            else                 return "...";
+        }();
+        std::cout << status + point + " (found in " + src + ")";
     }
     void installed(const std::string& src) {
         std::cout << " ✔  " << io::cli::green;
@@ -182,40 +180,49 @@ namespace poac::subcmd { struct install {
     }
 
     template <typename Async>
-    void preinstall(std::map<std::string, std::string> deps, Async* async_funcs) {
+    void preinstall(const std::map<std::string, std::string>& deps, Async* async_funcs) {
+        // TODO: asyncにしたい．  asyncじゃないと遅すぎる．
+
         for (const auto& [name, tag] : deps) {
             if (validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)))) {
                 progress(0, "Downloading", "cache");
                 std::cout << name << ": " << tag << std::endl;
 
-                async_funcs->push_back(
-                    std::make_pair(
-                        step_functions(std::bind(&_copy, name, tag)),
-                        "cache"
-                    )
+                async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_copy, name, tag)
+                    ),
+                    "cache"
                 );
             }
-            else {
+            else if (poac::sources::github::installable(name, tag)) {
                 progress(0, "Downloading", "github");
                 std::cout << name << ": " << tag << std::endl;
 
-                async_funcs->push_back(
-                    std::make_pair(
-                        step_functions(
-                                std::bind(&_install, name, tag),
-                                std::bind(&_build, name, tag), // 1 or 2-1
-                                std::bind(&_copy, name, tag)
-                        ),
-                        "github"
-                    )
+                async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_install, name, tag),
+                            std::bind(&_build, name, tag),
+                            std::bind(&_copy, name, tag)
+                    ),
+                    "github"
+                );
+            }
+            else {
+                not_found();
+                std::cout << name << ": " << tag << std::endl;
+
+                async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_placeholder)
+                    ),
+                    "notfound"
                 );
             }
         }
         std::cout << std::endl
                   << "0/" << deps.size() << " packages installed";
     }
-
-
 
     template <typename Async>
     int install_now(int* index_now, const Async& async_funcs) {
@@ -234,10 +241,18 @@ namespace poac::subcmd { struct install {
             // -1 is finished
             const int status = fun.first.wait_for(std::chrono::milliseconds(0));
             if (status == -1) {
-                std::cout << io::cli::right(1)
-                          << "\b";
-                installed(fun.second);
-                std::cout << io::cli::left(50);
+                if (fun.second == "notfound") {
+                    std::cout << io::cli::right(1)
+                              << "\b";
+                    not_found();
+                    std::cout << io::cli::left(50);
+                }
+                else {
+                    std::cout << io::cli::right(1)
+                              << "\b";
+                    installed(fun.second);
+                    std::cout << io::cli::left(50);
+                }
                 ++count;
             }
             else {
@@ -252,7 +267,7 @@ namespace poac::subcmd { struct install {
                         return "Error";
                 }();
                 std::cout << io::cli::right(2)
-                          << "\b";
+                          << "\b\b";
                 progress(*index_now, now, fun.second);
                 std::cout << io::cli::left(50);
             }
@@ -300,7 +315,6 @@ namespace poac::subcmd { struct install {
                 result += buffer.data();
             }
             [[maybe_unused]] int return_code = pclose(pipe);
-//            std::system(command.c_str());
         }
     }
 
@@ -313,6 +327,8 @@ namespace poac::subcmd { struct install {
         const std::string folder = make_name(get_name(name), tag);
         io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
     }
+
+    static void _placeholder() {}
 
 
     struct step_functions {

@@ -4,13 +4,21 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <string_view>
-#include <thread>
-#include <chrono>
-#include <cstdio>
-#include <unistd.h>
+#include <sstream>
+
+#include <boost/optional.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+#include "../io/network.hpp"
 
 
+/*
+ * Installability:
+ *   1. Exist poac.(yml|yaml) in project root. (poacによる依存関係解決アルゴリズムが使用可能)
+ *   2. プロジェクトルートにCMakeLists.txtが存在する
+ *   3. 2が満たされなかったとしても，includeディレクトリが存在する (header-onlyとみなし，buildが不要)
+ */
 namespace poac::sources::github {
     std::string resolve(const std::string& name, const std::string& tag) {
         // TODO: libcurl can not read redirect destination.
@@ -20,6 +28,47 @@ namespace poac::sources::github {
 //        "https://github.com/" + name + "/archive/" + tag + ".tar.gz"
 //        -> redirect to
         return "https://codeload.github.com/" + name + "/tar.gz/" + tag;
+    }
+
+    // https://thinca.hatenablog.com/entry/20111006/1317832338
+    void to_object(std::string* json) {
+        json->insert(0, "{\"VALID\":");
+        json->push_back('}');
+    }
+    std::string exists_url(const std::string& name, const std::string& tag) {
+        // https://api.github.com/repos/curl/curl/contents/?ref=curl-7_61_0
+        return "https://api.github.com/repos/"+name+"/contents/?ref="+tag;
+    }
+    bool installable(const std::string& name, const std::string& tag) {
+        namespace pt = boost::property_tree;
+
+        std::string temp = poac::io::network::get_github(exists_url(name, tag));
+
+        to_object(&temp);
+        std::stringstream ss;
+        ss << temp;
+
+        pt::ptree json;
+        pt::json_parser::read_json(ss, json);
+
+        if (!json.get_optional<std::string>("VALID.message")) {
+            for (const pt::ptree::value_type& child : json.get_child("VALID")) {
+                const pt::ptree& info = child.second;
+                if (boost::optional<std::string> name = info.get_optional<std::string>("name")) {
+                    if (boost::optional<std::string> type = info.get_optional<std::string>("type")) {
+                        if (name.get() == "poac.yml" && type.get() == "file")
+                            return true;
+                        else if (name.get() == "poac.yaml" && type.get() == "file")
+                            return true;
+                        else if (name.get() == "CMakeLists.txt" && type.get() == "file")
+                            return true;
+                        else if (name.get() == "include" && type.get() == "dir")
+                            return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 } // end namespace
 

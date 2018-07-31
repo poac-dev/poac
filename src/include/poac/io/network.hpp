@@ -30,6 +30,20 @@ namespace poac::io::network {
         }
         return chunk;
     }
+    std::string get_github(const std::string& url) {
+        std::string chunk;
+        std::string useragent(std::string("curl/") + curl_version());
+        if (CURL* curl = curl_easy_init(); curl != nullptr) {
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, &useragent);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
+                std::cerr << "curl_easy_perform() failed." << std::endl;
+            curl_easy_cleanup(curl);
+        }
+        return chunk;
+    }
 
     size_t fileWrite(void* buffer, size_t size, size_t nmemb, FILE* stream) {
         size_t written = fwrite(buffer, size, nmemb, stream);
