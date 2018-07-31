@@ -18,6 +18,7 @@
 #include <functional>
 #include <iomanip>
 #include <utility>
+#include <tuple>
 
 #include <unistd.h>
 
@@ -78,7 +79,7 @@ namespace poac::subcmd { struct install {
 
         const int deps_num(deps.size());
 
-        std::vector<std::pair<step_functions, std::string>> async_funcs;
+        std::vector<std::tuple<step_functions, std::function<void()>, std::string>> async_funcs;
         preinstall(deps, &async_funcs);
         for (int i = 0; install_now(&i, async_funcs) != deps_num; ++i)
             usleep(100000);
@@ -100,7 +101,7 @@ namespace poac::subcmd { struct install {
 
         if (!vs.empty())
             throw except::invalid_second_arg("install");
-        if (!poac::core::yaml::notfound_handle()) // auto generate poac.yml?
+        if (!poac::core::yaml::notfound_handle()) // Auto generate poac.yml on Version 2.
             throw except::invalid_second_arg("install");
 
         const YAML::Node config = core::yaml::get_node("deps");
@@ -111,7 +112,6 @@ namespace poac::subcmd { struct install {
         return deps;
     }
 
-    // TODO: できればstatic storageから排除する
     // username/repository -> repository
     static std::string get_name(const std::string& name) {
         if (name.find('/') != std::string::npos)
@@ -120,12 +120,10 @@ namespace poac::subcmd { struct install {
             return name;
     }
 
-    // TODO: できればstatic storageから排除する
     static std::string make_name(const std::string& name, const std::string& tag) {
         return (name + "-" + tag);
     }
 
-    // TODO: できればstatic storageから排除する
     static std::string connect_path(const boost::filesystem::path& pre, const boost::filesystem::path& post) {
         return (pre / post).c_str();
     }
@@ -150,10 +148,13 @@ namespace poac::subcmd { struct install {
         }
     }
 
-    void set_left() {
+    static void set_left() {
         std::cout << std::setw(35) << std::left;
     }
-    void progress(const int& index, const std::string& status, const std::string& src) {
+    static void info(const std::string& name, const std::string& tag) {
+        std::cout << name << ": " << tag;
+    }
+    static void progress(const int& index, const std::string& status, const std::string& src) {
         std::cout << " " << io::cli::spinners[index] << "  ";
         set_left();
         const std::string point = [&index](){
@@ -163,62 +164,67 @@ namespace poac::subcmd { struct install {
         }();
         std::cout << status + point + " (found in " + src + ")";
     }
-    void installed(const std::string& src) {
+    static void installed(const std::string& src) {
         std::cout << " ✔  " << io::cli::green;
         set_left();
         std::cout << "Installed! (found in " + src + ")" << io::cli::reset;
     }
-    void not_found() {
+    static void not_found() {
         std::cout << " ×  " << io::cli::red;
         set_left();
         std::cout << "Not found" << io::cli::reset;
     }
-    void install_failed() {
+    static void install_failed() {
         std::cout << " ×  " << io::cli::red;
         set_left();
         std::cout << "Install failed" << io::cli::reset;
     }
 
+    void rewrite(const std::function<void()>& f1, const std::function<void()>& f2) {
+        std::cout << io::cli::right(1) << "\b";
+        f1(); f2();
+        std::cout << io::cli::left(100);
+    }
+
+
     template <typename Async>
     void preinstall(const std::map<std::string, std::string>& deps, Async* async_funcs) {
-        // TODO: asyncにしたい．  asyncじゃないと遅すぎる．
+        namespace src = poac::sources;
 
         for (const auto& [name, tag] : deps) {
             if (validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)))) {
-                progress(0, "Downloading", "cache");
-                std::cout << name << ": " << tag << std::endl;
-
                 async_funcs->emplace_back(
                     step_functions(
                             std::bind(&_copy, name, tag)
                     ),
+                    std::bind(&info, name, tag),
                     "cache"
                 );
             }
-            else if (poac::sources::github::installable(name, tag)) {
-                progress(0, "Downloading", "github");
-                std::cout << name << ": " << tag << std::endl;
-
+            else if (src::github::installable(name, tag)) {
                 async_funcs->emplace_back(
                     step_functions(
                             std::bind(&_install, name, tag),
                             std::bind(&_build, name, tag),
                             std::bind(&_copy, name, tag)
                     ),
+                    std::bind(&info, name, tag),
                     "github"
                 );
             }
             else {
-                not_found();
-                std::cout << name << ": " << tag << std::endl;
-
                 async_funcs->emplace_back(
                     step_functions(
                             std::bind(&_placeholder)
                     ),
+                    std::bind(&info, name, tag),
                     "notfound"
                 );
             }
+        }
+
+        for (int i = 0; i < static_cast<int>(deps.size()); ++i) {
+            std::cout << std::endl;
         }
         std::cout << std::endl
                   << "0/" << deps.size() << " packages installed";
@@ -239,24 +245,18 @@ namespace poac::subcmd { struct install {
         int count = 0;
         for (const auto& fun : async_funcs) {
             // -1 is finished
-            const int status = fun.first.wait_for(std::chrono::milliseconds(0));
+            const int status = std::get<0>(fun).wait_for(std::chrono::milliseconds(0));
             if (status == -1) {
-                if (fun.second == "notfound") {
-                    std::cout << io::cli::right(1)
-                              << "\b";
-                    not_found();
-                    std::cout << io::cli::left(50);
+                if (std::get<2>(fun) == "notfound") {
+                    rewrite(std::bind(&not_found), std::get<1>(fun));
                 }
                 else {
-                    std::cout << io::cli::right(1)
-                              << "\b";
-                    installed(fun.second);
-                    std::cout << io::cli::left(50);
+                    rewrite(std::bind(&installed, std::get<2>(fun)), std::get<1>(fun));
                 }
                 ++count;
             }
             else {
-                const std::string now = [&]() {
+                const std::string now = [&status]() {
                     if (status == 0)
                         return "Downloading";
                     else if (status == 1)
@@ -266,10 +266,7 @@ namespace poac::subcmd { struct install {
                     else
                         return "Error";
                 }();
-                std::cout << io::cli::right(2)
-                          << "\b\b";
-                progress(*index_now, now, fun.second);
-                std::cout << io::cli::left(50);
+                rewrite(std::bind(&progress, *index_now, now, std::get<2>(fun)), std::get<1>(fun));
             }
             std::cout << io::cli::down(1);
         }

@@ -71,5 +71,4 @@ namespace poac::sources::github {
         return false;
     }
 } // end namespace
-
 #endif // !POAC_SOURCES_GITHUB_HPP
