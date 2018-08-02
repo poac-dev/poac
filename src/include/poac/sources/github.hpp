@@ -15,9 +15,9 @@
 
 /*
  * Installability:
- *   1. Exist poac.(yml|yaml) in project root. (poacによる依存関係解決アルゴリズムが使用可能)
- *   2. プロジェクトルートにCMakeLists.txtが存在する
- *   3. 2が満たされなかったとしても，includeディレクトリが存在する (header-onlyとみなし，buildが不要)
+ *   1. Exist poac.(yml|yaml) in project root. (Resolve dependencies with poac)
+ *   2. Exist CMakeLists.txt in project root.  (Build required)
+ *   3. Exist include directory. (header-only)
  */
 namespace poac::sources::github {
     std::string resolve(const std::string& name, const std::string& tag) {
