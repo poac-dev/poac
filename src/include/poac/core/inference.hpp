@@ -149,7 +149,7 @@ namespace poac::core::inference {
     }
 #endif
 
-    // Execute function: func2()
+    // Execute function: execute or summary or options
     template <typename S, typename Index, typename VS, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
         namespace except = poac::core::except;
