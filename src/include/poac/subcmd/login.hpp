@@ -22,7 +22,7 @@ namespace poac::subcmd { struct login {
     template <typename VS>
     void _main(VS&& vs) {
         namespace fs     = boost::filesystem;
-        namespace except = poac::core::except;
+        namespace except = core::except;
 
         if (vs.size() != 1)
             throw except::invalid_second_arg("login");
@@ -30,16 +30,16 @@ namespace poac::subcmd { struct login {
         if (!std::regex_match(vs[0], pattern))
             throw except::invalid_second_arg("login");
 
-        const fs::path root = poac::io::file::expand_user("~/.poac");
+        const fs::path root = io::file::expand_user("~/.poac");
         if (fs::create_directories(root))
             throw except::invalid_second_arg("login");
 
         const fs::path token = root / fs::path("token");
         if (std::ofstream ofs(token.string()); ofs) {
             ofs << vs[0] << std::endl;
-            std::cout << poac::io::cli::bold
+            std::cout << io::cli::bold
                       << "Write to " + token.string()
-                      << poac::io::cli::reset
+                      << io::cli::reset
                       << std::endl;
         }
         else { // file open error

@@ -22,7 +22,7 @@ namespace poac::subcmd { struct new_ {
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
         namespace fs     = boost::filesystem;
-        namespace except = poac::core::except;
+        namespace except = core::except;
 
         if (vs.size() != 1)
             throw except::invalid_second_arg("new");
@@ -37,11 +37,11 @@ namespace poac::subcmd { struct new_ {
         fs::create_directory(dir);
         std::ofstream ofs;
         std::map<fs::path, std::string> file {
-                { ".gitignore", poac::util::ftemplate::_gitignore },
-                { "main.cpp",   poac::util::ftemplate::main_cpp },
-                { "poac.lock",  poac::util::ftemplate::poac_lock },
-                { "poac.yml",   poac::util::ftemplate::poac_yml },
-                { "README.md",  poac::util::ftemplate::README_md }
+                { ".gitignore", util::ftemplate::_gitignore },
+                { "main.cpp",   util::ftemplate::main_cpp },
+                { "poac.lock",  util::ftemplate::poac_lock },
+                { "poac.yml",   util::ftemplate::poac_yml },
+                { "README.md",  util::ftemplate::README_md }
         };
         for (const auto& [name, text] : file) write_to_file(ofs, (dir/name).string(), text);
         echo_notice(arg);
@@ -53,9 +53,9 @@ namespace poac::subcmd { struct new_ {
         ofs.clear();
     }
     void echo_notice(const std::string& str) {
-        std::cout << poac::io::cli::bold
+        std::cout << io::cli::bold
                   << notice(str)
-                  << poac::io::cli::reset;
+                  << io::cli::reset;
     }
     std::string notice(const std::string& str) {
         return "\n"

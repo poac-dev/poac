@@ -24,12 +24,12 @@ namespace poac::subcmd { struct search {
     template <typename VS>
     void _main(VS&& vs) {
         using namespace boost::property_tree;
-        namespace except = poac::core::except;
+        namespace except = core::except;
 
         if (vs.size() != 1) throw except::invalid_second_arg("search");
         const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
         std::stringstream ss;
-        ss << poac::io::network::get(url);
+        ss << io::network::get(url);
         ptree pt;
         json_parser::read_json(ss, pt);
 
@@ -52,10 +52,10 @@ namespace poac::subcmd { struct search {
         if (now_count == 0) throw except::error(vs[0] + " not found");
     }
     void echo_first_line() {
-        std::cout << poac::io::cli::underline << "User/Package" << poac::io::cli::reset << "        "
-                  << poac::io::cli::underline << "Description" << poac::io::cli::reset << "                             "
-                  << poac::io::cli::underline << "Version" << poac::io::cli::reset << "        "
-                  << poac::io::cli::underline << "Tags" << poac::io::cli::reset
+        std::cout << io::cli::underline << "User/Package" << io::cli::reset << "        "
+                  << io::cli::underline << "Description" << io::cli::reset << "                             "
+                  << io::cli::underline << "Version" << io::cli::reset << "        "
+                  << io::cli::underline << "Tags" << io::cli::reset
                   << std::endl;
     }
 };} // end namespace

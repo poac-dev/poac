@@ -43,7 +43,7 @@ namespace poac::sources::github {
     bool installable(const std::string& name, const std::string& tag) {
         namespace pt = boost::property_tree;
 
-        std::string temp = poac::io::network::get_github(exists_url(name, tag));
+        std::string temp = io::network::get_github(exists_url(name, tag));
 
         to_object(&temp);
         std::stringstream ss;

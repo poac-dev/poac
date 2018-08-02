@@ -22,7 +22,7 @@ namespace poac::subcmd { struct publish {
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
         namespace fs     = boost::filesystem;
-        namespace except = poac::core::except;
+        namespace except = core::except;
 
         if (!fs::exists("poac.yml")) {
             throw except::error("ERROR: poac.yml does not exist");
@@ -31,10 +31,10 @@ namespace poac::subcmd { struct publish {
             throw except::error("ERROR: src directory does not exist");
         }
         if (!fs::exists("LICENSE")) {
-            std::cerr << poac::io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
+            std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
         }
         if (!fs::exists("README.md")) {
-            std::cerr << poac::io::cli::yellow << "WARN: README.md does not exist" << std::endl;
+            std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
         }
 
         if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {

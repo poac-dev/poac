@@ -59,9 +59,7 @@ namespace poac::subcmd { struct install {
     template <typename VS>
     void _main(VS&& vs) {
         namespace fs     = boost::filesystem;
-        namespace core   = poac::core;
-        namespace except = poac::core::except;
-        namespace io     = poac::io;
+        namespace except = core::except;
 
         auto s = std::chrono::system_clock::now();
 
@@ -96,11 +94,11 @@ namespace poac::subcmd { struct install {
 
 
     std::map<std::string, std::string> check_requirements(const std::vector<std::string>& vs) {
-        namespace except = poac::core::except;
+        namespace except = core::except;
 
         if (!vs.empty())
             throw except::invalid_second_arg("install");
-        if (!poac::core::yaml::notfound_handle()) // Auto generate poac.yml on Version 2.
+        if (!core::yaml::notfound_handle()) // Auto generate poac.yml on Version 2.
             throw except::invalid_second_arg("install");
 
         const YAML::Node config = core::yaml::get_node("deps");
@@ -179,7 +177,7 @@ namespace poac::subcmd { struct install {
 
     template <typename Async>
     void preinstall(const std::map<std::string, std::string>& deps, Async* async_funcs) {
-        namespace src = poac::sources;
+        namespace src = sources;
 
         // Search
         // cache -> poac -> github -> conan -> buckaroo -> notfound
@@ -275,8 +273,7 @@ namespace poac::subcmd { struct install {
 
     static void _install(const std::string& name, const std::string& tag) {
         namespace fs  = boost::filesystem;
-        namespace src = poac::sources;
-        namespace io  = poac::io;
+        namespace src = sources;
 
         const std::string url  = src::github::resolve(name, tag);
         const std::string filename = io::file::POAC_CACHE_DIR.c_str() + tag + ".tar.gz";
@@ -290,9 +287,11 @@ namespace poac::subcmd { struct install {
     // TODO: poac.ymlが存在する場合．
     static void _build(const std::string& name, const std::string& tag) {
         namespace fs     = boost::filesystem;
-        namespace except = poac::core::except;
+        namespace except = core::except;
 
         std::string filepath = io::file::connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
+
+        // TODO: LICENSEなどが消えてしまう．
         if (fs::exists(io::file::connect_path(filepath, "CMakeLists.txt"))) {
             std::string command("cd " + filepath);
             command += " && mkdir build";

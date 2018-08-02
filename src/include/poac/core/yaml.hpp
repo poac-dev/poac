@@ -13,7 +13,6 @@
 // TODO: mv core::yaml to io::file::yaml???
 namespace poac::core::yaml {
     namespace fs = boost::filesystem;
-    namespace io = poac::io;
 
 
     bool _exists(const fs::path& dir) {
