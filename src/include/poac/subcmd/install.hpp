@@ -54,9 +54,6 @@ namespace poac::subcmd { struct install {
      * TODO: Check if connecting network
      * TODO: download途中で，ctl Cされたファイルは消す
      * TODO: Corresponds to redirect
-     * TODO: パッケージの解決順序
-     * cache -> poac -> github -> conan -> buckaroo -> None
-     * TODO: 各所で探索を行う
      */
     template <typename VS>
     void _main(VS&& vs) {
@@ -124,15 +121,6 @@ namespace poac::subcmd { struct install {
         return (name + "-" + tag);
     }
 
-    static std::string connect_path(const boost::filesystem::path& pre, const boost::filesystem::path& post) {
-        return (pre / post).c_str();
-    }
-
-    bool validate_dir(const boost::filesystem::path& path) {
-        namespace fs = boost::filesystem;
-        return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
-    }
-
     void check_current(std::map<std::string, std::string>& deps) {
         namespace fs = boost::filesystem;
         if (fs::path deps_dir(fs::path(".") / fs::path("deps")); !fs::exists(deps_dir)) {
@@ -140,7 +128,7 @@ namespace poac::subcmd { struct install {
         }
         else {
             for (auto itr = deps.begin(); itr != deps.end(); ) {
-                if (validate_dir(connect_path(deps_dir, make_name(get_name(itr->first), itr->second))))
+                if (io::file::validate_dir(io::file::connect_path(deps_dir, make_name(get_name(itr->first), itr->second))))
                     deps.erase(itr++);
                 else
                     ++itr;
@@ -148,15 +136,15 @@ namespace poac::subcmd { struct install {
         }
     }
 
-    static void set_left() {
-        std::cout << std::setw(35) << std::left;
+    static void set_left(const int&& n) {
+        std::cout << std::setw(n) << std::left;
     }
     static void info(const std::string& name, const std::string& tag) {
         std::cout << name << ": " << tag;
     }
     static void progress(const int& index, const std::string& status, const std::string& src) {
         std::cout << " " << io::cli::spinners[index] << "  ";
-        set_left();
+        set_left(35);
         const std::string point = [&index](){
             if      (index <= 2) return ".  ";
             else if (index <= 5) return ".. ";
@@ -166,17 +154,17 @@ namespace poac::subcmd { struct install {
     }
     static void installed(const std::string& src) {
         std::cout << " ✔  " << io::cli::green;
-        set_left();
+        set_left(35);
         std::cout << "Installed! (found in " + src + ")" << io::cli::reset;
     }
     static void not_found() {
         std::cout << " ×  " << io::cli::red;
-        set_left();
+        set_left(35);
         std::cout << "Not found" << io::cli::reset;
     }
     static void install_failed() {
         std::cout << " ×  " << io::cli::red;
-        set_left();
+        set_left(35);
         std::cout << "Install failed" << io::cli::reset;
     }
 
@@ -191,8 +179,22 @@ namespace poac::subcmd { struct install {
     void preinstall(const std::map<std::string, std::string>& deps, Async* async_funcs) {
         namespace src = poac::sources;
 
+        // Search
+        // cache -> poac -> github -> conan -> buckaroo -> notfound
+        // TODO: 各所で探索を行う
+        // TODO: どちらにせよ遅い．async_funcsに詰めた方が良い
+        //  return tuple<> func(name tag) {
+        //    return make_tuple(step_functions(
+        //                            std::bind(&_copy, name, tag)
+        //                    ),
+        //                    std::bind(&info, name, tag),
+        //                    "cache"
+        //           );
+
+
         for (const auto& [name, tag] : deps) {
-            if (validate_dir(connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)))) {
+            std::cout << io::file::basename(name) << std::endl;
+            if (src::cache::resolve(name, tag)) {
                 async_funcs->emplace_back(
                     step_functions(
                             std::bind(&_copy, name, tag)
@@ -223,9 +225,8 @@ namespace poac::subcmd { struct install {
             }
         }
 
-        for (int i = 0; i < static_cast<int>(deps.size()); ++i) {
+        for (int i = 0; i < static_cast<int>(deps.size()); ++i)
             std::cout << std::endl;
-        }
         std::cout << std::endl
                   << "0/" << deps.size() << " packages installed";
     }
@@ -237,9 +238,7 @@ namespace poac::subcmd { struct install {
 
         // 0/num packages installed|
         // |0/num packages installed
-        std::cout << io::cli::left(50)
-                  << io::cli::up(1);
-
+        std::cout << io::cli::left(50) << io::cli::up(1);
         std::cout << io::cli::up(async_funcs.size());
 
         int count = 0;
@@ -247,16 +246,17 @@ namespace poac::subcmd { struct install {
             // -1 is finished
             const int status = std::get<0>(fun).wait_for(std::chrono::milliseconds(0));
             if (status == -1) {
-                if (std::get<2>(fun) == "notfound") {
+                if (std::get<2>(fun) == "notfound")
                     rewrite(std::bind(&not_found), std::get<1>(fun));
-                }
-                else {
+                else
                     rewrite(std::bind(&installed, std::get<2>(fun)), std::get<1>(fun));
-                }
                 ++count;
             }
             else {
+                // TODO: ダサい
                 const std::string now = [&status]() {
+                    // TODO: イメージ的には，status == 0 "Resolving"
+                    // TODO: status == -1 "Not found" // ただし．これもprogressになってしまう
                     if (status == 0)
                         return "Downloading";
                     else if (status == 1)
@@ -290,16 +290,19 @@ namespace poac::subcmd { struct install {
         io::network::get_file(url, filename);
 
         // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-        io::file::extract_tar_spec(filename, connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)));
+        io::file::extract_tar_spec(filename, io::file::connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag)));
         fs::remove(filename);
     }
 
+    // TODO: CMakeLists.txtが無い場合を考慮できていない，
+    // TODO: あと，poac.ymlの場合と，includeのみの時を考える．
+    // TODO: github.hppを修正する必要があるんじゃないだろうか．
     static void _build(const std::string& name, const std::string& tag) {
         namespace fs     = boost::filesystem;
         namespace except = poac::core::except;
 
-        std::string filename = connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
-        if (fs::exists(connect_path(filename, "CMakeLists.txt"))) {
+        std::string filename = io::file::connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
+        if (fs::exists(io::file::connect_path(filename, "CMakeLists.txt"))) {
             std::string command("cd " + filename + " && mkdir build && cd build && cmake .. 2>&1 && make 2>&1");
 
             std::array<char, 128> buffer;
@@ -322,11 +325,33 @@ namespace poac::subcmd { struct install {
         // Copy package to ./deps
         // If it exists in cache and it is not in the current directory copy it to the current.
         const std::string folder = make_name(get_name(name), tag);
-        io::file::copy_dir(connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
+        io::file::copy_dir(io::file::connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
     }
 
     static void _placeholder() {}
 
+
+    struct priority_functions {
+        const std::vector<std::function<void()>> funcs;
+        const size_t size;
+        std::future<void> mutable func_now;
+        unsigned int mutable index = 0;
+
+        template < typename ...Funcs >
+        explicit priority_functions(Funcs ...fs) : funcs({fs...}), size(sizeof...(Funcs)) { run(); }
+
+        void run() const { func_now = std::async(std::launch::async, funcs[index]); }
+        int next() const { ++index; run(); return index; }
+        // All done: -1, Now: index
+        template <class Rep, class Period>
+        int wait_for(const std::chrono::duration<Rep, Period>& rel_time) const {
+            if (std::future_status::ready == func_now.wait_for(rel_time)) {
+                if (index < (size-1)) return next();
+                else                  return -1;
+            }
+            else return index;
+        }
+    };
 
     struct step_functions {
         const std::vector<std::function<void()>> funcs;

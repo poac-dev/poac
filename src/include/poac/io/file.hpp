@@ -40,6 +40,24 @@ namespace poac::io::file {
             POAC_STATE_DIR / boost::filesystem::path("token")
     );
 
+    std::string connect_path(const boost::filesystem::path& pre, const boost::filesystem::path& post) {
+        return (pre / post).c_str();
+    }
+    bool validate_dir(const boost::filesystem::path& path) {
+        namespace fs = boost::filesystem;
+        return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
+    }
+
+    std::string extract_shortest_match(const std::string& name) {
+        if (name.find('/') != std::string::npos)
+            return std::string(name, name.find('/')+1);
+        else
+            return name;
+    }
+    std::string intermediate_placement_comb(const std::string& name, const std::string& tag) {
+        return (name + "-" + tag);
+    }
+
 
     std::string basename(const std::string& s) {
         namespace fs = boost::filesystem;
@@ -47,77 +65,46 @@ namespace poac::io::file {
     }
 
     // recursive
-    bool copy_dir(const boost::filesystem::path& source,
-                  const boost::filesystem::path& destination)
-    {
+    bool copy_dir(const boost::filesystem::path& source, const boost::filesystem::path& dest) {
         namespace fs = boost::filesystem;
-        try
-        {
+        try {
             // Check whether the function call is valid
-            if(
-                    !fs::exists(source) ||
-                    !fs::is_directory(source)
-                    )
-            {
+            if (!fs::exists(source) || !fs::is_directory(source)) {
                 std::cerr << "Source directory " << source.string()
-                          << " does not exist or is not a directory." << '\n'
-                        ;
+                          << " does not exist or is not a directory." << '\n';
                 return false;
             }
-            if(fs::exists(destination))
-            {
-                std::cerr << "Destination directory " << destination.string()
-                          << " already exists." << '\n'
-                        ;
+            if (fs::exists(dest)) {
+                std::cerr << "Destination directory " << dest.string()
+                          << " already exists." << '\n';
                 return false;
             }
             // Create the destination directory
-            if(!fs::create_directory(destination))
-            {
+            if (!fs::create_directory(dest)) {
                 std::cerr << "Unable to create destination directory"
-                          << destination.string() << '\n'
-                        ;
+                          << dest.string() << '\n';
                 return false;
             }
         }
-        catch(fs::filesystem_error const & e)
-        {
+        catch(fs::filesystem_error const & e) {
             std::cerr << e.what() << '\n';
             return false;
         }
         // Iterate through the source directory
-        for(
-                fs::directory_iterator file(source);
-                file != fs::directory_iterator(); ++file
-                )
-        {
-            try
-            {
+        for (fs::directory_iterator file(source); file != fs::directory_iterator(); ++file) {
+            try {
                 fs::path current(file->path());
-                if(fs::is_directory(current))
-                {
+                if (fs::is_directory(current)) {
                     // Found directory: Recursion
-                    if(
-                            !copy_dir(
-                                    current,
-                                    destination / current.filename()
-                            )
-                            )
-                    {
-                        return false;
-                    }
+                    if (!copy_dir(current, dest / current.filename()))
+                        { return false; }
                 }
-                else
-                {
+                else {
                     // Found file: Copy
-                    fs::copy_file(
-                            current,
-                            destination / current.filename()
-                    );
+                    fs::copy_file(current, dest / current.filename());
                 }
             }
-            catch(fs::filesystem_error const & e)
-            {
+            catch(fs::filesystem_error const & e) {
                 std:: cerr << e.what() << '\n';
             }
         }
