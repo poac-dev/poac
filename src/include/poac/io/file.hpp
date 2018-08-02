@@ -65,28 +65,25 @@ namespace poac::io::file {
     }
 
     // recursive
-    bool copy_dir(const boost::filesystem::path& source, const boost::filesystem::path& dest) {
+    bool recursive_copy(const boost::filesystem::path &source, const boost::filesystem::path &dest) {
         namespace fs = boost::filesystem;
         try {
             // Check whether the function call is valid
             if (!fs::exists(source) || !fs::is_directory(source)) {
-                std::cerr << "Source directory " << source.string()
-                          << " does not exist or is not a directory." << '\n';
+//                std::cerr << "Source directory " << source.string()
+//                          << " does not exist or is not a directory." << '\n';
                 return false;
             }
-            if (fs::exists(dest)) {
-                std::cerr << "Destination directory " << dest.string()
-                          << " already exists." << '\n';
-                return false;
-            }
-            // Create the destination directory
-            if (!fs::create_directory(dest)) {
-                std::cerr << "Unable to create destination directory"
-                          << dest.string() << '\n';
-                return false;
+            if (!validate_dir(dest)) {
+                // Create the destination directory
+                if (!fs::create_directory(dest)) {
+                    std::cerr << "Unable to create destination directory"
+                              << dest.string() << '\n';
+                    return false;
+                }
             }
         }
-        catch(fs::filesystem_error const & e) {
+        catch (fs::filesystem_error const & e) {
             std::cerr << e.what() << '\n';
             return false;
         }
@@ -96,7 +93,7 @@ namespace poac::io::file {
                 fs::path current(file->path());
                 if (fs::is_directory(current)) {
                     // Found directory: Recursion
-                    if (!copy_dir(current, dest / current.filename()))
+                    if (!recursive_copy(current, dest / current.filename()))
                         { return false; }
                 }
                 else {
@@ -104,9 +101,7 @@ namespace poac::io::file {
                     fs::copy_file(current, dest / current.filename());
                 }
             }
-            catch(fs::filesystem_error const & e) {
-                std:: cerr << e.what() << '\n';
-            }
+            catch(...) { /* Ignore error */ }
         }
         return true;
     }

@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <utility>
 #include <tuple>
+#include <fstream>
 
 #include <unistd.h>
 
@@ -64,6 +65,7 @@ namespace poac::subcmd { struct install {
 
         auto s = std::chrono::system_clock::now();
 
+        // TODO: 同じdepsを二つ以上書いた時の対処法
         std::map<std::string, std::string> deps = check_requirements(vs);
         check_current(deps);
         if (deps.empty()) throw except::warn("Already up-to-date");
@@ -128,7 +130,7 @@ namespace poac::subcmd { struct install {
         }
         else {
             for (auto itr = deps.begin(); itr != deps.end(); ) {
-                if (io::file::validate_dir(io::file::connect_path(deps_dir, make_name(get_name(itr->first), itr->second))))
+                if (fs::exists(io::file::connect_path(deps_dir, make_name(get_name(itr->first), itr->second) + ".yml")))
                     deps.erase(itr++);
                 else
                     ++itr;
@@ -183,17 +185,8 @@ namespace poac::subcmd { struct install {
         // cache -> poac -> github -> conan -> buckaroo -> notfound
         // TODO: 各所で探索を行う
         // TODO: どちらにせよ遅い．async_funcsに詰めた方が良い
-        //  return tuple<> func(name tag) {
-        //    return make_tuple(step_functions(
-        //                            std::bind(&_copy, name, tag)
-        //                    ),
-        //                    std::bind(&info, name, tag),
-        //                    "cache"
-        //           );
-
 
         for (const auto& [name, tag] : deps) {
-            std::cout << io::file::basename(name) << std::endl;
             if (src::cache::resolve(name, tag)) {
                 async_funcs->emplace_back(
                     step_functions(
@@ -294,27 +287,58 @@ namespace poac::subcmd { struct install {
         fs::remove(filename);
     }
 
-    // TODO: CMakeLists.txtが無い場合を考慮できていない，
-    // TODO: あと，poac.ymlの場合と，includeのみの時を考える．
-    // TODO: github.hppを修正する必要があるんじゃないだろうか．
+    // TODO: poac.ymlが存在する場合．
     static void _build(const std::string& name, const std::string& tag) {
         namespace fs     = boost::filesystem;
         namespace except = poac::core::except;
 
-        std::string filename = io::file::connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
-        if (fs::exists(io::file::connect_path(filename, "CMakeLists.txt"))) {
-            std::string command("cd " + filename + " && mkdir build && cd build && cmake .. 2>&1 && make 2>&1");
+        std::string filepath = io::file::connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
+        if (fs::exists(io::file::connect_path(filepath, "CMakeLists.txt"))) {
+            std::string command("cd " + filepath);
+            command += " && mkdir build";
+            command += " && cd build";
+            // TODO: MACOSX_RPATHはダメ．
+            command += " && MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1"; // TODO: 抽象化
+            command += " && make -j4 2>&1"; // TODO: 抽象化
+            command += " && DESTDIR=./ make install 2>&1";
 
             std::array<char, 128> buffer;
             std::string result;
 
             FILE* pipe = popen(command.c_str(), "r");
-            // operator bool
             if (!pipe) throw except::error("Couldn't start command.");
             while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
                 result += buffer.data();
             }
-            [[maybe_unused]] int return_code = pclose(pipe);
+
+            if (int return_code = pclose(pipe); return_code == 0) {
+                const std::string filepath_tmp = filepath + "_tmp";
+                fs::rename(filepath, filepath_tmp);
+                fs::create_directories(filepath);
+
+                const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
+
+                // Write to cache.yml and recurcive copy
+                if (io::file::validate_dir(build_after_dir / "bin")) {
+                    io::file::recursive_copy(build_after_dir / "bin", fs::path(filepath) / "bin");
+                }
+                if (io::file::validate_dir(build_after_dir / "include")) {
+                    io::file::recursive_copy(build_after_dir / "include", fs::path(filepath) / "include");
+                }
+                if (io::file::validate_dir(build_after_dir / "lib")) {
+                    io::file::recursive_copy(build_after_dir / "lib", fs::path(filepath) / "lib");
+                }
+                fs::remove_all(filepath_tmp);
+            }
+        }
+        // Do not exists CMakeLists.txt, but ...
+        else if (io::file::validate_dir(io::file::connect_path(filepath, "include"))) {
+            const std::string filepath_tmp = filepath + "_tmp";
+
+            fs::rename(filepath, filepath_tmp);
+            fs::create_directories(filepath);
+            io::file::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
+            fs::remove_all(filepath_tmp);
         }
     }
 
@@ -324,34 +348,14 @@ namespace poac::subcmd { struct install {
         fs::create_directories("./deps");
         // Copy package to ./deps
         // If it exists in cache and it is not in the current directory copy it to the current.
-        const std::string folder = make_name(get_name(name), tag);
-        io::file::copy_dir(io::file::connect_path(io::file::POAC_CACHE_DIR, folder), "./deps/" + folder);
+        const std::string package = make_name(get_name(name), tag);
+        io::file::recursive_copy(io::file::POAC_CACHE_DIR / package, fs::path(".") / "deps" / package);
     }
 
     static void _placeholder() {}
 
 
-    struct priority_functions {
-        const std::vector<std::function<void()>> funcs;
-        const size_t size;
-        std::future<void> mutable func_now;
-        unsigned int mutable index = 0;
-
-        template < typename ...Funcs >
-        explicit priority_functions(Funcs ...fs) : funcs({fs...}), size(sizeof...(Funcs)) { run(); }
-
-        void run() const { func_now = std::async(std::launch::async, funcs[index]); }
-        int next() const { ++index; run(); return index; }
-        // All done: -1, Now: index
-        template <class Rep, class Period>
-        int wait_for(const std::chrono::duration<Rep, Period>& rel_time) const {
-            if (std::future_status::ready == func_now.wait_for(rel_time)) {
-                if (index < (size-1)) return next();
-                else                  return -1;
-            }
-            else return index;
-        }
-    };
+    struct priority_functions {};
 
     struct step_functions {
         const std::vector<std::function<void()>> funcs;

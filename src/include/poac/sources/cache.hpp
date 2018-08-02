@@ -4,11 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <sstream>
 
-#include <boost/optional.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <boost/filesystem.hpp>
 
 #include "../io/file.hpp"
 

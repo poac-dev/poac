@@ -39,6 +39,7 @@ namespace poac::sources::github {
         // https://api.github.com/repos/curl/curl/contents/?ref=curl-7_61_0
         return "https://api.github.com/repos/"+name+"/contents/?ref="+tag;
     }
+    // TODO: 優先度が決まっていないため，危険
     bool installable(const std::string& name, const std::string& tag) {
         namespace pt = boost::property_tree;
 
