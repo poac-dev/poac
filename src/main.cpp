@@ -42,8 +42,6 @@ int exec(S&& s, VS&& vs) {
         std::cerr << io::cli::red << e.what() << io::cli::reset << std::endl;
         return EXIT_FAILURE;
     }
-    // TODO: warningの基本的なイメージは，一応出すけど即終了ではないため，except::warnは不必要かも．
-    // I use it in subcmd/install.hpp now.
     catch (const except::warn& e) {
         std::cout << io::cli::yellow << e.what() << io::cli::reset << std::endl;
         return EXIT_SUCCESS;
