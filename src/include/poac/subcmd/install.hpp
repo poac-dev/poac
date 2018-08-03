@@ -96,15 +96,13 @@ namespace poac::subcmd { struct install {
     std::map<std::string, std::string> check_requirements(const std::vector<std::string>& vs) {
         namespace except = core::except;
 
-        if (!vs.empty())
-            throw except::invalid_second_arg("install");
-        if (!core::yaml::notfound_handle()) // Auto generate poac.yml on Version 2.
-            throw except::invalid_second_arg("install");
+        if (!vs.empty()) throw except::invalid_second_arg("install");
+        // Auto generate poac.yml on Version 2.
+        if (!core::yaml::notfound_handle()) throw except::invalid_second_arg("install");
 
         const YAML::Node config = core::yaml::get_node("deps");
         const auto deps = config.as<std::map<std::string, std::string>>();
-        if (deps.empty())
-            throw except::invalid_second_arg("install");
+        if (deps.empty()) throw except::invalid_second_arg("install");
 
         return deps;
     }
@@ -128,7 +126,7 @@ namespace poac::subcmd { struct install {
         }
         else {
             for (auto itr = deps.begin(); itr != deps.end(); ) {
-                if (fs::exists(io::file::connect_path(deps_dir, make_name(get_name(itr->first), itr->second) + ".yml")))
+                if (io::file::validate_dir(io::file::connect_path(deps_dir, make_name(get_name(itr->first), itr->second))))
                     deps.erase(itr++);
                 else
                     ++itr;
@@ -179,8 +177,7 @@ namespace poac::subcmd { struct install {
     void preinstall(const std::map<std::string, std::string>& deps, Async* async_funcs) {
         namespace src = sources;
 
-        // Search
-        // cache -> poac -> github -> conan -> buckaroo -> notfound
+        // Search order: cache -> poac -> github -> conan -> buckaroo -> notfound
         // TODO: 各所で探索を行う
         // TODO: どちらにせよ遅い．async_funcsに詰めた方が良い
 
@@ -284,12 +281,12 @@ namespace poac::subcmd { struct install {
         fs::remove(filename);
     }
 
-    // TODO: poac.ymlが存在する場合．
+    // TODO: poac.ymlが存在する場合．poac build実行時まで後回しにできる？
     static void _build(const std::string& name, const std::string& tag) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
-        std::string filepath = io::file::connect_path(io::file::POAC_CACHE_DIR, make_name(get_name(name), tag));
+        std::string filepath = (io::file::POAC_CACHE_DIR / make_name(get_name(name), tag)).c_str();
 
         // TODO: LICENSEなどが消えてしまう．
         if (fs::exists(io::file::connect_path(filepath, "CMakeLists.txt"))) {
@@ -306,9 +303,8 @@ namespace poac::subcmd { struct install {
 
             FILE* pipe = popen(command.c_str(), "r");
             if (!pipe) throw except::error("Couldn't start command.");
-            while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
+            while (std::fgets(buffer.data(), 128, pipe) != nullptr)
                 result += buffer.data();
-            }
 
             if (int return_code = pclose(pipe); return_code == 0) {
                 const std::string filepath_tmp = filepath + "_tmp";
@@ -318,15 +314,12 @@ namespace poac::subcmd { struct install {
                 const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
 
                 // Write to cache.yml and recurcive copy
-                if (io::file::validate_dir(build_after_dir / "bin")) {
+                if (io::file::validate_dir(build_after_dir / "bin"))
                     io::file::recursive_copy(build_after_dir / "bin", fs::path(filepath) / "bin");
-                }
-                if (io::file::validate_dir(build_after_dir / "include")) {
+                if (io::file::validate_dir(build_after_dir / "include"))
                     io::file::recursive_copy(build_after_dir / "include", fs::path(filepath) / "include");
-                }
-                if (io::file::validate_dir(build_after_dir / "lib")) {
+                if (io::file::validate_dir(build_after_dir / "lib"))
                     io::file::recursive_copy(build_after_dir / "lib", fs::path(filepath) / "lib");
-                }
                 fs::remove_all(filepath_tmp);
             }
         }

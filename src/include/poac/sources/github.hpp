@@ -30,11 +30,6 @@ namespace poac::sources::github {
         return "https://codeload.github.com/" + name + "/tar.gz/" + tag;
     }
 
-    // https://thinca.hatenablog.com/entry/20111006/1317832338
-    void to_object(std::string* json) {
-        json->insert(0, "{\"VALID\":");
-        json->push_back('}');
-    }
     std::string exists_url(const std::string& name, const std::string& tag) {
         // https://api.github.com/repos/curl/curl/contents/?ref=curl-7_61_0
         return "https://api.github.com/repos/"+name+"/contents/?ref="+tag;
@@ -42,17 +37,14 @@ namespace poac::sources::github {
     bool installable(const std::string& name, const std::string& tag) {
         namespace pt = boost::property_tree;
 
-        std::string temp = io::network::get_github(exists_url(name, tag));
-
-        to_object(&temp);
         std::stringstream ss;
-        ss << temp;
+        ss << io::network::get_github(exists_url(name, tag));
 
         pt::ptree json;
         pt::json_parser::read_json(ss, json);
 
-        if (!json.get_optional<std::string>("VALID.message")) {
-            for (const pt::ptree::value_type& child : json.get_child("VALID")) {
+        if (!json.get_optional<std::string>("message")) {
+            for (const pt::ptree::value_type& child : json.get_child("")) {
                 const pt::ptree& info = child.second;
                 if (boost::optional<std::string> name = info.get_optional<std::string>("name")) {
                     if (boost::optional<std::string> type = info.get_optional<std::string>("type")) {
