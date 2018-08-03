@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/timer/timer.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
@@ -61,7 +62,9 @@ namespace poac::subcmd { struct install {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
-        auto s = std::chrono::system_clock::now();
+        // Start timer
+        boost::timer::cpu_timer timer;
+
 
         // TODO: 同じdepsを二つ以上書いた時の対処法
         std::map<std::string, std::string> deps = check_requirements(vs);
@@ -80,14 +83,11 @@ namespace poac::subcmd { struct install {
         preinstall(deps, &async_funcs);
         for (int i = 0; install_now(&i, async_funcs) != deps_num; ++i)
             usleep(100000);
-        
-        auto e = std::chrono::system_clock::now();
+
 
         std::cout << io::cli::clr_line
                   << io::cli::left(30);
-        std::cout << "Elapsed time: "
-                  << std::chrono::duration_cast<std::chrono::seconds>(e-s).count()
-                  << "s";
+        std::cout << timer.format(6, "Elapsed time: %ws");
         std::cout << std::endl;
         std::cout << io::cli::bold << " ==> Installation finished successfully!" << std::endl;
     }
