@@ -16,7 +16,7 @@ _book/
 package-lock.json
 
 # poac
-#deps/
+deps/
 
 # temporary ignore
 resolver/
