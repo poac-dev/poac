@@ -10,4 +10,5 @@ target_link_libraries(unittest
         ${Boost_TIMER_LIBRARY}
         ${CURL_LIBRARIES}
         ${YAML_CPP_LIBRARIES}
+#        git2
         )

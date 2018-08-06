@@ -34,6 +34,10 @@ include_directories(${CURL_INCLUDE_DIR})
 find_package( yaml-cpp REQUIRED )
 include_directories( ${YAML_CPP_INCLUDE_DIR} )
 
+# libgit2
+#include_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/include )
+#link_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/lib )
+
 add_subdirectory(src)
 add_subdirectory(test)
 enable_testing()
