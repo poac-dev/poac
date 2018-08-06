@@ -22,6 +22,7 @@ namespace poac::io::network {
         std::string chunk;
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
             if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
@@ -35,6 +36,7 @@ namespace poac::io::network {
         std::string useragent(std::string("curl/") + curl_version());
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_USERAGENT, &useragent);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
@@ -49,6 +51,7 @@ namespace poac::io::network {
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             FILE* fp = std::fopen(to.data(), "wb");
             curl_easy_setopt(curl, CURLOPT_URL, from.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, std::fwrite);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
             // Switch on full protocol/debug output
