@@ -5,10 +5,8 @@
 #include <vector>
 #include <string>
 #include <string_view>
-#include <thread>
-#include <chrono>
 #include <cstdio>
-#include <unistd.h>
+#include <iomanip>
 
 
 namespace poac::io::cli {
@@ -25,9 +23,11 @@ namespace poac::io::cli {
     const std::string_view down(unsigned int y)  { return "\x1b["+std::to_string(y)+"B"; }
     const std::string_view right(unsigned int x) { return "\x1b["+std::to_string(x)+"C"; }
     const std::string_view left(unsigned int x)  { return "\x1b["+std::to_string(x)+"D"; }
-    const std::string_view location(unsigned int x, unsigned int y) {
-        return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H";
-    }
+    const std::string_view location(unsigned int x, unsigned int y)
+        { return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H"; }
+
+    void set_left(const int&& n)
+        { std::cout << std::setw(n) << std::left; }
 
     static constexpr std::string_view red = "\x1b[31m";
     static constexpr std::string_view green = "\x1b[32m";
