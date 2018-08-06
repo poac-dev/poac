@@ -26,11 +26,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/timer/timer.hpp>
 #include <yaml-cpp/yaml.h>
-//#include <git2.h>
 
 #include "../io.hpp"
 #include "../core/except.hpp"
-#include "../core/yaml.hpp"
+#include "../io/file.hpp"
 #include "../sources.hpp"
 #include "../util/package.hpp"
 
@@ -69,7 +68,6 @@ namespace poac::subcmd { struct install {
     void operator()(VS&& vs) { _main(vs); }
 
 
-    // TODO: Error handling. (tarball url not found.. etc)
     void check_arguments(const std::vector<std::string>& vs) {
         namespace except = core::except;
         if (!vs.empty()) throw except::invalid_second_arg("install");
@@ -81,8 +79,8 @@ namespace poac::subcmd { struct install {
         namespace src    = sources;
 
         // Auto generate poac.yml on Version 2.
-        if (!core::yaml::notfound_handle()) throw except::invalid_second_arg("install");
-        const YAML::Node config = core::yaml::get_node("deps"); // TODO: depsが無いとthrowされるはず. deps:だけ書かれていたら？
+        if (!io::file::yaml::notfound_handle()) throw except::invalid_second_arg("install");
+        const YAML::Node config = io::file::yaml::get_node("deps"); // TODO: depsが無いとthrowされるはず. deps:だけ書かれていたら？
 
         std::vector<std::tuple<step_functions, std::function<void()>, std::string>> async_funcs;
 
@@ -103,7 +101,7 @@ namespace poac::subcmd { struct install {
                     const std::string tag = itr->second["tag"].as<std::string>();
                     const std::string pkgname = util::package::github_conv_pkgname(name, tag);
 
-                    if (io::file::validate_dir(current_deps_path / pkgname)) {
+                    if (io::file::path::validate_dir(current_deps_path / pkgname)) {
                         ++already_count;
                     }
                     else if (src::cache::resolve(name, tag)) {
@@ -158,7 +156,7 @@ namespace poac::subcmd { struct install {
                 const std::string tag = itr->second.as<std::string>();
                 const std::string pkgname = util::package::github_conv_pkgname(name, tag);
 
-                if (io::file::validate_dir(current_deps_path / pkgname)) {
+                if (io::file::path::validate_dir(current_deps_path / pkgname)) {
                     ++already_count;
                 }
                 else if (src::cache::resolve(name, tag)) {
@@ -287,12 +285,12 @@ namespace poac::subcmd { struct install {
         namespace fs  = boost::filesystem;
         namespace src = sources;
 
-        const std::string pkg_dir = (io::file::POAC_CACHE_DIR / pkgname).string();
+        const std::string pkg_dir = (io::file::path::poac_cache_dir / pkgname).string();
         const std::string tarname = pkg_dir + ".tar.gz";
         io::network::get_file(url, tarname);
 
         // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-        io::file::extract_tar_spec(tarname, pkg_dir);
+        io::file::tarball::extract_spec(tarname, pkg_dir);
         fs::remove(tarname);
     }
 
@@ -301,11 +299,11 @@ namespace poac::subcmd { struct install {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
-        std::string filepath = (io::file::POAC_CACHE_DIR / pkgname).string();
+        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
 
         // TODO: LICENSEなどが消えてしまう．
-        if (fs::exists(io::file::connect_path(filepath, "CMakeLists.txt"))) {
-            std::string command("cd " + filepath);
+        if (fs::exists(filepath / "CMakeLists.txt")) {
+            std::string command("cd " + filepath.string());
             command += " && mkdir build";
             command += " && cd build";
             // TODO: MACOSX_RPATHはダメ． // TODO: cmake install_dir
@@ -322,40 +320,40 @@ namespace poac::subcmd { struct install {
                 result += buffer.data();
 
             if (int return_code = pclose(pipe); return_code == 0) {
-                const std::string filepath_tmp = filepath + "_tmp";
+                const std::string filepath_tmp = filepath.string() + "_tmp";
                 fs::rename(filepath, filepath_tmp);
                 fs::create_directories(filepath);
 
                 const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
 
                 // Write to cache.yml and recurcive copy
-                if (io::file::validate_dir(build_after_dir / "bin"))
-                    io::file::recursive_copy(build_after_dir / "bin", fs::path(filepath) / "bin");
-                if (io::file::validate_dir(build_after_dir / "include"))
-                    io::file::recursive_copy(build_after_dir / "include", fs::path(filepath) / "include");
-                if (io::file::validate_dir(build_after_dir / "lib"))
-                    io::file::recursive_copy(build_after_dir / "lib", fs::path(filepath) / "lib");
+                if (io::file::path::validate_dir(build_after_dir / "bin"))
+                    io::file::path::recursive_copy(build_after_dir / "bin", fs::path(filepath) / "bin");
+                if (io::file::path::validate_dir(build_after_dir / "include"))
+                    io::file::path::recursive_copy(build_after_dir / "include", fs::path(filepath) / "include");
+                if (io::file::path::validate_dir(build_after_dir / "lib"))
+                    io::file::path::recursive_copy(build_after_dir / "lib", fs::path(filepath) / "lib");
                 fs::remove_all(filepath_tmp);
             }
         }
         // Do not exists CMakeLists.txt, but ...
-        else if (io::file::validate_dir(io::file::connect_path(filepath, "include"))) {
-            const std::string filepath_tmp = filepath + "_tmp";
+        else if (io::file::path::validate_dir(io::file::path::connect_path(filepath, "include"))) {
+            const std::string filepath_tmp = filepath.string() + "_tmp";
 
             fs::rename(filepath, filepath_tmp);
             fs::create_directories(filepath);
-            io::file::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
+            io::file::path::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
             fs::remove_all(filepath_tmp);
         }
         // TODO: manualに対応する
         // TODO: cacheの探索に対応する
         else {
-            const std::string filepath_tmp = filepath + "_tmp";
+            const std::string filepath_tmp = filepath.string() + "_tmp";
             fs::rename(filepath, filepath_tmp);
 
             std::string command("cd " + filepath_tmp);
             command += " && ./bootstrap.sh";
-            command += " && ./b2 install -j2 --prefix=" + filepath;
+            command += " && ./b2 install -j2 --prefix=" + filepath.string();
 
             std::array<char, 128> buffer;
             std::string result;
@@ -376,7 +374,7 @@ namespace poac::subcmd { struct install {
         fs::create_directories(current_deps_path);
         // Copy package to ./deps
         // If it exists in cache and it is not in the current directory copy it to the current.
-        io::file::recursive_copy(io::file::POAC_CACHE_DIR / pkgname, current_deps_path / pkgname);
+        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, current_deps_path / pkgname);
     }
 
     static void _placeholder() {}
@@ -393,6 +391,7 @@ namespace poac::subcmd { struct install {
      *
      * TODO: Check if connecting network
      * TODO: download途中で，ctl Cされたファイルは消す
+     * TODO: Error handling. (tarball url not found.. etc)
      */
     template <typename VS>
     void _main(VS&& vs) {
@@ -407,7 +406,7 @@ namespace poac::subcmd { struct install {
         std::cout << "Some new packages are needed.\n"
                   << "\n";
 
-        fs::create_directories(io::file::POAC_CACHE_DIR);
+        fs::create_directories(io::file::path::poac_cache_dir);
 
         auto async_funcs = dependencies();
         const int deps_num = static_cast<int>(async_funcs.size());

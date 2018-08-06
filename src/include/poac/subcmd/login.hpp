@@ -30,15 +30,14 @@ namespace poac::subcmd { struct login {
         if (!std::regex_match(vs[0], pattern))
             throw except::invalid_second_arg("login");
 
-        const fs::path root = io::file::expand_user("~/.poac");
-        if (fs::create_directories(root))
+        if (fs::create_directories(io::file::path::poac_state_dir))
             throw except::invalid_second_arg("login");
 
-        const fs::path token = root / fs::path("token");
-        if (std::ofstream ofs(token.string()); ofs) {
+        const std::string token = io::file::path::poac_token_dir.string();
+        if (std::ofstream ofs(token); ofs) {
             ofs << vs[0] << std::endl;
             std::cout << io::cli::bold
-                      << "Write to " + token.string()
+                      << "Write to " + token
                       << io::cli::reset
                       << std::endl;
         }
