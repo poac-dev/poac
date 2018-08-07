@@ -38,7 +38,7 @@ deps:
     build:
       system: cmake
       environment:
-        MAC_RPATH: 1
+        MAC_RPATH: 1 # TODO: Branch by OS
         OPENSSL_ROOT_DIR: /usr/local/opt/openssl/
   jbeder/yaml-cpp:
     src: github

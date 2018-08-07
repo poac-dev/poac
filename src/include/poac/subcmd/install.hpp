@@ -51,10 +51,10 @@ struct step_functions {
     template <class Rep, class Period>
     int wait_for(const std::chrono::duration<Rep, Period>& rel_time) const {
         if (std::future_status::ready == func_now.wait_for(rel_time)) {
-            if (index < (size-1)) return next();
-            else                  return -1;
+            if (index < (size-1)) { return next(); }
+            else                  { return -1; }
         }
-        else return index;
+        else { return index; }
     }
 };
 // Version 1 will allow $ poac install <Nothing> only.
@@ -158,6 +158,8 @@ namespace poac::subcmd { struct install {
         io::file::tarball::extract_spec(tarname, pkg_dir);
         fs::remove(tarname);
     }
+
+//    std::string cmake_command(const std::string& hoge) { return "fdsanjk" };
 
     // TODO: LICENSEなどが消えてしまう
     static void _cmake_build(const std::string& pkgname) {
@@ -269,16 +271,13 @@ namespace poac::subcmd { struct install {
                 const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
 
                 // Write to cache.yml and recurcive copy
-                if (io::file::path::validate_dir(build_after_dir / "bin"))
-                    io::file::path::recursive_copy(build_after_dir / "bin", fs::path(filepath) / "bin");
-                if (io::file::path::validate_dir(build_after_dir / "include"))
-                    io::file::path::recursive_copy(build_after_dir / "include", fs::path(filepath) / "include");
-                if (io::file::path::validate_dir(build_after_dir / "lib"))
-                    io::file::path::recursive_copy(build_after_dir / "lib", fs::path(filepath) / "lib");
+                for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
+                    if (io::file::path::validate_dir(build_after_dir / s))
+                        io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
                 fs::remove_all(filepath_tmp);
             }
         }
-            // Do not exists CMakeLists.txt, but ...
+        // Do not exists CMakeLists.txt, but ...
         else if (io::file::path::validate_dir(filepath / "include")) {
             const std::string filepath_tmp = filepath.string() + "_tmp";
 
@@ -397,6 +396,26 @@ namespace poac::subcmd { struct install {
         }
     }
 
+    auto funcs_pack_tarball_manual(const std::string& name, const std::string& version, const std::string& pkgname) {
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "cache"
+        );
+    }
+    auto funcs_pack_tarball_cmake(const std::string& name, const std::string& version, const std::string& pkgname) {
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "cache"
+        );
+    }
+
+
     template <typename Async>
     void dependencies(Async* async_funcs) {
         namespace fs     = boost::filesystem;
@@ -424,11 +443,11 @@ namespace poac::subcmd { struct install {
                     try { build_system = itr->second["build"].as<std::string>(); }
                     catch (...) { }
                     if (build_system.empty()) {
-                        for (YAML::const_iterator itr2 = itr->second["build"].begin(); itr2 != itr->second["build"].end(); ++itr2) {
-                            // TODO: get system
-                            // TODO: systemによって分岐する
-                            // TODO: cmake -> environment
-                            // TODO: manual -> steps
+                        if (itr->second["build"]["system"].as<std::string>() == "cmake") {
+                            for (const auto& [key, val] : itr->second["build"]["environment"].as<std::map<std::string, std::string>>()) {
+                                (void)key;
+                                (void)val;
+                            }
                         }
                     }
 
@@ -469,6 +488,7 @@ namespace poac::subcmd { struct install {
         }
 
         // Start async functions...
+        // TODO: hardware currency
         for (const auto& [func, _info, _src] : *async_funcs) {
             func.start();
             ((void)_info, (void)_src); // Avoid unused warning
