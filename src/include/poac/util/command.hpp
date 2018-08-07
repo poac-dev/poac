@@ -13,11 +13,10 @@
 namespace poac::util {
     class command {
     public:
-        std::string data() const { return cmd; };
+        std::string data() const { return cmd; }
 
-        command(const std::string& c) {
-            cmd = c;
-        }
+        command() { cmd = ""; }
+        command(const std::string& c) { cmd = c; }
 
         command env(const std::string& name, const std::string& val) {
             return cmd.insert(0, name + "=" + val + " ");
@@ -26,7 +25,9 @@ namespace poac::util {
             return cmd + " 2>&1";
         }
 
-        boost::optional<std::string> run() {
+        void init(const std::string& c) { cmd = c; }
+
+        boost::optional<std::string> run() const {
             std::array<char, 128> buffer;
             std::string result;
 

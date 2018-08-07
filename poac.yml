@@ -28,10 +28,9 @@ deps:
     build: # If you use header-only library, does not necessary this key.
       system: manual
       steps:
-        - mkdir boost_1_67_0
-        - checkout # cd boost_1_67_0
+        - cd /Users/matken/.poac/cache/boost_tmp
         - ./bootstrap.sh
-        - ./b2 install -j4 --prefix=$POAC_CACHE_DIR/boost_1_67_0
+        - ./b2 install -j2 --prefix=/Users/matken/.poac/cache/boost
   curl/curl:
     src: github
     tag: curl-7_61_0

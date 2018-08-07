@@ -159,9 +159,6 @@ namespace poac::subcmd { struct install {
         io::file::tarball::extract_spec(tarname, pkg_dir);
         fs::remove(tarname);
     }
-
-//    std::string cmake_command(const std::string& hoge) { return "fdsanjk" };
-
     // TODO: LICENSEなどが消えてしまう
     static void _cmake_build(const std::string& pkgname) {
         namespace fs     = boost::filesystem;
@@ -191,8 +188,7 @@ namespace poac::subcmd { struct install {
         }
         else { /* error */ }
     }
-
-    static void _manual_build(const std::string& pkgname) {
+    static void _manual_build(const std::string& pkgname, const util::command& cmd) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
@@ -202,17 +198,12 @@ namespace poac::subcmd { struct install {
         const std::string filepath_tmp = filepath.string() + "_tmp";
         fs::rename(filepath, filepath_tmp);
 
-        util::command cmd("cd " + filepath_tmp);
-        cmd &= "./bootstrap.sh";
-        cmd &= "./b2 install -j2 --prefix=" + filepath.string();
-
         if (auto result = cmd.run()) {
             // TODO: boost build is return 1 always
             fs::remove_all(filepath_tmp);
         }
         else { /* error */ }
     }
-
     static void _header_only(const std::string& pkgname) {
         namespace fs = boost::filesystem;
         const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
@@ -224,63 +215,6 @@ namespace poac::subcmd { struct install {
         io::file::path::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
         fs::remove_all(filepath_tmp);
     }
-
-    static void _build(const std::string& pkgname) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::except;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        // TODO: LICENSEなどが消えてしまう．
-        if (fs::exists(filepath / "CMakeLists.txt")) {
-            util::command cmd("cd " + filepath.string());
-            cmd &= "mkdir build";
-            cmd &= "cd build";
-            cmd &= util::command("cmake ..").env("MACOSX_RPATH", "1").env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/").std_err();
-            cmd &= util::command("make -j4").std_err();
-            cmd &= util::command("make install").env("DESTDIR", "./").std_err();
-
-            if (auto result = cmd.run()) {
-                const std::string filepath_tmp = filepath.string() + "_tmp";
-                fs::rename(filepath, filepath_tmp);
-                fs::create_directories(filepath);
-
-                const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
-
-                // Write to cache.yml and recurcive copy
-                for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
-                    if (io::file::path::validate_dir(build_after_dir / s))
-                        io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
-                fs::remove_all(filepath_tmp);
-            }
-            else { /* error */ }
-        }
-        // Do not exists CMakeLists.txt, but ...
-        else if (io::file::path::validate_dir(filepath / "include")) {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-
-            fs::rename(filepath, filepath_tmp);
-            fs::create_directories(filepath);
-            io::file::path::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
-            fs::remove_all(filepath_tmp);
-        }
-        // TODO: manualに対応する
-        else {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-            fs::rename(filepath, filepath_tmp);
-
-            util::command cmd("cd " + filepath_tmp);
-            cmd &= "./bootstrap.sh";
-            cmd &= "./b2 install -j2 --prefix=" + filepath.string();
-
-            if (auto result = cmd.run()) {
-                // TODO: boost build is return 1 always
-                fs::remove_all(filepath_tmp);
-            }
-            else { /* error */ }
-        }
-    }
-
     static void _copy(const std::string& pkgname) {
         namespace fs = boost::filesystem;
 
@@ -289,11 +223,10 @@ namespace poac::subcmd { struct install {
         // If it exists in cache and it is not in the current directory copy it to the current.
         io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, io::file::path::current_deps_dir / pkgname);
     }
-
     static void _placeholder() {}
 
 
-    auto cache_func(const std::string& name, const std::string& version, const std::string& pkgname) {
+    auto cache(const std::string& name, const std::string& version, const std::string& pkgname) {
         return std::make_tuple(
                 step_functions(
                         std::bind(&_copy, pkgname)
@@ -302,90 +235,82 @@ namespace poac::subcmd { struct install {
                 "cache"
         );
     }
-
-    template <typename Async>
-    void search_github(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
-        namespace src    = sources;
-
-        if (src::cache::resolve(pkgname)) {
-            async_funcs->emplace_back(cache_func(name, version, pkgname));
-        }
-        else if (src::github::installable(name, version)) {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_download, src::github::resolve(name, version), pkgname),
-                            std::bind(&_build, pkgname), // if (build: system: cmake) _cmake_build
-                            std::bind(&_copy, pkgname)
-                    ),
-                    std::bind(&info, name, version),
-                    "github"
-            );
-        }
-        else {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_placeholder)
-                    ),
-                    std::bind(&info, name, version),
-                    "notfound"
-            );
-        }
-    }
-
-    template <typename Async>
-    void search_poac(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
-        namespace src    = sources;
-
-        if (src::cache::resolve(pkgname)) {
-            async_funcs->emplace_back(cache_func(name, version, pkgname));
-        }
-        else {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_placeholder)
-                    ),
-                    std::bind(&info, name, version),
-                    "notfound"
-            );
-        }
-    }
-
-    template <typename Async>
-    void search_tarball(Async* async_funcs, const std::string& url, const std::string& name, const std::string& version, const std::string& pkgname) {
-        namespace src    = sources;
-
-        if (src::cache::resolve(pkgname)) {
-            async_funcs->emplace_back(cache_func(name, version, pkgname));
-        }
-        else {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_download, url, pkgname),
-                            std::bind(&_build, pkgname),
-                            std::bind(&_copy, pkgname)
-                    ),
-                    std::bind(&info, name, version),
-                    "tarball"
-            );
-        }
-    }
-
-    auto funcs_pack_tarball_manual(const std::string& name, const std::string& version, const std::string& pkgname) {
+    auto notfound(const std::string& name, const std::string& version) {
         return std::make_tuple(
                 step_functions(
-                        std::bind(&_copy, pkgname)
+                        std::bind(&_placeholder)
                 ),
                 std::bind(&info, name, version),
-                "cache"
+                "notfound"
         );
     }
-    auto funcs_pack_tarball_cmake(const std::string& name, const std::string& version, const std::string& pkgname) {
+    auto github_cmake(const std::string& name, const std::string& version, const std::string& pkgname) {
+        namespace src = sources;
         return std::make_tuple(
                 step_functions(
+                        std::bind(&_download, src::github::resolve(name, version), pkgname),
+                        std::bind(&_cmake_build, pkgname),
                         std::bind(&_copy, pkgname)
                 ),
                 std::bind(&info, name, version),
-                "cache"
+                "github"
+        );
+    }
+    auto github_manual(const std::string& name, const std::string& version, const std::string& pkgname, const util::command& cmd) {
+        namespace src = sources;
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_download, src::github::resolve(name, version), pkgname),
+                        std::bind(&_manual_build, pkgname, cmd),
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "github"
+        );
+    }
+    auto github_header_only(const std::string& name, const std::string& version, const std::string& pkgname) {
+        namespace src = sources;
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_download, src::github::resolve(name, version), pkgname),
+                        std::bind(&_header_only, pkgname),
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "github"
+        );
+    }
+    auto tarball_cmake(const std::string& name, const std::string& url, const std::string& version, const std::string& pkgname) {
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_download, url, pkgname),
+                        std::bind(&_cmake_build, pkgname),
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "tarball"
+        );
+    }
+    auto tarball_manual(const std::string& name, const std::string& url, const std::string& version, const std::string& pkgname, const util::command& cmd) {
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_download, url, pkgname),
+                        std::bind(&_manual_build, pkgname, cmd),
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "tarball"
+        );
+    }
+    auto tarball_header_only(const std::string& name, const std::string& url, const std::string& version, const std::string& pkgname) {
+        return std::make_tuple(
+                step_functions(
+                        std::bind(&_download, url, pkgname),
+                        std::bind(&_header_only, pkgname),
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                "tarball"
         );
     }
 
@@ -408,36 +333,94 @@ namespace poac::subcmd { struct install {
             try { src = itr->second["src"].as<std::string>(); }
             catch (...) { }
 
+
             if (!src.empty()) {
                 if (src == "github") {
                     const std::string version = itr->second["tag"].as<std::string>();
                     const std::string pkgname = util::package::github_conv_pkgname(name, version);
 
-                    std::string build_system;
-                    try { build_system = itr->second["build"].as<std::string>(); }
-                    catch (...) { }
-                    if (build_system.empty()) {
-                        if (itr->second["build"]["system"].as<std::string>() == "cmake") {
-                            for (const auto& [key, val] : itr->second["build"]["environment"].as<std::map<std::string, std::string>>()) {
-                                (void)key;
-                                (void)val;
+                    if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname)) {
+                        ++already_count;
+                    }
+                    else if (src::cache::resolve(pkgname)) {
+                        async_funcs->emplace_back(cache(name, version, pkgname));
+                    }
+                    else if (src::github::installable(name, version)) {
+                        std::string build_system;
+                        try { build_system = itr->second["build"].as<std::string>(); }
+                        catch (...) { }
+                        if (build_system.empty()) {
+                            if (itr->second["build"]["system"].as<std::string>() == "cmake") {
+//                                for (const auto& [key, val] : itr->second["build"]["environment"].as<std::map<std::string, std::string>>()) {
+//                                    std::cout << "key: " << key << "val: " << val << std::endl;
+//                                } // TODO:
+                                async_funcs->emplace_back(github_cmake(name, version, pkgname));
+                            }
+                            else if (itr->second["build"]["system"].as<std::string>() == "manual") {
+                                util::command cmd;
+                                int count = 0;
+                                for (const auto& s : itr->second["build"]["steps"].as<std::vector<std::string>>()) {
+                                    if (count++ == 0) cmd.init(s);
+                                    else              cmd &= s;
+                                }
+                                async_funcs->emplace_back(github_manual(name, version, pkgname, cmd));
+                            }
+                            else {
+                                async_funcs->emplace_back(notfound(name, version));
                             }
                         }
+                        else if (build_system == "cmake") {
+                            async_funcs->emplace_back(github_cmake(name, version, pkgname));
+                        } // manual must always describe the step
+                        else {
+                            async_funcs->emplace_back(notfound(name, version));
+                        }
                     }
-
-                    if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
-                        ++already_count;
-                    else
-                        search_github(async_funcs, name, version, pkgname);
+                    else {
+                        async_funcs->emplace_back(notfound(name, version));
+                    }
                 }
                 else if (src == "tarball") {
                     const std::string version = "nothing";
                     const std::string pkgname = util::package::basename(name);
+                    const std::string url     = itr->second["url"].as<std::string>();
 
                     if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
                         ++already_count;
-                    else
-                        search_tarball(async_funcs, itr->second["url"].as<std::string>(), name, version, pkgname);
+                    else if (src::cache::resolve(pkgname)) {
+                        async_funcs->emplace_back(cache(name, version, pkgname));
+                    }
+                    else {
+                        std::string build_system;
+                        try { build_system = itr->second["build"].as<std::string>(); }
+                        catch (...) { }
+                        if (build_system.empty()) {
+                            if (itr->second["build"]["system"].as<std::string>() == "cmake") {
+//                                for (const auto& [key, val] : itr->second["build"]["environment"].as<std::map<std::string, std::string>>()) {
+//                                    std::cout << "key: " << key << "val: " << val << std::endl;
+//                                } // TODO:
+                                async_funcs->emplace_back(tarball_cmake(name, url, version, pkgname));
+                            }
+                            else if (itr->second["build"]["system"].as<std::string>() == "manual") {
+                                util::command cmd;
+                                int count = 0;
+                                for (const auto& s : itr->second["build"]["steps"].as<std::vector<std::string>>()) {
+                                    if (count++ == 0) cmd.init(s);
+                                    else              cmd &= s;
+                                }
+                                async_funcs->emplace_back(tarball_manual(name, url, version, pkgname, cmd));
+                            }
+                            else {
+                                async_funcs->emplace_back(notfound(name, version));
+                            }
+                        }
+                        else if (build_system == "cmake") {
+                            async_funcs->emplace_back(tarball_cmake(name, url, version, pkgname));
+                        } // manual must always describe the step
+                        else {
+                            async_funcs->emplace_back(notfound(name, version));
+                        }
+                    }
                 }
                 else {
                     throw except::error("poac.yml error\nWhat source is " + itr->second["src"].as<std::string>() + "?");
@@ -449,8 +432,12 @@ namespace poac::subcmd { struct install {
 
                 if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
                     ++already_count;
-                else
-                    search_poac(async_funcs, name, version, pkgname);
+                else if (src::cache::resolve(pkgname)) {
+                    async_funcs->emplace_back(cache(name, version, pkgname));
+                }
+                else {
+                    async_funcs->emplace_back(notfound(name, version));
+                }
             }
         }
 
