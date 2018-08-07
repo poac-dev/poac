@@ -20,8 +20,7 @@
 #include <tuple>
 #include <fstream>
 #include <regex>
-
-#include <unistd.h>
+#include <chrono>
 
 #include <boost/filesystem.hpp>
 #include <boost/timer/timer.hpp>
@@ -43,9 +42,9 @@ struct step_functions {
     template < typename ...Funcs >
     explicit step_functions(Funcs ...fs) : funcs({fs...}), size(sizeof...(Funcs)) {}
 
-    void start() const { run(); }
-    void run() const { func_now = std::async(std::launch::async, funcs[index]); }
-    int next() const { ++index; run(); return index; }
+    void start() const { if (index == 0) run(); }
+    void run()   const { func_now = std::async(std::launch::async, funcs[index]); }
+    int  next()  const { ++index; run(); return index; }
     // All done: -1, Now: index
     template <class Rep, class Period>
     int wait_for(const std::chrono::duration<Rep, Period>& rel_time) const {
@@ -67,135 +66,6 @@ namespace poac::subcmd { struct install {
     template <typename VS>
     void operator()(VS&& vs) { _main(vs); }
 
-
-    void check_arguments(const std::vector<std::string>& vs) {
-        namespace except = core::except;
-        if (!vs.empty()) throw except::invalid_second_arg("install");
-    }
-
-    auto dependencies() {
-        namespace fs     = boost::filesystem;
-        namespace except = core::except;
-        namespace src    = sources;
-
-        // Auto generate poac.yml on Version 2.
-        if (!io::file::yaml::notfound_handle()) throw except::invalid_second_arg("install");
-        const YAML::Node config = io::file::yaml::get_node("deps"); // TODO: depsが無いとthrowされるはず. deps:だけ書かれていたら？
-
-        std::vector<std::tuple<step_functions, std::function<void()>, std::string>> async_funcs;
-
-        const fs::path current_deps_path = fs::current_path() / "deps";
-
-        int already_count = 0;
-
-        for (YAML::const_iterator itr = config.begin(); itr != config.end(); ++itr) {
-            const std::string name = itr->first.as<std::string>();
-
-            bool exists_key = true;
-
-            try { itr->second["src"]; }
-            catch (...) { exists_key = false; }
-
-            if (exists_key) {
-                if (itr->second["src"].as<std::string>() == "github") {
-                    const std::string tag = itr->second["tag"].as<std::string>();
-                    const std::string pkgname = util::package::github_conv_pkgname(name, tag);
-
-                    if (io::file::path::validate_dir(current_deps_path / pkgname)) {
-                        ++already_count;
-                    }
-                    else if (src::cache::resolve(name, tag)) {
-                        async_funcs.emplace_back(
-                                step_functions(
-                                        std::bind(&_copy, pkgname)
-                                ),
-                                std::bind(&info, name, tag),
-                                "cache"
-                        );
-                    }
-                    else if (src::github::installable(name, tag)) {
-                        async_funcs.emplace_back(
-                                step_functions(
-                                        std::bind(&_download, src::github::resolve(name, tag), pkgname),
-                                        std::bind(&_build, pkgname),
-                                        std::bind(&_copy, pkgname)
-                                ),
-                                std::bind(&info, name, tag),
-                                "github"
-                        );
-                    }
-                    else {
-                        async_funcs.emplace_back(
-                                step_functions(
-                                        std::bind(&_placeholder)
-                                ),
-                                std::bind(&info, name, tag),
-                                "notfound"
-                        );
-                    }
-                }
-                else if (itr->second["src"].as<std::string>() == "tarball") {
-                    const std::string tag = "nothing";
-                    const std::string pkgname = util::package::basename(name);
-
-                    async_funcs.emplace_back(
-                            step_functions(
-                                    std::bind(&_download, itr->second["url"].as<std::string>(), pkgname),
-                                    std::bind(&_build, pkgname),
-                                    std::bind(&_copy, pkgname)
-                            ),
-                            std::bind(&info, name, tag),
-                            "github"
-                    );
-                }
-                else {
-                    throw except::error("poac.yml error");
-                }
-            }
-            else {
-                const std::string tag = itr->second.as<std::string>();
-                const std::string pkgname = util::package::github_conv_pkgname(name, tag);
-
-                if (io::file::path::validate_dir(current_deps_path / pkgname)) {
-                    ++already_count;
-                }
-                else if (src::cache::resolve(name, tag)) {
-                    async_funcs.emplace_back(
-                            step_functions(
-                                    std::bind(&_copy, pkgname)
-                            ),
-                            std::bind(&info, name, tag),
-                            "cache"
-                    );
-                }
-                else {
-                    async_funcs.emplace_back(
-                            step_functions(
-                                    std::bind(&_placeholder)
-                            ),
-                            std::bind(&info, name, tag),
-                            "notfound"
-                    );
-                }
-            }
-        }
-
-        if (async_funcs.empty()) {
-            if (already_count > 0)
-                throw except::warn("Already up-to-date");
-            else
-                throw except::invalid_second_arg("install");
-        }
-
-        // Start async functions...
-        for (const auto& [func, _info, _src] : async_funcs) {
-            func.start();
-            ((void)_info, (void)_src); // Avoid unused warning
-        }
-
-        return async_funcs;
-    }
-
     static void info(const std::string& name, const std::string& tag) {
         std::cout << name << ": " << tag;
     }
@@ -210,17 +80,17 @@ namespace poac::subcmd { struct install {
         std::cout << status + point + " (found in " + src + ")";
     }
     static void installed(const std::string& src) {
-        std::cout << " ✔  " << io::cli::green;
+        std::cout << io::cli::green << " ✔  ";
         io::cli::set_left(35);
         std::cout << "Installed! (found in " + src + ")" << io::cli::reset;
     }
     static void not_found() {
-        std::cout << " ×  " << io::cli::red;
+        std::cout << io::cli::red << " ×  ";
         io::cli::set_left(35);
         std::cout << "Not found" << io::cli::reset;
     }
     static void install_failed() {
-        std::cout << " ×  " << io::cli::red;
+        std::cout << io::cli::red << " ×  ";
         io::cli::set_left(35);
         std::cout << "Install failed" << io::cli::reset;
     }
@@ -233,7 +103,7 @@ namespace poac::subcmd { struct install {
 
 
     template <typename Async>
-    int install_now(int* index_now, const Async& async_funcs) {
+    int installing(int *index_now, const Async &async_funcs) {
         if (*index_now >= static_cast<int>(io::cli::spinners.size()))
             *index_now = 0;
 
@@ -254,18 +124,11 @@ namespace poac::subcmd { struct install {
                 ++count;
             }
             else {
-                // TODO: ダサい
                 const std::string now = [&status]() {
-                    // TODO: イメージ的には，status == 0 "Resolving"
-                    // TODO: status == -1 "Not found" // ただし．これもprogressになってしまう
-                    if (status == 0)
-                        return "Downloading";
-                    else if (status == 1)
-                        return "Building";
-                    else if (status == 2)
-                        return "Copying";
-                    else
-                        return "Error";
+                    if (status == 0)      return "Downloading";
+                    else if (status == 1) return "Building";
+                    else if (status == 2) return "Copying";
+                    else                  return "Error";
                 }();
                 rewrite(std::bind(&progress, *index_now, now, std::get<2>(fun)), std::get<1>(fun));
             }
@@ -294,7 +157,6 @@ namespace poac::subcmd { struct install {
         fs::remove(tarname);
     }
 
-    // TODO: poac.ymlが存在する場合．poac build実行時まで後回しにできる？
     static void _build(const std::string& pkgname) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
@@ -308,7 +170,7 @@ namespace poac::subcmd { struct install {
             command += " && cd build";
             // TODO: MACOSX_RPATHはダメ． // TODO: cmake install_dir
             command += " && MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1"; // TODO: 抽象化
-            command += " && make -j4 2>&1"; // TODO: 抽象化
+            command += " && make -j4 2>&1"; // TODO: 抽象化 // hardware_concurrency
             command += " && DESTDIR=./ make install 2>&1";
 
             std::array<char, 128> buffer;
@@ -370,15 +232,158 @@ namespace poac::subcmd { struct install {
     static void _copy(const std::string& pkgname) {
         namespace fs = boost::filesystem;
 
-        const fs::path current_deps_path = fs::current_path() / "deps";
-        fs::create_directories(current_deps_path);
+        fs::create_directories(io::file::path::current_deps_dir);
         // Copy package to ./deps
         // If it exists in cache and it is not in the current directory copy it to the current.
-        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, current_deps_path / pkgname);
+        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, io::file::path::current_deps_dir / pkgname);
     }
 
     static void _placeholder() {}
 
+
+    template <typename Async>
+    void search_github(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
+        namespace src    = sources;
+
+        if (src::cache::resolve(name, version)) {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_copy, pkgname)
+                    ),
+                    std::bind(&info, name, version),
+                    "cache"
+            );
+        }
+        else if (src::github::installable(name, version)) {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_download, src::github::resolve(name, version), pkgname),
+                            std::bind(&_build, pkgname),
+                            std::bind(&_copy, pkgname)
+                    ),
+                    std::bind(&info, name, version),
+                    "github"
+            );
+        }
+        else {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_placeholder)
+                    ),
+                    std::bind(&info, name, version),
+                    "notfound"
+            );
+        }
+    }
+
+    template <typename Async>
+    void search_poac(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
+        namespace src    = sources;
+
+        if (src::cache::resolve(name, version)) {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_copy, pkgname)
+                    ),
+                    std::bind(&info, name, version),
+                    "cache"
+            );
+        }
+        else {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_placeholder)
+                    ),
+                    std::bind(&info, name, version),
+                    "notfound"
+            );
+        }
+    }
+
+    template <typename Async>
+    void dependencies(Async* async_funcs) {
+        namespace fs     = boost::filesystem;
+        namespace except = core::except;
+        namespace src    = sources;
+
+        // TODO: depsが無いとthrowされるはず. deps:だけ書かれていたら？
+        const YAML::Node deps = io::file::yaml::get_node("deps");
+        int already_count = 0;
+
+        // TODO: 同じdepsが書かれている場合の対策が施されていない．
+        for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
+            const std::string name = itr->first.as<std::string>();
+            bool exists_src_key = true;
+
+            try { itr->second["src"]; }
+            catch (...) { exists_src_key = false; }
+
+            if (exists_src_key) {
+                if (itr->second["src"].as<std::string>() == "github") {
+                    const std::string version = itr->second["tag"].as<std::string>();
+                    const std::string pkgname = util::package::github_conv_pkgname(name, version);
+
+                    if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
+                        ++already_count;
+                    else
+                        search_github(async_funcs, name, version, pkgname);
+                }
+                else if (itr->second["src"].as<std::string>() == "tarball") {
+                    const std::string version = "nothing";
+                    const std::string pkgname = util::package::basename(name);
+
+                    async_funcs->emplace_back(
+                            step_functions(
+                                    std::bind(&_download, itr->second["url"].as<std::string>(), pkgname),
+                                    std::bind(&_build, pkgname),
+                                    std::bind(&_copy, pkgname)
+                            ),
+                            std::bind(&info, name, version),
+                            "tarball"
+                    );
+                }
+                else {
+                    throw except::error("poac.yml error\nWhat is " + itr->second["src"].as<std::string>() + "?");
+                }
+            }
+            else {
+                const std::string version = itr->second.as<std::string>();
+                const std::string pkgname = util::package::github_conv_pkgname(name, version);
+
+                if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
+                    ++already_count;
+                else
+                    search_poac(async_funcs, name, version, pkgname);
+            }
+        }
+
+        if (async_funcs->empty()) {
+            if (already_count > 0)
+                throw except::warn("Already up-to-date");
+            else
+                throw except::invalid_second_arg("install");
+        }
+
+        // Start async functions...
+        for (const auto& [func, _info, _src] : *async_funcs) {
+            func.start();
+            ((void)_info, (void)_src); // Avoid unused warning
+        }
+    }
+
+    void check_requirements() {
+        namespace fs     = boost::filesystem;
+        namespace except = core::except;
+
+        // Auto generate poac.yml on Version 2.
+        if (!io::file::yaml::notfound_handle()) throw except::invalid_second_arg("install");
+        fs::create_directories(io::file::path::poac_cache_dir);
+    }
+
+    void check_arguments(const std::vector<std::string>& vs) {
+        namespace except = core::except;
+        if (!vs.empty()) throw except::invalid_second_arg("install");
+    }
 
     /*
      * ./poac.ymlからdepsの要素を取得
@@ -398,32 +403,33 @@ namespace poac::subcmd { struct install {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
-        check_arguments(vs);
-
         // Start timer
         boost::timer::cpu_timer timer;
 
-        std::cout << "Some new packages are needed.\n"
-                  << "\n";
 
-        fs::create_directories(io::file::path::poac_cache_dir);
+        check_arguments(vs);
+        check_requirements();
 
-        auto async_funcs = dependencies();
+        std::vector<std::tuple<step_functions, std::function<void()>, std::string>> async_funcs;
+        dependencies(&async_funcs);
         const int deps_num = static_cast<int>(async_funcs.size());
 
-        for (int i = 0; i < deps_num; ++i)
-            std::cout << std::endl;
+        std::cout << "Some new packages are needed.\n\n";
+        for (int i = 0; i < deps_num; ++i) std::cout << std::endl;
         std::cout << std::endl
                   << "0/" << deps_num << " packages installed";
 
-        for (int i = 0; install_now(&i, async_funcs) != deps_num; ++i)
-            usleep(100000);
+        for (int i = 0; installing(&i, async_funcs) != deps_num; ++i)
+            std::this_thread::sleep_for(std::chrono::microseconds(100000));
+
 
         std::cout << io::cli::clr_line
-                  << io::cli::left(30);
-        std::cout << timer.format(6, "Elapsed time: %ws");
-        std::cout << std::endl;
-        std::cout << io::cli::bold << " ==> Installation finished successfully!" << std::endl;
+                  << io::cli::left(30)
+                  << timer.format(6, "Elapsed time: %ws")
+                  << std::endl
+                  << io::cli::bold
+                  << " ==> Installation finished successfully!"
+                  << std::endl;
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP

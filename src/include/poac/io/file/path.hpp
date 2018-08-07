@@ -27,14 +27,17 @@ namespace poac::io::file::path {
         return path;
     }
 
-    static const boost::filesystem::path poac_state_dir(
+    const boost::filesystem::path poac_state_dir(
             boost::filesystem::path(expand_user("~")) / ".poac"
     );
-    static const boost::filesystem::path poac_cache_dir(
+    const boost::filesystem::path poac_cache_dir(
             poac_state_dir / "cache"
     );
-    static const boost::filesystem::path poac_token_dir(
+    const boost::filesystem::path poac_token_dir(
             poac_state_dir / "token"
+    );
+    const boost::filesystem::path current_deps_dir(
+            boost::filesystem::current_path() / "deps"
     );
 
     std::string connect_path(const boost::filesystem::path& pre, const boost::filesystem::path& post) {
