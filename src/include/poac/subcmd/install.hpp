@@ -31,6 +31,7 @@
 #include "../io/file.hpp"
 #include "../sources.hpp"
 #include "../util/package.hpp"
+#include "../util/command.hpp"
 
 
 // TODO: 各async_funcs，return bool
@@ -168,23 +169,14 @@ namespace poac::subcmd { struct install {
 
         const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
 
-        std::string command("cd " + filepath.string());
-        command += " && mkdir build";
-        command += " && cd build";
-        // TODO: MACOSX_RPATHはダメ． // TODO: cmake install_dir
-        command += " && MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1"; // TODO: 抽象化
-        command += " && make -j4 2>&1"; // TODO: hardware_concurrency
-        command += " && DESTDIR=./ make install 2>&1";
+        util::command cmd("cd " + filepath.string());
+        cmd &= "mkdir build";
+        cmd &= "cd build";
+        cmd &= util::command("cmake ..").env("MACOSX_RPATH", "1").env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/").std_err();
+        cmd &= util::command("make -j4").std_err();
+        cmd &= util::command("make install").env("DESTDIR", "./").std_err();
 
-        std::array<char, 128> buffer;
-        std::string result;
-
-        FILE* pipe = popen(command.c_str(), "r");
-        if (!pipe) throw except::error("Couldn't start command.");
-        while (std::fgets(buffer.data(), 128, pipe) != nullptr)
-            result += buffer.data();
-
-        if (int return_code = pclose(pipe); return_code == 0) {
+        if (auto result = cmd.run()) {
             const std::string filepath_tmp = filepath.string() + "_tmp";
             fs::rename(filepath, filepath_tmp);
             fs::create_directories(filepath);
@@ -192,14 +184,12 @@ namespace poac::subcmd { struct install {
             const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
 
             // Write to cache.yml and recurcive copy
-            if (io::file::path::validate_dir(build_after_dir / "bin"))
-                io::file::path::recursive_copy(build_after_dir / "bin", fs::path(filepath) / "bin");
-            if (io::file::path::validate_dir(build_after_dir / "include"))
-                io::file::path::recursive_copy(build_after_dir / "include", fs::path(filepath) / "include");
-            if (io::file::path::validate_dir(build_after_dir / "lib"))
-                io::file::path::recursive_copy(build_after_dir / "lib", fs::path(filepath) / "lib");
+            for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
+                if (io::file::path::validate_dir(build_after_dir / s))
+                    io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
             fs::remove_all(filepath_tmp);
         }
+        else { /* error */ }
     }
 
     static void _manual_build(const std::string& pkgname) {
@@ -212,19 +202,15 @@ namespace poac::subcmd { struct install {
         const std::string filepath_tmp = filepath.string() + "_tmp";
         fs::rename(filepath, filepath_tmp);
 
-        std::string command("cd " + filepath_tmp);
-        command += " && ./bootstrap.sh";
-        command += " && ./b2 install -j2 --prefix=" + filepath.string();
+        util::command cmd("cd " + filepath_tmp);
+        cmd &= "./bootstrap.sh";
+        cmd &= "./b2 install -j2 --prefix=" + filepath.string();
 
-        std::array<char, 128> buffer;
-        std::string result;
-
-        FILE* pipe = popen(command.c_str(), "r");
-        if (!pipe) throw except::error("Couldn't start command.");
-        while (std::fgets(buffer.data(), 128, pipe) != nullptr)
-            result += buffer.data();
-
-        fs::remove_all(filepath_tmp);
+        if (auto result = cmd.run()) {
+            // TODO: boost build is return 1 always
+            fs::remove_all(filepath_tmp);
+        }
+        else { /* error */ }
     }
 
     static void _header_only(const std::string& pkgname) {
@@ -247,23 +233,14 @@ namespace poac::subcmd { struct install {
 
         // TODO: LICENSEなどが消えてしまう．
         if (fs::exists(filepath / "CMakeLists.txt")) {
-            std::string command("cd " + filepath.string());
-            command += " && mkdir build";
-            command += " && cd build";
-            // TODO: MACOSX_RPATHはダメ． // TODO: cmake install_dir
-            command += " && MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1"; // TODO: 抽象化
-            command += " && make -j4 2>&1"; // TODO: 抽象化 // hardware_concurrency
-            command += " && DESTDIR=./ make install 2>&1";
+            util::command cmd("cd " + filepath.string());
+            cmd &= "mkdir build";
+            cmd &= "cd build";
+            cmd &= util::command("cmake ..").env("MACOSX_RPATH", "1").env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/").std_err();
+            cmd &= util::command("make -j4").std_err();
+            cmd &= util::command("make install").env("DESTDIR", "./").std_err();
 
-            std::array<char, 128> buffer;
-            std::string result;
-
-            FILE* pipe = popen(command.c_str(), "r");
-            if (!pipe) throw except::error("Couldn't start command.");
-            while (std::fgets(buffer.data(), 128, pipe) != nullptr)
-                result += buffer.data();
-
-            if (int return_code = pclose(pipe); return_code == 0) {
+            if (auto result = cmd.run()) {
                 const std::string filepath_tmp = filepath.string() + "_tmp";
                 fs::rename(filepath, filepath_tmp);
                 fs::create_directories(filepath);
@@ -276,6 +253,7 @@ namespace poac::subcmd { struct install {
                         io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
                 fs::remove_all(filepath_tmp);
             }
+            else { /* error */ }
         }
         // Do not exists CMakeLists.txt, but ...
         else if (io::file::path::validate_dir(filepath / "include")) {
@@ -291,19 +269,15 @@ namespace poac::subcmd { struct install {
             const std::string filepath_tmp = filepath.string() + "_tmp";
             fs::rename(filepath, filepath_tmp);
 
-            std::string command("cd " + filepath_tmp);
-            command += " && ./bootstrap.sh";
-            command += " && ./b2 install -j2 --prefix=" + filepath.string();
+            util::command cmd("cd " + filepath_tmp);
+            cmd &= "./bootstrap.sh";
+            cmd &= "./b2 install -j2 --prefix=" + filepath.string();
 
-            std::array<char, 128> buffer;
-            std::string result;
-
-            FILE* pipe = popen(command.c_str(), "r");
-            if (!pipe) throw except::error("Couldn't start command.");
-            while (std::fgets(buffer.data(), 128, pipe) != nullptr)
-                result += buffer.data();
-
-            fs::remove_all(filepath_tmp);
+            if (auto result = cmd.run()) {
+                // TODO: boost build is return 1 always
+                fs::remove_all(filepath_tmp);
+            }
+            else { /* error */ }
         }
     }
 
