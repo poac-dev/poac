@@ -12,9 +12,9 @@
 
 
 namespace poac::sources::cache {
-    bool resolve(const std::string& name, const std::string& tag) {
+    bool resolve(const std::string& pkgname) {
         namespace path = io::file::path;
-        return path::validate_dir(path::poac_cache_dir / util::package::github_conv_pkgname(name, tag));
+        return path::validate_dir(path::poac_cache_dir / pkgname);
     }
 } // end namespace
 #endif // !POAC_SOURCES_CACHE_HPP

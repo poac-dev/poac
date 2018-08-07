@@ -208,7 +208,6 @@ namespace poac::subcmd { struct install {
             fs::remove_all(filepath_tmp);
         }
         // TODO: manualに対応する
-        // TODO: cacheの探索に対応する
         else {
             const std::string filepath_tmp = filepath.string() + "_tmp";
             fs::rename(filepath, filepath_tmp);
@@ -245,7 +244,7 @@ namespace poac::subcmd { struct install {
     void search_github(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
         namespace src    = sources;
 
-        if (src::cache::resolve(name, version)) {
+        if (src::cache::resolve(pkgname)) {
             async_funcs->emplace_back(
                     step_functions(
                             std::bind(&_copy, pkgname)
@@ -280,7 +279,7 @@ namespace poac::subcmd { struct install {
     void search_poac(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
         namespace src    = sources;
 
-        if (src::cache::resolve(name, version)) {
+        if (src::cache::resolve(pkgname)) {
             async_funcs->emplace_back(
                     step_functions(
                             std::bind(&_copy, pkgname)
@@ -296,6 +295,32 @@ namespace poac::subcmd { struct install {
                     ),
                     std::bind(&info, name, version),
                     "notfound"
+            );
+        }
+    }
+
+    template <typename Async>
+    void search_tarball(Async* async_funcs, const std::string& url, const std::string& name, const std::string& version, const std::string& pkgname) {
+        namespace src    = sources;
+
+        if (src::cache::resolve(pkgname)) {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_copy, pkgname)
+                    ),
+                    std::bind(&info, name, version),
+                    "cache"
+            );
+        }
+        else {
+            async_funcs->emplace_back(
+                    step_functions(
+                            std::bind(&_download, url, pkgname),
+                            std::bind(&_build, pkgname),
+                            std::bind(&_copy, pkgname)
+                    ),
+                    std::bind(&info, name, version),
+                    "tarball"
             );
         }
     }
@@ -332,18 +357,13 @@ namespace poac::subcmd { struct install {
                     const std::string version = "nothing";
                     const std::string pkgname = util::package::basename(name);
 
-                    async_funcs->emplace_back(
-                            step_functions(
-                                    std::bind(&_download, itr->second["url"].as<std::string>(), pkgname),
-                                    std::bind(&_build, pkgname),
-                                    std::bind(&_copy, pkgname)
-                            ),
-                            std::bind(&info, name, version),
-                            "tarball"
-                    );
+                    if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
+                        ++already_count;
+                    else
+                        search_tarball(async_funcs, itr->second["url"].as<std::string>(), name, version, pkgname);
                 }
                 else {
-                    throw except::error("poac.yml error\nWhat is " + itr->second["src"].as<std::string>() + "?");
+                    throw except::error("poac.yml error\nWhat source is " + itr->second["src"].as<std::string>() + "?");
                 }
             }
             else {
@@ -412,6 +432,7 @@ namespace poac::subcmd { struct install {
 
         std::vector<std::tuple<step_functions, std::function<void()>, std::string>> async_funcs;
         dependencies(&async_funcs);
+
         const int deps_num = static_cast<int>(async_funcs.size());
 
         std::cout << "Some new packages are needed.\n\n";
