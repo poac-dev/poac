@@ -7,7 +7,7 @@
 
 
 namespace poac::subcmd { struct root {
-    static const std::string summary() { return "Display the root directory."; }
+    static const std::string summary() { return "Display the root installation directory."; }
     static const std::string options() { return "<Nothing>"; }
 
     template <typename VS>

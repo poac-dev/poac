@@ -10,32 +10,47 @@
 using VS = std::vector<std::string>;
 
 int error_handling(std::string&& s) {
-    std::cerr << poac::io::cli::red
+    namespace inference = poac::core::inference;
+    namespace io        = poac::io;
+
+    std::cerr << io::cli::red
               << "Error: " << s
-              << poac::io::cli::reset
+              << io::cli::reset
               << std::endl << std::endl;
-    poac::core::inference::apply("exec", "--help", VS());
+    inference::apply("exec", "--help", VS());
     return EXIT_FAILURE;
 }
 
 template <typename S, typename VS>
 int exec(S&& s, VS&& vs) {
+    namespace inference = poac::core::inference;
+    namespace except    = poac::core::except;
+    namespace io        = poac::io;
+
     try {
-        poac::core::inference::apply("exec", s, std::move(vs));
+        inference::apply("exec", s, std::move(vs));
         return EXIT_SUCCESS;
     }
-    catch (const poac::core::invalid_first_argument& e) {
+    catch (const except::invalid_first_arg& e) {
         return error_handling(e.what());
     }
-    catch (const poac::core::invalid_second_argument& e) {
-        poac::core::inference::apply("exec", "--help", std::move(VS({ e.what() })));
+    catch (const except::invalid_second_arg& e) {
+        inference::apply("exec", "--help", std::move(VS({ e.what() })));
         return EXIT_FAILURE;
     }
+    catch (const except::error& e) {
+        std::cerr << io::cli::red << e.what() << io::cli::reset << std::endl;
+        return EXIT_FAILURE;
+    }
+    catch (const except::warn& e) {
+        std::cout << io::cli::yellow << e.what() << io::cli::reset << std::endl;
+        return EXIT_SUCCESS;
+    }
     catch (...) {
-        std::cerr << poac::io::cli::red
+        std::cerr << io::cli::red
                   << "Error: " << "Unexpected error"
-                  << poac::io::cli::reset
-                  << std::endl << std::endl;
+                  << io::cli::reset
+                  << std::endl;
         return EXIT_FAILURE;
     }
 }

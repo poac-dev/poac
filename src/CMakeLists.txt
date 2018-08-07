@@ -4,5 +4,6 @@ target_link_libraries(${PROJECT_NAME}
         ${Boost_LIBRARIES}
         ${CURL_LIBRARIES}
         ${YAML_CPP_LIBRARIES}
+#        git2
         )
 install(TARGETS poac DESTINATION bin)

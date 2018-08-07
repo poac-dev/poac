@@ -1,6 +1,7 @@
 #ifndef POAC_SUBCMD_HPP
 #define POAC_SUBCMD_HPP
 
+#include "subcmd/cache.hpp"
 #include "subcmd/init.hpp"
 #include "subcmd/install.hpp"
 #include "subcmd/login.hpp"

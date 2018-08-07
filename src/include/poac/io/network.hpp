@@ -4,12 +4,13 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <cstdio>
 
 #include <curl/curl.h>
 
 
 namespace poac::io::network {
-    size_t callbackWrite(char* ptr, size_t size, size_t nmemb, std::string* stream) {
+    size_t callback_write(char* ptr, size_t size, size_t nmemb, std::string* stream) {
         int dataLength = size * nmemb;
         stream->append(ptr, dataLength);
         return dataLength;
@@ -17,12 +18,27 @@ namespace poac::io::network {
 
     // TODO: Check if connecting network
 
-    // TODO: SSL ?
     std::string get(const std::string& url) {
         std::string chunk;
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
+                std::cerr << "curl_easy_perform() failed." << std::endl;
+            curl_easy_cleanup(curl);
+        }
+        return chunk;
+    }
+    std::string get_github(const std::string& url) {
+        std::string chunk;
+        std::string useragent(std::string("curl/") + curl_version());
+        if (CURL* curl = curl_easy_init(); curl != nullptr) {
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, &useragent);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
             if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
                 std::cerr << "curl_easy_perform() failed." << std::endl;
@@ -31,22 +47,19 @@ namespace poac::io::network {
         return chunk;
     }
 
-    size_t fileWrite(void* buffer, size_t size, size_t nmemb, FILE* stream) {
-        size_t written = fwrite(buffer, size, nmemb, stream);
-        return written;
-    }
-    void file_get(const std::string& from, const std::string& to) {
+    void get_file(const std::string& from, const std::string& to) {
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            FILE* fp = fopen(to.data(), "wb");
+            FILE* fp = std::fopen(to.data(), "wb");
             curl_easy_setopt(curl, CURLOPT_URL, from.c_str());
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fileWrite);
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, std::fwrite);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
             // Switch on full protocol/debug output
 //            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
             if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
                 std::cerr << "curl told us " << res << std::endl;
             curl_easy_cleanup(curl);
-            fclose(fp);
+            std::fclose(fp);
         }
     }
 } // end namespace

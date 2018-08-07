@@ -28,34 +28,37 @@ namespace poac::option { struct help {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
+        namespace except = core::except;
+
         if (vs.size() == 0) exec_help();
         else if(vs.size() == 1) echo_option(vs[0]);
-        else throw poac::core::invalid_second_argument("--help"); // show only --help's option
+        else throw except::invalid_second_arg("--help"); // show only --help's option
     }
     void echo_option(const std::string& arg) {
+        namespace except = core::except;
         try {
-            const auto &tmp = poac::core::inference::apply("options", arg, std::vector<std::string>());
+            const auto &tmp = core::inference::apply("options", arg, std::vector<std::string>());
             std::cout << "Usage: poac " << arg << " " << tmp << std::endl;
         }
-        catch (const poac::core::invalid_first_argument& e) {
-            throw poac::core::invalid_second_argument("--help");
+        catch (const except::invalid_first_arg& e) {
+            throw except::invalid_second_arg("--help");
         }
     }
     void exec_help() {
         std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
 
-        std::cout << poac::io::cli::bold
+        std::cout << io::cli::bold
                   << "Available subcommands:"
-                  << poac::io::cli::reset
+                  << io::cli::reset
                   << std::endl;
-        for (const auto& [name, value] : poac::core::inference::subcmd_map)
+        for (const auto& [name, value] : core::inference::subcmd_map)
             _help(name, value);
 
-        std::cout << poac::io::cli::bold
+        std::cout << io::cli::bold
                   << "Available options:"
-                  << poac::io::cli::reset
+                  << io::cli::reset
                   << std::endl;
-        for (const auto& [name, value] : poac::core::inference::option_map)
+        for (const auto& [name, value] : core::inference::option_map)
             _help(name, value);
 
         std::cout << std::endl
@@ -67,13 +70,13 @@ namespace poac::option { struct help {
         // Eliminate -h and -v
         // It assumes two characters because the regular expression is slow.
         if (key.size() != 2) {
-            std::cout << poac::io::cli::blue << poac::io::cli::bold
+            std::cout << io::cli::blue << io::cli::bold
                       << "   " << std::setw(9) << std::left << key << "   "
-                      << poac::io::cli::reset;
+                      << io::cli::reset;
 
-            std::cout << poac::io::cli::yellow
+            std::cout << io::cli::yellow
                       << _apply("summary", value, std::vector<std::string>())
-                      << poac::io::cli::reset
+                      << io::cli::reset
                       << std::endl;
         }
     }

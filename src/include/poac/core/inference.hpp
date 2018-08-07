@@ -62,44 +62,47 @@ namespace poac::core::inference {
     };
 
     using op_type_list_t = type_list_t<
-            poac::option::help,
-            poac::option::version,
-            poac::subcmd::init,
-            poac::subcmd::root,
-            poac::subcmd::new_,
-            poac::subcmd::install,
-            poac::subcmd::uninstall,
-            poac::subcmd::search,
-            poac::subcmd::login,
-            poac::subcmd::publish
+            option::help,
+            option::version,
+            subcmd::init,
+            subcmd::root,
+            subcmd::new_,
+            subcmd::install,
+            subcmd::uninstall,
+            subcmd::search,
+            subcmd::login,
+            subcmd::publish,
+            subcmd::cache
     >;
     enum class op_type_e : int {
-        help      = op_type_list_t::index_of<poac::option::help>,
-        version   = op_type_list_t::index_of<poac::option::version>,
-        init      = op_type_list_t::index_of<poac::subcmd::init>,
-        root      = op_type_list_t::index_of<poac::subcmd::root>,
-        new_      = op_type_list_t::index_of<poac::subcmd::new_>,
-        install   = op_type_list_t::index_of<poac::subcmd::install>,
-        uninstall = op_type_list_t::index_of<poac::subcmd::uninstall>,
-        search    = op_type_list_t::index_of<poac::subcmd::search>,
-        login    = op_type_list_t::index_of<poac::subcmd::login>,
-        publish   = op_type_list_t::index_of<poac::subcmd::publish>
+        help      = op_type_list_t::index_of<option::help>,
+        version   = op_type_list_t::index_of<option::version>,
+        init      = op_type_list_t::index_of<subcmd::init>,
+        root      = op_type_list_t::index_of<subcmd::root>,
+        new_      = op_type_list_t::index_of<subcmd::new_>,
+        install   = op_type_list_t::index_of<subcmd::install>,
+        uninstall = op_type_list_t::index_of<subcmd::uninstall>,
+        search    = op_type_list_t::index_of<subcmd::search>,
+        login     = op_type_list_t::index_of<subcmd::login>,
+        publish   = op_type_list_t::index_of<subcmd::publish>,
+        cache     = op_type_list_t::index_of<subcmd::cache>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
-            { "init", op_type_e::init },
-            { "root", op_type_e::root },
-            { "new", op_type_e::new_ },
-            { "install", op_type_e::install },
+            { "init",      op_type_e::init },
+            { "root",      op_type_e::root },
+            { "new",       op_type_e::new_ },
+            { "install",   op_type_e::install },
             { "uninstall", op_type_e::uninstall },
-            { "search", op_type_e::search },
-            { "login", op_type_e::login },
-            { "publish", op_type_e::publish }
+            { "search",    op_type_e::search },
+            { "login",     op_type_e::login },
+            { "publish",   op_type_e::publish },
+            { "cache",     op_type_e::cache }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
-            { "--help", op_type_e::help },
-            { "-h", op_type_e::help },
+            { "--help",    op_type_e::help },
+            { "-h",        op_type_e::help },
             { "--version", op_type_e::version },
-            { "-v", op_type_e::version }
+            { "-v",        op_type_e::version }
     };
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
@@ -146,9 +149,10 @@ namespace poac::core::inference {
     }
 #endif
 
-    // Execute function: func2()
+    // Execute function: execute or summary or options
     template <typename S, typename Index, typename VS, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
+        namespace except = core::except;
         if (s == "exec")
             return execute(Indices(), static_cast<int>(idx), vs);
         else if (s == "summary")
@@ -156,19 +160,20 @@ namespace poac::core::inference {
         else if (s == "options")
             return options(Indices(), static_cast<int>(idx));
         else
-            throw poac::core::invalid_first_argument("Invalid argument");
+            throw except::invalid_first_arg("Invalid argument");
     }
 
     auto _apply(std::string&& func, const op_type_e& cmd, std::vector<std::string>&& arg) {
         return branch(std::move(func), cmd, std::move(arg));
     }
     std::string apply(std::string&& func, const std::string& cmd, std::vector<std::string>&& arg) {
+        namespace except = core::except;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));
         else if (itr = option_map.find(cmd); itr != option_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));
         else
-            throw poac::core::invalid_first_argument("Invalid argument");
+            throw except::invalid_first_arg("Invalid argument");
     }
 }
 #endif // !POAC_CORE_INFERENCE_HPP

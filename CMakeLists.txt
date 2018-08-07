@@ -16,7 +16,7 @@ else()
 endif()
 
 # Boost
-find_package(Boost 1.62 REQUIRED COMPONENTS system filesystem)
+find_package(Boost 1.62 REQUIRED COMPONENTS system filesystem timer)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIR})
@@ -33,6 +33,10 @@ include_directories(${CURL_INCLUDE_DIR})
 # yaml-cpp
 find_package( yaml-cpp REQUIRED )
 include_directories( ${YAML_CPP_INCLUDE_DIR} )
+
+# libgit2
+#include_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/include )
+#link_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/lib )
 
 add_subdirectory(src)
 add_subdirectory(test)

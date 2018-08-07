@@ -21,32 +21,27 @@ namespace poac::subcmd { struct new_ {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
-        namespace fs = boost::filesystem;
+        namespace fs     = boost::filesystem;
+        namespace except = core::except;
+
         if (vs.size() != 1)
-            throw poac::core::invalid_second_argument("new");
+            throw except::invalid_second_arg("new");
         // Check if the ARGUMENT directory exists.
         else if (const fs::path dir(fs::path(".") / fs::path(vs[0])); fs::is_directory(dir) && fs::exists(dir))
-            exists_error(vs[0]);
+            throw except::error("The "+vs[0]+" directory already exists.");
         else
             exec_new(dir, vs[0]);
-    }
-    void exists_error(const std::string& arg) {
-        std::cerr << poac::io::cli::red
-                  << "The "+arg+" directory already exists."
-                  << poac::io::cli::reset
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
     }
     void exec_new(const boost::filesystem::path dir, const std::string& arg) {
         namespace fs = boost::filesystem;
         fs::create_directory(dir);
         std::ofstream ofs;
         std::map<fs::path, std::string> file {
-                { ".gitignore", poac::util::ftemplate::_gitignore },
-                { "main.cpp",   poac::util::ftemplate::main_cpp },
-                { "poac.lock",  poac::util::ftemplate::poac_lock },
-                { "poac.yml",   poac::util::ftemplate::poac_yml },
-                { "README.md",  poac::util::ftemplate::README_md }
+                { ".gitignore", util::ftemplate::_gitignore },
+                { "main.cpp",   util::ftemplate::main_cpp },
+                { "poac.lock",  util::ftemplate::poac_lock },
+                { "poac.yml",   util::ftemplate::poac_yml },
+                { "README.md",  util::ftemplate::README_md }
         };
         for (const auto& [name, text] : file) write_to_file(ofs, (dir/name).string(), text);
         echo_notice(arg);
@@ -58,9 +53,9 @@ namespace poac::subcmd { struct new_ {
         ofs.clear();
     }
     void echo_notice(const std::string& str) {
-        std::cout << poac::io::cli::bold
+        std::cout << io::cli::bold
                   << notice(str)
-                  << poac::io::cli::reset;
+                  << io::cli::reset;
     }
     std::string notice(const std::string& str) {
         return "\n"
