@@ -40,9 +40,6 @@ namespace poac::io::file::path {
             boost::filesystem::current_path() / "deps"
     );
 
-    std::string connect_path(const boost::filesystem::path& pre, const boost::filesystem::path& post) {
-        return (pre / post).c_str();
-    }
     bool validate_dir(const boost::filesystem::path& path) {
         namespace fs = boost::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
