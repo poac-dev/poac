@@ -188,14 +188,30 @@ namespace poac::sources::inference {
         );
     }
 
-
     boost::optional<std::tuple<util::step_functions, std::function<void()>, std::string>>
-    resolve_github(
+    resolve(
             const YAML::Node& node,
             const std::string& name,
-            const std::string& version)
+            const std::string& source)
     {
-        const std::string pkgname = util::package::github_conv_pkgname(name, version);
+        namespace except = core::except;
+
+        std::string version;
+        std::string pkgname;
+        std::string url;
+        if (source == "github") {
+            version = node["tag"].as<std::string>();
+            pkgname = util::package::github_conv_pkgname(name, version);
+            url = github::resolve(name, version);
+        }
+        else if (source == "tarball") {
+            version = "nothing";
+            pkgname = util::package::basename(name);
+            url = node["url"].as<std::string>();
+        }
+        else {
+            throw except::error("poac.yml error\nWhat source is " + source + "?");
+        }
 
         if (current::resolve(pkgname)) {
             return boost::none;
@@ -203,12 +219,12 @@ namespace poac::sources::inference {
         else if (cache::resolve(pkgname)) {
             return cache(name, version, pkgname);
         }
-        else if (github::installable(name, version)) {
+        else if ((source == "github") ? github::installable(name, version) : true) {
             if (const auto build_system = io::file::yaml::get<std::string>(node, "build"); !build_system) {
                 if (const auto build_system2 = io::file::yaml::get2<std::string>(node, "build", "system")) {
                     if (*build_system2 == "cmake") {
                         if (const auto cmake_envs = io::file::yaml::get2<std::map<std::string, std::string>>(node, "build", "environment")) {
-                            return cmake(github::resolve(name, version), name, version, pkgname, *cmake_envs, "github");
+                            return cmake(url, name, version, pkgname, *cmake_envs, source);
                         }
                     }
                     else if (*build_system2 == "manual") {
@@ -219,56 +235,13 @@ namespace poac::sources::inference {
                                 if (count++ == 0) cmd.init(s);
                                 else cmd &= s;
                             }
-                            return manual(github::resolve(name, version), name, version, pkgname, cmd, "github");
+                            return manual(url, name, version, pkgname, cmd, source);
                         }
                     }
                 }
             }
             else if (*build_system == "cmake") {
-                return cmake(github::resolve(name, version), name, version, pkgname, std::map<std::string, std::string>(), "github");
-            } // manual must always describe the step
-        }
-        return notfound(name, version);
-    }
-
-    boost::optional<std::tuple<util::step_functions, std::function<void()>, std::string>>
-    resolve_tarball(
-            const YAML::Node& node,
-            const std::string& name,
-            const std::string& version)
-    {
-        const std::string pkgname = util::package::basename(name);
-        const std::string url = node["url"].as<std::string>();
-
-        if (current::resolve(pkgname)) {
-            return boost::none;
-        }
-        else if (cache::resolve(pkgname)) {
-            return cache(name, version, pkgname);
-        }
-        else {
-            if (auto build_system = io::file::yaml::get<std::string>(node, "build"); !build_system) {
-                if (const auto build_system2 = io::file::yaml::get2<std::string>(node, "build", "system")) {
-                    if (*build_system2 == "cmake") {
-                        if (const auto cmake_envs = io::file::yaml::get2<std::map<std::string, std::string>>(node, "build", "environment")) {
-                            return cmake(url, name, version, pkgname, *cmake_envs, "tarball");
-                        }
-                    }
-                    else if (*build_system2 == "manual") {
-                        if (const auto steps = io::file::yaml::get2<std::vector<std::string>>(node, "build", "steps")) {
-                            util::command cmd;
-                            int count = 0;
-                            for (const auto &s : *steps) {
-                                if (count++ == 0) cmd.init(s);
-                                else cmd &= s;
-                            }
-                            return manual(url, name, version, pkgname, cmd, "tarball");
-                        }
-                    }
-                }
-            }
-            else if (*build_system == "cmake") {
-                return cmake(url, name, version, pkgname, std::map<std::string, std::string>(), "tarball");
+                return cmake(url, name, version, pkgname, std::map<std::string, std::string>(), source);
             } // manual must always describe the step
         }
         return notfound(name, version);

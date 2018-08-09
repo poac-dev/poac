@@ -26,7 +26,6 @@
 
 #include "../io.hpp"
 #include "../core/except.hpp"
-#include "../io/file.hpp"
 #include "../sources.hpp"
 #include "../util.hpp"
 
@@ -115,7 +114,6 @@ namespace poac::subcmd { struct install {
         return count;
     }
 
-
     template <typename Async>
     void dependencies(Async* async_funcs) {
         namespace fs     = boost::filesystem;
@@ -130,25 +128,10 @@ namespace poac::subcmd { struct install {
         for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
             const std::string name = itr->first.as<std::string>();
             if (auto src = io::file::yaml::get<std::string>(itr->second, "src")) {
-                if (*src == "github") {
-                    const std::string version = itr->second["tag"].as<std::string>();
-
-                    if (auto func_pack = src::inference::resolve_github(itr->second, name, version))
-                        async_funcs->emplace_back(std::move(*func_pack));
-                    else
-                        ++already_count;
-                }
-                else if (*src == "tarball") {
-                    const std::string version = "nothing";
-
-                    if (auto func_pack = src::inference::resolve_tarball(itr->second, name, version))
-                        async_funcs->emplace_back(std::move(*func_pack));
-                    else
-                        ++already_count;
-                }
-                else {
-                    throw except::error("poac.yml error\nWhat source is " + itr->second["src"].as<std::string>() + "?");
-                }
+                if (auto func_pack = src::inference::resolve(itr->second, name, *src))
+                    async_funcs->emplace_back(std::move(*func_pack));
+                else
+                    ++already_count;
             }
             else {
                 const std::string version = itr->second.as<std::string>();
@@ -180,7 +163,7 @@ namespace poac::subcmd { struct install {
         namespace except = core::except;
 
         // Auto generate poac.yml on Version 2.
-        if (!io::file::yaml::notfound_handle()) throw except::invalid_second_arg("install");
+        if (!io::file::yaml::exists()) throw except::error("poac.yml is not found");
         fs::create_directories(io::file::path::poac_cache_dir);
     }
 

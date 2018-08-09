@@ -10,6 +10,14 @@
 namespace poac::util {
     // TODO: 各async_funcs, return bool
     // TODO: error handling
+    // TODO: const std::string now = [&status]() {
+    //                    if (status == 0)      return "Downloading";
+    //                    else if (status == 1) return "Building";
+    //                    else if (status == 2) return "Copying";
+    //                    else                  return "Error";
+    //                }();
+    //                rewrite(std::bind(&progress, *index_now, now, src), info_func);
+    //  この辺りのstatus funcを持ちたい？
     struct step_functions {
         const std::vector<std::function<void()>> funcs;
         const size_t size;

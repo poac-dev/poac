@@ -18,11 +18,11 @@ namespace poac::io::file::yaml {
         return fs::exists(dir / fs::path("poac.yml")) ||
                fs::exists(dir / fs::path("poac.yaml"));
     }
-    [[maybe_unused]] bool exists(const boost::filesystem::path& dir) {
+    bool exists(const boost::filesystem::path& dir) {
         return _exists(dir);
     }
     bool exists(/* current directory */) {
-        return _exists(boost::filesystem::path("."));
+        return _exists(boost::filesystem::current_path());
     }
 
     template <typename T>
@@ -34,17 +34,6 @@ namespace poac::io::file::yaml {
     boost::optional<T> get2(const YAML::Node& node, const std::string& key1, const std::string& key2) {
         try { return node[key1][key2].as<T>(); }
         catch (...) { return boost::none; }
-    }
-
-    bool notfound_handle() {
-        const bool ret = exists();
-        if (!ret) {
-            std::cerr << io::cli::red
-                      << "ERROR: poac.yml is not found"
-                      << io::cli::reset
-                      << std::endl;
-        }
-        return ret;
     }
 
     YAML::Node get_node() {
