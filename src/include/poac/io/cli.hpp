@@ -11,23 +11,30 @@
 
 namespace poac::io::cli {
     // Clear screen
-    static constexpr std::string_view clr       = "\x1b[2J";
-    // カーソル位置からその行の右端までをクリア
+    static constexpr std::string_view clr_screen = "\x1b[2J";
+    // Clear from the cursor position to the right end
     static constexpr std::string_view clr_right = "\x1b[0K";
-    // カーソル位置からその行の左端までをクリア
-    static constexpr std::string_view clr_left  = "\x1b[1K";
-    // カーソル位置の行をクリア
-    static constexpr std::string_view clr_line  = "\x1b[2K";
-    // カーソル位置を移動
+    // Clear from the cursor position to the left end
+    static constexpr std::string_view clr_left = "\x1b[1K";
+    // Clear the line at the cursor position
+    static constexpr std::string_view clr_line = "\x1b[2K";
+    // Move cursor position
     const std::string_view up(unsigned int y)    { return "\x1b["+std::to_string(y)+"A"; }
     const std::string_view down(unsigned int y)  { return "\x1b["+std::to_string(y)+"B"; }
     const std::string_view right(unsigned int x) { return "\x1b["+std::to_string(x)+"C"; }
     const std::string_view left(unsigned int x)  { return "\x1b["+std::to_string(x)+"D"; }
-    const std::string_view location(unsigned int x, unsigned int y)
-        { return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H"; }
+    const std::string_view location(unsigned int x, unsigned int y) {
+        return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H";
+    }
 
-    void set_left(const int&& n)
-        { std::cout << std::setw(n) << std::left; }
+    void rel_mv(int x=0, int y=0) {
+        if (x > 0) std::cout << right(x);
+        else       std::cout << left(-x);
+        if (y > 0) std::cout << up(y);
+        else       std::cout << down(-y);
+    }
+
+    void set_left(const int&& n) { std::cout << std::setw(n) << std::left; }
 
     static constexpr std::string_view red = "\x1b[31m";
     static constexpr std::string_view green = "\x1b[32m";

@@ -5,6 +5,7 @@
 #include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../../io/cli.hpp"
@@ -22,6 +23,17 @@ namespace poac::io::file::yaml {
     }
     bool exists(/* current directory */) {
         return _exists(boost::filesystem::path("."));
+    }
+
+    template <typename T>
+    boost::optional<T> get(const YAML::Node& node, const std::string& key) {
+        try { return node[key].as<T>(); }
+        catch (...) { return boost::none; }
+    }
+    template <typename T>
+    boost::optional<T> get2(const YAML::Node& node, const std::string& key1, const std::string& key2) {
+        try { return node[key1][key2].as<T>(); }
+        catch (...) { return boost::none; }
     }
 
     bool notfound_handle() {
