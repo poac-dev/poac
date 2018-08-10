@@ -73,7 +73,6 @@ namespace poac::subcmd { struct install {
         std::cout << io::cli::left(100);
     }
 
-
     template <typename Async>
     int installing(int* index_now, const Async& async_funcs) {
         *index_now %= static_cast<int>(io::cli::spinners.size());
@@ -184,6 +183,7 @@ namespace poac::subcmd { struct install {
      * TODO: Check if connecting network
      * TODO: download途中で，ctl Cされたファイルは消す
      * TODO: Error handling. (tarball url not found.. etc)
+     * TODO: カレントディレクトリには，バージョン番号は付かない
      */
     template <typename VS>
     void _main(VS&& vs) {
