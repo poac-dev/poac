@@ -213,7 +213,8 @@ namespace poac::subcmd { struct install {
 
         std::cout << io::cli::clr_line
                   << io::cli::left(30)
-                  << timer.format(6, "Elapsed time: %ws")
+                  << "Elapsed time: "
+                  << util::pretty_time::to(timer.format(6, "%w"))
                   << std::endl
                   << io::cli::bold
                   << " ==> Installation finished successfully!"
