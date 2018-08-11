@@ -13,8 +13,6 @@
 #include <fstream>
 #include <tuple>
 #include <map>
-#include <thread>
-#include <future>
 #include <functional>
 #include <utility>
 #include <tuple>
@@ -28,36 +26,10 @@
 
 #include "../io.hpp"
 #include "../core/except.hpp"
-#include "../io/file.hpp"
 #include "../sources.hpp"
-#include "../util/package.hpp"
-#include "../util/command.hpp"
+#include "../util.hpp"
 
 
-// TODO: 各async_funcs，return bool
-// TODO: error handling
-struct step_functions {
-    const std::vector<std::function<void()>> funcs;
-    const size_t size;
-    std::future<void> mutable func_now;
-    unsigned int mutable index = 0;
-
-    template < typename ...Funcs >
-    explicit step_functions(Funcs ...fs) : funcs({fs...}), size(sizeof...(Funcs)) {}
-
-    void start() const { if (index == 0) run(); }
-    void run()   const { func_now = std::async(std::launch::async, funcs[index]); }
-    int  next()  const { ++index; run(); return index; }
-    // All done: -1, Now: index
-    template <class Rep, class Period>
-    int wait_for(const std::chrono::duration<Rep, Period>& rel_time) const {
-        if (std::future_status::ready == func_now.wait_for(rel_time)) {
-            if (index < (size-1)) { return next(); }
-            else                  { return -1; }
-        }
-        else { return index; }
-    }
-};
 // Version 1 will allow $ poac install <Nothing> only.
 //   Parse poac.yml
 // Version 2 will also allow $ poac install [<pkg-names>].
@@ -69,9 +41,6 @@ namespace poac::subcmd { struct install {
     template <typename VS>
     void operator()(VS&& vs) { _main(vs); }
 
-    static void info(const std::string& name, const std::string& tag) {
-        std::cout << name << ": " << tag;
-    }
     static void progress(const int& index, const std::string& status, const std::string& src) {
         std::cout << " " << io::cli::spinners[index] << "  ";
         io::cli::set_left(35);
@@ -106,9 +75,8 @@ namespace poac::subcmd { struct install {
 
 
     template <typename Async>
-    int installing(int *index_now, const Async &async_funcs) {
-        if (*index_now >= static_cast<int>(io::cli::spinners.size()))
-            *index_now = 0;
+    int installing(int* index_now, const Async& async_funcs) {
+        *index_now %= static_cast<int>(io::cli::spinners.size());
 
         // 0/num packages installed|
         // |0/num packages installed
@@ -146,250 +114,6 @@ namespace poac::subcmd { struct install {
         return count;
     }
 
-
-    static void _download(const std::string& url, const std::string& pkgname) {
-        namespace fs  = boost::filesystem;
-        namespace src = sources;
-
-        const std::string pkg_dir = (io::file::path::poac_cache_dir / pkgname).string();
-        const std::string tarname = pkg_dir + ".tar.gz";
-        io::network::get_file(url, tarname);
-
-        // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-        io::file::tarball::extract_spec(tarname, pkg_dir);
-        fs::remove(tarname);
-    }
-
-//    std::string cmake_command(const std::string& hoge) { return "fdsanjk" };
-
-    // TODO: LICENSEなどが消えてしまう
-    static void _cmake_build(const std::string& pkgname) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::except;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        util::command cmd("cd " + filepath.string());
-        cmd &= "mkdir build";
-        cmd &= "cd build";
-        cmd &= util::command("cmake ..").env("MACOSX_RPATH", "1").env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/").std_err();
-        cmd &= util::command("make -j4").std_err();
-        cmd &= util::command("make install").env("DESTDIR", "./").std_err();
-
-        if (auto result = cmd.run()) {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-            fs::rename(filepath, filepath_tmp);
-            fs::create_directories(filepath);
-
-            const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
-
-            // Write to cache.yml and recurcive copy
-            for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
-                if (io::file::path::validate_dir(build_after_dir / s))
-                    io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
-            fs::remove_all(filepath_tmp);
-        }
-        else { /* error */ }
-    }
-
-    static void _manual_build(const std::string& pkgname) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::except;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-
-        const std::string filepath_tmp = filepath.string() + "_tmp";
-        fs::rename(filepath, filepath_tmp);
-
-        util::command cmd("cd " + filepath_tmp);
-        cmd &= "./bootstrap.sh";
-        cmd &= "./b2 install -j2 --prefix=" + filepath.string();
-
-        if (auto result = cmd.run()) {
-            // TODO: boost build is return 1 always
-            fs::remove_all(filepath_tmp);
-        }
-        else { /* error */ }
-    }
-
-    static void _header_only(const std::string& pkgname) {
-        namespace fs = boost::filesystem;
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        const std::string filepath_tmp = filepath.string() + "_tmp";
-
-        fs::rename(filepath, filepath_tmp);
-        fs::create_directories(filepath);
-        io::file::path::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
-        fs::remove_all(filepath_tmp);
-    }
-
-    static void _build(const std::string& pkgname) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::except;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        // TODO: LICENSEなどが消えてしまう．
-        if (fs::exists(filepath / "CMakeLists.txt")) {
-            util::command cmd("cd " + filepath.string());
-            cmd &= "mkdir build";
-            cmd &= "cd build";
-            cmd &= util::command("cmake ..").env("MACOSX_RPATH", "1").env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/").std_err();
-            cmd &= util::command("make -j4").std_err();
-            cmd &= util::command("make install").env("DESTDIR", "./").std_err();
-
-            if (auto result = cmd.run()) {
-                const std::string filepath_tmp = filepath.string() + "_tmp";
-                fs::rename(filepath, filepath_tmp);
-                fs::create_directories(filepath);
-
-                const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
-
-                // Write to cache.yml and recurcive copy
-                for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
-                    if (io::file::path::validate_dir(build_after_dir / s))
-                        io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
-                fs::remove_all(filepath_tmp);
-            }
-            else { /* error */ }
-        }
-        // Do not exists CMakeLists.txt, but ...
-        else if (io::file::path::validate_dir(filepath / "include")) {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-
-            fs::rename(filepath, filepath_tmp);
-            fs::create_directories(filepath);
-            io::file::path::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
-            fs::remove_all(filepath_tmp);
-        }
-        // TODO: manualに対応する
-        else {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-            fs::rename(filepath, filepath_tmp);
-
-            util::command cmd("cd " + filepath_tmp);
-            cmd &= "./bootstrap.sh";
-            cmd &= "./b2 install -j2 --prefix=" + filepath.string();
-
-            if (auto result = cmd.run()) {
-                // TODO: boost build is return 1 always
-                fs::remove_all(filepath_tmp);
-            }
-            else { /* error */ }
-        }
-    }
-
-    static void _copy(const std::string& pkgname) {
-        namespace fs = boost::filesystem;
-
-        fs::create_directories(io::file::path::current_deps_dir);
-        // Copy package to ./deps
-        // If it exists in cache and it is not in the current directory copy it to the current.
-        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, io::file::path::current_deps_dir / pkgname);
-    }
-
-    static void _placeholder() {}
-
-
-    auto cache_func(const std::string& name, const std::string& version, const std::string& pkgname) {
-        return std::make_tuple(
-                step_functions(
-                        std::bind(&_copy, pkgname)
-                ),
-                std::bind(&info, name, version),
-                "cache"
-        );
-    }
-
-    template <typename Async>
-    void search_github(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
-        namespace src    = sources;
-
-        if (src::cache::resolve(pkgname)) {
-            async_funcs->emplace_back(cache_func(name, version, pkgname));
-        }
-        else if (src::github::installable(name, version)) {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_download, src::github::resolve(name, version), pkgname),
-                            std::bind(&_build, pkgname), // if (build: system: cmake) _cmake_build
-                            std::bind(&_copy, pkgname)
-                    ),
-                    std::bind(&info, name, version),
-                    "github"
-            );
-        }
-        else {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_placeholder)
-                    ),
-                    std::bind(&info, name, version),
-                    "notfound"
-            );
-        }
-    }
-
-    template <typename Async>
-    void search_poac(Async* async_funcs, const std::string& name, const std::string& version, const std::string& pkgname) {
-        namespace src    = sources;
-
-        if (src::cache::resolve(pkgname)) {
-            async_funcs->emplace_back(cache_func(name, version, pkgname));
-        }
-        else {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_placeholder)
-                    ),
-                    std::bind(&info, name, version),
-                    "notfound"
-            );
-        }
-    }
-
-    template <typename Async>
-    void search_tarball(Async* async_funcs, const std::string& url, const std::string& name, const std::string& version, const std::string& pkgname) {
-        namespace src    = sources;
-
-        if (src::cache::resolve(pkgname)) {
-            async_funcs->emplace_back(cache_func(name, version, pkgname));
-        }
-        else {
-            async_funcs->emplace_back(
-                    step_functions(
-                            std::bind(&_download, url, pkgname),
-                            std::bind(&_build, pkgname),
-                            std::bind(&_copy, pkgname)
-                    ),
-                    std::bind(&info, name, version),
-                    "tarball"
-            );
-        }
-    }
-
-    auto funcs_pack_tarball_manual(const std::string& name, const std::string& version, const std::string& pkgname) {
-        return std::make_tuple(
-                step_functions(
-                        std::bind(&_copy, pkgname)
-                ),
-                std::bind(&info, name, version),
-                "cache"
-        );
-    }
-    auto funcs_pack_tarball_cmake(const std::string& name, const std::string& version, const std::string& pkgname) {
-        return std::make_tuple(
-                step_functions(
-                        std::bind(&_copy, pkgname)
-                ),
-                std::bind(&info, name, version),
-                "cache"
-        );
-    }
-
-
     template <typename Async>
     void dependencies(Async* async_funcs) {
         namespace fs     = boost::filesystem;
@@ -403,54 +127,19 @@ namespace poac::subcmd { struct install {
         // TODO: 同じdepsが書かれている場合の対策が施されていない．
         for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
             const std::string name = itr->first.as<std::string>();
-            std::string src;
-
-            try { src = itr->second["src"].as<std::string>(); }
-            catch (...) { }
-
-            if (!src.empty()) {
-                if (src == "github") {
-                    const std::string version = itr->second["tag"].as<std::string>();
-                    const std::string pkgname = util::package::github_conv_pkgname(name, version);
-
-                    std::string build_system;
-                    try { build_system = itr->second["build"].as<std::string>(); }
-                    catch (...) { }
-                    if (build_system.empty()) {
-                        if (itr->second["build"]["system"].as<std::string>() == "cmake") {
-                            for (const auto& [key, val] : itr->second["build"]["environment"].as<std::map<std::string, std::string>>()) {
-                                (void)key;
-                                (void)val;
-                            }
-                        }
-                    }
-
-                    if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
-                        ++already_count;
-                    else
-                        search_github(async_funcs, name, version, pkgname);
-                }
-                else if (src == "tarball") {
-                    const std::string version = "nothing";
-                    const std::string pkgname = util::package::basename(name);
-
-                    if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
-                        ++already_count;
-                    else
-                        search_tarball(async_funcs, itr->second["url"].as<std::string>(), name, version, pkgname);
-                }
-                else {
-                    throw except::error("poac.yml error\nWhat source is " + itr->second["src"].as<std::string>() + "?");
-                }
+            if (auto src = io::file::yaml::get<std::string>(itr->second, "src")) {
+                if (auto func_pack = src::inference::resolve(itr->second, name, *src))
+                    async_funcs->emplace_back(std::move(*func_pack));
+                else
+                    ++already_count;
             }
             else {
                 const std::string version = itr->second.as<std::string>();
-                const std::string pkgname = util::package::github_conv_pkgname(name, version);
 
-                if (io::file::path::validate_dir(io::file::path::current_deps_dir / pkgname))
-                    ++already_count;
+                if (auto func_pack = src::inference::resolve_poac(itr->second, name, version))
+                    async_funcs->emplace_back(std::move(*func_pack));
                 else
-                    search_poac(async_funcs, name, version, pkgname);
+                    ++already_count;
             }
         }
 
@@ -462,7 +151,7 @@ namespace poac::subcmd { struct install {
         }
 
         // Start async functions...
-        // TODO: hardware currency
+        // TODO: hardware concurrency
         for (const auto& [func, _info, _src] : *async_funcs) {
             func.start();
             ((void)_info, (void)_src); // Avoid unused warning
@@ -474,7 +163,7 @@ namespace poac::subcmd { struct install {
         namespace except = core::except;
 
         // Auto generate poac.yml on Version 2.
-        if (!io::file::yaml::notfound_handle()) throw except::invalid_second_arg("install");
+        if (!io::file::yaml::exists()) throw except::error("poac.yml is not found");
         fs::create_directories(io::file::path::poac_cache_dir);
     }
 
@@ -508,7 +197,7 @@ namespace poac::subcmd { struct install {
         check_arguments(vs);
         check_requirements();
 
-        std::vector<std::tuple<step_functions, std::function<void()>, std::string>> async_funcs;
+        std::vector<std::tuple<util::step_functions, std::function<void()>, std::string>> async_funcs;
         dependencies(&async_funcs);
 
         const int deps_num = static_cast<int>(async_funcs.size());
