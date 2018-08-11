@@ -28,7 +28,6 @@ namespace poac::sources::inference {
 
     static void _download(const std::string& url, const std::string& pkgname) {
         namespace fs  = boost::filesystem;
-        namespace src = sources;
 
         const std::string pkg_dir = (io::file::path::poac_cache_dir / pkgname).string();
         const std::string tarname = pkg_dir + ".tar.gz";
@@ -37,6 +36,16 @@ namespace poac::sources::inference {
         // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
         io::file::tarball::extract_spec(tarname, pkg_dir);
         fs::remove(tarname);
+    }
+    static void _clone(const std::string& name, const std::string& tag) {
+        namespace fs  = boost::filesystem;
+        namespace src = sources;
+
+        const std::string url = github::resolve(name);
+        const std::string dest = (io::file::path::poac_cache_dir / util::package::github_conv_pkgname(name, tag)).string();
+
+        util::command cmd = util::command("git clone --depth 1 -b "+tag+" "+url+" "+dest).std_err();
+        cmd.run();
     }
     // TODO: LICENSEなどが消えてしまう
     static void _cmake_build(
@@ -89,6 +98,7 @@ namespace poac::sources::inference {
         }
         else { /* error */ }
     }
+    // Copy include directory only
     static void _header_only(const std::string& pkgname) {
         namespace fs = boost::filesystem;
         const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
@@ -106,7 +116,7 @@ namespace poac::sources::inference {
         fs::create_directories(io::file::path::current_deps_dir);
         // Copy package to ./deps
         // If it exists in cache and it is not in the current directory copy it to the current.
-        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, io::file::path::current_deps_dir / pkgname);
+        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, io::file::path::current_deps_dir / util::package::cache_to_current(pkgname));
     }
     static void _placeholder() {}
 
@@ -170,6 +180,25 @@ namespace poac::sources::inference {
         );
     }
     std::tuple<util::step_functions, std::function<void()>, std::string>
+    github_man(
+            [[maybe_unused]] const std::string& url,
+            const std::string& name,
+            const std::string& version,
+            const std::string& pkgname,
+            const util::command& cmd,
+            const std::string& source)
+    {
+        return std::make_tuple(
+                util::step_functions(
+                        std::bind(&_clone, name, version),
+                        std::bind(&_manual_build, pkgname, cmd),
+                        std::bind(&_copy, pkgname)
+                ),
+                std::bind(&info, name, version),
+                source
+        );
+    }
+    std::tuple<util::step_functions, std::function<void()>, std::string>
     header_only(
             const std::string& url,
             const std::string& name,
@@ -204,7 +233,7 @@ namespace poac::sources::inference {
             pkgname = util::package::github_conv_pkgname(name, version);
             url = github::resolve(name, version);
         }
-        else if (source == "tarball") {
+        else if (source == "tarball") { // TODO: tarballの対応消す？？？（対応してしまうと自由度が高すぎる？）
             version = "nothing";
             pkgname = util::package::basename(name);
             url = node["url"].as<std::string>();
@@ -219,7 +248,9 @@ namespace poac::sources::inference {
         else if (cache::resolve(pkgname)) {
             return cache(name, version, pkgname);
         }
-        else if ((source == "github") ? github::installable(name, version) : true) {
+        // TODO: manualの場合，installableではチェックできない．
+//        else if ((source == "github") ? github::installable(name, version) : true) {
+        else {
             if (const auto build_system = io::file::yaml::get<std::string>(node, "build"); !build_system) {
                 if (const auto build_system2 = io::file::yaml::get2<std::string>(node, "build", "system")) {
                     if (*build_system2 == "cmake") {
@@ -232,10 +263,13 @@ namespace poac::sources::inference {
                             util::command cmd;
                             int count = 0;
                             for (const auto &s : *steps) {
-                                if (count++ == 0) cmd.init(s);
-                                else cmd &= s;
+                                if (count++ == 0) cmd = util::command(s).std_err();
+                                else cmd &= util::command(s).std_err();
                             }
-                            return manual(url, name, version, pkgname, cmd, source);
+                            if (source == "github")
+                                return github_man(url, name, version, pkgname, cmd, source);
+                            else
+                                return manual(url, name, version, pkgname, cmd, source);
                         }
                     }
                 }

@@ -4,8 +4,7 @@
 #include <string>
 #include <iostream>
 #include <array>
-
-#include <stdio.h> // popen, pclose
+#include <cstdio> // popen, pclose
 
 #include <boost/optional.hpp>
 

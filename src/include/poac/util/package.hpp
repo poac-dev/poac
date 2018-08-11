@@ -45,6 +45,17 @@ namespace poac::util::package {
         }
     }
 
+    // opencv-3.4.2 -> opencv
+    // cache to current
+    std::string cache_to_current(const std::string& pkgname) {
+        if (const auto pos = pkgname.find_last_of('-'); pos != std::string::npos) {
+            return std::string(pkgname, 0, pos);
+        }
+        else {
+            return pkgname;
+        }
+    }
+
 
     // 1. boost, 1.67.0 -> boost-1.67.0
     // 2. boost::optional, 1.67.0 -> boost::optional-1.67.0

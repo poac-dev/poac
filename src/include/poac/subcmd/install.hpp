@@ -19,6 +19,7 @@
 #include <fstream>
 #include <regex>
 #include <chrono>
+//#include <csignal> trap "rm to_TFRecord.py" 0
 
 #include <boost/filesystem.hpp>
 #include <boost/timer/timer.hpp>
