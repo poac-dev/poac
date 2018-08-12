@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-//#include <csignal>trap "rm to_TFRecord.py" 0
+#include <regex>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -35,14 +35,35 @@ namespace poac::subcmd { struct cache {
 
         void clean(const std::vector<std::string>& argv) {
             namespace fs = boost::filesystem;
-            if (argv.empty())
+            if (argv.empty()) {
                 fs::remove_all(io::file::path::poac_cache_dir);
+            }
+            else {
+                for (const auto& v : argv) {
+                    const fs::path pkg = io::file::path::poac_cache_dir / v;
+                    if (io::file::path::validate_dir(pkg))
+                        fs::remove_all(io::file::path::poac_cache_dir / v);
+                    else
+                        std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
+                }
+            }
         }
 
-        void list([[maybe_unused]] const std::vector<std::string>& argv) {
+        void list(const std::vector<std::string>& argv) {
             namespace fs = boost::filesystem;
-            for (const auto& e : boost::make_iterator_range(fs::directory_iterator(io::file::path::poac_cache_dir), {}))
-                std::cout << e.path().filename().string() << std::endl;
+            if (argv.empty()) {
+                for (const auto& e : boost::make_iterator_range(fs::directory_iterator(io::file::path::poac_cache_dir), {})) {
+                    std::cout << e.path().filename().string() << std::endl;
+                }
+            }
+            else if (argv.size() == 2 && argv[0] == "--pattern") {
+                std::regex pattern(argv[1]);
+                for (const auto& e : boost::make_iterator_range(fs::directory_iterator(io::file::path::poac_cache_dir), {})) {
+                    const std::string cachefile = e.path().filename().string();
+                    if (std::regex_match(cachefile, pattern))
+                        std::cout << cachefile << std::endl;
+                }
+            }
         }
 
         void root() {
