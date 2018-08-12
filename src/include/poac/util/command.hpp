@@ -1,10 +1,9 @@
 #ifndef POAC_UTIL_COMMAND_HPP
 #define POAC_UTIL_COMMAND_HPP
 
-#include <string>
 #include <iostream>
-#include <array>
-#include <cstdio> // popen, pclose
+#include <string>
+#include <vector>
 
 #include <boost/optional.hpp>
 
@@ -16,6 +15,15 @@ namespace poac::util {
 
         command() { cmd = ""; }
         command(const std::string& c) { cmd = c; }
+        command(const std::vector<std::string>& cs) {
+            util::command cmd2;
+            int count = 0;
+            for (const auto &s : cs) {
+                if (count++ == 0) cmd2 = util::command(s).std_err(); // TODO: std_err
+                else cmd2 &= util::command(s).std_err();
+            }
+            cmd = cmd2.data();
+        }
 
         command env(const std::string& name, const std::string& val) {
             return cmd.insert(0, name + "=" + val + " ");

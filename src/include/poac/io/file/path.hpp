@@ -45,11 +45,11 @@ namespace poac::io::file::path {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool recursive_copy(const boost::filesystem::path &source, const boost::filesystem::path &dest) {
+    bool recursive_copy(const boost::filesystem::path &from, const boost::filesystem::path &dest) {
         namespace fs = boost::filesystem;
         try {
             // Check whether the function call is valid
-            if (!fs::exists(source) || !fs::is_directory(source)) {
+            if (!fs::exists(from) || !fs::is_directory(from)) {
 //                std::cerr << "Source directory " << source.string()
 //                          << " does not exist or is not a directory." << '\n';
                 return false;
@@ -68,7 +68,7 @@ namespace poac::io::file::path {
             return false;
         }
         // Iterate through the source directory
-        for (fs::directory_iterator file(source); file != fs::directory_iterator(); ++file) {
+        for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
             try {
                 fs::path current(file->path());
                 if (fs::is_directory(current)) {
