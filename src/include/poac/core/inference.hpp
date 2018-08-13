@@ -72,7 +72,8 @@ namespace poac::core::inference {
             subcmd::search,
             subcmd::login,
             subcmd::publish,
-            subcmd::cache
+            subcmd::cache,
+            subcmd::build
     >;
     enum class op_type_e : int {
         help      = op_type_list_t::index_of<option::help>,
@@ -85,7 +86,8 @@ namespace poac::core::inference {
         search    = op_type_list_t::index_of<subcmd::search>,
         login     = op_type_list_t::index_of<subcmd::login>,
         publish   = op_type_list_t::index_of<subcmd::publish>,
-        cache     = op_type_list_t::index_of<subcmd::cache>
+        cache     = op_type_list_t::index_of<subcmd::cache>,
+        build     = op_type_list_t::index_of<subcmd::build>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
             { "init",      op_type_e::init },
@@ -96,7 +98,8 @@ namespace poac::core::inference {
             { "search",    op_type_e::search },
             { "login",     op_type_e::login },
             { "publish",   op_type_e::publish },
-            { "cache",     op_type_e::cache }
+            { "cache",     op_type_e::cache },
+            { "build",     op_type_e::build }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
             { "--help",    op_type_e::help },
