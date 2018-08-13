@@ -117,27 +117,6 @@ namespace poac::subcmd { struct install {
     }
 
 
-    static void _download(const std::string& url, const std::string& pkgname) {
-        namespace fs  = boost::filesystem;
-
-        const std::string pkg_dir = (io::file::path::poac_cache_dir / pkgname).string();
-        const std::string tarname = pkg_dir + ".tar.gz";
-        io::network::get_file(url, tarname);
-
-        // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-        io::file::tarball::extract_spec(tarname, pkg_dir);
-        fs::remove(tarname);
-    }
-    static void _clone(const std::string& name, const std::string& tag) {
-        namespace fs  = boost::filesystem;
-        namespace src = sources;
-
-        const std::string url = src::github::resolve(name);
-        const std::string dest = (io::file::path::poac_cache_dir / util::package::github_conv_pkgname(name, tag)).string();
-
-        util::command cmd = util::command("git clone --depth 1 -b "+tag+" "+url+" "+dest).std_err();
-        cmd.run();
-    }
     // TODO: LICENSEなどが消えてしまう
     static void _cmake_build(
             const std::string& pkgname,
@@ -171,14 +150,19 @@ namespace poac::subcmd { struct install {
                     io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
             fs::remove_all(filepath_tmp);
         }
-        else { /* error */ }
+        else {
+            /* error */
+            // datetime-error.log
+            // return EXIT_FAILURE; ???
+            // 下のmanual_buildでも同じことをする羽目になるので，return EXIT_...だけして，あとは，step_funcsで処理すべき
+            // もしくは，
+        }
     }
     static void _manual_build(const std::string& pkgname, const util::command& cmd) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
         const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
 
         const std::string filepath_tmp = filepath.string() + "_tmp";
         fs::rename(filepath, filepath_tmp);
@@ -240,6 +224,7 @@ namespace poac::subcmd { struct install {
             const std::string& pkgname,
             const std::string& source)
     {
+        namespace fs  = boost::filesystem;
         namespace src = sources;
 
         const std::string url = src::github::resolve(name, version);
@@ -250,15 +235,30 @@ namespace poac::subcmd { struct install {
         else if (source == "cache") {
             return util::step_funcs_with_status(std::make_tuple("Copying", std::bind(&_copy, pkgname)));
         }
-            // TODO: manualの場合，installableではチェックできない．
+        // TODO: manualの場合，installableではチェックできない．
 //    else if ((source == "github") ? github::installable(name, version) : true) {
         else if (source != "poac") {
             std::vector<std::tuple<std::string, std::function<void()>>> func_pack;
 
-            if (source == "github")
-                func_pack.emplace_back("Cloning", std::bind(&_clone, name, version));
-            else
-                func_pack.emplace_back("Downloading", std::bind(&_download, url, pkgname));
+            if (source == "github") {
+                const std::string url = src::github::resolve(name);
+                const fs::path dest = io::file::path::poac_cache_dir / util::package::github_conv_pkgname(name, version);
+
+                std::map<std::string, std::string> opts;
+                opts.insert(io::network::opt_depth(1));
+                opts.insert(io::network::opt_branch(version));
+
+                func_pack.emplace_back("Cloning", std::bind(&io::network::clone, url, dest, opts));
+            }
+            else {
+                namespace tb = io::file::tarball;
+
+                const fs::path pkg_dir = io::file::path::poac_cache_dir / pkgname;
+                const fs::path tarname = pkg_dir.string() + ".tar.gz";
+
+                func_pack.emplace_back("Downloading", std::bind(&io::network::get_file, url, tarname));
+                func_pack.emplace_back("Extracting", std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir));
+            }
 
             if (const auto build_system = resolve_build_system(node)) {
                 if (*build_system == "cmake") {
@@ -350,9 +350,9 @@ namespace poac::subcmd { struct install {
         fs::create_directories(io::file::path::poac_cache_dir);
     }
 
-    void check_arguments(const std::vector<std::string>& vs) {
+    void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::except;
-        if (!vs.empty()) throw except::invalid_second_arg("install");
+        if (!argv.empty()) throw except::invalid_second_arg("install");
     }
 
     /*
@@ -369,7 +369,7 @@ namespace poac::subcmd { struct install {
      * TODO: Error handling. (tarball url not found.. etc)
      */
     template <typename VS>
-    void _main(VS&& vs) {
+    void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
@@ -377,7 +377,7 @@ namespace poac::subcmd { struct install {
         boost::timer::cpu_timer timer;
 
 
-        check_arguments(vs);
+        check_arguments(argv);
         check_requirements();
 
         std::vector<
@@ -385,8 +385,7 @@ namespace poac::subcmd { struct install {
                         util::step_funcs_with_status,
                         std::function<void()>,
                         std::string
-                        >
-                        > async_funcs;
+                        >> async_funcs;
         dependencies(&async_funcs);
 
         const int deps_num = static_cast<int>(async_funcs.size());

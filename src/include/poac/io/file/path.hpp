@@ -33,6 +33,9 @@ namespace poac::io::file::path {
     const boost::filesystem::path poac_cache_dir(
             poac_state_dir / "cache"
     );
+    const boost::filesystem::path poac_log_dir(
+            poac_state_dir / "logs"
+    );
     const boost::filesystem::path poac_token_dir(
             poac_state_dir / "token"
     );

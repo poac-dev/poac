@@ -8,14 +8,26 @@
 
 
 namespace poac::io::file::tarball {
-    bool extract(const std::string& filename, const std::string& options = "") {
-        return static_cast<bool>(std::system(("tar -zxf " + filename + " " + options).data()));
+    bool extract(const boost::filesystem::path& filename, const std::string& options = "") {
+        return static_cast<bool>(std::system(("tar -zxf " + filename.string() + " " + options).data()));
     }
-    bool extract_spec(const std::string& input, const std::string& output) {
+    // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
+    bool extract_spec(const boost::filesystem::path& input, const boost::filesystem::path& output) {
         namespace fs = boost::filesystem;
         boost::system::error_code error;
         fs::create_directories(output, error);
-        return extract(input, "-C " + output + " --strip-components 1");
+        return extract(input, "-C " + output.string() + " --strip-components 1");
+    }
+    // It is almost the same behavior as --remove-files,
+    //  but deleted in fs::remove because there is a possibility
+    //   that it is not compatible with --remove-files.
+    bool extract_rm_file(const boost::filesystem::path& filename, const std::string& options = "") {
+        namespace fs = boost::filesystem;
+        return extract(filename, options) || fs::remove(filename);
+    }
+    bool extract_spec_rm_file(const boost::filesystem::path& input, const boost::filesystem::path& output) {
+        namespace fs = boost::filesystem;
+        return extract_spec(input, output) || fs::remove(input);
     }
 } // end namespace
 #endif // !POAC_IO_FILE_TARBALL_HPP

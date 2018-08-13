@@ -4,9 +4,13 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <map>
 #include <cstdio>
 
 #include <curl/curl.h>
+#include <boost/filesystem.hpp>
+
+#include "../util/command.hpp"
 
 
 namespace poac::io::network {
@@ -47,10 +51,10 @@ namespace poac::io::network {
         return chunk;
     }
 
-    void get_file(const std::string& from, const std::string& to) {
+    void get_file(const std::string& from_url, const boost::filesystem::path& to_file) {
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            FILE* fp = std::fopen(to.data(), "wb");
-            curl_easy_setopt(curl, CURLOPT_URL, from.c_str());
+            FILE* fp = std::fopen(to_file.c_str(), "wb");
+            curl_easy_setopt(curl, CURLOPT_URL, from_url.c_str());
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, std::fwrite);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -61,6 +65,25 @@ namespace poac::io::network {
             curl_easy_cleanup(curl);
             std::fclose(fp);
         }
+    }
+
+    void clone(
+            const std::string& url,
+            const boost::filesystem::path& dest,
+            const std::map<std::string, std::string>& opts=std::map<std::string, std::string>())
+    {
+        std::string options;
+        for (const auto& [ key, val ] : opts) {
+            options.append(key + " " + val + " ");
+        }
+        util::command("git clone " + options + url + " " + dest.string()).std_err().run();
+    }
+
+    std::pair<std::string, std::string> opt_branch(const std::string& tag) {
+        return std::make_pair("-b", tag);
+    }
+    std::pair<std::string, std::string> opt_depth(const unsigned int& d) {
+        return std::make_pair("--depth", std::to_string(d));
     }
 } // end namespace
 #endif // !POAC_IO_NETWORK_HPP
