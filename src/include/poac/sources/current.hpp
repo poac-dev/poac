@@ -14,7 +14,7 @@
 namespace poac::sources::current {
     bool resolve(const std::string& pkgname) {
         namespace path = io::file::path;
-        return path::validate_dir(path::current_deps_dir / pkgname);
+        return path::validate_dir(path::current_deps_dir / util::package::cache_to_current(pkgname));
     }
 } // end namespace
 #endif // !POAC_SOURCES_CURRENT_HPP

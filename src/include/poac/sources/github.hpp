@@ -23,6 +23,9 @@ namespace poac::sources::github {
     std::string resolve(const std::string& name, const std::string& tag) {
         return "https://github.com/" + name + "/archive/" + tag + ".tar.gz";
     }
+    std::string resolve(const std::string& name) {
+        return "https://github.com/" + name + ".git";
+    }
 
     std::string exists_url(const std::string& name, const std::string& tag) {
         // https://api.github.com/repos/curl/curl/contents/?ref=curl-7_61_0

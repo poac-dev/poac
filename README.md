@@ -34,6 +34,7 @@ $ make install
 
 ## Requirements(Runtime)
 * `tar`
+* `git`
 * `cmake`
 * `make`
 
