@@ -16,7 +16,7 @@
 
 namespace poac::subcmd { struct publish {
     static const std::string summary() { return "Beta: Publish a package."; }
-    static const std::string options() { return "[<pkg-name>]"; }
+    static const std::string options() { return "<Nothing>"; }
 
     template <typename VS>
     void operator()(VS&& argv) { _main(argv); }
@@ -79,7 +79,7 @@ namespace poac::subcmd { struct publish {
             std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
 
         if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
-            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
+//            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
         }
         else {
             throw except::error("poac.yml is invalid");
