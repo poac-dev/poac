@@ -16,21 +16,22 @@ owners:
   - matken11235
 license: GPL-3.0
 links:
-  GitHub: https://github.com/poacpm/poac
+  github: https://github.com/poacpm/poac
 
 # Describe deps as dependencies
 # Writing latest will automatically
 #  fetch the latest package
 deps:
   boostorg/boost:
-    src: tarball
-    url: https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.gz
+    src: github
+    tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
-      steps:
-        - cd /Users/matken/.poac/cache/boost_tmp
+      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険
+        - cd /Users/matken/.poac/cache/boost-1.67.0_tmp
+        - git submodule update --init --recursive
         - ./bootstrap.sh
-        - ./b2 install -j2 --prefix=/Users/matken/.poac/cache/boost
+        - ./b2 install -j2 --prefix=/Users/matken/.poac/cache/boost-1.67.0
   curl/curl:
     src: github
     tag: curl-7_61_0
@@ -44,7 +45,7 @@ deps:
     tag: yaml-cpp-0.6.2
     build: cmake
 
-# Enable binary install (for CLI application) (Include build process)
+# Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
 bin: true
 # 何も指定しなければ標準のビルド方法(poac)でビルドします．
 # 何か指定するとそれを使用します．
