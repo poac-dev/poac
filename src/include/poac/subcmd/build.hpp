@@ -14,15 +14,23 @@
 
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
-    static const std::string options() { return "<command>"; }
+    static const std::string options() { return "<options>"; }
 
     template <typename VS>
-    void operator()(VS&& vs) { _main(vs); }
+    void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
-    void _main([[maybe_unused]] VS&& argv) {
+    void _main(VS&& argv) {
+        namespace fs     = boost::filesystem;
         namespace except = core::except;
 
-//        check_arguments(argv);
+        check_arguments(argv);
+    }
+
+    void check_arguments(const std::vector<std::string>& argv) {
+        namespace except = core::except;
+
+        if (!argv.empty())
+            throw except::invalid_second_arg("build");
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_BUILD_HPP
