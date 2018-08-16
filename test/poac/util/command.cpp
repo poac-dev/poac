@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../src/include/poac/util/command.hpp"
+#include "../../../include/poac/util/command.hpp"
 
 // command operator&&(const command& rhs)
 BOOST_AUTO_TEST_CASE( util_command_test1 )

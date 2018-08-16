@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 
-//#include "../../../src/include/poac/subcmd/login.hpp"
-//#include "../../src/include/poac/core/except.hpp"
+//#include "../../../include/poac/subcmd/login.hpp"
+//#include "../../include/poac/core/except.hpp"
 
 
 BOOST_AUTO_TEST_CASE( subcmd_login_test1 )
