@@ -35,9 +35,10 @@ namespace poac::subcmd { struct build {
         fs::create_directories(io::file::path::current_build_bin_dir);
 
         // Generate object file
-        std::string cmd = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++";
-        cmd += " -o " + project_path + ".o";
-        cmd += " -std=c++17";
+        const std::string compiler = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++";
+        util::command cmd(compiler);
+        cmd += "-o " + project_path + ".o";
+        cmd += "-std=c++17";
 
         /* This line is solved it
 In file included from src/main.cpp:1:
@@ -50,63 +51,67 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
               ^~~~~~~~~
 1 error generated.
         */
-        cmd += " -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
-        cmd += " -I/usr/local/include -I/usr/local/lib/cmake/yaml-cpp/../../../include";
-        cmd += R"( -DPOAC_ROOT=\"/Users/matken/Dropbox/Documents/project/poacpm/poac\")";
-        cmd += R"( -DPOAC_VERSION=\"0.0.1\")";
+        cmd += "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+        cmd += "-I/usr/local/include -I/usr/local/lib/cmake/yaml-cpp/../../../include";
+        cmd += R"(-DPOAC_ROOT=\"/Users/matken/Dropbox/Documents/project/poacpm/poac\")";
+        cmd += R"(-DPOAC_VERSION=\"0.0.1\")";
 //        cmd += " -pthread -DCURL_STATICLIB";
-        cmd += " -c src/main.cpp";
+        cmd += "-c src/main.cpp";
+
+
+        cmd &= "\n";
+
+        // Link to executable file
+        cmd += compiler;
+        cmd += "-o " + project_path;
+        /*
+        const auto deps = io::file::yaml::get_node("deps");
+        for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
+            const std::string name = itr->first.as<std::string>();
+            std::string src     = get_source(itr->second);
+            const std::string version = get_version(itr->second, src);
+            const std::string pkgname = util::package::cache_to_current(util::package::github_conv_pkgname(name, version));
+            const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
+
+            if (fs::exists(pkgpath / "include"))
+                cmd += "-I" + (pkgpath / "include").string();
+            if (fs::exists(pkgpath / "lib")) {
+                cmd += "-L" + (pkgpath / "lib").string();
+//                for ( const auto& e : boost::make_iterator_range( fs::directory_iterator( pkgpath / "lib" ), { } ) ) {
+//                    if (!fs::is_directory(e)) {
+//                        const std::string libname = e.path().filename().stem().string();
+//                        cmd += "-l" + libname.substr(3);
+//                    }
+//                }
+            }
+        }
+        cmd += "-lboost_system";
+        cmd += "-lboost_filesystem";
+        cmd += "-lboost_timer";
+        cmd += "-lboost_chrono";
+
+        cmd += "-lcurl";
+        cmd += "-lyaml-cpp";
+         */
+
+//        cmd += "-Wl,-search_paths_first -Wl,-headerpad_max_install_names";
+        cmd += "-Wl,-rpath,/usr/local/lib";
+        cmd += "/usr/local/lib/libboost_system-mt.dylib";
+        cmd += "/usr/local/lib/libboost_filesystem-mt.dylib";
+        cmd += "/usr/local/lib/libboost_timer-mt.dylib";
+        cmd += "/usr/local/lib/libboost_chrono-mt.dylib";
+        cmd += "-lcurl";
+        cmd += "/usr/local/lib/libyaml-cpp.0.6.2.dylib";
+
+        cmd += project_path + ".o";
+
+
         std::cout << cmd << std::endl << std::endl;
         if (const auto ret = util::command(cmd).run()) {
-            // Link to executable file
-            std::string cmd2 = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++";
-            cmd2 += " -o " + project_path;
-            /*
-            const auto deps = io::file::yaml::get_node("deps");
-            for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
-                const std::string name = itr->first.as<std::string>();
-                std::string src     = get_source(itr->second);
-                const std::string version = get_version(itr->second, src);
-                const std::string pkgname = util::package::cache_to_current(util::package::github_conv_pkgname(name, version));
-                const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
-
-                if (fs::exists(pkgpath / "include"))
-                    cmd2 += " -I" + (pkgpath / "include").string();
-                if (fs::exists(pkgpath / "lib")) {
-                    cmd2 += " -L" + (pkgpath / "lib").string();
-    //                for ( const auto& e : boost::make_iterator_range( fs::directory_iterator( pkgpath / "lib" ), { } ) ) {
-    //                    if (!fs::is_directory(e)) {
-    //                        const std::string libname = e.path().filename().stem().string();
-    //                        cmd += " -l" + libname.substr(3);
-    //                    }
-    //                }
-                }
-            }
-            cmd2 += " -lboost_system";
-            cmd2 += " -lboost_filesystem";
-            cmd2 += " -lboost_timer";
-            cmd2 += " -lboost_chrono";
-
-            cmd2 += " -lcurl";
-            cmd2 += " -lyaml-cpp";
-             */
-
-//        cmd2 += " -Wl,-search_paths_first -Wl,-headerpad_max_install_names";
-//            cmd2 += " -std=c++17";
-            cmd2 += " -Wl,-rpath,/usr/local/lib /usr/local/lib/libboost_system-mt.dylib /usr/local/lib/libboost_filesystem-mt.dylib /usr/local/lib/libboost_timer-mt.dylib /usr/local/lib/libboost_chrono-mt.dylib -lcurl /usr/local/lib/libyaml-cpp.0.6.2.dylib";
-            cmd2 += " " + project_path + ".o";
-
-            std::cout << cmd2 << std::endl << std::endl;
-
-            if (const auto ret = util::command(cmd2).run()) {
-                fs::remove(project_path + ".o");
-                std::cout << io::cli::green << "Done:" << io::cli::reset
-                          << " Please look at ./_build/bin/" + project_name
-                          << std::endl;
-            }
-            else {
-                // error
-            }
+            fs::remove(project_path + ".o");
+            std::cout << io::cli::green << "Done:" << io::cli::reset
+                      << " Please look at ./_build/bin/" + project_name
+                      << std::endl;
         }
         else {
             // error
