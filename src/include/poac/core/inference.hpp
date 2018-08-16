@@ -62,44 +62,47 @@ namespace poac::core::inference {
     };
 
     using op_type_list_t = type_list_t<
-            option::help,
-            option::version,
-            subcmd::init,
-            subcmd::root,
-            subcmd::new_,
-            subcmd::install,
-            subcmd::uninstall,
-            subcmd::search,
-            subcmd::login,
-            subcmd::publish,
+            subcmd::build,
             subcmd::cache,
-            subcmd::build
+            subcmd::init,
+            subcmd::install,
+            subcmd::login,
+            subcmd::new_,
+            subcmd::publish,
+            subcmd::root,
+            subcmd::run,
+            subcmd::search,
+            subcmd::uninstall,
+            option::help,
+            option::version
     >;
     enum class op_type_e : int {
-        help      = op_type_list_t::index_of<option::help>,
-        version   = op_type_list_t::index_of<option::version>,
-        init      = op_type_list_t::index_of<subcmd::init>,
-        root      = op_type_list_t::index_of<subcmd::root>,
-        new_      = op_type_list_t::index_of<subcmd::new_>,
-        install   = op_type_list_t::index_of<subcmd::install>,
-        uninstall = op_type_list_t::index_of<subcmd::uninstall>,
-        search    = op_type_list_t::index_of<subcmd::search>,
-        login     = op_type_list_t::index_of<subcmd::login>,
-        publish   = op_type_list_t::index_of<subcmd::publish>,
+        build     = op_type_list_t::index_of<subcmd::build>,
         cache     = op_type_list_t::index_of<subcmd::cache>,
-        build     = op_type_list_t::index_of<subcmd::build>
+        init      = op_type_list_t::index_of<subcmd::init>,
+        install   = op_type_list_t::index_of<subcmd::install>,
+        login     = op_type_list_t::index_of<subcmd::login>,
+        new_      = op_type_list_t::index_of<subcmd::new_>,
+        publish   = op_type_list_t::index_of<subcmd::publish>,
+        root      = op_type_list_t::index_of<subcmd::root>,
+        run       = op_type_list_t::index_of<subcmd::run>,
+        search    = op_type_list_t::index_of<subcmd::search>,
+        uninstall = op_type_list_t::index_of<subcmd::uninstall>,
+        help      = op_type_list_t::index_of<option::help>,
+        version   = op_type_list_t::index_of<option::version>
     };
     const std::unordered_map<std::string, op_type_e> subcmd_map {
-            { "init",      op_type_e::init },
-            { "root",      op_type_e::root },
-            { "new",       op_type_e::new_ },
-            { "install",   op_type_e::install },
-            { "uninstall", op_type_e::uninstall },
-            { "search",    op_type_e::search },
-            { "login",     op_type_e::login },
-            { "publish",   op_type_e::publish },
+            { "build",     op_type_e::build },
             { "cache",     op_type_e::cache },
-            { "build",     op_type_e::build }
+            { "init",      op_type_e::init },
+            { "install",   op_type_e::install },
+            { "login",     op_type_e::login },
+            { "new",       op_type_e::new_ },
+            { "publish",   op_type_e::publish },
+            { "root",      op_type_e::root },
+            { "run",       op_type_e::run },
+            { "search",    op_type_e::search },
+            { "uninstall", op_type_e::uninstall }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
             { "--help",    op_type_e::help },

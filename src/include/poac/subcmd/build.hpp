@@ -52,8 +52,7 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
       'wchar.h' file not found
 #include_next <wchar.h>
               ^~~~~~~~~
-1 error generated.
-        */
+1 error generated. */
         cmd += "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
         cmd += "-I/usr/local/include -I/usr/local/lib/cmake/yaml-cpp/../../../include";
         cmd += R"(-DPOAC_ROOT=\"/Users/matken/Dropbox/Documents/project/poacpm/poac\")";
@@ -105,10 +104,10 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
         if (verbose)
             std::cout << cmd << std::endl << std::endl;
 
-        if (const auto ret = util::command(cmd).run()) {
+        if (const auto ret = cmd.run()) {
             fs::remove(project_path + ".o");
-            std::cout << io::cli::green << "Done:" << io::cli::reset
-                      << " Please look at ./_build/bin/" + project_name
+            std::cout << io::cli::green << "Done: " << io::cli::reset
+                      << "Output to `" + fs::relative(io::file::path::current_build_bin_dir / project_name).string() + "`"
                       << std::endl;
         }
         else {
