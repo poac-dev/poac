@@ -11,7 +11,7 @@
 #include "../core/except.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/command.hpp"
+#include "../util/compiler.hpp"
 #include "../util/package.hpp"
 
 
@@ -38,34 +38,18 @@ namespace poac::subcmd { struct build {
         fs::create_directories(io::file::path::current_build_bin_dir);
 
         // Generate object file
-        const std::string compiler = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++";
-        util::command cmd(compiler);
-        cmd += "-o " + project_path + ".o";
-        cmd += "-std=c++17";
-
-        /* This line is solved it
-In file included from src/main.cpp:1:
-In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/iostream:38:
-In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/ios:215:
-In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/iosfwd:90:
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/wchar.h:119:15: fatal error:
-      'wchar.h' file not found
-#include_next <wchar.h>
-              ^~~~~~~~~
-1 error generated. */
-        cmd += "-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
-        cmd += "-I/usr/local/include -I/usr/local/lib/cmake/yaml-cpp/../../../include";
-        cmd += R"(-DPOAC_ROOT=\"/Users/matken/Dropbox/Documents/project/poacpm/poac\")";
-        cmd += R"(-DPOAC_VERSION=\"0.0.1\")";
-//        cmd += " -pthread -DCURL_STATICLIB";
-        cmd += "-c src/main.cpp";
-
-
-        cmd &= "\n";
-
-        // Link to executable file
-        cmd += compiler;
-        cmd += "-o " + project_path;
+        util::compiler clang(project_name);
+        clang.set_system("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++");
+        clang.set_version(17);
+        clang.set_source_file("src/main.cpp");
+        clang.set_output_path(io::file::path::current_build_bin_dir);
+        clang.add_include_search_path("/usr/local/include");
+        clang.add_include_search_path("/usr/local/lib/cmake/yaml-cpp/../../../include");
+        // Countermeasure against 'wchar.h' file not found error.
+        clang.add_other_args("-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk");
+        clang.add_other_args(R"(-DPOAC_ROOT=\"/Users/matken/Dropbox/Documents/project/poacpm/poac\")");
+        clang.add_other_args(R"(-DPOAC_VERSION=\"0.0.1\")");
+////        cmd += " -pthread -DCURL_STATICLIB";
 
         const auto deps = io::file::yaml::get_node("deps");
         for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
@@ -76,9 +60,9 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
             if (fs::exists(pkgpath / "include"))
-                cmd += "-I" + (pkgpath / "include").string();
+                clang.add_include_search_path((pkgpath / "include").string());
             if (fs::exists(pkgpath / "lib")) {
-                cmd += "-L" + (pkgpath / "lib").string();
+                clang.add_library_search_path((pkgpath / "lib").string());
 //                for ( const auto& e : boost::make_iterator_range( fs::directory_iterator( pkgpath / "lib" ), { } ) ) {
 //                    if (!fs::is_directory(e)) {
 //                        const std::string libname = e.path().filename().stem().string();
@@ -87,27 +71,23 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
 //                }
             }
         }
-        cmd += "-lboost_system";
-        cmd += "-lboost_filesystem";
-        cmd += "-lboost_timer";
-        cmd += "-lboost_chrono";
-
-        cmd += "-lcurl";
-        cmd += "-lyaml-cpp";
-
+        clang.add_static_link_lib("boost_system");
+        clang.add_static_link_lib("boost_filesystem");
+        clang.add_static_link_lib("boost_timer");
+        clang.add_static_link_lib("boost_chrono");
+        clang.add_static_link_lib("curl");
+        clang.add_static_link_lib("yaml-cpp");
 //        cmd += "-Wl,-search_paths_first -Wl,-headerpad_max_install_names";
 //        cmd += "-Wl,-rpath,/usr/local/lib";
 
-        cmd += project_path + ".o";
-
-
         if (verbose)
-            std::cout << cmd << std::endl << std::endl;
+            std::cout << clang << std::endl << std::endl;
 
-        if (const auto ret = cmd.run()) {
+        if (const auto ret = clang.compile()) {
+            // TODO: compiler.hpp
             fs::remove(project_path + ".o");
             std::cout << io::cli::green << "Done: " << io::cli::reset
-                      << "Output to `" + fs::relative(io::file::path::current_build_bin_dir / project_name).string() + "`"
+                      << "Output to `" + fs::relative(project_path).string() + "`"
                       << std::endl;
         }
         else {

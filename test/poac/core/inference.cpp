@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 
-#include "../../../src/include/poac/core/inference.hpp"
-#include "../../../src/include/poac/core/except.hpp"
+#include "../../../include/poac/core/inference.hpp"
+#include "../../../include/poac/core/except.hpp"
 
 
 BOOST_AUTO_TEST_CASE( poac_core_inference_test1 )
