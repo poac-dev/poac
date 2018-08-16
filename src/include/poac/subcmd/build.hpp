@@ -67,7 +67,7 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
         // Link to executable file
         cmd += compiler;
         cmd += "-o " + project_path;
-        /*
+
         const auto deps = io::file::yaml::get_node("deps");
         for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
             const std::string name = itr->first.as<std::string>();
@@ -95,16 +95,9 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
 
         cmd += "-lcurl";
         cmd += "-lyaml-cpp";
-         */
 
 //        cmd += "-Wl,-search_paths_first -Wl,-headerpad_max_install_names";
-        cmd += "-Wl,-rpath,/usr/local/lib";
-        cmd += "/usr/local/lib/libboost_system-mt.dylib";
-        cmd += "/usr/local/lib/libboost_filesystem-mt.dylib";
-        cmd += "/usr/local/lib/libboost_timer-mt.dylib";
-        cmd += "/usr/local/lib/libboost_chrono-mt.dylib";
-        cmd += "-lcurl";
-        cmd += "/usr/local/lib/libyaml-cpp.0.6.2.dylib";
+//        cmd += "-Wl,-rpath,/usr/local/lib";
 
         cmd += project_path + ".o";
 
