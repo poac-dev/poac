@@ -22,7 +22,7 @@ if (Boost_FOUND)
     link_directories(${Boost_LIBRARY_DIR})
 else()
     message(WARNING "The Boost was not found.")
-endif ()
+endif()
 
 # CURL
 set(CURL_LIBRARY "-lcurl")

@@ -42,6 +42,18 @@ namespace poac::io::file::path {
     const boost::filesystem::path current_deps_dir(
             boost::filesystem::current_path() / "deps"
     );
+    const boost::filesystem::path current_build_dir(
+            boost::filesystem::current_path() / "_build"
+    );
+    const boost::filesystem::path current_build_bin_dir(
+            current_build_dir / "bin"
+    );
+    const boost::filesystem::path current_build_include_dir(
+            current_build_dir / "include"
+    );
+    const boost::filesystem::path current_build_lib_dir(
+            current_build_dir / "lib"
+    );
 
     bool validate_dir(const boost::filesystem::path& path) {
         namespace fs = boost::filesystem;

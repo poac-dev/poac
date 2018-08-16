@@ -282,24 +282,6 @@ namespace poac::subcmd { struct install {
         return util::step_funcs_with_status(std::make_tuple("Notfound", std::bind(&_placeholder)));
     }
 
-    std::string get_version(const YAML::Node& node, const std::string& source) {
-        namespace except = core::except;
-
-        if (source == "github")
-            return node["tag"].as<std::string>(); // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．
-        else if (source == "poac")
-            return node["version"].as<std::string>();
-        else
-            throw except::error("poac.yml error\nWhat source is " + source + "?");
-    }
-
-    std::string get_source(const YAML::Node& node) {
-        if (const auto src = io::file::yaml::get<std::string>(node, "src"))
-            return *src;
-        else
-            return "poac";
-    }
-
     template <typename Async>
     void dependencies(Async* async_funcs) {
         namespace fs     = boost::filesystem;
@@ -315,8 +297,8 @@ namespace poac::subcmd { struct install {
             // hello_world: 0.2.1
             // itr->first: itr->second
             const std::string name = itr->first.as<std::string>();
-            std::string src     = get_source(itr->second);
-            const std::string version = get_version(itr->second, src);
+            std::string src     = util::package::get_source(itr->second);
+            const std::string version = util::package::get_version(itr->second, src);
             const std::string pkgname = util::package::github_conv_pkgname(name, version);
 
             src = resolve_source(pkgname, src);
