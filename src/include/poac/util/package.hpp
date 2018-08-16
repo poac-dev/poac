@@ -4,6 +4,11 @@
 #include <string>
 #include <regex>
 
+#include <yaml-cpp/yaml.h>
+
+#include "../core/except.hpp"
+#include "../io/file/yaml.hpp"
+
 
 namespace poac::util::package {
     // username/repository -> repository
@@ -63,6 +68,25 @@ namespace poac::util::package {
     // poac
     std::string poac_conv_pkgname(const std::string& name, const std::string& tag) {
         return name + "-" + tag;
+    }
+
+
+    std::string get_version(const YAML::Node& node, const std::string& source) {
+        namespace except = core::except;
+
+        if (source == "github")
+            return node["tag"].as<std::string>(); // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．
+        else if (source == "poac")
+            return node["version"].as<std::string>();
+        else
+            throw except::error("poac.yml error\nWhat source is " + source + "?");
+    }
+
+    std::string get_source(const YAML::Node& node) {
+        if (const auto src = io::file::yaml::get<std::string>(node, "src"))
+            return *src;
+        else
+            return "poac";
     }
 } // end namespace
 #endif // !POAC_UTIL_PACKAGE_HPP

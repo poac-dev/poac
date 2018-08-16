@@ -90,6 +90,20 @@ namespace poac::util {
             return this->cmd += (" || " + rhs);
         }
 
+        command operator+(const command& rhs) const {
+            return command(this->cmd + " " + rhs.cmd);
+        }
+        command operator+(const std::string& rhs) const {
+            return command(this->cmd + " " + rhs);
+        }
+
+        command operator+=(const command& rhs) {
+            return this->cmd += " " + rhs.cmd;
+        }
+        command operator+=(const std::string& rhs) {
+            return this->cmd += " " + rhs;
+        }
+
     private:
         std::string cmd;
     };
