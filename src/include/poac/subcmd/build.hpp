@@ -27,6 +27,9 @@ namespace poac::subcmd { struct build {
         namespace except = core::except;
 
         check_arguments(argv);
+
+        bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
+
         // TODO: --backend cmake
 
         const std::string project_name = io::file::yaml::get_node("name").as<std::string>();
@@ -106,7 +109,9 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
         cmd += project_path + ".o";
 
 
-        std::cout << cmd << std::endl << std::endl;
+        if (verbose)
+            std::cout << cmd << std::endl << std::endl;
+
         if (const auto ret = util::command(cmd).run()) {
             fs::remove(project_path + ".o");
             std::cout << io::cli::green << "Done:" << io::cli::reset
@@ -121,7 +126,7 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::except;
 
-        if (!argv.empty())
+        if (argv.size() >= 2)
             throw except::invalid_second_arg("build");
     }
 };} // end namespace
