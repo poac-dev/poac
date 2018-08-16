@@ -11,51 +11,86 @@
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
 #include "../core/except.hpp"
+#include "../util/command.hpp"
 
 
 namespace poac::subcmd { struct publish {
     static const std::string summary() { return "Beta: Publish a package."; }
-    static const std::string options() { return "[<pkg-name>]"; }
+    static const std::string options() { return "<Nothing>"; }
 
     template <typename VS>
-    void operator()(VS&& vs) { _main(vs); }
+    void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
-    void _main([[maybe_unused]] VS&& vs) {
+    void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
 
-        if (!fs::exists("poac.yml")) {
-            throw except::error("ERROR: poac.yml does not exist");
-        }
-        else if (!fs::exists("src") || !fs::is_directory("src") || fs::is_empty("src")) {
-            throw except::error("ERROR: src directory does not exist");
-        }
-        if (!fs::exists("LICENSE")) {
-            std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
-        }
-        if (!fs::exists("README.md")) {
-            std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
-        }
+        check_arguments(argv);
+        check_requirements();
 
-        if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
-//            search(config["deps"].as<std::string>())
-        // 存在しても，API Keyが大丈夫ならOK!
-            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
-        }
-        else {
-            throw except::error("ERROR: poac.yml is invalid");
-        }
+        const std::string project_dir = fs::absolute(fs::current_path()).string();
+        const std::string temp   = *(util::command("mktemp -d").run());
+        const std::string temp_path(temp, 0, temp.size()-1); // rm \n
+        // TODO:                                               poac.yml -> name-version.tar.gz
+        const std::string output_dir  = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
+
+        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
+
+        std::cout << output_dir << std::endl;
+
         // Validate yaml, directory, ...
         // Ignore deps/
         // Compress to tar
         // Post to API
+
+        // Packaging...
+        // Add poac.yml
+        // Add test/
+        // Add ho...
+        // Validate token...
+        // Please login!!
+        // Login succeed
+        // Uploading
+        // 20% [====>             ]
+        //
+        // Publish succeed!
+        // Please access to https://poac.pm/packages/hoge/0.2.1
+    }
+
+    void check_arguments(const std::vector<std::string>& argv) {
+        namespace except = core::except;
+
+        if (!argv.empty())
+            throw except::invalid_second_arg("publish");
+    }
+
+    void check_requirements() {
+        namespace fs     = boost::filesystem;
+        namespace except = core::except;
+
+        if (!fs::exists("poac.yml"))
+            throw except::error("poac.yml does not exist");
+        else if (!fs::exists("src") || !fs::is_directory("src") || fs::is_empty("src"))
+            throw except::error("src directory does not exist");
+
+        if (!fs::exists("LICENSE"))
+            std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
+        if (!fs::exists("README.md"))
+            std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
+
+        if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
+//            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
+        }
+        else {
+            throw except::error("poac.yml is invalid");
+        }
     }
 
     template <typename C>
     bool validity_check(const C& config) {
         const std::vector<std::string> requires{
                 "name", "version", "cpp_version", "compilers",
-                "description", "authors", "deps"
+                "description", "owners", "deps"
         };
         for (const auto& r : requires)
             if (!config[r]) return false;
