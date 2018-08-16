@@ -356,7 +356,7 @@ namespace poac::subcmd { struct install {
         namespace except = core::except;
 
         // Start timer
-        boost::timer::cpu_timer timer;
+        boost::timer::cpu_timer timer; // TODO: 全てのコマンドにおいて計測したい
 
 
         check_arguments(argv);
