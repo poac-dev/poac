@@ -45,9 +45,8 @@ deps:
     tag: yaml-cpp-0.6.2
     build: cmake
 
-# Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
-bin: true
-# 何も指定しなければ標準のビルド方法(poac)でビルドします．
-# 何か指定するとそれを使用します．
+# 何も指定しなければ header only library と見做す
 build:
   system: poac
+  # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
+  bin: true
