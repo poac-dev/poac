@@ -18,24 +18,18 @@ namespace poac::subcmd { struct login {
     static const std::string options() { return "<token>"; }
 
     template <typename VS>
-    void operator()(VS&& vs) { _main(vs); }
+    void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
-    void _main(VS&& vs) {
+    void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::except;
-
-        if (vs.size() != 1)
-            throw except::invalid_second_arg("login");
-        std::regex pattern("\\w{8}-(\\w{4}-){3}\\w{12}");
-        if (!std::regex_match(vs[0], pattern))
-            throw except::invalid_second_arg("login");
 
         if (fs::create_directories(io::file::path::poac_state_dir))
             throw except::invalid_second_arg("login");
 
         const std::string token = io::file::path::poac_token_dir.string();
         if (std::ofstream ofs(token); ofs) {
-            ofs << vs[0] << std::endl;
+            ofs << argv[0] << std::endl;
             std::cout << io::cli::bold
                       << "Write to " + token
                       << io::cli::reset
@@ -44,6 +38,16 @@ namespace poac::subcmd { struct login {
         else { // file open error
             throw except::invalid_second_arg("login");
         }
+    }
+
+    void check_arguments(const std::vector<std::string>& argv) {
+        namespace except = core::except;
+
+        if (argv.size() != 1)
+            throw except::invalid_second_arg("login");
+        std::regex pattern("\\w{8}-(\\w{4}-){3}\\w{12}");
+        if (!std::regex_match(argv[0], pattern))
+            throw except::invalid_second_arg("login");
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_LOGIN_HPP

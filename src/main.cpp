@@ -39,11 +39,11 @@ int exec(S&& s, VS&& vs) {
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {
-        std::cerr << io::cli::red << e.what() << io::cli::reset << std::endl;
+        std::cerr << io::cli::red << "ERROR: " << e.what() << io::cli::reset << std::endl;
         return EXIT_FAILURE;
     }
     catch (const except::warn& e) {
-        std::cout << io::cli::yellow << e.what() << io::cli::reset << std::endl;
+        std::cout << io::cli::yellow << "WARN: " << e.what() << io::cli::reset << std::endl;
         return EXIT_SUCCESS;
     }
     catch (...) {
