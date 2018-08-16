@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <boost/filesystem.hpp>
 
@@ -28,6 +29,24 @@ namespace poac::io::file::tarball {
     bool extract_spec_rm_file(const boost::filesystem::path& input, const boost::filesystem::path& output) {
         namespace fs = boost::filesystem;
         return extract_spec(input, output) || fs::remove(input);
+    }
+
+    bool compress(const std::string& filename) {
+        return static_cast<bool>(std::system(("tar -zcf " + filename + ".tar.gz " + filename).data()));
+    }
+    bool compress_spec(const boost::filesystem::path& input, const boost::filesystem::path& output) {
+        return static_cast<bool>(std::system(("tar -zcf " + output.string() + " " + input.string()).data()));
+    }
+    bool compress_spec_exclude(const boost::filesystem::path& input, const boost::filesystem::path& output, const std::vector<std::string> opts) {
+        namespace fs = boost::filesystem;
+
+        std::string exclude;
+        for (const auto& v : opts) {
+            exclude += "--exclude " + v + " ";
+        }
+        const std::string filepath = fs::absolute(input / "..").string();
+        const std::string filename = fs::basename(input);
+        return static_cast<bool>(std::system(("tar -zcf " + output.string() + " " + exclude + "-C " + filepath + " " + filename).data()));
     }
 } // end namespace
 #endif // !POAC_IO_FILE_TARBALL_HPP
