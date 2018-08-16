@@ -68,8 +68,8 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
         const auto deps = io::file::yaml::get_node("deps");
         for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
             const std::string name = itr->first.as<std::string>();
-            std::string src     = get_source(itr->second);
-            const std::string version = get_version(itr->second, src);
+            std::string src     = util::package::get_source(itr->second);
+            const std::string version = util::package::get_version(itr->second, src);
             const std::string pkgname = util::package::cache_to_current(util::package::github_conv_pkgname(name, version));
             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
@@ -116,24 +116,6 @@ In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/Xcod
         else {
             // error
         }
-    }
-
-    std::string get_version(const YAML::Node& node, const std::string& source) {
-        namespace except = core::except;
-
-        if (source == "github")
-            return node["tag"].as<std::string>(); // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．
-        else if (source == "poac")
-            return node["version"].as<std::string>();
-        else
-            throw except::error("poac.yml error\nWhat source is " + source + "?");
-    }
-
-    std::string get_source(const YAML::Node& node) {
-        if (const auto src = io::file::yaml::get<std::string>(node, "src"))
-            return *src;
-        else
-            return "poac";
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
