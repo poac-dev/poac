@@ -41,7 +41,8 @@ namespace poac::subcmd { struct run {
             subcmd::build()(argv);
         }
 
-        const std::string executable = fs::relative(io::file::path::current_build_bin_dir / "poac").string();
+        const std::string project_name = io::file::yaml::get_node("name").as<std::string>();
+        const std::string executable = fs::relative(io::file::path::current_build_bin_dir / project_name).string();
         util::command cmd(executable);
         for (const auto& s : program_args) {
             cmd += s;
@@ -53,7 +54,7 @@ namespace poac::subcmd { struct run {
         if (const auto ret = cmd.run())
             std::cout << *ret;
         else // TODO: errorの時も文字列が欲しい．
-            std::cout << "poac returned 1" << std::endl;
+            std::cout << project_name + " returned 1" << std::endl;
     }
 
     void check_arguments([[maybe_unused]] const std::vector<std::string>& argv) {

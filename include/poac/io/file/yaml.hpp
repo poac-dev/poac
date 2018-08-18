@@ -25,6 +25,11 @@ namespace poac::io::file::yaml {
         return _exists(boost::filesystem::current_path());
     }
 
+    bool exists_key(const YAML::Node& node, const std::string& key) {
+        try { node[key]; }
+        catch (...) { return false; }
+        return true;
+    }
     template <typename T>
     boost::optional<T> get(const YAML::Node& node, const std::string& key) {
         try { return node[key].as<T>(); }

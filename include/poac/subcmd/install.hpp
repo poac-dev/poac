@@ -311,7 +311,7 @@ namespace poac::subcmd { struct install {
         if (async_funcs->empty()) {
             if (already_count > 0)
                 throw except::warn("Already up-to-date");
-            else // When deps is not written in poac.yml
+            else // TODO: When deps is not written in poac.yml
                 throw except::invalid_second_arg("install");
         }
 

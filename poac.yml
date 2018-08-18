@@ -1,7 +1,7 @@
 # Package name
 name: poac
 # Package version
-version: 0.0.1
+version: 0.0.1 # build時に，-DPOAC_VERSION=0.0.1
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
 # clang or gcc or ICC or MSVC
@@ -32,6 +32,13 @@ deps:
         - git submodule update --init --recursive
         - ./bootstrap.sh
         - ./b2 install -j2 --prefix=/Users/matken/.poac/cache/boost-1.67.0
+    link:
+      type: static # If dynamic -> global install
+      include:
+        - boost_system
+        - boost_filesystem
+        - boost_timer
+        - boost_chrono
   curl/curl:
     src: github
     tag: curl-7_61_0
@@ -40,13 +47,17 @@ deps:
       environment:
         MAC_RPATH: 1 # TODO: Branch by OS
         OPENSSL_ROOT_DIR: /usr/local/opt/openssl/
+    link: static
   jbeder/yaml-cpp:
     src: github
     tag: yaml-cpp-0.6.2
     build: cmake
+    link: static
 
 # 何も指定しなければ header only library と見做す
 build:
   system: poac
   # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
   bin: true
+  macro:
+    POAC_ROOT: $PWD
