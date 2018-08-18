@@ -22,12 +22,11 @@ namespace poac::util {
         std::vector<std::string> include_search_path;
         std::vector<std::string> library_search_path;
         std::vector<std::string> static_link_libs;
+        std::vector<std::string> macro_defn;
         std::vector<std::string> other_args;
         boost::filesystem::path output_path;
 
     public:
-//        std::string data() const { return cmd; }
-// compier.hppの対応をし！srcの中のincludeを外にだす！
         compiler(const std::string& s) : project_name(s) {}
         boost::optional<std::string> compile() {
             return create_command().run();
@@ -50,6 +49,8 @@ namespace poac::util {
                 cmd += "-I" + isp;
             for (const auto& oa : other_args)
                 cmd += oa;
+            for (const auto& md : macro_defn)
+                cmd += md;
             cmd += "-c " + source_file;
 
             cmd &= "\n";
@@ -91,6 +92,9 @@ namespace poac::util {
         }
         void add_static_link_lib(const std::string& p) {
             static_link_libs.push_back(p);
+        }
+        void add_macro_defn(const std::pair<std::string, std::string>& m) {
+            macro_defn.push_back("-D" + m.first + "=" + R"(\")" + m.second + R"(\")");
         }
         void add_other_args(const std::string& p) {
             other_args.push_back(p);
