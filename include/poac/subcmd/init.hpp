@@ -10,7 +10,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io/cli.hpp"
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../util/ftemplate.hpp"
 
 
@@ -23,7 +23,7 @@ namespace poac::subcmd { struct init {
     template <typename VS>
     void _main(VS&& vs) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
 
         if (!vs.empty()) throw except::invalid_second_arg("init");

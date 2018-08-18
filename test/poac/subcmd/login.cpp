@@ -4,7 +4,7 @@
 #include <string>
 
 //#include "../../../include/poac/core/inference.hpp"
-//#include "../../include/poac/core/except.hpp"
+//#include "../../include/poac/core/exception.hpp"
 
 
 BOOST_AUTO_TEST_CASE( poac_subcmd_login_test1 )

@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../core/inference.hpp"
 #include "../io/cli.hpp"
 
@@ -28,14 +28,14 @@ namespace poac::option { struct help {
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
-        namespace except = core::except;
+        namespace except = core::exception;
 
         if (vs.size() == 0) exec_help();
         else if(vs.size() == 1) echo_option(vs[0]);
         else throw except::invalid_second_arg("--help"); // show only --help's option
     }
     void echo_option(const std::string& arg) {
-        namespace except = core::except;
+        namespace except = core::exception;
         try {
             const auto &tmp = core::inference::apply("options", arg, std::vector<std::string>());
             std::cout << "Usage: poac " << arg << " " << tmp << std::endl;

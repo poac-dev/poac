@@ -10,7 +10,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../io/file/path.hpp"
 #include "../io/cli.hpp"
 
@@ -41,7 +41,7 @@ namespace poac::subcmd { struct uninstall {
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
-        namespace except = core::except;
+        namespace except = core::exception;
         if (argv.empty()) throw except::invalid_second_arg("uninstall");
     }
 };} // end namespace

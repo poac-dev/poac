@@ -6,7 +6,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../io/file/yaml.hpp"
 
 
@@ -72,7 +72,7 @@ namespace poac::util::package {
 
 
     std::string get_version(const YAML::Node& node, const std::string& source) {
-        namespace except = core::except;
+        namespace except = core::exception;
 
         if (source == "github")
             return node["tag"].as<std::string>(); // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．

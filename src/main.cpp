@@ -24,7 +24,7 @@ int error_handling(std::string&& s) {
 template <typename S, typename VS>
 int exec(S&& s, VS&& vs) {
     namespace inference = poac::core::inference;
-    namespace except    = poac::core::except;
+    namespace except    = poac::core::exception;
     namespace io        = poac::io;
 
     try {

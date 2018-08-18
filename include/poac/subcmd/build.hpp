@@ -9,7 +9,7 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/compiler.hpp"
@@ -25,7 +25,7 @@ namespace poac::subcmd { struct build {
     template <typename VS>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         check_arguments(argv);
 
@@ -96,7 +96,7 @@ namespace poac::subcmd { struct build {
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
-        namespace except = core::except;
+        namespace except = core::exception;
 
         if (argv.size() >= 2)
             throw except::invalid_second_arg("build");

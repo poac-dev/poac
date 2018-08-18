@@ -9,7 +9,7 @@
 
 #include <boost/predef.h>
 
-#include "except.hpp"
+#include "exception.hpp"
 #include "../option.hpp"
 #include "../subcmd.hpp"
 
@@ -158,7 +158,7 @@ namespace poac::core::inference {
     // Execute function: execute or summary or options
     template <typename S, typename Index, typename VS, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
-        namespace except = core::except;
+        namespace except = core::exception;
         if (s == "exec")
             return execute(Indices(), static_cast<int>(idx), vs);
         else if (s == "summary")
@@ -173,7 +173,7 @@ namespace poac::core::inference {
         return branch(std::move(func), cmd, std::move(arg));
     }
     std::string apply(std::string&& func, const std::string& cmd, std::vector<std::string>&& arg) {
-        namespace except = core::except;
+        namespace except = core::exception;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));
         else if (itr = option_map.find(cmd); itr != option_map.end())
