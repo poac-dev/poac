@@ -3,11 +3,11 @@
 #include <vector>
 #include <string>
 
-//#include "../../../include/poac/subcmd/login.hpp"
+//#include "../../../include/poac/core/inference.hpp"
 //#include "../../include/poac/core/except.hpp"
 
 
-BOOST_AUTO_TEST_CASE( subcmd_login_test1 )
+BOOST_AUTO_TEST_CASE( poac_subcmd_login_test1 )
 {
 //    using namespace std;
 //    using namespace poac::subcmd;
