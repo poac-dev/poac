@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <map>
 #include <algorithm>
 
 #include <boost/filesystem.hpp>
@@ -18,6 +19,10 @@
 namespace poac::subcmd { struct uninstall {
     static const std::string summary() { return "Beta: Uninstall packages."; }
     static const std::string options() { return "[<pkg-names>]"; }
+    const std::map<std::string, std::string> opts{
+            { "-v", "--version" },
+            { "", "--with-args" }
+    };
 
     template <typename VS>
     void operator()(VS&& argv) { _main(argv); }
@@ -28,13 +33,12 @@ namespace poac::subcmd { struct uninstall {
         // Perform dependency resolution.
         // Uninstall packages in serial or parallel to the deps directory.
         //   If there is no package, it displays an error.
-
         check_arguments(argv);
 
         for (const auto& v : argv) {
             const fs::path pkg = io::file::path::current_deps_dir / v;
             if (io::file::path::validate_dir(pkg))
-                fs::remove_all(io::file::path::current_deps_dir / v);
+                fs::remove_all(pkg);
             else
                 std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
         }

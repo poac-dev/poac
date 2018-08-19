@@ -42,7 +42,7 @@ namespace poac::subcmd { struct cache {
                 for (const auto& v : argv) {
                     const fs::path pkg = io::file::path::poac_cache_dir / v;
                     if (io::file::path::validate_dir(pkg))
-                        fs::remove_all(io::file::path::poac_cache_dir / v);
+                        fs::remove_all(pkg);
                     else
                         std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
                 }
