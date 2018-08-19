@@ -8,7 +8,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../io/cli.hpp"
 #include "../util/ftemplate.hpp"
 
@@ -22,7 +22,7 @@ namespace poac::subcmd { struct new_ {
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         if (vs.size() != 1)
             throw except::invalid_second_arg("new");

@@ -10,7 +10,7 @@
 
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../util/command.hpp"
 
 
@@ -23,7 +23,7 @@ namespace poac::subcmd { struct publish {
     template <typename VS>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         check_arguments(argv);
         check_requirements();
@@ -58,7 +58,7 @@ namespace poac::subcmd { struct publish {
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
-        namespace except = core::except;
+        namespace except = core::exception;
 
         if (!argv.empty())
             throw except::invalid_second_arg("publish");
@@ -66,7 +66,7 @@ namespace poac::subcmd { struct publish {
 
     void check_requirements() {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         if (!fs::exists("poac.yml"))
             throw except::error("poac.yml does not exist");

@@ -59,5 +59,6 @@ build:
   system: poac
   # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
   bin: true
+  lib: true
   macro:
     POAC_ROOT: $PWD

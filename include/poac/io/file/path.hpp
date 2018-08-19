@@ -9,6 +9,7 @@
 
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/questions/4891006/how-to-create-a-folder-in-the-home-directory
+    std::string expand_user(std::string path);
     std::string expand_user(std::string path) {
         if (!path.empty() && path[0] == '~') {
             assert(path.size() == 1 or path[1] == '/');  // or other error handling
@@ -100,5 +101,9 @@ namespace poac::io::file::path {
         }
         return true;
     }
+
+//    void remove_all_files(const boost::filesystem::path& dir, const std::vector<std::string>& vs) {
+//
+//    }
 } // end namespace
 #endif // !POAC_IO_FILE_PATH_HPP

@@ -27,7 +27,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../sources.hpp"
 #include "../util.hpp"
 
@@ -123,7 +123,7 @@ namespace poac::subcmd { struct install {
             const std::map<std::string, std::string>& cmake_envs)
     {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
 
@@ -160,7 +160,7 @@ namespace poac::subcmd { struct install {
     }
     static void _manual_build(const std::string& pkgname, const util::command& cmd) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
 
@@ -285,7 +285,7 @@ namespace poac::subcmd { struct install {
     template <typename Async>
     void dependencies(Async* async_funcs) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
         namespace src    = sources;
 
 
@@ -325,7 +325,7 @@ namespace poac::subcmd { struct install {
 
     void check_requirements() {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         // Auto generate poac.yml on Version 2.
         if (!io::file::yaml::exists()) throw except::error("poac.yml is not found");
@@ -333,7 +333,7 @@ namespace poac::subcmd { struct install {
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
-        namespace except = core::except;
+        namespace except = core::exception;
         if (!argv.empty()) throw except::invalid_second_arg("install");
     }
 
@@ -353,7 +353,7 @@ namespace poac::subcmd { struct install {
     template <typename VS>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
-        namespace except = core::except;
+        namespace except = core::exception;
 
         // Start timer
         boost::timer::cpu_timer timer; // TODO: 全てのコマンドにおいて計測したい

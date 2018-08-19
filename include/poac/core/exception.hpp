@@ -1,11 +1,11 @@
-#ifndef POAC_CORE_EXCEPT_HPP
-#define POAC_CORE_EXCEPT_HPP
+#ifndef POAC_CORE_EXCEPTION_HPP
+#define POAC_CORE_EXCEPTION_HPP
 
 #include <string>
 #include <stdexcept>
 
 
-namespace poac::core::except {
+namespace poac::core::exception {
     class invalid_first_arg : public std::invalid_argument
     {
     public:
@@ -39,4 +39,4 @@ namespace poac::core::except {
         virtual ~warn() {};
     };
 } // end namespace
-#endif // !POAC_CORE_EXCEPT_HPP
+#endif // !POAC_CORE_EXCEPTION_HPP

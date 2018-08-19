@@ -8,7 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include "../core/except.hpp"
+#include "../core/exception.hpp"
 #include "../io/file.hpp"
 
 
@@ -20,7 +20,7 @@ namespace poac::subcmd { struct cache {
         void operator()(VS&& vs) { _main(vs); }
         template <typename VS>
         void _main(VS&& argv) {
-            namespace except = core::except;
+            namespace except = core::exception;
 
             check_arguments(argv);
             if (argv[0] == "root" && argv.size() == 1)
@@ -42,7 +42,7 @@ namespace poac::subcmd { struct cache {
                 for (const auto& v : argv) {
                     const fs::path pkg = io::file::path::poac_cache_dir / v;
                     if (io::file::path::validate_dir(pkg))
-                        fs::remove_all(io::file::path::poac_cache_dir / v);
+                        fs::remove_all(pkg);
                     else
                         std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
                 }
@@ -71,7 +71,7 @@ namespace poac::subcmd { struct cache {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::except;
+            namespace except = core::exception;
             if (argv.empty()) throw except::invalid_second_arg("cache");
         }
     };} // end namespace
