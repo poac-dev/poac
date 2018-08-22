@@ -12,7 +12,7 @@ jobs:
       - run: cmake .
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./src/poac --help
+      - run: ./poac --help
   gcc_8:
     docker:
       - image: matken11235/poac:gcc-8
@@ -21,7 +21,7 @@ jobs:
       - run: cmake .
       - run: make
       - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./src/poac --help
+      - run: ./poac --help
   gh_pages:
     working_directory: ~/poac/docs
     docker:
@@ -42,7 +42,7 @@ jobs:
 #      - run: cmake .
 #      - run: make
 #      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-#      - run: ./src/poac --help
+#      - run: ./poac --help
 #  clang_6:
 #    docker:
 #      - image: matken11235/poac:clang-6.0
@@ -51,7 +51,7 @@ jobs:
 #      - run: cmake .
 #      - run: make
 #      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-#      - run: ./src/poac --help
+#      - run: ./poac --help
 
 workflows:
   version: 2

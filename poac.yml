@@ -61,5 +61,6 @@ build:
   bin: true # TODO: 複数のバイナリ生成対応
 #  lib: true # main.cpp以外をlibraryに変換します．
   macro:
+    # TODO: 指定せずとも自動で定義しておくほうが良いかも．
     yamlmode: true #  Only one-dimensional information in poac.yml defined as a macro.
     POAC_ROOT: $PWD
