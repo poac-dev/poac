@@ -1,7 +1,7 @@
 # Package name
 name: poac
 # Package version
-version: 0.0.1 # build時に，-DPOAC_VERSION=0.0.1
+version: 0.0.1
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
 # clang or gcc or ICC or MSVC
@@ -27,7 +27,7 @@ deps:
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
-      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険
+      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険 # ダウンローdpしてきたファイルのみ，docker attatch?
         - cd /Users/matken/.poac/cache/boost-1.67.0_tmp
         - git submodule update --init --recursive
         - ./bootstrap.sh
@@ -54,11 +54,12 @@ deps:
     build: cmake
     link: static
 
-# 何も指定しなければ header only library と見做す
+# If nothing is specified, it is regarded as header only library
 build:
   system: poac
   # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
-  bin: true
-  lib: true
+  bin: true # TODO: 複数のバイナリ生成対応
+#  lib: true # main.cpp以外をlibraryに変換します．
   macro:
+    yamlmode: true #  Only one-dimensional information in poac.yml defined as a macro.
     POAC_ROOT: $PWD

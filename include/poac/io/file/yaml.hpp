@@ -27,7 +27,7 @@ namespace poac::io::file::yaml {
 
     bool exists_key(const YAML::Node& node, const std::string& key) {
         try { node[key]; }
-        catch (...) { return false; }
+        catch (...) { return false; /* did not exists */ }
         return true;
     }
     template <typename T>

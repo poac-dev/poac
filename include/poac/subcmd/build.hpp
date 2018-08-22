@@ -8,6 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
 
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
@@ -28,15 +29,33 @@ namespace poac::subcmd { struct build {
         namespace except = core::exception;
 
         check_arguments(argv);
-
-        bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
+        const bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
 
         // TODO: --backend cmake
         // TODO: poac.yml compiler: -> error version outdated
 
-        const std::string project_name = io::file::yaml::get_node("name").as<std::string>();
-        const std::string project_version = io::file::yaml::get_node("version").as<std::string>();
-        const std::string project_path = (io::file::path::current_build_bin_dir / project_name).string();
+        // TODO: src/にもcurrentにも，main.cppが存在しない時．
+        // TODO: name, version, cpp_versionが無い時．
+        if (const auto ret = io::file::yaml::get<bool>(io::file::yaml::get_node("build"), "bin")) {
+            if (*ret) {
+                bin_build(verbose);
+            }
+        }
+        // TODO: runの時はいらない？？？
+        // TODO:  if srcに，main.cpp以外のcppがあれば，
+        if (const auto ret = io::file::yaml::get<bool>(io::file::yaml::get_node("build"), "lib")) {
+            if (*ret) {
+                lib_build(verbose);
+            }
+        }
+    }
+
+    void bin_build(const bool verbose=false) {
+        namespace fs = boost::filesystem;
+
+        const auto project_name = io::file::yaml::get_node("name").as<std::string>();
+        const auto project_version = io::file::yaml::get_node("version").as<std::string>();
+        const auto project_path = (io::file::path::current_build_bin_dir / project_name).string();
 
         fs::create_directories(io::file::path::current_build_bin_dir);
 
@@ -44,8 +63,8 @@ namespace poac::subcmd { struct build {
         util::compiler compiler(project_name);
         // TODO: g++, clang++の選択方法，std::getenv("CXX")など
         compiler.set_system("clang++");
-        compiler.set_version(17);
-        compiler.set_source_file("src/main.cpp");
+        compiler.set_version(io::file::yaml::get_node("cpp_version").as<int>()); // TODO: read poac.yml
+        compiler.add_source_file("./src/main.cpp"); // TODO: main.cpp in root
         compiler.set_output_path(io::file::path::current_build_bin_dir);
 
         compiler.add_macro_defn(std::make_pair("POAC_ROOT", std::getenv("PWD")));
@@ -73,27 +92,58 @@ namespace poac::subcmd { struct build {
                     }
                     else {
                         compiler.add_static_link_lib(pkgname);
-//                    for ( const auto& e : boost::make_iterator_range( fs::directory_iterator( pkgpath / "lib" ), { } ) ) {
-//                        if (!fs::is_directory(e)) {
-//                            const std::string libname = e.path().filename().stem().string();
-//                            compiler.add_static_link_lib(libname.substr(3));
-//                        }
-//                    }
                     }
                 }
             }
         }
-        if (verbose) std::cout << compiler << std::endl << std::endl;
-
-        if (compiler.compile()) {
+        // Compile
+        if (compiler.compile(verbose)) {
             // TODO: compiler.hpp side
-            fs::remove(project_path + ".o");
-            std::cout << io::cli::green << "Done: " << io::cli::reset
+            // fs::remove(project_path + ".o");
+            std::cout << io::cli::green << "Compiled: " << io::cli::reset
                       << "Output to `" + fs::relative(project_path).string() + "`"
                       << std::endl;
         }
         else { /* error */ }
     }
+
+    // Generate link libraries.
+    void lib_build(const bool verbose=false) {
+        namespace fs = boost::filesystem;
+
+        const auto project_name = io::file::yaml::get_node("name").as<std::string>();
+
+        fs::create_directories(io::file::path::current_build_lib_dir);
+
+
+        util::compiler lib_generator;
+        lib_generator.set_system("clang++");
+        lib_generator.set_version(io::file::yaml::get_node("cpp_version").as<int>());
+        const auto pair = std::make_pair(fs::recursive_directory_iterator("./src"),
+                                         fs::recursive_directory_iterator());
+        BOOST_FOREACH(const fs::path& p, pair) {
+                        if (!fs::is_directory(p) && p.extension().string() == ".cpp" && p.filename().string() != "main.cpp") {
+                            lib_generator.add_source_file(p.string());
+                        }
+                    }
+        lib_generator.set_libname("shell");
+
+        if (lib_generator.gen_static_lib(verbose)) {
+            std::cout << io::cli::green << "Generated: " << io::cli::reset
+                      << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".a" + "`"
+                      << std::endl;
+        }
+        else { /* error */ }
+        /* TODO: clangやgccのエラーメッセージをパースできるのなら，else文を実装する．
+        そうでないのなら，util::commandで，std_errはそのまま垂れ流させて，標準のエラーメッセージを見せた方がわかりやすい．*/
+        if (lib_generator.gen_dynamic_lib(verbose)) {
+            std::cout << io::cli::green << "Generated: " << io::cli::reset
+                      << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".dylib" + "`"
+                      << std::endl;
+        }
+        else { /* error */ }
+    }
+
 
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::exception;
