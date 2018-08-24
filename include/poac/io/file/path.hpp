@@ -2,9 +2,11 @@
 #define POAC_IO_FILE_PATH_HPP
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 
 
 namespace poac::io::file::path {
@@ -109,6 +111,15 @@ namespace poac::io::file::path {
             catch(...) { /* Ignore error */ }
         }
         return true;
+    }
+
+    boost::optional<std::string> read_file(const boost::filesystem::path& path) {
+        if (std::ifstream ifs(path.string()); !ifs.fail()) {
+            std::istreambuf_iterator<char> it(ifs);
+            std::istreambuf_iterator<char> last;
+            return std::string(it, last);
+        }
+        return boost::none;
     }
 
 //    void remove_all_files(const boost::filesystem::path& dir, const std::vector<std::string>& vs) {
