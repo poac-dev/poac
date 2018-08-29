@@ -1,3 +1,5 @@
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "../../../include/poac/util/command.hpp"
 
@@ -69,7 +71,7 @@ BOOST_AUTO_TEST_CASE( util_command_test7 )
     command cmd("mkdir test");
     cmd &= "cd test";
 
-    std::cout << cmd;
+    std::cout << cmd << std::endl;
 
     BOOST_TEST( cmd.data() == "mkdir test && cd test" );
 }

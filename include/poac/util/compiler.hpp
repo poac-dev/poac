@@ -26,7 +26,6 @@ namespace poac::util {
         std::vector<std::string> static_link_libs;
         std::vector<std::string> macro_defn;
         std::vector<std::string> other_args;
-        std::vector<std::string> mutable obj_files;
         bool mutable cache_use = false;
 
     public:
@@ -34,6 +33,7 @@ namespace poac::util {
         std::string system; // gcc or clang or ...
         unsigned int cpp_version;
         std::string main_cpp;
+        std::vector<std::string> mutable obj_files;
         boost::filesystem::path output_path;
 
         compiler() {}
@@ -125,6 +125,7 @@ namespace poac::util {
                 return std::string();
             }
         }
+        // TODO: linkとcompileを分離する
         boost::optional<std::string> link(const bool verbose=false) const {
             namespace fs = boost::filesystem;
 
@@ -148,6 +149,7 @@ namespace poac::util {
                 return boost::none;
             }
         }
+        // TODO: current_build_lib_dirに依存しない設計にする．抽象化
         boost::optional<std::string> gen_static_lib(const bool verbose=false) const {
             namespace fs = boost::filesystem;
 

@@ -22,16 +22,17 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
+  # TODO: github/boostorg/boost???
   boostorg/boost:
     src: github
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
       steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険 # ダウンローdpしてきたファイルのみ，docker attatch?
-        - cd /Users/matken/.poac/cache/boost-1.67.0_tmp
+        - cd ${HOME}/.poac/cache/boost-1.67.0_tmp
         - git submodule update --init --recursive
         - ./bootstrap.sh
-        - ./b2 install -j2 --prefix=/Users/matken/.poac/cache/boost-1.67.0
+        - ./b2 install -j2 --prefix=${HOME}/.poac/cache/boost-1.67.0
     link:
       type: static # If dynamic -> global install
       include:
@@ -39,7 +40,7 @@ deps:
         - boost_filesystem
         - boost_timer
         - boost_chrono
-  curl/curl:
+  curl/curl: # TODO: Cのバージョン管理
     src: github
     tag: curl-7_61_0
     build:
@@ -59,8 +60,17 @@ build:
   system: poac
   # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
   bin: true # TODO: 複数のバイナリ生成対応
+  # TODO: cmakeでは，targetに，それぞれのcppをaddしてる．
+  # TODO: target(curl-config hoge.cpp foo.cpp)
+  # TODO: target(curl        fuga.cpp buu.cpp)
 #  lib: true # main.cpp以外をlibraryに変換します．
   macro:
     # TODO: 指定せずとも自動で定義しておくほうが良いかも．
     yamlmode: true #  Only one-dimensional information in poac.yml defined as a macro.
     POAC_ROOT: $PWD
+
+test:
+  framework: boost # or google
+  args:
+    - "--report_level=detailed"
+    - "--show_progress=yes"

@@ -10,32 +10,31 @@
 using VS = std::vector<std::string>;
 
 int error_handling(std::string&& s) {
-    namespace inference = poac::core::inference;
+    namespace inference = poac::core::infer;
     namespace io        = poac::io;
 
     std::cerr << io::cli::red
               << "Error: " << s
               << io::cli::reset
               << std::endl << std::endl;
-    inference::apply("exec", "--help", VS());
+    inference::apply(std::string("exec"), std::string("--help"), VS());
     return EXIT_FAILURE;
 }
 
-template <typename S, typename VS>
-int exec(S&& s, VS&& vs) {
-    namespace inference = poac::core::inference;
+int exec(std::string&& s, VS&& vs) {
+    namespace inference = poac::core::infer;
     namespace except    = poac::core::exception;
     namespace io        = poac::io;
 
     try {
-        inference::apply("exec", s, std::move(vs));
+        inference::apply(std::string("exec"), s, std::move(vs));
         return EXIT_SUCCESS;
     }
     catch (const except::invalid_first_arg& e) {
         return error_handling(e.what());
     }
     catch (const except::invalid_second_arg& e) {
-        inference::apply("exec", "--help", std::move(VS({ e.what() })));
+        inference::apply(std::string("exec"), std::string("--help"), VS({ e.what() }));
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {

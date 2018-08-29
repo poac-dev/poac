@@ -16,7 +16,7 @@ namespace poac::subcmd { struct cache {
         static const std::string summary() { return "Manipulate cache files."; }
         static const std::string options() { return "<command>"; }
 
-        template <typename VS>
+        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& vs) { _main(vs); }
         template <typename VS>
         void _main(VS&& argv) {

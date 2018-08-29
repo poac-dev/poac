@@ -19,11 +19,11 @@
 
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
-    static const std::string options() { return "[-v | --verbose]"; }
+    static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache
 
-    template <typename VS>
-    void operator()(VS&& argv) { _main(argv); }
-    template <typename VS>
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    void operator()(VS&& argv) { _main(std::move(argv)); }
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
@@ -58,8 +58,7 @@ namespace poac::subcmd { struct build {
 
 
         compiler.project_name = project_name;
-        // TODO: g++, clang++の選択方法，std::getenv("CXX")など
-        compiler.system = "clang++";
+        compiler.system = std::getenv("CXX"); // TODO: なかった時のエラーもしくは，自動選択
         compiler.cpp_version = project_cpp_version;
         // TODO: 存在確認
         compiler.main_cpp = "main.cpp";
@@ -92,6 +91,9 @@ namespace poac::subcmd { struct build {
                     compiler.add_static_link_lib(pkgname);
             }
         }
+        // //lib/x86_64-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line
+        // TODO: 抽象化
+        compiler.add_other_args("-pthread");
     }
 
     void bin_build(const util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
@@ -104,7 +106,7 @@ namespace poac::subcmd { struct build {
                       << "Output to `" + fs::relative(project_path).string() + "`"
                       << std::endl;
         }
-        else { /* error */
+        else { /* error */ // TODO: compileに失敗時も表示されてしまう．
             std::cout << io::cli::yellow << "Warning: " << io::cli::reset
             << "There is no change. Binary exists in `" + fs::relative(project_path).string() + "`."
             << std::endl;

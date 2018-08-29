@@ -18,25 +18,24 @@ namespace poac::subcmd { struct init {
     static const std::string summary() { return "Create the poac.yml."; }
     static const std::string options() { return "<Nothing>"; }
 
-    template <typename VS>
-    void operator()(VS&& vs) { _main(vs); }
-    template <typename VS>
-    void _main(VS&& vs) {
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    void operator()(VS&& argv) { _main(std::move(argv)); }
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
 
 
-        if (!vs.empty()) throw except::invalid_second_arg("init");
+        if (!argv.empty()) throw except::invalid_second_arg("init");
 
         fs::path filename("poac.yml");
         if (yml_exists(filename)) throw except::error("canceled");
 
         std::ofstream yml(filename.string());
-        std::string basename = subcmd::init::basename(".");
 
         // TODO: Comment disappears
         YAML::Node node = YAML::Load(util::ftemplate::poac_yml);
-        node["name"] = basename;
+        node["name"] = subcmd::init::basename(fs::current_path());
 
         yml << node;
         yml.close();
@@ -67,7 +66,7 @@ namespace poac::subcmd { struct init {
         }
         return EXIT_SUCCESS;
     }
-    std::string basename(std::string&& s) {
+    std::string basename(boost::filesystem::path&& s) {
         namespace fs = boost::filesystem;
         std::string tmp = fs::basename(fs::absolute(fs::path(s)).parent_path());
         conv_prohibit_char(tmp);

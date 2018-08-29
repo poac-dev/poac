@@ -36,11 +36,15 @@
 //   Parse poac.yml
 // Version 2 will also allow $ poac install [<pkg-names>].
 //   Parse arguments.
+
+// TODO: 妙なprogressを出さないoptionが欲しい．CIや，Docker用
+// TODO: --simple-progressみたいな -> elm-package installのoutputに寄せる
+// TODO: --quiteも必要．
 namespace poac::subcmd { struct install {
     static const std::string summary() { return "Beta: Install packages."; }
     static const std::string options() { return "<Nothing>"; }
 
-    template <typename VS>
+        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& vs) { _main(vs); }
 
     static void info(const std::string& name, const std::string& version) {
@@ -158,6 +162,8 @@ namespace poac::subcmd { struct install {
             // もしくは，
         }
     }
+    // TODO: きちんとカレントディレクトリにコピーされなくても，installed!と表示されてしまう．
+    // TODO: 上のは，copyの問題？？？
     static void _manual_build(const std::string& pkgname, const util::command& cmd) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;

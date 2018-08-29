@@ -52,8 +52,3 @@ target_link_libraries(${PROJECT_NAME}
 install(TARGETS poac DESTINATION bin)
 
 add_subdirectory(src)
-add_subdirectory(test)
-enable_testing()
-add_test(NAME poac_test
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND unittest)

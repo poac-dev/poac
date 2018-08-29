@@ -7,20 +7,26 @@ jobs:
   gcc_7:
     docker:
       - image: matken11235/poac:gcc-7
+    environment:
+      CXX: g++
     steps:
       - checkout
       - run: cmake .
       - run: make
-      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
+      - run: ./poac install
+      - run: ./poac test
       - run: ./poac --help
   gcc_8:
     docker:
       - image: matken11235/poac:gcc-8
+    environment:
+      CXX: g++
     steps:
       - checkout
       - run: cmake .
       - run: make
-      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
+      - run: ./poac install
+      - run: ./poac test
       - run: ./poac --help
   gh_pages:
     working_directory: ~/poac/docs
@@ -64,4 +70,3 @@ workflows:
       # Clang
 #      - clang_5
 #      - clang_6
-

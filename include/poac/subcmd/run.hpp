@@ -20,7 +20,7 @@ namespace poac::subcmd { struct run {
     static const std::string summary() { return "Beta: Build project and exec it."; }
     static const std::string options() { return "[-v | --verbose | -- [program args]]"; }
 
-    template <typename VS>
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
     void _main(VS&& argv) {
@@ -35,10 +35,10 @@ namespace poac::subcmd { struct run {
             // -h build
             program_args = std::vector<std::string>(result+1, argv.end());
             // -v
-            subcmd::build()(std::vector<std::string>(argv.begin(), result));
+            subcmd::build{}(std::vector<std::string>(argv.begin(), result));
         }
         else {
-            subcmd::build()(argv);
+            subcmd::build{}(std::move(argv));
         }
 
         const std::string project_name = io::file::yaml::get_node("name").as<std::string>();
