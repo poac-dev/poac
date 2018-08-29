@@ -71,6 +71,6 @@ build:
 
 test:
   framework: boost # or google
-  args:
-    - "--report_level=detailed"
-    - "--show_progress=yes"
+#  args:
+#    - "--report_level=detailed"
+#    - "--show_progress=yes"

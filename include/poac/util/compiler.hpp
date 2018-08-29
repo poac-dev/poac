@@ -140,6 +140,8 @@ namespace poac::util {
                     cmd += "-L" + lsp;
                 for (const auto& sll : static_link_libs)
                     cmd += "-l" + sll;
+                for (const auto& oa : other_args)
+                    cmd += oa;
                 cmd += "-o " + project_path;
 
                 if (verbose) std::cout << cmd << std::endl;

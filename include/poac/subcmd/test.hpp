@@ -81,7 +81,7 @@ namespace poac::subcmd { struct test {
                                   << "There is no change. Binary exists in `" + fs::relative(bin_path).string() + "`."
                                   << std::endl;
                     }
-                    // 前のobjを使用してしまうため，消す．
+                    // Do not use the previous object file
                     compiler.obj_files.clear();
                     std::cout << "----------------------------------------------------------------" << std::endl;
                 }
