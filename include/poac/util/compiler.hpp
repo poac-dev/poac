@@ -140,7 +140,8 @@ namespace poac::util {
                     cmd += "-L" + lsp;
                 for (const auto& sll : static_link_libs)
                     cmd += "-l" + sll;
-                for (const auto& oa : other_args)
+                for (const auto& oa : other_args) // TODO: other-argsをここに置くべきではない．
+                    // TODO: link_other_argsとか？？？ compile_other_args
                     cmd += oa;
                 cmd += "-o " + project_path;
 
