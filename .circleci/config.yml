@@ -13,7 +13,25 @@ jobs:
       - checkout
       - run: cmake .
       - run: make
+
+      - restore_cache:  # restores saved mix cache
+          keys:  # list of cache keys, in decreasing specificity
+#          - v1-mix-cache-{{ checksum "poac.lock" }}
+          - v1-poac-cache-{{ .Branch }}
+          - v1-poac-cache
+
       - run: ./poac install
+
+#      - save_cache:  # generate and store cache so `restore_cache` works
+#          key: v1-poac-cache-{{ checksum "poac.lock" }}
+#          paths: "deps"
+      - save_cache:  # make another less specific cache
+          key: v1-poac-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:  # you should really save one more cache just in case
+          key: v1-poac-cache
+          paths: "deps"
+
       - run: ./poac test
       - run: ./poac --help
   gcc_8:
@@ -25,7 +43,21 @@ jobs:
       - checkout
       - run: cmake .
       - run: make
+
+      - restore_cache:  # restores saved mix cache
+          keys:  # list of cache keys, in decreasing specificity
+          - v1-poac-cache-{{ .Branch }}
+          - v1-poac-cache
+
       - run: ./poac install
+
+      - save_cache:  # make another less specific cache
+          key: v1-poac-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:  # you should really save one more cache just in case
+          key: v1-poac-cache
+          paths: "deps"
+
       - run: ./poac test
       - run: ./poac --help
   gh_pages:
