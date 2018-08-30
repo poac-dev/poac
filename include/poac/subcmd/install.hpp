@@ -44,7 +44,7 @@ namespace poac::subcmd { struct install {
     static const std::string summary() { return "Beta: Install packages."; }
     static const std::string options() { return "<Nothing>"; }
 
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& vs) { _main(vs); }
 
     static void info(const std::string& name, const std::string& version) {
@@ -205,12 +205,15 @@ namespace poac::subcmd { struct install {
 
     // build system(cmake | manual | none)
     boost::optional<std::string> resolve_build_system(const YAML::Node& node) {
-        if (const auto build_system = io::file::yaml::get<std::string>(node, "build"))
-            return build_system;
-        else if (const auto build_system2 = io::file::yaml::get2<std::string>(node, "build", "system"))
-            return build_system2;
-        else
+        if (const auto build_system = io::file::yaml::get<std::string>(node)) {
+            return *build_system;
+        }
+        else if (const auto build_system2 = io::file::yaml::get1<std::string>(node, "system")) {
+            return *build_system2;
+        }
+        else {
             return boost::none;
+        }
     }
 
     std::string resolve_source(const std::string& pkgname, const std::string& source) {
@@ -266,20 +269,23 @@ namespace poac::subcmd { struct install {
                 func_pack.emplace_back("Extracting", std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir));
             }
 
-            if (const auto build_system = resolve_build_system(node)) {
-                if (*build_system == "cmake") {
-                    if (const auto cmake_envs = io::file::yaml::get2<std::map<std::string, std::string>>(node, "build", "environment"))
-                        func_pack.emplace_back("Building", std::bind(&_cmake_build, pkgname, *cmake_envs));
-                    else
-                        func_pack.emplace_back("Building", std::bind(&_cmake_build, pkgname, std::map<std::string, std::string>()));
-                    func_pack.emplace_back("Copying", std::bind(&_copy, pkgname));
-                    return util::step_funcs_with_status(std::move(func_pack));
-                }
-                else if (*build_system == "manual") {
-                    if (const auto steps = io::file::yaml::get2<std::vector<std::string>>(node, "build", "steps")) {
-                        func_pack.emplace_back("Building", std::bind(&_manual_build, pkgname, util::command(*steps)));
+            // TODO: もっと美しく
+            if (const auto build_config = io::file::yaml::get_by_depth(node, "build")) {
+                if (const auto build_system = resolve_build_system(node)) {
+                    if (*build_system == "cmake") {
+                        if (const auto cmake_envs = io::file::yaml::get1<std::map<std::string, std::string>>(node, "environment"))
+                            func_pack.emplace_back("Building", std::bind(&_cmake_build, pkgname, *cmake_envs));
+                        else
+                            func_pack.emplace_back("Building", std::bind(&_cmake_build, pkgname, std::map<std::string, std::string>()));
                         func_pack.emplace_back("Copying", std::bind(&_copy, pkgname));
                         return util::step_funcs_with_status(std::move(func_pack));
+                    }
+                    else if (*build_system == "manual") {
+                        if (const auto steps = io::file::yaml::get1<std::vector<std::string>>(node, "steps")) {
+                            func_pack.emplace_back("Building", std::bind(&_manual_build, pkgname, util::command(*steps)));
+                            func_pack.emplace_back("Copying", std::bind(&_copy, pkgname));
+                            return util::step_funcs_with_status(std::move(func_pack));
+                        }
                     }
                 }
             }
@@ -288,27 +294,26 @@ namespace poac::subcmd { struct install {
         return util::step_funcs_with_status(std::make_tuple("Notfound", std::bind(&_placeholder)));
     }
 
-    template <typename Async>
-    void dependencies(Async* async_funcs) {
+    template <typename Async, typename Node>
+    void dependencies(Async* async_funcs, const Node& node) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
         namespace src    = sources;
 
 
-        const YAML::Node deps = io::file::yaml::get_node("deps");
         int already_count = 0;
 
-        // TODO: 同じdepsが書かれている場合の対策が施されていない．
-        for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
+        // Even if a package of the same name is written, it is excluded.
+        // However, it can not deal with duplication of other information (e.g. version etc.).
+        for (const auto& [name, next_node] : node.at("deps").template as<std::map<std::string, YAML::Node>>()) {
             // hello_world: 0.2.1
             // itr->first: itr->second
-            const std::string name = itr->first.as<std::string>();
-            std::string src     = util::package::get_source(itr->second);
-            const std::string version = util::package::get_version(itr->second, src);
+            std::string src     = util::package::get_source(next_node);
+            const std::string version = util::package::get_version(next_node, src);
             const std::string pkgname = util::package::github_conv_pkgname(name, version);
 
             src = resolve_source(pkgname, src);
-            if (auto func_pack = resolve(itr->second, name, version, pkgname, src))
+            if (auto func_pack = resolve(next_node, name, version, pkgname, src))
                 async_funcs->emplace_back(std::move(*func_pack), std::bind(&info, name, version), src);
             else
                 ++already_count;
@@ -317,7 +322,7 @@ namespace poac::subcmd { struct install {
         if (async_funcs->empty()) {
             if (already_count > 0)
                 throw except::warn("Already up-to-date");
-            else // TODO: When deps is not written in poac.yml
+            else
                 throw except::invalid_second_arg("install");
         }
 
@@ -329,13 +334,28 @@ namespace poac::subcmd { struct install {
         }
     }
 
-    void check_requirements() {
+    auto check_requirements() {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
 
-        // Auto generate poac.yml on Version 2.
-        if (!io::file::yaml::exists()) throw except::error("poac.yml is not found");
         fs::create_directories(io::file::path::poac_cache_dir);
+        // TODO: Auto generate poac.yml on Version 2.
+        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+                if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "deps")) {
+                    return *op_select_node;
+                }
+                else {
+                    throw except::error("Required key does not exist in poac.yml");
+                }
+            }
+            else {
+                throw except::error("Could not load poac.yml");
+            }
+        }
+        else {
+            throw except::error("poac.yml does not exists");
+        }
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
@@ -366,15 +386,16 @@ namespace poac::subcmd { struct install {
 
 
         check_arguments(argv);
-        check_requirements();
+        const auto node = check_requirements();
 
         std::vector<
-                std::tuple<
-                        util::step_funcs_with_status,
-                        std::function<void()>,
-                        std::string
-                        >> async_funcs;
-        dependencies(&async_funcs);
+            std::tuple<
+                util::step_funcs_with_status,
+                std::function<void()>,
+                std::string
+            >
+        > async_funcs;
+        dependencies(&async_funcs, node);
 
         const int deps_num = static_cast<int>(async_funcs.size());
 

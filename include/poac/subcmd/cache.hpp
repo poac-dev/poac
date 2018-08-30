@@ -33,6 +33,7 @@ namespace poac::subcmd { struct cache {
                 throw except::invalid_second_arg("cache");
         }
 
+        // TODO: --all, -a optionが無いとわかりづらい
         void clean(const std::vector<std::string>& argv) {
             namespace fs = boost::filesystem;
             if (argv.empty()) {

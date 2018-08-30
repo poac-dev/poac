@@ -83,8 +83,8 @@ namespace poac::util::package {
     }
 
     std::string get_source(const YAML::Node& node) {
-        if (const auto src = io::file::yaml::get<std::string>(node, "src"))
-            return *src;
+        if (const auto src = io::file::yaml::get_by_width(node, "src"))
+            return (*src).at("src").as<std::string>();
         else
             return "poac";
     }

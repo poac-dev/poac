@@ -15,9 +15,33 @@
 #include "./build.hpp"
 
 
+// TODO: 特定のテストのみcacheを無視するoption
 namespace poac::subcmd { struct test {
         static const std::string summary() { return "Beta: Execute tests."; }
         static const std::string options() { return "-v | --verbose"; }
+
+        auto check_requirements() {
+            namespace fs     = boost::filesystem;
+            namespace except = core::exception;
+
+            // TODO: I want use Result type like rust-lang.
+            if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+                if (const auto op_node = io::file::yaml::load(*op_filename)) {
+                    if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "name", "version", "cpp_version", "deps")) {
+                        return *op_select_node;
+                    }
+                    else {
+                        throw except::error("Required key does not exist in poac.yml");
+                    }
+                }
+                else {
+                    throw except::error("Could not load poac.yml");
+                }
+            }
+            else {
+                throw except::error("poac.yml does not exists");
+            }
+        }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) { _main(std::move(argv)); }
@@ -27,16 +51,17 @@ namespace poac::subcmd { struct test {
             namespace except = core::exception;
 
             check_arguments(argv);
+            const auto node = check_requirements();
 
             const bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
-            const std::string project_name = io::file::yaml::get_node("name").as<std::string>();
+            const std::string project_name = node.at("name").as<std::string>();
             const auto project_path = (io::file::path::current_build_test_dir / project_name).string();
             // TODO: pathにnameを含んでいるのは汚い？？？もっと変数名を整える．
 
             // TODO: buildコマンドとの共通化
             util::compiler compiler;
             subcmd::build hoge{};
-            hoge.configure(compiler, project_name);
+            hoge.configure(compiler, project_name, node);
             // TODO: if (test: framework: == boost) or google
             // TODO: それ以外 -> throw
             compiler.add_static_link_lib("boost_unit_test_framework");

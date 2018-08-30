@@ -69,6 +69,7 @@ build:
     yamlmode: true #  Only one-dimensional information in poac.yml defined as a macro.
     POAC_ROOT: $PWD
 
+# TODO: 一つのバイナリにリンクしたい時は？？？
 test:
   framework: boost # or google
 #  args:

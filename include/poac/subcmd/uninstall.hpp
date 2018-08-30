@@ -16,6 +16,7 @@
 #include "../io/cli.hpp"
 
 
+// TODO: --all, -a option
 namespace poac::subcmd { struct uninstall {
     static const std::string summary() { return "Beta: Uninstall packages."; }
     static const std::string options() { return "[<pkg-names>]"; }

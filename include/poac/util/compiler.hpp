@@ -25,7 +25,8 @@ namespace poac::util {
         std::vector<std::string> library_search_path;
         std::vector<std::string> static_link_libs;
         std::vector<std::string> macro_defn;
-        std::vector<std::string> other_args;
+        std::vector<std::string> compile_other_args;
+        std::vector<std::string> link_other_args;
         bool mutable cache_use = false;
 
     public:
@@ -92,15 +93,12 @@ namespace poac::util {
                     cmd += main_cpp;
                 for (const auto& s : source_files)
                     cmd += s;
-                if (!include_search_path.empty())
-                    for (const auto& isp : include_search_path)
-                        cmd += "-I" + isp;
-                if (!other_args.empty())
-                    for (const auto& oa : other_args)
-                        cmd += oa;
-                if (!macro_defn.empty())
-                    for (const auto& md : macro_defn)
-                        cmd += md;
+                for (const auto& isp : include_search_path)
+                    cmd += "-I" + isp;
+                for (const auto& oa : compile_other_args)
+                    cmd += oa;
+                for (const auto& md : macro_defn)
+                    cmd += md;
 
                 int use_cache_count = 0;
                 cmd += "-o";
@@ -140,9 +138,8 @@ namespace poac::util {
                     cmd += "-L" + lsp;
                 for (const auto& sll : static_link_libs)
                     cmd += "-l" + sll;
-                for (const auto& oa : other_args) // TODO: other-argsをここに置くべきではない．
-                    // TODO: link_other_argsとか？？？ compile_other_args
-                    cmd += oa;
+                for (const auto& loa : link_other_args)
+                    cmd += loa;
                 cmd += "-o " + project_path;
 
                 if (verbose) std::cout << cmd << std::endl;
@@ -207,8 +204,11 @@ namespace poac::util {
         void add_macro_defn(const std::pair<std::string, std::string>& m) {
             macro_defn.push_back("-D" + m.first + "=" + R"(\")" + m.second + R"(\")");
         }
-        void add_other_args(const std::string& p) {
-            other_args.push_back(p);
+        void add_compile_other_args(const std::string& p) {
+            compile_other_args.push_back(p);
+        }
+        void add_link_other_args(const std::string& p) {
+            link_other_args.push_back(p);
         }
     };
 } // end namespace

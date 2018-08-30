@@ -3,35 +3,37 @@
 
 #include <iostream>
 #include <string>
+#include <map>
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../../io/cli.hpp"
-
 
 namespace poac::io::file::yaml {
-    bool _exists(const boost::filesystem::path& dir) {
+    boost::optional<std::string> exists_setting_file() {
         namespace fs = boost::filesystem;
-        // If both are present, select the former.
-        return fs::exists(dir / fs::path("poac.yml")) ||
-               fs::exists(dir / fs::path("poac.yaml"));
-    }
-    bool exists(const boost::filesystem::path& dir) {
-        return _exists(dir);
-    }
-    bool exists(/* current directory */) {
-        return _exists(boost::filesystem::current_path());
+        const auto cur = boost::filesystem::current_path();
+        if (fs::exists(cur / fs::path("poac.yml")))
+            return std::string("poac.yml");
+        else if (fs::exists(cur / fs::path("poac.yaml")))
+            return std::string("poac.yaml");
+        else
+            return boost::none;
     }
 
-    bool exists_key(const YAML::Node& node, const std::string& key) {
-        try { node[key]; }
-        catch (...) { return false; /* did not exists */ }
-        return true;
+    boost::optional<YAML::Node> load(const std::string& filename) {
+        try { return YAML::LoadFile(filename); }
+        catch (...) { return boost::none; }
+    }
+
+    template <typename T>
+    boost::optional<T> get(const YAML::Node& node) {
+        try { return node.as<T>(); }
+        catch (...) { return boost::none; }
     }
     template <typename T>
-    boost::optional<T> get(const YAML::Node& node, const std::string& key) {
+    boost::optional<T> get1(const YAML::Node& node, const std::string& key) {
         try { return node[key].as<T>(); }
         catch (...) { return boost::none; }
     }
@@ -41,11 +43,28 @@ namespace poac::io::file::yaml {
         catch (...) { return boost::none; }
     }
 
-    YAML::Node get_node() {
-        return YAML::LoadFile("./poac.yml");
+    // {{"arg1", node["arg1"]}, ...}
+    template <typename... Args>
+    static boost::optional<std::map<std::string, YAML::Node>>
+    get_by_width(const YAML::Node &node, const Args&... args) {
+        std::map<std::string, YAML::Node> mp;
+        try {
+            ((mp[args] = node[args]), ...);
+            return mp;
+        }
+        catch (...) { return boost::none; }
     }
-    YAML::Node get_node(const std::string& name) {
-        return YAML::LoadFile("./poac.yml")[name];
+    // node[arg1][arg2]...
+    // TODO: 多分，内部がポインタで実装されてて，書き換えると，どこから見ても書き換わってしまう．
+    // そのため，この関数には注意して使用する．？？
+    template <typename... Args>
+    static boost::optional<YAML::Node>
+    get_by_depth(YAML::Node node, const Args&... args) {
+        try {
+            ((node = node[args]), ...);
+            return node;
+        }
+        catch (...) { return boost::none; }
     }
 } // end namespace
 #endif // !POAC_IO_FILE_YAML_HPP

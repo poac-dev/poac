@@ -39,9 +39,10 @@ namespace poac::util {
             if (FILE* pipe = popen(cmd.c_str(), "r")) {
                 while (std::fgets(buffer.data(), 128, pipe) != nullptr)
                     result += buffer.data();
-//                std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
-                if (pclose(pipe) != 0)
+                if (pclose(pipe) != 0) {
+                    std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
                     return boost::none;
+                }
             }
             else {
                 return boost::none;

@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <map>
 #include <regex>
+#include <stdexcept>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -17,9 +19,39 @@
 #include "../util/package.hpp"
 
 
+// TODO: --backend cmake, ninja, ...
+// TODO: ld: symbol(s) not found for architecture x86_64
+// TODO: clang: error: linker command failed with exit code 1 (use -v to see invocation)
+// TODO: こういったエラーの時は，depsに依存関係があるのか，確認する．
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
     static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache
+
+
+    auto check_requirements() {
+        namespace fs     = boost::filesystem;
+        namespace except = core::exception;
+
+        // TODO: I want use Result type like rust-lang.
+        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+                if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "name", "version", "cpp_version",
+                                                                             "deps", "build")) {
+                    return *op_select_node;
+                }
+                else {
+                    throw except::error("Required key does not exist in poac.yml");
+                }
+            }
+            else {
+                throw except::error("Could not load poac.yml");
+            }
+        }
+        else {
+            throw except::error("poac.yml does not exists");
+        }
+    }
+
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(std::move(argv)); }
@@ -29,13 +61,12 @@ namespace poac::subcmd { struct build {
         namespace except = core::exception;
 
         check_arguments(argv);
-
-        const auto project_name = io::file::yaml::get_node("name").as<std::string>();
+        const auto node = check_requirements();
+        const auto project_name = node.at("name").as<std::string>();
 
         util::compiler compiler;
-        configure(compiler, project_name);
+        configure(compiler, project_name, node);
 
-        // TODO: --backend cmake
         // TODO: poac.yml compiler: -> error version outdated
 
         // TODO: name, version, cpp_versionが無い時．
@@ -43,22 +74,36 @@ namespace poac::subcmd { struct build {
         // TODO: もしくは，main.cppじゃなくても，バイナリを生成するソースをpoac.ymlから指定できるようにしておく．
         // TODO: curl-configのように．
         const bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
-        if (const auto ret = io::file::yaml::get<bool>(io::file::yaml::get_node("build"), "bin"))
-            if (*ret) bin_build(compiler, project_name, verbose);
+        if (const auto bin = io::file::yaml::get_by_depth(node.at("build"), "bin")) {
+            if ((*bin).as<bool>()) {
+                bin_build(compiler, project_name, verbose);
+            }
+        }
         // TODO: runの時はいらない？？？
-        if (const auto ret = io::file::yaml::get<bool>(io::file::yaml::get_node("build"), "lib"))
-            if (*ret) lib_build(compiler, project_name, verbose);
+        if (const auto lib = io::file::yaml::get_by_depth(node.at("build"), "lib")) {
+            if ((*lib).as<bool>()) {
+                lib_build(compiler, project_name, verbose);
+            }
+        }
     }
 
-    void configure(util::compiler& compiler, const std::string& project_name) {
+    template <typename Node>
+    void configure(util::compiler& compiler, const std::string& project_name, const Node& node) {
         namespace fs = boost::filesystem;
+        namespace exception = core::exception;
 
-        const auto project_version = io::file::yaml::get_node("version").as<std::string>();
-        const auto project_cpp_version = io::file::yaml::get_node("cpp_version").as<unsigned int>();
+        const auto project_version = node.at("version").template as<std::string>();
+        const auto project_cpp_version = node.at("cpp_version").template as<unsigned int>();
 
 
         compiler.project_name = project_name;
-        compiler.system = std::getenv("CXX"); // TODO: なかった時のエラーもしくは，自動選択
+        if (const char* env_p = std::getenv("CXX")) {
+            compiler.system = env_p;
+        }
+        else { // TODO: コンパイラの自動選択
+            throw exception::error("Environment variable \"CXX\" was not found.\n"
+                                   "       Select the compiler and export it.");
+        }
         compiler.cpp_version = project_cpp_version;
         // TODO: 存在確認
         compiler.main_cpp = "main.cpp";
@@ -71,11 +116,9 @@ namespace poac::subcmd { struct build {
         const std::string def_macro_name = boost::to_upper_copy<std::string>(project_name) + "_VERSION";
         compiler.add_macro_defn(std::make_pair(def_macro_name, project_version));
 
-        const auto deps = io::file::yaml::get_node("deps");
-        for (YAML::const_iterator itr = deps.begin(); itr != deps.end(); ++itr) {
-            const std::string name = itr->first.as<std::string>();
-            const std::string src = util::package::get_source(itr->second);
-            const std::string version = util::package::get_version(itr->second, src);
+        for (const auto& [name, next_node] : node.at("deps").template as<std::map<std::string, YAML::Node>>()) {
+            const std::string src = util::package::get_source(next_node);
+            const std::string version = util::package::get_version(next_node, src);
             const std::string pkgname = util::package::cache_to_current(util::package::github_conv_pkgname(name, version));
             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
@@ -84,16 +127,23 @@ namespace poac::subcmd { struct build {
             if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
                 compiler.add_library_search_path(lib_dir.string());
 
-                if (const auto vs = io::file::yaml::get2<std::vector<std::string>>(itr->second, "link", "include"))
-                    for (const auto &s : *vs)
-                        compiler.add_static_link_lib(s);
-                else if (io::file::yaml::exists_key(itr->second, "link"))
-                    compiler.add_static_link_lib(pkgname);
+                if (const auto link_config = io::file::yaml::get_by_width(next_node, "link")) {
+                    if (const auto link_include_config = io::file::yaml::get_by_width((*link_config).at("link"),
+                                                                                      "include")) {
+                        for (const auto& c : (*link_include_config).at("include").template as<std::vector<std::string>>()) {
+                            compiler.add_static_link_lib(c);
+                        }
+                    }
+                    else {
+                        compiler.add_static_link_lib(pkgname);
+                    }
+                }
             }
         }
         // //lib/x86_64-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line
-        // TODO: 抽象化
-        compiler.add_other_args("-pthread");
+        // TODO: 抽象化 poac.yml????
+        compiler.add_compile_other_args("-pthread");
+        compiler.add_link_other_args("-pthread");
     }
 
     void bin_build(const util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
