@@ -334,30 +334,6 @@ namespace poac::subcmd { struct install {
         }
     }
 
-    auto check_requirements() {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-
-        fs::create_directories(io::file::path::poac_cache_dir);
-        // TODO: Auto generate poac.yml on Version 2.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
-                if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "deps")) {
-                    return *op_select_node;
-                }
-                else {
-                    throw except::error("Required key does not exist in poac.yml");
-                }
-            }
-            else {
-                throw except::error("Could not load poac.yml");
-            }
-        }
-        else {
-            throw except::error("poac.yml does not exists");
-        }
-    }
-
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::exception;
         if (!argv.empty()) throw except::invalid_second_arg("install");
@@ -386,7 +362,8 @@ namespace poac::subcmd { struct install {
 
 
         check_arguments(argv);
-        const auto node = check_requirements();
+        fs::create_directories(io::file::path::poac_cache_dir);
+        const auto node = io::file::yaml::load_setting_file("deps");
 
         std::vector<
             std::tuple<

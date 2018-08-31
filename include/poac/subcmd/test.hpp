@@ -20,29 +20,6 @@ namespace poac::subcmd { struct test {
         static const std::string summary() { return "Beta: Execute tests."; }
         static const std::string options() { return "-v | --verbose"; }
 
-        auto check_requirements() {
-            namespace fs     = boost::filesystem;
-            namespace except = core::exception;
-
-            // TODO: I want use Result type like rust-lang.
-            if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-                if (const auto op_node = io::file::yaml::load(*op_filename)) {
-                    if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "name", "version", "cpp_version", "deps")) {
-                        return *op_select_node;
-                    }
-                    else {
-                        throw except::error("Required key does not exist in poac.yml");
-                    }
-                }
-                else {
-                    throw except::error("Could not load poac.yml");
-                }
-            }
-            else {
-                throw except::error("poac.yml does not exists");
-            }
-        }
-
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) { _main(std::move(argv)); }
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -51,7 +28,7 @@ namespace poac::subcmd { struct test {
             namespace except = core::exception;
 
             check_arguments(argv);
-            const auto node = check_requirements();
+            const auto node = io::file::yaml::load_setting_file("name", "version", "cpp_version", "deps", "test");
 
             const bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
             const std::string project_name = node.at("name").as<std::string>();
@@ -62,12 +39,29 @@ namespace poac::subcmd { struct test {
             util::compiler compiler;
             subcmd::build hoge{};
             hoge.configure(compiler, project_name, node);
-            // TODO: if (test: framework: == boost) or google
-            // TODO: それ以外 -> throw
-            compiler.add_static_link_lib("boost_unit_test_framework");
+
+            if (const auto test_framework = io::file::yaml::get1<std::string>(node.at("test"), "framework")) {
+                if (*test_framework == "boost") {
+                    compiler.add_static_link_lib("boost_unit_test_framework");
+                }
+                else if (*test_framework == "google") {
+                    // TODO: 調べる
+                    compiler.add_static_link_lib("boost_unit_test_framework");
+                }
+                else {
+                    throw except::error("Invalid test framework");
+                }
+            }
+            else {
+                throw except::error("framework key does not exists in poac.yml\n"
+                                    "```:poac.yml\n"
+                                    "test:\n"
+                                    "  framework: boost\n"
+                                    "```");
+            }
             compiler.output_path = io::file::path::current_build_test_dir;
-            // TODO: ここは，compilerが受け持っても良いかも
-            fs::create_directories(io::file::path::current_build_test_dir);
+            // You can use #include<> in test code.
+            compiler.add_include_search_path(fs::current_path() / "include");
 
             for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "test")) {
                 if (!fs::is_directory(p) && p.extension().string() == ".cpp") {
@@ -86,10 +80,10 @@ namespace poac::subcmd { struct test {
                         const std::string executable = fs::relative(io::file::path::current_build_test_dir / bin_name).string();
                         util::command cmd(executable);
 
-                        // TODO: poac.yml -> test: args:
-                        std::vector<std::string> program_args{};
-                        for (const auto& s : program_args) {
-                            cmd += s;
+                        if (const auto program_args = io::file::yaml::get1<std::vector<std::string>>(node.at("test"), "args")) {
+                            for (const auto& s : *program_args) {
+                                cmd += s;
+                            }
                         }
                         cmd.std_err();
 

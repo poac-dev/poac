@@ -128,6 +128,7 @@ namespace poac::util {
             namespace fs = boost::filesystem;
 
             if (compile(verbose, true)) {
+                fs::create_directories(output_path);
                 const std::string project_path = (output_path / project_name).string();
 
                 // Link to executable file

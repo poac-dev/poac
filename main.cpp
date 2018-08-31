@@ -4,11 +4,12 @@
 #include <cstring>
 #include <cstdlib>
 
-#include "./include/poac.hpp"
+#include "./include/poac/poac.hpp"
 
 
 using VS = std::vector<std::string>;
 
+// TODO: このあたりの処理をmain.cppがするべきではない．もう一段階抽象化すべき
 int error_handling(std::string&& s) {
     namespace inference = poac::core::infer;
     namespace io        = poac::io;
@@ -26,6 +27,7 @@ int exec(std::string&& s, VS&& vs) {
     namespace except    = poac::core::exception;
     namespace io        = poac::io;
 
+    // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {
         inference::apply(std::string("exec"), s, std::move(vs));
         return EXIT_SUCCESS;

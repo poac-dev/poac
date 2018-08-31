@@ -9,6 +9,8 @@
 #include <boost/optional.hpp>
 #include <yaml-cpp/yaml.h>
 
+#include "../../core/exception.hpp"
+
 
 namespace poac::io::file::yaml {
     boost::optional<std::string> exists_setting_file() {
@@ -56,7 +58,7 @@ namespace poac::io::file::yaml {
     }
     // node[arg1][arg2]...
     // TODO: 多分，内部がポインタで実装されてて，書き換えると，どこから見ても書き換わってしまう．
-    // そのため，この関数には注意して使用する．？？
+    // TODO: YAML::Cloneを使用すると良い？？
     template <typename... Args>
     static boost::optional<YAML::Node>
     get_by_depth(YAML::Node node, const Args&... args) {
@@ -65,6 +67,29 @@ namespace poac::io::file::yaml {
             return node;
         }
         catch (...) { return boost::none; }
+    }
+
+    template <typename... Args>
+    static auto load_setting_file(const Args&... args) {
+        namespace except = core::exception;
+
+        // TODO: I want use Result type like rust-lang.
+        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+                if (const auto op_select_node = get_by_width(*op_node, args...)) {
+                    return *op_select_node;
+                }
+                else {
+                    throw except::error("Required key does not exist in poac.yml");
+                }
+            }
+            else {
+                throw except::error("Could not load poac.yml");
+            }
+        }
+        else {
+            throw except::error("poac.yml does not exists");
+        }
     }
 } // end namespace
 #endif // !POAC_IO_FILE_YAML_HPP

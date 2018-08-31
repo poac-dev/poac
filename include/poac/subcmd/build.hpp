@@ -22,35 +22,10 @@
 // TODO: --backend cmake, ninja, ...
 // TODO: ld: symbol(s) not found for architecture x86_64
 // TODO: clang: error: linker command failed with exit code 1 (use -v to see invocation)
-// TODO: こういったエラーの時は，depsに依存関係があるのか，確認する．
+// TODO: こういったエラーの時は，depsにファイルがあるのか，確認 message を output する．
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
     static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache
-
-
-    auto check_requirements() {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-
-        // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
-                if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "name", "version", "cpp_version",
-                                                                             "deps", "build")) {
-                    return *op_select_node;
-                }
-                else {
-                    throw except::error("Required key does not exist in poac.yml");
-                }
-            }
-            else {
-                throw except::error("Could not load poac.yml");
-            }
-        }
-        else {
-            throw except::error("poac.yml does not exists");
-        }
-    }
 
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -61,11 +36,14 @@ namespace poac::subcmd { struct build {
         namespace except = core::exception;
 
         check_arguments(argv);
-        const auto node = check_requirements();
+        const auto node = io::file::yaml::load_setting_file("name", "version",
+                                                            "cpp_version",
+                                                            "deps", "build");
         const auto project_name = node.at("name").as<std::string>();
 
         util::compiler compiler;
         configure(compiler, project_name, node);
+
 
         // TODO: poac.yml compiler: -> error version outdated
 

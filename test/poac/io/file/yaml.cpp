@@ -7,7 +7,7 @@
 #include <map>
 #include <yaml-cpp/yaml.h>
 
-#include "../../../../include/poac/io/file/yaml.hpp"
+#include <poac/io/file/yaml.hpp>
 
 
 BOOST_AUTO_TEST_CASE( poac_io_file_yaml_gets )

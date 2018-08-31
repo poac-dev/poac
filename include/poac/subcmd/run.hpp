@@ -21,29 +21,6 @@ namespace poac::subcmd { struct run {
     static const std::string options() { return "[-v | --verbose | -- [program args]]"; }
 
 
-    auto check_requirements() {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-
-        // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
-                if (const auto op_select_node = io::file::yaml::get_by_width(*op_node, "name")) {
-                    return *op_select_node;
-                }
-                else {
-                    throw except::error("Required key does not exist in poac.yml");
-                }
-            }
-            else {
-                throw except::error("Could not load poac.yml");
-            }
-        }
-        else {
-            throw except::error("poac.yml does not exists");
-        }
-    }
-
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
@@ -52,7 +29,7 @@ namespace poac::subcmd { struct run {
         namespace except = core::exception;
 
         check_arguments(argv);
-        const auto node = check_requirements();
+        const auto node = io::file::yaml::load_setting_file("name");
 
         std::vector<std::string> program_args;
         // poac run -v -- -h build

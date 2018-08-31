@@ -1,10 +1,13 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "../../../include/poac/util/command.hpp"
+#include <boost/test/output_test_stream.hpp>
+
+#include <poac/util/command.hpp>
+
 
 // command operator&&(const command& rhs)
-BOOST_AUTO_TEST_CASE( util_command_test1 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test1 )
 {
     using namespace poac::util;
 
@@ -14,7 +17,7 @@ BOOST_AUTO_TEST_CASE( util_command_test1 )
     BOOST_TEST( cmd2.data() == "mkdir test && cd test" );
 }
 // command operator&&(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( util_command_test2 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test2 )
 {
     using namespace poac::util;
 
@@ -24,7 +27,7 @@ BOOST_AUTO_TEST_CASE( util_command_test2 )
     BOOST_TEST( cmd2.data() == "mkdir test && cd test" );
 }
 // command operator&=(const command& rhs)
-BOOST_AUTO_TEST_CASE( util_command_test3 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test3 )
 {
     using namespace poac::util;
 
@@ -34,7 +37,7 @@ BOOST_AUTO_TEST_CASE( util_command_test3 )
     BOOST_TEST( cmd.data() == "mkdir test && cd test" );
 }
 // command operator&=(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( util_command_test4 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test4 )
 {
     using namespace poac::util;
 
@@ -44,7 +47,7 @@ BOOST_AUTO_TEST_CASE( util_command_test4 )
     BOOST_TEST( cmd.data() == "mkdir test && cd test" );
 }
 // bool operator==(const command& rhs)
-BOOST_AUTO_TEST_CASE( util_command_test5 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test5 )
 {
     using namespace poac::util;
 
@@ -54,7 +57,7 @@ BOOST_AUTO_TEST_CASE( util_command_test5 )
     BOOST_TEST( cmd == command("mkdir test && cd test") );
 }
 // bool operator==(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( util_command_test6 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test6 )
 {
     using namespace poac::util;
 
@@ -64,19 +67,31 @@ BOOST_AUTO_TEST_CASE( util_command_test6 )
     BOOST_TEST( cmd == "mkdir test && cd test" );
 }
 // friend std::ostream& operator<<(std::ostream& stream, const command& c)
-BOOST_AUTO_TEST_CASE( util_command_test7 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test7 )
 {
     using namespace poac::util;
 
     command cmd("mkdir test");
     cmd &= "cd test";
 
-    std::cout << cmd << std::endl;
+    struct cout_redirect {
+        cout_redirect( std::streambuf * new_buffer )
+                : old( std::cout.rdbuf( new_buffer ) )
+        { }
+        ~cout_redirect( ) { std::cout.rdbuf( old ); }
+    private:
+        std::streambuf * old;
+    };
+    boost::test_tools::output_test_stream output;
+    {
+        cout_redirect guard( output.rdbuf() );
+        std::cout << cmd;
+    }
 
-    BOOST_TEST( cmd.data() == "mkdir test && cd test" );
+    BOOST_TEST( output.is_equal( "mkdir test && cd test" ) );
 }
 // command env(const std::string& name, const std::string& val)
-BOOST_AUTO_TEST_CASE( util_command_test8 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test8 )
 {
     using namespace poac::util;
 
@@ -87,7 +102,7 @@ BOOST_AUTO_TEST_CASE( util_command_test8 )
     BOOST_TEST( cmd.data() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .." );
 }
 // command std_err()
-BOOST_AUTO_TEST_CASE( util_command_test9 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test9 )
 {
     using namespace poac::util;
 
@@ -99,7 +114,7 @@ BOOST_AUTO_TEST_CASE( util_command_test9 )
     BOOST_TEST( cmd.data() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1" );
 }
 // boost::optional<std::string> run()
-BOOST_AUTO_TEST_CASE( util_command_test10 )
+BOOST_AUTO_TEST_CASE( poac_util_command_test10 )
 {
     using namespace poac::util;
     command cmd("echo test");
