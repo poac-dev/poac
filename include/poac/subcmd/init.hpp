@@ -10,6 +10,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io/cli.hpp"
+#include "../io/file/yaml.hpp"
 #include "../core/exception.hpp"
 #include "../util/ftemplate.hpp"
 
@@ -23,48 +24,44 @@ namespace poac::subcmd { struct init {
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
-        namespace except = core::exception;
 
-
-        if (!argv.empty()) throw except::invalid_second_arg("init");
-
-        fs::path filename("poac.yml");
-        if (yml_exists(filename)) throw except::error("canceled");
-
-        std::ofstream yml(filename.string());
+        check_arguments(argv);
+        const std::string filename = check_requirements();
+        std::ofstream yml_ofs(filename);
 
         // TODO: Comment disappears
         YAML::Node node = YAML::Load(util::ftemplate::poac_yml);
-        node["name"] = subcmd::init::basename(fs::current_path());
+        node["name"] = basename(fs::current_path());
 
-        yml << node;
-        yml.close();
+        yml_ofs << node;
+        yml_ofs.close();
         std::cout << current() / filename << " was created." << std::endl;
     }
 
-    // If poac.yml exists
-    int yml_exists(boost::filesystem::path& filename) {
-        boost::system::error_code error;
-        if (const bool result = boost::filesystem::exists(filename, error); result && !error) {
+    std::string check_requirements() {
+        namespace except = core::exception;
+
+        if (const auto result = io::file::yaml::exists_setting_file()) {
             std::cerr << io::cli::bold << io::cli::red
-                      << "Already poac.yml exists." << std::endl
+                      << "Already " << *result << " exists." << std::endl
                       << std::endl
                       << "See `poac init --help`" << std::endl
                       << std::endl
                       << "Use `poac install <pkg>` afterwards to install a package and" << std::endl
                       << "save it as a dependency in the poac.yml file." << std::endl
                       << std::endl
-                      << "Do you want overwrite? (y/n): "
+                      << "Do you want overwrite? (Y/n): "
                       << io::cli::reset;
             std::string ans;
             std::cin >> ans;
             std::transform(ans.cbegin(), ans.cend(), ans.begin(), tolower);
             if (ans == "y" || ans == "yes")
-                return EXIT_SUCCESS;
+                return *result;
             else
-                return EXIT_FAILURE;
+                throw except::error("canceled");
         }
-        return EXIT_SUCCESS;
+        // default setting file name
+        return "poac.yml";
     }
     std::string basename(boost::filesystem::path&& s) {
         namespace fs = boost::filesystem;
@@ -80,6 +77,11 @@ namespace poac::subcmd { struct init {
     boost::filesystem::path current() {
         namespace fs = boost::filesystem;
         return fs::absolute(fs::path(".")).parent_path();
+    }
+
+    void check_arguments(const std::vector<std::string>& argv) {
+        namespace except = core::exception;
+        if (!argv.empty()) throw except::invalid_second_arg("init");
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_INIT_HPP

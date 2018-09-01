@@ -137,13 +137,14 @@ namespace poac::subcmd { struct install {
         util::command cmake_cmd("cmake ..");
         for (const auto& [key, val] : cmake_envs)
             cmake_cmd.env(key, val);
-        cmd &= cmake_cmd.std_err();
-        cmd &= util::command("make -j4").std_err();
-        cmd &= util::command("make install").env("DESTDIR", "./").std_err();
+        cmd &= cmake_cmd.stderr_to_stdout();
+        cmd &= util::command("make -j4").stderr_to_stdout();
+        cmd &= util::command("make install").env("DESTDIR", "./").stderr_to_stdout();
 
-        if (auto result = cmd.run()) {
+        if (auto result = cmd.exec()) {
             const std::string filepath_tmp = filepath.string() + "_tmp";
             fs::rename(filepath, filepath_tmp);
+            // TODO: 作れなかった時のエラー処理
             fs::create_directories(filepath);
 
             const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
@@ -173,7 +174,7 @@ namespace poac::subcmd { struct install {
         const std::string filepath_tmp = filepath.string() + "_tmp";
         fs::rename(filepath, filepath_tmp);
 
-        if (auto result = cmd.run()) {
+        if (auto result = cmd.exec()) {
             // TODO: boost build is return 1 always
 //        fs::remove_all(filepath_tmp);
         }
@@ -358,7 +359,8 @@ namespace poac::subcmd { struct install {
         namespace except = core::exception;
 
         // Start timer
-        boost::timer::cpu_timer timer; // TODO: 全てのコマンドにおいて計測したい
+        // TODO: 全てのコマンドにおいて計測したい (もう一段階抽象化後)
+        boost::timer::cpu_timer timer;
 
 
         check_arguments(argv);

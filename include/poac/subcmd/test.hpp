@@ -16,6 +16,7 @@
 
 
 // TODO: 特定のテストのみcacheを無視するoption
+// TODO: testに失敗した時，EXIT_FAILUREを返す
 namespace poac::subcmd { struct test {
         static const std::string summary() { return "Beta: Execute tests."; }
         static const std::string options() { return "-v | --verbose"; }
@@ -72,7 +73,7 @@ namespace poac::subcmd { struct test {
                     compiler.project_name = bin_name;
                     compiler.main_cpp = bin_relative;
 
-                    if (compiler.link(verbose)) {
+                    if (compiler.compile(verbose, true) && compiler.link(verbose)) {
                         std::cout << io::cli::green << "Compiled: " << io::cli::reset
                                   << "Output to `" + fs::relative(bin_path).string() + "`"
                                   << std::endl;
@@ -85,12 +86,12 @@ namespace poac::subcmd { struct test {
                                 cmd += s;
                             }
                         }
-                        cmd.std_err();
+                        cmd.stderr_to_stdout();
 
                         std::cout << io::cli::green << "Running: " << io::cli::reset
                                   << "`" + executable + "`"
                                   << std::endl;
-                        if (const auto ret = cmd.run())
+                        if (const auto ret = cmd.exec())
                             std::cout << *ret;
                         else // TODO: errorの時も文字列が欲しい．
                             std::cout << project_name + " returned 1" << std::endl;

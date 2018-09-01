@@ -52,6 +52,7 @@ namespace poac::util {
                     std::stringstream sstream(*src_cpp_hash_str);
                     std::size_t result;
                     sstream >> result;
+                    // TODO: Compileやlinkなどに失敗した時，cacheを残さない！！！
                     if (result == std::hash<std::string>{}(*src_cpp_str)) {
                         obj_files.push_back(src_o.string());
                         return 1;
@@ -109,7 +110,7 @@ namespace poac::util {
 
                 if (use_cache_count != static_cast<int>(obj_files.size())) {
                     if (verbose) std::cout << cmd << std::endl;
-                    return cmd.run();
+                    return cmd.exec();
                 }
                 else {
                     cache_use = true;
@@ -123,67 +124,58 @@ namespace poac::util {
                 return std::string();
             }
         }
-        // TODO: linkとcompileを分離する
         boost::optional<std::string> link(const bool verbose=false) const {
             namespace fs = boost::filesystem;
 
-            if (compile(verbose, true)) {
-                fs::create_directories(output_path);
-                const std::string project_path = (output_path / project_name).string();
+            fs::create_directories(output_path);
+            const std::string project_path = (output_path / project_name).string();
 
-                // Link to executable file
-                command cmd(system);
-                for (const auto& o : obj_files)
-                    cmd += o;
-                for (const auto& lsp : library_search_path)
-                    cmd += "-L" + lsp;
-                for (const auto& sll : static_link_libs)
-                    cmd += "-l" + sll;
-                for (const auto& loa : link_other_args)
-                    cmd += loa;
-                cmd += "-o " + project_path;
+            // Link to executable file
+            command cmd(system);
+            for (const auto& o : obj_files)
+                cmd += o;
+            for (const auto& lsp : library_search_path)
+                cmd += "-L" + lsp;
+            for (const auto& sll : static_link_libs)
+                cmd += "-l" + sll;
+            for (const auto& loa : link_other_args)
+                cmd += loa;
+            cmd += "-o " + project_path;
 
-                if (verbose) std::cout << cmd << std::endl;
-                return cmd.run();
-            }
-            else {
-                return boost::none;
-            }
+            if (verbose) std::cout << cmd << std::endl;
+            return cmd.exec();
         }
         // TODO: current_build_lib_dirに依存しない設計にする．抽象化
         boost::optional<std::string> gen_static_lib(const bool verbose=false) const {
             namespace fs = boost::filesystem;
 
-            if (compile(verbose)) {
-                command cmd("ar rcs");
-                cmd += (io::file::path::current_build_lib_dir / project_name).string() + ".a";
-                for (const auto& o : obj_files)
-                    cmd += o;
-                if (verbose) std::cout << cmd << std::endl;
-                return cmd.run();
-            }
-            else {
-                return boost::none;
-            }
+            command cmd("ar rcs");
+            cmd += (io::file::path::current_build_lib_dir / project_name).string() + ".a";
+            for (const auto& o : obj_files)
+                cmd += o;
+            if (verbose)
+                std::cout << cmd << std::endl;
+            return cmd.exec();
         }
         boost::optional<std::string> gen_dynamic_lib(const bool verbose=false) const {
             namespace fs = boost::filesystem;
 
-            // TODO: check existance .dylib then check cache
-            if (compile(verbose)) {
-                command cmd(system);
-                cmd += "-dynamiclib"; // -shared
-                for (const auto& o : obj_files)
-                    cmd += o;
-                cmd += "-o";
-                cmd += (io::file::path::current_build_lib_dir / project_name).string() + ".dylib";
+            // TODO: check existance .dylib then check cache // なんの話？？
+//            if (compile(verbose)) {
+            command cmd(system);
+            cmd += "-dynamiclib"; // -shared
+            for (const auto& o : obj_files)
+                cmd += o;
+            cmd += "-o";
+            cmd += (io::file::path::current_build_lib_dir / project_name).string() + ".dylib";
 
-                if (verbose) std::cout << cmd << std::endl;
-                return cmd.run();
-            }
-            else {
-                return boost::none;
-            }
+            if (verbose)
+                std::cout << cmd << std::endl;
+            return cmd.exec();
+//            }
+//            else {
+//                return boost::none;
+//            }
         }
 
         void enable_gnu() {

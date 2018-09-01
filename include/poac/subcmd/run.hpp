@@ -53,7 +53,7 @@ namespace poac::subcmd { struct run {
         std::cout << io::cli::green << "Running: " << io::cli::reset
                   << "`" + executable + "`"
                   << std::endl;
-        if (const auto ret = cmd.run())
+        if (const auto ret = cmd.exec())
             std::cout << *ret;
         else // TODO: errorの時も文字列が欲しい．
             std::cout << project_name + " returned 1" << std::endl;

@@ -23,6 +23,8 @@
 // TODO: ld: symbol(s) not found for architecture x86_64
 // TODO: clang: error: linker command failed with exit code 1 (use -v to see invocation)
 // TODO: こういったエラーの時は，depsにファイルがあるのか，確認 message を output する．
+
+// TODO: 依存関係の木構造を作成し，差分管理を行う．makeの動作と同じ
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
     static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache
@@ -129,7 +131,7 @@ namespace poac::subcmd { struct build {
         const auto project_path = (io::file::path::current_build_bin_dir / project_name).string();
 
         fs::create_directories(io::file::path::current_build_bin_dir);
-        if (compiler.link(verbose)) {
+        if (compiler.compile(verbose, true) && compiler.link(verbose)) {
             std::cout << io::cli::green << "Compiled: " << io::cli::reset
                       << "Output to `" + fs::relative(project_path).string() + "`"
                       << std::endl;
@@ -146,7 +148,7 @@ namespace poac::subcmd { struct build {
 
         // Generate link libraries.
         fs::create_directories(io::file::path::current_build_lib_dir);
-        if (compiler.gen_static_lib(verbose)) {
+        if (compiler.compile(verbose) && compiler.gen_static_lib(verbose)) {
             std::cout << io::cli::green << "Generated: " << io::cli::reset
                       << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".a" + "`"
                       << std::endl;
@@ -158,7 +160,7 @@ namespace poac::subcmd { struct build {
         }
         /* TODO: clangやgccのエラーメッセージをパースできるのなら，else文を実装する．
         そうでないのなら，util::commandで，std_errはそのまま垂れ流させて，標準のエラーメッセージを見せた方がわかりやすい．*/
-        if (compiler.gen_dynamic_lib(verbose)) {
+        if (compiler.compile(verbose) && compiler.gen_dynamic_lib(verbose)) {
             std::cout << io::cli::green << "Generated: " << io::cli::reset
                       << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".dylib" + "`"
                       << std::endl;

@@ -74,20 +74,10 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test7 )
     command cmd("mkdir test");
     cmd &= "cd test";
 
-    struct cout_redirect {
-        cout_redirect( std::streambuf * new_buffer )
-                : old( std::cout.rdbuf( new_buffer ) )
-        { }
-        ~cout_redirect( ) { std::cout.rdbuf( old ); }
-    private:
-        std::streambuf * old;
-    };
     boost::test_tools::output_test_stream output;
-    {
-        cout_redirect guard( output.rdbuf() );
-        std::cout << cmd;
-    }
+    output << cmd;
 
+    BOOST_TEST( !output.is_empty( false ) );
     BOOST_TEST( output.is_equal( "mkdir test && cd test" ) );
 }
 // command env(const std::string& name, const std::string& val)
@@ -101,7 +91,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test8 )
 
     BOOST_TEST( cmd.data() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .." );
 }
-// command std_err()
+// command stderr_to_stdout()
 BOOST_AUTO_TEST_CASE( poac_util_command_test9 )
 {
     using namespace poac::util;
@@ -109,23 +99,23 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test9 )
     command cmd("cmake ..");
     cmd = cmd.env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/");
     cmd = cmd.env("MACOSX_RPATH", "1");
-    cmd = cmd.std_err();
+    cmd = cmd.stderr_to_stdout();
 
     BOOST_TEST( cmd.data() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1" );
 }
-// boost::optional<std::string> run()
+// boost::optional<std::string> exec()
 BOOST_AUTO_TEST_CASE( poac_util_command_test10 )
 {
     using namespace poac::util;
     command cmd("echo test");
-    BOOST_TEST( cmd.run().get() == "test\n" );
+    BOOST_TEST( cmd.exec().get() == "test\n" );
 }
-// boost::optional<std::string> run()
+// boost::optional<std::string> exec()
 //BOOST_AUTO_TEST_CASE( util_command_test11 )
 //{
 //    using namespace poac::util;
 //
 //    command cmd("nocmd");
 //
-//    BOOST_TEST( cmd.run().get() == nullptr );
+//    BOOST_TEST( cmd.exec().get() == nullptr );
 //}

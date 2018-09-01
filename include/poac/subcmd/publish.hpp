@@ -40,17 +40,20 @@ namespace poac::subcmd { struct publish {
         std::cout << output_dir << std::endl;
          */
 
-        // Markdown to json. post to API.
+        // Markdown to json.
         if (const auto res = io::file::markdown::to_json("# hoge\n## hoge2")) {
             std::cout << "Parse: " << *res << std::endl;
         }
         else {
             std::cerr << "Parse failed." << std::endl;
         }
+//        const std::string md_json = R"({\"hi\" : \"there\"})";
 
-        // poac.yml to json. Post to API.
+        // poac.yml to json.
 
 
+        // Post markdown json to API.
+        // Post yaml json to API.
         // Post tarball to API.
 
 

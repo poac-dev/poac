@@ -22,13 +22,12 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  # TODO: github/boostorg/boost???
   boostorg/boost:
     src: github
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
-      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険 # ダウンローdpしてきたファイルのみ，docker attatch?
+      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険 # ダウンロードしてきたファイルのみ，docker attatch?
         - cd ${HOME}/.poac/cache/boost-1.67.0_tmp
         - git submodule update --init --recursive
         - ./bootstrap.sh

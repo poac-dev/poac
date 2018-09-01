@@ -25,6 +25,9 @@ namespace poac::core::infer {
 }
 
 // TODO: help文を，コンパイル時に一つの文字列として変換する．
+
+// TODO: optionではなく，helpコマンドとすれば，順序は，init helpを許されなくなるので明快になる．
+// TODO: さらに，versionを，poacの部分に埋め込めば(もう一段階抽象化後)，optionを管理する必要がなくなる．
 namespace poac::option { struct help {
     static const std::string summary() { return "Display help for a command."; }
     static const std::string options() { return "<subcommad or option>"; }

@@ -14,9 +14,10 @@ jobs:
       - run: cmake .
       - run: make
 
-      - restore_cache:  # restores saved mix cache
+      - restore_cache:  # restores saved poac cache
           keys:  # list of cache keys, in decreasing specificity
-#          - v1-mix-cache-{{ checksum "poac.lock" }}
+#          - v1-poac-cache-{{ checksum "poac.lock" }}
+          - v1-poac-cache-{{ checksum "poac.yml" }}
           - v1-poac-cache-{{ .Branch }}
           - v1-poac-cache
 
@@ -25,6 +26,9 @@ jobs:
 #      - save_cache:  # generate and store cache so `restore_cache` works
 #          key: v1-poac-cache-{{ checksum "poac.lock" }}
 #          paths: "deps"
+      - save_cache:  # generate and store cache so `restore_cache` works
+          key: v1-poac-cache-{{ checksum "poac.yml" }}
+          paths: "deps"
       - save_cache:  # make another less specific cache
           key: v1-poac-cache-{{ .Branch }}
           paths: "deps"
@@ -44,13 +48,17 @@ jobs:
       - run: cmake .
       - run: make
 
-      - restore_cache:  # restores saved mix cache
+      - restore_cache:  # restores saved poac cache
           keys:  # list of cache keys, in decreasing specificity
+          - v1-poac-cache-{{ checksum "poac.yml" }}
           - v1-poac-cache-{{ .Branch }}
           - v1-poac-cache
 
       - run: ./poac install
 
+      - save_cache:  # generate and store cache so `restore_cache` works
+          key: v1-poac-cache-{{ checksum "poac.yml" }}
+          paths: "deps"
       - save_cache:  # make another less specific cache
           key: v1-poac-cache-{{ .Branch }}
           paths: "deps"
