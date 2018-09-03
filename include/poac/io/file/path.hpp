@@ -69,6 +69,12 @@ namespace poac::io::file::path {
     const boost::filesystem::path current_build_test_dir(
             current_build_dir / "test"
     );
+    const boost::filesystem::path current_build_test_bin_dir(
+            current_build_test_dir / "bin"
+    );
+    const boost::filesystem::path current_build_test_report_dir(
+            current_build_test_dir / "report"
+    );
 
     bool validate_dir(const boost::filesystem::path& path) {
         namespace fs = boost::filesystem;

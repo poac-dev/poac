@@ -20,6 +20,10 @@ jobs:
           - v1-poac-cache-{{ checksum "poac.yml" }}
           - v1-poac-cache-{{ .Branch }}
           - v1-poac-cache
+      - restore_cache:  # restores saved build cache
+          keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
 
       - run: ./poac install
 
@@ -35,9 +39,19 @@ jobs:
       - save_cache:  # you should really save one more cache just in case
           key: v1-poac-cache
           paths: "deps"
+#      - save_cache: # don't forget to save a *build* cache, too
+#          key: v1-build-cache-{{ .Branch }}
+#          paths: "_build"
+#      - save_cache: # and one more build cache for good measure
+#          key: v1-build-cache
+#          paths: "_build"
 
       - run: ./poac test
-      - run: ./poac --help
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+#      - run: poac test
+
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
   gcc_8:
     docker:
       - image: matken11235/poac:gcc-8
@@ -67,7 +81,10 @@ jobs:
           paths: "deps"
 
       - run: ./poac test
-      - run: ./poac --help
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
   gh_pages:
     working_directory: ~/poac/docs
     docker:
