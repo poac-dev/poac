@@ -4,50 +4,55 @@
 [![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
 ![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg?style=flat-square)
 
-**It is prohibited to use -(hyphen) as a package name and _ (under bar) is recommended.**
+Poac is package manager for C/C++ user.
 
-**Also the use of capital letters is prohibited. In other words, please use snake case.**
+Poac can downloads project's dependencies and compile it.
 
-**SAT base**
+Please see [poac.pm](https://poac.pm) for installation instructions and other documentation.
+
+
+## Supported Operating Systems
+
+Poac currently supports macOS only.
+
 
 ## Installation
-### Using [Homebrew](https://github.com/Homebrew/brew) (macOS)
+### Easy install
 ```bash
-$ brew install poac
-$ poac -v
+curl https://sh.poac.pm | sh
 ```
-### Manually (Other OS)
+*When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
+
+### Manual (Build)
+Poac requires the following tools and packages to build:
+* `boost`: version `1.48.0` or higher
+* `cmake`: version ``
+* `curl(libcurl)`:
+* openssl
+* `yaml-cpp`:
+
 ```bash
-$ git clone $THIS_REPO
-$ cd $(basename ${_##*:} '.git')
-$ mkdir build
-$ cd $_
+$ git clone https://github.com/poacpm/poac.git
+$ cd poac
+$ mkdir build && cd $_
 $ cmake ..
+$ make
 $ make install
 ```
 
-## Requirements
-* `boost`: version `1.67.0` or higher
-* `cmake`: version ``
-* `curl(libcurl)`:
-* `yaml-cpp`:
+Already poac is installed, you can build using poac:
+```bash
+$ poac build --release
+```
 
-## Requirements(Runtime)
+
+## Requirements (runtime)
+* compiler (gcc | clang | MSVC | ICC)
 * `tar`
 * `git`
 * `cmake`
 * `make`
 
 
-## Documentation
-Please look at [github.io](https://poacpm.github.io/poac/) or [This repo](docs/).
-
 ## Contribution
-[View Contribution Guidelines](.github/CONTRIBUTUING.md)
-```bash
-$ mkdir build
-$ cd $_
-$ cmake ..
-$ make
-$ CTEST_OUTPUT_ON_FAILURE=TRUE make test
-```
+See [CONTRIBUTUING.md](.github/CONTRIBUTUING.md).
