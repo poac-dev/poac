@@ -1,18 +1,10 @@
-## Introduction
+## The Poac Book
 
-poacpm is the C++ package manager and poac is the CLI application provided to the client.
+Poac is the C/C++ package manager.
 
-poac can upload packages to [poacpm](https://poac.pm).
+Poac can downloads project's dependencies and compiles project, creates package, and uploads it to [poac.pm](https://poac.pm).
 
-<!--
-poacはC++で書かれているので高速で動作します．また，poacを通して身につけた技術をそのままpoacにContributeして還元することが可能です．
-
-poacは初めてC++を勉強する人にとって直感的に動作します．また，既に稼働しているプロジェクトや，conan，backarooなどを導入していても，シームレスにpoacに移行できます．（これら他のパッケージマネージャとの比較は，2.1. Why Poac Exists にて議論します）
-
-poacの設計思想・開発意図の詳しい内容は4. Poac Architectureをご参照ください．
-
-poacのUIはcargoのUIを参考にしているため類似している部分が多くあります．
--->
+[poac.pm](https://poac.pm) is the package registry, searching packages and management them, etc. can be done.
 
 
 #### Sections

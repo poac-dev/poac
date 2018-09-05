@@ -4,9 +4,9 @@
 [![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
 ![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg?style=flat-square)
 
-Poac is package manager for C/C++ user.
+Poac is the package manager for C/C++ user.
 
-Poac can downloads project's dependencies and compile it.
+Poac can downloads project's dependencies and compiles project.
 
 Please see [poac.pm](https://poac.pm) for installation instructions and other documentation.
 
