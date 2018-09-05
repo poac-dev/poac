@@ -46,7 +46,6 @@ jobs:
 #          key: v1-build-cache
 #          paths: "_build"
 
-      - run: ./poac test
       - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
 #      - run: poac test
 
@@ -80,7 +79,6 @@ jobs:
           key: v1-poac-cache
           paths: "deps"
 
-      - run: ./poac test
       - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
 
       - store_test_results:  # upload test results for display in Test Summary
