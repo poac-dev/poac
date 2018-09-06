@@ -25,7 +25,7 @@ The reference covering a more detailed explanation.
 
 **[Architecture](architecture/README.md)**
 
-A design concept and intention, more detailed architecture.
+A design concept and intention.
 
 
 **[Future](future/README.md)**
