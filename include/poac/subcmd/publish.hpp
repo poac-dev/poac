@@ -10,6 +10,7 @@
 
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
+#include "../io/network.hpp"
 #include "../core/exception.hpp"
 #include "../util/command.hpp"
 
@@ -28,17 +29,18 @@ namespace poac::subcmd { struct publish {
         check_arguments(argv);
         check_requirements();
 
-        /* To tarball
+        // To tarball
         const std::string project_dir = fs::absolute(fs::current_path()).string();
-        const std::string temp   = *(util::command("mktemp -d").run());
+        const std::string temp   = *(util::command("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // rm \n
         // TODO:                                               poac.yml -> name-version.tar.gz
+        // TODO:                                               project_dir x -> poac.yml o
         const std::string output_dir  = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
 
         io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
 
         std::cout << output_dir << std::endl;
-         */
+
 
         // Markdown to json.
         if (const auto res = io::file::markdown::to_json("# hoge\n## hoge2")) {
@@ -47,15 +49,47 @@ namespace poac::subcmd { struct publish {
         else {
             std::cerr << "Parse failed." << std::endl;
         }
-//        const std::string md_json = R"({\"hi\" : \"there\"})";
+
+        const std::string readme_md_json =
+                R"([)"
+                R"(  {)"
+                R"(    \"type\":\"h1\",)"
+                R"(    \"text\":\"readme\")"
+                R"(  },)"
+                R"(  {)"
+                R"(    \"type\":\"h2\",)"
+                R"(    \"text\":\"h2readme\")"
+                R"(  },)"
+                R"(  {)"
+                R"(    \"type\":\"plane\",)"
+                R"(    \"text\":\"this package is dummy\")"
+                R"(  })"
+                R"(],)"
+        ;
 
         // poac.yml to json.
+        const std::string poac_yml_json =
+                R"({)"
+                R"(  \"name\":\"poac\",)"
+                R"(  \"version\":\"0.0.1\")"
+                R"(})"
+        ;
 
+        // Merge json
+        const std::string post_json =
+                R"({\"readme_md\":)"
+                + readme_md_json
+                + R"(\"poac_yml\":)"
+                + poac_yml_json
+                + "}"
+        ;
 
-        // Post markdown json to API.
-        // Post yaml json to API.
-        // Post tarball to API.
+        std::cout << post_json << std::endl;
 
+        // Post json to API.
+        io::network::post("https://", post_json);
+        // Post tarball to API. TODO: url...
+        io::network::post_file("https://", output_dir);
 
         // Packaging...
         // Add poac.yml
@@ -93,7 +127,7 @@ namespace poac::subcmd { struct publish {
             std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
 
         if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
-//            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
+          std::cout << "name: " << config["name"].as<std::string>() << std::endl;
         }
         else {
             throw except::error("poac.yml is invalid");
