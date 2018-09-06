@@ -19,7 +19,7 @@ namespace poac::subcmd { struct search {
     static const std::string summary() { return "Beta: Search for packages in poacpm."; }
     static const std::string options() { return "<pkg-name>"; }
 
-    template <typename VS>
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main(VS&& vs) {

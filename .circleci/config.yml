@@ -7,21 +7,82 @@ jobs:
   gcc_7:
     docker:
       - image: matken11235/poac:gcc-7
+    environment:
+      CXX: g++
     steps:
       - checkout
       - run: cmake .
       - run: make
-      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./src/poac --help
+
+      - restore_cache:  # restores saved poac cache
+          keys:  # list of cache keys, in decreasing specificity
+#          - v1-poac-cache-{{ checksum "poac.lock" }}
+          - v1-poac-cache-{{ checksum "poac.yml" }}
+          - v1-poac-cache-{{ .Branch }}
+          - v1-poac-cache
+      - restore_cache:  # restores saved build cache
+          keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
+
+      - run: ./poac install
+
+#      - save_cache:  # generate and store cache so `restore_cache` works
+#          key: v1-poac-cache-{{ checksum "poac.lock" }}
+#          paths: "deps"
+      - save_cache:  # generate and store cache so `restore_cache` works
+          key: v1-poac-cache-{{ checksum "poac.yml" }}
+          paths: "deps"
+      - save_cache:  # make another less specific cache
+          key: v1-poac-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:  # you should really save one more cache just in case
+          key: v1-poac-cache
+          paths: "deps"
+#      - save_cache: # don't forget to save a *build* cache, too
+#          key: v1-build-cache-{{ .Branch }}
+#          paths: "_build"
+#      - save_cache: # and one more build cache for good measure
+#          key: v1-build-cache
+#          paths: "_build"
+
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+#      - run: poac test
+
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
   gcc_8:
     docker:
       - image: matken11235/poac:gcc-8
+    environment:
+      CXX: g++
     steps:
       - checkout
       - run: cmake .
       - run: make
-      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-      - run: ./src/poac --help
+
+      - restore_cache:  # restores saved poac cache
+          keys:  # list of cache keys, in decreasing specificity
+          - v1-poac-cache-{{ checksum "poac.yml" }}
+          - v1-poac-cache-{{ .Branch }}
+          - v1-poac-cache
+
+      - run: ./poac install
+
+      - save_cache:  # generate and store cache so `restore_cache` works
+          key: v1-poac-cache-{{ checksum "poac.yml" }}
+          paths: "deps"
+      - save_cache:  # make another less specific cache
+          key: v1-poac-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:  # you should really save one more cache just in case
+          key: v1-poac-cache
+          paths: "deps"
+
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
   gh_pages:
     working_directory: ~/poac/docs
     docker:
@@ -42,7 +103,7 @@ jobs:
 #      - run: cmake .
 #      - run: make
 #      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-#      - run: ./src/poac --help
+#      - run: ./poac --help
 #  clang_6:
 #    docker:
 #      - image: matken11235/poac:clang-6.0
@@ -51,7 +112,7 @@ jobs:
 #      - run: cmake .
 #      - run: make
 #      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-#      - run: ./src/poac --help
+#      - run: ./poac --help
 
 workflows:
   version: 2
@@ -64,4 +125,3 @@ workflows:
       # Clang
 #      - clang_5
 #      - clang_6
-

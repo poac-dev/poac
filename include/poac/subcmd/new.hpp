@@ -17,7 +17,7 @@ namespace poac::subcmd { struct new_ {
     static const std::string summary() { return "Create a new poacpm project."; }
     static const std::string options() { return "<project-name>"; }
 
-    template <typename VS>
+        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& vs) { _main(vs); }
     template <typename VS>
     void _main([[maybe_unused]] VS&& vs) {

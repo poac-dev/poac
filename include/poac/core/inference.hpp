@@ -14,7 +14,7 @@
 #include "../subcmd.hpp"
 
 
-namespace poac::core::inference {
+namespace poac::core::infer {
     // If the type T is a reference type, provides the member typedef type
     //  which is the type referred to by T with its topmost cv-qualifiers removed.
     // Otherwise type is T with its topmost cv-qualifiers removed.
@@ -61,6 +61,7 @@ namespace poac::core::inference {
         using at_t = at_impl_t<I, Ts...>;
     };
 
+    // TODO: 切り出す
     using op_type_list_t = type_list_t<
             subcmd::build,
             subcmd::cache,
@@ -72,6 +73,7 @@ namespace poac::core::inference {
             subcmd::root,
             subcmd::run,
             subcmd::search,
+            subcmd::test,
             subcmd::uninstall,
             option::help,
             option::version
@@ -87,6 +89,7 @@ namespace poac::core::inference {
         root      = op_type_list_t::index_of<subcmd::root>,
         run       = op_type_list_t::index_of<subcmd::run>,
         search    = op_type_list_t::index_of<subcmd::search>,
+        test      = op_type_list_t::index_of<subcmd::test>,
         uninstall = op_type_list_t::index_of<subcmd::uninstall>,
         help      = op_type_list_t::index_of<option::help>,
         version   = op_type_list_t::index_of<option::version>
@@ -102,6 +105,7 @@ namespace poac::core::inference {
             { "root",      op_type_e::root },
             { "run",       op_type_e::run },
             { "search",    op_type_e::search },
+            { "test",      op_type_e::test },
             { "uninstall", op_type_e::uninstall }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
@@ -113,17 +117,17 @@ namespace poac::core::inference {
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 #if BOOST_COMP_GNUC
-    template <typename T, typename VS>
-    static auto execute2(VS&& vs) { return (T()(vs), ""); }
+    template <typename T, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    static auto execute2(VS&& vs) { return (T()(std::move(vs)), ""); }
     template <typename T>
     static auto summary2() { return T::summary(); }
     template <typename T>
     static auto options2() { return T::options(); }
-    template <size_t... Is, typename VS>
+    template <size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         using func_t = decltype(&execute2<op_type_list_t::at_t<0>, VS>);
         static func_t func_table[] = { &execute2<op_type_list_t::at_t<Is>>... };
-        return func_table[idx](vs);
+        return func_table[idx](std::move(vs));
     }
     template <size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
@@ -140,10 +144,10 @@ namespace poac::core::inference {
 #else
     // Create function pointer table: { &func<0>, &func<1>, ... }
     // Execute function: &func<idx>[idx]()
-    template <size_t... Is, typename VS>
+    template <size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
-        return make_array({ +[](VS&& vs){ return (op_type_list_t::at_t<Is>()(vs), ""); }... })[idx](vs);
+        return make_array({ +[](VS&& vs){ return (op_type_list_t::at_t<Is>()(std::move(vs)), ""); }... })[idx](std::move(vs));
     }
     template <size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
@@ -156,11 +160,11 @@ namespace poac::core::inference {
 #endif
 
     // Execute function: execute or summary or options
-    template <typename S, typename Index, typename VS, typename Indices=std::make_index_sequence<op_type_list_t::size()>>
+    template <typename S, typename Index, typename VS, typename Indices=std::make_index_sequence<op_type_list_t::size()>, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
         namespace except = core::exception;
         if (s == "exec")
-            return execute(Indices(), static_cast<int>(idx), vs);
+            return execute(Indices(), static_cast<int>(idx), std::move(vs));
         else if (s == "summary")
             return summary(Indices(), static_cast<int>(idx));
         else if (s == "options")
@@ -169,10 +173,12 @@ namespace poac::core::inference {
             throw except::invalid_first_arg("Invalid argument");
     }
 
-    auto _apply(std::string&& func, const op_type_e& cmd, std::vector<std::string>&& arg) {
+    template <typename S, typename OpTypeE, typename VS, typename>
+    auto _apply(S&& func, const OpTypeE& cmd, VS&& arg) {
         return branch(std::move(func), cmd, std::move(arg));
     }
-    std::string apply(std::string&& func, const std::string& cmd, std::vector<std::string>&& arg) {
+    template <typename S, typename VS, typename>
+    std::string apply(S&& func, const S& cmd, VS&& arg) {
         namespace except = core::exception;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _apply(std::move(func), itr->second, std::move(arg));

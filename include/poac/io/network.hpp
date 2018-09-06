@@ -76,7 +76,7 @@ namespace poac::io::network {
         for (const auto& [ key, val ] : opts) {
             options.append(key + " " + val + " ");
         }
-        util::command("git clone " + options + url + " " + dest.string()).std_err().run();
+        util::command("git clone " + options + url + " " + dest.string()).stderr_to_stdout().exec();
     }
 
     std::pair<std::string, std::string> opt_branch(const std::string& tag) {

@@ -16,6 +16,7 @@
 #include "../io/cli.hpp"
 
 
+// TODO: --all, -a option
 namespace poac::subcmd { struct uninstall {
     static const std::string summary() { return "Beta: Uninstall packages."; }
     static const std::string options() { return "[<pkg-names>]"; }
@@ -24,7 +25,7 @@ namespace poac::subcmd { struct uninstall {
             { "", "--with-args" }
     };
 
-    template <typename VS>
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
     void _main(VS&& argv) {

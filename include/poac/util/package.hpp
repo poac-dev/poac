@@ -51,7 +51,6 @@ namespace poac::util::package {
     }
 
     // opencv-3.4.2 -> opencv
-    // cache to current
     std::string cache_to_current(const std::string& pkgname) {
         if (const auto pos = pkgname.find_last_of('-'); pos != std::string::npos) {
             return std::string(pkgname, 0, pos);
@@ -71,11 +70,13 @@ namespace poac::util::package {
     }
 
 
+    // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．
+    // TODO: このNodeの使い方は危険
     std::string get_version(const YAML::Node& node, const std::string& source) {
         namespace except = core::exception;
 
         if (source == "github")
-            return node["tag"].as<std::string>(); // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．
+            return node["tag"].as<std::string>();
         else if (source == "poac")
             return node["version"].as<std::string>();
         else
@@ -83,8 +84,8 @@ namespace poac::util::package {
     }
 
     std::string get_source(const YAML::Node& node) {
-        if (const auto src = io::file::yaml::get<std::string>(node, "src"))
-            return *src;
+        if (const auto src = io::file::yaml::get_by_width(node, "src"))
+            return (*src).at("src").as<std::string>();
         else
             return "poac";
     }

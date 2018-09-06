@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 project(poac)
 
 # Preprocessor definitions
@@ -38,9 +38,17 @@ include_directories( ${YAML_CPP_INCLUDE_DIR} )
 #include_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/include )
 #link_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/lib )
 
+add_executable(${PROJECT_NAME} main.cpp)
+#file(GLOB_RECURSE TEST_SOURCES *.cpp)
+#add_executable(unittest ${TEST_SOURCES})
+target_link_libraries(${PROJECT_NAME}
+        ${Boost_FILESYSTEM_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_TIMER_LIBRARY}
+        ${Boost_CHRONO_LIBRARY}
+        ${CURL_LIBRARIES}
+        ${YAML_CPP_LIBRARIES}
+        )
+install(TARGETS poac DESTINATION bin)
+
 add_subdirectory(src)
-add_subdirectory(test)
-enable_testing()
-add_test(NAME poac_test
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND unittest)

@@ -19,8 +19,8 @@ namespace poac::util {
             util::command cmd2;
             int count = 0;
             for (const auto &s : cs) {
-                if (count++ == 0) cmd2 = util::command(s).std_err(); // TODO: std_err
-                else cmd2 &= util::command(s).std_err();
+                if (count++ == 0) cmd2 = util::command(s).stderr_to_stdout(); // TODO: std_err
+                else cmd2 &= util::command(s).stderr_to_stdout();
             }
             cmd = cmd2.data();
         }
@@ -28,21 +28,23 @@ namespace poac::util {
         command env(const std::string& name, const std::string& val) {
             return cmd.insert(0, name + "=" + val + " ");
         }
-        command std_err() {
+        command stderr_to_stdout() {
             return cmd + " 2>&1";
         }
 
-        void init(const std::string& c) { cmd = c; }
-
-        boost::optional<std::string> run() const {
+        // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
+        // TODO: errorと，その内容を同時に捕捉できない．
+        boost::optional<std::string> exec() const {
             std::array<char, 128> buffer;
             std::string result;
 
             if (FILE* pipe = popen(cmd.c_str(), "r")) {
                 while (std::fgets(buffer.data(), 128, pipe) != nullptr)
                     result += buffer.data();
-                if (pclose(pipe) != 0)
+                if (pclose(pipe) != 0) {
+                    std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
                     return boost::none;
+                }
             }
             else {
                 return boost::none;

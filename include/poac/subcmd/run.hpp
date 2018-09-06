@@ -20,7 +20,8 @@ namespace poac::subcmd { struct run {
     static const std::string summary() { return "Beta: Build project and exec it."; }
     static const std::string options() { return "[-v | --verbose | -- [program args]]"; }
 
-    template <typename VS>
+
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(argv); }
     template <typename VS>
     void _main(VS&& argv) {
@@ -28,6 +29,7 @@ namespace poac::subcmd { struct run {
         namespace except = core::exception;
 
         check_arguments(argv);
+        const auto node = io::file::yaml::load_setting_file("name");
 
         std::vector<std::string> program_args;
         // poac run -v -- -h build
@@ -35,13 +37,13 @@ namespace poac::subcmd { struct run {
             // -h build
             program_args = std::vector<std::string>(result+1, argv.end());
             // -v
-            subcmd::build()(std::vector<std::string>(argv.begin(), result));
+            subcmd::build{}(std::vector<std::string>(argv.begin(), result));
         }
         else {
-            subcmd::build()(argv);
+            subcmd::build{}(std::move(argv));
         }
 
-        const std::string project_name = io::file::yaml::get_node("name").as<std::string>();
+        const std::string project_name = node.at("name").as<std::string>();
         const std::string executable = fs::relative(io::file::path::current_build_bin_dir / project_name).string();
         util::command cmd(executable);
         for (const auto& s : program_args) {
@@ -51,7 +53,7 @@ namespace poac::subcmd { struct run {
         std::cout << io::cli::green << "Running: " << io::cli::reset
                   << "`" + executable + "`"
                   << std::endl;
-        if (const auto ret = cmd.run())
+        if (const auto ret = cmd.exec())
             std::cout << *ret;
         else // TODO: errorの時も文字列が欲しい．
             std::cout << project_name + " returned 1" << std::endl;
