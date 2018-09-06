@@ -3,9 +3,12 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../io/cli.hpp"
@@ -37,7 +40,7 @@ namespace poac::subcmd { struct publish {
         // TODO:                                               project_dir x -> poac.yml o
         const std::string output_dir  = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
 
-        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
+//        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
 
         std::cout << output_dir << std::endl;
 
@@ -50,46 +53,39 @@ namespace poac::subcmd { struct publish {
             std::cerr << "Parse failed." << std::endl;
         }
 
-        const std::string readme_md_json =
-                R"([)"
-                R"(  {)"
-                R"(    \"type\":\"h1\",)"
-                R"(    \"text\":\"readme\")"
-                R"(  },)"
-                R"(  {)"
-                R"(    \"type\":\"h2\",)"
-                R"(    \"text\":\"h2readme\")"
-                R"(  },)"
-                R"(  {)"
-                R"(    \"type\":\"plane\",)"
-                R"(    \"text\":\"this package is dummy\")"
-                R"(  })"
-                R"(],)"
-        ;
 
-        // poac.yml to json.
-        const std::string poac_yml_json =
-                R"({)"
-                R"(  \"name\":\"poac\",)"
-                R"(  \"version\":\"0.0.1\")"
-                R"(})"
-        ;
+        boost::property_tree::ptree json;
+        json.put("token", "AHUDJII");
 
-        // Merge json
-        const std::string post_json =
-                R"({\"readme_md\":)"
-                + readme_md_json
-                + R"(\"poac_yml\":)"
-                + poac_yml_json
-                + "}"
-        ;
+        boost::property_tree::ptree readme;
+        {
+            boost::property_tree::ptree child;
+            child.put("type", "h1");
+            child.put("text", "readme");
+            readme.push_back(std::make_pair("", child));
+        }
+        {
+            boost::property_tree::ptree child;
+            child.put("type", "plane");
+            child.put("text", "this package is dummy");
+            readme.push_back(std::make_pair("", child));
+        }
+        json.add_child("readme", readme);
 
-        std::cout << post_json << std::endl;
+        boost::property_tree::ptree setting;
+        setting.put("name", "poac");
+        setting.put("version", "0.0.1");
+        json.add_child("setting", setting);
+
+
+        std::stringstream ss;
+        boost::property_tree::json_parser::write_json(ss, json);
+        std::cout << ss.str() << std::endl;
 
         // Post json to API.
-        io::network::post("https://", post_json);
-        // Post tarball to API. TODO: url...
-        io::network::post_file("https://", output_dir);
+        std::cout << io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacCreate", ss.str()) << std::endl;
+        // Post tarball to API.
+        io::network::post_file("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload", output_dir);
 
         // Packaging...
         // Add poac.yml

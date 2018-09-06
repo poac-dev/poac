@@ -42,9 +42,12 @@ namespace poac::io::network {
 
     std::string post(const std::string& url, const std::string& json) {
         std::string chunk;
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
@@ -91,6 +94,8 @@ namespace poac::io::network {
     void post_file(const std::string& to_url, const boost::filesystem::path& from_file) {
         struct stat file_info;
         curl_off_t speed_upload, total_time;
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/x-tar");
 
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             FILE* fp = std::fopen(from_file.c_str(), "rb");
@@ -105,6 +110,8 @@ namespace poac::io::network {
             curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
             // follow HTTP 3xx redirects
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            // headers
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
             // set where to read from (on Windows you need to use READFUNCTION too)
             curl_easy_setopt(curl, CURLOPT_READDATA, fp);
             // and give the size of the upload (optional)
