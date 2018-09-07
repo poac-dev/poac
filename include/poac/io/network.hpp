@@ -123,8 +123,8 @@ namespace poac::io::network {
             }
             else {
                 /* now extract transfer info */
-                curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD_T, &speed_upload);
-                curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME_T, &total_time);
+                curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
+                curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
 
                 std::cerr << "Speed: " << speed_upload
                           << " bytes/sec during " << (total_time / 1000000)
