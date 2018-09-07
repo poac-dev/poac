@@ -25,7 +25,6 @@ else()
 endif()
 
 # CURL
-set(CURL_LIBRARY "-lcurl")
 add_definitions(-DCURL_STATICLIB)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
@@ -33,10 +32,6 @@ include_directories(${CURL_INCLUDE_DIR})
 # yaml-cpp
 find_package( yaml-cpp REQUIRED )
 include_directories( ${YAML_CPP_INCLUDE_DIR} )
-
-# libgit2
-#include_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/include )
-#link_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/lib )
 
 add_executable(${PROJECT_NAME} main.cpp)
 #file(GLOB_RECURSE TEST_SOURCES *.cpp)
