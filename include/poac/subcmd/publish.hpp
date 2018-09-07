@@ -32,7 +32,8 @@ namespace poac::subcmd { struct publish {
         check_arguments(argv);
         check_requirements();
 
-        // To tarball
+        /* To tarball
+>>>>>>> master
         const std::string project_dir = fs::absolute(fs::current_path()).string();
         const std::string temp   = *(util::command("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // rm \n
@@ -43,6 +44,23 @@ namespace poac::subcmd { struct publish {
 //        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
 
         std::cout << output_dir << std::endl;
+         */
+
+        // Markdown to json.
+        if (const auto res = io::file::markdown::to_json("# hoge\n## hoge2")) {
+            std::cout << "Parse: " << *res << std::endl;
+        }
+        else {
+            std::cerr << "Parse failed." << std::endl;
+        }
+//        const std::string md_json = R"({\"hi\" : \"there\"})";
+
+        // poac.yml to json.
+
+
+        // Post markdown json to API.
+        // Post yaml json to API.
+        // Post tarball to API.
 
 
         // Markdown to json.

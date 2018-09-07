@@ -3,7 +3,7 @@ project(poac)
 
 # Preprocessor definitions
 add_definitions( -DPOAC_ROOT="${CMAKE_SOURCE_DIR}" )
-add_definitions( -DPOAC_VERSION="0.0.1" )
+add_definitions( -DPOAC_VERSION="0.0.1-beta" )
 add_definitions( -fdiagnostics-color -Wall -Werror -Wextra )
 
 # Check of c++17
