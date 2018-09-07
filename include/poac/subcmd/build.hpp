@@ -27,7 +27,7 @@
 // TODO: 依存関係の木構造を作成し，差分管理を行う．makeの動作と同じ
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
-    static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache
+    static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache --release
 
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

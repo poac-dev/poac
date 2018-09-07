@@ -45,7 +45,7 @@ namespace poac::subcmd { struct install {
     static const std::string options() { return "<Nothing>"; }
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void operator()(VS&& vs) { _main(vs); }
+    void operator()(VS&& argv) { _main(std::move(argv)); }
 
     static void info(const std::string& name, const std::string& version) {
         std::cout << name << ": " << version;
@@ -353,7 +353,7 @@ namespace poac::subcmd { struct install {
      * TODO: download途中で，ctl Cされたファイルは消す
      * TODO: Error handling. (tarball url not found.. etc)
      */
-    template <typename VS>
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;

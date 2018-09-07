@@ -23,8 +23,8 @@ namespace poac::subcmd { struct publish {
     static const std::string options() { return "<Nothing>"; }
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void operator()(VS&& argv) { _main(argv); }
-    template <typename VS>
+    void operator()(VS&& argv) { _main(std::move(argv)); }
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;

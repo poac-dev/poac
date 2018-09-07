@@ -20,14 +20,14 @@ namespace poac::subcmd { struct search {
     static const std::string options() { return "<pkg-name>"; }
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void operator()(VS&& vs) { _main(vs); }
-    template <typename VS>
-    void _main(VS&& vs) {
+    void operator()(VS&& argv) { _main(std::move(argv)); }
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    void _main(VS&& argv) {
         using namespace boost::property_tree;
         namespace except = core::exception;
 
-        if (vs.size() != 1) throw except::invalid_second_arg("search");
-        const std::string url("https://poac.pm/api/v1/packages?search=" + vs[0]);
+        if (argv.size() != 1) throw except::invalid_second_arg("search");
+        const std::string url("https://poac.pm/api/v1/packages?search=" + argv[0]);
         std::stringstream ss;
         ss << io::network::get(url);
         ptree pt;
@@ -49,7 +49,7 @@ namespace poac::subcmd { struct search {
                 std::cout << "name is nothing" << std::endl;
             }
         }
-        if (now_count == 0) throw except::error(vs[0] + " not found");
+        if (now_count == 0) throw except::error(argv[0] + " not found");
     }
     void echo_first_line() {
         std::cout << io::cli::underline << "User/Package" << io::cli::reset << "        "
