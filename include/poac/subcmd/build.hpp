@@ -87,9 +87,10 @@ namespace poac::subcmd { struct build {
         compiler.cpp_version = project_cpp_version;
         // TODO: 存在確認
         compiler.main_cpp = "main.cpp";
-        for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "src"))
-            if (!fs::is_directory(p) && p.extension().string() == ".cpp")
-                compiler.add_source_file(p.string());
+        if (io::file::path::validate_dir(fs::current_path() / "src"))
+            for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "src"))
+                if (!fs::is_directory(p) && p.extension().string() == ".cpp")
+                    compiler.add_source_file(p.string());
         compiler.output_path = io::file::path::current_build_bin_dir;
 
         compiler.add_macro_defn(std::make_pair("POAC_ROOT", std::getenv("PWD")));
