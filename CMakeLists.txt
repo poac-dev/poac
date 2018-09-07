@@ -34,8 +34,6 @@ find_package( yaml-cpp REQUIRED )
 include_directories( ${YAML_CPP_INCLUDE_DIR} )
 
 add_executable(${PROJECT_NAME} main.cpp)
-#file(GLOB_RECURSE TEST_SOURCES *.cpp)
-#add_executable(unittest ${TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
@@ -45,5 +43,3 @@ target_link_libraries(${PROJECT_NAME}
         ${YAML_CPP_LIBRARIES}
         )
 install(TARGETS poac DESTINATION bin)
-
-add_subdirectory(src)
