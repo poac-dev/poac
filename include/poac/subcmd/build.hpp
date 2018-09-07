@@ -27,7 +27,7 @@
 // TODO: 依存関係の木構造を作成し，差分管理を行う．makeの動作と同じ
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
-    static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache
+    static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache --release
 
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -87,9 +87,10 @@ namespace poac::subcmd { struct build {
         compiler.cpp_version = project_cpp_version;
         // TODO: 存在確認
         compiler.main_cpp = "main.cpp";
-        for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "src"))
-            if (!fs::is_directory(p) && p.extension().string() == ".cpp")
-                compiler.add_source_file(p.string());
+        if (io::file::path::validate_dir(fs::current_path() / "src"))
+            for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "src"))
+                if (!fs::is_directory(p) && p.extension().string() == ".cpp")
+                    compiler.add_source_file(p.string());
         compiler.output_path = io::file::path::current_build_bin_dir;
 
         compiler.add_macro_defn(std::make_pair("POAC_ROOT", std::getenv("PWD")));

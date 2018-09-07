@@ -3,13 +3,17 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
+#include "../io/network.hpp"
 #include "../core/exception.hpp"
 #include "../util/command.hpp"
 
@@ -19,8 +23,8 @@ namespace poac::subcmd { struct publish {
     static const std::string options() { return "<Nothing>"; }
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void operator()(VS&& argv) { _main(argv); }
-    template <typename VS>
+    void operator()(VS&& argv) { _main(std::move(argv)); }
+    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
@@ -28,17 +32,18 @@ namespace poac::subcmd { struct publish {
         check_arguments(argv);
         check_requirements();
 
-        /* To tarball
+        // To tarball
         const std::string project_dir = fs::absolute(fs::current_path()).string();
-        const std::string temp   = *(util::command("mktemp -d").run());
+        const std::string temp   = *(util::command("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // rm \n
         // TODO:                                               poac.yml -> name-version.tar.gz
+        // TODO:                                               project_dir x -> poac.yml o
         const std::string output_dir  = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
 
         io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
 
         std::cout << output_dir << std::endl;
-         */
+
 
         // Markdown to json.
         if (const auto res = io::file::markdown::to_json("# hoge\n## hoge2")) {
@@ -47,15 +52,40 @@ namespace poac::subcmd { struct publish {
         else {
             std::cerr << "Parse failed." << std::endl;
         }
-//        const std::string md_json = R"({\"hi\" : \"there\"})";
-
-        // poac.yml to json.
 
 
-        // Post markdown json to API.
-        // Post yaml json to API.
+        boost::property_tree::ptree json;
+        json.put("token", "AHUDJII");
+
+        boost::property_tree::ptree readme;
+        {
+            boost::property_tree::ptree child;
+            child.put("type", "h1");
+            child.put("text", "readme");
+            readme.push_back(std::make_pair("", child));
+        }
+        {
+            boost::property_tree::ptree child;
+            child.put("type", "plane");
+            child.put("text", "this package is dummy");
+            readme.push_back(std::make_pair("", child));
+        }
+        json.add_child("readme", readme);
+
+        boost::property_tree::ptree setting;
+        setting.put("name", "poac");
+        setting.put("version", "0.0.1");
+        json.add_child("setting", setting);
+
+
+        std::stringstream ss;
+        boost::property_tree::json_parser::write_json(ss, json);
+        std::cout << ss.str() << std::endl;
+
+        // Post json to API.
+        std::cout << io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacCreate", ss.str()) << std::endl;
         // Post tarball to API.
-
+        io::network::post_file("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload", output_dir);
 
         // Packaging...
         // Add poac.yml
@@ -93,7 +123,7 @@ namespace poac::subcmd { struct publish {
             std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
 
         if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
-//            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
+            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
         }
         else {
             throw except::error("poac.yml is invalid");

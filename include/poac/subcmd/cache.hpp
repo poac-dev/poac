@@ -10,6 +10,7 @@
 
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
+#include "../io/cli.hpp"
 
 
 namespace poac::subcmd { struct cache {
@@ -17,8 +18,8 @@ namespace poac::subcmd { struct cache {
         static const std::string options() { return "<command>"; }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& vs) { _main(vs); }
-        template <typename VS>
+        void operator()(VS&& vs) { _main(std::move(vs)); }
+        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace except = core::exception;
 

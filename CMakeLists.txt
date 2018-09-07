@@ -25,7 +25,6 @@ else()
 endif()
 
 # CURL
-set(CURL_LIBRARY "-lcurl")
 add_definitions(-DCURL_STATICLIB)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
@@ -34,13 +33,7 @@ include_directories(${CURL_INCLUDE_DIR})
 find_package( yaml-cpp REQUIRED )
 include_directories( ${YAML_CPP_INCLUDE_DIR} )
 
-# libgit2
-#include_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/include )
-#link_directories( ${CMAKE_SOURCE_DIR}/deps/libgit2-0.27.3/lib )
-
 add_executable(${PROJECT_NAME} main.cpp)
-#file(GLOB_RECURSE TEST_SOURCES *.cpp)
-#add_executable(unittest ${TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
@@ -50,5 +43,3 @@ target_link_libraries(${PROJECT_NAME}
         ${YAML_CPP_LIBRARIES}
         )
 install(TARGETS poac DESTINATION bin)
-
-add_subdirectory(src)
