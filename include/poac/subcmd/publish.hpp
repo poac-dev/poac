@@ -32,8 +32,7 @@ namespace poac::subcmd { struct publish {
         check_arguments(argv);
         check_requirements();
 
-        /* To tarball
->>>>>>> master
+        // To tarball
         const std::string project_dir = fs::absolute(fs::current_path()).string();
         const std::string temp   = *(util::command("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // rm \n
@@ -41,26 +40,9 @@ namespace poac::subcmd { struct publish {
         // TODO:                                               project_dir x -> poac.yml o
         const std::string output_dir  = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
 
-//        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
+        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
 
         std::cout << output_dir << std::endl;
-         */
-
-        // Markdown to json.
-        if (const auto res = io::file::markdown::to_json("# hoge\n## hoge2")) {
-            std::cout << "Parse: " << *res << std::endl;
-        }
-        else {
-            std::cerr << "Parse failed." << std::endl;
-        }
-//        const std::string md_json = R"({\"hi\" : \"there\"})";
-
-        // poac.yml to json.
-
-
-        // Post markdown json to API.
-        // Post yaml json to API.
-        // Post tarball to API.
 
 
         // Markdown to json.
@@ -141,7 +123,7 @@ namespace poac::subcmd { struct publish {
             std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
 
         if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
-          std::cout << "name: " << config["name"].as<std::string>() << std::endl;
+            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
         }
         else {
             throw except::error("poac.yml is invalid");
