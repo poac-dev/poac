@@ -3,7 +3,7 @@ name: poac
 # Package version
 version: 0.0.1-beta
 # 98, 03, 11(Include TR1), 14, 17, 20
-cpp_version: 17
+cpp_version: 17  # TODO: これより上のバージョンを使用するパッケージはダウンロードできない．
 # clang or gcc or ICC or MSVC
 # Specify range of executable version
 compilers:

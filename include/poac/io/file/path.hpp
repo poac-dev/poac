@@ -60,9 +60,6 @@ namespace poac::io::file::path {
     const boost::filesystem::path current_build_bin_dir(
             current_build_dir / "bin"
     );
-    const boost::filesystem::path current_build_include_dir(
-            current_build_dir / "include"
-    );
     const boost::filesystem::path current_build_lib_dir(
             current_build_dir / "lib"
     );
@@ -129,6 +126,13 @@ namespace poac::io::file::path {
             return std::string(it, last);
         }
         return boost::none;
+    }
+
+    void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
+        ofs.open(fname);
+        if (ofs.is_open()) ofs << text;
+        ofs.close();
+        ofs.clear();
     }
 
 //    void remove_all_files(const boost::filesystem::path& dir, const std::vector<std::string>& vs) {

@@ -17,6 +17,8 @@
 
 // TODO: 特定のテストのみcacheを無視するoption
 // TODO: testに失敗した時，EXIT_FAILUREを返す
+// TODO: デフォルトでは，変更がなくても，実行のみが行われるが，一つだけ変更した場合，outputが邪魔になる．
+// TODO: そのため，--change-onlyオプションが必要．
 namespace poac::subcmd { struct test {
         static const std::string summary() { return "Beta: Execute tests."; }
         static const std::string options() { return "[-v | --verbose, --report, -- args]"; }
@@ -73,9 +75,10 @@ namespace poac::subcmd { struct test {
                     const std::string bin_path = (io::file::path::current_build_test_bin_dir / bin_name).string();
 
                     compiler.project_name = bin_name;
-                    compiler.main_cpp = bin_relative;
+                    compiler.add_source_file(bin_relative);
 
-                    if (compiler.compile(verbose, true) && compiler.link(verbose)) {
+                    fs::create_directories(io::file::path::current_build_test_bin_dir);
+                    if (compiler._compile(verbose) && compiler.link(verbose)) {
                         std::cout << io::cli::green << "Compiled: " << io::cli::reset
                                   << "Output to `" + fs::relative(bin_path).string() + "`"
                                   << std::endl;
@@ -128,6 +131,7 @@ namespace poac::subcmd { struct test {
 
                     // Do not use the previous object file
                     compiler.obj_files.clear();
+                    compiler.source_files.clear();
                     std::cout << "----------------------------------------------------------------" << std::endl;
                 }
             }

@@ -24,6 +24,8 @@
 // TODO: clang: error: linker command failed with exit code 1 (use -v to see invocation)
 // TODO: こういったエラーの時は，depsにファイルがあるのか，確認 message を output する．
 
+// clang++ -std=c++17 -I/Users/matken/Dropbox/Documents/project/poacpm/poac/deps/boost/include -I/Users/matken/Dropbox/Documents/project/poacpm/poac/deps/curl/include -I/Users/matken/Dropbox/Documents/project/poacpm/poac/deps/yaml-cpp/include -M main.cpp > hoge4.txt
+
 // TODO: 依存関係の木構造を作成し，差分管理を行う．makeの動作と同じ
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
@@ -38,6 +40,9 @@ namespace poac::subcmd { struct build {
         namespace except = core::exception;
 
         check_arguments(argv);
+        check_requirements();
+        // TODO: !!!!!!!!depsが不要なライブラリも存在する！！！
+        // TODO: にも関わらず，unexpected error?? ここのエラー？？
         const auto node = io::file::yaml::load_setting_file("name", "version",
                                                             "cpp_version",
                                                             "deps", "build");
@@ -127,29 +132,33 @@ namespace poac::subcmd { struct build {
         compiler.add_link_other_args("-pthread");
     }
 
-    void bin_build(const util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
+    void bin_build(util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
         namespace fs = boost::filesystem;
         const auto project_path = (io::file::path::current_build_bin_dir / project_name).string();
 
+        compiler.add_source_file("main.cpp");
         fs::create_directories(io::file::path::current_build_bin_dir);
-        if (compiler.compile(verbose, true) && compiler.link(verbose)) {
+        fs::create_directories(io::file::path::current_build_cache_obj_dir);
+        fs::create_directories(io::file::path::current_build_cache_hash_dir);
+        if (compiler._compile(verbose) && compiler.link(verbose)) {
             std::cout << io::cli::green << "Compiled: " << io::cli::reset
                       << "Output to `" + fs::relative(project_path).string() + "`"
                       << std::endl;
         }
-        else { /* error */ // TODO: compileに失敗時も表示されてしまう．
+        else { /* error */ // TODO: compileに失敗時も表示されてしまう．// TODO: コンパイル失敗後(linkも含む)に，もう一度する時に，hashが残って，コンパイルできないので，いずれかの失敗があれば，hashは削除すべき
             std::cout << io::cli::yellow << "Warning: " << io::cli::reset
             << "There is no change. Binary exists in `" + fs::relative(project_path).string() + "`."
             << std::endl;
         }
     }
+
     // Generate link libraries
-    void lib_build(const util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
+    void lib_build(util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
         namespace fs = boost::filesystem;
 
         // Generate link libraries.
         fs::create_directories(io::file::path::current_build_lib_dir);
-        if (compiler.compile(verbose) && compiler.gen_static_lib(verbose)) {
+        if (compiler._compile(verbose) && compiler.gen_static_lib(verbose)) {
             std::cout << io::cli::green << "Generated: " << io::cli::reset
                       << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".a" + "`"
                       << std::endl;
@@ -161,7 +170,7 @@ namespace poac::subcmd { struct build {
         }
         /* TODO: clangやgccのエラーメッセージをパースできるのなら，else文を実装する．
         そうでないのなら，util::commandで，std_errはそのまま垂れ流させて，標準のエラーメッセージを見せた方がわかりやすい．*/
-        if (compiler.compile(verbose) && compiler.gen_dynamic_lib(verbose)) {
+        if (compiler._compile(verbose) && compiler.gen_dynamic_lib(verbose)) {
             std::cout << io::cli::green << "Generated: " << io::cli::reset
                       << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".dylib" + "`"
                       << std::endl;
@@ -173,6 +182,16 @@ namespace poac::subcmd { struct build {
         }
     }
 
+
+    void check_requirements() {
+        namespace fs     = boost::filesystem;
+        namespace except = core::exception;
+
+        // TODO: ただのライブラリで，static libraryとかの生成だけなら，main.cppは不要！！！
+        if (!fs::exists("main.cpp"))
+            throw except::error("main.cpp does not exist");
+        // TODO: depsに書かれているのに，そのファイルがない．は，そのままコンパイルエラーにすれば？？？
+    }
 
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::exception;
