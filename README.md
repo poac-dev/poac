@@ -25,11 +25,11 @@ curl https://sh.poac.pm | sh
 
 ### Manual (Build)
 Poac requires the following tools and packages to build:
-* `boost`: version `1.48.0` or higher
-* `cmake`: version ``
+* `boost`: `1.48.0` or higher
+* `cmake`: `3.0` or higher
 * `curl(libcurl)`:
 * openssl
-* `yaml-cpp`:
+* `yaml-cpp`: `0.6.0` or higher
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git

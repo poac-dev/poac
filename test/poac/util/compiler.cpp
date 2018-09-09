@@ -31,6 +31,8 @@ BOOST_AUTO_TEST_CASE( poac_util_compiler_test1 )
             if (count++ > 10) break;
         }
     }
+    std::string hoge("hoge");
+    std::cout << *(hoge.end()-1) << std::endl;
 
     BOOST_TEST( true );
 }

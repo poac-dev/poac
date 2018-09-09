@@ -15,7 +15,7 @@
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/compiler.hpp"
+#include "../util/buildsystem.hpp"
 #include "../util/package.hpp"
 
 
@@ -23,10 +23,6 @@
 // TODO: ld: symbol(s) not found for architecture x86_64
 // TODO: clang: error: linker command failed with exit code 1 (use -v to see invocation)
 // TODO: こういったエラーの時は，depsにファイルがあるのか，確認 message を output する．
-
-// clang++ -std=c++17 -I/Users/matken/Dropbox/Documents/project/poacpm/poac/deps/boost/include -I/Users/matken/Dropbox/Documents/project/poacpm/poac/deps/curl/include -I/Users/matken/Dropbox/Documents/project/poacpm/poac/deps/yaml-cpp/include -M main.cpp > hoge4.txt
-
-// TODO: 依存関係の木構造を作成し，差分管理を行う．makeの動作と同じ
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
     static const std::string options() { return "[-v | --verbose]"; } // TODO: --no-cache --release
@@ -41,144 +37,74 @@ namespace poac::subcmd { struct build {
 
         check_arguments(argv);
         check_requirements();
-        // TODO: !!!!!!!!depsが不要なライブラリも存在する！！！
-        // TODO: にも関わらず，unexpected error?? ここのエラー？？
-        const auto node = io::file::yaml::load_setting_file("name", "version",
-                                                            "cpp_version",
-                                                            "deps", "build");
-        const auto project_name = node.at("name").as<std::string>();
+        // TODO: node必要？？
+        const auto node = io::file::yaml::load_setting_file("build");
 
-        util::compiler compiler;
-        configure(compiler, project_name, node);
+        const auto first = argv.begin(), last = argv.end();
+        const bool verbose = (std::find(first, last, "-v") != last || std::find(first, last, "--verbose") != last);
 
+        util::buildsystem bs;
 
         // TODO: poac.yml compiler: -> error version outdated
 
-        // TODO: name, version, cpp_versionが無い時．
         // TODO: runの時に，build: bin:true なければ，かつ，./main.cppが無ければ，runはエラーになる．
         // TODO: もしくは，main.cppじゃなくても，バイナリを生成するソースをpoac.ymlから指定できるようにしておく．
         // TODO: curl-configのように．
-        const bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
         if (const auto bin = io::file::yaml::get_by_depth(node.at("build"), "bin")) {
             if ((*bin).as<bool>()) {
-                bin_build(compiler, project_name, verbose);
-            }
-        }
-        // TODO: runの時はいらない？？？
-        if (const auto lib = io::file::yaml::get_by_depth(node.at("build"), "lib")) {
-            if ((*lib).as<bool>()) {
-                lib_build(compiler, project_name, verbose);
-            }
-        }
-    }
+                fs::create_directories(io::file::path::current_build_bin_dir);
+                fs::create_directories(io::file::path::current_build_cache_obj_dir);
+                fs::create_directories(io::file::path::current_build_cache_hash_dir);
 
-    template <typename Node>
-    void configure(util::compiler& compiler, const std::string& project_name, const Node& node) {
-        namespace fs = boost::filesystem;
-        namespace exception = core::exception;
-
-        const auto project_version = node.at("version").template as<std::string>();
-        const auto project_cpp_version = node.at("cpp_version").template as<unsigned int>();
-
-
-        compiler.project_name = project_name;
-        if (const char* env_p = std::getenv("CXX")) {
-            compiler.system = env_p;
-        }
-        else { // TODO: コンパイラの自動選択
-            throw exception::error("Environment variable \"CXX\" was not found.\n"
-                                   "       Select the compiler and export it.");
-        }
-        compiler.cpp_version = project_cpp_version;
-        // TODO: 存在確認
-        compiler.main_cpp = "main.cpp";
-        if (io::file::path::validate_dir(fs::current_path() / "src"))
-            for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "src"))
-                if (!fs::is_directory(p) && p.extension().string() == ".cpp")
-                    compiler.add_source_file(p.string());
-        compiler.output_path = io::file::path::current_build_bin_dir;
-
-        compiler.add_macro_defn(std::make_pair("POAC_ROOT", std::getenv("PWD")));
-        const std::string def_macro_name = boost::to_upper_copy<std::string>(project_name) + "_VERSION";
-        compiler.add_macro_defn(std::make_pair(def_macro_name, project_version));
-
-        for (const auto& [name, next_node] : node.at("deps").template as<std::map<std::string, YAML::Node>>()) {
-            const std::string src = util::package::get_source(next_node);
-            const std::string version = util::package::get_version(next_node, src);
-            const std::string pkgname = util::package::cache_to_current(util::package::github_conv_pkgname(name, version));
-            const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
-
-            if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
-                compiler.add_include_search_path(include_dir.string());
-            if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
-                compiler.add_library_search_path(lib_dir.string());
-
-                if (const auto link_config = io::file::yaml::get_by_width(next_node, "link")) {
-                    if (const auto link_include_config = io::file::yaml::get_by_width((*link_config).at("link"),
-                                                                                      "include")) {
-                        for (const auto& c : (*link_include_config).at("include").template as<std::vector<std::string>>()) {
-                            compiler.add_static_link_lib(c);
-                        }
-                    }
-                    else {
-                        compiler.add_static_link_lib(pkgname);
-                    }
+                // TODO: このinfoもbuildsystemに管理させる
+                // TODO: -> すると，エラーの時だけ，boost::noneを返して，それ以外は，CompiledとWarningを選択できる
+                if (const auto bin_path = bs.build_bin(true, verbose)) {
+                    std::cout << io::cli::green << "Compiled: " << io::cli::reset
+                              << "Output to `" + fs::relative(*bin_path).string() + "`"
+                              << std::endl;
+                }
+                else { /* error */
+                    // TODO: compileに失敗時も表示されてしまう．
+                    // TODO: コンパイル失敗後(linkも含む)に，もう一度する時に，hashが残って，
+                    // TODO: コンパイルできないので，いずれかの失敗があれば，hashは削除すべき
+                    // TODO: bin_pathを取得できない！！！
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                              << "There is no change. Binary exists in `" + fs::relative("").string() + "`."
+                              << std::endl;
                 }
             }
         }
-        // //lib/x86_64-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line
-        // TODO: 抽象化 poac.yml????
-        compiler.add_compile_other_args("-pthread");
-        compiler.add_link_other_args("-pthread");
-    }
-
-    void bin_build(util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
-        namespace fs = boost::filesystem;
-        const auto project_path = (io::file::path::current_build_bin_dir / project_name).string();
-
-        compiler.add_source_file("main.cpp");
-        fs::create_directories(io::file::path::current_build_bin_dir);
-        fs::create_directories(io::file::path::current_build_cache_obj_dir);
-        fs::create_directories(io::file::path::current_build_cache_hash_dir);
-        if (compiler._compile(verbose) && compiler.link(verbose)) {
-            std::cout << io::cli::green << "Compiled: " << io::cli::reset
-                      << "Output to `" + fs::relative(project_path).string() + "`"
-                      << std::endl;
-        }
-        else { /* error */ // TODO: compileに失敗時も表示されてしまう．// TODO: コンパイル失敗後(linkも含む)に，もう一度する時に，hashが残って，コンパイルできないので，いずれかの失敗があれば，hashは削除すべき
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-            << "There is no change. Binary exists in `" + fs::relative(project_path).string() + "`."
-            << std::endl;
-        }
-    }
-
-    // Generate link libraries
-    void lib_build(util::compiler& compiler, const std::string& project_name, const bool verbose=false) {
-        namespace fs = boost::filesystem;
-
-        // Generate link libraries.
-        fs::create_directories(io::file::path::current_build_lib_dir);
-        if (compiler._compile(verbose) && compiler.gen_static_lib(verbose)) {
-            std::cout << io::cli::green << "Generated: " << io::cli::reset
-                      << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".a" + "`"
-                      << std::endl;
-        }
-        else { /* error */
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Static library exists in `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".a" + "`."
-                      << std::endl;
-        }
-        /* TODO: clangやgccのエラーメッセージをパースできるのなら，else文を実装する．
-        そうでないのなら，util::commandで，std_errはそのまま垂れ流させて，標準のエラーメッセージを見せた方がわかりやすい．*/
-        if (compiler._compile(verbose) && compiler.gen_dynamic_lib(verbose)) {
-            std::cout << io::cli::green << "Generated: " << io::cli::reset
-                      << "Output to `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".dylib" + "`"
-                      << std::endl;
-        }
-        else { /* error */
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Dynamic library exists in `" + fs::relative(io::file::path::current_build_lib_dir / project_name).string() + ".dylib" + "`."
-                      << std::endl;
+        // TODO: runの時はいらない
+        if (const auto lib = io::file::yaml::get_by_depth(node.at("build"), "lib")) {
+            if ((*lib).as<bool>()) {
+                if (const auto stlib_path = bs.build_stlink_lib(verbose)) {
+                    std::cout << io::cli::green << "Generated: " << io::cli::reset
+                              << "Output to `" +
+                                 fs::relative(*stlib_path).string() +
+                                 ".a" + "`"
+                              << std::endl;
+                }
+                else { /* error */
+                    // TODO: stlib_pathを取得できない！！！
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                              << "There is no change. Static library exists in `" +
+                                 fs::relative("").string() +
+                                 ".a" + "`."
+                              << std::endl;
+                }
+                if (const auto dylink_path = bs.build_dylink_lib(verbose)) {
+                    std::cout << io::cli::green << "Generated: " << io::cli::reset
+                              << "Output to `" +
+                                 fs::relative(*dylink_path).string() + ".dylib" + "`"
+                              << std::endl;
+                }
+                else { /* error */
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                              << "There is no change. Dynamic library exists in `" +
+                                 fs::relative("").string() + ".dylib" + "`."
+                              << std::endl;
+                }
+            }
         }
     }
 
@@ -186,17 +112,12 @@ namespace poac::subcmd { struct build {
     void check_requirements() {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
-
-        // TODO: ただのライブラリで，static libraryとかの生成だけなら，main.cppは不要！！！
-        if (!fs::exists("main.cpp"))
-            throw except::error("main.cpp does not exist");
-        // TODO: depsに書かれているのに，そのファイルがない．は，そのままコンパイルエラーにすれば？？？
     }
 
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::exception;
 
-        if (argv.size() >= 2)
+        if (argv.size() > 1)
             throw except::invalid_second_arg("build");
     }
 };} // end namespace

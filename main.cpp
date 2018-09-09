@@ -47,9 +47,13 @@ int exec(std::string&& s, VS&& vs) {
         std::cout << io::cli::yellow << "WARN: " << io::cli::reset << e.what() << std::endl;
         return EXIT_SUCCESS;
     }
+    catch (const YAML::BadConversion& e) { //                     TODO: poac.yml OR poac.yaml?
+        std::cout << io::cli::red << "ERROR: " << io::cli::reset << "poac.yml " << e.what() << std::endl;
+        return EXIT_SUCCESS;
+    }
     catch (...) {
         std::cerr << io::cli::red
-                  << "Error: " << "Unexpected error"
+                  << "ERROR: " << "Unexpected error"
                   << io::cli::reset
                   << std::endl;
         return EXIT_FAILURE;

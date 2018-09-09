@@ -7,6 +7,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
+#include <boost/algorithm/string.hpp>
 
 
 namespace poac::io::file::path {
@@ -135,8 +136,10 @@ namespace poac::io::file::path {
         ofs.clear();
     }
 
-//    void remove_all_files(const boost::filesystem::path& dir, const std::vector<std::string>& vs) {
-//
-//    }
+    std::vector<std::string> split(const std::string& raw, const std::string& delim) {
+        std::vector<std::string> ret_value;
+        boost::split(ret_value, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on);
+        return ret_value;
+    }
 } // end namespace
 #endif // !POAC_IO_FILE_PATH_HPP
