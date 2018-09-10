@@ -2,22 +2,13 @@
 #define POAC_UTIL_COMPILER_HPP
 
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <sstream>
 #include <vector>
-#include <iterator>
-#include <functional>
-#include <list>
-#include <algorithm>
-#include <map>
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 
 #include "./command.hpp"
-#include "./build_deps.hpp"
-#include "./manage_hash.hpp"
 #include "../io/file/path.hpp"
 
 
@@ -25,6 +16,9 @@ namespace poac::util {
     class compiler {
     public:
         std::string version_prefix = "-std=c++";
+        // Use binary name, static link library name, dynamic link library name
+        std::string project_name;
+        std::string system; // gcc or clang or ...
 
         std::string to_cache_obj_path(const std::string& s) {
             namespace fs = boost::filesystem;
@@ -32,9 +26,6 @@ namespace poac::util {
             return (iopath::current_build_cache_obj_dir / fs::relative(s)).replace_extension("o").string();
         }
 
-        // Use binary name, static link library name, dynamic link library name
-        std::string project_name;
-        std::string system; // gcc or clang or ...
 
         compiler() {}
 
@@ -134,6 +125,7 @@ namespace poac::util {
             if (verbose)
                 std::cout << cmd << std::endl;
 
+            fs::create_directories(output_path);
             if (const auto ret = cmd.exec())
                 return stlib_path;
             else
@@ -157,6 +149,7 @@ namespace poac::util {
             if (verbose)
                 std::cout << cmd << std::endl;
 
+            fs::create_directories(output_path);
             if (const auto ret = cmd.exec())
                 return dylib_path;
             else

@@ -16,7 +16,6 @@
 
 namespace poac::subcmd { struct new_ {
     static const std::string summary() { return "Create a new poacpm project."; }
-    // TODO: 自動引数解析
     static const std::string options() { return "<project-name>"; }
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(poac)
 
 # Preprocessor definitions
-add_definitions( -DPOAC_ROOT="${CMAKE_SOURCE_DIR}" )
+add_definitions( -DPOAC_AUTO_DEF_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
 add_definitions( -DPOAC_VERSION="0.0.1-beta" )
 add_definitions( -fdiagnostics-color -Wall -Werror -Wextra )
 

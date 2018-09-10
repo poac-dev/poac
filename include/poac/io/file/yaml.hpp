@@ -98,5 +98,24 @@ namespace poac::io::file::yaml {
             throw except::error("poac.yml does not exists");
         }
     }
+
+    // keyが無くても無視される
+    template <typename... Args>
+    static auto load_setting_file_opt(const Args&... args) {
+        namespace except = core::exception;
+
+        // TODO: I want use Result type like rust-lang.
+        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+                return get_by_width(*op_node, args...);
+            }
+            else {
+                throw except::error("Could not load poac.yml");
+            }
+        }
+        else {
+            throw except::error("poac.yml does not exists");
+        }
+    }
 } // end namespace
 #endif // !POAC_IO_FILE_YAML_HPP

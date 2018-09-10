@@ -21,19 +21,16 @@
 #include "../core/exception.hpp"
 #include "../io/file/path.hpp"
 #include "./package.hpp"
+#include "../io/cli.hpp"
+#include "../io/file/yaml.hpp"
 
 
-// TODO: Input:
-// TODO: Output: Result<T, E>
-
-// TODO: --cache-strict -> hash, nothing -> time stamp ???
 namespace poac::util {
     class buildsystem {
     private:
         util::compiler compiler;
         const std::map<std::string, YAML::Node> node;
         const std::string project_name;
-
         //       cpp_name,             cpp_deps_name, hash
         std::map<std::string, std::map<std::string, std::string>> cpp_hash;
 
@@ -53,40 +50,45 @@ namespace poac::util {
             namespace fs = boost::filesystem;
 
             std::vector<std::string> include_search_path;
-            // TODO: depsをpoac.ymlに書かれているのなら，include_search_pathに追加する！！！！
-            // TODO: 無いのならそれはそれで良いので，エラーを放つな！！！！！！！！
-            for (const auto& [name, next_node] : node.at("deps").as<std::map<std::string, YAML::Node>>()) {
-                const std::string src = package::get_source(next_node);
-                const std::string version = package::get_version(next_node, src);
-                const std::string pkgname = package::cache_to_current(package::github_conv_pkgname(name, version));
-                const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
+            // Does the key `deps` exist?
+            if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
+                // Is it convertible with the specified type?
+                if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
+                    for (const auto&[name, next_node] : *deps) {
+                        const std::string src = package::get_source(next_node);
+                        const std::string version = package::get_version(next_node, src);
+                        const std::string pkgname = package::cache_to_current(
+                                package::github_conv_pkgname(name, version));
+                        const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
-                if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
-                    include_search_path.push_back(include_dir.string());
+                        if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
+                            include_search_path.push_back(include_dir.string());
+                    }
+                }
             }
             return include_search_path;
         }
 
         auto make_macro_defns() {
             std::vector<std::string> macro_defns;
-            // poacは，自動で，projectのrootディレクトリの絶対パスをpreprocessor defineします
+            // poac automatically define the absolute path of the project's root directory.
             macro_defns.push_back(compiler.make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
-            // TODO: 上のを置き換える
-            macro_defns.push_back(compiler.make_macro_defn("POAC_ROOT", std::getenv("PWD")));
             const std::string def_macro_name = boost::to_upper_copy<std::string>(project_name) + "_VERSION";
             macro_defns.push_back(compiler.make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
             return macro_defns;
         }
 
-        auto make_other_args() {
-            std::vector<std::string> other_args;
-            // TODO: 抽象化
-            other_args.push_back("-pthread");
-            return other_args;
+        auto make_compile_other_args() {
+            if (const auto compile_args = io::file::yaml::get1<std::vector<std::string>>(node.at("build"), "compile_args")) {
+                return *compile_args;
+            }
+            else {
+                return std::vector<std::string>{};
+            }
         }
 
-        // cacheにobjファイルが存在し，hashが存在し，hashが一致する*.cppファイルをsource_filesから除外する
-        std::vector<std::string> check_src_cpp(
+        // TODO: Divide it finer...
+        auto check_src_cpp(
                 const std::string& system,
                 const std::string& version_prefix,
                 const unsigned int& cpp_version,
@@ -99,20 +101,24 @@ namespace poac::util {
             for (const auto& sf : source_files) {
                 if (const auto pre_hash = manage_hash::load(manage_hash::to_cache_hash_path(sf))) {
                     if (const auto cur_hash = manage_hash::gen(system, version_prefix, cpp_version, include_search_path, sf)) {
-                        // 既に存在するhashファイルと現在のcppファイルのhashが一致するので，
-                        // 編集されていないため，コンパイル不要と見做し，除外します．
+                        // It is considered unnecessary to compile and excluded
+                        //  from the source file because it is not edited
+                        //  that the hash file which already exists and
+                        //  hash of the current cpp file matches.
                         if (*pre_hash == *cur_hash) {
                             continue;
                         }
-                            // 既に存在するhashファイルと現在のcppファイルのhashが一致しないので，
-                            // コンパイル対象から除外せず，上書き用にhashを記録します．
+                        // Since hash of already existing hash file
+                        //  does not match hash of current cpp file,
+                        //  it does not exclude it from compilation,
+                        //  and generates hash for overwriting.
                         else {
                             cpp_hash[manage_hash::to_cache_hash_path(sf)] = *cur_hash;
                         }
                     }
                 }
                 else {
-                    // hashファイルは存在しないので，hashを生成し，コンパイルします．
+                    // Since hash file does not exist, generates hash and compiles source file.
                     if (const auto cur_hash = manage_hash::gen(system, version_prefix, cpp_version, include_search_path, sf)) {
                         cpp_hash[manage_hash::to_cache_hash_path(sf)] = *cur_hash;
                     }
@@ -122,27 +128,33 @@ namespace poac::util {
             return new_source_files;
         }
 
+        // TODO: Divide it finer...
         boost::optional<std::vector<std::string>> _compile(
                 const bool usemain=false,
                 const bool verbose=false )
         {
             const unsigned int& cpp_version = node.at("cpp_version").as<unsigned int>();
             auto source_files = make_source_files();
-            if (usemain) source_files.push_back("main.cpp"); // TODO: 存在確認
+            if (usemain) {
+                if (!boost::filesystem::exists("main.cpp"))
+                    throw core::exception::error("main.cpp does not exists");
+                else
+                    source_files.push_back("main.cpp");
+            }
             const auto include_search_path = make_include_search_path();
             const auto macro_defns = make_macro_defns();
-            const auto other_args = make_other_args();
+            const auto other_args = make_compile_other_args();
 
-            const std::vector<std::string> new_source_files = check_src_cpp(compiler.system, compiler.version_prefix, cpp_version, include_search_path, source_files);
-            // TODO: compileが不要，もしくは，最初から代入されていない場合
-            // 既にobjファイルが存在し，hashファイルの検証の結果，変更がなかったため，
-            // 既に存在するobj_fileのリストだけ返して，
-            // コンパイルはしない．
-            // 完全に変更がないということは，リンクする必要も無い
+            const auto new_source_files = check_src_cpp(compiler.system, compiler.version_prefix, cpp_version, include_search_path, source_files);
+            // Since the obj file already exists and has not been changed as a result
+            //  of verification of the hash file, return only the list of existing obj_files
+            //  and do not compile.
+            // There is no necessity of linking that there is no change completely.
             if (new_source_files.empty())
-                return boost::none;
+                return std::vector<std::string>{};
 
-            // cacheの都合上外しているので，compiler.compileの返り値は無視する．
+            // Because it is excluded for the convenience of cache,
+            //  ignore the return value of compiler.compile.
             std::vector<std::string> obj_files;
             for (const auto& s : source_files) {
                 obj_files.push_back(compiler.to_cache_obj_path(s));
@@ -158,7 +170,7 @@ namespace poac::util {
             );
             if (ret) {
                 namespace fs = boost::filesystem;
-                // compileに成功したら，hashを保存しておく
+                // Since compile succeeded, save hash
                 std::ofstream ofs;
                 for (const auto& [hash_name, data] : cpp_hash) {
                     std::string output_string;
@@ -175,50 +187,70 @@ namespace poac::util {
             }
         }
 
-        // TODO: compileみたいに細かく...
-        boost::optional<std::string> _link(const std::vector<std::string>& obj_files, const bool verbose=false) {
+        auto make_link_other_args() {
+            if (const auto link_args = io::file::yaml::get1<std::vector<std::string>>(node.at("build"), "link_args")) {
+                return *link_args;
+            }
+            else {
+                return std::vector<std::string>{};
+            }
+        }
+
+        // TODO: Divide it finer...
+        boost::optional<std::string> _link(
+                const std::vector<std::string>& obj_files,
+                const bool verbose=false,
+                const bool run=true )
+        {
             namespace fs = boost::filesystem;
 
             const boost::filesystem::path& output_path = io::file::path::current_build_bin_dir;
 
             std::vector<std::string> library_search_path;
             std::vector<std::string> static_link_libs;
-            for (const auto& [name, next_node] : node.at("deps").as<std::map<std::string, YAML::Node>>()) {
-                const std::string src = package::get_source(next_node);
-                const std::string version = package::get_version(next_node, src);
-                const std::string pkgname = package::cache_to_current(package::github_conv_pkgname(name, version));
-                const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
+            if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
+                if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
+                    for (const auto&[name, next_node] : *deps) {
+                        const std::string src = package::get_source(next_node);
+                        const std::string version = package::get_version(next_node, src);
+                        const std::string pkgname = package::cache_to_current(
+                                package::github_conv_pkgname(name, version));
+                        const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
-                if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
-                    // compile: x, link: o, gen_static_lib: x, gen_dynamic_lib: x
-                    library_search_path.push_back(lib_dir.string());
+                        if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
+                            library_search_path.push_back(lib_dir.string());
 
-                    if (const auto link_config = io::file::yaml::get_by_width(next_node, "link")) {
-                        if (const auto link_include_config = io::file::yaml::get_by_width((*link_config).at("link"),
-                                                                                          "include")) {
-                            for (const auto& c : (*link_include_config).at("include").as<std::vector<std::string>>()) {
-                                // compile: x, link: o, gen_static_lib: x, gen_dynamic_lib: x
-                                static_link_libs.push_back(c);
+                            if (const auto link_config = io::file::yaml::get_by_width(next_node, "link")) {
+                                if (const auto link_include_config = io::file::yaml::get_by_width(
+                                        (*link_config).at("link"),
+                                        "include")) {
+                                    for (const auto &c : (*link_include_config).at(
+                                            "include").as<std::vector<std::string>>()) {
+                                        static_link_libs.push_back(c);
+                                    }
+                                } else {
+                                    static_link_libs.push_back(pkgname);
+                                }
                             }
-                        }
-                        else {
-                            static_link_libs.push_back(pkgname);
                         }
                     }
                 }
             }
-            // TODO: 抽象化 poac.yml????
-            std::vector<std::string> other_args;
-            other_args.push_back("-pthread");
+            const auto other_args = make_link_other_args();
 
-            return compiler.link(
-                    obj_files,
-                    output_path,
-                    library_search_path,
-                    static_link_libs,
-                    other_args,
-                    verbose
-            );
+            if (run) {
+                return compiler.link(
+                        obj_files,
+                        output_path,
+                        library_search_path,
+                        static_link_libs,
+                        other_args,
+                        verbose
+                );
+            }
+            else { // Only return bin_name without link
+                return (output_path / project_name).string();
+            }
         }
 
         auto _gen_static_lib(
@@ -244,10 +276,8 @@ namespace poac::util {
 
     public:
         buildsystem() :
-            node(io::file::yaml::load_setting_file("name", "version",
-                                                   "cpp_version",
-                                                   "deps", "build")), // TODO: depsを良い感じに外す！！！
-            project_name(node.at("name").as<std::string>())  // TODO: asじゃなく，安全なやつで！(nameしか書かれてなかったらエラーになる)
+            node(io::file::yaml::load_setting_file("name", "version", "cpp_version", "build")),
+            project_name(node.at("name").as<std::string>())
         {
             namespace exception = core::exception;
 
@@ -255,62 +285,101 @@ namespace poac::util {
             if (const char* cxx = std::getenv("CXX")) {
                 compiler.system = cxx;
             }
-            else { // TODO: コンパイラの自動選択
-                if (util::command("command -v g+ >/dev/null 2>&1").exec()) {}
-                throw exception::error("Environment variable \"CXX\" was not found.\n"
-                                       "       Select the compiler and export it.");
+            else {
+                // Automatic selection of compiler
+                if (util::command("command -v g++ >/dev/null 2>&1").exec()) {
+                    compiler.system = "g++";
+                }
+                else if (util::command("command -v clang++ >/dev/null 2>&1").exec()) {
+                    compiler.system = "clang++";
+                }
+                else {
+                    throw exception::error("Environment variable \"CXX\" was not found.\n"
+                                           "       Select the compiler and export it.");
+                }
             }
         }
 
-        // TODO: compileには成功した．全部成功した．など．．．
-        // \ret: compiler.linkの結果をそのまま流す
         boost::optional<std::string> build_bin(const bool usemain=false, const bool verbose=false) {
+            namespace fs = boost::filesystem;
+
             if (const auto obj_files = _compile(usemain, verbose)) {
-                if (const auto bin_path = _link(*obj_files, verbose)) {
+                if ((*obj_files).empty()) { // No need for compile and link
+                    const std::string bin_path = *(_link(*obj_files, verbose, false));
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                              << "There is no change. Binary exists in `" +
+                                 fs::relative(bin_path).string() + "`."
+                              << std::endl;
+                    return bin_path;
+                }
+                else if (const auto bin_path = _link(*obj_files, verbose)) {
+                    std::cout << io::cli::green << "Compiled: " << io::cli::reset
+                              << "Output to `" +
+                                 fs::relative(*bin_path).string() +
+                                 "`"
+                              << std::endl;
                     return bin_path;
                 }
                 else {
-                    // TODO: リンクの失敗
+                    // Link failure
                     return boost::none;
                 }
             }
             else {
-                // TODO: コンパイルの失敗，もしくはcacheから不要と判断された
-                // TODO: コンパイル失敗後(linkも含む)に，もう一度する時に，hashが残って，
-                // TODO: コンパイルできないので，いずれかの失敗があれば，hashは削除すべき
-                // TODO: つまり，hashの管理をbuidsystem側に持ってこればできるということ．
+                // Compile failure
                 return boost::none;
             }
         }
 
-        boost::optional<std::string> build_stlink_lib(const bool verbose=false) {
+        boost::optional<std::string> build_link_libs(const bool verbose = false) {
+            namespace fs = boost::filesystem;
+
             if (const auto obj_files = _compile(false, verbose)) {
-                if (const auto stlink_path = _gen_static_lib(*obj_files, verbose)) {
-                    return stlink_path;
+                if ((*obj_files).empty()) { // No need for compile and link
+                    const std::string lib_path = *(_link(*obj_files, verbose, false));
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                              << "There is no change. Static link library exists in `" +
+                                 fs::relative(lib_path).string() +
+                                 ".a" + "`."
+                              << std::endl;
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                              << "There is no change. Dynamic link library exists in `" +
+                                 fs::relative(lib_path).string() +
+                                 ".dylib" + "`."
+                              << std::endl;
+                    return lib_path;
+                }
+
+                if (const auto lib_path = _gen_static_lib(*obj_files, verbose)) {
+                    std::cout << io::cli::green << "Generated: " << io::cli::reset
+                              << "Output to `" +
+                                 fs::relative(*lib_path).string() +
+                                 ".a" + "`"
+                              << std::endl;
+//                    return lib_path;
+                }
+                else { // Static link library generation failed
+//                    return boost::none;
+                }
+
+                if (const auto lib_path = _gen_dynamic_lib(*obj_files, verbose)) {
+                    std::cout << io::cli::green << "Generated: " << io::cli::reset
+                              << "Output to `" +
+                                 fs::relative(*lib_path).string() +
+                                 ".dylib" + "`"
+                              << std::endl;
+//                    return lib_path;
                 }
                 else {
-                    // スタティックリンクの失敗
-                    return boost::none;
+                    // Dynamic link library generation failed
+//                    return boost::none;
                 }
-            }
-            else {
-                // TODO: コンパイルの失敗，もしくはcacheから不要と判断された
+
+                // TODO:
                 return boost::none;
             }
-        }
-
-        boost::optional<std::string> build_dylink_lib(const bool verbose=false) {
-            if (const auto obj_files = _compile(false, verbose)) {
-                if (const auto dylink_path = _gen_dynamic_lib(*obj_files, verbose)) {
-                    return dylink_path;
-                }
-                else {
-                    // ダイナミックリンクの失敗
-                    return boost::none;
-                }
-            }
             else {
-                // TODO: コンパイルの失敗，もしくはcacheから不要と判断された
+                // Compile failure
                 return boost::none;
             }
         }

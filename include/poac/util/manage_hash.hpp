@@ -57,13 +57,14 @@ namespace poac::util::manage_hash {
             const std::vector<std::string>& include_search_path,
             const std::string& src_cpp )
     {
-        // TODO: build_depsからの依存を無くし，引数で受け取るようにする
+        // TODO: Eliminate dependency from build_deps and make it receive from arguments.
         if (const auto deps_headers = build_deps::gen(system, version_prefix, cpp_version, include_search_path, src_cpp)) {
             std::map<std::string, std::string> hash;
             for (const auto& name : *deps_headers) {
+                // Calculate the hash of the source dependent files.
                 insert_file(name, hash);
             }
-            // sourceファイル自体のhashを計算
+            // Calculate the hash of the source file itself.
             insert_file(src_cpp, hash);
             return hash;
         }
