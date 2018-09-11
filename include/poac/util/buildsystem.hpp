@@ -26,11 +26,82 @@
 
 
 namespace poac::util {
-    class buildsystem {
-    private:
-        util::compiler compiler;
+    struct compile_configure {
+        std::string system;
+        std::string version_prefix;
+        unsigned int cpp_version;
+        std::vector<std::string> source_files;
+        std::vector<std::string> include_search_path;
+        std::vector<std::string> other_args;
+        std::vector<std::string> macro_defns;
+        boost::filesystem::path output_path;
+        bool verbose;
+    };
+    struct link_configure {
+        std::string system;
+        std::string project_name;
+        boost::filesystem::path output_path;
+        std::vector<std::string> obj_files_path;
+        std::vector<std::string> library_search_path;
+        std::vector<std::string> static_link_libs;
+        std::vector<std::string> other_args;
+        bool verbose;
+    };
+    struct static_lib_configure {
+        std::string project_name;
+        boost::filesystem::path output_path;
+        std::vector<std::string> obj_files_path;
+        bool verbose;
+    };
+    struct dynamic_lib_configure {
+        std::string system;
+        std::string project_name;
+        boost::filesystem::path output_path;
+        std::vector<std::string> obj_files_path;
+        bool verbose;
+    };
+
+    template<typename Conf>
+    void enable_gnu(Conf& conf) {
+        conf.version_prefix = "-std=gnu++";
+    }
+    std::string default_version_prefix() {
+        return "-std=c++";
+    }
+    std::string make_macro_defn(const std::string& first, const std::string& second) {
+        return "-D" + first + "=" + R"(\")" + second + R"(\")";
+    }
+
+    auto auto_select_compiler() {
+        namespace exception = core::exception;
+        // Automatic selection of compiler
+        if (util::command("command -v g++ >/dev/null 2>&1").exec())
+            return "g++";
+        else if (util::command("command -v clang++ >/dev/null 2>&1").exec())
+            return "clang++";
+        else
+            throw exception::error("Environment variable \"CXX\" was not found.\n"
+                                   "       Select the compiler and export it.");
+    }
+
+    // TODO: これ以外は，poac.ymlによって決定される
+    auto default_compile_configure() {
+        compile_configure compile_conf;
+        compile_conf.system = auto_select_compiler();
+        compile_conf.version_prefix = "-std=c++";
+        return compile_conf;
+    }
+
+    struct buildsystem {
+        compile_configure compile_conf;
+        link_configure link_conf;
+        static_lib_configure static_lib_conf;
+        dynamic_lib_configure dynamic_lib_conf;
+
+        std::string system;
+        std::string project_name;
+
         const std::map<std::string, YAML::Node> node;
-        const std::string project_name;
         //       cpp_name,             cpp_deps_name, hash
         std::map<std::string, std::map<std::string, std::string>> cpp_hash;
 
@@ -72,9 +143,9 @@ namespace poac::util {
         auto make_macro_defns() {
             std::vector<std::string> macro_defns;
             // poac automatically define the absolute path of the project's root directory.
-            macro_defns.push_back(compiler.make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
+            macro_defns.push_back(make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
             const std::string def_macro_name = boost::to_upper_copy<std::string>(project_name) + "_VERSION";
-            macro_defns.push_back(compiler.make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
+            macro_defns.push_back(make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
             return macro_defns;
         }
 
@@ -128,47 +199,41 @@ namespace poac::util {
             return new_source_files;
         }
 
-        // TODO: Divide it finer...
-        boost::optional<std::vector<std::string>> _compile(
-                const bool usemain=false,
-                const bool verbose=false )
-        {
-            const unsigned int& cpp_version = node.at("cpp_version").as<unsigned int>();
+        auto hash_source_files(const bool usemain=false) {
             auto source_files = make_source_files();
             if (usemain) {
-                if (!boost::filesystem::exists("main.cpp"))
+                namespace fs = boost::filesystem;
+                if (!fs::exists("main.cpp"))
                     throw core::exception::error("main.cpp does not exists");
                 else
                     source_files.push_back("main.cpp");
             }
-            const auto include_search_path = make_include_search_path();
-            const auto macro_defns = make_macro_defns();
-            const auto other_args = make_compile_other_args();
-
-            const auto new_source_files = check_src_cpp(compiler.system, compiler.version_prefix, cpp_version, include_search_path, source_files);
-            // Since the obj file already exists and has not been changed as a result
-            //  of verification of the hash file, return only the list of existing obj_files
-            //  and do not compile.
-            // There is no necessity of linking that there is no change completely.
-            if (new_source_files.empty())
-                return std::vector<std::string>{};
-
-            // Because it is excluded for the convenience of cache,
-            //  ignore the return value of compiler.compile.
-            std::vector<std::string> obj_files;
-            for (const auto& s : source_files) {
-                obj_files.push_back(compiler.to_cache_obj_path(s));
-            }
-
-            const auto ret = compiler.compile(
-                    cpp_version,
-                    new_source_files,
-                    include_search_path,
-                    macro_defns,
-                    other_args,
-                    verbose
+            return check_src_cpp(
+                    compile_conf.system,
+                    compile_conf.version_prefix,
+                    compile_conf.cpp_version,
+                    compile_conf.include_search_path,
+                    source_files
             );
-            if (ret) {
+        }
+
+        void configure_compile(
+            const bool usemain=false,
+            const bool verbose=false )
+        {
+            compile_conf.system = system;
+            compile_conf.version_prefix = default_version_prefix();
+            compile_conf.cpp_version = node.at("cpp_version").as<unsigned int>();
+            compile_conf.include_search_path = make_include_search_path();
+            compile_conf.source_files = hash_source_files(usemain);
+            compile_conf.other_args = make_compile_other_args();
+            compile_conf.macro_defns = make_macro_defns();
+            compile_conf.output_path = io::file::path::current_build_cache_obj_dir;
+            compile_conf.verbose = verbose;
+        }
+        boost::optional<std::vector<std::string>> _compile()
+        {
+            if (const auto ret = compiler::compile(compile_conf)) {
                 namespace fs = boost::filesystem;
                 // Since compile succeeded, save hash
                 std::ofstream ofs;
@@ -179,6 +244,16 @@ namespace poac::util {
                     }
                     fs::create_directories(fs::path(hash_name).parent_path());
                     io::file::path::write_to_file(ofs, hash_name, output_string);
+                }
+                // Because it is excluded for the convenience of cache,
+                //  ignore the return value of compiler.compile.
+                std::vector<std::string> obj_files;
+                for (const auto& s : compile_conf.source_files) {
+                    obj_files.push_back(
+                            (compile_conf.output_path / fs::relative(s))
+                                    .replace_extension("o")
+                                    .string()
+                    );
                 }
                 return obj_files;
             }
@@ -195,16 +270,9 @@ namespace poac::util {
                 return std::vector<std::string>{};
             }
         }
-
         // TODO: Divide it finer...
-        boost::optional<std::string> _link(
-                const std::vector<std::string>& obj_files,
-                const bool verbose=false,
-                const bool run=true )
-        {
+        auto make_link() {
             namespace fs = boost::filesystem;
-
-            const boost::filesystem::path& output_path = io::file::path::current_build_bin_dir;
 
             std::vector<std::string> library_search_path;
             std::vector<std::string> static_link_libs;
@@ -236,152 +304,65 @@ namespace poac::util {
                     }
                 }
             }
-            const auto other_args = make_link_other_args();
-
-            if (run) {
-                return compiler.link(
-                        obj_files,
-                        output_path,
-                        library_search_path,
-                        static_link_libs,
-                        other_args,
-                        verbose
-                );
-            }
-            else { // Only return bin_name without link
-                return (output_path / project_name).string();
-            }
+            return std::make_pair(library_search_path, static_link_libs);
         }
-
-        auto _gen_static_lib(
-            const std::vector<std::string>& obj_files,
+        void configure_link(
+            const std::vector<std::string>& obj_files_path,
             const bool verbose=false )
         {
-            return compiler.gen_static_lib(
-                    obj_files,
-                    io::file::path::current_build_lib_dir,
-                    verbose
-            );
+            link_conf.system = system;
+            link_conf.project_name = project_name;
+            link_conf.output_path = io::file::path::current_build_bin_dir;
+            link_conf.obj_files_path = obj_files_path;
+            const auto links = make_link();
+            link_conf.library_search_path = links.first;
+            link_conf.static_link_libs = links.second;
+            link_conf.other_args = make_link_other_args();
+            link_conf.verbose = verbose;
         }
-        auto _gen_dynamic_lib(
-            const std::vector<std::string>& obj_files,
-            const bool verbose=false )
+        auto _link()
         {
-            return compiler.gen_dynamic_lib(
-                    obj_files,
-                    io::file::path::current_build_lib_dir,
-                    verbose
-            );
+            return compiler::link(link_conf);
         }
 
-    public:
+        void configure_static_lib(
+                const std::vector<std::string>& obj_files_path,
+                const bool verbose=false )
+        {
+            static_lib_conf.project_name = project_name;
+            static_lib_conf.output_path = io::file::path::current_build_lib_dir;
+            static_lib_conf.obj_files_path = obj_files_path;
+            static_lib_conf.verbose = verbose;
+        }
+        auto _gen_static_lib()
+        {
+            return compiler::gen_static_lib(static_lib_conf);
+        }
+
+        void configure_dynamic_lib(
+            const std::vector<std::string>& obj_files_path,
+            const bool verbose=false )
+        {
+            dynamic_lib_conf.system = system;
+            dynamic_lib_conf.project_name = project_name;
+            dynamic_lib_conf.output_path = io::file::path::current_build_lib_dir;
+            dynamic_lib_conf.obj_files_path = obj_files_path;
+            dynamic_lib_conf.verbose = verbose;
+        }
+        auto _gen_dynamic_lib()
+        {
+            return compiler::gen_dynamic_lib(dynamic_lib_conf);
+        }
+
         buildsystem() :
-            node(io::file::yaml::load_setting_file("name", "version", "cpp_version", "build")),
-            project_name(node.at("name").as<std::string>())
+            node(io::file::yaml::load_setting_file(
+                    "name", "version", "cpp_version", "build"))
         {
-            namespace exception = core::exception;
-
-            compiler.project_name = project_name;
-            if (const char* cxx = std::getenv("CXX")) {
-                compiler.system = cxx;
-            }
-            else {
-                // Automatic selection of compiler
-                if (util::command("command -v g++ >/dev/null 2>&1").exec()) {
-                    compiler.system = "g++";
-                }
-                else if (util::command("command -v clang++ >/dev/null 2>&1").exec()) {
-                    compiler.system = "clang++";
-                }
-                else {
-                    throw exception::error("Environment variable \"CXX\" was not found.\n"
-                                           "       Select the compiler and export it.");
-                }
-            }
-        }
-
-        boost::optional<std::string> build_bin(const bool usemain=false, const bool verbose=false) {
-            namespace fs = boost::filesystem;
-
-            if (const auto obj_files = _compile(usemain, verbose)) {
-                if ((*obj_files).empty()) { // No need for compile and link
-                    const std::string bin_path = *(_link(*obj_files, verbose, false));
-                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                              << "There is no change. Binary exists in `" +
-                                 fs::relative(bin_path).string() + "`."
-                              << std::endl;
-                    return bin_path;
-                }
-                else if (const auto bin_path = _link(*obj_files, verbose)) {
-                    std::cout << io::cli::green << "Compiled: " << io::cli::reset
-                              << "Output to `" +
-                                 fs::relative(*bin_path).string() +
-                                 "`"
-                              << std::endl;
-                    return bin_path;
-                }
-                else {
-                    // Link failure
-                    return boost::none;
-                }
-            }
-            else {
-                // Compile failure
-                return boost::none;
-            }
-        }
-
-        boost::optional<std::string> build_link_libs(const bool verbose = false) {
-            namespace fs = boost::filesystem;
-
-            if (const auto obj_files = _compile(false, verbose)) {
-                if ((*obj_files).empty()) { // No need for compile and link
-                    const std::string lib_path = *(_link(*obj_files, verbose, false));
-                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                              << "There is no change. Static link library exists in `" +
-                                 fs::relative(lib_path).string() +
-                                 ".a" + "`."
-                              << std::endl;
-                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                              << "There is no change. Dynamic link library exists in `" +
-                                 fs::relative(lib_path).string() +
-                                 ".dylib" + "`."
-                              << std::endl;
-                    return lib_path;
-                }
-
-                if (const auto lib_path = _gen_static_lib(*obj_files, verbose)) {
-                    std::cout << io::cli::green << "Generated: " << io::cli::reset
-                              << "Output to `" +
-                                 fs::relative(*lib_path).string() +
-                                 ".a" + "`"
-                              << std::endl;
-//                    return lib_path;
-                }
-                else { // Static link library generation failed
-//                    return boost::none;
-                }
-
-                if (const auto lib_path = _gen_dynamic_lib(*obj_files, verbose)) {
-                    std::cout << io::cli::green << "Generated: " << io::cli::reset
-                              << "Output to `" +
-                                 fs::relative(*lib_path).string() +
-                                 ".dylib" + "`"
-                              << std::endl;
-//                    return lib_path;
-                }
-                else {
-                    // Dynamic link library generation failed
-//                    return boost::none;
-                }
-
-                // TODO:
-                return boost::none;
-            }
-            else {
-                // Compile failure
-                return boost::none;
-            }
+            project_name = node.at("name").as<std::string>();
+            if (const char* cxx = std::getenv("CXX"))
+                system = cxx;
+            else // Automatic selection of compiler
+                system = auto_select_compiler();
         }
     };
 } // end namespace

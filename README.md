@@ -1,8 +1,6 @@
 **:warning: Not yet released**
 
-# poac
-[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
-![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg?style=flat-square)
+# poac [![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
 
 Poac is the package manager for C/C++ user.
 

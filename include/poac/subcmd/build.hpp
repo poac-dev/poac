@@ -43,7 +43,7 @@ namespace poac::subcmd { struct build {
         if (const auto bin = io::file::yaml::get_by_width(node.at("build"), "bin")) {
             if (const auto op_bin = io::file::yaml::get<bool>((*bin).at("bin"))) {
                 if (*op_bin) {
-                    if (bs.build_bin(true, verbose)) {}
+                    if (build_bin(bs, true, verbose)) {}
                     else { /* compile or link error */ }
                 }
             }
@@ -51,12 +51,113 @@ namespace poac::subcmd { struct build {
         if (const auto lib = io::file::yaml::get_by_width(node.at("build"), "lib")) {
             if (const auto op_lib = io::file::yaml::get<bool>((*lib).at("lib"))) {
                 if (*op_lib) {
-                    if (bs.build_link_libs(verbose)) {}
+                    if (build_link_libs(bs, verbose)) {}
                     else { /* compile or gen error */ }
                 }
             }
         }
     }
+
+    boost::optional<std::string> build_bin(
+        util::buildsystem& bs,
+        const bool usemain=false,
+        const bool verbose=false )
+    {
+        namespace fs = boost::filesystem;
+
+        bs.configure_compile(usemain, verbose);
+        // Since the obj file already exists and has not been changed as a result
+        //  of verification of the hash file, return only the list of existing obj_files
+        //  and do not compile.
+        // There is no necessity of linking that there is no change completely.
+        if (bs.compile_conf.source_files.empty()) { // No need for compile and link
+            const std::string bin_path =
+                    (io::file::path::current_build_bin_dir / bs.project_name).string();
+            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                      << "There is no change. Binary exists in `" +
+                         fs::relative(bin_path).string() + "`."
+                      << std::endl;
+            return bin_path;
+        }
+        else {
+            if (const auto obj_files_path = bs._compile()) {
+                bs.configure_link(*obj_files_path, verbose);
+                if (const auto bin_path = bs._link()) {
+                    std::cout << io::cli::green << "Compiled: " << io::cli::reset
+                              << "Output to `" +
+                                 fs::relative(*bin_path).string() +
+                                 "`"
+                              << std::endl;
+                    return bin_path;
+                }
+                else { // Link failure
+                    return boost::none;
+                }
+            }
+            else { // Compile failure
+                return boost::none;
+            }
+        }
+    }
+
+    boost::optional<std::string> build_link_libs(
+        util::buildsystem& bs,
+        const bool verbose = false )
+    {
+        namespace fs = boost::filesystem;
+
+        bs.configure_compile(false, verbose);
+        if (bs.compile_conf.source_files.empty()) { // No need for compile and link
+            const std::string lib_path =
+                    (io::file::path::current_build_lib_dir / bs.project_name).string();
+            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                      << "There is no change. Static link library exists in `" +
+                         fs::relative(lib_path).string() +
+                         ".a" + "`."
+                      << std::endl;
+            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                      << "There is no change. Dynamic link library exists in `" +
+                         fs::relative(lib_path).string() +
+                         ".dylib" + "`."
+                      << std::endl;
+            return lib_path;
+        }
+        if (const auto obj_files_path = bs._compile()) {
+            bs.configure_static_lib(*obj_files_path, verbose);
+            if (const auto stlib_path = bs._gen_static_lib()) {
+                std::cout << io::cli::green << "Generated: " << io::cli::reset
+                          << "Output to `" +
+                             fs::relative(*stlib_path).string() +
+                             "`"
+                          << std::endl;
+//                return lib_path;
+            }
+            else { // Static link library generation failed
+//                return boost::none;
+            }
+
+            bs.configure_dynamic_lib(*obj_files_path, verbose);
+            if (const auto dylib_path = bs._gen_dynamic_lib()) {
+                std::cout << io::cli::green << "Generated: " << io::cli::reset
+                          << "Output to `" +
+                             fs::relative(*dylib_path).string() +
+                             "`"
+                          << std::endl;
+//                return lib_path;
+            }
+            else {
+                // Dynamic link library generation failed
+//                return boost::none;
+            }
+
+            // TODO:
+            return boost::none;
+        }
+        else { // Compile failure
+            return boost::none;
+        }
+    }
+
 
     void check_requirements() {
         namespace fs     = boost::filesystem;

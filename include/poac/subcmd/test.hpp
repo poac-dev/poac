@@ -11,7 +11,7 @@
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/compiler.hpp"
+#include "../util/buildsystem.hpp"
 #include "./build.hpp"
 
 
@@ -32,16 +32,14 @@ namespace poac::subcmd { struct test {
 
             check_arguments(argv);
 
-            // TODO: buildsystemが，外部から，static_libなどを弄れるようにならならないとできない！
+//            // TODO: buildsystemが，外部から，static_libなどを弄れるようにならならないとできない！
 //            const auto node = io::file::yaml::load_setting_file("name", "version", "cpp_version", "deps", "test");
 //
-//            const bool verbose = (argv.size() > 0 && (argv[0] == "-v" || argv[0] == "--verbose"));
-//            const std::string project_name = node.at("name").as<std::string>();
-//            const auto project_path = (io::file::path::current_build_test_bin_dir / project_name).string();
-//            // TODO: pathにnameを含んでいるのは汚い？？？もっと変数名を整える．
+//            const auto first = argv.begin(), last = argv.end();
+//            const bool verbose = (std::find(first, last, "-v") != last || std::find(first, last, "--verbose") != last);
 //
 //            // TODO: buildコマンドとの共通化
-//            util::compiler compiler;
+//            util::buildsystem bs;
 //            subcmd::build hoge{};
 //            hoge.configure(compiler, project_name, node);
 //            // TODO: testは絶対に実行するな！！！

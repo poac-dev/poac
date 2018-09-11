@@ -9,160 +9,95 @@
 #include <boost/optional.hpp>
 
 #include "./command.hpp"
-#include "../io/file/path.hpp"
 
 
-namespace poac::util {
-    class compiler {
-    public:
-        std::string version_prefix = "-std=c++";
-        // Use binary name, static link library name, dynamic link library name
-        std::string project_name;
-        std::string system; // gcc or clang or ...
+namespace poac::util::compiler {
+    template<typename Conf>
+    boost::optional<std::vector<std::string>> compile(const Conf& conf) {
+        namespace fs = boost::filesystem;
 
-        std::string to_cache_obj_path(const std::string& s) {
-            namespace fs = boost::filesystem;
-            namespace iopath = io::file::path;
-            return (iopath::current_build_cache_obj_dir / fs::relative(s)).replace_extension("o").string();
+        command cmd(conf.system);
+        cmd += conf.version_prefix + std::to_string(conf.cpp_version);
+        cmd += "-c";
+        for (const auto& s : conf.source_files)
+            cmd += s;
+        for (const auto& isp : conf.include_search_path)
+            cmd += "-I" + isp;
+        for (const auto& oa : conf.other_args)
+            cmd += oa;
+        for (const auto& md : conf.macro_defns)
+            cmd += md;
+        cmd += "-o";
+        std::vector<std::string> obj_files_path;
+        for (const auto &s : conf.source_files) {
+            const std::string obj_path =
+                    (conf.output_path / fs::relative(s)).replace_extension("o").string();
+            obj_files_path.push_back(obj_path);
+            fs::create_directories(fs::path(obj_path).parent_path());
+            cmd += obj_path;
         }
 
+        if (conf.verbose) std::cout << cmd << std::endl;
 
-        compiler() {}
+        if (cmd.exec()) return obj_files_path;
+        else            return boost::none;
+    }
 
-        // hashでチェック後，新たにコンパイルが必要なファイルだけ，compileする．
-        // このコンパイルに**関わった**(関わっていない，つまりcacheの検知によって除外された場合は含まれない)，
-        // obj_fileを返り値として返す．
-        // コンパイルしなければnone
-        boost::optional<std::vector<std::string>> compile(
-                const unsigned int& cpp_version,
-                const std::vector<std::string>& source_files,
-                const std::vector<std::string>& include_search_path,
-                const std::vector<std::string>& macro_defns,
-                const std::vector<std::string>& other_args,
-                const bool verbose )
-        {
-            namespace fs = boost::filesystem;
+    template<typename Conf>
+    boost::optional<std::string> link(const Conf& conf) {
+        const std::string bin_path =
+                (conf.output_path / conf.project_name).string();
 
-            // compile
-            command cmd(system);
-            cmd += version_prefix + std::to_string(cpp_version);
-            cmd += "-c";
-            for (const auto& s : source_files)
-                cmd += s;
-            for (const auto& isp : include_search_path)
-                cmd += "-I" + isp;
-            for (const auto& oa : other_args)
-                cmd += oa;
-            for (const auto& md : macro_defns)
-                cmd += md;
-            cmd += "-o";
-            std::vector<std::string> obj_files;
-            for (const auto& s : source_files) {
-                const std::string obj_path = to_cache_obj_path(s);
-                obj_files.push_back(obj_path);
-                fs::create_directories(fs::path(obj_path).parent_path());
-                cmd += obj_path;
-            }
+        command cmd(conf.system);
+        for (const auto& o : conf.obj_files_path)
+            cmd += o;
+        for (const auto& lsp : conf.library_search_path)
+            cmd += "-L" + lsp;
+        for (const auto& sll : conf.static_link_libs)
+            cmd += "-l" + sll;
+        for (const auto& oa : conf.other_args)
+            cmd += oa;
+        cmd += "-o " + bin_path;
 
-            if (verbose) std::cout << cmd << std::endl;
+        if (conf.verbose) std::cout << cmd << std::endl;
 
-            if (const auto ret = cmd.exec()) {
-                return obj_files;
-            }
-            else { // コンパイルに失敗
-                return boost::none;
-            }
-        }
+        boost::filesystem::create_directories(conf.output_path);
+        if (cmd.exec()) return bin_path;
+        else            return boost::none;
+    }
 
-        boost::optional<std::string> link(
-                const std::vector<std::string>& obj_files,
-                const boost::filesystem::path& output_path,
-                const std::vector<std::string>& library_search_path,
-                const std::vector<std::string>& static_link_libs,
-                const std::vector<std::string>& other_args,
-                const bool verbose )
-        {
-            namespace fs = boost::filesystem;
+    template<typename Conf>
+    boost::optional<std::string> gen_static_lib(const Conf& conf) {
+        command cmd("ar rcs");
+        const std::string stlib_path =
+                (conf.output_path / conf.project_name).string() + ".a";
+        cmd += stlib_path;
+        for (const auto& o : conf.obj_files_path)
+            cmd += o;
 
-            fs::create_directories(output_path);
-            const std::string bin_path = (output_path / project_name).string();
+        if (conf.verbose) std::cout << cmd << std::endl;
 
-            // Link to executable file
-            command cmd(system);
-            for (const auto& o : obj_files)
-                cmd += o;
-            for (const auto& lsp : library_search_path)
-                cmd += "-L" + lsp;
-            for (const auto& sll : static_link_libs)
-                cmd += "-l" + sll;
-            for (const auto& oa : other_args)
-                cmd += oa;
-            cmd += "-o " + bin_path;
+        boost::filesystem::create_directories(conf.output_path);
+        if (cmd.exec()) return stlib_path;
+        else            return boost::none;
+    }
 
-            if (verbose) std::cout << cmd << std::endl;
+    template<typename Conf>
+    boost::optional<std::string> gen_dynamic_lib(const Conf& conf) {
+        command cmd(conf.system);
+        cmd += "-dynamiclib"; // -shared
+        for (const auto& o : conf.obj_files_path)
+            cmd += o;
+        cmd += "-o";
+        const std::string dylib_path =
+                (conf.output_path / conf.project_name).string() + ".dylib";
+        cmd += dylib_path;
 
-            if (const auto ret = cmd.exec()) {
-                return bin_path;
-            }
-            else {
-                return boost::none;
-            }
-        }
+        if (conf.verbose) std::cout << cmd << std::endl;
 
-        boost::optional<std::string> gen_static_lib(
-            const std::vector<std::string>& obj_files,
-            const boost::filesystem::path& output_path,
-            const bool verbose=false ) const
-        {
-            namespace fs = boost::filesystem;
-
-            command cmd("ar rcs");
-            const std::string stlib_path = (output_path / project_name).string() + ".a";
-            cmd += stlib_path;
-            for (const auto& o : obj_files)
-                cmd += o;
-
-            if (verbose)
-                std::cout << cmd << std::endl;
-
-            fs::create_directories(output_path);
-            if (const auto ret = cmd.exec())
-                return stlib_path;
-            else
-                return boost::none;
-        }
-        boost::optional<std::string> gen_dynamic_lib(
-            const std::vector<std::string>& obj_files,
-            const boost::filesystem::path& output_path,
-            const bool verbose=false ) const
-        {
-            namespace fs = boost::filesystem;
-
-            command cmd(system);
-            cmd += "-dynamiclib"; // -shared
-            for (const auto& o : obj_files)
-                cmd += o;
-            cmd += "-o";
-            const std::string dylib_path = (output_path / project_name).string() + ".dylib";
-            cmd += dylib_path;
-
-            if (verbose)
-                std::cout << cmd << std::endl;
-
-            fs::create_directories(output_path);
-            if (const auto ret = cmd.exec())
-                return dylib_path;
-            else
-                return boost::none;
-        }
-
-
-        void enable_gnu() {
-            version_prefix = "-std=gnu++";
-        }
-        std::string make_macro_defn(const std::string& first, const std::string& second) {
-            return "-D" + first + "=" + R"(\")" + second + R"(\")";
-        }
-    };
+        boost::filesystem::create_directories(conf.output_path);
+        if (cmd.exec()) return dylib_path;
+        else            return boost::none;
+    }
 } // end namespace
 #endif // !POAC_UTIL_COMPILER_HPP
