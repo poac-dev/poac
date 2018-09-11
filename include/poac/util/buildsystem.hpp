@@ -199,8 +199,10 @@ namespace poac::util {
             return new_source_files;
         }
 
-        auto hash_source_files(const bool usemain=false) {
-            auto source_files = make_source_files();
+        auto hash_source_files(
+            std::vector<std::string>&& source_files,
+            const bool usemain=false )
+        {
             if (usemain) {
                 namespace fs = boost::filesystem;
                 if (!fs::exists("main.cpp"))
@@ -225,7 +227,7 @@ namespace poac::util {
             compile_conf.version_prefix = default_version_prefix();
             compile_conf.cpp_version = node.at("cpp_version").as<unsigned int>();
             compile_conf.include_search_path = make_include_search_path();
-            compile_conf.source_files = hash_source_files(usemain);
+            compile_conf.source_files = hash_source_files(make_source_files(), usemain);
             compile_conf.other_args = make_compile_other_args();
             compile_conf.macro_defns = make_macro_defns();
             compile_conf.output_path = io::file::path::current_build_cache_obj_dir;
