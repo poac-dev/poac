@@ -6,7 +6,7 @@ Poac is the package manager for C/C++ user.
 
 Poac can downloads project's dependencies and compiles project.
 
-Please see [poac.pm](https://poac.pm) for installation instructions and other documentation.
+Please see [poac.pm](https://poac.pm) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentation](https://poacpm.github.io/poac/).
 
 
 ## Supported Operating Systems
