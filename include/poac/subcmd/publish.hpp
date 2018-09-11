@@ -82,10 +82,11 @@ namespace poac::subcmd { struct publish {
         boost::property_tree::json_parser::write_json(ss, json);
         std::cout << ss.str() << std::endl;
 
-        // Post json to API.
-        std::cout << io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacCreate", ss.str()) << std::endl;
+        // Post json to API. login処理を行う
+        const std::string uuid = io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacCreate", ss.str());
         // Post tarball to API.
-        io::network::post_file("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload", output_dir);
+        io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload?uuid="+uuid, "{}");
+//        io::network::post_file("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload?uuid="+uuid, output_dir);
 
         // Packaging...
         // Add poac.yml
@@ -114,8 +115,9 @@ namespace poac::subcmd { struct publish {
 
         if (!fs::exists("poac.yml"))
             throw except::error("poac.yml does not exist");
-        else if (!fs::exists("src") || !fs::is_directory("src") || fs::is_empty("src"))
-            throw except::error("src directory does not exist");
+        // TODO: srcがなくても大丈夫
+//        else if (!fs::exists("src") || !fs::is_directory("src") || fs::is_empty("src"))
+//            throw except::error("src directory does not exist");
 
         if (!fs::exists("LICENSE"))
             std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;

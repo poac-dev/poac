@@ -7,6 +7,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
+#include <boost/algorithm/string.hpp>
 
 
 namespace poac::io::file::path {
@@ -59,9 +60,6 @@ namespace poac::io::file::path {
     );
     const boost::filesystem::path current_build_bin_dir(
             current_build_dir / "bin"
-    );
-    const boost::filesystem::path current_build_include_dir(
-            current_build_dir / "include"
     );
     const boost::filesystem::path current_build_lib_dir(
             current_build_dir / "lib"
@@ -131,8 +129,17 @@ namespace poac::io::file::path {
         return boost::none;
     }
 
-//    void remove_all_files(const boost::filesystem::path& dir, const std::vector<std::string>& vs) {
-//
-//    }
+    void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
+        ofs.open(fname);
+        if (ofs.is_open()) ofs << text;
+        ofs.close();
+        ofs.clear();
+    }
+
+    std::vector<std::string> split(const std::string& raw, const std::string& delim) {
+        std::vector<std::string> ret_value;
+        boost::split(ret_value, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on);
+        return ret_value;
+    }
 } // end namespace
 #endif // !POAC_IO_FILE_PATH_HPP

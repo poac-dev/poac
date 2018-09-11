@@ -16,7 +16,6 @@
 
 namespace poac::subcmd { struct new_ {
     static const std::string summary() { return "Create a new poacpm project."; }
-    // TODO: 自動引数解析
     static const std::string options() { return "<project-name>"; }
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -48,15 +47,8 @@ namespace poac::subcmd { struct new_ {
                 { "README.md",  util::ftemplate::README_md }
         };
         for (const auto& [name, text] : file)
-            write_to_file(ofs, (dir/name).string(), text);
+            io::file::path::write_to_file(ofs, (dir/name).string(), text);
         echo_info(dir.string());
-    }
-
-    void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
-        ofs.open(fname);
-        if (ofs.is_open()) ofs << text;
-        ofs.close();
-        ofs.clear();
     }
 
     void echo_info(const std::string& str) {

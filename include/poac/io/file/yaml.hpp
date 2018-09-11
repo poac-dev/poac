@@ -45,7 +45,12 @@ namespace poac::io::file::yaml {
         catch (...) { return boost::none; }
     }
 
+    // TODO: keyが無くても無視して，許容されるfunctionがほしい．もしくは，optional指定子を付けるとか
     // {{"arg1", node["arg1"]}, ...}
+    // get_by_widthは，そのkeyが存在することは保証するが，
+    // そのnodeがasで，指定の型に変換可能であるかどうかは保証していない
+    // そのため，asで変換できなかった時，exceptionが飛んでしまう．
+    // 例えば，keyだけ書かれていた場合..
     template <typename... Args>
     static boost::optional<std::map<std::string, YAML::Node>>
     get_by_width(const YAML::Node &node, const Args&... args) {
@@ -69,6 +74,8 @@ namespace poac::io::file::yaml {
         catch (...) { return boost::none; }
     }
 
+    // これには，必須のkeyを指定する．
+    // optionalの場合なら，別のタイミングで抽出すること．
     template <typename... Args>
     static auto load_setting_file(const Args&... args) {
         namespace except = core::exception;
@@ -82,6 +89,25 @@ namespace poac::io::file::yaml {
                 else {
                     throw except::error("Required key does not exist in poac.yml");
                 }
+            }
+            else {
+                throw except::error("Could not load poac.yml");
+            }
+        }
+        else {
+            throw except::error("poac.yml does not exists");
+        }
+    }
+
+    // keyが無くても無視される
+    template <typename... Args>
+    static auto load_setting_file_opt(const Args&... args) {
+        namespace except = core::exception;
+
+        // TODO: I want use Result type like rust-lang.
+        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+                return get_by_width(*op_node, args...);
             }
             else {
                 throw except::error("Could not load poac.yml");

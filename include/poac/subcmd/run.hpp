@@ -55,7 +55,7 @@ namespace poac::subcmd { struct run {
                   << std::endl;
         if (const auto ret = cmd.exec())
             std::cout << *ret;
-        else // TODO: errorの時も文字列が欲しい．
+        else
             std::cout << project_name + " returned 1" << std::endl;
     }
 

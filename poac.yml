@@ -1,9 +1,9 @@
 # Package name
 name: poac
 # Package version
-version: 0.0.1-beta
+version: 0.2.0-beta
 # 98, 03, 11(Include TR1), 14, 17, 20
-cpp_version: 17
+cpp_version: 17  # TODO: これより上のバージョンを使用するパッケージはダウンロードできない．
 # clang or gcc or ICC or MSVC
 # Specify range of executable version
 compilers:
@@ -58,15 +58,12 @@ deps:
 build:
   system: poac
   # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
-  bin: true # TODO: 複数のバイナリ生成対応
-  # TODO: cmakeでは，targetに，それぞれのcppをaddしてる．
-  # TODO: target(curl-config hoge.cpp foo.cpp)
-  # TODO: target(curl        fuga.cpp buu.cpp)
-#  lib: true # main.cpp以外をlibraryに変換します．
-  macro:
-    # TODO: 指定せずとも自動で定義しておくほうが良いかも．
-    yamlmode: true #  Only one-dimensional information in poac.yml defined as a macro.
-    POAC_ROOT: $PWD
+  bin: true
+#  lib: true # src/*をlibraryに変換します．
+  compile_args:
+    - "-pthread"
+  link_args:
+    - "-pthread"
 
 # TODO: 一つのバイナリにリンクしたい時は？？？
 test:

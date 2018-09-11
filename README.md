@@ -1,8 +1,6 @@
 **:warning: Not yet released**
 
-# poac
-[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
-![C++ Standard](https://img.shields.io/badge/C%2B%2B-17-blue.svg?style=flat-square)
+# poac [![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
 
 Poac is the package manager for C/C++ user.
 
@@ -25,11 +23,11 @@ curl https://sh.poac.pm | sh
 
 ### Manual (Build)
 Poac requires the following tools and packages to build:
-* `boost`: version `1.48.0` or higher
-* `cmake`: version ``
+* `boost`: `1.48.0` or higher
+* `cmake`: `3.0` or higher
 * `curl(libcurl)`:
 * openssl
-* `yaml-cpp`:
+* `yaml-cpp`: `0.6.0` or higher
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
