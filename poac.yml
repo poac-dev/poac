@@ -1,9 +1,9 @@
 # Package name
 name: poac
 # Package version
-version: 0.2.0-beta
+version: 0.3.0-beta
 # 98, 03, 11(Include TR1), 14, 17, 20
-cpp_version: 17  # TODO: これより上のバージョンを使用するパッケージはダウンロードできない．
+cpp_version: 17
 # clang or gcc or ICC or MSVC
 # Specify range of executable version
 compilers:
@@ -22,7 +22,7 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  boostorg/boost:
+  boostorg/boost: # TODO: boost/boost が　全部, boost/optional
     src: github
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
@@ -57,15 +57,15 @@ deps:
 # If nothing is specified, it is regarded as header only library
 build:
   system: poac
-  # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
+  # Enable binary install (for CLI application)
+  #  when you use poac as system.
   bin: true
-#  lib: true # src/*をlibraryに変換します．
+#  lib: true # Generate library from src/* .
   compile_args:
     - "-pthread"
   link_args:
     - "-pthread"
 
-# TODO: 一つのバイナリにリンクしたい時は？？？
 test:
   framework: boost # or google
   args:
