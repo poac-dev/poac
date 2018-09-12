@@ -17,6 +17,7 @@
 #include "../io/cli.hpp"
 #include "../util/buildsystem.hpp"
 #include "../util/package.hpp"
+#include "../util/argparse.hpp"
 
 
 namespace poac::subcmd { struct build {
@@ -34,9 +35,7 @@ namespace poac::subcmd { struct build {
         check_arguments(argv);
         check_requirements();
         const auto node = io::file::yaml::load_setting_file("build");
-
-        const auto first = argv.begin(), last = argv.end();
-        const bool verbose = (std::find(first, last, "-v") != last || std::find(first, last, "--verbose") != last);
+        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
         util::buildsystem bs;
 

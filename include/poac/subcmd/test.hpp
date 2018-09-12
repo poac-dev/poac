@@ -12,6 +12,7 @@
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/buildsystem.hpp"
+#include "../util/argparse.hpp"
 
 
 namespace poac::subcmd { struct test {
@@ -28,9 +29,7 @@ namespace poac::subcmd { struct test {
             check_arguments(argv);
 
             const auto node = io::file::yaml::load_setting_file("test");
-
-            const auto first = argv.begin(), last = argv.end();
-            const bool verbose = (std::find(first, last, "-v") != last || std::find(first, last, "--verbose") != last);
+            const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
 
@@ -108,7 +107,7 @@ namespace poac::subcmd { struct test {
                             cmd += s;
                         }
                     }
-                    if (std::find(argv.begin(), argv.end(), "--report") != argv.end()) {
+                    if (util::argparse::use(argv, "--report")) {
                         fs::create_directories(io::file::path::current_build_test_report_dir);
                         cmd += ">";
                         cmd += (io::file::path::current_build_test_report_dir / bin_name).string() + ".xml";
