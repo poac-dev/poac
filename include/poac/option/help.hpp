@@ -45,7 +45,9 @@ namespace poac::option { struct help {
     void echo_option(const std::string& arg) {
         namespace except = core::exception;
         try {
-            std::cout << "Usage: poac " << arg << " " << core::infer::apply(std::string("options"), arg, std::vector<std::string>()) << std::endl;
+            std::cout << "Usage: poac " << arg << " "
+                      << core::infer::apply(std::string("options"), arg, std::vector<std::string>())
+                      << std::endl;
         }
         catch (const except::invalid_first_arg& e) {
             throw except::invalid_second_arg("--help");
