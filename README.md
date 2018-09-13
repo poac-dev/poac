@@ -40,7 +40,7 @@ $ make install
 
 Already poac is installed, you can build using poac:
 ```bash
-$ poac build --release
+$ poac build
 ```
 
 
