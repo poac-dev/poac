@@ -81,8 +81,8 @@ namespace poac::io::file::yaml {
         namespace except = core::exception;
 
         // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+        if (const auto op_filename = exists_setting_file()) {
+            if (const auto op_node = load(*op_filename)) {
                 if (const auto op_select_node = get_by_width(*op_node, args...)) {
                     return *op_select_node;
                 }
@@ -105,8 +105,8 @@ namespace poac::io::file::yaml {
         namespace except = core::exception;
 
         // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+        if (const auto op_filename = exists_setting_file()) {
+            if (const auto op_node = load(*op_filename)) {
                 return get_by_width(*op_node, args...);
             }
             else {
