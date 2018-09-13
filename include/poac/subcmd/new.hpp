@@ -9,8 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/exception.hpp"
-#include "../io/file/path.hpp"
-#include "../io/cli.hpp"
+#include "../io.hpp"
 #include "../util/ftemplate.hpp"
 
 
@@ -36,19 +35,19 @@ namespace poac::subcmd { struct new_ {
             throw except::error("The "+argv[0]+" directory already exists.");
     }
 
-    void exec_new(const boost::filesystem::path& dir) {
+    void exec_new(const std::string& dirname) {
         namespace fs = boost::filesystem;
-        fs::create_directory(dir);
+        fs::create_directory(dirname);
         std::ofstream ofs;
         std::map<fs::path, std::string> file {
                 { ".gitignore", util::ftemplate::_gitignore },
                 { "main.cpp",   util::ftemplate::main_cpp },
                 { "poac.yml",   util::ftemplate::poac_yml },
-                { "README.md",  util::ftemplate::README_md }
+                { "README.md",  util::ftemplate::README_md(dirname) }
         };
         for (const auto& [name, text] : file)
-            io::file::path::write_to_file(ofs, (dir/name).string(), text);
-        echo_info(dir.string());
+            io::file::path::write_to_file(ofs, (fs::path(dirname)/name).string(), text);
+        echo_info(dirname);
     }
 
     void echo_info(const std::string& str) {
@@ -66,7 +65,6 @@ namespace poac::subcmd { struct new_ {
                "    $ cd "+str+"\n"
                "\n"
                "Start your project with:\n"
-               "    $ poac install\n"
                "    $ poac run\n"
                "\n";
     }
