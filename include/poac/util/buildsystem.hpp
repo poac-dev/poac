@@ -17,7 +17,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "./compiler.hpp"
-#include "./manage_hash.hpp"
+#include "./build_deps.hpp"
 #include "../core/exception.hpp"
 #include "../io/file/path.hpp"
 #include "./package.hpp"
@@ -84,14 +84,6 @@ namespace poac::util {
                                    "       Select the compiler and export it.");
     }
 
-    // TODO: これ以外は，poac.ymlによって決定される
-    auto default_compile_configure() {
-        compile_configure compile_conf;
-        compile_conf.system = auto_select_compiler();
-        compile_conf.version_prefix = "-std=c++";
-        return compile_conf;
-    }
-
     struct buildsystem {
         compile_configure compile_conf;
         link_configure link_conf;
@@ -102,7 +94,6 @@ namespace poac::util {
         std::string project_name;
 
         const std::map<std::string, YAML::Node> node;
-        //       cpp_name,             cpp_deps_name, hash
         std::map<std::string, std::map<std::string, std::string>> cpp_hash;
 
 
@@ -158,45 +149,109 @@ namespace poac::util {
             }
         }
 
-        // TODO: Divide it finer...
-        auto check_src_cpp(
+
+        std::string to_cache_hash_path(const std::string& s) {
+            namespace fs = boost::filesystem;
+            namespace iopath = io::file::path;
+            return (iopath::current_build_cache_hash_dir / fs::relative(s)).string() + ".hash";
+        }
+
+        boost::optional<std::map<std::string, std::string>> hash_load(const std::string& src_cpp_hash) {
+            std::ifstream ifs(src_cpp_hash);
+            if(!ifs.is_open()){
+                return boost::none;
+            }
+
+            std::string buff;
+            std::map<std::string, std::string> hash;
+            while (std::getline(ifs, buff)) {
+                std::vector<std::string> list_string = io::file::path::split(buff, ": \n");
+                hash[list_string[0]] = list_string[1];
+            }
+            return hash;
+        }
+
+        void insert_file(
+                const std::string& filename,
+                std::map<std::string, std::string>& hash )
+        {
+            if (const auto str = io::file::path::read_file(filename)) {
+                hash.emplace(
+                        filename,
+                        std::to_string(
+                                std::hash<std::string>{}(*str)
+                        )
+                );
+            }
+        }
+
+        // *.cpp -> hash
+        boost::optional<std::map<std::string, std::string>> hash_gen(
                 const std::string& system,
                 const std::string& version_prefix,
                 const unsigned int& cpp_version,
                 const std::vector<std::string>& include_search_path,
-                const std::vector<std::string>& source_files )
+                const std::string& src_cpp)
+        {
+            if (const auto deps_headers = build_deps::gen(system, version_prefix, cpp_version, include_search_path, src_cpp)) {
+                std::map<std::string, std::string> hash;
+                for (const auto& name : *deps_headers) {
+                    // Calculate the hash of the source dependent files.
+                    insert_file(name, hash);
+                }
+                // Calculate the hash of the source file itself.
+                insert_file(src_cpp, hash);
+                return hash;
+            }
+            return boost::none;
+        }
+
+        // TODO: Divide it finer...
+        auto check_src_cpp(
+            const std::string& system,
+            const std::string& version_prefix,
+            const unsigned int& cpp_version,
+            const std::vector<std::string>& include_search_path,
+            const std::vector<std::string>& source_files )
         {
             namespace fs = boost::filesystem;
 
             std::vector<std::string> new_source_files;
             for (const auto& sf : source_files) {
-                if (const auto pre_hash = manage_hash::load(manage_hash::to_cache_hash_path(sf))) {
-                    if (const auto cur_hash = manage_hash::gen(system, version_prefix, cpp_version, include_search_path, sf)) {
-                        // It is considered unnecessary to compile and excluded
-                        //  from the source file because it is not edited
-                        //  that the hash file which already exists and
-                        //  hash of the current cpp file matches.
-                        if (*pre_hash == *cur_hash) {
-                            continue;
-                        }
+                if (const auto pre_hash = hash_load(to_cache_hash_path(sf))) {
+                    if (const auto cur_hash = hash_gen(system,
+                            version_prefix,
+                            cpp_version,
+                            include_search_path,
+                            sf ))
+                    {
                         // Since hash of already existing hash file
                         //  does not match hash of current cpp file,
                         //  it does not exclude it from compilation,
                         //  and generates hash for overwriting.
-                        else {
-                            cpp_hash[manage_hash::to_cache_hash_path(sf)] = *cur_hash;
+                        if (*pre_hash != *cur_hash) {
+                            cpp_hash[to_cache_hash_path(sf)] = *cur_hash;
+                            new_source_files.push_back(sf);
                         }
                     }
                 }
                 else {
                     // Since hash file does not exist, generates hash and compiles source file.
-                    if (const auto cur_hash = manage_hash::gen(system, version_prefix, cpp_version, include_search_path, sf)) {
-                        cpp_hash[manage_hash::to_cache_hash_path(sf)] = *cur_hash;
+                    if (const auto cur_hash = hash_gen(system,
+                            version_prefix,
+                            cpp_version,
+                            include_search_path,
+                            sf ))
+                    {
+                        cpp_hash[to_cache_hash_path(sf)] = *cur_hash;
+                        new_source_files.push_back(sf);
                     }
                 }
-                new_source_files.push_back(sf);
             }
             return new_source_files;
+            // TODO: データとして持たず，すぐさま書き込み，
+            // TODO:  後々不必要な場合に消せば？名称(hashの)だけ保持しておけば，
+            // TODO:  メモリ使用量の抑制になる
         }
 
         auto hash_source_files(

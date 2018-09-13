@@ -7,7 +7,6 @@
 #include "util/command.hpp"
 #include "util/compiler.hpp"
 #include "util/ftemplate.hpp"
-#include "util/manage_hash.hpp"
 #include "util/package.hpp"
 #include "util/pretty_time.hpp"
 #include "util/step_functions.hpp"
