@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
-#include <regex>
 
 #include <boost/filesystem.hpp>
 
@@ -29,11 +28,11 @@ namespace poac::subcmd { struct login {
         if (fs::create_directories(io::file::path::poac_state_dir))
             throw except::invalid_second_arg("login");
 
-        const std::string token = io::file::path::poac_token_dir.string();
-        if (std::ofstream ofs(token); ofs) {
+        const std::string token_path = io::file::path::poac_token_dir.string();
+        if (std::ofstream ofs(token_path); ofs) {
             ofs << argv[0] << std::endl;
             std::cout << io::cli::bold
-                      << "Write to " + token
+                      << "Write to " + token_path
                       << io::cli::reset
                       << std::endl;
         }
@@ -46,9 +45,6 @@ namespace poac::subcmd { struct login {
         namespace except = core::exception;
 
         if (argv.size() != 1)
-            throw except::invalid_second_arg("login");
-        std::regex pattern("\\w{8}-(\\w{4}-){3}\\w{12}");
-        if (!std::regex_match(argv[0], pattern))
             throw except::invalid_second_arg("login");
     }
 };} // end namespace
