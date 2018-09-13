@@ -91,7 +91,7 @@ namespace poac::io::network {
         }
     }
 
-    void post_file(const std::string& to_url, const boost::filesystem::path& from_file) {
+    void put_file(const std::string& to_url, const boost::filesystem::path& from_file) {
         struct stat file_info;
         curl_off_t speed_upload, total_time;
         struct curl_slist *headers = NULL;
