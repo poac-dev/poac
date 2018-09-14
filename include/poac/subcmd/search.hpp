@@ -52,10 +52,16 @@ namespace poac::subcmd { struct search {
     }
 
     void echo_first_line() {
-        std::cout << io::cli::underline << "Package" << io::cli::reset << "        "
-                  << io::cli::underline << "Description" << io::cli::reset << "                                       "
-                  << io::cli::underline << "Version" << io::cli::reset << "        "
-                  << io::cli::underline << "C++ Version" << io::cli::reset
+        const int ulsize = io::cli::underline.size();
+        const int rsetsize = io::cli::reset.size();
+
+        io::cli::set_left(ulsize + 15 + rsetsize);
+        std::cout << io::cli::to_underline("Package");
+        io::cli::set_left(ulsize + 50 + rsetsize);
+        std::cout << io::cli::to_underline("Description");
+        io::cli::set_left(ulsize + 15 + rsetsize);
+        std::cout << io::cli::to_underline("Version")
+                  << io::cli::to_underline("C++ Version")
                   << std::endl;
     }
 
