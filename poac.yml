@@ -9,7 +9,7 @@ cpp_version: 17
 compilers:
   clang: "6 <= v <= 7"
   gcc:   "7 <= v <= 8"
-description: "poac is a package manager for C++."
+description: "poac is a package manager for C++"
 # It must be the same as the user name
 #  of the poac.pm account your created
 owners:
@@ -22,12 +22,12 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  boostorg/boost: # TODO: boost/boost が　全部, boost/optional
+  boostorg/boost:
     src: github
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
-      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険 # ダウンロードしてきたファイルのみ，docker attatch?
+      steps:
         - cd ${HOME}/.poac/cache/boost-1.67.0_tmp
         - git submodule update --init --recursive
         - ./bootstrap.sh
