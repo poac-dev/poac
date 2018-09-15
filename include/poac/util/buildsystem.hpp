@@ -435,6 +435,7 @@ namespace poac::util {
             return compiler::gen_dynamic_lib(dynamic_lib_conf);
         }
 
+        // TODO: poac.ymlのhashもcheckしてほしい
         buildsystem() :
             node(io::file::yaml::load_setting_file(
                     "name", "version", "cpp_version", "build"))

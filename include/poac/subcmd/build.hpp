@@ -93,6 +93,8 @@ namespace poac::subcmd { struct build {
                     return bin_path;
                 }
                 else { // Link failure
+                    // TODO: 全部削除すると，testのcacheも消えてしまう．
+                    fs::remove_all(io::file::path::current_build_cache_dir);
                     return boost::none;
                 }
             }
@@ -137,6 +139,8 @@ namespace poac::subcmd { struct build {
 //                return lib_path;
             }
             else { // Static link library generation failed
+                // TODO: 全部削除すると，testのcacheも消えてしまう．
+                fs::remove_all(io::file::path::current_build_cache_dir);
 //                return boost::none;
             }
 
@@ -149,8 +153,9 @@ namespace poac::subcmd { struct build {
                           << std::endl;
 //                return lib_path;
             }
-            else {
-                // Dynamic link library generation failed
+            else { // Dynamic link library generation failed
+                // TODO: 全部削除すると，testのcacheも消えてしまう．
+                fs::remove_all(io::file::path::current_build_cache_dir);
 //                return boost::none;
             }
 
