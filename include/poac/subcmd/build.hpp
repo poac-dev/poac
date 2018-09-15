@@ -22,7 +22,7 @@
 
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
-    static const std::string options() { return "[-v | --verbose]"; } // TODO: --release
+    static const std::string options() { return "[-v | --verbose]"; } // TODO: --release, --no-cache
 
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
