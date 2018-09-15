@@ -42,7 +42,7 @@ namespace poac::subcmd { struct new_ {
         std::map<fs::path, std::string> file {
                 { ".gitignore", util::ftemplate::_gitignore },
                 { "main.cpp",   util::ftemplate::main_cpp },
-                { "poac.yml",   util::ftemplate::poac_yml },
+                { "poac.yml",   util::ftemplate::poac_yml(dirname) },
                 { "README.md",  util::ftemplate::README_md(dirname) }
         };
         for (const auto& [name, text] : file)

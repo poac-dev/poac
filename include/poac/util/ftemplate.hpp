@@ -19,15 +19,15 @@ namespace poac::util::ftemplate {
         "    std::cout << \"Hello, world!\" << std::endl;\n"
         "}\n"
     );
-    const std::string poac_yml(
-        "name: sample\n"
-        "version: 0.1.0\n"
-        "owners:\n"
-        "  - Your Name\n"
-        "deps:\n"
-    );
+    std::string poac_yml(const std::string& project_name) {
+        return "name: " + project_name + "\n"
+               "version: 0.1.0\n"
+               "owners:\n"
+               "  - Your Name\n"
+               "deps:\n";
+    }
     std::string README_md(const std::string& project_name) {
-        return "# " + project_name +
+        return "# " + project_name + "\n"
                "**TODO: Add description**\n"
                "\n"
                "## Installation\n"
