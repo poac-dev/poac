@@ -135,7 +135,10 @@ namespace poac::util {
             std::vector<std::string> macro_defns;
             // poac automatically define the absolute path of the project's root directory.
             macro_defns.push_back(make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
-            const std::string def_macro_name = boost::to_upper_copy<std::string>(project_name) + "_VERSION";
+            auto upper_letter = boost::to_upper_copy<std::string>(project_name);
+            // ISO C99 requires whitespace after the macro name [-Wc99-extensions]
+            std::replace(upper_letter.begin(), upper_letter.end(), '-', '_');
+            const std::string def_macro_name = upper_letter + "_VERSION";
             macro_defns.push_back(make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
             return macro_defns;
         }
@@ -191,9 +194,19 @@ namespace poac::util {
                 const std::string& version_prefix,
                 const unsigned int& cpp_version,
                 const std::vector<std::string>& include_search_path,
-                const std::string& src_cpp)
+                const std::vector<std::string>& compile_other_args,
+                const std::string& src_cpp,
+                const bool verbose )
         {
-            if (const auto deps_headers = build_deps::gen(system, version_prefix, cpp_version, include_search_path, src_cpp)) {
+            if (const auto deps_headers = build_deps::gen(
+                    system,
+                    version_prefix,
+                    cpp_version,
+                    include_search_path,
+                    compile_other_args,
+                    src_cpp,
+                    verbose))
+            {
                 std::map<std::string, std::string> hash;
                 for (const auto& name : *deps_headers) {
                     // Calculate the hash of the source dependent files.
@@ -212,18 +225,23 @@ namespace poac::util {
             const std::string& version_prefix,
             const unsigned int& cpp_version,
             const std::vector<std::string>& include_search_path,
-            const std::vector<std::string>& source_files )
+            const std::vector<std::string>& compile_other_args,
+            const std::vector<std::string>& source_files,
+            const bool verbose )
         {
             namespace fs = boost::filesystem;
 
             std::vector<std::string> new_source_files;
             for (const auto& sf : source_files) {
                 if (const auto pre_hash = hash_load(to_cache_hash_path(sf))) {
-                    if (const auto cur_hash = hash_gen(system,
+                    if (const auto cur_hash = hash_gen(
+                            system,
                             version_prefix,
                             cpp_version,
                             include_search_path,
-                            sf ))
+                            compile_other_args,
+                            sf,
+                            verbose) )
                     {
                         // Since hash of already existing hash file
                         //  does not match hash of current cpp file,
@@ -237,11 +255,14 @@ namespace poac::util {
                 }
                 else {
                     // Since hash file does not exist, generates hash and compiles source file.
-                    if (const auto cur_hash = hash_gen(system,
+                    if (const auto cur_hash = hash_gen(
+                            system,
                             version_prefix,
                             cpp_version,
                             include_search_path,
-                            sf ))
+                            compile_other_args,
+                            sf,
+                            verbose) )
                     {
                         cpp_hash[to_cache_hash_path(sf)] = *cur_hash;
                         new_source_files.push_back(sf);
@@ -256,7 +277,8 @@ namespace poac::util {
 
         auto hash_source_files(
             std::vector<std::string>&& source_files,
-            const bool usemain=false )
+            const bool usemain=false,
+            const bool verbose=false )
         {
             if (usemain) {
                 namespace fs = boost::filesystem;
@@ -270,7 +292,9 @@ namespace poac::util {
                     compile_conf.version_prefix,
                     compile_conf.cpp_version,
                     compile_conf.include_search_path,
-                    source_files
+                    compile_conf.other_args,
+                    source_files,
+                    verbose
             );
         }
 
@@ -282,8 +306,8 @@ namespace poac::util {
             compile_conf.version_prefix = default_version_prefix();
             compile_conf.cpp_version = node.at("cpp_version").as<unsigned int>();
             compile_conf.include_search_path = make_include_search_path();
-            compile_conf.source_files = hash_source_files(make_source_files(), usemain);
             compile_conf.other_args = make_compile_other_args();
+            compile_conf.source_files = hash_source_files(make_source_files(), usemain, verbose);
             compile_conf.macro_defns = make_macro_defns();
             compile_conf.output_path = io::file::path::current_build_cache_obj_dir;
             compile_conf.verbose = verbose;
