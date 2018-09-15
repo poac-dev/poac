@@ -81,43 +81,29 @@ namespace poac::io::file::path {
 
     bool recursive_copy(const boost::filesystem::path &from, const boost::filesystem::path &dest) {
         namespace fs = boost::filesystem;
-        try {
-            // Check whether the function call is valid
-            if (!fs::exists(from) || !fs::is_directory(from)) {
-//                std::cerr << "Source directory " << source.string()
-//                          << " does not exist or is not a directory." << '\n';
-                return false;
-            }
-            if (!validate_dir(dest)) {
-                // Create the destination directory
-                if (!fs::create_directory(dest)) {
-                    std::cerr << "Unable to create destination directory"
-                              << dest.string() << '\n';
-                    return false;
-                }
-            }
-        }
-        catch (fs::filesystem_error const & e) {
-            std::cerr << e.what() << '\n';
-            return false;
-        }
+
+        // Does the copy source exist?
+        if (!validate_dir(from))
+            return EXIT_FAILURE;
+        // Does the copy destination exist?
+        if (!validate_dir(dest) && !fs::create_directories(dest))
+            return EXIT_FAILURE; // Unable to create destination directory
+
         // Iterate through the source directory
         for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
-            try {
-                fs::path current(file->path());
-                if (fs::is_directory(current)) {
-                    // Found directory: Recursion
-                    if (!recursive_copy(current, dest / current.filename()))
-                    { return false; }
-                }
-                else {
-                    // Found file: Copy
-                    fs::copy_file(current, dest / current.filename());
-                }
+            fs::path current(file->path());
+            if (fs::is_directory(current)) {
+                // Found directory: Recursion
+                if (recursive_copy(current, dest / current.filename()))
+                    return EXIT_FAILURE;
             }
-            catch(...) { /* Ignore error */ }
+            else {
+                // Found file: Copy
+                try { fs::copy_file(current, dest / current.filename()); }
+                catch(...) { /* Ignore error */ }
+            }
         }
-        return true;
+        return EXIT_SUCCESS;
     }
 
     boost::optional<std::string> read_file(const boost::filesystem::path& path) {
