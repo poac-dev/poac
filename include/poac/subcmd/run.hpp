@@ -40,7 +40,7 @@ namespace poac::subcmd { struct run {
             subcmd::build{}(std::vector<std::string>(argv.begin(), result));
         }
         else {
-            subcmd::build{}(std::move(argv));
+            subcmd::build{}(std::move(argv)); // TODO: もしエラーなら，下を実行しない
         }
 
         const std::string project_name = node.at("name").as<std::string>();
