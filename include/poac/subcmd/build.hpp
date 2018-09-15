@@ -72,10 +72,13 @@ namespace poac::subcmd { struct build {
         if (bs.compile_conf.source_files.empty()) { // No need for compile and link
             const std::string bin_path =
                     (io::file::path::current_build_bin_dir / bs.project_name).string();
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Binary exists in `" +
-                         fs::relative(bin_path).string() + "`."
-                      << std::endl;
+            // Dealing with an error which is said to have cache even though it is not going well.
+            if (fs::exists(bin_path)) {
+                std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                          << "There is no change. Binary exists in `" +
+                             fs::relative(bin_path).string() + "`."
+                          << std::endl;
+            }
             return bin_path;
         }
         else {
@@ -109,16 +112,18 @@ namespace poac::subcmd { struct build {
         if (bs.compile_conf.source_files.empty()) { // No need for compile and link
             const std::string lib_path =
                     (io::file::path::current_build_lib_dir / bs.project_name).string();
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Static link library exists in `" +
-                         fs::relative(lib_path).string() +
-                         ".a" + "`."
-                      << std::endl;
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Dynamic link library exists in `" +
-                         fs::relative(lib_path).string() +
-                         ".dylib" + "`."
-                      << std::endl;
+            if (fs::exists(lib_path)) {
+                std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                          << "There is no change. Static link library exists in `" +
+                             fs::relative(lib_path).string() +
+                             ".a" + "`."
+                          << std::endl;
+                std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                          << "There is no change. Dynamic link library exists in `" +
+                             fs::relative(lib_path).string() +
+                             ".dylib" + "`."
+                          << std::endl;
+            }
             return lib_path;
         }
         if (const auto obj_files_path = bs._compile()) {
