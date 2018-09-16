@@ -33,7 +33,18 @@ namespace poac::io::cli {
         else       std::cout << down(-y);
     }
 
-    void set_left(const int&& n) { std::cout << std::setw(n) << std::left; }
+    void set_left(int&& n) { std::cout << std::setw(n) << std::left; }
+    std::string set_left(const std::string& s, int&& n) {
+        if (const int diff = n - static_cast<int>(s.size()); diff > 0) {
+            std::string ret = s;
+            for (int i = 0; i < diff; ++i)
+                ret += " ";
+            return ret;
+        }
+        else {
+            return s;
+        }
+    }
 
     const std::string red = "\x1b[31m";
     const std::string green = "\x1b[32m";
@@ -51,6 +62,14 @@ namespace poac::io::cli {
     std::string to_underline(const std::string& s) { return underline+s+reset; }
 
     const std::vector<std::string> spinners{ "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+    std::string at_spinner(const size_t& index) {
+        return spinners[index % spinners.size()];
+    }
+    const std::vector<std::string> pointers{ ".  ", ".. ", "..." };
+    std::string at_pointer(const size_t& index) {
+        if      (index <= 2) return pointers[0];
+        else if (index <= 5) return pointers[1];
+        else                 return pointers[2];
+    }
 } // end namespace
-
 #endif // !POAC_IO_CLI_HPP
