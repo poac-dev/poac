@@ -56,7 +56,7 @@ namespace poac::subcmd { struct install {
         std::cout << io::cli::up(async_funcs.size());
 
         int count = 0;
-        for (auto& [func, info] : async_funcs) {
+        for (auto& [info, func] : async_funcs) {
             const auto rel_time = std::chrono::milliseconds(0);
             const std::string status = func.wait_for(rel_time);
 
@@ -142,7 +142,7 @@ namespace poac::subcmd { struct install {
     {
         namespace tb = io::file::tarball;
 
-        const std::string url = sources::github::resolve(name, version);
+        const std::string url = sources::github::resolve(name, version); // TODO:
         const auto pkg_dir = io::file::path::poac_cache_dir / pkgname;
         const auto tarname = pkg_dir.string() + ".tar.gz";
 
@@ -206,8 +206,8 @@ namespace poac::subcmd { struct install {
                 ++already_count;
             else
                 async_funcs->emplace_back(
-                        create_func_pack(name, version, pkgname, src),
-                        name + ": " + version
+                        name + ": " + version,
+                        create_func_pack(name, version, pkgname, src)
                 );
         }
 
@@ -224,9 +224,9 @@ namespace poac::subcmd { struct install {
         namespace fs = boost::filesystem;
         fs::create_directories(io::file::path::current_deps_dir);
         // TODO: hardware concurrency
-        for (auto& [func, _info] : async_funcs) {
-            func.start();
+        for (auto& [_info, func] : async_funcs) {
             (void)_info; // Avoid unused warning
+            func.start();
         }
     }
 
@@ -248,12 +248,7 @@ namespace poac::subcmd { struct install {
         fs::create_directories(io::file::path::poac_cache_dir);
         const auto node = io::file::yaml::load_setting_file("deps");
 
-        std::vector<
-            std::pair<
-                util::step_funcs_with_status,
-                std::string
-            >
-        > async_funcs;
+        std::map<std::string, util::step_funcs_with_status> async_funcs;
         dependencies(&async_funcs, node.at("deps"));
         start_funcs(async_funcs);
 
