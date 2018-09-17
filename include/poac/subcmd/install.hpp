@@ -249,7 +249,7 @@ namespace poac::subcmd { struct install {
         const auto node = io::file::yaml::load_setting_file("deps");
 
         std::vector<
-            std::tuple<
+            std::pair<
                 util::step_funcs_with_status,
                 std::string
             >
