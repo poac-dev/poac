@@ -210,7 +210,6 @@ namespace poac::subcmd { struct install {
                     create_func_pack(name, version, pkgname, src)
                 );
         }
-
         if (async_funcs->empty()) {
             if (already_count > 0)
                 throw except::warn("Already up-to-date");
