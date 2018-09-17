@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <tuple>
+#include <map>
 #include <future>
 #include <functional>
 #include <chrono>
@@ -44,7 +45,7 @@ namespace poac::util {
         std::string alldone;
 
     public:
-        std::vector<std::tuple<std::string, std::function<ret_type()>>> funcs;
+        std::vector<std::pair<std::string, std::function<ret_type()>>> funcs;
         std::string error_msg;
         std::string finish_msg;
 
@@ -52,8 +53,8 @@ namespace poac::util {
 
 
         void start() { if (index == 0) run(); }
-        void run()   { func_now = std::async(std::launch::async, std::get<1>(funcs[index])); }
-        std::string next()  { ++index; run(); return std::get<0>(funcs[index]); }
+        void run()   { func_now = std::async(std::launch::async, funcs[index].second); }
+        std::string next()  { ++index; run(); return funcs[index].first; }
         // All done: -1, Now: index
         template <class Rep, class Period>
         std::string wait_for(const std::chrono::duration<Rep, Period>& rel_time) {
@@ -73,7 +74,7 @@ namespace poac::util {
                     return alldone;
                 }
             }
-            else { return std::get<0>(funcs[index]); }
+            else { return funcs[index].first; }
         }
         bool is_done() {
             return !alldone.empty();

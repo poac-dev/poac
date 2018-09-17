@@ -205,9 +205,9 @@ namespace poac::subcmd { struct install {
             if (sources::current::resolve(pkgname))
                 ++already_count;
             else
-                async_funcs->emplace_back(
-                        name + ": " + version,
-                        create_func_pack(name, version, pkgname, src)
+                async_funcs->emplace(
+                    name + ": " + version,
+                    create_func_pack(name, version, pkgname, src)
                 );
         }
 
