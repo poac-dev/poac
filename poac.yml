@@ -32,7 +32,7 @@ deps:
         - git submodule update --init --recursive
         - ./bootstrap.sh
         - ./b2 install -j2 --prefix=${HOME}/.poac/cache/boost-1.67.0
-    link:
+    link: # このkeyは，deps専用
       type: static # If dynamic -> global install
       include:
         - boost_system

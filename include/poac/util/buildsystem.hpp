@@ -25,6 +25,46 @@
 #include "../io/file/yaml.hpp"
 
 
+//static bool _cmake_build(
+//        const std::string& pkgname,
+//        const std::map<std::string, std::string>& cmake_envs )
+//{
+//    namespace fs     = boost::filesystem;
+//    namespace except = core::exception;
+//
+//    const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
+//
+//    util::command cmd("cd " + filepath.string());
+//    cmd &= "mkdir build";
+//    cmd &= "cd build";
+//    util::command cmake_cmd("cmake ..");
+//    for (const auto& [key, val] : cmake_envs)
+//        cmake_cmd.env(key, val);
+//    cmd &= cmake_cmd.stderr_to_stdout();
+//    cmd &= util::command("make -j4").stderr_to_stdout();
+//    cmd &= util::command("make install").env("DESTDIR", "./").stderr_to_stdout();
+//
+//    if (auto result = cmd.exec()) {
+//        const std::string filepath_tmp = filepath.string() + "_tmp";
+//        fs::rename(filepath, filepath_tmp);
+//        fs::create_directories(filepath);
+//
+//        const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
+//
+//        // Write to cache.yml and recurcive copy
+//        for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
+//            if (io::file::path::validate_dir(build_after_dir / s))
+//                io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
+//        fs::remove_all(filepath_tmp);
+//
+//        return EXIT_SUCCESS;
+//    }
+//    else {
+//        /* error */
+//        // datetime-error.log
+//        return EXIT_FAILURE;
+//    }
+//}
 namespace poac::util {
     struct compile_configure {
         std::string system;

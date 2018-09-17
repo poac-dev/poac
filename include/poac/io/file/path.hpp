@@ -79,15 +79,22 @@ namespace poac::io::file::path {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool recursive_copy(const boost::filesystem::path &from, const boost::filesystem::path &dest) {
+    bool recursive_copy(
+        const boost::filesystem::path &from,
+        const boost::filesystem::path &dest )
+    {
         namespace fs = boost::filesystem;
 
         // Does the copy source exist?
-        if (!validate_dir(from))
+        if (!fs::exists(from) || !fs::is_directory(from)) {
+//            std::cerr << "Could not validate `from` dir" << std::endl;
             return EXIT_FAILURE;
+        }
         // Does the copy destination exist?
-        if (!validate_dir(dest) && !fs::create_directories(dest))
+        if (!validate_dir(dest) && !fs::create_directories(dest)) {
+//            std::cerr << "Could not validate `dest` dir" << std::endl;
             return EXIT_FAILURE; // Unable to create destination directory
+        }
 
         // Iterate through the source directory
         for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
@@ -99,8 +106,12 @@ namespace poac::io::file::path {
             }
             else {
                 // Found file: Copy
-                try { fs::copy_file(current, dest / current.filename()); }
-                catch(...) { /* Ignore error */ }
+                boost::system::error_code err;
+                fs::copy_file(current, dest / current.filename(), err);
+                if (err) {
+//                    std::cerr << err.message() << std::endl;
+                    return EXIT_FAILURE;
+                }
             }
         }
         return EXIT_SUCCESS;
