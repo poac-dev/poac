@@ -100,7 +100,7 @@ namespace poac::subcmd { struct install {
 
         // If it exists in cache and it is not in the current directory copy it to the current.
         util::step_funcs_with_status step_funcs;
-        step_funcs.funcs.push_back(std::make_pair("Copying" + from_string, std::bind(&_copy, pkgname)));
+        step_funcs.funcs.emplace_back("Copying" + from_string, std::bind(&_copy, pkgname));
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
@@ -121,13 +121,13 @@ namespace poac::subcmd { struct install {
         opts.insert(io::network::opt_branch(version));
 
         util::step_funcs_with_status step_funcs;
-        step_funcs.funcs.push_back(std::make_pair(
+        step_funcs.funcs.emplace_back(
                 "Cloning (from " + source + ")",
-                std::bind(&io::network::clone, url, dest, opts))
+                std::bind(&io::network::clone, url, dest, opts)
         );
-        step_funcs.funcs.push_back(std::make_pair(
+        step_funcs.funcs.emplace_back(
                 "Copying (from " + source + ")",
-                std::bind(&_copy, pkgname))
+                std::bind(&_copy, pkgname)
         );
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
@@ -147,17 +147,17 @@ namespace poac::subcmd { struct install {
         const auto tarname = pkg_dir.string() + ".tar.gz";
 
         util::step_funcs_with_status step_funcs;
-        step_funcs.funcs.push_back(std::make_pair(
+        step_funcs.funcs.emplace_back(
                 "Downloading (from " + source + ")",
-                std::bind(&io::network::get_file, url, tarname))
+                std::bind(&io::network::get_file, url, tarname)
         );
-        step_funcs.funcs.push_back(std::make_pair(
+        step_funcs.funcs.emplace_back(
                 "Extracting (from " + source + ")",
-                std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir))
+                std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir)
         );
-        step_funcs.funcs.push_back(std::make_pair(
+        step_funcs.funcs.emplace_back(
                 "Copying (from " + source + ")",
-                std::bind(&_copy, pkgname))
+                std::bind(&_copy, pkgname)
         );
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
@@ -167,7 +167,7 @@ namespace poac::subcmd { struct install {
     auto notfound_func_pack()
     {
         util::step_funcs_with_status step_funcs;
-        step_funcs.funcs.push_back(std::make_pair("Notfound", std::bind(&_placeholder)));
+        step_funcs.funcs.emplace_back("Notfound", std::bind(&_placeholder));
         step_funcs.finish_msg = io::cli::to_red(" ×  Not found");
         return step_funcs;
     }
