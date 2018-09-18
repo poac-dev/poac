@@ -93,7 +93,7 @@ namespace poac::subcmd { struct install {
         // ./poac.yml         pkgname/poac.yml
         //  deps: pkgname ->
         {
-            std::ofstream ofs((from_path / "poac.yml").string());
+            std::ofstream ofs((from_path / "poac.yml").string()); // TODO: _configure -> cacheの時はしない
             ofs << deps;
         }
         // Copy package to ./deps
@@ -110,12 +110,8 @@ namespace poac::subcmd { struct install {
 
         // If it exists in cache and it is not in the current directory copy it to the current.
         util::step_funcs_with_status step_funcs;
-        const std::function<bool()> copy_func = std::bind(&_copy, pkgname, YAML::Clone(deps));
-
-        step_funcs.funcs.emplace_back(
-            "Copying" + from_string,
-            copy_func
-        );
+        step_funcs.statuses.emplace_back("Copying" + from_string);
+        step_funcs.funcs.emplace_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
@@ -138,18 +134,12 @@ namespace poac::subcmd { struct install {
         opts.insert(io::network::opt_branch(version));
 
         util::step_funcs_with_status step_funcs;
-        std::function<bool()> clone_func = std::bind(&io::network::clone, url, dest, opts);
 
-        step_funcs.funcs.emplace_back(
-                "Cloning" + from_string,
-                clone_func
-        );
+        step_funcs.statuses.emplace_back("Cloning" + from_string);
+        step_funcs.funcs.emplace_back(std::bind(&io::network::clone, url, dest, opts));
 
-        std::function<bool()> copy_func = std::bind(&_copy, pkgname, YAML::Clone(deps));
-        step_funcs.funcs.emplace_back(
-                "Copying" + from_string,
-                copy_func
-        );
+        step_funcs.statuses.emplace_back("Copying" + from_string);
+        step_funcs.funcs.emplace_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
@@ -171,23 +161,14 @@ namespace poac::subcmd { struct install {
 
         util::step_funcs_with_status step_funcs;
 
-        std::function<bool()> download_func = std::bind(&io::network::get_file, url, tarname);
-        step_funcs.funcs.emplace_back(
-                "Downloading" + from_string,
-                download_func
-        );
+        step_funcs.statuses.emplace_back("Downloading" + from_string);
+        step_funcs.funcs.emplace_back(std::bind(&io::network::get_file, url, tarname));
 
-        std::function<bool()> ex_func = std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir);
-        step_funcs.funcs.emplace_back(
-                "Extracting" + from_string,
-                ex_func
-        );
+        step_funcs.statuses.emplace_back("Extracting" + from_string);
+        step_funcs.funcs.emplace_back(std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir));
 
-        std::function<bool()> copy_func = std::bind(&_copy, pkgname, YAML::Clone(deps));
-        step_funcs.funcs.emplace_back(
-                "Copying" + from_string,
-                copy_func
-        );
+        step_funcs.statuses.emplace_back("Copying" + from_string);
+        step_funcs.funcs.emplace_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
@@ -197,11 +178,8 @@ namespace poac::subcmd { struct install {
     {
         util::step_funcs_with_status step_funcs;
 
-        std::function<bool()> no_func = std::bind(&_placeholder);
-        step_funcs.funcs.emplace_back(
-                "Notfound",
-                no_func
-        );
+        step_funcs.statuses.emplace_back("Notfound");
+        step_funcs.funcs.emplace_back(std::bind(&_placeholder));
         step_funcs.finish_msg = io::cli::to_red(" ×  Not found");
         return step_funcs;
     }

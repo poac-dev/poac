@@ -46,7 +46,8 @@ namespace poac::util {
         std::string alldone;
 
     public:
-        std::vector<std::pair<std::string, std::function<ret_type()>>> funcs;
+        std::vector<std::string> statuses;
+        std::vector<std::function<ret_type()>> funcs;
         std::string error_msg;
         std::string finish_msg;
 
@@ -54,8 +55,8 @@ namespace poac::util {
 
 
         void start() { if (index == 0) run(); }
-        void run()   { func_now = std::async(std::launch::async, funcs[index].second); }
-        std::string next()  { ++index; run(); return funcs[index].first; }
+        void run()   { func_now = std::async(std::launch::async, funcs[index]); }
+        std::string next()  { ++index; run(); return statuses[index]; }
         // All done: -1, Now: index
         template <class Rep, class Period>
         std::string wait_for(const std::chrono::duration<Rep, Period>& rel_time) {
@@ -75,7 +76,7 @@ namespace poac::util {
                     return alldone;
                 }
             }
-            else { return funcs[index].first; }
+            else { return statuses[index]; }
         }
         bool is_done() {
             return !alldone.empty();
