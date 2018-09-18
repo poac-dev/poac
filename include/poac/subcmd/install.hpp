@@ -83,30 +83,44 @@ namespace poac::subcmd { struct install {
         return count;
     }
 
-    static bool _copy(const std::string& pkgname) {
+    static bool _copy(const std::string& pkgname, const YAML::Node& deps) {
+        const auto from_path =
+                io::file::path::poac_cache_dir / pkgname;
+        const auto to_path =
+                io::file::path::current_deps_dir /
+                util::package::cache_to_current(pkgname);
+        // Copy
+        // ./poac.yml         pkgname/poac.yml
+        //  deps: pkgname ->
+        {
+            std::ofstream ofs((from_path / "poac.yml").string());
+            ofs << deps;
+        }
         // Copy package to ./deps
-        return io::file::path::recursive_copy(
-                io::file::path::poac_cache_dir / pkgname,
-                io::file::path::current_deps_dir / util::package::cache_to_current(pkgname)
-        );
+        return io::file::path::recursive_copy(from_path, to_path);
     }
     static bool _placeholder() { return EXIT_SUCCESS; }
 
     auto cache_func_pack(
         const std::string& pkgname,
+        const YAML::Node& deps,
         const std::string& source )
     {
         const std::string from_string = " (from " + source + ")";
 
         // If it exists in cache and it is not in the current directory copy it to the current.
         util::step_funcs_with_status step_funcs;
-        step_funcs.funcs.emplace_back("Copying" + from_string, std::bind(&_copy, pkgname));
+        step_funcs.funcs.emplace_back(
+                "Copying" + from_string,
+                std::bind(&_copy, pkgname, YAML::Clone(deps))
+        );
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
     }
     auto github_func_pack(
         const std::string& name,
+        const YAML::Node& deps,
         const std::string& version,
         const std::string& pkgname,
         const std::string& source )
@@ -115,6 +129,7 @@ namespace poac::subcmd { struct install {
         const auto dest =
                 io::file::path::poac_cache_dir /
                 util::package::github_conv_pkgname(name, version);
+        const std::string from_string = " (from " + source + ")";
 
         std::map<std::string, std::string> opts;
         opts.insert(io::network::opt_depth(1));
@@ -122,20 +137,21 @@ namespace poac::subcmd { struct install {
 
         util::step_funcs_with_status step_funcs;
         step_funcs.funcs.emplace_back(
-                "Cloning (from " + source + ")",
+                "Cloning" + from_string,
                 std::bind(&io::network::clone, url, dest, opts)
         );
         step_funcs.funcs.emplace_back(
-                "Copying (from " + source + ")",
-                std::bind(&_copy, pkgname)
+                "Copying" + from_string,
+                std::bind(&_copy, pkgname, YAML::Clone(deps))
         );
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
-        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed! (from " + source + ")");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
     }
     auto tarball_func_pack(
         const std::string& name,
+        const YAML::Node& deps,
         const std::string& version,
         const std::string& pkgname,
         const std::string& source )
@@ -145,23 +161,24 @@ namespace poac::subcmd { struct install {
         const std::string url = sources::github::resolve(name, version); // TODO:
         const auto pkg_dir = io::file::path::poac_cache_dir / pkgname;
         const auto tarname = pkg_dir.string() + ".tar.gz";
+        const std::string from_string = " (from " + source + ")";
 
         util::step_funcs_with_status step_funcs;
         step_funcs.funcs.emplace_back(
-                "Downloading (from " + source + ")",
+                "Downloading" + from_string,
                 std::bind(&io::network::get_file, url, tarname)
         );
         step_funcs.funcs.emplace_back(
-                "Extracting (from " + source + ")",
+                "Extracting" + from_string,
                 std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir)
         );
         step_funcs.funcs.emplace_back(
-                "Copying (from " + source + ")",
-                std::bind(&_copy, pkgname)
+                "Copying" + from_string,
+                std::bind(&_copy, pkgname, YAML::Clone(deps))
         );
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
-        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed! (from " + source + ")");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
     }
     auto notfound_func_pack()
@@ -174,16 +191,17 @@ namespace poac::subcmd { struct install {
 
     auto create_func_pack(
         const std::string& name,
+        const YAML::Node& deps,
         const std::string& version,
         const std::string& pkgname,
         const std::string& src )
     {
         if (sources::cache::resolve(pkgname))
-            return cache_func_pack(pkgname, src);
+            return cache_func_pack(pkgname, deps, src);
         else if (src == "github")
-            return github_func_pack(name, version, pkgname, src);
+            return github_func_pack(name, deps, version, pkgname, src);
         else if (src == "tarball")
-            return tarball_func_pack(name, version, pkgname, src);
+            return tarball_func_pack(name, deps, version, pkgname, src);
         else
             return notfound_func_pack();
     }
@@ -207,7 +225,7 @@ namespace poac::subcmd { struct install {
             else
                 async_funcs->emplace(
                     name + ": " + version,
-                    create_func_pack(name, version, pkgname, src)
+                    create_func_pack(name, next_node, version, pkgname, src)
                 );
         }
         if (async_funcs->empty()) {
