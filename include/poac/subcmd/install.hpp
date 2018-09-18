@@ -110,8 +110,8 @@ namespace poac::subcmd { struct install {
 
         // If it exists in cache and it is not in the current directory copy it to the current.
         util::step_funcs_with_status step_funcs;
-        step_funcs.statuses.emplace_back("Copying" + from_string);
-        step_funcs.funcs.emplace_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
+        step_funcs.statuses.push_back("Copying" + from_string);
+        step_funcs.funcs.push_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
@@ -135,11 +135,11 @@ namespace poac::subcmd { struct install {
 
         util::step_funcs_with_status step_funcs;
 
-        step_funcs.statuses.emplace_back("Cloning" + from_string);
-        step_funcs.funcs.emplace_back(std::bind(&io::network::clone, url, dest, opts));
+        step_funcs.statuses.push_back("Cloning" + from_string);
+        step_funcs.funcs.push_back(std::bind(&io::network::clone, url, dest, opts));
 
-        step_funcs.statuses.emplace_back("Copying" + from_string);
-        step_funcs.funcs.emplace_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
+        step_funcs.statuses.push_back("Copying" + from_string);
+        step_funcs.funcs.push_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
@@ -161,14 +161,14 @@ namespace poac::subcmd { struct install {
 
         util::step_funcs_with_status step_funcs;
 
-        step_funcs.statuses.emplace_back("Downloading" + from_string);
-        step_funcs.funcs.emplace_back(std::bind(&io::network::get_file, url, tarname));
+        step_funcs.statuses.push_back("Downloading" + from_string);
+        step_funcs.funcs.push_back(std::bind(&io::network::get_file, url, tarname));
 
-        step_funcs.statuses.emplace_back("Extracting" + from_string);
-        step_funcs.funcs.emplace_back(std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir));
+        step_funcs.statuses.push_back("Extracting" + from_string);
+        step_funcs.funcs.push_back(std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir));
 
-        step_funcs.statuses.emplace_back("Copying" + from_string);
-        step_funcs.funcs.emplace_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
+        step_funcs.statuses.push_back("Copying" + from_string);
+        step_funcs.funcs.push_back(std::bind(&_copy, pkgname, YAML::Clone(deps)));
 
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
@@ -178,8 +178,8 @@ namespace poac::subcmd { struct install {
     {
         util::step_funcs_with_status step_funcs;
 
-        step_funcs.statuses.emplace_back("Notfound");
-        step_funcs.funcs.emplace_back(std::bind(&_placeholder));
+        step_funcs.statuses.push_back("Notfound");
+        step_funcs.funcs.push_back(std::bind(&_placeholder));
         step_funcs.finish_msg = io::cli::to_red(" ×  Not found");
         return step_funcs;
     }
