@@ -6,6 +6,8 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
+#include <future>
+#include <functional>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -14,8 +16,7 @@
 
 #include "../io.hpp"
 #include "../core/exception.hpp"
-#include "../util/command.hpp"
-#include "../util/argparse.hpp"
+#include "../util.hpp"
 
 
 namespace poac::subcmd { struct publish {
@@ -37,19 +38,34 @@ namespace poac::subcmd { struct publish {
         const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
 
-        const std::string output_dir = compress_project();
+        std::cout << std::endl;
+        const auto status = std::bind(status_func, "Packaging...", std::placeholders::_1);
+        const std::string output_dir = util::async_func<std::string>(compress_project, status);
+        status_done("Packaged");
         if (verbose) std::cout << output_dir << std::endl;
 
         const std::string json_string = create_json();
         if (verbose) std::cout << json_string << std::endl;
 
-        // Post json to API. login処理を行う
+
+        // Post json to API.
         const std::string uuid = io::network::post(url + "/create", json_string);
+        // login error
         if (uuid == "err") throw except::error("Could not create package");
         if (verbose) std::cout << uuid << std::endl;
 
         // Post tarball to API.
-        io::network::put_file(url + "/upload?uuid="+uuid, output_dir);
+//        const std::string res = io::network::post_file(url + "/upload", output_dir, verbose);
+//        if (verbose) std::cout << res << std::endl;
+        std::cout << std::endl;
+        const auto status2 = std::bind(status_func, "Uploading...", std::placeholders::_1);
+        const auto post_func = std::bind(io::network::http2post, url + "/upload", uuid, output_dir, verbose);
+        util::async_func<void>(post_func, status2);
+        status_done("Uploaded");
+//        io::network::http2post(url + "/upload", uuid, output_dir, verbose);
+
+        // Delete file
+        fs::remove_all(fs::path(output_dir).parent_path());
 
         // Packaging...
         // Add poac.yml
@@ -70,10 +86,16 @@ namespace poac::subcmd { struct publish {
 
         if (const auto op_filename = io::file::yaml::exists_setting_file()) {
             const std::string yaml_content = *(io::file::path::read_file(*op_filename));
+            boost::property_tree::ptree json;
+            json.put("yaml", yaml_content);
+            std::stringstream ss;
+            boost::property_tree::json_parser::write_json(ss, json);
+
             std::stringstream json_content;
-            json_content << io::network::post(url + "/yaml2json", yaml_content);
+            json_content << io::network::post(url + "/yaml2json", ss.str());
             if (json_content.str() == "err")
                 throw except::error("Could not create package");
+
             boost::property_tree::json_parser::read_json(json_content, pt);
         }
         else {
@@ -95,22 +117,36 @@ namespace poac::subcmd { struct publish {
         json.add_child("setting", setting);
 
         std::stringstream ss;
-        boost::property_tree::json_parser::write_json(ss, json);
+        boost::property_tree::json_parser::write_json(ss, json, false);
         return ss.str();
     }
 
-    std::string compress_project() {
-        namespace fs     = boost::filesystem;
+    static std::string compress_project() {
+        namespace fs = boost::filesystem;
 
         const std::string project_dir = fs::absolute(fs::current_path()).string();
         const std::string temp = *(util::command("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // rm \n
-        // TODO:                                               poac.yml -> name-version.tar.gz
-        // TODO:                                               project_dir x -> poac.yml o
         const std::string output_dir = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
-        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
+        const std::vector<std::string> excludes({ "deps", "_build", "build", "cmake-build-debug" });
+        io::file::tarball::compress_spec_exclude(project_dir, output_dir, excludes);
 
         return output_dir;
+    }
+
+    void status_done(const std::string& msg) {
+        std::cout << io::cli::up(1)
+                  << '\b'
+                  << io::cli::to_green(" Done.")
+                  << "  " + msg
+                  << std::endl;
+    }
+    static void status_func(const std::string& msg, int count) {
+        const int size = io::cli::spinners.size();
+        std::cout << io::cli::up(1)
+                  << '\b'
+                  << " " + io::cli::spinners[count%size] + "  " + msg
+                  << std::endl;
     }
 
 
@@ -125,24 +161,13 @@ namespace poac::subcmd { struct publish {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
 
-        if (!fs::exists("poac.yml"))
-            throw except::error("poac.yml does not exist");
+        io::file::yaml::load_setting_file("name", "version", "cpp_version",
+                                          "compilers", "description", "owners");
 
         if (!fs::exists("LICENSE"))
             std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
         if (!fs::exists("README.md"))
             std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
-    }
-
-    template <typename C>
-    bool validity_check(const C& config) {
-        const std::vector<std::string> requires{
-                "name", "version", "cpp_version", "compilers",
-                "description", "owners", "deps"
-        };
-        for (const auto& r : requires)
-            if (!config[r]) return false;
-        return true;
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_PUBLISH_HPP
