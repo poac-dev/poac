@@ -89,7 +89,7 @@ namespace poac::subcmd { struct install {
     static bool _configure(const std::string& pkgname, const YAML::Node& deps) {
         const auto from_path =
                 io::file::path::poac_cache_dir / pkgname;
-        std::ofstream ofs((from_path / "poac.yml").string()); // TODO: _configure -> cacheの時はしない
+        std::ofstream ofs((from_path / "poac.yml").string());
         ofs << deps;
         return EXIT_SUCCESS;
     }
