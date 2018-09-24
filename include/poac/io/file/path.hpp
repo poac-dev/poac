@@ -9,6 +9,8 @@
 #include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "../../util/command.hpp"
+
 
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/questions/4891006/how-to-create-a-folder-in-the-home-directory
@@ -118,12 +120,17 @@ namespace poac::io::file::path {
     }
 
     boost::optional<std::string> read_file(const boost::filesystem::path& path) {
-        if (std::ifstream ifs(path.string()); !ifs.fail()) {
+        if (!boost::filesystem::exists(path)) {
+            return boost::none;
+        }
+        else if (std::ifstream ifs(path.string()); !ifs.fail()) {
             std::istreambuf_iterator<char> it(ifs);
             std::istreambuf_iterator<char> last;
             return std::string(it, last);
         }
-        return boost::none;
+        else {
+            return boost::none;
+        }
     }
 
     void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
@@ -137,6 +144,12 @@ namespace poac::io::file::path {
         std::vector<std::string> ret_value;
         boost::split(ret_value, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on);
         return ret_value;
+    }
+
+    boost::filesystem::path create_temp() {
+        const std::string temp = *(util::command("mktemp -d").exec());
+        const std::string temp_path(temp, 0, temp.size()-1); // delete \n
+        return temp_path;
     }
 } // end namespace
 #endif // !POAC_IO_FILE_PATH_HPP

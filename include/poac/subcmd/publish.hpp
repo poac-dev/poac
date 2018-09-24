@@ -24,6 +24,7 @@ namespace poac::subcmd { struct publish {
     static const std::string options() { return "[-v | --verbose]"; }
 
     const std::string url = "https://poac.pm/api/v1";
+//    const std::string url = "http://localhost:4000/api/v1";
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(std::move(argv)); }
@@ -93,14 +94,41 @@ namespace poac::subcmd { struct publish {
         return ss.str();
     }
 
-    std::string compress_project(const std::string& project_dir) {
+    boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
         namespace fs = boost::filesystem;
 
-        const std::string temp = *(util::command("mktemp -d").exec());
-        const std::string temp_path(temp, 0, temp.size()-1); // rm \n
-        const std::string output_dir = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
-        const std::vector<std::string> excludes({ "deps", "_build", "build", "cmake-build-debug" });
-        io::file::tarball::compress_spec_exclude(project_dir, output_dir, excludes);
+        const fs::path temp_path = io::file::path::create_temp();
+
+        const fs::path copy_file = temp_path / fs::basename(project_dir);
+        io::file::path::recursive_copy(project_dir, copy_file);
+        const auto node = io::file::yaml::load_setting_file("name", "version");
+        const auto filename = node.at("name").as<std::string>() + "-" + node.at("version").as<std::string>();
+        const fs::path file_path = temp_path / filename;
+        fs::rename(copy_file, file_path);
+
+        return file_path;
+    }
+
+    std::string compress_project(const boost::filesystem::path& project_dir) {
+        namespace fs = boost::filesystem;
+
+        const fs::path file_path = rename_copy(project_dir);
+        const fs::path temp_path = io::file::path::create_temp();
+
+        std::vector<std::string> excludes({ "deps", "_build", ".git", ".gitignore" });
+        // Read .gitignore
+        if (const auto ignore = io::file::path::read_file(".gitignore")) {
+            auto tmp = io::file::path::split(*ignore, "\n");
+            const auto itr = std::remove_if(tmp.begin(), tmp.end(), [](std::string x) {
+                return (x[0] == '#');
+            });
+            excludes.insert(excludes.end(), tmp.begin(), itr-1);
+        }
+        const std::string output_dir = (temp_path / file_path.filename()).string() + ".tar.gz";
+
+        io::file::tarball::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
+
+        fs::remove_all(file_path.parent_path());
 
         return output_dir;
     }
