@@ -22,13 +22,31 @@ namespace poac::util::ftemplate {
     std::string poac_yml(const std::string& project_name) {
         return "name: " + project_name + "\n"
                "version: 0.1.0\n"
+               "cpp_version: 17\n"
                "owners:\n"
                "  - Your Name\n"
-               "deps:\n";
+               "deps:\n"
+               "build:\n"
+               "  system: poac\n"
+               "  bin: true\n";
     }
     std::string README_md(const std::string& project_name) {
         return "# " + project_name + "\n"
                "**TODO: Add description**\n"
+               "\n"
+               "---\n"
+               "This project uses [poac](https://github.com/poacpm/poac).\n"
+               "\n"
+               "For more information on A please see below:\n"
+               "* https://poac.pm\n"
+               "* https://github.com/poacpm\n"
+               "* https://github.com/poacpm/poac#readme\n"
+               "\n"
+               "## Build\n"
+               "\n"
+               "```bash\n"
+               "$ poac build # or run\n"
+               "```\n"
                "\n"
                "## Installation\n"
                "\n"
