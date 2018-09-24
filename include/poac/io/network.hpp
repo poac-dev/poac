@@ -17,6 +17,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "../core/exception.hpp"
+#include "./cli.hpp"
 #include "../util/command.hpp"
 
 
@@ -43,11 +44,15 @@ namespace poac::io::network {
         return chunk;
     }
 
-    std::string post(const std::string& url, const std::string& json) {
+    std::string post(const std::string& url, const std::string& json, const std::string& content_type="") {
         std::string chunk;
         struct curl_slist *headers = NULL;
         // TODO: from arguments
-        headers = curl_slist_append(headers, "Content-Type: application/json");
+        if (content_type.empty())
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+        else
+            headers = curl_slist_append(headers, ("Content-Type: "+content_type).c_str());
+
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -191,173 +196,80 @@ namespace poac::io::network {
         return 0;
     }
 
-    std::string post_file(
+    void verbose_func(CURL* curl) {
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, my_trace);
+        struct data config;
+        config.trace_ascii = 1; /* enable ascii tracing */
+        curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &config);
+    }
+    // now extract transfer info
+    void transfer_info(CURL* curl) {
+        double speed;
+        curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed);
+        double total;
+        curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total);
+
+        std::cout << "Speed: " << speed << " bytes/sec during "
+                  << total << " seconds" << std::endl;
+    }
+
+    void post_file(
         const std::string& to_url,
-        const boost::filesystem::path& from_file,
+        const std::string& from_file,
+        const std::string& json_str,
         const bool verbose=false )
     {
-        struct stat file_info;
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, "Expect:");
+        struct curl_httppost* formpost = nullptr;
+        struct curl_httppost* lastptr = nullptr;
+        struct curl_slist *headers = nullptr;
+
+        curl_global_init(CURL_GLOBAL_ALL);
+
+        curl_formadd(&formpost, &lastptr,
+                     CURLFORM_COPYNAME, "user[info]",
+                     CURLFORM_COPYCONTENTS, json_str.c_str(),
+                     CURLFORM_END);
+        curl_formadd(&formpost, &lastptr,
+                     CURLFORM_COPYNAME, "user[data]",
+                     CURLFORM_FILE, from_file.c_str(),
+                     CURLFORM_END);
+        // Fill in the submit field too, even if this is rarely needed
+        curl_formadd(&formpost, &lastptr,
+                     CURLFORM_COPYNAME, "submit",
+                     CURLFORM_COPYCONTENTS, "send",
+                     CURLFORM_END);
 
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            FILE* fd = std::fopen(from_file.c_str(), "rb");
-            if (!fd)
-                throw core::exception::error("could not open the file");
-            if (fstat(fileno(fd), &file_info) != 0)
-                throw core::exception::error("could not get the file size");
-
             curl_easy_setopt(curl, CURLOPT_URL, to_url.c_str());
-            curl_easy_setopt(curl, CURLOPT_POST, 1L);
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+            headers = curl_slist_append(headers, "Expect:");
+            headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_READDATA, fd);
-            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);
-            curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
 
-            if (verbose) {
-                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-                curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, my_trace);
-                struct data config;
-                config.trace_ascii = 1; /* enable ascii tracing */
-                curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &config);
-            }
+            curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
+            if (verbose) verbose_func(curl);
+
+
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
                 // TODO: throw????
                 std::cerr << "curl told us " << res << std::endl;
-            }
-            else {
-                /* now extract transfer info */
-                double speed;
-                curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed);
-                double total;
-                curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total);
-
-                std::cerr << "Speed: " << speed << " bytes/sec during "
-                          << total << " seconds" << std::endl;
-            }
+            else if (verbose)
+                transfer_info(curl);
             curl_easy_cleanup(curl);
-            std::fclose(fd);
+            curl_formfree(formpost);
+            curl_slist_free_all(headers);
         }
-        return "";
+
+        // TODO: response is written arbitrarily
+        std::cout << '\b';
+        std::cout << cli::left(100);
+        for (int i = 0; i < 100; ++i)
+            std::cout << ' ';
+        std::cout << cli::left(100);
     }
-
-    std::string post_post(
-        const std::string& to_url,
-        const boost::filesystem::path& from_file,
-        const bool verbose=false )
-    {
-        struct stat file_info;
-        struct curl_httppost* post = NULL;
-        struct curl_httppost* last = NULL;
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, "Expect:");
-
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            FILE* fd = std::fopen(from_file.c_str(), "rb");
-            if (!fd)
-                throw core::exception::error("could not open the file");
-            if (fstat(fileno(fd), &file_info) != 0)
-                throw core::exception::error("could not get the file size");
-
-            curl_formadd(&post, &last,
-                         CURLFORM_COPYNAME, "name",
-                         CURLFORM_BUFFER, "data",
-                         CURLFORM_BUFFERPTR, fd,
-                         CURLFORM_BUFFERLENGTH, (curl_off_t)file_info.st_size,
-                         CURLFORM_END);
-
-            curl_easy_setopt(curl, CURLOPT_URL, to_url.c_str());
-            curl_easy_setopt(curl, CURLOPT_POST, 1L);
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-//            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-//            curl_easy_setopt(curl, CURLOPT_READDATA, fd);
-//            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);
-            curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
-            curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
-
-            if (verbose) {
-                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-                curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, my_trace);
-                struct data config;
-                config.trace_ascii = 1; /* enable ascii tracing */
-                curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &config);
-            }
-
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
-                // TODO: throw????
-                std::cerr << "curl told us " << res << std::endl;
-            }
-            else {
-                /* now extract transfer info */
-                double speed;
-                curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed);
-                double total;
-                curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total);
-
-                std::cerr << "Speed: " << speed << " bytes/sec during "
-                          << total << " seconds" << std::endl;
-            }
-            curl_easy_cleanup(curl);
-            std::fclose(fd);
-        }
-        return "";
-    }
-
-    int http2post(
-        const std::string& to_url,
-        const std::string& uuid,
-        const boost::filesystem::path& from_file,
-        const bool verbose=false )
-    {
-        std::ifstream ifs(from_file.string(), std::ios::in | std::ios::binary);
-        if (!ifs){
-            std::cout << "Cloud not open " + from_file.string();
-            return 1;
-        }
-        std::ofstream ofs("hoge.tar.gz", std::ios::binary | std::ios::out);
-
-        std::array<char, 1024*100> buffer;
-        int count = 0;
-        do {
-            ifs.read(buffer.data(), 1024*100);
-            boost::property_tree::ptree json;
-            json.put("uuid", uuid);
-            json.put("count", count++);
-            json.put("file", buffer.data());
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, json, false);
-
-            ofs << buffer.data();
-
-            const std::string res = post(to_url, ss.str());
-
-            if (verbose) {
-                std::cout << "=> Send data" << std::endl
-                          << ss.str() << std::endl
-                          << "<= Recv data" << std::endl
-                          << res << std::endl;
-            }
-        } while (!ifs.eof());
-
-        boost::property_tree::ptree json;
-        json.put("uuid", "ok");
-        json.put("count", -1);
-        json.put("file", "");
-        std::stringstream ss;
-        boost::property_tree::json_parser::write_json(ss, json, false);
-        const std::string res = post(to_url, ss.str());
-        if (verbose) {
-            std::cout << "=> Send data" << std::endl
-                      << ss.str() << std::endl
-                      << "<= Recv data" << std::endl
-                      << res << std::endl;
-        }
-
-        return 0;
-    }
-
 
     static bool clone(
         const std::string& url,
