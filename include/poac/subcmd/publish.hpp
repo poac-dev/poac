@@ -37,6 +37,7 @@ namespace poac::subcmd { struct publish {
         check_requirements();
 
         const bool verbose = util::argparse::use(argv, "-v", "--verbose");
+//        bool error = false;
 
 
         const std::string project_dir = fs::absolute(fs::current_path()).string();
@@ -44,26 +45,31 @@ namespace poac::subcmd { struct publish {
         const std::string output_dir = compress_project(project_dir);
         if (verbose) std::cout << output_dir << std::endl;
 
-        const std::string json_string = create_json();
-        if (verbose) std::cout << json_string << std::endl;
-
         // Get token
         boost::property_tree::ptree json;
-        if (const auto token = io::file::path::read_file(io::file::path::poac_token_dir))
-            json.put("token", *token);
-        else
+        if (const auto token = io::file::path::read_file(io::file::path::poac_token_dir)) {
+            const std::string temp = *token;
+            const std::string temp_path(temp, 0, temp.size()-1); // delete \n
+            json.put("token", temp_path);
+        }
+        else {
             throw except::error("Could not read token");
+        }
         std::stringstream ss;
         boost::property_tree::json_parser::write_json(ss, json, false);
 
         // Validating
+//        if (!error)
         status_func("Validating...");
         if (io::network::post(url + "/packages/validate", ss.str()) == "err")
             throw except::error("Token verification failed");
 
+        // TODO: uploadに失敗してもエラー報告できない．
         // Post tarball to API.
         status_func("Uploading...");
-        io::network::post_file(url + "/packages/upload", output_dir, json_string, verbose);
+        const std::string json_string = create_json();
+        if (verbose) std::cout << json_string << std::endl;
+        io::network::post_file(url + "/packages/upload", output_dir, json_string, ss.str(), verbose);
 
         // Delete file
         status_func("Cleanup...");
@@ -76,11 +82,6 @@ namespace poac::subcmd { struct publish {
         namespace except = core::exception;
 
         boost::property_tree::ptree json;
-        if (const auto token = io::file::path::read_file(io::file::path::poac_token_dir))
-            json.put("token", *token);
-        else
-            throw except::error("Could not read token");
-
         if (const auto op_filename = io::file::yaml::exists_setting_file()) {
             const std::string yaml_content = *(io::file::path::read_file(*op_filename));
             json.put("setting", yaml_content);
