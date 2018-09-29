@@ -218,6 +218,7 @@ namespace poac::io::network {
         const std::string& to_url,
         const std::string& from_file,
         const std::string& json_str,
+        const std::string& json_str2,
         const bool verbose=false )
     {
         struct curl_httppost* formpost = nullptr;
@@ -227,8 +228,12 @@ namespace poac::io::network {
         curl_global_init(CURL_GLOBAL_ALL);
 
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[info]",
+                     CURLFORM_COPYNAME, "user[setting]",
                      CURLFORM_COPYCONTENTS, json_str.c_str(),
+                     CURLFORM_END);
+        curl_formadd(&formpost, &lastptr,
+                     CURLFORM_COPYNAME, "user[token]",
+                     CURLFORM_COPYCONTENTS, json_str2.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
                      CURLFORM_COPYNAME, "user[data]",
