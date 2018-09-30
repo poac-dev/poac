@@ -25,7 +25,6 @@ namespace poac::util::ftemplate {
                "cpp_version: 17\n"
                "owners:\n"
                "  - Your Name\n"
-               "deps:\n"
                "build:\n"
                "  system: poac\n"
                "  bin: true\n";

@@ -55,6 +55,8 @@ namespace poac::util::compiler {
             cmd += "-L" + lsp;
         for (const auto& sll : conf.static_link_libs)
             cmd += "-l" + sll;
+        for (const auto& lp : conf.library_path)
+            cmd += lp;
         for (const auto& oa : conf.other_args)
             cmd += oa;
         cmd += "-o " + bin_path;

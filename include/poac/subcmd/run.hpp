@@ -50,6 +50,7 @@ namespace poac::subcmd { struct run {
             cmd += s;
         }
 
+        // TODO: 一度コンパイルに成功していると，cacheのせいで実行されてしまう line:43と同じ話
         std::cout << io::cli::green << "Running: " << io::cli::reset
                   << "`" + executable + "`"
                   << std::endl;
