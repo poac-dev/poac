@@ -28,7 +28,7 @@ namespace poac::io::file::tarball {
     }
     bool extract_spec_rm_file(const boost::filesystem::path& input, const boost::filesystem::path& output) {
         namespace fs = boost::filesystem;
-        return extract_spec(input, output) || fs::remove(input);
+        return !(extract_spec(input, output) || fs::remove(input)); // TODO: install.hpp用のエラー判定とfsのboolean値が逆
     }
 
     bool compress(const std::string& filename) {

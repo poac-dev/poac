@@ -102,6 +102,14 @@ namespace poac::subcmd { struct install {
         // Copy package to ./deps
         return io::file::path::recursive_copy(from_path, to_path);
     }
+    static bool _copy_spec(const std::string& pkgname, const std::string& pkgname2) {
+        const auto from_path =
+                io::file::path::poac_cache_dir / pkgname;
+        const auto to_path =
+                io::file::path::current_deps_dir / pkgname2;
+        // Copy package to ./deps
+        return io::file::path::recursive_copy(from_path, to_path);
+    }
     static bool _placeholder() { return EXIT_SUCCESS; }
 
     auto cache_func_pack(
@@ -121,18 +129,35 @@ namespace poac::subcmd { struct install {
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
     }
+    auto cache_spec_func_pack(
+            const std::string& name,
+            const std::string& pkgname,
+            const std::string& source )
+    {
+        const std::string from_string = " (from " + source + ")";
+
+        // If it exists in cache and it is not in the current directory copy it to the current.
+        util::step_funcs_with_status step_funcs;
+
+        step_funcs.statuses.push_back("Copying" + from_string);
+        const std::function<bool()> f = std::bind(&_copy_spec, pkgname, name);
+        step_funcs.funcs.push_back(f);
+
+        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
+        return step_funcs;
+    }
     auto github_func_pack(
         const std::string& name,
         const YAML::Node& deps,
         const std::string& version,
-        const std::string& pkgname,
-        const std::string& source )
+        const std::string& pkgname )
     {
         const std::string url = sources::github::resolve(name);
         const auto dest =
                 io::file::path::poac_cache_dir /
                 util::package::github_conv_pkgname(name, version);
-        const std::string from_string = " (from " + source + ")";
+        const std::string from_string = " (from github)";
 
         std::map<std::string, std::string> opts;
         opts.insert(io::network::opt_depth(1));
@@ -158,39 +183,32 @@ namespace poac::subcmd { struct install {
         step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
         return step_funcs;
     }
-    auto tarball_func_pack(
+    auto poac_func_pack(
         const std::string& name,
-        const YAML::Node& deps,
-        const std::string& version,
-        const std::string& pkgname,
-        const std::string& source )
+        const std::string& version )
     {
         namespace tb = io::file::tarball;
 
-        const std::string url = sources::github::resolve(name, version); // TODO:
+        const std::string url = sources::poac::resolve(name, version);
+        const std::string pkgname = sources::poac::pkgname(name, version);
         const auto pkg_dir = io::file::path::poac_cache_dir / pkgname;
-        const auto tarname = pkg_dir.string() + ".tar.gz";
-        const std::string from_string = " (from " + source + ")";
+        const auto tar_dir = pkg_dir.string() + ".tar.gz";
+        const std::string from_string = " (from poac)";
 
         util::step_funcs_with_status step_funcs;
         {
             step_funcs.statuses.push_back("Downloading" + from_string);
-            const std::function<bool()> f = std::bind(&io::network::get_file, url, tarname);
+            const std::function<bool()> f = std::bind(&io::network::get_file, url, tar_dir);
             step_funcs.funcs.push_back(f);
         }
         {
             step_funcs.statuses.push_back("Extracting" + from_string);
-            const std::function<bool()> f = std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir);
-            step_funcs.funcs.push_back(f);
-        }
-        {
-            step_funcs.statuses.push_back("Configuring" + from_string);
-            const std::function<bool()> f = std::bind(&_configure, pkgname, YAML::Clone(deps));
+            const std::function<bool()> f = std::bind(&tb::extract_spec_rm_file, tar_dir, pkg_dir);
             step_funcs.funcs.push_back(f);
         }
         {
             step_funcs.statuses.push_back("Copying" + from_string);
-            const std::function<bool()> f = std::bind(&_copy, pkgname);
+            const std::function<bool()> f = std::bind(&_copy_spec, pkgname, name);
             step_funcs.funcs.push_back(f);
         }
         step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
@@ -218,10 +236,12 @@ namespace poac::subcmd { struct install {
     {
         if (sources::cache::resolve(pkgname))
             return cache_func_pack(pkgname, src);
+        else if (const std::string pkgname2 = sources::poac::pkgname(name, version); sources::cache::resolve(pkgname2))
+            return cache_spec_func_pack(name, pkgname2, src); // TODO: poac経由でインストールしたのがcacheに存在する
         else if (src == "github")
-            return github_func_pack(name, deps, version, pkgname, src);
-        else if (src == "tarball")
-            return tarball_func_pack(name, deps, version, pkgname, src);
+            return github_func_pack(name, deps, version, pkgname);
+        else if (src == "poac")
+            return poac_func_pack(name, version);
         else
             return notfound_func_pack();
     }
@@ -240,7 +260,8 @@ namespace poac::subcmd { struct install {
             const std::string version = util::package::get_version(next_node, src);
             const std::string pkgname = util::package::github_conv_pkgname(name, version);
 
-            if (sources::current::resolve(pkgname))
+            // TODO: もし，poacからのインストールならこっちの名前になっている
+            if (sources::current::resolve(pkgname) || io::file::path::validate_dir(io::file::path::current_deps_dir / name))
                 ++already_count;
             else
                 async_funcs->emplace(
@@ -277,7 +298,6 @@ namespace poac::subcmd { struct install {
         namespace fs = boost::filesystem;
 
         // Start timer
-        // TODO: 全てのコマンドにおいて計測したい (もう一段階抽象化後)
         boost::timer::cpu_timer timer;
 
 
