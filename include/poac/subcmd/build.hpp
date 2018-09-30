@@ -39,13 +39,19 @@ namespace poac::subcmd { struct build {
 
         if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
             for (const auto& [name, next_node] : (*deps_node).at("deps").as<std::map<std::string, YAML::Node>>()) {
+                (void)next_node;
+
                 // TODO: ./deps/name/poac.ymlに，buildの項がなければ，header only library
                 // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
                 const auto deps_path = fs::current_path() / "deps" / name;
 
                 bool do_build = true;
                 if (const auto deps_yml_file = io::file::yaml::exists_setting_file(deps_path)) {
-                    try { (void)((io::file::yaml::load(*deps_yml_file)).get()["build"].as<std::map<std::string, std::string>>()); }
+                    try {
+                        const auto test1 = *io::file::yaml::load(*deps_yml_file);
+                        const auto test2 = test1["build"];
+                        (void)test2;
+                    }
                     catch (...) {
                         do_build = false;
                     }
