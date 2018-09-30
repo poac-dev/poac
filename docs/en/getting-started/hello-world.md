@@ -11,25 +11,27 @@ Go into your project by running:
     $ cd hello_world
 
 Start your project with:
-    $ poac install
     $ poac run
 ```
 
 Check out to project directory.
 ```bash
 $ cd hello_world
-$ tree .
+$ tree . -a
 .
-├── poac.yml
-└── main.cpp
+├── .gitignore
+├── README.md
+├── main.cpp
+└── poac.yml
 
-0 directory, 2 files
+0 directories, 4 files
 ```
 
 `poac.yml` is the settings file.
+Please refer to [setting-file](../guide/setting-file.md) for details on how to write the setting file.
 
 
-Poac generated a “hello_world” binary for us. Let’s compile it:
+Poac generates a “hello_world” binary for us, when you execute `poac build`:
 ```bash
 $ poac build
 Compiled: Output to `_build/bin/hello_world`
