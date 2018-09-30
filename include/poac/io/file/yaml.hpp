@@ -13,15 +13,20 @@
 
 
 namespace poac::io::file::yaml {
-    boost::optional<std::string> exists_setting_file() {
+    boost::optional<std::string> exists_setting_file(
+            const boost::filesystem::path& basepath )
+    {
         namespace fs = boost::filesystem;
-        const auto cur = boost::filesystem::current_path();
-        if (fs::exists(cur / fs::path("poac.yml")))
-            return std::string("poac.yml");
-        else if (fs::exists(cur / fs::path("poac.yaml")))
-            return std::string("poac.yaml");
+        if (const auto yml = basepath / "poac.yml"; fs::exists(yml))
+            return yml.string();
+        else if (const auto yaml = basepath / "poac.yaml"; fs::exists(yaml))
+            return yaml.string();
         else
             return boost::none;
+    }
+    boost::optional<std::string> exists_setting_file() {
+        namespace fs = boost::filesystem;
+        return exists_setting_file(fs::current_path());
     }
 
     boost::optional<YAML::Node> load(const std::string& filename) {
@@ -81,8 +86,8 @@ namespace poac::io::file::yaml {
         namespace except = core::exception;
 
         // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+        if (const auto op_filename = exists_setting_file()) {
+            if (const auto op_node = load(*op_filename)) {
                 if (const auto op_select_node = get_by_width(*op_node, args...)) {
                     return *op_select_node;
                 }
@@ -105,8 +110,8 @@ namespace poac::io::file::yaml {
         namespace except = core::exception;
 
         // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-            if (const auto op_node = io::file::yaml::load(*op_filename)) {
+        if (const auto op_filename = exists_setting_file()) {
+            if (const auto op_node = load(*op_filename)) {
                 return get_by_width(*op_node, args...);
             }
             else {

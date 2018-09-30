@@ -11,6 +11,7 @@
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
+#include "../util/argparse.hpp"
 
 
 namespace poac::subcmd { struct cache {
@@ -34,19 +35,25 @@ namespace poac::subcmd { struct cache {
                 throw except::invalid_second_arg("cache");
         }
 
-        // TODO: --all, -a optionが無いとわかりづらい
         void clean(const std::vector<std::string>& argv) {
             namespace fs = boost::filesystem;
             if (argv.empty()) {
+                // TODO: print help (on 0.6.0)
+                std::cout << "Usage: poac cache clean <pkg-name> [-a | --all]" << std::endl;
+            }
+            else if (util::argparse::use(argv, "-a", "--all")) {
                 fs::remove_all(io::file::path::poac_cache_dir);
             }
             else {
                 for (const auto& v : argv) {
                     const fs::path pkg = io::file::path::poac_cache_dir / v;
-                    if (io::file::path::validate_dir(pkg))
+                    if (io::file::path::validate_dir(pkg)) {
                         fs::remove_all(pkg);
-                    else
+                        std::cout << v << " is deleted" << std::endl;
+                    }
+                    else {
                         std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
+                    }
                 }
             }
         }

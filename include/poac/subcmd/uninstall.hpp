@@ -14,34 +14,35 @@
 #include "../core/exception.hpp"
 #include "../io/file/path.hpp"
 #include "../io/cli.hpp"
+#include "../util/argparse.hpp"
 
 
-// TODO: --all, -a option
 namespace poac::subcmd { struct uninstall {
     static const std::string summary() { return "Beta: Uninstall packages."; }
     static const std::string options() { return "[<pkg-names>]"; }
-    const std::map<std::string, std::string> opts{
-            { "-v", "--version" },
-            { "", "--with-args" }
-    };
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(std::move(argv)); }
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
         namespace fs = boost::filesystem;
-        // Check if the deps directory exists.
-        // Perform dependency resolution.
-        // Uninstall packages in serial or parallel to the deps directory.
-        //   If there is no package, it displays an error.
+        // TODO: Perform dependency resolution.
         check_arguments(argv);
 
-        for (const auto& v : argv) {
-            const fs::path pkg = io::file::path::current_deps_dir / v;
-            if (io::file::path::validate_dir(pkg))
-                fs::remove_all(pkg);
-            else
-                std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
+        if (util::argparse::use(argv, "-a", "--all")) {
+            fs::remove_all(io::file::path::current_deps_dir);
+        }
+        else {
+            for (const auto& v : argv) {
+                const fs::path pkg = io::file::path::current_deps_dir / v;
+                if (io::file::path::validate_dir(pkg)) {
+                    fs::remove_all(pkg);
+                    std::cout << v << " is deleted" << std::endl;
+                }
+                else {
+                    std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
+                }
+            }
         }
     }
 

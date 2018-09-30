@@ -28,7 +28,7 @@ namespace poac::io::file::tarball {
     }
     bool extract_spec_rm_file(const boost::filesystem::path& input, const boost::filesystem::path& output) {
         namespace fs = boost::filesystem;
-        return extract_spec(input, output) || fs::remove(input);
+        return !(extract_spec(input, output) || fs::remove(input)); // TODO: install.hpp用のエラー判定とfsのboolean値が逆
     }
 
     bool compress(const std::string& filename) {
@@ -44,9 +44,9 @@ namespace poac::io::file::tarball {
         for (const auto& v : opts) {
             exclude += "--exclude " + v + " ";
         }
-        const std::string filepath = fs::absolute(input / "..").string();
-        const std::string filename = fs::basename(input);
-        return static_cast<bool>(std::system(("tar -zcf " + output.string() + " " + exclude + "-C " + filepath + " " + filename).data()));
+        const std::string filepath = fs::relative(input.parent_path()).string();
+        const std::string filename = input.filename().string();
+        return static_cast<bool>(std::system(("cd " + filepath + " && " + "tar -zcf " + output.string() + " " + exclude + filename).data()));
     }
 } // end namespace
 #endif // !POAC_IO_FILE_TARBALL_HPP

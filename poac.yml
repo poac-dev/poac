@@ -1,15 +1,15 @@
 # Package name
 name: poac
 # Package version
-version: 0.2.0-beta
+version: 0.3.0-beta
 # 98, 03, 11(Include TR1), 14, 17, 20
-cpp_version: 17  # TODO: これより上のバージョンを使用するパッケージはダウンロードできない．
+cpp_version: 17
 # clang or gcc or ICC or MSVC
 # Specify range of executable version
 compilers:
   clang: "6 <= v <= 7"
   gcc:   "7 <= v <= 8"
-description: "poac is a package manager for C++."
+description: "poac is a package manager for C++"
 # It must be the same as the user name
 #  of the poac.pm account your created
 owners:
@@ -27,12 +27,12 @@ deps:
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
-      steps: # TODO: 危険なコマンド対策．sudoが必要な場合，そもそもmanualを許可することは危険 # ダウンロードしてきたファイルのみ，docker attatch?
+      steps:
         - cd ${HOME}/.poac/cache/boost-1.67.0_tmp
         - git submodule update --init --recursive
         - ./bootstrap.sh
         - ./b2 install -j2 --prefix=${HOME}/.poac/cache/boost-1.67.0
-    link:
+    link: # このkeyは，deps専用
       type: static # If dynamic -> global install
       include:
         - boost_system
@@ -57,15 +57,15 @@ deps:
 # If nothing is specified, it is regarded as header only library
 build:
   system: poac
-  # Enable binary install (for CLI application) (Include build process) # TODO: systemがpoacの時のみ
+  # Enable binary install (for CLI application)
+  #  when you use poac as system.
   bin: true
-#  lib: true # src/*をlibraryに変換します．
+#  lib: true # Generate library from src/* .
   compile_args:
     - "-pthread"
   link_args:
     - "-pthread"
 
-# TODO: 一つのバイナリにリンクしたい時は？？？
 test:
   framework: boost # or google
   args:

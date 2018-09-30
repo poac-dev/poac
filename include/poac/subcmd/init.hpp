@@ -28,13 +28,7 @@ namespace poac::subcmd { struct init {
         check_arguments(argv);
         const std::string filename = check_requirements();
         std::ofstream yml_ofs(filename);
-
-        // TODO: Comment disappears
-        YAML::Node node = YAML::Load(util::ftemplate::poac_yml);
-        node["name"] = basename(fs::current_path());
-
-        yml_ofs << node;
-        yml_ofs.close();
+        yml_ofs << util::ftemplate::poac_yml(basename(fs::current_path()));
         std::cout << current() / filename << " was created." << std::endl;
     }
 

@@ -9,6 +9,8 @@
 #include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "../../util/command.hpp"
+
 
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/questions/4891006/how-to-create-a-folder-in-the-home-directory
@@ -79,54 +81,56 @@ namespace poac::io::file::path {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool recursive_copy(const boost::filesystem::path &from, const boost::filesystem::path &dest) {
+    bool recursive_copy(
+        const boost::filesystem::path &from,
+        const boost::filesystem::path &dest )
+    {
         namespace fs = boost::filesystem;
-        try {
-            // Check whether the function call is valid
-            if (!fs::exists(from) || !fs::is_directory(from)) {
-//                std::cerr << "Source directory " << source.string()
-//                          << " does not exist or is not a directory." << '\n';
-                return false;
-            }
-            if (!validate_dir(dest)) {
-                // Create the destination directory
-                if (!fs::create_directory(dest)) {
-                    std::cerr << "Unable to create destination directory"
-                              << dest.string() << '\n';
-                    return false;
-                }
-            }
+
+        // Does the copy source exist?
+        if (!fs::exists(from) || !fs::is_directory(from)) {
+//            std::cerr << "Could not validate `from` dir" << std::endl;
+            return EXIT_FAILURE;
         }
-        catch (fs::filesystem_error const & e) {
-            std::cerr << e.what() << '\n';
-            return false;
+        // Does the copy destination exist?
+        if (!validate_dir(dest) && !fs::create_directories(dest)) {
+//            std::cerr << "Could not validate `dest` dir" << std::endl;
+            return EXIT_FAILURE; // Unable to create destination directory
         }
+
         // Iterate through the source directory
         for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
-            try {
-                fs::path current(file->path());
-                if (fs::is_directory(current)) {
-                    // Found directory: Recursion
-                    if (!recursive_copy(current, dest / current.filename()))
-                    { return false; }
-                }
-                else {
-                    // Found file: Copy
-                    fs::copy_file(current, dest / current.filename());
+            fs::path current(file->path());
+            if (fs::is_directory(current)) {
+                // Found directory: Recursion
+                if (recursive_copy(current, dest / current.filename()))
+                    return EXIT_FAILURE;
+            }
+            else {
+                // Found file: Copy
+                boost::system::error_code err;
+                fs::copy_file(current, dest / current.filename(), err);
+                if (err) {
+//                    std::cerr << err.message() << std::endl;
+                    return EXIT_FAILURE;
                 }
             }
-            catch(...) { /* Ignore error */ }
         }
-        return true;
+        return EXIT_SUCCESS;
     }
 
     boost::optional<std::string> read_file(const boost::filesystem::path& path) {
-        if (std::ifstream ifs(path.string()); !ifs.fail()) {
+        if (!boost::filesystem::exists(path)) {
+            return boost::none;
+        }
+        else if (std::ifstream ifs(path.string()); !ifs.fail()) {
             std::istreambuf_iterator<char> it(ifs);
             std::istreambuf_iterator<char> last;
             return std::string(it, last);
         }
-        return boost::none;
+        else {
+            return boost::none;
+        }
     }
 
     void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
@@ -140,6 +144,12 @@ namespace poac::io::file::path {
         std::vector<std::string> ret_value;
         boost::split(ret_value, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on);
         return ret_value;
+    }
+
+    boost::filesystem::path create_temp() {
+        const std::string temp = *(util::command("mktemp -d").exec());
+        const std::string temp_path(temp, 0, temp.size()-1); // delete \n
+        return temp_path;
     }
 } // end namespace
 #endif // !POAC_IO_FILE_PATH_HPP

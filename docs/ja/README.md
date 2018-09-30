@@ -1,41 +1,33 @@
 ## Introduction
 
-poacpm is the C++ package manager and poac is the CLI application provided to the client.
+poac は C/C++ 言語向けのパッケージマネージャです。
 
-poac can upload packages to [poacpm](https://poac.pm).
+poac はプロジェクトの依存関係を解決しつつパッケージをインストールしたり、それらをコンパイルしたり、パッケージを作成し、それを [poac.pm](https://poac.pm) にアップロードしたりすることができます。
 
-<!--
-poacはC++で書かれているので高速で動作します．また，poacを通して身につけた技術をそのままpoacにContributeして還元することが可能です．
-
-poacは初めてC++を勉強する人にとって直感的に動作します．また，既に稼働しているプロジェクトや，conan，backarooなどを導入していても，シームレスにpoacに移行できます．（これら他のパッケージマネージャとの比較は，2.1. Why Poac Exists にて議論します）
-
-poacの設計思想・開発意図の詳しい内容は4. Poac Architectureをご参照ください．
-
-poacのUIはcargoのUIを参考にしているため類似している部分が多くあります．
--->
+[poac.pm](https://poac.pm) はパッケージレジストリで, パッケージを検索することや、それらを管理することなどができます。
 
 
 #### Sections
 **[Getting Started](getting-started/README.md)**
 
-To get started poac, install poac and create the project that outputs `Hello, world`.  
+poac を使い始めるには、poac をインストールし `Hello, world` を出力するプロジェクトを作ってみましょう。
 
 
 **[Guide](guide/README.md)**
 
-The guide necessary to develop with poac.
+poac で開発していく上で必要なガイドです。
 
 
 **[Reference](reference/README.md)**
 
-The reference covering a more detailed explanation.
+より詳細な機能をカバーしたリファレンスです。
 
 
 **[Architecture](architecture/README.md)**
 
-A design concept and intention, more detailed architecture.
+設計におけるデザインコンセプトと意図について書かれています。
 
 
 **[Future](future/README.md)**
 
-Future development flow.
+今後の開発の流れについて書かれています。

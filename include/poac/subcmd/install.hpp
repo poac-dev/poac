@@ -47,291 +47,244 @@ namespace poac::subcmd { struct install {
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(std::move(argv)); }
 
-    static void info(const std::string& name, const std::string& version) {
-        std::cout << name << ": " << version;
-    }
-    static void progress(const int& index, const std::string& status, const std::string& src) {
-        std::cout << " " << io::cli::spinners[index] << "  ";
-        io::cli::set_left(35);
-        const std::string point = [&index](){
-            if      (index <= 2) return ".  ";
-            else if (index <= 5) return ".. ";
-            else                 return "...";
-        }();
-        std::cout << status + point + " (found in " + src + ")";
-    }
-    static void installed(const std::string& src) {
-        std::cout << io::cli::green << " ✔  ";
-        io::cli::set_left(35);
-        std::cout << "Installed! (found in " + src + ")" << io::cli::reset;
-    }
-    static void not_found() {
-        std::cout << io::cli::red << " ×  ";
-        io::cli::set_left(35);
-        std::cout << "Not found" << io::cli::reset;
-    }
-    static void install_failed() {
-        std::cout << io::cli::red << " ×  ";
-        io::cli::set_left(35);
-        std::cout << "Install failed" << io::cli::reset;
-    }
-
-    void rewrite(const std::function<void()>& f1, const std::function<void()>& f2) {
-        std::cout << io::cli::right(1) << "\b";
-        f1(); f2();
-        std::cout << io::cli::left(100);
-    }
 
     template <typename Async>
-    int installing(int* index_now, const Async& async_funcs) {
-        *index_now %= static_cast<int>(io::cli::spinners.size());
-
+    int installing(int* index_now, Async& async_funcs) {
         // 0/num packages installed|
         // |0/num packages installed
         std::cout << io::cli::left(50) << io::cli::up(1);
         std::cout << io::cli::up(async_funcs.size());
 
         int count = 0;
-        for (const auto& [func, info_func, src] : async_funcs) {
-            const std::string status = func.wait_for(std::chrono::milliseconds(0));
-            if (status == "Notfound") {
-                rewrite(std::bind(&not_found), info_func);
-                ++count;
-            }
-            else if (status == "Done") {
-                rewrite(std::bind(&installed, src), info_func);
-                ++count;
-            }
-            else if (status == "Error") {
-                rewrite(std::bind(&install_failed), info_func);
+        for (auto& [info, func] : async_funcs) {
+            const auto rel_time = std::chrono::milliseconds(0);
+            const std::string status = func.wait_for(rel_time);
+
+            std::cout << io::cli::right(1) << "\b";
+            if (func.is_done()) {
+                io::cli::set_left(50);
+                std::cout << status;
                 ++count;
             }
             else {
-                rewrite(std::bind(&progress, *index_now, status, src), info_func);
+                io::cli::set_left(41);
+                std::cout << " " + io::cli::at_spinner(*index_now) +
+                             "  " + status;
             }
-            std::cout << io::cli::down(1);
+            std::cout << info
+                      << io::cli::left(100)
+                      << io::cli::down(1);
         }
         std::cout << std::endl
                   << io::cli::right(1)
                   << '\b'
-                  << count;
-        std::cout << std::flush;
-
+                  << count
+                  << std::flush;
         return count;
     }
 
-
-    // TODO: LICENSEなどが消えてしまう
-    static void _cmake_build(
-            const std::string& pkgname,
-            const std::map<std::string, std::string>& cmake_envs)
-    {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        util::command cmd("cd " + filepath.string());
-        cmd &= "mkdir build";
-        cmd &= "cd build";
-        util::command cmake_cmd("cmake ..");
-        for (const auto& [key, val] : cmake_envs)
-            cmake_cmd.env(key, val);
-        cmd &= cmake_cmd.stderr_to_stdout();
-        cmd &= util::command("make -j4").stderr_to_stdout();
-        cmd &= util::command("make install").env("DESTDIR", "./").stderr_to_stdout();
-
-        if (auto result = cmd.exec()) {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-            fs::rename(filepath, filepath_tmp);
-            // TODO: 作れなかった時のエラー処理
-            fs::create_directories(filepath);
-
-            const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
-
-            // Write to cache.yml and recurcive copy
-            for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
-                if (io::file::path::validate_dir(build_after_dir / s))
-                    io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
-            fs::remove_all(filepath_tmp);
-        }
-        else {
-            /* error */
-            // datetime-error.log
-            // return EXIT_FAILURE; ???
-            // 下のmanual_buildでも同じことをする羽目になるので，return EXIT_...だけして，あとは，step_funcsで処理すべき
-            // もしくは，
-        }
+    // Copy
+    // ./poac.yml         pkgname/poac.yml
+    //  deps: pkgname ->
+    static bool _configure(const std::string& pkgname, const YAML::Node& deps) {
+        const auto from_path =
+                io::file::path::poac_cache_dir / pkgname;
+        std::ofstream ofs((from_path / "poac.yml").string());
+        ofs << deps;
+        return EXIT_SUCCESS;
     }
-    // TODO: きちんとカレントディレクトリにコピーされなくても，installed!と表示されてしまう．
-    // TODO: 上のは，copyの問題？？？
-    static void _manual_build(const std::string& pkgname, const util::command& cmd) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        const std::string filepath_tmp = filepath.string() + "_tmp";
-        fs::rename(filepath, filepath_tmp);
-
-        if (auto result = cmd.exec()) {
-            // TODO: boost build is return 1 always
-//        fs::remove_all(filepath_tmp);
-        }
-        else { /* error */ }
-        fs::remove_all(filepath_tmp);
-    }
-    // Copy include directory only
-    [[maybe_unused]] static void _header_only(const std::string& pkgname) {
-        namespace fs = boost::filesystem;
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        const std::string filepath_tmp = filepath.string() + "_tmp";
-
-        fs::rename(filepath, filepath_tmp);
-        fs::create_directories(filepath);
-        io::file::path::recursive_copy(fs::path(filepath_tmp) / "include", fs::path(filepath) / "include");
-        fs::remove_all(filepath_tmp);
-    }
-    static void _copy(const std::string& pkgname) {
-        namespace fs = boost::filesystem;
-
-        fs::create_directories(io::file::path::current_deps_dir);
+    static bool _copy(const std::string& pkgname) {
+        const auto from_path =
+                io::file::path::poac_cache_dir / pkgname;
+        const auto to_path =
+                io::file::path::current_deps_dir /
+                util::package::cache_to_current(pkgname);
         // Copy package to ./deps
-        // If it exists in cache and it is not in the current directory copy it to the current.
-        io::file::path::recursive_copy(io::file::path::poac_cache_dir / pkgname, io::file::path::current_deps_dir / util::package::cache_to_current(pkgname));
+        return io::file::path::recursive_copy(from_path, to_path);
     }
-    static void _placeholder() {}
-
-
-    // build system(cmake | manual | none)
-    boost::optional<std::string> resolve_build_system(const YAML::Node& node) {
-        if (const auto build_system = io::file::yaml::get<std::string>(node)) {
-            return *build_system;
-        }
-        else if (const auto build_system2 = io::file::yaml::get1<std::string>(node, "system")) {
-            return *build_system2;
-        }
-        else {
-            return boost::none;
-        }
+    static bool _copy_spec(const std::string& pkgname, const std::string& pkgname2) {
+        const auto from_path =
+                io::file::path::poac_cache_dir / pkgname;
+        const auto to_path =
+                io::file::path::current_deps_dir / pkgname2;
+        // Copy package to ./deps
+        return io::file::path::recursive_copy(from_path, to_path);
     }
+    static bool _placeholder() { return EXIT_SUCCESS; }
 
-    std::string resolve_source(const std::string& pkgname, const std::string& source) {
-        namespace src = sources;
-        if (src::current::resolve(pkgname))
-            return "current";
-        else if (src::cache::resolve(pkgname))
-            return "cache";
-        else
-            return source;
-    }
-
-    boost::optional<util::step_funcs_with_status> resolve(
-            const YAML::Node& node,
-            const std::string& name,
-            const std::string& version,
-            const std::string& pkgname,
-            const std::string& source)
+    auto cache_func_pack(
+        const std::string& pkgname,
+        const std::string& source )
     {
-        namespace fs  = boost::filesystem;
-        namespace src = sources;
+        const std::string from_string = " (from " + source + ")";
 
-        const std::string url = src::github::resolve(name, version);
+        // If it exists in cache and it is not in the current directory copy it to the current.
+        util::step_funcs_with_status step_funcs;
 
-        if (source == "current") {
-            return boost::none;
+        step_funcs.statuses.push_back("Copying" + from_string);
+        const std::function<bool()> f = std::bind(&_copy, pkgname);
+        step_funcs.funcs.push_back(f);
+
+        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
+        return step_funcs;
+    }
+    auto cache_spec_func_pack(
+            const std::string& name,
+            const std::string& pkgname,
+            const std::string& source )
+    {
+        const std::string from_string = " (from " + source + ")";
+
+        // If it exists in cache and it is not in the current directory copy it to the current.
+        util::step_funcs_with_status step_funcs;
+
+        step_funcs.statuses.push_back("Copying" + from_string);
+        const std::function<bool()> f = std::bind(&_copy_spec, pkgname, name);
+        step_funcs.funcs.push_back(f);
+
+        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
+        return step_funcs;
+    }
+    auto github_func_pack(
+        const std::string& name,
+        const YAML::Node& deps,
+        const std::string& version,
+        const std::string& pkgname )
+    {
+        const std::string url = sources::github::resolve(name);
+        const auto dest =
+                io::file::path::poac_cache_dir /
+                util::package::github_conv_pkgname(name, version);
+        const std::string from_string = " (from github)";
+
+        std::map<std::string, std::string> opts;
+        opts.insert(io::network::opt_depth(1));
+        opts.insert(io::network::opt_branch(version));
+
+        util::step_funcs_with_status step_funcs;
+        {
+            step_funcs.statuses.push_back("Cloning" + from_string);
+            const std::function<bool()> f = std::bind(&io::network::clone, url, dest, opts);
+            step_funcs.funcs.push_back(f);
         }
-        else if (source == "cache") {
-            return util::step_funcs_with_status(std::make_tuple("Copying", std::bind(&_copy, pkgname)));
+        {
+            step_funcs.statuses.push_back("Configuring" + from_string);
+            const std::function<bool()> f = std::bind(&_configure, pkgname, YAML::Clone(deps));
+            step_funcs.funcs.push_back(f);
         }
-        // TODO: manualの場合，installableではチェックできない．
-//    else if ((source == "github") ? github::installable(name, version) : true) {
-        else if (source != "poac") {
-            std::vector<std::tuple<std::string, std::function<void()>>> func_pack;
-
-            if (source == "github") {
-                const std::string url = src::github::resolve(name);
-                const fs::path dest = io::file::path::poac_cache_dir / util::package::github_conv_pkgname(name, version);
-
-                std::map<std::string, std::string> opts;
-                opts.insert(io::network::opt_depth(1));
-                opts.insert(io::network::opt_branch(version));
-
-                func_pack.emplace_back("Cloning", std::bind(&io::network::clone, url, dest, opts));
-            }
-            else {
-                namespace tb = io::file::tarball;
-
-                const fs::path pkg_dir = io::file::path::poac_cache_dir / pkgname;
-                const fs::path tarname = pkg_dir.string() + ".tar.gz";
-
-                func_pack.emplace_back("Downloading", std::bind(&io::network::get_file, url, tarname));
-                func_pack.emplace_back("Extracting", std::bind(&tb::extract_spec_rm_file, tarname, pkg_dir));
-            }
-
-            // TODO: もっと美しく
-            if (const auto build_config = io::file::yaml::get_by_depth(node, "build")) {
-                if (const auto build_system = resolve_build_system(node)) {
-                    if (*build_system == "cmake") {
-                        if (const auto cmake_envs = io::file::yaml::get1<std::map<std::string, std::string>>(node, "environment"))
-                            func_pack.emplace_back("Building", std::bind(&_cmake_build, pkgname, *cmake_envs));
-                        else
-                            func_pack.emplace_back("Building", std::bind(&_cmake_build, pkgname, std::map<std::string, std::string>()));
-                        func_pack.emplace_back("Copying", std::bind(&_copy, pkgname));
-                        return util::step_funcs_with_status(std::move(func_pack));
-                    }
-                    else if (*build_system == "manual") {
-                        if (const auto steps = io::file::yaml::get1<std::vector<std::string>>(node, "steps")) {
-                            func_pack.emplace_back("Building", std::bind(&_manual_build, pkgname, util::command(*steps)));
-                            func_pack.emplace_back("Copying", std::bind(&_copy, pkgname));
-                            return util::step_funcs_with_status(std::move(func_pack));
-                        }
-                    }
-                }
-            }
+        {
+            step_funcs.statuses.push_back("Copying" + from_string);
+            const std::function<bool()> f = std::bind(&_copy, pkgname);
+            step_funcs.funcs.push_back(f);
         }
-        // TODO: すぐにDoneになってしまう．
-        return util::step_funcs_with_status(std::make_tuple("Notfound", std::bind(&_placeholder)));
+        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
+        return step_funcs;
+    }
+    auto poac_func_pack(
+        const std::string& name,
+        const std::string& version )
+    {
+        namespace tb = io::file::tarball;
+
+        const std::string url = sources::poac::resolve(name, version);
+        const std::string pkgname = sources::poac::pkgname(name, version);
+        const auto pkg_dir = io::file::path::poac_cache_dir / pkgname;
+        const auto tar_dir = pkg_dir.string() + ".tar.gz";
+        const std::string from_string = " (from poac)";
+
+        util::step_funcs_with_status step_funcs;
+        {
+            step_funcs.statuses.push_back("Downloading" + from_string);
+            const std::function<bool()> f = std::bind(&io::network::get_file, url, tar_dir);
+            step_funcs.funcs.push_back(f);
+        }
+        {
+            step_funcs.statuses.push_back("Extracting" + from_string);
+            const std::function<bool()> f = std::bind(&tb::extract_spec_rm_file, tar_dir, pkg_dir);
+            step_funcs.funcs.push_back(f);
+        }
+        {
+            step_funcs.statuses.push_back("Copying" + from_string);
+            const std::function<bool()> f = std::bind(&_copy_spec, pkgname, name);
+            step_funcs.funcs.push_back(f);
+        }
+        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
+        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
+        return step_funcs;
+    }
+    auto notfound_func_pack()
+    {
+        util::step_funcs_with_status step_funcs;
+
+        step_funcs.statuses.push_back("Notfound");
+        const std::function<bool()> f = std::bind(&_placeholder);
+        step_funcs.funcs.push_back(f);
+
+        step_funcs.finish_msg = io::cli::to_red(" ×  Not found");
+        return step_funcs;
     }
 
-    template <typename Async, typename Node>
-    void dependencies(Async* async_funcs, const Node& node) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-        namespace src    = sources;
+    auto create_func_pack(
+        const std::string& name,
+        const YAML::Node& deps,
+        const std::string& version,
+        const std::string& pkgname,
+        const std::string& src )
+    {
+        if (sources::cache::resolve(pkgname))
+            return cache_func_pack(pkgname, src);
+        else if (const std::string pkgname2 = sources::poac::pkgname(name, version); sources::cache::resolve(pkgname2))
+            return cache_spec_func_pack(name, pkgname2, src); // TODO: poac経由でインストールしたのがcacheに存在する
+        else if (src == "github")
+            return github_func_pack(name, deps, version, pkgname);
+        else if (src == "poac")
+            return poac_func_pack(name, version);
+        else
+            return notfound_func_pack();
+    }
 
+    template <typename Async>
+    void dependencies(Async* async_funcs, const YAML::Node& node) {
+        namespace except = core::exception;
 
         int already_count = 0;
-
         // Even if a package of the same name is written, it is excluded.
         // However, it can not deal with duplication of other information (e.g. version etc.).
-        for (const auto& [name, next_node] : node.at("deps").template as<std::map<std::string, YAML::Node>>()) {
+        for (const auto& [name, next_node] : node.as<std::map<std::string, YAML::Node>>()) {
             // hello_world: 0.2.1
             // itr->first: itr->second
-            std::string src     = util::package::get_source(next_node);
+            std::string src = util::package::get_source(next_node);
             const std::string version = util::package::get_version(next_node, src);
             const std::string pkgname = util::package::github_conv_pkgname(name, version);
 
-            src = resolve_source(pkgname, src);
-            if (auto func_pack = resolve(next_node, name, version, pkgname, src))
-                async_funcs->emplace_back(std::move(*func_pack), std::bind(&info, name, version), src);
-            else
+            // TODO: もし，poacからのインストールならこっちの名前になっている
+            if (sources::current::resolve(pkgname) || io::file::path::validate_dir(io::file::path::current_deps_dir / name))
                 ++already_count;
+            else
+                async_funcs->emplace(
+                    name + ": " + version,
+                    create_func_pack(name, next_node, version, pkgname, src)
+                );
         }
-
         if (async_funcs->empty()) {
             if (already_count > 0)
                 throw except::warn("Already up-to-date");
             else
                 throw except::invalid_second_arg("install");
         }
+    }
 
-        // Start async functions...
+    template <typename Async>
+    void start_funcs(Async& async_funcs) {
+        namespace fs = boost::filesystem;
+        fs::create_directories(io::file::path::current_deps_dir);
         // TODO: hardware concurrency
-        for (const auto& [func, _info, _src] : *async_funcs) {
+        for (auto& [_info, func] : async_funcs) {
+            (void)_info; // Avoid unused warning
             func.start();
-            ((void)_info, (void)_src); // Avoid unused warning
         }
     }
 
@@ -340,26 +293,11 @@ namespace poac::subcmd { struct install {
         if (!argv.empty()) throw except::invalid_second_arg("install");
     }
 
-    /*
-     * ./poac.ymlからdepsの要素を取得
-     * その後，current directoryに既に存在する場合(cacheには無い場合も含む)は，インストールタスクから消去します．
-     * この時点で，何もインストールするものが無くなれば，Already up-to-dateと表示
-     * 次にcacheの確認を行う．
-     * cacheに存在し，currentにはない場合，コピーのみを行う．
-     * cacheにも無い場合，githubなどからのインストールを行い，それを，まずcacheディレクトリに保存する
-     * 解凍後，cacheからcurrentにコピーを行う．
-     *
-     * TODO: Check if connecting network
-     * TODO: download途中で，ctl Cされたファイルは消す
-     * TODO: Error handling. (tarball url not found.. etc)
-     */
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
+        namespace fs = boost::filesystem;
 
         // Start timer
-        // TODO: 全てのコマンドにおいて計測したい (もう一段階抽象化後)
         boost::timer::cpu_timer timer;
 
 
@@ -367,24 +305,21 @@ namespace poac::subcmd { struct install {
         fs::create_directories(io::file::path::poac_cache_dir);
         const auto node = io::file::yaml::load_setting_file("deps");
 
-        std::vector<
-            std::tuple<
-                util::step_funcs_with_status,
-                std::function<void()>,
-                std::string
-            >
-        > async_funcs;
-        dependencies(&async_funcs, node);
+        std::map<std::string, util::step_funcs_with_status> async_funcs;
+        dependencies(&async_funcs, node.at("deps"));
+        start_funcs(async_funcs);
 
         const int deps_num = static_cast<int>(async_funcs.size());
 
         std::cout << "Some new packages are needed.\n\n";
-        for (int i = 0; i < deps_num; ++i) std::cout << std::endl;
+        for (int i = 0; i < deps_num; ++i)
+            std::cout << std::endl;
         std::cout << std::endl
                   << "0/" << deps_num << " packages installed";
 
+
         for (int i = 0; installing(&i, async_funcs) != deps_num; ++i)
-            std::this_thread::sleep_for(std::chrono::microseconds(100000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 
         std::cout << io::cli::clr_line

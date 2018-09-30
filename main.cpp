@@ -13,12 +13,13 @@ using VS = std::vector<std::string>;
 int error_handling(std::string&& s) {
     namespace inference = poac::core::infer;
     namespace io        = poac::io;
+    using namespace std::string_literals;
 
     std::cerr << io::cli::red
               << "Error: " << s
               << io::cli::reset
               << std::endl << std::endl;
-    inference::apply(std::string("exec"), std::string("--help"), VS());
+    inference::apply("exec"s, "--help"s, VS());
     return EXIT_FAILURE;
 }
 
@@ -26,17 +27,18 @@ int exec(std::string&& s, VS&& vs) {
     namespace inference = poac::core::infer;
     namespace except    = poac::core::exception;
     namespace io        = poac::io;
+    using namespace std::string_literals;
 
     // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {
-        inference::apply(std::string("exec"), s, std::move(vs));
+        inference::apply("exec"s, s, std::move(vs));
         return EXIT_SUCCESS;
     }
     catch (const except::invalid_first_arg& e) {
         return error_handling(e.what());
     }
     catch (const except::invalid_second_arg& e) {
-        inference::apply(std::string("exec"), std::string("--help"), VS({ e.what() }));
+        inference::apply("exec"s, "--help"s, VS({ e.what() }));
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {

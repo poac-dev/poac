@@ -5,22 +5,26 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <fstream>
+#include <future>
+#include <functional>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../io/cli.hpp"
-#include "../io/file.hpp"
-#include "../io/network.hpp"
+#include "../io.hpp"
 #include "../core/exception.hpp"
-#include "../util/command.hpp"
+#include "../util.hpp"
 
 
 namespace poac::subcmd { struct publish {
     static const std::string summary() { return "Beta: Publish a package."; }
-    static const std::string options() { return "<Nothing>"; }
+    static const std::string options() { return "[-v | --verbose]"; }
+
+    const std::string url = "https://poac.pm/api/v1";
+//    const std::string url = "http://localhost:4000/api/v1";
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(std::move(argv)); }
@@ -32,80 +36,115 @@ namespace poac::subcmd { struct publish {
         check_arguments(argv);
         check_requirements();
 
-        // To tarball
+        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
+//        bool error = false;
+
+
         const std::string project_dir = fs::absolute(fs::current_path()).string();
-        const std::string temp   = *(util::command("mktemp -d").exec());
-        const std::string temp_path(temp, 0, temp.size()-1); // rm \n
-        // TODO:                                               poac.yml -> name-version.tar.gz
-        // TODO:                                               project_dir x -> poac.yml o
-        const std::string output_dir  = (fs::path(temp_path) / fs::basename(project_dir)).string() + ".tar.gz";
+        status_func("Packaging " + project_dir + "...");
+        const std::string output_dir = compress_project(project_dir);
+        if (verbose) std::cout << output_dir << std::endl;
 
-        io::file::tarball::compress_spec_exclude(project_dir, output_dir, {"deps"});
-
-        std::cout << output_dir << std::endl;
-
-
-        // Markdown to json.
-        if (const auto res = io::file::markdown::to_json("# hoge\n## hoge2")) {
-            std::cout << "Parse: " << *res << std::endl;
+        // Get token
+        boost::property_tree::ptree json;
+        if (const auto token = io::file::path::read_file(io::file::path::poac_token_dir)) {
+            const std::string temp = *token;
+            const std::string temp_path(temp, 0, temp.size()-1); // delete \n
+            json.put("token", temp_path);
         }
         else {
-            std::cerr << "Parse failed." << std::endl;
+            throw except::error("Could not read token");
         }
+        std::stringstream ss;
+        boost::property_tree::json_parser::write_json(ss, json, false);
 
+        // Validating
+//        if (!error)
+        status_func("Validating...");
+        if (io::network::post(url + "/packages/validate", ss.str()) == "err")
+            throw except::error("Token verification failed");
+
+        // TODO: uploadに失敗してもエラー報告できない．
+        // Post tarball to API.
+        status_func("Uploading...");
+        const std::string json_string = create_json();
+        if (verbose) std::cout << json_string << std::endl;
+        io::network::post_file(url + "/packages/upload", output_dir, json_string, ss.str(), verbose);
+
+        // Delete file
+        status_func("Cleanup...");
+        fs::remove_all(fs::path(output_dir).parent_path());
+
+        status_func("Done.");
+    }
+
+    std::string create_json() {
+        namespace except = core::exception;
 
         boost::property_tree::ptree json;
-        json.put("token", "AHUDJII");
-
-        boost::property_tree::ptree readme;
-        {
-            boost::property_tree::ptree child;
-            child.put("type", "h1");
-            child.put("text", "readme");
-            readme.push_back(std::make_pair("", child));
+        if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            const std::string yaml_content = *(io::file::path::read_file(*op_filename));
+            json.put("setting", yaml_content);
         }
-        {
-            boost::property_tree::ptree child;
-            child.put("type", "plane");
-            child.put("text", "this package is dummy");
-            readme.push_back(std::make_pair("", child));
+        else {
+            throw except::error("poac.yml does not exists");
         }
-        json.add_child("readme", readme);
-
-        boost::property_tree::ptree setting;
-        setting.put("name", "poac");
-        setting.put("version", "0.0.1");
-        json.add_child("setting", setting);
-
 
         std::stringstream ss;
-        boost::property_tree::json_parser::write_json(ss, json);
-        std::cout << ss.str() << std::endl;
-
-        // Post json to API. login処理を行う
-        const std::string uuid = io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacCreate", ss.str());
-        // Post tarball to API.
-        io::network::post("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload?uuid="+uuid, "{}");
-//        io::network::post_file("https://us-central1-poac-ab5d0.cloudfunctions.net/poacUpload?uuid="+uuid, output_dir);
-
-        // Packaging...
-        // Add poac.yml
-        // Add test/
-        // Add ho...
-        // Validate token...
-        // Please login!!
-        // Login succeed
-        // Uploading
-        // 20% [====>             ]
-        //
-        // Publish succeed!
-        // Please access to https://poac.pm/packages/hoge/0.2.1
+        boost::property_tree::json_parser::write_json(ss, json, false);
+        return ss.str();
     }
+
+    boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
+        namespace fs = boost::filesystem;
+
+        const fs::path temp_path = io::file::path::create_temp();
+
+        const fs::path copy_file = temp_path / fs::basename(project_dir);
+        io::file::path::recursive_copy(project_dir, copy_file);
+        const auto node = io::file::yaml::load_setting_file("name", "version");
+        const auto filename = node.at("name").as<std::string>() + "-" + node.at("version").as<std::string>();
+        const fs::path file_path = temp_path / filename;
+        fs::rename(copy_file, file_path);
+
+        return file_path;
+    }
+
+    std::string compress_project(const boost::filesystem::path& project_dir) {
+        namespace fs = boost::filesystem;
+
+        const fs::path file_path = rename_copy(project_dir);
+        const fs::path temp_path = io::file::path::create_temp();
+
+        std::vector<std::string> excludes({ "deps", "_build", ".git", ".gitignore" });
+        // Read .gitignore
+        if (const auto ignore = io::file::path::read_file(".gitignore")) {
+            auto tmp = io::file::path::split(*ignore, "\n");
+            const auto itr = std::remove_if(tmp.begin(), tmp.end(), [](std::string x) {
+                return (x[0] == '#');
+            });
+            excludes.insert(excludes.end(), tmp.begin(), itr-1);
+        }
+        const std::string output_dir = (temp_path / file_path.filename()).string() + ".tar.gz";
+
+        io::file::tarball::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
+
+        fs::remove_all(file_path.parent_path());
+
+        return output_dir;
+    }
+
+    void status_func(const std::string& msg) {
+        std::cout << io::cli::to_green("==>")
+                  << " " + msg
+                  << std::endl;
+    }
+
 
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::exception;
 
-        if (!argv.empty())
+        if (argv.size() > 1)
             throw except::invalid_second_arg("publish");
     }
 
@@ -113,34 +152,13 @@ namespace poac::subcmd { struct publish {
         namespace fs     = boost::filesystem;
         namespace except = core::exception;
 
-        if (!fs::exists("poac.yml"))
-            throw except::error("poac.yml does not exist");
-        // TODO: srcがなくても大丈夫
-//        else if (!fs::exists("src") || !fs::is_directory("src") || fs::is_empty("src"))
-//            throw except::error("src directory does not exist");
+        io::file::yaml::load_setting_file("name", "version", "cpp_version",
+                                          "compilers", "description", "owners");
 
         if (!fs::exists("LICENSE"))
             std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
         if (!fs::exists("README.md"))
             std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
-
-        if (YAML::Node config = YAML::LoadFile("poac.yml"); validity_check(config)) {
-            std::cout << "name: " << config["name"].as<std::string>() << std::endl;
-        }
-        else {
-            throw except::error("poac.yml is invalid");
-        }
-    }
-
-    template <typename C>
-    bool validity_check(const C& config) {
-        const std::vector<std::string> requires{
-                "name", "version", "cpp_version", "compilers",
-                "description", "owners", "deps"
-        };
-        for (const auto& r : requires)
-            if (!config[r]) return false;
-        return true;
     }
 };} // end namespace
 #endif // !POAC_SUBCMD_PUBLISH_HPP

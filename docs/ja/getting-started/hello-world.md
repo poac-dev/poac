@@ -1,6 +1,6 @@
-# Getting Started
 ## Hello World
 
+poac で新しいプロジェクトを始めるには、`poac new`コマンドを使用します:
 ```bash
 $ poac new hello_world
 
@@ -11,27 +11,42 @@ Go into your project by running:
     $ cd hello_world
 
 Start your project with:
-    $ poac install hello_world
-    $ poac run main.cpp
-
-
-```
-poac use `poac.yml` as setting file.
-
-```yaml:poac.yml
-# This is a comment.
-name: sample
-version: 0.0.1
-cpp_version: ""
-description: "This is a Sample file."
-authors:
-  - "good author"
-license: ISC
-links:
-  - GitHub: https://github.com
-deps:
-  - hello_world: 1.0.0
+    $ poac run
 ```
 
+プロジェクトディレクトリに移動します。
+```bash
+$ cd hello_world
+$ tree . -a
+.
+├── .gitignore
+├── README.md
+├── main.cpp
+└── poac.yml
+
+0 directories, 4 files
+```
+
+`poac.yml` は設定ファイルです。
+
+ここに依存関係やパッケージの情報を記載します。
+
+Please refer to [setting-file](../guide/setting-file.md) for details on how to write the setting file.
 
 
+Poac generates a “hello_world” binary for us, when you execute `poac build`:
+```bash
+$ poac build
+Compiled: Output to `_build/bin/hello_world`
+
+$ ./_build/bin/hello_world
+Hello, world!
+```
+
+We can also use `poac run` to compile and then run it, all in one step:
+```bash
+$ poac run
+Compiled: Output to `_build/bin/hello_world`
+Running: `_build/bin/hello_world`
+Hello, world!
+```

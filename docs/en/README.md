@@ -20,7 +20,7 @@ The guide necessary to develop with poac.
 
 **[Reference](reference/README.md)**
 
-The reference covering a more detailed explanation.
+The reference covering a more detailed feature.
 
 
 **[Architecture](architecture/README.md)**

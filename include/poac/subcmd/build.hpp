@@ -17,11 +17,12 @@
 #include "../io/cli.hpp"
 #include "../util/buildsystem.hpp"
 #include "../util/package.hpp"
+#include "../util/argparse.hpp"
 
 
 namespace poac::subcmd { struct build {
     static const std::string summary() { return "Beta: Compile all sources that depend on this project."; }
-    static const std::string options() { return "[-v | --verbose]"; } // TODO: --release
+    static const std::string options() { return "[-v | --verbose]"; } // TODO: --release, --no-cache
 
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -34,16 +35,50 @@ namespace poac::subcmd { struct build {
         check_arguments(argv);
         check_requirements();
         const auto node = io::file::yaml::load_setting_file("build");
+        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
-        const auto first = argv.begin(), last = argv.end();
-        const bool verbose = (std::find(first, last, "-v") != last || std::find(first, last, "--verbose") != last);
+        if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
+            for (const auto& [name, next_node] : (*deps_node).at("deps").as<std::map<std::string, YAML::Node>>()) {
+                (void)next_node;
+
+                // TODO: ./deps/name/poac.ymlに，buildの項がなければ，header only library
+                // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
+                const auto deps_path = fs::current_path() / "deps" / name;
+
+                bool do_build = true;
+                if (const auto deps_yml_file = io::file::yaml::exists_setting_file(deps_path)) {
+                    try {
+                        const auto test1 = *io::file::yaml::load(*deps_yml_file);
+                        const auto test2 = test1["build"];
+                        (void)test2;
+                    }
+                    catch (...) {
+                        do_build = false;
+                    }
+                }
+
+                if (do_build && fs::exists(deps_path)) {
+                    std::string comd = "cd ./deps/" + name + " && poac build";
+                    for (const auto& s : argv)
+                        comd += " " + s;
+                    std::system(comd.c_str());
+                    // TODO: できればコマンドじゃないほうが良い. linkせずに使われてたらエラーになってしまう．
+                    // TODO: また，Generated: Output to `_build/lib/shell-cpp.a`
+                    // TODO: と，表示されるが，カレントではなく，./deps/pkg/_build に作成されてしまうため，
+                    // TODO: 直すべき
+                }
+                else if (do_build) {
+                    throw except::error(name + " is not installed.\n"
+                                        "       Please build after running `poac install`");
+                }
+            }
+        }
 
         util::buildsystem bs;
-
         if (const auto bin = io::file::yaml::get_by_width(node.at("build"), "bin")) {
             if (const auto op_bin = io::file::yaml::get<bool>((*bin).at("bin"))) {
                 if (*op_bin) {
-                    if (build_bin(bs, true, verbose)) {}
+                    if (build_bin(bs, true, verbose)) {} // TODO: ディレクトリで指定できるようにする？？？
                     else { /* compile or link error */ }
                 }
             }
@@ -73,10 +108,13 @@ namespace poac::subcmd { struct build {
         if (bs.compile_conf.source_files.empty()) { // No need for compile and link
             const std::string bin_path =
                     (io::file::path::current_build_bin_dir / bs.project_name).string();
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Binary exists in `" +
-                         fs::relative(bin_path).string() + "`."
-                      << std::endl;
+            // Dealing with an error which is said to have cache even though it is not going well.
+            if (fs::exists(bin_path)) {
+                std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                          << "There is no change. Binary exists in `" +
+                             fs::relative(bin_path).string() + "`."
+                          << std::endl;
+            }
             return bin_path;
         }
         else {
@@ -91,6 +129,8 @@ namespace poac::subcmd { struct build {
                     return bin_path;
                 }
                 else { // Link failure
+                    // TODO: 全部削除すると，testのcacheも消えてしまう．
+                    fs::remove_all(io::file::path::current_build_cache_dir);
                     return boost::none;
                 }
             }
@@ -110,16 +150,18 @@ namespace poac::subcmd { struct build {
         if (bs.compile_conf.source_files.empty()) { // No need for compile and link
             const std::string lib_path =
                     (io::file::path::current_build_lib_dir / bs.project_name).string();
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Static link library exists in `" +
-                         fs::relative(lib_path).string() +
-                         ".a" + "`."
-                      << std::endl;
-            std::cout << io::cli::yellow << "Warning: " << io::cli::reset
-                      << "There is no change. Dynamic link library exists in `" +
-                         fs::relative(lib_path).string() +
-                         ".dylib" + "`."
-                      << std::endl;
+            if (fs::exists(lib_path)) {
+                std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                          << "There is no change. Static link library exists in `" +
+                             fs::relative(lib_path).string() +
+                             ".a" + "`."
+                          << std::endl;
+                std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                          << "There is no change. Dynamic link library exists in `" +
+                             fs::relative(lib_path).string() +
+                             ".dylib" + "`."
+                          << std::endl;
+            }
             return lib_path;
         }
         if (const auto obj_files_path = bs._compile()) {
@@ -133,6 +175,8 @@ namespace poac::subcmd { struct build {
 //                return lib_path;
             }
             else { // Static link library generation failed
+                // TODO: 全部削除すると，testのcacheも消えてしまう．
+                fs::remove_all(io::file::path::current_build_cache_dir);
 //                return boost::none;
             }
 
@@ -145,8 +189,9 @@ namespace poac::subcmd { struct build {
                           << std::endl;
 //                return lib_path;
             }
-            else {
-                // Dynamic link library generation failed
+            else { // Dynamic link library generation failed
+                // TODO: 全部削除すると，testのcacheも消えてしまう．
+                fs::remove_all(io::file::path::current_build_cache_dir);
 //                return boost::none;
             }
 

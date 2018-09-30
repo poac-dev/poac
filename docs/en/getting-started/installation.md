@@ -6,7 +6,7 @@ curl https://sh.poac.pm | sh
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
-### Manual (Build)
+### Manual install (Build)
 Poac requires the following tools and packages to build:
 * `boost`: version `1.48.0` or higher
 * `cmake`: version ``
@@ -25,5 +25,5 @@ $ make install
 
 Already poac is installed, you can build using poac:
 ```bash
-$ poac build --release
+$ poac build
 ```

@@ -78,7 +78,7 @@ namespace poac::util::package {
         if (source == "github")
             return node["tag"].as<std::string>();
         else if (source == "poac")
-            return node["version"].as<std::string>();
+            return node.as<std::string>(); // TODO: node["version"].as<std::string>();も可能にすべき
         else
             throw except::error("poac.yml error\nWhat source is " + source + "?");
     }
