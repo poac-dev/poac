@@ -57,7 +57,13 @@ namespace poac::subcmd { struct publish {
         }
         {
             const auto node = io::file::yaml::load_setting_file("owners");
-            json.put("owners", node.at("owners").as<std::vector<std::string>>());
+            boost::property_tree::ptree children;
+            for (const auto& s : node.at("owners").as<std::vector<std::string>>()) {
+                boost::property_tree::ptree child;
+                child.put("", s);
+                children.push_back(std::make_pair("", child));
+            }
+            json.add_child("owners", children);
         }
         std::stringstream ss;
         boost::property_tree::json_parser::write_json(ss, json, false);
@@ -65,12 +71,13 @@ namespace poac::subcmd { struct publish {
         // Validating
 //        if (!error)
         status_func("Validating...");
+        if (verbose) std::cout << ss.str() << std::endl;
         if (io::network::post(url + "/packages/validate", ss.str()) == "err")
             throw except::error("Token verification failed.\n"
-                                "       Please check the following items.\n"
-                                "       1. Does token really belong to you?\n"
-                                "       2. Is the user ID described `owners` in poac.yml\n"
-                                "           the same as that of GitHub account?");
+                                "Please check the following items.\n"
+                                "1. Does token really belong to you?\n"
+                                "2. Is the user ID described `owners` in poac.yml\n"
+                                "    the same as that of GitHub account?");
 
         // Post tarball to API.
         status_func("Uploading...");
