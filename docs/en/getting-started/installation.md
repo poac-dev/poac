@@ -2,7 +2,7 @@
 
 ### Easy install
 ```bash
-curl https://sh.poac.pm | sh
+curl https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 

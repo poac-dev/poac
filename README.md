@@ -19,7 +19,7 @@ Poac currently supports macOS (>= high sierra) only.
 ## Installation
 ### Easy install
 ```bash
-curl -fsSL https://sh.poac.pm | sh
+curl -fsSL https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
