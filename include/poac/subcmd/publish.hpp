@@ -55,6 +55,10 @@ namespace poac::subcmd { struct publish {
         else {
             throw except::error("Could not read token");
         }
+        {
+            const auto node = io::file::yaml::load_setting_file("owners");
+            json.put("owners", node.at("owners").as<std::vector<std::string>>());
+        }
         std::stringstream ss;
         boost::property_tree::json_parser::write_json(ss, json, false);
 
@@ -62,7 +66,11 @@ namespace poac::subcmd { struct publish {
 //        if (!error)
         status_func("Validating...");
         if (io::network::post(url + "/packages/validate", ss.str()) == "err")
-            throw except::error("Token verification failed");
+            throw except::error("Token verification failed.\n"
+                                "       Please check the following items.\n"
+                                "       1. Does token really belong to you?\n"
+                                "       2. Is the user ID described `owners` in poac.yml\n"
+                                "           the same as that of GitHub account?");
 
         // Post tarball to API.
         status_func("Uploading...");
@@ -71,6 +79,7 @@ namespace poac::subcmd { struct publish {
         // could not get response
         io::network::post_file(url + "/packages/upload", output_dir, json_string, ss.str(), verbose);
 
+        // Check exists package
         const auto node = io::file::yaml::load_setting_file("name", "version");
         const std::string query = "?name=" + node.at("name").as<std::string>() + "&version=" + node.at("version").as<std::string>();
         if (io::network::get("https://poac.pm/api/v1/packages/exists" + query) != "true")
