@@ -23,7 +23,7 @@ namespace poac::sources::poac {
     // true == can install
     bool installable(const std::string& name, const std::string& version) {
         const std::string query = "?name=" + name + "&version=" + version;
-        return io::network::get("http://localhost:4000/api/v1/packages/exists" + query) == "true";
+        return io::network::get("https://poac.pm/api/v1/packages/exists" + query) == "true";
     }
     // resolve(name, version, architecture) in 0.6.0
 } // end namespace
