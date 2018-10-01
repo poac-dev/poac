@@ -64,12 +64,17 @@ namespace poac::subcmd { struct publish {
         if (io::network::post(url + "/packages/validate", ss.str()) == "err")
             throw except::error("Token verification failed");
 
-        // TODO: uploadに失敗してもエラー報告できない．
         // Post tarball to API.
         status_func("Uploading...");
         const std::string json_string = create_json();
         if (verbose) std::cout << json_string << std::endl;
+        // could not get response
         io::network::post_file(url + "/packages/upload", output_dir, json_string, ss.str(), verbose);
+
+        const auto node = io::file::yaml::load_setting_file("name", "version");
+        const std::string query = "?name=" + node.at("name").as<std::string>() + "&version=" + node.at("version").as<std::string>();
+        if (io::network::get("https://poac.pm/api/v1/packages/exists" + query) != "true")
+            std::cerr << io::cli::to_red("ERROR: ") << "Could not create package.";
 
         // Delete file
         status_func("Cleanup...");
