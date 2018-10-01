@@ -240,7 +240,7 @@ namespace poac::subcmd { struct install {
             return cache_spec_func_pack(name, pkgname2, src); // TODO: poac経由でインストールしたのがcacheに存在する
         else if (src == "github")
             return github_func_pack(name, deps, version, pkgname);
-        else if (src == "poac")
+        else if (src == "poac" && sources::poac::installable(name, version))
             return poac_func_pack(name, version);
         else
             return notfound_func_pack();

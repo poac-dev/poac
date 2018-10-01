@@ -93,8 +93,10 @@ namespace poac::io::network {
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
             // Switch on full protocol/debug output
 //            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
-                std::cerr << "curl told us " << res << std::endl;
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
+                (void)res;
+                return EXIT_FAILURE;
+            }
             curl_easy_cleanup(curl);
             std::fclose(fp);
         }

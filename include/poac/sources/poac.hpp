@@ -20,6 +20,11 @@ namespace poac::sources::poac {
     std::string resolve(const std::string& name, const std::string& version) {
         return "https://storage.googleapis.com/re.poac.pm/" + pkgname(name, version) + ".tar.gz";
     }
+    // true == can install
+    bool installable(const std::string& name, const std::string& version) {
+        const std::string query = "?name=" + name + "&version=" + version;
+        return io::network::get("http://localhost:4000/api/v1/packages/exists" + query) == "true";
+    }
     // resolve(name, version, architecture) in 0.6.0
 } // end namespace
 #endif // !POAC_SOURCES_POAC_HPP
