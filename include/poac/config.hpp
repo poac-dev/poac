@@ -4,7 +4,7 @@
 #if !defined(POAC_AUTO_DEF_PROJECT_ROOT)
 #   warning "POAC_AUTO_DEF_PROJECT_ROOT is not defined"
 #endif
-#if !defined(POAC_AUTO_DEF_PROJECT_ROOT)
+#if !defined(POAC_VERSION)
 #   warning "POAC_VERSION is not defined"
 #endif
 
