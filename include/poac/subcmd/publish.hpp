@@ -23,8 +23,8 @@ namespace poac::subcmd { struct publish {
     static const std::string summary() { return "Beta: Publish a package."; }
     static const std::string options() { return "[-v | --verbose]"; }
 
-    const std::string url = "https://poac.pm/api/v1";
-//    const std::string url = "http://localhost:4000/api/v1";
+//    const std::string url = "https://poac.pm/api/v1";
+    const std::string url = "http://localhost:4000/api/v1";
 
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void operator()(VS&& argv) { _main(std::move(argv)); }
@@ -156,8 +156,8 @@ namespace poac::subcmd { struct publish {
     }
 
     void status_func(const std::string& msg) {
-        std::cout << io::cli::to_green("==>")
-                  << " " + msg
+        std::cout << io::cli::to_green("==> ")
+                  << msg
                   << std::endl;
     }
 
@@ -176,6 +176,7 @@ namespace poac::subcmd { struct publish {
         io::file::yaml::load_setting_file("name", "version", "cpp_version",
                                           "compilers", "description", "owners");
 
+        // TODO: licenseの項があるのに，LICENSEファイルが存在しない => error
         if (!fs::exists("LICENSE"))
             std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
         if (!fs::exists("README.md"))
