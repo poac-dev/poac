@@ -121,7 +121,7 @@ namespace poac::util {
                         const std::string src = package::get_source(next_node);
                         const std::string version = package::get_version(next_node, src);
                         const std::string pkgname = package::cache_to_current(
-                                package::github_conv_pkgname(name, version));
+                                package::github_cache_package_name(name, version));
                         const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                         if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
@@ -367,7 +367,8 @@ namespace poac::util {
                         const std::string version = package::get_version(next_node, src);
 
                         if (src != "poac") {
-                            const std::string pkgname = package::cache_to_current(package::github_conv_pkgname(name, version));
+                            const std::string pkgname = package::cache_to_current(
+                                    package::github_cache_package_name(name, version));
                             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                             if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
