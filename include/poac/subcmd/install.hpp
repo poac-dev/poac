@@ -66,6 +66,7 @@ namespace poac::subcmd { struct install {
 
         // 依存関係の解決 (依存先のパッケージは，publish時にpoac.ymlに書いたdepsを保証するため，上の作業をもう一度する必要は無い)
         std::cout << io::cli::to_status("Resolving dependencies...") << std::endl;
+        resolve_dependencies(deps);
 
 
         // ダウンロードする (この時点で，パッケージの情報はURLと，パッケージ名，バージョン, ソース
@@ -88,19 +89,19 @@ namespace poac::subcmd { struct install {
             // itr->first: itr->second
             std::string src = util::package::get_source(next_node);
             const std::string version = util::package::get_version(next_node, src);
-            const std::string pkgname = util::package::conv_pkgname(src, name, version);
+            const std::string cache_package_name = util::package::to_cache_package_name(src, name, version);
+            const std::string current_package_name = util::package::to_current_package_name(src, name, version);
 
-            if (sources::current::resolve(pkgname)) {
+            if (sources::current::resolve(current_package_name)) {
                 continue;
             }
-            else if (sources::cache::resolve(pkgname) && (src == "poac" || src == "github")) {
-                // If it exists in cache and it is not in the current directory copy it to the current.
-                deps.emplace_back(pkgname, name, version, "cache&" + src, pkgname, YAML::Clone(next_node));
-            }
             else if (src == "poac") {
-                if (sources::poac::installable(name, version)) {
+                if (sources::cache::resolve(cache_package_name)) {
+                    deps.emplace_back("", name, version, "cache&" + src, cache_package_name, YAML::Node{});
+                }
+                else if (sources::poac::installable(name, version)) {
                     const std::string url = sources::poac::resolve(name, version);
-                    deps.emplace_back(url, name, version, src, pkgname, YAML::Clone(next_node));
+                    deps.emplace_back(url, name, version, src, cache_package_name, YAML::Node{});
                 }
                 else { // not found
                     // No matching version for hoge ~> 0.11.0 (from: mix.exs) in registry
@@ -113,10 +114,16 @@ namespace poac::subcmd { struct install {
                 }
             }
             else if (src == "github") {
-                const std::string url = sources::github::resolve(name);
-                deps.emplace_back(url, name, version, src, pkgname, YAML::Clone(next_node));
-                // not foundは，fetch時にしかチェックしない．その時，fetch_failedとして表示される．
-                // 理由は，ユーザーが存在を確認しやすい点と，存在確認のAPIの処理が大幅な時間がかかってしまうため．
+                if (sources::cache::resolve(cache_package_name)) {
+                    deps.emplace_back("", name, version, "cache&" + src, cache_package_name, YAML::Node{});
+                }
+                else {
+                    const std::string url = sources::github::resolve(name);
+                    deps.emplace_back(url, name, version, src, cache_package_name, YAML::Clone(next_node));
+                    // not foundは，fetch時にしかチェックしない．その時，fetch_failedとして表示される．
+                    // 理由は，GitHubではユーザーが存在を確認しやすい点と，
+                    //  存在確認のAPIの処理が大幅な時間がかかってしまうため．
+                }
             }
             else { // unknown source
                 throw except::error("Unknown source");
@@ -125,73 +132,72 @@ namespace poac::subcmd { struct install {
     }
 
     template <typename Deps>
+    void resolve_dependencies(Deps& deps) {
+        (void)deps;
+    }
+
+    template <typename Deps>
     void fetch_packages(const Deps& deps) {
         namespace except = core::exception;
 
-        for (const auto& [url, name, version, src, pkgname, yaml] : deps) {
+        for (const auto& [url, name, version, src, cache_package_name, yaml] : deps) {
             if (src == "poac") {
                 namespace tb = io::file::tarball;
 
-                const std::string pkgname = sources::poac::pkgname(name, version);
-                const auto pkg_dir = io::file::path::poac_cache_dir / pkgname;
+                const auto pkg_dir = io::file::path::poac_cache_dir / cache_package_name;
                 const auto tar_dir = pkg_dir.string() + ".tar.gz";
 
                 bool res = io::network::get_file(url, tar_dir);
-                // If res is true, does not execute func.
+                // If res is true, does not execute func. (short-circuit evaluation)
                 res = res || tb::extract_spec_rm_file(tar_dir, pkg_dir);
-                res = res || copy_to_current(pkgname, name);
+                res = res || copy_to_current(cache_package_name, name);
 
-                if (res) {
-                    std::cout << io::cli::to_fetch_failed(name+" "+version+" (from: "+src+")") << std::endl;
-                }
-                else {
-                    std::cout << io::cli::to_fetched(name+" "+version+" (from: "+src+")") << std::endl;
-                }
+                echo_install_status(res, name, version, src);
             }
             else if (src == "github") {
                 const auto dest =
                         io::file::path::poac_cache_dir /
-                        util::package::github_conv_pkgname(name, version);
+                        util::package::github_cache_package_name(name, version);
 
                 std::map<std::string, std::string> opts;
                 opts.insert(io::network::opt_depth(1));
                 opts.insert(io::network::opt_branch(version));
                 bool res = io::network::clone(url, dest, opts);
-                res = res || configure(pkgname, YAML::Clone(yaml));
-                res = res || copy_to_current(pkgname, util::package::cache_to_current(pkgname));
+                res = res || configure(cache_package_name, YAML::Clone(yaml));
+                res = res || copy_to_current(cache_package_name, util::package::cache_to_current(cache_package_name));
 
-                if (res) { // EXIT_FAILURE
-                    std::cout << io::cli::to_fetch_failed(name+" "+version+" (from: "+src+")") << std::endl;
-                }
-                else {
-                    std::cout << io::cli::to_fetched(name+" "+version+" (from: "+src+")") << std::endl;
-                }
+                echo_install_status(res, name, version, src);
             }
             else if (src == "cache&poac") {
-                const bool res = copy_to_current(pkgname, name);
-
-                if (res) { // EXIT_FAILURE
-                    std::cout << io::cli::to_fetch_failed(name+" "+version+" (from: poac)") << std::endl;
-                }
-                else {
-                    // Installing from the cache is hidden
-                    std::cout << io::cli::to_fetched(name+" "+version+" (from: poac)") << std::endl;
-                }
+                const bool res = copy_to_current(cache_package_name, name);
+                echo_install_status(res, name, version, "poac");
             }
             else if (src == "cache&github") {
-                const bool res = copy_to_current(pkgname, util::package::cache_to_current(pkgname));
-
-                if (res) { // EXIT_FAILURE
-                    std::cout << io::cli::to_fetch_failed(name+" "+version+" (from: github)") << std::endl;
-                }
-                else {
-                    std::cout << io::cli::to_fetched(name+" "+version+" (from: github)") << std::endl;
-                }
+                const bool res = copy_to_current(cache_package_name, util::package::cache_to_current(cache_package_name));
+                echo_install_status(res, name, version, "github");
             }
             else {
                 // If called this, this is a bug.
                 throw except::error("Unexcepted error");
             }
+        }
+    }
+
+    void echo_install_status(
+        const bool res,
+        const std::string& name,
+        const std::string& version,
+        const std::string& src )
+    {
+        const std::string status =
+                name + " " + version + " (from: " + src + ")";
+        if (res) { // EXIT_FAILURE
+            std::cout << io::cli::to_fetch_failed(status)
+                      << std::endl;
+        }
+        else {
+            std::cout << io::cli::to_fetched(status)
+                      << std::endl;
         }
     }
 

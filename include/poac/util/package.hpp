@@ -27,7 +27,7 @@ namespace poac::util::package {
     // 5. boostorg/optional, boost-1.67.0 -> boost-optional-1.67.0
 
     // GitHub
-    std::string github_conv_pkgname(const std::string& name, const std::string& tag) {
+    std::string github_cache_package_name(const std::string &name, const std::string &tag) {
         std::regex pattern("^(v?)?(?:(\\d+)(\\.|_))?(?:(\\d+)(\\.|_))?(\\*|\\d+)$");
         std::smatch matches;
 
@@ -49,14 +49,9 @@ namespace poac::util::package {
             return tag;
         }
     }
-
-    std::string conv_pkgname(const std::string& src, const std::string& name, const std::string& version) {
-        if (src == "poac") {
-            return (io::file::path::current_deps_dir / name).string();
-        }
-        else {
-            return github_conv_pkgname(name, version);
-        }
+    // poac
+    std::string poac_cache_package_name(const std::string& name, const std::string& tag) {
+        return name + "-" + tag;
     }
 
     // opencv-3.4.2 -> opencv
@@ -70,12 +65,23 @@ namespace poac::util::package {
     }
 
 
-    // 1. boost, 1.67.0 -> boost-1.67.0
-    // 2. boost::optional, 1.67.0 -> boost::optional-1.67.0
-
-    // poac
-    std::string poac_conv_pkgname(const std::string& name, const std::string& tag) {
-        return name + "-" + tag;
+    // like `poac-0.3.0-beta`
+    std::string to_cache_package_name(const std::string& src, const std::string& name, const std::string& version) {
+        if (src == "poac") {
+            return poac_cache_package_name(name, version);
+        }
+        else {
+            return github_cache_package_name(name, version);
+        }
+    }
+    // like `poac`
+    std::string to_current_package_name(const std::string& src, const std::string& name, const std::string& version) {
+        if (src == "poac") {
+            return name;
+        }
+        else {
+            return cache_to_current(github_cache_package_name(name, version));
+        }
     }
 
 
