@@ -7,7 +7,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../core/exception.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/file.hpp"
 
 
 namespace poac::util::package {
@@ -47,6 +47,15 @@ namespace poac::util::package {
         else {
             // TODO: not yet 5
             return tag;
+        }
+    }
+
+    std::string conv_pkgname(const std::string& src, const std::string& name, const std::string& version) {
+        if (src == "poac") {
+            return (io::file::path::current_deps_dir / name).string();
+        }
+        else {
+            return github_conv_pkgname(name, version);
         }
     }
 

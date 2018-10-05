@@ -83,7 +83,7 @@ namespace poac::io::network {
         return chunk;
     }
 
-    static bool get_file(const std::string& from_url, const boost::filesystem::path& to_file) {
+    bool get_file(const std::string& from_url, const boost::filesystem::path& to_file) {
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             FILE* fp = std::fopen(to_file.c_str(), "wb");
             curl_easy_setopt(curl, CURLOPT_URL, from_url.c_str());
@@ -100,14 +100,13 @@ namespace poac::io::network {
             curl_easy_cleanup(curl);
             std::fclose(fp);
         }
-        // TODO:
         return EXIT_SUCCESS;
     }
 
 
     // 1 or 0
     struct data { char trace_ascii; };
-    static void dump(
+    void dump(
         const char* text, FILE* stream,
         unsigned char* ptr, size_t size,
         char nohex )
@@ -159,7 +158,7 @@ namespace poac::io::network {
         }
         fflush(stream);
     }
-    static int my_trace(
+    int my_trace(
         CURL* handle, curl_infotype type,
         char* data, size_t size,
         void* userp )
@@ -278,7 +277,7 @@ namespace poac::io::network {
         std::cout << cli::left(100);
     }
 
-    static bool clone(
+    bool clone(
         const std::string& url,
         const boost::filesystem::path& dest,
         const std::map<std::string, std::string>& opts=
