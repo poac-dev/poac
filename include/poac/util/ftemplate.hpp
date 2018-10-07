@@ -49,7 +49,7 @@ namespace poac::util::ftemplate {
                "\n"
                "## Installation\n"
                "\n"
-               "To install `" + project_name + "`, add it to the dependency list of` poac.yml`:\n"
+               "To install `" + project_name + "`, add it to the dependency list of `poac.yml`:\n"
                "\n"
                "```yaml\n"
                "deps:\n"
