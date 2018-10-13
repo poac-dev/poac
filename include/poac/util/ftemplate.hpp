@@ -23,8 +23,9 @@ namespace poac::util::ftemplate {
         return "name: " + project_name + "\n"
                "version: 0.1.0\n"
                "cpp_version: 17\n"
+               "description: \"**TODO: Add description**\"\n"
                "owners:\n"
-               "  - Your ID\n"
+               "  - \"Your ID\"\n"
                "build:\n"
                "  system: poac\n"
                "  bin: true\n";
