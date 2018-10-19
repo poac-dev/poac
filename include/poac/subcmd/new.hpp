@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <algorithm>
 
 #include <boost/filesystem.hpp>
 
@@ -31,9 +32,26 @@ namespace poac::subcmd {
         }
 
         void exec_new(const std::string& dirname) {
+            namespace except = core::exception;
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
             namespace ftmpl = util::ftemplate;
+
+            const auto is_slash = [](const char c) {
+                return c == '/';
+            };
+            // /name
+            if (is_slash(dirname[0])) {
+                throw except::error("Invalid name.\n"
+                                    "It is prohibited to add /(slash)\n"
+                                    " at the begenning of a project name.");
+            }
+            // org/name/sub
+            else if (std::count_if(dirname.begin(), dirname.end(), is_slash) > 1) {
+                throw except::error("Invalid name.\n"
+                                    "It is prohibited to use two\n"
+                                    " /(slashes) in a project name.");
+            }
 
             fs::create_directories(dirname);
             std::ofstream ofs;
