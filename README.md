@@ -50,8 +50,8 @@ $ poac build
 * compiler (gcc | clang | MSVC | ICC)
 * `tar`
 * `git`
-* `cmake`
-* `make`
+* `cmake` : optional
+* `make` : optional
 
 
 ## Contribution
