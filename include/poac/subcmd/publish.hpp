@@ -168,6 +168,24 @@ namespace poac::subcmd {
                                     "    the same as that of GitHub account?");
             const auto node = io::file::yaml::load_setting_file("name", "version");
             const auto node_name = node.at("name").as<std::string>();
+
+            // TODO: new subcmdに同じものが存在する．
+            const auto is_slash = [](const char c) {
+                return c == '/';
+            };
+            // /name
+            if (is_slash(node_name[0])) {
+                throw except::error("Invalid name.\n"
+                                    "It is prohibited to add /(slash)\n"
+                                    " at the begenning of a project name.");
+            }
+                // org/name/sub
+            else if (std::count_if(node_name.begin(), node_name.end(), is_slash) > 1) {
+                throw except::error("Invalid name.\n"
+                                    "It is prohibited to use two\n"
+                                    " /(slashes) in a project name.");
+            }
+
             const auto node_version = node.at("version").as<std::string>();
             if (io::network::get(url + "/packages/"+node_name+"/"+node_version+"/exists") == "true")
                 throw except::error(node_name + ": " + node_version + " already exists");
