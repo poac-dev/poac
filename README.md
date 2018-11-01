@@ -9,7 +9,7 @@ Poac can downloads project's dependencies and compiles project.
 Please see [poac.pm](https://poac.pm) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentation](https://poacpm.github.io/poac/).
 
 
-[![asciicast](https://asciinema.org/a/pZCe9LvmtDI3R7dwnEEdr7vEk.png)](https://asciinema.org/a/pZCe9LvmtDI3R7dwnEEdr7vEk)
+[![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
 
 ## Supported Operating Systems
 
