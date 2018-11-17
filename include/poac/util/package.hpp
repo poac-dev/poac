@@ -64,6 +64,11 @@ namespace poac::util::package {
         }
     }
 
+    std::string orgname_to_urlname(std::string name) {
+        std::replace(name.begin(), name.end(), '/', '-');
+        return name;
+    }
+
 
     // like `poac-0.3.0-beta`
     std::string to_cache_package_name(const std::string& src, const std::string& name, const std::string& version) {
