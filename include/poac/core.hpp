@@ -3,5 +3,6 @@
 
 #include "core/exception.hpp"
 #include "core/inference.hpp"
+#include "core/naming.hpp"
 
 #endif // !POAC_CORE_HPP

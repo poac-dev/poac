@@ -187,7 +187,6 @@ namespace poac::sources::poac {
                 return false;
             });
             if (result == versions.end()) {
-                std::cout << "joge???" << std::endl;
                 throw except::error("`" + name + ": " + version + "` was not found.");
             }
             else { // Found

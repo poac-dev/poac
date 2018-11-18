@@ -103,6 +103,10 @@ namespace poac::io::file::yaml {
             throw except::error("poac.yml does not exists");
         }
     }
+//    template <typename T>
+//    static auto load_setting_file(const std::initializer_list<T> args) {
+//          TODO: variadic to initializer list
+//    }
 
     // keyが無くても無視される
     template <typename... Args>

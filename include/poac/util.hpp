@@ -7,7 +7,6 @@
 #include "util/command.hpp"
 #include "util/compiler.hpp"
 #include "util/ftemplate.hpp"
-#include "util/package.hpp"
 #include "util/pretty_time.hpp"
 
 #endif // !POAC_UTIL_HPP

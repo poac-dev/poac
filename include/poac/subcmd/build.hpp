@@ -16,7 +16,7 @@
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/buildsystem.hpp"
-#include "../util/package.hpp"
+#include "../core/naming.hpp"
 #include "../util/argparse.hpp"
 
 
@@ -34,16 +34,17 @@ namespace poac::subcmd { struct build {
 
         check_arguments(argv);
         check_requirements();
-        const auto node = io::file::yaml::load_setting_file("build");
+        const auto node = io::file::yaml::load_setting_file("build", "name");
         const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
         if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
             for (const auto& [name, next_node] : (*deps_node).at("deps").as<std::map<std::string, YAML::Node>>()) {
-                (void)next_node;
-
                 // TODO: ./deps/name/poac.ymlに，buildの項がなければ，header only library
                 // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
-                const auto deps_path = fs::current_path() / "deps" / name;
+                const std::string src = core::naming::get_source(next_node);
+                const std::string version = core::naming::get_version(next_node, src);
+                const std::string current_package_name = core::naming::to_current(src, name, version);
+                const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                 bool do_build = true;
                 if (const auto deps_yml_file = io::file::yaml::exists_setting_file(deps_path)) {
@@ -58,7 +59,7 @@ namespace poac::subcmd { struct build {
                 }
 
                 if (do_build && fs::exists(deps_path)) {
-                    std::string comd = "cd ./deps/" + name + " && poac build";
+                    std::string comd = "cd " + deps_path.string() + " && poac build";
                     for (const auto& s : argv)
                         comd += " " + s;
                     std::system(comd.c_str());
@@ -69,7 +70,7 @@ namespace poac::subcmd { struct build {
                 }
                 else if (do_build) {
                     throw except::error(name + " is not installed.\n"
-                                        "       Please build after running `poac install`");
+                                        "Please build after running `poac install`");
                 }
             }
         }
@@ -79,7 +80,16 @@ namespace poac::subcmd { struct build {
             if (const auto op_bin = io::file::yaml::get<bool>((*bin).at("bin"))) {
                 if (*op_bin) {
                     if (build_bin(bs, true, verbose)) {} // TODO: ディレクトリで指定できるようにする？？？
-                    else { /* compile or link error */ }
+                    else { /* compile or link error */
+                        // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
+
+//                        std::cout << "hogegegegegeg" << std::endl;
+
+                        const std::string project_name = node.at("name").as<std::string>();
+                        const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / project_name);
+                        try { fs::remove(executable_path); }
+                        catch (...) {} // ファイルが存在しない場合を握りつぶす
+                    }
                 }
             }
         }

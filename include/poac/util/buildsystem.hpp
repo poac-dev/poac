@@ -20,7 +20,7 @@
 #include "./build_deps.hpp"
 #include "../core/exception.hpp"
 #include "../io/file/path.hpp"
-#include "./package.hpp"
+#include "../core/naming.hpp"
 #include "../io/cli.hpp"
 #include "../io/file/yaml.hpp"
 
@@ -104,13 +104,14 @@ namespace poac::util {
             std::vector<std::string> source_files;
             if (io::file::path::validate_dir(fs::current_path() / "src"))
                 for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "src"))
-                    if (!fs::is_directory(p) && p.extension().string() == ".cpp")
+                    if (!fs::is_directory(p) && p.extension().string() == ".cpp") // TODO: .cppだけ？
                         source_files.push_back(p.string());
             return source_files;
         }
 
         auto make_include_search_path() {
             namespace fs = boost::filesystem;
+            namespace naming = core::naming;
 
             std::vector<std::string> include_search_path;
             // Does the key `deps` exist?
@@ -118,10 +119,10 @@ namespace poac::util {
                 // Is it convertible with the specified type?
                 if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
                     for (const auto&[name, next_node] : *deps) {
-                        const std::string src = package::get_source(next_node);
-                        const std::string version = package::get_version(next_node, src);
-                        const std::string pkgname = package::cache_to_current(
-                                package::github_cache_package_name(name, version));
+                        const std::string src = naming::get_source(next_node);
+                        const std::string version = naming::get_version(next_node, src);
+
+                        std::string pkgname = naming::to_current(src, name, version);
                         const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                         if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
@@ -157,7 +158,8 @@ namespace poac::util {
         std::string to_cache_hash_path(const std::string& s) {
             namespace fs = boost::filesystem;
             namespace iopath = io::file::path;
-            return (iopath::current_build_cache_hash_dir / fs::relative(s)).string() + ".hash";
+            const auto hash_path = iopath::current_build_cache_hash_dir / fs::relative(s);
+            return hash_path.string() + ".hash";
         }
 
         boost::optional<std::map<std::string, std::string>> hash_load(const std::string& src_cpp_hash) {
@@ -271,7 +273,7 @@ namespace poac::util {
                 }
             }
             return new_source_files;
-            // TODO: データとして持たず，すぐさま書き込み，
+            // TODO: データとして持たず，すぐさま書き込み(逆にIO streamを開閉しすぎでロスしそう)，
             // TODO:  後々不必要な場合に消せば？名称(hashの)だけ保持しておけば，
             // TODO:  メモリ使用量の抑制になる
         }
@@ -355,6 +357,7 @@ namespace poac::util {
         // TODO: Divide it finer...
         auto make_link() {
             namespace fs = boost::filesystem;
+            namespace naming = core::naming;
 
             std::vector<std::string> library_search_path;
             std::vector<std::string> static_link_libs;
@@ -363,12 +366,11 @@ namespace poac::util {
             if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
                 if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
                     for (const auto&[name, next_node] : *deps) {
-                        const std::string src = package::get_source(next_node);
-                        const std::string version = package::get_version(next_node, src);
+                        const std::string src = naming::get_source(next_node);
+                        const std::string version = naming::get_version(next_node, src);
 
                         if (src != "poac") {
-                            const std::string pkgname = package::cache_to_current(
-                                    package::github_cache_package_name(name, version));
+                            const std::string pkgname = naming::to_cache(src, name, version);
                             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                             if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
@@ -456,57 +458,17 @@ namespace poac::util {
         }
 
         // TODO: poac.ymlのhashもcheckしてほしい
+        // TODO: 自らのinclude，dirも，includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         buildsystem() :
             node(io::file::yaml::load_setting_file(
                     "name", "version", "cpp_version", "build"))
         {
-            project_name = node.at("name").as<std::string>();
+            project_name = core::naming::slash_to_hyphen(node.at("name").as<std::string>());
             if (const char* cxx = std::getenv("CXX"))
                 system = cxx;
             else // Automatic selection of compiler
                 system = auto_select_compiler();
         }
     };
-
-    bool _cmake_build(
-            const std::string& pkgname,
-            const std::map<std::string, std::string>& cmake_envs )
-    {
-        namespace fs     = boost::filesystem;
-        namespace except = core::exception;
-
-        const fs::path filepath = io::file::path::poac_cache_dir / pkgname;
-
-        util::command cmd("cd " + filepath.string());
-        cmd &= "mkdir build";
-        cmd &= "cd build";
-        util::command cmake_cmd("cmake ..");
-        for (const auto& [key, val] : cmake_envs)
-            cmake_cmd.env(key, val);
-        cmd &= cmake_cmd.stderr_to_stdout();
-        cmd &= util::command("make -j4").stderr_to_stdout();
-        cmd &= util::command("make install").env("DESTDIR", "./").stderr_to_stdout();
-
-        if (auto result = cmd.exec()) {
-            const std::string filepath_tmp = filepath.string() + "_tmp";
-            fs::rename(filepath, filepath_tmp);
-            fs::create_directories(filepath);
-
-            const fs::path build_after_dir(fs::path(filepath_tmp) / "build" / "usr" / "local");
-
-            // Write to cache.yml and recurcive copy
-            for (const auto& s : std::vector<std::string>({ "bin", "include", "lib" }))
-                if (io::file::path::validate_dir(build_after_dir / s))
-                    io::file::path::recursive_copy(build_after_dir / s, fs::path(filepath) / s);
-            fs::remove_all(filepath_tmp);
-
-            return EXIT_SUCCESS;
-        }
-        else {
-            /* error */
-            // datetime-error.log
-            return EXIT_FAILURE;
-        }
-    }
 } // end namespace
 #endif // !POAC_UTIL_BUILDSYSTEM_HPP

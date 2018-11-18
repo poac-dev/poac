@@ -12,7 +12,7 @@
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/command.hpp"
-#include "../util/package.hpp"
+#include "../core/naming.hpp"
 #include "./build.hpp"
 
 
@@ -40,17 +40,21 @@ namespace poac::subcmd { struct run {
             subcmd::build{}(std::vector<std::string>(argv.begin(), result));
         }
         else {
-            subcmd::build{}(std::move(argv)); // TODO: もしエラーなら，下を実行しない
+            subcmd::build{}(std::move(argv));
         }
 
         const std::string project_name = node.at("name").as<std::string>();
-        const std::string executable = fs::relative(io::file::path::current_build_bin_dir / project_name).string();
+        const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / project_name);
+        if (!fs::exists(executable_path)) {
+            return;
+        }
+
+        const std::string executable = executable_path.string();
         util::command cmd(executable);
         for (const auto& s : program_args) {
             cmd += s;
         }
 
-        // TODO: 一度コンパイルに成功していると，cacheのせいで実行されてしまう line:43と同じ話
         std::cout << io::cli::green << "Running: " << io::cli::reset
                   << "`" + executable + "`"
                   << std::endl;

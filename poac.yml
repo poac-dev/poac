@@ -53,6 +53,7 @@ deps:
     tag: yaml-cpp-0.6.2
     build: cmake
     link: static
+  cpp-shell-cmd: ">=0.0.1 and <1.0.0"
 
 # If nothing is specified, it is regarded as header only library
 build:
