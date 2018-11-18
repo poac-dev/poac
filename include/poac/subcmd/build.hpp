@@ -44,7 +44,7 @@ namespace poac::subcmd { struct build {
                 // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
                 const auto [src, name2] = naming::get_source(name);
                 const std::string version = naming::get_version(next_node, src);
-                const std::string current_package_name = naming::to_current(src, name, version);
+                const std::string current_package_name = naming::to_current(src, name2, version);
                 const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                 bool do_build = true;

@@ -122,7 +122,7 @@ namespace poac::util {
                         const auto [src, name2] = naming::get_source(name);
                         const std::string version = naming::get_version(next_node, src);
 
-                        std::string pkgname = naming::to_current(src, name, version);
+                        std::string pkgname = naming::to_current(src, name2, version);
                         const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                         if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
@@ -370,7 +370,7 @@ namespace poac::util {
                         const std::string version = naming::get_version(next_node, src);
 
                         if (src != "poac") {
-                            const std::string pkgname = naming::to_cache(src, name, version);
+                            const std::string pkgname = naming::to_cache(src, name2, version);
                             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                             if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
@@ -396,7 +396,7 @@ namespace poac::util {
                         // TODO: poacがソースの場合，ユーザーが選択する必要は無いと判断する．(あとで直す？)
 
                         else {
-                            const std::string pkgname = name;
+                            const std::string pkgname = name2;
                             const fs::path pkgpath = io::file::path::current_deps_dir / pkgname / "_build";
 
                             if (const auto lib_dir = (pkgpath / "lib" / pkgname).string() + ".a"; fs::exists(lib_dir)) {
