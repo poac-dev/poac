@@ -22,8 +22,7 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  boostorg/boost:
-    src: github
+  github/boostorg/boost:
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
@@ -39,8 +38,7 @@ deps:
         - boost_filesystem
         - boost_timer
         - boost_chrono
-  curl/curl: # TODO: Cのバージョン管理
-    src: github
+  github/curl/curl: # TODO: Cのバージョン管理
     tag: curl-7_61_0
     build:
       system: cmake
@@ -48,8 +46,7 @@ deps:
         MAC_RPATH: 1 # TODO: Branch by OS
         OPENSSL_ROOT_DIR: /usr/local/opt/openssl/ # TODO: 抽象化
     link: static
-  jbeder/yaml-cpp:
-    src: github
+  github/jbeder/yaml-cpp:
     tag: yaml-cpp-0.6.2
     build: cmake
     link: static

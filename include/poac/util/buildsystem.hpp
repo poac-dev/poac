@@ -118,8 +118,8 @@ namespace poac::util {
             if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
                 // Is it convertible with the specified type?
                 if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
-                    for (const auto&[name, next_node] : *deps) {
-                        const std::string src = naming::get_source(next_node);
+                    for (const auto& [name, next_node] : *deps) {
+                        const auto [src, name2] = naming::get_source(name);
                         const std::string version = naming::get_version(next_node, src);
 
                         std::string pkgname = naming::to_current(src, name, version);
@@ -365,8 +365,8 @@ namespace poac::util {
 
             if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
                 if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
-                    for (const auto&[name, next_node] : *deps) {
-                        const std::string src = naming::get_source(next_node);
+                    for (const auto& [name, next_node] : *deps) {
+                        const auto [src, name2] = naming::get_source(name);
                         const std::string version = naming::get_version(next_node, src);
 
                         if (src != "poac") {

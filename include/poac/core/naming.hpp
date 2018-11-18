@@ -5,6 +5,7 @@
 
 #include <string>
 #include <regex>
+#include <utility>
 
 #include <yaml-cpp/yaml.h>
 
@@ -45,6 +46,11 @@ namespace poac::core::naming {
         std::replace(name.begin(), name.end(), '/', '-');
         return name;
     }
+
+//    std::string remove_github_prefix()
+//    {
+//
+//    }
 
 
     // 1. opencv/opencv, 3.4.2 -> opencv-3.4.2
@@ -112,7 +118,7 @@ namespace poac::core::naming {
     std::string to_current(
             const std::string& src,
             const std::string& name,
-            const std::string& version)
+            const std::string& version )
     {
         if (src == "poac") {
             return slash_to_hyphen(name);
@@ -146,13 +152,18 @@ namespace poac::core::naming {
         }
     }
 
-    std::string get_source(const YAML::Node& node)
+    // github/curl/curl -> src = github, name = curl/curl
+    // boost/config -> src = poac, name = boost/config
+    std::pair<std::string, std::string>
+    get_source(const std::string& name)
     {
-        if (const auto src = io::file::yaml::get_by_width(node, "src")) {
-            return (*src).at("src").as<std::string>();
+        std::regex exp("^github\\/(.*)");
+        std::smatch match_group;
+        if (std::regex_match(name, match_group, exp)) {
+            return std::make_pair("github", match_group[1].str());
         }
         else {
-            return "poac";
+            return std::make_pair("poac", name);
         }
     }
 } // end namespace

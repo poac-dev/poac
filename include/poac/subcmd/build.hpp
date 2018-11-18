@@ -29,8 +29,9 @@ namespace poac::subcmd { struct build {
     void operator()(VS&& argv) { _main(std::move(argv)); }
     template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void _main(VS&& argv) {
-        namespace fs     = boost::filesystem;
+        namespace fs = boost::filesystem;
         namespace except = core::exception;
+        namespace naming = core::naming;
 
         check_arguments(argv);
         check_requirements();
@@ -41,9 +42,9 @@ namespace poac::subcmd { struct build {
             for (const auto& [name, next_node] : (*deps_node).at("deps").as<std::map<std::string, YAML::Node>>()) {
                 // TODO: ./deps/name/poac.ymlに，buildの項がなければ，header only library
                 // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
-                const std::string src = core::naming::get_source(next_node);
-                const std::string version = core::naming::get_version(next_node, src);
-                const std::string current_package_name = core::naming::to_current(src, name, version);
+                const auto [src, name2] = naming::get_source(name);
+                const std::string version = naming::get_version(next_node, src);
+                const std::string current_package_name = naming::to_current(src, name, version);
                 const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                 bool do_build = true;

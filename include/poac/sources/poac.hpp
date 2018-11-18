@@ -12,15 +12,13 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "../core/exception.hpp"
+#include "../core/naming.hpp"
 #include "../io/network.hpp"
 
 
 namespace poac::sources::poac {
-    std::string pkgname(const std::string& name, const std::string& version) {
-        return name + "-" + version;
-    }
-    std::string resolve(const std::string& name, const std::string& version) {
-        return "https://storage.googleapis.com/poac-pm.appspot.com/" + pkgname(name, version) + ".tar.gz";
+    std::string resolve(const std::string& name, const std::string& ver) {
+        return "https://storage.googleapis.com/poac-pm.appspot.com/" + core::naming::to_cache("poac", name, ver) + ".tar.gz";
     }
 
     bool is_equal_op(const std::string& version) {
@@ -36,6 +34,7 @@ namespace poac::sources::poac {
         return r;
     }
 
+    // name: boost/config, no boost-config
     boost::optional<std::string> decide_version(const std::string& name, const std::string& version) {
         namespace except = core::exception;
 
