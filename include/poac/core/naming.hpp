@@ -40,11 +40,10 @@ namespace poac::core::naming {
             { return name; }
     }
     // boost/bind -> boost-bind
-    std::string slash_to_hyphen(const std::string& name)
+    std::string slash_to_hyphen(std::string name)
     {
-        std::string name2;
-        std::replace_copy(name.begin(), name.end(), name2.begin(), '/', '-');
-        return name2;
+        std::replace(name.begin(), name.end(), '/', '-');
+        return name;
     }
 
 

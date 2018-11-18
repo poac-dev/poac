@@ -48,7 +48,7 @@ namespace poac::subcmd {
             std::string version;
             std::string src;
             std::string cache_package_name;
-            std::string current_package_name;
+            std::string current_package_name; // TODO: is_cached
             YAML::Node yaml;
             Dependency(
                std::string u_,
@@ -113,7 +113,7 @@ namespace poac::subcmd {
             namespace path = io::file::path;
             namespace naming = core::naming;
 
-            for (const auto& [url, name, version, src, cache_package_name, yaml] : deps) {
+            for (const auto& [url, name, version, src, cache_package_name, current_package_name, yaml] : deps) {
                 if (src == "poac") {
                     namespace tb = io::file::tarball;
 
@@ -123,29 +123,27 @@ namespace poac::subcmd {
                     bool res = io::network::get_file(url, tar_dir);
                     // If res is true, does not execute func. (short-circuit evaluation)
                     res = res || tb::extract_spec_rm_file(tar_dir, pkg_dir);
-                    res = res || copy_to_current(cache_package_name, naming::slash_to_hyphen(name));
+                    res = res || copy_to_current(cache_package_name, current_package_name);
 
                     echo_install_status(res, name, version, src);
                 }
                 else if (src == "github") {
-                    const auto dest = path::poac_cache_dir / naming::to_cache(src, name, version);
+                    const auto dest = path::poac_cache_dir / cache_package_name;
 
                     std::map<std::string, std::string> opts;
                     opts.insert(io::network::opt_depth(1));
                     opts.insert(io::network::opt_branch(version));
                     bool res = io::network::clone(url, dest, opts);
                     res = res || configure(cache_package_name, YAML::Clone(yaml));
-                    res = res ||
-                          copy_to_current(cache_package_name, naming::cache_to_current(cache_package_name));
+                    res = res || copy_to_current(cache_package_name, current_package_name);
 
                     echo_install_status(res, name, version, src);
                 }
                 else if (src == "cache&poac") {
-                    const bool res = copy_to_current(cache_package_name, naming::slash_to_hyphen(name));
+                    const bool res = copy_to_current(cache_package_name, current_package_name);
                     echo_install_status(res, name, version, "poac");
                 }
                 else if (src == "cache&github") {
-                    const auto current_package_name = naming::cache_to_current(cache_package_name);
                     const bool res = copy_to_current(cache_package_name, current_package_name);
                     echo_install_status(res, name, version, "github");
                 }
@@ -217,11 +215,11 @@ namespace poac::subcmd {
                     const std::string current_package_name = naming::to_current("poac", name, version);
 
                     if (sources::cache::resolve(cache_package_name)) {
-                        deps.emplace_back("", name, version, "cache&poac", cache_package_name, YAML::Node{});
+                        deps.emplace_back("", name, version, "cache&poac", cache_package_name, current_package_name, YAML::Node{});
                     }
                     else if (const auto ver = sources::poac::decide_version(name, version)) {
                         const std::string url = sources::poac::resolve(naming::slash_to_hyphen(name), *ver);
-                        deps.emplace_back(url, name, *ver, "poac", cache_package_name, YAML::Node{});
+                        deps.emplace_back(url, name, *ver, "poac", cache_package_name, current_package_name, YAML::Node{});
                     }
                     else { // not found
                         throw core::exception::error("Not found " + name + " " + version);
@@ -233,16 +231,17 @@ namespace poac::subcmd {
         // Depsの形成を行う
         void resolve_packages(Deps& deps, const YAML::Node& node) {
             namespace except = core::exception;
+            namespace naming = core::naming;
 
             // Even if a package of the same name is written, it is excluded.
             // However, it can not deal with duplication of other information (e.g. version etc.).
             for (const auto& [name, next_node] : node.as<std::map<std::string, YAML::Node>>()) {
                 // hello_world: 0.2.1
                 // itr->first: itr->second
-                const std::string src = core::naming::get_source(next_node);
-                const std::string version = core::naming::get_version(next_node, src);
-                const std::string cache_package_name = core::naming::to_cache(src, name, version);
-                const std::string current_package_name = core::naming::to_current(src, name, version);
+                const std::string src = naming::get_source(next_node);
+                const std::string version = naming::get_version(next_node, src);
+                const std::string cache_package_name = naming::to_cache(src, name, version);
+                const std::string current_package_name = naming::to_current(src, name, version);
 
                 if (sources::current::resolve(current_package_name)) {
                     continue;
@@ -252,8 +251,10 @@ namespace poac::subcmd {
                         deps.emplace_back("", name, version, "cache&" + src, cache_package_name, current_package_name, YAML::Node{});
                     }
                     else if (const auto ver = sources::poac::decide_version(name, version)) {
-                        const std::string url = sources::poac::resolve(core::naming::slash_to_hyphen(name), *ver);
-                        deps.emplace_back(url, name, *ver, src, cache_package_name, current_package_name, YAML::Node{});
+                        const std::string url = sources::poac::resolve(current_package_name, *ver);
+                        // >=0.1.2 and <3.4.0 -> 2.5.0
+                        const auto cache_package_name2 = naming::to_cache(src, name, *ver);
+                        deps.emplace_back(url, name, *ver, src, cache_package_name2, current_package_name, YAML::Node{});
                     }
                     else { // not found
                         throw except::error("Not found " + name + " " + version);
