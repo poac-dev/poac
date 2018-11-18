@@ -20,7 +20,7 @@ namespace poac::sources::poac {
         return name + "-" + version;
     }
     std::string resolve(const std::string& name, const std::string& version) {
-        return "https://storage.googleapis.com/re.poac.pm/" + pkgname(name, version) + ".tar.gz";
+        return "https://storage.googleapis.com/poac-pm.appspot.com/" + pkgname(name, version) + ".tar.gz";
     }
 
     bool is_equal_op(const std::string& version) {
