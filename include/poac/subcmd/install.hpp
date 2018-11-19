@@ -270,32 +270,37 @@ namespace poac::subcmd {
                     continue;
                 }
                 else if (src == "poac") {
-                    if (sources::cache::resolve(cache_name)) {
-                        deps.emplace_back(
-                                "",
-                                name2,
-                                version, // TODO: これだめ．cacheを扱えていない
-                                src,
-                                cache_name,
-                                current_name,
-                                true,
-                                YAML::Node{}
-                        );
-                    }
-                    else if (const auto ver = sources::poac::decide_version(name2, version)) {
-                        const std::string url = sources::poac::resolve(current_name, *ver);
-                        // >=0.1.2 and <3.4.0 -> 2.5.0
+                    // decide_versionで同じものがcacheに存在しない時点で，
+                    // 新しいバージョンが存在することになる．
+
+                    // >=0.1.2 and <3.4.0 -> 2.5.0
+                    if (const auto ver = sources::poac::decide_version(name2, version)) {
                         const auto cache_name2 = naming::to_cache(src, name2, *ver);
-                        deps.emplace_back(
-                                url,
-                                name2,
-                                *ver,
-                                src,
-                                cache_name2,
-                                current_name,
-                                false,
-                                YAML::Node{}
-                        );
+                        if (sources::cache::resolve(cache_name2)) {
+                            deps.emplace_back(
+                                    "",
+                                    name2,
+                                    *ver,
+                                    src,
+                                    cache_name2,
+                                    current_name,
+                                    true,
+                                    YAML::Node{}
+                            );
+                        }
+                        else {
+                            const std::string url = sources::poac::resolve(current_name, *ver);
+                            deps.emplace_back(
+                                    url,
+                                    name2,
+                                    *ver,
+                                    src,
+                                    cache_name2,
+                                    current_name,
+                                    false,
+                                    YAML::Node{}
+                            );
+                        }
                     }
                     else { // not found
                         throw except::error("Not found " + name2 + " " + version);
