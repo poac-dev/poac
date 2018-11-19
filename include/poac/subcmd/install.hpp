@@ -1,5 +1,3 @@
-// Beta: It correspond to installation only from GitHub
-//       Do not resolve dependencies
 #ifndef POAC_SUBCMD_INSTALL_HPP
 #define POAC_SUBCMD_INSTALL_HPP
 
@@ -413,7 +411,7 @@ namespace poac::subcmd {
     }
 
     struct install {
-        static const std::string summary() { return "Beta: Install packages."; }
+        static const std::string summary() { return "Install packages."; }
         static const std::string options() { return "[-v | --verbose, -q | --quite]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) { _install::_main(std::move(argv)); }

@@ -17,7 +17,7 @@
 
 
 namespace poac::subcmd { struct run {
-    static const std::string summary() { return "Beta: Build project and exec it."; }
+    static const std::string summary() { return "Build project and exec it."; }
     static const std::string options() { return "[-v | --verbose | -- [program args]]"; }
 
 

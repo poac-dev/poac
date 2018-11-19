@@ -210,7 +210,7 @@ namespace poac::subcmd {
     }
 
     struct publish {
-        static const std::string summary() { return "Beta: Publish a package."; }
+        static const std::string summary() { return "Publish a package."; }
         static const std::string options() { return "[-v | --verbose]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) { _publish::_main(std::move(argv)); }

@@ -24,7 +24,7 @@
 
 // TODO: 指定されたパッケージの依存先のみがupdateされていてもupdateする．
 namespace poac::subcmd { struct update {
-        static const std::string summary() { return "Beta: Update package"; }
+        static const std::string summary() { return "Update package"; }
         static const std::string options() { return "<Nothing>"; }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
