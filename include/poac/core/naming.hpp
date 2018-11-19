@@ -28,8 +28,6 @@ namespace poac::core::naming {
             return "poac.yml error\nWhat source is " + src + "?";
         }
     }
-    namespace copy {} // TODO
-    namespace ref {}
 
 
     // username/repository -> repository
@@ -46,11 +44,6 @@ namespace poac::core::naming {
         std::replace(name.begin(), name.end(), '/', '-');
         return name;
     }
-
-//    std::string remove_github_prefix()
-//    {
-//
-//    }
 
 
     // 1. opencv/opencv, 3.4.2 -> opencv-3.4.2
@@ -133,23 +126,22 @@ namespace poac::core::naming {
     }
 
 
-
-    // TODO: 以下のはpackage utilじゃない？？？？ namingじゃなくない？？？
-
-
-    // TODO: 書かれていなかった時，main.cppまでexceptが飛んでしまう．
-    // TODO: このNodeの使い方は危険
     std::string get_version(const YAML::Node& node, const std::string& src)
     {
         if (src == "github") {
-            return node["tag"].as<std::string>();
+            if (const auto ver = io::file::yaml::get1<std::string>(node, "tag")) {
+                return *ver;
+            }
         }
         else if (src == "poac") {
-            return node.as<std::string>(); // TODO: node["version"].as<std::string>();も可能にすべき
+            if (const auto ver = io::file::yaml::get<std::string>(node)) {
+                return *ver;
+            }
+            else if (const auto ver2 = io::file::yaml::get1<std::string>(node, "version")) {
+                return *ver2;
+            }
         }
-        else {
-            throw exception::error(err::source(src));
-        }
+        throw exception::error(err::source(src));
     }
 
     // github/curl/curl -> src = github, name = curl/curl

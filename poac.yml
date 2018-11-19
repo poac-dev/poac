@@ -38,7 +38,7 @@ deps:
         - boost_filesystem
         - boost_timer
         - boost_chrono
-  github/curl/curl: # TODO: Cのバージョン管理
+  github/curl/curl:
     tag: curl-7_61_0
     build:
       system: cmake
