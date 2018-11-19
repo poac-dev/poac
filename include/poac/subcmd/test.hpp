@@ -15,6 +15,7 @@
 #include "../util/argparse.hpp"
 
 
+// TODO: エラーがあるならちゃんと，EXIT_FAILUREを返す
 namespace poac::subcmd { struct test {
         static const std::string summary() { return "Beta: Execute tests."; }
         static const std::string options() { return "[-v | --verbose, --report, -- args]"; }
