@@ -229,15 +229,15 @@ namespace poac::io::network {
         curl_global_init(CURL_GLOBAL_ALL);
 
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[setting]",
+                     CURLFORM_COPYNAME, "setting",
                      CURLFORM_COPYCONTENTS, json_str.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[token]",
+                     CURLFORM_COPYNAME, "token",
                      CURLFORM_COPYCONTENTS, json_str2.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[data]",
+                     CURLFORM_COPYNAME, "file",
                      CURLFORM_FILE, from_file.c_str(),
                      CURLFORM_END);
         // Fill in the submit field too, even if this is rarely needed
