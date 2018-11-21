@@ -8,6 +8,8 @@
 #include <fstream>
 #include <future>
 #include <functional>
+#include <thread>
+#include <map>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -24,21 +26,14 @@ namespace poac::subcmd {
         const std::string url = "https://poac.pm/api";
 //        const std::string url = "http://localhost:4000/api";
 
-        std::string create_json() {
+        std::string read_config() {
             namespace except = core::exception;
-
-            boost::property_tree::ptree json;
             if (const auto op_filename = io::file::yaml::exists_setting_file()) {
-                const std::string yaml_content = *(io::file::path::read_file(*op_filename));
-                json.put("setting", yaml_content);
+                return *(io::file::path::read_file(*op_filename));
             }
             else {
                 throw except::error("poac.yml does not exists");
             }
-
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, json, false);
-            return ss.str();
         }
 
         boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
@@ -135,10 +130,12 @@ namespace poac::subcmd {
 
             // Get token
             boost::property_tree::ptree json;
-            if (const auto token = io::file::path::read_file(io::file::path::poac_token_dir)) {
-                const std::string temp = *token;
+            std::string token;
+            if (const auto token_opt = io::file::path::read_file(io::file::path::poac_token_dir)) {
+                const std::string temp = *token_opt;
                 const std::string temp_path(temp, 0, temp.size()-1); // delete \n
-                json.put("token", temp_path);
+                token = temp_path;
+                json.put("token", token);
             }
             else {
                 throw except::error("Could not read token");
@@ -192,13 +189,16 @@ namespace poac::subcmd {
 
             // Post tarball to API.
             status_func("Uploading...");
-            const std::string json_string = create_json();
-            if (verbose) std::cout << json_string << std::endl;
+            const std::string config = read_config();
+            if (verbose) std::cout << config << std::endl;
             // could not get response
-            io::network::post_file("https://poac-pm.appspot.com/api/packages/upload", output_dir, json_string, ss.str(), verbose);
+            io::network::post_file("https://poac-pm.appspot.com/packages/upload", output_dir, config, token, verbose);
 
             // Check exists package
-            if (io::network::get(url + "/packages/"+node_name+"/"+node_version+"/exists") != "true")
+            std::map<std::string, std::string> headers;
+            headers.insert(std::make_pair("Cache-Control", "no-cache"));
+            const std::string res = io::network::get(url + "/packages/"+node_name+"/"+node_version+"/exists", headers);
+            if (res != "true")
                 std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
 
             // Delete file

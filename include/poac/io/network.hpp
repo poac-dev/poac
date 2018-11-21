@@ -44,6 +44,26 @@ namespace poac::io::network {
         return chunk;
     }
 
+    std::string get(const std::string& url, const std::map<std::string, std::string>& headers_map) {
+        std::string chunk;
+        struct curl_slist *headers = NULL;
+        for (const auto& [k, v] : headers_map) {
+            headers = curl_slist_append(headers, (k + ": " + v).c_str());
+        }
+
+        if (CURL* curl = curl_easy_init(); curl != nullptr) {
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
+                std::cerr << "curl_easy_perform() failed." << std::endl;
+            curl_easy_cleanup(curl);
+        }
+        return chunk;
+    }
+
     std::string post(const std::string& url, const std::string& json, const std::string& content_type="") {
         std::string chunk;
         struct curl_slist *headers = NULL;
@@ -218,8 +238,8 @@ namespace poac::io::network {
     void post_file(
         const std::string& to_url,
         const std::string& from_file,
-        const std::string& json_str,
-        const std::string& json_str2,
+        const std::string& config,
+        const std::string& token,
         const bool verbose=false )
     {
         struct curl_httppost* formpost = nullptr;
@@ -229,12 +249,12 @@ namespace poac::io::network {
         curl_global_init(CURL_GLOBAL_ALL);
 
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "setting",
-                     CURLFORM_COPYCONTENTS, json_str.c_str(),
+                     CURLFORM_COPYNAME, "config",
+                     CURLFORM_COPYCONTENTS, config.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
                      CURLFORM_COPYNAME, "token",
-                     CURLFORM_COPYCONTENTS, json_str2.c_str(),
+                     CURLFORM_COPYCONTENTS, token.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
                      CURLFORM_COPYNAME, "file",
