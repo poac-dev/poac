@@ -146,7 +146,7 @@ namespace poac::util {
         }
 
         auto make_compile_other_args() {
-            if (const auto compile_args = io::file::yaml::get1<std::vector<std::string>>(node.at("build"), "compile_args")) {
+            if (const auto compile_args = io::file::yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
                 return *compile_args;
             }
             else {
@@ -347,7 +347,7 @@ namespace poac::util {
         }
 
         auto make_link_other_args() {
-            if (const auto link_args = io::file::yaml::get1<std::vector<std::string>>(node.at("build"), "link_args")) {
+            if (const auto link_args = io::file::yaml::get<std::vector<std::string>>(node.at("build"), "link_args")) {
                 return *link_args;
             }
             else {

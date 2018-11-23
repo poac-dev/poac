@@ -41,7 +41,7 @@ namespace poac::subcmd { struct test {
             bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
 
             std::string static_link_lib;
-            if (const auto test_framework = io::file::yaml::get1<std::string>(node.at("test"), "framework")) {
+            if (const auto test_framework = io::file::yaml::get<std::string>(node.at("test"), "framework")) {
                 if (*test_framework == "boost") {
                     static_link_lib = "boost_unit_test_framework";
                 }
@@ -103,7 +103,7 @@ namespace poac::subcmd { struct test {
                             cmd += s;
                         }
                     }
-                    else if (const auto test_args = io::file::yaml::get1<std::vector<std::string>>(node.at("test"), "args")) {
+                    else if (const auto test_args = io::file::yaml::get<std::vector<std::string>>(node.at("test"), "args")) {
                         for (const auto& s : *test_args) {
                             cmd += s;
                         }
@@ -113,7 +113,7 @@ namespace poac::subcmd { struct test {
                         cmd += ">";
                         cmd += (io::file::path::current_build_test_report_dir / bin_name).string() + ".xml";
                     }
-                    else if (const auto test_report = io::file::yaml::get1<bool>(node.at("test"), "report")) {
+                    else if (const auto test_report = io::file::yaml::get<bool>(node.at("test"), "report")) {
                         if (*test_report) {
                             fs::create_directories(io::file::path::current_build_test_report_dir);
                             cmd += ">";

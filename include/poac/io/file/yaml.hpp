@@ -13,8 +13,42 @@
 
 
 namespace poac::io::file::yaml {
-    boost::optional<std::string> exists_setting_file(
-            const boost::filesystem::path& basepath )
+    namespace detail {
+        struct wrapper {
+            YAML::Node node;
+            wrapper(const YAML::Node& n) {
+                node = YAML::Clone(n);
+            }
+            template <typename Key>
+            wrapper& operator->*(const Key& key) {
+                this->node = node[key];
+                return *this;
+            }
+        };
+
+        template <typename T>
+        T get(const YAML::Node& node) {
+            return node.as<T>();
+        }
+        template <typename T, typename ...Keys>
+        T get(const YAML::Node& node, Keys&&... keys) {
+            return (wrapper(node) ->* ... ->* keys).node.template as<T>();
+        }
+    }
+
+    template <typename T, typename ...Args>
+    boost::optional<T> get(const Args&... args) {
+        try {
+            return detail::get<T>(args...);
+        }
+        catch (const YAML::BadConversion& e) {
+            return boost::none;
+        }
+    }
+
+
+    boost::optional<std::string>
+    exists_config_file(const boost::filesystem::path &basepath)
     {
         namespace fs = boost::filesystem;
         if (const auto yml = basepath / "poac.yml"; fs::exists(yml))
@@ -26,7 +60,7 @@ namespace poac::io::file::yaml {
     }
     boost::optional<std::string> exists_setting_file() {
         namespace fs = boost::filesystem;
-        return exists_setting_file(fs::current_path());
+        return exists_config_file(fs::current_path());
     }
 
     boost::optional<YAML::Node> load(const std::string& filename) {
@@ -34,21 +68,6 @@ namespace poac::io::file::yaml {
         catch (...) { return boost::none; }
     }
 
-    template <typename T>
-    boost::optional<T> get(const YAML::Node& node) {
-        try { return node.as<T>(); }
-        catch (...) { return boost::none; }
-    }
-    template <typename T>
-    boost::optional<T> get1(const YAML::Node& node, const std::string& key) {
-        try { return node[key].as<T>(); }
-        catch (...) { return boost::none; }
-    }
-    template <typename T>
-    boost::optional<T> get2(const YAML::Node& node, const std::string& key1, const std::string& key2) {
-        try { return node[key1][key2].as<T>(); }
-        catch (...) { return boost::none; }
-    }
 
     // TODO: keyが無くても無視して，許容されるfunctionがほしい．もしくは，optional指定子を付けるとか
     // {{"arg1", node["arg1"]}, ...}
@@ -64,19 +83,9 @@ namespace poac::io::file::yaml {
             ((mp[args] = node[args]), ...);
             return mp;
         }
-        catch (...) { return boost::none; }
-    }
-    // node[arg1][arg2]...
-    // TODO: 多分，内部がポインタで実装されてて，書き換えると，どこから見ても書き換わってしまう．
-    // TODO: YAML::Cloneを使用すると良い？？
-    template <typename... Args>
-    static boost::optional<YAML::Node>
-    get_by_depth(YAML::Node node, const Args&... args) {
-        try {
-            ((node = node[args]), ...);
-            return node;
+        catch (const YAML::BadConversion& e) {
+            return boost::none;
         }
-        catch (...) { return boost::none; }
     }
 
     // これには，必須のkeyを指定する．
