@@ -115,7 +115,7 @@ namespace poac::util {
 
             std::vector<std::string> include_search_path;
             // Does the key `deps` exist?
-            if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
+            if (const auto deps_node = io::file::yaml::load_config_opt("deps")) {
                 // Is it convertible with the specified type?
                 if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
                     for (const auto& [name, next_node] : *deps) {
@@ -357,16 +357,17 @@ namespace poac::util {
         // TODO: Divide it finer...
         auto make_link() {
             namespace fs = boost::filesystem;
+            namespace yaml = io::file::yaml;
             namespace naming = core::naming;
 
             std::vector<std::string> library_search_path;
             std::vector<std::string> static_link_libs;
             std::vector<std::string> library_path;
 
-            if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) {
+            if (const auto deps_node = io::file::yaml::load_config_opt("deps")) {
                 if (const auto deps = io::file::yaml::get<std::map<std::string, YAML::Node>>((*deps_node).at("deps"))) {
-                    for (const auto& [name, next_node] : *deps) {
-                        const auto [src, name2] = naming::get_source(name);
+                    for (const auto&[name, next_node] : *deps) {
+                        const auto[src, name2] = naming::get_source(name);
                         const std::string version = naming::get_version(next_node, src);
 
                         if (src != "poac") {
@@ -376,24 +377,21 @@ namespace poac::util {
                             if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
                                 library_search_path.push_back(lib_dir.string());
 
-                                if (const auto link_config = io::file::yaml::get_by_width(next_node, "link")) {
-                                    if (const auto link_include_config = io::file::yaml::get_by_width(
-                                            (*link_config).at("link"), "include")) {
-                                        for (const auto &c : (*link_include_config).at(
-                                                "include").as<std::vector<std::string>>()) {
-                                            static_link_libs.push_back(c);
-                                        }
-                                    } else {
-                                        static_link_libs.push_back(pkgname);
+                                if (const auto link = yaml::get<std::vector<std::string>>(next_node, "link",
+                                                                                          "include")) {
+                                    for (const auto &l : *link) {
+                                        static_link_libs.push_back(l);
                                     }
+                                } else {
+                                    static_link_libs.push_back(pkgname);
                                 }
                             }
                         }
 
-                        // TODO: 上がpoacがソースでないために，./deps/pkg/lib にlibが存在する
-                        // TODO: 下がpoacがソースであるために，./deps/pkg/_build/lib に存在する
-                        // TODO: しかし，library_search_path.push_back(lib_dir.string()); 以降の文では，
-                        // TODO: poacがソースの場合，ユーザーが選択する必要は無いと判断する．(あとで直す？)
+                            // TODO: 上がpoacがソースでないために，./deps/pkg/lib にlibが存在する
+                            // TODO: 下がpoacがソースであるために，./deps/pkg/_build/lib に存在する
+                            // TODO: しかし，library_search_path.push_back(lib_dir.string()); 以降の文では，
+                            // TODO: poacがソースの場合，ユーザーが選択する必要は無いと判断する．(あとで直す？)
 
                         else {
                             const std::string pkgname = name2;
@@ -460,7 +458,7 @@ namespace poac::util {
         // TODO: poac.ymlのhashもcheckしてほしい
         // TODO: 自らのinclude，dirも，includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         buildsystem() :
-            node(io::file::yaml::load_setting_file(
+            node(io::file::yaml::load_config(
                     "name", "version", "cpp_version", "build"))
         {
             project_name = core::naming::slash_to_hyphen(node.at("name").as<std::string>());

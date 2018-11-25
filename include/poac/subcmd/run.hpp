@@ -29,7 +29,7 @@ namespace poac::subcmd { struct run {
         namespace except = core::exception;
 
         check_arguments(argv);
-        const auto node = io::file::yaml::load_setting_file("name");
+        const auto node = io::file::yaml::load_config("name");
 
         std::vector<std::string> program_args;
         // poac run -v -- -h build

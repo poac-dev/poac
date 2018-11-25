@@ -16,8 +16,9 @@ namespace poac::io::file::yaml {
     namespace detail {
         struct wrapper {
             YAML::Node node;
-            wrapper(const YAML::Node& n) {
-                node = YAML::Clone(n);
+            explicit wrapper(const YAML::Node& n) {
+                // Argument-dependent lookup (ADL)
+                node = Clone(n);
             }
             template <typename Key>
             wrapper& operator->*(const Key& key) {
@@ -25,115 +26,152 @@ namespace poac::io::file::yaml {
                 return *this;
             }
         };
-
         template <typename T>
         T get(const YAML::Node& node) {
             return node.as<T>();
         }
         template <typename T, typename ...Keys>
         T get(const YAML::Node& node, Keys&&... keys) {
-            return (wrapper(node) ->* ... ->* keys).node.template as<T>();
+            return get<T>((wrapper(node) ->* ... ->* keys).node);
         }
     }
 
     template <typename T, typename ...Args>
-    boost::optional<T> get(const Args&... args) {
+    boost::optional<T>
+    get(const YAML::Node& node, Args&&... args) {
         try {
-            return detail::get<T>(args...);
+            return detail::get<T>(node, args...);
         }
         catch (const YAML::BadConversion& e) {
             return boost::none;
+        }
+    }
+    template <typename ...Args>
+    bool get(const YAML::Node& node, Args&&... args) {
+        try {
+            return detail::get<bool>(node, args...);
+        }
+        catch (const YAML::BadConversion& e) {
+            return false;
+        }
+    }
+
+
+    // Private member accessor
+    template <class T, T V>
+    struct accessor {
+        static constexpr T m_isValid = V;
+    };
+    template <typename T>
+    using bastion = accessor<T, &YAML::Node::m_isValid>;
+    // using access_t = accessor<YAMLNode_t, &YAML::Node::m_isValid>;
+    // -> error: 'm_isValid' is a private member of 'YAML::Node'
+    using YAMLNode_t = bool YAML::Node::*;
+    using access = bastion<YAMLNode_t>;
+
+
+    template <typename Head>
+    boost::optional<const char*>
+    read(const YAML::Node& node, Head&& head) {
+        if (!(node[head].*access::m_isValid)) {
+            return head;
+        }
+        else {
+            return boost::none;
+        }
+    }
+    template <typename Head, typename ...Tail>
+    boost::optional<const char*>
+    read(const YAML::Node& node, Head&& head, Tail&&... tail) {
+        if (!(node[head].*access::m_isValid)) {
+            return head;
+        }
+        else {
+            return read(node, tail...);
+        }
+    }
+
+
+    template <typename... Args>
+    static std::map<std::string, YAML::Node>
+    get_by_width(const YAML::Node& node, const Args&... args) {
+        namespace except = core::exception;
+        if (const auto result = read(node, args...)) {
+            throw except::error(
+                    "Required key `" + std::string(*result) +
+                    "` does not exist in poac.yml.\n"
+                    "Please refer to https://docs.poac.pm");
+        }
+        else {
+            std::map<std::string, YAML::Node> mp;
+            ((mp[args] = node[args]), ...);
+            return mp;
+        }
+    }
+    template <typename... Args>
+    static boost::optional<std::map<std::string, YAML::Node>>
+    get_by_width_opt(const YAML::Node& node, const Args&... args) {
+        namespace except = core::exception;
+        if (const auto result = read(node, args...)) {
+            return boost::none;
+        }
+        else {
+            std::map<std::string, YAML::Node> mp;
+            ((mp[args] = node[args]), ...);
+            return mp;
         }
     }
 
 
     boost::optional<std::string>
-    exists_config_file(const boost::filesystem::path &basepath)
+    exists_config(const boost::filesystem::path& base)
     {
         namespace fs = boost::filesystem;
-        if (const auto yml = basepath / "poac.yml"; fs::exists(yml))
+        if (const auto yml = base / "poac.yml"; fs::exists(yml)) {
             return yml.string();
-        else if (const auto yaml = basepath / "poac.yaml"; fs::exists(yaml))
+        }
+        else if (const auto yaml = base / "poac.yaml"; fs::exists(yaml)) {
             return yaml.string();
-        else
+        }
+        else {
             return boost::none;
+        }
     }
-    boost::optional<std::string> exists_setting_file() {
+    boost::optional<std::string>
+    exists_config() {
         namespace fs = boost::filesystem;
-        return exists_config_file(fs::current_path());
+        return exists_config(fs::current_path());
     }
-
-    boost::optional<YAML::Node> load(const std::string& filename) {
+    boost::optional<YAML::Node>
+    load(const std::string& filename) {
         try { return YAML::LoadFile(filename); }
         catch (...) { return boost::none; }
     }
 
 
-    // TODO: keyが無くても無視して，許容されるfunctionがほしい．もしくは，optional指定子を付けるとか
-    // {{"arg1", node["arg1"]}, ...}
-    // get_by_widthは，そのkeyが存在することは保証するが，
-    // そのnodeがasで，指定の型に変換可能であるかどうかは保証していない
-    // そのため，asで変換できなかった時，exceptionが飛んでしまう．
-    // 例えば，keyだけ書かれていた場合..
-    template <typename... Args>
-    static boost::optional<std::map<std::string, YAML::Node>>
-    get_by_width(const YAML::Node &node, const Args&... args) {
-        std::map<std::string, YAML::Node> mp;
-        try {
-            ((mp[args] = node[args]), ...);
-            return mp;
-        }
-        catch (const YAML::BadConversion& e) {
-            return boost::none;
-        }
-    }
-
-    // これには，必須のkeyを指定する．
-    // optionalの場合なら，別のタイミングで抽出すること．
-    template <typename... Args>
-    static auto load_setting_file(const Args&... args) {
+    YAML::Node load_config() {
         namespace except = core::exception;
-
-        // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = exists_setting_file()) {
+        if (const auto op_filename = exists_config()) {
             if (const auto op_node = load(*op_filename)) {
-                if (const auto op_select_node = get_by_width(*op_node, args...)) {
-                    return *op_select_node;
-                }
-                else {
-                    throw except::error("Required key does not exist in poac.yml");
-                }
+                return *op_node;
             }
             else {
                 throw except::error("Could not load poac.yml");
             }
         }
         else {
-            throw except::error("poac.yml does not exists");
+            throw except::error(
+                    "poac.yml does not exists.\n"
+                    "Please execute $ poac init or $ poac new $PROJNAME.");
         }
     }
-//    template <typename T>
-//    static auto load_setting_file(const std::initializer_list<T> args) {
-//          TODO: variadic to initializer list
-//    }
-
-    // keyが無くても無視される
-    template <typename... Args>
-    static auto load_setting_file_opt(const Args&... args) {
-        namespace except = core::exception;
-
-        // TODO: I want use Result type like rust-lang.
-        if (const auto op_filename = exists_setting_file()) {
-            if (const auto op_node = load(*op_filename)) {
-                return get_by_width(*op_node, args...);
-            }
-            else {
-                throw except::error("Could not load poac.yml");
-            }
-        }
-        else {
-            throw except::error("poac.yml does not exists");
-        }
+    template <typename ...Args>
+    static auto load_config(Args ...args) {
+        return get_by_width(load_config(), args...);
+    }
+    template <typename ...Args>
+    static auto load_config_opt(Args ...args) {
+        return get_by_width_opt(load_config(), args...);
     }
 } // end namespace
 #endif // !POAC_IO_FILE_YAML_HPP

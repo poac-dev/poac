@@ -136,7 +136,8 @@ namespace poac::subcmd {
             namespace except = core::exception;
             namespace naming = core::naming;
 
-            if (const auto deps_node = io::file::yaml::load_setting_file_opt("deps")) { // TODO: lockファイル実装後
+            // TODO: lockファイル実装後，順序を決定
+            if (const auto deps_node = io::file::yaml::load_config_opt("deps")) {
                 for (const auto& [name, next_node] : (*deps_node).at("deps").as<std::map<std::string, YAML::Node>>()) {
                     // TODO: ./deps/name/poac.ymlに，buildの項がなければ，header only library
                     // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
@@ -146,7 +147,7 @@ namespace poac::subcmd {
                     const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                     bool do_build = true;
-                    if (const auto deps_yml_file = io::file::yaml::exists_config_file(deps_path)) {
+                    if (const auto deps_yml_file = io::file::yaml::exists_config(deps_path)) {
                         try {
                             const auto test1 = *io::file::yaml::load(*deps_yml_file);
                             const auto test2 = test1["build"];
@@ -182,33 +183,25 @@ namespace poac::subcmd {
             namespace except = core::exception;
             namespace naming = core::naming;
 
-            const auto node = io::file::yaml::load_setting_file("build", "name");
+            const auto node = io::file::yaml::load_config();
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
-            if (const auto hogeee = io::file::yaml::get<bool>(node.at("build"), "bin")) {
-                std::cout << *hogeee << std::endl;
-            }
-            if (const auto hogeee = io::file::yaml::get<bool>(node.at("build"), "bin")) {
-                std::cout << *hogeee << std::endl;
-            }
-//            throw except::error("終了");
-
-            build_deps();
+//            build_deps();
 
             util::buildsystem bs;
-            if (const auto lib = io::file::yaml::get<bool>(node.at("build"), "lib")) {
-                if (*lib) {
-                    if (build_link_libs(bs, verbose)) {}
-                    else { /* compile or gen error */ }
+            if (io::file::yaml::get(node, "build", "lib")) {
+                if (!build_link_libs(bs, verbose)) {
+                    // compile or gen error
                 }
             }
-            if (const auto bin = io::file::yaml::get<bool>(node.at("build"), "bin")) {
-                if (*bin) {
-                    if (build_bin(bs, verbose)) {} // TODO: ディレクトリで指定できるようにする？？？
-                    else { /* compile or link error */
-                        // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
-                        const auto project_name = node.at("name").as<std::string>();
-                        const auto binary_name = io::file::path::current_build_bin_dir / project_name;
+            if (io::file::yaml::get(node, "build", "bin")) {
+                // TODO: ディレクトリで指定できるようにする？？？
+                if (!build_bin(bs, verbose)) {
+                    // compile or link error
+
+                    // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
+                    if (const auto project_name = io::file::yaml::get<std::string>(node, "name")) {
+                        const auto binary_name = io::file::path::current_build_bin_dir / *project_name;
                         const fs::path executable_path = fs::relative(binary_name);
                         try { fs::remove(executable_path); }
                         catch (...) {} // ファイルが存在しない場合を握りつぶす

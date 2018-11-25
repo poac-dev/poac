@@ -28,7 +28,7 @@ namespace poac::subcmd {
 
         std::string read_config() {
             namespace except = core::exception;
-            if (const auto op_filename = io::file::yaml::exists_setting_file()) {
+            if (const auto op_filename = io::file::yaml::exists_config()) {
                 return *(io::file::path::read_file(*op_filename));
             }
             else {
@@ -43,7 +43,7 @@ namespace poac::subcmd {
 
             const fs::path copy_file = temp_path / fs::basename(project_dir);
             io::file::path::recursive_copy(project_dir, copy_file);
-            const auto node = io::file::yaml::load_setting_file("name", "version");
+            const auto node = io::file::yaml::load_config("name", "version");
             std::string name = node.at("name").as<std::string>();
             std::replace(name.begin(), name.end(), '/', '-'); // boost/config -> boost-config
             const auto filename = name + "-" + node.at("version").as<std::string>();
@@ -95,8 +95,8 @@ namespace poac::subcmd {
             namespace fs     = boost::filesystem;
             namespace except = core::exception;
 
-            io::file::yaml::load_setting_file("name", "version", "cpp_version",
-                    "description", "owners");
+            io::file::yaml::load_config("name", "version", "cpp_version",
+                                        "description", "owners");
 
             // TODO: licenseの項があるのに，LICENSEファイルが存在しない => error
             // TODO: licenseの項が無いのに，LICENSEファイルが存在する => error
@@ -141,7 +141,7 @@ namespace poac::subcmd {
                 throw except::error("Could not read token");
             }
             {
-                const auto node = io::file::yaml::load_setting_file("owners");
+                const auto node = io::file::yaml::load_config("owners");
                 boost::property_tree::ptree children;
                 for (const auto& s : node.at("owners").as<std::vector<std::string>>()) {
                     boost::property_tree::ptree child;
@@ -163,10 +163,10 @@ namespace poac::subcmd {
                                     "1. Does token really belong to you?\n"
                                     "2. Is the user ID described `owners` in poac.yml\n"
                                     "    the same as that of GitHub account?");
-            const auto node = io::file::yaml::load_setting_file("name", "version");
+            const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
 
-            // TODO: new subcmdに同じものが存在する．
+            // TODO: subcmd::newに同じものが存在する．
             const auto is_slash = [](const char c) {
                 return c == '/';
             };
@@ -176,7 +176,7 @@ namespace poac::subcmd {
                                     "It is prohibited to add /(slash)\n"
                                     " at the begenning of a project name.");
             }
-                // org/name/sub
+            // org/name/sub
             else if (std::count_if(node_name.begin(), node_name.end(), is_slash) > 1) {
                 throw except::error("Invalid name.\n"
                                     "It is prohibited to use two\n"

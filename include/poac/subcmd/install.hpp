@@ -359,7 +359,7 @@ namespace poac::subcmd {
 
             check_arguments(argv);
             fs::create_directories(path::poac_cache_dir);
-            const auto node = yaml::load_setting_file("deps");
+            const auto node = yaml::load_config("deps");
             const bool quite = util::argparse::use(argv, "-q", "--quite");
 
 

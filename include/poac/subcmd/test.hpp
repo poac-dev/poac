@@ -29,7 +29,7 @@ namespace poac::subcmd { struct test {
 
             check_arguments(argv);
 
-            const auto node = io::file::yaml::load_setting_file("test");
+            const auto node = io::file::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
