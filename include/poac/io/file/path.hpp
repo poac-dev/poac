@@ -140,10 +140,14 @@ namespace poac::io::file::path {
         ofs.clear();
     }
 
-    std::vector<std::string> split(const std::string& raw, const std::string& delim) {
-        std::vector<std::string> ret_value;
-        boost::split(ret_value, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on);
-        return ret_value;
+    std::vector<std::string>
+    split(const std::string& raw, const std::string& delim) {
+        using boost::algorithm::token_compress_on;
+        using boost::is_any_of;
+
+        std::vector<std::string> ret;
+        boost::split(ret, raw, is_any_of(delim), token_compress_on);
+        return ret;
     }
 
     boost::filesystem::path create_temp() {
