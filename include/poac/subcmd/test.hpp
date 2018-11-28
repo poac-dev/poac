@@ -11,7 +11,7 @@
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/buildsystem.hpp"
+#include "../util/stroite.hpp"
 #include "../util/argparse.hpp"
 
 
@@ -34,7 +34,7 @@ namespace poac::subcmd { struct test {
 
             const bool usemain = false;
 
-            util::buildsystem bs;
+            stroite::builder::config bs;
             bs.configure_compile(usemain, verbose);
 
             // You can use #include<> in test code.
@@ -73,7 +73,7 @@ namespace poac::subcmd { struct test {
                         if (const auto obj_files_path = bs._compile()) {
                             bs.configure_link(*obj_files_path, verbose);
                             bs.link_conf.project_name = bin_name;
-                            bs.link_conf.output_path = io::file::path::current_build_test_bin_dir;
+                            bs.link_conf.output_root = io::file::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);
                             if (bs._link()) {
                                 std::cout << io::cli::green << "Compiled: " << io::cli::reset

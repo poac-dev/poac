@@ -36,6 +36,17 @@ namespace poac::io::file::yaml {
         }
     }
 
+    template <typename T>
+    boost::optional<T>
+    get(const YAML::Node& node) {
+        try {
+            return detail::get<T>(node);
+        }
+        catch (const YAML::BadConversion& e) {
+            return boost::none;
+        }
+    }
+
     template <typename T, typename ...Args>
     boost::optional<T>
     get(const YAML::Node& node, Args&&... args) {
@@ -53,6 +64,19 @@ namespace poac::io::file::yaml {
         }
         catch (const YAML::BadConversion& e) {
             return false;
+        }
+    }
+
+    template <typename T, typename ...Args>
+    T get_with_throw(const YAML::Node& node, Args&&... args) {
+        namespace except = core::exception;
+        try {
+            return detail::get<T>(node, args...);
+        }
+        catch (const YAML::BadConversion& e) {
+            throw except::error(
+                    "Required key does not exist in poac.yml.\n" // TODO: 何のkeyが無い？
+                    "Please refer to https://docs.poac.pm");
         }
     }
 
@@ -172,6 +196,23 @@ namespace poac::io::file::yaml {
     template <typename ...Args>
     static auto load_config_opt(Args ...args) {
         return get_by_width_opt(load_config(), args...);
+    }
+
+    YAML::Node load_config_by_dir(const boost::filesystem::path& base) {
+        namespace except = core::exception;
+        if (const auto op_filename = exists_config(base)) {
+            if (const auto op_node = load(*op_filename)) {
+                return *op_node;
+            }
+            else {
+                throw except::error("Could not load poac.yml");
+            }
+        }
+        else {
+            throw except::error(
+                    "poac.yml does not exists.\n"
+                    "Please execute $ poac init or $ poac new $PROJNAME.");
+        }
     }
 } // end namespace
 #endif // !POAC_IO_FILE_YAML_HPP
