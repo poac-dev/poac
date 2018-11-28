@@ -1,5 +1,5 @@
-#ifndef STROITE_BUILDER_HPP
-#define STROITE_BUILDER_HPP
+#ifndef STROITE_CORE_BUILDER_HPP
+#define STROITE_CORE_BUILDER_HPP
 
 #include <iostream>
 #include <fstream>
@@ -16,14 +16,15 @@
 #include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "core.hpp"
-#include "utils.hpp"
+#include "./compiler.hpp"
+#include "./depends.hpp"
+#include "../utils.hpp"
 
-#include "../../core/exception.hpp"
-#include "../../io/file/path.hpp"
-#include "../../core/naming.hpp"
-#include "../../io/cli.hpp"
-#include "../../io/file/yaml.hpp"
+#include "../../../core/exception.hpp"
+#include "../../../io/file/path.hpp"
+#include "../../../core/naming.hpp"
+#include "../../../io/cli.hpp"
+#include "../../../io/file/yaml.hpp"
 
 
 // TODO: cache_base_dir, build_result_base_dir
@@ -389,4 +390,4 @@ namespace stroite {
         }
     };
 } // end namespace
-#endif // STROITE_BUILDER_HPP
+#endif // STROITE_CORE_BUILDER_HPP
