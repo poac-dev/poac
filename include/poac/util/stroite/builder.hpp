@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_BUILDSYSTEM_HPP
-#define POAC_UTIL_BUILDSYSTEM_HPP
+#ifndef STROITE_BUILDER_HPP
+#define STROITE_BUILDER_HPP
 
 #include <iostream>
 #include <fstream>
@@ -27,40 +27,8 @@
 
 
 // TODO: cache_base_dir, build_result_base_dir
-namespace stroite::builder {
-    template <typename Opts>
-    void enable_gnu(Opts& opts) {
-        opts.version_prefix = "-std=gnu++";
-    }
-    std::string default_version_prefix() {
-        return "-std=c++";
-    }
-    std::string make_macro_defn(const std::string& first, const std::string& second) {
-        return "-D" + first + "=" + R"(\")" + second + R"(\")";
-    }
-
-    // Automatic selection of compiler
-    auto auto_select_compiler() {
-        using poac::core::exception::error;
-        using poac::util::command;
-
-        if (const char* cxx = std::getenv("CXX")) {
-            return cxx;
-        }
-        else if (command("command -v g++ >/dev/null 2>&1").exec()) {
-            return "g++";
-        }
-        else if (command("command -v clang++ >/dev/null 2>&1").exec()) {
-            return "clang++";
-        }
-        else {
-            throw error(
-                    "Environment variable \"CXX\" was not found.\n"
-                    "Select the compiler and export it.");
-        }
-    }
-
-    struct config {
+namespace stroite {
+    struct builder {
         utils::options::compile compile_conf;
         utils::options::link link_conf;
         utils::options::static_lib static_lib_conf;
@@ -114,12 +82,12 @@ namespace stroite::builder {
         auto make_macro_defns() {
             std::vector<std::string> macro_defns;
             // poac automatically define the absolute path of the project's root directory.
-            macro_defns.push_back(make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
+            macro_defns.push_back(utils::configure::make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
             auto upper_letter = boost::to_upper_copy<std::string>(project_name);
             // ISO C99 requires whitespace after the macro name [-Wc99-extensions]
             std::replace(upper_letter.begin(), upper_letter.end(), '-', '_');
             const std::string def_macro_name = upper_letter + "_VERSION";
-            macro_defns.push_back(make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
+            macro_defns.push_back(utils::configure::make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
             return macro_defns;
         }
 
@@ -242,7 +210,7 @@ namespace stroite::builder {
         void configure_compile(const bool usemain, const bool verbose)
         {
             compile_conf.system = system;
-            compile_conf.version_prefix = default_version_prefix();
+            compile_conf.version_prefix = utils::configure::default_version_prefix();
             // TODO: 存在することが確約されているときのyaml::get
             compile_conf.cpp_version = node.at("cpp_version").as<unsigned int>();
             compile_conf.include_search_path = make_include_search_path();
@@ -400,7 +368,7 @@ namespace stroite::builder {
 
         // TODO: poac.ymlのhashもcheckしてほしい
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
-        config(const boost::filesystem::path& base_path = boost::filesystem::current_path()
+        builder(const boost::filesystem::path& base_path = boost::filesystem::current_path()
         ) {
             namespace naming = poac::core::naming;
             namespace yaml = poac::io::file::yaml;
@@ -416,9 +384,9 @@ namespace stroite::builder {
                 deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
             }
             project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
-            system = auto_select_compiler();
+            system = utils::configure::auto_select_compiler();
             base_dir = base_path;
         }
     };
 } // end namespace
-#endif // !POAC_UTIL_BUILDSYSTEM_HPP
+#endif // STROITE_BUILDER_HPP

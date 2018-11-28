@@ -22,7 +22,7 @@
 namespace poac::subcmd {
     namespace _build {
         boost::optional<std::string>
-        build_bin(stroite::builder::config& bs, const bool verbose)
+        build_bin(stroite::builder& bs, const bool verbose)
         {
             namespace fs = boost::filesystem;
 
@@ -67,7 +67,7 @@ namespace poac::subcmd {
         }
 
         boost::optional<std::string>
-        build_link_libs(stroite::builder::config& bs, const bool verbose)
+        build_link_libs(stroite::builder& bs, const bool verbose)
         {
             namespace fs = boost::filesystem;
 
@@ -148,7 +148,7 @@ namespace poac::subcmd {
 
                         // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
                         if (io::file::yaml::get(deps_node, "build", "lib")) {
-                            stroite::builder::config bs(deps_path);
+                            stroite::builder bs(deps_path);
                             std::cout << io::cli::to_status(name) << std::endl;
                             build_link_libs(bs, verbose);
                             std::cout << std::endl;
@@ -175,7 +175,7 @@ namespace poac::subcmd {
             const auto project_name = io::file::yaml::get_with_throw<std::string>(node, "name");
 
             build_deps(node, verbose);
-            stroite::builder::config bs;
+            stroite::builder bs;
             std::cout << io::cli::to_status(project_name) << std::endl;
             if (io::file::yaml::get(node, "build", "lib")) {
                 if (!build_link_libs(bs, verbose)) {

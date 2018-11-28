@@ -34,7 +34,7 @@ namespace poac::subcmd { struct test {
 
             const bool usemain = false;
 
-            stroite::builder::config bs;
+            stroite::builder bs;
             bs.configure_compile(usemain, verbose);
 
             // You can use #include<> in test code.
