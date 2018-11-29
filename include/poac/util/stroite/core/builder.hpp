@@ -27,7 +27,6 @@
 #include "../../../io/file/yaml.hpp"
 
 
-// TODO: cache_base_dir, build_result_base_dir
 namespace stroite {
     struct builder {
         utils::options::compile compile_conf;
@@ -39,7 +38,7 @@ namespace stroite {
         std::string project_name;
         boost::filesystem::path base_dir;
 
-        std::map<std::string, YAML::Node> node;
+        std::map<std::string, YAML::Node> node; // TODO: node_mapなのでdeps_nodeと分かりづらい
         std::map<std::string, std::map<std::string, std::string>> depends_ts;
         boost::optional<std::map<std::string, YAML::Node>> deps_node;
 
@@ -145,7 +144,7 @@ namespace stroite {
         boost::optional<std::map<std::string, std::string>>
         generate_timestamps(const std::string& source_file)
         {
-            if (const auto deps_headers = core::depends::gen(compile_conf, source_file)) // TODO:src_cppが存在しないのは？？
+            if (const auto deps_headers = core::depends::gen(compile_conf, source_file))
             {
                 std::map<std::string, std::string> hash;
                 for (const auto& name : *deps_headers) {
@@ -153,7 +152,7 @@ namespace stroite {
                     generate_timestamp(name, hash);
                 }
                 // Calculate the hash of the source file itself.
-                generate_timestamp(source_file, hash); // TODO:src_cppが存在しないのは？？
+                generate_timestamp(source_file, hash);
                 return hash;
             }
             return boost::none;
@@ -165,7 +164,7 @@ namespace stroite {
 
             std::vector<std::string> new_source_files;
             for (const auto& sf : source_files) {
-                if (const auto previous_ts = load_timestamps(to_cache_hash_path(sf))) { // TODO: core::namingへの依存は避けようが無いのでこれをnamingへ
+                if (const auto previous_ts = load_timestamps(to_cache_hash_path(sf))) {
                     if (const auto current_ts = generate_timestamps(sf))
                     {
                         // Since hash of already existing hash file
@@ -369,7 +368,7 @@ namespace stroite {
 
         // TODO: poac.ymlのhashもcheckしてほしい
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
-        builder(const boost::filesystem::path& base_path = boost::filesystem::current_path()
+        explicit builder(const boost::filesystem::path& base_path = boost::filesystem::current_path()
         ) {
             namespace naming = poac::core::naming;
             namespace yaml = poac::io::file::yaml;

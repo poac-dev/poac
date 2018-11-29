@@ -36,7 +36,7 @@ namespace poac::subcmd {
                         (io::file::path::current_build_bin_dir / bs.project_name).string();
                 // Dealing with an error which is said to have cache even though it is not going well.
                 if (fs::exists(bin_path)) {
-                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset // TODO: これらは全て，builderのhookみたいに関数で渡してロギングさせる
                               << "There is no change. Binary exists in `" +
                                  fs::relative(bin_path).string() + "`."
                               << std::endl;
@@ -73,6 +73,8 @@ namespace poac::subcmd {
 
             bs.configure_compile(false, verbose);
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
+                std::cout << "joogege" << std::endl;
+
                 const std::string lib_path =
                         (io::file::path::current_build_lib_dir / bs.project_name).string();
                 if (fs::exists(lib_path)) {
@@ -97,12 +99,10 @@ namespace poac::subcmd {
                                  fs::relative(*stlib_path).string() +
                                  "`"
                               << std::endl;
-//                return lib_path;
                 }
                 else { // Static link library generation failed
                     // TODO: 全部削除すると，testのcacheも消えてしまう．
                     fs::remove_all(io::file::path::current_build_cache_dir);
-//                return boost::none;
                 }
 
                 bs.configure_dynamic_lib(*obj_files_path, verbose);
@@ -112,12 +112,10 @@ namespace poac::subcmd {
                                  fs::relative(*dylib_path).string() +
                                  "`"
                               << std::endl;
-//                return lib_path;
                 }
                 else { // Dynamic link library generation failed
                     // TODO: 全部削除すると，testのcacheも消えてしまう．
                     fs::remove_all(io::file::path::current_build_cache_dir);
-//                return boost::none;
                 }
                 return boost::none;
             }
@@ -136,22 +134,54 @@ namespace poac::subcmd {
             // TODO: lockファイル実装後，ビルド順序を決定 // TODO: 本来は，poac.ymlでなくpoac.lockをループすれば良い
             if (const auto deps_node = io::file::yaml::get<std::map<std::string, YAML::Node>>(node, "deps")) {
                 for (const auto& [name, next_node] : *deps_node) {
-                    // TODO: ./deps/name/poac.ymlに，buildの項がなければ，header only library
-                    // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
                     const auto[src, name2] = naming::get_source(name);
                     const std::string version = naming::get_version(next_node, src);
                     const std::string current_package_name = naming::to_current(src, name2, version);
                     const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                     if (fs::exists(deps_path)) {
-                        const auto deps_node = yaml::load_config_by_dir(deps_path);
+                        // install時にpoac.ymlは必ず作成されるため，存在する前提で扱う
+                        const auto deps_config_node = yaml::load_config_by_dir(deps_path);
 
                         // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
-                        if (io::file::yaml::get(deps_node, "build", "lib")) {
+                        if (io::file::yaml::get(deps_config_node, "build", "lib")) {
                             stroite::builder bs(deps_path);
-                            std::cout << io::cli::to_status(name) << std::endl;
-                            build_link_libs(bs, verbose);
-                            std::cout << std::endl;
+
+                            bs.configure_compile(false, verbose);
+                            if (!bs.compile_conf.source_files.empty()) {
+                                std::cout << io::cli::to_status(name) << std::endl;
+
+                                if (const auto obj_files_path = bs._compile()) {
+                                    bs.configure_static_lib(*obj_files_path, verbose);
+                                    if (const auto stlib_path = bs._gen_static_lib()) {
+                                        std::cout << io::cli::green << "Generated: " << io::cli::reset
+                                                  << "Output to `" +
+                                                     fs::relative(*stlib_path).string() +
+                                                     "`"
+                                                  << std::endl;
+                                    }
+                                    else { // Static link library generation failed
+//                                        fs::remove_all(io::file::path::current_build_cache_dir);
+                                    }
+
+                                    bs.configure_dynamic_lib(*obj_files_path, verbose);
+                                    if (const auto dylib_path = bs._gen_dynamic_lib()) {
+                                        std::cout << io::cli::green << "Generated: " << io::cli::reset
+                                                  << "Output to `" +
+                                                     fs::relative(*dylib_path).string() +
+                                                     "`"
+                                                  << std::endl;
+                                    }
+                                    else { // Dynamic link library generation failed
+//                                        fs::remove_all(io::file::path::current_build_cache_dir);
+                                    }
+                                }
+                                else { // Compile failure
+                                    throw except::error("\nCompile error.");
+                                }
+
+                                std::cout << std::endl;
+                            }
                         }
                     }
                     else {
