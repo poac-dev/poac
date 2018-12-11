@@ -46,5 +46,7 @@ target_link_libraries(${PROJECT_NAME}
         ${CURL_LIBRARIES}
         ${YAML_CPP_LIBRARIES}
         "cvc4"
+        # https://stackoverflow.com/questions/48411537/cvc4-mkconst-from-stdstring-in-c-api
+        "gmp"
         )
 install(TARGETS poac DESTINATION bin)
