@@ -1,0 +1,3 @@
+[submodule "deps/CVC4"]
+	path = deps/CVC4
+	url = git@github.com:CVC4/CVC4.git
