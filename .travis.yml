@@ -25,7 +25,6 @@ matrix:
 
 before_install:
   - brew update
-#  - brew upgrade
 install:
 #  - brew install cmake
 #  - brew install boost
