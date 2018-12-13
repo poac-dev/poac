@@ -23,7 +23,8 @@ before_install:
 #  - brew upgrade
 install:
   - export PATH=/usr/local/opt/python/libexec/bin:$PATH
-  - brew install boost
+#  - brew install cmake
+#  - brew install boost
   - brew install libressl
   - brew install yaml-cpp
   - travis_wait 60 brew install cvc4/cvc4/cvc4
