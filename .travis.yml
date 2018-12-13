@@ -6,6 +6,7 @@ before_cache:
 cache:
   directories:
     - $HOME/Library/Caches/Homebrew
+    - /usr/local/Cellar/cvc4/1.6
 
 matrix:
   include:
