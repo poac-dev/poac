@@ -20,7 +20,7 @@ matrix:
 
 before_install:
   - brew update
-  - brew upgrade
+#  - brew upgrade
 install:
   - export PATH=/usr/local/opt/python/libexec/bin:$PATH
   - brew install boost
