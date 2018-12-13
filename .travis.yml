@@ -22,7 +22,8 @@ matrix:
 before_install:
   - brew update
 install:
-  - travis_wait 120 brew install python@2 cmake boost libressl yaml-cpp cvc4/cvc4/cvc4
+  - export PATH=/usr/local/opt/python/libexec/bin:$PATH
+  - travis_wait 120 brew install cmake boost libressl yaml-cpp cvc4/cvc4/cvc4
 script:
   - mkdir build && cd build && cmake .. && make install
   - poac --version
