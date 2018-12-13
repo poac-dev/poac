@@ -20,9 +20,9 @@ matrix:
 
 before_install:
   - brew update
+  - brew upgrade
 install:
   - export PATH=/usr/local/opt/python/libexec/bin:$PATH
-  - brew install cmake
   - brew install boost
   - brew install libressl
   - brew install yaml-cpp
