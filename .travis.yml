@@ -1,5 +1,12 @@
 language: objective-c
 rvm: system
+
+cache:
+  directories:
+    - $HOME/Library/Caches/Homebrew
+before_cache:
+  - brew cleanup
+
 before_install:
   - brew update
 install:
@@ -7,6 +14,7 @@ install:
 script:
   - mkdir build && cd build && cmake .. && make install
   - poac --version
+
 matrix:
   fast_finish: true
 notifications:
