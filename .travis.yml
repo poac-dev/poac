@@ -1,4 +1,4 @@
-language: objective-c
+language: cpp
 rvm: system
 
 cache:
@@ -6,6 +6,18 @@ cache:
     - $HOME/Library/Caches/Homebrew
 before_cache:
   - brew cleanup
+
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      osx_image: xcode6.4  # OS X Yosemite
+    - os: osx
+      osx_image: xcode8  # OS X El Capitan
+    - os: osx
+      osx_image: xcode9.2  # macOS Sierra
+    - os: osx
+      osx_image: xcode10.1  # macOS High Sierra
 
 before_install:
   - brew update
@@ -15,7 +27,5 @@ script:
   - mkdir build && cd build && cmake .. && make install
   - poac --version
 
-matrix:
-  fast_finish: true
 notifications:
   slack: poacpm:VNE7FkuxYAghHHrEfKaj2V19
