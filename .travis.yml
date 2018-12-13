@@ -1,28 +1,31 @@
 language: cpp
 rvm: system
 
+before_cache:
+  - brew cleanup
 cache:
   directories:
     - $HOME/Library/Caches/Homebrew
-before_cache:
-  - brew cleanup
 
 matrix:
   include:
+    # OS X Yosemite (not supported)
+#    - os: osx
+#      osx_image: xcode6.4
+    # OS X El Capitan (not supported)
+#    - os: osx
+#      osx_image: xcode8
+    # macOS Sierra (not supported)
+#    - os: osx
+#      osx_image: xcode9.2
+    # macOS High Sierra
     - os: osx
-      osx_image: xcode6.4  # OS X Yosemite
-    - os: osx
-      osx_image: xcode8  # OS X El Capitan
-    - os: osx
-      osx_image: xcode9.2  # macOS Sierra
-    - os: osx
-      osx_image: xcode10.1  # macOS High Sierra
+      osx_image: xcode10.1
 
 before_install:
   - brew update
 #  - brew upgrade
 install:
-  - export PATH=/usr/local/opt/python/libexec/bin:$PATH
 #  - brew install cmake
 #  - brew install boost
   - brew install libressl
