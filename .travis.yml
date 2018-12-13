@@ -31,6 +31,7 @@ install:
   - brew install libressl
   - brew install yaml-cpp
   - travis_wait 60 brew install cvc4/cvc4/cvc4
+  - brew link cvc4/cvc4/cvc4
 script:
   - mkdir build
   - cd build
