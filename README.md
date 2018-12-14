@@ -15,12 +15,11 @@ Please see [poac.pm](https://poac.pm) for [installation instructions](https://po
 
 Poac currently supports macOS (>= high sierra) only.
 
-
 ## Code Status
 [![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=svg)](https://circleci.com/gh/poacpm/poac)
 [![Build Status](https://travis-ci.org/poacpm/poac.svg?branch=master)](https://travis-ci.org/poacpm/poac)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/poacpm/poac.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/poacpm/poac/context:javascript)
-
+[![Coverage Status](https://coveralls.io/repos/github/poacpm/poac/badge.svg?branch=master)](https://coveralls.io/github/poacpm/poac?branch=master)
 
 ## Installation
 ### Easy install
