@@ -34,7 +34,7 @@ Poac requires the following tools and packages to build:
 * [`boost`](https://github.com/boostorg): `1.48.0` or higher
 * [`cmake`](https://github.com/Kitware/CMake): `3.0` or higher
 * [`libcurl`](https://github.com/curl/curl): `7.63.0`
-* [`openssl`](https://github.com/openssl/openssl): `2.6.5`
+* [`libressl`](https://www.libressl.org): `2.6.5`
 * [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` or higher
 * [`CVC4`](https://github.com/CVC4/CVC4): `1.6`
 
