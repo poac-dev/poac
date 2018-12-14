@@ -8,7 +8,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../io/file.hpp"
-#include "../util/package.hpp"
+#include "../core/naming.hpp"
 
 
 namespace poac::sources::cache {

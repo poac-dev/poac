@@ -17,7 +17,3 @@ package-lock.json
 # poac
 deps/
 _build/
-
-# temporary ignore
-resolver/
-

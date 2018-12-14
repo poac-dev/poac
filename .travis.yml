@@ -1,0 +1,43 @@
+language: cpp
+rvm: system
+
+before_cache:
+  - brew cleanup
+cache:
+  directories:
+    - $HOME/Library/Caches/Homebrew
+    - /usr/local/Cellar/cvc4/1.6
+
+matrix:
+  include:
+    # OS X Yosemite (not supported)
+#    - os: osx
+#      osx_image: xcode6.4
+    # OS X El Capitan (not supported)
+#    - os: osx
+#      osx_image: xcode8
+    # macOS Sierra
+#    - os: osx
+#      osx_image: xcode9.2
+#     macOS High Sierra
+    - os: osx
+      osx_image: xcode10.1
+
+before_install:
+  - brew update
+install:
+#  - brew install cmake
+#  - brew install boost
+  - brew install libressl
+  - brew install yaml-cpp
+  - travis_wait 60 brew install cvc4/cvc4/cvc4
+  - brew link cvc4/cvc4/cvc4
+script:
+  - mkdir build
+  - cd build
+  - XCODE_VERSION=$(xcodebuild -version | head -n1 | cut -d ' ' -f 2) cmake ..
+  - make install
+  - poac --version
+
+notifications:
+  slack: poacpm:VNE7FkuxYAghHHrEfKaj2V19

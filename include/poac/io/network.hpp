@@ -44,6 +44,26 @@ namespace poac::io::network {
         return chunk;
     }
 
+    std::string get(const std::string& url, const std::map<std::string, std::string>& headers_map) {
+        std::string chunk;
+        struct curl_slist *headers = NULL;
+        for (const auto& [k, v] : headers_map) {
+            headers = curl_slist_append(headers, (k + ": " + v).c_str());
+        }
+
+        if (CURL* curl = curl_easy_init(); curl != nullptr) {
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
+                std::cerr << "curl_easy_perform() failed." << std::endl;
+            curl_easy_cleanup(curl);
+        }
+        return chunk;
+    }
+
     std::string post(const std::string& url, const std::string& json, const std::string& content_type="") {
         std::string chunk;
         struct curl_slist *headers = NULL;
@@ -83,7 +103,7 @@ namespace poac::io::network {
         return chunk;
     }
 
-    static bool get_file(const std::string& from_url, const boost::filesystem::path& to_file) {
+    bool get_file(const std::string& from_url, const boost::filesystem::path& to_file) {
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             FILE* fp = std::fopen(to_file.c_str(), "wb");
             curl_easy_setopt(curl, CURLOPT_URL, from_url.c_str());
@@ -93,19 +113,20 @@ namespace poac::io::network {
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
             // Switch on full protocol/debug output
 //            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
-                std::cerr << "curl told us " << res << std::endl;
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
+                (void)res;
+                return EXIT_FAILURE;
+            }
             curl_easy_cleanup(curl);
             std::fclose(fp);
         }
-        // TODO:
         return EXIT_SUCCESS;
     }
 
 
     // 1 or 0
     struct data { char trace_ascii; };
-    static void dump(
+    void dump(
         const char* text, FILE* stream,
         unsigned char* ptr, size_t size,
         char nohex )
@@ -157,7 +178,7 @@ namespace poac::io::network {
         }
         fflush(stream);
     }
-    static int my_trace(
+    int my_trace(
         CURL* handle, curl_infotype type,
         char* data, size_t size,
         void* userp )
@@ -217,8 +238,8 @@ namespace poac::io::network {
     void post_file(
         const std::string& to_url,
         const std::string& from_file,
-        const std::string& json_str,
-        const std::string& json_str2,
+        const std::string& config,
+        const std::string& token,
         const bool verbose=false )
     {
         struct curl_httppost* formpost = nullptr;
@@ -228,15 +249,15 @@ namespace poac::io::network {
         curl_global_init(CURL_GLOBAL_ALL);
 
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[setting]",
-                     CURLFORM_COPYCONTENTS, json_str.c_str(),
+                     CURLFORM_COPYNAME, "config",
+                     CURLFORM_COPYCONTENTS, config.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[token]",
-                     CURLFORM_COPYCONTENTS, json_str2.c_str(),
+                     CURLFORM_COPYNAME, "token",
+                     CURLFORM_COPYCONTENTS, token.c_str(),
                      CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "user[data]",
+                     CURLFORM_COPYNAME, "file",
                      CURLFORM_FILE, from_file.c_str(),
                      CURLFORM_END);
         // Fill in the submit field too, even if this is rarely needed
@@ -276,7 +297,7 @@ namespace poac::io::network {
         std::cout << cli::left(100);
     }
 
-    static bool clone(
+    bool clone(
         const std::string& url,
         const boost::filesystem::path& dest,
         const std::map<std::string, std::string>& opts=

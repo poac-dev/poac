@@ -2,7 +2,7 @@
 
 ### 簡単にインストールする
 ```bash
-curl https://sh.poac.pm | sh
+curl https://sh.poac.pm | bash
 ```
 *お使いのPCのOSがmacOSの時、内部では [Homebrew](https://github.com/Homebrew/brew) を使用します*
 

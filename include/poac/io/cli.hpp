@@ -61,6 +61,16 @@ namespace poac::io::cli {
     std::string to_bold(const std::string& s) { return bold+s+reset; }
     std::string to_underline(const std::string& s) { return underline+s+reset; }
 
+
+    const std::string status = to_green("==> ");
+    const std::string fetched = to_green("  ●  ");
+    const std::string fetch_failed = to_red("  ●  ");
+
+    std::string to_status(const std::string& s) { return status+s; }
+    std::string to_fetched(const std::string& s) { return fetched+s; }
+    std::string to_fetch_failed(const std::string& s) { return fetch_failed+s; }
+
+
     const std::vector<std::string> spinners{ "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
     std::string at_spinner(const size_t& index) {
         return spinners[index % spinners.size()];

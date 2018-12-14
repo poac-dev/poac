@@ -1,8 +1,4 @@
 version: 2
-general:
-  branches:
-    ignore:
-      - gh-pages
 jobs:
   gcc_7:
     docker:
@@ -121,7 +117,10 @@ workflows:
       # GCC
       - gcc_7
       - gcc_8
-      - gh_pages
+      - gh_pages:
+          filters:
+            branches:
+              ignore: gh-pages
       # Clang
 #      - clang_5
 #      - clang_6

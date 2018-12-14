@@ -23,7 +23,7 @@ int error_handling(std::string&& s) {
     return EXIT_FAILURE;
 }
 
-int exec(std::string&& s, VS&& vs) {
+int exec(std::string&& str, VS&& vs) {
     namespace inference = poac::core::infer;
     namespace except    = poac::core::exception;
     namespace io        = poac::io;
@@ -31,7 +31,7 @@ int exec(std::string&& s, VS&& vs) {
 
     // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {
-        inference::apply("exec"s, s, std::move(vs));
+        inference::apply("exec"s, str, std::move(vs));
         return EXIT_SUCCESS;
     }
     catch (const except::invalid_first_arg& e) {

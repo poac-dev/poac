@@ -4,11 +4,6 @@ name: poac
 version: 0.3.0-beta
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
-# clang or gcc or ICC or MSVC
-# Specify range of executable version
-compilers:
-  clang: "6 <= v <= 7"
-  gcc:   "7 <= v <= 8"
 description: "poac is a package manager for C++"
 # It must be the same as the user name
 #  of the poac.pm account your created
@@ -22,8 +17,7 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  boostorg/boost:
-    src: github
+  github/boostorg/boost:
     tag: boost-1.67.0
     build: # If you use header-only library, does not necessary this key.
       system: manual
@@ -39,8 +33,7 @@ deps:
         - boost_filesystem
         - boost_timer
         - boost_chrono
-  curl/curl: # TODO: Cのバージョン管理
-    src: github
+  github/curl/curl:
     tag: curl-7_61_0
     build:
       system: cmake
@@ -48,11 +41,11 @@ deps:
         MAC_RPATH: 1 # TODO: Branch by OS
         OPENSSL_ROOT_DIR: /usr/local/opt/openssl/ # TODO: 抽象化
     link: static
-  jbeder/yaml-cpp:
-    src: github
+  github/jbeder/yaml-cpp:
     tag: yaml-cpp-0.6.2
     build: cmake
     link: static
+  cpp-shell-cmd: ">=0.0.1 and <1.0.0"
 
 # If nothing is specified, it is regarded as header only library
 build:

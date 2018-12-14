@@ -11,12 +11,13 @@
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/buildsystem.hpp"
+#include "../util/stroite.hpp"
 #include "../util/argparse.hpp"
 
 
+// TODO: エラーがあるならちゃんと，EXIT_FAILUREを返す
 namespace poac::subcmd { struct test {
-        static const std::string summary() { return "Beta: Execute tests."; }
+        static const std::string summary() { return "Execute tests."; }
         static const std::string options() { return "[-v | --verbose, --report, -- args]"; }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -28,19 +29,19 @@ namespace poac::subcmd { struct test {
 
             check_arguments(argv);
 
-            const auto node = io::file::yaml::load_setting_file("test");
+            const auto node = io::file::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
 
-            util::buildsystem bs;
+            stroite::builder bs;
             bs.configure_compile(usemain, verbose);
 
             // You can use #include<> in test code.
             bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
 
             std::string static_link_lib;
-            if (const auto test_framework = io::file::yaml::get1<std::string>(node.at("test"), "framework")) {
+            if (const auto test_framework = io::file::yaml::get<std::string>(node.at("test"), "framework")) {
                 if (*test_framework == "boost") {
                     static_link_lib = "boost_unit_test_framework";
                 }
@@ -72,7 +73,7 @@ namespace poac::subcmd { struct test {
                         if (const auto obj_files_path = bs._compile()) {
                             bs.configure_link(*obj_files_path, verbose);
                             bs.link_conf.project_name = bin_name;
-                            bs.link_conf.output_path = io::file::path::current_build_test_bin_dir;
+                            bs.link_conf.output_root = io::file::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);
                             if (bs._link()) {
                                 std::cout << io::cli::green << "Compiled: " << io::cli::reset
@@ -102,7 +103,7 @@ namespace poac::subcmd { struct test {
                             cmd += s;
                         }
                     }
-                    else if (const auto test_args = io::file::yaml::get1<std::vector<std::string>>(node.at("test"), "args")) {
+                    else if (const auto test_args = io::file::yaml::get<std::vector<std::string>>(node.at("test"), "args")) {
                         for (const auto& s : *test_args) {
                             cmd += s;
                         }
@@ -112,7 +113,7 @@ namespace poac::subcmd { struct test {
                         cmd += ">";
                         cmd += (io::file::path::current_build_test_report_dir / bin_name).string() + ".xml";
                     }
-                    else if (const auto test_report = io::file::yaml::get1<bool>(node.at("test"), "report")) {
+                    else if (const auto test_report = io::file::yaml::get<bool>(node.at("test"), "report")) {
                         if (*test_report) {
                             fs::create_directories(io::file::path::current_build_test_report_dir);
                             cmd += ">";

@@ -1,5 +1,3 @@
-// Beta: It correspond to installation only from GitHub
-//       Do not resolve dependencies
 #ifndef POAC_SUBCMD_INSTALL_HPP
 #define POAC_SUBCMD_INSTALL_HPP
 
@@ -8,6 +6,7 @@
 #include <iterator>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -19,11 +18,11 @@
 #include <fstream>
 #include <regex>
 #include <chrono>
-//#include <csignal> trap "rm to_TFRecord.py" 0
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
-#include <boost/timer/timer.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
@@ -37,299 +36,384 @@
 // Version 2 will also allow $ poac install [<pkg-names>].
 //   Parse arguments.
 
-// TODO: 妙なprogressを出さないoptionが欲しい．CIや，Docker用
-// TODO: --simple-progressみたいな -> elm-package installのoutputに寄せる
-// TODO: --quiteも必要．
-namespace poac::subcmd { struct install {
-    static const std::string summary() { return "Beta: Install packages."; }
-    static const std::string options() { return "<Nothing>"; }
+namespace poac::subcmd {
+    namespace _install {
+        struct Dependency {
+            std::string url;
+            std::string name;
+            std::string version;
+            std::string src;
+            std::string cache_name;
+            std::string current_name;
+            bool is_cached;
+            YAML::Node yaml;
+            Dependency(
+               std::string u_,
+               std::string n_,
+               std::string v_,
+               std::string s_,
+               std::string ca_,
+               std::string cu_,
+               bool b,
+               YAML::Node  y_ )
+            {
+                url = u_;
+                name = n_;
+                version = v_;
+                src = s_;
+                cache_name = ca_;
+                current_name = cu_;
+                is_cached = b;
+                yaml = y_;
+            }
+        };
+        using Dependencies = std::vector<Dependency>;
+        using Deps = Dependencies;
 
-    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void operator()(VS&& argv) { _main(std::move(argv)); }
+        // Copy
+        // ./poac.yml         pkgname/poac.yml
+        //  deps: pkgname ->
+        bool create_configure(const std::string& pkgname, const YAML::Node& deps) {
+            using io::file::path::poac_cache_dir;
+            const auto from_path = poac_cache_dir / pkgname;
+            std::ofstream ofs((from_path / "poac.yml").string());
+            ofs << deps;
+            return EXIT_SUCCESS;
+        }
 
+        // Copy package to ./deps
+        bool copy_to_current(const std::string& from, const std::string& to) {
+            namespace path = io::file::path;
+            const auto from_path = path::poac_cache_dir / from;
+            const auto to_path = path::current_deps_dir / to;
+            return path::recursive_copy(from_path, to_path);
+        }
 
-    template <typename Async>
-    int installing(int* index_now, Async& async_funcs) {
-        // 0/num packages installed|
-        // |0/num packages installed
-        std::cout << io::cli::left(50) << io::cli::up(1);
-        std::cout << io::cli::up(async_funcs.size());
-
-        int count = 0;
-        for (auto& [info, func] : async_funcs) {
-            const auto rel_time = std::chrono::milliseconds(0);
-            const std::string status = func.wait_for(rel_time);
-
-            std::cout << io::cli::right(1) << "\b";
-            if (func.is_done()) {
-                io::cli::set_left(50);
-                std::cout << status;
-                ++count;
+        void echo_install_status(
+                const bool res,
+                const std::string& name,
+                const std::string& version,
+                const std::string& src) {
+            const std::string status =
+                    name + " " + version + " (from: " + src + ")";
+            if (res) { // EXIT_FAILURE
+                std::cout << io::cli::to_fetch_failed(status)
+                          << std::endl;
             }
             else {
-                io::cli::set_left(41);
-                std::cout << " " + io::cli::at_spinner(*index_now) +
-                             "  " + status;
+                std::cout << io::cli::to_fetched(status)
+                          << std::endl;
             }
-            std::cout << info
-                      << io::cli::left(100)
-                      << io::cli::down(1);
         }
-        std::cout << std::endl
-                  << io::cli::right(1)
-                  << '\b'
-                  << count
-                  << std::flush;
-        return count;
-    }
 
-    // Copy
-    // ./poac.yml         pkgname/poac.yml
-    //  deps: pkgname ->
-    static bool _configure(const std::string& pkgname, const YAML::Node& deps) {
-        const auto from_path =
-                io::file::path::poac_cache_dir / pkgname;
-        std::ofstream ofs((from_path / "poac.yml").string());
-        ofs << deps;
-        return EXIT_SUCCESS;
-    }
-    static bool _copy(const std::string& pkgname) {
-        const auto from_path =
-                io::file::path::poac_cache_dir / pkgname;
-        const auto to_path =
-                io::file::path::current_deps_dir /
-                util::package::cache_to_current(pkgname);
-        // Copy package to ./deps
-        return io::file::path::recursive_copy(from_path, to_path);
-    }
-    static bool _copy_spec(const std::string& pkgname, const std::string& pkgname2) {
-        const auto from_path =
-                io::file::path::poac_cache_dir / pkgname;
-        const auto to_path =
-                io::file::path::current_deps_dir / pkgname2;
-        // Copy package to ./deps
-        return io::file::path::recursive_copy(from_path, to_path);
-    }
-    static bool _placeholder() { return EXIT_SUCCESS; }
 
-    auto cache_func_pack(
-        const std::string& pkgname,
-        const std::string& source )
-    {
-        const std::string from_string = " (from " + source + ")";
+        void fetch_packages(const Deps& deps, const bool quite) {
+            namespace except = core::exception;
+            namespace path = io::file::path;
+            namespace tb = io::file::tarball;
 
-        // If it exists in cache and it is not in the current directory copy it to the current.
-        util::step_funcs_with_status step_funcs;
+            for (const auto& dep : deps) {
+                if (dep.is_cached) {
+                    const bool res = copy_to_current(dep.cache_name, dep.current_name);
+                    if (!quite) {
+                        echo_install_status(res, dep.name, dep.version, dep.src);
+                    }
+                }
+                else if (dep.src == "poac") {
+                    const auto pkg_dir = path::poac_cache_dir / dep.cache_name;
+                    const auto tar_dir = pkg_dir.string() + ".tar.gz";
 
-        step_funcs.statuses.push_back("Copying" + from_string);
-        const std::function<bool()> f = std::bind(&_copy, pkgname);
-        step_funcs.funcs.push_back(f);
+                    bool res = io::network::get_file(dep.url, tar_dir);
+                    // If res is true, does not execute func. (short-circuit evaluation)
+                    res = res || tb::extract_spec_rm_file(tar_dir, pkg_dir);
+                    res = res || copy_to_current(dep.cache_name, dep.current_name);
 
-        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
-        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
-        return step_funcs;
-    }
-    auto cache_spec_func_pack(
-            const std::string& name,
-            const std::string& pkgname,
-            const std::string& source )
-    {
-        const std::string from_string = " (from " + source + ")";
+                    if (!quite) {
+                        echo_install_status(res, dep.name, dep.version, dep.src);
+                    }
+                }
+                else if (dep.src == "github") {
+                    const auto dest = path::poac_cache_dir / dep.cache_name;
 
-        // If it exists in cache and it is not in the current directory copy it to the current.
-        util::step_funcs_with_status step_funcs;
+                    std::map<std::string, std::string> opts;
+                    opts.insert(io::network::opt_depth(1));
+                    opts.insert(io::network::opt_branch(dep.version));
+                    bool res = io::network::clone(dep.url, dest, opts);
+                    res = res || create_configure(dep.cache_name, YAML::Clone(dep.yaml));
+                    res = res || copy_to_current(dep.cache_name, dep.current_name);
 
-        step_funcs.statuses.push_back("Copying" + from_string);
-        const std::function<bool()> f = std::bind(&_copy_spec, pkgname, name);
-        step_funcs.funcs.push_back(f);
-
-        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
-        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
-        return step_funcs;
-    }
-    auto github_func_pack(
-        const std::string& name,
-        const YAML::Node& deps,
-        const std::string& version,
-        const std::string& pkgname )
-    {
-        const std::string url = sources::github::resolve(name);
-        const auto dest =
-                io::file::path::poac_cache_dir /
-                util::package::github_conv_pkgname(name, version);
-        const std::string from_string = " (from github)";
-
-        std::map<std::string, std::string> opts;
-        opts.insert(io::network::opt_depth(1));
-        opts.insert(io::network::opt_branch(version));
-
-        util::step_funcs_with_status step_funcs;
-        {
-            step_funcs.statuses.push_back("Cloning" + from_string);
-            const std::function<bool()> f = std::bind(&io::network::clone, url, dest, opts);
-            step_funcs.funcs.push_back(f);
+                    if (!quite) {
+                        echo_install_status(res, dep.name, dep.version, dep.src);
+                    }
+                }
+                else {
+                    // If called this, it is a bug.
+                    throw except::error("Unexcepted error");
+                }
+            }
         }
-        {
-            step_funcs.statuses.push_back("Configuring" + from_string);
-            const std::function<bool()> f = std::bind(&_configure, pkgname, YAML::Clone(deps));
-            step_funcs.funcs.push_back(f);
+
+
+        // TODO: 循環に対応
+        std::map<std::string, std::string>
+        res_dep(std::map<std::string, std::string>& receive_dep) {
+            std::map<std::string, std::string> new_deps;
+
+            for (const auto& [name, version] : receive_dep) {
+                std::stringstream ss;
+                ss << io::network::get("https://poac.pm/api/packages/" + name + "/" + version + "/deps");
+                if (ss.str() != "null") {
+                    boost::property_tree::ptree pt;
+                    boost::property_tree::json_parser::read_json(ss, pt);
+
+                    for (int i = 0;; ++i) {
+                        const std::string si = std::to_string(i);
+                        if (const auto dep_name = pt.get_optional<std::string>(si + ".name")) {
+                            if (const auto dep_ver = pt.get_optional<std::string>(si + ".version")) {
+                                if (const auto ver = sources::poac::decide_version(*dep_name, *dep_ver)) {
+                                    new_deps.emplace(*dep_name, *ver);
+                                }
+                            }
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (new_deps.empty()) {
+                return new_deps;
+            }
+            else {
+                const auto depdepdep = res_dep(new_deps);
+                new_deps.insert(depdepdep.begin(), depdepdep.end());
+                return new_deps;
+            }
         }
-        {
-            step_funcs.statuses.push_back("Copying" + from_string);
-            const std::function<bool()> f = std::bind(&_copy, pkgname);
-            step_funcs.funcs.push_back(f);
+        // 形成されたDepsを使用する & Depsの依存も追加する
+        void resolve_dependencies(Deps& deps) {
+            namespace except = core::exception;
+            namespace naming = core::naming;
+
+            std::map<std::string, std::string> new_deps;
+            // srcがpoacの時のみ依存関係の解決を行う。
+            for (auto& dep : deps) {
+                if (dep.src == "poac") {
+                    if (const auto ver = sources::poac::decide_version(dep.name, dep.version)) {
+                        new_deps.emplace(dep.name, *ver);
+                        dep.version = *ver;
+                        dep.cache_name = naming::to_cache("poac", dep.name, *ver);
+                    }
+                }
+            }
+            const auto depdep = res_dep(new_deps);
+            // Deps& depsと要素が被ってしまうため，deps_depはdepsへemplace_backしない
+//            deps_dep.insert(depdep.begin(), depdep.end());
+
+            for (const auto& [name, version] : depdep) {
+                if (const auto ver = sources::poac::decide_version(name, version)) {
+                    const std::string url = sources::poac::resolve(name, *ver);
+                    const std::string cache_name = naming::to_cache("poac", name, *ver);
+                    const std::string current_name = naming::to_current("poac", name, *ver);
+
+                    if (sources::cache::resolve(cache_name)) {
+                        deps.emplace_back(
+                                "",
+                                name,
+                                *ver,
+                                "poac",
+                                cache_name,
+                                current_name,
+                                true,
+                                YAML::Node{}
+                        );
+                    }
+                    else {
+                        deps.emplace_back(
+                                url,
+                                name,
+                                *ver,
+                                "poac",
+                                cache_name,
+                                current_name,
+                                false,
+                                YAML::Node{}
+                        );
+                    }
+                }
+                else { // not found
+                    throw except::error("Not found " + name + " " + version);
+                }
+            }
         }
-        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
-        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
-        return step_funcs;
-    }
-    auto poac_func_pack(
-        const std::string& name,
-        const std::string& version )
-    {
-        namespace tb = io::file::tarball;
 
-        const std::string url = sources::poac::resolve(name, version);
-        const std::string pkgname = sources::poac::pkgname(name, version);
-        const auto pkg_dir = io::file::path::poac_cache_dir / pkgname;
-        const auto tar_dir = pkg_dir.string() + ".tar.gz";
-        const std::string from_string = " (from poac)";
+        // Depsの形成を行う
+        void resolve_packages(Deps& deps, const YAML::Node& node) {
+            namespace except = core::exception;
+            namespace naming = core::naming;
 
-        util::step_funcs_with_status step_funcs;
-        {
-            step_funcs.statuses.push_back("Downloading" + from_string);
-            const std::function<bool()> f = std::bind(&io::network::get_file, url, tar_dir);
-            step_funcs.funcs.push_back(f);
+            // Even if a package of the same name is written, it is excluded.
+            // However, it can not deal with duplication of other information (e.g. version etc.).
+            for (const auto& [name, next_node] : node.as<std::map<std::string, YAML::Node>>()) {
+                // hello_world: 0.2.1
+                // itr->first: itr->second
+                const auto [src, name2] = naming::get_source(name);
+                const std::string version = naming::get_version(next_node, src);
+                const std::string cache_name = naming::to_cache(src, name2, version);
+                const std::string current_name = naming::to_current(src, name2, version);
+
+                if (sources::current::resolve(current_name)) {
+                    continue;
+                }
+                else if (src == "poac") {
+                    // decide_versionで同じものがcacheに存在しない時点で，
+                    // 新しいバージョンが存在することになる．
+
+                    // >=0.1.2 and <3.4.0 -> 2.5.0
+                    if (const auto ver = sources::poac::decide_version(name2, version)) {
+                        const auto cache_name2 = naming::to_cache(src, name2, *ver);
+                        if (sources::cache::resolve(cache_name2)) {
+                            deps.emplace_back(
+                                    "",
+                                    name2,
+                                    *ver,
+                                    src,
+                                    cache_name2,
+                                    current_name,
+                                    true,
+                                    YAML::Node{}
+                            );
+                        }
+                        else {
+                            const std::string url = sources::poac::resolve(current_name, *ver);
+                            deps.emplace_back(
+                                    url,
+                                    name2,
+                                    *ver,
+                                    src,
+                                    cache_name2,
+                                    current_name,
+                                    false,
+                                    YAML::Node{}
+                            );
+                        }
+                    }
+                    else { // not found
+                        throw except::error("Not found " + name2 + " " + version);
+                    }
+                }
+                else if (src == "github") {
+                    if (sources::cache::resolve(cache_name)) {
+                        deps.emplace_back(
+                                "",
+                                name2,
+                                version,
+                                src,
+                                cache_name,
+                                current_name,
+                                true,
+                                YAML::Node{}
+                        );
+                    }
+                    else {
+                        const std::string url = sources::github::resolve(name2);
+                        deps.emplace_back(
+                                url,
+                                name2,
+                                version,
+                                src,
+                                cache_name,
+                                current_name,
+                                false,
+                                YAML::Clone(next_node)
+                        );
+                        // not foundは，fetch時にしかチェックしない．その時，fetch_failedとして表示される．
+                        // 理由は，GitHubではユーザーが存在を確認しやすい点と，
+                        //  存在確認のAPIの処理が大幅な時間がかかってしまうため．
+                    }
+                }
+                else { // unknown source
+                    throw except::error("Unknown source");
+                }
+            }
         }
-        {
-            step_funcs.statuses.push_back("Extracting" + from_string);
-            const std::function<bool()> f = std::bind(&tb::extract_spec_rm_file, tar_dir, pkg_dir);
-            step_funcs.funcs.push_back(f);
-        }
-        {
-            step_funcs.statuses.push_back("Copying" + from_string);
-            const std::function<bool()> f = std::bind(&_copy_spec, pkgname, name);
-            step_funcs.funcs.push_back(f);
-        }
-        step_funcs.error_msg = io::cli::to_red(" ×  Install failed");
-        step_funcs.finish_msg = io::cli::to_green(" ✔  Installed!" + from_string);
-        return step_funcs;
-    }
-    auto notfound_func_pack()
-    {
-        util::step_funcs_with_status step_funcs;
 
-        step_funcs.statuses.push_back("Notfound");
-        const std::function<bool()> f = std::bind(&_placeholder);
-        step_funcs.funcs.push_back(f);
 
-        step_funcs.finish_msg = io::cli::to_red(" ×  Not found");
-        return step_funcs;
-    }
-
-    auto create_func_pack(
-        const std::string& name,
-        const YAML::Node& deps,
-        const std::string& version,
-        const std::string& pkgname,
-        const std::string& src )
-    {
-        if (sources::cache::resolve(pkgname))
-            return cache_func_pack(pkgname, src);
-        else if (const std::string pkgname2 = sources::poac::pkgname(name, version); sources::cache::resolve(pkgname2))
-            return cache_spec_func_pack(name, pkgname2, src); // TODO: poac経由でインストールしたのがcacheに存在する
-        else if (src == "github")
-            return github_func_pack(name, deps, version, pkgname);
-        else if (src == "poac")
-            return poac_func_pack(name, version);
-        else
-            return notfound_func_pack();
-    }
-
-    template <typename Async>
-    void dependencies(Async* async_funcs, const YAML::Node& node) {
-        namespace except = core::exception;
-
-        int already_count = 0;
-        // Even if a package of the same name is written, it is excluded.
-        // However, it can not deal with duplication of other information (e.g. version etc.).
-        for (const auto& [name, next_node] : node.as<std::map<std::string, YAML::Node>>()) {
-            // hello_world: 0.2.1
-            // itr->first: itr->second
-            std::string src = util::package::get_source(next_node);
-            const std::string version = util::package::get_version(next_node, src);
-            const std::string pkgname = util::package::github_conv_pkgname(name, version);
-
-            // TODO: もし，poacからのインストールならこっちの名前になっている
-            if (sources::current::resolve(pkgname) || io::file::path::validate_dir(io::file::path::current_deps_dir / name))
-                ++already_count;
-            else
-                async_funcs->emplace(
-                    name + ": " + version,
-                    create_func_pack(name, next_node, version, pkgname, src)
-                );
-        }
-        if (async_funcs->empty()) {
-            if (already_count > 0)
-                throw except::warn("Already up-to-date");
-            else
+        void check_arguments(const std::vector<std::string>& argv) {
+            namespace except = core::exception;
+            if (argv.size() > 1) { // -v OR -q
                 throw except::invalid_second_arg("install");
+            }
+        }
+
+        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        void _main(VS&& argv) {
+            namespace fs = boost::filesystem;
+            namespace except = core::exception;
+            namespace path = io::file::path;
+            namespace yaml = io::file::yaml;
+            namespace cli = io::cli;
+
+
+            check_arguments(argv);
+            fs::create_directories(path::poac_cache_dir);
+            const auto node = yaml::load_config("deps");
+            const bool quite = util::argparse::use(argv, "-q", "--quite");
+
+
+            Deps deps;
+
+            // パッケージがキチンと存在するかの解決
+            // と，どこに存在するのかの解決 (既にcurrent?, cache? poac? gitub?)
+            if (!quite) {
+                std::cout << cli::to_status("Resolving packages...") << std::endl;
+            }
+            resolve_packages(deps, node.at("deps"));
+            if (deps.empty()) throw except::warn("Already up-to-date");
+
+
+            // 依存関係の解決
+            // (依存先のパッケージは，
+            //  publish時にpoac.ymlに書いたdepsを保証するため，上の作業をもう一度する必要は無い)
+            if (!quite) {
+                std::cout << cli::to_status("Resolving dependencies...") << std::endl;
+            }
+            resolve_dependencies(deps);
+
+
+            // When used at the same time, --quite is given priority.
+            const bool verbose = util::argparse::use(argv, "-v", "--verbose") && !quite;
+            if (verbose) {
+                for (const auto& dep : deps) {
+                    std::cout << "NAME: " << dep.name << "\n"
+                              << "  VERSION: " <<  dep.version << "\n"
+                              << "  URL: " << dep.url << "\n"
+                              << "  SOURCE: " << dep.src << "\n"
+                              << "  CACHE_NAME: " << dep.cache_name << "\n"
+                              << "  CURRENT_NAME: " << dep.current_name << "\n"
+                              << "  IS_CACHED: " << dep.is_cached << std::endl << std::endl;
+                }
+            }
+
+
+            if (!quite) {
+                std::cout << cli::to_status("Fetching...") << std::endl << std::endl;
+            }
+            fs::create_directories(path::current_deps_dir);
+            fetch_packages(deps, quite);
+            if (!quite) {
+                std::cout << std::endl;
+                std::cout << cli::to_status("Done.") << std::endl;
+            }
         }
     }
 
-    template <typename Async>
-    void start_funcs(Async& async_funcs) {
-        namespace fs = boost::filesystem;
-        fs::create_directories(io::file::path::current_deps_dir);
-        // TODO: hardware concurrency
-        for (auto& [_info, func] : async_funcs) {
-            (void)_info; // Avoid unused warning
-            func.start();
-        }
-    }
-
-    void check_arguments(const std::vector<std::string>& argv) {
-        namespace except = core::exception;
-        if (!argv.empty()) throw except::invalid_second_arg("install");
-    }
-
-    template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void _main(VS&& argv) {
-        namespace fs = boost::filesystem;
-
-        // Start timer
-        boost::timer::cpu_timer timer;
-
-
-        check_arguments(argv);
-        fs::create_directories(io::file::path::poac_cache_dir);
-        const auto node = io::file::yaml::load_setting_file("deps");
-
-        std::map<std::string, util::step_funcs_with_status> async_funcs;
-        dependencies(&async_funcs, node.at("deps"));
-        start_funcs(async_funcs);
-
-        const int deps_num = static_cast<int>(async_funcs.size());
-
-        std::cout << "Some new packages are needed.\n\n";
-        for (int i = 0; i < deps_num; ++i)
-            std::cout << std::endl;
-        std::cout << std::endl
-                  << "0/" << deps_num << " packages installed";
-
-
-        for (int i = 0; installing(&i, async_funcs) != deps_num; ++i)
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-
-        std::cout << io::cli::clr_line
-                  << io::cli::left(30)
-                  << "Elapsed time: "
-                  << util::pretty_time::to(timer.format(6, "%w"))
-                  << std::endl
-                  << io::cli::bold
-                  << " ==> Installation finished successfully!"
-                  << std::endl;
-    }
-};} // end namespace
+    struct install {
+        static const std::string summary() { return "Install packages."; }
+        static const std::string options() { return "[-v | --verbose, -q | --quite]"; }
+        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        void operator()(VS&& argv) { _install::_main(std::move(argv)); }
+    };
+} // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP
