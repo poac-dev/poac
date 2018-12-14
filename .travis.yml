@@ -16,9 +16,9 @@ matrix:
     # OS X El Capitan (not supported)
 #    - os: osx
 #      osx_image: xcode8
-    # macOS Sierra (not supported)
-#    - os: osx
-#      osx_image: xcode9.2
+    # macOS Sierra
+    - os: osx
+      osx_image: xcode9.2
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
@@ -35,7 +35,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake ..
+  - XCODE_VERSION=$(xcodebuild -version | head -n1 | cut -d ' ' -f 2) cmake ..
   - make install
   - poac --version
 
