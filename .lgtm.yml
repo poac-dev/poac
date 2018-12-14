@@ -1,0 +1,46 @@
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - libboost-all-dev
+        - openjdk-8-jdk
+#    after_prepare:
+#      - mkdir -p $LGTM_WORKSPACE/latest-gcc-symlinks
+#      - ln -s /usr/bin/g++-6 $LGTM_WORKSPACE/latest-gcc-symlinks/g++
+#      - ln -s /usr/bin/gcc-6 $LGTM_WORKSPACE/latest-gcc-symlinks/gcc
+#      - export PATH=$LGTM_WORKSPACE/latest-gcc-symlinks:$PATH
+#      - export GNU_MAKE=make
+#      - export GIT=true
+    configure:
+      command:
+        # yaml-cpp
+        - git clone -q https://github.com/jbeder/yaml-cpp.git
+        - cd yaml-cpp
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make install --silent
+        # CVC4
+        - git clone -q https://github.com/cvc4/cvc4
+        - mkdir -p cvc4pref
+        - export CVC4PREF=$HOME/cvc4pref
+        - cd cvc4/
+        - ./contrib/get-antlr-3.4
+        - ./contrib/get-symfpu
+        - ./contrib/get-gmp
+        - ./configure.sh --static --symfpu
+        - cd build
+        - make
+        - make check
+        - make install
+#    before_index:
+#      - export BOOST_DIR=$LGTM_SRC/boost
+#      - export GTEST_DIR=$LGTM_SRC/googletest
+#      - export HUNSPELL_DIR=$LGTM_SRC/hunspell
+#      - export CRYPTOPP_DIR=$LGTM_SRC/cryptopp
+    index:
+      build_command:
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make -s
