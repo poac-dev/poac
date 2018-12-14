@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(poac)
 
-message(STATUS $ENV{XCODE_VERSION})
-
 # Preprocessor definitions
 add_definitions( -DPOAC_AUTO_DEF_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
 add_definitions( -DPOAC_VERSION="0.3.0-beta" )
@@ -12,9 +10,12 @@ add_definitions( -fdiagnostics-color -Wall -Wextra ) # -Werror
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 if(COMPILER_SUPPORTS_CXX17)
+    message(STATUS "XCODE_VERSION: $ENV{XCODE_VERSION}")
     if($ENV{XCODE_VERSION} LESS 9.3)
+        message(STATUS "CXX_FLAG: -std=c++1z")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -pthread")
     else()
+        message(STATUS "CXX_FLAG: -std=c++17")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
     endif()
 else()
