@@ -19,7 +19,7 @@ if(COMPILER_SUPPORTS_CXX17)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
     endif()
 else()
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
+    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
 endif()
 
 # Boost
