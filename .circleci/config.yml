@@ -62,7 +62,7 @@ jobs:
     steps:
       - checkout
 #      - restore_cache: *restore-poac-cache
-#      - run: poac install
+#      - run: poac install ## source file only (not pre-build)
 #      - save_cache: *save-poac-cache1
 #      - save_cache: *save-poac-cache2
 #      - save_cache: *save-poac-cache3
@@ -85,14 +85,14 @@ jobs:
     environment:
       CXX: g++
 
-  deploy:
+  release:
     docker:
       - image: circleci/golang:1.11
     steps:
       - attach_workspace:
           at: .
       - run: ls -a
-#      - run: go get github.com/tcnksm/ghr
+      - run: go get github.com/tcnksm/ghr
 #      - run: ghr 0.0.1 out
 
   gh_pages:
@@ -119,7 +119,7 @@ workflows:
       - build_gcc_8:
           requires:
             - checkout_code
-      - deploy:
+      - release:
           requires:
             - build_gcc_7
             - build_gcc_8
