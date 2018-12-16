@@ -51,6 +51,7 @@ jobs:
       - image: matken11235/poac:gcc-7
     environment:
       CXX: g++
+    working_directory: /tmp/workspace/build_gcc_7
     steps:
       - attach_workspace:
           at: /tmp/workspace/build_gcc_7
@@ -83,6 +84,7 @@ jobs:
       - image: matken11235/poac:gcc-8
     environment:
       CXX: g++
+    working_directory: /tmp/workspace/build_gcc_8
     steps:
       - attach_workspace:
           at: /tmp/workspace/build_gcc_8
