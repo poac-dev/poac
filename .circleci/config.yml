@@ -17,6 +17,11 @@ aliases:
   - &save-poac-cache4
     key: v1-poac-cache
     paths: "deps"
+  - &save-poac-cache
+#    - save_cache: *save-poac-cache1
+    - save_cache: *save-poac-cache2
+    - save_cache: *save-poac-cache3
+    - save_cache: *save-poac-cache4
 
   - &restore-poac-build-cache
     keys: # restores saved build cache
@@ -28,6 +33,29 @@ aliases:
   - &save-poac-build-cache2
     key: v1-build-cache
     paths: "_build"
+  - &save-poac-build-cache
+    - save_cache: *save-poac-build-cache1
+    - save_cache: *save-poac-build-cache2
+
+  - &install-poac-deps
+    - restore_cache: *restore-poac-cache
+    - run: ./poac install
+    - <: *save-poac-cache
+
+  - &run-build
+    - run: cmake .
+    - run: make
+
+  - &run-poac-tests
+    - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+    - store_test_results:  # upload test results for display in Test Summary
+        path: _build/test/report
+
+  - &build-flow
+    - <: *run-build
+    - run: file ./poac
+    - <: *install-poac-deps
+    - <: *run-poac-tests
 
 version: 2
 jobs:
@@ -55,26 +83,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace/build_gcc_7
-
-      - run: pwd
-
-      - run: cmake .
-      - run: make
-
-      - restore_cache: *restore-poac-cache
-      - run: ./poac install
-      #      - save_cache: *save-poac-cache1
-      - save_cache: *save-poac-cache2
-      - save_cache: *save-poac-cache3
-      - save_cache: *save-poac-cache4
-      #      - save_cache: *save-poac-build-cache1
-      #      - save_cache: *save-poac-build-cache2
-
-      - run: file ./poac
-
-      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
-      - store_test_results:  # upload test results for display in Test Summary
-          path: _build/test/report
+      - <: *build-flow
       - persist_to_workspace:
           root: /tmp/workspace
           paths: build_gcc_7
@@ -88,23 +97,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace/build_gcc_8
-      - run: cmake .
-      - run: make
-
-      - restore_cache: *restore-poac-cache
-      - run: ./poac install
-      #      - save_cache: *save-poac-cache1
-      - save_cache: *save-poac-cache2
-      - save_cache: *save-poac-cache3
-      - save_cache: *save-poac-cache4
-      #      - save_cache: *save-poac-build-cache1
-      #      - save_cache: *save-poac-build-cache2
-
-      - run: file ./poac
-
-      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
-      - store_test_results:  # upload test results for display in Test Summary
-          path: _build/test/report
+      - <: *build-flow
       - persist_to_workspace:
           root: /tmp/workspace
           paths: build_gcc_8
@@ -143,6 +136,7 @@ workflows:
       - build_gcc_8:
           requires:
             - checkout_code
+#      - release_gcc_8: # release build -O3
       - release:
           requires:
             - build_gcc_7
