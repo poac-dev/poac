@@ -58,7 +58,7 @@ version: 2
 jobs:
   checkout_code:
     docker:
-      - image: ubuntu:16.04 # TODO: Use already poac installed image (based on ubuntu:16.04)
+      - image: buildpack-deps:16.04 # TODO: Use already poac installed image (based on ubuntu:16.04)
     steps:
       - checkout
 #      - restore_cache: *restore-poac-cache
