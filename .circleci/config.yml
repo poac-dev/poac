@@ -1,84 +1,124 @@
+aliases:
+  - &restore-poac-cache
+    keys: # restores saved poac cache
+#      - v1-poac-cache-{{ checksum "poac.lock" }}
+      - v1-poac-cache-{{ checksum "poac.yml" }}
+      - v1-poac-cache-{{ .Branch }}
+      - v1-poac-cache
+  - &save-poac-cache1
+    key: v1-poac-cache-{{ checksum "poac.lock" }}
+    paths: "deps"
+  - &save-poac-cache2
+    key: v1-poac-cache-{{ checksum "poac.yml" }}
+    paths: "deps"
+  - &save-poac-cache3
+    key: v1-poac-cache-{{ .Branch }}
+    paths: "deps"
+  - &save-poac-cache4
+    key: v1-poac-cache
+    paths: "deps"
+
+  - &restore-poac-build-cache
+    keys: # restores saved build cache
+      - v1-build-cache-{{ .Branch }}
+      - v1-build-cache
+  - &save-poac-build-cache1
+    key: v1-build-cache-{{ .Branch }}
+    paths: "_build"
+  - &save-poac-build-cache2
+    key: v1-build-cache
+    paths: "_build"
+
 version: 2
 jobs:
-  gcc_7:
+  checkout_code:
+    docker:
+      - image: buildpack-deps:16.04 # TODO: Use already poac installed image (based on ubuntu:16.04)
+    steps:
+      - checkout
+#      - restore_cache: *restore-poac-cache
+#      - run: poac install ## source file only (not pre-build)
+#      - save_cache: *save-poac-cache1
+#      - save_cache: *save-poac-cache2
+#      - save_cache: *save-poac-cache3
+#      - save_cache: *save-poac-cache4
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+  build_gcc_7:
     docker:
       - image: matken11235/poac:gcc-7
     environment:
       CXX: g++
+    working_directory: /tmp/workspace/build_gcc_7
     steps:
-      - checkout
+      - attach_workspace:
+          at: /tmp/workspace/build_gcc_7
+
+      - run: pwd
+
       - run: cmake .
       - run: make
 
-      - restore_cache:  # restores saved poac cache
-          keys:  # list of cache keys, in decreasing specificity
-#          - v1-poac-cache-{{ checksum "poac.lock" }}
-          - v1-poac-cache-{{ checksum "poac.yml" }}
-          - v1-poac-cache-{{ .Branch }}
-          - v1-poac-cache
-      - restore_cache:  # restores saved build cache
-          keys:
-          - v1-build-cache-{{ .Branch }}
-          - v1-build-cache
-
+      - restore_cache: *restore-poac-cache
       - run: ./poac install
+      #      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+      #      - save_cache: *save-poac-build-cache1
+      #      - save_cache: *save-poac-build-cache2
 
-#      - save_cache:  # generate and store cache so `restore_cache` works
-#          key: v1-poac-cache-{{ checksum "poac.lock" }}
-#          paths: "deps"
-      - save_cache:  # generate and store cache so `restore_cache` works
-          key: v1-poac-cache-{{ checksum "poac.yml" }}
-          paths: "deps"
-      - save_cache:  # make another less specific cache
-          key: v1-poac-cache-{{ .Branch }}
-          paths: "deps"
-      - save_cache:  # you should really save one more cache just in case
-          key: v1-poac-cache
-          paths: "deps"
-#      - save_cache: # don't forget to save a *build* cache, too
-#          key: v1-build-cache-{{ .Branch }}
-#          paths: "_build"
-#      - save_cache: # and one more build cache for good measure
-#          key: v1-build-cache
-#          paths: "_build"
+      - run: file ./poac
 
       - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
-#      - run: poac test
-
       - store_test_results:  # upload test results for display in Test Summary
           path: _build/test/report
-  gcc_8:
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: build_gcc_7
+
+  build_gcc_8:
     docker:
       - image: matken11235/poac:gcc-8
     environment:
       CXX: g++
+    working_directory: /tmp/workspace/build_gcc_8
     steps:
-      - checkout
+      - attach_workspace:
+          at: /tmp/workspace/build_gcc_8
       - run: cmake .
       - run: make
 
-      - restore_cache:  # restores saved poac cache
-          keys:  # list of cache keys, in decreasing specificity
-          - v1-poac-cache-{{ checksum "poac.yml" }}
-          - v1-poac-cache-{{ .Branch }}
-          - v1-poac-cache
-
+      - restore_cache: *restore-poac-cache
       - run: ./poac install
+      #      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+      #      - save_cache: *save-poac-build-cache1
+      #      - save_cache: *save-poac-build-cache2
 
-      - save_cache:  # generate and store cache so `restore_cache` works
-          key: v1-poac-cache-{{ checksum "poac.yml" }}
-          paths: "deps"
-      - save_cache:  # make another less specific cache
-          key: v1-poac-cache-{{ .Branch }}
-          paths: "deps"
-      - save_cache:  # you should really save one more cache just in case
-          key: v1-poac-cache
-          paths: "deps"
+      - run: file ./poac
 
       - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
-
       - store_test_results:  # upload test results for display in Test Summary
           path: _build/test/report
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: build_gcc_8
+
+  release:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - attach_workspace:
+          at: .
+      - run: ls -a
+      - run: go get github.com/tcnksm/ghr
+#      - run: ghr 0.0.1 out
+
   gh_pages:
     working_directory: ~/poac/docs
     docker:
@@ -91,32 +131,27 @@ jobs:
       - run: cd docs && npm i
       - run: cd docs && npm run build
       - run: cd docs && npm run publish
-#  clang_5:
-#    docker:
-#      - image: matken11235/poac:clang-5.0
-#    steps:
-#      - checkout
-#      - run: cmake .
-#      - run: make
-#      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-#      - run: ./poac --help
-#  clang_6:
-#    docker:
-#      - image: matken11235/poac:clang-6.0
-#    steps:
-#      - checkout
-#      - run: cmake .
-#      - run: make
-#      - run: CTEST_OUTPUT_ON_FAILURE=TRUE make test
-#      - run: ./poac --help
 
 workflows:
   version: 2
-  build_and_test:
+  builds:
     jobs:
-      # GCC
-      - gcc_7
-      - gcc_8
+      - checkout_code
+      - build_gcc_7:
+          requires:
+            - checkout_code
+      - build_gcc_8:
+          requires:
+            - checkout_code
+      - release:
+          requires:
+            - build_gcc_7
+            - build_gcc_8
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              only: /^(?:(\d+)(\.|_))?(?:(\d+)(\.|_))?(\*|\d+)-.*$/
       - gh_pages:
           filters:
             branches:
