@@ -55,7 +55,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace/build_gcc_7
 
-      - run: ls -a
+      - run: pwd
 
       - run: cmake .
       - run: make
