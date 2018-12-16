@@ -38,7 +38,7 @@ aliases:
 
       - restore_cache: *restore-poac-cache
       - run: ./poac install
-      - save_cache: *save-poac-cache1
+#      - save_cache: *save-poac-cache1
       - save_cache: *save-poac-cache2
       - save_cache: *save-poac-cache3
       - save_cache: *save-poac-cache4
@@ -58,7 +58,7 @@ version: 2
 jobs:
   checkout_code:
     docker:
-      - image: matken11235/poac:gcc-7 # TODO: Use already poac installed image(ubuntu 16.04)
+      - image: ubuntu:16.04 # TODO: Use already poac installed image (based on ubuntu:16.04)
     steps:
       - checkout
 #      - restore_cache: *restore-poac-cache
