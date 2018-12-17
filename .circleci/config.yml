@@ -58,6 +58,13 @@ aliases:
       - run: *build-project
       - run: file ./build/poac
 
+      - restore_cache: *restore-poac-cache
+      - run: ./build/poac install # source file only (not pre-build)
+      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+
       - run: *run-poac-test
       - store_test_results: *store-poac-test-result
 
@@ -65,16 +72,16 @@ version: 2
 jobs:
   checkout_code:
     docker:
-      - image: poacpm/poac
+      - image: buildpack-deps:16.04
     steps:
       - checkout
 
-      - restore_cache: *restore-poac-cache
-      - run: poac install # source file only (not pre-build)
-      - save_cache: *save-poac-cache1
-      - save_cache: *save-poac-cache2
-      - save_cache: *save-poac-cache3
-      - save_cache: *save-poac-cache4
+#      - restore_cache: *restore-poac-cache
+#      - run: poac install # source file only (not pre-build)
+#      - save_cache: *save-poac-cache1
+#      - save_cache: *save-poac-cache2
+#      - save_cache: *save-poac-cache3
+#      - save_cache: *save-poac-cache4
 
       - persist_to_workspace:
           root: .
@@ -130,7 +137,7 @@ jobs:
 #    environment:
 #      CXX: x86_64-w64-mingw32-g++-posix
 #    <<: *defaults
-# sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+# #sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
 #  i686-pc-windows-gnu_gcc-6:
 #    docker:
 #      - image: japaric/i686-pc-windows-gnu
