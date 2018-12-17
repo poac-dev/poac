@@ -31,38 +31,21 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
 endif()
 
-# Boost
-find_package(Boost 1.62 REQUIRED COMPONENTS system filesystem timer unit_test_framework)
-if (Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIR})
-else()
-    message(WARNING "The Boost was not found.")
-endif()
-
 # CURL
 add_definitions(-DCURL_STATICLIB)
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
 
-# yaml-cpp
-find_package( yaml-cpp REQUIRED )
-include_directories( ${YAML_CPP_INCLUDE_DIR} )
-
-# CVC4
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
-        ${Boost_FILESYSTEM_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_TIMER_LIBRARY}
-        ${Boost_CHRONO_LIBRARY}
-        ${CURL_LIBRARIES}
-        ${YAML_CPP_LIBRARIES}
+        "/usr/local/lib/libboost_filesystem-mt.a"
+        "/usr/local/lib/libboost_system-mt.a"
+        "/usr/local/lib/libboost_timer-mt.a"
+        "/usr/local/lib/libboost_chrono-mt.a"
+        "/usr/local/lib/libcurl.dylib"
+        "yaml-cpp"
         "cvc4"
-        # https://stackoverflow.com/questions/48411537/cvc4-mkconst-from-stdstring-in-c-api
         "gmp"
         )
 install(TARGETS poac DESTINATION bin)
