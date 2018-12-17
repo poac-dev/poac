@@ -33,6 +33,7 @@ endif()
 
 # CURL
 add_definitions(-DCURL_STATICLIB)
+find_package(CURL REQUIRED)
 
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
@@ -43,7 +44,7 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_system-mt.a"
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
-        "/usr/local/lib/libcurl.dylib"
+        ${CURL_LIBRARIES}
         "yaml-cpp"
         "cvc4"
         "gmp"
