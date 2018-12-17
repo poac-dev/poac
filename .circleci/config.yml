@@ -17,14 +17,9 @@ aliases:
   - &save-poac-cache4
     key: v1-poac-cache
     paths: "deps"
-  - &save-poac-cache
-#    - save_cache: *save-poac-cache1
-    - save_cache: *save-poac-cache2
-    - save_cache: *save-poac-cache3
-    - save_cache: *save-poac-cache4
 
   - &restore-poac-build-cache
-    keys: # restores saved build cache
+    keys:
       - v1-build-cache-{{ .Branch }}
       - v1-build-cache
   - &save-poac-build-cache1
@@ -33,35 +28,32 @@ aliases:
   - &save-poac-build-cache2
     key: v1-build-cache
     paths: "_build"
-  - &save-poac-build-cache
-    - save_cache: *save-poac-build-cache1
-    - save_cache: *save-poac-build-cache2
 
-  - &install-poac-deps
-    - restore_cache: *restore-poac-cache
-    - run: ./poac install
-    - <: *save-poac-cache
+  - &restore-linuxbrew-cache
+    keys:
+      - v1-linuxbrew-cache-{{ .Branch }}
+      - v1-linuxbrew-cache
+  - &save-linuxbrew-cache1
+    key: v1-linuxbrew-cache-{{ .Branch }}
+    paths: "/home/linuxbrew/.cache/Homebrew"
+  - &save-linuxbrew-cache2
+    key: v1-linuxbrew-cache
+    paths: "/home/linuxbrew/.cache/Homebrew"
 
-  - &run-build
-    - run: cmake .
-    - run: make
+  - &build-project
+    name: Build Project
+    command: cmake . && make
 
-  - &run-poac-tests
-    - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
-    - store_test_results:  # upload test results for display in Test Summary
-        path: _build/test/report
-
-  - &build-flow
-    - <: *run-build
-    - run: file ./poac
-    - <: *install-poac-deps
-    - <: *run-poac-tests
+  - &filter-ignore-gh-pages
+    branches:
+      ignore: gh-pages
 
 version: 2
 jobs:
   checkout_code:
+    # TODO: Use already poac installed image (based on ubuntu:16.04)
     docker:
-      - image: buildpack-deps:16.04 # TODO: Use already poac installed image (based on ubuntu:16.04)
+      - image: buildpack-deps:16.04
     steps:
       - checkout
 #      - restore_cache: *restore-poac-cache
@@ -74,33 +66,152 @@ jobs:
           root: .
           paths: .
 
-  build_gcc_7:
+  build_x86_64-unknown-linux-gnu_gcc-6:
     docker:
-      - image: matken11235/poac:gcc-7
+      - image: linuxbrew/linuxbrew
     environment:
-      CXX: g++
-    working_directory: /tmp/workspace/build_gcc_7
+      CXX: g++-6
     steps:
       - attach_workspace:
-          at: /tmp/workspace/build_gcc_7
-      - <: *build-flow
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths: build_gcc_7
+          at: .
 
-  build_gcc_8:
+      - run: uname -sm
+
+      - restore_cache: *restore-linuxbrew-cache
+      - run: brew update
+      - run: brew install gcc@6
+      - run: brew cleanup
+      - save_cache: *save-linuxbrew-cache1
+      - save_cache: *save-linuxbrew-cache2
+
+      - run: *build-project
+
+      - restore_cache: *restore-poac-cache
+      - run: ./poac install
+      #      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+      #      - save_cache: *save-poac-build-cache1
+      #      - save_cache: *save-poac-build-cache2
+
+      - run: file ./poac
+
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
+
+  build_x86_64-unknown-linux-gnu_gcc-7:
     docker:
-      - image: matken11235/poac:gcc-8
+      - image: linuxbrew/linuxbrew
     environment:
-      CXX: g++
-    working_directory: /tmp/workspace/build_gcc_8
+      CXX: g++-7
     steps:
       - attach_workspace:
-          at: /tmp/workspace/build_gcc_8
-      - <: *build-flow
+          at: .
+
+      - run: uname -sm
+
+      - restore_cache: *restore-linuxbrew-cache
+      - run: brew update
+      - run: brew install gcc@7
+      - run: brew cleanup
+      - save_cache: *save-linuxbrew-cache1
+      - save_cache: *save-linuxbrew-cache2
+
+      - run: *build-project
+
+      - restore_cache: *restore-poac-cache
+      - run: ./poac install
+      #      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+      #      - save_cache: *save-poac-build-cache1
+      #      - save_cache: *save-poac-build-cache2
+
+      - run: file ./poac
+
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
+
+  build_x86_64-unknown-linux-gnu_gcc-8:
+    docker:
+      - image: linuxbrew/linuxbrew
+    environment:
+      CXX: g++-8
+    working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace/x86_64-unknown-linux-gnu
+
+      - run: uname -sm
+
+      - restore_cache: *restore-linuxbrew-cache
+      - run: brew update
+      - run: brew install gcc@8
+      - run: brew cleanup
+      - save_cache: *save-linuxbrew-cache1
+      - save_cache: *save-linuxbrew-cache2
+
+      - run: *build-project
+
+      - restore_cache: *restore-poac-cache
+      - run: ./poac install
+      #      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+      #      - save_cache: *save-poac-build-cache1
+      #      - save_cache: *save-poac-build-cache2
+
+      - run: file ./poac
+
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
+
       - persist_to_workspace:
           root: /tmp/workspace
-          paths: build_gcc_8
+          paths: x86_64-unknown-linux-gnu
+
+  build_x86_64-unknown-linux-gnu_clang-6:
+    docker:
+      - image: linuxbrew/linuxbrew
+    environment:
+      CXX: /home/linuxbrew/.linuxbrew/opt/llvm@6/bin/clang++
+      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm@6/lib"
+      CPPFLAGS: "-I/home/linuxbrew/.linuxbrew/opt/llvm@6/include"
+    steps:
+      - attach_workspace:
+          at: .
+
+      - run: uname -sm
+
+      - restore_cache: *restore-linuxbrew-cache
+      - run: brew update
+      - run: brew install llvm@6
+      - run: brew cleanup
+      - save_cache: *save-linuxbrew-cache1
+      - save_cache: *save-linuxbrew-cache2
+
+      - run: *build-project
+
+      - restore_cache: *restore-poac-cache
+      - run: ./poac install
+      #      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
+      #      - save_cache: *save-poac-build-cache1
+      #      - save_cache: *save-poac-build-cache2
+
+      - run: file ./poac
+
+      - run: ./poac test --report -- --output_format=XML --log_level=all --report_level=no
+      - store_test_results:  # upload test results for display in Test Summary
+          path: _build/test/report
 
   release:
     docker:
@@ -129,27 +240,38 @@ workflows:
   version: 2
   builds:
     jobs:
-      - checkout_code
-      - build_gcc_7:
+      - checkout_code:
+          filters: *filter-ignore-gh-pages
+      - build_x86_64-unknown-linux-gnu_gcc-6:
+          filters: *filter-ignore-gh-pages
           requires:
             - checkout_code
-      - build_gcc_8:
+      - build_x86_64-unknown-linux-gnu_gcc-7:
+          filters: *filter-ignore-gh-pages
           requires:
             - checkout_code
-#      - release_gcc_8: # release build -O3
+      - build_x86_64-unknown-linux-gnu_gcc-8:
+          filters: *filter-ignore-gh-pages
+          requires:
+            - checkout_code
+      - build_x86_64-unknown-linux-gnu_clang-6:
+          filters: *filter-ignore-gh-pages
+          requires:
+            - checkout_code
       - release:
+          filters: *filter-ignore-gh-pages
           requires:
-            - build_gcc_7
-            - build_gcc_8
+            - build_x86_64-unknown-linux-gnu_gcc-6
+            - build_x86_64-unknown-linux-gnu_gcc-7
+            - build_x86_64-unknown-linux-gnu_gcc-8
+            - build_x86_64-unknown-linux-gnu_clang-6
 #          filters:
 #            branches:
 #              ignore: /.*/
 #            tags:
 #              only: /^(?:(\d+)(\.|_))?(?:(\d+)(\.|_))?(\*|\d+)-.*$/
       - gh_pages:
-          filters:
-            branches:
-              ignore: gh-pages
+          filters: *filter-ignore-gh-pages
       # Clang
 #      - clang_5
 #      - clang_6
