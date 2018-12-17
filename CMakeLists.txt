@@ -47,6 +47,5 @@ target_link_libraries(${PROJECT_NAME}
         ${CURL_LIBRARIES}
         "yaml-cpp"
         "cvc4"
-        "gmp"
-        )
+        "gmp")
 install(TARGETS poac DESTINATION bin)
