@@ -33,10 +33,14 @@ endif()
 
 # CURL
 add_definitions(-DCURL_STATICLIB)
-find_package(CURL REQUIRED)
-if (NOT CURL_FOUND)
+if(EXISTS /usr/local/lib/libcurl.a)
     set(CURL_LIBRARIES "/usr/local/lib/libcurl.a")
+elseif(EXISTS /usr/local/lib/libcurl.dylib)
+    set(CURL_LIBRARIES "/usr/local/lib/libcurl.dylib")
+elseif(EXISTS /usr/local/lib/libcurl.so)
+    set(CURL_LIBRARIES "/usr/local/lib/libcurl.so")
 endif()
+message(STATUS "curl: ${CURL_LIBRARIES}")
 
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
