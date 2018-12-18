@@ -31,17 +31,6 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
 endif()
 
-# CURL
-add_definitions(-DCURL_STATICLIB)
-if(EXISTS /usr/local/lib/libcurl.a)
-    set(CURL_LIBRARIES "/usr/local/lib/libcurl.a")
-elseif(EXISTS /usr/local/lib/libcurl.dylib)
-    set(CURL_LIBRARIES "/usr/local/lib/libcurl.dylib")
-elseif(EXISTS /usr/local/lib/libcurl.so)
-    set(CURL_LIBRARIES "/usr/local/lib/libcurl.so")
-endif()
-message(STATUS "curl: ${CURL_LIBRARIES}")
-
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
 
@@ -52,7 +41,6 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
         "curl"
-#        ${CURL_LIBRARIES}
         "/usr/local/lib/libyaml-cpp.a"
         "/usr/local/lib/libcvc4.a"
         "/usr/local/lib/libgmp.a")
