@@ -147,7 +147,9 @@ namespace poac::core::infer {
     template <size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
-        return make_array({ +[](VS&& vs){ return (op_type_list_t::at_t<Is>()(std::move(vs)), ""); }... })[idx](std::move(vs));
+        return make_array({ +[](VS&& vs){
+            return (op_type_list_t::at_t<Is>()(std::move(vs)), "");
+        }... })[idx](std::move(vs));
     }
     template <size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
@@ -160,7 +162,9 @@ namespace poac::core::infer {
 #endif
 
     // Execute function: execute or summary or options
-    template <typename S, typename Index, typename VS, typename Indices=std::make_index_sequence<op_type_list_t::size()>, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <typename S, typename Index, typename VS,
+            typename Indices=std::make_index_sequence<op_type_list_t::size()>,
+            typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
         namespace except = core::exception;
         if (s == "exec")
