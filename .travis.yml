@@ -29,7 +29,16 @@ install:
 #  - brew install cmake
 #  - brew install boost
   - brew install libressl
-  - brew install yaml-cpp
+  # Install yaml-cpp
+  - git clone -q https://github.com/jbeder/yaml-cpp.git
+  - mkdir yaml-cpp/build
+  - cd yaml-cpp/build
+  - cmake ..
+  - make
+  - make install
+  - cd ../../
+  - rm -rf yaml-cpp
+  # Install cvc4
   - travis_wait 60 brew install cvc4/cvc4/cvc4
   - brew link cvc4/cvc4/cvc4
 script:

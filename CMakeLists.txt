@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(poac)
 
 # Preprocessor definitions
-add_definitions( -DPOAC_AUTO_DEF_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
+add_definitions( -DPOAC_AUTO_DEF_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" ) # project_root
 add_definitions( -DPOAC_VERSION="0.3.0-beta" )
 add_definitions( -fdiagnostics-color -Wall -Wextra ) # -Werror
 
@@ -31,38 +31,29 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
 endif()
 
-# Boost
-find_package(Boost 1.62 REQUIRED COMPONENTS system filesystem timer unit_test_framework)
-if (Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIR})
-else()
-    message(WARNING "The Boost was not found.")
-endif()
-
 # CURL
 add_definitions(-DCURL_STATICLIB)
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
+if(EXISTS /usr/local/lib/libcurl.a)
+    set(CURL_LIBRARIES "/usr/local/lib/libcurl.a")
+elseif(EXISTS /usr/local/lib/libcurl.dylib)
+    set(CURL_LIBRARIES "/usr/local/lib/libcurl.dylib")
+elseif(EXISTS /usr/local/lib/libcurl.so)
+    set(CURL_LIBRARIES "/usr/local/lib/libcurl.so")
+endif()
+message(STATUS "curl: ${CURL_LIBRARIES}")
 
-# yaml-cpp
-find_package( yaml-cpp REQUIRED )
-include_directories( ${YAML_CPP_INCLUDE_DIR} )
-
-# CVC4
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
-        ${Boost_FILESYSTEM_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_TIMER_LIBRARY}
-        ${Boost_CHRONO_LIBRARY}
-        ${CURL_LIBRARIES}
-        ${YAML_CPP_LIBRARIES}
-        "cvc4"
-        # https://stackoverflow.com/questions/48411537/cvc4-mkconst-from-stdstring-in-c-api
-        "gmp"
-        )
+        "/usr/local/lib/libboost_filesystem-mt.a"
+        "/usr/local/lib/libboost_system-mt.a"
+        "/usr/local/lib/libboost_timer-mt.a"
+        "/usr/local/lib/libboost_chrono-mt.a"
+        "curl"
+#        ${CURL_LIBRARIES}
+        "/usr/local/lib/libyaml-cpp.a"
+        "/usr/local/lib/libcvc4.a"
+        "/usr/local/lib/libgmp.a")
 install(TARGETS poac DESTINATION bin)
