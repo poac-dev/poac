@@ -43,14 +43,23 @@ namespace stroite {
         boost::optional<std::map<std::string, YAML::Node>> deps_node;
 
 
+        bool is_cpp_file(const boost::filesystem::path& p) {
+            namespace fs = boost::filesystem;
+            return !fs::is_directory(p)
+                && (p.extension().string() == ".cpp"
+                || p.extension().string() == ".cxx"
+                || p.extension().string() == ".cc"
+                || p.extension().string() == ".cp");
+        }
+
         auto make_source_files() {
             namespace fs = boost::filesystem;
             namespace io = poac::io::file;
 
             std::vector<std::string> source_files;
             if (io::path::validate_dir(base_dir / "src")) {
-                for (const fs::path &p : fs::recursive_directory_iterator(base_dir / "src")) {
-                    if (!fs::is_directory(p) && p.extension().string() == ".cpp") { // TODO: .cppだけ？
+                for (const fs::path& p : fs::recursive_directory_iterator(base_dir / "src")) {
+                    if (is_cpp_file(p)) {
                         source_files.push_back(p.string());
                     }
                 }
@@ -66,7 +75,7 @@ namespace stroite {
 
             std::vector<std::string> include_search_path;
             if (deps_node) {
-                for (const auto& [name, next_node] : *deps_node) {
+                for (const auto& [name, next_node] : *deps_node) { // TODO: これと同じ処理が多すぎる
                     const auto [src, name2] = naming::get_source(name);
                     const std::string version = naming::get_version(next_node, src);
                     const std::string pkgname = naming::to_current(src, name2, version);
@@ -80,14 +89,12 @@ namespace stroite {
         }
 
         auto make_macro_defns() {
+            namespace fs = boost::filesystem;
+
             std::vector<std::string> macro_defns;
             // poac automatically define the absolute path of the project's root directory.
-            macro_defns.push_back(utils::configure::make_macro_defn("POAC_AUTO_DEF_PROJECT_ROOT", std::getenv("PWD")));
-            auto upper_letter = boost::to_upper_copy<std::string>(project_name);
-            // ISO C99 requires whitespace after the macro name [-Wc99-extensions]
-            std::replace(upper_letter.begin(), upper_letter.end(), '-', '_');
-            const std::string def_macro_name = upper_letter + "_VERSION";
-            macro_defns.push_back(utils::configure::make_macro_defn(def_macro_name, node.at("version").as<std::string>()));
+            macro_defns.push_back(utils::configure::make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
+            macro_defns.push_back(utils::configure::make_macro_defn("POAC_VERSION", node.at("version").as<std::string>()));
             return macro_defns;
         }
 
@@ -122,7 +129,7 @@ namespace stroite {
             std::string buff;
             std::map<std::string, std::string> hash;
             while (std::getline(ifs, buff)) {
-                std::vector<std::string> list_string = io::path::split(buff, ": \n");
+                const auto list_string = io::path::split(buff, ": \n");
                 hash[list_string[0]] = list_string[1];
             }
             return hash;
@@ -368,21 +375,14 @@ namespace stroite {
 
         // TODO: poac.ymlのhashもcheckしてほしい
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
-        explicit builder(const boost::filesystem::path& base_path = boost::filesystem::current_path()
-        ) {
+        explicit builder(const boost::filesystem::path& base_path = boost::filesystem::current_path())
+        {
             namespace naming = poac::core::naming;
             namespace yaml = poac::io::file::yaml;
 
-            if (base_path == boost::filesystem::current_path()) {
-                const auto config_file = yaml::load_config();
-                node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
-                deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
-            }
-            else {
-                const auto config_file = yaml::load_config_by_dir(base_path);
-                node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
-                deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
-            }
+            const auto config_file = yaml::load_config_by_dir(base_path);
+            node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
+            deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
             project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
             system = utils::configure::auto_select_compiler();
             base_dir = base_path;
