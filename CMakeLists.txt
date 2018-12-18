@@ -51,7 +51,8 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_system-mt.a"
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
-        ${CURL_LIBRARIES}
+        "curl"
+#        ${CURL_LIBRARIES}
         "/usr/local/lib/libyaml-cpp.a"
         "/usr/local/lib/libcvc4.a"
         "/usr/local/lib/libgmp.a")
