@@ -1,3 +1,4 @@
 {
-  "title": "The Poac Documents"
+  "title": "The Poac Book",
+  "plugins" : ["advanced-emoji"]
 }
