@@ -56,6 +56,7 @@ aliases:
 
       - run: uname -sm
       - run: *build-project
+      - run: ./build/poac -h
       - run: file ./build/poac
 
       - restore_cache: *restore-poac-cache
@@ -72,7 +73,7 @@ version: 2
 jobs:
   checkout_code:
     docker:
-      - image: buildpack-deps:16.04
+      - image: buildpack-deps:16.04 # poacpm/poac
     steps:
       - checkout
 
@@ -131,16 +132,44 @@ jobs:
       CPPFLAGS: "-I/home/linuxbrew/.linuxbrew/opt/llvm@6/include"
     <<: *defaults
 
+#  aarch64-unknown-linux-gnu_gcc-4_8:
+#    docker:
+#      - image: poacpm/aarch64-unknown-linux-gnu
+#    environment:
+#      CXX: aarch64-linux-gnu-g++
+#    <<: *defaults
+
+#  powerpc-unknown-linux-gnu_gcc-4_8:
+#    docker:
+#      - image: poacpm/powerpc-unknown-linux-gnu
+#    environment:
+#      CXX: powerpc-linux-gnu-g++
+#    <<: *defaults
+
+#  powerpc64-unknown-linux-gnu_gcc-5_4:
+#    docker:
+#      - image: poacpm/powerpc64-unknown-linux-gnu
+#    environment:
+#      CXX: powerpc64-linux-gnu-g++
+#    <<: *defaults
+
+#  powerpc64le-unknown-linux-gnu_gcc-5_4:
+#    docker:
+#      - image: poacpm/powerpc64le-unknown-linux-gnu
+#    environment:
+#      CXX: powerpc64le-linux-gnu-g++
+#    <<: *defaults
+
 #  x86_64-pc-windows-gnu_gcc-6:
 #    docker:
-#      - image: japaric/x86_64-pc-windows-gnu
+#      - image: poacpm/x86_64-pc-windows-gnu
 #    environment:
 #      CXX: x86_64-w64-mingw32-g++-posix
 #    <<: *defaults
-# #sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+
 #  i686-pc-windows-gnu_gcc-6:
 #    docker:
-#      - image: japaric/i686-pc-windows-gnu
+#      - image: poacpm/i686-pc-windows-gnu
 #    environment:
 #      CXX: i686-w64-mingw32-g++-posix
 #    <<: *defaults
