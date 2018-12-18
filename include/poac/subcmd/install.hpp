@@ -27,6 +27,7 @@
 
 #include "../io.hpp"
 #include "../core/exception.hpp"
+#include "../core/resolver.hpp"
 #include "../sources.hpp"
 #include "../util.hpp"
 
@@ -35,7 +36,7 @@
 //   Parse poac.yml
 // Version 2 will also allow $ poac install [<pkg-names>].
 //   Parse arguments.
-
+// TODO: --source (source file only (not pre-built))
 namespace poac::subcmd {
     namespace _install {
         struct Dependency {
@@ -125,7 +126,7 @@ namespace poac::subcmd {
 
                     bool res = io::network::get_file(dep.url, tar_dir);
                     // If res is true, does not execute func. (short-circuit evaluation)
-                    res = res || tb::extract_spec_rm_file(tar_dir, pkg_dir);
+                    res = res || tb::extract_spec_rm(tar_dir, pkg_dir);
                     res = res || copy_to_current(dep.cache_name, dep.current_name);
 
                     if (!quite) {
@@ -356,6 +357,10 @@ namespace poac::subcmd {
             namespace cli = io::cli;
 
 
+            core::resolver::resolve();
+            throw except::error("finshed");
+
+
             check_arguments(argv);
             fs::create_directories(path::poac_cache_dir);
             const auto node = yaml::load_config("deps");
@@ -383,16 +388,17 @@ namespace poac::subcmd {
 
 
             // When used at the same time, --quite is given priority.
-            const bool verbose = util::argparse::use(argv, "-v", "--verbose") && !quite;
+            const bool verbose = !quite && util::argparse::use(argv, "-v", "--verbose");
             if (verbose) {
-                for (const auto& dep : deps) {
-                    std::cout << "NAME: " << dep.name << "\n"
-                              << "  VERSION: " <<  dep.version << "\n"
-                              << "  URL: " << dep.url << "\n"
-                              << "  SOURCE: " << dep.src << "\n"
-                              << "  CACHE_NAME: " << dep.cache_name << "\n"
-                              << "  CURRENT_NAME: " << dep.current_name << "\n"
-                              << "  IS_CACHED: " << dep.is_cached << std::endl << std::endl;
+                for (const auto& d : deps) {
+                    std::cout << "NAME: " << d.name << "\n"
+                              << "  VERSION: " <<  d.version << "\n"
+                              << "  URL: " << d.url << "\n"
+                              << "  SOURCE: " << d.src << "\n"
+                              << "  CACHE_NAME: " << d.cache_name << "\n"
+                              << "  CURRENT_NAME: " << d.current_name << "\n"
+                              << "  IS_CACHED: " << d.is_cached << "\n"
+                              << std::endl;
                 }
             }
 
