@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(poac)
 
 # Preprocessor definitions
-add_definitions( -DPOAC_AUTO_DEF_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
+add_definitions( -DPOAC_AUTO_DEF_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" ) # project_root
 add_definitions( -DPOAC_VERSION="0.3.0-beta" )
 add_definitions( -fdiagnostics-color -Wall -Wextra ) # -Werror
 
@@ -34,6 +34,9 @@ endif()
 # CURL
 add_definitions(-DCURL_STATICLIB)
 find_package(CURL REQUIRED)
+if (NOT CURL_FOUND)
+    set(CURL_LIBRARIES "/usr/local/lib/libcurl.a")
+endif()
 
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
@@ -45,7 +48,7 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
         ${CURL_LIBRARIES}
-        "yaml-cpp"
-        "cvc4"
-        "gmp")
+        "/usr/local/lib/libyaml-cpp.a"
+        "/usr/local/lib/libcvc4.a"
+        "/usr/local/lib/libgmp.a")
 install(TARGETS poac DESTINATION bin)
