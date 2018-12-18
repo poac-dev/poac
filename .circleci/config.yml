@@ -88,13 +88,6 @@ jobs:
           root: .
           paths: .
 
-  x86_64-unknown-linux-gnu_gcc-6:
-    docker:
-      - image: poacpm/x86_64-unknown-linux-gnu
-    environment:
-      CXX: g++-6
-    <<: *defaults
-
   x86_64-unknown-linux-gnu_gcc-7:
     docker:
       - image: poacpm/x86_64-unknown-linux-gnu
@@ -204,10 +197,6 @@ workflows:
     jobs:
       - checkout_code:
           filters: *filter-ignore-gh-pages
-      - x86_64-unknown-linux-gnu_gcc-6:
-          filters: *filter-ignore-gh-pages
-          requires:
-            - checkout_code
       - x86_64-unknown-linux-gnu_gcc-7:
           filters: *filter-ignore-gh-pages
           requires:
@@ -223,7 +212,6 @@ workflows:
       - release:
           filters: *filter-ignore-gh-pages
           requires:
-            - x86_64-unknown-linux-gnu_gcc-6
             - x86_64-unknown-linux-gnu_gcc-7
             - x86_64-unknown-linux-gnu_gcc-8
             - x86_64-unknown-linux-gnu_clang-6
