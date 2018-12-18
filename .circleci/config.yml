@@ -114,6 +114,7 @@ jobs:
 
       - run: uname -sm
       - run: *build-project
+      - run: ./build/poac -h
       - run: file ./build/poac
 
       - run: *run-poac-test
