@@ -180,11 +180,10 @@ jobs:
     docker:
       - image: circleci/golang:1.11
     steps:
-      - attach_workspace:
-          at: .
+      - attach_workspace: *at-current
       - run: ls -a
       - run: go get github.com/tcnksm/ghr
-#      - run: ghr 0.0.1 out
+#      - run: ghr $CIRCLE_TAG out
 
   gh_pages:
     working_directory: ~/poac/docs
