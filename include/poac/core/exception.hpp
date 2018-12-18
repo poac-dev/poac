@@ -7,7 +7,7 @@
 
 namespace poac::core::exception {
 //    namespace msg {
-//        static constexpr char const* YAML_DIRECTIVE_ARGS =
+//        static constexpr char const* COMPILE_ERR =
 //                "YAML directives must have exactly one argument";
 //    }
 
