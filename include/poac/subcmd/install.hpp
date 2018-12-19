@@ -28,7 +28,6 @@
 #include "../io.hpp"
 #include "../core/exception.hpp"
 #include "../core/resolver.hpp"
-#include "../sources.hpp"
 #include "../util.hpp"
 
 
@@ -171,7 +170,7 @@ namespace poac::subcmd {
                         const std::string si = std::to_string(i);
                         if (const auto dep_name = pt.get_optional<std::string>(si + ".name")) {
                             if (const auto dep_ver = pt.get_optional<std::string>(si + ".version")) {
-                                if (const auto ver = sources::poac::decide_version(*dep_name, *dep_ver)) {
+                                if (const auto ver = core::resolver::poac::decide_version(*dep_name, *dep_ver)) {
                                     new_deps.emplace(*dep_name, *ver);
                                 }
                             }
@@ -201,7 +200,7 @@ namespace poac::subcmd {
             // srcがpoacの時のみ依存関係の解決を行う。
             for (auto& dep : deps) {
                 if (dep.src == "poac") {
-                    if (const auto ver = sources::poac::decide_version(dep.name, dep.version)) {
+                    if (const auto ver = core::resolver::poac::decide_version(dep.name, dep.version)) {
                         new_deps.emplace(dep.name, *ver);
                         dep.version = *ver;
                         dep.cache_name = naming::to_cache("poac", dep.name, *ver);
@@ -213,8 +212,8 @@ namespace poac::subcmd {
 //            deps_dep.insert(depdep.begin(), depdep.end());
 
             for (const auto& [name, version] : depdep) {
-                if (const auto ver = sources::poac::decide_version(name, version)) {
-                    const std::string url = sources::poac::archive_url(name, *ver);
+                if (const auto ver = core::resolver::poac::decide_version(name, version)) {
+                    const std::string url = core::resolver::poac::archive_url(name, *ver);
                     const std::string cache_name = naming::to_cache("poac", name, *ver);
                     const std::string current_name = naming::to_current("poac", name, *ver);
 
@@ -272,7 +271,7 @@ namespace poac::subcmd {
                     // 新しいバージョンが存在することになる．
 
                     // >=0.1.2 and <3.4.0 -> 2.5.0
-                    if (const auto ver = sources::poac::decide_version(name2, version)) {
+                    if (const auto ver = core::resolver::poac::decide_version(name2, version)) {
                         const auto cache_name2 = naming::to_cache(src, name2, *ver);
                         if (core::resolver::cache::resolve(cache_name2)) {
                             deps.emplace_back(
@@ -287,7 +286,7 @@ namespace poac::subcmd {
                             );
                         }
                         else {
-                            const std::string url = sources::poac::archive_url(current_name, *ver);
+                            const std::string url = core::resolver::poac::archive_url(current_name, *ver);
                             deps.emplace_back(
                                     url,
                                     name2,
