@@ -7,7 +7,6 @@ cache:
   directories:
     - $HOME/Library/Caches/Homebrew
     - /usr/local/Cellar/cvc4/1.6
-    - /usr/local/include/symfpu
 
 matrix:
   include:
@@ -41,12 +40,9 @@ install:
   - travis_wait 60 brew install cvc4/cvc4/cvc4
   - brew link cvc4/cvc4/cvc4
   # Install symfpu
-  - |
-    if [ ! -e /usr/local/include/symfpu ]; then
-      pushd /usr/local/include
-      git clone -q https://github.com/martin-cs/symfpu.git -b CVC4
-      popd
-    fi
+  - pushd /usr/local/include
+  - git clone -q https://github.com/martin-cs/symfpu.git -b CVC4
+  - popd
 script:
   - mkdir build
   - cd build
