@@ -31,10 +31,10 @@ $ tree . -a
 
 ここに依存関係やパッケージの情報を記載します。
 
-Please refer to [setting-file](../guide/setting-file.md) for details on how to write the setting file.
+設定ファイルの書き方の詳細に関しては [2.4. 設定ファイル](../guide/setting-file.md) を参照して下さい。
 
 
-Poac generates a “hello_world” binary for us, when you execute `poac build`:
+`poac build`を実行すると、poac は “hello_world” バイナリを生成します:
 ```bash
 $ poac build
 Compiled: Output to `_build/bin/hello_world`
@@ -43,7 +43,7 @@ $ ./_build/bin/hello_world
 Hello, world!
 ```
 
-We can also use `poac run` to compile and then run it, all in one step:
+また、`poac run`を使用してコンパイルと実行を行うことができます:
 ```bash
 $ poac run
 Compiled: Output to `_build/bin/hello_world`
