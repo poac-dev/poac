@@ -32,6 +32,7 @@ else()
 endif()
 
 include_directories( "/usr/local/include" )
+include_directories( "/usr/local/include/cvc4" )
 link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
