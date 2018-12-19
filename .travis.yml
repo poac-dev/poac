@@ -7,6 +7,7 @@ cache:
   directories:
     - $HOME/Library/Caches/Homebrew
     - /usr/local/Cellar/cvc4/1.6
+    - /usr/local/include/symfpu
 
 matrix:
   include:
@@ -26,8 +27,6 @@ matrix:
 before_install:
   - brew update
 install:
-#  - brew install cmake
-#  - brew install boost
   - brew install libressl
   # Install yaml-cpp
   - git clone -q https://github.com/jbeder/yaml-cpp.git
@@ -42,15 +41,17 @@ install:
   - travis_wait 60 brew install cvc4/cvc4/cvc4
   - brew link cvc4/cvc4/cvc4
   # Install symfpu
-  - pushd /usr/local/include
-  - git clone -q https://github.com/martin-cs/symfpu.git -b CVC4
-  - popd
+  - if [ ! -e /usr/local/include/symfpu ]; then
+      pushd /usr/local/include
+      git clone -q https://github.com/martin-cs/symfpu.git -b CVC4
+      popd
+    fi
 script:
   - mkdir build
   - cd build
   - XCODE_VERSION=$(xcodebuild -version | head -n1 | cut -d ' ' -f 2) cmake ..
   - make install
-  - poac --version
+  - poac -h
 
 notifications:
   slack: poacpm:VNE7FkuxYAghHHrEfKaj2V19
