@@ -214,11 +214,11 @@ namespace poac::subcmd {
 
             for (const auto& [name, version] : depdep) {
                 if (const auto ver = sources::poac::decide_version(name, version)) {
-                    const std::string url = sources::poac::resolve(name, *ver);
+                    const std::string url = sources::poac::archive_url(name, *ver);
                     const std::string cache_name = naming::to_cache("poac", name, *ver);
                     const std::string current_name = naming::to_current("poac", name, *ver);
 
-                    if (sources::cache::resolve(cache_name)) {
+                    if (core::resolver::cache::resolve(cache_name)) {
                         deps.emplace_back(
                                 "",
                                 name,
@@ -264,7 +264,7 @@ namespace poac::subcmd {
                 const std::string cache_name = naming::to_cache(src, name2, version);
                 const std::string current_name = naming::to_current(src, name2, version);
 
-                if (sources::current::resolve(current_name)) {
+                if (core::resolver::current::resolve(current_name)) {
                     continue;
                 }
                 else if (src == "poac") {
@@ -274,7 +274,7 @@ namespace poac::subcmd {
                     // >=0.1.2 and <3.4.0 -> 2.5.0
                     if (const auto ver = sources::poac::decide_version(name2, version)) {
                         const auto cache_name2 = naming::to_cache(src, name2, *ver);
-                        if (sources::cache::resolve(cache_name2)) {
+                        if (core::resolver::cache::resolve(cache_name2)) {
                             deps.emplace_back(
                                     "",
                                     name2,
@@ -287,7 +287,7 @@ namespace poac::subcmd {
                             );
                         }
                         else {
-                            const std::string url = sources::poac::resolve(current_name, *ver);
+                            const std::string url = sources::poac::archive_url(current_name, *ver);
                             deps.emplace_back(
                                     url,
                                     name2,
@@ -305,7 +305,7 @@ namespace poac::subcmd {
                     }
                 }
                 else if (src == "github") {
-                    if (sources::cache::resolve(cache_name)) {
+                    if (core::resolver::cache::resolve(cache_name)) {
                         deps.emplace_back(
                                 "",
                                 name2,
@@ -318,7 +318,7 @@ namespace poac::subcmd {
                         );
                     }
                     else {
-                        const std::string url = sources::github::resolve(name2);
+                        const std::string url = core::resolver::github::resolve(name2);
                         deps.emplace_back(
                                 url,
                                 name2,
@@ -357,7 +357,7 @@ namespace poac::subcmd {
             namespace cli = io::cli;
 
 
-            core::resolver::resolve();
+            core::resolver::poac::resolve();
             throw except::error("finshed");
 
 

@@ -17,24 +17,21 @@
 
 
 namespace poac::sources::poac {
-    std::string resolve(const std::string& name, const std::string& ver) {
-        return "https://storage.googleapis.com/poac-pm.appspot.com/" + core::naming::to_cache("poac", name, ver) + ".tar.gz";
+    std::string archive_url(const std::string &name, const std::string &version) {
+        return "https://storage.googleapis.com/poac-pm.appspot.com/"
+        + core::naming::to_cache("poac", name, version) + ".tar.gz";
     }
 
-    bool is_equal_op(const std::string& version) {
-        return !(version[0] == '>' || version[0] == '<');
-    }
-
-    template <typename T>
-    std::vector<T> as_vector(const boost::property_tree::ptree& pt, const boost::property_tree::ptree::key_type& key)
-    {
+    template <typename T, typename U, typename K=typename U::key_type>
+    std::vector<T> as_vector(const U& pt, const K& key) {
         std::vector<T> r;
-        for (auto& item : pt.get_child(key))
-            r.push_back(item.second.get_value<T>());
+        for (const auto& item : pt.get_child(key)) {
+            r.push_back(item.second.template get_value<T>());
+        }
         return r;
     }
 
-    // name: boost/config, no boost-config
+    // name is boost/config, no boost-config
     boost::optional<std::string> decide_version(const std::string& name, const std::string& version) {
         namespace except = core::exception;
 
@@ -56,14 +53,15 @@ namespace poac::sources::poac {
             // Check それが等値なのかどうか．
             if (comp_op_str.empty()) { // equal
                 // Check 存在するかどうか
-                if (io::network::get("https://poac.pm/api/packages/" + name + "/" + version + "/exists") == "true") {
+                const std::string api_url = POAC_PACKAGES_API_URL + name + "/" + version + "/exists";
+                if (io::network::get(api_url) == "true") {
                     return version;
                 }
             }
 
             // Check そのバージョン範囲でそのパッケージが存在するのか
             std::stringstream ss;
-            ss << ("{\"dummy\": " + io::network::get("https://poac.pm/api/packages/" + name + "/versions") + "}");
+            ss << ("{\"dummy\": " + io::network::get(POAC_PACKAGES_API_URL + name + "/versions") + "}");
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);
             const auto versions = as_vector<std::string>(pt, "dummy");
@@ -90,31 +88,39 @@ namespace poac::sources::poac {
             }
         }
         else if (std::regex_match(version, match_two, two_exp)) {
-            const std::string first_comp_op = match_two[2].str();
-            const std::string second_comp_op = match_two[11].str();
-            const std::string first_version = match_two[3].str();
-            const std::string second_version = match_two[12].str();
+            const auto first_comp_op = match_two[2].str();
+            const auto second_comp_op = match_two[11].str();
+            const auto first_version = match_two[3].str();
+            const auto second_version = match_two[12].str();
 
             // Check 無駄な比較演算
             // >0.1.3 and >=0.3.2, <0.1.3 and <0.3.2
-            if ((first_comp_op == "<" || first_comp_op == "<=") && (second_comp_op == "<" || second_comp_op == "<=")) {
+            if ((first_comp_op == "<" || first_comp_op == "<=")
+            && (second_comp_op == "<" || second_comp_op == "<="))
+            {
                 if (first_version > second_version) { // 大きい方を優先する．
-                    throw except::error("`" + name + ": " + version + "` is invalid expression.\n"
-                                        "Did you mean " + first_comp_op + first_version + " ?");
+                    throw except::error(
+                            "`" + name + ": " + version + "` is invalid expression.\n"
+                            "Did you mean " + first_comp_op + first_version + " ?");
                 }
                 else {
-                    throw except::error("`" + name + ": " + version + "` is invalid expression.\n"
-                                        "Did you mean " + second_comp_op + second_version + " ?");
+                    throw except::error(
+                            "`" + name + ": " + version + "` is invalid expression.\n"
+                            "Did you mean " + second_comp_op + second_version + " ?");
                 }
             }
-            else if ((first_comp_op == ">" || first_comp_op == ">=") && (second_comp_op == ">" || second_comp_op == ">=")) {
+            else if ((first_comp_op == ">" || first_comp_op == ">=")
+            && (second_comp_op == ">" || second_comp_op == ">="))
+            {
                 if (first_version < second_version) { // 小さい方を優先する．
-                    throw except::error("`" + name + ": " + version + "` is invalid expression.\n"
-                                                        "Did you mean " + first_comp_op + first_version + " ?");
+                    throw except::error(
+                            "`" + name + ": " + version + "` is invalid expression.\n"
+                            "Did you mean " + first_comp_op + first_version + " ?");
                 }
                 else {
-                    throw except::error("`" + name + ": " + version + "` is invalid expression.\n"
-                                                        "Did you mean " + second_comp_op + second_version + " ?");
+                    throw except::error(
+                            "`" + name + ": " + version + "` is invalid expression.\n"
+                            "Did you mean " + second_comp_op + second_version + " ?");
                 }
             }
 
@@ -125,21 +131,29 @@ namespace poac::sources::poac {
             // (-∞, ∞) => closed unbounded interval => ERR!
             // Like, <0.1.1 and >=0.3.2
             if (first_version < second_version) {
-                if ((first_comp_op == "<" || first_comp_op == "<=") && (second_comp_op == ">" || second_comp_op == ">=")) {
-                    throw except::error("`" + name + ": " + version + "` is strange.\n"
-                                        "In the case of interval specification using `and`,\n"
-                                        " it is necessary to be a bounded interval.\n"
-                                        "Please specify as in the following example:\n"
-                                        "e.g. `" + second_comp_op + first_version + " and " + first_comp_op + second_version + "`");
+                if ((first_comp_op == "<" || first_comp_op == "<=")
+                && (second_comp_op == ">" || second_comp_op == ">="))
+                {
+                    throw except::error(
+                            "`" + name + ": " + version + "` is strange.\n"
+                            "In the case of interval specification using `and`,\n"
+                            " it is necessary to be a bounded interval.\n"
+                            "Please specify as in the following example:\n"
+                            "e.g. `" + second_comp_op + first_version + " and "
+                            + first_comp_op + second_version + "`");
                 }
             }
             else if (first_version > second_version) {
-                if ((first_comp_op == ">" || first_comp_op == ">=") && (second_comp_op == "<" || second_comp_op == "<=")) {
-                    throw except::error("`" + name + ": " + version + "` is strange.\n"
-                                        "In the case of interval specification using `and`,\n"
-                                        " it is necessary to be a bounded interval.\n"
-                                        "Please specify as in the following example:\n"
-                                        "e.g. `" + first_comp_op + second_version + " and " + second_comp_op + first_version + "`");
+                if ((first_comp_op == ">" || first_comp_op == ">=")
+                && (second_comp_op == "<" || second_comp_op == "<="))
+                {
+                    throw except::error(
+                            "`" + name + ": " + version + "` is strange.\n"
+                            "In the case of interval specification using `and`,\n"
+                            " it is necessary to be a bounded interval.\n"
+                            "Please specify as in the following example:\n"
+                            "e.g. `" + first_comp_op + second_version + " and "
+                            + second_comp_op + first_version + "`");
                 }
             }
 
@@ -200,16 +214,5 @@ namespace poac::sources::poac {
                                 "  and");
         }
     }
-
-    // true == can install
-    bool installable(const std::string& name, const std::string& version) {
-        if (is_equal_op(version)) {
-            return io::network::get("https://poac.pm/api/packages/" + name + "/" + version + "/exists") == "true";
-        }
-        else {
-            return true;
-        }
-    }
-    // resolve(name, version, architecture) in 0.6.0
 } // end namespace
 #endif // !POAC_SOURCES_POAC_HPP
