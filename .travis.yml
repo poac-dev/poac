@@ -41,7 +41,8 @@ install:
   - travis_wait 60 brew install cvc4/cvc4/cvc4
   - brew link cvc4/cvc4/cvc4
   # Install symfpu
-  - if [ ! -e /usr/local/include/symfpu ]; then
+  - |
+    if [ ! -e /usr/local/include/symfpu ]; then
       pushd /usr/local/include
       git clone -q https://github.com/martin-cs/symfpu.git -b CVC4
       popd
