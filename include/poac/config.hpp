@@ -17,5 +17,4 @@ namespace poac {
     static constexpr char const* POAC_API_PACKAGE_UPLOAD =
             "https://poac-pm.appspot.com/packages/upload/";
 }
-
 #endif // !POAC_CONFIG_HPP
