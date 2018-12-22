@@ -5,7 +5,6 @@
 #include <string>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 #include "../core/exception.hpp"
