@@ -8,10 +8,14 @@
 #   warning "POAC_VERSION is not defined"
 #endif
 namespace poac {
-    static constexpr char const* POAC_API_URL =
+    static constexpr char const* POAC_API =
             "https://poac.pm/api/";
-    static constexpr char const* POAC_PACKAGES_API_URL =
+    static constexpr char const* POAC_API_PACKAGES =
             "https://poac.pm/api/packages/";
+    static constexpr char const* POAC_API_TOKENS_VALIDATE =
+            "https://poac.pm/api/tokens/validate/";
+    static constexpr char const* POAC_API_PACKAGE_UPLOAD =
+            "https://poac-pm.appspot.com/packages/upload/";
 }
 
 #endif // !POAC_CONFIG_HPP

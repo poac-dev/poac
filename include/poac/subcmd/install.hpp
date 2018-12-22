@@ -161,7 +161,7 @@ namespace poac::subcmd {
 
             for (const auto& [name, version] : receive_dep) {
                 std::stringstream ss;
-                ss << io::network::get("https://poac.pm/api/packages/" + name + "/" + version + "/deps");
+                ss << io::network::get(POAC_API_PACKAGES + name + "/" + version + "/deps");
                 if (ss.str() != "null") {
                     boost::property_tree::ptree pt;
                     boost::property_tree::json_parser::read_json(ss, pt);
@@ -317,7 +317,7 @@ namespace poac::subcmd {
                         );
                     }
                     else {
-                        const std::string url = core::resolver::github::resolve(name2);
+                        const std::string url = core::resolver::github::archive_url(name2);
                         deps.emplace_back(
                                 url,
                                 name2,
