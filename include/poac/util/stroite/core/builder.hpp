@@ -11,9 +11,9 @@
 #include <list>
 #include <algorithm>
 #include <map>
+#include <optional>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "./compiler.hpp"
@@ -40,7 +40,7 @@ namespace stroite {
 
         std::map<std::string, YAML::Node> node; // TODO: node_mapなのでdeps_nodeと分かりづらい
         std::map<std::string, std::map<std::string, std::string>> depends_ts;
-        boost::optional<std::map<std::string, YAML::Node>> deps_node;
+        std::optional<std::map<std::string, YAML::Node>> deps_node;
 
 
         bool is_cpp_file(const boost::filesystem::path& p) {
@@ -117,13 +117,13 @@ namespace stroite {
             return hash_path.string() + ".hash";
         }
 
-        boost::optional<std::map<std::string, std::string>>
+        std::optional<std::map<std::string, std::string>>
         load_timestamps(const std::string& src_cpp_hash) {
             namespace io = poac::io::file;
 
             std::ifstream ifs(src_cpp_hash);
             if(!ifs.is_open()){
-                return boost::none;
+                return std::nullopt;
             }
 
             std::string buff;
@@ -148,7 +148,7 @@ namespace stroite {
         }
 
         // *.cpp -> hash
-        boost::optional<std::map<std::string, std::string>>
+        std::optional<std::map<std::string, std::string>>
         generate_timestamps(const std::string& source_file)
         {
             if (const auto deps_headers = core::depends::gen(compile_conf, source_file))
@@ -162,7 +162,7 @@ namespace stroite {
                 generate_timestamp(source_file, hash);
                 return hash;
             }
-            return boost::none;
+            return std::nullopt;
         }
 
         auto check_src_cpp(const std::vector<std::string>& source_files)
@@ -228,7 +228,7 @@ namespace stroite {
             compile_conf.base_dir = base_dir;
             compile_conf.output_root = poac::io::file::path::current_build_cache_obj_dir;
         }
-        boost::optional<std::vector<std::string>>
+        std::optional<std::vector<std::string>>
         _compile() {
             namespace io = poac::io::file;
             if (const auto ret = core::compiler::compile(compile_conf)) {
@@ -256,7 +256,7 @@ namespace stroite {
                 return obj_files;
             }
             else {
-                return boost::none;
+                return std::nullopt;
             }
         }
 

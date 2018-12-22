@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "../utils.hpp"
 #include "../../command.hpp"
@@ -13,7 +12,7 @@
 
 namespace stroite::core::depends {
     template <typename Opts>
-    boost::optional<std::string>
+    std::optional<std::string>
     calc(const Opts& opts, const std::string& src_cpp)
     {
         poac::util::command cmd(opts.system);
@@ -36,7 +35,7 @@ namespace stroite::core::depends {
     }
 
     template <typename Opts>
-    boost::optional<std::vector<std::string>>
+    std::optional<std::vector<std::string>>
     gen(const Opts& opts, const std::string& src_cpp)
     {
         if (const auto ret = calc(opts, src_cpp)) {
@@ -46,7 +45,7 @@ namespace stroite::core::depends {
             return deps_headers;
         }
         else {
-            return boost::none;
+            return std::nullopt;
         }
     }
 } // end namespace

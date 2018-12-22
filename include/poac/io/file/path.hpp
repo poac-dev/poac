@@ -4,9 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <optional>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "../../util/command.hpp"
@@ -119,9 +119,9 @@ namespace poac::io::file::path {
         return EXIT_SUCCESS;
     }
 
-    boost::optional<std::string> read_file(const boost::filesystem::path& path) {
+    std::optional<std::string> read_file(const boost::filesystem::path& path) {
         if (!boost::filesystem::exists(path)) {
-            return boost::none;
+            return std::nullopt;
         }
         else if (std::ifstream ifs(path.string()); !ifs.fail()) {
             std::istreambuf_iterator<char> it(ifs);
@@ -129,7 +129,7 @@ namespace poac::io::file::path {
             return std::string(it, last);
         }
         else {
-            return boost::none;
+            return std::nullopt;
         }
     }
 

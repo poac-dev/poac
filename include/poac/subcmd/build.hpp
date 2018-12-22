@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -18,10 +19,11 @@
 #include "../util/argparse.hpp"
 
 
-// TODO: --release, --no-cache, --example, --enable-std(標準では標準ライブラリをチェックしないため，標準ライブラリを書き換えてもリビルドしない)
+// TODO: --release, --no-cache, --example,
+// TODO: --check-std(標準では標準ライブラリをチェックしないため，標準ライブラリを書き換えてもリビルドしない)
 namespace poac::subcmd {
     namespace _build {
-        boost::optional<std::string>
+        std::optional<std::string>
         build_bin(stroite::builder& bs, const bool verbose)
         {
             namespace fs = boost::filesystem;
@@ -36,7 +38,7 @@ namespace poac::subcmd {
                         (io::file::path::current_build_bin_dir / bs.project_name).string();
                 // Dealing with an error which is said to have cache even though it is not going well.
                 if (fs::exists(bin_path)) {
-                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset // TODO: これらは全て，builderのhookみたいに関数で渡してロギングさせる
+                    std::cout << io::cli::yellow << "Warning: " << io::cli::reset
                               << "There is no change. Binary exists in `" +
                                  fs::relative(bin_path).string() + "`."
                               << std::endl;
@@ -56,25 +58,24 @@ namespace poac::subcmd {
                     }
                     else { // Link failure
                         // TODO: 全部削除すると，testのcacheも消えてしまう．
-//                        fs::remove_all(io::file::path::current_build_cache_dir);
-                        return boost::none;
+                        boost::system::error_code error;
+                        fs::remove_all(io::file::path::current_build_cache_dir, error);
+                        return std::nullopt;
                     }
                 }
                 else { // Compile failure
-                    return boost::none;
+                    return std::nullopt;
                 }
             }
         }
 
-        boost::optional<std::string>
+        std::optional<std::string>
         build_link_libs(stroite::builder& bs, const bool verbose)
         {
             namespace fs = boost::filesystem;
 
             bs.configure_compile(false, verbose);
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
-                std::cout << "joogege" << std::endl;
-
                 const std::string lib_path =
                         (io::file::path::current_build_lib_dir / bs.project_name).string();
                 if (fs::exists(lib_path)) {
@@ -102,7 +103,8 @@ namespace poac::subcmd {
                 }
                 else { // Static link library generation failed
                     // TODO: 全部削除すると，testのcacheも消えてしまう．
-                    fs::remove_all(io::file::path::current_build_cache_dir);
+                    boost::system::error_code error;
+                    fs::remove_all(io::file::path::current_build_cache_dir, error);
                 }
 
                 bs.configure_dynamic_lib(*obj_files_path, verbose);
@@ -115,12 +117,13 @@ namespace poac::subcmd {
                 }
                 else { // Dynamic link library generation failed
                     // TODO: 全部削除すると，testのcacheも消えてしまう．
-                    fs::remove_all(io::file::path::current_build_cache_dir);
+                    boost::system::error_code error;
+                    fs::remove_all(io::file::path::current_build_cache_dir, error);
                 }
-                return boost::none;
+                return std::nullopt;
             }
             else { // Compile failure
-                return boost::none;
+                return std::nullopt;
             }
         }
 
@@ -179,7 +182,6 @@ namespace poac::subcmd {
                                 else { // Compile failure
                                     throw except::error("\nCompile error.");
                                 }
-
                                 std::cout << std::endl;
                             }
                         }
@@ -199,29 +201,30 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace except = core::exception;
             namespace naming = core::naming;
+            namespace yaml = io::file::yaml;
 
-            const auto node = io::file::yaml::load_config();
+            const auto node = yaml::load_config();
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
-            const auto project_name = io::file::yaml::get_with_throw<std::string>(node, "name");
+            const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
             build_deps(node, verbose);
             stroite::builder bs;
             std::cout << io::cli::to_status(project_name) << std::endl;
-            if (io::file::yaml::get(node, "build", "lib")) {
+            if (yaml::get(node, "build", "lib")) {
                 if (!build_link_libs(bs, verbose)) {
                     // compile or gen error
                 }
             }
-            if (io::file::yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする！
+            if (yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする！
                 // TODO: ディレクトリで指定できるようにする？？？
                 if (!build_bin(bs, verbose)) {
                     // compile or link error
 
                     // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
-//                    const auto binary_name = io::file::path::current_build_bin_dir / project_name;
-//                    const fs::path executable_path = fs::relative(binary_name);
-//                    try { fs::remove(executable_path); }
-//                    catch (...) {} // ファイルが存在しない場合を握りつぶす
+                    const auto binary_name = io::file::path::current_build_bin_dir / project_name;
+                    const fs::path executable_path = fs::relative(binary_name);
+                    boost::system::error_code error;
+                    fs::remove(executable_path, error);
                 }
             }
         }

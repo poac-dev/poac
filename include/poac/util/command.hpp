@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include <boost/optional.hpp>
+#include <optional>
 
 
 namespace poac::util {
@@ -34,7 +33,7 @@ namespace poac::util {
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
-        boost::optional<std::string> exec() const {
+        std::optional<std::string> exec() const {
             std::array<char, 128> buffer;
             std::string result;
 
@@ -43,11 +42,11 @@ namespace poac::util {
                     result += buffer.data();
                 if (pclose(pipe) != 0) {
                     std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
-                    return boost::none;
+                    return std::nullopt;
                 }
             }
             else {
-                return boost::none;
+                return std::nullopt;
             }
             return result;
         }

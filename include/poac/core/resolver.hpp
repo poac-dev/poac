@@ -7,8 +7,8 @@
 #include <sstream>
 #include <regex>
 #include <utility>
+#include <optional>
 
-#include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
@@ -103,7 +103,7 @@ namespace poac::core::resolver {
         }
 
         // name is boost/config, no boost-config
-        boost::optional<std::string>
+        std::optional<std::string>
         decide_version(const std::string& name, const std::string& version) {
             namespace except = core::exception;
 
@@ -266,6 +266,103 @@ namespace poac::core::resolver {
         }
 
         void resolve() {
+            CVC4::ExprManager em;
+            CVC4::SmtEngine smt(&em);
+
+//        smt.setOption("incremental", CVC4::SExpr("true")); // Enable incremental solving
+//        CVC4::Type real = em.realType();
+//        CVC4::Type integer = em.integerType();
+//        CVC4::Expr x = em.mkVar("x", integer);
+//        CVC4::Expr y = em.mkVar("y", real);
+//
+//        CVC4::Expr three = em.mkConst(CVC4::Rational(3));
+//        CVC4::Expr neg2 = em.mkConst(CVC4::Rational(-2));
+//        CVC4::Expr two_thirds = em.mkConst(CVC4::Rational(2, 3));
+//
+//        CVC4::Expr three_y = em.mkExpr(CVC4::kind::MULT, three, y);
+//        CVC4::Expr diff = em.mkExpr(CVC4::kind::MINUS, y, x);
+//
+//        CVC4::Expr x_geq_3y = em.mkExpr(CVC4::kind::GEQ, x, three_y);
+//        CVC4::Expr x_leq_y = em.mkExpr(CVC4::kind::LEQ, x, y);
+//        CVC4::Expr neg2_lt_x = em.mkExpr(CVC4::kind::LT, neg2, x);
+//
+//        CVC4::Expr assumptions =
+//                em.mkExpr(CVC4::kind::AND, x_geq_3y, x_leq_y, neg2_lt_x);
+//        smt.assertFormula(assumptions);
+//
+//        smt.push();
+//        CVC4::Expr diff_leq_two_thirds = em.mkExpr(CVC4::kind::LEQ, diff, two_thirds);
+//        std::cout << "Prove that " << diff_leq_two_thirds << " with CVC4." << std::endl;
+//        std::cout << "CVC4 should report VALID." << std::endl;
+//        std::cout << "Result from CVC4 is: " << smt.query(diff_leq_two_thirds) << std::endl;
+//        smt.pop();
+//
+//        std::cout << std::endl;
+//
+//        smt.push();
+//        CVC4::Expr diff_is_two_thirds = em.mkExpr(CVC4::kind::EQUAL, diff, two_thirds);
+//        smt.assertFormula(diff_is_two_thirds);
+//        std::cout << "Show that the asserts are consistent with " << std::endl;
+//        std::cout << diff_is_two_thirds << " with CVC4." << std::endl;
+//        std::cout << "CVC4 should report SAT." << std::endl;
+//        std::cout << "Result from CVC4 is: " << smt.checkSat(em.mkConst(true)) << std::endl;
+//        smt.pop();
+
+            smt.setLogic("S");
+            CVC4::Type string = em.stringType();
+            // std::string
+            std::string std_str_ab("ab");
+            // CVC4::String
+            CVC4::String cvc4_str_ab(std_str_ab);
+            CVC4::String cvc4_str_abc("abc");
+            // String constants
+            CVC4::Expr ab = em.mkConst(cvc4_str_ab);
+            CVC4::Expr abc = em.mkConst(CVC4::String("abc"));
+
+            CVC4::Expr x = em.mkVar("x", string);
+            CVC4::Expr y = em.mkVar("y", string);
+            CVC4::Expr z = em.mkVar("z", string);
+
+            CVC4::Expr lhs = em.mkExpr(CVC4::kind::STRING_CONCAT, x, ab, y);
+            // String concatenation: abc.z
+            CVC4::Expr rhs = em.mkExpr(CVC4::kind::STRING_CONCAT, abc, z);
+            // x.ab.y = abc.z
+            CVC4::Expr formula1 = em.mkExpr(CVC4::kind::EQUAL, lhs, rhs);
+            // Length of y: |y|
+            CVC4::Expr leny = em.mkExpr(CVC4::kind::STRING_LENGTH, y);
+            // |y| >= 0
+            CVC4::Expr formula2 = em.mkExpr(CVC4::kind::GEQ, leny, em.mkConst(CVC4::Rational(0)));
+            // Regular expression: (ab[c-e]*f)|g|h
+            CVC4::Expr r = em.mkExpr(CVC4::kind::REGEXP_UNION,
+                                     em.mkExpr(CVC4::kind::REGEXP_CONCAT,
+                                               em.mkExpr(CVC4::kind::STRING_TO_REGEXP,
+                                                       em.mkConst(CVC4::String("ab"))),
+                                               em.mkExpr(CVC4::kind::REGEXP_STAR,
+                                                         em.mkExpr(CVC4::kind::REGEXP_RANGE,
+                                                                   em.mkConst(CVC4::String("c")),
+                                                                   em.mkConst(CVC4::String("e")))),
+                                               em.mkExpr(CVC4::kind::STRING_TO_REGEXP, em.mkConst(CVC4::String("f")))),
+                                     em.mkExpr(CVC4::kind::STRING_TO_REGEXP, em.mkConst(CVC4::String("g"))),
+                                     em.mkExpr(CVC4::kind::STRING_TO_REGEXP, em.mkConst(CVC4::String("h"))));
+            // String variables
+            CVC4::Expr s1 = em.mkVar("s1", string);
+            CVC4::Expr s2 = em.mkVar("s2", string);
+            // String concatenation: s1.s2
+            CVC4::Expr s = em.mkExpr(CVC4::kind::STRING_CONCAT, s1, s2);
+            // s1.s2 in (ab[c-e]*f)|g|h
+            CVC4::Expr formula3 = em.mkExpr(CVC4::kind::STRING_IN_REGEXP, s, r);
+
+            CVC4::Expr q = em.mkExpr(CVC4::kind::AND,
+                                     formula1,
+                                     formula2,
+                                     formula3);
+
+            CVC4::Result result = smt.checkSat(q);
+            std::cout << "CVC4 reports: " << q << " is " << result << "." << std::endl;
+            if (result == CVC4::Result::SAT) {
+                std::cout << " x = " << smt.getValue(x) << std::endl;
+                std::cout << " s1.s2 = " << smt.getValue(s) << std::endl;
+            }
         }
     }
 } // end namespace
