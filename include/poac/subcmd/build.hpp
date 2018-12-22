@@ -7,9 +7,6 @@
 #include <optional>
 
 #include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 
 #include "../core/exception.hpp"
 #include "../io/file.hpp"
