@@ -56,28 +56,34 @@ namespace poac::subcmd {
             return "poac.yml";
         }
 
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-            if (!argv.empty()) throw except::invalid_second_arg("init");
-        }
+        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        void _main([[maybe_unused]] VS&& argv) {
+            namespace fs = boost::filesystem;
 
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS &&>>>
-        void _main(VS &&argv) {
-            namespace fs     = boost::filesystem;
-
-            check_arguments(argv);
             const std::string filename = check_requirements();
             std::ofstream yml_ofs(filename);
             yml_ofs << util::ftemplate::poac_yml(basename(fs::current_path()));
             std::cout << fs::path(".") / filename << " was created." << std::endl;
         }
+
+        void check_arguments(const std::vector<std::string>& argv) {
+            namespace except = core::exception;
+            if (!argv.empty()) throw except::invalid_second_arg("init");
+        }
     }
 
     struct init {
-        static const std::string summary() { return "Create the poac.yml."; }
-        static const std::string options() { return "<Nothing>"; }
+        static const std::string summary() {
+            return "Create the poac.yml";
+        }
+        static const std::string options() {
+            return "<Nothing>";
+        }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) { _init::_main(std::move(argv)); }
+        void operator()(VS&& argv) {
+            _init::check_arguments(argv);
+            _init::_main(std::move(argv));
+        }
     };
 } // end namespace
 #endif // !POAC_SUBCMD_INIT_HPP

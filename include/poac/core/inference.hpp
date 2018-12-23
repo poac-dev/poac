@@ -72,7 +72,7 @@ namespace poac::core::infer {
             subcmd::publish,
             subcmd::root,
             subcmd::run,
-//            subcmd::search,
+            subcmd::search,
             subcmd::test,
             subcmd::uninstall,
             option::help,
@@ -88,7 +88,7 @@ namespace poac::core::infer {
         publish   = op_type_list_t::index_of<subcmd::publish>,
         root      = op_type_list_t::index_of<subcmd::root>,
         run       = op_type_list_t::index_of<subcmd::run>,
-//        search    = op_type_list_t::index_of<subcmd::search>,
+        search    = op_type_list_t::index_of<subcmd::search>,
         test      = op_type_list_t::index_of<subcmd::test>,
         uninstall = op_type_list_t::index_of<subcmd::uninstall>,
         help      = op_type_list_t::index_of<option::help>,
@@ -104,7 +104,7 @@ namespace poac::core::infer {
             { "publish",   op_type_e::publish },
             { "root",      op_type_e::root },
             { "run",       op_type_e::run },
-//            { "search",    op_type_e::search },
+            { "search",    op_type_e::search },
             { "test",      op_type_e::test },
             { "uninstall", op_type_e::uninstall }
     };

@@ -236,7 +236,7 @@ namespace poac::subcmd {
 
     struct build {
         static const std::string summary() {
-            return "Compile all sources that depend on this project.";
+            return "Compile all sources that depend on this project";
         }
         static const std::string options() {
             return "[-v | --verbose]";

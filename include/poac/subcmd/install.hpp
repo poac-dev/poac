@@ -160,7 +160,7 @@ namespace poac::subcmd {
 
             for (const auto& [name, version] : receive_dep) {
                 std::stringstream ss;
-                ss << io::network::get(POAC_API_PACKAGES + name + "/" + version + "/deps");
+                ss << io::network::get(POAC_PACKAGES_API + name + "/" + version + "/deps");
                 if (ss.str() != "null") {
                     boost::property_tree::ptree pt;
                     boost::property_tree::json_parser::read_json(ss, pt);
@@ -338,14 +338,6 @@ namespace poac::subcmd {
             }
         }
 
-
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-            if (argv.size() > 1) { // -v OR -q
-                throw except::invalid_second_arg("install");
-            }
-        }
-
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -358,8 +350,6 @@ namespace poac::subcmd {
             core::resolver::poac::resolve();
             throw except::error("finshed");
 
-
-            check_arguments(argv);
             fs::create_directories(path::poac_cache_dir);
             const auto node = yaml::load_config("deps");
             const bool quite = util::argparse::use(argv, "-q", "--quite");
@@ -411,13 +401,27 @@ namespace poac::subcmd {
                 std::cout << cli::to_status("Done.") << std::endl;
             }
         }
+
+        void check_arguments(const std::vector<std::string>& argv) {
+            namespace except = core::exception;
+            if (argv.size() > 1) { // -v OR -q
+                throw except::invalid_second_arg("install");
+            }
+        }
     }
 
     struct install {
-        static const std::string summary() { return "Install packages."; }
-        static const std::string options() { return "[-v | --verbose, -q | --quite]"; }
+        static const std::string summary() {
+            return "Install packages";
+        }
+        static const std::string options() {
+            return "[-v | --verbose, -q | --quite]";
+        }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) { _install::_main(std::move(argv)); }
+        void operator()(VS&& argv) {
+            _install::check_arguments(argv);
+            _install::_main(std::move(argv));
+        }
     };
 } // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP

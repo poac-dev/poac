@@ -125,7 +125,7 @@ namespace poac::core::resolver {
                 // Check それが等値なのかどうか．
                 if (comp_op_str.empty()) { // equal
                     // Check 存在するかどうか
-                    const std::string api_url = POAC_API_PACKAGES + name + "/" + version + "/exists";
+                    const std::string api_url = POAC_PACKAGES_API + name + "/" + version + "/exists";
                     if (io::network::get(api_url) == "true") {
                         return version;
                     }
@@ -133,7 +133,7 @@ namespace poac::core::resolver {
 
                 // Check そのバージョン範囲でそのパッケージが存在するのか
                 std::stringstream ss;
-                ss << ("{\"dummy\": " + io::network::get(POAC_API_PACKAGES + name + "/versions") + "}");
+                ss << ("{\"dummy\": " + io::network::get(POAC_PACKAGES_API + name + "/versions") + "}");
                 boost::property_tree::ptree pt;
                 boost::property_tree::json_parser::read_json(ss, pt);
                 const auto versions = as_vector<std::string>(pt, "dummy");
@@ -208,7 +208,7 @@ namespace poac::core::resolver {
 
                 // Check そのバージョン範囲でそのパッケージが存在するのか
                 std::stringstream ss;
-                ss << ("{\"dummy\": " + io::network::get(POAC_API_PACKAGES + name + "/versions") + "}");
+                ss << ("{\"dummy\": " + io::network::get(POAC_PACKAGES_API + name + "/versions") + "}");
                 boost::property_tree::ptree pt;
                 boost::property_tree::json_parser::read_json(ss, pt);
                 const auto versions = as_vector<std::string>(pt, "dummy");

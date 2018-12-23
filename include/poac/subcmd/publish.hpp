@@ -154,7 +154,7 @@ namespace poac::subcmd {
 //            if (!error)
             status_func("Validating...");
             if (verbose) std::cout << ss.str() << std::endl;
-            if (io::network::post(POAC_API_TOKENS_VALIDATE, ss.str()) == "err")
+            if (io::network::post(POAC_TOKENS_VALIDATE_API, ss.str()) == "err")
                 throw except::error("Token verification failed.\n"
                                     "Please check the following check lists.\n"
                                     "1. Does token really belong to you?\n"
@@ -181,7 +181,7 @@ namespace poac::subcmd {
             }
 
             const auto node_version = node.at("version").as<std::string>();
-            if (io::network::get(POAC_API_PACKAGES + node_name + "/" + node_version + "/exists") == "true")
+            if (io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists") == "true")
                 throw except::error(node_name + ": " + node_version + " already exists");
 
             // Post tarball to API.
@@ -189,12 +189,12 @@ namespace poac::subcmd {
             const std::string config = read_config();
             if (verbose) std::cout << config << std::endl;
             // could not get response
-            io::network::post_file(POAC_API_PACKAGE_UPLOAD, output_dir, config, token, verbose);
+            io::network::post_file(POAC_PACKAGE_UPLOAD_API, output_dir, config, token, verbose);
 
             // Check exists package
             std::map<std::string, std::string> headers;
             headers.insert(std::make_pair("Cache-Control", "no-cache"));
-            const std::string res = io::network::get(POAC_API_PACKAGES + node_name + "/" + node_version + "/exists", headers);
+            const std::string res = io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists", headers);
             if (res != "true")
                 std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
 
@@ -207,10 +207,12 @@ namespace poac::subcmd {
     }
 
     struct publish {
-        static const std::string summary() { return "Publish a package."; }
+        static const std::string summary() { return "Publish a package"; }
         static const std::string options() { return "[-v | --verbose]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) { _publish::_main(std::move(argv)); }
+        void operator()(VS&& argv) {
+            _publish::_main(std::move(argv));
+        }
     };
 } // end namespace
 #endif // !POAC_SUBCMD_PUBLISH_HPP
