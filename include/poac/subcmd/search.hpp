@@ -85,8 +85,8 @@ namespace poac::subcmd {
             }
 
             echo_first_line();
-            for (const ptree::value_type &child : pt.get_child("hits")) {
-                const ptree &hits = child.second;
+            for (const ptree::value_type& child : pt.get_child("hits")) {
+                const ptree& hits = child.second;
                 io::cli::set_left(25);
                 std::cout << string_pretty(hits.get<std::string>("name"), 21);
                 io::cli::set_left(50);
@@ -100,7 +100,7 @@ namespace poac::subcmd {
 
         void check_arguments(const std::vector<std::string>& argv) {
             namespace except = core::exception;
-            if (argv.size() < 1) {
+            if (argv.size() != 1) {
                 throw except::invalid_second_arg("search");
             }
         }
