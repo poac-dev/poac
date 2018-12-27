@@ -15,10 +15,9 @@ int error_handling(std::string&& s) {
     namespace io        = poac::io;
     using namespace std::string_literals;
 
-    std::cerr << io::cli::red
-              << "Error: " << s
-              << io::cli::reset
-              << std::endl << std::endl;
+    std::cerr << io::cli::to_red("ERROR: ")
+              << s << std::endl
+              << std::endl;
     inference::apply("exec"s, "--help"s, VS());
     return EXIT_FAILURE;
 }
@@ -26,7 +25,7 @@ int error_handling(std::string&& s) {
 int exec(std::string&& str, VS&& vs) {
     namespace inference = poac::core::infer;
     namespace except    = poac::core::exception;
-    namespace io        = poac::io;
+    namespace cli       = poac::io::cli;
     using namespace std::string_literals;
 
     // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
@@ -42,21 +41,20 @@ int exec(std::string&& str, VS&& vs) {
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {
-        std::cerr << io::cli::red << "ERROR: " << io::cli::reset << e.what() << std::endl;
+        std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl;
         return EXIT_FAILURE;
     }
     catch (const except::warn& e) {
-        std::cout << io::cli::yellow << "WARN: " << io::cli::reset << e.what() << std::endl;
+        std::cout << cli::to_yellow("WARN: ") << e.what() << std::endl;
         return EXIT_SUCCESS;
     }
     catch (const YAML::BadConversion& e) { //                     TODO: poac.yml OR poac.yaml?
-        std::cout << io::cli::red << "ERROR: " << io::cli::reset << "poac.yml " << e.what() << std::endl;
+        std::cout << cli::to_red("ERROR: ") << "poac.yml " << e.what() << std::endl;
         return EXIT_SUCCESS;
     }
     catch (...) {
-        std::cerr << io::cli::red
-                  << "ERROR: " << "Unexpected error"
-                  << io::cli::reset
+        std::cerr << cli::to_red("ERROR: ")
+                  << "Unexpected error"
                   << std::endl;
         return EXIT_FAILURE;
     }
@@ -70,11 +68,20 @@ int main(int argc, const char** argv) {
     // argv[0]: poac, argv[1]: install, argv[2]: 1, ...
 
     //$ poac install --help => exec("--help", ["install"])
-    if (argc == 3 && equal_str(argv[2], "-h", "--help")) { return exec(argv[2], VS({ argv[1] })); }
+    if (argc == 3 && equal_str(argv[2], "-h", "--help")) {
+        return exec(argv[2], VS({ argv[1] }));
+    }
     //$ poac install 1 2 3 => exec("install", ["1", "2", "3"])
-    else if (argc >= 3) { return exec(argv[1], VS(argv+2, argv+argc)); }
+    else if (argc >= 3) {
+        return exec(argv[1], VS(argv+2, argv+argc));
+    }
     //$ poac install => exec("install", [])
-    else if (argc >= 2) { return exec(argv[1], VS()); }
+    else if (argc >= 2) {
+        return exec(argv[1], VS());
+    }
     //$ poac => exec("--help", [])
-    else { exec("--help", VS()); return EXIT_FAILURE; }
+    else {
+        exec("--help", VS());
+        return EXIT_FAILURE;
+    }
 }

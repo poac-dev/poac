@@ -37,7 +37,7 @@ namespace poac::option {
                           << core::infer::apply(std::string("options"), arg, std::vector<std::string>())
                           << std::endl;
             }
-            catch (const except::invalid_first_arg &e) {
+            catch (const except::invalid_first_arg& e) {
                 throw except::invalid_second_arg("--help");
             }
         }
