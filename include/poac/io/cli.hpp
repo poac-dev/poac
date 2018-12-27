@@ -76,7 +76,9 @@ namespace poac::io::cli {
     std::string status_done() { return to_status("Done."); }
 
 
-    const std::vector<std::string> spinners{ "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+    const std::vector<std::string> spinners{
+        "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
+    };
     std::string at_spinner(const size_t& index) {
         return spinners[index % spinners.size()];
     }
