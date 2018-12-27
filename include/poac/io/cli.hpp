@@ -46,6 +46,9 @@ namespace poac::io::cli {
         }
     }
 
+    void echo() { std::cout << std::endl; }
+    void echo(const std::string& s) { std::cout << s << std::endl; }
+
     const std::string red = "\x1b[31m";
     const std::string green = "\x1b[32m";
     const std::string yellow = "\x1b[33m";
@@ -69,6 +72,8 @@ namespace poac::io::cli {
     std::string to_status(const std::string& s) { return status+s; }
     std::string to_fetched(const std::string& s) { return fetched+s; }
     std::string to_fetch_failed(const std::string& s) { return fetch_failed+s; }
+
+    std::string status_done() { return to_status("Done."); }
 
 
     const std::vector<std::string> spinners{ "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
