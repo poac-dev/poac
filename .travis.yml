@@ -26,7 +26,6 @@ matrix:
 before_install:
   - brew update
 install:
-  - brew install libressl
   # Install yaml-cpp
   - git clone -q https://github.com/jbeder/yaml-cpp.git
   - mkdir yaml-cpp/build
