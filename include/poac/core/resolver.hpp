@@ -8,6 +8,8 @@
 #include <regex>
 #include <utility>
 #include <optional>
+#include <algorithm> // copy_if
+#include <iterator> // back_inserter
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -52,17 +54,29 @@ namespace poac::core::resolver {
                    + core::naming::to_cache("poac", name, version) + ".tar.gz";
         }
 
+        // boost::property_tree::ptree : {"key": ["array", "...", ...]}
+        //  -> std::vector<T> : ["array", "...", ...]
         template <typename T, typename U, typename K=typename U::key_type>
-        std::vector<T> as_vector(const U& pt, const K& key) {
+        std::vector<T> as_vector(const U& pt, const K& key) { // as_vector(pt, "key")
             std::vector<T> r;
             for (const auto& item : pt.get_child(key)) {
                 r.push_back(item.second.template get_value<T>());
             }
             return r;
         }
+        // boost::property_tree::ptree : ["array", "...", ...]
+        //  -> std::vector<T> : ["array", "...", ...]
+        template <typename T, typename U>
+        std::vector<T> as_vector(const U& pt) {
+            std::vector<T> r;
+            for (const auto& item : pt) {
+                r.push_back(item.second.template get_value<T>());
+            }
+            return r;
+        }
 
         // e.g. >0.1.3 and >=0.3.2, <0.1.3 and <0.3.2
-        void is_useless_comparison_operation(
+        void is_wasteful_comparison_operation(
                 const std::string& first_comp_op,
                 const std::string& second_comp_op,
                 const std::string& first_version,
@@ -102,6 +116,80 @@ namespace poac::core::resolver {
             }
         }
 
+        // Check if it is bounded interval
+        //  (If it is unbounded, throw error)
+        // (1, 6) => open bounded interval => OK!
+        // [1, 6] => closed bounded interval => OK!
+        // [a, ∞) => closed unbounded interval => one_exp
+        // (-∞, ∞) => closed unbounded interval => ERR!
+        // e.g. <0.1.1 and >=0.3.2
+        void is_bounded_interval(
+                const std::string& first_comp_op,
+                const std::string& second_comp_op,
+                const std::string& first_version,
+                const std::string& second_version,
+                const std::string& name,
+                const std::string& version)
+        {
+            namespace except = core::exception;
+
+            if (first_version < second_version) {
+                if ((first_comp_op == "<" || first_comp_op == "<=")
+                    && (second_comp_op == ">" || second_comp_op == ">="))
+                {
+                    throw except::error(
+                            "`" + name + ": " + version + "` is strange.\n"
+                            "In this case of interval specification using `and`,\n"
+                            " it is necessary to be a bounded interval.\n"
+                            "Please specify as in the following example:\n"
+                            "e.g. `" + second_comp_op + first_version + " and "
+                            + first_comp_op + second_version + "`");
+                }
+            }
+            else if (first_version > second_version) {
+                if ((first_comp_op == ">" || first_comp_op == ">=")
+                    && (second_comp_op == "<" || second_comp_op == "<="))
+                {
+                    throw except::error(
+                            "`" + name + ": " + version + "` is strange.\n"
+                            "In this case of interval specification using `and`,\n"
+                            " it is necessary to be a bounded interval.\n"
+                            "Please specify as in the following example:\n"
+                            "e.g. `" + first_comp_op + second_version + " and "
+                            + second_comp_op + first_version + "`");
+                }
+            }
+        }
+
+        // Does the package exist in the version range
+        template <class Predicate>
+        std::vector<std::string>
+        is_exists_in_version_range(
+                const std::string& name,
+                const std::string& version,
+                Predicate pred)
+        {
+            namespace except = core::exception;
+
+            boost::property_tree::ptree pt;
+            {
+                std::stringstream ss;
+                ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+                boost::property_tree::json_parser::read_json(ss, pt);
+            }
+            const auto vers = as_vector<std::string>(pt);
+
+            std::vector<std::string> res;
+            copy_if(vers.begin(), vers.end(), back_inserter(res), pred);
+            if (res.size() == 0) {
+                throw except::error("`" + name + ": " + version + "` was not found.");
+            }
+            else {
+                return res;
+            }
+        }
+
+
         // name is boost/config, no boost-config
         std::optional<std::string>
         decide_version(const std::string& name, const std::string& version) {
@@ -110,7 +198,7 @@ namespace poac::core::resolver {
             // TODO: 0.2.0-beta 等に未対応
             // TODO: 1.66.0 と 1.66 を同じとして扱えてなさそう
 
-            std::string version_exp("((v?)?(?:(\\d+)(\\.|_))?(?:(\\d+)(\\.|_))?(\\*|\\d+))");
+            std::string version_exp(R"(((v?)?(?:(\d+)(\.|_))?(?:(\d+)(\.|_))?(\*|\d+)))");
             std::string comp_op("(>=|>|<=|<)");
             std::regex one_exp("(^"+comp_op+"?"+version_exp+"$)");
             // no (>0.1.1 and 0.3.3)
@@ -131,33 +219,24 @@ namespace poac::core::resolver {
                     }
                 }
 
-                // Check そのバージョン範囲でそのパッケージが存在するのか
-                std::stringstream ss;
-                ss << ("{\"dummy\": " + io::network::get(POAC_PACKAGES_API + name + "/versions") + "}");
-                boost::property_tree::ptree pt;
-                boost::property_tree::json_parser::read_json(ss, pt);
-                const auto versions = as_vector<std::string>(pt, "dummy");
-                const auto result = std::find_if(versions.begin(), versions.end(), [&](std::string s) {
-                    if (comp_op_str == ">") {
-                        return s > version_str;
-                    }
-                    else if (comp_op_str == ">=") {
-                        return s >= version_str;
-                    }
-                    else if (comp_op_str == "<") {
-                        return s < version_str;
-                    }
-                    else if (comp_op_str == "<=") {
-                        return s <= version_str;
-                    }
-                    return false;
-                });
-                if (result == versions.end()) {
-                    throw except::error("`" + name + ": " + version + "` was not found.");
-                }
-                else { // Found
-                    return *result;
-                }
+                const auto vers = is_exists_in_version_range( // TODO: これは，semverでやることじゃない
+                        name, version,
+                        [&](const std::string& s) {
+                            if (comp_op_str == ">") {
+                                return s > version_str;
+                            }
+                            else if (comp_op_str == ">=") {
+                                return s >= version_str;
+                            }
+                            else if (comp_op_str == "<") {
+                                return s < version_str;
+                            }
+                            else if (comp_op_str == "<=") {
+                                return s <= version_str;
+                            }
+                            return false;
+                        });
+                return vers[0];
             }
             else if (std::regex_match(version, match_two, two_exp)) {
                 const auto first_comp_op = match_two[2].str();
@@ -165,204 +244,73 @@ namespace poac::core::resolver {
                 const auto first_version = match_two[3].str();
                 const auto second_version = match_two[12].str();
 
-                is_useless_comparison_operation(
+                // Checks
+                is_wasteful_comparison_operation(
                         first_comp_op,
                         second_comp_op,
                         first_version,
                         second_version,
                         name, version);
-
-                // is_bounded_interval
-                // Check 有界区間か (unboundedだとerror)
-                // (1,6) => open bounded interval => OK!
-                // [1, 6] => closed bounded interval => OK!
-                // [a, ∞) => closed unbounded interval => one_exp
-                // (-∞, ∞) => closed unbounded interval => ERR!
-                // Like, <0.1.1 and >=0.3.2
-                if (first_version < second_version) {
-                    if ((first_comp_op == "<" || first_comp_op == "<=")
-                        && (second_comp_op == ">" || second_comp_op == ">="))
-                    {
-                        throw except::error(
-                                "`" + name + ": " + version + "` is strange.\n"
-                                "In the case of interval specification using `and`,\n"
-                                " it is necessary to be a bounded interval.\n"
-                                "Please specify as in the following example:\n"
-                                "e.g. `" + second_comp_op + first_version + " and "
-                                + first_comp_op + second_version + "`");
-                    }
-                }
-                else if (first_version > second_version) {
-                    if ((first_comp_op == ">" || first_comp_op == ">=")
-                        && (second_comp_op == "<" || second_comp_op == "<="))
-                    {
-                        throw except::error(
-                                "`" + name + ": " + version + "` is strange.\n"
-                                "In the case of interval specification using `and`,\n"
-                                " it is necessary to be a bounded interval.\n"
-                                "Please specify as in the following example:\n"
-                                "e.g. `" + first_comp_op + second_version + " and "
-                                + second_comp_op + first_version + "`");
-                    }
-                }
-
-                // Check そのバージョン範囲でそのパッケージが存在するのか
-                std::stringstream ss;
-                ss << ("{\"dummy\": " + io::network::get(POAC_PACKAGES_API + name + "/versions") + "}");
-                boost::property_tree::ptree pt;
-                boost::property_tree::json_parser::read_json(ss, pt);
-                const auto versions = as_vector<std::string>(pt, "dummy");
-                // TODO: 複数バージョンが対象になる時、ちゃんとその中から最新のものが選ばれるのか分からない．
-                const auto result = std::find_if(versions.begin(), versions.end(), [&](std::string s) {
-                    if (first_comp_op == ">") {
-                        if (second_comp_op == "<") {
-                            return (s > first_version && s < second_version);
-                        }
-                        else if (second_comp_op == "<=") {
-                            return (s > first_version && s <= second_version);
-                        }
-                    }
-                    else if (first_comp_op == ">=") {
-                        if (second_comp_op == "<") {
-                            return (s >= first_version && s < second_version);
-                        }
-                        else if (second_comp_op == "<=") {
-                            return (s >= first_version && s <= second_version);
-                        }
-                    }
-                    else if (first_comp_op == "<") {
-                        if (second_comp_op == ">") {
-                            return (s < first_version && s > second_version);
-                        }
-                        else if (second_comp_op == ">=") {
-                            return (s < first_version && s >= second_version);
-                        }
-                    }
-                    else if (first_comp_op == "<=") {
-                        if (second_comp_op == ">") {
-                            return (s <= first_version && s > second_version);
-                        }
-                        else if (second_comp_op == ">=") {
-                            return (s <= first_version && s >= second_version);
-                        }
-                    }
-                    return false;
-                });
-                if (result == versions.end()) {
-                    throw except::error("`" + name + ": " + version + "` was not found.");
-                }
-                else { // Found
-                    return *result;
-                }
+                is_bounded_interval(
+                        first_comp_op,
+                        second_comp_op,
+                        first_version,
+                        second_version,
+                        name, version);
+                const auto vers = is_exists_in_version_range(
+                        name, version,
+                        [&](const std::string& s) {
+                            if (first_comp_op == ">") {
+                                if (second_comp_op == "<") {
+                                    return (s > first_version && s < second_version);
+                                }
+                                else if (second_comp_op == "<=") {
+                                    return (s > first_version && s <= second_version);
+                                }
+                            }
+                            else if (first_comp_op == ">=") {
+                                if (second_comp_op == "<") {
+                                    return (s >= first_version && s < second_version);
+                                }
+                                else if (second_comp_op == "<=") {
+                                    return (s >= first_version && s <= second_version);
+                                }
+                            }
+                            else if (first_comp_op == "<") {
+                                if (second_comp_op == ">") {
+                                    return (s < first_version && s > second_version);
+                                }
+                                else if (second_comp_op == ">=") {
+                                    return (s < first_version && s >= second_version);
+                                }
+                            }
+                            else if (first_comp_op == "<=") {
+                                if (second_comp_op == ">") {
+                                    return (s <= first_version && s > second_version);
+                                }
+                                else if (second_comp_op == ">=") {
+                                    return (s <= first_version && s >= second_version);
+                                }
+                            }
+                            return false;
+                        });
+                // TODO: この部分の比較に関して正確ではないため，semverで比較する
+                return vers[0];
             }
             else {
-                throw except::error("`" + name + ": " + version
-                                    + "` is invalid expression.\n"
-                                    "Comparison operators:\n"
-                                    "  >, >=, <, <=\n"
-                                    "Logical operator:\n"
-                                    "  and");
+                throw except::error(
+                        "`" + name + ": " + version +
+                        "` is invalid expression.\n"
+                        "Comparison operators:\n"
+                        "  >, >=, <, <=\n"
+                        "Logical operator:\n"
+                        "  and\n"
+                        "The following example is the meaning for equals:\n"
+                        "  poac: \"1.2.0\"");
             }
         }
 
         void resolve() {
-            CVC4::ExprManager em;
-            CVC4::SmtEngine smt(&em);
-
-//        smt.setOption("incremental", CVC4::SExpr("true")); // Enable incremental solving
-//        CVC4::Type real = em.realType();
-//        CVC4::Type integer = em.integerType();
-//        CVC4::Expr x = em.mkVar("x", integer);
-//        CVC4::Expr y = em.mkVar("y", real);
-//
-//        CVC4::Expr three = em.mkConst(CVC4::Rational(3));
-//        CVC4::Expr neg2 = em.mkConst(CVC4::Rational(-2));
-//        CVC4::Expr two_thirds = em.mkConst(CVC4::Rational(2, 3));
-//
-//        CVC4::Expr three_y = em.mkExpr(CVC4::kind::MULT, three, y);
-//        CVC4::Expr diff = em.mkExpr(CVC4::kind::MINUS, y, x);
-//
-//        CVC4::Expr x_geq_3y = em.mkExpr(CVC4::kind::GEQ, x, three_y);
-//        CVC4::Expr x_leq_y = em.mkExpr(CVC4::kind::LEQ, x, y);
-//        CVC4::Expr neg2_lt_x = em.mkExpr(CVC4::kind::LT, neg2, x);
-//
-//        CVC4::Expr assumptions =
-//                em.mkExpr(CVC4::kind::AND, x_geq_3y, x_leq_y, neg2_lt_x);
-//        smt.assertFormula(assumptions);
-//
-//        smt.push();
-//        CVC4::Expr diff_leq_two_thirds = em.mkExpr(CVC4::kind::LEQ, diff, two_thirds);
-//        std::cout << "Prove that " << diff_leq_two_thirds << " with CVC4." << std::endl;
-//        std::cout << "CVC4 should report VALID." << std::endl;
-//        std::cout << "Result from CVC4 is: " << smt.query(diff_leq_two_thirds) << std::endl;
-//        smt.pop();
-//
-//        std::cout << std::endl;
-//
-//        smt.push();
-//        CVC4::Expr diff_is_two_thirds = em.mkExpr(CVC4::kind::EQUAL, diff, two_thirds);
-//        smt.assertFormula(diff_is_two_thirds);
-//        std::cout << "Show that the asserts are consistent with " << std::endl;
-//        std::cout << diff_is_two_thirds << " with CVC4." << std::endl;
-//        std::cout << "CVC4 should report SAT." << std::endl;
-//        std::cout << "Result from CVC4 is: " << smt.checkSat(em.mkConst(true)) << std::endl;
-//        smt.pop();
-
-            smt.setLogic("S");
-            CVC4::Type string = em.stringType();
-            // std::string
-            std::string std_str_ab("ab");
-            // CVC4::String
-            CVC4::String cvc4_str_ab(std_str_ab);
-            CVC4::String cvc4_str_abc("abc");
-            // String constants
-            CVC4::Expr ab = em.mkConst(cvc4_str_ab);
-            CVC4::Expr abc = em.mkConst(CVC4::String("abc"));
-
-            CVC4::Expr x = em.mkVar("x", string);
-            CVC4::Expr y = em.mkVar("y", string);
-            CVC4::Expr z = em.mkVar("z", string);
-
-            CVC4::Expr lhs = em.mkExpr(CVC4::kind::STRING_CONCAT, x, ab, y);
-            // String concatenation: abc.z
-            CVC4::Expr rhs = em.mkExpr(CVC4::kind::STRING_CONCAT, abc, z);
-            // x.ab.y = abc.z
-            CVC4::Expr formula1 = em.mkExpr(CVC4::kind::EQUAL, lhs, rhs);
-            // Length of y: |y|
-            CVC4::Expr leny = em.mkExpr(CVC4::kind::STRING_LENGTH, y);
-            // |y| >= 0
-            CVC4::Expr formula2 = em.mkExpr(CVC4::kind::GEQ, leny, em.mkConst(CVC4::Rational(0)));
-            // Regular expression: (ab[c-e]*f)|g|h
-            CVC4::Expr r = em.mkExpr(CVC4::kind::REGEXP_UNION,
-                                     em.mkExpr(CVC4::kind::REGEXP_CONCAT,
-                                               em.mkExpr(CVC4::kind::STRING_TO_REGEXP,
-                                                       em.mkConst(CVC4::String("ab"))),
-                                               em.mkExpr(CVC4::kind::REGEXP_STAR,
-                                                         em.mkExpr(CVC4::kind::REGEXP_RANGE,
-                                                                   em.mkConst(CVC4::String("c")),
-                                                                   em.mkConst(CVC4::String("e")))),
-                                               em.mkExpr(CVC4::kind::STRING_TO_REGEXP, em.mkConst(CVC4::String("f")))),
-                                     em.mkExpr(CVC4::kind::STRING_TO_REGEXP, em.mkConst(CVC4::String("g"))),
-                                     em.mkExpr(CVC4::kind::STRING_TO_REGEXP, em.mkConst(CVC4::String("h"))));
-            // String variables
-            CVC4::Expr s1 = em.mkVar("s1", string);
-            CVC4::Expr s2 = em.mkVar("s2", string);
-            // String concatenation: s1.s2
-            CVC4::Expr s = em.mkExpr(CVC4::kind::STRING_CONCAT, s1, s2);
-            // s1.s2 in (ab[c-e]*f)|g|h
-            CVC4::Expr formula3 = em.mkExpr(CVC4::kind::STRING_IN_REGEXP, s, r);
-
-            CVC4::Expr q = em.mkExpr(CVC4::kind::AND,
-                                     formula1,
-                                     formula2,
-                                     formula3);
-
-            CVC4::Result result = smt.checkSat(q);
-            std::cout << "CVC4 reports: " << q << " is " << result << "." << std::endl;
-            if (result == CVC4::Result::SAT) {
-                std::cout << " x = " << smt.getValue(x) << std::endl;
-                std::cout << " s1.s2 = " << smt.getValue(s) << std::endl;
-            }
         }
     }
 } // end namespace
