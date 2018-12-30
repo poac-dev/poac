@@ -2,7 +2,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
-
 #include <poac/util/command.hpp>
 
 
@@ -16,6 +15,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test1 )
 
     BOOST_TEST( cmd2.data() == "mkdir test && cd test" );
 }
+
 // command operator&&(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_command_test2 )
 {
@@ -26,6 +26,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test2 )
 
     BOOST_TEST( cmd2.data() == "mkdir test && cd test" );
 }
+
 // command operator&=(const command& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_command_test3 )
 {
@@ -36,6 +37,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test3 )
 
     BOOST_TEST( cmd.data() == "mkdir test && cd test" );
 }
+
 // command operator&=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_command_test4 )
 {
@@ -46,6 +48,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test4 )
 
     BOOST_TEST( cmd.data() == "mkdir test && cd test" );
 }
+
 // bool operator==(const command& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_command_test5 )
 {
@@ -56,6 +59,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test5 )
 
     BOOST_TEST( cmd == command("mkdir test && cd test") );
 }
+
 // bool operator==(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_command_test6 )
 {
@@ -66,6 +70,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test6 )
 
     BOOST_TEST( cmd == "mkdir test && cd test" );
 }
+
 // friend std::ostream& operator<<(std::ostream& stream, const command& c)
 BOOST_AUTO_TEST_CASE( poac_util_command_test7 )
 {
@@ -80,6 +85,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test7 )
     BOOST_TEST( !output.is_empty( false ) );
     BOOST_TEST( output.is_equal( "mkdir test && cd test" ) );
 }
+
 // command env(const std::string& name, const std::string& val)
 BOOST_AUTO_TEST_CASE( poac_util_command_test8 )
 {
@@ -91,6 +97,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test8 )
 
     BOOST_TEST( cmd.data() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .." );
 }
+
 // command stderr_to_stdout()
 BOOST_AUTO_TEST_CASE( poac_util_command_test9 )
 {
@@ -103,6 +110,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test9 )
 
     BOOST_TEST( cmd.data() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .. 2>&1" );
 }
+
 // boost::optional<std::string> exec()
 BOOST_AUTO_TEST_CASE( poac_util_command_test10 )
 {
@@ -110,6 +118,7 @@ BOOST_AUTO_TEST_CASE( poac_util_command_test10 )
     command cmd("echo test");
     BOOST_TEST( cmd.exec().get() == "test\n" );
 }
+
 // boost::optional<std::string> exec()
 //BOOST_AUTO_TEST_CASE( util_command_test11 )
 //{

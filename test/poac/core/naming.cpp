@@ -1,9 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-
 #include <yaml-cpp/yaml.h>
-
 #include <poac/core/naming.hpp>
 
 
@@ -14,6 +12,7 @@ BOOST_AUTO_TEST_CASE( poac_core_naming_test1 )
     BOOST_TEST( naming::basename("username/repository") == "repository" );
     BOOST_TEST( naming::basename("repository") == "repository" );
 }
+
 // std::string github_conv_pkgname(const std::string& name, const std::string& tag)
 BOOST_AUTO_TEST_CASE( poac_core_naming_test2 )
 {
@@ -25,6 +24,7 @@ BOOST_AUTO_TEST_CASE( poac_core_naming_test2 )
     // TODO: not yet 5
     //BOOST_TEST( naming::github_conv_pkgname("boostorg/optional", "boost-1.67.0") == "boost-optional-1.67.0" );
 }
+
 // std::string cache_to_current(const std::string& pkgname)
 BOOST_AUTO_TEST_CASE( poac_core_naming_test3 )
 {
@@ -32,12 +32,14 @@ BOOST_AUTO_TEST_CASE( poac_core_naming_test3 )
     BOOST_TEST( naming::cache_to_current("opencv-3.4.2") == "opencv" );
     BOOST_TEST( naming::cache_to_current("opencv") == "opencv" );
 }
+
 // std::string poac_conv_pkgname(const std::string& name, const std::string& tag)
 BOOST_AUTO_TEST_CASE( poac_core_naming_test4 )
 {
     using namespace poac::core;
     BOOST_TEST( naming::poac_conv_pkgname("opencv", "3.4.2") == "opencv-3.4.2" );
 }
+
 // std::string get_source(const YAML::Node& node)
 BOOST_AUTO_TEST_CASE( poac_core_naming_test5 )
 {
