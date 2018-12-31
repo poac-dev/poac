@@ -4,9 +4,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 
 #include "../../command.hpp"
 
@@ -15,7 +15,7 @@ namespace stroite::core::compiler {
     namespace fs = boost::filesystem;
 
     template<typename Opts>
-    boost::optional<std::vector<std::string>>
+    std::optional<std::vector<std::string>>
     compile(const Opts& opts)
     {
         poac::util::command cmd("cd " + opts.base_dir.string());
@@ -45,11 +45,11 @@ namespace stroite::core::compiler {
             std::cout << cmd << std::endl;
 
         if (cmd.exec()) return obj_files_path;
-        else            return boost::none;
+        else            return std::nullopt;
     }
 
     template<typename Opts>
-    boost::optional<std::string>
+    std::optional<std::string>
     link(const Opts& opts)
     {
         const std::string bin_path =
@@ -73,11 +73,11 @@ namespace stroite::core::compiler {
 
         fs::create_directories(opts.output_root);
         if (cmd.exec()) return bin_path;
-        else            return boost::none;
+        else            return std::nullopt;
     }
 
     template<typename Opts>
-    boost::optional<std::string>
+    std::optional<std::string>
     gen_static_lib(const Opts& opts)
     {
         poac::util::command cmd("ar rcs");
@@ -92,11 +92,11 @@ namespace stroite::core::compiler {
 
         fs::create_directories(opts.output_root);
         if (cmd.exec()) return stlib_path;
-        else            return boost::none;
+        else            return std::nullopt;
     }
 
     template<typename Opts>
-    boost::optional<std::string>
+    std::optional<std::string>
     gen_dynamic_lib(const Opts& opts)
     {
         poac::util::command cmd(opts.system);
@@ -113,7 +113,7 @@ namespace stroite::core::compiler {
 
         fs::create_directories(opts.output_root);
         if (cmd.exec()) return dylib_path;
-        else            return boost::none;
+        else            return std::nullopt;
     }
 } // end namespace
 #endif // STROITE_CORE_COMPILER_HPP

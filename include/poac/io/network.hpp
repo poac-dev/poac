@@ -28,7 +28,7 @@ namespace poac::io::network {
         return dataLength;
     }
 
-    // TODO: Check if connecting network
+    // TODO: Check if connecting network !!!
 
     std::string get(const std::string& url) {
         std::string chunk;
@@ -64,14 +64,25 @@ namespace poac::io::network {
         return chunk;
     }
 
-    std::string post(const std::string& url, const std::string& json, const std::string& content_type="") {
+    std::string post(
+            const std::string& url,
+            const std::string& json,
+            const std::vector<std::string>& headers_v={},
+            const std::string& content_type="" )
+    {
         std::string chunk;
         struct curl_slist *headers = NULL;
-        // TODO: from arguments
-        if (content_type.empty())
+
+        for (const auto& h : headers_v) {
+            headers = curl_slist_append(headers, h.c_str());
+        }
+
+        if (content_type.empty()) {
             headers = curl_slist_append(headers, "Content-Type: application/json");
-        else
-            headers = curl_slist_append(headers, ("Content-Type: "+content_type).c_str());
+        }
+        else {
+            headers = curl_slist_append(headers, ("Content-Type: " + content_type).c_str());
+        }
 
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());

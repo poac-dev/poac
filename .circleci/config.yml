@@ -59,13 +59,6 @@ aliases:
       - run: ./build/poac -h
       - run: file ./build/poac
 
-      - restore_cache: *restore-poac-cache
-      - run: ./build/poac install # source file only (not pre-build)
-      - save_cache: *save-poac-cache1
-      - save_cache: *save-poac-cache2
-      - save_cache: *save-poac-cache3
-      - save_cache: *save-poac-cache4
-
       - run: *run-poac-test
       - store_test_results: *store-poac-test-result
 
@@ -73,16 +66,16 @@ version: 2
 jobs:
   checkout_code:
     docker:
-      - image: buildpack-deps:16.04 # poacpm/poac
+      - image: poacpm/poac
     steps:
       - checkout
 
-#      - restore_cache: *restore-poac-cache
-#      - run: poac install # source file only (not pre-build)
-#      - save_cache: *save-poac-cache1
-#      - save_cache: *save-poac-cache2
-#      - save_cache: *save-poac-cache3
-#      - save_cache: *save-poac-cache4
+      - restore_cache: *restore-poac-cache
+      - run: poac install # source file only (no pre-built)
+      - save_cache: *save-poac-cache1
+      - save_cache: *save-poac-cache2
+      - save_cache: *save-poac-cache3
+      - save_cache: *save-poac-cache4
 
       - persist_to_workspace:
           root: .
@@ -133,6 +126,14 @@ jobs:
 #      CPPFLAGS: "-I/home/linuxbrew/.linuxbrew/opt/llvm@6/include"
 #    <<: *defaults
 
+#  x86_64-unknown-linux-gnu_clang-7:
+#    docker:
+#      - image: poacpm/x86_64-unknown-linux-gnu
+#    environment:
+#      CXX: clang++
+#      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm/lib -Wl,-rpath,/home/linuxbrew/.linuxbrew/opt/llvm/lib"
+#    <<: *defaults
+
 #  aarch64-unknown-linux-gnu_gcc-4_8:
 #    docker:
 #      - image: poacpm/aarch64-unknown-linux-gnu
@@ -179,11 +180,10 @@ jobs:
     docker:
       - image: circleci/golang:1.11
     steps:
-      - attach_workspace:
-          at: .
+      - attach_workspace: *at-current
       - run: ls -a
       - run: go get github.com/tcnksm/ghr
-#      - run: ghr 0.0.1 out
+#      - run: ghr $CIRCLE_TAG out
 
   gh_pages:
     working_directory: ~/poac/docs
@@ -220,6 +220,10 @@ workflows:
 #          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
+#      - x86_64-unknown-linux-gnu_clang-7:
+#          filters: *filter-ignore-gh-pages
+#          requires:
+#            - checkout_code
       - release:
           filters: *filter-ignore-gh-pages
           requires:
@@ -227,10 +231,13 @@ workflows:
             - x86_64-unknown-linux-gnu_gcc-7
             - x86_64-unknown-linux-gnu_gcc-8
 #            - x86_64-unknown-linux-gnu_clang-6
+#            - x86_64-unknown-linux-gnu_clang-7
 #          filters:
 #            branches:
 #              ignore: /.*/
 #            tags:
 #              only: /^[0-9]+(\.[0-9]+){2}.*$/
       - gh_pages:
-          filters: *filter-ignore-gh-pages
+          filters:
+            branches:
+              only: master

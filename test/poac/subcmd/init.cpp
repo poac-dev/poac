@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE( poac_subcmd_init_test1 )
             invalid_second_arg
     );
 }
+
 // void conv_prohibit_char(std::string& s)
 BOOST_AUTO_TEST_CASE( poac_subcmd_init_test2 )
 {

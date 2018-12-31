@@ -1,7 +1,7 @@
 {
   "name": "docs",
   "version": "1.0.0",
-  "description": "## 0. [Introduction](0_Introduction/0_Introduction.md)",
+  "description": "The Poac Book",
   "main": "index.js",
   "directories": {
     "man": "man"
@@ -11,10 +11,12 @@
     "publish": "gh-pages -d _book -m ':books: Auto publish book'"
   },
   "keywords": [],
-  "author": "",
+  "author": "matken11235",
   "license": "ISC",
   "dependencies": {
     "gh-pages": "^1.2.0",
-    "gitbook-cli": "^2.3.2"
-  }
+    "gitbook-cli": "^2.3.2",
+    "gitbook-plugin-advanced-emoji": "^0.2.2"
+  },
+  "private": true
 }

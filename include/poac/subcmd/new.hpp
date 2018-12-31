@@ -66,6 +66,12 @@ namespace poac::subcmd {
             echo_info(dirname);
         }
 
+        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        void _main(VS&& argv) {
+            namespace fs = boost::filesystem;
+            exec_new(argv[0]);
+        }
+
         void check_arguments(const std::vector<std::string>& argv) {
             namespace except = core::exception;
             if (argv.size() != 1)
@@ -73,20 +79,20 @@ namespace poac::subcmd {
             else if (io::file::path::validate_dir(argv[0]))
                 throw except::error("The " + argv[0] + " directory already exists.");
         }
-
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
-            namespace fs = boost::filesystem;
-            check_arguments(argv);
-            exec_new(argv[0]);
-        }
     }
 
     struct new_ {
-        static const std::string summary() { return "Create a new poacpm project."; }
-        static const std::string options() { return "<project-name>"; }
+        static const std::string summary() {
+            return "Create a new poacpm project";
+        }
+        static const std::string options() {
+            return "<project-name>";
+        }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) { _new::_main(std::move(argv)); }
+        void operator()(VS&& argv) {
+            _new::check_arguments(argv);
+            _new::_main(std::move(argv));
+        }
     };
 } // end namespace
 #endif // !POAC_SUBCMD_NEW_HPP

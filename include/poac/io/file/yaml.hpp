@@ -4,9 +4,9 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <optional>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../../core/exception.hpp"
@@ -37,24 +37,24 @@ namespace poac::io::file::yaml {
     }
 
     template <typename T>
-    boost::optional<T>
+    std::optional<T>
     get(const YAML::Node& node) {
         try {
             return detail::get<T>(node);
         }
         catch (const YAML::BadConversion& e) {
-            return boost::none;
+            return std::nullopt;
         }
     }
 
     template <typename T, typename ...Args>
-    boost::optional<T>
+    std::optional<T>
     get(const YAML::Node& node, Args&&... args) {
         try {
             return detail::get<T>(node, args...);
         }
         catch (const YAML::BadConversion& e) {
-            return boost::none;
+            return std::nullopt;
         }
     }
     template <typename ...Args>
@@ -95,17 +95,17 @@ namespace poac::io::file::yaml {
 
 
     template <typename Head>
-    boost::optional<const char*>
+    std::optional<const char*>
     read(const YAML::Node& node, Head&& head) {
         if (!(node[head].*access::m_isValid)) {
             return head;
         }
         else {
-            return boost::none;
+            return std::nullopt;
         }
     }
     template <typename Head, typename ...Tail>
-    boost::optional<const char*>
+    std::optional<const char*>
     read(const YAML::Node& node, Head&& head, Tail&&... tail) {
         if (!(node[head].*access::m_isValid)) {
             return head;
@@ -133,11 +133,11 @@ namespace poac::io::file::yaml {
         }
     }
     template <typename... Args>
-    static boost::optional<std::map<std::string, YAML::Node>>
+    static std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
         namespace except = core::exception;
         if (const auto result = read(node, args...)) {
-            return boost::none;
+            return std::nullopt;
         }
         else {
             std::map<std::string, YAML::Node> mp;
@@ -147,7 +147,7 @@ namespace poac::io::file::yaml {
     }
 
 
-    boost::optional<std::string>
+    std::optional<std::string>
     exists_config(const boost::filesystem::path& base)
     {
         namespace fs = boost::filesystem;
@@ -158,18 +158,18 @@ namespace poac::io::file::yaml {
             return yaml.string();
         }
         else {
-            return boost::none;
+            return std::nullopt;
         }
     }
-    boost::optional<std::string>
+    std::optional<std::string>
     exists_config() {
         namespace fs = boost::filesystem;
         return exists_config(fs::current_path());
     }
-    boost::optional<YAML::Node>
+    std::optional<YAML::Node>
     load(const std::string& filename) {
         try { return YAML::LoadFile(filename); }
-        catch (...) { return boost::none; }
+        catch (...) { return std::nullopt; }
     }
 
 

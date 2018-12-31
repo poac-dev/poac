@@ -20,14 +20,13 @@
 #include <chrono>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
 #include "../core/exception.hpp"
-#include "../sources.hpp"
+#include "../core/resolver.hpp"
 #include "../util.hpp"
 
 
@@ -35,7 +34,7 @@
 //   Parse poac.yml
 // Version 2 will also allow $ poac install [<pkg-names>].
 //   Parse arguments.
-
+// TODO: --source (source file only (not pre-built))
 namespace poac::subcmd {
     namespace _install {
         struct Dependency {
@@ -125,7 +124,7 @@ namespace poac::subcmd {
 
                     bool res = io::network::get_file(dep.url, tar_dir);
                     // If res is true, does not execute func. (short-circuit evaluation)
-                    res = res || tb::extract_spec_rm_file(tar_dir, pkg_dir);
+                    res = res || tb::extract_spec_rm(tar_dir, pkg_dir);
                     res = res || copy_to_current(dep.cache_name, dep.current_name);
 
                     if (!quite) {
@@ -161,7 +160,7 @@ namespace poac::subcmd {
 
             for (const auto& [name, version] : receive_dep) {
                 std::stringstream ss;
-                ss << io::network::get("https://poac.pm/api/packages/" + name + "/" + version + "/deps");
+                ss << io::network::get(POAC_PACKAGES_API + name + "/" + version + "/deps");
                 if (ss.str() != "null") {
                     boost::property_tree::ptree pt;
                     boost::property_tree::json_parser::read_json(ss, pt);
@@ -170,7 +169,7 @@ namespace poac::subcmd {
                         const std::string si = std::to_string(i);
                         if (const auto dep_name = pt.get_optional<std::string>(si + ".name")) {
                             if (const auto dep_ver = pt.get_optional<std::string>(si + ".version")) {
-                                if (const auto ver = sources::poac::decide_version(*dep_name, *dep_ver)) {
+                                if (const auto ver = core::resolver::poac::decide_version(*dep_name, *dep_ver)) {
                                     new_deps.emplace(*dep_name, *ver);
                                 }
                             }
@@ -200,7 +199,7 @@ namespace poac::subcmd {
             // srcがpoacの時のみ依存関係の解決を行う。
             for (auto& dep : deps) {
                 if (dep.src == "poac") {
-                    if (const auto ver = sources::poac::decide_version(dep.name, dep.version)) {
+                    if (const auto ver = core::resolver::poac::decide_version(dep.name, dep.version)) {
                         new_deps.emplace(dep.name, *ver);
                         dep.version = *ver;
                         dep.cache_name = naming::to_cache("poac", dep.name, *ver);
@@ -212,12 +211,12 @@ namespace poac::subcmd {
 //            deps_dep.insert(depdep.begin(), depdep.end());
 
             for (const auto& [name, version] : depdep) {
-                if (const auto ver = sources::poac::decide_version(name, version)) {
-                    const std::string url = sources::poac::resolve(name, *ver);
+                if (const auto ver = core::resolver::poac::decide_version(name, version)) {
+                    const std::string url = core::resolver::poac::archive_url(name, *ver);
                     const std::string cache_name = naming::to_cache("poac", name, *ver);
                     const std::string current_name = naming::to_current("poac", name, *ver);
 
-                    if (sources::cache::resolve(cache_name)) {
+                    if (core::resolver::cache::resolve(cache_name)) {
                         deps.emplace_back(
                                 "",
                                 name,
@@ -263,7 +262,7 @@ namespace poac::subcmd {
                 const std::string cache_name = naming::to_cache(src, name2, version);
                 const std::string current_name = naming::to_current(src, name2, version);
 
-                if (sources::current::resolve(current_name)) {
+                if (core::resolver::current::resolve(current_name)) {
                     continue;
                 }
                 else if (src == "poac") {
@@ -271,9 +270,9 @@ namespace poac::subcmd {
                     // 新しいバージョンが存在することになる．
 
                     // >=0.1.2 and <3.4.0 -> 2.5.0
-                    if (const auto ver = sources::poac::decide_version(name2, version)) {
+                    if (const auto ver = core::resolver::poac::decide_version(name2, version)) {
                         const auto cache_name2 = naming::to_cache(src, name2, *ver);
-                        if (sources::cache::resolve(cache_name2)) {
+                        if (core::resolver::cache::resolve(cache_name2)) {
                             deps.emplace_back(
                                     "",
                                     name2,
@@ -286,7 +285,7 @@ namespace poac::subcmd {
                             );
                         }
                         else {
-                            const std::string url = sources::poac::resolve(current_name, *ver);
+                            const std::string url = core::resolver::poac::archive_url(current_name, *ver);
                             deps.emplace_back(
                                     url,
                                     name2,
@@ -304,7 +303,7 @@ namespace poac::subcmd {
                     }
                 }
                 else if (src == "github") {
-                    if (sources::cache::resolve(cache_name)) {
+                    if (core::resolver::cache::resolve(cache_name)) {
                         deps.emplace_back(
                                 "",
                                 name2,
@@ -317,7 +316,7 @@ namespace poac::subcmd {
                         );
                     }
                     else {
-                        const std::string url = sources::github::resolve(name2);
+                        const std::string url = core::resolver::github::archive_url(name2);
                         deps.emplace_back(
                                 url,
                                 name2,
@@ -339,14 +338,6 @@ namespace poac::subcmd {
             }
         }
 
-
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-            if (argv.size() > 1) { // -v OR -q
-                throw except::invalid_second_arg("install");
-            }
-        }
-
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -356,7 +347,6 @@ namespace poac::subcmd {
             namespace cli = io::cli;
 
 
-            check_arguments(argv);
             fs::create_directories(path::poac_cache_dir);
             const auto node = yaml::load_config("deps");
             const bool quite = util::argparse::use(argv, "-q", "--quite");
@@ -367,7 +357,7 @@ namespace poac::subcmd {
             // パッケージがキチンと存在するかの解決
             // と，どこに存在するのかの解決 (既にcurrent?, cache? poac? gitub?)
             if (!quite) {
-                std::cout << cli::to_status("Resolving packages...") << std::endl;
+                cli::echo(cli::to_status("Resolving packages..."));
             }
             resolve_packages(deps, node.at("deps"));
             if (deps.empty()) throw except::warn("Already up-to-date");
@@ -377,43 +367,59 @@ namespace poac::subcmd {
             // (依存先のパッケージは，
             //  publish時にpoac.ymlに書いたdepsを保証するため，上の作業をもう一度する必要は無い)
             if (!quite) {
-                std::cout << cli::to_status("Resolving dependencies...") << std::endl;
+                cli::echo(cli::to_status("Resolving dependencies..."));
             }
             resolve_dependencies(deps);
 
 
             // When used at the same time, --quite is given priority.
-            const bool verbose = util::argparse::use(argv, "-v", "--verbose") && !quite;
+            const bool verbose = !quite && util::argparse::use(argv, "-v", "--verbose");
             if (verbose) {
-                for (const auto& dep : deps) {
-                    std::cout << "NAME: " << dep.name << "\n"
-                              << "  VERSION: " <<  dep.version << "\n"
-                              << "  URL: " << dep.url << "\n"
-                              << "  SOURCE: " << dep.src << "\n"
-                              << "  CACHE_NAME: " << dep.cache_name << "\n"
-                              << "  CURRENT_NAME: " << dep.current_name << "\n"
-                              << "  IS_CACHED: " << dep.is_cached << std::endl << std::endl;
+                for (const auto& d : deps) {
+                    std::cout << "NAME: " << d.name << "\n"
+                              << "  VERSION: " <<  d.version << "\n"
+                              << "  URL: " << d.url << "\n"
+                              << "  SOURCE: " << d.src << "\n"
+                              << "  CACHE_NAME: " << d.cache_name << "\n"
+                              << "  CURRENT_NAME: " << d.current_name << "\n"
+                              << "  IS_CACHED: " << d.is_cached << "\n"
+                              << std::endl;
                 }
             }
 
 
             if (!quite) {
-                std::cout << cli::to_status("Fetching...") << std::endl << std::endl;
+                cli::echo(cli::to_status("Fetching..."));
+                cli::echo();
             }
             fs::create_directories(path::current_deps_dir);
             fetch_packages(deps, quite);
             if (!quite) {
-                std::cout << std::endl;
-                std::cout << cli::to_status("Done.") << std::endl;
+                cli::echo();
+                cli::echo(cli::status_done());
+            }
+        }
+
+        void check_arguments(const std::vector<std::string>& argv) {
+            namespace except = core::exception;
+            if (argv.size() > 1) { // -v OR -q
+                throw except::invalid_second_arg("install");
             }
         }
     }
 
     struct install {
-        static const std::string summary() { return "Install packages."; }
-        static const std::string options() { return "[-v | --verbose, -q | --quite]"; }
+        static const std::string summary() {
+            return "Install packages";
+        }
+        static const std::string options() {
+            return "[-v | --verbose, -q | --quite]";
+        }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) { _install::_main(std::move(argv)); }
+        void operator()(VS&& argv) {
+            _install::check_arguments(argv);
+            _install::_main(std::move(argv));
+        }
     };
 } // end namespace
 #endif // !POAC_SUBCMD_INSTALL_HPP
