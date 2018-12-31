@@ -347,9 +347,6 @@ namespace poac::subcmd {
             namespace cli = io::cli;
 
 
-            core::resolver::poac::resolve();
-            throw except::error("finshed");
-
             fs::create_directories(path::poac_cache_dir);
             const auto node = yaml::load_config("deps");
             const bool quite = util::argparse::use(argv, "-q", "--quite");
@@ -360,7 +357,7 @@ namespace poac::subcmd {
             // パッケージがキチンと存在するかの解決
             // と，どこに存在するのかの解決 (既にcurrent?, cache? poac? gitub?)
             if (!quite) {
-                std::cout << cli::to_status("Resolving packages...") << std::endl;
+                cli::echo(cli::to_status("Resolving packages..."));
             }
             resolve_packages(deps, node.at("deps"));
             if (deps.empty()) throw except::warn("Already up-to-date");
@@ -370,7 +367,7 @@ namespace poac::subcmd {
             // (依存先のパッケージは，
             //  publish時にpoac.ymlに書いたdepsを保証するため，上の作業をもう一度する必要は無い)
             if (!quite) {
-                std::cout << cli::to_status("Resolving dependencies...") << std::endl;
+                cli::echo(cli::to_status("Resolving dependencies..."));
             }
             resolve_dependencies(deps);
 
@@ -392,13 +389,14 @@ namespace poac::subcmd {
 
 
             if (!quite) {
-                std::cout << cli::to_status("Fetching...") << std::endl << std::endl;
+                cli::echo(cli::to_status("Fetching..."));
+                cli::echo();
             }
             fs::create_directories(path::current_deps_dir);
             fetch_packages(deps, quite);
             if (!quite) {
-                std::cout << std::endl;
-                std::cout << cli::to_status("Done.") << std::endl;
+                cli::echo();
+                cli::echo(cli::status_done());
             }
         }
 

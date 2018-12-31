@@ -5,5 +5,6 @@
 #include "core/inference.hpp"
 #include "core/naming.hpp"
 #include "core/resolver.hpp"
+#include "core/semver.hpp"
 
 #endif // !POAC_CORE_HPP
