@@ -2,7 +2,7 @@
 
 # poac
 
-Poac is the package manager for C/C++ user.
+Poac is the package manager for C++ user.
 
 Poac can downloads project's dependencies and compiles project.
 
