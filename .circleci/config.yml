@@ -181,9 +181,10 @@ jobs:
       - image: circleci/golang:1.11
     steps:
       - attach_workspace: *at-current
-      - run: ls -a
+      - run: mkdir out
+      - run: tar czf x86_64-unknown-linux-gnu out/x86_64-unknown-linux-gnu.tar.gz
       - run: go get github.com/tcnksm/ghr
-#      - run: ghr $CIRCLE_TAG out
+      - run: ghr $CIRCLE_TAG out
 
   gh_pages:
     working_directory: ~/poac/docs
@@ -225,18 +226,17 @@ workflows:
 #          requires:
 #            - checkout_code
       - release:
-          filters: *filter-ignore-gh-pages
           requires:
 #            - x86_64-unknown-linux-gnu_gcc-6
             - x86_64-unknown-linux-gnu_gcc-7
             - x86_64-unknown-linux-gnu_gcc-8
 #            - x86_64-unknown-linux-gnu_clang-6
 #            - x86_64-unknown-linux-gnu_clang-7
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              only: /^[0-9]+(\.[0-9]+){2}.*$/
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9]+(\.[0-9]+){2}.*$/
       - gh_pages:
           filters:
             branches:
