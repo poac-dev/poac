@@ -75,6 +75,8 @@ namespace poac::io::cli {
 
     std::string status_done() { return to_status("Done."); }
 
+    void debug(const std::string& s) { if (DEBUG_FLAG) echo(s); }
+
 
     const std::vector<std::string> spinners{
         "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
