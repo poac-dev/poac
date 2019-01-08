@@ -1,16 +1,15 @@
 #ifndef POAC_CONFIG_HPP
 #define POAC_CONFIG_HPP
 
-#if !defined(POAC_PROJECT_ROOT)
+#ifndef POAC_PROJECT_ROOT
 #   warning "POAC_PROJECT_ROOT is not defined"
 #endif
-#if !defined(POAC_VERSION)
+#ifndef POAC_VERSION
 #   warning "POAC_VERSION is not defined"
 #endif
+//#define DEBUG
 
 namespace poac {
-    static constexpr bool DEBUG_FLAG = false;
-
     static constexpr char const* POAC_API =
             "https://poac.pm/api/";
     static constexpr char const* POAC_PACKAGES_API =
