@@ -96,12 +96,10 @@ namespace poac::subcmd {
             const std::string status =
                     name + " " + version + " (from: " + src + ")";
             if (res) { // EXIT_FAILURE
-                std::cout << io::cli::to_fetch_failed(status)
-                          << std::endl;
+                io::cli::echo(io::cli::to_fetch_failed(status));
             }
             else {
-                std::cout << io::cli::to_fetched(status)
-                          << std::endl;
+                io::cli::echo(io::cli::to_fetched(status));
             }
         }
 
@@ -153,11 +151,12 @@ namespace poac::subcmd {
         }
 
 
-        // TODO: 循環に対応
+        // TODO: 依存関係の循環に対応
         std::map<std::string, std::string>
         res_dep(std::map<std::string, std::string>& receive_dep) {
-            std::map<std::string, std::string> new_deps;
+            namespace resolver = core::resolver;
 
+            std::map<std::string, std::string> new_deps;
             for (const auto& [name, version] : receive_dep) {
                 std::stringstream ss;
                 ss << io::network::get(POAC_PACKAGES_API + name + "/" + version + "/deps");
@@ -169,9 +168,8 @@ namespace poac::subcmd {
                         const std::string si = std::to_string(i);
                         if (const auto dep_name = pt.get_optional<std::string>(si + ".name")) {
                             if (const auto dep_ver = pt.get_optional<std::string>(si + ".version")) {
-                                if (const auto ver = core::resolver::poac::decide_version(*dep_name, *dep_ver)) {
-                                    new_deps.emplace(*dep_name, *ver);
-                                }
+                                const std::string ver = resolver::poac::decide_version(*dep_name, *dep_ver);
+                                new_deps.emplace(*dep_name, ver);
                             }
                         }
                         else {
@@ -194,16 +192,16 @@ namespace poac::subcmd {
         void resolve_dependencies(Deps& deps) {
             namespace except = core::exception;
             namespace naming = core::naming;
+            namespace resolver = core::resolver;
 
             std::map<std::string, std::string> new_deps;
             // srcがpoacの時のみ依存関係の解決を行う。
             for (auto& dep : deps) {
                 if (dep.src == "poac") {
-                    if (const auto ver = core::resolver::poac::decide_version(dep.name, dep.version)) {
-                        new_deps.emplace(dep.name, *ver);
-                        dep.version = *ver;
-                        dep.cache_name = naming::to_cache("poac", dep.name, *ver);
-                    }
+                    const std::string ver = resolver::poac::decide_version(dep.name, dep.version);
+                    new_deps.emplace(dep.name, ver);
+                    dep.version = ver;
+                    dep.cache_name = naming::to_cache("poac", dep.name, ver);
                 }
             }
             const auto depdep = res_dep(new_deps);
@@ -211,38 +209,20 @@ namespace poac::subcmd {
 //            deps_dep.insert(depdep.begin(), depdep.end());
 
             for (const auto& [name, version] : depdep) {
-                if (const auto ver = core::resolver::poac::decide_version(name, version)) {
-                    const std::string url = core::resolver::poac::archive_url(name, *ver);
-                    const std::string cache_name = naming::to_cache("poac", name, *ver);
-                    const std::string current_name = naming::to_current("poac", name, *ver);
+                const std::string ver = resolver::poac::decide_version(name, version);
+                const std::string url = resolver::poac::archive_url(name, ver);
+                const std::string cache_name = naming::to_cache("poac", name, ver);
+                const std::string current_name = naming::to_current("poac", name, ver);
 
-                    if (core::resolver::cache::resolve(cache_name)) {
-                        deps.emplace_back(
-                                "",
-                                name,
-                                *ver,
-                                "poac",
-                                cache_name,
-                                current_name,
-                                true,
-                                YAML::Node{}
-                        );
-                    }
-                    else {
-                        deps.emplace_back(
-                                url,
-                                name,
-                                *ver,
-                                "poac",
-                                cache_name,
-                                current_name,
-                                false,
-                                YAML::Node{}
-                        );
-                    }
+                if (resolver::cache::resolve(cache_name)) {
+                    deps.emplace_back("", name, ver, "poac",
+                                      cache_name, current_name,
+                                      true, YAML::Node{});
                 }
-                else { // not found
-                    throw except::error("Not found " + name + " " + version);
+                else {
+                    deps.emplace_back(url, name, ver, "poac",
+                                      cache_name, current_name,
+                                      false, YAML::Node{});
                 }
             }
         }
@@ -251,6 +231,7 @@ namespace poac::subcmd {
         void resolve_packages(Deps& deps, const YAML::Node& node) {
             namespace except = core::exception;
             namespace naming = core::naming;
+            namespace resolver = core::resolver;
 
             // Even if a package of the same name is written, it is excluded.
             // However, it can not deal with duplication of other information (e.g. version etc.).
@@ -262,7 +243,7 @@ namespace poac::subcmd {
                 const std::string cache_name = naming::to_cache(src, name2, version);
                 const std::string current_name = naming::to_current(src, name2, version);
 
-                if (core::resolver::current::resolve(current_name)) {
+                if (resolver::current::resolve(current_name)) {
                     continue;
                 }
                 else if (src == "poac") {
@@ -270,63 +251,31 @@ namespace poac::subcmd {
                     // 新しいバージョンが存在することになる．
 
                     // >=0.1.2 and <3.4.0 -> 2.5.0
-                    if (const auto ver = core::resolver::poac::decide_version(name2, version)) {
-                        const auto cache_name2 = naming::to_cache(src, name2, *ver);
-                        if (core::resolver::cache::resolve(cache_name2)) {
-                            deps.emplace_back(
-                                    "",
-                                    name2,
-                                    *ver,
-                                    src,
-                                    cache_name2,
-                                    current_name,
-                                    true,
-                                    YAML::Node{}
-                            );
-                        }
-                        else {
-                            const std::string url = core::resolver::poac::archive_url(current_name, *ver);
-                            deps.emplace_back(
-                                    url,
-                                    name2,
-                                    *ver,
-                                    src,
-                                    cache_name2,
-                                    current_name,
-                                    false,
-                                    YAML::Node{}
-                            );
-                        }
+                    const std::string ver = resolver::poac::decide_version(name2, version);
+                    const auto cache_name2 = naming::to_cache(src, name2, ver);
+                    if (resolver::cache::resolve(cache_name2)) {
+                        deps.emplace_back("", name2, ver, src,
+                                          cache_name2, current_name,
+                                          true, YAML::Node{});
                     }
-                    else { // not found
-                        throw except::error("Not found " + name2 + " " + version);
+                    else {
+                        const std::string url = resolver::poac::archive_url(current_name, ver);
+                        deps.emplace_back(url, name2, ver, src,
+                                          cache_name2, current_name,
+                                          false, YAML::Node{});
                     }
                 }
                 else if (src == "github") {
-                    if (core::resolver::cache::resolve(cache_name)) {
-                        deps.emplace_back(
-                                "",
-                                name2,
-                                version,
-                                src,
-                                cache_name,
-                                current_name,
-                                true,
-                                YAML::Node{}
-                        );
+                    if (resolver::cache::resolve(cache_name)) {
+                        deps.emplace_back("", name2, version, src,
+                                          cache_name, current_name,
+                                          true, YAML::Node{});
                     }
                     else {
-                        const std::string url = core::resolver::github::archive_url(name2);
-                        deps.emplace_back(
-                                url,
-                                name2,
-                                version,
-                                src,
-                                cache_name,
-                                current_name,
-                                false,
-                                YAML::Clone(next_node)
-                        );
+                        const std::string url = resolver::github::archive_url(name2);
+                        deps.emplace_back(url, name2, version, src,
+                                          cache_name, current_name,
+                                          false, YAML::Clone(next_node));
                         // not foundは，fetch時にしかチェックしない．その時，fetch_failedとして表示される．
                         // 理由は，GitHubではユーザーが存在を確認しやすい点と，
                         //  存在確認のAPIの処理が大幅な時間がかかってしまうため．
@@ -338,6 +287,14 @@ namespace poac::subcmd {
             }
         }
 
+        std::size_t get_yaml_hash() {
+            // FIXME: ymlのコメント削除しただけで変更と見なされてしまう
+            // -> timestampにする or YAML::Loadでコメント無視してからhash
+            const std::string yaml_raw = io::file::yaml::load_config_raw();
+            return std::hash<std::string>()(yaml_raw);
+        }
+
+
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -347,8 +304,13 @@ namespace poac::subcmd {
             namespace cli = io::cli;
 
 
+//            core::resolver::poac::resolve();
+//            throw except::error("finish");
+
+
             fs::create_directories(path::poac_cache_dir);
             const auto node = yaml::load_config("deps");
+            const std::size_t hash = get_yaml_hash();
             const bool quite = util::argparse::use(argv, "-q", "--quite");
 
 
@@ -397,6 +359,21 @@ namespace poac::subcmd {
             if (!quite) {
                 cli::echo();
                 cli::echo(cli::status_done());
+            }
+
+
+            // Create a poac.lock
+            if (std::ofstream ofs("poac.lock"); ofs) {
+                YAML::Emitter out;
+                out << YAML::BeginMap;
+                out << YAML::Key << "CHECKSUM";
+                out << YAML::Value << hash;
+                out << YAML::BeginMap;
+                std::string out_s = out.c_str();
+                // Delete last ? (question mark)
+                // https://stackoverflow.com/questions/14553279/why-is-it-inserting-a-question-mark-right-before-map-entry
+                out_s.pop_back();
+                ofs << out_s << '\n';
             }
         }
 

@@ -32,7 +32,6 @@ else()
 endif()
 
 include_directories( "/usr/local/include" )
-include_directories( "/usr/local/include/cvc4" )
 link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
@@ -42,7 +41,5 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
         "curl"
-        "/usr/local/lib/libyaml-cpp.a"
-        "/usr/local/lib/libcvc4.a"
-        "/usr/local/lib/libgmp.a")
+        "/usr/local/lib/libyaml-cpp.a")
 install(TARGETS poac DESTINATION bin)

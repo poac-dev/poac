@@ -36,7 +36,6 @@ Poac requires the following tools and packages to build:
 * [`libcurl`](https://github.com/curl/curl): `7.63.0`
 * [`libressl`](https://www.libressl.org): `2.6.5`
 * [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` or higher
-* [`CVC4`](https://github.com/CVC4/CVC4): `1.6`
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git

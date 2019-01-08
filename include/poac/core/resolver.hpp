@@ -14,7 +14,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
-#include <cvc4/cvc4.h>
 
 #include "exception.hpp"
 #include "naming.hpp"
@@ -77,8 +76,7 @@ namespace poac::core::resolver {
         }
 
         // name is boost/config, no boost-config
-        std::optional<std::string>
-        decide_version(const std::string& name, const std::string& version_range) {
+        std::string decide_version(const std::string& name, const std::string& interval) {
             // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
             boost::property_tree::ptree pt;
             {
@@ -89,17 +87,44 @@ namespace poac::core::resolver {
             const auto versions = as_vector<std::string>(pt);
 
             std::vector<std::string> res;
-            semver::Interval interval(name, version_range);
+            semver::Interval i(name, interval);
             copy_if(versions.begin(), versions.end(), back_inserter(res),
-                    [&](std::string s){ return interval.satisfies(s); });
+                    [&](std::string s){ return i.satisfies(s); });
             if (res.empty()) {
-                throw exception::error("`" + name + ": " + version_range + "` was not found.");
+                throw exception::error("`" + name + ": " + interval + "` was not found.");
             }
             else {
                 return res[0];
             }
         }
+//        std::vector<std::string>
+//        decide_version2(const std::string& name, const std::string& interval) {
+//            // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
+//            boost::property_tree::ptree pt;
+//            {
+//                std::stringstream ss;
+//                ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+//                boost::property_tree::json_parser::read_json(ss, pt);
+//            }
+//            const auto versions = as_vector<std::string>(pt);
+//
+//            std::vector<std::string> res;
+//            semver::Interval i(name, interval);
+//            copy_if(versions.begin(), versions.end(), back_inserter(res),
+//                    [&](std::string s){ return i.satisfies(s); });
+//            if (res.empty()) {
+//                throw exception::error("`" + name + ": " + interval + "` was not found.");
+//            }
+//            else {
+//                return res;
+//            }
+//        }
 
+        void check_cycles() {
+
+        }
+
+        //const std::vector<std::string>& names, const std::vector<std::string>& intervals
         void resolve() {
         }
     }
