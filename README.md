@@ -13,7 +13,7 @@ Please see [poac.pm](https://poac.pm) for [installation instructions](https://po
 
 ## Supported Operating Systems
 
-Poac currently supports macOS (>= high sierra) only.
+Poac currently supports macOS (>= sierra) only.
 
 ## Code Status
 [![GitHub](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
