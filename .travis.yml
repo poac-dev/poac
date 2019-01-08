@@ -6,8 +6,6 @@ before_cache:
 cache:
   directories:
     - $HOME/Library/Caches/Homebrew
-    - /usr/local/include/yaml-cpp
-    - /usr/local/lib/libyaml-cpp.a
 
 matrix:
   include:
@@ -34,17 +32,15 @@ install:
       export LDFLAGS="-L/usr/local/opt/llvm/lib"
       export CPPFLAGS="-I/usr/local/opt/llvm/include"
     fi
-  - | # Install yaml-cpp
-    if [ -d "/usr/local/include/yaml-cpp" ] && [ -f "/usr/local/lib/libyaml-cpp.a" ]; then
-      git clone -q https://github.com/jbeder/yaml-cpp.git
-      mkdir yaml-cpp/build
-      cd yaml-cpp/build
-      cmake ..
-      make
-      make install
-      cd ../../
-      rm -rf yaml-cpp
-    fi
+  # Install yaml-cpp
+  - git clone -q https://github.com/jbeder/yaml-cpp.git
+  - mkdir yaml-cpp/build
+  - cd yaml-cpp/build
+  - cmake ..
+  - make
+  - make install
+  - cd ../../
+  - rm -rf yaml-cpp
 script:
   - mkdir build
   - cd build
