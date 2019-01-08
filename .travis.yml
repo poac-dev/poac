@@ -9,22 +9,33 @@ cache:
 
 matrix:
   include:
-    # OS X Yosemite (not supported)
-#    - os: osx
-#      osx_image: xcode6.4
-    # OS X El Capitan (not supported)
-#    - os: osx
-#      osx_image: xcode8
+    # OS X Yosemite
+    - os: osx
+      osx_image: xcode6.4
+      env: USE_DEFAULT_COMPILER=false
+    # OS X El Capitan
+    - os: osx
+      osx_image: xcode8
+      env: USE_DEFAULT_COMPILER=false
     # macOS Sierra
-#    - os: osx
-#      osx_image: xcode9.2
-#     macOS High Sierra
+    - os: osx
+      osx_image: xcode9.2
+      env: USE_DEFAULT_COMPILER=false
+    # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
+      env: USE_DEFAULT_COMPILER=true
 
 before_install:
   - brew update
 install:
+  - |
+    if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
+      brew install llvm
+      export CXX=/usr/local/opt/llvm/bin/clang++
+      export LDFLAGS="-L/usr/local/opt/llvm/lib"
+      export CPPFLAGS="-I/usr/local/opt/llvm/include"
+    fi
   # Install yaml-cpp
   - git clone -q https://github.com/jbeder/yaml-cpp.git
   - mkdir yaml-cpp/build
