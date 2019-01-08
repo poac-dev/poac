@@ -29,7 +29,7 @@ before_install:
 install:
   - | # Install llvm
     if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
-      travis_wait 30 brew install llvm
+      travis_wait 60 brew install llvm
       export CXX=/usr/local/opt/llvm/bin/clang++
       export LDFLAGS="-L/usr/local/opt/llvm/lib"
       export CPPFLAGS="-I/usr/local/opt/llvm/include"
