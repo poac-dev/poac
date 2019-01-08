@@ -81,8 +81,6 @@ namespace poac::io::cli {
     inline void debug([[maybe_unused]] const T& s) {
 #ifdef DEBUG
         echo(s);
-#else
-        return;
 #endif
     }
 
