@@ -287,14 +287,19 @@ namespace poac::io::network {
 
             curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
-            if (verbose) verbose_func(curl);
+#ifdef DEBUG
+                verbose_func(curl);
+#endif
 
-
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
+            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
                 // TODO: throw????
                 std::cerr << "curl told us " << res << std::endl;
-            else if (verbose)
+            }
+            else if (verbose) {
+#ifdef DEBUG
                 transfer_info(curl);
+#endif
+            }
             curl_easy_cleanup(curl);
             curl_formfree(formpost);
             curl_slist_free_all(headers);
