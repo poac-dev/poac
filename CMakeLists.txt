@@ -41,5 +41,5 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
         "curl"
-        "/usr/local/lib/libyaml-cpp.a")
+        "yaml-cpp")
 install(TARGETS poac DESTINATION bin)

@@ -21,22 +21,14 @@ matrix:
 before_install:
   - brew update
 install:
-  - | # Install llvm
+  - |
     if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
       brew install llvm
       export CXX=/usr/local/opt/llvm/bin/clang++
       export LDFLAGS="-L/usr/local/opt/llvm/lib"
       export CPPFLAGS="-I/usr/local/opt/llvm/include"
     fi
-  # Install yaml-cpp
-  - git clone -q https://github.com/jbeder/yaml-cpp.git
-  - mkdir yaml-cpp/build
-  - cd yaml-cpp/build
-  - cmake ..
-  - make
-  - make install
-  - cd ../../
-  - rm -rf yaml-cpp
+  - brew install yaml-cpp
 script:
   - mkdir build
   - cd build
