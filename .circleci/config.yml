@@ -134,11 +134,11 @@ jobs:
 #      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm/lib -Wl,-rpath,/home/linuxbrew/.linuxbrew/opt/llvm/lib"
 #    <<: *defaults
 
-#  aarch64-unknown-linux-gnu_gcc-4_8:
+#  aarch64-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/aarch64-unknown-linux-gnu
 #    environment:
-#      CXX: aarch64-linux-gnu-g++
+#      CXX: g++-8
 #    <<: *defaults
 
 #  powerpc-unknown-linux-gnu_gcc-4_8:
@@ -155,11 +155,18 @@ jobs:
 #      CXX: powerpc64-linux-gnu-g++
 #    <<: *defaults
 
-#  powerpc64le-unknown-linux-gnu_gcc-5_4:
+#  powerpc64le-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/powerpc64le-unknown-linux-gnu
 #    environment:
-#      CXX: powerpc64le-linux-gnu-g++
+#      CXX: g++-8
+#    <<: *defaults
+
+#  s390x-unknown-linux-gnu:
+#    docker:
+#      - image: poacpm/s390x-unknown-linux-gnu
+#    environment:
+#      CXX: g++-8
 #    <<: *defaults
 
 #  x86_64-pc-windows-gnu_gcc-6:
@@ -182,7 +189,7 @@ jobs:
     steps:
       - attach_workspace: *at-current
       - run: mkdir out
-      - run: tar czf x86_64-unknown-linux-gnu out/x86_64-unknown-linux-gnu.tar.gz
+      - run: ARCH=x86_64-unknown-linux-gnu tar czf $ARCH out/$ARCH.tar.gz
       - run: go get github.com/tcnksm/ghr
       - run: ghr $CIRCLE_TAG out
 
@@ -225,6 +232,18 @@ workflows:
 #          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
+#      - aarch64-unknown-linux-gnu:
+#          filters: *filter-ignore-gh-pages
+#          requires:
+#            - checkout_code
+#      - powerpc64le-unknown-linux-gnu:
+#          filters: *filter-ignore-gh-pages
+#          requires:
+#            - checkout_code
+#      - s390x-unknown-linux-gnu:
+#          filters: *filter-ignore-gh-pages
+#          requires:
+#            - checkout_code
       - release:
           requires:
 #            - x86_64-unknown-linux-gnu_gcc-6
@@ -232,6 +251,9 @@ workflows:
             - x86_64-unknown-linux-gnu_gcc-8
 #            - x86_64-unknown-linux-gnu_clang-6
 #            - x86_64-unknown-linux-gnu_clang-7
+#            - aarch64-unknown-linux-gnu
+#            - powerpc64le-unknown-linux-gnu
+#            - s390x-unknown-linux-gnu
           filters:
             branches:
               ignore: /.*/
