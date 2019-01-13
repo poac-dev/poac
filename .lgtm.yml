@@ -11,7 +11,7 @@ extraction:
 #      - export PATH=$LGTM_WORKSPACE/latest-gcc-symlinks:$PATH
 #      - export GNU_MAKE=make
 #      - export GIT=true
-    configure:
+#    configure:
 #      command:
 #        # yaml-cpp
 #        - git clone -q https://github.com/jbeder/yaml-cpp.git
