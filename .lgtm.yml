@@ -4,29 +4,8 @@ extraction:
       packages:
         - libboost-all-dev
         - libyaml-cpp-dev
-#    after_prepare:
-#      - mkdir -p $LGTM_WORKSPACE/latest-gcc-symlinks
-#      - ln -s /usr/bin/g++-6 $LGTM_WORKSPACE/latest-gcc-symlinks/g++
-#      - ln -s /usr/bin/gcc-6 $LGTM_WORKSPACE/latest-gcc-symlinks/gcc
-#      - export PATH=$LGTM_WORKSPACE/latest-gcc-symlinks:$PATH
-#      - export GNU_MAKE=make
-#      - export GIT=true
-#    configure:
-#      command:
-#        # yaml-cpp
-#        - git clone -q https://github.com/jbeder/yaml-cpp.git
-#        - cd yaml-cpp
-#        - mkdir build
-#        - cd build
-#        - cmake ..
-#        - make install --silent
-#    before_index:
-#      - export BOOST_DIR=$LGTM_SRC/boost
-#      - export GTEST_DIR=$LGTM_SRC/googletest
-#      - export HUNSPELL_DIR=$LGTM_SRC/hunspell
-#      - export CRYPTOPP_DIR=$LGTM_SRC/cryptopp
-    index:
-      build_command:
+    configure:
+      command:
         - mkdir build
         - cd build
         - cmake ..
