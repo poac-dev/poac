@@ -11,7 +11,8 @@ owners:
   - matken11235
 license: GPL-3.0
 links:
-  github: https://github.com/poacpm/poac
+  homepage: "https://poac.pm"
+  github: "https://github.com/poacpm/poac"
 
 # Describe deps as dependencies
 # Writing latest will automatically
