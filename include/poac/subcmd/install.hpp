@@ -110,6 +110,7 @@ namespace poac::subcmd {
             namespace tb = io::file::tarball;
             namespace resolver = core::resolver;
 
+            int exists_count = 0;
             for (const auto& [name, dep] : deps) {
                 const auto cache_name = naming::to_cache(dep.source, name, dep.version);
                 const auto current_name = naming::to_current(dep.source, name, dep.version);
@@ -125,7 +126,11 @@ namespace poac::subcmd {
                               << std::endl;
                 }
 
-                if (is_cached) {
+                if (resolver::current::resolve(current_name)) {
+                    ++exists_count;
+                    continue;
+                }
+                else if (is_cached) {
                     const bool res = copy_to_current(cache_name, current_name);
                     if (!quite) {
                         echo_install_status(res, name, dep.version, dep.source);
@@ -164,6 +169,9 @@ namespace poac::subcmd {
                     throw except::error("Unexcepted error");
                 }
             }
+            if (exists_count == static_cast<int>(deps.size())) {
+                io::cli::echo(io::cli::to_yellow("WARN: ") + "Already installed");
+            }
         }
 
         // Depsの形成を行う
@@ -182,12 +190,8 @@ namespace poac::subcmd {
                 // itr->first: itr->second
                 const auto [src, parsed_name] = naming::get_source(name);
                 const auto version = naming::get_version(next_node, src);
-                const auto current_name = naming::to_current(src, parsed_name, version);
 
-                if (resolver::current::resolve(current_name)) {
-                    continue;
-                }
-                else if (src == "poac" || src == "github") {
+                if (src == "poac" || src == "github") {
                     deps.push_back({ parsed_name, version, src });
                 }
                 else { // unknown source
@@ -223,17 +227,32 @@ namespace poac::subcmd {
             const bool verbose = !quite && util::argparse::use(argv, "-v", "--verbose");
 
 
-            // TODO: もし，poac.lockが存在して，そこのchecksumが現在の poac.yml のhashと一致しているのなら poac.lock を読んでinstallすれば良い
+            resolver::Resolved resolved_deps;
+            bool load_lock = false;
+            if (const auto lock = yaml::load("poac.lock")) {
+                if (const auto lock_hash = yaml::get<std::size_t>(*lock, "checksum")) {
+                    if (hash == *lock_hash) {
+                        if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
+                            for (const auto& [name, next_node] : *locked_deps) {
+                                const auto version = *yaml::get<std::string>(next_node, "version");
+                                const auto source = *yaml::get<std::string>(next_node, "source");
+                                // この場合，lockファイルを書き換える必要はないため，resolved_deps.activatedに何かを書き込む必要はない
+                                resolved_deps.backtracked[name] = { version, source };
+                            }
+                            load_lock = true;
+                        }
+                    }
+                }
+            }
 
 
             // パッケージがキチンと存在するかの解決
-            // と，どこに存在するのかの解決 (既にcurrent?, cache? poac? gitub?)
             if (!quite) {
                 cli::echo(cli::to_status("Resolving packages..."));
             }
-            const resolver::Deps deps = resolve_packages(node.at("deps"));
-            if (deps.empty()) {
-                throw except::warn("Already up-to-date");
+            resolver::Deps deps;
+            if (!load_lock) {
+                deps = resolve_packages(node.at("deps"));
             }
 
 
@@ -243,7 +262,9 @@ namespace poac::subcmd {
             if (!quite) {
                 cli::echo(cli::to_status("Resolving dependencies..."));
             }
-            const resolver::Resolved resolved_deps = resolver::resolve(deps);
+            if (!load_lock) {
+                resolved_deps = resolver::resolve(deps);
+            }
 
 
             if (!quite) {
@@ -257,7 +278,9 @@ namespace poac::subcmd {
                 cli::echo(cli::status_done());
             }
 
-            create_lock_file(hash, resolved_deps);
+            if (!load_lock) {
+                create_lock_file(hash, resolved_deps);
+            }
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
