@@ -19,6 +19,7 @@
 #include "../io.hpp"
 #include "../core/exception.hpp"
 #include "../util.hpp"
+#include "../config.hpp"
 
 
 namespace poac::subcmd {
