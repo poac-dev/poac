@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <optional>
+#include <fstream>
 
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
@@ -186,7 +187,7 @@ namespace poac::io::file::yaml {
         else {
             throw except::error(
                     "poac.yml does not exists.\n"
-                    "Please execute $ poac init or $ poac new $PROJNAME.");
+                    "Please execute `poac init` or `poac new $PROJNAME`.");
         }
     }
     template <typename ...Args>

@@ -13,7 +13,6 @@ poac はビルドするために以下のツールとパッケージが必要で
 * [`libcurl`](https://github.com/curl/curl): `7.63.0` もしくはそれ以上
 * [`libressl`](https://www.libressl.org): `2.6.5` もしくはそれ以上
 * [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` もしくはそれ以上
-* [`CVC4`](https://github.com/CVC4/CVC4): `1.6` もしくはそれ以上
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git

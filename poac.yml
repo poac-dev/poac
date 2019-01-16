@@ -1,7 +1,7 @@
 # Package name
 name: poac
 # Package version
-version: 0.3.0-beta
+version: 0.1.0
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
 description: "poac is a package manager for C++"
@@ -11,7 +11,8 @@ owners:
   - matken11235
 license: GPL-3.0
 links:
-  github: https://github.com/poacpm/poac
+  homepage: "https://poac.pm"
+  github: "https://github.com/poacpm/poac"
 
 # Describe deps as dependencies
 # Writing latest will automatically

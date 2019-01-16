@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+AlwaysBreakTemplateDeclarations: true
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Stroustrup
+IndentWidth: 4
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+PointerAlignment: Left

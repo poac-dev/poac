@@ -6,42 +6,29 @@ before_cache:
 cache:
   directories:
     - $HOME/Library/Caches/Homebrew
-    - /usr/local/Cellar/cvc4/1.6
 
 matrix:
   include:
-    # OS X Yosemite (not supported)
-#    - os: osx
-#      osx_image: xcode6.4
-    # OS X El Capitan (not supported)
-#    - os: osx
-#      osx_image: xcode8
     # macOS Sierra
-#    - os: osx
-#      osx_image: xcode9.2
-#     macOS High Sierra
+    - os: osx
+      osx_image: xcode9.2
+      env: USE_DEFAULT_COMPILER=false
+    # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
+      env: USE_DEFAULT_COMPILER=true
 
 before_install:
   - brew update
 install:
-  # Install yaml-cpp
-  - git clone -q https://github.com/jbeder/yaml-cpp.git
-  - mkdir yaml-cpp/build
-  - cd yaml-cpp/build
-  - cmake ..
-  - make
-  - make install
-  - cd ../../
-  - rm -rf yaml-cpp
-  # Install cvc4
-  - travis_wait 60 brew install cvc4/cvc4/cvc4
-  - brew link cvc4/cvc4/cvc4
-  # Install symfpu
-  - pushd /usr/local/include
-  - git clone -q https://github.com/martin-cs/symfpu.git -b CVC4
-  - popd
+  - |
+    if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
+      brew install llvm
+      export CXX=/usr/local/opt/llvm/bin/clang++
+      export LDFLAGS="-L/usr/local/opt/llvm/lib"
+      export CPPFLAGS="-I/usr/local/opt/llvm/include"
+    fi
+  - brew install yaml-cpp
 script:
   - mkdir build
   - cd build
@@ -50,4 +37,6 @@ script:
   - poac -h
 
 notifications:
-  slack: poacpm:VNE7FkuxYAghHHrEfKaj2V19
+  email: false
+  slack:
+    secure: "UQ2hUnwff1tpHrsoZK4lI+hIrH8SIIL++0rIK+zXSInw6BVo8XMVqZ9VHoZffb3pchqO8snHsAv6DE6L3BC4N74SrDMK0PGC87sdg5iZlH11qDaIxQRImEGBOysJH8taZsjq+AcBZahtpuXrahB9seCBFvb4nOvS4OzVpcLHSUtyfNm3ACuL9JgJbXFv6zyD5AiXslqfsNCQqxBmklY/TjEIM2Wtt3g8zvEUqgH0ZA/fyao4wiihgAJ2BY6vvuXU1edNybtHNeJfuxnY87Mo8+xod/4/lfL48wjnaZ1muycSqPi2II78QEm3eyMWPJIvims2MIkaOwaBUtBSYsxBL1XuuUsbP2jRDprY35DAbsDKtbPLn6YuFEAFumsNCbiiF5XSorgDqGvTSoXpPX2dtO/xSbJf3NEs4i2z9MyiZCpWPyQV0q00rubB4PSJK6o7HmuHEjN89a8gSOJLWQO2e0ah9zL0crrxezVxUn/d9AB2mwTP9YSoUwjuercN7KSf0ZBzfYEMnpkKTe1aK1kpqcGtYHa8sHrwGypNvBsaVphXhaisYYnPSIMsnDasbU0Q66x3LtCvkA7zvQrFlessVpszcYEAQ9XYvVb2e18hVGWpkrCVjkAHCuzMZ/JAV/T+cK/WMxbRx/JIvyMkMGemlREqGMYnvNpGkY1uwF/pqYM="

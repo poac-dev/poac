@@ -4,7 +4,7 @@ project(poac)
 # Preprocessor definitions
 add_definitions( -DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
 add_definitions( -DPOAC_VERSION="0.3.0-beta" )
-add_definitions( -fdiagnostics-color -Wall -Wextra ) # -Werror
+add_definitions( -fdiagnostics-color -Wall -Wextra -Werror )
 
 # Check of c++17
 include(CheckCXXCompilerFlag)
@@ -32,7 +32,6 @@ else()
 endif()
 
 include_directories( "/usr/local/include" )
-include_directories( "/usr/local/include/cvc4" )
 link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
@@ -42,7 +41,5 @@ target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_timer-mt.a"
         "/usr/local/lib/libboost_chrono-mt.a"
         "curl"
-        "/usr/local/lib/libyaml-cpp.a"
-        "/usr/local/lib/libcvc4.a"
-        "/usr/local/lib/libgmp.a")
+        "yaml-cpp")
 install(TARGETS poac DESTINATION bin)
