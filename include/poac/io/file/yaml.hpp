@@ -215,24 +215,5 @@ namespace poac::io::file::yaml {
                     "Please execute $ poac init or $ poac new $PROJNAME.");
         }
     }
-
-    std::string load_config_raw() {
-        namespace except = core::exception;
-        if (const auto op_filename = exists_config()) {
-            if (std::ifstream ifs(*op_filename); ifs) {
-                std::string buf;
-                ifs >> buf;
-                return buf;
-            }
-            else {
-                throw except::error("Could not load poac.yml");
-            }
-        }
-        else {
-            throw except::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute `poac init` or `poac new $PROJNAME`.");
-        }
-    }
 } // end namespace
 #endif // !POAC_IO_FILE_YAML_HPP
