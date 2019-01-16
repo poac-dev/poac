@@ -32,6 +32,9 @@ else()
 endif()
 
 include_directories( "/usr/local/include" )
+if(${APPLE})
+    include_directories( "/usr/local/opt/openssl/include" )
+endif()
 link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
