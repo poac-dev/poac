@@ -90,7 +90,7 @@ namespace poac::subcmd {
                 YAML::Emitter out;
                 out << YAML::BeginMap;
 
-                out << YAML::Key << "checksum";
+                out << YAML::Key << "timestamp";
                 out << YAML::Value << timestamp;
 
                 stream_deps(out, resolved_deps.activated);
@@ -240,7 +240,7 @@ namespace poac::subcmd {
             resolver::Resolved resolved_deps;
             bool load_lock = false;
             if (const auto lock = yaml::load("poac.lock")) {
-                if (const auto lock_timestamp = yaml::get<std::string>(*lock, "checksum")) {
+                if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
                     if (timestamp == *lock_timestamp) {
                         std::cout << timestamp << std::endl;
                         std::cout << *lock_timestamp << std::endl;
