@@ -192,6 +192,7 @@ jobs:
       - run: ARCH=x86_64-unknown-linux-gnu tar czf $ARCH out/$ARCH.tar.gz
       - run: go get github.com/tcnksm/ghr
       - run: ghr $CIRCLE_TAG out
+#      - run: poac publish
 
   gh_pages:
     working_directory: ~/poac/docs
