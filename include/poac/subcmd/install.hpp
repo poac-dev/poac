@@ -174,9 +174,8 @@ namespace poac::subcmd {
             }
         }
 
-        // Depsの形成を行う
-        // yaml形式から内部表現へ変換
-        // TODO: resolverへ？
+        // YAML::Node -> Deps
+        // TODO: To resolver？
         core::resolver::Deps resolve_packages(const YAML::Node& node) {
             namespace except = core::exception;
             namespace naming = core::naming;
@@ -242,8 +241,6 @@ namespace poac::subcmd {
             if (const auto lock = yaml::load("poac.lock")) {
                 if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
                     if (timestamp == *lock_timestamp) {
-                        std::cout << timestamp << std::endl;
-                        std::cout << *lock_timestamp << std::endl;
                         if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
                             for (const auto& [name, next_node] : *locked_deps) {
                                 const auto version = *yaml::get<std::string>(next_node, "version");
@@ -258,7 +255,6 @@ namespace poac::subcmd {
             }
 
 
-            // パッケージがキチンと存在するかの解決
             if (!quite) {
                 cli::echo(cli::to_status("Resolving packages..."));
             }
