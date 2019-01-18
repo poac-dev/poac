@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <variant>
 #include <cstdio>
 
 // TODO: 依存する必要？？
@@ -35,7 +36,7 @@ namespace poac::io::network {
     namespace ssl = boost::asio::ssl;
     namespace http = boost::beast::http;
 
-    using Headers = std::map<http::field, std::string>;
+    using Headers = std::map<std::variant<http::field, std::string>, std::string>;
     using Request = http::request<http::string_body>;
 
     template <typename S>
@@ -87,48 +88,40 @@ namespace poac::io::network {
         return res.body().data();
     }
 
-    std::string get(const std::string& target, const Headers& headers={}) {
+
+    std::string get(const std::string& host, const std::string& target, const Headers& headers={}) {
         // Set up an HTTP GET request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
         Request req{ http::verb::get, target, 11 };
-        req.set(http::field::host, POAC_API_HOST);
+        req.set(http::field::host, host);
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         for (const auto& [field, string_param] : headers) {
-            req.set(field, string_param);
+            std::visit([&, s=string_param](auto f) { req.set(f, s); }, field);
         }
-        return request(req, POAC_API_HOST);
+        return request(req, host.c_str());
+    }
+    std::string get(const std::string& target, const Headers& headers={}) {
+        return get(POAC_API_HOST, target, headers);
     }
 
-    std::string post(const std::string& target, std::string body, const Headers& headers={}) {
+    std::string post(const std::string& host, const std::string& target, std::string body, const Headers& headers={}) {
         // Set up an HTTP GET request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
         Request req{ http::verb::post, target, 11 };
-        req.set(http::field::host, POAC_API_HOST);
+        req.set(http::field::host, host);
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         req.set(http::field::content_type, "application/json");
         req.set(http::field::accept, "*/*");
         for (const auto& [field, string_param] : headers) {
-            req.set(field, string_param);
+            std::visit([&, s=string_param](auto f) { req.set(f, s); }, field);
         }
         body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
         req.body() = body;
         req.prepare_payload();
-        return request(req, POAC_API_HOST);
-    }
-    template <typename S>
-    std::string post(Request req, S host, std::string body) {
-        req.method(http::verb::post);
-        req.version(11);
-        req.set(http::field::host, host);
-        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-        body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
-        req.body() = body;
-        req.prepare_payload();
-        return request(req, host);
-    }
 
-    Request custom_request() {
-        return Request{};
+        return request(req, host.c_str());
     }
-
+    std::string post(const std::string& target, std::string body, const Headers& headers={}) {
+        return post(POAC_API_HOST, target, body, headers);
+    }
 
 //    std::string get_github(const std::string& url) {
 //        std::string chunk;

@@ -43,12 +43,10 @@ namespace poac::subcmd {
             }
 
             std::stringstream ss;
-            auto req = io::network::custom_request();
-            req.target(ALGOLIA_SEARCH_INDEX_API);
-            req.set(io::network::http::field::content_type, "application/json");
-            req.set("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
-            req.set("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
-            ss << io::network::post(req, ALGOLIA_SEARCH_INDEX_API_HOST, params);
+            io::network::Headers headers;
+            headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
+            headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
+            ss << io::network::post(ALGOLIA_SEARCH_INDEX_API_HOST, ALGOLIA_SEARCH_INDEX_API, params, headers);
 
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);
