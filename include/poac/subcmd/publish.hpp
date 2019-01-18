@@ -148,19 +148,26 @@ namespace poac::subcmd {
                 }
                 json.add_child("owners", children);
             }
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, json, false);
+            std::string json_s;
+            {
+                std::stringstream ss;
+                boost::property_tree::json_parser::write_json(ss, json, false);
+                json_s = ss.str();
+            }
 
             // Validating
 //            if (!error)
             status_func("Validating...");
-            if (verbose) std::cout << ss.str() << std::endl;
-            if (io::network::post(POAC_TOKENS_VALIDATE_API, ss.str()) == "err")
+            if (verbose) {
+                std::cout << json_s << std::endl;
+            }
+            if (io::network::post(POAC_TOKENS_VALIDATE_API, json_s) == "err") {
                 throw except::error("Token verification failed.\n"
                                     "Please check the following check lists.\n"
                                     "1. Does token really belong to you?\n"
                                     "2. Is the user ID described `owners` in poac.yml\n"
                                     "    the same as that of GitHub account?");
+            }
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
 
@@ -193,11 +200,12 @@ namespace poac::subcmd {
             io::network::post_file(POAC_PACKAGE_UPLOAD_API, output_dir, config, token, verbose);
 
             // Check exists package
-            std::map<std::string, std::string> headers;
-            headers.insert(std::make_pair("Cache-Control", "no-cache"));
+            io::network::Headers headers;
+            headers.emplace(io::network::http::field::cache_control, "no-cache");
             const std::string res = io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists", headers);
-            if (res != "true")
+            if (res != "true") {
                 std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
+            }
 
             // Delete file
             status_func("Cleanup...");

@@ -34,6 +34,7 @@ endif()
 include_directories( "/usr/local/include" )
 if(${APPLE})
     include_directories( "/usr/local/opt/openssl/include" )
+    link_directories( "/usr/local/opt/openssl/lib" )
 endif()
 link_directories( "/usr/local/lib" )
 
@@ -41,8 +42,8 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_filesystem-mt.a"
         "/usr/local/lib/libboost_system-mt.a"
-        "/usr/local/lib/libboost_timer-mt.a"
-        "/usr/local/lib/libboost_chrono-mt.a"
         "curl"
+        "ssl"
+        "crypto"
         "yaml-cpp")
 install(TARGETS poac DESTINATION bin)

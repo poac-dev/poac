@@ -10,12 +10,12 @@
 //#define DEBUG
 
 namespace poac {
-    static constexpr char const* POAC_API =
-            "https://poac.pm/api/";
+    static constexpr char const* POAC_API_HOST =
+            "poac.pm";
     static constexpr char const* POAC_PACKAGES_API =
-            "https://poac.pm/api/packages/";
+            "/api/packages/";
     static constexpr char const* POAC_TOKENS_VALIDATE_API =
-            "https://poac.pm/api/tokens/validate/";
+            "/api/tokens/validate/";
     static constexpr char const* POAC_PACKAGE_UPLOAD_API =
             "https://poac-pm.appspot.com/packages/upload/";
 
@@ -25,7 +25,9 @@ namespace poac {
             "9c0a76bacf692daa9e8eca2aaff4b2ab";
     static constexpr char const* ALGOLIA_INDEX_NAME =
             "packages";
+    static constexpr char const* ALGOLIA_SEARCH_INDEX_API_HOST =
+            "IOCVK5FECM-dsn.algolia.net";
     static constexpr char const* ALGOLIA_SEARCH_INDEX_API =
-            "https://IOCVK5FECM-dsn.algolia.net/1/indexes/packages/query";
+            "/1/indexes/packages/query";
 }
 #endif // !POAC_CONFIG_HPP
