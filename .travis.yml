@@ -20,8 +20,7 @@ matrix:
 
 before_install:
   - brew update
-  - brew link --overwrite numpy
-  - brew upgrade boost
+  - brew upgrade boost; return 0
 install:
   - |
     if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
