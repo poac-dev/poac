@@ -20,8 +20,8 @@ matrix:
 
 before_install:
   - brew update
-  - sudo chown -R whoami /usr/local/Cellar
-  - sudo brew upgrade boost
+  - brew link --overwrite numpy
+  - brew upgrade boost
 install:
   - |
     if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
