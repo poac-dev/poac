@@ -20,7 +20,7 @@ matrix:
 
 before_install:
   - brew update
-  - brew upgrade boost
+  - sudo brew upgrade boost
 install:
   - |
     if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
