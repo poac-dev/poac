@@ -43,17 +43,13 @@ namespace poac::core::resolver {
     }
     namespace github {
         std::string archive_url(const std::string& name, const std::string& tag) {
-            return "https://github.com/" + name + "/archive/" + tag + ".tar.gz";
-        }
-        std::string archive_url(const std::string& name) {
-            return "https://github.com/" + name + ".git";
+            return "/" + name + "/archive/" + tag + ".tar.gz";
         }
     }
 
 
     std::string archive_url(const std::string& name, const std::string& version) {
-        return "https://storage.googleapis.com/poac-pm.appspot.com/"
-               + core::naming::to_cache("poac", name, version) + ".tar.gz";
+        return "/poac-pm.appspot.com/" + core::naming::to_cache("poac", name, version) + ".tar.gz";
     }
 
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}

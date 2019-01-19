@@ -45,19 +45,9 @@ namespace poac::subcmd {
             return path::recursive_copy(from_path, to_path);
         }
 
-        void echo_install_status(
-                const bool res,
-                const std::string& name,
-                const std::string& version,
-                const std::string& src) {
-            const std::string status =
-                    name + " " + version + " (from: " + src + ")";
-            if (res) { // EXIT_FAILURE
-                io::cli::echo(io::cli::to_fetch_failed(status));
-            }
-            else {
-                io::cli::echo(io::cli::to_fetched(status));
-            }
+        void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
+            const std::string status = n + " " + v + " (from: " + s + ")";
+            io::cli::echo(res ? io::cli::to_fetch_failed(status) : io::cli::to_fetched(status));
         }
 
 
@@ -109,6 +99,7 @@ namespace poac::subcmd {
             namespace path = io::file::path;
             namespace tb = io::file::tarball;
             namespace resolver = core::resolver;
+            namespace fs = boost::filesystem;
 
             int exists_count = 0;
             for (const auto& [name, dep] : deps) {
@@ -136,28 +127,23 @@ namespace poac::subcmd {
                         echo_install_status(res, name, dep.version, dep.source);
                     }
                 }
-                else if (dep.source == "poac") {
+                else if (dep.source == "poac" || dep.source == "github") {
                     const auto pkg_dir = path::poac_cache_dir / cache_name;
                     const auto tar_dir = pkg_dir.string() + ".tar.gz";
-                    const std::string url = resolver::archive_url(name, dep.version);
-
-                    bool res = io::network::get_file(url, tar_dir);
-                    // If res is true, does not execute func. (short-circuit evaluation)
-                    res = res || tb::extract_spec_rm(tar_dir, pkg_dir);
-                    res = res || copy_to_current(cache_name, current_name);
-
-                    if (!quite) {
-                        echo_install_status(res, name, dep.version, dep.source);
+                    std::string target;
+                    std::string host;
+                    if (dep.source == "poac") {
+                        target = resolver::archive_url(name, dep.version);
+                        host = POAC_STORAGE_HOST;
                     }
-                }
-                else if (dep.source == "github") {
-                    const auto dest = path::poac_cache_dir / cache_name;
-                    const std::string url = resolver::github::archive_url(name);
+                    else {
+                        target = resolver::github::archive_url(name, dep.version);
+                        host = GITHUB_HOST;
+                    }
 
-                    std::map<std::string, std::string> opts;
-                    opts.insert(io::network::opt_depth(1));
-                    opts.insert(io::network::opt_branch(dep.version));
-                    bool res = io::network::clone(url, dest, opts);
+                    io::network::get(target, tar_dir, POAC_STORAGE_HOST);
+                    // If res is true, does not execute func. (short-circuit evaluation)
+                    bool res = tb::extract_spec_rm(tar_dir, pkg_dir);
                     res = res || copy_to_current(cache_name, current_name);
 
                     if (!quite) {

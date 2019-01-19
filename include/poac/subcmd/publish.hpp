@@ -202,7 +202,7 @@ namespace poac::subcmd {
             // Check exists package
             io::network::Headers headers;
             headers.emplace(io::network::http::field::cache_control, "no-cache");
-            const std::string res = io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists", headers);
+            const std::string res = io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists", POAC_API_HOST, headers);
             if (res != "true") {
                 std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
             }
