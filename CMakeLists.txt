@@ -3,7 +3,7 @@ project(poac)
 
 # Preprocessor definitions
 add_definitions( -DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
-add_definitions( -DPOAC_VERSION="0.3.0-beta" )
+add_definitions( -DPOAC_VERSION="0.1.0" )
 add_definitions( -fdiagnostics-color -Wall -Wextra -Werror )
 
 # Check of c++17
@@ -21,11 +21,11 @@ else()
 endif()
 
 include_directories( "/usr/local/include" )
+link_directories( "/usr/local/lib" )
 if(${APPLE})
     include_directories( "/usr/local/opt/openssl/include" )
     link_directories( "/usr/local/opt/openssl/lib" )
 endif()
-link_directories( "/usr/local/lib" )
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
