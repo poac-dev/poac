@@ -174,10 +174,10 @@ namespace poac::subcmd {
             for (const auto& [name, next_node] : node.as<std::map<std::string, YAML::Node>>()) {
                 // itr->first: itr->second
                 const auto [src, parsed_name] = naming::get_source(name);
-                const auto version = naming::get_version(next_node, src);
+                const auto interval = naming::get_version(next_node, src);
 
                 if (src == "poac" || src == "github") {
-                    deps.push_back({ parsed_name, version, src });
+                    deps.push_back({ parsed_name, interval, src });
                 }
                 else { // unknown source
                     throw except::error("Unknown source");
@@ -251,8 +251,6 @@ namespace poac::subcmd {
 
 
             // 依存関係の解決
-            // (依存先のパッケージは，
-            //  publish時にpoac.ymlに書いたdepsを保証するため，上の作業をもう一度する必要は無い)
             if (!quite) {
                 cli::echo(cli::to_status("Resolving dependencies..."));
             }
