@@ -2,51 +2,160 @@
 #define POAC_SUBCMD_UPDATE_HPP
 
 #include <iostream>
-#include <cstdlib>
-#include <fstream>
-#include <regex>
+#include <string>
+#include <sstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
+#include "./install.hpp"
 #include "../core/exception.hpp"
+#include "../core/naming.hpp"
+#include "../core/semver.hpp"
+#include "../core/resolver.hpp"
+#include "../io/file/path.hpp"
+#include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
-#include "../io/file.hpp"
+#include "../io/network.hpp"
+#include "../util/types.hpp"
 
 
-// TODO: poac.ymlに書かれたversionが更新されていた時，パッケージをそのversionに更新する(poac.ymlも書き直す(書き換え時に，全部読み込んだら，コメント消える？？))
-// TODO: その際，versionを指定せずとも最新版に更新するoptionが欲しい
-// TODO: --selfを指定することで，poacのupdateを行う
+// TODO: --selfを指定することで，poacのupdateを行う -> globalなパッケージに対応した時，どうする？
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
-// TODO: --all で，全てのパッケージを
-// TODO: -yおpションを付けないと確認メッセージが出る
-// TODO: poac update hogeは，poac install hogeに対応してから．
-// TODO: 現状は，poac updateで，poac.ymlからreadする
+namespace poac::subcmd {
+    namespace _update {
+        std::optional<boost::property_tree::ptree>
+        get_versions_api(const std::string& name) {
+            std::stringstream ss;
+            ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+            if (ss.str() == "null") {
+                return std::nullopt;
+            }
+            else {
+                boost::property_tree::ptree pt;
+                boost::property_tree::json_parser::read_json(ss, pt);
+                return pt;
+            }
+        }
 
-// TODO: 指定されたパッケージの依存先のみがupdateされていてもupdateする．
-namespace poac::subcmd { struct update {
-        static const std::string summary() { return "Update package"; }
-        static const std::string options() { return "<Nothing>"; }
-
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) { _main(std::move(argv)); }
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
-            namespace fs     = boost::filesystem;
+            namespace fs = boost::filesystem;
             namespace except = core::exception;
+            namespace yaml = io::file::yaml;
+            namespace cli = io::cli;
+            namespace resolver = core::resolver;
+            namespace naming = core::naming;
 
-            check_arguments(argv);
+            const bool yes = util::argparse::use_rm(argv, "-y", "--yes");
+            const bool all = util::argparse::use_rm(argv, "-a", "--all");
+            [[maybe_unused]] const bool outside = util::argparse::use_rm(argv, "--outside");
 
 
+            if (!io::file::path::validate_dir("deps")) {
+                const auto err = "It is the same as executing install command because nothing is installed.";
+                cli::echo(cli::to_warning(err));
+                _install::_main(std::move(argv)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
+                return;
+            }
+
+            if (all) {
+                // FIXME: install.hppと同じ内容が多い
+                const auto node = yaml::load_config("deps");
+                const resolver::Deps deps = _install::resolve_packages(node.at("deps"));
+                resolver::Resolved resolved_deps = resolver::resolve(deps);
+                resolver::Backtracked update_deps;
+
+                for (const auto& [name, dep] : resolved_deps.backtracked) {
+                    if (dep.source == "poac") {
+                        const auto current_name = naming::to_current(dep.source, name, dep.version);
+                        std::string current_version;
+                        if (const auto yml = yaml::exists_config(fs::path("deps") / current_name)) {
+                            if (const auto op_node = yaml::load(*yml)) {
+                                if (const auto version = yaml::get<std::string>(*op_node, "version")) {
+                                    current_version = *version;
+                                }
+                                else { // Key not founded
+                                    current_version = "null";
+                                }
+                            }
+                            else { // Could not read
+                                current_version = "null";
+                            }
+                        }
+                        else { // Not installed
+                            current_version = "null";
+                        }
+
+                        if (core::semver::Version(dep.version) != current_version) {
+                            update_deps[name] = { current_version, dep.source };
+                        }
+                    }
+                }
+
+                if (update_deps.empty()) {
+                    std::cout << "No changes detected." << std::endl;
+                    return;
+                }
+
+                for (const auto& [name, dep] : update_deps) {
+                    const auto current_version = resolved_deps.backtracked[name].version;
+                    std::cout << name << " (Current: " << current_version << " -> Update: ";
+                    if (core::semver::Version(current_version) < dep.version) {
+                        std::cout << cli::to_green(dep.version) << ")" << std::endl;
+                    }
+                    else {
+                        std::cout << cli::to_yellow(dep.version) << ")" << std::endl;
+                    }
+                }
+
+                if (!yes) {
+                    cli::echo();
+                    std::cout << "Do you approve of this update? [Y/n] ";
+                    std::string yes_or_no;
+                    std::cin >> yes_or_no;
+                    std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
+                    if (!(yes_or_no == "yes" || yes_or_no == "y")) {
+                        std::cout << "canceled." << std::endl;
+                        return;
+                    }
+                }
+
+                // Delete current version
+                for (const auto& [name, dep] : update_deps) {
+                    const auto current_name = naming::to_current(dep.source, name, resolved_deps.backtracked[name].version);
+                    boost::system::error_code ec;
+                    fs::remove_all(fs::path("deps") / current_name, ec);
+                }
+
+                // Install new version
+                cli::echo();
+                _install::fetch_packages(update_deps, false, false);
+
+                cli::echo();
+                cli::status_done();
+            }
+            else { // Individually update
+//                if (const auto versions = get_versions_api(argv[0])) {
+//                    const auto versions_v = util::types::ptree_to_vector<std::string>(*versions);
+//
+//                }
+            }
         }
+    }
 
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-
-            if (argv.size() != 1)
-                throw except::invalid_second_arg("login");
-            std::regex pattern("\\w{8}-(\\w{4}-){3}\\w{12}");
-            if (!std::regex_match(argv[0], pattern))
-                throw except::invalid_second_arg("login");
+    struct update {
+        static const std::string summary() {
+            return "Update package";
         }
-    };} // end namespace
+        static const std::string options() {
+            return "[ -y | --yes, -a | --all, --outside ]";
+        }
+        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        void operator()(VS&& argv) {
+            _update::_main(std::move(argv));
+        }
+    };
+} // end namespace
 #endif // !POAC_SUBCMD_UPDATE_HPP

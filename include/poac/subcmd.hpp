@@ -13,5 +13,6 @@
 #include "subcmd/search.hpp"
 #include "subcmd/test.hpp"
 #include "subcmd/uninstall.hpp"
+#include "subcmd/update.hpp"
 
 #endif // !POAC_SUBCMD_HPP
