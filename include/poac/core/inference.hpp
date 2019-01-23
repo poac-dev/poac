@@ -16,14 +16,14 @@
 
 
 namespace poac::core::infer {
-    namespace types = util::types;
+    using namespace util::types;
 
     // Index of T
     // variable template partial specialization
     template <int I, typename T, typename T0, typename... Ts>
-    static constexpr int index_of_v = types::non_type_conditional_v<std::is_same_v<T, T0>, I, index_of_v<I+1, T, Ts...>>;
+    static constexpr int index_of_v = non_type_conditional_v<std::is_same_v<T, T0>, I, index_of_v<I+1, T, Ts...>>;
     template <int I, typename T, typename T0>
-    static constexpr int index_of_v<I, T, T0> = types::non_type_conditional_v<std::is_same_v<T, T0>, I, -1>;
+    static constexpr int index_of_v<I, T, T0> = non_type_conditional_v<std::is_same_v<T, T0>, I, -1>;
 
     // type in the index of I
     template <size_t I, typename T0, typename... Ts>
@@ -44,7 +44,7 @@ namespace poac::core::infer {
     struct type_list_t {
         static constexpr size_t size() noexcept { return sizeof...(Ts); };
         template <typename T>
-        static constexpr int index_of = index_of_v<0, types::remove_cvref_t<T>, types::remove_cvref_t<Ts>...>;
+        static constexpr int index_of = index_of_v<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>;
         template <int I>
         using at_t = at_impl_t<I, Ts...>;
     };
