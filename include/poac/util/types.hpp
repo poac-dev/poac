@@ -2,6 +2,7 @@
 #define POAC_UTIL_TYPES_HPP
 
 #include <type_traits>
+#include <utility>
 #include <vector>
 #include <stack>
 
@@ -43,6 +44,21 @@ namespace poac::util::types {
             r.push_back(item.second.template get_value<T>());
         }
         return r;
+    }
+
+    template<typename Tuple, typename I, I... Indices>
+    std::array<
+        std::tuple_element_t<0, remove_cvref_t<Tuple>>,
+        std::tuple_size_v<remove_cvref_t<Tuple>>
+    >
+    tuple_to_array(Tuple&& tuple, std::integer_sequence<I, Indices...>) {
+        return { std::get<Indices>(std::forward<Tuple>(tuple))... };
+    }
+    template<typename Tuple>
+    auto tuple_to_array(Tuple&& tuple) {
+        return tuple_to_array(
+                std::forward<Tuple>(tuple),
+                std::make_index_sequence<std::tuple_size_v<remove_cvref_t<Tuple>>>());
     }
 
     template <typename T>
