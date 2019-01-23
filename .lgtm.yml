@@ -9,4 +9,4 @@ extraction:
         - mkdir build
         - cd build
         - cmake ..
-        - make -s
+        - make
