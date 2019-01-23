@@ -69,10 +69,14 @@ namespace poac::io::cli {
     const std::string status = to_green("==> ");
     const std::string fetched = to_green("  ●  ");
     const std::string fetch_failed = to_red("  ●  ");
+    const std::string warning = to_yellow("WARN: ");
+    const std::string error = to_red("ERROR: ");
 
     inline std::string to_status(const std::string& s) { return status+s; }
     inline std::string to_fetched(const std::string& s) { return fetched+s; }
     inline std::string to_fetch_failed(const std::string& s) { return fetch_failed+s; }
+    inline std::string to_warning(const std::string& s) { return warning+s; }
+    inline std::string to_error(const std::string& s) { return error+s; }
 
     inline std::string status_done() { return to_status("Done."); }
 

@@ -49,12 +49,12 @@ int exec(std::string&& str, VS&& vs)
         return EXIT_SUCCESS;
     }
     catch (const YAML::BadConversion& e) {
-        std::cout << cli::to_red("ERROR: ") << "poac.yml " << e.what()
+        std::cout << cli::error << "poac.yml " << e.what()
                   << std::endl;
         return EXIT_SUCCESS;
     }
     catch (...) {
-        std::cerr << cli::to_red("ERROR: ") << "Unexpected error" << std::endl;
+        std::cerr << cli::to_error("Unexpected error") << std::endl;
         return EXIT_FAILURE;
     }
 }
