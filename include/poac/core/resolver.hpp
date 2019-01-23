@@ -24,6 +24,7 @@
 #include "../io/file.hpp"
 #include "../io/network.hpp"
 #include "../config.hpp"
+#include "../util/types.hpp"
 
 
 namespace poac::core::resolver {
@@ -47,35 +48,8 @@ namespace poac::core::resolver {
         }
     }
 
-
     std::string archive_url(const std::string& name, const std::string& version) {
         return "/poac-pm.appspot.com/" + core::naming::to_cache("poac", name, version) + ".tar.gz";
-    }
-
-    // boost::property_tree::ptree : {"key": ["array", "...", ...]}
-    //  -> std::vector<T> : ["array", "...", ...]
-    template <typename T, typename U, typename K=typename U::key_type>
-    std::vector<T> as_vector(const U& pt, const K& key) { // as_vector(pt, "key")
-        std::vector<T> r;
-        for (const auto& item : pt.get_child(key)) {
-            r.push_back(item.second.template get_value<T>());
-        }
-        return r;
-    }
-    // boost::property_tree::ptree : ["array", "...", ...]
-    //  -> std::vector<T> : ["array", "...", ...]
-    template <typename T, typename U>
-    std::vector<T> as_vector(const U& pt) {
-        std::vector<T> r;
-        for (const auto& item : pt) {
-            r.push_back(item.second.template get_value<T>());
-        }
-        return r;
-    }
-
-    template <typename T>
-    std::stack<T> vector_to_stack(const std::vector<T>& v) {
-        return std::stack<T>(std::deque<T>(v.begin(), v.end()));
     }
 
     // Interval to multiple versions
@@ -90,7 +64,7 @@ namespace poac::core::resolver {
             ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
             boost::property_tree::json_parser::read_json(ss, pt);
         }
-        const auto versions = as_vector<std::string>(pt);
+        const auto versions = util::types::ptree_to_vector<std::string>(pt);
 
         std::vector<std::string> res;
         semver::Interval i(name, interval);
