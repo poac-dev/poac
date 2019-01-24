@@ -2,22 +2,10 @@
 #define POAC_SUBCMD_INSTALL_HPP
 
 #include <iostream>
-#include <algorithm>
-#include <iterator>
 #include <vector>
 #include <string>
-#include <sstream>
-#include <cstdio>
-#include <cstdlib>
 #include <fstream>
-#include <tuple>
 #include <map>
-#include <functional>
-#include <utility>
-#include <tuple>
-#include <fstream>
-#include <regex>
-#include <chrono>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -186,6 +174,19 @@ namespace poac::subcmd {
             return deps;
         }
 
+        std::optional<YAML::Node>
+        check_lock_timestamp(const std::string& timestamp) { // core/lock.hpp ??
+            namespace yaml = io::file::yaml;
+            if (const auto lock = yaml::load("poac.lock")) {
+                if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
+                    if (timestamp == *lock_timestamp) {
+                        return *lock;
+                    }
+                }
+            }
+            return std::nullopt;
+        }
+
         std::string get_yaml_timestamp() {
             namespace fs = boost::filesystem;
             namespace yaml = io::file::yaml;
@@ -222,21 +223,17 @@ namespace poac::subcmd {
             const bool verbose = !quite && util::argparse::use(argv, "-v", "--verbose");
 
 
-            resolver::Resolved resolved_deps;
+            resolver::Resolved resolved_deps{};
             bool load_lock = false;
-            if (const auto lock = yaml::load("poac.lock")) {
-                if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
-                    if (timestamp == *lock_timestamp) {
-                        if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
-                            for (const auto& [name, next_node] : *locked_deps) {
-                                const auto version = *yaml::get<std::string>(next_node, "version");
-                                const auto source = *yaml::get<std::string>(next_node, "source");
-                                // この場合，lockファイルを書き換える必要はないため，resolved_deps.activatedに何かを書き込む必要はない
-                                resolved_deps.backtracked[name] = { version, source };
-                            }
-                            load_lock = true;
-                        }
+            if (const auto lock = check_lock_timestamp(timestamp)) {
+                if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
+                    for (const auto& [name, next_node] : *locked_deps) {
+                        const auto version = *yaml::get<std::string>(next_node, "version");
+                        const auto source = *yaml::get<std::string>(next_node, "source");
+                        // この場合，lockファイルを書き換える必要はないため，resolved_deps.activatedに何かを書き込む必要はない
+                        resolved_deps.backtracked[name] = { version, source };
                     }
+                    load_lock = true;
                 }
             }
 
