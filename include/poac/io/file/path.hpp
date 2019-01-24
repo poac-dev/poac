@@ -13,7 +13,7 @@
 
 
 namespace poac::io::file::path {
-    // Inspired by https://stackoverflow.com/questions/4891006/how-to-create-a-folder-in-the-home-directory
+    // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path);
     std::string expand_user(std::string path) {
         if (!path.empty() && path[0] == '~') {

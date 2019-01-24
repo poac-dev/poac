@@ -155,9 +155,6 @@ namespace poac::io::file::yaml {
         if (const auto yml = base / "poac.yml"; fs::exists(yml)) {
             return yml.string();
         }
-        else if (const auto yaml = base / "poac.yaml"; fs::exists(yaml)) {
-            return yaml.string();
-        }
         else {
             return std::nullopt;
         }

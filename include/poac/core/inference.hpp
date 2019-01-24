@@ -12,25 +12,11 @@
 #include "exception.hpp"
 #include "../option.hpp"
 #include "../subcmd.hpp"
+#include "../util/types.hpp"
 
 
 namespace poac::core::infer {
-    // If the type T is a reference type, provides the member typedef type
-    //  which is the type referred to by T with its topmost cv-qualifiers removed.
-    // Otherwise type is T with its topmost cv-qualifiers removed.
-    // C++20, std::remove_cvref_t<T>
-    template <typename T>
-    using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
-
-    // std::conditional for non-type template
-    template <auto Value>
-    struct value_holder { static constexpr auto value = Value; };
-    template <bool B, auto T, auto F>
-    using non_type_conditional = std::conditional<B, value_holder<T>, value_holder<F>>;
-    template <bool B, auto T, auto F>
-    using non_type_conditional_t = std::conditional_t<B, value_holder<T>, value_holder<F>>;
-    template <bool B, auto T, auto F>
-    static constexpr auto non_type_conditional_v = non_type_conditional_t<B, T, F>::value;
+    using namespace util::types;
 
     // Index of T
     // variable template partial specialization
@@ -49,7 +35,9 @@ namespace poac::core::infer {
 
     // std::initializer_list -> std::vector
     template <typename T>
-    static constexpr std::vector<T> make_array( std::initializer_list<T>&& l ) { return l; }
+    static constexpr auto make_vector(std::initializer_list<T>&& l) {
+        return std::vector<T>{ l };
+    }
 
     // type list
     template <typename... Ts>
@@ -75,6 +63,7 @@ namespace poac::core::infer {
             subcmd::search,
             subcmd::test,
             subcmd::uninstall,
+            subcmd::update,
             option::help,
             option::version
     >;
@@ -91,6 +80,7 @@ namespace poac::core::infer {
         search    = op_type_list_t::index_of<subcmd::search>,
         test      = op_type_list_t::index_of<subcmd::test>,
         uninstall = op_type_list_t::index_of<subcmd::uninstall>,
+        update    = op_type_list_t::index_of<subcmd::update>,
         help      = op_type_list_t::index_of<option::help>,
         version   = op_type_list_t::index_of<option::version>
     };
@@ -106,7 +96,8 @@ namespace poac::core::infer {
             { "run",       op_type_e::run },
             { "search",    op_type_e::search },
             { "test",      op_type_e::test },
-            { "uninstall", op_type_e::uninstall }
+            { "uninstall", op_type_e::uninstall },
+            { "update",    op_type_e::update }
     };
     const std::unordered_map<std::string, op_type_e> option_map {
             { "--help",    op_type_e::help },
@@ -147,17 +138,17 @@ namespace poac::core::infer {
     template <size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
-        return make_array({ +[](VS&& vs){
+        return make_vector({ +[](VS&& vs){
             return (op_type_list_t::at_t<Is>()(std::move(vs)), "");
         }... })[idx](std::move(vs));
     }
     template <size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
-        return make_array({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
+        return make_vector({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
     }
     template <size_t... Is>
     static auto options(std::index_sequence<Is...>, int idx) {
-        return make_array({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
+        return make_vector({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
     }
 #endif
 

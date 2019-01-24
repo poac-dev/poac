@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <vector>
 #include <fstream>
@@ -24,16 +25,6 @@
 
 namespace poac::subcmd {
     namespace _publish {
-        std::string read_config() {
-            namespace except = core::exception;
-            if (const auto op_filename = io::file::yaml::exists_config()) {
-                return *(io::file::path::read_file(*op_filename));
-            }
-            else {
-                throw except::error("poac.yml does not exists");
-            }
-        }
-
         boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
             namespace fs = boost::filesystem;
 
@@ -75,7 +66,7 @@ namespace poac::subcmd {
             return output_dir;
         }
 
-        void status_func(const std::string& msg) {
+        void status_func(std::string_view msg) {
             std::cout << io::cli::to_green("==> ")
                       << msg
                       << std::endl;
@@ -93,15 +84,16 @@ namespace poac::subcmd {
             namespace fs     = boost::filesystem;
             namespace except = core::exception;
 
-            io::file::yaml::load_config("name", "version", "cpp_version",
-                                        "description", "owners");
+            io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
 
             // TODO: licenseの項があるのに，LICENSEファイルが存在しない => error
             // TODO: licenseの項が無いのに，LICENSEファイルが存在する => error
-            if (!fs::exists("LICENSE"))
-                std::cerr << io::cli::yellow << "WARN: LICENSE does not exist" << std::endl;
-            if (!fs::exists("README.md"))
-                std::cerr << io::cli::yellow << "WARN: README.md does not exist" << std::endl;
+            if (!fs::exists("LICENSE")) {
+                std::cerr << io::cli::to_yellow("WARN: ") << "LICENSE does not exist" << std::endl;
+            }
+            if (!fs::exists("README.md")) {
+                std::cerr << io::cli::to_yellow("WARN: ") << "README.md does not exist" << std::endl;
+            }
         }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -113,12 +105,12 @@ namespace poac::subcmd {
             check_requirements();
 
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
-//            bool error = false;
+
+            // TODO: 確認をとるようにする．-> gcloud app deploy的な感じで
 
             // TODO: poac.ymlに，system: manualが含まれている場合はpublishできない
             // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
             // TODO: descriptionに，TODOが含まれてたらエラーではなく，**TODO: Add description**と完全一致ならエラー
-            // TODO: その依存関係が解決できるものかチェック
 
 
             const std::string project_dir = fs::absolute(fs::current_path()).string();
@@ -148,56 +140,49 @@ namespace poac::subcmd {
                 }
                 json.add_child("owners", children);
             }
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, json, false);
+            std::string json_s;
+            {
+                std::stringstream ss;
+                boost::property_tree::json_parser::write_json(ss, json, false);
+                json_s = ss.str();
+            }
 
             // Validating
-//            if (!error)
             status_func("Validating...");
-            if (verbose) std::cout << ss.str() << std::endl;
-            if (io::network::post(POAC_TOKENS_VALIDATE_API, ss.str()) == "err")
+            if (verbose) {
+                std::cout << json_s << std::endl;
+            }
+            if (io::network::post(POAC_TOKENS_VALIDATE_API, json_s) == "err") {
                 throw except::error("Token verification failed.\n"
                                     "Please check the following check lists.\n"
                                     "1. Does token really belong to you?\n"
                                     "2. Is the user ID described `owners` in poac.yml\n"
                                     "    the same as that of GitHub account?");
+            }
+
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
-
-            // TODO: subcmd::newに同じものが存在する．
-            const auto is_slash = [](const char c) {
-                return c == '/';
-            };
-            // /name
-            if (is_slash(node_name[0])) {
-                throw except::error("Invalid name.\n"
-                                    "It is prohibited to add /(slash)\n"
-                                    " at the begenning of a project name.");
-            }
-            // org/name/sub
-            else if (std::count_if(node_name.begin(), node_name.end(), is_slash) > 1) {
-                throw except::error("Invalid name.\n"
-                                    "It is prohibited to use two\n"
-                                    " /(slashes) in a project name.");
-            }
-
             const auto node_version = node.at("version").as<std::string>();
-            if (io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists") == "true")
+            if (io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists") == "true") {
                 throw except::error(node_name + ": " + node_version + " already exists");
+            }
 
             // Post tarball to API.
             status_func("Uploading...");
-            const std::string config = read_config();
-            if (verbose) std::cout << config << std::endl;
-            // could not get response
-            io::network::post_file(POAC_PACKAGE_UPLOAD_API, output_dir, config, token, verbose);
+            if (!fs::exists("poac.yml")) {
+                throw except::error("poac.yml does not exists");
+            }
+            // FIXME: could not get response
+            io::network::post_file(output_dir, token);
 
             // Check exists package
-            std::map<std::string, std::string> headers;
-            headers.insert(std::make_pair("Cache-Control", "no-cache"));
-            const std::string res = io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists", headers);
-            if (res != "true")
+            io::network::Headers headers;
+            headers.emplace(io::network::http::field::cache_control, "no-cache");
+            const std::string target = POAC_PACKAGES_API + node_name + "/" + node_version + "/exists";
+            const std::string res = io::network::get(target, POAC_API_HOST, headers);
+            if (res != "true") {
                 std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
+            }
 
             // Delete file
             status_func("Cleanup...");

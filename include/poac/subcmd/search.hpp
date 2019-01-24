@@ -33,10 +33,6 @@ namespace poac::subcmd {
         boost::property_tree::ptree get_search_api(const std::string& query) {
             namespace except = core::exception;
 
-            std::vector<std::string> headers;
-            headers.push_back(std::string("X-Algolia-API-Key: ") + ALGOLIA_SEARCH_ONLY_KEY);
-            headers.push_back(std::string("X-Algolia-Application-Id: ") + ALGOLIA_APPLICATION_ID);
-
             std::string params;
             {
                 boost::property_tree::ptree pt;
@@ -47,7 +43,10 @@ namespace poac::subcmd {
             }
 
             std::stringstream ss;
-            ss << io::network::post(ALGOLIA_SEARCH_INDEX_API, params, headers);
+            io::network::Headers headers;
+            headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
+            headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
+            ss << io::network::post(ALGOLIA_SEARCH_INDEX_API, params, ALGOLIA_SEARCH_INDEX_API_HOST, headers);
 
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);

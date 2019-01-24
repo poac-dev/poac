@@ -12,8 +12,8 @@ Please see [poac.pm](https://poac.pm) for [installation instructions](https://po
 [![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
 
 ## Supported Operating Systems
-
-Poac currently supports macOS (>= sierra) only.
+* macOS (>= sierra)
+* Linux (= x86_64 GNU/Linux)
 
 ## Code Status
 [![GitHub](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
@@ -31,10 +31,10 @@ curl -fsSL https://sh.poac.pm | bash
 
 ### Manual install (Build)
 Poac requires the following tools and packages to build:
-* [`boost`](https://github.com/boostorg): `1.48.0` or higher
+* [`boost`](https://github.com/boostorg): `1.66.0` or higher
 * [`cmake`](https://github.com/Kitware/CMake): `3.0` or higher
 * [`libcurl`](https://github.com/curl/curl): `7.63.0`
-* [`libressl`](https://www.libressl.org): `2.6.5`
+* [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` or higher
 
 ```bash
@@ -54,8 +54,7 @@ $ poac build
 
 ## Requirements (runtime)
 * compiler (gcc | clang | MSVC | ICC)
-* `tar`
-* `git`
+* `tar`: in publish command
 * `cmake`: optional
 * `make`: optional
 

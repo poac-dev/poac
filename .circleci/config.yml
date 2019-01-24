@@ -71,7 +71,7 @@ jobs:
       - checkout
 
       - restore_cache: *restore-poac-cache
-      - run: poac install # source file only (no pre-built)
+#      - run: poac install # source file only (no pre-built)
       - save_cache: *save-poac-cache1
       - save_cache: *save-poac-cache2
       - save_cache: *save-poac-cache3

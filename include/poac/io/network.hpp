@@ -4,265 +4,191 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <memory>
+#include <string_view>
 #include <map>
-#include <cstdio>
-
-// TODO: 依存する必要？？
-#include <sys/stat.h>
+#include <variant>
 
 #include <curl/curl.h>
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/version.hpp>
+#include <boost/beast/http.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "../core/exception.hpp"
 #include "./cli.hpp"
-#include "../util/command.hpp"
 
 
 namespace poac::io::network {
-    size_t callback_write(char* ptr, size_t size, size_t nmemb, std::string* stream) {
-        int dataLength = size * nmemb;
-        stream->append(ptr, dataLength);
-        return dataLength;
+    namespace ssl = boost::asio::ssl;
+    namespace http = boost::beast::http;
+
+    using Headers = std::map<std::variant<http::field, std::string>, std::string>;
+
+    template <typename ResponseBody, typename RequestBody>
+    typename ResponseBody::value_type
+    request(const http::request<RequestBody>& req, std::string_view host)
+    {
+        // The io_context is required for all I/O
+        boost::asio::io_context ioc;
+        // The SSL context is required, and holds certificates
+        ssl::context ctx{ ssl::context::sslv23 };
+        // These objects perform our I/O
+        boost::asio::ip::tcp::resolver resolver{ ioc };
+        ssl::stream<boost::asio::ip::tcp::socket> stream{ ioc, ctx };
+
+        // Set SNI Hostname (many hosts need this to handshake successfully)
+        if(!SSL_set_tlsext_host_name(stream.native_handle(), std::string(host).c_str()))
+        {
+            boost::system::error_code ec{
+                static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
+            };
+            throw boost::system::system_error{ ec };
+        }
+        // Look up the domain name
+        const auto port = "443";
+        const auto results = resolver.resolve(host, port);
+        // Make the connection on the IP address we get from a lookup
+        boost::asio::connect(stream.next_layer(), results.begin(), results.end());
+        // Perform the SSL handshake
+        stream.handshake(ssl::stream_base::client);
+
+        // Send the HTTP request to the remote host
+        http::write(stream, req);
+
+        // This buffer is used for reading and must be persisted
+        boost::beast::flat_buffer buffer;
+        // Declare a container to hold the response
+        http::response<ResponseBody> res;
+        // Receive the HTTP response
+        http::read(stream, buffer, res);
+
+        // Gracefully close the stream
+        boost::system::error_code ec;
+        stream.shutdown(ec);
+        if (ec == boost::asio::error::eof) {
+            // Rationale: https://stackoverflow.com/q/25587403
+            ec.assign(0, ec.category());
+        }
+        return res.body();
     }
 
-    // TODO: Check if connecting network !!!
 
-    std::string get(const std::string& url) {
-        std::string chunk;
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
-                std::cerr << "curl_easy_perform() failed." << std::endl;
-            curl_easy_cleanup(curl);
+    template <typename Body>
+    http::request<Body>
+    create_request(
+            http::verb method,
+            std::string_view target,
+            std::string_view host=POAC_API_HOST,
+            const Headers& headers={})
+    {
+        // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
+        http::request<Body> req{ method, std::string(target), 11 };
+        req.set(http::field::host, host);
+        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+        for (const auto& [field, string_param] : headers) {
+            std::visit([&, s=string_param](auto f) { req.set(f, s); }, field);
         }
-        return chunk;
+        return req;
     }
 
-    std::string get(const std::string& url, const std::map<std::string, std::string>& headers_map) {
-        std::string chunk;
-        struct curl_slist *headers = NULL;
-        for (const auto& [k, v] : headers_map) {
-            headers = curl_slist_append(headers, (k + ": " + v).c_str());
+    std::string get(
+            std::string_view target,
+            std::string_view host=POAC_API_HOST,
+            const Headers& headers={})
+    {
+        const auto req = create_request<http::string_body>(http::verb::get, target, host, headers);
+        const auto res = request<http::string_body>(req, host);
+        return res.data();
+    }
+    void get(
+            std::string_view target,
+            const boost::filesystem::path& out,
+            std::string_view host=POAC_API_HOST,
+            const Headers& headers={})
+    {
+        const auto req = create_request<http::string_body>(http::verb::get, target, host, headers);
+        const auto res = request<http::vector_body<unsigned char>>(req, host);
+        std::ofstream output_file(out.string(), std::ios::out | std::ios::binary);
+        for (const auto& r : res) {
+            output_file << r;
         }
-
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
-                std::cerr << "curl_easy_perform() failed." << std::endl;
-            curl_easy_cleanup(curl);
-        }
-        return chunk;
     }
 
     std::string post(
-            const std::string& url,
-            const std::string& json,
-            const std::vector<std::string>& headers_v={},
-            const std::string& content_type="" )
+            std::string_view target,
+            std::string body,
+            std::string_view host=POAC_API_HOST,
+            const Headers& headers={})
     {
-        std::string chunk;
-        struct curl_slist *headers = NULL;
+        auto req = create_request<http::string_body>(http::verb::post, target, host, headers);
+        req.set(http::field::content_type, "application/json");
+        body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
+        req.body() = body;
+        req.prepare_payload();
 
-        for (const auto& h : headers_v) {
-            headers = curl_slist_append(headers, h.c_str());
-        }
-
-        if (content_type.empty()) {
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-        }
-        else {
-            headers = curl_slist_append(headers, ("Content-Type: " + content_type).c_str());
-        }
-
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
-                std::cerr << "curl_easy_perform() failed." << std::endl;
-            curl_easy_cleanup(curl);
-        }
-        return chunk;
-    }
-
-    std::string get_github(const std::string& url) {
-        std::string chunk;
-        std::string useragent(std::string("curl/") + curl_version());
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, &useragent);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback_write);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK)
-                std::cerr << "curl_easy_perform() failed." << std::endl;
-            curl_easy_cleanup(curl);
-        }
-        return chunk;
-    }
-
-    bool get_file(const std::string& from_url, const boost::filesystem::path& to_file) {
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            FILE* fp = std::fopen(to_file.c_str(), "wb");
-            curl_easy_setopt(curl, CURLOPT_URL, from_url.c_str());
-            // follow HTTP 3xx redirects
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, std::fwrite);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-            // Switch on full protocol/debug output
-//            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
-                (void)res;
-                return EXIT_FAILURE;
-            }
-            curl_easy_cleanup(curl);
-            std::fclose(fp);
-        }
-        return EXIT_SUCCESS;
+        const auto res = request<http::string_body>(req, host);
+        return res.data();
     }
 
 
-    // 1 or 0
-    struct data { char trace_ascii; };
-    void dump(
-        const char* text, FILE* stream,
-        unsigned char* ptr, size_t size,
-        char nohex )
+    void PostFile( // TODO: WIP
+            const std::string& token,
+            const std::string& from_file,
+            std::string_view target="/post",
+            std::string_view host="httpbin.org")
     {
-        size_t i;
-        size_t c;
+        auto req = create_request<http::empty_body>(http::verb::post, target, host);
 
-        unsigned int width = 0x10;
+        const std::string boundary = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+        std::string content_disposition =
+                "form-data; name=\"token\"\r\n"
+                "\r\n"
+                + token + "\r\n"
+                "--" + boundary + "\r\n"
+                "Content-Disposition: form-data; name=\"file\"; filename=\"" + from_file + "\"\r\n"
+                "Content-Type: application/x-gzip\r\n"
+                "Content-Transfer-Encoding: binary\r\n"
+                "\r\n";
 
-        if (nohex)
-            // without the hex output, we can fit more on screen
-            width = 0x40;
+//        std::ifstream file(from_file, std::ios::in | std::ios::binary);
+//        std::string binary((std::istreambuf_iterator<char>(file)),
+//                            std::istreambuf_iterator<char>());
+//        content_disposition += binary;
 
-        fprintf(stream, "%s, %10.10lu bytes (0x%8.8lx)\n",
-                text, (unsigned long)size, (unsigned long)size);
+//        http::request_serializer<http::empty_body> sr{ req }; // TODO: chunked
+//        sr.
 
-        for (i = 0; i<size; i += width)
-        {
-            fprintf(stream, "%4.4lx: ", (unsigned long)i);
+        content_disposition += "\r\n--" + boundary + "--" + "\r\n"; // footer
 
-            if (!nohex) {
-                /* hex not disabled, show it */
-                for (c = 0; c < width; c++)
-                    if (i + c < size)
-                        fprintf(stream, "%02x ", ptr[i + c]);
-                    else
-                        fputs("   ", stream);
-            }
+        req.set(http::field::content_type, "multipart/form-data; boundary=" + boundary);
+        // "Content-Disposition: " + "\r\n\r\n--" -> 27
+        const auto content_length = 27 + boundary.length() + content_disposition.length();
+        req.set(http::field::content_length, std::to_string(content_length) + "\r\n\r\n--" + boundary);
+        req.set(http::field::content_disposition, content_disposition);
 
-            for (c = 0; (c < width) && (i + c < size); c++) {
-                // check for 0D0A; if found, skip past and start a new line of output
-                if (nohex && (i + c + 1 < size) &&
-                    ptr[i + c] == 0x0D &&
-                    ptr[i + c + 1] == 0x0A )
-                {
-                    i += (c + 2 - width);
-                    break;
-                }
-                fprintf(stream, "%c",
-                        (ptr[i + c] >= 0x20) && (ptr[i + c]<0x80)?ptr[i + c]:'.');
-                /* check again for 0D0A, to avoid an extra \n if it's at width */
-                if (nohex && (i + c + 2 < size) && ptr[i + c + 1] == 0x0D &&
-                   ptr[i + c + 2] == 0x0A) {
-                    i += (c + 3 - width);
-                    break;
-                }
-            }
-            fputc('\n', stream); /* newline */
-        }
-        fflush(stream);
-    }
-    int my_trace(
-        CURL* handle, curl_infotype type,
-        char* data, size_t size,
-        void* userp )
-    {
-        struct data* config = (struct data *)userp;
-        const char* text;
-        (void)handle; // prevent compiler warning
-
-        switch(type) {
-            case CURLINFO_TEXT:
-                fprintf(stderr, "== Info: %s", data);
-                // FALLTHROUGH
-            default: // in case a new one is introduced to shock us
-                return 0;
-
-            case CURLINFO_HEADER_OUT:
-                text = "=> Send header";
-                break;
-            case CURLINFO_DATA_OUT:
-                text = "=> Send data";
-                break;
-            case CURLINFO_SSL_DATA_OUT:
-                text = "=> Send SSL data";
-                break;
-            case CURLINFO_HEADER_IN:
-                text = "<= Recv header";
-                break;
-            case CURLINFO_DATA_IN:
-                text = "<= Recv data";
-                break;
-            case CURLINFO_SSL_DATA_IN:
-                text = "<= Recv SSL data";
-                break;
-        }
-        dump(text, stderr, (unsigned char *)data, size, config->trace_ascii);
-        return 0;
-    }
-
-    void verbose_func(CURL* curl) {
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-        curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, my_trace);
-        struct data config;
-        config.trace_ascii = 1; /* enable ascii tracing */
-        curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &config);
-    }
-    // now extract transfer info
-    void transfer_info(CURL* curl) {
-        double speed;
-        curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed);
-        double total;
-        curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total);
-
-        std::cout << "Speed: " << speed << " bytes/sec during "
-                  << total << " seconds" << std::endl;
+        std::cout << req << std::endl;
+//        const auto res = request<http::string_body>(req, host);
+//        std::cout << res << std::endl;
     }
 
     void post_file(
-        const std::string& to_url,
         const std::string& from_file,
-        const std::string& config,
-        const std::string& token,
-        const bool verbose=false )
+        const std::string& token)
     {
         struct curl_httppost* formpost = nullptr;
         struct curl_httppost* lastptr = nullptr;
-        struct curl_slist *headers = nullptr;
+        struct curl_slist* headers = nullptr;
 
         curl_global_init(CURL_GLOBAL_ALL);
-
-        curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "config",
-                     CURLFORM_COPYCONTENTS, config.c_str(),
-                     CURLFORM_END);
         curl_formadd(&formpost, &lastptr,
                      CURLFORM_COPYNAME, "token",
                      CURLFORM_COPYCONTENTS, token.c_str(),
@@ -278,27 +204,15 @@ namespace poac::io::network {
                      CURLFORM_END);
 
         if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            curl_easy_setopt(curl, CURLOPT_URL, to_url.c_str());
+            curl_easy_setopt(curl, CURLOPT_URL, POAC_PACKAGE_UPLOAD_API);
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
             headers = curl_slist_append(headers, "Expect:");
             headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
             curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-
-#ifdef DEBUG
-                verbose_func(curl);
-#endif
-
             if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
-                // TODO: throw????
                 std::cerr << "curl told us " << res << std::endl;
-            }
-            else if (verbose) {
-#ifdef DEBUG
-                transfer_info(curl);
-#endif
             }
             curl_easy_cleanup(curl);
             curl_formfree(formpost);
@@ -311,30 +225,6 @@ namespace poac::io::network {
         for (int i = 0; i < 100; ++i)
             std::cout << ' ';
         std::cout << cli::left(100);
-    }
-
-    bool clone(
-        const std::string& url,
-        const boost::filesystem::path& dest,
-        const std::map<std::string, std::string>& opts=
-            std::map<std::string, std::string>() )
-    {
-        std::string options;
-        for (const auto& [ key, val ] : opts) {
-            options.append(key + " " + val + " ");
-        }
-
-        if (util::command("git clone " + options + url + " " + dest.string()).stderr_to_stdout().exec())
-            return EXIT_SUCCESS;
-        else
-            return EXIT_FAILURE;
-    }
-
-    std::pair<std::string, std::string> opt_branch(const std::string& tag) {
-        return std::make_pair("-b", tag);
-    }
-    std::pair<std::string, std::string> opt_depth(const unsigned int& d) {
-        return std::make_pair("--depth", std::to_string(d));
     }
 } // end namespace
 #endif // !POAC_IO_NETWORK_HPP

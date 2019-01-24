@@ -12,27 +12,23 @@ matrix:
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
-      env: USE_DEFAULT_COMPILER=false
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
-      env: USE_DEFAULT_COMPILER=true
 
 before_install:
   - brew update
+  - brew upgrade boost; return 0
 install:
-  - |
-    if [ "${USE_DEFAULT_COMPILER}" == "false" ]; then
-      brew install llvm
-      export CXX=/usr/local/opt/llvm/bin/clang++
-      export LDFLAGS="-L/usr/local/opt/llvm/lib"
-      export CPPFLAGS="-I/usr/local/opt/llvm/include"
-    fi
+  - brew install llvm
+  - export CXX=/usr/local/opt/llvm/bin/clang++
+  - export LDFLAGS="-L/usr/local/opt/llvm/lib"
+  - export CPPFLAGS="-I/usr/local/opt/llvm/include"
   - brew install yaml-cpp
 script:
   - mkdir build
   - cd build
-  - XCODE_VERSION=$(xcodebuild -version | head -n1 | cut -d ' ' -f 2) cmake ..
+  - cmake ..
   - make install
   - poac -h
 
