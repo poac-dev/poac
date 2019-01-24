@@ -145,15 +145,21 @@ namespace poac::subcmd {
             namespace resolver = core::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;
+            namespace except = core::exception;
 
-
-            const auto deps_node = yaml::load_config("deps").at("deps");
-            const auto deps_map = deps_node.as<std::map<std::string, YAML::Node>>();
-            check_exist_name(deps_map, argv);
+            auto node = yaml::load_config();
+            const auto deps_node = node["deps"];
+            if (const auto deps_map = yaml::get<std::map<std::string, YAML::Node>>(deps_node)) {
+                check_exist_name(*deps_map, argv);
+            }
+            else {
+                throw except::error("Could not read deps in poac.yml");
+            }
 
             // create resolved deps
+            const auto timestamp = _install::get_yaml_timestamp();
             resolver::Resolved resolved_deps{};
-            if (const auto locked_deps = _install::load_locked_deps(_install::get_yaml_timestamp())) {
+            if (const auto locked_deps = _install::load_locked_deps(timestamp)) {
                 resolved_deps = lock_to_resolved(*locked_deps);
             }
             else { // poac.lock does not exist
@@ -169,6 +175,8 @@ namespace poac::subcmd {
             for (const auto& v : argv) {
                 create_uninstall_list(first, last, v, uninstall_list);
             }
+
+            // Omit package that does not already exist
 
             // confirm
             if (!util::argparse::use_rm(argv, "-y", "--yes")) {
@@ -200,7 +208,44 @@ namespace poac::subcmd {
                 }
             }
 
-            // TODO: lockファイルとymlファイルを書き換える
+            // lockファイルとymlファイルを書き換える
+            // もし，uninstall_listと，lockファイルの中身が同一なら，完全にdepsがないということだから，poac.ymlのdepsキーとpoac.lockを消す
+            if (resolved_deps.backtracked == uninstall_list) {
+                node.remove("deps");
+                if (std::ofstream ofs("poac.yml"); ofs) {
+                    ofs << node;
+                }
+                else {
+                    throw except::error("Could not open poac.yml");
+                }
+                fs::remove("poac.lock");
+            }
+            else {
+                // uninstall_listに入っていないパッケージのみを書き込む
+                for (const auto& [name, dep] : uninstall_list) {
+                    // 先に，resolved_deps.activatedから，uninstall_listと同じものを削除する
+                    const auto itr = std::find_if(resolved_deps.activated.begin(), resolved_deps.activated.end(),
+                            [name=name](auto x){ return x.name == name; });
+                    if (itr != resolved_deps.activated.end()) {
+                        resolved_deps.activated.erase(itr);
+                    }
+
+                    // 同様に，deps_nodeからそのkeyを削除する
+                    if (dep.source == "poac") {
+                        node["deps"].remove(name);
+                    }
+                    else if (dep.source == "github") {
+                        node["deps"].remove("github/" + name);
+                    }
+                }
+                if (std::ofstream ofs("poac.yml"); ofs) {
+                    ofs << node;
+                }
+                else {
+                    throw except::error("Could not open poac.yml");
+                }
+                _install::create_lock_file(timestamp, resolved_deps.activated);
+            }
 
             cli::echo();
             cli::echo(cli::status_done());
@@ -208,13 +253,6 @@ namespace poac::subcmd {
 
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
-            namespace fs = boost::filesystem;
-            namespace except = core::exception;
-            namespace yaml = io::file::yaml;
-            namespace resolver = core::resolver;
-            namespace cli = io::cli;
-            namespace naming = core::naming;
-
             if (util::argparse::use(argv, "-a", "--all")) {
                 all(std::move(argv));
             }
