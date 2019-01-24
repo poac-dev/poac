@@ -84,8 +84,7 @@ namespace poac::subcmd {
             namespace fs     = boost::filesystem;
             namespace except = core::exception;
 
-            io::file::yaml::load_config("name", "version", "cpp_version",
-                                        "description", "owners");
+            io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
 
             // TODO: licenseの項があるのに，LICENSEファイルが存在しない => error
             // TODO: licenseの項が無いのに，LICENSEファイルが存在する => error
