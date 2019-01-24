@@ -134,7 +134,7 @@ namespace poac::subcmd {
                 _install::fetch_packages(update_deps, false, false);
 
                 cli::echo();
-                cli::status_done();
+                cli::echo(cli::status_done());
             }
             else { // TODO: Individually update
 //                if (const auto versions = get_versions_api(argv[0])) {
