@@ -151,7 +151,8 @@ namespace poac::subcmd {
 
         // YAML::Node -> Deps
         // TODO: To resolver？
-        core::resolver::Deps resolve_packages(const YAML::Node& node) {
+        core::resolver::Deps
+        resolve_packages(const std::map<std::string, YAML::Node>& node) {
             namespace except = core::exception;
             namespace naming = core::naming;
             namespace resolver = core::resolver;
@@ -160,7 +161,7 @@ namespace poac::subcmd {
 
             // Even if a package of the same name is written, it is excluded.
             // However, it can not deal with duplication of other information (e.g. version etc.).
-            for (const auto& [name, next_node] : node.as<std::map<std::string, YAML::Node>>()) {
+            for (const auto& [name, next_node] : node) {
                 // itr->first: itr->second
                 const auto [src, parsed_name] = naming::get_source(name);
                 const auto interval = naming::get_version(next_node, src);
@@ -228,7 +229,7 @@ namespace poac::subcmd {
 
 
             fs::create_directories(path::poac_cache_dir);
-            const auto node = yaml::load_config("deps");
+            const auto deps_node = yaml::load_config("deps").at("deps");
             const std::string timestamp = get_yaml_timestamp();
             const bool quite = util::argparse::use_rm(argv, "-q", "--quite");
             // When used at the same time, --quite is given priority.
@@ -253,7 +254,7 @@ namespace poac::subcmd {
             }
             resolver::Deps deps;
             if (!load_lock) {
-                deps = resolve_packages(node.at("deps"));
+                deps = resolve_packages(deps_node.as<std::map<std::string, YAML::Node>>());
             }
 
 
