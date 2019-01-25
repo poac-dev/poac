@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <regex>
 #include <algorithm>
 
 #include <boost/filesystem.hpp>
@@ -42,15 +43,23 @@ namespace poac::subcmd {
             };
             // /name
             if (is_slash(dirname[0])) {
-                throw except::error("Invalid name.\n"
-                                    "It is prohibited to add /(slash)\n"
-                                    " at the begenning of a project name.");
+                throw except::error(
+                        "Invalid name.\n"
+                        "It is prohibited to add /(slash)\n"
+                        " at the begenning of a project name.");
             }
             // org/name/sub
             else if (std::count_if(dirname.begin(), dirname.end(), is_slash) > 1) {
-                throw except::error("Invalid name.\n"
-                                    "It is prohibited to use two\n"
-                                    " /(slashes) in a project name.");
+                throw except::error(
+                        "Invalid name.\n"
+                        "It is prohibited to use two\n"
+                        " /(slashes) in a project name.");
+            }
+            else if (!std::regex_match(dirname, std::regex("^([a-z|\\d|\\-|_|\\/]*)$"))) {
+                throw except::error(
+                        "Invalid name.\n"
+                        "It is prohibited to use a character string"
+                        " that does not match ^([a-z|\\d|\\-|_|\\/]*)$ in the project name.");
             }
 
             fs::create_directories(dirname);
