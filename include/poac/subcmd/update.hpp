@@ -138,6 +138,7 @@ namespace poac::subcmd {
                 cli::echo(cli::status_done());
             }
             else { // TODO: Individually update
+                std::cout << "Individually update is coming soon" << std::endl;
 //                if (const auto versions = get_versions_api(argv[0])) {
 //                    const auto versions_v = util::types::ptree_to_vector<std::string>(*versions);
 //
