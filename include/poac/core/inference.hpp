@@ -53,6 +53,7 @@ namespace poac::core::infer {
     using op_type_list_t = type_list_t<
             subcmd::build,
             subcmd::cache,
+            subcmd::cleanup,
             subcmd::init,
             subcmd::install,
             subcmd::login,
@@ -70,6 +71,7 @@ namespace poac::core::infer {
     enum class op_type_e : int {
         build     = op_type_list_t::index_of<subcmd::build>,
         cache     = op_type_list_t::index_of<subcmd::cache>,
+        cleanup   = op_type_list_t::index_of<subcmd::cleanup>,
         init      = op_type_list_t::index_of<subcmd::init>,
         install   = op_type_list_t::index_of<subcmd::install>,
         login     = op_type_list_t::index_of<subcmd::login>,
@@ -87,6 +89,7 @@ namespace poac::core::infer {
     const std::unordered_map<std::string, op_type_e> subcmd_map {
             { "build",     op_type_e::build },
             { "cache",     op_type_e::cache },
+            { "cleanup",   op_type_e::cleanup },
             { "init",      op_type_e::init },
             { "install",   op_type_e::install },
             { "login",     op_type_e::login },
