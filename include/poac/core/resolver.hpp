@@ -5,12 +5,13 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <regex>
 #include <utility>
 #include <map>
 #include <optional>
-#include <algorithm> // copy_if
+#include <algorithm>
 #include <iterator> // back_inserter
 
 #include <boost/property_tree/ptree.hpp>
@@ -50,32 +51,6 @@ namespace poac::core::resolver {
 
     std::string archive_url(const std::string& name, const std::string& version) {
         return "/poac-pm.appspot.com/" + core::naming::to_cache("poac", name, version) + ".tar.gz";
-    }
-
-    // Interval to multiple versions
-    // `>=0.1.2 and <3.4.0` -> 2.5.0
-    // name is boost/config, no boost-config
-    std::vector<std::string>
-    decide_versions(const std::string& name, const std::string& interval) {
-        // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        boost::property_tree::ptree pt;
-        {
-            std::stringstream ss;
-            ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
-            boost::property_tree::json_parser::read_json(ss, pt);
-        }
-        const auto versions = util::types::ptree_to_vector<std::string>(pt);
-
-        std::vector<std::string> res;
-        semver::Interval i(name, interval);
-        copy_if(versions.begin(), versions.end(), back_inserter(res),
-                [&](std::string s){ return i.satisfies(s); });
-        if (res.empty()) {
-            throw exception::error("`" + name + ": " + interval + "` was not found.");
-        }
-        else {
-            return res;
-        }
     }
 
 
@@ -119,17 +94,48 @@ namespace poac::core::resolver {
     using Deps = std::vector<Dep>;
 
 
-    template <class SinglePassRange, class T>
-    std::optional<std::size_t>
-    indexof(const SinglePassRange& rng, const T& t) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
-        auto result = std::find(first, last, t);
-        if (result == last) {
-            return std::nullopt;
+    std::optional<std::vector<std::string>>
+    get_version(const std::string& name) {
+        boost::property_tree::ptree pt;
+        {
+            std::stringstream ss;
+            ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+            if (ss.str() == "null") {
+                return std::nullopt;
+            }
+            boost::property_tree::json_parser::read_json(ss, pt);
+        }
+        return util::types::ptree_to_vector<std::string>(pt);
+    }
+
+    // Interval to multiple versions
+    // `>=0.1.2 and <3.4.0` -> 2.5.0
+    // `latest` -> 2.5.0
+    // name is boost/config, no boost-config
+    std::vector<std::string>
+    decide_versions(const std::string& name, const std::string& interval) {
+        // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
+        if (const auto versions = get_version(name)) {
+            if (interval == "latest") {
+                const auto latest = std::max_element((*versions).begin(), (*versions).end(),
+                        [](auto a, auto b) { return semver::Version(a) > b; });
+                return { *latest };
+            }
+            else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
+                std::vector<std::string> res;
+                semver::Interval i(name, interval);
+                copy_if((*versions).begin(), (*versions).end(), back_inserter(res),
+                        [&](std::string s) { return i.satisfies(s); });
+                if (res.empty()) {
+                    throw exception::error("`" + name + ": " + interval + "` was not found.");
+                }
+                else {
+                    return res;
+                }
+            }
         }
         else {
-            return std::distance(first, result);
+            throw exception::error("`" + name + ": " + interval + "` was not found.");
         }
     }
 
@@ -144,7 +150,6 @@ namespace poac::core::resolver {
         std::reverse(str.begin(), str.end());
         return str;
     }
-
 
     Resolved backtrack_loop(const Resolved& deps) {
         std::vector<std::vector<int>> clauses;
@@ -178,7 +183,7 @@ namespace poac::core::resolver {
 
                 auto found = std::begin(deps.activated);
                 while (true) {
-                    found = std::find_if(found, last, [&](const auto& x){ return x.name == itr->name; }); // FIXME: 同じ名前が複数存在する時に，二回以上繰り返されてしまう．
+                    found = std::find_if(found, last, [&](const auto& x){ return x.name == itr->name; });
                     if (found == last) {
                         break;
                     }
@@ -245,7 +250,7 @@ namespace poac::core::resolver {
         }
 
 
-        Resolved resolved_deps;
+        Resolved resolved_deps{};
 
         // deps.activated.size() == variables
         sat::Formula formula(clauses, deps.activated.size());
@@ -277,19 +282,6 @@ namespace poac::core::resolver {
     }
 
 
-    // Check if it has duplicate elements.
-    template <class SinglePassRange>
-    bool duplicate(const SinglePassRange& rng) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
-        for (const auto& r : rng) {
-            int c = std::count(first, last, r);
-            if (c > 1) {
-                return true;
-            }
-        }
-        return false;
-    }
     template <class SinglePassRange>
     bool duplicate_loose(const SinglePassRange& rng) { // If the same name
         const auto first = std::begin(rng);

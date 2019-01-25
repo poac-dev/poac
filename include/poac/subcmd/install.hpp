@@ -230,9 +230,9 @@ namespace poac::subcmd {
             fs::create_directories(path::poac_cache_dir);
             const auto node = yaml::load_config("deps");
             const std::string timestamp = get_yaml_timestamp();
-            const bool quite = util::argparse::use(argv, "-q", "--quite");
+            const bool quite = util::argparse::use_rm(argv, "-q", "--quite");
             // When used at the same time, --quite is given priority.
-            const bool verbose = !quite && util::argparse::use(argv, "-v", "--verbose");
+            const bool verbose = !quite && util::argparse::use_rm(argv, "-v", "--verbose");
 
 
             resolver::Resolved resolved_deps{};
@@ -281,13 +281,6 @@ namespace poac::subcmd {
                 create_lock_file(timestamp, resolved_deps.activated);
             }
         }
-
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-            if (argv.size() > 1) { // -v OR -q
-                throw except::invalid_second_arg("install");
-            }
-        }
     }
 
     struct install {
@@ -299,7 +292,6 @@ namespace poac::subcmd {
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) {
-            _install::check_arguments(argv);
             _install::_main(std::move(argv));
         }
     };
