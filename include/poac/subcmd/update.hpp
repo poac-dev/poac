@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -25,24 +26,10 @@
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
 namespace poac::subcmd {
     namespace _update {
-        std::optional<boost::property_tree::ptree>
-        get_versions_api(const std::string& name) {
-            std::stringstream ss;
-            ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
-            if (ss.str() == "null") {
-                return std::nullopt;
-            }
-            else {
-                boost::property_tree::ptree pt;
-                boost::property_tree::json_parser::read_json(ss, pt);
-                return pt;
-            }
-        }
-
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
             namespace resolver = core::resolver;
@@ -90,7 +77,7 @@ namespace poac::subcmd {
                         }
 
                         if (core::semver::Version(dep.version) != current_version) {
-                            update_deps[name] = { current_version, dep.source };
+                            update_deps[name] = { {current_version}, {dep.source} };
                         }
                     }
                 }

@@ -12,6 +12,7 @@
 #include "../core/exception.hpp"
 #include "../core/resolver.hpp"
 #include "../core/naming.hpp"
+#include "../core/lock.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
 
@@ -20,19 +21,18 @@ namespace poac::subcmd {
     namespace _cleanup {
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main([[maybe_unused]] VS&& argv) {
-            namespace except = core::exception;
             namespace yaml = io::file::yaml;
             namespace resolver = core::resolver;
+            namespace lock = core::lock;
             namespace naming = core::naming;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;
 
 
             // create resolved deps
-            const auto timestamp = _install::get_yaml_timestamp();
             resolver::Resolved resolved_deps{};
-            if (const auto locked_deps = _install::load_locked_deps(timestamp)) {
-                resolved_deps = _uninstall::lock_to_resolved(*locked_deps); // lock.hpp等へ？？
+            if (const auto locked_deps = lock::load()) {
+                resolved_deps = *locked_deps;
             }
             else { // poac.lock does not exist
                 const auto deps_node = yaml::load_config("deps").at("deps").as<std::map<std::string, YAML::Node>>();
@@ -63,9 +63,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             if (!argv.empty()) {
-                throw except::invalid_second_arg("cleanup");
+                throw exception::invalid_second_arg("cleanup");
             }
         }
     }
