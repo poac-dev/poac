@@ -7,6 +7,7 @@
 #include <string_view>
 #include <fstream>
 #include <map>
+#include <regex>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -19,10 +20,6 @@
 #include "../util.hpp"
 
 
-// Version 1 will allow $ poac install <Nothing> only.
-//   Parse poac.yml
-// Version 2 will also allow $ poac install [<pkg-names>].
-//   Parse arguments.
 // TODO: --source (source file only (not pre-built))
 namespace poac::subcmd {
     namespace _install {
@@ -163,17 +160,47 @@ namespace poac::subcmd {
             // However, it can not deal with duplication of other information (e.g. version etc.).
             for (const auto& [name, next_node] : node) {
                 // itr->first: itr->second
-                const auto [src, parsed_name] = naming::get_source(name);
-                const auto interval = naming::get_version(next_node, src);
+                const auto [source, parsed_name] = naming::get_source(name);
+                const auto interval = naming::get_version(next_node, source); // FIXME: get_versionの引数をnode以外に
 
-                if (src == "poac" || src == "github") {
-                    deps.push_back({ parsed_name, interval, src });
+                if (source == "poac" || source == "github") {
+                    deps.push_back({ parsed_name, interval, source });
                 }
                 else { // unknown source
                     throw except::error("Unknown source");
                 }
             }
             return deps;
+        }
+
+        core::resolver::Dep
+        parse_arg_package(const std::string& v) {
+            namespace except = core::exception;
+            namespace naming = core::naming;
+
+            const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
+            std::smatch match;
+            if (std::regex_match(v, std::regex("^" + NAME + "$"))) {
+                const auto [source, parsed_name] = naming::get_source(v);
+                return { parsed_name, "latest", source };
+            }
+            else if (std::regex_match(v, match, std::regex("^" + NAME + "=(.*)$"))) {
+                const auto name = match[1].str();
+                const auto [source, parsed_name] = naming::get_source(name);
+                const auto interval = match[2].str();
+                return { parsed_name, interval, source };
+            }
+            else {
+                throw except::error("Invalid arguments");
+            }
+        }
+
+        std::string conv_specific_version_to_interval(const std::string& version) {
+            core::semver::Version upper(version);
+            upper.major += 1;
+            upper.minor = 0;
+            upper.patch = 0;
+            return ">=" + version + " and <" + upper.get_version();
         }
 
         std::optional<YAML::Node>
@@ -229,36 +256,49 @@ namespace poac::subcmd {
 
 
             fs::create_directories(path::poac_cache_dir);
-            const auto deps_node = yaml::load_config("deps").at("deps");
+            auto node = yaml::load_config();
             const std::string timestamp = get_yaml_timestamp();
             const bool quite = util::argparse::use_rm(argv, "-q", "--quite");
-            // When used at the same time, --quite is given priority.
-            const bool verbose = !quite && util::argparse::use_rm(argv, "-v", "--verbose");
+            const bool verbose = util::argparse::use_rm(argv, "-v", "--verbose") && !quite;
 
-
+            // load lock file
             resolver::Resolved resolved_deps{};
             bool load_lock = false;
-            if (const auto locked_deps = load_locked_deps(timestamp)) {
-                for (const auto& [name, next_node] : *locked_deps) {
-                    const auto version = *yaml::get<std::string>(next_node, "version");
-                    const auto source = *yaml::get<std::string>(next_node, "source");
-                    // この場合，lockファイルを書き換える必要はないため，resolved_deps.activatedに何かを書き込む必要はない
-                    resolved_deps.backtracked[name] = { version, source };
+            if (argv.empty()) { // 引数からの指定の時，lockファイルを無視する
+                if (const auto locked_deps = load_locked_deps(timestamp)) {
+                    for (const auto& [name, next_node] : *locked_deps) {
+                        const auto version = *yaml::get<std::string>(next_node, "version");
+                        const auto source = *yaml::get<std::string>(next_node, "source");
+                        // この場合，lockファイルを書き換える必要はないため，resolved_deps.activatedに何かを書き込む必要はない
+                        resolved_deps.backtracked[name] = { version, source };
+                    }
+                    load_lock = true;
                 }
-                load_lock = true;
             }
 
-
+            // resolve package
             if (!quite) {
                 cli::echo(cli::to_status("Resolving packages..."));
             }
             resolver::Deps deps;
+            if (!argv.empty()) {
+                for (const auto& v : argv) {
+                    deps.push_back(parse_arg_package(v));
+                }
+            }
             if (!load_lock) {
-                deps = resolve_packages(deps_node.as<std::map<std::string, YAML::Node>>());
+                if (const auto deps_node = yaml::get<std::map<std::string, YAML::Node>>(node, "deps")) {
+                    const auto resolved_packages = resolve_packages(*deps_node);
+                    deps.insert(deps.end(), resolved_packages.begin(), resolved_packages.end());
+                }
+                else if (argv.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
+                    throw except::error(
+                            "Required key `deps` does not exist in poac.yml.\n"
+                            "Please refer to https://docs.poac.pm");
+                }
             }
 
-
-            // 依存関係の解決
+            // resolve dependency
             if (!quite) {
                 cli::echo(cli::to_status("Resolving dependencies..."));
             }
@@ -266,7 +306,7 @@ namespace poac::subcmd {
                 resolved_deps = resolver::resolve(deps);
             }
 
-
+            // download packages
             if (!quite) {
                 cli::echo(cli::to_status("Fetching..."));
                 cli::echo();
@@ -276,6 +316,28 @@ namespace poac::subcmd {
             if (!quite) {
                 cli::echo();
                 cli::echo(cli::status_done());
+            }
+
+            // Rewrite poac.yml
+            bool fix_yml = false;
+            for (const auto& d : deps) {
+                if (d.interval == "latest") {
+                    node["deps"][d.name] = conv_specific_version_to_interval(resolved_deps.backtracked[d.name].version);
+                    fix_yml = true;
+                }
+            }
+            if (!argv.empty()) {
+                fix_yml = true;
+                for (const auto& d : deps) {
+                    if (d.interval != "latest") {
+                        node["deps"][d.name] = d.interval;
+                    }
+                }
+            }
+            if (fix_yml) {
+                if (std::ofstream ofs("poac.yml"); ofs) {
+                    ofs << node;
+                }
             }
 
             if (!load_lock) {
@@ -289,7 +351,7 @@ namespace poac::subcmd {
             return "Install packages";
         }
         static const std::string options() {
-            return "[-v | --verbose, -q | --quite]";
+            return "[-v | --verbose, -q | --quite, [args]]";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) {

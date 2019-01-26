@@ -48,7 +48,6 @@ namespace poac::core::resolver {
             return "/" + name + "/archive/" + tag + ".tar.gz";
         }
     }
-
     std::string archive_url(const std::string& name, const std::string& version) {
         return "/poac-pm.appspot.com/" + core::naming::to_cache("poac", name, version) + ".tar.gz";
     }
@@ -73,6 +72,12 @@ namespace poac::core::resolver {
         return lhs.version == rhs.version
             && lhs.source == rhs.source;
     }
+    struct Dep { // TODO: Top?? Activated -> Deps???
+        std::string name;
+        std::string interval;
+        std::string source;
+    };
+    using Deps = std::vector<Dep>; // TODO: -> Activatedと統合，ActivatedをDepsに名称変更, intervalとversionの名称が曖昧になる
 
     using Activated = std::vector<Package>;
     using Backtracked = std::map<std::string, MiniPackage>;
@@ -86,12 +91,6 @@ namespace poac::core::resolver {
         Backtracked backtracked;
     };
 
-    struct Dep {
-        std::string name;
-        std::string version;
-        std::string source;
-    };
-    using Deps = std::vector<Dep>;
 
 
     std::optional<std::vector<std::string>>
@@ -244,9 +243,9 @@ namespace poac::core::resolver {
                 else {
                     index = (literal * -1) - 1;
                 }
-                std::cout << deps.activated[index].name << "-" << deps.activated[index].version << ": " << literal << ", ";
+//                std::cout << deps.activated[index].name << "-" << deps.activated[index].version << ": " << literal << ", ";
             }
-            std::cout << std::endl;
+//            std::cout << std::endl;
         }
 
 
@@ -316,6 +315,17 @@ namespace poac::core::resolver {
         }
     }
 
+    // delete name && version
+    void delete_duplicate(Resolved& deps) {
+        for (auto itr = deps.activated.begin(); itr != deps.activated.end(); ++itr) {
+            const auto found = std::find_if(itr+1, deps.activated.end(),
+                    [&](auto x){ return itr->name == x.name && itr->version == x.version; });
+            if (found != deps.activated.end()) {
+                deps.activated.erase(found);
+            }
+        }
+    }
+
     void activate(Resolved& new_deps,
                   Activated prev_activated_deps,
                   Activated& activated_deps,
@@ -362,7 +372,7 @@ namespace poac::core::resolver {
         Resolved new_deps;
         for (const auto& dep : deps) {
             // Activate the top of dependencies
-            for (const auto& version : resolver::decide_versions(dep.name, dep.version)) {
+            for (const auto& version : resolver::decide_versions(dep.name, dep.interval)) {
                 if (const auto current_deps = get_deps_api(dep.name, version)) {
                     Activated activated_deps;
 
@@ -380,6 +390,7 @@ namespace poac::core::resolver {
                 }
             }
         }
+        delete_duplicate(new_deps);
         return new_deps;
     }
 
@@ -412,8 +423,8 @@ namespace poac::core::resolver {
 
         // Merge others_deps into resolved_deps
         for (const auto& dep : others_deps) {
-            resolved_deps.activated.push_back({ dep.name, dep.version, dep.source, {} });
-            resolved_deps.backtracked[dep.name] = { dep.version, dep.source };
+            resolved_deps.activated.push_back({ dep.name, dep.interval, dep.source, {} });
+            resolved_deps.backtracked[dep.name] = { dep.interval, dep.source };
         }
         return resolved_deps;
     }
