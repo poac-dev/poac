@@ -31,14 +31,14 @@ namespace poac::core::infer {
 namespace poac::option {
     namespace _help {
         void echo_option(const std::string& arg) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             try {
                 std::cout << "Usage: poac " << arg << " "
                           << core::infer::apply(std::string("options"), arg, std::vector<std::string>())
                           << std::endl;
             }
-            catch (const except::invalid_first_arg& e) {
-                throw except::invalid_second_arg("--help");
+            catch (const exception::invalid_first_arg& e) {
+                throw exception::invalid_second_arg("--help");
             }
         }
 
@@ -82,10 +82,10 @@ namespace poac::option {
 
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& vs) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             if (vs.size() == 0) { exec_help(); }
             else if (vs.size() == 1) { echo_option(vs[0]); }
-            else { throw except::invalid_second_arg("--help"); }
+            else { throw exception::invalid_second_arg("--help"); }
             // show only --help's option
         }
     }
