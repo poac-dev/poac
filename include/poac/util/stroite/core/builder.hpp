@@ -201,11 +201,11 @@ namespace stroite {
             const bool usemain )
         {
             namespace fs = boost::filesystem;
-            namespace except = poac::core::exception;
+            namespace exception = poac::core::exception;
 
             if (usemain) {
                 if (!fs::exists("main.cpp")) {
-                    throw except::error("main.cpp does not exists");
+                    throw exception::error("main.cpp does not exists");
                 }
                 else {
                     source_files.push_back("main.cpp");
