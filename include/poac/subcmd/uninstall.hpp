@@ -148,9 +148,10 @@ namespace poac::subcmd {
             namespace except = core::exception;
 
             auto node = yaml::load_config();
-            const auto deps_node = node["deps"];
-            if (const auto deps_map = yaml::get<std::map<std::string, YAML::Node>>(deps_node)) {
-                check_exist_name(*deps_map, argv);
+            std::map<std::string, YAML::Node> deps_node;
+            if (const auto deps_map = yaml::get<std::map<std::string, YAML::Node>>(node["deps"])) {
+                deps_node = *deps_map;
+                check_exist_name(deps_node, argv);
             }
             else {
                 throw except::error("Could not read deps in poac.yml");

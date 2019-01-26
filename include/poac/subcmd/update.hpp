@@ -63,7 +63,8 @@ namespace poac::subcmd {
             if (all) {
                 // FIXME: install.hppと同じ内容が多い
                 const auto node = yaml::load_config("deps");
-                const resolver::Deps deps = _install::resolve_packages(node.at("deps"));
+                const auto deps_node = node.at("deps").as<std::map<std::string, YAML::Node>>();
+                const resolver::Deps deps = _install::resolve_packages(deps_node);
                 resolver::Resolved resolved_deps = resolver::resolve(deps);
                 resolver::Backtracked update_deps;
 
@@ -137,6 +138,7 @@ namespace poac::subcmd {
                 cli::echo(cli::status_done());
             }
             else { // TODO: Individually update
+                std::cout << "Individually update is coming soon" << std::endl;
 //                if (const auto versions = get_versions_api(argv[0])) {
 //                    const auto versions_v = util::types::ptree_to_vector<std::string>(*versions);
 //

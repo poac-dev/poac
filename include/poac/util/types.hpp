@@ -25,6 +25,36 @@ namespace poac::util::types {
     template <bool B, auto T, auto F>
     static constexpr auto non_type_conditional_v = non_type_conditional_t<B, T, F>::value;
 
+
+    template <class SinglePassRange, class T>
+    std::optional<std::size_t>
+    indexof(const SinglePassRange& rng, const T& t) {
+        const auto first = std::begin(rng);
+        const auto last = std::end(rng);
+        const auto result = std::find(first, last, t);
+        if (result == last) {
+            return std::nullopt;
+        }
+        else {
+            return std::distance(first, result);
+        }
+    }
+
+    // Check if it has duplicate elements.
+    template <class SinglePassRange>
+    bool duplicate(const SinglePassRange& rng) {
+        const auto first = std::begin(rng);
+        const auto last = std::end(rng);
+        for (const auto& r : rng) {
+            int c = std::count(first, last, r);
+            if (c > 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}
     //  -> std::vector<T> : ["array", "...", ...]
     template <typename T, typename U, typename K=typename U::key_type>
