@@ -50,6 +50,18 @@ namespace poac::io::cli {
     inline void echo(const T&... s) {
         (std::cout << ... << s) << std::endl;
     }
+    template <typename... T>
+    inline void debugln([[maybe_unused]] const T&... s) {
+#ifdef DEBUG
+        echo(s...);
+#endif
+    }
+    template <typename... T>
+    inline void debug([[maybe_unused]] const T &... s) {
+#ifdef DEBUG
+        (std::cout << ... << s);
+#endif
+    }
 
     const std::string red = "\x1b[31m";
     const std::string green = "\x1b[32m";
@@ -82,14 +94,6 @@ namespace poac::io::cli {
     inline std::string to_info(const std::string& s) { return info+s; }
 
     inline std::string status_done() { return to_status("Done."); }
-
-
-    template <typename T>
-    inline void debug([[maybe_unused]] const T& s) {
-#ifdef DEBUG
-        echo(s);
-#endif
-    }
 
 
     const std::vector<std::string> spinners{
