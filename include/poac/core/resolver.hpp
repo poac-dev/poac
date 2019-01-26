@@ -233,22 +233,6 @@ namespace poac::core::resolver {
         }
 
 
-        for (const auto& cls : clauses) {
-            for (const auto& literal : cls) {
-                int index;
-                if (literal > 0) {
-                    index = literal - 1;
-
-                }
-                else {
-                    index = (literal * -1) - 1;
-                }
-//                std::cout << deps.activated[index].name << "-" << deps.activated[index].version << ": " << literal << ", ";
-            }
-//            std::cout << std::endl;
-        }
-
-
         Resolved resolved_deps{};
 
         // deps.activated.size() == variables
