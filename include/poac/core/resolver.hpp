@@ -378,33 +378,6 @@ namespace poac::core::resolver {
             }
         }
 
-        Activated test{};
-        test.push_back({ {"D"}, {"1.0.0"}, {""}, {} });
-        test.push_back({ {"D"}, {"1.1.0"}, {""}, {} });
-        test.push_back({ {"E"}, {"1.0.0"}, {""}, {} });
-        test.push_back({ {"A"}, {"1.0.0"}, {""}, {} });
-        test.push_back({ {"B"}, {"1.0.0"}, {""}, {{
-                { {"D"}, {"1.0.0"}, {""}, {} },
-                { {"D"}, {"1.1.0"}, {""}, {} },
-                { {"E"}, {"1.0.0"}, {""}, {} }
-        }} });
-        test.push_back({ {"C"}, {"1.0.0"}, {""}, {{
-                { {"D"}, {"1.1.0"}, {""}, {} }
-        }} });
-
-        Backtracked backtracked;
-        backtracked["A"] = { {"1.0.0"}, {""} };
-        backtracked["B"] = { {"1.0.0"}, {""} };
-        backtracked["C"] = { {"1.0.0"}, {""} };
-        backtracked["D"] = { {"1.1.0"}, {""} };
-        backtracked["E"] = { {"1.0.0"}, {""} };
-
-        const Resolved result = backtrack_loop(test);
-        if( result.backtracked == backtracked ) {
-            std::cout << "OK" << std::endl;
-        }
-        throw exception::error("finish");
-
         // 木の末端からpush_backされていくため，依存が無いものが一番最初の要素になる．
         // つまり，配列のループのそのままの順番でインストールやビルドを行うと不具合は起きない
         const Resolved activated_deps = activate_deps_loop(poac_deps);
