@@ -28,6 +28,7 @@
 
 #include "../core/exception.hpp"
 #include "./cli.hpp"
+#include "../util/types.hpp"
 
 
 namespace poac::io::network {
