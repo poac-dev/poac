@@ -38,7 +38,7 @@ namespace stroite {
         std::string project_name;
         boost::filesystem::path base_dir;
 
-        std::map<std::string, YAML::Node> node; // TODO: node_mapなのでdeps_nodeと分かりづらい
+        std::map<std::string, YAML::Node> node;
         std::map<std::string, std::map<std::string, std::string>> depends_ts;
         std::optional<std::map<std::string, YAML::Node>> deps_node;
 
@@ -75,7 +75,7 @@ namespace stroite {
 
             std::vector<std::string> include_search_path;
             if (deps_node) {
-                for (const auto& [name, next_node] : *deps_node) { // TODO: これと同じ処理が多すぎる
+                for (const auto& [name, next_node] : *deps_node) { // TODO: これと同じ処理が多すぎる // そもそもlock読まんといかんのちゃう？
                     const auto [src, name2] = naming::get_source(name);
                     const std::string version = naming::get_version(next_node, src);
                     const std::string pkgname = naming::to_current(src, name2, version);
@@ -90,11 +90,12 @@ namespace stroite {
 
         auto make_macro_defns() {
             namespace fs = boost::filesystem;
+            namespace configure = utils::configure;
 
             std::vector<std::string> macro_defns;
             // poac automatically define the absolute path of the project's root directory.
-            macro_defns.push_back(utils::configure::make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
-            macro_defns.push_back(utils::configure::make_macro_defn("POAC_VERSION", node.at("version").as<std::string>()));
+            macro_defns.push_back(configure::make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
+            macro_defns.push_back(configure::make_macro_defn("POAC_VERSION", node.at("version").as<std::string>()));
             return macro_defns;
         }
 
@@ -231,6 +232,7 @@ namespace stroite {
         std::optional<std::vector<std::string>>
         _compile() {
             namespace io = poac::io::file;
+
             if (const auto ret = core::compiler::compile(compile_conf)) {
                 namespace fs = boost::filesystem;
                 // Since compile succeeded, save hash
