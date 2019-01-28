@@ -5,7 +5,10 @@
 #include <vector>
 #include <string>
 
+#include <yaml-cpp/yaml.h>
+
 #include "../io/file/yaml.hpp"
+#include "./resolver.hpp"
 
 
 namespace poac::core::lock {
@@ -35,34 +38,69 @@ namespace poac::core::lock {
         return std::nullopt;
     }
 
+    std::optional<core::resolver::Activated>
+    load_deps_deps(const YAML::Node& node) {
+        namespace yaml = io::file::yaml;
+        // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
+        if (const auto deps_deps = yaml::get<std::map<std::string, YAML::Node>>(node, "dependencies")) {
+            resolver::Activated deps;
+            for (const auto&[name2, next_node2] : *deps_deps) {
+                const auto version2 = yaml::get_with_throw<std::string>(next_node2, "version");
+                const auto source2 = yaml::get_with_throw<std::string>(next_node2, "source");
+                deps.push_back({{name2}, {version2}, {source2}, {}});
+            }
+            return deps;
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+
+    core::resolver::Resolved
+    create_resolved_deps(const std::map<std::string, YAML::Node>& locked_deps) {
+        namespace yaml = io::file::yaml;
+
+        resolver::Resolved resolved_deps{};
+        for (const auto& [name, next_node] : locked_deps) {
+            const auto version = yaml::get_with_throw<std::string>(next_node, "version");
+            const auto source = yaml::get_with_throw<std::string>(next_node, "source");
+
+            if (const auto deps_deps = load_deps_deps(next_node)) {
+                resolved_deps.activated.push_back({ {name}, {version}, {source}, {*deps_deps} });
+            }
+            else {
+                resolved_deps.activated.push_back({ {name}, {version}, {source}, {} });
+            }
+            resolved_deps.backtracked[name] = { {version}, {source} };
+        }
+        return resolved_deps;
+    }
+
+    // Ignore timestamp check
+    std::optional<core::resolver::Resolved>
+    load_ignore_timestamp() {
+        namespace yaml = io::file::yaml;
+        namespace resolver = core::resolver;
+
+        if (const auto lock = yaml::load(filename)) {
+            if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
+                return create_resolved_deps(*locked_deps);
+            }
+        }
+        return std::nullopt;
+    }
+
     std::optional<core::resolver::Resolved>
     load(const std::string& timestamp=io::file::yaml::get_timestamp()) {
         namespace yaml = io::file::yaml;
         namespace resolver = core::resolver;
 
-        resolver::Resolved resolved_deps{};
         if (const auto locked_deps = load_deps(timestamp)) {
-            for (const auto& [name, next_node] : *locked_deps) {
-                const auto version = *yaml::get<std::string>(next_node, "version"); // TODO: ここget_with_throwに変更する
-                const auto source = *yaml::get<std::string>(next_node, "source");
-                // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
-                if (const auto deps_deps = yaml::get<std::map<std::string, YAML::Node>>(next_node, "dependencies")) {
-                    resolver::Activated deps;
-                    for (const auto& [name2, next_node2] : *deps_deps) {
-                        const auto version2 = *yaml::get<std::string>(next_node2, "version");
-                        const auto source2 = *yaml::get<std::string>(next_node2, "source");
-                        deps.push_back({ {name2}, {version2}, {source2}, {} });
-                    }
-                    resolved_deps.activated.push_back({ {name}, {version}, {source}, {deps} });
-                }
-                else {
-                    resolved_deps.activated.push_back({ {name}, {version}, {source}, {} });
-                }
-                resolved_deps.backtracked[name] = { {version}, {source} };
-            }
-            return resolved_deps;
+            return create_resolved_deps(*locked_deps);
         }
-        return std::nullopt;
+        else {
+            return std::nullopt;
+        }
     }
 } // end namespace
 #endif // !POAC_CORE_LOCK_HPP
