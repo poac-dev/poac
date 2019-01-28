@@ -14,6 +14,7 @@
 #include "../core/exception.hpp"
 #include "../core/resolver.hpp"
 #include "../core/naming.hpp"
+#include "../core/lock.hpp"
 #include "../io/file/path.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
@@ -51,34 +52,6 @@ namespace poac::subcmd {
                 }
             }
         }
-
-        core::resolver::Resolved
-        lock_to_resolved(const std::map<std::string, YAML::Node>& locked_deps) {
-            namespace yaml = io::file::yaml;
-            namespace resolver = core::resolver;
-
-            resolver::Resolved resolved_deps{};
-            for (const auto& [name, next_node] : locked_deps) {
-                const auto version = *yaml::get<std::string>(next_node, "version");
-                const auto source = *yaml::get<std::string>(next_node, "source");
-                // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
-                if (const auto deps_deps = yaml::get<std::map<std::string, YAML::Node>>(next_node, "dependencies")) {
-                    std::vector<resolver::Package> deps;
-                    for (const auto& [name2, next_node2] : *deps_deps) {
-                        const auto version2 = *yaml::get<std::string>(next_node2, "version");
-                        const auto source2 = *yaml::get<std::string>(next_node2, "source");
-                        deps.push_back({ name2, version2, source2, {} });
-                    }
-                    resolved_deps.activated.push_back({ name, version, source, deps });
-                }
-                else {
-                    resolved_deps.activated.push_back({ name, version, source, {} });
-                }
-                resolved_deps.backtracked[name] = { version, source };
-            }
-            return resolved_deps;
-        }
-
 
         template <typename InputIterator, typename Backtracked>
         void create_uninstall_list(
@@ -130,7 +103,7 @@ namespace poac::subcmd {
                     [&](auto x){ return x.first == target->name; });
             if (cycle_check == uninstall_list.end()) {
                 // ここまでたどり着いたなら，他に依存されていないということなので，削除リストに加える
-                uninstall_list[target->name] = { target->version, target->source };
+                uninstall_list[target->name] = { {target->version}, {target->source} };
                 // さらにそれの依存も，削除リストに加える
                 for (const auto& td : target->deps) {
                     create_uninstall_list(first, last, td.name, uninstall_list);
@@ -145,7 +118,8 @@ namespace poac::subcmd {
             namespace resolver = core::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;
-            namespace except = core::exception;
+            namespace exception = core::exception;
+            namespace lock = core::lock;
 
             auto node = yaml::load_config();
             std::map<std::string, YAML::Node> deps_node;
@@ -154,14 +128,14 @@ namespace poac::subcmd {
                 check_exist_name(deps_node, argv);
             }
             else {
-                throw except::error("Could not read deps in poac.yml");
+                throw exception::error("Could not read deps in poac.yml");
             }
 
             // create resolved deps
-            const auto timestamp = _install::get_yaml_timestamp();
+            const auto timestamp = yaml::get_timestamp();
             resolver::Resolved resolved_deps{};
-            if (const auto locked_deps = _install::load_locked_deps(timestamp)) {
-                resolved_deps = lock_to_resolved(*locked_deps);
+            if (const auto locked_deps = lock::load(timestamp)) {
+                resolved_deps = *locked_deps;
             }
             else { // poac.lock does not exist
                 const resolver::Deps deps = _install::resolve_packages(deps_node);
@@ -217,7 +191,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw except::error("Could not open poac.yml");
+                    throw exception::error("Could not open poac.yml");
                 }
                 fs::remove("poac.lock");
             }
@@ -243,7 +217,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw except::error("Could not open poac.yml");
+                    throw exception::error("Could not open poac.yml");
                 }
                 _install::create_lock_file(timestamp, resolved_deps.activated);
             }
@@ -263,9 +237,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             if (argv.empty()) {
-                throw except::invalid_second_arg("uninstall");
+                throw exception::invalid_second_arg("uninstall");
             }
         }
     }

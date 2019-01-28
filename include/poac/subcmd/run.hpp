@@ -19,8 +19,7 @@ namespace poac::subcmd {
     namespace _run {
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS &&>>>
         void _main(VS&& argv) {
-            namespace fs     = boost::filesystem;
-            namespace except = core::exception;
+            namespace fs = boost::filesystem;
 
             const auto node = io::file::yaml::load_config("name");
 
@@ -58,12 +57,6 @@ namespace poac::subcmd {
                 std::cout << project_name + " returned 1" << std::endl;
             }
         }
-
-        void check_arguments([[maybe_unused]] const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-//        if (argv.size() >= 2)
-//            throw exception::invalid_second_arg("run");
-        }
     }
 
     struct run {
@@ -75,7 +68,6 @@ namespace poac::subcmd {
         }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) {
-            _run::check_arguments(argv);
             _run::_main(std::move(argv));
         }
     };

@@ -3,6 +3,7 @@
 
 #include "core/exception.hpp"
 #include "core/inference.hpp"
+#include "core/lock.hpp"
 #include "core/naming.hpp"
 #include "core/resolver.hpp"
 #include "core/sat.hpp"

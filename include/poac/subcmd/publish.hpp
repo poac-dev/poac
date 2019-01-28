@@ -29,12 +29,13 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
 
             const fs::path temp_path = io::file::path::create_temp();
-
             const fs::path copy_file = temp_path / fs::basename(project_dir);
             io::file::path::recursive_copy(project_dir, copy_file);
+
             const auto node = io::file::yaml::load_config("name", "version");
             std::string name = node.at("name").as<std::string>();
             std::replace(name.begin(), name.end(), '/', '-'); // boost/config -> boost-config
+
             const auto filename = name + "-" + node.at("version").as<std::string>();
             const fs::path file_path = temp_path / filename;
             fs::rename(copy_file, file_path);
@@ -66,23 +67,15 @@ namespace poac::subcmd {
             return output_dir;
         }
 
-        void status_func(std::string_view msg) {
-            std::cout << io::cli::to_green("==> ")
-                      << msg
-                      << std::endl;
-        }
-
-
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-
-            if (argv.size() > 1)
-                throw except::invalid_second_arg("publish");
+            namespace exception = core::exception;
+            if (argv.size() > 1) {
+                throw exception::invalid_second_arg("publish");
+            }
         }
 
         void check_requirements() {
-            namespace fs     = boost::filesystem;
-            namespace except = core::exception;
+            namespace fs = boost::filesystem;
 
             io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
 
@@ -98,8 +91,9 @@ namespace poac::subcmd {
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
-            namespace fs     = boost::filesystem;
-            namespace except = core::exception;
+            namespace fs = boost::filesystem;
+            namespace exception = core::exception;
+            namespace cli = io::cli;
 
             check_arguments(argv);
             check_requirements();
@@ -114,7 +108,7 @@ namespace poac::subcmd {
 
 
             const std::string project_dir = fs::absolute(fs::current_path()).string();
-            status_func("Packaging " + project_dir + "...");
+            cli::echo(cli::status, "Packaging ", project_dir, "...");
             const std::string output_dir = compress_project(project_dir);
             if (verbose) std::cout << output_dir << std::endl;
 
@@ -128,7 +122,7 @@ namespace poac::subcmd {
                 json.put("token", token);
             }
             else {
-                throw except::error("Could not read token");
+                throw exception::error("Could not read token");
             }
             {
                 const auto node = io::file::yaml::load_config("owners");
@@ -148,12 +142,12 @@ namespace poac::subcmd {
             }
 
             // Validating
-            status_func("Validating...");
+            cli::echo(cli::to_status("Validating..."));
             if (verbose) {
                 std::cout << json_s << std::endl;
             }
             if (io::network::post(POAC_TOKENS_VALIDATE_API, json_s) == "err") {
-                throw except::error("Token verification failed.\n"
+                throw exception::error("Token verification failed.\n"
                                     "Please check the following check lists.\n"
                                     "1. Does token really belong to you?\n"
                                     "2. Is the user ID described `owners` in poac.yml\n"
@@ -164,13 +158,13 @@ namespace poac::subcmd {
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
             if (io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists") == "true") {
-                throw except::error(node_name + ": " + node_version + " already exists");
+                throw exception::error(node_name + ": " + node_version + " already exists");
             }
 
             // Post tarball to API.
-            status_func("Uploading...");
+            cli::echo(cli::to_status("Uploading..."));
             if (!fs::exists("poac.yml")) {
-                throw except::error("poac.yml does not exists");
+                throw exception::error("poac.yml does not exists");
             }
             // FIXME: could not get response
             io::network::post_file(output_dir, token);
@@ -185,10 +179,10 @@ namespace poac::subcmd {
             }
 
             // Delete file
-            status_func("Cleanup...");
+            cli::echo(cli::to_status("Cleanup..."));
             fs::remove_all(fs::path(output_dir).parent_path());
 
-            status_func("Done.");
+            cli::echo(cli::to_status("Done."));
         }
     }
 

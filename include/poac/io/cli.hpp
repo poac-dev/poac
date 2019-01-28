@@ -27,10 +27,10 @@ namespace poac::io::cli {
     }
 
     inline void rel_mv(int x=0, int y=0) {
-        if (x > 0) std::cout << right(x);
-        else       std::cout << left(-x);
-        if (y > 0) std::cout << up(y);
-        else       std::cout << down(-y);
+        if (x > 0) std::cout << right(static_cast<unsigned int>(x));
+        else       std::cout << left(static_cast<unsigned int>(-1 * x));
+        if (y > 0) std::cout << up(static_cast<unsigned int>(y));
+        else       std::cout << down(static_cast<unsigned int>(-1 * y));
     }
 
     inline void set_left(int&& n) { std::cout << std::setw(n) << std::left; }
@@ -46,9 +46,22 @@ namespace poac::io::cli {
         }
     }
 
-    inline void echo() { std::cout << std::endl; }
-    template <typename T>
-    inline void echo(const T& s) { std::cout << s << std::endl; }
+    template <typename... T>
+    inline void echo(const T&... s) {
+        (std::cout << ... << s) << std::endl;
+    }
+    template <typename... T>
+    inline void debugln([[maybe_unused]] const T&... s) {
+#ifdef DEBUG
+        echo(s...);
+#endif
+    }
+    template <typename... T>
+    inline void debug([[maybe_unused]] const T &... s) {
+#ifdef DEBUG
+        (std::cout << ... << s);
+#endif
+    }
 
     const std::string red = "\x1b[31m";
     const std::string green = "\x1b[32m";
@@ -81,14 +94,6 @@ namespace poac::io::cli {
     inline std::string to_info(const std::string& s) { return info+s; }
 
     inline std::string status_done() { return to_status("Done."); }
-
-
-    template <typename T>
-    inline void debug([[maybe_unused]] const T& s) {
-#ifdef DEBUG
-        echo(s);
-#endif
-    }
 
 
     const std::vector<std::string> spinners{

@@ -31,7 +31,7 @@ namespace poac::subcmd {
         }
 
         std::string check_requirements() {
-            namespace except = core::exception;
+            namespace exception = core::exception;
 
             if (const auto result = io::file::yaml::exists_config()) {
                 std::cerr << io::cli::bold << io::cli::red
@@ -50,7 +50,7 @@ namespace poac::subcmd {
                 if (ans == "y" || ans == "yes")
                     return *result;
                 else
-                    throw except::error("canceled");
+                    throw exception::error("canceled");
             }
             // default setting file name
             return "poac.yml";
@@ -67,8 +67,8 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
-            if (!argv.empty()) throw except::invalid_second_arg("init");
+            namespace exception = core::exception;
+            if (!argv.empty()) throw exception::invalid_second_arg("init");
         }
     }
 

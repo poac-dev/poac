@@ -8,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <regex>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -17,26 +18,13 @@
 #include "../io.hpp"
 #include "../core/exception.hpp"
 #include "../core/resolver.hpp"
+#include "../core/lock.hpp"
 #include "../util.hpp"
 
 
 // TODO: --source (source file only (not pre-built))
 namespace poac::subcmd {
     namespace _install {
-        // Copy package to ./deps
-        bool copy_to_current(const std::string& from, const std::string& to) {
-            namespace path = io::file::path;
-            const auto from_path = path::poac_cache_dir / from;
-            const auto to_path = path::current_deps_dir / to;
-            return path::recursive_copy(from_path, to_path);
-        }
-
-        void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
-            const std::string status = n + " " + v + " (from: " + s + ")";
-            io::cli::echo(res ? io::cli::to_fetch_failed(status) : io::cli::to_fetched(status));
-        }
-
-
         void stream_deps(YAML::Emitter& out, const core::resolver::Activated& deps) {
             out << YAML::Key << "dependencies";
             out << YAML::Value << YAML::BeginMap;
@@ -75,12 +63,25 @@ namespace poac::subcmd {
         }
 
 
+        // Copy package to ./deps
+        bool copy_to_current(const std::string& from, const std::string& to) {
+            namespace path = io::file::path;
+            const auto from_path = path::poac_cache_dir / from;
+            const auto to_path = path::current_deps_dir / to;
+            return path::recursive_copy(from_path, to_path);
+        }
+
+        void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
+            const std::string status = n + " " + v + " (from: " + s + ")";
+            io::cli::echo(res ? io::cli::to_fetch_failed(status) : io::cli::to_fetched(status));
+        }
+
         void fetch_packages(
                 const core::resolver::Backtracked& deps,
                 const bool quite,
                 const bool verbose)
         {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace naming = core::naming;
             namespace path = io::file::path;
             namespace tb = io::file::tarball;
@@ -138,11 +139,11 @@ namespace poac::subcmd {
                 }
                 else {
                     // If called this, it is a bug.
-                    throw except::error("Unexcepted error");
+                    throw exception::error("Unexcepted error");
                 }
             }
             if (exists_count == static_cast<int>(deps.size())) {
-                io::cli::echo(io::cli::to_yellow("WARN: ") + "Already installed");
+                io::cli::echo(io::cli::to_yellow("WARN: "), "Already installed");
             }
         }
 
@@ -150,7 +151,7 @@ namespace poac::subcmd {
         // TODO: To resolver？
         core::resolver::Deps
         resolve_packages(const std::map<std::string, YAML::Node>& node) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace naming = core::naming;
             namespace resolver = core::resolver;
 
@@ -161,41 +162,41 @@ namespace poac::subcmd {
             for (const auto& [name, next_node] : node) {
                 // itr->first: itr->second
                 const auto [source, parsed_name] = naming::get_source(name);
-                const auto interval = naming::get_version(next_node, source); // FIXME: get_versionの引数をnode以外に
+                const auto interval = naming::get_version(next_node, source);
 
                 if (source == "poac" || source == "github") {
-                    deps.push_back({ parsed_name, interval, source });
+                    deps.push_back({ {parsed_name}, {interval}, {source} });
                 }
                 else { // unknown source
-                    throw except::error("Unknown source");
+                    throw exception::error("Unknown source");
                 }
             }
             return deps;
         }
 
-        core::resolver::Dep
+        core::resolver::Package<core::resolver::Name, core::resolver::Interval, core::resolver::Source>
         parse_arg_package(const std::string& v) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace naming = core::naming;
 
             const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
             std::smatch match;
             if (std::regex_match(v, std::regex("^" + NAME + "$"))) {
                 const auto [source, parsed_name] = naming::get_source(v);
-                return { parsed_name, "latest", source };
+                return { {parsed_name}, {"latest"}, {source} };
             }
             else if (std::regex_match(v, match, std::regex("^" + NAME + "=(.*)$"))) {
                 const auto name = match[1].str();
                 const auto [source, parsed_name] = naming::get_source(name);
                 const auto interval = match[2].str();
-                return { parsed_name, interval, source };
+                return { {parsed_name}, {interval}, {source} };
             }
             else {
-                throw except::error("Invalid arguments");
+                throw exception::error("Invalid arguments");
             }
         }
 
-        std::string conv_specific_version_to_interval(const std::string& version) {
+        std::string convert_to_interval(const std::string &version) {
             core::semver::Version upper(version);
             upper.major += 1;
             upper.minor = 0;
@@ -203,52 +204,11 @@ namespace poac::subcmd {
             return ">=" + version + " and <" + upper.get_version();
         }
 
-        std::optional<YAML::Node>
-        check_lock_timestamp(std::string_view timestamp) { // core/lock.hpp ??
-            namespace yaml = io::file::yaml;
-            if (const auto lock = yaml::load("poac.lock")) {
-                if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
-                    if (timestamp == *lock_timestamp) {
-                        return *lock;
-                    }
-                }
-            }
-            return std::nullopt;
-        }
-
-        std::optional<std::map<std::string, YAML::Node>>
-        load_locked_deps(std::string_view timestamp) {
-            namespace yaml = io::file::yaml;
-            if (const auto lock = check_lock_timestamp(timestamp)) {
-                if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
-                    return *locked_deps;
-                }
-            }
-            return std::nullopt;
-        }
-
-        std::string get_yaml_timestamp() {
-            namespace fs = boost::filesystem;
-            namespace yaml = io::file::yaml;
-            namespace except = core::exception;
-
-            if (const auto op_filename = yaml::exists_config()) {
-                boost::system::error_code error;
-                const std::time_t last_time = fs::last_write_time(*op_filename, error);
-                return std::to_string(last_time);
-            }
-            else {
-                throw except::error(
-                        "poac.yml does not exists.\n"
-                        "Please execute `poac init` or `poac new $PROJNAME`.");
-            }
-        }
-
 
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace path = io::file::path;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
@@ -257,7 +217,7 @@ namespace poac::subcmd {
 
             fs::create_directories(path::poac_cache_dir);
             auto node = yaml::load_config();
-            const std::string timestamp = get_yaml_timestamp();
+            std::string timestamp = yaml::get_timestamp();
             const bool quite = util::argparse::use_rm(argv, "-q", "--quite");
             const bool verbose = util::argparse::use_rm(argv, "-v", "--verbose") && !quite;
 
@@ -265,13 +225,8 @@ namespace poac::subcmd {
             resolver::Resolved resolved_deps{};
             bool load_lock = false;
             if (argv.empty()) { // 引数からの指定の時，lockファイルを無視する
-                if (const auto locked_deps = load_locked_deps(timestamp)) {
-                    for (const auto& [name, next_node] : *locked_deps) {
-                        const auto version = *yaml::get<std::string>(next_node, "version");
-                        const auto source = *yaml::get<std::string>(next_node, "source");
-                        // この場合，lockファイルを書き換える必要はないため，resolved_deps.activatedに何かを書き込む必要はない
-                        resolved_deps.backtracked[name] = { version, source };
-                    }
+                if (const auto locked_deps = core::lock::load(timestamp)) {
+                    resolved_deps = *locked_deps;
                     load_lock = true;
                 }
             }
@@ -292,7 +247,7 @@ namespace poac::subcmd {
                     deps.insert(deps.end(), resolved_packages.begin(), resolved_packages.end());
                 }
                 else if (argv.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
-                    throw except::error(
+                    throw exception::error(
                             "Required key `deps` does not exist in poac.yml.\n"
                             "Please refer to https://docs.poac.pm");
                 }
@@ -322,7 +277,7 @@ namespace poac::subcmd {
             bool fix_yml = false;
             for (const auto& d : deps) {
                 if (d.interval == "latest") {
-                    node["deps"][d.name] = conv_specific_version_to_interval(resolved_deps.backtracked[d.name].version);
+                    node["deps"][d.name] = convert_to_interval(resolved_deps.backtracked[d.name].version);
                     fix_yml = true;
                 }
             }
@@ -338,6 +293,7 @@ namespace poac::subcmd {
                 if (std::ofstream ofs("poac.yml"); ofs) {
                     ofs << node;
                 }
+                timestamp = yaml::get_timestamp();
             }
 
             if (!load_lock) {

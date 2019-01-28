@@ -24,7 +24,7 @@ int error_handling(std::string&& s)
 int exec(std::string&& str, VS&& vs)
 {
     namespace inference = poac::core::infer;
-    namespace except = poac::core::exception;
+    namespace exception = poac::core::exception;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
 
@@ -33,18 +33,18 @@ int exec(std::string&& str, VS&& vs)
         inference::apply("exec"s, str, std::move(vs));
         return EXIT_SUCCESS;
     }
-    catch (const except::invalid_first_arg& e) {
+    catch (const exception::invalid_first_arg& e) {
         return error_handling(e.what());
     }
-    catch (const except::invalid_second_arg& e) {
+    catch (const exception::invalid_second_arg& e) {
         inference::apply("exec"s, "--help"s, VS({e.what()}));
         return EXIT_FAILURE;
     }
-    catch (const except::error& e) {
+    catch (const exception::error& e) {
         std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    catch (const except::warn& e) {
+    catch (const exception::warn& e) {
         std::cout << cli::to_yellow("WARN: ") << e.what() << std::endl;
         return EXIT_SUCCESS;
     }

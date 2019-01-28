@@ -13,8 +13,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test1 )
             { -1, 2 },
             { -1, -2 }
     };
-    sat::Formula formula(clauses, 2);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 2);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ -1, 2 }) );
@@ -52,8 +51,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test3 )
             { -4, -5 },
             { 6 }
     };
-    sat::Formula formula(clauses, 6);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 6);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ 1, 2, 3, -4, 5, 6 }) );
@@ -74,8 +72,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test4 )
             { 4 },
             { 5 }
     };
-    sat::Formula formula(clauses, 5);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 5);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ 1, 2, 3, 4, 5 }) );
@@ -92,8 +89,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test5 )
             { 3 },
             { 4 }
     };
-    sat::Formula formula(clauses, 4);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 4);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ 1, 2, 3, 4 }) );
@@ -116,8 +112,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test6 )
             { -4, -5, -6 },
             { -4, 6 }
     };
-    sat::Formula formula(clauses, 6);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 6);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ 1, 2, 3, -4, -5, 6 }) );
@@ -138,8 +133,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test7 )
             { -4, -5 },
             { 6 }
     };
-    sat::Formula formula(clauses, 6);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 6);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ 1, 2, 3, -4, 5, 6 }) );
@@ -159,8 +153,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test8 )
             { -4, -5 },
             { 6 }
     };
-    sat::Formula formula(clauses, 6);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 6);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_TEST( vec_result == std::vector<int>({ 1, 2, 3, -4, 5, 6 }) );
@@ -180,8 +173,7 @@ BOOST_AUTO_TEST_CASE( poac_core_unsat_test1 )
             { 2 },
             { 3 }
     };
-    sat::Formula formula(clauses, 5);
-    const auto [sat_result, vec_result] = sat::solve(formula);
+    const auto [sat_result, vec_result] = sat::solve(clauses, 5);
 
     BOOST_TEST( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::normal) );
 }

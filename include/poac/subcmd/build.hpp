@@ -127,7 +127,7 @@ namespace poac::subcmd {
 
         void build_deps(const YAML::Node& node, const bool verbose) {
             namespace fs = boost::filesystem;
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 
@@ -177,14 +177,14 @@ namespace poac::subcmd {
                                     }
                                 }
                                 else { // Compile failure
-                                    throw except::error("\nCompile error.");
+                                    throw exception::error("\nCompile error.");
                                 }
                                 std::cout << std::endl;
                             }
                         }
                     }
                     else {
-                        throw except::error(
+                        throw exception::error(
                                 name + " is not installed.\n"
                                 "Please build after running `poac install`");
                     }
@@ -196,7 +196,7 @@ namespace poac::subcmd {
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 
@@ -227,9 +227,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             if (argv.size() > 1) {
-                throw except::invalid_second_arg("build");
+                throw exception::invalid_second_arg("build");
             }
         }
     }

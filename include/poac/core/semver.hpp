@@ -124,11 +124,11 @@ namespace poac::core::semver {
             std::smatch match;
             if (std::regex_match(version, match, std::regex(FULL))) {
                 apply_version(match);
-                io::cli::debug(*this);
+                io::cli::debugln(*this);
             }
             else if (std::regex_match(version, match, std::regex(COERCE))) {
                 apply_version(match);
-                io::cli::debug(*this);
+                io::cli::debugln(*this);
             }
             else {
                 throw exception::error("Invalid version");

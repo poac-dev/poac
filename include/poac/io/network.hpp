@@ -7,6 +7,7 @@
 #include <string_view>
 #include <map>
 #include <variant>
+#include <optional>
 
 #include <curl/curl.h>
 #include <boost/filesystem.hpp>
@@ -22,6 +23,8 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "../core/exception.hpp"
 #include "./cli.hpp"
@@ -225,6 +228,37 @@ namespace poac::io::network {
         for (int i = 0; i < 100; ++i)
             std::cout << ' ';
         std::cout << cli::left(100);
+    }
+
+
+    namespace api {
+        std::optional<std::vector<std::string>>
+        versions(const std::string& name) {
+            boost::property_tree::ptree pt;
+            {
+                std::stringstream ss;
+                ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+                if (ss.str() == "null") {
+                    return std::nullopt;
+                }
+                boost::property_tree::json_parser::read_json(ss, pt);
+            }
+            return util::types::ptree_to_vector<std::string>(pt);
+        }
+
+        std::optional<boost::property_tree::ptree>
+        deps(const std::string& name, const std::string& version) {
+            std::stringstream ss;
+            ss << io::network::get(POAC_PACKAGES_API + name + "/" + version + "/deps");
+            if (ss.str() == "null") {
+                return std::nullopt;
+            }
+            else {
+                boost::property_tree::ptree pt;
+                boost::property_tree::json_parser::read_json(ss, pt);
+                return pt;
+            }
+        }
     }
 } // end namespace
 #endif // !POAC_IO_NETWORK_HPP

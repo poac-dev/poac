@@ -33,7 +33,7 @@ namespace poac::subcmd {
         }
 
         void exec_new(const std::string& dirname) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
             namespace ftmpl = util::ftemplate;
@@ -43,20 +43,20 @@ namespace poac::subcmd {
             };
             // /name
             if (is_slash(dirname[0])) {
-                throw except::error(
+                throw exception::error(
                         "Invalid name.\n"
                         "It is prohibited to add /(slash)\n"
                         " at the begenning of a project name.");
             }
             // org/name/sub
             else if (std::count_if(dirname.begin(), dirname.end(), is_slash) > 1) {
-                throw except::error(
+                throw exception::error(
                         "Invalid name.\n"
                         "It is prohibited to use two\n"
                         " /(slashes) in a project name.");
             }
             else if (!std::regex_match(dirname, std::regex("^([a-z|\\d|\\-|_|\\/]*)$"))) {
-                throw except::error(
+                throw exception::error(
                         "Invalid name.\n"
                         "It is prohibited to use a character string"
                         " that does not match ^([a-z|\\d|\\-|_|\\/]*)$ in the project name.");
@@ -82,11 +82,11 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::exception;
+            namespace exception = core::exception;
             if (argv.size() != 1)
-                throw except::invalid_second_arg("new");
+                throw exception::invalid_second_arg("new");
             else if (io::file::path::validate_dir(argv[0]))
-                throw except::error("The " + argv[0] + " directory already exists.");
+                throw exception::error("The " + argv[0] + " directory already exists.");
         }
     }
 
