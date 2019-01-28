@@ -158,8 +158,8 @@ namespace poac::core::resolver {
         }
     }
 
-
-    std::vector<std::vector<int>> create_cnf(const Activated& activated) {
+    std::vector<std::vector<int>>
+    create_cnf(const Activated& activated) {
         std::vector<std::vector<int>> clauses;
         std::vector<int> already_added;
 
@@ -218,8 +218,7 @@ namespace poac::core::resolver {
     Resolved solve_sat(const Activated& activated, const std::vector<std::vector<int>>& clauses) {
         Resolved resolved_deps{};
         // deps.activated.size() == variables
-        sat::Formula formula(clauses, activated.size());
-        const auto [result, assignments] = sat::solve(formula);
+        const auto [result, assignments] = sat::solve(clauses, activated.size());
         if (result == sat::Sat::completed) {
             io::cli::debugln("SAT");
             for (const auto& a : assignments) {
@@ -378,6 +377,33 @@ namespace poac::core::resolver {
                 others_deps.emplace_back(dep);
             }
         }
+
+        Activated test{};
+        test.push_back({ {"D"}, {"1.0.0"}, {""}, {} });
+        test.push_back({ {"D"}, {"1.1.0"}, {""}, {} });
+        test.push_back({ {"E"}, {"1.0.0"}, {""}, {} });
+        test.push_back({ {"A"}, {"1.0.0"}, {""}, {} });
+        test.push_back({ {"B"}, {"1.0.0"}, {""}, {{
+                { {"D"}, {"1.0.0"}, {""}, {} },
+                { {"D"}, {"1.1.0"}, {""}, {} },
+                { {"E"}, {"1.0.0"}, {""}, {} }
+        }} });
+        test.push_back({ {"C"}, {"1.0.0"}, {""}, {{
+                { {"D"}, {"1.1.0"}, {""}, {} }
+        }} });
+
+        Backtracked backtracked;
+        backtracked["A"] = { {"1.0.0"}, {""} };
+        backtracked["B"] = { {"1.0.0"}, {""} };
+        backtracked["C"] = { {"1.0.0"}, {""} };
+        backtracked["D"] = { {"1.1.0"}, {""} };
+        backtracked["E"] = { {"1.0.0"}, {""} };
+
+        const Resolved result = backtrack_loop(test);
+        if( result.backtracked == backtracked ) {
+            std::cout << "OK" << std::endl;
+        }
+        throw exception::error("finish");
 
         // 木の末端からpush_backされていくため，依存が無いものが一番最初の要素になる．
         // つまり，配列のループのそのままの順番でインストールやビルドを行うと不具合は起きない
