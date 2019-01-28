@@ -68,15 +68,15 @@ namespace poac::io::file::yaml {
         }
     }
 
-    template <typename T, typename ...Args>
-    T get_with_throw(const YAML::Node& node, Args&&... args) {
+    template <typename T>
+    T get_with_throw(const YAML::Node& node, const std::string& arg) {
         namespace exception = core::exception;
         try {
-            return detail::get<T>(node, args...);
+            return detail::get<T>(node, arg);
         }
         catch (const YAML::BadConversion& e) {
             throw exception::error(
-                    "Required key does not exist in poac.yml.\n" // TODO: 何のkeyが無い？
+                    "Required key `" + arg + "` does not exist in poac.yml.\n"
                     "Please refer to https://docs.poac.pm");
         }
     }
