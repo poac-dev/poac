@@ -98,6 +98,19 @@ namespace poac::subcmd {
             check_arguments(argv);
             check_requirements();
 
+            const bool yes = util::argparse::use(argv, "-y", "--yes");
+            if (!yes) {
+                cli::echo();
+                std::cout << "Are you sure publish this package? [Y/n] ";
+                std::string yes_or_no;
+                std::cin >> yes_or_no;
+                std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
+                if (!(yes_or_no == "yes" || yes_or_no == "y")) {
+                    std::cout << "canceled." << std::endl;
+                    return;
+                }
+            }
+
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             // TODO: 確認をとるようにする．-> gcloud app deploy的な感じで
@@ -188,7 +201,7 @@ namespace poac::subcmd {
 
     struct publish {
         static const std::string summary() { return "Publish a package"; }
-        static const std::string options() { return "[-v | --verbose]"; }
+        static const std::string options() { return "[-v | --verbose, -y | --yes]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void operator()(VS&& argv) {
             _publish::_main(std::move(argv));
