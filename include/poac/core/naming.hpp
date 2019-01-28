@@ -160,5 +160,56 @@ namespace poac::core::naming {
             return std::make_pair("poac", name);
         }
     }
+
+    void validate_package_name(const std::string& s) {
+        std::regex r1("^(\\/|\\-|_|\\d)+$");
+        std::regex r2("^(\\/|\\-|_)$");
+        std::regex r3("^.*(\\/|\\-|_){2,}.*$");
+        std::regex r4("^([a-z|\\d|\\-|_|\\/]*)$");
+
+        // only /, -, _, [0-9]
+        if (std::regex_match(s, r1)) {
+            throw exception::error(
+                    "Invalid name.\n"
+                    "It is prohibited to use / and -, _, number\n"
+                    " only string of the project name.");
+        }
+        // /name, -name, _name, 0name
+        else if (std::regex_match(std::string(1, s[0]), r1)) {
+            throw exception::error(
+                    "Invalid name.\n"
+                    "It is prohibited to use / and -, _, number\n"
+                    " at the begenning of the project name.");
+        }
+        // name/, name-, _name
+        else if (std::regex_match(std::string(1, *(s.end()-1)), r2)) {
+            throw exception::error(
+                    "Invalid name.\n"
+                    "It is prohibited to use / and -, _\n"
+                    " at the last of the project name.");
+        }
+        // na--me, n/-ame, nam_-e
+        else if (std::regex_match(s, r3)) {
+            throw exception::error(
+                    "Invalid name.\n"
+                    "It is prohibited to use / and -, _\n"
+                    " twice of the project name.");
+        }
+        // org/name/sub
+        else if (std::count_if(s.begin(), s.end(), [](char c){ return c == '/'; }) > 1) {
+            throw exception::error(
+                    "Invalid name.\n"
+                    "It is prohibited to use two\n"
+                    " /(slashes) in a project name.");
+        }
+        // use the other than [a-z], [0-9], -, _, /
+        else if (!std::regex_match(s, r4)) {
+            throw exception::error(
+                    "Invalid name.\n"
+                    "It is prohibited to use a character string"
+                    " that does not match ^([a-z|\\d|\\-|_|\\/]*)$\n"
+                    " in the project name.");
+        }
+    }
 } // end namespace
 #endif // !POAC_CORE_NAMING_HPP

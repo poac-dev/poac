@@ -179,9 +179,11 @@ namespace poac::subcmd {
             namespace exception = core::exception;
             namespace naming = core::naming;
 
+            naming::validate_package_name(v);
+
             const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
             std::smatch match;
-            if (std::regex_match(v, std::regex("^" + NAME + "$"))) {
+            if (std::regex_match(v, std::regex("^" + NAME + "$"))) { // TODO: 厳しくする
                 const auto [source, parsed_name] = naming::get_source(v);
                 return { {parsed_name}, {"latest"}, {source} };
             }

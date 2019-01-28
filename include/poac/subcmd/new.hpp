@@ -11,6 +11,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/exception.hpp"
+#include "../core/naming.hpp"
 #include "../io.hpp"
 #include "../util/ftemplate.hpp"
 
@@ -37,31 +38,9 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
             namespace ftmpl = util::ftemplate;
+            namespace naming = core::naming;
 
-            const auto is_slash = [](const char c) {
-                return c == '/';
-            };
-            // /name
-            if (is_slash(dirname[0])) {
-                throw exception::error(
-                        "Invalid name.\n"
-                        "It is prohibited to add /(slash)\n"
-                        " at the begenning of a project name.");
-            }
-            // org/name/sub
-            else if (std::count_if(dirname.begin(), dirname.end(), is_slash) > 1) {
-                throw exception::error(
-                        "Invalid name.\n"
-                        "It is prohibited to use two\n"
-                        " /(slashes) in a project name.");
-            }
-            else if (!std::regex_match(dirname, std::regex("^([a-z|\\d|\\-|_|\\/]*)$"))) {
-                throw exception::error(
-                        "Invalid name.\n"
-                        "It is prohibited to use a character string"
-                        " that does not match ^([a-z|\\d|\\-|_|\\/]*)$ in the project name.");
-            }
-
+            naming::validate_package_name(dirname);
             fs::create_directories(dirname);
             std::ofstream ofs;
             std::map<fs::path, std::string> file{
