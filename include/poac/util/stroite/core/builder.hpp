@@ -21,6 +21,7 @@
 #include "../utils.hpp"
 
 #include "../../../core/exception.hpp"
+#include "../../../core/lock.hpp"
 #include "../../../io/file/path.hpp"
 #include "../../../core/naming.hpp"
 #include "../../../io/cli.hpp"
@@ -70,19 +71,32 @@ namespace stroite {
         auto make_include_search_path() {
             namespace fs = boost::filesystem;
             namespace naming = poac::core::naming;
+            namespace exception = poac::core::exception;
+            namespace lock = poac::core::lock;
             namespace yaml = poac::io::file::yaml;
             namespace io = poac::io::file;
 
             std::vector<std::string> include_search_path;
-            if (deps_node) {
-                for (const auto& [name, next_node] : *deps_node) { // TODO: これと同じ処理が多すぎる // そもそもlock読まんといかんのちゃう？
-                    const auto [src, name2] = naming::get_source(name);
-                    const std::string version = naming::get_version(next_node, src);
-                    const std::string pkgname = naming::to_current(src, name2, version);
-                    const fs::path pkgpath = io::path::current_deps_dir / pkgname;
+            if (deps_node) { // subcmd/build.hppで，存在確認が取れている
+                if (const auto locked_deps = lock::load_ignore_timestamp()) {
+                    for (const auto& [name, dep] : (*locked_deps).backtracked) {
+                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                        const fs::path package_path = io::path::current_deps_dir / current_package_name;
 
-                    if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
-                        include_search_path.push_back(include_dir.string());
+                        if (const fs::path include_dir = package_path / "include"; fs::exists(include_dir)) {// io::file::path::validate_dir??
+                            include_search_path.push_back(include_dir.string());
+                        }
+                        else {
+                            throw exception::error(
+                                    name + " is not installed.\n"
+                                           "Please build after running `poac install`");
+                        }
+                    }
+                }
+                else {
+                    throw exception::error(
+                            "Could not load poac.lock.\n"
+                            "Please build after running `poac install`");
                 }
             }
             return include_search_path;
@@ -290,6 +304,7 @@ namespace stroite {
                         const std::string pkgname = naming::to_cache(src, name2, version);
                         const fs::path pkgpath = poac::io::file::path::current_deps_dir / pkgname;
 
+                        // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
                         if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
                             library_search_path.push_back(lib_dir.string());
 
