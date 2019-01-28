@@ -59,8 +59,8 @@ aliases:
       - run: ./build/poac -h
       - run: file ./build/poac
 
-      - run: *run-poac-test
-      - store_test_results: *store-poac-test-result
+#      - run: *run-poac-test
+#      - store_test_results: *store-poac-test-result
 
 version: 2
 jobs:
@@ -110,8 +110,8 @@ jobs:
       - run: ./build/poac -h
       - run: file ./build/poac
 
-      - run: *run-poac-test
-      - store_test_results: *store-poac-test-result
+#      - run: *run-poac-test
+#      - store_test_results: *store-poac-test-result
 
       - persist_to_workspace:
           root: /tmp/workspace
