@@ -22,8 +22,10 @@ endif()
 
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
-include_directories( "/usr/local/opt/openssl/include" )
-link_directories( "/usr/local/opt/openssl/lib" )
+if(${APPLE})
+    include_directories( "/usr/local/opt/openssl/include" )
+    link_directories( "/usr/local/opt/openssl/lib" )
+endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
