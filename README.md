@@ -1,5 +1,3 @@
-**:warning: Not yet released**
-
 # poac
 
 Poac is the package manager for C++ user.
