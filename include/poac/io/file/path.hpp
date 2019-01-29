@@ -155,5 +155,23 @@ namespace poac::io::file::path {
         const std::string temp_path(temp, 0, temp.size()-1); // delete \n
         return temp_path;
     }
+
+    void remove_matched_files(const boost::filesystem::path& p, std::regex r) {
+        namespace fs = boost::filesystem;
+
+        fs::directory_iterator end_itr; // Default ctor yields past-the-end
+        for (fs::directory_iterator i(p); i != end_itr; ++i) {
+            // Skip if not a file
+            if (!fs::is_regular_file(i->status())) {
+                continue;
+            }
+            // Skip if no match
+            if (!std::regex_match(i->path().filename().string(), r)) {
+                continue;
+            }
+            // File matches, delete it
+            fs::remove_all(i->path());
+        }
+    }
 } // end namespace
 #endif // !POAC_IO_FILE_PATH_HPP

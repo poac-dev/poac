@@ -21,6 +21,7 @@
 #include "../utils.hpp"
 
 #include "../../../core/exception.hpp"
+#include "../../../core/lock.hpp"
 #include "../../../io/file/path.hpp"
 #include "../../../core/naming.hpp"
 #include "../../../io/cli.hpp"
@@ -38,7 +39,7 @@ namespace stroite {
         std::string project_name;
         boost::filesystem::path base_dir;
 
-        std::map<std::string, YAML::Node> node; // TODO: node_mapなのでdeps_nodeと分かりづらい
+        std::map<std::string, YAML::Node> node;
         std::map<std::string, std::map<std::string, std::string>> depends_ts;
         std::optional<std::map<std::string, YAML::Node>> deps_node;
 
@@ -70,19 +71,32 @@ namespace stroite {
         auto make_include_search_path() {
             namespace fs = boost::filesystem;
             namespace naming = poac::core::naming;
+            namespace exception = poac::core::exception;
+            namespace lock = poac::core::lock;
             namespace yaml = poac::io::file::yaml;
             namespace io = poac::io::file;
 
             std::vector<std::string> include_search_path;
-            if (deps_node) {
-                for (const auto& [name, next_node] : *deps_node) { // TODO: これと同じ処理が多すぎる
-                    const auto [src, name2] = naming::get_source(name);
-                    const std::string version = naming::get_version(next_node, src);
-                    const std::string pkgname = naming::to_current(src, name2, version);
-                    const fs::path pkgpath = io::path::current_deps_dir / pkgname;
+            if (deps_node) { // subcmd/build.hppで，存在確認が取れている
+                if (const auto locked_deps = lock::load_ignore_timestamp()) {
+                    for (const auto& [name, dep] : (*locked_deps).backtracked) {
+                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                        const fs::path package_path = io::path::current_deps_dir / current_package_name;
 
-                    if (const fs::path include_dir = pkgpath / "include"; fs::exists(include_dir))
-                        include_search_path.push_back(include_dir.string());
+                        if (const fs::path include_dir = package_path / "include"; fs::exists(include_dir)) {// io::file::path::validate_dir??
+                            include_search_path.push_back(include_dir.string());
+                        }
+                        else {
+                            throw exception::error(
+                                    name + " is not installed.\n"
+                                           "Please build after running `poac install`");
+                        }
+                    }
+                }
+                else {
+                    throw exception::error(
+                            "Could not load poac.lock.\n"
+                            "Please build after running `poac install`");
                 }
             }
             return include_search_path;
@@ -90,11 +104,12 @@ namespace stroite {
 
         auto make_macro_defns() {
             namespace fs = boost::filesystem;
+            namespace configure = utils::configure;
 
             std::vector<std::string> macro_defns;
             // poac automatically define the absolute path of the project's root directory.
-            macro_defns.push_back(utils::configure::make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
-            macro_defns.push_back(utils::configure::make_macro_defn("POAC_VERSION", node.at("version").as<std::string>()));
+            macro_defns.push_back(configure::make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
+            macro_defns.push_back(configure::make_macro_defn("POAC_VERSION", node.at("version").as<std::string>()));
             return macro_defns;
         }
 
@@ -231,6 +246,7 @@ namespace stroite {
         std::optional<std::vector<std::string>>
         _compile() {
             namespace io = poac::io::file;
+
             if (const auto ret = core::compiler::compile(compile_conf)) {
                 namespace fs = boost::filesystem;
                 // Since compile succeeded, save hash
@@ -288,6 +304,7 @@ namespace stroite {
                         const std::string pkgname = naming::to_cache(src, name2, version);
                         const fs::path pkgpath = poac::io::file::path::current_deps_dir / pkgname;
 
+                        // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
                         if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
                             library_search_path.push_back(lib_dir.string());
 

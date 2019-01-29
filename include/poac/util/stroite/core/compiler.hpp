@@ -14,7 +14,7 @@
 namespace stroite::core::compiler {
     namespace fs = boost::filesystem;
 
-    template<typename Opts>
+    template <typename Opts>
     std::optional<std::vector<std::string>>
     compile(const Opts& opts)
     {
@@ -32,7 +32,7 @@ namespace stroite::core::compiler {
             cmd += md;
         cmd += "-o";
         std::vector<std::string> obj_files_path;
-        for (const auto &s : opts.source_files) {
+        for (const auto& s : opts.source_files) {
             auto obj_path = opts.output_root / fs::relative(s);
             obj_path.replace_extension("o");
             fs::create_directories(obj_path.parent_path());
@@ -44,11 +44,13 @@ namespace stroite::core::compiler {
         if (opts.verbose)
             std::cout << cmd << std::endl;
 
-        if (cmd.exec()) return obj_files_path;
-        else            return std::nullopt;
+        if (cmd.exec())
+            return obj_files_path;
+        else
+            return std::nullopt;
     }
 
-    template<typename Opts>
+    template <typename Opts>
     std::optional<std::string>
     link(const Opts& opts)
     {
@@ -72,11 +74,13 @@ namespace stroite::core::compiler {
             std::cout << cmd << std::endl;
 
         fs::create_directories(opts.output_root);
-        if (cmd.exec()) return bin_path;
-        else            return std::nullopt;
+        if (cmd.exec())
+            return bin_path;
+        else
+            return std::nullopt;
     }
 
-    template<typename Opts>
+    template <typename Opts>
     std::optional<std::string>
     gen_static_lib(const Opts& opts)
     {
@@ -91,29 +95,33 @@ namespace stroite::core::compiler {
             std::cout << cmd << std::endl;
 
         fs::create_directories(opts.output_root);
-        if (cmd.exec()) return stlib_path;
-        else            return std::nullopt;
+        if (cmd.exec())
+            return stlib_path;
+        else
+            return std::nullopt;
     }
 
-    template<typename Opts>
+    template <typename Opts>
     std::optional<std::string>
     gen_dynamic_lib(const Opts& opts)
     {
         poac::util::command cmd(opts.system);
-        cmd += "-dynamiclib"; // -shared
+        cmd += "-dynamiclib"; // -shared // FIXME: macosとlinux
         for (const auto& o : opts.obj_files_path)
             cmd += o;
         cmd += "-o";
         const std::string dylib_path =
-                (opts.output_root / opts.project_name).string() + ".dylib";
+                (opts.output_root / opts.project_name).string() + ".dylib"; // FIXME: macosとlinux
         cmd += dylib_path;
 
         if (opts.verbose)
             std::cout << cmd << std::endl;
 
         fs::create_directories(opts.output_root);
-        if (cmd.exec()) return dylib_path;
-        else            return std::nullopt;
+        if (cmd.exec())
+            return dylib_path;
+        else
+            return std::nullopt;
     }
 } // end namespace
 #endif // STROITE_CORE_COMPILER_HPP
