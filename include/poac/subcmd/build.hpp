@@ -201,6 +201,10 @@ namespace poac::subcmd {
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 
+
+            if (!yaml::get(node, "deps")) {
+                return; // depsが存在しない
+            }
             // TODO: ビルド順序
             if (const auto locked_deps = lock::load_ignore_timestamp()) {
                 for (const auto& [name, dep] : (*locked_deps).backtracked) {
