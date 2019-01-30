@@ -25,6 +25,16 @@ link_directories( "/usr/local/lib" )
 if(${APPLE})
     include_directories( "/usr/local/opt/openssl/include" )
     link_directories( "/usr/local/opt/openssl/lib" )
+    execute_process(
+            COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
+            OUTPUT_VARIABLE OSX_VERSION
+    )
+    if(NOT ${OSX_VERSION} EQUAL 14)
+        message(STATUS "Set to homebrew's llvm")
+        set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
+    endif()
 endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
