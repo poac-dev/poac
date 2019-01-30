@@ -131,8 +131,11 @@ namespace poac::core::naming {
         namespace yaml = io::file::yaml;
 
         if (src == "github") {
-            if (const auto ver = yaml::get<std::string>(node, "tag")) {
+            if (const auto ver = yaml::get<std::string>(node)) {
                 return *ver;
+            }
+            else if (const auto ver2 = yaml::get<std::string>(node, "tag")) {
+                return *ver2;
             }
         }
         else if (src == "poac") {
