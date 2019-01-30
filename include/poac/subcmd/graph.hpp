@@ -140,6 +140,7 @@ namespace poac::subcmd {
             }
             else {
                 const auto [g, names] = create_graph();
+                (void)names; // error: unused variable
                 boost::graph_traits<Graph>::edge_iterator itr, end;
                 for(tie(itr, end) = edges(g); itr != end; ++itr) {
                     std::cout << boost::get(&Vertex::name, g)[source(*itr, g)] << " -> "
