@@ -20,11 +20,7 @@ before_install:
   - brew update
   - brew upgrade boost; return 0
 install:
-  - brew install llvm
-  - export CXX=/usr/local/opt/llvm/bin/clang++
-  - export LDFLAGS="-L/usr/local/opt/llvm/lib"
-  - export CPPFLAGS="-I/usr/local/opt/llvm/include"
-  - brew install yaml-cpp
+  - brew install llvm yaml-cpp
 script:
   - mkdir build
   - cd build
