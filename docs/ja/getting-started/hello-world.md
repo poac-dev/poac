@@ -27,7 +27,8 @@ $ tree . -a
 0 directories, 4 files
 ```
 
-`poac.yml` は設定ファイルです。
+`poac.yml` は設定ファイルです。(`poac.yaml`は無視されます．必ず`poac.yml`にしてください)
+
 
 ここに依存関係やパッケージの情報を記載します。
 
