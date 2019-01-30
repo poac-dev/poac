@@ -31,10 +31,10 @@ namespace stroite::utils::configure {
         if (const char* cxx = std::getenv("CXX")) {
             return cxx;
         }
-        else if (command("command -v g++ >/dev/null 2>&1").exec()) {
+        else if (command("type g++ >/dev/null 2>&1").exec()) {
             return "g++";
         }
-        else if (command("command -v clang++ >/dev/null 2>&1").exec()) {
+        else if (command("type clang++ >/dev/null 2>&1").exec()) {
             return "clang++";
         }
         else {
