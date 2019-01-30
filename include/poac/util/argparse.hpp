@@ -6,6 +6,7 @@
 #include <utility>
 #include <array>
 #include <tuple>
+#include <optional>
 
 #include "./types.hpp"
 
@@ -32,6 +33,36 @@ namespace poac::util::argparse {
             }
         }
         return found;
+    }
+
+    // -o filename -> return filename
+    template <class SinglePassRange, class T>
+    std::optional<std::string>
+    use_get(SinglePassRange& rng, T arg) {
+        const auto first = std::begin(rng);
+        const auto last = std::end(rng);
+        if (const auto result = std::find(first, last, arg); result != last) {
+            return *(result + 1);
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+    // -o filename -> return filename
+    template <class SinglePassRange, class T>
+    std::optional<std::string>
+    use_get(SinglePassRange& rng, T arg1, T arg2) {
+        const auto first = std::begin(rng);
+        const auto last = std::end(rng);
+        if (const auto result1 = std::find(first, last, arg1); result1 != last) {
+            return *(result1 + 1);
+        }
+        else if (const auto result2 = std::find(first, last, arg2); result2 != last) {
+            return *(result2 + 1);
+        }
+        else {
+            return std::nullopt;
+        }
     }
 } // end namespace
 #endif // !POAC_UTIL_ARGPARSE_HPP

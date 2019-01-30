@@ -53,6 +53,7 @@ $ poac build
 ## Requirements (runtime)
 * compiler (gcc | clang | MSVC | ICC)
 * `tar`: in publish command
+* `dot(graphviz)`: in graph command
 * `cmake`: optional
 * `make`: optional
 

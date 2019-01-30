@@ -131,8 +131,11 @@ namespace poac::core::naming {
         namespace yaml = io::file::yaml;
 
         if (src == "github") {
-            if (const auto ver = yaml::get<std::string>(node, "tag")) {
+            if (const auto ver = yaml::get<std::string>(node)) {
                 return *ver;
+            }
+            else if (const auto ver2 = yaml::get<std::string>(node, "tag")) {
+                return *ver2;
             }
         }
         else if (src == "poac") {
@@ -175,10 +178,10 @@ namespace poac::core::naming {
                     " only string of the project name.");
         }
         // /name, -name, _name, 0name
-        else if (std::regex_match(std::string(1, s[0]), r1)) {
+        else if (std::regex_match(std::string(1, s[0]), r2)) {
             throw exception::error(
                     "Invalid name.\n"
-                    "It is prohibited to use / and -, _, number\n"
+                    "It is prohibited to use / and -, _\n"
                     " at the begenning of the project name.");
         }
         // name/, name-, _name

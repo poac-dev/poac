@@ -4,6 +4,7 @@
 #include "subcmd/build.hpp"
 #include "subcmd/cache.hpp"
 #include "subcmd/cleanup.hpp"
+#include "subcmd/graph.hpp"
 #include "subcmd/init.hpp"
 #include "subcmd/install.hpp"
 #include "subcmd/login.hpp"
