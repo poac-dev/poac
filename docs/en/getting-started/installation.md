@@ -2,17 +2,17 @@
 
 ### Easy install
 ```bash
-curl https://sh.poac.pm | bash
+curl -fsSL https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
 ### Manual install (Build)
 Poac requires the following tools and packages to build:
-* `boost`: version `1.48.0` or higher
-* `cmake`: version ``
-* `curl(libcurl)`:
-* openssl
-* `yaml-cpp`:
+* [`boost`](https://github.com/boostorg): `1.66.0` or higher
+* [`cmake`](https://github.com/Kitware/CMake): `3.0` or higher
+* [`libcurl`](https://github.com/curl/curl): as new as possible
+* [`openssl`](https://github.com/openssl/openssl): as new as possible
+* [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` or higher
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
@@ -21,9 +21,4 @@ $ mkdir build && cd $_
 $ cmake ..
 $ make
 $ make install
-```
-
-Already poac is installed, you can build using poac:
-```bash
-$ poac build
 ```
