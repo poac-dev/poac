@@ -5,7 +5,7 @@
 
 ### 簡単にインストールする
 ```bash
-curl -fsSL https://sh.poac.pm | bash
+curl -fsSL https://sh.poac.io | bash
 ```
 *お使いのPCのOSがmacOSの時、内部では [Homebrew](https://github.com/Homebrew/brew) を使用します*
 
