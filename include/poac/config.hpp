@@ -11,7 +11,7 @@
 
 namespace poac {
     static constexpr char const* POAC_API_HOST =
-            "poac.pm";
+            "poac.io";
     static constexpr char const* POAC_PACKAGES_API =
             "/api/packages/";
     static constexpr char const* POAC_TOKENS_VALIDATE_API =

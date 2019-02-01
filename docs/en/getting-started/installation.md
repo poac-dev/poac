@@ -2,7 +2,7 @@
 
 ### Easy install
 ```bash
-curl -fsSL https://sh.poac.pm | bash
+curl -fsSL https://sh.poac.io | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
