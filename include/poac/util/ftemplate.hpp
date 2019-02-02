@@ -38,7 +38,7 @@ namespace poac::util::ftemplate {
                "This project uses [poac](https://github.com/poacpm/poac).\n"
                "\n"
                "For more information on poac please see below:\n"
-               "* https://poac.pm\n"
+               "* https://poac.io\n"
                "* https://github.com/poacpm\n"
                "* https://github.com/poacpm/poac#readme\n"
                "\n"
