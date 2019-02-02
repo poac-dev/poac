@@ -77,7 +77,7 @@ namespace poac::io::file::yaml {
         catch (const YAML::BadConversion& e) {
             throw exception::error(
                     "Required key `" + arg + "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.pm");
+                    "Please refer to https://docs.poac.io");
         }
     }
 
@@ -125,7 +125,7 @@ namespace poac::io::file::yaml {
             throw exception::error(
                     "Required key `" + std::string(*result) +
                     "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.pm");
+                    "Please refer to https://docs.poac.io");
         }
         else {
             std::map<std::string, YAML::Node> mp;
