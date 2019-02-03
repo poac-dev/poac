@@ -179,8 +179,9 @@ namespace poac::subcmd {
             if (!fs::exists("poac.yml")) {
                 throw exception::error("poac.yml does not exists");
             }
-            // FIXME: could not get response
-            io::network::post_file(output_dir, token);
+            if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
+                throw exception::error(res);
+            }
 
             // Check exists package
             io::network::Headers headers;

@@ -34,14 +34,6 @@ deps:
         - boost_filesystem
         - boost_timer
         - boost_chrono
-  github/curl/curl:
-    tag: curl-7_61_0
-    build:
-      system: cmake
-      environment:
-        MAC_RPATH: 1 # TODO: Branch by OS
-        OPENSSL_ROOT_DIR: /usr/local/opt/openssl/ # TODO: 抽象化
-    link: static
   github/jbeder/yaml-cpp:
     tag: yaml-cpp-0.6.2
     build: cmake

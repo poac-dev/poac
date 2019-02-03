@@ -13,7 +13,6 @@ curl -fsSL https://sh.poac.io | bash
 poac はビルドするために以下のツールとパッケージが必要です:
 * [`boost`](https://github.com/boostorg): `1.66.0` もしくはそれ以上
 * [`cmake`](https://github.com/Kitware/CMake): `3.0` もしくはそれ以上
-* [`libcurl`](https://github.com/curl/curl): `7.63.0` もしくはそれ以上
 * [`openssl`](https://github.com/openssl/openssl): できるだけ最新のもの
 * [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` もしくはそれ以上
 

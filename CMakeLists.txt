@@ -41,7 +41,6 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
         "/usr/local/lib/libboost_filesystem-mt.a"
         "/usr/local/lib/libboost_system-mt.a"
-        "curl"
         "ssl"
         "crypto"
         "yaml-cpp")

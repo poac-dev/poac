@@ -5,11 +5,11 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <sstream>
 #include <map>
 #include <variant>
 #include <optional>
 
-#include <curl/curl.h>
 #include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -144,91 +144,96 @@ namespace poac::io::network {
     }
 
 
-    void PostFile( // TODO: WIP
+    std::string post_file(
             const std::string& token,
-            const std::string& from_file,
-            std::string_view target="/post",
-            std::string_view host="httpbin.org")
+            const boost::filesystem::path& file_path,
+            std::string_view target=POAC_UPLOAD_API,
+            std::string_view host=POAC_UPLOAD_API_HOST)
     {
-        auto req = create_request<http::empty_body>(http::verb::post, target, host);
+        namespace fs = boost::filesystem;
 
-        const std::string boundary = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
-        std::string content_disposition =
-                "form-data; name=\"token\"\r\n"
-                "\r\n"
-                + token + "\r\n"
-                "--" + boundary + "\r\n"
-                "Content-Disposition: form-data; name=\"file\"; filename=\"" + from_file + "\"\r\n"
-                "Content-Type: application/x-gzip\r\n"
-                "Content-Transfer-Encoding: binary\r\n"
-                "\r\n";
+        const std::string CRLF = "\r\n";
+        const std::string boundary = boost::lexical_cast<std::string>(boost::uuids::random_generator{}());
+        const std::string boundary_footer = CRLF + "--" + boundary + "--" + CRLF; // footer
+        const std::string content_disposition = "Content-Disposition: form-data; ";
 
-//        std::ifstream file(from_file, std::ios::in | std::ios::binary);
-//        std::string binary((std::istreambuf_iterator<char>(file)),
-//                            std::istreambuf_iterator<char>());
-//        content_disposition += binary;
+        std::stringstream token_stream;
+        token_stream << "--" << boundary << CRLF
+            << content_disposition << "name=\"token\"" << CRLF << CRLF
+            << token;
 
-//        http::request_serializer<http::empty_body> sr{ req }; // TODO: chunked
-//        sr.
+        std::stringstream file_stream;
+        file_stream << CRLF << "--" << boundary << CRLF
+            << content_disposition << "name=\"file\"; filename=\"" << file_path.filename().string() << "\"" << CRLF
+            << "Content-Type: application/x-gzip" << CRLF
+            << "Content-Transfer-Encoding: binary" << CRLF << CRLF;
 
-        content_disposition += "\r\n--" + boundary + "--" + "\r\n"; // footer
-
+        auto req = create_request<http::string_body>(http::verb::post, target, host);
+        req.set(http::field::accept, "*/*");
         req.set(http::field::content_type, "multipart/form-data; boundary=" + boundary);
-        // "Content-Disposition: " + "\r\n\r\n--" -> 27
-        const auto content_length = 27 + boundary.length() + content_disposition.length();
-        req.set(http::field::content_length, std::to_string(content_length) + "\r\n\r\n--" + boundary);
-        req.set(http::field::content_disposition, content_disposition);
+        const auto content_length = token_stream.str().size() + file_stream.str().size() + fs::file_size(file_path) + boundary_footer.size();
+        req.set(http::field::content_length, content_length);
 
-        std::cout << req << std::endl;
-//        const auto res = request<http::string_body>(req, host);
-//        std::cout << res << std::endl;
-    }
 
-    void post_file(
-        const std::string& from_file,
-        const std::string& token)
-    {
-        struct curl_httppost* formpost = nullptr;
-        struct curl_httppost* lastptr = nullptr;
-        struct curl_slist* headers = nullptr;
+        // The io_context is required for all I/O
+        boost::asio::io_context ioc;
+        // The SSL context is required, and holds certificates
+        ssl::context ctx{ ssl::context::sslv23 };
+        // These objects perform our I/O
+        boost::asio::ip::tcp::resolver resolver{ ioc };
+        ssl::stream<boost::asio::ip::tcp::socket> stream{ ioc, ctx };
 
-        curl_global_init(CURL_GLOBAL_ALL);
-        curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "token",
-                     CURLFORM_COPYCONTENTS, token.c_str(),
-                     CURLFORM_END);
-        curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "file",
-                     CURLFORM_FILE, from_file.c_str(),
-                     CURLFORM_END);
-        // Fill in the submit field too, even if this is rarely needed
-        curl_formadd(&formpost, &lastptr,
-                     CURLFORM_COPYNAME, "submit",
-                     CURLFORM_COPYCONTENTS, "send",
-                     CURLFORM_END);
+        // Set SNI Hostname (many hosts need this to handshake successfully)
+        if(!SSL_set_tlsext_host_name(stream.native_handle(), std::string(host).c_str()))
+        {
+            boost::system::error_code ec{
+                    static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
+            };
+            throw boost::system::system_error{ ec };
+        }
+        // Look up the domain name
+        const auto port = "443";
+        const auto results = resolver.resolve(host, port);
+        // Make the connection on the IP address we get from a lookup
+        boost::asio::connect(stream.next_layer(), results.begin(), results.end());
+        // Perform the SSL handshake
+        stream.handshake(ssl::stream_base::client);
 
-        if (CURL* curl = curl_easy_init(); curl != nullptr) {
-            curl_easy_setopt(curl, CURLOPT_URL, POAC_PACKAGE_UPLOAD_API);
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-            headers = curl_slist_append(headers, "Expect:");
-            headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-            if (CURLcode res = curl_easy_perform(curl); res != CURLE_OK) {
-                std::cerr << "curl told us " << res << std::endl;
+        // Convert request to string
+        std::stringstream reqss;
+        reqss << req;
+        // Send the HTTP request to the remote host
+        stream.write_some(boost::asio::buffer(reqss.str()));
+        stream.write_some(boost::asio::buffer(token_stream.str()));
+        stream.write_some(boost::asio::buffer(file_stream.str()));
+        // Read file and write to stream
+        {
+            std::ifstream file(file_path.string(), std::ios::in | std::ios::binary);
+            char buf[512];
+            while (!file.eof()) {
+                file.read(buf, 512);
+                stream.write_some(boost::asio::buffer(buf, file.gcount()));
             }
-            curl_easy_cleanup(curl);
-            curl_formfree(formpost);
-            curl_slist_free_all(headers);
+        }
+        // Write footer to stream
+        stream.write_some(boost::asio::buffer(boundary_footer));
+
+        // This buffer is used for reading and must be persisted
+        boost::beast::flat_buffer buffer;
+        // Declare a container to hold the response
+        http::response<http::string_body> res;
+        // Receive the HTTP response
+        http::read(stream, buffer, res);
+
+        // Gracefully close the stream
+        boost::system::error_code ec;
+        stream.shutdown(ec);
+        if (ec == boost::asio::error::eof) {
+            // Rationale: https://stackoverflow.com/q/25587403
+            ec.assign(0, ec.category());
         }
 
-        // TODO: response is written arbitrarily
-        std::cout << '\b';
-        std::cout << cli::left(100);
-        for (int i = 0; i < 100; ++i)
-            std::cout << ' ';
-        std::cout << cli::left(100);
+        return res.body().data();
     }
 
 
