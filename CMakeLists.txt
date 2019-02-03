@@ -35,13 +35,17 @@ if(${APPLE})
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
     endif()
+else()
+    set(STATIC_LINK_FLAG "-static")
 endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
-        "/usr/local/lib/libboost_filesystem-mt.a"
-        "/usr/local/lib/libboost_system-mt.a"
+        "${STATIC_LINK_FLAG}"
+        "boost_filesystem"
+        "boost_system"
         "ssl"
         "crypto"
+        "dl"
         "yaml-cpp")
 install(TARGETS poac DESTINATION bin)
