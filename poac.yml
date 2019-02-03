@@ -1,7 +1,7 @@
 # Package name
 name: poac
 # Package version
-version: 0.1.1
+version: 0.1.2
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
 description: "poac is a package manager for C++"
