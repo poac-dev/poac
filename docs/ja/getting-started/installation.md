@@ -2,6 +2,8 @@
 
 ### サポートしているOS
 * macOS (>= sierra)
+* Linux (= x86_64 GNU/Linux)
+* Windows (= Windows Subsystem for Linux)
 
 ### 簡単にインストールする
 ```bash
