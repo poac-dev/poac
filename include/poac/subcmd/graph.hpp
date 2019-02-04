@@ -27,6 +27,8 @@
 
 // TODO: --input, -iで，入力する，poac.ymlファイルを指定. 指定しない場合はカレントディレクトリのを選択
 // poac graph -i ./deps/boost/poac.yml -o hoge.png
+// TODO: 標準出力にdotをだせるようにする．
+// TODO: poac graph | dot -Gsplines=ortho -Earrowhead=open -Earrowsize=0.5 -Tpng -Ograph.png
 
 // TODO: ついでにlockファイルも作成しておく -> -iでymlを指定指定している場合は，lockファイルを生成しない
 
@@ -108,7 +110,7 @@ namespace poac::subcmd {
             if (const auto output_op = util::argparse::use_get(argv, "-o", "--output")) {
                 fs::path output = *output_op;
                 if (output.extension() == ".png") {
-                    if (util::command("type dot >/dev/null 2>&1").exec()) {
+                    if (util::_command::has_command("dot")) {
                         const auto [g, names] = create_graph();
 
                         const std::string file_dot = output.stem().string() + ".dot";
