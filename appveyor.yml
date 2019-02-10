@@ -28,7 +28,7 @@ before_build:
   cmd: |
     mkdir build && cd build
     cmake .. -G "%CMAKE_GENERATOR_NAME%"
-    cmake --build .. --config %Configuration%
+    dir
     cd ..
 
 build:
