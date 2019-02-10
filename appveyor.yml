@@ -1,0 +1,43 @@
+version: 1.0.{build}
+
+branches:
+  except:
+    - gh-pages
+
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+
+configuration:
+  - Debug
+  - Release
+
+platform: Any CPU
+
+clone_depth: 1
+
+environment:
+  matrix:
+    # Visual Studio
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      CMAKE_GENERATOR_NAME: Visual Studio 14 2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      CMAKE_GENERATOR_NAME: Visual Studio 15 2017
+
+before_build:
+  cmd: |
+    mkdir build && cd build
+    cmake ../projects/cmake -G "%CMAKE_GENERATOR_NAME%"
+    cd ..
+
+build:
+  parallel: true
+  verbosity: minimal
+
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: 8Th9f6eSvN/wTVU6h5w9WZGmiKS+uHsl11nHGbR87OKy6/95p6rxiRuzHrJy7MXhanRW4+UqhR1r6C4wqIVDmzJgpRH4iW10mbc2by5sWWo=
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
