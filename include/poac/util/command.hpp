@@ -108,5 +108,11 @@ namespace poac::util {
     private:
         std::string cmd;
     };
+
+    namespace _command {
+        bool has_command(const std::string &c) {
+            return command("type " + c + " >/dev/null 2>&1").exec() ? true : false;
+        }
+    }
 } // end namespace
 #endif // !POAC_UTIL_COMMAND_HPP

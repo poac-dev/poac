@@ -26,15 +26,15 @@ namespace stroite::utils::configure {
     // Automatic selection of compiler
     auto auto_select_compiler() {
         using poac::core::exception::error;
-        using poac::util::command;
+        namespace command = poac::util::_command;
 
         if (const char* cxx = std::getenv("CXX")) {
             return cxx;
         }
-        else if (command("type g++ >/dev/null 2>&1").exec()) {
+        else if (command::has_command("g++")) {
             return "g++";
         }
-        else if (command("type clang++ >/dev/null 2>&1").exec()) {
+        else if (command::has_command("clang++")) {
             return "clang++";
         }
         else {
