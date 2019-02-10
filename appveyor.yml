@@ -7,6 +7,8 @@ branches:
 image:
   - Visual Studio 2015
   - Visual Studio 2017
+  - Visual Studio 2017 Preview
+  - Visual Studio 2019 Preview
 
 configuration:
   - Debug
@@ -19,8 +21,6 @@ clone_depth: 1
 environment:
   matrix:
     # Visual Studio
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      CMAKE_GENERATOR_NAME: Visual Studio 14 2015
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CMAKE_GENERATOR_NAME: Visual Studio 15 2017
 
