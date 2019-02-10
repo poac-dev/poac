@@ -27,7 +27,8 @@ environment:
 before_build:
   cmd: |
     mkdir build && cd build
-    cmake ../projects/cmake -G "%CMAKE_GENERATOR_NAME%"
+    cmake .. -G "%CMAKE_GENERATOR_NAME%"
+    make
     cd ..
 
 build:
