@@ -5,10 +5,7 @@ branches:
     - gh-pages
 
 image:
-  - Visual Studio 2015
   - Visual Studio 2017
-  - Visual Studio 2017 Preview
-  - Visual Studio 2019 Preview
 
 configuration:
   - Debug
@@ -18,15 +15,16 @@ clone_depth: 1
 
 environment:
   matrix:
-    # Visual Studio
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      CMAKE_GENERATOR_NAME: Visual Studio 15 2017
+    - TARGET: mingw
 
 install:
+  - set SSL_CERT_FILE=C:\msys64\mingw64\ssl\cert.pem
+  - set SSL_CERT_DIR=C:\msys64\mingw64\ssl\certs
+  - if [%TARGET%]==[mingw] set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
   - git clone https://github.com/jbeder/yaml-cpp.git
   - cd yaml-cpp
   - mkdir build && cd build
-  - cmake .. -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=C:\Libraries\
+  - cmake .. -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:\Libraries\
   - cmake --build . --target install
   - dir C:\Libraries\
   - cd ..
@@ -34,7 +32,7 @@ install:
 before_build:
   - dir C:\Libraries\boost_1_67_0
   - mkdir build && cd build
-  - cmake .. -G "%CMAKE_GENERATOR_NAME%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
+  - cmake .. -G "MinGW Makefiles" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
   - cmake --build . --config %Configuration%
   - cd ..
 
