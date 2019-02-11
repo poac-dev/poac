@@ -20,6 +20,7 @@ environment:
 install:
   - set SSL_CERT_FILE=C:\msys64\mingw64\ssl\cert.pem
   - set SSL_CERT_DIR=C:\msys64\mingw64\ssl\certs
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - if [%TARGET%]==[mingw] set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
   - git clone https://github.com/jbeder/yaml-cpp.git
   - cd yaml-cpp
