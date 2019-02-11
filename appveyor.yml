@@ -18,11 +18,11 @@ environment:
     - TARGET: mingw
 
 install:
+  - git clone https://github.com/jbeder/yaml-cpp.git
   - set SSL_CERT_FILE=C:\msys64\mingw64\ssl\cert.pem
   - set SSL_CERT_DIR=C:\msys64\mingw64\ssl\certs
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=C:\MinGW\bin
-  - git clone https://github.com/jbeder/yaml-cpp.git
   - cd yaml-cpp
   - mkdir build && cd build
   - cmake .. -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:\Libraries\
