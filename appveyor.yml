@@ -28,6 +28,7 @@ install:
   - cd ..
 
 before_build:
+  - dir .
   - dir C:\Libraries\boost_1_67_0
   - mkdir _build && cd _build
   - cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
