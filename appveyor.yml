@@ -26,8 +26,8 @@ before_build:
   cmd: |
     dir C:\Libraries\boost_1_69_0
     mkdir build && cd build
-    cmake .. -G "%CMAKE_GENERATOR_NAME%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0
-    MSBuild poac.sln /t:build /p:Configuration=%Configuration%
+    cmake .. -G "%CMAKE_GENERATOR_NAME%" -DBOOST_ROOT=C:/Libraries/boost_1_69_0
+    cmake --build . --config %Configuration%
     cd ..
 
 build:
