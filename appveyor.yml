@@ -29,8 +29,8 @@ install:
 
 before_build:
   - dir C:\Libraries\boost_1_67_0
-  - mkdir build && cd build
-  - cmake .. -G "MinGW Makefiles" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
+  - mkdir _build && cd _build
+  - cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
   - cmake --build . --config %Configuration%
   - cd ..
 
