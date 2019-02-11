@@ -55,6 +55,7 @@ endif()
 add_executable(${PROJECT_NAME} main.cpp)
 if(WIN32)
     find_package( Boost 1.67.0 REQUIRED )
+    include_directories( ${Boost_INCLUDE_DIRS} )
     target_link_libraries(${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
