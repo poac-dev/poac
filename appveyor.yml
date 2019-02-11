@@ -4,9 +4,6 @@ branches:
   except:
     - gh-pages
 
-image:
-  - Visual Studio 2017
-
 configuration:
   - Debug
   - Release
@@ -15,7 +12,9 @@ clone_depth: 1
 
 environment:
   matrix:
-    - TARGET: mingw
+    - COMPILER: mingw
+      GENERATOR: MinGW Makefiles
+      PLATFORM: Win32
 
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
