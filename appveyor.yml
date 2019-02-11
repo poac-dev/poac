@@ -22,7 +22,7 @@ install:
   - rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
 
   # Download MinGW-w64 toolchain
-  - dir C:\msys64
+  - dir C:\msys64\usr\bin
   - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
 
   - cd yaml-cpp && mkdir build && cd build
