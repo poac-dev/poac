@@ -42,12 +42,12 @@ $ cmake ..
 $ make
 $ make install
 ```
-
+<!--
 Already poac is installed, you can build using poac:
 ```bash
 $ poac build
 ```
-
+-->
 
 ## Requirements (runtime)
 * compiler (gcc | clang | MSVC | ICC)
@@ -56,6 +56,7 @@ $ poac build
 * `cmake`: optional
 * `make`: optional
 
-
+<!--
 ## Contribution
 Please see at [CONTRIBUTUING.md](.github/CONTRIBUTUING.md)
+-->
