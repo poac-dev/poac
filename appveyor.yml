@@ -26,7 +26,7 @@ before_build:
   cmd: |
     dir C:\Libraries\boost_1_67_0
     mkdir build && cd build
-    cmake .. -G "%CMAKE_GENERATOR_NAME%" -DBOOST_ROOT=C:/Libraries/boost_1_67_0
+    cmake .. -G "%CMAKE_GENERATOR_NAME%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
     cmake --build . --config %Configuration%
     cd ..
 

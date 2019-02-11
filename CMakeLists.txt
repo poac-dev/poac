@@ -49,8 +49,6 @@ if(APPLE)
     endif()
 elseif(LINUX)
     set(STATIC_LINK_FLAG "-static")
-elseif(WIN32)
-    include( "C:/Libraries/boost_1_67_0" )
 endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
