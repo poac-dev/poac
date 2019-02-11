@@ -2,6 +2,7 @@
 #define POAC_OPTION_VERSION_HPP
 
 #include <iostream>
+#include <cstdlib>
 
 
 namespace poac::option {
@@ -13,8 +14,9 @@ namespace poac::option {
             return "<Nothing>";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()([[maybe_unused]] VS&& argv) {
+        int operator()([[maybe_unused]] VS&& argv) {
             std::cout << POAC_VERSION << std::endl;
+            return EXIT_SUCCESS;
         }
     };
 } // end namespace

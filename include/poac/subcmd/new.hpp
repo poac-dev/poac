@@ -7,6 +7,7 @@
 #include <map>
 #include <regex>
 #include <algorithm>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 
@@ -55,9 +56,10 @@ namespace poac::subcmd {
         }
 
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             exec_new(argv[0]);
+            return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
@@ -77,9 +79,9 @@ namespace poac::subcmd {
             return "<project-name>";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        int operator()(VS&& argv) {
             _new::check_arguments(argv);
-            _new::_main(std::move(argv));
+            return _new::_main(std::move(argv));
         }
     };
 } // end namespace

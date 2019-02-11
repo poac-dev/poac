@@ -11,6 +11,7 @@
 #include <functional>
 #include <thread>
 #include <map>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -90,7 +91,7 @@ namespace poac::subcmd {
         }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace cli = io::cli;
@@ -106,7 +107,7 @@ namespace poac::subcmd {
                 std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
                 if (!(yes_or_no == "yes" || yes_or_no == "y")) {
                     std::cout << "canceled." << std::endl;
-                    return;
+                    return EXIT_FAILURE;
                 }
             }
 
@@ -194,6 +195,7 @@ namespace poac::subcmd {
             fs::remove_all(fs::path(output_dir).parent_path());
 
             cli::echo(cli::to_status("Done."));
+            return EXIT_SUCCESS;
         }
     }
 
@@ -201,8 +203,8 @@ namespace poac::subcmd {
         static const std::string summary() { return "Publish a package"; }
         static const std::string options() { return "[-v | --verbose, -y | --yes]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _publish::_main(std::move(argv));
+        int operator()(VS&& argv) {
+            return _publish::_main(std::move(argv));
         }
     };
 } // end namespace
