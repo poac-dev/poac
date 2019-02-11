@@ -19,7 +19,7 @@ environment:
 
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
-  - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=C:\MinGW\bin;%PATH%
   - cd yaml-cpp
   - mkdir build && cd build
