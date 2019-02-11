@@ -84,11 +84,18 @@ namespace poac::option {
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int _main(VS&& vs) {
             namespace exception = core::exception;
-            if (vs.size() == 0) { exec_help(); }
-            else if (vs.size() == 1) { echo_option(vs[0]); }
-            else { throw exception::invalid_second_arg("--help"); }
+            if (vs.size() == 0) {
+                exec_help();
+                return EXIT_SUCCESS;
+            }
+            else if (vs.size() == 1) {
+                echo_option(vs[0]);
+                return EXIT_SUCCESS;
+            }
+            else {
+                throw exception::invalid_second_arg("--help");
+            }
             // show only --help's option
-            return EXIT_SUCCESS;
         }
     }
 
