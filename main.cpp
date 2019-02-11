@@ -43,10 +43,12 @@ int exec(std::string&& str, VS&& vs)
                   << std::endl;
         return EXIT_SUCCESS;
     }
-    catch (...) {
-//        std::cerr << cli::to_error("Unexpected error") << std::endl;
-//        return EXIT_FAILURE;
+    catch (const std::invalid_argument& e) { // stoi error
         return EXIT_SUCCESS;
+    }
+    catch (...) {
+        std::cerr << cli::to_error("Unexpected error") << std::endl;
+        return EXIT_FAILURE;
     }
 }
 
