@@ -51,13 +51,26 @@ elseif(LINUX)
     set(STATIC_LINK_FLAG "-static")
 endif()
 
+
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME}
-        "${STATIC_LINK_FLAG}"
-        "boost_filesystem"
-        "boost_system"
-        "ssl"
-        "crypto"
-        "dl"
-        "yaml-cpp")
+if(WIN32)
+    find_package( Boost 1.67.0 REQUIRED )
+    target_link_libraries(${PROJECT_NAME}
+            "${STATIC_LINK_FLAG}"
+            ${Boost_FILESYSTEM_LIBRARY}
+            ${Boost_SYSTEM_LIBRARY}
+            "ssl"
+            "crypto"
+            "dl"
+            "yaml-cpp")
+else()
+    target_link_libraries(${PROJECT_NAME}
+            "${STATIC_LINK_FLAG}"
+            "boost_filesystem"
+            "boost_system"
+            "ssl"
+            "crypto"
+            "dl"
+            "yaml-cpp")
+endif()
 install(TARGETS poac DESTINATION bin)
