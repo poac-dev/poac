@@ -8,13 +8,15 @@ configuration:
   - Debug
   - Release
 
+platform: x64
+
 clone_depth: 1
 
 environment:
   matrix:
     - COMPILER: mingw-w64
       GENERATOR: MinGW Makefiles
-      PLATFORM: x64
+    - COMPILER: cygwin64
 
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
@@ -30,7 +32,7 @@ install:
   # Rename sh.exe as sh.exe in PATH interferes with MinGW
   - rename "C:\msys64\usr\bin\sh.exe" "sh2.exe"
 
-  - g++ -v
+  - dir C:\cygwin64
 
   - cd yaml-cpp && mkdir build && cd build
   - cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\mingw64 -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
