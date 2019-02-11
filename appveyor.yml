@@ -24,7 +24,7 @@ environment:
 
 before_build:
   cmd: |
-    dir C:\Libraries\boost_1_69_0
+    dir C:/Libraries/boost_1_69_0
     mkdir build && cd build
     cmake .. -G "%CMAKE_GENERATOR_NAME%" -DBOOST_ROOT=C:/Libraries/boost_1_69_0
     cmake --build . --config %Configuration%
