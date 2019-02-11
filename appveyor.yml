@@ -24,6 +24,7 @@ environment:
 
 before_build:
   cmd: |
+    Install-Package boost -Version 1.69.0
     mkdir build && cd build
     cmake .. -G "%CMAKE_GENERATOR_NAME%"
     MSBuild poac.sln /t:build /p:Configuration=%Configuration%
