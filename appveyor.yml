@@ -22,7 +22,7 @@ install:
   - rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
 
   # Download MinGW-w64 toolchain
-  - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64
+  - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin
   - appveyor DownloadFile "https://raw.githubusercontent.com/symengine/dependencies/57834d6007065cdd71964c96b397505b2b4ce78a/x86_64-4.8.5-release-win32-seh-rt_v4-rev0.7z" -FileName mw64.7z
   - 7z x -oC:\ mw64.7z > NUL
   - set PATH=C:\mingw64\bin;%PATH%
