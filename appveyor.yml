@@ -27,6 +27,9 @@ install:
   - pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc
 #  - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
 
+  # Rename sh.exe as sh.exe in PATH interferes with MinGW
+  - rename "C:\msys64\usr\bin\sh.exe" "sh2.exe"
+
   - cd yaml-cpp && mkdir build && cd build
   - cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\mingw64 -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
   - cmake --build . --target install
