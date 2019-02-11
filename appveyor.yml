@@ -20,7 +20,7 @@ install:
   - git clone https://github.com/jbeder/yaml-cpp.git
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1
-  - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\bin;%PATH%
+  - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1;%PATH%
   - cd yaml-cpp && mkdir build && cd build
   - cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\MinGW -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
   - cmake --build . --target install
