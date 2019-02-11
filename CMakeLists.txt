@@ -4,7 +4,11 @@ project(poac)
 # Preprocessor definitions
 add_definitions( -DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
 add_definitions( -DPOAC_VERSION="0.1.2" )
-add_definitions( -fdiagnostics-color -Wall -Wextra -Werror )
+if(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color -Wall -Wextra -Werror")
+endif()
 
 # Check of c++17
 if(NOT WIN32)
