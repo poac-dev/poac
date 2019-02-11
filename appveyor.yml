@@ -33,11 +33,11 @@ install:
   - rename "C:\msys64\usr\bin\sh.exe" "sh2.exe"
 
   - dir C:\cygwin64
+  - C:\cygwin64\setup-x86_64.exe --root C:\cygwin64 --site http://ftp.iij.ad.jp/pub/cygwin/ --packages make
 
   - cd yaml-cpp && mkdir build && cd build
   - cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\mingw64 -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
   - cmake --build . --target install
-  - dir C:\Libraries\
   - cd ..\..
 
 before_build:
