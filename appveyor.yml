@@ -23,7 +23,10 @@ install:
 
   # Download MinGW-w64 toolchain
   - dir C:\msys64\usr\bin
-  - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
+  - set PATH=C:\msys64\usr\bin;%PATH%
+  - pacman -Syu
+  - pacman -S mingw-w64-x86_64-gcc
+#  - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
 
   - cd yaml-cpp && mkdir build && cd build
   - cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\mingw64 -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
