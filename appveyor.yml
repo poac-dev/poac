@@ -4,9 +4,6 @@ branches:
   except:
     - gh-pages
 
-image:
-  - Visual Studio 2017
-
 configuration:
   - Debug
   - Release
