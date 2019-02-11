@@ -36,7 +36,9 @@ if(${APPLE})
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
     endif()
 else()
-    set(STATIC_LINK_FLAG "-static")
+    if(ENABLE_STATIC) # -DENABLE_STATIC=true
+        set(STATIC_LINK_FLAG "-static")
+    endif()
 endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
