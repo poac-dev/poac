@@ -44,8 +44,9 @@ int exec(std::string&& str, VS&& vs)
         return EXIT_SUCCESS;
     }
     catch (...) {
-        std::cerr << cli::to_error("Unexpected error") << std::endl;
-        return EXIT_FAILURE;
+//        std::cerr << cli::to_error("Unexpected error") << std::endl;
+//        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 }
 
