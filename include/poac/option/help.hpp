@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 #include "../core/exception.hpp"
 #include "../core/inference.hpp"
@@ -81,11 +82,19 @@ namespace poac::option {
         }
 
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& vs) {
+        int _main(VS&& vs) {
             namespace exception = core::exception;
-            if (vs.size() == 0) { exec_help(); }
-            else if (vs.size() == 1) { echo_option(vs[0]); }
-            else { throw exception::invalid_second_arg("--help"); }
+            if (vs.size() == 0) {
+                exec_help();
+                return EXIT_SUCCESS;
+            }
+            else if (vs.size() == 1) {
+                echo_option(vs[0]);
+                return EXIT_SUCCESS;
+            }
+            else {
+                throw exception::invalid_second_arg("--help");
+            }
             // show only --help's option
         }
     }
@@ -98,8 +107,8 @@ namespace poac::option {
             return "<subcommad or option>";
         }
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _help::_main(std::move(argv));
+        int operator()(VS&& argv) {
+            return _help::_main(std::move(argv));
         }
     };
 } // end namespace

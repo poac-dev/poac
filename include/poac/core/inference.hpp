@@ -1,4 +1,3 @@
-// 文字列から推論してくれる優しいやつ
 #ifndef POAC_CORE_INFERENCE_HPP
 #define POAC_CORE_INFERENCE_HPP
 
@@ -145,7 +144,7 @@ namespace poac::core::infer {
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
         return make_vector({ +[](VS&& vs){
-            return (op_type_list_t::at_t<Is>()(std::move(vs)), "");
+            return std::to_string(op_type_list_t::at_t<Is>()(std::move(vs)));
         }... })[idx](std::move(vs));
     }
     template <size_t... Is>

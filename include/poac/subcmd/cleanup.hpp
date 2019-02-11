@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -20,7 +21,7 @@
 namespace poac::subcmd {
     namespace _cleanup {
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main([[maybe_unused]] VS&& argv) {
+        int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::file::yaml;
             namespace resolver = core::resolver;
             namespace lock = core::lock;
@@ -58,6 +59,8 @@ namespace poac::subcmd {
                 }
             }
 
+            return EXIT_SUCCESS;
+
             // TODO: cleanup _build directory
             // TODO: auto cleanup in install sub-command
         }
@@ -77,10 +80,10 @@ namespace poac::subcmd {
         static const std::string options() {
             return "<Nothing>";
         }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        int operator()(VS&& argv) {
             _cleanup::check_arguments(argv);
-            _cleanup::_main(std::move(argv));
+            return _cleanup::_main(std::move(argv));
         }
     };
 } // end namespace

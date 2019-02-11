@@ -57,13 +57,15 @@ namespace poac::subcmd {
         }
 
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main([[maybe_unused]] VS&& argv) {
+        int _main([[maybe_unused]] VS&& argv) {
             namespace fs = boost::filesystem;
 
             const std::string filename = check_requirements();
             std::ofstream yml_ofs(filename);
             yml_ofs << util::ftemplate::poac_yml(basename(fs::current_path()));
             std::cout << fs::path(".") / filename << " was created." << std::endl;
+
+            return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
@@ -80,9 +82,9 @@ namespace poac::subcmd {
             return "<Nothing>";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        int operator()(VS&& argv) {
             _init::check_arguments(argv);
-            _init::_main(std::move(argv));
+            return _init::_main(std::move(argv));
         }
     };
 } // end namespace

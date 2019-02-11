@@ -11,6 +11,7 @@
 #include <functional>
 #include <thread>
 #include <map>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -90,7 +91,7 @@ namespace poac::subcmd {
         }
 
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace cli = io::cli;
@@ -100,20 +101,17 @@ namespace poac::subcmd {
 
             const bool yes = util::argparse::use(argv, "-y", "--yes");
             if (!yes) {
-                cli::echo();
                 std::cout << "Are you sure publish this package? [Y/n] ";
                 std::string yes_or_no;
                 std::cin >> yes_or_no;
                 std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
                 if (!(yes_or_no == "yes" || yes_or_no == "y")) {
                     std::cout << "canceled." << std::endl;
-                    return;
+                    return EXIT_FAILURE;
                 }
             }
 
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
-
-            // TODO: 確認をとるようにする．-> gcloud app deploy的な感じで
 
             // TODO: poac.ymlに，system: manualが含まれている場合はpublishできない
             // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
@@ -180,7 +178,7 @@ namespace poac::subcmd {
                 throw exception::error("poac.yml does not exists");
             }
             if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
-                throw exception::error(res);
+                throw exception::error(res); // TODO: Check exists packageは飛ばして，Delete fileはしてほしい
             }
 
             // Check exists package
@@ -197,6 +195,7 @@ namespace poac::subcmd {
             fs::remove_all(fs::path(output_dir).parent_path());
 
             cli::echo(cli::to_status("Done."));
+            return EXIT_SUCCESS;
         }
     }
 
@@ -204,8 +203,8 @@ namespace poac::subcmd {
         static const std::string summary() { return "Publish a package"; }
         static const std::string options() { return "[-v | --verbose, -y | --yes]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _publish::_main(std::move(argv));
+        int operator()(VS&& argv) {
+            return _publish::_main(std::move(argv));
         }
     };
 } // end namespace
