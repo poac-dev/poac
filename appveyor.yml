@@ -20,7 +20,7 @@ environment:
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-  - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0;%PATH%
+  - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%PATH%
   - cd yaml-cpp
   - mkdir build && cd build
   - cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=C:\MinGW -DCMAKE_BUILD_TYPE=%Configuration% -DCMAKE_INSTALL_PREFIX=C:\Libraries\
