@@ -14,8 +14,6 @@ configuration:
   - Debug
   - Release
 
-platform: Any CPU
-
 clone_depth: 1
 
 environment:
@@ -28,7 +26,7 @@ before_build:
   cmd: |
     mkdir build && cd build
     cmake .. -G "%CMAKE_GENERATOR_NAME%"
-    dir
+    MSBuild poac.sln /t:build /p:Configuration=%Configuration%
     cd ..
 
 build:
