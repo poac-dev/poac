@@ -46,10 +46,15 @@ endif()
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
         "${STATIC_LINK_FLAG}"
-         ${Boost_FILESYSTEM_LIBRARY}
-         ${Boost_SYSTEM_LIBRARY}
+        ${Boost_FILESYSTEM_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
         "ssl"
         "crypto"
         "dl"
         "yaml-cpp")
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} "-lbcrypt" "-lws2_32")
+endif()
+
 install(TARGETS poac DESTINATION bin)
