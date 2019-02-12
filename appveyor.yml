@@ -49,6 +49,7 @@ before_build:
     )
   - if [%COMPILER%]==[mingw-w64] (
       mkdir build && cd build &&
+      dir C:\Libraries\boost_1_67_0 &&
       cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0 &&
       cmake --build . --config %Configuration% &&
       cd ..
