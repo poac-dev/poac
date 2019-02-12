@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstdlib>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -70,7 +71,7 @@ namespace poac::subcmd {
         }
 
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             using namespace boost::property_tree;
 
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
@@ -94,6 +95,8 @@ namespace poac::subcmd {
                           << "    " << hits.get<std::string>("cpp_version")
                           << std::endl;
             }
+
+            return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
@@ -112,9 +115,9 @@ namespace poac::subcmd {
             return "<pkg-name>";
         }
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        int operator()(VS&& argv) {
             _search::check_arguments(argv);
-            _search::_main(std::move(argv));
+            return _search::_main(std::move(argv));
         }
     };
 } // end namespace

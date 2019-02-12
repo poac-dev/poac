@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(poac)
 
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+
 # Preprocessor definitions
 add_definitions( -DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
 add_definitions( -DPOAC_VERSION="0.1.2" )
@@ -56,30 +58,25 @@ if(APPLE)
     endif()
 elseif(LINUX)
     set(STATIC_LINK_FLAG "-static")
+else()
+    if(ENABLE_STATIC) # -DENABLE_STATIC=true
+        set(STATIC_LINK_FLAG "-static")
+    endif()
 endif()
 
 
 add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME}
+        "${STATIC_LINK_FLAG}"
+        ${Boost_FILESYSTEM_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        "ssl"
+        "crypto"
+        "dl"
+        "yaml-cpp")
+
 if(WIN32)
-    find_package( Boost 1.67.0 REQUIRED COMPONENTS system filesystem )
-    include_directories( ${Boost_INCLUDE_DIRS} )
-    link_directories(${Boost_LIBRARY_DIR})
-    target_link_libraries(${PROJECT_NAME}
-            "${STATIC_LINK_FLAG}"
-            ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
-            "ssl"
-            "crypto"
-            "dl"
-            "yaml-cpp")
-else()
-    target_link_libraries(${PROJECT_NAME}
-            "${STATIC_LINK_FLAG}"
-            "boost_filesystem"
-            "boost_system"
-            "ssl"
-            "crypto"
-            "dl"
-            "yaml-cpp")
+    target_link_libraries(${PROJECT_NAME} "-lbcrypt" "-lws2_32")
 endif()
+
 install(TARGETS poac DESTINATION bin)

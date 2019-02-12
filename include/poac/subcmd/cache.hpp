@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -64,7 +65,7 @@ namespace poac::subcmd {
         }
 
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace exception = core::exception;
 
             if (argv[0] == "root" && argv.size() == 1) {
@@ -79,6 +80,8 @@ namespace poac::subcmd {
             else {
                 throw exception::invalid_second_arg("cache");
             }
+
+            return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
@@ -94,10 +97,10 @@ namespace poac::subcmd {
         static const std::string options() {
             return "<command>";
         }
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        int operator()(VS&& argv) {
             _cache::check_arguments(argv);
-            _cache::_main(std::move(argv));
+            return _cache::_main(std::move(argv));
         }
     };
 } // end namespace

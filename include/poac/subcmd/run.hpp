@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 
@@ -18,7 +19,7 @@
 namespace poac::subcmd {
     namespace _run {
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS &&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
 
             const auto node = io::file::yaml::load_config("name");
@@ -36,9 +37,14 @@ namespace poac::subcmd {
             }
 
             const std::string project_name = node.at("name").as<std::string>();
-            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / project_name);
+#ifdef _WIN32
+            const std::string bin_name = project_name + ".exe";
+#else
+            const std::string bin_name = project_name;
+#endif
+            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
             if (!fs::exists(executable_path)) {
-                return;
+                return EXIT_FAILURE;
             }
 
             const std::string executable = executable_path.string();
@@ -56,6 +62,8 @@ namespace poac::subcmd {
             else {
                 std::cout << project_name + " returned 1" << std::endl;
             }
+
+            return EXIT_SUCCESS;
         }
     }
 
@@ -67,8 +75,8 @@ namespace poac::subcmd {
             return "[-v | --verbose | -- [program args]]";
         }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _run::_main(std::move(argv));
+        int operator()(VS&& argv) {
+            return _run::_main(std::move(argv));
         }
     };
 } // end namespace

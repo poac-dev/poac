@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -103,7 +104,7 @@ namespace poac::subcmd {
         }
 
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
 
@@ -149,6 +150,7 @@ namespace poac::subcmd {
                               << boost::get(&Vertex::name, g)[target(*itr, g)] << '\n';
                 }
             }
+            return EXIT_SUCCESS;
         }
     }
 
@@ -156,8 +158,8 @@ namespace poac::subcmd {
         static const std::string summary() { return "Create a dependency graph"; }
         static const std::string options() { return "[-o | --output]"; }
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _graph::_main(std::move(argv));
+        int operator()(VS&& argv) {
+            return _graph::_main(std::move(argv));
         }
     };
 } // end namespace

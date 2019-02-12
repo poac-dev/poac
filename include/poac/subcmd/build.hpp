@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <optional>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
@@ -114,6 +115,8 @@ namespace poac::subcmd {
         void is_exist_dynamic_lib(const std::string& lib_path) {
 #ifdef __APPLE__
             const std::string extension = ".dylib";
+#elif defined(_WIN32)
+            const std::string extension = ".dll";
 #else
             const std::string extension = ".so";
 #endif
@@ -137,9 +140,14 @@ namespace poac::subcmd {
             //  and do not compile.
             // There is no necessity of linking that there is no change completely.
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
+#ifdef _WIN32
+                const std::string extension = ".exe";
+#else
+                const std::string extension = "";
+#endif
                 const std::string bin_path =
                         (io::file::path::current_build_bin_dir / bs.project_name).string();
-                handle_exist_message(bin_path, "", "Binary");
+                handle_exist_message(bin_path, extension, "Binary");
                 return bin_path;
             }
             else {
@@ -240,7 +248,7 @@ namespace poac::subcmd {
         }
 
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace naming = core::naming;
@@ -270,6 +278,8 @@ namespace poac::subcmd {
                     fs::remove(executable_path, error);
                 }
             }
+
+            return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
@@ -288,9 +298,9 @@ namespace poac::subcmd {
             return "[-v | --verbose]";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        int operator()(VS&& argv) {
             _build::check_arguments(argv);
-            _build::_main(std::move(argv));
+            return _build::_main(std::move(argv));
         }
     };
 } // end namespace

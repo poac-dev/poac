@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 
@@ -15,7 +16,7 @@
 namespace poac::subcmd {
     namespace _login {
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs     = boost::filesystem;
             namespace exception = core::exception;
 
@@ -34,6 +35,8 @@ namespace poac::subcmd {
             else { // file open error
                 throw exception::invalid_second_arg("login");
             }
+
+            return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
@@ -48,9 +51,9 @@ namespace poac::subcmd {
         static const std::string summary() { return "Login to poac.pm"; }
         static const std::string options() { return "<token>"; }
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
+        int operator()(VS&& argv) {
             _login::check_arguments(argv);
-            _login::_main(std::move(argv));
+            return _login::_main(std::move(argv));
         }
     };
 } // end namespace

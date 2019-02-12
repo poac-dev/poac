@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <optional>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -27,7 +28,7 @@
 namespace poac::subcmd {
     namespace _update {
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace yaml = io::file::yaml;
@@ -44,7 +45,7 @@ namespace poac::subcmd {
                 const auto err = "It is the same as executing install command because nothing is installed.";
                 cli::echo(cli::to_warning(err));
                 _install::_main(std::move(argv)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
-                return;
+                return EXIT_FAILURE;
             }
 
             if (all) {
@@ -84,7 +85,7 @@ namespace poac::subcmd {
 
                 if (update_deps.empty()) {
                     std::cout << "No changes detected." << std::endl;
-                    return;
+                    return EXIT_FAILURE;
                 }
 
                 for (const auto& [name, dep] : update_deps) {
@@ -106,7 +107,7 @@ namespace poac::subcmd {
                     std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
                     if (!(yes_or_no == "yes" || yes_or_no == "y")) {
                         std::cout << "canceled." << std::endl;
-                        return;
+                        return EXIT_FAILURE;
                     }
                 }
 
@@ -123,9 +124,12 @@ namespace poac::subcmd {
 
                 cli::echo();
                 cli::echo(cli::status_done());
+
+                return EXIT_SUCCESS;
             }
             else { // TODO: Individually update
                 std::cout << "Individually update is coming soon" << std::endl;
+                return EXIT_FAILURE;
 //                if (const auto versions = get_versions_api(argv[0])) {
 //                    const auto versions_v = util::types::ptree_to_vector<std::string>(*versions);
 //
@@ -141,9 +145,9 @@ namespace poac::subcmd {
         static const std::string options() {
             return "[ -y | --yes, -a | --all, --outside ]";
         }
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _update::_main(std::move(argv));
+        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        int operator()(VS&& argv) {
+            return _update::_main(std::move(argv));
         }
     };
 } // end namespace

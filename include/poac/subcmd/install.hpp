@@ -9,6 +9,7 @@
 #include <map>
 #include <regex>
 #include <optional>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -208,7 +209,7 @@ namespace poac::subcmd {
 
 
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void _main(VS&& argv) {
+        int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace path = io::file::path;
@@ -301,6 +302,8 @@ namespace poac::subcmd {
             if (!load_lock) {
                 create_lock_file(timestamp, resolved_deps.activated);
             }
+
+            return EXIT_SUCCESS;
         }
     }
 
@@ -312,8 +315,8 @@ namespace poac::subcmd {
             return "[-v | --verbose, -q | --quite, [args]]";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        void operator()(VS&& argv) {
-            _install::_main(std::move(argv));
+        int operator()(VS&& argv) {
+            return _install::_main(std::move(argv));
         }
     };
 } // end namespace

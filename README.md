@@ -13,7 +13,7 @@ Please see [poac.pm](https://poac.io) for [installation instructions](https://po
 ## Supported Operating Systems
 | Linux (= x86_64 GNU/Linux) | macOS (>= sierra) | Windows (= Windows Subsystem for Linux) |
 |:---:|:---:|:---:|
-|[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)|[![Build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l?svg=true)](https://ci.appveyor.com/project/matken11235/poac)
+|[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)| none |
 
 ## Code Status
 [![GitHub](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
@@ -58,4 +58,4 @@ $ poac build
 
 
 ## Contribution
-Please see at [CONTRIBUTUING.md](.github/CONTRIBUTUING.md)
+Please see at [CONTRIBUTING.md](.github/CONTRIBUTING.md)
