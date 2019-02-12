@@ -227,7 +227,8 @@ namespace poac::core::semver {
 
     bool is_digit(char ch)
     {
-        return std::isdigit(static_cast<unsigned char>(ch));
+        const int d = std::isdigit(static_cast<unsigned char>(ch));
+        return d;
     }
     bool is_number(const std::string& s)
     {
