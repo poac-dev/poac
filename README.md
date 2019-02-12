@@ -1,11 +1,11 @@
-<img alt="Terraform" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
+<img alt="poac" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
 
 
 Poac is the package manager for C++ user.
 
-Poac can downloads project's dependencies and compiles project.
+Poac can download project's dependencies and compile project.
 
-Please see [poac.pm](https://poac.io) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentation](https://docs.poac.io).
+Please see [poac.pm](https://poac.io) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentations](https://docs.poac.io).
 
 
 [![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
@@ -13,7 +13,7 @@ Please see [poac.pm](https://poac.io) for [installation instructions](https://po
 ## Supported Operating Systems
 | Linux (= x86_64 GNU/Linux) | macOS (>= sierra) | Windows (= Windows Subsystem for Linux) |
 |:---:|:---:|:---:|
-|[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)| none |
+|[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)|[![Build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l?svg=true)](https://ci.appveyor.com/project/matken11235/poac)|
 
 ## Code Status
 [![GitHub](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
@@ -43,11 +43,18 @@ $ make
 $ make install
 ```
 
-Already poac is installed, you can build using poac:
+**For Cygwin users:** Currently, you need to pass some options to `cmake` like below (for more detail, see [#93](https://github.com/poacpm/poac/issues/93)):
+
+```bash
+cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj"
+```
+
+<!--
+If poac is already installed, you can build using poac:
 ```bash
 $ poac build
 ```
-
+-->
 
 ## Requirements (runtime)
 * compiler (gcc | clang | MSVC | ICC)
@@ -56,6 +63,7 @@ $ poac build
 * `cmake`: optional
 * `make`: optional
 
-
+<!--
 ## Contribution
-Please see at [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+-->
