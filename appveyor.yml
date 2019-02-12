@@ -24,7 +24,7 @@ install:
   - if [%COMPILER%]==[cygwin64] (
       xcopy /i /q /s C:\projects\poac\yaml-cpp C:\cygwin64\home\appveyor\yaml-cpp &&
       C:\cygwin64\setup-x86_64.exe -qgnNdO --root C:\cygwin64 -s http://cygwin.mirror.constant.com -P make -P openssl-devel &&
-      C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. -DYAML_CPP_BUILD_TESTS=OFF && make && make install"
+      C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. -G "Visual Studio 14 2015" -DYAML_CPP_BUILD_TESTS=OFF && cmake --build . --target install"
     )
 
   - if [%COMPILER%]==[mingw-w64] (
