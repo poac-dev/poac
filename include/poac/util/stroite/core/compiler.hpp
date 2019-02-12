@@ -54,8 +54,13 @@ namespace stroite::core::compiler {
     std::optional<std::string>
     link(const Opts& opts)
     {
+#ifdef _WIN32
+        const std::string extension = ".exe";
+#else
+        const std::string extension = "";
+#endif
         const std::string bin_path =
-                (opts.output_root / opts.project_name).string();
+                (opts.output_root / opts.project_name).string() + extension;
 
         poac::util::command cmd(opts.system);
         for (const auto& o : opts.obj_files_path)

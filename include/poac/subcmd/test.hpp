@@ -55,7 +55,12 @@ namespace poac::subcmd {
                     const std::string bin_name = fs::path(
                             boost::replace_all_copy(
                                     fs::relative(cpp_relative, "test").string(), "/", "-")).stem().string();
-                    const std::string bin_path = (io::file::path::current_build_test_bin_dir / bin_name).string();
+#ifdef _WIN32
+                    const std::string extension = ".exe";
+#else
+                    const std::string extension = "";
+#endif
+                    const std::string bin_path = (io::file::path::current_build_test_bin_dir / bin_name).string() + extension;
 
                     bs.compile_conf.source_files = bs.hash_source_files({cpp_relative}, usemain);
                     if (bs.compile_conf.source_files.empty()) { // No need for compile and link
