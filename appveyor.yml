@@ -25,9 +25,11 @@ install:
       xcopy /i /q /s C:\projects\poac\yaml-cpp C:\cygwin64\home\appveyor\yaml-cpp &&
       C:\cygwin64\setup-x86_64.exe -qgnNdO --root C:\cygwin64 -s http://cygwin.mirror.constant.com -P make -P openssl-devel &&
       C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. -G 'Visual Studio 14 2015' -DYAML_CPP_BUILD_TESTS=OFF && cmake --build . --target install"
-    ) else (
+    )
+
+  - if [%COMPILER%]==[mingw-w64] set PATH=C:\msys64\usr\bin;%PATH%
+  - if [%COMPILER%]==[mingw-w64] (
       rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe" &&
-      set PATH=C:\msys64\usr\bin;%PATH% &&
       pacman -Syu --noconfirm &&
       pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc &&
       rename "C:\msys64\usr\bin\sh.exe" "sh2.exe" &&
@@ -41,7 +43,8 @@ before_build:
   - if [%COMPILER%]==[cygwin64] (
       xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
       C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -DCMAKE_CXX_FLAGS='-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj' && make" &&
-    ) else (
+    )
+  - if [%COMPILER%]==[mingw-w64] (
       mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0 &&
       cmake --build . --config %Configuration% &&
