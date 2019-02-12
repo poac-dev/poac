@@ -59,7 +59,9 @@ if(APPLE)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
     endif()
 elseif(UNIX)
-    set(STATIC_LINK_FLAG "-static")
+    if(ENABLE_STATIC) # -DENABLE_STATIC=true
+        set(STATIC_LINK_FLAG "-static")
+    endif()
 elseif(WIN32)
     if(ENABLE_STATIC) # -DENABLE_STATIC=true
         set(STATIC_LINK_FLAG "-static")
