@@ -225,10 +225,14 @@ namespace poac::core::semver {
         return os;
     };
 
+    bool is_digit(char ch)
+    {
+        return std::isdigit(static_cast<unsigned char>(ch));
+    }
     bool is_number(const std::string& s)
     {
         return !s.empty() && std::find_if(s.begin(), s.end(),
-                [](char c) { return !std::isdigit(c); }) == s.end();
+                [](char c) { return !is_digit(c); }) == s.end();
     }
 
     bool gt_pre(const Version& lhs, const Version& rhs) {
