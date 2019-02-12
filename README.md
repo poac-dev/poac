@@ -3,9 +3,9 @@
 
 Poac is the package manager for C++ user.
 
-Poac can downloads project's dependencies and compiles project.
+Poac can download project's dependencies and compile project.
 
-Please see [poac.pm](https://poac.io) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentation](https://docs.poac.io).
+Please see [poac.pm](https://poac.io) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentations](https://docs.poac.io).
 
 
 [![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
@@ -50,7 +50,7 @@ cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-
 ```
 
 <!--
-Already poac is installed, you can build using poac:
+If poac is already installed, you can build using poac:
 ```bash
 $ poac build
 ```
@@ -65,5 +65,5 @@ $ poac build
 
 <!--
 ## Contribution
-Please see at [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 -->
