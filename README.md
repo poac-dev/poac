@@ -1,4 +1,4 @@
-<img alt="Terraform" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
+<img alt="poac" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
 
 
 Poac is the package manager for C++ user.
@@ -13,7 +13,7 @@ Please see [poac.pm](https://poac.io) for [installation instructions](https://po
 ## Supported Operating Systems
 | Linux (= x86_64 GNU/Linux) | macOS (>= sierra) | Windows (= Windows Subsystem for Linux) |
 |:---:|:---:|:---:|
-|[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)| none |
+|[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)|[![Build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l?svg=true)](https://ci.appveyor.com/project/matken11235/poac)|
 
 ## Code Status
 [![GitHub](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
@@ -49,11 +49,12 @@ $ make install
 cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj"
 ```
 
+<!--
 If poac is already installed, you can build using poac:
 ```bash
 $ poac build
 ```
-
+-->
 
 ## Requirements (runtime)
 * compiler (gcc | clang | MSVC | ICC)
@@ -62,6 +63,7 @@ $ poac build
 * `cmake`: optional
 * `make`: optional
 
-
+<!--
 ## Contribution
 Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+-->
