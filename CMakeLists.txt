@@ -43,6 +43,7 @@ else()
 endif()
 
 include_directories( "/usr/local/include" )
+include_directories( ${Boost_INCLUDE_DIRS} )
 link_directories( "/usr/local/lib" )
 if(APPLE)
     include_directories( "/usr/local/opt/openssl/include" )
