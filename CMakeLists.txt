@@ -68,6 +68,9 @@ elseif(WIN32)
     endif()
     find_package(yaml-cpp REQUIRED)
     include_directories( ${YAML_CPP_INCLUDE_DIRS} )
+
+    find_package(OpenSSL REQUIRED)
+    include_directories(${OPENSSL_INCLUDE_DIR})
 endif()
 
 
