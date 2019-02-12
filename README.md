@@ -58,5 +58,5 @@ $ poac build
 
 <!--
 ## Contribution
-Please see at [CONTRIBUTUING.md](.github/CONTRIBUTUING.md)
+Please see at [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 -->

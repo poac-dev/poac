@@ -37,7 +37,12 @@ namespace poac::subcmd {
             }
 
             const std::string project_name = node.at("name").as<std::string>();
-            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / project_name);
+#ifdef _WIN32
+            const std::string bin_name = project_name + ".exe";
+#else
+            const std::string bin_name = project_name;
+#endif
+            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
             if (!fs::exists(executable_path)) {
                 return EXIT_FAILURE;
             }
