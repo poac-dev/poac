@@ -58,12 +58,14 @@ if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
     endif()
-elseif(LINUX)
+elseif(UNIX)
     set(STATIC_LINK_FLAG "-static")
-else()
+elseif(WIN32)
     if(ENABLE_STATIC) # -DENABLE_STATIC=true
         set(STATIC_LINK_FLAG "-static")
     endif()
+    find_package(yaml-cpp REQUIRED)
+    include_directories( ${YAML_CPP_INCLUDE_DIRS} )
 endif()
 
 
