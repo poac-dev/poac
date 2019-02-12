@@ -7,6 +7,9 @@ branches:
 image:
   - Visual Studio 2017
 
+cache:
+  - C:\Libraries\yaml-cpp -> appveyor.yml
+
 configuration:
   - Debug
   - Release

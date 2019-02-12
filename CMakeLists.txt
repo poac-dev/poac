@@ -4,9 +4,10 @@ project(poac)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 # Preprocessor definitions
-add_definitions( -DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
-add_definitions( -DPOAC_VERSION="0.1.2" )
+add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+add_definitions(-DPOAC_VERSION="0.1.2")
 if(WIN32)
+    add_definitions(-D_GNU_SOURCE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color -Wall -Wextra -Werror")
