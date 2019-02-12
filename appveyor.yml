@@ -45,7 +45,7 @@ install:
 before_build:
   - if [%COMPILER%]==[cygwin64] (
       xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
-      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -DBOOST_ROOT=C:\Libraries\boost_1_67_0 -DCMAKE_CXX_FLAGS='-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj' && make"
+      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -DBOOST_ROOT=C:/Libraries/boost_1_67_0 -DCMAKE_CXX_FLAGS='-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj' && make"
     )
   - if [%COMPILER%]==[mingw-w64] (
       mkdir build && cd build &&
