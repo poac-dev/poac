@@ -22,8 +22,8 @@ environment:
   matrix:
     - COMPILER: cygwin64
       GENERATOR: Visual Studio 15 2017
-    - COMPILER: mingw-w64
-      GENERATOR: MinGW Makefiles
+#    - COMPILER: mingw-w64
+#      GENERATOR: MinGW Makefiles
 
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
