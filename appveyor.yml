@@ -20,31 +20,40 @@ environment:
 
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
-  # Rename sh.exe as sh.exe in PATH interferes with MinGW
-  - rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
 
-  # Download MinGW-w64 toolchain
-  - set PATH=C:\msys64\usr\bin;%PATH%
-  - pacman -Syu --noconfirm
-  - pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc
-#  - set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
+  - |
+    if [%COMPILER%]==[cygwin64] (
+      C:\cygwin64\setup-x86_64.exe -qgnNdO --root C:\cygwin64 -s http://cygwin.mirror.constant.com -P make -P openssl-devel
+      C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. && make && cd ../.." )
 
-  # Rename sh.exe as sh.exe in PATH interferes with MinGW
-  - rename "C:\msys64\usr\bin\sh.exe" "sh2.exe"
+  - |
+    if [%COMPILER%]==[mingw-w64] (
+      # Rename sh.exe as sh.exe in PATH interferes with MinGW
+      rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
 
-  - dir C:\cygwin64
-  - C:\cygwin64\setup-x86_64.exe -qgnNdO --root C:\cygwin64 -s http://cygwin.mirror.constant.com -P make
+      # Download MinGW-w64 toolchain
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pacman -Syu --noconfirm
+      pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc
 
-  - cd yaml-cpp && mkdir build && cd build
-  - cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\mingw64 -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
-  - cmake --build . --target install
-  - cd ..\..
+      # Rename sh.exe as sh.exe in PATH interferes with MinGW
+      rename "C:\msys64\usr\bin\sh.exe" "sh2.exe"
+
+      cd yaml-cpp && mkdir build && cd build
+      cmake .. -G "%GENERATOR%" -DCMAKE_PREFIX_PATH=C:\mingw64 -DCMAKE_BUILD_TYPE=%Configuration% -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_SH=CMAKE_SH-NOTFOUND -DCMAKE_INSTALL_PREFIX=C:\Libraries\
+      cmake --build . --target install
+      cd ..\.. )
 
 before_build:
-  - mkdir build && cd build
-  - cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
-  - cmake --build . --config %Configuration%
-  - cd ..
+  - |
+    if [%COMPILER%]==[mingw-w64] (
+      mkdir build && cd build
+      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0
+      cmake --build . --config %Configuration%
+      cd .. )
+  - |
+    if [%COMPILER%]==[cygwin64] (
+      C:\cygwin64\bin\bash -l -c "mkdir build && cd build && cmake .. -DCMAKE_CXX_FLAGS='-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj' && make" )
 
 build:
   parallel: true
