@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(poac)
 
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+
 # Preprocessor definitions
 add_definitions( -DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}" )
 add_definitions( -DPOAC_VERSION="0.1.2" )
@@ -44,8 +46,8 @@ endif()
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME}
         "${STATIC_LINK_FLAG}"
-        "boost_filesystem"
-        "boost_system"
+         ${Boost_FILESYSTEM_LIBRARY}
+         ${Boost_SYSTEM_LIBRARY}
         "ssl"
         "crypto"
         "dl"
