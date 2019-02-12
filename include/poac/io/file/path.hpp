@@ -18,7 +18,7 @@ namespace poac::io::file::path {
     std::string expand_user(std::string path) {
         if (!path.empty() && path[0] == '~') {
             if (path.size() == 1 || path[1] == '/') {
-                throw core::exception::error("Could not read path");
+                return path;
             }
 
             const char* home = std::getenv("HOME");
