@@ -91,8 +91,7 @@ namespace poac::io::file::yaml {
     using bastion = accessor<T, &YAML::Node::m_isValid>;
     // using access_t = accessor<YAMLNode_t, &YAML::Node::m_isValid>;
     // -> error: 'm_isValid' is a private member of 'YAML::Node'
-    using YAMLNode_t = bool YAML::Node::*;
-    using access = bastion<YAMLNode_t>;
+    using access = bastion<bool YAML::Node::*>;
 
 
     template <typename Head>
