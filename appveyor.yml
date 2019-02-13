@@ -33,7 +33,7 @@ install:
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
-      cmake --build . --target install
+      cmake --build . --target install &&
       cd ..\..
     )
 
@@ -63,7 +63,7 @@ before_build:
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj" &&
-      cmake --build .
+      cmake --build . &&
       cd ..
     )
 
