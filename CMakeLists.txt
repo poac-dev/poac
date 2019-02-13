@@ -63,9 +63,9 @@ else()
     endif()
 endif()
 
-if(WIN32)
+if(WIN32 AND MSVC)
     find_package(yaml-cpp REQUIRED)
-    include_directories( ${YAML_CPP_INCLUDE_DIRS} )
+    include_directories(${YAML_CPP_INCLUDE_DIR})
 
     find_package(OpenSSL REQUIRED)
     include_directories(${OPENSSL_INCLUDE_DIR})
@@ -82,7 +82,7 @@ if(UNIX)
             "crypto"
             "dl"
             "yaml-cpp")
-elseif(WIN32)
+elseif(WIN32 AND MSVC)
     target_link_libraries(${PROJECT_NAME} "-lbcrypt" "-lws2_32")
 endif()
 

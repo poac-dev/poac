@@ -59,7 +59,6 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost_1_69_0\boost &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj" &&
