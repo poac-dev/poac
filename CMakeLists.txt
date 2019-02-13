@@ -57,4 +57,11 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} "-lbcrypt" "-lws2_32")
 endif()
 
+if(UNIX AND NOT APPLE)
+    add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
+elseif(CYGWIN)
+    add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa, -mbing-obj)
+endif()
+
+
 install(TARGETS poac DESTINATION bin)
