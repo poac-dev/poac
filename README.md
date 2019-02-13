@@ -43,12 +43,6 @@ $ make
 $ make install
 ```
 
-**For Cygwin users:** Currently, you need to pass some options to `cmake` like below (for more detail, see [#93](https://github.com/poacpm/poac/issues/93)):
-
-```bash
-cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj"
-```
-
 <!--
 If poac is already installed, you can build using poac:
 ```bash
