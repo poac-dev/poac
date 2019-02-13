@@ -11,6 +11,7 @@
 #include <vector>
 #include <regex>
 #include <cstdint>
+#include <cctype>
 #include <algorithm>
 
 #include "../io/cli.hpp"
@@ -227,8 +228,9 @@ namespace poac::core::semver {
 
     bool is_number(const std::string& s)
     {
+        int (*isdigit)(int) = std::isdigit;
         return !s.empty() && std::find_if(s.begin(), s.end(),
-                [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+                [&](unsigned char c) { return !isdigit(c); }) == s.end();
     }
 
     bool gt_pre(const Version& lhs, const Version& rhs) {
