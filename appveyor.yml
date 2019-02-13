@@ -20,13 +20,21 @@ clone_depth: 1
 
 environment:
   matrix:
-    - COMPILER: cygwin64
+    - COMPILER: msvc
       GENERATOR: Visual Studio 15 2017
 #    - COMPILER: mingw-w64
 #      GENERATOR: MinGW Makefiles
 
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
+
+  - if [%COMPILER%]==[msvc] (
+      cd yaml-cpp &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G '%GENERATOR%' -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
+      cmake --build . --target install
+    )
 
   - if [%COMPILER%]==[cygwin64] (
       xcopy /i /q /s C:\projects\poac\yaml-cpp C:\cygwin64\home\appveyor\yaml-cpp &&
@@ -48,6 +56,14 @@ install:
     )
 
 before_build:
+  - if [%COMPILER%]==[msvc] (
+      dir C:\Libraries\boost_1_69_0\boost &&
+      cd poac &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_69_0 -DCMAKE_CXX_FLAGS='-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj' &&
+      cmake --build .
+    )
   - if [%COMPILER%]==[cygwin64] (
       dir C:\Libraries\boost_1_69_0\boost &&
       xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
