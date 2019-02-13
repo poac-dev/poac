@@ -35,7 +35,8 @@ install:
       cmake .. -G "%GENERATOR%" -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install &&
       cd ..\.. &&
-      rmdir /Q yaml-cpp
+      del /f /s /q mydir 1>nul &&
+      rmdir /s /q yaml-cpp
     )
 
   - if [%COMPILER%]==[cygwin64] (
