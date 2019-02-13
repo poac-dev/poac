@@ -35,7 +35,7 @@ install:
       cmake .. -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install &&
       cd ..\.. &&
-      del /f /s /q mydir 1>nul &&
+      del /f /s /q yaml-cpp 1>nul &&
       rmdir /s /q yaml-cpp
     )
 
