@@ -52,7 +52,7 @@ cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-
 **For Linux users:** Currently, you need to pass some options to `cmake` like below:
 
 ```bash
-cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW"
+cmake .. -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -lboost_system"
 ```
 <!--
 If poac is already installed, you can build using poac:
