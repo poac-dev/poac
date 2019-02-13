@@ -32,7 +32,7 @@ install:
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
-      cmake .. -G "%GENERATOR%" -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
+      cmake .. -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install &&
       cd ..\.. &&
       del /f /s /q mydir 1>nul &&
@@ -62,7 +62,7 @@ before_build:
   - if [%COMPILER%]==[msvc] (
       mkdir build &&
       cd build &&
-      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj" &&
+      cmake .. -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%Configuration% -DBOOST_ROOT=C:\Libraries\boost_1_69_0 -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj" &&
       cmake --build . &&
       cd ..
     )
