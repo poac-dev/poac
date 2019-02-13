@@ -228,6 +228,7 @@ namespace poac::core::semver {
 
     bool is_number(const std::string& s)
     {
+        // https://stackoverflow.com/a/15039928
         int (*isdigit)(int) = std::isdigit;
         return !s.empty() && std::find_if(s.begin(), s.end(),
                 [&](unsigned char c) { return !isdigit(c); }) == s.end();
