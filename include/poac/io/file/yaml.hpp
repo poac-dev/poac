@@ -115,6 +115,35 @@ namespace poac::io::file::yaml {
     }
 
 
+#ifdef _WIN32
+    template <typename... Args>
+    static std::map<std::string, YAML::Node>
+    get_by_width(const YAML::Node& node, const Args&... args) {
+        namespace exception = core::exception;
+        try {
+            std::map<std::string, YAML::Node> mp;
+            ((mp[args] = node[args]), ...);
+            return mp;
+        }
+        catch (...) {
+            throw exception::error(
+                    "Required key does not exist in poac.yml.\n"
+                    "Please refer to https://docs.poac.io");
+        }
+    }
+    template <typename... Args>
+    static std::optional<std::map<std::string, YAML::Node>>
+    get_by_width_opt(const YAML::Node& node, const Args&... args) {
+        try {
+            std::map<std::string, YAML::Node> mp;
+            ((mp[args] = node[args]), ...);
+            return mp;
+        }
+        catch (...) {
+            return std::nullopt;
+        }
+    }
+#else
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
@@ -134,7 +163,7 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
-        if (const auto result = read(node, args...)) {
+        if (read(node, args...)) {
             return std::nullopt;
         }
         else {
@@ -143,6 +172,7 @@ namespace poac::io::file::yaml {
             return mp;
         }
     }
+#endif
 
 
     std::optional<std::string>
