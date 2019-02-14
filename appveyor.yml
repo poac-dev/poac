@@ -14,7 +14,9 @@ configuration:
   - Debug
   - Release
 
-platform: x86
+platform:
+  - x86
+  - x64
 
 clone_depth: 1
 
@@ -72,8 +74,7 @@ before_build:
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
-        -DBOOST_ROOT=C:\Libraries\boost_1_69_0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost_1_69_0\lib64-msvc-14.1 &&
+        -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
       cmake --build . &&
       cd ..
     )

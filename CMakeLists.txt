@@ -64,6 +64,8 @@ else()
         set(STATIC_LINK_FLAG "-static")
     endif()
     if(WIN32 AND MSVC)
+        message(${Boost_LIBRARY_DIRS})
+
         find_package(yaml-cpp REQUIRED)
         include_directories(${YAML_CPP_INCLUDE_DIR})
 
