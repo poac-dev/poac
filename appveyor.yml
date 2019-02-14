@@ -68,7 +68,7 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost_1_69_0\boost &&
+      dir C:\Libraries\boost_1_69_0 &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
