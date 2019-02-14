@@ -14,7 +14,7 @@ elseif(WIN32)
     if(CYGWIN)
         add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa, -mbing-obj)
     elseif(MSVC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MD") # /MD -> LINK : fatal error LNK1104: cannot open file 'libboost_filesystem-vc141-mt-gd-x32-1_69.lib'
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_GNU_SOURCE /DBOOST_ASIO_HAS_STD_STRING_VIEW /mbig-obj")
     endif()
 endif()
@@ -65,6 +65,9 @@ else()
         set(STATIC_LINK_FLAG "-static")
     endif()
     if(WIN32 AND MSVC)
+        message(STATUS "${Boost_INCLUDE_DIRS}")
+        include_directories(${Boost_INCLUDE_DIRS}/stage/lib)
+
         find_package(yaml-cpp REQUIRED)
         include_directories(${YAML_CPP_INCLUDE_DIR})
 
