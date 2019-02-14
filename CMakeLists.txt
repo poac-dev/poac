@@ -65,7 +65,7 @@ else()
     endif()
     if(WIN32 AND MSVC)
         if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 3.8)
-            set(_boost_COMPILER "-vc150")
+            set(_boost_COMPILER "-vc170")
         endif()
 
         find_package(yaml-cpp REQUIRED)
