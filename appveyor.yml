@@ -5,7 +5,6 @@ branches:
     - gh-pages
 
 image:
-  - Visual Studio 2015
   - Visual Studio 2017
 
 #cache:
@@ -21,8 +20,6 @@ clone_depth: 1
 
 environment:
   matrix:
-#    - COMPILER: msvc
-#      GENERATOR: Visual Studio 14 2015
     - COMPILER: msvc
       GENERATOR: Visual Studio 15 2017
 #    - COMPILER: mingw-w64
@@ -38,7 +35,8 @@ install:
       cmake .. -G "%GENERATOR%" ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
-      cmake --build . --target install
+      cmake --build . --target install &&
+      cd ..\..
     )
 
   - if [%COMPILER%]==[cygwin64] (
@@ -70,7 +68,6 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost_1_69_0 &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
