@@ -5,7 +5,7 @@ branches:
     - gh-pages
 
 image:
-  - Visual Studio 2017
+  - Visual Studio 2019 Preview
 
 #cache:
 #  - C:\Libraries\yaml-cpp -> appveyor.yml
@@ -21,7 +21,7 @@ clone_depth: 1
 environment:
   matrix:
     - COMPILER: msvc
-      GENERATOR: Visual Studio 15 2017
+      GENERATOR: Visual Studio 16 2019
 #    - COMPILER: mingw-w64
 #      GENERATOR: MinGW Makefiles
 
