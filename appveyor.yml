@@ -14,7 +14,7 @@ configuration:
   - Debug
   - Release
 
-platform: x64
+platform: x86
 
 clone_depth: 1
 
