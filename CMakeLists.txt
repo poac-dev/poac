@@ -84,8 +84,8 @@ if(UNIX)
             "crypto"
             "dl"
             "yaml-cpp")
-elseif(WIN32 AND MSVC)
-    target_link_libraries(${PROJECT_NAME} "-lbcrypt" "-lws2_32")
+elseif(WIN32)
+    target_link_libraries(${PROJECT_NAME} "bcrypt" "ws2_32")
 endif()
 
 install(TARGETS poac DESTINATION bin)
