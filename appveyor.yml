@@ -70,25 +70,25 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost_1_69_0 &&
+      dir C:\Libraries\boost_1_68_0 &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
-        -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
+        -DBOOST_ROOT=C:\Libraries\boost_1_68_0 &&
       cmake --build . &&
       cd ..
     )
 
   - if [%COMPILER%]==[cygwin64] (
-      dir C:\Libraries\boost_1_69_0\boost &&
+      dir C:\Libraries\boost_1_68_0\boost &&
       xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
-      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_69_0 && cmake --build ."
+      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_68_0 && cmake --build ."
     )
 
   - if [%COMPILER%]==[mingw-w64] (
       mkdir build && cd build &&
-      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
+      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_68_0 &&
       cmake --build . --config %Configuration% &&
       cd ..
     )
