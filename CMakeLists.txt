@@ -14,6 +14,8 @@ elseif(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
     if(CYGWIN)
         add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa, -mbing-obj)
+    elseif(MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_GNU_SOURCE /DBOOST_ASIO_HAS_STD_STRING_VIEW /mbig-obj")
     endif()
 endif()
 
