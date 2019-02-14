@@ -39,7 +39,8 @@ install:
       cd ..\.. &&
       pushed C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
-      b2.exe install -j2 --prefix=C:\Libraries\boost_1_69_0
+      b2.exe install -j2 --prefix=C:\Libraries\boost_1_69_0 &&
+      popd
     )
 
   - if [%COMPILER%]==[cygwin64] (
