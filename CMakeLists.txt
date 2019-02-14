@@ -92,7 +92,6 @@ elseif(WIN32)
             ${Boost_FILESYSTEM_LIBRARY}
             ${Boost_SYSTEM_LIBRARY}
             ${OPENSSL_LIBRARIES}
-            "crypto"
             "dl"
             "yaml-cpp"
             "bcrypt"
