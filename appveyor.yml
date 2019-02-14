@@ -30,6 +30,7 @@ environment:
 install:
   - git clone https://github.com/jbeder/yaml-cpp.git
 
+  # Build yaml-cpp
   - if [%COMPILER%]==[msvc] (
       cd yaml-cpp &&
       mkdir build &&
@@ -39,6 +40,15 @@ install:
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install &&
       cd ..\..
+    )
+
+  # Build boost
+  - if [%COMPILER%]==[msvc] (
+      mkdir C:\Libraries\tmp_boost
+      pushd C:\Libraries\boost_1_69_0 &&
+      bootstrap.bat
+      b2.exe runtime-link=static install -j2 --prefix=C:\Libraries\tmp_boost
+      popd
     )
 
   - if [%COMPILER%]==[cygwin64] (
@@ -70,25 +80,25 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost_1_67_0 &&
+      dir C:\Libraries &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
-        -DBOOST_ROOT=C:\Libraries\boost_1_67_0 &&
+        -DBOOST_ROOT=C:\Libraries\tmp_boost &&
       cmake --build . &&
       cd ..
     )
 
   - if [%COMPILER%]==[cygwin64] (
-      dir C:\Libraries\boost_1_67_0\boost &&
+      dir C:\Libraries\boost_1_69_0\boost &&
       xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
-      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_67_0 && cmake --build ."
+      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_69_0 && cmake --build ."
     )
 
   - if [%COMPILER%]==[mingw-w64] (
       mkdir build && cd build &&
-      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_67_0 &&
+      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
       cmake --build . --config %Configuration% &&
       cd ..
     )
