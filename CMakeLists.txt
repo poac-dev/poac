@@ -16,7 +16,6 @@ elseif(WIN32)
     elseif(MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_GNU_SOURCE /DBOOST_ASIO_HAS_STD_STRING_VIEW /mbig-obj")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DYAML_CPP_BUILD_TESTS=OFF")
     endif()
 endif()
 

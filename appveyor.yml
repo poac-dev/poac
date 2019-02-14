@@ -32,7 +32,7 @@ install:
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
-      cmake .. -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release &&
+      cmake .. -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DYAML_CPP_BUILD_TESTS=OFF &&
       cmake --build . --target install &&
       cd ..\.. &&
       del /f /s /q yaml-cpp 1>nul &&
