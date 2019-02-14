@@ -89,8 +89,8 @@ elseif(WIN32)
     message(STATUS "${Boost_FILESYSTEM_LIBRARY}")
     target_link_libraries(${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
-            ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
+#            ${Boost_FILESYSTEM_LIBRARY}
+#            ${Boost_SYSTEM_LIBRARY}
             ${OPENSSL_LIBRARIES}
             "yaml-cpp"
             "bcrypt"
