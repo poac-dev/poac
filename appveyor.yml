@@ -68,13 +68,12 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost_1_69_0\boost &&
       mkdir build &&
       cd build &&
+      rename "C:\Libraries\boost_1_69_0\lib64-msvc-14.1" "lib" &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
-        -DBOOST_INCLUDEDIR=C:\Libraries\boost_1_69_0\boost ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost_1_69_0\lib64-msvc-14.1 &&
+        -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
       cmake --build . &&
       cd ..
     )
