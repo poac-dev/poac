@@ -82,40 +82,7 @@ namespace poac::io::file::yaml {
     }
 
 
-    // Private member accessor
-    template <class T, T V>
-    struct accessor {
-        static constexpr T m_isValid = V;
-        static T get() { return m_isValid; }
-    };
-    template <typename T>
-    using bastion = accessor<T, &YAML::Node::m_isValid>;
-    using access = bastion<bool YAML::Node::*>;
-
-
-    template <typename Head>
-    std::optional<const char*>
-    read(const YAML::Node& node, Head&& head) {
-        if (!(node[head].*access::m_isValid)) {
-            return head;
-        }
-        else {
-            return std::nullopt;
-        }
-    }
-    template <typename Head, typename ...Tail>
-    std::optional<const char*>
-    read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-        if (!(node[head].*access::get())) {
-            return head;
-        }
-        else {
-            return read(node, tail...);
-        }
-    }
-
-
-#ifdef _MSC_VER
+#ifdef _WIN32
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
@@ -144,6 +111,38 @@ namespace poac::io::file::yaml {
         }
     }
 #else
+    // Private member accessor
+    template <class T, T V>
+    struct accessor {
+        static constexpr T m_isValid = V;
+        static T get() { return m_isValid; }
+    };
+    template <typename T>
+    using bastion = accessor<T, &YAML::Node::m_isValid>;
+    using access = bastion<bool YAML::Node::*>;
+
+    template <typename Head>
+    std::optional<const char*>
+    read(const YAML::Node& node, Head&& head) {
+        if (!(node[head].*access::m_isValid)) {
+            return head;
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+    template <typename Head, typename ...Tail>
+    std::optional<const char*>
+    read(const YAML::Node& node, Head&& head, Tail&&... tail) {
+        if (!(node[head].*access::get())) {
+            return head;
+        }
+        else {
+            return read(node, tail...);
+        }
+    }
+
+
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
