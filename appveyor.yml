@@ -37,7 +37,7 @@ install:
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install &&
       cd ..\.. &&
-      pushed C:\Libraries\boost_1_69_0 &&
+      pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
       b2.exe install -j2 --prefix=C:\Libraries\boost_1_69_0 &&
       popd
