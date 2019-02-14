@@ -38,12 +38,7 @@ install:
       cmake .. -G "%GENERATOR%" ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
-      cmake --build . --target install &&
-      cd ..\.. &&
-      pushd C:\Libraries\boost_1_69_0 &&
-      bootstrap.bat &&
-      b2.exe install -j2 --prefix=C:\Libraries\boost_1_69_0 &&
-      popd
+      cmake --build . --target install
     )
 
   - if [%COMPILER%]==[cygwin64] (
