@@ -34,8 +34,7 @@ install:
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=Release ^
-        -DYAML_CPP_BUILD_TESTS=OFF ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
+        -DYAML_CPP_BUILD_TESTS=OFF &&
       cmake --build . --target install &&
       cd ..\.. &&
       del /f /s /q yaml-cpp 1>nul &&
@@ -76,7 +75,6 @@ before_build:
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
         -DBOOST_ROOT=C:\Libraries\boost_1_69_0 ^
-        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp ^
         -DCMAKE_CXX_FLAGS="-D_GNU_SOURCE ^
         -DBOOST_ASIO_HAS_STD_STRING_VIEW -mbig-obj" &&
       cmake --build . &&
