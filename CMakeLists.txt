@@ -45,7 +45,6 @@ link_directories( "/usr/local/lib" )
 
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIR})
 
 if(APPLE)
     include_directories( "/usr/local/opt/openssl/include" )
@@ -88,7 +87,16 @@ if(UNIX)
             "dl"
             "yaml-cpp")
 elseif(WIN32)
-    target_link_libraries(${PROJECT_NAME} "bcrypt" "ws2_32")
+    target_link_libraries(${PROJECT_NAME}
+            "${STATIC_LINK_FLAG}"
+            ${Boost_FILESYSTEM_LIBRARY}
+            ${Boost_SYSTEM_LIBRARY}
+            "ssl"
+            "crypto"
+            "dl"
+            "yaml-cpp"
+            "bcrypt"
+            "ws2_32")
 endif()
 
 install(TARGETS poac DESTINATION bin)
