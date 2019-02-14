@@ -71,6 +71,8 @@ before_build:
       mkdir build &&
       cd build &&
       rename "C:\Libraries\boost_1_69_0\lib64-msvc-14.1" "lib" &&
+      del /f /s /q C:\Libraries\boost_1_69_0\lib32-msvc-14.1 1>nul &&
+      rmdir /s /q C:\Libraries\boost_1_69_0\lib32-msvc-14.1 &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
         -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
