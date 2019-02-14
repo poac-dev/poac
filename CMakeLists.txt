@@ -84,6 +84,7 @@ if(UNIX)
             "dl"
             "yaml-cpp")
 elseif(WIN32)
+    message(STATUS "${Boost_FILESYSTEM_LIBRARY}")
     target_link_libraries(${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}

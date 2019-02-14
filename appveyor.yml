@@ -70,10 +70,6 @@ before_build:
   - if [%COMPILER%]==[msvc] (
       mkdir build &&
       cd build &&
-      pushd C:\Libraries\boost_1_69_0 &&
-      del /f /s /q lib32-msvc-14.1 1>nul &&
-      rmdir /s /q lib32-msvc-14.1 &&
-      popd &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
         -DBOOST_ROOT=C:\Libraries\boost_1_69_0 ^
