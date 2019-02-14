@@ -115,7 +115,7 @@ namespace poac::io::file::yaml {
     }
 
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
