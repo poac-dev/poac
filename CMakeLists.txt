@@ -91,7 +91,7 @@ elseif(WIN32)
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
             ${Boost_SYSTEM_LIBRARY}
-            "ssl"
+            ${OPENSSL_LIBRARIES}
             "crypto"
             "dl"
             "yaml-cpp"
