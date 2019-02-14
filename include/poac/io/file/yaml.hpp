@@ -86,11 +86,10 @@ namespace poac::io::file::yaml {
     template <class T, T V>
     struct accessor {
         static constexpr T m_isValid = V;
+        static T get() { return m_isValid; }
     };
     template <typename T>
     using bastion = accessor<T, &YAML::Node::m_isValid>;
-    // using access_t = accessor<YAMLNode_t, &YAML::Node::m_isValid>;
-    // -> error: 'm_isValid' is a private member of 'YAML::Node'
     using access = bastion<bool YAML::Node::*>;
 
 
@@ -107,7 +106,7 @@ namespace poac::io::file::yaml {
     template <typename Head, typename ...Tail>
     std::optional<const char*>
     read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-        if (!(node[head].*access::m_isValid)) {
+        if (!(node[head].*access::get())) {
             return head;
         }
         else {
