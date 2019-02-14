@@ -1,7 +1,7 @@
 <img alt="poac" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
 
 
-Poac is the package manager for C++ user.
+Poac is a package manager for C++ users.
 
 Poac can download project's dependencies and compile project.
 
