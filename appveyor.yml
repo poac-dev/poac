@@ -82,11 +82,12 @@ install:
 before_build:
   - if [%COMPILER%]==[msvc] (
       dir C:\Libraries\boost-1.69.0\lib &&
-    dir C:\Libraries\boost-1.69.0\include &&
+      dir C:\Libraries\boost-1.69.0\include &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
+        -DBoost_USE_STATIC_LIBS=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib &&
       cmake --build . &&
