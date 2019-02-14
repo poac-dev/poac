@@ -64,14 +64,13 @@ else()
     if(ENABLE_STATIC) # -DENABLE_STATIC=true
         set(STATIC_LINK_FLAG "-static")
     endif()
-endif()
+    if(WIN32 AND MSVC)
+        find_package(yaml-cpp REQUIRED)
+        include_directories(${YAML_CPP_INCLUDE_DIRS})
 
-if(WIN32 AND MSVC)
-    find_package(yaml-cpp REQUIRED)
-    include_directories(${YAML_CPP_INCLUDE_DIRS})
-
-    find_package(OpenSSL REQUIRED)
-    include_directories(${OPENSSL_INCLUDE_DIR})
+        find_package(OpenSSL REQUIRED)
+        include_directories(${OPENSSL_INCLUDE_DIR})
+    endif()
 endif()
 
 
