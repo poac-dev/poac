@@ -44,7 +44,7 @@ install:
 
   # Build boost
   - if [%COMPILER%]==[msvc] (
-      mkdir C:\Libraries\tmp_boost
+      mkdir C:\Libraries\tmp_boost &&
       pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
       b2.exe runtime-link=static install -j2 --prefix=C:\Libraries\tmp_boost &&
