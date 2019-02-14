@@ -32,7 +32,9 @@ install:
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
-      cmake .. -G "%GENERATOR%" -DYAML_CPP_BUILD_TESTS=OFF &&
+      cmake .. -G "%GENERATOR%" ^
+        -DYAML_CPP_BUILD_TESTS=OFF ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install &&
       cd ..\..
     )
