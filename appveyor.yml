@@ -7,8 +7,9 @@ branches:
 image:
   - Visual Studio 2017
 
-#cache:
-#  - C:\Libraries\yaml-cpp -> appveyor.yml
+cache:
+  - C:\Libraries\yaml-cpp -> appveyor.yml
+  - C:\Libraries\boost-1.69.0 -> appveyor.yml
 
 configuration:
   - Debug
@@ -31,7 +32,7 @@ install:
   - git clone https://github.com/jbeder/yaml-cpp.git
 
   # Build yaml-cpp
-  - if [%COMPILER%]==[msvc] (
+  - if not exist C:\Libraries\yaml-cpp if [%COMPILER%]==[msvc] (
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
@@ -43,11 +44,11 @@ install:
     )
 
   # Build boost
-  - if [%COMPILER%]==[msvc] (
-      mkdir C:\Libraries\tmp_boost &&
+  - if not exist C:\Libraries\boost-1.69.0 if [%COMPILER%]==[msvc] (
+      mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
-      b2.exe runtime-link=static install -j2 --prefix=C:\Libraries\tmp_boost &&
+      b2.exe runtime-link=static install -j2 --prefix=C:\Libraries\boost-1.69.0 &&
       popd
     )
 
@@ -80,12 +81,13 @@ install:
 
 before_build:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries &&
+      dir C:\Libraries\boost-1.69.0 &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -DCMAKE_BUILD_TYPE=%Configuration% ^
-        -DBOOST_ROOT=C:\Libraries\tmp_boost &&
+        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\stage\lib &&
       cmake --build . &&
       cd ..
     )
