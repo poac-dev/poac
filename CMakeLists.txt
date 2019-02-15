@@ -43,7 +43,12 @@ endif()
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+if(MSVC)
+    find_package(Boost COMPONENTS system filesystem date_time REQUIRED)
+    set(POAC_Boost_DATE_TIME_LIBRARY "${Boost_DATE_TIME_LIBRARY}")
+else()
+    find_package(Boost COMPONENTS system filesystem REQUIRED)
+endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
 if(APPLE)
@@ -107,6 +112,7 @@ elseif(WIN32)
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
             ${Boost_SYSTEM_LIBRARY}
+            ${POAC_Boost_DATE_TIME_LIBRARY}
             ${OPENSSL_LIBRARIES}
             "yaml-cpp"
             "bcrypt"
