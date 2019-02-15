@@ -29,6 +29,14 @@ environment:
 #      GENERATOR: MinGW Makefiles
 
 install:
+  - if [%COMPILER%]==[msvc] (
+      if [%platform%] == [x86] (
+        set TARGET_PLATFORM=Win32
+      ) else (
+        set TARGET_PLATFORM=x64
+      )
+    )
+
   - git clone https://github.com/jbeder/yaml-cpp.git
 
   # Build yaml-cpp
@@ -37,6 +45,7 @@ install:
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DMSVC_SHARED_RT=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
@@ -91,6 +100,7 @@ build_script:
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
         -DBoost_DEBUG=1 ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
