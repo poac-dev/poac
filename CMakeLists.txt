@@ -105,6 +105,7 @@ if(UNIX)
             "yaml-cpp")
 elseif(WIN32)
     message(STATUS "${Boost_FILESYSTEM_LIBRARY}")
+    message(STATUS "${CMAKE_CXX_FLAGS}")
     target_link_libraries(${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
