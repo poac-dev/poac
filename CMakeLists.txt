@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(poac)
 
+message(STATUS "${CMAKE_CXX_FLAGS}")
+message(STATUS "${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Preprocessor definitions
 add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
@@ -106,6 +109,8 @@ if(UNIX)
 elseif(WIN32)
     message(STATUS "${Boost_FILESYSTEM_LIBRARY}")
     message(STATUS "${CMAKE_CXX_FLAGS}")
+    message(STATUS "${CMAKE_CXX_FLAGS_DEBUG}")
+    message(STATUS "${CMAKE_CXX_FLAGS_RELEASE}")
     target_link_libraries(${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
