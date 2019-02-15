@@ -94,7 +94,7 @@ before_build:
         -DBoost_DEBUG=1 ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
-        -DENABLE_STATIC=1 ^
+        -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib &&
       cmake --build . &&
