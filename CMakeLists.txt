@@ -15,7 +15,7 @@ elseif(UNIX)
 elseif(WIN32)
     if(MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DBOOST_ASIO_HAS_STD_STRING_VIEW /mbig-obj")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj")
     endif()
 endif()
 
