@@ -40,7 +40,7 @@ install:
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DMSVC_SHARED_RT=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
-      cmake --build . --target install &&
+      cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
 
