@@ -12,7 +12,7 @@ cache:
   - C:\Libraries\boost-1.69.0 -> appveyor.yml
 
 configuration:
-#  - Debug
+  - Debug
   - Release
 
 platform:
@@ -101,7 +101,6 @@ build_script:
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         -A %TARGET_PLATFORM% ^
-        -DBoost_DEBUG=1 ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DENABLE_STATIC=ON ^
