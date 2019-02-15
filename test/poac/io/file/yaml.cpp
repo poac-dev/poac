@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <yaml-cpp/yaml.h>
 
 #include <poac/io/file/yaml.hpp>
 
