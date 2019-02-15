@@ -61,6 +61,8 @@ if(APPLE)
     endif()
 else()
     if(WIN32 AND MSVC)
+        link_directories(${BOOST_LIBRARYDIR})
+
         find_package(yaml-cpp REQUIRED)
         include_directories(${YAML_CPP_INCLUDE_DIR})
 
