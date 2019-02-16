@@ -92,28 +92,18 @@ namespace poac::io::file::yaml {
     T accessor<T>::m_isValid;
 
     template <class T, T x>
-    struct access_private
-    {
-        access_private() { accessor<T>::m_isValid = x; }
-//        static access_private instance;
+    struct bastion {
+        bastion() { accessor<T>::m_isValid = x; }
     };
-//    template <class T, T x>
-//    access_private<T, x> access_private<T, x>::instance;
 
     using YAML_Node_t = bool YAML::Node::*;
-    template struct access_private<YAML_Node_t, &YAML::Node::m_isValid>;
+    template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
     using access = accessor<bool YAML::Node::*>;
-
-    //    template <typename T>
-//    struct bastion { typedef bool (YAML::Node::*type); };
-////    using bastion = accessor<T, &YAML::Node::m_isValid>;
-//    using access = bastion<bool YAML::Node::*>;
 
     template <typename Head>
     std::optional<const char*>
     read(const YAML::Node& node, Head&& head) {
         if (!(node[head].*access::get())) {
-//        if (!(node[head].*stowed<A_x>::value)) {
             return head;
         }
         else {
@@ -123,7 +113,6 @@ namespace poac::io::file::yaml {
     template <typename Head, typename ...Tail>
     std::optional<const char*>
     read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-//        if (!(node[head].*stowed<A_x>::value)) {
         if (!(node[head].*access::get())) {
             return head;
         }
