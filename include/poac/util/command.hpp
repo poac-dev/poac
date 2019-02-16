@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <cstdio>
 
 
 namespace poac::util {
@@ -37,10 +38,18 @@ namespace poac::util {
             std::array<char, 128> buffer;
             std::string result;
 
+#ifdef _WIN32
+            if (FILE* pipe = _popen(cmd.c_str(), "r")) {
+#else
             if (FILE* pipe = popen(cmd.c_str(), "r")) {
+#endif
                 while (std::fgets(buffer.data(), 128, pipe) != nullptr)
                     result += buffer.data();
+#ifdef _WIN32
+                if (_pclose(pipe) != 0) {
+#else
                 if (pclose(pipe) != 0) {
+#endif
                     std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
                     return std::nullopt;
                 }
