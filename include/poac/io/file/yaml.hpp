@@ -82,36 +82,27 @@ namespace poac::io::file::yaml {
     }
 
 
-//    template <class Tag>
-//    struct stowed
-//    {
-//        static typename Tag::type value;
-//    };
-//    template <class Tag>
-//    typename Tag::type stowed<Tag>::value;
-//
-//    template <class Tag, typename Tag::type x>
-//    struct stow_private
-//    {
-//        stow_private() { stowed<Tag>::value = x; }
-//        static stow_private instance;
-//    };
-//    template <class Tag, typename Tag::type x>
-//    stow_private<Tag, x> stow_private<Tag, x>::instance;
-//    struct A_x { typedef bool (YAML::Node::*type); };
-//    template struct stow_private<A_x, &YAML::Node::m_isValid>;
-
-
     // Private member accessor
-    template <class T, T V>
+    template <class T>
     struct accessor {
-        static constexpr T m_isValid = V;
+        static T m_isValid;
         static T get() { return m_isValid; }
     };
-    template struct accessor<bool YAML::Node::*, &YAML::Node::m_isValid>;
-    template <typename T>
-    using bastion = accessor<T, &YAML::Node::m_isValid>;
-    using access = bastion<bool YAML::Node::*>;
+    template <class T>
+    T accessor<T>::m_isValid;
+
+    template <class T, T x>
+    struct access_private
+    {
+        access_private() { accessor<T>::m_isValid = x; }
+//        static access_private instance;
+    };
+//    template <class T, T x>
+//    access_private<T, x> access_private<T, x>::instance;
+
+    using YAML_Node_t = bool YAML::Node::*;
+    template struct access_private<YAML_Node_t, &YAML::Node::m_isValid>;
+    using access = accessor<bool YAML::Node::*>;
 
     //    template <typename T>
 //    struct bastion { typedef bool (YAML::Node::*type); };
