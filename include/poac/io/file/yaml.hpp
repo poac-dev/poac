@@ -83,6 +83,8 @@ namespace poac::io::file::yaml {
 
 
     // Private member accessor
+    using YAML_Node_t = bool YAML::Node::*;
+#ifdef _WIN32
     template <class T>
     struct accessor {
         static T m_isValid;
@@ -91,14 +93,23 @@ namespace poac::io::file::yaml {
     template <class T>
     T accessor<T>::m_isValid;
 
-    template <class T, T x>
+    template <class T, T V>
     struct bastion {
-        bastion() { accessor<T>::m_isValid = x; }
+        bastion() { accessor<T>::m_isValid = V; }
     };
 
-    using YAML_Node_t = bool YAML::Node::*;
     template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
-    using access = accessor<bool YAML::Node::*>;
+    using access = accessor<YAML_Node_t>;
+#else
+    template <class T, T V>
+    struct accessor {
+        static constexpr T m_isValid = V;
+        static T get() { return m_isValid; }
+    };
+    template <typename T>
+    using bastion = accessor<T, &YAML::Node::m_isValid>;
+    using access = bastion<YAML_Node_t>;
+#endif
 
     template <typename Head>
     std::optional<const char*>
