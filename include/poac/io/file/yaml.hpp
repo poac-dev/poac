@@ -108,12 +108,12 @@ namespace poac::io::file::yaml {
         static constexpr T m_isValid = V;
         static T get() { return m_isValid; }
     };
+    template struct accessor<bool YAML::Node::*, &YAML::Node::m_isValid>;
     template <typename T>
     using bastion = accessor<T, &YAML::Node::m_isValid>;
     using access = bastion<bool YAML::Node::*>;
-    template struct accessor<bool YAML::Node::*, &YAML::Node::m_isValid>;
 
-//    template <typename T>
+    //    template <typename T>
 //    struct bastion { typedef bool (YAML::Node::*type); };
 ////    using bastion = accessor<T, &YAML::Node::m_isValid>;
 //    using access = bastion<bool YAML::Node::*>;
