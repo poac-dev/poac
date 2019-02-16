@@ -37,10 +37,9 @@ install:
       )
     )
 
-  - git clone https://github.com/jbeder/yaml-cpp.git
-
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp if [%COMPILER%]==[msvc] (
+      git clone https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
