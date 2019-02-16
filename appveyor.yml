@@ -29,6 +29,14 @@ environment:
 #      GENERATOR: MinGW Makefiles
 
 install:
+  - if [%COMPILER%]==[msvc] (
+      if [%platform%] == [x86] (
+        set TARGET_PLATFORM=Win32
+      ) else (
+        set TARGET_PLATFORM=x64
+      )
+    )
+
   - git clone https://github.com/jbeder/yaml-cpp.git
 
   # Build yaml-cpp
@@ -37,9 +45,11 @@ install:
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
+        -DMSVC_SHARED_RT=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
-      cmake --build . --target install &&
+      cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
 
@@ -83,18 +93,20 @@ install:
       cd ..\..
     )
 
-before_build:
+build_script:
   - if [%COMPILER%]==[msvc] (
       dir C:\Libraries\boost-1.69.0\lib &&
       dir C:\Libraries\boost-1.69.0\include &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
-        -DCMAKE_BUILD_TYPE=%Configuration% ^
+        -A %TARGET_PLATFORM% ^
         -DBoost_USE_STATIC_LIBS=ON ^
+        -DBoost_USE_STATIC_RUNTIME=ON ^
+        -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib &&
-      cmake --build . &&
+      cmake --build . --config %Configuration% &&
       cd ..
     )
 
@@ -110,10 +122,6 @@ before_build:
       cmake --build . --config %Configuration% &&
       cd ..
     )
-
-build:
-  parallel: true
-  verbosity: minimal
 
 notifications:
   - provider: Slack
