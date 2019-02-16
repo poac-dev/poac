@@ -7,6 +7,7 @@
 #include <optional>
 #include <fstream>
 
+#include <boost/predef.h>
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
@@ -84,7 +85,7 @@ namespace poac::io::file::yaml {
 
     // Private member accessor
     using YAML_Node_t = bool YAML::Node::*;
-#ifdef _WIN32
+#if BOOST_COMP_MSVC
     template <class T>
     struct accessor {
         static T m_isValid;
