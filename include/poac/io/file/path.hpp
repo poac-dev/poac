@@ -9,25 +9,34 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "../../core/exception.hpp"
 #include "../../util/command.hpp"
 
 
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/q/4891006
-    std::string expand_user(std::string path);
     std::string expand_user(std::string path) {
         if (!path.empty() && path[0] == '~') {
-            assert(path.size() == 1 or path[1] == '/');  // or other error handling
+            if (path.size() == 1 || path[1] == '/') {
+                return path;
+            }
+
             const char* home = std::getenv("HOME");
             if (home || ((home = std::getenv("USERPROFILE")))) {
                 path.replace(0, 1, home);
             }
             else {
-                const char *hdrive = std::getenv("HOMEDRIVE"),
-                        *hpath  = std::getenv("HOMEPATH");
-                assert(hdrive);  // or other error handling
-                assert(hpath);
-                path.replace(0, 1, std::string(hdrive) + hpath);
+                if (const char* hdrive = std::getenv("HOMEDRIVE")) {
+                    if (const char* hpath = std::getenv("HOMEPATH")) {
+                        path.replace(0, 1, std::string(hdrive) + hpath);
+                    }
+                    else {
+                        throw core::exception::error("Could not read environment variable HOMEPATH.");
+                    }
+                }
+                else {
+                    throw core::exception::error("Could not read environment variable HOMEDRIVE.");
+                }
             }
         }
         return path;

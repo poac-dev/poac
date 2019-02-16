@@ -1,0 +1,132 @@
+version: 1.0.{build}
+
+branches:
+  except:
+    - gh-pages
+
+image:
+  - Visual Studio 2017
+
+cache:
+  - C:\Libraries\yaml-cpp -> appveyor.yml
+  - C:\Libraries\boost-1.69.0 -> appveyor.yml
+
+configuration:
+  - Debug
+  - Release
+
+platform:
+  - x86
+  - x64
+
+clone_depth: 1
+
+environment:
+  matrix:
+    - COMPILER: msvc
+      GENERATOR: Visual Studio 15 2017
+#    - COMPILER: mingw-w64
+#      GENERATOR: MinGW Makefiles
+
+install:
+  - if [%COMPILER%]==[msvc] (
+      if [%platform%] == [x86] (
+        set TARGET_PLATFORM=Win32
+      ) else (
+        set TARGET_PLATFORM=x64
+      )
+    )
+
+  # Build yaml-cpp
+  - if not exist C:\Libraries\yaml-cpp if [%COMPILER%]==[msvc] (
+      git clone https://github.com/jbeder/yaml-cpp.git &&
+      cd yaml-cpp &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
+        -DYAML_CPP_BUILD_TESTS=OFF ^
+        -DMSVC_SHARED_RT=OFF ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
+      cmake --build . --target install --config %Configuration% &&
+      cd ..\..
+    )
+
+  # Build boost
+  - if not exist C:\Libraries\boost-1.69.0 if [%COMPILER%]==[msvc] (
+      mkdir C:\Libraries\boost-1.69.0 &&
+      pushd C:\Libraries\boost_1_69_0 &&
+      bootstrap.bat &&
+      if [%Configuration%]==[Debug] (
+        b2.exe runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
+      ) else (
+        b2.exe runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
+      ) &&
+      popd
+    )
+
+  - if [%COMPILER%]==[cygwin64] (
+      xcopy /i /q /s C:\projects\poac\yaml-cpp C:\cygwin64\home\appveyor\yaml-cpp &&
+      C:\cygwin64\setup-x86_64.exe -qgnNdO ^
+        --root C:\cygwin64 ^
+        -s http://cygwin.mirror.constant.com ^
+        -P make -P openssl-devel &&
+      mkdir C:\Libraries\yaml-cpp &&
+      C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:/Libraries/yaml-cpp && cmake --build . --target install"
+    )
+
+  - if [%COMPILER%]==[mingw-w64] set PATH=C:\msys64\usr\bin;%PATH%
+  - if [%COMPILER%]==[mingw-w64] (
+      rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe" &&
+      pacman -Syu --noconfirm &&
+      pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc &&
+      rename "C:\msys64\usr\bin\sh.exe" "sh2.exe" &&
+      cd yaml-cpp && mkdir build && cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        -DCMAKE_PREFIX_PATH=C:\mingw64 ^
+        -DCMAKE_BUILD_TYPE=%Configuration% ^
+        -DYAML_CPP_BUILD_TESTS=OFF ^
+        -DCMAKE_SH=CMAKE_SH-NOTFOUND ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\ &&
+      cmake --build . --target install &&
+      cd ..\..
+    )
+
+build_script:
+  - if [%COMPILER%]==[msvc] (
+      dir C:\Libraries\boost-1.69.0\lib &&
+      dir C:\Libraries\boost-1.69.0\include &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
+        -DBoost_USE_STATIC_LIBS=ON ^
+        -DBoost_USE_STATIC_RUNTIME=ON ^
+        -DENABLE_STATIC=ON ^
+        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
+      cmake --build . --config %Configuration% &&
+      cd ..
+    )
+
+  - if [%COMPILER%]==[cygwin64] (
+      dir C:\Libraries\boost_1_69_0\boost &&
+      xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
+      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_69_0 && cmake --build ."
+    )
+
+  - if [%COMPILER%]==[mingw-w64] (
+      mkdir build && cd build &&
+      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
+      cmake --build . --config %Configuration% &&
+      cd ..
+    )
+
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: 8Th9f6eSvN/wTVU6h5w9WZGmiKS+uHsl11nHGbR87OKy6/95p6rxiRuzHrJy7MXhanRW4+UqhR1r6C4wqIVDmzJgpRH4iW10mbc2by5sWWo=
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true

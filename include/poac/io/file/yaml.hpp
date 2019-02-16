@@ -82,18 +82,44 @@ namespace poac::io::file::yaml {
     }
 
 
+#ifdef _WIN32
+    template <typename... Args>
+    static std::map<std::string, YAML::Node>
+    get_by_width(const YAML::Node& node, const Args&... args) {
+        namespace exception = core::exception;
+        try {
+            std::map<std::string, YAML::Node> mp;
+            ((mp[args] = node[args]), ...);
+            return mp;
+        }
+        catch (...) {
+            throw exception::error(
+                    "Required key does not exist in poac.yml.\n"
+                    "Please refer to https://docs.poac.io");
+        }
+    }
+    template <typename... Args>
+    static std::optional<std::map<std::string, YAML::Node>>
+    get_by_width_opt(const YAML::Node& node, const Args&... args) {
+        try {
+            std::map<std::string, YAML::Node> mp;
+            ((mp[args] = node[args]), ...);
+            return mp;
+        }
+        catch (...) {
+            return std::nullopt;
+        }
+    }
+#else
     // Private member accessor
     template <class T, T V>
     struct accessor {
         static constexpr T m_isValid = V;
+        static T get() { return m_isValid; }
     };
     template <typename T>
     using bastion = accessor<T, &YAML::Node::m_isValid>;
-    // using access_t = accessor<YAMLNode_t, &YAML::Node::m_isValid>;
-    // -> error: 'm_isValid' is a private member of 'YAML::Node'
-    using YAMLNode_t = bool YAML::Node::*;
-    using access = bastion<YAMLNode_t>;
-
+    using access = bastion<bool YAML::Node::*>;
 
     template <typename Head>
     std::optional<const char*>
@@ -108,7 +134,7 @@ namespace poac::io::file::yaml {
     template <typename Head, typename ...Tail>
     std::optional<const char*>
     read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-        if (!(node[head].*access::m_isValid)) {
+        if (!(node[head].*access::get())) {
             return head;
         }
         else {
@@ -136,7 +162,7 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
-        if (const auto result = read(node, args...)) {
+        if (read(node, args...)) {
             return std::nullopt;
         }
         else {
@@ -145,6 +171,7 @@ namespace poac::io::file::yaml {
             return mp;
         }
     }
+#endif
 
 
     std::optional<std::string>
