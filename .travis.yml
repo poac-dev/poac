@@ -20,7 +20,6 @@ before_install:
   - brew update
   - brew unlink boost
   - brew install --ignore-dependencies boost
-#  - brew upgrade boost; return 0
 install:
   - brew install llvm yaml-cpp
 script:
