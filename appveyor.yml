@@ -104,7 +104,8 @@ build_script:
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib &&
+        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp &&
       cmake --build . --config %Configuration% &&
       cd ..
     )
