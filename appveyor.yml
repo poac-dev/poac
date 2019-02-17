@@ -82,8 +82,6 @@ install:
 
 build_script:
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost-1.69.0\lib &&
-      dir C:\Libraries\boost-1.69.0\include &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
