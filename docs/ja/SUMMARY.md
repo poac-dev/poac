@@ -12,12 +12,10 @@
   * [2.2. 既存のプロジェクトに使用する](guide/introduce-to-existing-projects.md)
   * [2.3. 設定ファイル](guide/setting-file.md)
 
-<!-- * [3. リファレンス](reference/README.md)
-  * [3.1. Specifying Dependencies](reference/specifying-dependencies.md)
-  * [3.2. Build Project](reference/build-cpp-project.md)
-  * [3.3. 分割コンパイル](reference/separate-compilation.md)
-  * [3.4. プロジェクトをリンクする](reference/link-projects.md)
+* [3. リファレンス](reference/README.md)
+  * [3.1. API](reference/api.md)
 
+<!--
 * [4. アーキテクチャ](architecture/README.md)
   * 4.2. Dependency Management
   * 4.3. About the poac.lock file
@@ -32,8 +30,4 @@
 
 * [6. 今後](roadmap/README.md)
   * [6.1. クライアントサイド](roadmap/client-side.md)
-  <!--
   * [6.2. サーバーサイド](roadmap/server-side.md)
-  * [6.3. アーキテクチャ](roadmap/architecture.md)
-  * [6.4. インフラ](roadmap/infrastructure.md)
-  * [6.5. モバイルアプリ](roadmap/application.md) -->
