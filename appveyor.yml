@@ -30,10 +30,10 @@ environment:
 install:
   - if [%COMPILER%]==[msvc] (
       if [%platform%] == [x86] (
-        set TARGET_PLATFORM=Win32;
+        set TARGET_PLATFORM=Win32 &
         set BOOST_LIBRARYDIR=C:\Libraries\boost_1_69_0\lib64-msvc-14.1
       ) else (
-        set TARGET_PLATFORM=x64;
+        set TARGET_PLATFORM=x64 &
         set BOOST_LIBRARYDIR=C:\Libraries\boost_1_69_0\lib32-msvc-14.1
       )
     )
