@@ -9,7 +9,6 @@ image:
 
 cache:
   - C:\Libraries\yaml-cpp -> appveyor.yml
-  - C:\Libraries\boost-1.69.0 -> appveyor.yml
 
 configuration:
   - Debug
@@ -31,9 +30,11 @@ environment:
 install:
   - if [%COMPILER%]==[msvc] (
       if [%platform%] == [x86] (
-        set TARGET_PLATFORM=Win32
+        set TARGET_PLATFORM=Win32;
+        set BOOST_LIBRARYDIR=C:\Libraries\boost_1_69_0\lib64-msvc-14.1
       ) else (
-        set TARGET_PLATFORM=x64
+        set TARGET_PLATFORM=x64;
+        set BOOST_LIBRARYDIR=C:\Libraries\boost_1_69_0\lib32-msvc-14.1
       )
     )
 
@@ -50,19 +51,6 @@ install:
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install --config %Configuration% &&
       cd ..\..
-    )
-
-  # Build boost
-  - if not exist C:\Libraries\boost-1.69.0 if [%COMPILER%]==[msvc] (
-      mkdir C:\Libraries\boost-1.69.0 &&
-      pushd C:\Libraries\boost_1_69_0 &&
-      bootstrap.bat &&
-      if [%Configuration%]==[Debug] (
-        b2.exe runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
-      ) else (
-        b2.exe runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
-      ) &&
-      popd
     )
 
   - if [%COMPILER%]==[cygwin64] (
@@ -103,8 +91,8 @@ build_script:
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DENABLE_STATIC=ON ^
-        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+        -DBOOST_ROOT=C:\Libraries\boost_1_69_0 ^
+        -DBOOST_LIBRARYDIR=%BOOST_LIBRARYDIR% ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
       cmake --build . --config %Configuration% &&
       cd ..
