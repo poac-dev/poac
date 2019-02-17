@@ -88,8 +88,7 @@ deps のバージョン指定には、以下の演算子が使用可能です。
 
 (この辺りの話がピンとこない場合でも、実際に適当なバージョンを指定して`poac install`を実行すると全て教えてくれます。)
 
-
-* latest
+latest:
 これを使用する時は最新のバージョンを使用したいがわからない時です．
 ```yaml
 deps:
@@ -193,9 +192,9 @@ $ POAC_ENV=prod poac install
 
 
 #### cpp_version
-cpp_versionは，内部ではInt型として扱います．
-そのため，03と3は同値になりますが，
-Webサイトなどでの表示においては，03と表記されます．(現状未対応)
+cpp_versionは，98, 03, 11, 14, 17, 20以外を許容しません．
+そのため，cpp_versionを使用するコマンドでそれ以外を指定すると，エラーになります．
+11は，include TR1です．
 
 #### owners
 ownersには，poac.pm にSignupしたのち，GitHubのUser IDを指定する必要があります．
