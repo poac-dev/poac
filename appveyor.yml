@@ -128,4 +128,4 @@ notifications:
     incoming_webhook:
       secure: 8Th9f6eSvN/wTVU6h5w9WZGmiKS+uHsl11nHGbR87OKy6/95p6rxiRuzHrJy7MXhanRW4+UqhR1r6C4wqIVDmzJgpRH4iW10mbc2by5sWWo=
     on_build_success: true
-    on_build_failure: tru
+    on_build_failure: true
