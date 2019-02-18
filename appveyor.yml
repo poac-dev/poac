@@ -19,8 +19,6 @@ platform:
   - x86
   - x64
 
-clone_depth: 1
-
 environment:
   matrix:
     - COMPILER: msvc
