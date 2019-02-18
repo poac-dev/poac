@@ -7,6 +7,7 @@
 #include <optional>
 #include <fstream>
 
+#include <boost/predef.h>
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
@@ -83,22 +84,38 @@ namespace poac::io::file::yaml {
 
 
     // Private member accessor
+    using YAML_Node_t = bool YAML::Node::*;
+#if BOOST_COMP_MSVC
+    template <class T>
+    struct accessor {
+        static T m_isValid;
+        static T get() { return m_isValid; }
+    };
+    template <class T>
+    T accessor<T>::m_isValid;
+
+    template <class T, T V>
+    struct bastion {
+        bastion() { accessor<T>::m_isValid = V; }
+    };
+
+    template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
+    using access = accessor<YAML_Node_t>;
+#else
     template <class T, T V>
     struct accessor {
         static constexpr T m_isValid = V;
+        static T get() { return m_isValid; }
     };
     template <typename T>
     using bastion = accessor<T, &YAML::Node::m_isValid>;
-    // using access_t = accessor<YAMLNode_t, &YAML::Node::m_isValid>;
-    // -> error: 'm_isValid' is a private member of 'YAML::Node'
-    using YAMLNode_t = bool YAML::Node::*;
-    using access = bastion<YAMLNode_t>;
-
+    using access = bastion<YAML_Node_t>;
+#endif
 
     template <typename Head>
     std::optional<const char*>
     read(const YAML::Node& node, Head&& head) {
-        if (!(node[head].*access::m_isValid)) {
+        if (!(node[head].*access::get())) {
             return head;
         }
         else {
@@ -108,7 +125,7 @@ namespace poac::io::file::yaml {
     template <typename Head, typename ...Tail>
     std::optional<const char*>
     read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-        if (!(node[head].*access::m_isValid)) {
+        if (!(node[head].*access::get())) {
             return head;
         }
         else {
@@ -136,7 +153,7 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
-        if (const auto result = read(node, args...)) {
+        if (read(node, args...)) {
             return std::nullopt;
         }
         else {

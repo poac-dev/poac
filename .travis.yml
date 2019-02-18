@@ -18,7 +18,8 @@ matrix:
 
 before_install:
   - brew update
-  - brew upgrade boost; return 0
+  - brew unlink boost
+  - brew install --ignore-dependencies boost
 install:
   - brew install llvm yaml-cpp
 script:
