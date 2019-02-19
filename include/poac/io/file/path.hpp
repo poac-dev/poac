@@ -17,10 +17,7 @@ namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path) {
         if (!path.empty() && path[0] == '~') {
-            if (path.size() == 1 || path[1] == '/') {
-                return path;
-            }
-
+            assert(path.size() == 1 || path[1] == '/');
             const char* home = std::getenv("HOME");
             if (home || ((home = std::getenv("USERPROFILE")))) {
                 path.replace(0, 1, home);
