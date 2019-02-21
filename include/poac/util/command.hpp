@@ -119,8 +119,8 @@ namespace poac::util {
     };
 
     namespace _command {
-        bool has_command(const std::string &c) {
-            return command("type " + c + " >/dev/null 2>&1").exec() ? true : false;
+        bool has_command(const std::string& c) {
+            return static_cast<bool>(command("type " + c + " >/dev/null 2>&1").exec());
         }
     }
 } // end namespace

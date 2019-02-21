@@ -15,6 +15,7 @@
 #include "../core/naming.hpp"
 #include "../io.hpp"
 #include "../util/ftemplate.hpp"
+#include "../util/command.hpp"
 
 
 namespace poac::subcmd {
@@ -50,8 +51,12 @@ namespace poac::subcmd {
                 {"poac.yml",   ftmpl::poac_yml(dirname)},
                 {"README.md",  ftmpl::README_md(dirname)}
             };
-            for (const auto& [name, text] : file)
+            for (const auto& [name, text] : file) {
                 path::write_to_file(ofs, (fs::path(dirname) / name).string(), text);
+            }
+            if (util::_command::has_command("git")) {
+                util::command("git init " + dirname).exec();
+            }
             echo_info(dirname);
         }
 
