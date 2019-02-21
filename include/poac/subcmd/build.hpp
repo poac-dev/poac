@@ -260,7 +260,6 @@ namespace poac::subcmd {
 
             build_deps(node, verbose);
             stroite::builder bs;
-            std::cout << io::cli::to_status(project_name) << std::endl;
             if (yaml::get(node, "build", "lib")) {
                 if (!build_link_libs(bs, verbose)) {
                     // compile or gen error
