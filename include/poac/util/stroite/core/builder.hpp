@@ -35,7 +35,7 @@ namespace stroite {
         utils::options::static_lib static_lib_conf;
         utils::options::dynamic_lib dynamic_lib_conf;
 
-        std::string system;
+        std::string compiler;
         std::string project_name;
         boost::filesystem::path base_dir;
 
@@ -231,7 +231,7 @@ namespace stroite {
 
         void configure_compile(const bool usemain, const bool verbose)
         {
-            compile_conf.system = system;
+            compile_conf.system = compiler;
             compile_conf.version_prefix = utils::configure::default_version_prefix();
             // TODO: 存在することが確約されているときのyaml::get
             compile_conf.cpp_version = node.at("cpp_version").as<unsigned int>();
@@ -341,7 +341,7 @@ namespace stroite {
             const std::vector<std::string>& obj_files_path,
             const bool verbose )
         {
-            link_conf.system = system;
+            link_conf.system = compiler;
             link_conf.project_name = project_name;
             link_conf.output_root = poac::io::file::path::current_build_bin_dir;
             link_conf.obj_files_path = obj_files_path;
@@ -377,7 +377,7 @@ namespace stroite {
             const bool verbose )
         {
             namespace io = poac::io::file;
-            dynamic_lib_conf.system = system;
+            dynamic_lib_conf.system = compiler;
             dynamic_lib_conf.project_name = project_name;
             // outputを一箇所か分散か選べるように．boost::hoghoeみたいに，enumのオプションを渡すとOK
             // 一箇所ってのは，./ poac build -> ./_buildだけど，depsも./_buildに配置されるやつ
@@ -401,9 +401,45 @@ namespace stroite {
             node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
             deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
             project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
-            system = utils::configure::auto_select_compiler();
+            compiler = utils::configure::auto_select_compiler();
             base_dir = base_path;
         }
     };
+
+    namespace core::builder {
+        std::string check_support_build_system(const std::string& system) {
+            namespace exception = poac::core::exception;
+            if (system != "poac" && system != "cmake") {
+                throw exception::error("Unknown build system " + system);
+            }
+            return system;
+        }
+
+        std::optional<std::string>
+        detect_build_system(const YAML::Node& node)
+        {
+            namespace exception = poac::core::exception;
+            namespace yaml = poac::io::file::yaml;
+
+            if (const auto system = yaml::get<std::string>(node, "build")) {
+                return check_support_build_system(*system);
+            }
+            else if (const auto build_node = yaml::get<std::map<std::string, YAML::Node>>(node, "build")) {
+                YAML::Node build_node2;
+                try {
+                    build_node2 = (*build_node).at("system");
+                }
+                catch(std::out_of_range&) {
+                    return std::nullopt;
+                }
+
+                if (const auto system2 = yaml::get<std::string>(build_node2)) {
+                    return check_support_build_system(*system2);
+                }
+            }
+            // No build required
+            return std::nullopt;
+        }
+    }
 } // end namespace
 #endif // STROITE_CORE_BUILDER_HPP

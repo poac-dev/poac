@@ -19,8 +19,7 @@
 #include "../util/argparse.hpp"
 
 
-// TODO: --release, --no-cache, --example, --backend cmake
-// TODO: --check-std(標準では標準ライブラリをチェックしないため，標準ライブラリを書き換えてもリビルドしない)
+// TODO: --release, --no-cache (build systemにpoacを使用する時のみ), --example, --backend poac or cmake
 namespace poac::subcmd {
     namespace _build {
         std::optional<std::string>
@@ -180,29 +179,39 @@ namespace poac::subcmd {
         {
             namespace exception = core::exception;
 
-            // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
-            if (io::file::yaml::get(node, "build", "lib")) {
-                stroite::builder bs(deps_path);
+            if (const auto system = stroite::core::builder::detect_build_system(node)) {
+                if (*system == "poac") {
+                    // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
+                    if (io::file::yaml::get(node, "build", "lib")) {
+                        stroite::builder bs(deps_path);
 
-                bs.configure_compile(false, verbose);
-                if (!bs.compile_conf.source_files.empty()) {
-                    std::cout << io::cli::to_status(name) << std::endl;
+                        bs.configure_compile(false, verbose);
+                        if (!bs.compile_conf.source_files.empty()) {
+                            io::cli::echo(io::cli::to_status(name));
 
-                    if (const auto obj_files_path = bs._compile()) {
-                        handle_generate_lib(bs, *obj_files_path, verbose);
+                            if (const auto obj_files_path = bs._compile()) {
+                                handle_generate_lib(bs, *obj_files_path, verbose);
+                            }
+                            else { // Compile failure
+                                throw exception::error("\nCompile error.");
+                            }
+                            io::cli::echo(io::cli::to_green("Compiled: "), name, '\n');
+                        }
+
+                        return true;
                     }
-                    else { // Compile failure
-                        throw exception::error("\nCompile error.");
-                    }
-                    std::cout << std::endl;
                 }
-
-                return true;
+                else if (*system == "cmake") {
+                    stroite::cmake bs(deps_path);
+                    io::cli::echo(io::cli::to_status(name));
+                    bs.build();
+                    io::cli::echo(io::cli::to_green("Compiled: "), name, '\n');
+                }
             }
             return false;
         }
 
-        void build_deps(const YAML::Node& node, const bool verbose) {
+        bool build_deps(const YAML::Node& node, const bool verbose) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace lock = core::lock;
@@ -210,44 +219,47 @@ namespace poac::subcmd {
             namespace yaml = io::file::yaml;
 
 
-            if (!yaml::get(node, "deps")) {
-                return; // depsが存在しない
-            }
-            // TODO: ビルド順序
-            if (const auto locked_deps = lock::load_ignore_timestamp()) {
-                for (const auto& [name, dep] : (*locked_deps).backtracked) {
-                    const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
-                    const auto deps_path = fs::current_path() / "deps" / current_package_name;
+            if (yaml::get<std::map<std::string, YAML::Node>>(node, "deps")) {
+                // TODO: ビルド順序
+                if (const auto locked_deps = lock::load_ignore_timestamp()) {
+                    for (const auto& [name, dep] : (*locked_deps).backtracked) {
+                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                        const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
-                    if (fs::exists(deps_path)) {
-                        // IF dep.source == "github"
-                        // ./deps/pack/poac.yml は存在しないと見做す (TODO: poac projectなのにgithubをsourceとしている場合がある)
-                        // 現状は，./poac.ymlから，buildキーを読み込む -> 無いなら header-onlyと見做す．
+                        if (fs::exists(deps_path)) {
+                            // IF dep.source == "github"
+                            // ./deps/pack/poac.yml は存在しないと見做す (TODO: poac projectなのにgithubをsourceとしている場合がある)
+                            // 現状は，./poac.ymlから，buildキーを読み込む -> 無いなら header-onlyと見做す．
 
-                        // IF dep.source == "poac"
-                        // プロジェクトルートの方に，buildキーがあるならそちらを
-                        //  -> 無いなら，提供者->deps_pathの方を選ぶ
-                        //  -> 無いなら，header-onlyと見做す．
-                        if (!compile_deps(node, name, deps_path, verbose) && dep.source == "poac") {
-                            const auto deps_config_node = yaml::load_config_by_dir(deps_path);
-                            compile_deps(deps_config_node, name, deps_path, verbose);
+                            // IF dep.source == "poac"
+                            // プロジェクトルートの方に，buildキーがあるならそちらを
+                            //  -> 無いなら，提供者->deps_pathの方を選ぶ
+                            //  -> 無いなら，header-onlyと見做す．
+                            if (!compile_deps(node, name, deps_path, verbose) && dep.source == "poac") {
+                                const auto deps_config_node = yaml::load_config_by_dir(deps_path);
+                                compile_deps(deps_config_node, name, deps_path, verbose);
+                            }
+                        }
+                        else {
+                            throw exception::error(
+                                    name + " is not installed.\n"
+                                           "Please build after running `poac install`");
                         }
                     }
-                    else {
-                        throw exception::error(
-                                name + " is not installed.\n"
-                                       "Please build after running `poac install`");
-                    }
                 }
+                else {
+                    throw exception::error(
+                            "Could not load poac.lock.\n"
+                            "Please build after running `poac install`");
+                }
+                return true;
             }
             else {
-                throw exception::error(
-                        "Could not load poac.lock.\n"
-                        "Please build after running `poac install`");
+                return false;
             }
         }
 
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
@@ -258,26 +270,48 @@ namespace poac::subcmd {
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
-            build_deps(node, verbose);
-            stroite::builder bs;
-            if (yaml::get(node, "build", "lib")) {
-                if (!build_link_libs(bs, verbose)) {
-                    // compile or gen error
+            const bool built_deps = build_deps(node, verbose);
+
+            if (const auto system = stroite::core::builder::detect_build_system(node)) {
+                if (*system == "poac") {
+                    stroite::builder bs;
+
+                    if (built_deps) {
+                        io::cli::echo(io::cli::to_status(project_name));
+                    }
+
+                    if (yaml::get(node, "build", "lib")) {
+                        if (!build_link_libs(bs, verbose)) {
+                            // compile or gen error
+                        }
+                    }
+                    if (yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする
+                        // TODO: ディレクトリで指定できるように
+                        if (!build_bin(bs, verbose)) {
+                            // compile or link error
+
+                            // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
+                            const auto binary_name = io::file::path::current_build_bin_dir / project_name;
+                            const fs::path executable_path = fs::relative(binary_name);
+                            boost::system::error_code error;
+                            fs::remove(executable_path, error);
+                        }
+                    }
+                }
+                else if (*system == "cmake") {
+                    stroite::cmake bs;
+                    if (built_deps) {
+                        io::cli::echo(io::cli::to_status(project_name));
+                    }
+                    bs.build(); // only build
+                    io::cli::echo(io::cli::to_green("Compiled: "), project_name);
                 }
             }
-            if (yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする
-                // TODO: ディレクトリで指定できるように
-                if (!build_bin(bs, verbose)) {
-                    // compile or link error
-
-                    // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
-                    const auto binary_name = io::file::path::current_build_bin_dir / project_name;
-                    const fs::path executable_path = fs::relative(binary_name);
-                    boost::system::error_code error;
-                    fs::remove(executable_path, error);
-                }
+            else { // error
+                throw exception::error(
+                        "Required key `build` does not exist in poac.yml.\n"
+                        "Please refer to https://docs.poac.io");
             }
-
             return EXIT_SUCCESS;
         }
 
@@ -296,7 +330,7 @@ namespace poac::subcmd {
         static const std::string options() {
             return "[-v | --verbose]";
         }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
             _build::check_arguments(argv);
             return _build::_main(std::move(argv));

@@ -6,6 +6,7 @@
 #include <vector>
 #include <optional>
 #include <cstdio>
+#include <cstdlib>
 
 
 namespace poac::util {
@@ -38,7 +39,7 @@ namespace poac::util {
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
         std::optional<std::string> exec() const {
-            std::array<char, 128> buffer;
+            std::array<char, 128> buffer{};
             std::string result;
 
 #ifdef _WIN32
@@ -61,6 +62,10 @@ namespace poac::util {
                 return std::nullopt;
             }
             return result;
+        }
+
+        bool exec_incontinent() const {
+            return static_cast<bool>(std::system(cmd.c_str()));
         }
 
         friend std::ostream& operator<<(std::ostream& stream, const command& c) {
