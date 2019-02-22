@@ -32,12 +32,6 @@ namespace poac::core::infer {
     template <std::size_t I, typename... Ts>
     using at_impl_t = typename at_impl<I, Ts...>::type;
 
-    // std::initializer_list -> std::vector
-    template <typename T>
-    static constexpr auto make_vector(std::initializer_list<T>&& l) {
-        return std::vector<T>{ l };
-    }
-
     // type list
     template <typename... Ts>
     struct type_list_t {
@@ -142,17 +136,17 @@ namespace poac::core::infer {
     template <std::size_t... Is, typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
-        return make_vector({ +[](VS&& vs){
+        return std::vector({ +[](VS&& vs){
             return std::to_string(op_type_list_t::at_t<Is>()(std::move(vs)));
         }... })[idx](std::move(vs));
     }
     template <std::size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
-        return make_vector({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
+        return std::vector({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
     }
     template <std::size_t... Is>
     static auto options(std::index_sequence<Is...>, int idx) {
-        return make_vector({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
+        return std::vector({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
     }
 #endif
 
@@ -172,12 +166,11 @@ namespace poac::core::infer {
             throw exception::invalid_first_arg("Invalid argument");
     }
 
-    template <typename S, typename OpTypeE, typename VS,
-            typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <typename S, typename OpTypeE, typename VS, typename>
     auto _apply(S&& func, const OpTypeE& cmd, VS&& arg) {
         return branch(std::move(func), cmd, std::move(arg));
     }
-    template <typename S, typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <typename S, typename VS, typename>
     std::string apply(S&& func, const S& cmd, VS&& arg) {
         namespace exception = core::exception;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
