@@ -25,9 +25,6 @@ namespace poac {
     static constexpr char const* POAC_STORAGE_HOST =
             "storage.googleapis.com";
 
-    static constexpr char const* GITHUB_HOST =
-            "github.com";
-
     static constexpr char const* ALGOLIA_APPLICATION_ID =
             "IOCVK5FECM";
     static constexpr char const* ALGOLIA_SEARCH_ONLY_KEY =

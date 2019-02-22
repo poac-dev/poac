@@ -115,24 +115,28 @@ namespace poac::subcmd {
                         echo_install_status(res, name, dep.version, dep.source);
                     }
                 }
-                else if (dep.source == "poac" || dep.source == "github") {
+                else if (dep.source == "poac") {
                     const auto pkg_dir = path::poac_cache_dir / cache_name;
                     const auto tar_dir = pkg_dir.string() + ".tar.gz";
-                    std::string target;
-                    std::string host;
-                    if (dep.source == "poac") {
-                        target = resolver::archive_url(name, dep.version);
-                        host = POAC_STORAGE_HOST;
-                    }
-                    else {
-                        target = resolver::github::archive_url(name, dep.version);
-                        host = GITHUB_HOST;
-                    }
+                    const std::string target = resolver::archive_url(name, dep.version);
+                    const std::string host = POAC_STORAGE_HOST;
 
                     io::network::get(target, tar_dir, POAC_STORAGE_HOST);
                     // If res is true, does not execute func. (short-circuit evaluation)
                     bool res = tb::extract_spec_rm(tar_dir, pkg_dir);
-                    res = res || copy_to_current(cache_name, current_name);
+                    res = !res && copy_to_current(cache_name, current_name);
+
+                    if (!quite) {
+                        echo_install_status(res, name, dep.version, dep.source);
+                    }
+                }
+                else if (dep.source == "github") {
+                    util::command clone_cmd = resolver::github::clone_command(name, dep.version);
+                    clone_cmd += (path::poac_cache_dir / cache_name).string();
+                    clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
+
+                    bool res = static_cast<bool>(clone_cmd.exec());
+                    res = !res && copy_to_current(cache_name, current_name);
 
                     if (!quite) {
                         echo_install_status(res, name, dep.version, dep.source);

@@ -24,7 +24,7 @@ namespace poac::io::file::tarball {
     // It is almost the same behavior as --remove-files,
     //  but deleted in fs::remove because there is a possibility
     //   that it is not compatible with --remove-files.
-    bool extract_spec_rm(const fs::path &input, const fs::path &output) {
+    bool extract_spec_rm(const fs::path& input, const fs::path& output) { // true == error
         // TODO: install.hpp用のエラー判定とfsのboolean値が逆
         return !(extract_spec(input, output) || fs::remove(input));
     }

@@ -44,8 +44,8 @@ namespace poac::core::resolver {
         }
     }
     namespace github {
-        std::string archive_url(const std::string& name, const std::string& tag) {
-            return "/" + name + "/archive/" + tag + ".tar.gz";
+        std::string clone_command(const std::string& name, const std::string& tag) {
+            return "git clone -q https://github.com/" + name + ".git -b " + tag;
         }
     }
     std::string archive_url(const std::string& name, const std::string& version) {

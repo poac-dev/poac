@@ -31,6 +31,9 @@ namespace poac::util {
         command stderr_to_stdout() {
             return cmd + " 2>&1";
         }
+        command to_dev_null() {
+            return cmd + " >/dev/null";
+        }
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
