@@ -152,8 +152,6 @@ namespace poac::subcmd {
             }
         }
 
-        // YAML::Node -> Deps
-        // TODO: To resolver？
         core::resolver::Deps
         resolve_packages(const std::map<std::string, YAML::Node>& node) {
             namespace exception = core::exception;
@@ -238,10 +236,7 @@ namespace poac::subcmd {
                 }
             }
 
-            // resolve package
-            if (!quite) {
-                cli::echo(cli::to_status("Resolving packages..."));
-            }
+            // YAML::Node -> resolver:Deps
             resolver::Deps deps;
             if (!argv.empty()) {
                 for (const auto& v : argv) {
