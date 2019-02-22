@@ -312,7 +312,7 @@ namespace poac::subcmd {
             return "Install packages";
         }
         static const std::string options() {
-            return "[-v | --verbose, -q | --quite, [args]]";
+            return "-v | --verbose, -q | --quite, [args]";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
