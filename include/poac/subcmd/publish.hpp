@@ -177,7 +177,7 @@ namespace poac::subcmd {
             if (!fs::exists("poac.yml")) {
                 throw exception::error("poac.yml does not exists");
             }
-            if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
+            if (const auto res = io::network::post_file(token, output_dir); res != "ok\n") {
                 throw exception::error(res); // TODO: Check exists packageは飛ばして，Delete fileはしてほしい
             }
 
