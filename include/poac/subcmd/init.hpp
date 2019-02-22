@@ -13,20 +13,15 @@
 #include "../io/cli.hpp"
 #include "../io/file/yaml.hpp"
 #include "../core/exception.hpp"
+#include "../core/naming.hpp"
 
 
 namespace poac::subcmd {
     namespace _init {
-        // To snake_case
-        void conv_prohibit_char(std::string& s) {
-            std::transform(s.cbegin(), s.cend(), s.begin(), tolower);
-            std::replace(s.begin(), s.end(), '-', '_');
-        }
-
         std::string basename(boost::filesystem::path&& s) {
             namespace fs = boost::filesystem;
             std::string tmp = fs::basename(s);
-            conv_prohibit_char(tmp);
+            core::naming::validate_package_name(tmp);
             return tmp;
         }
 
@@ -52,7 +47,6 @@ namespace poac::subcmd {
                 else
                     throw exception::error("canceled");
             }
-            // default setting file name
             return "poac.yml";
         }
 
