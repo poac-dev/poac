@@ -305,7 +305,7 @@ namespace poac::core::stroite {
                             library_search_path.push_back(lib_dir.string());
 
                             if (const auto link = yaml::get<std::vector<std::string>>(next_node, "link", "include")) {
-                                for (const auto &l : *link) {
+                                for (const auto& l : *link) {
                                     static_link_libs.push_back(l);
                                 }
                             }
@@ -392,7 +392,7 @@ namespace poac::core::stroite {
         {
             namespace yaml = io::file::yaml;
 
-            const auto config_file = yaml::load_config_by_dir(base_path);
+            const auto config_file = yaml::load_config_by_dir_with_throw(base_path);
             node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
             deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
             project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());

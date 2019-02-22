@@ -44,7 +44,7 @@ namespace poac::io::file::yaml {
         try {
             return detail::get<T>(node);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             return std::nullopt;
         }
     }
@@ -55,7 +55,7 @@ namespace poac::io::file::yaml {
         try {
             return detail::get<T>(node, args...);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             return std::nullopt;
         }
     }
@@ -64,7 +64,7 @@ namespace poac::io::file::yaml {
         try {
             return detail::get<bool>(node, args...);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             return false;
         }
     }
@@ -75,7 +75,7 @@ namespace poac::io::file::yaml {
         try {
             return detail::get<T>(node, arg);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             throw exception::error(
                     "Required key `" + arg + "` does not exist in poac.yml.\n"
                     "Please refer to https://docs.poac.io");
@@ -212,7 +212,22 @@ namespace poac::io::file::yaml {
         return get_by_width_opt(load_config(), args...);
     }
 
-    YAML::Node load_config_by_dir(const boost::filesystem::path& base) {
+    std::optional<YAML::Node>
+    load_config_by_dir(const boost::filesystem::path& base) {
+        namespace exception = core::exception;
+        if (const auto op_filename = exists_config(base)) {
+            if (const auto op_node = load(*op_filename)) {
+                return op_node;
+            }
+            else {
+                return std::nullopt;
+            }
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+    YAML::Node load_config_by_dir_with_throw(const boost::filesystem::path& base) {
         namespace exception = core::exception;
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
