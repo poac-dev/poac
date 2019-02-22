@@ -18,8 +18,8 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 #include "../core/exception.hpp"
-#include "../core/lock.hpp"
-#include "../core/resolver.hpp"
+#include "../core/deper/lock.hpp"
+#include "../core/deper/resolver.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
@@ -42,9 +42,9 @@ namespace poac::subcmd {
         using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
 
-        core::resolver::Resolved create_resolved_deps() {
-            namespace lock = core::lock;
-            namespace resolver = core::resolver;
+        core::deper::resolver::Resolved create_resolved_deps() {
+            namespace lock = core::deper::lock;
+            namespace resolver = core::deper::resolver;
             namespace exception = core::exception;
             namespace yaml = io::file::yaml;
 

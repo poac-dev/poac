@@ -1,7 +1,7 @@
-#ifndef STROITE_HPP
-#define STROITE_HPP
+#ifndef POAC_CORE_STROITE_HPP
+#define POAC_CORE_STROITE_HPP
 
 #include "stroite/core.hpp"
 #include "stroite/utils.hpp"
 
-#endif // STROITE_HPP
+#endif // POAC_CORE_STROITE_HPP

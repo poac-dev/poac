@@ -13,9 +13,9 @@
 
 #include "./install.hpp"
 #include "../core/exception.hpp"
-#include "../core/resolver.hpp"
 #include "../core/naming.hpp"
-#include "../core/lock.hpp"
+#include "../core/deper/resolver.hpp"
+#include "../core/deper/lock.hpp"
 #include "../io/file/path.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
@@ -116,11 +116,11 @@ namespace poac::subcmd {
         void individual(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace yaml = io::file::yaml;
-            namespace resolver = core::resolver;
+            namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;
             namespace exception = core::exception;
-            namespace lock = core::lock;
+            namespace lock = core::deper::lock;
 
             auto node = yaml::load_config();
             std::map<std::string, YAML::Node> deps_node;

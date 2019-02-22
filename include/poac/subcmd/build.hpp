@@ -11,7 +11,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../core/exception.hpp"
-#include "../core/lock.hpp"
+#include "../core/deper/lock.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../core/stroite.hpp"
@@ -215,7 +215,7 @@ namespace poac::subcmd {
         bool build_deps(const YAML::Node& node, const bool verbose) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
-            namespace lock = core::lock;
+            namespace lock = core::deper::lock;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 

@@ -7,11 +7,11 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "../io/file/yaml.hpp"
 #include "./resolver.hpp"
+#include "../../io/file/yaml.hpp"
 
 
-namespace poac::core::lock {
+namespace poac::core::deper::lock {
     const std::string filename = "poac.lock";
 
     std::optional<YAML::Node>
@@ -38,7 +38,7 @@ namespace poac::core::lock {
         return std::nullopt;
     }
 
-    std::optional<core::resolver::Activated>
+    std::optional<resolver::Activated>
     load_deps_deps(const YAML::Node& node) {
         namespace yaml = io::file::yaml;
         // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
@@ -56,7 +56,7 @@ namespace poac::core::lock {
         }
     }
 
-    core::resolver::Resolved
+    resolver::Resolved
     create_resolved_deps(const std::map<std::string, YAML::Node>& locked_deps) {
         namespace yaml = io::file::yaml;
 
@@ -77,10 +77,9 @@ namespace poac::core::lock {
     }
 
     // Ignore timestamp check
-    std::optional<core::resolver::Resolved>
+    std::optional<resolver::Resolved>
     load_ignore_timestamp() {
         namespace yaml = io::file::yaml;
-        namespace resolver = core::resolver;
 
         if (const auto lock = yaml::load(filename)) {
             if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
@@ -90,10 +89,9 @@ namespace poac::core::lock {
         return std::nullopt;
     }
 
-    std::optional<core::resolver::Resolved>
+    std::optional<resolver::Resolved>
     load(const std::string& timestamp=io::file::yaml::get_timestamp()) {
         namespace yaml = io::file::yaml;
-        namespace resolver = core::resolver;
 
         if (const auto locked_deps = load_deps(timestamp)) {
             return create_resolved_deps(*locked_deps);

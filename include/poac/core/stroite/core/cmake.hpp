@@ -19,8 +19,7 @@ namespace poac::core::stroite {
 
         bool build() { // TODO: builderと同じinterfaceであるべき
             namespace fs = boost::filesystem;
-            namespace util = poac::util;
-            namespace path = poac::io::file::path;
+            namespace path = io::file::path;
 
             util::command cmd("cd " + base_path.string());
             if (!fs::exists(base_path / "_build")) {
@@ -62,7 +61,6 @@ namespace poac::core::stroite {
         explicit cmake(const boost::filesystem::path& base_path = boost::filesystem::current_path())
         {
             namespace fs = boost::filesystem;
-            namespace exception = poac::core::exception;
 
             if (!fs::exists(base_path / "CMakeLists.txt")) {
                 throw exception::error((base_path / "CMakeLists.txt").string() + " does not exist");

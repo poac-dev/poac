@@ -21,8 +21,8 @@
 #include "../utils.hpp"
 
 #include "../../exception.hpp"
-#include "../../lock.hpp"
 #include "../../naming.hpp"
+#include "../../deper/lock.hpp"
 #include "../../../io/file/path.hpp"
 #include "../../../io/cli.hpp"
 #include "../../../io/file/yaml.hpp"
@@ -55,7 +55,7 @@ namespace poac::core::stroite {
 
         auto make_source_files() {
             namespace fs = boost::filesystem;
-            namespace io = poac::io::file;
+            namespace io = io::file;
 
             std::vector<std::string> source_files;
             if (io::path::validate_dir(base_dir / "src")) {
@@ -70,11 +70,9 @@ namespace poac::core::stroite {
 
         auto make_include_search_path() {
             namespace fs = boost::filesystem;
-            namespace naming = poac::core::naming;
-            namespace exception = poac::core::exception;
-            namespace lock = poac::core::lock;
-            namespace yaml = poac::io::file::yaml;
-            namespace io = poac::io::file;
+            namespace lock = deper::lock;
+            namespace yaml = io::file::yaml;
+            namespace io = io::file;
 
             std::vector<std::string> include_search_path;
             if (deps_node) { // subcmd/build.hppで，存在確認が取れている
@@ -114,7 +112,7 @@ namespace poac::core::stroite {
         }
 
         auto make_compile_other_args() {
-            namespace yaml = poac::io::file::yaml;
+            namespace yaml = io::file::yaml;
             if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
                 return *compile_args;
             }
@@ -126,7 +124,7 @@ namespace poac::core::stroite {
 
         std::string to_cache_hash_path(const std::string& s) {
             namespace fs = boost::filesystem;
-            namespace io = poac::io::file;
+            namespace io = io::file;
 
             const auto hash_path = io::path::current_build_cache_hash_dir / fs::relative(s);
             return hash_path.string() + ".hash";
@@ -134,7 +132,7 @@ namespace poac::core::stroite {
 
         std::optional<std::map<std::string, std::string>>
         load_timestamps(const std::string& src_cpp_hash) {
-            namespace io = poac::io::file;
+            namespace io = io::file;
 
             std::ifstream ifs(src_cpp_hash);
             if(!ifs.is_open()){
@@ -155,7 +153,7 @@ namespace poac::core::stroite {
                 std::map<std::string, std::string>& timestamp)
         {
             namespace fs = boost::filesystem;
-            namespace io = poac::io::file;
+            namespace io = io::file;
 
             boost::system::error_code error;
             const std::time_t last_time = fs::last_write_time(filename, error);
@@ -216,7 +214,6 @@ namespace poac::core::stroite {
             const bool usemain )
         {
             namespace fs = boost::filesystem;
-            namespace exception = poac::core::exception;
 
             if (usemain) {
                 if (!fs::exists("main.cpp")) {
@@ -241,11 +238,11 @@ namespace poac::core::stroite {
             compile_conf.source_files = hash_source_files(make_source_files(), usemain);
             compile_conf.macro_defns = make_macro_defns();
             compile_conf.base_dir = base_dir;
-            compile_conf.output_root = poac::io::file::path::current_build_cache_obj_dir;
+            compile_conf.output_root = io::file::path::current_build_cache_obj_dir;
         }
         std::optional<std::vector<std::string>>
         _compile() {
-            namespace io = poac::io::file;
+            namespace io = io::file;
 
             if (const auto ret = core::compiler::compile(compile_conf)) {
                 namespace fs = boost::filesystem;
@@ -277,7 +274,7 @@ namespace poac::core::stroite {
         }
 
         auto make_link_other_args() {
-            namespace yaml = poac::io::file::yaml;
+            namespace yaml = io::file::yaml;
             if (const auto link_args = yaml::get<std::vector<std::string>>(node.at("build"), "link_args")) {
                 return *link_args;
             }
@@ -288,8 +285,7 @@ namespace poac::core::stroite {
         // TODO: Divide it finer...
         auto make_link() {
             namespace fs = boost::filesystem;
-            namespace yaml = poac::io::file::yaml;
-            namespace naming = poac::core::naming;
+            namespace yaml = io::file::yaml;
 
             std::vector<std::string> library_search_path;
             std::vector<std::string> static_link_libs;
@@ -302,7 +298,7 @@ namespace poac::core::stroite {
 
                     if (src != "poac") {
                         const std::string pkgname = naming::to_cache(src, name2, version);
-                        const fs::path pkgpath = poac::io::file::path::current_deps_dir / pkgname;
+                        const fs::path pkgpath = io::file::path::current_deps_dir / pkgname;
 
                         // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
                         if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
@@ -326,7 +322,7 @@ namespace poac::core::stroite {
 
                     else {
                         const std::string pkgname = name2;
-                        const fs::path pkgpath = poac::io::file::path::current_build_lib_dir / pkgname;
+                        const fs::path pkgpath = io::file::path::current_build_lib_dir / pkgname;
 
                         // TODO: dynamic libを指定できるように
                         if (const auto lib_dir = pkgpath.string() + ".a"; fs::exists(lib_dir)) {
@@ -343,7 +339,7 @@ namespace poac::core::stroite {
         {
             link_conf.system = compiler;
             link_conf.project_name = project_name;
-            link_conf.output_root = poac::io::file::path::current_build_bin_dir;
+            link_conf.output_root = io::file::path::current_build_bin_dir;
             link_conf.obj_files_path = obj_files_path;
             const auto links = make_link();
             link_conf.library_search_path = std::get<0>(links);
@@ -361,7 +357,7 @@ namespace poac::core::stroite {
                 const std::vector<std::string>& obj_files_path,
                 const bool verbose )
         {
-            namespace io = poac::io::file;
+            namespace io = io::file;
             static_lib_conf.project_name = project_name;
             static_lib_conf.output_root = io::path::current_build_lib_dir;
             static_lib_conf.obj_files_path = obj_files_path;
@@ -376,7 +372,7 @@ namespace poac::core::stroite {
             const std::vector<std::string>& obj_files_path,
             const bool verbose )
         {
-            namespace io = poac::io::file;
+            namespace io = io::file;
             dynamic_lib_conf.system = compiler;
             dynamic_lib_conf.project_name = project_name;
             // outputを一箇所か分散か選べるように．boost::hoghoeみたいに，enumのオプションを渡すとOK
@@ -394,8 +390,7 @@ namespace poac::core::stroite {
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         explicit builder(const boost::filesystem::path& base_path = boost::filesystem::current_path())
         {
-            namespace naming = poac::core::naming;
-            namespace yaml = poac::io::file::yaml;
+            namespace yaml = io::file::yaml;
 
             const auto config_file = yaml::load_config_by_dir(base_path);
             node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
@@ -408,7 +403,6 @@ namespace poac::core::stroite {
 
     namespace core::builder {
         std::string check_support_build_system(const std::string& system) {
-            namespace exception = poac::core::exception;
             if (system != "poac" && system != "cmake") {
                 throw exception::error("Unknown build system " + system);
             }
@@ -418,8 +412,7 @@ namespace poac::core::stroite {
         std::optional<std::string>
         detect_build_system(const YAML::Node& node)
         {
-            namespace exception = poac::core::exception;
-            namespace yaml = poac::io::file::yaml;
+            namespace yaml = io::file::yaml;
 
             if (const auto system = yaml::get<std::string>(node, "build")) {
                 return check_support_build_system(*system);

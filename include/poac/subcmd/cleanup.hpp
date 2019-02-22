@@ -11,9 +11,9 @@
 #include "./install.hpp"
 #include "./uninstall.hpp"
 #include "../core/exception.hpp"
-#include "../core/resolver.hpp"
 #include "../core/naming.hpp"
-#include "../core/lock.hpp"
+#include "../core/deper/resolver.hpp"
+#include "../core/deper/lock.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
 
@@ -23,8 +23,8 @@ namespace poac::subcmd {
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::file::yaml;
-            namespace resolver = core::resolver;
-            namespace lock = core::lock;
+            namespace resolver = core::deper::resolver;
+            namespace lock = core::deper::lock;
             namespace naming = core::naming;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;

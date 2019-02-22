@@ -14,11 +14,11 @@
 #include <cctype>
 #include <algorithm>
 
-#include "../io/cli.hpp"
-#include "./exception.hpp"
+#include "../exception.hpp"
+#include "../../io/cli.hpp"
 
 
-namespace poac::core::semver {
+namespace poac::core::deper::semver {
     // The following Regular Expressions can be used for tokenizing,
     // validating, and parsing SemVer version strings.
     // A regular expression before binding is https://github.com/semver/semver/issues/232#issue-48635632

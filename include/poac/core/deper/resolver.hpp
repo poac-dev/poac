@@ -18,17 +18,17 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/dynamic_bitset.hpp>
 
-#include "exception.hpp"
-#include "naming.hpp"
 #include "sat.hpp"
 #include "semver.hpp"
-#include "../io/file.hpp"
-#include "../io/network.hpp"
-#include "../config.hpp"
-#include "../util/types.hpp"
+#include "../exception.hpp"
+#include "../naming.hpp"
+#include "../../io/file.hpp"
+#include "../../io/network.hpp"
+#include "../../config.hpp"
+#include "../../util/types.hpp"
 
 
-namespace poac::core::resolver {
+namespace poac::core::deper::resolver {
     namespace cache {
         bool resolve(const std::string& package_name) {
             namespace path = io::file::path;

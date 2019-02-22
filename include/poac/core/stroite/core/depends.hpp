@@ -15,7 +15,7 @@ namespace poac::core::stroite::core::depends {
     std::optional<std::string>
     calc(const Opts& opts, const std::string& src_cpp)
     {
-        poac::util::command cmd(opts.system);
+        util::command cmd(opts.system);
         cmd += opts.version_prefix + std::to_string(opts.cpp_version);
         for (const auto& isp : opts.include_search_path) {
             cmd += "-I" + isp;

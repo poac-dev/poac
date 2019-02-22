@@ -14,8 +14,8 @@
 #include "./install.hpp"
 #include "../core/exception.hpp"
 #include "../core/naming.hpp"
-#include "../core/semver.hpp"
-#include "../core/resolver.hpp"
+#include "../core/deper/semver.hpp"
+#include "../core/deper/resolver.hpp"
 #include "../io/file/path.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
@@ -33,7 +33,7 @@ namespace poac::subcmd {
             namespace exception = core::exception;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
-            namespace resolver = core::resolver;
+            namespace resolver = core::deper::resolver;
             namespace naming = core::naming;
 
             const bool yes = util::argparse::use_rm(argv, "-y", "--yes");
@@ -77,7 +77,7 @@ namespace poac::subcmd {
                             current_version = "null";
                         }
 
-                        if (core::semver::Version(dep.version) != current_version) {
+                        if (core::deper::semver::Version(dep.version) != current_version) {
                             update_deps[name] = { {current_version}, {dep.source} };
                         }
                     }
@@ -91,7 +91,7 @@ namespace poac::subcmd {
                 for (const auto& [name, dep] : update_deps) {
                     const auto current_version = resolved_deps.backtracked[name].version;
                     std::cout << name << " (Current: " << current_version << " -> Update: ";
-                    if (core::semver::Version(current_version) < dep.version) {
+                    if (core::deper::semver::Version(current_version) < dep.version) {
                         std::cout << cli::to_green(dep.version) << ")" << std::endl;
                     }
                     else {

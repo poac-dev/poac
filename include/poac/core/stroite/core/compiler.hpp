@@ -18,7 +18,7 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::vector<std::string>>
     compile(const Opts& opts)
     {
-        poac::util::command cmd("cd " + opts.base_dir.string());
+        util::command cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
         cmd += opts.version_prefix + std::to_string(opts.cpp_version);
         cmd += "-c";
@@ -62,7 +62,7 @@ namespace poac::core::stroite::core::compiler {
         const std::string bin_path =
                 (opts.output_root / opts.project_name).string() + extension;
 
-        poac::util::command cmd(opts.system);
+        util::command cmd(opts.system);
         for (const auto& o : opts.obj_files_path)
             cmd += o;
         for (const auto& lsp : opts.library_search_path)
@@ -89,7 +89,7 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::string>
     gen_static_lib(const Opts& opts)
     {
-        poac::util::command cmd("ar rcs");
+        util::command cmd("ar rcs");
         const std::string stlib_path =
                 (opts.output_root / opts.project_name).string() + ".a";
         cmd += stlib_path;
@@ -110,7 +110,7 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::string>
     gen_dynamic_lib(const Opts& opts)
     {
-        poac::util::command cmd(opts.system);
+        util::command cmd(opts.system);
         cmd += "-dynamiclib"; // -shared // FIXME: macosとlinux
         for (const auto& o : opts.obj_files_path)
             cmd += o;

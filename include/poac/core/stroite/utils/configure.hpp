@@ -25,8 +25,7 @@ namespace poac::core::stroite::utils::configure {
 
     // Automatic selection of compiler
     auto auto_select_compiler() {
-        using poac::core::exception::error;
-        namespace command = poac::util::_command;
+        namespace command = util::_command;
 
         if (const char* cxx = std::getenv("CXX")) {
             return cxx;
@@ -38,7 +37,7 @@ namespace poac::core::stroite::utils::configure {
             return "clang++";
         }
         else {
-            throw error(
+            throw exception::error(
                     "Environment variable \"CXX\" was not found.\n"
                     "Select the compiler and export it.");
         }
