@@ -8,6 +8,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include "../utils/absorper.hpp"
 #include "../../../util/command.hpp"
 
 
@@ -54,13 +55,8 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::string>
     link(const Opts& opts)
     {
-#ifdef _WIN32
-        const std::string extension = ".exe";
-#else
-        const std::string extension = "";
-#endif
         const std::string bin_path =
-                (opts.output_root / opts.project_name).string() + extension;
+                (opts.output_root / opts.project_name).string() + utils::absorper::binary_extension;
 
         util::command cmd(opts.system);
         for (const auto& o : opts.obj_files_path)
@@ -111,12 +107,12 @@ namespace poac::core::stroite::core::compiler {
     gen_dynamic_lib(const Opts& opts)
     {
         util::command cmd(opts.system);
-        cmd += "-dynamiclib"; // -shared // FIXME: macosとlinux
+        cmd += utils::absorper::dynamic_lib_option;
         for (const auto& o : opts.obj_files_path)
             cmd += o;
         cmd += "-o";
         const std::string dylib_path =
-                (opts.output_root / opts.project_name).string() + ".dylib"; // FIXME: macosとlinux
+                (opts.output_root / opts.project_name).string() + utils::absorper::dynamic_lib_extension;
         cmd += dylib_path;
 
         if (opts.verbose)

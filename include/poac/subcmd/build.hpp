@@ -11,6 +11,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../core/exception.hpp"
+#include "../core/stroite/utils/absorper.hpp"
 #include "../core/deper/lock.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
@@ -112,13 +113,7 @@ namespace poac::subcmd {
             handle_exist_message(lib_path, ".a", "Static link library");
         }
         void is_exist_dynamic_lib(const std::string& lib_path) {
-#ifdef __APPLE__
-            const std::string extension = ".dylib";
-#elif defined(_WIN32)
-            const std::string extension = ".dll";
-#else
-            const std::string extension = ".so";
-#endif
+            const std::string extension = core::stroite::utils::absorper::dynamic_lib_extension;
             handle_exist_message(lib_path, extension, "Dynamic link library");
         }
         std::string is_exist_lib(const std::string& project_name) {
@@ -139,11 +134,7 @@ namespace poac::subcmd {
             //  and do not compile.
             // There is no necessity of linking that there is no change completely.
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
-#ifdef _WIN32
-                const std::string extension = ".exe";
-#else
-                const std::string extension = "";
-#endif
+                const std::string extension = core::stroite::utils::absorper::binary_extension;
                 const std::string bin_path =
                         (io::file::path::current_build_bin_dir / bs.project_name).string();
                 handle_exist_message(bin_path, extension, "Binary");

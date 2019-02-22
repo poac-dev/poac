@@ -9,6 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/exception.hpp"
+#include "../core/stroite/utils/absorper.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/command.hpp"
@@ -37,11 +38,7 @@ namespace poac::subcmd {
             }
 
             const std::string project_name = node.at("name").as<std::string>();
-#ifdef _WIN32
-            const std::string bin_name = project_name + ".exe";
-#else
-            const std::string bin_name = project_name;
-#endif
+            const std::string bin_name = project_name + core::stroite::utils::absorper::binary_extension;
             const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
             if (!fs::exists(executable_path)) {
                 return EXIT_FAILURE;

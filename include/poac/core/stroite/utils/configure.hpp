@@ -13,7 +13,7 @@
 
 namespace poac::core::stroite::utils::configure {
     template <typename Opts>
-    void enable_gnu(Opts& opts) {
+    void enable_gnu(Opts& opts) { // TODO:
         opts.version_prefix = "-std=gnu++";
     }
     std::string default_version_prefix() {

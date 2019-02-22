@@ -7,6 +7,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include "./absorper.hpp"
 #include "../../../util/command.hpp"
 
 
@@ -91,13 +92,8 @@ namespace poac::core::stroite::utils::options {
     };
     std::string to_string(const dynamic_lib& d) {
         command opts;
-#ifdef __APPLE__
-        opts += "-dynamiclib";
-        const std::string extension = ".dylib";
-#else
-        opts += "-shared -fPIC";
-        const std::string extension = ".so";
-#endif
+        opts += absorper::dynamic_lib_option;
+        const std::string extension = absorper::dynamic_lib_extension;
         opts += accumulate(begin(d.obj_files_path), end(d.obj_files_path), command());
         opts += "-o";
         opts += (d.output_root / d.project_name).string() + extension;
