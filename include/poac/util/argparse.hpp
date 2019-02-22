@@ -20,6 +20,7 @@ namespace poac::util::argparse {
         return ((std::find(first, last, args) != last) || ...);
     }
 
+    // { arg1, arg2 }, arg2 -> { arg1 }
     template <class SinglePassRange, class... T>
     bool use_rm(SinglePassRange& rng, T... args)
     {

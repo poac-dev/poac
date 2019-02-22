@@ -9,10 +9,10 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
+#include "./new.hpp"
 #include "../io/cli.hpp"
 #include "../io/file/yaml.hpp"
 #include "../core/exception.hpp"
-#include "../util/ftemplate.hpp"
 
 
 namespace poac::subcmd {
@@ -62,7 +62,7 @@ namespace poac::subcmd {
 
             const std::string filename = check_requirements();
             std::ofstream yml_ofs(filename);
-            yml_ofs << util::ftemplate::poac_yml(basename(fs::current_path()));
+            yml_ofs << _new::files::poac_yml(basename(fs::current_path()), "bin");
             std::cout << fs::path(".") / filename << " was created." << std::endl;
 
             return EXIT_SUCCESS;

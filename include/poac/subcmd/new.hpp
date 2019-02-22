@@ -14,78 +14,157 @@
 #include "../core/exception.hpp"
 #include "../core/naming.hpp"
 #include "../io.hpp"
-#include "../util/ftemplate.hpp"
+#include "../util/argparse.hpp"
 #include "../util/command.hpp"
 
 
 namespace poac::subcmd {
     namespace _new {
-        void echo_info(const std::string& str) {
-            std::cout << io::cli::bold
-                      << "\n"
-                         "Your \"" + str + "\" project was created successfully.\n"
-                         "\n"
-                         "\n"
-                         "Go into your project by running:\n"
-                         "    $ cd " + str + "\n"
-                         "\n"
-                         "Start your project with:\n"
-                         "    $ poac run\n"
-                         "\n"
-                      << io::cli::reset;
+        namespace files {
+            const std::string _gitignore(
+                    "#\n"
+                    "# poac\n"
+                    "#\n"
+                    "deps\n"
+                    "_build\n"
+            );
+            std::string README_md(const std::string& project_name) {
+                return "# " + project_name + "\n"
+                       "**TODO: Add description**\n"
+                       "\n"
+                       "---\n"
+                       "This project uses [poac](https://github.com/poacpm/poac).\n"
+                       "\n"
+                       "For more information on poac please see below:\n"
+                       "* https://poac.io\n"
+                       "* https://github.com/poacpm\n"
+                       "* https://github.com/poacpm/poac#readme\n"
+                       "\n"
+                       "## Build\n"
+                       "\n"
+                       "```bash\n"
+                       "$ poac build # or run\n"
+                       "```\n"
+                       "\n"
+                       "## Installation\n"
+                       "\n"
+                       "To install `" + project_name + "`, add it to the dependency list of `poac.yml`:\n"
+                       "\n"
+                       "```yaml\n"
+                       "deps:\n"
+                       "  " + project_name + ": \">=0.1.0 and <1.0.0\"\n"
+                       "```\n"
+                       "\n"
+                       "Execute the following command:\n"
+                       "`poac install`\n";
+            }
+            std::string poac_yml(const std::string& project_name, const std::string& type) {
+                return "name: " + project_name + "\n"
+                       "version: 0.1.0\n"
+                       "cpp_version: 17\n"
+                       "description: \"**TODO: Add description**\"\n"
+                       "owners:\n"
+                       "  - \"Your ID\"\n"
+                       "build:\n"
+                       "  system: poac\n" +
+                       "  " + type + ": true\n";
+            }
+            const std::string main_cpp(
+                    "#include <iostream>\n"
+                    "\n"
+                    "int main(int argc, char** argv) {\n"
+                    "    std::cout << \"Hello, world!\" << std::endl;\n"
+                    "}\n"
+            );
+            std::string include_hpp(const std::string& project_name) {
+                return "#include <iostream>\n"
+                       "\n"
+                       "namespace " + project_name + " {\n"
+                       "\n"
+                       "}\n";
+            }
         }
 
-        void exec_new(const std::string& dirname) {
+        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        int _main(VS&& argv) {
             namespace exception = core::exception;
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
-            namespace ftmpl = util::ftemplate;
+            namespace cli = io::cli;
             namespace naming = core::naming;
 
-            naming::validate_package_name(dirname);
-            fs::create_directories(dirname);
-            std::ofstream ofs;
-            std::map<fs::path, std::string> file{
-                {".gitignore", ftmpl::_gitignore},
-                {"main.cpp",   ftmpl::main_cpp},
-                {"poac.yml",   ftmpl::poac_yml(dirname)},
-                {"README.md",  ftmpl::README_md(dirname)}
-            };
-            for (const auto& [name, text] : file) {
-                path::write_to_file(ofs, (fs::path(dirname) / name).string(), text);
+            bool lib = util::argparse::use_rm(argv, "-l", "--lib");
+            // libが存在しないならどちらにせよ，binが選択される．
+            // libが存在し，binも存在するなら，binが優先される．
+            const bool bin = !lib || util::argparse::use_rm(argv, "-b", "--bin");
+            if (bin) {
+                lib = false;
             }
-            if (util::_command::has_command("git")) {
-                util::command("git init " + dirname).exec();
-            }
-            echo_info(dirname);
-        }
-
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        int _main(VS&& argv) {
-            namespace fs = boost::filesystem;
-            exec_new(argv[0]);
-            return EXIT_SUCCESS;
-        }
-
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
-            if (argv.size() != 1)
+            // libとbinを引数から抜いた時点で，1じゃなかったらエラーになる．
+            if (argv.size() != 1) {
                 throw exception::invalid_second_arg("new");
-            else if (io::file::path::validate_dir(argv[0]))
-                throw exception::error("The " + argv[0] + " directory already exists.");
+            }
+
+            const std::string project_name = argv[0];
+            const fs::path project_path = fs::path(project_name);
+            naming::validate_package_name(project_name);
+            if (io::file::path::validate_dir(project_name)) {
+                throw exception::error("The `" + project_name + "` directory already exists.");
+            }
+
+            fs::create_directories(project_name);
+            std::ofstream ofs;
+            std::map<fs::path, std::string> file;
+            if (bin) {
+                file = {
+                        { ".gitignore", files::_gitignore },
+                        { "README.md",  files::README_md(project_name) },
+                        { "poac.yml",   files::poac_yml(project_name, "bin") },
+                        { "main.cpp",   files::main_cpp }
+                };
+            }
+            else {
+                fs::create_directories(project_path / "include");
+                file = {
+                        { ".gitignore", files::_gitignore },
+                        { "README.md",  files::README_md(project_name) },
+                        { "poac.yml",   files::poac_yml(project_name, "lib") },
+                        { fs::path("include") / (project_name + ".hpp"), files::include_hpp(project_name) },
+                };
+            }
+            for (const auto& [name, text] : file) {
+                path::write_to_file(ofs, (project_path / name).string(), text);
+            }
+            std::cout << io::cli::to_green("Created: ");
+            if (bin) {
+                std::cout << "application ";
+            }
+            else {
+                std::cout << "library ";
+            }
+            std::cout << "`" << project_name << "` "
+                      << "project"
+                      << std::endl;
+
+            if (util::_command::has_command("git")) {
+                const std::string git_init = "git init " + project_name;
+                util::command(git_init).exec();
+                cli::echo(cli::to_green("Running: "), git_init);
+            }
+
+            return EXIT_SUCCESS;
         }
     }
 
     struct new_ {
         static const std::string summary() {
-            return "Create a new poacpm project";
+            return "Create a new poac project";
         }
         static const std::string options() {
-            return "<project-name>";
+            return "<project-name>, (-b | --bin) | (-l | --lib)";
         }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
-            _new::check_arguments(argv);
             return _new::_main(std::move(argv));
         }
     };

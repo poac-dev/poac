@@ -3,7 +3,6 @@
 
 #include "util/argparse.hpp"
 #include "util/command.hpp"
-#include "util/ftemplate.hpp"
 #include "util/pretty_time.hpp"
 #include "util/stroite.hpp"
 #include "util/types.hpp"
