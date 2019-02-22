@@ -25,11 +25,11 @@ namespace poac::core::infer {
     static constexpr int index_of_v<I, T, T0> = non_type_conditional_v<std::is_same_v<T, T0>, I, -1>;
 
     // type in the index of I
-    template <size_t I, typename T0, typename... Ts>
+    template <std::size_t I, typename T0, typename... Ts>
     struct at_impl { using type = std::conditional_t<I==0, T0, typename at_impl<I-1, Ts...>::type>; };
-    template <size_t I, typename T0>
+    template <std::size_t I, typename T0>
     struct at_impl<I, T0> { using type = std::conditional_t<I==0, T0, void>; };
-    template <size_t I, typename... Ts>
+    template <std::size_t I, typename... Ts>
     using at_impl_t = typename at_impl<I, Ts...>::type;
 
     // std::initializer_list -> std::vector
@@ -41,14 +41,13 @@ namespace poac::core::infer {
     // type list
     template <typename... Ts>
     struct type_list_t {
-        static constexpr size_t size() noexcept { return sizeof...(Ts); };
+        static constexpr std::size_t size() noexcept { return sizeof...(Ts); };
         template <typename T>
         static constexpr int index_of = index_of_v<0, remove_cvref_t<T>, remove_cvref_t<Ts>...>;
         template <int I>
         using at_t = at_impl_t<I, Ts...>;
     };
 
-    // TODO: 切り出す
     using op_type_list_t = type_list_t<
             subcmd::build,
             subcmd::cache,
@@ -119,19 +118,19 @@ namespace poac::core::infer {
     static auto summary2() { return T::summary(); }
     template <typename T>
     static auto options2() { return T::options(); }
-    template <size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <std::size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         using func_t = decltype(&execute2<op_type_list_t::at_t<0>, VS>);
         static func_t func_table[] = { &execute2<op_type_list_t::at_t<Is>>... };
         return func_table[idx](std::move(vs));
     }
-    template <size_t... Is>
+    template <std::size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
         using func_t = decltype(&summary2<op_type_list_t::at_t<0>>);
         static func_t func_table[] = { &summary2<op_type_list_t::at_t<Is>>... };
         return func_table[idx]();
     }
-    template <size_t... Is>
+    template <std::size_t... Is>
     static auto options(std::index_sequence<Is...>, int idx) {
         using func_t = decltype(&options2<op_type_list_t::at_t<0>>);
         static func_t func_table[] = { &options2<op_type_list_t::at_t<Is>>... };
@@ -140,18 +139,18 @@ namespace poac::core::infer {
 #else
     // Create function pointer table: { &func<0>, &func<1>, ... }
     // Execute function: &func<idx>[idx]()
-    template <size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <std::size_t... Is, typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
         return make_vector({ +[](VS&& vs){
             return std::to_string(op_type_list_t::at_t<Is>()(std::move(vs)));
         }... })[idx](std::move(vs));
     }
-    template <size_t... Is>
+    template <std::size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
         return make_vector({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
     }
-    template <size_t... Is>
+    template <std::size_t... Is>
     static auto options(std::index_sequence<Is...>, int idx) {
         return make_vector({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
     }
@@ -160,7 +159,7 @@ namespace poac::core::infer {
     // Execute function: execute or summary or options
     template <typename S, typename Index, typename VS,
             typename Indices=std::make_index_sequence<op_type_list_t::size()>,
-            typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+            typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
         namespace exception = core::exception;
         if (s == "exec")
@@ -173,11 +172,12 @@ namespace poac::core::infer {
             throw exception::invalid_first_arg("Invalid argument");
     }
 
-    template <typename S, typename OpTypeE, typename VS, typename>
+    template <typename S, typename OpTypeE, typename VS,
+            typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     auto _apply(S&& func, const OpTypeE& cmd, VS&& arg) {
         return branch(std::move(func), cmd, std::move(arg));
     }
-    template <typename S, typename VS, typename>
+    template <typename S, typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     std::string apply(S&& func, const S& cmd, VS&& arg) {
         namespace exception = core::exception;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
