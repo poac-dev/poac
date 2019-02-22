@@ -8,12 +8,12 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../../../core/exception.hpp"
+#include "../../exception.hpp"
 #include "../../../io/file/path.hpp"
-#include "../../command.hpp"
+#include "../../../util/command.hpp"
 
 
-namespace stroite {
+namespace poac::core::stroite {
     struct cmake {
         boost::filesystem::path base_path;
 

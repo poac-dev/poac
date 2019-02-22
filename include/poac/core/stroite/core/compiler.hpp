@@ -8,10 +8,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../../command.hpp"
+#include "../../../util/command.hpp"
 
 
-namespace stroite::core::compiler {
+namespace poac::core::stroite::core::compiler {
     namespace fs = boost::filesystem;
 
     template <typename Opts>

@@ -20,15 +20,15 @@
 #include "./depends.hpp"
 #include "../utils.hpp"
 
-#include "../../../core/exception.hpp"
-#include "../../../core/lock.hpp"
+#include "../../exception.hpp"
+#include "../../lock.hpp"
+#include "../../naming.hpp"
 #include "../../../io/file/path.hpp"
-#include "../../../core/naming.hpp"
 #include "../../../io/cli.hpp"
 #include "../../../io/file/yaml.hpp"
 
 
-namespace stroite {
+namespace poac::core::stroite {
     struct builder {
         utils::options::compile compile_conf;
         utils::options::link link_conf;

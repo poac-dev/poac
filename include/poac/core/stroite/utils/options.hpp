@@ -7,12 +7,12 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../../command.hpp"
+#include "../../../util/command.hpp"
 
 
-namespace stroite::utils::options {
+namespace poac::core::stroite::utils::options {
     namespace fs = boost::filesystem;
-    using command = poac::util::command;
+    using command = util::command;
 
     struct compile {
         std::string system; // TODO: systemだけ別の管理にして，compiler.hppに，system, std::string optsとして渡したい．

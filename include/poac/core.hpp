@@ -8,5 +8,6 @@
 #include "core/resolver.hpp"
 #include "core/sat.hpp"
 #include "core/semver.hpp"
+#include "core/stroite.hpp"
 
 #endif // !POAC_CORE_HPP

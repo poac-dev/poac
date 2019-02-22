@@ -7,10 +7,10 @@
 #include <optional>
 
 #include "../utils.hpp"
-#include "../../command.hpp"
+#include "../../../util/command.hpp"
 
 
-namespace stroite::core::depends {
+namespace poac::core::stroite::core::depends {
     template <typename Opts>
     std::optional<std::string>
     calc(const Opts& opts, const std::string& src_cpp)

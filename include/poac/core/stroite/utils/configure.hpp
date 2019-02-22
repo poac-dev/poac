@@ -7,11 +7,11 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "../../../core/exception.hpp"
-#include "../../command.hpp"
+#include "../../exception.hpp"
+#include "../../../util/command.hpp"
 
 
-namespace stroite::utils::configure {
+namespace poac::core::stroite::utils::configure {
     template <typename Opts>
     void enable_gnu(Opts& opts) {
         opts.version_prefix = "-std=gnu++";

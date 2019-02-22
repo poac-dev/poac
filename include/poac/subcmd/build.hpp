@@ -14,7 +14,7 @@
 #include "../core/lock.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/stroite.hpp"
+#include "../core/stroite.hpp"
 #include "../core/naming.hpp"
 #include "../util/argparse.hpp"
 
@@ -49,7 +49,7 @@ namespace poac::subcmd {
         }
 
         auto handle_link(
-                stroite::builder& bs,
+                core::stroite::builder& bs,
                 const std::vector<std::string>& obj_files_path,
                 const bool verbose)
         {
@@ -58,7 +58,7 @@ namespace poac::subcmd {
         }
         std::optional<std::string>
         handle_compile(
-                stroite::builder& bs,
+                core::stroite::builder& bs,
                 const bool verbose)
         {
             if (const auto obj_files_path = bs._compile()) {
@@ -69,7 +69,7 @@ namespace poac::subcmd {
             }
         }
         auto handle_generate_static_lib(
-                stroite::builder& bs,
+                core::stroite::builder& bs,
                 const std::vector<std::string>& obj_files_path,
                 const bool verbose)
         {
@@ -77,7 +77,7 @@ namespace poac::subcmd {
             return handle_generate_message(bs._gen_static_lib());
         }
         auto handle_generate_dynamic_lib(
-                stroite::builder& bs,
+                core::stroite::builder& bs,
                 const std::vector<std::string>& obj_files_path,
                 const bool verbose)
         {
@@ -86,7 +86,7 @@ namespace poac::subcmd {
         }
 
         void handle_generate_lib(
-                stroite::builder& bs,
+                core::stroite::builder& bs,
                 const std::vector<std::string>& obj_files_path,
                 const bool verbose)
         {
@@ -131,7 +131,7 @@ namespace poac::subcmd {
 
 
         std::optional<std::string>
-        build_bin(stroite::builder& bs, const bool verbose)
+        build_bin(core::stroite::builder& bs, const bool verbose)
         {
             bs.configure_compile(true, verbose);
             // Since the obj file already exists and has not been changed as a result
@@ -155,7 +155,7 @@ namespace poac::subcmd {
         }
 
         std::optional<std::string>
-        build_link_libs(stroite::builder& bs, const bool verbose)
+        build_link_libs(core::stroite::builder& bs, const bool verbose)
         {
             bs.configure_compile(false, verbose);
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
@@ -178,6 +178,7 @@ namespace poac::subcmd {
                 const bool verbose)
         {
             namespace exception = core::exception;
+            namespace stroite = core::stroite;
 
             if (const auto system = stroite::core::builder::detect_build_system(node)) {
                 if (*system == "poac") {
@@ -263,6 +264,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
+            namespace stroite = core::stroite;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 

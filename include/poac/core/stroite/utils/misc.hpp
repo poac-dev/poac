@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 
 
-namespace stroite::utils::misc {
+namespace poac::core::stroite::utils::misc {
     std::vector<std::string>
     split(const std::string& raw, const std::string& delim) {
         using boost::algorithm::token_compress_on;

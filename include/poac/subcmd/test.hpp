@@ -9,9 +9,9 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "../core/exception.hpp"
+#include "../core/stroite.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/stroite.hpp"
 #include "../util/argparse.hpp"
 
 
@@ -22,6 +22,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
+            namespace stroite = core::stroite;
 
             const auto node = io::file::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
