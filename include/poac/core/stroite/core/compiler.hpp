@@ -16,31 +16,28 @@ namespace poac::core::stroite::core::compiler {
     namespace fs = boost::filesystem;
 
     template <typename Opts>
-    std::optional<std::vector<std::string>>
+    std::optional<std::string>
     compile(const Opts& opts)
     {
         util::command cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
         cmd += opts.version_prefix + std::to_string(opts.cpp_version);
         cmd += "-c";
-        for (const auto& s : opts.source_files)
-            cmd += s;
+        cmd += opts.source_file;
         for (const auto& isp : opts.include_search_path)
             cmd += "-I" + isp;
         for (const auto& oa : opts.other_args)
             cmd += oa;
         for (const auto& md : opts.macro_defns)
             cmd += md;
+
         cmd += "-o";
-        std::vector<std::string> obj_files_path;
-        for (const auto& s : opts.source_files) {
-            auto obj_path = opts.output_root / fs::relative(s);
-            obj_path.replace_extension("o");
-            fs::create_directories(obj_path.parent_path());
-            const auto obj_path_str = obj_path.string();
-            obj_files_path.push_back(obj_path_str);
-            cmd += obj_path_str;
-        }
+        auto obj_path = opts.output_root / fs::relative(opts.source_file);
+        obj_path.replace_extension("o");
+        fs::create_directories(obj_path.parent_path());
+        const auto obj_path_str = obj_path.string();
+        std::string obj_files_path = obj_path_str;
+        cmd += obj_path_str;
 
         if (opts.verbose)
             std::cout << cmd << std::endl;

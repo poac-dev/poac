@@ -20,6 +20,7 @@ namespace poac::core::stroite::utils::options {
         std::string version_prefix;
         unsigned int cpp_version;
         std::vector<std::string> source_files;
+        std::string source_file;
         std::vector<std::string> include_search_path;
         std::vector<std::string> other_args;
         std::vector<std::string> macro_defns;

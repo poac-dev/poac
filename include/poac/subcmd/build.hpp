@@ -296,7 +296,7 @@ namespace poac::subcmd {
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
             if (const auto system = stroite::core::builder::detect_build_system(node)) {
-                const auto built_deps = build_deps(node, verbose); // TODO: ここでビルドしたlibを，リンクしたい
+                const auto built_deps = build_deps(node, verbose);
                 const bool is_built_deps = static_cast<bool>(built_deps);
 
                 if (*system == "poac") {

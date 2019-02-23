@@ -242,35 +242,41 @@ namespace poac::core::stroite {
         }
         std::optional<std::vector<std::string>>
         _compile() {
+            namespace fs = boost::filesystem;
             namespace io = io::file;
 
-            if (const auto ret = core::compiler::compile(compile_conf)) {
-                namespace fs = boost::filesystem;
-                // Since compile succeeded, save hash
-                std::ofstream ofs;
-                for (const auto& [hash_name, data] : depends_ts) {
-                    std::string output_string;
-                    for (const auto& [fname, hash] : data) {
-                        output_string += fname + ": " + hash + "\n";
+            for (const auto& s : compile_conf.source_files) {
+                // sourceファイルを一つづつコンパイルする．
+                compile_conf.source_file = s;
+                if (const auto ret = core::compiler::compile(compile_conf)) {
+                    // Since compile succeeded, save hash
+                    std::ofstream ofs;
+                    for (const auto& [hash_name, data] : depends_ts) {
+                        std::string output_string;
+                        for (const auto& [fname, hash] : data) {
+                            output_string += fname + ": " + hash + "\n";
+                        }
+                        fs::create_directories(fs::path(hash_name).parent_path());
+                        io::path::write_to_file(ofs, hash_name, output_string);
                     }
-                    fs::create_directories(fs::path(hash_name).parent_path());
-                    io::path::write_to_file(ofs, hash_name, output_string);
+
                 }
-                // Because it is excluded for the convenience of cache,
-                //  ignore the return value of compiler.compile.
-                std::vector<std::string> obj_files;
-                for (const auto& s : compile_conf.source_files) {
-                    obj_files.push_back(
-                            (compile_conf.output_root / fs::relative(s))
-                                    .replace_extension("o")
-                                    .string()
-                    );
+                else {
+                    return std::nullopt;
                 }
-                return obj_files;
             }
-            else {
-                return std::nullopt;
+
+            // Because it is excluded for the convenience of cache,
+            //  ignore the return value of compiler.compile.
+            std::vector<std::string> obj_files;
+            for (const auto& s : compile_conf.source_files) {
+                obj_files.push_back(
+                        (compile_conf.output_root / fs::relative(s))
+                                .replace_extension("o")
+                                .string()
+                );
             }
+            return obj_files;
         }
 
         auto make_link_other_args() {
