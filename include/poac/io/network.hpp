@@ -244,6 +244,7 @@ namespace poac::io::network {
             {
                 std::stringstream ss;
                 ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+                cli::debugln(name, ": ", ss.str());
                 if (ss.str() == "null") {
                     return std::nullopt;
                 }
