@@ -154,14 +154,20 @@ namespace poac::subcmd {
         }
 
         std::optional<std::string>
-        build_link_libs(core::stroite::builder& bs, const bool verbose)
+        build_link_libs(
+                core::stroite::builder& bs,
+                std::vector<std::string>& deps_obj_files_path,
+                const bool verbose)
         {
             bs.configure_compile(false, verbose);
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
                 return is_exist_lib(bs.project_name);
             }
-            if (const auto obj_files_path = bs._compile()) {
-                handle_generate_lib(bs, *obj_files_path, verbose);
+            if (auto obj_files_path = bs._compile()) {
+                for (const auto o : *obj_files_path) {
+                    deps_obj_files_path.push_back(o);
+                }
+                handle_generate_lib(bs, deps_obj_files_path, verbose);
                 return std::nullopt;
             }
             else { // Compile failure
@@ -170,7 +176,8 @@ namespace poac::subcmd {
         }
 
 
-        bool compile_deps(
+        std::optional<std::vector<std::string>>
+        compile_deps(
                 const YAML::Node& node,
                 const std::string& name,
                 const boost::filesystem::path& deps_path,
@@ -191,13 +198,13 @@ namespace poac::subcmd {
 
                             if (const auto obj_files_path = bs._compile()) {
                                 handle_generate_lib(bs, *obj_files_path, verbose);
+                                io::cli::echo();
+                                return *obj_files_path;
                             }
                             else { // Compile failure
                                 throw exception::error("\nCompile error.");
                             }
-                            io::cli::echo();
                         }
-                        return true;
                     }
                 }
                 else if (*system == "cmake") {
@@ -205,13 +212,14 @@ namespace poac::subcmd {
                     io::cli::echo(io::cli::to_status(name));
                     bs.build();
                     io::cli::echo();
+                    return {};
                 }
             }
-            return false;
+            return std::nullopt; // 結局compileしていない
         }
 
         std::optional<std::vector<std::string>>
-        build_deps(const YAML::Node& node, const bool verbose) {
+        build_deps(const YAML::Node& node, std::vector<std::string>& obj_files_path, const bool verbose) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace stroite = core::stroite;
@@ -239,14 +247,19 @@ namespace poac::subcmd {
 
                             if (exist_build_key) {
                                 if (const auto system = stroite::core::builder::detect_build_system((*deps_node).at(name))) {
-                                    const bool result = compile_deps((*deps_node).at(name), name, deps_path, verbose);
-                                    if (result) {
+                                    // TODO: この時，object fileの一覧も欲しい？？ -> ほしい．
+                                    if (const auto obj_files_path_opt = compile_deps((*deps_node).at(name), name, deps_path, verbose)) {
+                                        for (const auto& o : *obj_files_path_opt) {
+                                            obj_files_path.push_back(o);
+                                        }
                                         library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
                                     }
                                 }
                                 else if (const auto deps_config_node = yaml::load_config_by_dir(deps_path)) {
-                                    const bool result = compile_deps(*deps_config_node, name, deps_path, verbose);
-                                    if (result) {
+                                    if (const auto obj_files_path_opt = compile_deps(*deps_config_node, name, deps_path, verbose)) {
+                                        for (const auto& o : *obj_files_path_opt) {
+                                            obj_files_path.push_back(o);
+                                        }
                                         library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
                                     }
                                 }
@@ -254,8 +267,10 @@ namespace poac::subcmd {
                             }
                             else {
                                 if (const auto deps_config_node = yaml::load_config_by_dir(deps_path)) {
-                                    const bool result = compile_deps(*deps_config_node, name, deps_path, verbose);
-                                    if (result) {
+                                    if (const auto obj_files_path_opt = compile_deps(*deps_config_node, name, deps_path, verbose)) {
+                                        for (const auto& o : *obj_files_path_opt) {
+                                            obj_files_path.push_back(o);
+                                        }
                                         library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
                                     }
                                 }
@@ -296,7 +311,8 @@ namespace poac::subcmd {
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
             if (const auto system = stroite::core::builder::detect_build_system(node)) {
-                const auto built_deps = build_deps(node, verbose);
+                std::vector<std::string> deps_obj_files_path;
+                const auto built_deps = build_deps(node, deps_obj_files_path, verbose);
                 const bool is_built_deps = static_cast<bool>(built_deps);
 
                 if (*system == "poac") {
@@ -309,7 +325,7 @@ namespace poac::subcmd {
 //                    bool built_lib = false;
                     if (yaml::get(node, "build", "lib")) {
 //                        built_lib = true;
-                        if (!build_link_libs(bs, verbose)) {
+                        if (!build_link_libs(bs, deps_obj_files_path, verbose)) {
                             // compile or gen error
                         }
                     }
