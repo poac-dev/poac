@@ -36,57 +36,12 @@ namespace poac::io::file::yaml {
         T get(const YAML::Node& node, Keys&&... keys) {
             return get<T>((wrapper(node) ->* ... ->* keys).node);
         }
-    }
-
-    template <typename T>
-    std::optional<T>
-    get(const YAML::Node& node) {
-        try {
-            return detail::get<T>(node);
-        }
-        catch (...) {
-            return std::nullopt;
-        }
-    }
-
-    template <typename T, typename ...Args>
-    std::optional<T>
-    get(const YAML::Node& node, Args&&... args) {
-        try {
-            return detail::get<T>(node, args...);
-        }
-        catch (...) {
-            return std::nullopt;
-        }
-    }
-    template <typename ...Args>
-    bool get(const YAML::Node& node, Args&&... args) {
-        try {
-            return detail::get<bool>(node, args...);
-        }
-        catch (...) {
-            return false;
-        }
-    }
-
-    template <typename T>
-    T get_with_throw(const YAML::Node& node, const std::string& arg) {
-        namespace exception = core::exception;
-        try {
-            return detail::get<T>(node, arg);
-        }
-        catch (...) {
-            throw exception::error(
-                    "Required key `" + arg + "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.io");
-        }
-    }
 
 
-    // Private member accessor
-    using YAML_Node_t = bool YAML::Node::*;
+        // Private member accessor
+        using YAML_Node_t = bool YAML::Node::*;
 #if BOOST_COMP_MSVC
-    template <class T>
+        template <class T>
     struct accessor {
         static T m_isValid;
         static T get() { return m_isValid; }
@@ -102,34 +57,91 @@ namespace poac::io::file::yaml {
     template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
     using access = accessor<YAML_Node_t>;
 #else
-    template <class T, T V>
-    struct accessor {
-        static constexpr T m_isValid = V;
-        static T get() { return m_isValid; }
-    };
-    template <typename T>
-    using bastion = accessor<T, &YAML::Node::m_isValid>;
-    using access = bastion<YAML_Node_t>;
+        template <class T, T V>
+        struct accessor {
+            static constexpr T m_isValid = V;
+            static T get() { return m_isValid; }
+        };
+        template <typename T>
+        using bastion = accessor<T, &YAML::Node::m_isValid>;
+        using access = bastion<YAML_Node_t>;
 #endif
 
-    template <typename Head>
-    std::optional<const char*>
-    read(const YAML::Node& node, Head&& head) {
-        if (!(node[head].*access::get())) {
-            return head;
+        template <typename Head>
+        std::optional<const char*>
+        read(const YAML::Node& node, Head&& head) {
+            if (!(node[head].*access::get())) {
+                return head;
+            }
+            else {
+                return std::nullopt;
+            }
         }
-        else {
+        template <typename Head, typename ...Tail>
+        std::optional<const char*>
+        read(const YAML::Node& node, Head&& head, Tail&&... tail) {
+            if (!(node[head].*access::get())) {
+                return head;
+            }
+            else {
+                return read(node, tail...);
+            }
+        }
+    }
+
+    template <typename T>
+    std::optional<T>
+    get(const YAML::Node& node) noexcept {
+        try {
+            return detail::get<T>(node);
+        }
+        catch (...) {
             return std::nullopt;
         }
     }
-    template <typename Head, typename ...Tail>
-    std::optional<const char*>
-    read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-        if (!(node[head].*access::get())) {
-            return head;
+
+    template <typename T, typename ...Args>
+    std::optional<T>
+    get(const YAML::Node& node, Args&&... args) noexcept {
+        try {
+            return detail::get<T>(node, args...);
         }
-        else {
-            return read(node, tail...);
+        catch (...) {
+            return std::nullopt;
+        }
+    }
+    template <typename ...Args>
+    bool get(const YAML::Node& node, Args&&... args) noexcept {
+        try {
+            return detail::get<bool>(node, args...);
+        }
+        catch (...) {
+            return false;
+        }
+    }
+
+    template <typename T>
+    T get_with_throw(const YAML::Node& node) {
+        namespace exception = core::exception;
+        try {
+            return detail::get<T>(node);
+        }
+        catch (...) {
+            throw exception::error(
+                    "Required key does not exist in poac.yml.\n"
+                    "Please refer to https://docs.poac.io");
+        }
+    }
+    template <typename T>
+    T get_with_throw(const YAML::Node& node, const std::string& arg) {
+        namespace exception = core::exception;
+        try {
+            return detail::get<T>(node, arg);
+        }
+        catch (...) {
+            throw exception::error(
+                    "Required key `" + arg + "` does not exist in poac.yml.\n"
+                    "Please refer to https://docs.poac.io");
         }
     }
 
@@ -138,7 +150,7 @@ namespace poac::io::file::yaml {
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
         namespace exception = core::exception;
-        if (const auto result = read(node, args...)) {
+        if (const auto result = detail::read(node, args...)) {
             throw exception::error(
                     "Required key `" + std::string(*result) +
                     "` does not exist in poac.yml.\n"
@@ -153,7 +165,7 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
-        if (read(node, args...)) {
+        if (detail::read(node, args...)) {
             return std::nullopt;
         }
         else {
