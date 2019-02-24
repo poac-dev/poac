@@ -1,5 +1,5 @@
-#ifndef STROITE_CORE_DEPENDS_HPP
-#define STROITE_CORE_DEPENDS_HPP
+#ifndef POAC_CORE_STROITE_CORE_DEPENDS_HPP
+#define POAC_CORE_STROITE_CORE_DEPENDS_HPP
 
 #include <iostream>
 #include <string>
@@ -13,7 +13,7 @@
 namespace poac::core::stroite::core::depends {
     template <typename Opts>
     std::optional<std::string>
-    calc(const Opts& opts, const std::string& src_cpp)
+    calc(const Opts& opts, const std::string& src_cpp, const bool verbose)
     {
         util::command cmd(opts.system);
         cmd += opts.version_prefix + std::to_string(opts.cpp_version);
@@ -30,7 +30,7 @@ namespace poac::core::stroite::core::depends {
         // (https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html#Preprocessor-Options)
         cmd += "-MM " + src_cpp;
 
-        if (opts.verbose) {
+        if (verbose) {
             std::cout << cmd << std::endl;
         }
         return cmd.exec();
@@ -38,9 +38,9 @@ namespace poac::core::stroite::core::depends {
 
     template <typename Opts>
     std::optional<std::vector<std::string>>
-    gen(const Opts& opts, const std::string& src_cpp)
+    gen(const Opts& opts, const std::string& src_cpp, const bool verbose)
     {
-        if (const auto ret = calc(opts, src_cpp)) {
+        if (const auto ret = calc(opts, src_cpp, verbose)) {
             auto deps_headers = utils::misc::split(*ret, " \n\\");
             deps_headers.erase(deps_headers.begin()); // main.o:
             deps_headers.erase(deps_headers.begin()); // main.cpp
@@ -51,4 +51,4 @@ namespace poac::core::stroite::core::depends {
         }
     }
 } // end namespace
-#endif // STROITE_CORE_DEPENDS_HPP
+#endif // POAC_CORE_STROITE_CORE_DEPENDS_HPP

@@ -96,7 +96,7 @@ namespace poac::core::deper::resolver {
     std::vector<std::string>
     decide_versions(const std::string& name, const std::string& interval) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        if (const auto versions = io::network::api::versions(name)) {
+        if (const auto versions = io::network::api::versions(name)) { // TODO: API自体は同じパッケージから呼び出す意味がない．全て同じになる．-> API結果をcacheして，interval情報のみ検証する
             if (interval == "latest") {
                 const auto latest = std::max_element((*versions).begin(), (*versions).end(),
                         [](auto a, auto b) { return semver::Version(a) > b; });

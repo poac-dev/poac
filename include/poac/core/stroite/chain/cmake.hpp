@@ -1,5 +1,5 @@
-#ifndef STROITE_CORE_CMAKE_HPP
-#define STROITE_CORE_CMAKE_HPP
+#ifndef POAC_CORE_STROITE_CHAIN_CMAKE_HPP
+#define POAC_CORE_STROITE_CHAIN_CMAKE_HPP
 
 #include <iostream>
 #include <string>
@@ -11,7 +11,7 @@
 #include "../../../util/command.hpp"
 
 
-namespace poac::core::stroite {
+namespace poac::core::stroite::chain {
     struct cmake {
         boost::filesystem::path base_path;
 
@@ -25,7 +25,7 @@ namespace poac::core::stroite {
             }
             cmd &= "cd _build";
             util::command cmake_cmd("cmake ..");
-//            for (const auto& [key, val] : cmake_args) {
+//            for (const auto& [key, val] : cmake_args) { // TODO: -Dhoge 渡したい
 //                cmake_cmd.env(key, val);
 //            }
             cmd &= cmake_cmd;
@@ -45,4 +45,4 @@ namespace poac::core::stroite {
         }
     };
 } // end namespace
-#endif // STROITE_CORE_CMAKE_HPP
+#endif // POAC_CORE_STROITE_CHAIN_CMAKE_HPP

@@ -15,7 +15,6 @@
 #include "../util/argparse.hpp"
 
 
-// TODO: エラーがあるならちゃんと，EXIT_FAILUREを返す
 namespace poac::subcmd {
     namespace _test {
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
@@ -29,8 +28,8 @@ namespace poac::subcmd {
 
             const bool usemain = false;
 
-            stroite::builder bs;
-            bs.configure_compile(usemain, verbose);
+            stroite::core::builder bs(verbose);
+            bs.configure_compile(usemain);
 
             // You can use #include<> in test code.
             bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
@@ -56,7 +55,7 @@ namespace poac::subcmd {
                     const std::string bin_name = fs::path(
                             boost::replace_all_copy(
                                     fs::relative(cpp_relative, "test").string(), "/", "-")).stem().string();
-                    const std::string extension = core::stroite::utils::absorper::binary_extension;
+                    const std::string extension = core::stroite::utils::absorb::binary_extension;
                     const std::string bin_path = (io::file::path::current_build_test_bin_dir / bin_name).string() + extension;
 
                     bs.compile_conf.source_files = bs.hash_source_files({cpp_relative}, usemain);
@@ -69,7 +68,7 @@ namespace poac::subcmd {
                     }
                     else {
                         if (const auto obj_files_path = bs._compile()) {
-                            bs.configure_link(*obj_files_path, verbose);
+                            bs.configure_link(*obj_files_path);
                             bs.link_conf.project_name = bin_name;
                             bs.link_conf.output_root = io::file::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);

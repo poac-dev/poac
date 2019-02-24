@@ -63,7 +63,7 @@ namespace poac::io::file::path {
     const boost::filesystem::path current_build_cache_obj_dir(
             current_build_cache_dir / "obj"
     );
-    const boost::filesystem::path current_build_cache_hash_dir(
+    const boost::filesystem::path current_build_cache_hash_dir( // FIXME: hashでなく，timestamp
             current_build_cache_dir / "_hash"
     );
     const boost::filesystem::path current_build_bin_dir(

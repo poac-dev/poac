@@ -1,6 +1,6 @@
 // Miscellaneous utility
-#ifndef STROITE_UTILS_MISC_HPP
-#define STROITE_UTILS_MISC_HPP
+#ifndef POAC_CORE_STROITE_UTILS_MISC_HPP
+#define POAC_CORE_STROITE_UTILS_MISC_HPP
 
 #include <iostream>
 #include <string>
@@ -20,4 +20,4 @@ namespace poac::core::stroite::utils::misc {
         return ret;
     }
 } // end namespace
-#endif // STROITE_UTILS_MISC_HPP
+#endif // POAC_CORE_STROITE_UTILS_MISC_HPP

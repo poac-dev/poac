@@ -1,5 +1,5 @@
-#ifndef STROITE_UTILS_OPTIONS_HPP
-#define STROITE_UTILS_OPTIONS_HPP
+#ifndef POAC_CORE_STROITE_UTILS_OPTIONS_HPP
+#define POAC_CORE_STROITE_UTILS_OPTIONS_HPP
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "./absorper.hpp"
+#include "./absorb.hpp"
 #include "../../../util/command.hpp"
 
 
@@ -26,7 +26,6 @@ namespace poac::core::stroite::utils::options {
         std::vector<std::string> macro_defns;
         boost::filesystem::path base_dir;
         boost::filesystem::path output_root;
-        bool verbose; // TODO: これ，別で渡せない？？？
     };
     std::string to_string(const compile& c) {
         command opts;
@@ -44,7 +43,7 @@ namespace poac::core::stroite::utils::options {
             fs::create_directories(obj_path.parent_path());
             opts += obj_path.string();
         }
-        return opts.data();
+        return opts.string();
     }
 
     struct link {
@@ -56,7 +55,6 @@ namespace poac::core::stroite::utils::options {
         std::vector<std::string> static_link_libs;
         std::vector<std::string> library_path;
         std::vector<std::string> other_args;
-        bool verbose;
     };
     std::string to_string(const link& l) {
         command opts;
@@ -68,20 +66,19 @@ namespace poac::core::stroite::utils::options {
         opts += accumulate(begin(l.library_path), end(l.library_path), command());
         opts += accumulate(begin(l.other_args), end(l.other_args), command());
         opts += "-o " + (l.output_root / l.project_name).string();
-        return opts.data();
+        return opts.string();
     }
 
     struct static_lib {
         std::string project_name;
         boost::filesystem::path output_root;
         std::vector<std::string> obj_files_path;
-        bool verbose;
     };
     std::string to_string(const static_lib& s) {
         command opts;
         opts += (s.output_root / s.project_name).string() + ".a";
         opts += accumulate(begin(s.obj_files_path), end(s.obj_files_path), command());
-        return opts.data();
+        return opts.string();
     }
 
     struct dynamic_lib {
@@ -89,16 +86,15 @@ namespace poac::core::stroite::utils::options {
         std::string project_name;
         boost::filesystem::path output_root;
         std::vector<std::string> obj_files_path;
-        bool verbose;
     };
     std::string to_string(const dynamic_lib& d) {
         command opts;
-        opts += absorper::dynamic_lib_option;
-        const std::string extension = absorper::dynamic_lib_extension;
+        opts += absorb::dynamic_lib_option;
+        const std::string extension = absorb::dynamic_lib_extension;
         opts += accumulate(begin(d.obj_files_path), end(d.obj_files_path), command());
         opts += "-o";
         opts += (d.output_root / d.project_name).string() + extension;
-        return opts.data();
+        return opts.string();
     }
 } // end namespace
-#endif // STROITE_UTILS_OPTIONS_HPP
+#endif // POAC_CORE_STROITE_UTILS_OPTIONS_HPP

@@ -1,8 +1,8 @@
 #ifndef STROITE_UTILS_HPP
 #define STROITE_UTILS_HPP
 
-#include "utils/absorper.hpp"
-#include "utils/configure.hpp"
+#include "utils/absorb.hpp"
+#include "utils/config.hpp"
 #include "utils/misc.hpp"
 #include "utils/options.hpp"
 

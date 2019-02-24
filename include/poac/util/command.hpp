@@ -12,7 +12,7 @@
 namespace poac::util {
     class command {
     public:
-        std::string data() const { return cmd; }
+        std::string string() const { return cmd; }
 
         command() { cmd = ""; }
         command(const std::string& c) { cmd = c; }
@@ -23,7 +23,7 @@ namespace poac::util {
                 if (count++ == 0) cmd2 = util::command(s).stderr_to_stdout(); // TODO: std_err
                 else cmd2 &= util::command(s).stderr_to_stdout();
             }
-            cmd = cmd2.data();
+            cmd = cmd2.string();
         }
 
         command env(const std::string& name, const std::string& val) {

@@ -1,5 +1,5 @@
-#ifndef STROITE_CORE_COMPILER_HPP
-#define STROITE_CORE_COMPILER_HPP
+#ifndef POAC_CORE_STROITE_CORE_COMPILER_HPP
+#define POAC_CORE_STROITE_CORE_COMPILER_HPP
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../utils/absorper.hpp"
+#include "../utils/absorb.hpp"
 #include "../../../util/command.hpp"
 
 
@@ -17,7 +17,7 @@ namespace poac::core::stroite::core::compiler {
 
     template <typename Opts>
     std::optional<std::string>
-    compile(const Opts& opts)
+    compile(const Opts& opts, const bool verbose)
     {
         util::command cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
@@ -39,21 +39,24 @@ namespace poac::core::stroite::core::compiler {
         std::string obj_files_path = obj_path_str;
         cmd += obj_path_str;
 
-        if (opts.verbose)
+        if (verbose) {
             std::cout << cmd << std::endl;
+        }
 
-        if (cmd.exec())
+        if (cmd.exec()) {
             return obj_files_path;
-        else
+        }
+        else {
             return std::nullopt;
+        }
     }
 
     template <typename Opts>
     std::optional<std::string>
-    link(const Opts& opts)
+    link(const Opts& opts, const bool verbose)
     {
         const std::string bin_path =
-                (opts.output_root / opts.project_name).string() + utils::absorper::binary_extension;
+                (opts.output_root / opts.project_name).string() + utils::absorb::binary_extension;
 
         util::command cmd(opts.system);
         for (const auto& o : opts.obj_files_path)
@@ -68,58 +71,67 @@ namespace poac::core::stroite::core::compiler {
             cmd += oa;
         cmd += "-o " + bin_path;
 
-        if (opts.verbose)
+        if (verbose) {
             std::cout << cmd << std::endl;
+        }
 
         fs::create_directories(opts.output_root);
-        if (cmd.exec())
+        if (cmd.exec()) {
             return bin_path;
-        else
+        }
+        else {
             return std::nullopt;
+        }
     }
 
     template <typename Opts>
     std::optional<std::string>
-    gen_static_lib(const Opts& opts)
+    gen_static_lib(const Opts& opts, const bool verbose)
     {
         util::command cmd("ar rcs");
-        const std::string stlib_path =
-                (opts.output_root / opts.project_name).string() + ".a";
-        cmd += stlib_path;
+        const std::string lib_name = "lib" + opts.project_name + ".a";
+        const std::string lib_path = (opts.output_root / lib_name).string();
+        cmd += lib_path;
         for (const auto& o : opts.obj_files_path)
             cmd += o;
 
-        if (opts.verbose)
+        if (verbose) {
             std::cout << cmd << std::endl;
+        }
 
         fs::create_directories(opts.output_root);
-        if (cmd.exec())
-            return stlib_path;
-        else
+        if (cmd.exec()) {
+            return lib_path;
+        }
+        else {
             return std::nullopt;
+        }
     }
 
     template <typename Opts>
     std::optional<std::string>
-    gen_dynamic_lib(const Opts& opts)
+    gen_dynamic_lib(const Opts& opts, const bool verbose)
     {
         util::command cmd(opts.system);
-        cmd += utils::absorper::dynamic_lib_option;
+        cmd += utils::absorb::dynamic_lib_option;
         for (const auto& o : opts.obj_files_path)
             cmd += o;
         cmd += "-o";
-        const std::string dylib_path =
-                (opts.output_root / opts.project_name).string() + utils::absorper::dynamic_lib_extension;
-        cmd += dylib_path;
+        const std::string lib_name = "lib" + opts.project_name + utils::absorb::dynamic_lib_extension;
+        const std::string lib_path = (opts.output_root / lib_name).string();
+        cmd += lib_path;
 
-        if (opts.verbose)
+        if (verbose) {
             std::cout << cmd << std::endl;
+        }
 
         fs::create_directories(opts.output_root);
-        if (cmd.exec())
-            return dylib_path;
-        else
+        if (cmd.exec()) {
+            return lib_path;
+        }
+        else {
             return std::nullopt;
+        }
     }
 } // end namespace
-#endif // STROITE_CORE_COMPILER_HPP
+#endif // POAC_CORE_STROITE_CORE_COMPILER_HPP
