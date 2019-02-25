@@ -155,8 +155,8 @@ namespace poac::subcmd {
     }
 
     struct graph {
-        static const std::string summary() { return "Create a dependency graph"; }
-        static const std::string options() { return "[-o | --output]"; }
+        static std::string summary() { return "Create a dependency graph"; }
+        static std::string options() { return "[-o | --output]"; }
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
             return _graph::_main(std::move(argv));

@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_HPP
 #define POAC_CORE_HPP
 
+#include "core/abc.hpp"
 #include "core/deper.hpp"
 #include "core/exception.hpp"
 #include "core/inference.hpp"

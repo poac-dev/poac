@@ -200,8 +200,8 @@ namespace poac::subcmd {
     }
 
     struct publish {
-        static const std::string summary() { return "Publish a package"; }
-        static const std::string options() { return "[-v | --verbose, -y | --yes]"; }
+        static std::string summary() { return "Publish a package"; }
+        static std::string options() { return "[-v | --verbose, -y | --yes]"; }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
             return _publish::_main(std::move(argv));

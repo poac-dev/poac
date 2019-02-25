@@ -1,5 +1,4 @@
 // Idempotent package naming library
-
 #ifndef POAC_CORE_NAMING_HPP
 #define POAC_CORE_NAMING_HPP
 

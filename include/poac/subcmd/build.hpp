@@ -21,7 +21,7 @@
 #include "../util/argparse.hpp"
 
 
-// TODO: --release, --no-cache (build systemにpoacを使用する時のみ), --example, --backend poac or cmake
+// TODO: --release, --no-cache (build systemにpoacを使用する時のみ), --example
 namespace poac::subcmd {
     namespace _build {
         std::optional<std::string>
@@ -369,10 +369,10 @@ namespace poac::subcmd {
     }
 
     struct build {
-        static const std::string summary() {
+        static std::string summary() {
             return "Compile all sources that depend on this project";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[-v | --verbose]";
         }
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

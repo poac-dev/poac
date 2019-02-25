@@ -91,10 +91,10 @@ namespace poac::subcmd {
     }
 
     struct cache {
-        static const std::string summary() {
+        static std::string summary() {
             return "Manipulate cache files";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<command>";
         }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

@@ -157,10 +157,10 @@ namespace poac::subcmd {
     }
 
     struct new_ {
-        static const std::string summary() {
+        static std::string summary() {
             return "Create a new poac project";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<project-name>, (-b | --bin) | (-l | --lib)";
         }
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

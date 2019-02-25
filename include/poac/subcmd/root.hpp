@@ -8,10 +8,10 @@
 
 namespace poac::subcmd {
     struct root {
-        static const std::string summary() {
+        static std::string summary() {
             return "Display the root installation directory";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<Nothing>";
         }
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

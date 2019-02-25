@@ -144,10 +144,10 @@ namespace poac::subcmd {
     }
 
     struct test {
-        static const std::string summary() {
+        static std::string summary() {
             return "Execute tests";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[-v | --verbose, --report, -- args]";
         }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

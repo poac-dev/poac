@@ -62,10 +62,10 @@ namespace poac::subcmd {
     }
 
     struct run {
-        static const std::string summary() {
+        static std::string summary() {
             return "Build project and exec it";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[-v | --verbose | -- [program args]]";
         }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

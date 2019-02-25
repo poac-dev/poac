@@ -48,8 +48,8 @@ namespace poac::subcmd {
     }
 
     struct login {
-        static const std::string summary() { return "Login to poac.pm"; }
-        static const std::string options() { return "<token>"; }
+        static std::string summary() { return "Login to poac.pm"; }
+        static std::string options() { return "<token>"; }
         template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
             _login::check_arguments(argv);

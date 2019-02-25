@@ -8,7 +8,7 @@
 
 #include <boost/predef.h>
 
-#include "exception.hpp"
+#include "./exception.hpp"
 #include "../option.hpp"
 #include "../subcmd.hpp"
 #include "../util/types.hpp"
@@ -61,47 +61,28 @@ namespace poac::core::infer {
             option::help,
             option::version
     >;
-    enum class op_type_e : int {
-        build     = op_type_list_t::index_of<subcmd::build>,
-        cache     = op_type_list_t::index_of<subcmd::cache>,
-        cleanup   = op_type_list_t::index_of<subcmd::cleanup>,
-        graph     = op_type_list_t::index_of<subcmd::graph>,
-        init      = op_type_list_t::index_of<subcmd::init>,
-        install   = op_type_list_t::index_of<subcmd::install>,
-        login     = op_type_list_t::index_of<subcmd::login>,
-        new_      = op_type_list_t::index_of<subcmd::new_>,
-        publish   = op_type_list_t::index_of<subcmd::publish>,
-        root      = op_type_list_t::index_of<subcmd::root>,
-        run       = op_type_list_t::index_of<subcmd::run>,
-        search    = op_type_list_t::index_of<subcmd::search>,
-        test      = op_type_list_t::index_of<subcmd::test>,
-        uninstall = op_type_list_t::index_of<subcmd::uninstall>,
-        update    = op_type_list_t::index_of<subcmd::update>,
-        help      = op_type_list_t::index_of<option::help>,
-        version   = op_type_list_t::index_of<option::version>
+    const std::unordered_map<std::string, int> subcmd_map {
+            { "build",     op_type_list_t::index_of<subcmd::build> },
+            { "cache",     op_type_list_t::index_of<subcmd::cache> },
+            { "cleanup",   op_type_list_t::index_of<subcmd::cleanup> },
+            { "graph",     op_type_list_t::index_of<subcmd::graph> },
+            { "init",      op_type_list_t::index_of<subcmd::init> },
+            { "install",   op_type_list_t::index_of<subcmd::install> },
+            { "login",     op_type_list_t::index_of<subcmd::login> },
+            { "new",       op_type_list_t::index_of<subcmd::new_> },
+            { "publish",   op_type_list_t::index_of<subcmd::publish> },
+            { "root",      op_type_list_t::index_of<subcmd::root> },
+            { "run",       op_type_list_t::index_of<subcmd::run> },
+            { "search",    op_type_list_t::index_of<subcmd::search> },
+            { "test",      op_type_list_t::index_of<subcmd::test> },
+            { "uninstall", op_type_list_t::index_of<subcmd::uninstall> },
+            { "update",    op_type_list_t::index_of<subcmd::update> }
     };
-    const std::unordered_map<std::string, op_type_e> subcmd_map {
-            { "build",     op_type_e::build },
-            { "cache",     op_type_e::cache },
-            { "cleanup",   op_type_e::cleanup },
-            { "graph",     op_type_e::graph },
-            { "init",      op_type_e::init },
-            { "install",   op_type_e::install },
-            { "login",     op_type_e::login },
-            { "new",       op_type_e::new_ },
-            { "publish",   op_type_e::publish },
-            { "root",      op_type_e::root },
-            { "run",       op_type_e::run },
-            { "search",    op_type_e::search },
-            { "test",      op_type_e::test },
-            { "uninstall", op_type_e::uninstall },
-            { "update",    op_type_e::update }
-    };
-    const std::unordered_map<std::string, op_type_e> option_map {
-            { "--help",    op_type_e::help },
-            { "-h",        op_type_e::help },
-            { "--version", op_type_e::version },
-            { "-v",        op_type_e::version }
+    const std::unordered_map<std::string, int> option_map {
+            { "--help",    op_type_list_t::index_of<option::help> },
+            { "-h",        op_type_list_t::index_of<option::help> },
+            { "--version", op_type_list_t::index_of<option::version> },
+            { "-v",        op_type_list_t::index_of<option::version> }
     };
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226

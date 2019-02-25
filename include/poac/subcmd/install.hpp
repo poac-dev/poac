@@ -307,10 +307,10 @@ namespace poac::subcmd {
     }
 
     struct install {
-        static const std::string summary() {
+        static std::string summary() {
             return "Install packages";
         }
-        static const std::string options() {
+        static std::string options() {
             return "-v | --verbose, -q | --quite, [args]";
         }
         template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

@@ -139,10 +139,10 @@ namespace poac::subcmd {
     }
 
     struct update {
-        static const std::string summary() {
+        static std::string summary() {
             return "Update package";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[ -y | --yes, -a | --all, --outside ]";
         }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>

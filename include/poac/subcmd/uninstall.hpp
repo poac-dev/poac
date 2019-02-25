@@ -248,8 +248,8 @@ namespace poac::subcmd {
     }
 
     struct uninstall {
-        static const std::string summary() { return "Uninstall packages"; }
-        static const std::string options() { return "[<pkg-names>, -a | --all, -y | --yes]"; }
+        static std::string summary() { return "Uninstall packages"; }
+        static std::string options() { return "[<pkg-names>, -a | --all, -y | --yes]"; }
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         int operator()(VS&& argv) {
             _uninstall::check_arguments(argv);
