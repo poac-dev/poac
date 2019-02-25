@@ -81,7 +81,7 @@ namespace poac::option {
         }
 
         template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-        int _main([[maybe_unused]] VS&& vs) {
+        int _main(VS&& vs) {
             namespace exception = core::exception;
             if (vs.size() == 0) {
                 exec_help();
