@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_SAT_HPP
-#define POAC_CORE_SAT_HPP
+#ifndef POAC_CORE_DEPER_SAT_HPP
+#define POAC_CORE_DEPER_SAT_HPP
 
 #include <iostream>
 #include <vector>
@@ -188,4 +188,4 @@ namespace poac::core::deper::sat {
         return dpll(clauses, literals);
     }
 } // end namespace
-#endif // !POAC_CORE_SAT_HPP
+#endif // !POAC_CORE_DEPER_SAT_HPP

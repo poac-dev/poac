@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_LOCK_HPP
-#define POAC_CORE_LOCK_HPP
+#ifndef POAC_CORE_DEPER_LOCK_HPP
+#define POAC_CORE_DEPER_LOCK_HPP
 
 #include <iostream>
 #include <vector>
@@ -101,4 +101,4 @@ namespace poac::core::deper::lock {
         }
     }
 } // end namespace
-#endif // !POAC_CORE_LOCK_HPP
+#endif // !POAC_CORE_DEPER_LOCK_HPP

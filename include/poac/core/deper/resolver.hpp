@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_RESOLVER_HPP
-#define POAC_CORE_RESOLVER_HPP
+#ifndef POAC_CORE_DEPER_RESOLVER_HPP
+#define POAC_CORE_DEPER_RESOLVER_HPP
 
 #include <iostream>
 #include <vector>
@@ -398,4 +398,4 @@ namespace poac::core::deper::resolver {
         return resolved_deps;
     }
 } // end namespace
-#endif // !POAC_CORE_RESOLVER_HPP
+#endif // !POAC_CORE_DEPER_RESOLVER_HPP
