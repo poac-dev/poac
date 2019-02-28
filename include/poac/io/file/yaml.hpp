@@ -42,20 +42,20 @@ namespace poac::io::file::yaml {
         using YAML_Node_t = bool YAML::Node::*;
 #if BOOST_COMP_MSVC
         template <class T>
-    struct accessor {
-        static T m_isValid;
-        static T get() { return m_isValid; }
-    };
-    template <class T>
-    T accessor<T>::m_isValid;
+        struct accessor {
+            static T m_isValid;
+            static T get() { return m_isValid; }
+        };
+        template <class T>
+        T accessor<T>::m_isValid;
 
-    template <class T, T V>
-    struct bastion {
-        bastion() { accessor<T>::m_isValid = V; }
-    };
+        template <class T, T V>
+        struct bastion {
+            bastion() { accessor<T>::m_isValid = V; }
+        };
 
-    template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
-    using access = accessor<YAML_Node_t>;
+        template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
+        using access = accessor<YAML_Node_t>;
 #else
         template <class T, T V>
         struct accessor {
