@@ -1,41 +1,4 @@
 aliases:
-  - &restore-poac-cache
-    keys: # restores saved poac cache
-      - v1-poac-cache-{{ checksum "poac.lock" }}
-      - v1-poac-cache-{{ checksum "poac.yml" }}
-      - v1-poac-cache-{{ .Branch }}
-      - v1-poac-cache
-  - &save-poac-cache1
-    key: v1-poac-cache-{{ checksum "poac.lock" }}
-    paths: "deps"
-  - &save-poac-cache2
-    key: v1-poac-cache-{{ checksum "poac.yml" }}
-    paths: "deps"
-  - &save-poac-cache3
-    key: v1-poac-cache-{{ .Branch }}
-    paths: "deps"
-  - &save-poac-cache4
-    key: v1-poac-cache
-    paths: "deps"
-
-  - &restore-poac-build-cache
-    keys: # restores saved poac build cache
-      - v1-build-cache-{{ .Branch }}
-      - v1-build-cache
-  - &save-poac-build-cache1
-    key: v1-build-cache-{{ .Branch }}
-    paths: "_build"
-  - &save-poac-build-cache2
-    key: v1-build-cache
-    paths: "_build"
-
-  - &at-current
-    at: .
-
-  - &build-project
-    name: Build Project
-    command: mkdir build && cd build && cmake .. && make
-
   - &run-poac-test
     name: Test Project
     command: >
@@ -50,32 +13,55 @@ aliases:
     branches:
       ignore: gh-pages
 
-  - &defaults
-    steps:
-      - attach_workspace: *at-current
-
-      - run: uname -sm
-      - run: *build-project
-      - run: ./build/poac -h
-      - run: file ./build/poac
-
 #      - run: *run-poac-test
 #      - store_test_results: *store-poac-test-result
 
-version: 2
+version: 2.1
+
+commands:
+  poac-install:
+    steps:
+      - restore_cache:
+          keys: # restores saved poac cache
+            - v1-poac-cache-{{ checksum "poac.lock" }}
+            - v1-poac-cache-{{ checksum "poac.yml" }}
+            - v1-poac-cache-{{ .Branch }}
+            - v1-poac-cache
+      - run: poac install # source file only (no pre-built)
+      - save_cache:
+          key: v1-poac-cache-{{ checksum "poac.lock" }}
+          paths: "deps"
+      - save_cache:
+          key: v1-poac-cache-{{ checksum "poac.yml" }}
+          paths: "deps"
+      - save_cache:
+          key: v1-poac-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:
+          key: v1-poac-cache
+          paths: "deps"
+
+  build-project:
+    steps:
+      - run: mkdir build && cd build && cmake .. && make
+
+  defaults:
+    steps:
+      - attach_workspace:
+          at: .
+      - run: uname -sm
+      - build-project
+      - run: ./build/poac -h
+      - run: file ./build/poac
+
+
 jobs:
   checkout_code:
     docker:
       - image: poacpm/poac
     steps:
       - checkout
-
-      - restore_cache: *restore-poac-cache
-#      - run: poac install # source file only (no pre-built)
-      - save_cache: *save-poac-cache1
-      - save_cache: *save-poac-cache2
-      - save_cache: *save-poac-cache3
-      - save_cache: *save-poac-cache4
+#      - poac-install
 
       - persist_to_workspace:
           root: .
@@ -86,14 +72,16 @@ jobs:
 #      - image: poacpm/x86_64-unknown-linux-gnu
 #    environment:
 #      CXX: g++-6
-#    <<: *defaults
+#    steps:
+#      - defaults
 
   x86_64-unknown-linux-gnu_gcc-7:
     docker:
       - image: poacpm/x86_64-unknown-linux-gnu
     environment:
       CXX: g++-7
-    <<: *defaults
+    steps:
+      - defaults
 
   x86_64-unknown-linux-gnu_gcc-8:
     docker:
@@ -106,7 +94,7 @@ jobs:
           at: /tmp/workspace/x86_64-unknown-linux-gnu
 
       - run: uname -sm
-      - run: *build-project
+      - build-project
       - run: ./build/poac -h
       - run: file ./build/poac
 
@@ -124,7 +112,8 @@ jobs:
 #      CXX: /home/linuxbrew/.linuxbrew/opt/llvm@6/bin/clang++
 #      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm@6/lib"
 #      CPPFLAGS: "-I/home/linuxbrew/.linuxbrew/opt/llvm@6/include"
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  x86_64-unknown-linux-gnu_clang-7:
 #    docker:
@@ -132,62 +121,71 @@ jobs:
 #    environment:
 #      CXX: clang++
 #      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm/lib -Wl,-rpath,/home/linuxbrew/.linuxbrew/opt/llvm/lib"
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  aarch64-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/aarch64-unknown-linux-gnu
 #    environment:
 #      CXX: g++-8
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  powerpc-unknown-linux-gnu_gcc-4_8:
 #    docker:
 #      - image: poacpm/powerpc-unknown-linux-gnu
 #    environment:
 #      CXX: powerpc-linux-gnu-g++
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  powerpc64-unknown-linux-gnu_gcc-5_4:
 #    docker:
 #      - image: poacpm/powerpc64-unknown-linux-gnu
 #    environment:
 #      CXX: powerpc64-linux-gnu-g++
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  powerpc64le-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/powerpc64le-unknown-linux-gnu
 #    environment:
 #      CXX: g++-8
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  s390x-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/s390x-unknown-linux-gnu
 #    environment:
 #      CXX: g++-8
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  x86_64-pc-windows-gnu_gcc-6:
 #    docker:
 #      - image: poacpm/x86_64-pc-windows-gnu
 #    environment:
 #      CXX: x86_64-w64-mingw32-g++-posix
-#    <<: *defaults
+#    steps:
+#      - defaults
 
 #  i686-pc-windows-gnu_gcc-6:
 #    docker:
 #      - image: poacpm/i686-pc-windows-gnu
 #    environment:
 #      CXX: i686-w64-mingw32-g++-posix
-#    <<: *defaults
+#    steps:
+#      - defaults
 
   release:
     docker:
       - image: circleci/golang:1.11
     steps:
-      - attach_workspace: *at-current
+      - attach_workspace:
+          at: .
       - run: mkdir out
       - run: ARCH=x86_64-unknown-linux-gnu tar czf $ARCH out/$ARCH.tar.gz
       - run: go get github.com/tcnksm/ghr
