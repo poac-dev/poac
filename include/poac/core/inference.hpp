@@ -135,7 +135,7 @@ namespace poac::core::infer {
     // Execute function: execute or summary or options
     template <typename S, typename Index, typename VS,
               typename Indices=std::make_index_sequence<op_type_list_t::size()>>
-    static auto branch(S&& s, Index idx, VS&& vs) -> decltype(auto) {
+    static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
         namespace exception = core::exception;
         if (s == "exec")
             return execute(Indices(), static_cast<int>(idx), std::forward<VS>(vs));
