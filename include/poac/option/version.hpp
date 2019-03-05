@@ -13,7 +13,7 @@ namespace poac::option {
         static std::string options() {
             return "<Nothing>";
         }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()([[maybe_unused]] VS&& argv) {
             std::cout << POAC_VERSION << std::endl;
             return EXIT_SUCCESS;

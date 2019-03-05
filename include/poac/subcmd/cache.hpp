@@ -64,7 +64,7 @@ namespace poac::subcmd {
             std::cout << io::file::path::poac_cache_dir.string() << std::endl;
         }
 
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace exception = core::exception;
 
@@ -97,10 +97,10 @@ namespace poac::subcmd {
         static std::string options() {
             return "<command>";
         }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
             _cache::check_arguments(argv);
-            return _cache::_main(std::move(argv));
+            return _cache::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

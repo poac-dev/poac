@@ -227,7 +227,7 @@ namespace poac::subcmd {
             cli::echo(cli::status_done());
         }
 
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int _main(VS&& argv) {
             if (util::argparse::use(argv, "-a", "--all")) {
                 all(std::move(argv));
@@ -250,10 +250,10 @@ namespace poac::subcmd {
     struct uninstall {
         static std::string summary() { return "Uninstall packages"; }
         static std::string options() { return "[<pkg-names>, -a | --all, -y | --yes]"; }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
             _uninstall::check_arguments(argv);
-            return _uninstall::_main(std::move(argv));
+            return _uninstall::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

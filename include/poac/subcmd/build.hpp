@@ -297,7 +297,7 @@ namespace poac::subcmd {
             }
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
@@ -375,10 +375,10 @@ namespace poac::subcmd {
         static std::string options() {
             return "[-v | --verbose]";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _build::check_arguments(argv);
-            return _build::_main(std::move(argv));
+            return _build::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

@@ -20,7 +20,7 @@
 
 namespace poac::subcmd {
     namespace _cleanup {
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::file::yaml;
             namespace resolver = core::deper::resolver;
@@ -80,10 +80,10 @@ namespace poac::subcmd {
         static std::string options() {
             return "<Nothing>";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _cleanup::check_arguments(argv);
-            return _cleanup::_main(std::move(argv));
+            return _cleanup::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

@@ -70,7 +70,7 @@ namespace poac::subcmd {
             }
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             using namespace boost::property_tree;
 
@@ -114,10 +114,10 @@ namespace poac::subcmd {
         static std::string options() {
             return "<pkg-name>";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _search::check_arguments(argv);
-            return _search::_main(std::move(argv));
+            return _search::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

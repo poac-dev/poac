@@ -27,7 +27,7 @@
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
 namespace poac::subcmd {
     namespace _update {
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
@@ -145,9 +145,9 @@ namespace poac::subcmd {
         static std::string options() {
             return "[ -y | --yes, -a | --all, --outside ]";
         }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
-            return _update::_main(std::move(argv));
+            return _update::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

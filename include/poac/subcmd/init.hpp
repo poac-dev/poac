@@ -50,7 +50,7 @@ namespace poac::subcmd {
             return "poac.yml";
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace fs = boost::filesystem;
 
@@ -75,10 +75,10 @@ namespace poac::subcmd {
         static std::string options() {
             return "<Nothing>";
         }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _init::check_arguments(argv);
-            return _init::_main(std::move(argv));
+            return _init::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

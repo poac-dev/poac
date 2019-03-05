@@ -7,9 +7,8 @@
 #include "./include/poac/poac.hpp"
 
 
-using VS = std::vector<std::string>;
-
 // TODO: このあたりの処理をmain.cppがするべきではない．もう一段階抽象化すべき
+template <typename VS>
 int exec(std::string&& str, VS&& vs)
 {
     namespace inference = poac::core::infer;
@@ -19,7 +18,7 @@ int exec(std::string&& str, VS&& vs)
 
     // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {
-        return std::stoi(inference::apply("exec"s, str, std::move(vs)));
+        return std::stoi(inference::apply("exec"s, std::forward<std::string>(str), std::forward<VS>(vs)));
     }
     catch (const exception::invalid_first_arg& e) {
         std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl << std::endl;
@@ -54,6 +53,7 @@ int exec(std::string&& str, VS&& vs)
 
 int main(int argc, const char** argv)
 {
+    using VS = std::vector<std::string>;
     using namespace std::string_literals;
     // argv[0]: poac, argv[1]: install, argv[2]: 1, ...
 

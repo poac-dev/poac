@@ -90,7 +90,7 @@ namespace poac::subcmd {
             }
         }
 
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
@@ -202,9 +202,9 @@ namespace poac::subcmd {
     struct publish {
         static std::string summary() { return "Publish a package"; }
         static std::string options() { return "[-v | --verbose, -y | --yes]"; }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
-            return _publish::_main(std::move(argv));
+            return _publish::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

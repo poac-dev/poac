@@ -103,7 +103,7 @@ namespace poac::subcmd {
             return { g, names };
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
@@ -157,9 +157,9 @@ namespace poac::subcmd {
     struct graph {
         static std::string summary() { return "Create a dependency graph"; }
         static std::string options() { return "[-o | --output]"; }
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
-            return _graph::_main(std::move(argv));
+            return _graph::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

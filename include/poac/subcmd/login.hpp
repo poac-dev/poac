@@ -15,7 +15,7 @@
 
 namespace poac::subcmd {
     namespace _login {
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs     = boost::filesystem;
             namespace exception = core::exception;
@@ -50,10 +50,10 @@ namespace poac::subcmd {
     struct login {
         static std::string summary() { return "Login to poac.pm"; }
         static std::string options() { return "<token>"; }
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
             _login::check_arguments(argv);
-            return _login::_main(std::move(argv));
+            return _login::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

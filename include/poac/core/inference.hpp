@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <type_traits>
+#include <utility>
 
 #include <boost/predef.h>
 
@@ -87,17 +88,17 @@ namespace poac::core::infer {
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 #if BOOST_COMP_GNUC
-    template <typename T, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    static auto execute2(VS&& vs) { return (T()(std::move(vs)), ""); }
+    template <typename T, typename VS>
+    static auto execute2(VS&& vs) { return (T()(std::forward<VS>(vs)), ""); }
     template <typename T>
     static auto summary2() { return T::summary(); }
     template <typename T>
     static auto options2() { return T::options(); }
-    template <std::size_t... Is, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <std::size_t... Is, typename VS>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         using func_t = decltype(&execute2<op_type_list_t::at_t<0>, VS>);
         static func_t func_table[] = { &execute2<op_type_list_t::at_t<Is>>... };
-        return func_table[idx](std::move(vs));
+        return func_table[idx](std::forward<VS>(vs));
     }
     template <std::size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
@@ -114,12 +115,12 @@ namespace poac::core::infer {
 #else
     // Create function pointer table: { &func<0>, &func<1>, ... }
     // Execute function: &func<idx>[idx]()
-    template <std::size_t... Is, typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <std::size_t... Is, typename VS>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         // Return ""(empty string) because match the type to the other two functions.
         return std::vector({ +[](VS&& vs){
-            return std::to_string(op_type_list_t::at_t<Is>()(std::move(vs)));
-        }... })[idx](std::move(vs));
+            return std::to_string(op_type_list_t::at_t<Is>()(std::forward<VS>(vs)));
+        }... })[idx](std::forward<VS>(vs));
     }
     template <std::size_t... Is>
     static auto summary(std::index_sequence<Is...>, int idx) {
@@ -133,12 +134,11 @@ namespace poac::core::infer {
 
     // Execute function: execute or summary or options
     template <typename S, typename Index, typename VS,
-            typename Indices=std::make_index_sequence<op_type_list_t::size()>,
-            typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
+              typename Indices=std::make_index_sequence<op_type_list_t::size()>>
+    static auto branch(S&& s, Index idx, VS&& vs) -> decltype(auto) {
         namespace exception = core::exception;
         if (s == "exec")
-            return execute(Indices(), static_cast<int>(idx), std::move(vs));
+            return execute(Indices(), static_cast<int>(idx), std::forward<VS>(vs));
         else if (s == "summary")
             return summary(Indices(), static_cast<int>(idx));
         else if (s == "options")
@@ -147,17 +147,17 @@ namespace poac::core::infer {
             throw exception::invalid_first_arg("Invalid argument");
     }
 
-    template <typename S, typename OpTypeE, typename VS, typename>
+    template <typename S, typename OpTypeE, typename VS>
     auto _apply(S&& func, const OpTypeE& cmd, VS&& arg) {
-        return branch(std::move(func), cmd, std::move(arg));
+        return branch(std::forward<S>(func), cmd, std::forward<VS>(arg));
     }
-    template <typename S, typename VS, typename>
-    std::string apply(S&& func, const S& cmd, VS&& arg) {
+    template <typename S, typename VS>
+    std::string apply(S&& func, S&& cmd, VS&& arg) {
         namespace exception = core::exception;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            return _apply(std::move(func), itr->second, std::move(arg));
+            return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
         else if (itr = option_map.find(cmd); itr != option_map.end())
-            return _apply(std::move(func), itr->second, std::move(arg));
+            return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
         else
             throw exception::invalid_first_arg("Invalid argument");
     }
