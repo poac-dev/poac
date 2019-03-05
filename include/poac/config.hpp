@@ -11,16 +11,19 @@
 
 namespace poac {
     static constexpr char const* POAC_API_HOST =
-            "poac.io";
+            "api.poac.pm";
     static constexpr char const* POAC_PACKAGES_API =
-            "/api/packages/";
-    static constexpr char const* POAC_TOKENS_VALIDATE_API =
-            "/api/tokens/validate";
-
-    static constexpr char const* POAC_UPLOAD_API_HOST =
-            "poac-pm.appspot.com";
+            "/packages/";
+    static constexpr char const* POAC_DEPS_API =
+            "/packages/deps";
+    static constexpr char const* POAC_VERSIONS_API =
+            "/packages/versions";
+    static constexpr char const* POAC_EXISTS_API =
+            "/packages/exists";
     static constexpr char const* POAC_UPLOAD_API =
             "/packages/upload";
+    static constexpr char const* POAC_TOKENS_VALIDATE_API =
+            "/tokens/validate";
 
     static constexpr char const* POAC_STORAGE_HOST =
             "storage.googleapis.com";

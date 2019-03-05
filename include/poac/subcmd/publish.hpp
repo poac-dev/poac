@@ -95,6 +95,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace exception = core::exception;
             namespace cli = io::cli;
+            using namespace std::string_literals;
 
             check_arguments(argv);
             check_requirements();
@@ -168,7 +169,7 @@ namespace poac::subcmd {
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
-            if (io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists") == "true") {
+            if (io::network::get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version) == "true") {
                 throw exception::error(node_name + ": " + node_version + " already exists");
             }
 
@@ -184,7 +185,7 @@ namespace poac::subcmd {
             // Check exists package
             io::network::Headers headers;
             headers.emplace(io::network::http::field::cache_control, "no-cache");
-            const std::string target = POAC_PACKAGES_API + node_name + "/" + node_version + "/exists";
+            const std::string target = POAC_EXISTS_API + "/"s + node_name + "/" + node_version;
             const std::string res = io::network::get(target, POAC_API_HOST, headers);
             if (res != "true") {
                 std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;

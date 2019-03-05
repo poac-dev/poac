@@ -148,7 +148,7 @@ namespace poac::io::network {
             const std::string& token,
             const boost::filesystem::path& file_path,
             std::string_view target=POAC_UPLOAD_API,
-            std::string_view host=POAC_UPLOAD_API_HOST)
+            std::string_view host=POAC_API_HOST)
     {
         namespace fs = boost::filesystem;
 
@@ -240,10 +240,11 @@ namespace poac::io::network {
     namespace api {
         std::optional<std::vector<std::string>>
         versions(const std::string& name) {
+            using namespace std::string_literals;
             boost::property_tree::ptree pt;
             {
                 std::stringstream ss;
-                ss << io::network::get(POAC_PACKAGES_API + name + "/versions");
+                ss << io::network::get(POAC_VERSIONS_API + "/"s + name);
                 cli::debugln(name, ": ", ss.str());
                 if (ss.str() == "null") {
                     return std::nullopt;
@@ -255,8 +256,9 @@ namespace poac::io::network {
 
         std::optional<boost::property_tree::ptree>
         deps(const std::string& name, const std::string& version) {
+            using namespace std::string_literals;
             std::stringstream ss;
-            ss << io::network::get(POAC_PACKAGES_API + name + "/" + version + "/deps");
+            ss << io::network::get(POAC_DEPS_API + "/"s + name + "/" + version);
             if (ss.str() == "null") {
                 return std::nullopt;
             }
