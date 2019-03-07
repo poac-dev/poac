@@ -67,6 +67,9 @@ namespace poac::io::cli {
     const std::string green = "\x1b[32m";
     const std::string yellow = "\x1b[33m";
     const std::string blue = "\x1b[34m";
+    const std::string pink = "\x1b[35m";
+    const std::string lightblue = "\x1b[36m";
+    const std::string gray = "\x1b[90";
     const std::string bold = "\x1b[1m";
     const std::string underline = "\x1b[4m";
     const std::string reset = "\x1b[0m";
@@ -75,6 +78,9 @@ namespace poac::io::cli {
     inline std::string to_green(const std::string& s) { return green+s+reset; }
     inline std::string to_yellow(const std::string& s) { return yellow+s+reset; }
     inline std::string to_blue(const std::string& s) { return blue+s+reset; }
+    inline std::string to_pink(const std::string& s) { return pink+s+reset; }
+    inline std::string to_lightblue(const std::string& s) { return lightblue+s+reset; }
+    inline std::string to_gray(const std::string& s) { return gray+s+reset; }
     inline std::string to_bold(const std::string& s) { return bold+s+reset; }
     inline std::string to_underline(const std::string& s) { return underline+s+reset; }
 
