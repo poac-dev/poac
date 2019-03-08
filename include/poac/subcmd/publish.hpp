@@ -77,15 +77,10 @@ namespace poac::subcmd {
 
         void check_requirements() {
             namespace fs = boost::filesystem;
-
             io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
-
-            // TODO: licenseの項があるのに，LICENSEファイルが存在しない => error
-            // TODO: licenseの項が無いのに，LICENSEファイルが存在する => error
-            if (!fs::exists("LICENSE")) {
-                std::cerr << io::cli::to_yellow("WARN: ") << "LICENSE does not exist" << std::endl;
-            }
             if (!fs::exists("README.md")) {
+                // TODO: もう少しほんわかと識別したい．README.txtやreadme.md等
+                // TODO: readmeが接頭辞にありつつ，最短なファイル．README.md, README-ja.mdだと，README.mdを優先
                 std::cerr << io::cli::to_yellow("WARN: ") << "README.md does not exist" << std::endl;
             }
         }
