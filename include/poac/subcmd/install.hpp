@@ -250,7 +250,7 @@ namespace poac::subcmd {
                 else if (argv.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
                     throw exception::error(
                             "Required key `deps` does not exist in poac.yml.\n"
-                            "Please refer to https://docs.poac.pm");
+                            "Please refer to https://doc.poac.pm");
                 }
             }
 
