@@ -43,6 +43,12 @@ namespace poac::core::naming {
         std::replace(name.begin(), name.end(), '/', '-');
         return name;
     }
+    // boost-bind -> boost/bind
+    std::string hyphen_to_slash(std::string name)
+    {
+        std::replace(name.begin(), name.end(), '-', '/');
+        return name;
+    }
 
 
     // 1. opencv/opencv, 3.4.2 -> opencv-3.4.2

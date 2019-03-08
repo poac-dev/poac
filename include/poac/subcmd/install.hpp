@@ -119,9 +119,8 @@ namespace poac::subcmd {
                     const auto pkg_dir = path::poac_cache_dir / cache_name;
                     const auto tar_dir = pkg_dir.string() + ".tar.gz";
                     const std::string target = resolver::archive_url(name, dep.version);
-                    const std::string host = POAC_STORAGE_HOST;
 
-                    io::network::get(target, tar_dir, POAC_STORAGE_HOST);
+                    io::network::get(target, tar_dir, POAC_API_HOST);
                     // If res is true, does not execute func. (short-circuit evaluation)
                     bool res = tb::extract_spec_rm(tar_dir, pkg_dir);
                     res = !res && copy_to_current(cache_name, current_name);

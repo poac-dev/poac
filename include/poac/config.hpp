@@ -12,21 +12,18 @@
 namespace poac {
     static constexpr char const* POAC_API_HOST =
             "api.poac.pm";
-    static constexpr char const* POAC_PACKAGES_API =
-            "/packages";
+    static constexpr char const* POAC_ARCHIVE_API =
+            "/packages/archive";
     static constexpr char const* POAC_DEPS_API =
             "/packages/deps";
-    static constexpr char const* POAC_VERSIONS_API =
-            "/packages/versions";
     static constexpr char const* POAC_EXISTS_API =
             "/packages/exists";
+    static constexpr char const* POAC_VERSIONS_API =
+            "/packages/versions";
     static constexpr char const* POAC_UPLOAD_API =
             "/packages/upload";
     static constexpr char const* POAC_TOKENS_VALIDATE_API =
             "/tokens/validate";
-
-    static constexpr char const* POAC_STORAGE_HOST =
-            "storage.googleapis.com";
 
     static constexpr char const* ALGOLIA_APPLICATION_ID =
             "IOCVK5FECM";

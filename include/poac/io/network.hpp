@@ -28,6 +28,7 @@
 
 #include "../core/exception.hpp"
 #include "./cli.hpp"
+#include "../util/misc.hpp"
 #include "../util/types.hpp"
 
 
@@ -36,6 +37,25 @@ namespace poac::io::network {
     namespace http = boost::beast::http;
 
     using Headers = std::map<std::variant<http::field, std::string>, std::string>;
+
+    template <typename Body>
+    http::request<Body>
+    create_request(
+            http::verb method,
+            std::string_view target,
+            std::string_view host=POAC_API_HOST,
+            const Headers& headers={})
+    {
+        // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
+        http::request<Body> req{ method, std::string(target), 11 };
+        req.set(http::field::host, host);
+        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+        for (const auto& [field, string_param] : headers) {
+            std::visit([&, s=string_param](auto f) { req.set(f, s); }, field);
+        }
+        return req;
+    }
+
 
     template <typename ResponseBody, typename RequestBody>
     typename ResponseBody::value_type
@@ -55,6 +75,7 @@ namespace poac::io::network {
             boost::system::error_code ec{
                 static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
             };
+            cli::debugln(ec.message());
             throw boost::system::system_error{ ec };
         }
         // Look up the domain name
@@ -75,34 +96,37 @@ namespace poac::io::network {
         // Receive the HTTP response
         http::read(stream, buffer, res);
 
-        // Gracefully close the stream
-        boost::system::error_code ec;
-        stream.shutdown(ec);
-        if (ec == boost::asio::error::eof) {
-            // Rationale: https://stackoverflow.com/q/25587403
-            ec.assign(0, ec.category());
+        switch (res.base().result_int() / 100) {
+            case 2: {
+                // Gracefully close the stream
+                boost::system::error_code ec;
+                stream.shutdown(ec);
+                if (ec == boost::asio::error::eof) {
+                    // Rationale: https://stackoverflow.com/q/25587403
+                    ec.assign(0, ec.category());
+                }
+                return res.body();
+            }
+            case 3: {
+                const std::string new_location = res.base()["Location"].to_string();
+                cli::debugln("Redirect to ", new_location);
+                // https://api.poac.pm/packages/deps -> api.poac.pm
+                const std::string new_host = util::misc::split(new_location, "://")[1];
+                // https://api.poac.pm/packages/deps -> /packages/deps
+                const auto host_pos = new_location.find(new_host);
+                const std::string new_target(new_location, host_pos+new_host.size());
+
+                // TODO: header情報が消えている．
+                const auto new_req = create_request<RequestBody>(req.method(), new_target, new_host);
+                return request<ResponseBody>(new_req, new_host);
+            }
+            default: {
+                // error
+                return res.body();
+            }
         }
-        return res.body();
     }
 
-
-    template <typename Body>
-    http::request<Body>
-    create_request(
-            http::verb method,
-            std::string_view target,
-            std::string_view host=POAC_API_HOST,
-            const Headers& headers={})
-    {
-        // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
-        http::request<Body> req{ method, std::string(target), 11 };
-        req.set(http::field::host, host);
-        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-        for (const auto& [field, string_param] : headers) {
-            std::visit([&, s=string_param](auto f) { req.set(f, s); }, field);
-        }
-        return req;
-    }
 
     std::string get(
             std::string_view target,
@@ -116,7 +140,7 @@ namespace poac::io::network {
     void get(
             std::string_view target,
             const boost::filesystem::path& out,
-            std::string_view host=POAC_API_HOST,
+            std::string_view host,
             const Headers& headers={})
     {
         const auto req = create_request<http::string_body>(http::verb::get, target, host, headers);
