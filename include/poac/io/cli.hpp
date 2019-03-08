@@ -46,23 +46,6 @@ namespace poac::io::cli {
         }
     }
 
-    template <typename... T>
-    inline void echo(const T&... s) {
-        (std::cout << ... << s) << std::endl;
-    }
-    template <typename... T>
-    inline void debugln([[maybe_unused]] const T&... s) {
-#ifdef DEBUG
-        echo(s...);
-#endif
-    }
-    template <typename... T>
-    inline void debug([[maybe_unused]] const T &... s) {
-#ifdef DEBUG
-        (std::cout << ... << s);
-#endif
-    }
-
     const std::string red = "\x1b[31m";
     const std::string green = "\x1b[32m";
     const std::string yellow = "\x1b[33m";
@@ -113,6 +96,29 @@ namespace poac::io::cli {
         if      (index <= 2) return pointers[0];
         else if (index <= 5) return pointers[1];
         else                 return pointers[2];
+    }
+
+
+    template <typename... T>
+    inline void echo(const T&... s) {
+        (std::cout << ... << s) << std::endl;
+    }
+    template <typename... T>
+    inline void echo_noln(const T&... s) {
+        (std::cout << ... << s);
+    }
+
+    template <typename... T>
+    inline void debugln([[maybe_unused]] const T&... s) {
+#ifdef DEBUG
+        echo(to_gray("[debug] "), s...);
+#endif
+    }
+    template <typename... T>
+    inline void debug([[maybe_unused]] const T &... s) {
+#ifdef DEBUG
+        echo_noln(to_gray("[debug] "), s...);
+#endif
     }
 } // end namespace
 #endif // !POAC_IO_CLI_HPP
