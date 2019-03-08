@@ -8,6 +8,7 @@
 
 #include "../utils.hpp"
 #include "../../../util/command.hpp"
+#include "../../../util/misc.hpp"
 
 
 namespace poac::core::stroite::core::depends {
@@ -41,7 +42,7 @@ namespace poac::core::stroite::core::depends {
     gen(const Opts& opts, const std::string& src_cpp, const bool verbose)
     {
         if (const auto ret = calc(opts, src_cpp, verbose)) {
-            auto deps_headers = utils::misc::split(*ret, " \n\\");
+            auto deps_headers = util::misc::split(*ret, " \n\\");
             deps_headers.erase(deps_headers.begin()); // main.o:
             deps_headers.erase(deps_headers.begin()); // main.cpp
             return deps_headers;
