@@ -1,6 +1,6 @@
 // Miscellaneous utility
-#ifndef POAC_CORE_STROITE_UTILS_MISC_HPP
-#define POAC_CORE_STROITE_UTILS_MISC_HPP
+#ifndef POAC_UTIL_MISC_HPP
+#define POAC_UTIL_MISC_HPP
 
 #include <iostream>
 #include <string>
@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 
 
-namespace poac::core::stroite::utils::misc {
+namespace poac::util::misc {
     std::vector<std::string>
     split(const std::string& raw, const std::string& delim) {
         using boost::algorithm::token_compress_on;
@@ -20,4 +20,4 @@ namespace poac::core::stroite::utils::misc {
         return ret;
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_UTILS_MISC_HPP
+#endif // POAC_UTIL_MISC_HPP
