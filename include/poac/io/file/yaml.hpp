@@ -129,7 +129,7 @@ namespace poac::io::file::yaml {
         catch (...) {
             throw exception::error(
                     "Required key does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.io");
+                    "Please refer to https://docs.poac.pm");
         }
     }
     template <typename T>
@@ -141,7 +141,7 @@ namespace poac::io::file::yaml {
         catch (...) {
             throw exception::error(
                     "Required key `" + arg + "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.io");
+                    "Please refer to https://docs.poac.pm");
         }
     }
 
@@ -154,7 +154,7 @@ namespace poac::io::file::yaml {
             throw exception::error(
                     "Required key `" + std::string(*result) +
                     "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.io");
+                    "Please refer to https://docs.poac.pm");
         }
         else {
             std::map<std::string, YAML::Node> mp;

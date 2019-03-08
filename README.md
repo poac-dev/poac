@@ -5,7 +5,7 @@ Poac is a package manager for C++ users.
 
 Poac can download project's dependencies and compile project.
 
-Please see [poac.pm](https://poac.io) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentations](https://docs.poac.io).
+Please see [poac.pm](https://poac.pm) for [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [other documentations](https://doc.poac.pm).
 
 
 [![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
@@ -26,7 +26,7 @@ Please see [poac.pm](https://poac.io) for [installation instructions](https://po
 ## Installation
 ### Easy install
 ```bash
-curl -fsSL https://sh.poac.io | bash
+curl -fsSL https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
