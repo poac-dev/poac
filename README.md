@@ -57,6 +57,7 @@ $ poac build
 * compiler (gcc | clang | MSVC | ICC)
 * `tar`: in publish command
 * `dot(graphviz)`: in graph command
+* `git`: in install command
 * `cmake`: optional
 * `make`: optional
 
