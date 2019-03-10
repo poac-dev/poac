@@ -128,8 +128,8 @@ namespace poac::io::file::yaml {
         }
         catch (...) {
             throw exception::error(
-                    "Required key does not exist in poac.yml.\n"
-                    "Please refer to https://doc.poac.pm");
+                    exception::msg::key_does_not_exist("") + "\n" +
+                    exception::msg::please_refer_docs(""));
         }
     }
     template <typename T>
@@ -140,8 +140,8 @@ namespace poac::io::file::yaml {
         }
         catch (...) {
             throw exception::error(
-                    "Required key `" + arg + "` does not exist in poac.yml.\n"
-                    "Please refer to https://doc.poac.pm");
+                    exception::msg::key_does_not_exist(arg) + "\n" +
+                    exception::msg::please_refer_docs(""));
         }
     }
 
@@ -152,9 +152,8 @@ namespace poac::io::file::yaml {
         namespace exception = core::exception;
         if (const auto result = detail::read(node, args...)) {
             throw exception::error(
-                    "Required key `" + std::string(*result) +
-                    "` does not exist in poac.yml.\n"
-                    "Please refer to https://doc.poac.pm");
+                    exception::msg::key_does_not_exist(std::string(*result)) + "\n" +
+                    exception::msg::please_refer_docs(""));
         }
         else {
             std::map<std::string, YAML::Node> mp;
@@ -206,13 +205,13 @@ namespace poac::io::file::yaml {
                 return *op_node;
             }
             else {
-                throw exception::error("Could not load poac.yml");
+                throw exception::error(exception::msg::could_not_load("poac.yml"));
             }
         }
         else {
             throw exception::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute `poac init` or `poac new $PROJNAME`.");
+                    exception::msg::does_not_exist("poac.yml") + "\n" +
+                    exception::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
     template <typename ...Args>
@@ -246,13 +245,13 @@ namespace poac::io::file::yaml {
                 return *op_node;
             }
             else {
-                throw exception::error("Could not load poac.yml");
+                throw exception::error(exception::msg::could_not_load("poac.yml"));
             }
         }
         else {
             throw exception::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute $ poac init or $ poac new $PROJNAME.");
+                    exception::msg::does_not_exist("poac.yml") + "\n" +
+                    exception::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 
@@ -267,8 +266,8 @@ namespace poac::io::file::yaml {
         }
         else {
             throw exception::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute `poac init` or `poac new $PROJNAME`.");
+                    exception::msg::does_not_exist("poac.yml") + "\n" +
+                    exception::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 } // end namespace

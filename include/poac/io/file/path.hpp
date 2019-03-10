@@ -16,6 +16,8 @@
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path) {
+        namespace exception = core::exception;
+
         if (!path.empty() && path[0] == '~') {
             assert(path.size() == 1 || path[1] == '/');
             const char* home = std::getenv("HOME");
@@ -28,11 +30,13 @@ namespace poac::io::file::path {
                         path.replace(0, 1, std::string(hdrive) + hpath);
                     }
                     else {
-                        throw core::exception::error("Could not read environment variable HOMEPATH.");
+                        throw exception::error(
+                                exception::msg::could_not_read("environment variable HOMEPATH"));
                     }
                 }
                 else {
-                    throw core::exception::error("Could not read environment variable HOMEDRIVE.");
+                    throw exception::error(
+                            exception::msg::could_not_read("environment variable HOMEDRIVE"));
                 }
             }
         }

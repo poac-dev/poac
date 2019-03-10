@@ -6,10 +6,51 @@
 
 
 namespace poac::core::exception {
-//    namespace msg {
-//        static constexpr char const* COMPILE_ERR =
-//                "YAML directives must have exactly one argument";
-//    }
+    namespace msg {
+        std::string put_period(const std::string& str) {
+            if (*(str.end()) != '.') {
+                return str + ".";
+            }
+            return str;
+        }
+
+        std::string not_found(const std::string& str) {
+            return put_period(str + " not found");
+        }
+        std::string does_not_exist(const std::string& str) {
+            return put_period(str + " does not exist");
+        }
+        std::string key_does_not_exist(const std::string& str) {
+            return put_period("Required key `" + str + "` does not exist in poac.yml");
+        }
+
+        std::string already_exist(const std::string& str) {
+            return put_period(str + " already exist");
+        }
+
+        std::string could_not(const std::string& str) {
+            return put_period("Could not " + str);
+        }
+        std::string could_not_load(const std::string& str) {
+            return put_period(could_not("load " + str));
+        }
+        std::string could_not_read(const std::string& str) {
+            return put_period(could_not("read " + str));
+        }
+
+        std::string please(const std::string& str) {
+            return put_period("Please " + str);
+        }
+        std::string please_refer_docs(const std::string& str) {
+            // str <- /en/getting_started.html
+            return put_period(please("refer to https://doc.poac.pm" + str));
+        }
+        std::string please_exec(const std::string& str) {
+            return put_period(please("Please execute " + str));
+        }
+
+
+    }
 
     class invalid_first_arg : public std::invalid_argument
     {

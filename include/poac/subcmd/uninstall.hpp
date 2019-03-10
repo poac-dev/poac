@@ -129,7 +129,7 @@ namespace poac::subcmd {
                 check_exist_name(deps_node, argv);
             }
             else {
-                throw exception::error("Could not read deps in poac.yml");
+                throw exception::error(exception::msg::could_not_read("deps in poac.yml"));
             }
 
             // create resolved deps
@@ -192,7 +192,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw exception::error("Could not open poac.yml");
+                    throw exception::error(exception::msg::could_not_load("poac.yml"));
                 }
                 fs::remove("poac.lock");
             }
@@ -218,7 +218,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw exception::error("Could not open poac.yml");
+                    throw exception::error(exception::msg::could_not_load("poac.yml"));
                 }
                 _install::create_lock_file(timestamp, resolved_deps.activated);
             }

@@ -127,7 +127,7 @@ namespace poac::subcmd {
                 json.put("token", token);
             }
             else {
-                throw exception::error("Could not read token");
+                throw exception::error(exception::msg::could_not_read("token"));
             }
             {
                 const auto node = io::file::yaml::load_config("owners");
@@ -159,13 +159,15 @@ namespace poac::subcmd {
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
             if (io::network::get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version) == "true") {
-                throw exception::error(node_name + ": " + node_version + " already exists");
+                throw exception::error(
+                        exception::msg::already_exist(node_name + ": " + node_version));
             }
 
             // Post tarball to API.
             cli::echo(cli::to_status("Uploading..."));
             if (!fs::exists("poac.yml")) {
-                throw exception::error("poac.yml does not exists");
+                throw exception::error(
+                        exception::msg::does_not_exist("poac.yml"));
             }
             if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
                 std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;

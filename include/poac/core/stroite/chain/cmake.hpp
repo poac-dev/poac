@@ -39,7 +39,8 @@ namespace poac::core::stroite::chain {
             namespace fs = boost::filesystem;
 
             if (!fs::exists(base_path / "CMakeLists.txt")) {
-                throw exception::error((base_path / "CMakeLists.txt").string() + " does not exist");
+                throw exception::error(
+                        exception::msg::does_not_exist((base_path / "CMakeLists.txt").string()));
             }
             this->base_path = base_path;
         }

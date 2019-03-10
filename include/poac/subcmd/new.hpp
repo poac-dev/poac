@@ -109,7 +109,8 @@ namespace poac::subcmd {
             const fs::path project_path = fs::path(project_name);
             naming::validate_package_name(project_name);
             if (io::file::path::validate_dir(project_name)) {
-                throw exception::error("The `" + project_name + "` directory already exists.");
+                throw exception::error(
+                        exception::msg::already_exist("The `" + project_name + "` directory"));
             }
 
             fs::create_directories(project_name);

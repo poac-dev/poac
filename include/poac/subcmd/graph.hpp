@@ -55,7 +55,7 @@ namespace poac::subcmd {
                 deps_node = *deps_map;
             }
             else {
-                throw exception::error("Could not read deps in poac.yml");
+                throw exception::error(exception::msg::could_not_read("deps in poac.yml"));
             }
 
             // create resolved deps
@@ -125,8 +125,7 @@ namespace poac::subcmd {
                     }
                     else {
                         throw exception::error(
-                                "To output with .png you need graphviz.\n"
-                                "You need to install the graphviz.\n"
+                                "To output with .png you need to install the graphviz.\n"
                                 "Or please consider outputting in .dot format.");
                     }
                 }
