@@ -2,6 +2,7 @@
 #define POAC_UTIL_PRETTY_HPP
 
 #include <string>
+#include <utility>
 
 
 namespace poac::util::pretty {
@@ -26,24 +27,25 @@ namespace poac::util::pretty {
         }
     }
 
-    std::string to_byte(const unsigned long b) {
+    std::pair<std::string, std::string>
+    to_byte(const unsigned long b) {
         const unsigned long kb = b / 1024;
         if (kb < 1) {
-            return std::to_string(b) + "B";
+            return { std::to_string(b), "B" };
         }
         const unsigned long mb = kb / 1024;
         if (mb < 1) {
-            return std::to_string(kb) + "KB";
+            return { std::to_string(kb), "KB" };
         }
         const unsigned long gb = mb / 1024;
         if (gb < 1) {
-            return std::to_string(mb) + "MB";
+            return { std::to_string(mb), "MB" };
         }
         const unsigned long tb = gb / 1024;
         if (tb < 1) {
-            return std::to_string(gb) + "GB";
+            return { std::to_string(gb), "GB" };
         }
-        return std::to_string(tb) + "TB";
+        return { std::to_string(tb), "TB" };
     }
 } // end namespace
 #endif // !POAC_UTIL_PRETTY_HPP
