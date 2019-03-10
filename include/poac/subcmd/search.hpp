@@ -53,7 +53,7 @@ namespace poac::subcmd {
             boost::property_tree::json_parser::read_json(ss, pt);
             if (const auto value = pt.get_optional<int>("nbHits")) {
                 if (*value <= 0) {
-                    throw exception::error(exception::msg::to_not_found(query));
+                    throw exception::error(exception::msg::not_found(query));
                 }
             }
             return pt;
