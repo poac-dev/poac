@@ -111,8 +111,6 @@ namespace poac::subcmd {
 
             // TODO: poac.ymlに，system: manualが含まれている場合はpublishできない
             // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
-            // TODO: descriptionに，TODOが含まれてたらエラーではなく，**TODO: Add description**と完全一致ならエラー
-
 
             const std::string project_dir = fs::absolute(fs::current_path()).string();
             cli::echo(cli::status, "Packaging ", project_dir, "...");
@@ -153,12 +151,8 @@ namespace poac::subcmd {
             if (verbose) {
                 std::cout << json_s << std::endl;
             }
-            if (io::network::post(POAC_TOKENS_VALIDATE_API, json_s) == "err") {
-                throw exception::error("Token verification failed.\n"
-                                    "Please check the following check lists.\n"
-                                    "1. Does token really belong to you?\n"
-                                    "2. Is the user ID described `owners` in poac.yml\n"
-                                    "    the same as that of GitHub account?");
+            if (const std::string res = io::network::post(POAC_TOKENS_VALIDATE_API, json_s); res != "ok") {
+                throw exception::error(res);
             }
 
             const auto node = io::file::yaml::load_config("name", "version");
@@ -174,16 +168,7 @@ namespace poac::subcmd {
                 throw exception::error("poac.yml does not exists");
             }
             if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
-                throw exception::error(res); // TODO: Check exists packageは飛ばして，Delete fileはしてほしい
-            }
-
-            // Check exists package
-            io::network::Headers headers;
-            headers.emplace(io::network::http::field::cache_control, "no-cache");
-            const std::string target = POAC_EXISTS_API + "/"s + node_name + "/" + node_version;
-            const std::string res = io::network::get(target, POAC_API_HOST, headers);
-            if (res != "true") {
-                std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
+                std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;
             }
 
             // Delete file
