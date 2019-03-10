@@ -27,25 +27,25 @@ namespace poac::util::pretty {
         }
     }
 
-    std::pair<std::string, std::string>
-    to_byte(const unsigned long b) {
-        const unsigned long kb = b / 1024;
+    std::pair<float, std::string>
+    to_byte(const float b) {
+        const float kb = b / 1024;
         if (kb < 1) {
-            return { std::to_string(b), "B" };
+            return { b, "B" };
         }
-        const unsigned long mb = kb / 1024;
+        const float mb = kb / 1024;
         if (mb < 1) {
-            return { std::to_string(kb), "KB" };
+            return { kb, "KB" };
         }
-        const unsigned long gb = mb / 1024;
+        const float gb = mb / 1024;
         if (gb < 1) {
-            return { std::to_string(mb), "MB" };
+            return { mb, "MB" };
         }
-        const unsigned long tb = gb / 1024;
+        const float tb = gb / 1024;
         if (tb < 1) {
-            return { std::to_string(gb), "GB" };
+            return { gb, "GB" };
         }
-        return { std::to_string(tb), "TB" };
+        return { tb, "TB" };
     }
 } // end namespace
 #endif // !POAC_UTIL_PRETTY_HPP
