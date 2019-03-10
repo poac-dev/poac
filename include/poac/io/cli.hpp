@@ -121,17 +121,20 @@ namespace poac::io::cli {
             for (int i = 0; i < (bar_size - bar_pos); ++i) {
                 bar += " ";
             }
+            bar += "]";
         }
         else if (bar_pos == 1) {
             bar += ">";
             for (int i = 0; i < (bar_size - 1); ++i) {
                 bar += " ";
             }
+            bar += "]";
         }
         else {
             for (int i = 0; i < bar_size; ++i) {
                 bar += " ";
             }
+            bar += "]";
         }
         return bar;
     }
