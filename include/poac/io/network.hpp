@@ -30,6 +30,7 @@
 #include "./cli.hpp"
 #include "../util/misc.hpp"
 #include "../util/types.hpp"
+#include "../util/pretty.hpp"
 
 
 namespace poac::io::network {
@@ -94,7 +95,7 @@ namespace poac::io::network {
         // Declare a container to hold the response
         http::response<ResponseBody> res;
         // Receive the HTTP response
-        http::read(stream, buffer, res);
+        http::read(stream, buffer, res); // TODO: ファイルリードでも，一気に読んでしまっている．そのため，以下のcaseでresから，status_codeを読める．
 
         switch (res.base().result_int() / 100) {
             case 2: {
@@ -146,6 +147,10 @@ namespace poac::io::network {
         const auto req = create_request<http::string_body>(http::verb::get, target, host, headers);
         const auto res = request<http::vector_body<unsigned char>>(req, host);
         std::ofstream output_file(out.string(), std::ios::out | std::ios::binary);
+
+//        std::cout << res.size() << std::endl;
+//        TODO: request() 中に，Downloading [====>     ] 11.22MB/32.37MB 的なのがほしい．docker pullと似た感じ
+
         for (const auto& r : res) {
             output_file << r;
         }
@@ -181,21 +186,30 @@ namespace poac::io::network {
         const std::string boundary_footer = CRLF + "--" + boundary + "--" + CRLF; // footer
         const std::string content_disposition = "Content-Disposition: form-data; ";
 
-        std::stringstream token_stream;
-        token_stream << "--" << boundary << CRLF
-            << content_disposition << "name=\"token\"" << CRLF << CRLF
-            << token;
+        std::string token_header;
+        {
+            std::stringstream token_header_ss;
+            token_header_ss << "--" << boundary << CRLF
+                << content_disposition << "name=\"token\"" << CRLF << CRLF
+                << token;
+            token_header = token_header_ss.str();
+        }
 
-        std::stringstream file_stream;
-        file_stream << CRLF << "--" << boundary << CRLF
-            << content_disposition << "name=\"file\"; filename=\"" << file_path.filename().string() << "\"" << CRLF
-            << "Content-Type: application/x-gzip" << CRLF
-            << "Content-Transfer-Encoding: binary" << CRLF << CRLF;
+        std::string file_header;
+        {
+            std::stringstream file_header_ss;
+            file_header_ss << CRLF << "--" << boundary << CRLF
+                << content_disposition << "name=\"file\"; filename=\"" << file_path.filename().string() << "\"" << CRLF
+                << "Content-Type: application/x-gzip" << CRLF
+                << "Content-Transfer-Encoding: binary" << CRLF << CRLF;
+            file_header = file_header_ss.str();
+        }
 
         auto req = create_request<http::string_body>(http::verb::post, target, host);
         req.set(http::field::accept, "*/*");
         req.set(http::field::content_type, "multipart/form-data; boundary=" + boundary);
-        const auto content_length = token_stream.str().size() + file_stream.str().size() + fs::file_size(file_path) + boundary_footer.size();
+        const auto file_size = fs::file_size(file_path);
+        const auto content_length = token_header.size() + file_header.size() + file_size + boundary_footer.size();
         req.set(http::field::content_length, content_length);
 
 
@@ -228,16 +242,36 @@ namespace poac::io::network {
         reqss << req;
         // Send the HTTP request to the remote host
         stream.write_some(boost::asio::buffer(reqss.str()));
-        stream.write_some(boost::asio::buffer(token_stream.str()));
-        stream.write_some(boost::asio::buffer(file_stream.str()));
-        // Read file and write to stream
-        {
+        stream.write_some(boost::asio::buffer(token_header));
+        stream.write_some(boost::asio::buffer(file_header));
+        { // Read file and write to stream
             std::ifstream file(file_path.string(), std::ios::in | std::ios::binary);
             char buf[512];
+
+            // TODO: この辺りいい感じにまとめる
+            const auto [ parsed_byte, byte_unit ] = util::pretty::to_byte(file_size);
+            std::cout << std::fixed;
+            std::cout << cli::to_info("Uploading ") << cli::to_progress(0, file_size) << " ";
+            std::cout << "0" << byte_unit << "/";
+            std::cout << std::setprecision(2) << parsed_byte << byte_unit << std::flush;
+
+            unsigned long count = 0;
             while (!file.eof()) {
                 file.read(buf, 512);
                 stream.write_some(boost::asio::buffer(buf, file.gcount()));
+
+                unsigned long cur_file_size = ++count * 512;
+                if (cur_file_size > file_size) {
+                    cur_file_size = file_size;
+                }
+                const auto [ parsed_cur_byte, cur_byte_unit ] = util::pretty::to_byte(cur_file_size);
+                std::cout << std::fixed;
+                std::cout << '\r' << cli::clr_line;
+                std::cout << cli::to_info("Uploading ") << cli::to_progress(cur_file_size, file_size) << " ";
+                std::cout << std::setprecision(2) << parsed_cur_byte << cur_byte_unit << "/";
+                std::cout << std::setprecision(2) << parsed_byte << byte_unit << std::flush;
             }
+            std::cout << '\r' << cli::clr_line << cli::to_info("Uploaded.") << std::endl;
         }
         // Write footer to stream
         stream.write_some(boost::asio::buffer(boundary_footer));
@@ -246,6 +280,9 @@ namespace poac::io::network {
         boost::beast::flat_buffer buffer;
         // Declare a container to hold the response
         http::response<http::string_body> res;
+
+        cli::echo(cli::to_info("Waiting for server response..."));
+
         // Receive the HTTP response
         http::read(stream, buffer, res);
 
