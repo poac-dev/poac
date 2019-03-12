@@ -12,7 +12,7 @@ namespace poac::io::file::tarball {
     namespace fs = boost::filesystem;
 
     bool extract(const fs::path& filename, const std::string& options = "") {
-        const std::string cmd = "tar -zxf " + filename.string() + " " + options;
+        const std::string cmd = "tar zxf " + filename.string() + " " + options;
         return static_cast<bool>(std::system(cmd.data()));
     }
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
@@ -36,7 +36,7 @@ namespace poac::io::file::tarball {
         }
         const std::string filepath = fs::relative(input.parent_path()).string();
         const std::string filename = input.filename().string();
-        const std::string cmd = "cd " + filepath + " && " + "tar -zcf " + output.string() + " " + exclude + filename;
+        const std::string cmd = "cd " + filepath + " && " + "tar zcf " + output.string() + " " + exclude + filename;
         return static_cast<bool>(std::system(cmd.data()));
     }
 } // end namespace
