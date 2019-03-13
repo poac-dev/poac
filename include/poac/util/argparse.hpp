@@ -25,11 +25,12 @@ namespace poac::util::argparse {
     bool use_rm(SinglePassRange& rng, T... args)
     {
         const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        auto last = std::end(rng);
         bool found = false;
         for (const auto& a : types::tuple_to_array(std::tuple<T...>{ args... })) {
             if (const auto itr = std::find(first, last, a); itr != last) {
                 rng.erase(itr);
+                last = std::end(rng);
                 found = true;
             }
         }
@@ -49,7 +50,7 @@ namespace poac::util::argparse {
             return std::nullopt;
         }
     }
-    // -o filename -> return filename
+    // -o filename OR --output filename -> return filename
     template <class SinglePassRange, class T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg1, T arg2) {
