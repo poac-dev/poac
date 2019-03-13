@@ -15,8 +15,8 @@ namespace poac::util::argparse {
     template <class SinglePassRange, class... T>
     bool use(SinglePassRange& rng, T... args)
     {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        const auto first = std::cbegin(rng);
+        const auto last = std::cend(rng);
         return ((std::find(first, last, args) != last) || ...);
     }
 
@@ -41,8 +41,8 @@ namespace poac::util::argparse {
     template <class SinglePassRange, class T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        const auto first = std::cbegin(rng);
+        const auto last = std::cend(rng);
         if (const auto result = std::find(first, last, arg); result != last) {
             return *(result + 1);
         }
@@ -54,8 +54,8 @@ namespace poac::util::argparse {
     template <class SinglePassRange, class T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg1, T arg2) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        const auto first = std::cbegin(rng);
+        const auto last = std::cend(rng);
         if (const auto result1 = std::find(first, last, arg1); result1 != last) {
             return *(result1 + 1);
         }
