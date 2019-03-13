@@ -73,8 +73,9 @@ namespace poac::subcmd {
         }
 
         void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
+            namespace cli = io::cli;
             const std::string status = n + " " + v + " (from: " + s + ")";
-            io::cli::echo(res ? io::cli::to_fetch_failed(status) : io::cli::to_fetched(status));
+            cli::echo('\r', cli::clr_line, res ? cli::to_fetch_failed(status) : cli::to_fetched(status));
         }
 
         void fetch_packages(
@@ -120,13 +121,17 @@ namespace poac::subcmd {
                     const auto tar_dir = pkg_dir.string() + ".tar.gz";
                     const std::string target = resolver::archive_url(name, dep.version);
 
-                    io::network::get(target, tar_dir, POAC_API_HOST);
+                    { // Get archive file
+                        std::ofstream output_file(tar_dir, std::ios::out | std::ios::binary);
+                        const io::network::requests req{};
+                        req.get(target, {}, std::move(output_file));
+                    }
                     // If res is true, does not execute func. (short-circuit evaluation)
-                    bool res = tb::extract_spec_rm(tar_dir, pkg_dir);
-                    res = !res && copy_to_current(cache_name, current_name);
+                    bool result = tb::extract_spec_rm(tar_dir, pkg_dir);
+                    result = !result && copy_to_current(cache_name, current_name);
 
                     if (!quite) {
-                        echo_install_status(res, name, dep.version, dep.source);
+                        echo_install_status(result, name, dep.version, dep.source);
                     }
                 }
                 else if (dep.source == "github") {

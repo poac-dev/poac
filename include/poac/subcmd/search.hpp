@@ -47,7 +47,9 @@ namespace poac::subcmd {
             io::network::Headers headers;
             headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
             headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
-            ss << io::network::post(ALGOLIA_SEARCH_INDEX_API, params, ALGOLIA_SEARCH_INDEX_API_HOST, headers);
+            const io::network::requests req{ ALGOLIA_SEARCH_INDEX_API_HOST };
+            const auto res = req.post<io::network::http::string_body>(ALGOLIA_SEARCH_INDEX_API, params, headers);
+            ss << res.data();
 
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);

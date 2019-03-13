@@ -151,14 +151,20 @@ namespace poac::subcmd {
             if (verbose) {
                 std::cout << json_s << std::endl;
             }
-            if (const std::string res = io::network::post(POAC_TOKENS_VALIDATE_API, json_s); res != "ok") {
-                throw exception::error(res);
+            {
+                const io::network::requests req{};
+                const auto res = req.post<io::network::http::string_body>(POAC_TOKENS_VALIDATE_API, json_s);
+                if (res.data() != "ok"s) {
+                    throw exception::error(res.data());
+                }
             }
 
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
-            if (io::network::get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version) == "true") {
+            const io::network::requests req{};
+            const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
+            if (res.data() == "true"s) {
                 throw exception::error(
                         exception::msg::already_exist(node_name + ": " + node_version));
             }
