@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <iomanip>
 
+#include "../util/pretty.hpp"
+
 
 namespace poac::io::cli {
     // Clear screen
@@ -72,9 +74,10 @@ namespace poac::io::cli {
     const std::string fetched = to_green("  ●  ");
     const std::string fetch_failed = to_red("  ●  ");
 
-    const std::string info = to_gray("INFO: ");
     const std::string warning = to_yellow("WARN: ");
     const std::string error = to_red("ERROR: ");
+    const std::string info = to_blue("info: ");
+    const std::string debug_m = to_gray("[debug] ");
 
     inline std::string to_status(const std::string& s) { return status+s; }
     inline std::string to_fetched(const std::string& s) { return fetched+s; }
@@ -101,7 +104,11 @@ namespace poac::io::cli {
     }
 
     // Create progress bar, [====>   ]
-    std::string to_progress(const int now_count, const int max_count) {
+    std::string to_progress(const int& max_count, int now_count) {
+        if (now_count > max_count) {
+            now_count = max_count;
+        }
+
         const int bar_size = 50;
         const int percent = (now_count * 100) / max_count;
         const int bar_pos = percent / 2;
@@ -138,6 +145,15 @@ namespace poac::io::cli {
         }
         return bar;
     }
+    // Print byte progress bar, [====>   ] 10.21B/21.28KB
+    void echo_byte_progress(const int& max_count, const int& now_count) {
+        const auto [ parsed_max_byte, max_byte_unit ] = util::pretty::to_byte(max_count);
+        const auto [ parsed_now_byte, now_byte_unit ] = util::pretty::to_byte(now_count);
+        std::cout << cli::to_progress(max_count, now_count) << " ";
+        std::cout << std::fixed;
+        std::cout << std::setprecision(2) << parsed_now_byte << now_byte_unit << "/";
+        std::cout << std::setprecision(2) << parsed_max_byte << max_byte_unit << std::flush;
+    }
 
 
     template <typename... T>
@@ -152,13 +168,13 @@ namespace poac::io::cli {
     template <typename... T>
     inline void debugln([[maybe_unused]] const T&... s) {
 #ifdef DEBUG
-        echo(to_gray("[debug] "), s...);
+        echo(debug_m, s...);
 #endif
     }
     template <typename... T>
     inline void debug([[maybe_unused]] const T &... s) {
 #ifdef DEBUG
-        echo_noln(to_gray("[debug] "), s...);
+        echo_noln(debug_m, s...);
 #endif
     }
 } // end namespace
