@@ -1,5 +1,5 @@
-#ifndef POAC_IO_NETWORK_HPP
-#define POAC_IO_NETWORK_HPP
+#ifndef POAC_IO_NET_HPP
+#define POAC_IO_NET_HPP
 
 #include <iostream>
 #include <fstream>
@@ -34,7 +34,7 @@
 #include "../util/pretty.hpp"
 
 
-namespace poac::io::network {
+namespace poac::io::net {
     namespace http = boost::beast::http;
     using Headers = std::map<std::variant<http::field, std::string>, std::string>;
 
@@ -489,4 +489,4 @@ namespace poac::io::network {
         }
     }
 } // end namespace
-#endif // !POAC_IO_NETWORK_HPP
+#endif // !POAC_IO_NET_HPP

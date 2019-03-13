@@ -3,6 +3,6 @@
 
 #include "io/cli.hpp"
 #include "io/file.hpp"
-#include "io/network.hpp"
+#include "io/net.hpp"
 
 #endif // !POAC_IO_HPP

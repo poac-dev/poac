@@ -152,8 +152,8 @@ namespace poac::subcmd {
                 std::cout << json_s << std::endl;
             }
             {
-                const io::network::requests req{};
-                const auto res = req.post<io::network::http::string_body>(POAC_TOKENS_VALIDATE_API, json_s);
+                const io::net::requests req{};
+                const auto res = req.post<io::net::http::string_body>(POAC_TOKENS_VALIDATE_API, json_s);
                 if (res.data() != "ok"s) {
                     throw exception::error(res.data());
                 }
@@ -162,7 +162,7 @@ namespace poac::subcmd {
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
-            const io::network::requests req{};
+            const io::net::requests req{};
             const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
             if (res.data() == "true"s) {
                 throw exception::error(
@@ -175,7 +175,7 @@ namespace poac::subcmd {
                 throw exception::error(
                         exception::msg::does_not_exist("poac.yml"));
             }
-            if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
+            if (const auto res = io::net::post_file(token, output_dir); res != "ok") {
                 std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;
             }
 

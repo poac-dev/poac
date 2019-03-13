@@ -19,7 +19,7 @@
 #include "../io/file/path.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
-#include "../io/network.hpp"
+#include "../io/net.hpp"
 #include "../util/types.hpp"
 
 

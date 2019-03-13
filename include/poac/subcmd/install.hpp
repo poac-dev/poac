@@ -123,7 +123,7 @@ namespace poac::subcmd {
 
                     { // Get archive file
                         std::ofstream output_file(tar_dir, std::ios::out | std::ios::binary);
-                        const io::network::requests req{};
+                        const io::net::requests req{};
                         req.get(target, {}, std::move(output_file));
                     }
                     // If res is true, does not execute func. (short-circuit evaluation)

@@ -11,7 +11,7 @@
 
 #include "../core/exception.hpp"
 #include "../io/cli.hpp"
-#include "../io/network.hpp"
+#include "../io/net.hpp"
 #include "../util/argparse.hpp"
 
 
@@ -44,11 +44,11 @@ namespace poac::subcmd {
             }
 
             std::stringstream ss;
-            io::network::Headers headers;
+            io::net::Headers headers;
             headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
             headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
-            const io::network::requests req{ ALGOLIA_SEARCH_INDEX_API_HOST };
-            const auto res = req.post<io::network::http::string_body>(ALGOLIA_SEARCH_INDEX_API, params, headers);
+            const io::net::requests req{ ALGOLIA_SEARCH_INDEX_API_HOST };
+            const auto res = req.post<io::net::http::string_body>(ALGOLIA_SEARCH_INDEX_API, params, headers);
             ss << res.data();
 
             boost::property_tree::ptree pt;
