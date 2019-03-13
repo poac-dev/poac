@@ -3,7 +3,7 @@ project(poac)
 
 # Preprocessor definitions
 add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
-add_definitions(-DPOAC_VERSION="0.1.2")
+add_definitions(-DPOAC_VERSION="0.2.0")
 if(CYGWIN)
     add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj)
 elseif(UNIX)
