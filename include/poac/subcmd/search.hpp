@@ -13,6 +13,7 @@
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
 #include "../util/argparse.hpp"
+#include "../util/pretty.hpp"
 
 
 namespace poac::subcmd {
@@ -61,19 +62,47 @@ namespace poac::subcmd {
             return pt;
         }
 
-        // If string size is over specified number of characters and it can be clipped,
-        //  display an ellipsis (...).
-        std::string string_pretty(const std::string& s, const unsigned long& n) {
-            if (s.size() <= n) {
+        // https://marycore.jp/prog/cpp/std-string-replace-first-all/#std%3A%3Areplace関数による全置換
+        template<class T, class U>
+        std::string replace(std::string s, const T& target, const U& replacement) {
+            using S = std::string;
+            using C = std::string::value_type;
+            using N = std::string::size_type;
+            struct {
+                auto len(const S& s) { return s.size(); }
+                auto len(const C* p) { return std::char_traits<C>::length(p); }
+                auto len([[maybe_unused]] const C c) { return 1; }
+                auto sub(S* s, const S& t, N pos, N len) { s->replace(pos, len, t); }
+                auto sub(S* s, const C* t, N pos, N len) { s->replace(pos, len, t); }
+                auto sub(S* s, const C  t, N pos, N len) { s->replace(pos, len, 1, t); }
+                auto ins(S* s, const S& t, N pos) { s->insert(pos, t); }
+                auto ins(S* s, const C* t, N pos) { s->insert(pos, t); }
+                auto ins(S* s, const C  t, N pos) { s->insert(pos, 1, t); }
+            } util;
+
+            N target_length      = util.len(target);
+            N replacement_length = util.len(replacement);
+            if (target_length == 0) {
+                if (replacement_length == 0) return s;
+                N n = s.size() + replacement_length * (1 + s.size());
+                s.reserve(n);
+                for (N i = 0; i < n; i += 1 + replacement_length ) {
+                    util.ins(&s, replacement, i);
+                }
                 return s;
             }
-            else {
-                return s.substr(0, n) + "...";
+
+            N pos = 0;
+            while ((pos = s.find(target, pos)) != std::string::npos) {
+                util.sub(&s, replacement, pos, target_length);
+                pos += replacement_length;
             }
+            return s;
         }
 
         template<typename VS>
         int _main(VS&& argv) {
+            namespace cli = io::cli;
             using namespace boost::property_tree;
 
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
@@ -88,11 +117,16 @@ namespace poac::subcmd {
             echo_first_line();
             for (const ptree::value_type& child : pt.get_child("hits")) {
                 const ptree& hits = child.second;
-                io::cli::set_left(25);
-                std::cout << string_pretty(hits.get<std::string>("name"), 21);
-                io::cli::set_left(50);
-                std::cout << string_pretty(hits.get<std::string>("description"), 45);
-                io::cli::set_left(15);
+
+                std::string name = hits.get<std::string>("_highlightResult.name.value");
+                name = replace(name, "<em>", cli::red);
+                name = replace(name, "</em>", cli::reset);
+
+                cli::set_left(25 + cli::red.size() + cli::reset.size());
+                std::cout << util::pretty::clip_string(name, 21 + cli::red.size() + cli::reset.size());
+                cli::set_left(50);
+                std::cout << util::pretty::clip_string(hits.get<std::string>("description"), 45);
+                cli::set_left(15);
                 std::cout << hits.get<std::string>("version")
                           << "    " << hits.get<std::string>("cpp_version")
                           << std::endl;

@@ -48,5 +48,16 @@ namespace poac::util::pretty {
         }
         return { tb, "TB" };
     }
+
+    // If string size is over specified number of characters and it can be clipped,
+    //  display an ellipsis (...).
+    std::string clip_string(const std::string& s, const unsigned long& n) {
+        if (s.size() <= n) {
+            return s;
+        }
+        else {
+            return s.substr(0, n) + "...";
+        }
+    }
 } // end namespace
 #endif // !POAC_UTIL_PRETTY_HPP
