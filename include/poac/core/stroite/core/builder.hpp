@@ -48,66 +48,6 @@ namespace poac::core::stroite::core {
         bool verbose;
 
 
-        auto make_include_search_path() {
-            namespace fs = boost::filesystem;
-            namespace lock = deper::lock;
-            namespace yaml = io::file::yaml;
-            namespace path = io::file::path;
-
-            std::vector<std::string> include_search_path;
-            if (deps_node) { // TODO: subcmd/build.hppで，存在確認が取れている
-                if (const auto locked_deps = lock::load_ignore_timestamp()) {
-                    for (const auto& [name, dep] : locked_deps->backtracked) {
-                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
-                        const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
-
-                        if (path::validate_dir(include_dir)) {
-                            include_search_path.push_back(include_dir.string());
-                        }
-                        else {
-                            throw exception::error(
-                                    name + " is not installed.\n"
-                                    "Please build after running `poac install`");
-                        }
-                    }
-                }
-                else {
-                    throw exception::error(
-                            "Could not load poac.lock.\n"
-                            "Please build after running `poac install`");
-                }
-            }
-            return include_search_path;
-        }
-
-        auto make_macro_defns() {
-            namespace fs = boost::filesystem;
-            namespace yaml = io::file::yaml;
-            using utils::config::make_macro_defn;
-
-            std::vector<std::string> macro_defns;
-            // poac automatically define the absolute path of the project's root directory.
-            macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
-            const auto version = deper::semver::Version(yaml::get_with_throw<std::string>(node.at("version")));
-            macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
-            macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
-            macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));
-            macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
-            return macro_defns;
-        }
-
-        std::vector<std::string>
-        make_compile_other_args() {
-            namespace yaml = io::file::yaml;
-            if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
-                return *compile_args;
-            }
-            else {
-                return {};
-            }
-        }
-
-
         std::vector<std::string>
         hash_source_files(
             std::vector<std::string>&& source_files,
@@ -117,7 +57,7 @@ namespace poac::core::stroite::core {
 
             if (usemain) {
                 if (!fs::exists("main.cpp")) {
-                    throw exception::error("main.cpp does not exists");
+                    throw exception::error(exception::msg::does_not_exist("main.cpp"));
                 }
                 else {
                     source_files.push_back("main.cpp");
@@ -134,10 +74,10 @@ namespace poac::core::stroite::core {
             compile_conf.system = compiler;
             compile_conf.version_prefix = utils::config::default_version_prefix();
             compile_conf.cpp_version = yaml::get_with_throw<unsigned int>(node.at("cpp_version"));
-            compile_conf.include_search_path = make_include_search_path();
-            compile_conf.other_args = make_compile_other_args();
+            compile_conf.include_search_path = utils::config::make_include_search_path(static_cast<bool>(deps_node));
+            compile_conf.other_args = utils::config::make_compile_other_args(node);
             compile_conf.source_files = hash_source_files(search::cpp(base_dir), usemain);
-            compile_conf.macro_defns = make_macro_defns();
+            compile_conf.macro_defns = utils::config::make_macro_defns(node);
             compile_conf.base_dir = base_dir;
             compile_conf.output_root = path::current_build_cache_obj_dir;
         }
@@ -280,7 +220,7 @@ namespace poac::core::stroite::core {
             node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
             deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps");
             project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
-            compiler = utils::config::auto_select_compiler();
+            compiler = utils::detect::compiler();
             base_dir = base_path;
             this->verbose = verbose;
         }

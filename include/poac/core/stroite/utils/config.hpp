@@ -9,14 +9,21 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../../exception.hpp"
-#include "../../../util/command.hpp"
+#include "../../naming.hpp"
+#include "../../deper/lock.hpp"
+#include "../../deper/semver.hpp"
+#include "../../../io/file/path.hpp"
+#include "../../../io/cli.hpp"
+#include "../../../io/file/yaml.hpp"
 
 
-namespace poac::core::stroite::utils::config {
+namespace poac::core::stroite::utils::config { // FIXME: configという名称はここには適切ではない．
     template <typename Opts>
     void enable_gnu(Opts& opts) { // TODO:
         opts.version_prefix = "-std=gnu++";
     }
+
+    // TODO: できれば，implに，
     std::string default_version_prefix() {
         return "-std=c++";
     }
@@ -35,57 +42,66 @@ namespace poac::core::stroite::utils::config {
         return make_macro_defn(first, oss.str());
     }
 
-    // Automatic selection of compiler
-    auto auto_select_compiler() {
-        namespace command = util::_command;
 
-        if (const char* cxx = std::getenv("CXX")) {
-            return cxx;
-        }
-        else if (command::has_command("g++")) {
-            return "g++";
-        }
-        else if (command::has_command("clang++")) {
-            return "clang++";
-        }
-        else {
-            throw exception::error(
-                    "Environment variable \"CXX\" was not found.\n"
-                    "Select the compiler and export it.");
-        }
-    }
-
-
-    std::string check_support_build_system(const std::string& system) {
-        if (system != "poac" && system != "cmake") {
-            throw exception::error("Unknown build system " + system);
-        }
-        return system;
-    }
-
-    std::optional<std::string>
-    detect_build_system(const YAML::Node& node)
-    {
+    std::vector<std::string>
+    make_macro_defns(const std::map<std::string, YAML::Node>& node) {
+        namespace fs = boost::filesystem;
         namespace yaml = io::file::yaml;
 
-        if (const auto system = yaml::get<std::string>(node, "build")) {
-            return check_support_build_system(*system);
-        }
-        else if (const auto build_node = yaml::get<std::map<std::string, YAML::Node>>(node, "build")) {
-            YAML::Node build_node2;
-            try {
-                build_node2 = (*build_node).at("system");
-            }
-            catch(std::out_of_range&) {
-                return std::nullopt;
-            }
+        std::vector<std::string> macro_defns;
+        // poac automatically define the absolute path of the project's root directory.
+        // TODO: これ，依存関係もこれ使ってたら，それも，ルートのにならへん？header-only libの時
+        macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
+        const auto version = deper::semver::Version(yaml::get_with_throw<std::string>(node.at("version")));
+        macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
+        macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
+        macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));
+        macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
+        return macro_defns;
+    }
 
-            if (const auto system2 = yaml::get<std::string>(build_node2)) {
-                return check_support_build_system(*system2);
+    std::vector<std::string>
+    make_include_search_path(const bool exist_deps_key) {
+        namespace fs = boost::filesystem;
+        namespace lock = deper::lock;
+        namespace yaml = io::file::yaml;
+        namespace path = io::file::path;
+
+        std::vector<std::string> include_search_path;
+        if (exist_deps_key) { // depsキーが存在する // TODO: subcmd/build.hppで，存在確認が取れている
+            if (const auto locked_deps = lock::load_ignore_timestamp()) {
+                for (const auto& [name, dep] : locked_deps->backtracked) {
+                    const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                    const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
+
+                    if (path::validate_dir(include_dir)) {
+                        include_search_path.push_back(include_dir.string());
+                    }
+                    else {
+                        throw exception::error(
+                                name + " is not installed.\n"
+                                "Please build after running `poac install`");
+                    }
+                }
+            }
+            else {
+                throw exception::error(
+                        "Could not load poac.lock.\n"
+                        "Please build after running `poac install`");
             }
         }
-        // No build required
-        return std::nullopt;
+        return include_search_path;
+    }
+
+    std::vector<std::string>
+    make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
+        namespace yaml = io::file::yaml;
+        if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
+            return *compile_args;
+        }
+        else {
+            return {};
+        }
     }
 } // end namespace
 #endif // POAC_CORE_STROITE_UTILS_CONFIG_HPP

@@ -12,7 +12,7 @@
 
 #include "../core/exception.hpp"
 #include "../core/stroite/utils/absorb.hpp"
-#include "../core/stroite/utils/config.hpp"
+#include "../core/stroite/utils/detect.hpp"
 #include "../core/deper/lock.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
@@ -185,7 +185,7 @@ namespace poac::subcmd {
             namespace exception = core::exception;
             namespace stroite = core::stroite;
 
-            if (const auto system = stroite::utils::config::detect_build_system(node)) {
+            if (const auto system = stroite::utils::detect::build_system(node)) {
                 if (*system == "poac") {
                     // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
                     if (io::file::yaml::get(node, "build", "lib")) {
@@ -246,7 +246,7 @@ namespace poac::subcmd {
                             }
 
                             if (exist_build_key) {
-                                if (const auto system = stroite::utils::config::detect_build_system((*deps_node).at(name))) {
+                                if (const auto system = stroite::utils::detect::build_system((*deps_node).at(name))) {
                                     if (const auto obj_files_path_opt = compile_deps((*deps_node).at(name), name, deps_path, verbose)) {
                                         for (const auto& o : *obj_files_path_opt) {
                                             obj_files_path.push_back(o);
@@ -309,7 +309,7 @@ namespace poac::subcmd {
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
-            if (const auto system = stroite::utils::config::detect_build_system(node)) {
+            if (const auto system = stroite::utils::detect::build_system(node)) {
                 std::vector<std::string> deps_obj_files_path;
                 const auto built_deps = build_deps(node, deps_obj_files_path, verbose);
                 const bool is_built_deps = static_cast<bool>(built_deps);
@@ -355,7 +355,7 @@ namespace poac::subcmd {
             else { // error
                 throw exception::error(
                         "Required key `build` does not exist in poac.yml.\n"
-                        "Please refer to https://docs.poac.io");
+                        "Please refer to https://doc.poac.pm");
             }
             return EXIT_SUCCESS;
         }
