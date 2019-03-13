@@ -38,8 +38,8 @@ namespace poac::io::network {
     namespace http = boost::beast::http;
     using Headers = std::map<std::variant<http::field, std::string>, std::string>;
 
-    template <typename Request>
-    http::request<Request>
+    template <typename RequestBody>
+    http::request<RequestBody>
     create_request(
             http::verb method,
             std::string_view target,
@@ -47,7 +47,7 @@ namespace poac::io::network {
             const Headers& headers={})
     {
         // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
-        http::request<Request> req{ method, std::string(target), 11 };
+        http::request<RequestBody> req{ method, std::string(target), 11 };
         req.set(http::field::host, host);
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         for (const auto& [field, string_param] : headers) {
