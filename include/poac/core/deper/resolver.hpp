@@ -23,7 +23,7 @@
 #include "../exception.hpp"
 #include "../naming.hpp"
 #include "../../io/file.hpp"
-#include "../../io/network.hpp"
+#include "../../io/net.hpp"
 #include "../../config.hpp"
 #include "../../util/types.hpp"
 
@@ -90,37 +90,6 @@ namespace poac::core::deper::resolver {
     };
 
 
-    // Interval to multiple versions
-    // `>=0.1.2 and <3.4.0` -> 2.5.0
-    // `latest` -> 2.5.0
-    // name is boost/config, no boost-config
-    std::vector<std::string>
-    decide_versions(const std::string& name, const std::string& interval) {
-        // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        if (const auto versions = io::network::api::versions(name)) {
-            // TODO: API自体は同じパッケージから呼び出す意味がない．全て同じになる．-> API結果をcacheして，interval情報のみ検証する
-            if (interval == "latest") {
-                const auto latest = std::max_element((*versions).begin(), (*versions).end(),
-                        [](auto a, auto b) { return semver::Version(a) > b; });
-                return { *latest };
-            }
-            else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
-                std::vector<std::string> res;
-                semver::Interval i(name, interval);
-                copy_if((*versions).begin(), (*versions).end(), back_inserter(res),
-                        [&](std::string s) { return i.satisfies(s); });
-                if (res.empty()) {
-                    throw exception::error("`" + name + ": " + interval + "` was not found.");
-                }
-                else {
-                    return res;
-                }
-            }
-        }
-        else {
-            throw exception::error("`" + name + ": " + interval + "` was not found.");
-        }
-    }
 
     template <typename T>
     inline std::string to_bin_str(T n, const std::size_t& digit_num) {
@@ -301,13 +270,47 @@ namespace poac::core::deper::resolver {
         }
     }
 
+    // Interval to multiple versions
+    // `>=0.1.2 and <3.4.0` -> 2.5.0
+    // `latest` -> 2.5.0
+    // name is boost/config, no boost-config
+    std::vector<std::string>
+    decide_versions(const std::string& name, const std::string& interval) {
+        // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
+        if (const auto versions = io::net::api::versions(name)) {
+            // TODO: API自体は同じパッケージから呼び出す意味がない．全て同じになる．-> API結果をcacheして，interval情報のみ検証する
+            if (interval == "latest") {
+                const auto latest = std::max_element((*versions).begin(), (*versions).end(),
+                        [](auto a, auto b) { return semver::Version(a) > b; });
+                return { *latest };
+            }
+            else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
+                std::vector<std::string> res;
+                semver::Interval i(name, interval);
+                copy_if((*versions).begin(), (*versions).end(), back_inserter(res),
+                        [&](std::string s) { return i.satisfies(s); });
+                if (res.empty()) {
+                    throw exception::error(
+                            exception::msg::not_found("`" + name + ": " + interval + "`"));
+                }
+                else {
+                    return res;
+                }
+            }
+        }
+        else {
+            throw exception::error(
+                    exception::msg::not_found("`" + name + ": " + interval + "`"));
+        }
+    }
+
     void activate(Resolved& new_deps,
                   Activated prev_activated_deps,
                   Activated& activated_deps,
                   const std::string& name,
                   const std::string& interval)
     {
-        for (const auto& version : resolver::decide_versions(name, interval)) {
+        for (const auto& version : decide_versions(name, interval)) {
             // {}なのは，依存先の依存先までは必要無く，依存先で十分なため
             activated_deps.push_back({ {name}, {version}, {"poac"}, {} });
 
@@ -324,7 +327,7 @@ namespace poac::core::deper::resolver {
             }
             prev_activated_deps.push_back({ {name}, {version}, {"poac"}, {} });
 
-            if (const auto current_deps = io::network::api::deps(name, version)) {
+            if (const auto current_deps = io::net::api::deps(name, version)) {
                 Activated activated_deps2;
 
                 for (const auto& current_dep : *current_deps) {
@@ -343,8 +346,11 @@ namespace poac::core::deper::resolver {
         Resolved new_deps;
         for (const auto& dep : deps) {
             // Activate the top of dependencies
-            for (const auto& version : resolver::decide_versions(dep.name, dep.interval)) {
-                if (const auto current_deps = io::network::api::deps(dep.name, version)) {
+
+            // TODO: つまり，cahingした，nameとintervalが完全に一致するならば，decide_versions(API)を呼ぶ意味は無い．
+            // TODO: nameが一致するが，intervalが一致しないなら，最終的なversionが異なる可能性がある．
+            for (const auto& version : decide_versions(dep.name, dep.interval)) { // TODO: versionだけでなく，intervalもcacheする
+                if (const auto current_deps = io::net::api::deps(dep.name, version)) {
                     Activated activated_deps;
 
                     for (const auto& current_dep : *current_deps) {
