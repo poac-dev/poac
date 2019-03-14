@@ -296,11 +296,11 @@ namespace poac::core::deper::resolver {
     }
 
     //       ○
-    //      / \
+    //      / |
     //    _________________________
     //   | ○ ← name & interval   ○ | ← prev_deps_node
     //    ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
-    //    /\  /| \
+    //    /|  /| |
     //   ○ ○  ○ ○ ○
     void activate(
             const std::string& name,
