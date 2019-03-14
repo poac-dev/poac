@@ -152,7 +152,7 @@ namespace poac::io::cli {
         std::cout << cli::to_progress(max_count, now_count) << " ";
         std::cout << std::fixed;
         std::cout << std::setprecision(2) << parsed_now_byte << now_byte_unit << "/";
-        std::cout << std::setprecision(2) << parsed_max_byte << max_byte_unit << std::flush;
+        std::cout << std::setprecision(2) << parsed_max_byte << max_byte_unit;
     }
 
 

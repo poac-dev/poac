@@ -208,7 +208,7 @@ namespace poac::io::net {
 
         template <typename RequestBody=http::empty_body, typename Ofstream=std::nullptr_t,
                 typename ResponseBody=std::conditional_t<
-                        std::is_same_v<Ofstream, std::ofstream>, http::empty_body, http::string_body>>
+                        std::is_same_v<Ofstream, std::ofstream>, http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
         get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
@@ -250,19 +250,6 @@ namespace poac::io::net {
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
         typename ResponseBody::value_type
         read_response(Request&& old_req, Ofstream&& ofs) const {
-            if constexpr (!std::is_same_v<Ofstream, std::ofstream>) {
-                cli::debugln("Read type: simple");
-                return simple_read<method, ResponseBody>(std::forward<Request>(old_req));
-            }
-            else {
-                cli::debugln("Read type: progress");
-                return progress_read<method, ResponseBody>(std::forward<Request>(old_req), std::forward<Ofstream>(ofs));
-            }
-        }
-
-        template <http::verb method, typename ResponseBody, typename Request>
-        typename ResponseBody::value_type
-        simple_read(Request&& old_req) const {
             // This buffer is used for reading and must be persisted
             boost::beast::flat_buffer buffer;
             // Declare a container to hold the response
@@ -270,120 +257,41 @@ namespace poac::io::net {
             // Receive the HTTP response
             http::read(*stream, buffer, res);
             // Handle HTTP status code
-            return handle_status<method, std::nullptr_t>(std::forward<Request>(old_req), std::move(res));
+            return handle_status<method>(std::forward<Request>(old_req), std::move(res), std::forward<Ofstream>(ofs));
         }
 
-        template <http::verb method, typename ResponseBody, typename Request, typename Ofstream,
-                typename RequestBody=typename Request::body_type> // TODO: できれば，RequestBodyを必要無しに．つまり，handle_statusに流す
-        typename ResponseBody::value_type
-        progress_read(Request&& old_req, Ofstream&& ofs) const {
-            // Read the response status line.
-            boost::asio::streambuf res;
-            boost::asio::read_until(*stream, res, CRLF);
-
-            // Check that response is OK.
-            std::istream response_stream(&res);
-            std::string http_version;
-            response_stream >> http_version;
-            unsigned int status_code;
-            response_stream >> status_code;
-            std::string status_message;
-            std::getline(response_stream, status_message);
-
-            // Read the response headers, which are terminated by a blank line.
-            boost::asio::read_until(*stream, res, CRLF + CRLF);
-
-//            stream->read_some()
-
-            // TODO: こっちでheaderを読んでしまっておきたい．
-
-
-            // TODO: const auto res = create_response<>();
-            // TODO: return handle_status<method, std::nullptr_t>(std::forward<Request>(old_req), std::move(res));
-
-//            http::response<ResponseBody> res2;
-//            res2.base().result(status_code);
-
-            // Handle status code
-            switch (status_code / 100) { // TODO: ここを，上のようにhandle_statusで頑張る
-                case 2: {
-                    // Process the response headers.
-                    std::string header;
-                    std::string content_length_header = "Content-Length: "; // TODO: ": "でsplitして，左をmapのkeyにする
-                    int content_length;
-                    while (std::getline(response_stream, header) && header != "\r") {
-                        if (const auto pos = header.find(content_length_header); pos != std::string::npos) {
-                            content_length = std::stoi(std::string(header, pos + content_length_header.size()));
-                        }
-                    }
-
-                    unsigned int acc = 0;
-                    // Write whatever content we already have to output.
-                    if (res.size() > 0) {
-                        acc += 1;
-                        std::cout << '\r' << cli::clr_line << cli::to_info("Downloading ");
-                        cli::echo_byte_progress(content_length, acc);
-
-                        ofs << &res;
-                    }
-
-                    // Read until EOF, writing data to output as we go.
-                    boost::system::error_code ec;
-                    while (boost::asio::read(*stream, res, boost::asio::transfer_exactly(1), ec)) {
-                        acc += 1;
-                        std::cout << '\r' << cli::clr_line << cli::to_info("Downloading ");
-                        cli::echo_byte_progress(content_length, acc);
-
-                        // TODO: note: constexpr if で discarded statement における依存名はこの部分
-                        ofs << &res;
-                    }
-
-                    close_stream();
-                    return {};
-                }
-                case 3: {
-                    // Process the response headers.
-                    std::string header;
-                    std::string location_header = "Location: ";
-                    std::string new_location;
-                    while (std::getline(response_stream, header) && header != "\r") {
-                        if (const auto pos = header.find(location_header); pos != std::string::npos) {
-                            new_location = std::string(header, pos + location_header.size());
-                        }
-                    }
-                    const auto [new_host, new_target] = parse_url(new_location);
-                    cli::debugln("Redirect to ", new_location, '\n');
-
-                    // TODO: header情報が消えている．-> ここまで，最初のheaderを運んでもらう？？？
-                    const requests req(new_host);
-                    if constexpr (method == http::verb::get) {
-                        return req.get(new_target, {}, std::forward<Ofstream>(ofs));
-                    }
-                    else if (method == http::verb::post) {
-                        return req.post<ResponseBody, RequestBody>(new_target, old_req.body());
-                    }
-                    [[fallthrough]]; // verb error
-                }
-                default: {
-                    // TODO: handle error -> Please open issue
-                    close_stream();
-                    return {};
-                }
-            }
-        }
-
-
-        template <http::verb method, typename Ofstream, typename Request, typename Response,
+        template <http::verb method, typename Request, typename Response, typename Ofstream,
                 typename RequestBody=typename Request::body_type,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
-        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs=nullptr) const {
+        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             switch (res.base().result_int() / 100) {
                 case 2: {
-                    // TODO: この時，if constexprで，Ofstream
-
                     close_stream();
-                    return res.body();
+                    if constexpr (!std::is_same_v<Ofstream, std::ofstream>) {
+                        cli::debugln("Read type: string");
+                        return res.body();
+                    }
+                    else {
+                        cli::debugln("Read type: file with progress");
+                        const auto content_length = res.body().size();
+                        if (content_length < 100'000 /* 100KB */) {
+                            for (const auto& r : res.body()) { ofs << r; }
+                        }
+                        else {
+                            int acc = 0;
+                            for (const auto& r : res.body()) {
+                                ofs << r;
+                                if (++acc % 100 == 0) {
+                                    // To be accurate, not downloading.
+                                    std::cout << '\r' << cli::to_info("Downloading ");
+                                    cli::echo_byte_progress(content_length, acc);
+                                    std::cout << "  ";
+                                }
+                            }
+                        }
+                        return {};
+                    }
                 }
                 case 3: {
                     const std::string new_location = res.base()["Location"].to_string();
@@ -391,6 +299,7 @@ namespace poac::io::net {
                     cli::debugln("Redirect to ", new_location, '\n');
 
                     // TODO: header情報が消えている．-> ここまで，最初のheaderを運んでもらう？？？
+                    close_stream();
                     const requests req(new_host);
                     if constexpr (method == http::verb::get) {
                         return req.get(new_target, {}, std::forward<Ofstream>(ofs));
