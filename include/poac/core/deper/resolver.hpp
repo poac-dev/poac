@@ -12,7 +12,7 @@
 #include <map>
 #include <optional>
 #include <algorithm>
-#include <iterator> // back_inserter
+#include <iterator>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -259,16 +259,6 @@ namespace poac::core::deper::resolver {
         return { name, interval };
     }
 
-    // delete name && version
-    void delete_duplicate(Activated& activated) {
-        for (auto itr = activated.begin(); itr != activated.end(); ++itr) {
-            const auto found = std::find_if(itr+1, activated.end(),
-                    [&](auto x){ return itr->name == x.name && itr->version == x.version; });
-            if (found != activated.end()) {
-                activated.erase(found);
-            }
-        }
-    }
 
     // Interval to multiple versions
     // `>=0.1.2 and <3.4.0` -> 2.5.0
@@ -276,9 +266,10 @@ namespace poac::core::deper::resolver {
     // name is boost/config, no boost-config
     std::vector<std::string>
     decide_versions(const std::string& name, const std::string& interval) {
+//        io::cli::echo(name, ": ", interval);
+
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         if (const auto versions = io::net::api::versions(name)) {
-            // TODO: API自体は同じパッケージから呼び出す意味がない．全て同じになる．-> API結果をcacheして，interval情報のみ検証する
             if (interval == "latest") {
                 const auto latest = std::max_element((*versions).begin(), (*versions).end(),
                         [](auto a, auto b) { return semver::Version(a) > b; });
@@ -287,7 +278,7 @@ namespace poac::core::deper::resolver {
             else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
                 std::vector<std::string> res;
                 semver::Interval i(name, interval);
-                copy_if((*versions).begin(), (*versions).end(), back_inserter(res),
+                copy_if(versions->begin(), versions->end(), back_inserter(res),
                         [&](std::string s) { return i.satisfies(s); });
                 if (res.empty()) {
                     throw exception::error(
@@ -304,70 +295,90 @@ namespace poac::core::deper::resolver {
         }
     }
 
-    void activate(Resolved& new_deps,
-                  Activated prev_activated_deps,
-                  Activated& activated_deps,
-                  const std::string& name,
-                  const std::string& interval)
+    //       ○
+    //      / \
+    //    _________________________
+    //   | ○ ← name & interval   ○ | ← prev_deps_node
+    //    ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
+    //    /\  /| \
+    //   ○ ○  ○ ○ ○
+    void activate(
+            const std::string& name,
+            const std::string& interval,
+            Activated& new_deps,
+            Activated& all_deps_node,
+            std::vector<Package<Name, Interval>>& cache_all_deps,
+            Activated& prev_deps_node)
     {
+        // Check resolved dependency (by interval)
+        if (auto last = cache_all_deps.cend(); std::find_if(cache_all_deps.cbegin(), last, [&](auto d) {
+            return d.name == name && d.interval == interval; }) != last)
+        {   // It is not added to cur_deps_node (N-1) by being skipped.
+            // Therefore, the problem of not being selected as a package dependency that occurs.
+            // As a solving measure, use information already in new_deps.
+            semver::Interval i(name, interval);
+            auto nd_last = new_deps.cend();
+            auto match_f = [&](auto d) { return d.name == name && i.satisfies(d.version); };
+            auto itr = std::find_if(new_deps.cbegin(), nd_last, match_f);
+            if (itr != nd_last) {
+                while (itr != nd_last) {
+                    prev_deps_node.push_back({ {itr->name}, {itr->version}, {"poac"}, {} });
+                    itr = std::find_if(itr + 1, nd_last, match_f);
+                }
+            }
+            // It is assumed that it is peer-dependency because it does not already exist in new_deps,
+            //  although it is cached in cache_all_deps. So I call API again. (TODO: any solutions?)
+            else { // FIXME: There is room for optimization. (Useless API calls)
+                for (const auto& version : decide_versions(name, interval)) {
+                    prev_deps_node.push_back({ {name}, {version}, {"poac"}, {} });
+                }
+            }
+
+            return;
+        }
+        cache_all_deps.push_back({ {name}, {interval} }); // push top
+
+        // Get versions using interval
         for (const auto& version : decide_versions(name, interval)) {
-            // {}なのは，依存先の依存先までは必要無く，依存先で十分なため
-            activated_deps.push_back({ {name}, {version}, {"poac"}, {} });
+            prev_deps_node.push_back({ {name}, {version}, {"poac"}, {} });
 
-            const auto lambda = [&](auto d) { return d.name == name && d.version == version; };
-            // Circulating
-            auto result = std::find_if(prev_activated_deps.begin(), prev_activated_deps.end(), lambda);
-            if (result != prev_activated_deps.end()) {
-                break;
+            const auto match_f = [&](auto d) { return d.name == name && d.version == version; };
+            // Check circulating
+            if (auto last = all_deps_node.cend(); std::find_if(all_deps_node.cbegin(), last, match_f) != last) {
+                continue;
             }
-            // Resolved
-            auto result2 = std::find_if(new_deps.activated.begin(), new_deps.activated.end(), lambda);
-            if (result2 != new_deps.activated.end()) {
-                break;
+            // Check resolved dependency (by version)
+            if (auto last = new_deps.cend(); std::find_if(new_deps.cbegin(), last, match_f) != last) {
+                continue;
             }
-            prev_activated_deps.push_back({ {name}, {version}, {"poac"}, {} });
+            all_deps_node.push_back({ {name}, {version}, {"poac"}, {} }); // push top
 
+            // Get deps of deps
             if (const auto current_deps = io::net::api::deps(name, version)) {
-                Activated activated_deps2;
+                Activated cur_deps_node;
 
                 for (const auto& current_dep : *current_deps) {
-                    const auto[dep_name, dep_interval] = get_from_dep(current_dep.second);
-                    activate(new_deps, prev_activated_deps, activated_deps2, dep_name, dep_interval);
+                    const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
+                    activate(dep_name, dep_interval, new_deps, all_deps_node, cache_all_deps, cur_deps_node);
                 }
-                new_deps.activated.push_back({ {name}, {version}, {"poac"}, {activated_deps2} });
+                new_deps.push_back({ {name}, {version}, {"poac"}, {cur_deps_node} });
             }
             else {
-                new_deps.activated.push_back({ {name}, {version}, {"poac"}, {} });
+                new_deps.push_back({ {name}, {version}, {"poac"}, {} });
             }
         }
     }
 
     Resolved activate_deps_loop(const Deps& deps) {
-        Resolved new_deps;
+        Resolved new_deps{};
+        std::vector<Package<Name, Interval>> cache_all_deps;
+        Activated all_deps_node;
+
         for (const auto& dep : deps) {
             // Activate the top of dependencies
-
-            // TODO: つまり，cahingした，nameとintervalが完全に一致するならば，decide_versions(API)を呼ぶ意味は無い．
-            // TODO: nameが一致するが，intervalが一致しないなら，最終的なversionが異なる可能性がある．
-            for (const auto& version : decide_versions(dep.name, dep.interval)) { // TODO: versionだけでなく，intervalもcacheする
-                if (const auto current_deps = io::net::api::deps(dep.name, version)) {
-                    Activated activated_deps;
-
-                    for (const auto& current_dep : *current_deps) {
-                        const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
-
-                        Activated prev_activated_deps;
-                        prev_activated_deps.push_back({ {dep.name}, {version}, {"poac"}, {} }); // push top
-                        activate(new_deps, prev_activated_deps, activated_deps, dep_name, dep_interval);
-                    }
-                    new_deps.activated.push_back({ {dep.name}, {version}, {"poac"}, {activated_deps} });
-                }
-                else {
-                    new_deps.activated.push_back({ {dep.name}, {version}, {"poac"}, {} });
-                }
-            }
+            Activated cur_deps_node;
+            activate(dep.name, dep.interval, new_deps.activated, all_deps_node, cache_all_deps, cur_deps_node);
         }
-        delete_duplicate(new_deps.activated);
         return new_deps;
     }
 
@@ -386,8 +397,6 @@ namespace poac::core::deper::resolver {
             }
         }
 
-        // 木の末端からpush_backされていくため，依存が無いものが一番最初の要素になる．
-        // つまり，配列のループのそのままの順番でインストールやビルドを行うと不具合は起きない
         const Resolved activated_deps = activate_deps_loop(poac_deps);
         Resolved resolved_deps;
         // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
