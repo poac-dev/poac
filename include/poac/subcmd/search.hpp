@@ -119,16 +119,17 @@ namespace poac::subcmd {
                 const ptree& hits = child.second;
 
                 std::string name = hits.get<std::string>("_highlightResult.name.value");
-                name = replace(name, "<em>", cli::red);
-                name = replace(name, "</em>", cli::reset);
+                name = replace(name, "<em>", cli::red); // TODO: 参照で変更して，見つかった数を教えて欲しい．
+                name = replace(name, "</em>", cli::reset); // TODO: 置換が複数回行われている場合，.size()の計算を調整する必要がある
 
                 cli::set_left(25 + cli::red.size() + cli::reset.size());
                 std::cout << util::pretty::clip_string(name, 21 + cli::red.size() + cli::reset.size());
                 cli::set_left(50);
                 std::cout << util::pretty::clip_string(hits.get<std::string>("description"), 45);
                 cli::set_left(15);
+                const auto cpp_version = hits.get<std::string>("cpp_version");
                 std::cout << hits.get<std::string>("version")
-                          << "    " << hits.get<std::string>("cpp_version")
+                          << "    " << (cpp_version == "3" ? "03" : cpp_version)
                           << std::endl;
             }
 
