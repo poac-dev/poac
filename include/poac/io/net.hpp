@@ -185,7 +185,7 @@ namespace poac::io::net {
     }
 
     // Only SSL usage
-    class requests { // TODO: classにする意味がなさそう．publish.hppでスコープ作って都度破棄してるから．
+    class requests {
     public:
         explicit requests(std::string_view host_=POAC_API_HOST) : host(host_) {
             // The io_context is required for all I/O
@@ -261,59 +261,74 @@ namespace poac::io::net {
         }
 
         template <http::verb method, typename Request, typename Response, typename Ofstream,
-                typename RequestBody=typename Request::body_type,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
         handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
+            close_stream();
             switch (res.base().result_int() / 100) {
-                case 2: {
-                    close_stream();
-                    if constexpr (!std::is_same_v<Ofstream, std::ofstream>) {
-                        cli::debugln("Read type: string");
-                        return res.body();
-                    }
-                    else {
-                        cli::debugln("Read type: file with progress");
-                        const auto content_length = res.body().size();
-                        if (content_length < 100'000 /* 100KB */) {
-                            for (const auto& r : res.body()) { ofs << r; }
-                        }
-                        else {
-                            int acc = 0;
-                            for (const auto& r : res.body()) {
-                                ofs << r;
-                                if (++acc % 100 == 0) {
-                                    // To be accurate, not downloading.
-                                    std::cout << '\r' << cli::to_info("Downloading ");
-                                    cli::echo_byte_progress(content_length, acc);
-                                    std::cout << "  ";
-                                }
-                            }
-                        }
-                        return {};
-                    }
-                }
-                case 3: {
-                    const std::string new_location = res.base()["Location"].to_string();
-                    const auto [new_host, new_target] = parse_url(new_location);
-                    cli::debugln("Redirect to ", new_location, '\n');
-
-                    // TODO: header情報が消えている．-> ここまで，最初のheaderを運んでもらう？？？
-                    close_stream();
-                    const requests req(new_host);
-                    if constexpr (method == http::verb::get) {
-                        return req.get(new_target, {}, std::forward<Ofstream>(ofs));
-                    }
-                    else if (method == http::verb::post) {
-                        return req.post<ResponseBody, RequestBody>(new_target, old_req.body());
-                    }
-                    [[fallthrough]]; // verb error
-                }
-                default: {
+                case 2:
+                    return parse_response(std::forward<Response>(res), std::forward<Ofstream>(ofs));
+                case 3:
+                    return redirect<method>(
+                            std::forward<Request>(old_req),
+                            std::forward<Response>(res),
+                            std::forward<Ofstream>(ofs));
+                default:
                     // TODO: handle error -> Please open issue
-                    close_stream();
-                    return res.body();
+                    return {};
+            }
+        }
+
+        template <typename Response, typename Ofstream,
+                typename ResponseBody=typename Response::body_type>
+        typename ResponseBody::value_type
+        parse_response(Response&& res, Ofstream&& ofs) const {
+            if constexpr (!std::is_same_v<Ofstream, std::ofstream>) {
+                cli::debugln("Read type: string");
+                return res.body();
+            }
+            else {
+                cli::debugln("Read type: file with progress");
+                const typename ResponseBody::value_type response_body = res.body();
+                const auto content_length = response_body.size();
+                if (content_length < 100'000 /* 100KB */) {
+                    for (const auto& r : response_body) { ofs << r; }
                 }
+                else {
+                    int acc = 0;
+                    for (const auto& r : response_body) {
+                        ofs << r;
+                        if (++acc % 100 == 0) {
+                            // To be accurate, not downloading.
+                            std::cout << '\r' << cli::to_info("Downloading ");
+                            cli::echo_byte_progress(content_length, acc);
+                            std::cout << "  ";
+                        }
+                    }
+                }
+                return {};
+            }
+        }
+
+        template <http::verb method, typename Request, typename Response, typename Ofstream,
+                typename RequestBody=typename Request::body_type,
+                typename ResponseBody=typename Response::body_type>
+        typename ResponseBody::value_type
+        redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
+            const std::string new_location = res.base()["Location"].to_string();
+            const auto [new_host, new_target] = parse_url(new_location);
+            cli::debugln("Redirect to ", new_location, '\n');
+
+            // TODO: header情報が消えている．-> ここまで，最初のheaderを運んでもらう？？？
+            const requests req(new_host);
+            if constexpr (method == http::verb::get) {
+                return req.get(new_target, {}, std::forward<Ofstream>(ofs));
+            }
+            else if (method == http::verb::post) {
+                return req.post<ResponseBody, RequestBody>(new_target, old_req.body());
+            }
+            else { // verb error
+                return {};
             }
         }
 
