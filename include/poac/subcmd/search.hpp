@@ -62,10 +62,9 @@ namespace poac::subcmd {
             return pt;
         }
 
-        // https://marycore.jp/prog/cpp/std-string-replace-first-all/#std%3A%3Areplace関数による全置換
         unsigned int replace(std::string& s, const std::string& from, const std::string& target) {
-            std::size_t from_length = from.size();
-            std::size_t target_length = target.size();
+            const auto from_length = from.size();
+            const auto target_length = target.size();
             std::size_t pos = 0;
             unsigned int count = 0;
             while ((pos = s.find(from, pos)) != std::string::npos) {
