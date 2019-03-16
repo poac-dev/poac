@@ -105,6 +105,7 @@ namespace poac::io::net {
         std::size_t content_length() const {
             std::size_t filesize = 0;
             for (const auto& [name, filename, h] : file_param) {
+                (void)name; (void)h;
                 filesize += boost::filesystem::file_size(filename);
             }
             return header_.size() + filesize + footer_.size();
@@ -118,6 +119,7 @@ namespace poac::io::net {
         file() const {
             std::vector<fileInfo> file_info;
             for (const auto& [name, filename, h] : file_param) {
+                (void)name; (void)h;
                 file_info.push_back({filename.string(), boost::filesystem::file_size(filename)});
             }
             return file_info;
