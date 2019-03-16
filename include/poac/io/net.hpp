@@ -103,10 +103,12 @@ namespace poac::io::net {
             return "multipart/form-data; boundary=" + boundary;
         }
         std::size_t content_length() const {
+            namespace fs = boost::filesystem;
+
             std::size_t filesize = 0;
             for (const auto& [name, filename, h] : file_param) {
                 (void)name; (void)h;
-                filesize += boost::filesystem::file_size(filename);
+                filesize += static_cast<std::size_t>(fs::file_size(filename));
             }
             return header_.size() + filesize + footer_.size();
         }
@@ -117,10 +119,12 @@ namespace poac::io::net {
         };
         std::vector<fileInfo>
         file() const {
+            namespace fs = boost::filesystem;
+
             std::vector<fileInfo> file_info;
             for (const auto& [name, filename, h] : file_param) {
                 (void)name; (void)h;
-                file_info.push_back({filename.string(), boost::filesystem::file_size(filename)});
+                file_info.push_back({filename.string(), static_cast<std::size_t>(fs::file_size(filename))});
             }
             return file_info;
         }
