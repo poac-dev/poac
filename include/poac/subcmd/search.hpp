@@ -63,41 +63,17 @@ namespace poac::subcmd {
         }
 
         // https://marycore.jp/prog/cpp/std-string-replace-first-all/#std%3A%3Areplace関数による全置換
-        template<class T, class U>
-        std::string replace(std::string s, const T& target, const U& replacement) {
-            using S = std::string;
-            using C = std::string::value_type;
-            using N = std::string::size_type;
-            struct {
-                auto len(const S& s) { return s.size(); }
-                auto len(const C* p) { return std::char_traits<C>::length(p); }
-                auto len([[maybe_unused]] const C c) { return 1; }
-                auto sub(S* s, const S& t, N pos, N len) { s->replace(pos, len, t); }
-                auto sub(S* s, const C* t, N pos, N len) { s->replace(pos, len, t); }
-                auto sub(S* s, const C  t, N pos, N len) { s->replace(pos, len, 1, t); }
-                auto ins(S* s, const S& t, N pos) { s->insert(pos, t); }
-                auto ins(S* s, const C* t, N pos) { s->insert(pos, t); }
-                auto ins(S* s, const C  t, N pos) { s->insert(pos, 1, t); }
-            } util;
-
-            N target_length      = util.len(target);
-            N replacement_length = util.len(replacement);
-            if (target_length == 0) {
-                if (replacement_length == 0) return s;
-                N n = s.size() + replacement_length * (1 + s.size());
-                s.reserve(n);
-                for (N i = 0; i < n; i += 1 + replacement_length ) {
-                    util.ins(&s, replacement, i);
-                }
-                return s;
+        unsigned int replace(std::string& s, const std::string& from, const std::string& target) {
+            std::size_t from_length = from.size();
+            std::size_t target_length = target.size();
+            std::size_t pos = 0;
+            unsigned int count = 0;
+            while ((pos = s.find(from, pos)) != std::string::npos) {
+                s.replace(pos, from_length, target);
+                pos += target_length;
+                ++count;
             }
-
-            N pos = 0;
-            while ((pos = s.find(target, pos)) != std::string::npos) {
-                util.sub(&s, replacement, pos, target_length);
-                pos += replacement_length;
-            }
-            return s;
+            return count;
         }
 
         template<typename VS>
@@ -119,11 +95,11 @@ namespace poac::subcmd {
                 const ptree& hits = child.second;
 
                 std::string name = hits.get<std::string>("_highlightResult.name.value");
-                name = replace(name, "<em>", cli::red); // TODO: 参照で変更して，見つかった数を教えて欲しい．
-                name = replace(name, "</em>", cli::reset); // TODO: 置換が複数回行われている場合，.size()の計算を調整する必要がある
+                auto count_s = replace(name, "<em>", cli::red) * cli::red.size();
+                auto count_l = replace(name, "</em>", cli::reset) * cli::reset.size();
 
-                cli::set_left(25 + cli::red.size() + cli::reset.size());
-                std::cout << util::pretty::clip_string(name, 21 + cli::red.size() + cli::reset.size());
+                cli::set_left(25 + count_s + count_l);
+                std::cout << util::pretty::clip_string(name, 21 + count_s + count_l);
                 cli::set_left(50);
                 std::cout << util::pretty::clip_string(hits.get<std::string>("description"), 45);
                 cli::set_left(15);
