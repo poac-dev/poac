@@ -153,7 +153,7 @@ namespace poac::subcmd {
             }
             {
                 const io::net::requests req{};
-                const auto res = req.post<io::net::http::string_body>(POAC_TOKENS_VALIDATE_API, json_s);
+                const auto res = req.post(POAC_TOKENS_VALIDATE_API, json_s);
                 if (res.data() != "ok"s) {
                     throw exception::error(res.data());
                 }
@@ -162,11 +162,13 @@ namespace poac::subcmd {
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
-            const io::net::requests req{};
-            const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
-            if (res.data() == "true"s) {
-                throw exception::error(
-                        exception::msg::already_exist(node_name + ": " + node_version));
+            {
+                const io::net::requests req{};
+                const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
+                if (res.data() == "true"s) {
+                    throw exception::error(
+                            exception::msg::already_exist(node_name + ": " + node_version));
+                }
             }
 
             // Post tarball to API.
@@ -175,8 +177,18 @@ namespace poac::subcmd {
                 throw exception::error(
                         exception::msg::does_not_exist("poac.yml"));
             }
-            if (const auto res = io::net::post_file(token, output_dir); res != "ok") {
-                std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;
+            {
+                io::net::multiPartForm mp_form;
+                mp_form.set("token", token);
+                std::map<io::net::http::field, std::string> h;
+                h[io::net::http::field::content_type] = "application/x-gzip";
+                h[io::net::http::field::content_transfer_encoding] = "binary";
+                mp_form.set("file", output_dir, h);
+
+                const io::net::requests req{};
+                if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
+                    std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;
+                }
             }
 
             // Delete file
