@@ -117,7 +117,7 @@ namespace poac::core::infer {
     // Execute function: &func<idx>[idx]()
     template <std::size_t... Is, typename VS>
     static auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
-        // Return ""(empty string) because match the type to the other two functions.
+        // Return "0" or "1" (exit status) because match the type to the other two functions.
         return std::vector({ +[](VS&& vs){
             return std::to_string(op_type_list_t::at_t<Is>()(std::forward<VS>(vs)));
         }... })[idx](std::forward<VS>(vs));
