@@ -119,7 +119,7 @@ namespace poac::subcmd {
             namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace lock = core::deper::lock;
 
             auto node = yaml::load_config();
@@ -129,7 +129,7 @@ namespace poac::subcmd {
                 check_exist_name(deps_node, argv);
             }
             else {
-                throw exception::error(exception::msg::could_not_read("deps in poac.yml"));
+                throw except::error(except::msg::could_not_read("deps in poac.yml"));
             }
 
             // create resolved deps
@@ -192,7 +192,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw exception::error(exception::msg::could_not_load("poac.yml"));
+                    throw except::error(except::msg::could_not_load("poac.yml"));
                 }
                 fs::remove("poac.lock");
             }
@@ -218,7 +218,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw exception::error(exception::msg::could_not_load("poac.yml"));
+                    throw except::error(except::msg::could_not_load("poac.yml"));
                 }
                 _install::create_lock_file(timestamp, resolved_deps.activated);
             }
@@ -240,9 +240,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
             if (argv.empty()) {
-                throw exception::invalid_second_arg("uninstall");
+                throw except::invalid_second_arg("uninstall");
             }
         }
     }

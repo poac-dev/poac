@@ -45,7 +45,7 @@ namespace poac::subcmd {
         core::deper::resolver::Resolved create_resolved_deps() {
             namespace lock = core::deper::lock;
             namespace resolver = core::deper::resolver;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace yaml = io::file::yaml;
 
             // FIXME: uninstall.hppに同じのがある
@@ -55,7 +55,7 @@ namespace poac::subcmd {
                 deps_node = *deps_map;
             }
             else {
-                throw exception::error(exception::msg::could_not_read("deps in poac.yml"));
+                throw except::error(except::msg::could_not_read("deps in poac.yml"));
             }
 
             // create resolved deps
@@ -106,7 +106,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
 
             if (const auto output_op = util::argparse::use_get(argv, "-o", "--output")) {
                 fs::path output = *output_op;
@@ -124,7 +124,7 @@ namespace poac::subcmd {
                         io::cli::echo(io::cli::status_done());
                     }
                     else {
-                        throw exception::error(
+                        throw except::error(
                                 "To output with .png you need to install the graphviz.\n"
                                 "Or please consider outputting in .dot format.");
                     }
@@ -136,7 +136,7 @@ namespace poac::subcmd {
                     io::cli::echo(io::cli::status_done());
                 }
                 else {
-                    throw exception::error(
+                    throw except::error(
                             "The extension of the output file must be .dot or .png.");
                 }
             }

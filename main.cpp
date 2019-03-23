@@ -12,7 +12,7 @@ template <typename VS>
 int exec(std::string&& str, VS&& vs)
 {
     namespace inference = poac::core::infer;
-    namespace exception = poac::core::except;
+    namespace except = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
 
@@ -20,20 +20,20 @@ int exec(std::string&& str, VS&& vs)
     try {
         return std::stoi(inference::apply("exec"s, std::forward<std::string>(str), std::forward<VS>(vs)));
     }
-    catch (const exception::invalid_first_arg& e) {
+    catch (const except::invalid_first_arg& e) {
         std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl << std::endl;
         inference::apply("exec"s, "--help"s, VS());
         return EXIT_FAILURE;
     }
-    catch (const exception::invalid_second_arg& e) {
+    catch (const except::invalid_second_arg& e) {
         inference::apply("exec"s, "--help"s, VS({e.what()}));
         return EXIT_FAILURE;
     }
-    catch (const exception::error& e) {
+    catch (const except::error& e) {
         std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    catch (const exception::warn& e) {
+    catch (const except::warn& e) {
         std::cout << cli::to_yellow("WARN: ") << e.what() << std::endl;
         return EXIT_SUCCESS;
     }

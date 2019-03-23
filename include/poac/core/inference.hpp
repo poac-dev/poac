@@ -136,7 +136,7 @@ namespace poac::core::infer {
     template <typename S, typename Index, typename VS,
               typename Indices=std::make_index_sequence<op_type_list_t::size()>>
     static auto branch(S&& s, Index idx, VS&& vs) -> decltype(summary(Indices(), static_cast<int>(idx))) {
-        namespace exception = core::except;
+        namespace except = core::except;
         if (s == "exec")
             return execute(Indices(), static_cast<int>(idx), std::forward<VS>(vs));
         else if (s == "summary")
@@ -144,7 +144,7 @@ namespace poac::core::infer {
         else if (s == "options")
             return options(Indices(), static_cast<int>(idx));
         else
-            throw exception::invalid_first_arg("Invalid argument");
+            throw except::invalid_first_arg("Invalid argument");
     }
 
     template <typename S, typename OpTypeE, typename VS>
@@ -153,13 +153,13 @@ namespace poac::core::infer {
     }
     template <typename S, typename VS>
     std::string apply(S&& func, S&& cmd, VS&& arg) {
-        namespace exception = core::except;
+        namespace except = core::except;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
             return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
         else if (itr = option_map.find(cmd); itr != option_map.end())
             return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
         else
-            throw exception::invalid_first_arg("Invalid argument");
+            throw except::invalid_first_arg("Invalid argument");
     }
 }
 #endif // !POAC_CORE_INFERENCE_HPP

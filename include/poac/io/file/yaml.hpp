@@ -122,26 +122,26 @@ namespace poac::io::file::yaml {
 
     template <typename T>
     T get_with_throw(const YAML::Node& node) {
-        namespace exception = core::except;
+        namespace except = core::except;
         try {
             return detail::get<T>(node);
         }
         catch (...) {
-            throw exception::error(
-                    exception::msg::key_does_not_exist("") + "\n" +
-                    exception::msg::please_refer_docs(""));
+            throw except::error(
+                    except::msg::key_does_not_exist("") + "\n" +
+                    except::msg::please_refer_docs(""));
         }
     }
     template <typename T>
     T get_with_throw(const YAML::Node& node, const std::string& arg) {
-        namespace exception = core::except;
+        namespace except = core::except;
         try {
             return detail::get<T>(node, arg);
         }
         catch (...) {
-            throw exception::error(
-                    exception::msg::key_does_not_exist(arg) + "\n" +
-                    exception::msg::please_refer_docs(""));
+            throw except::error(
+                    except::msg::key_does_not_exist(arg) + "\n" +
+                    except::msg::please_refer_docs(""));
         }
     }
 
@@ -149,11 +149,11 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
-        namespace exception = core::except;
+        namespace except = core::except;
         if (const auto result = detail::read(node, args...)) {
-            throw exception::error(
-                    exception::msg::key_does_not_exist(std::string(*result)) + "\n" +
-                    exception::msg::please_refer_docs(""));
+            throw except::error(
+                    except::msg::key_does_not_exist(std::string(*result)) + "\n" +
+                    except::msg::please_refer_docs(""));
         }
         else {
             std::map<std::string, YAML::Node> mp;
@@ -199,19 +199,19 @@ namespace poac::io::file::yaml {
 
 
     YAML::Node load_config() {
-        namespace exception = core::except;
+        namespace except = core::except;
         if (const auto op_filename = exists_config()) {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
             }
             else {
-                throw exception::error(exception::msg::could_not_load("poac.yml"));
+                throw except::error(except::msg::could_not_load("poac.yml"));
             }
         }
         else {
-            throw exception::error(
-                    exception::msg::does_not_exist("poac.yml") + "\n" +
-                    exception::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
+            throw except::error(
+                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
     template <typename ...Args>
@@ -225,7 +225,6 @@ namespace poac::io::file::yaml {
 
     std::optional<YAML::Node>
     load_config_by_dir(const boost::filesystem::path& base) {
-        namespace exception = core::except;
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
                 return op_node;
@@ -239,25 +238,25 @@ namespace poac::io::file::yaml {
         }
     }
     YAML::Node load_config_by_dir_with_throw(const boost::filesystem::path& base) {
-        namespace exception = core::except;
+        namespace except = core::except;
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
             }
             else {
-                throw exception::error(exception::msg::could_not_load("poac.yml"));
+                throw except::error(except::msg::could_not_load("poac.yml"));
             }
         }
         else {
-            throw exception::error(
-                    exception::msg::does_not_exist("poac.yml") + "\n" +
-                    exception::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
+            throw except::error(
+                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 
     std::string get_timestamp() {
         namespace fs = boost::filesystem;
-        namespace exception = core::except;
+        namespace except = core::except;
 
         if (const auto op_filename = exists_config()) {
             boost::system::error_code error;
@@ -265,9 +264,9 @@ namespace poac::io::file::yaml {
             return std::to_string(last_time);
         }
         else {
-            throw exception::error(
-                    exception::msg::does_not_exist("poac.yml") + "\n" +
-                    exception::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
+            throw except::error(
+                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 } // end namespace

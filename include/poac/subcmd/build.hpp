@@ -182,7 +182,7 @@ namespace poac::subcmd {
                 const boost::filesystem::path& deps_path,
                 const bool verbose)
         {
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace stroite = core::stroite;
 
             if (const auto system = stroite::utils::detect::build_system(node)) {
@@ -201,7 +201,7 @@ namespace poac::subcmd {
                                 return *obj_files_path;
                             }
                             else { // Compile failure
-                                throw exception::error("\nCompile error.");
+                                throw except::error("\nCompile error.");
                             }
                         }
                     }
@@ -221,7 +221,7 @@ namespace poac::subcmd {
         std::optional<std::vector<std::string>>
         build_deps(const YAML::Node& node, std::vector<std::string>& obj_files_path, const bool verbose) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace stroite = core::stroite;
             namespace lock = core::deper::lock;
             namespace naming = core::naming;
@@ -277,14 +277,14 @@ namespace poac::subcmd {
                             }
                         }
                         else {
-                            throw exception::error(
+                            throw except::error(
                                     name + " is not installed.\n"
                                     "Please build after running `poac install`");
                         }
                     }
                 }
                 else {
-                    throw exception::error(
+                    throw except::error(
                             "Could not load poac.lock.\n"
                             "Please build after running `poac install`");
                 }
@@ -300,7 +300,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace stroite = core::stroite;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
@@ -353,7 +353,7 @@ namespace poac::subcmd {
                 }
             }
             else { // error
-                throw exception::error(
+                throw except::error(
                         "Required key `build` does not exist in poac.yml.\n"
                         "Please refer to https://doc.poac.pm");
             }
@@ -361,9 +361,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
             if (argv.size() > 1) {
-                throw exception::invalid_second_arg("build");
+                throw except::invalid_second_arg("build");
             }
         }
     }

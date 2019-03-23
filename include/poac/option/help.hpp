@@ -31,7 +31,7 @@ namespace poac::option {
     namespace _help {
         template <typename S>
         void echo_option(S&& arg) {
-            namespace exception = core::except;
+            namespace except = core::except;
             using namespace std::string_literals;
 
             try {
@@ -39,8 +39,8 @@ namespace poac::option {
                           << core::infer::apply("options"s, std::forward<S>(arg), std::vector<S>())
                           << std::endl;
             }
-            catch (const exception::invalid_first_arg& e) {
-                throw exception::invalid_second_arg("--help");
+            catch (const except::invalid_first_arg& e) {
+                throw except::invalid_second_arg("--help");
             }
         }
 
@@ -87,7 +87,7 @@ namespace poac::option {
 
         template<typename VS>
         int _main(VS&& vs) {
-            namespace exception = core::except;
+            namespace except = core::except;
             if (vs.size() == 0) {
                 exec_help();
                 return EXIT_SUCCESS;
@@ -97,7 +97,7 @@ namespace poac::option {
                 return EXIT_SUCCESS;
             }
             else {
-                throw exception::invalid_second_arg("--help");
+                throw except::invalid_second_arg("--help");
             }
             // show only --help's option
         }

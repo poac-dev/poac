@@ -87,7 +87,7 @@ namespace poac::subcmd {
 
         template<typename VS>
         int _main(VS&& argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
             namespace cli = io::cli;
@@ -102,15 +102,15 @@ namespace poac::subcmd {
             }
             // libとbinを引数から抜いた時点で，1じゃなかったらエラーになる．
             if (argv.size() != 1) {
-                throw exception::invalid_second_arg("new");
+                throw except::invalid_second_arg("new");
             }
 
             const std::string project_name = argv[0];
             const fs::path project_path = fs::path(project_name);
             naming::validate_package_name(project_name);
             if (io::file::path::validate_dir(project_name)) {
-                throw exception::error(
-                        exception::msg::already_exist("The `" + project_name + "` directory"));
+                throw except::error(
+                        except::msg::already_exist("The `" + project_name + "` directory"));
             }
 
             fs::create_directories(project_name);

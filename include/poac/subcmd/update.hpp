@@ -30,7 +30,7 @@ namespace poac::subcmd {
         template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;

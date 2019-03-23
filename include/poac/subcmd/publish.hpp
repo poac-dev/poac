@@ -69,9 +69,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
             if (argv.size() > 1) {
-                throw exception::invalid_second_arg("publish");
+                throw except::invalid_second_arg("publish");
             }
         }
 
@@ -88,7 +88,7 @@ namespace poac::subcmd {
         template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace cli = io::cli;
             using namespace std::string_literals;
 
@@ -127,7 +127,7 @@ namespace poac::subcmd {
                 json.put("token", token);
             }
             else {
-                throw exception::error(exception::msg::could_not_read("token"));
+                throw except::error(except::msg::could_not_read("token"));
             }
             {
                 const auto node = io::file::yaml::load_config("owners");
@@ -155,7 +155,7 @@ namespace poac::subcmd {
                 const io::net::requests req{};
                 const auto res = req.post(POAC_TOKENS_VALIDATE_API, json_s);
                 if (res.data() != "ok"s) {
-                    throw exception::error(res.data());
+                    throw except::error(res.data());
                 }
             }
 
@@ -166,16 +166,16 @@ namespace poac::subcmd {
                 const io::net::requests req{};
                 const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
                 if (res.data() == "true"s) {
-                    throw exception::error(
-                            exception::msg::already_exist(node_name + ": " + node_version));
+                    throw except::error(
+                            except::msg::already_exist(node_name + ": " + node_version));
                 }
             }
 
             // Post tarball to API.
             cli::echo(cli::to_status("Uploading..."));
             if (!fs::exists("poac.yml")) {
-                throw exception::error(
-                        exception::msg::does_not_exist("poac.yml"));
+                throw except::error(
+                        except::msg::does_not_exist("poac.yml"));
             }
             {
                 io::net::multiPartForm mp_form;

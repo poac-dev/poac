@@ -20,7 +20,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace stroite = core::stroite;
 
             const auto node = io::file::yaml::load_config("test");
@@ -45,7 +45,7 @@ namespace poac::subcmd {
 //                    static_link_lib = "gtest_main";
                 }
                 else {
-                    throw exception::error("Invalid test framework");
+                    throw except::error("Invalid test framework");
                 }
             }
 
@@ -134,12 +134,6 @@ namespace poac::subcmd {
                 }
             }
             return EXIT_SUCCESS;
-        }
-
-        void check_arguments([[maybe_unused]] const std::vector<std::string>& argv) {
-            namespace exception = core::except;
-//            if (argv.size() >= 2)
-//                throw except::invalid_second_arg("test");
         }
     }
 

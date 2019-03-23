@@ -18,10 +18,10 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs     = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
 
             if (fs::create_directories(io::file::path::poac_state_dir)) {
-                throw exception::invalid_second_arg("login");
+                throw except::invalid_second_arg("login");
             }
 
             const std::string token_path = io::file::path::poac_token_dir.string();
@@ -33,16 +33,16 @@ namespace poac::subcmd {
                           << std::endl;
             }
             else { // file open error
-                throw exception::invalid_second_arg("login");
+                throw except::invalid_second_arg("login");
             }
 
             return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
             if (argv.size() != 1) {
-                throw exception::invalid_second_arg("login");
+                throw except::invalid_second_arg("login");
             }
         }
     }

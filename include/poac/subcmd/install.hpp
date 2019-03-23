@@ -83,7 +83,7 @@ namespace poac::subcmd {
                 const bool quite,
                 const bool verbose)
         {
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace naming = core::naming;
             namespace path = io::file::path;
             namespace tb = io::file::tarball;
@@ -148,7 +148,7 @@ namespace poac::subcmd {
                 }
                 else {
                     // If called this, it is a bug.
-                    throw exception::error("Unexcepted error");
+                    throw except::error("Unexcepted error");
                 }
             }
             if (exists_count == static_cast<int>(deps.size())) {
@@ -158,7 +158,7 @@ namespace poac::subcmd {
 
         core::deper::resolver::Deps
         resolve_packages(const std::map<std::string, YAML::Node>& node) {
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace naming = core::naming;
             namespace resolver = core::deper::resolver;
 
@@ -175,7 +175,7 @@ namespace poac::subcmd {
                     deps.push_back({ {parsed_name}, {interval}, {source} });
                 }
                 else { // unknown source
-                    throw exception::error("Unknown source");
+                    throw except::error("Unknown source");
                 }
             }
             return deps;
@@ -183,7 +183,7 @@ namespace poac::subcmd {
 
         core::deper::resolver::Package<core::deper::resolver::Name, core::deper::resolver::Interval, core::deper::resolver::Source>
         parse_arg_package(const std::string& v) {
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace naming = core::naming;
 
             naming::validate_package_name(v);
@@ -201,7 +201,7 @@ namespace poac::subcmd {
                 return { {parsed_name}, {interval}, {source} };
             }
             else {
-                throw exception::error("Invalid arguments");
+                throw except::error("Invalid arguments");
             }
         }
 
@@ -217,7 +217,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::except;
+            namespace except = core::except;
             namespace path = io::file::path;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
@@ -253,7 +253,7 @@ namespace poac::subcmd {
                     deps.insert(deps.end(), resolved_packages.begin(), resolved_packages.end());
                 }
                 else if (argv.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
-                    throw exception::error(
+                    throw except::error(
                             "Required key `deps` does not exist in poac.yml.\n"
                             "Please refer to https://doc.poac.pm");
                 }

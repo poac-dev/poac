@@ -66,7 +66,7 @@ namespace poac::subcmd {
 
         template<typename VS>
         int _main(VS&& argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
 
             if (argv[0] == "root" && argv.size() == 1) {
                 root();
@@ -78,15 +78,15 @@ namespace poac::subcmd {
                 clean(std::vector<std::string>(argv.begin() + 1, argv.begin() + argv.size()));
             }
             else {
-                throw exception::invalid_second_arg("cache");
+                throw except::invalid_second_arg("cache");
             }
 
             return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
-            namespace exception = core::except;
-            if (argv.empty()) throw exception::invalid_second_arg("cache");
+            namespace except = core::except;
+            if (argv.empty()) throw except::invalid_second_arg("cache");
         }
     }
 

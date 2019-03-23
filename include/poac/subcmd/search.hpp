@@ -33,7 +33,7 @@ namespace poac::subcmd {
         }
 
         boost::property_tree::ptree get_search_api(const std::string& query) {
-            namespace exception = core::except;
+            namespace except = core::except;
 
             std::string params;
             {
@@ -56,7 +56,7 @@ namespace poac::subcmd {
             boost::property_tree::json_parser::read_json(ss, pt);
             if (const auto value = pt.get_optional<int>("nbHits")) {
                 if (*value <= 0) {
-                    throw exception::error(exception::msg::not_found(query));
+                    throw except::error(except::msg::not_found(query));
                 }
             }
             return pt;
@@ -112,9 +112,9 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::except;
+            namespace except = core::except;
             if (argv.size() != 1) {
-                throw exception::invalid_second_arg("search");
+                throw except::invalid_second_arg("search");
             }
         }
     }
