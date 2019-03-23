@@ -17,7 +17,7 @@
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/deper/lock.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../io/file/yaml.hpp"
@@ -45,7 +45,7 @@ namespace poac::subcmd {
         core::deper::resolver::Resolved create_resolved_deps() {
             namespace lock = core::deper::lock;
             namespace resolver = core::deper::resolver;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace yaml = io::file::yaml;
 
             // FIXME: uninstall.hppに同じのがある
@@ -106,7 +106,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
 
             if (const auto output_op = util::argparse::use_get(argv, "-o", "--output")) {
                 fs::path output = *output_op;

@@ -6,7 +6,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../../exception.hpp"
+#include "../../except.hpp"
 #include "../../../io/file/path.hpp"
 #include "../../../util/command.hpp"
 
@@ -39,8 +39,8 @@ namespace poac::core::stroite::chain {
             namespace fs = boost::filesystem;
 
             if (!fs::exists(base_path / "CMakeLists.txt")) {
-                throw exception::error(
-                        exception::msg::does_not_exist((base_path / "CMakeLists.txt").string()));
+                throw except::error(
+                        except::msg::does_not_exist((base_path / "CMakeLists.txt").string()));
             }
             this->base_path = base_path;
         }

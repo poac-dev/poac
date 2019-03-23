@@ -10,7 +10,7 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/stroite/utils/absorb.hpp"
 #include "../core/stroite/utils/detect.hpp"
 #include "../core/deper/lock.hpp"
@@ -182,7 +182,7 @@ namespace poac::subcmd {
                 const boost::filesystem::path& deps_path,
                 const bool verbose)
         {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace stroite = core::stroite;
 
             if (const auto system = stroite::utils::detect::build_system(node)) {
@@ -221,7 +221,7 @@ namespace poac::subcmd {
         std::optional<std::vector<std::string>>
         build_deps(const YAML::Node& node, std::vector<std::string>& obj_files_path, const bool verbose) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace stroite = core::stroite;
             namespace lock = core::deper::lock;
             namespace naming = core::naming;
@@ -300,7 +300,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace stroite = core::stroite;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
@@ -361,7 +361,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (argv.size() > 1) {
                 throw exception::invalid_second_arg("build");
             }

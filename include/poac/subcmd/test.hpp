@@ -8,7 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/stroite.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
@@ -20,7 +20,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace stroite = core::stroite;
 
             const auto node = io::file::yaml::load_config("test");
@@ -137,7 +137,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments([[maybe_unused]] const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
 //            if (argv.size() >= 2)
 //                throw except::invalid_second_arg("test");
         }

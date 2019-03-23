@@ -9,14 +9,14 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../../core/exception.hpp"
+#include "../../core/except.hpp"
 #include "../../util/command.hpp"
 
 
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path) {
-        namespace exception = core::exception;
+        namespace exception = core::except;
 
         if (!path.empty() && path[0] == '~') {
             assert(path.size() == 1 || path[1] == '/');

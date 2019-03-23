@@ -1,11 +1,11 @@
-#ifndef POAC_CORE_EXCEPTION_HPP
-#define POAC_CORE_EXCEPTION_HPP
+#ifndef POAC_CORE_EXCEPT_HPP
+#define POAC_CORE_EXCEPT_HPP
 
 #include <string>
 #include <stdexcept>
 
 
-namespace poac::core::exception {
+namespace poac::core::except {
     namespace msg {
         std::string put_period(const std::string& str) {
             if (*(str.end()) != '.') {
@@ -48,8 +48,6 @@ namespace poac::core::exception {
         std::string please_exec(const std::string& str) {
             return put_period(please("Please execute " + str));
         }
-
-
     }
 
     class invalid_first_arg : public std::invalid_argument
@@ -85,4 +83,4 @@ namespace poac::core::exception {
         virtual ~warn() = default;
     };
 } // end namespace
-#endif // !POAC_CORE_EXCEPTION_HPP
+#endif // !POAC_CORE_EXCEPT_HPP

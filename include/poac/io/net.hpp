@@ -27,7 +27,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "./cli.hpp"
 #include "../util/misc.hpp"
 #include "../util/types.hpp"

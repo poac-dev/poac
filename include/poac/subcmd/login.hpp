@@ -8,7 +8,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
 
@@ -18,7 +18,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs     = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
 
             if (fs::create_directories(io::file::path::poac_state_dir)) {
                 throw exception::invalid_second_arg("login");
@@ -40,7 +40,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (argv.size() != 1) {
                 throw exception::invalid_second_arg("login");
             }

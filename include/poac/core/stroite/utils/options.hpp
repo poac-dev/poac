@@ -10,7 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "./absorb.hpp"
-#include "../../exception.hpp"
+#include "../../except.hpp"
 #include "../../naming.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
@@ -172,14 +172,14 @@ namespace poac::core::stroite::utils::options {
                         include_search_path.push_back(include_dir.string());
                     }
                     else {
-                        throw exception::error(
+                        throw except::error(
                                 name + " is not installed.\n"
                                        "Please build after running `poac install`");
                     }
                 }
             }
             else {
-                throw exception::error(
+                throw except::error(
                         "Could not load poac.lock.\n"
                         "Please build after running `poac install`");
             }

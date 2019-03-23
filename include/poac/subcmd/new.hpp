@@ -11,7 +11,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
 #include "../io.hpp"
 #include "../util/argparse.hpp"
@@ -87,7 +87,7 @@ namespace poac::subcmd {
 
         template<typename VS>
         int _main(VS&& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
             namespace cli = io::cli;

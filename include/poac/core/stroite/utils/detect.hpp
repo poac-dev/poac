@@ -8,7 +8,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "../../exception.hpp"
+#include "../../except.hpp"
 #include "../../../util/command.hpp"
 
 
@@ -27,7 +27,7 @@ namespace poac::core::stroite::utils::detect {
             return "clang++";
         }
         else {
-            throw exception::error(
+            throw except::error(
                     "Environment variable \"CXX\" was not found.\n"
                     "Select the compiler and export it.");
         }
@@ -36,7 +36,7 @@ namespace poac::core::stroite::utils::detect {
 
     std::string check_support_build_system(const std::string& system) {
         if (system != "poac" && system != "cmake") {
-            throw exception::error("Unknown build system " + system);
+            throw except::error("Unknown build system " + system);
         }
         return system;
     }

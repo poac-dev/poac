@@ -11,7 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../../core/exception.hpp"
+#include "../../core/except.hpp"
 
 
 namespace poac::io::file::yaml {
@@ -122,7 +122,7 @@ namespace poac::io::file::yaml {
 
     template <typename T>
     T get_with_throw(const YAML::Node& node) {
-        namespace exception = core::exception;
+        namespace exception = core::except;
         try {
             return detail::get<T>(node);
         }
@@ -134,7 +134,7 @@ namespace poac::io::file::yaml {
     }
     template <typename T>
     T get_with_throw(const YAML::Node& node, const std::string& arg) {
-        namespace exception = core::exception;
+        namespace exception = core::except;
         try {
             return detail::get<T>(node, arg);
         }
@@ -149,7 +149,7 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
-        namespace exception = core::exception;
+        namespace exception = core::except;
         if (const auto result = detail::read(node, args...)) {
             throw exception::error(
                     exception::msg::key_does_not_exist(std::string(*result)) + "\n" +
@@ -199,7 +199,7 @@ namespace poac::io::file::yaml {
 
 
     YAML::Node load_config() {
-        namespace exception = core::exception;
+        namespace exception = core::except;
         if (const auto op_filename = exists_config()) {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
@@ -225,7 +225,7 @@ namespace poac::io::file::yaml {
 
     std::optional<YAML::Node>
     load_config_by_dir(const boost::filesystem::path& base) {
-        namespace exception = core::exception;
+        namespace exception = core::except;
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
                 return op_node;
@@ -239,7 +239,7 @@ namespace poac::io::file::yaml {
         }
     }
     YAML::Node load_config_by_dir_with_throw(const boost::filesystem::path& base) {
-        namespace exception = core::exception;
+        namespace exception = core::except;
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
@@ -257,7 +257,7 @@ namespace poac::io::file::yaml {
 
     std::string get_timestamp() {
         namespace fs = boost::filesystem;
-        namespace exception = core::exception;
+        namespace exception = core::except;
 
         if (const auto op_filename = exists_config()) {
             boost::system::error_code error;

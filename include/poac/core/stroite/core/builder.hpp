@@ -21,7 +21,7 @@
 #include "./depends.hpp"
 #include "./search.hpp"
 #include "../utils.hpp"
-#include "../../exception.hpp"
+#include "../../except.hpp"
 #include "../../naming.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
@@ -57,7 +57,7 @@ namespace poac::core::stroite::core {
 
             if (usemain) {
                 if (!fs::exists("main.cpp")) {
-                    throw exception::error(exception::msg::does_not_exist("main.cpp"));
+                    throw except::error(except::msg::does_not_exist("main.cpp"));
                 }
                 else {
                     source_files.push_back("main.cpp");

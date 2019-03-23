@@ -10,7 +10,7 @@
 
 #include "./install.hpp"
 #include "./uninstall.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
@@ -66,7 +66,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (!argv.empty()) {
                 throw exception::invalid_second_arg("cleanup");
             }

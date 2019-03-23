@@ -9,7 +9,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
 #include "../util/argparse.hpp"
@@ -33,7 +33,7 @@ namespace poac::subcmd {
         }
 
         boost::property_tree::ptree get_search_api(const std::string& query) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
 
             std::string params;
             {
@@ -112,7 +112,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (argv.size() != 1) {
                 throw exception::invalid_second_arg("search");
             }

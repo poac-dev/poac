@@ -14,7 +14,7 @@
 #include <cctype>
 #include <algorithm>
 
-#include "../exception.hpp"
+#include "../except.hpp"
 #include "../../io/cli.hpp"
 
 
@@ -132,7 +132,7 @@ namespace poac::core::deper::semver {
                 io::cli::debugln(*this);
             }
             else {
-                throw exception::error("Invalid version");
+                throw except::error("Invalid version");
             }
         }
 
@@ -450,7 +450,7 @@ namespace poac::core::deper::semver {
                 mode = 2;
             }
             else {
-                throw exception::error(
+                throw except::error(
                         "`" + name + ": " + interval +
                         "` is invalid expression.\n"
                         "Comparison operators:\n"
@@ -471,7 +471,7 @@ namespace poac::core::deper::semver {
                 case 2:
                     return satisfies_bounded_interval(version);
                 default:
-                    throw exception::error("Unexcepted error");
+                    throw except::error("Unexcepted error");
             }
         }
 
@@ -500,12 +500,12 @@ namespace poac::core::deper::semver {
                 && (second_comp_op == "<" || second_comp_op == "<="))
             {
                 if (Version(first_version) > second_version) { // Prioritize the larger version
-                    throw exception::error(
+                    throw except::error(
                             "`" + name + ": " + interval + "` is invalid expression.\n"
                             "Did you mean " + first_comp_op + first_version + " ?");
                 }
                 else {
-                    throw exception::error(
+                    throw except::error(
                             "`" + name + ": " + interval + "` is invalid expression.\n"
                             "Did you mean " + second_comp_op + second_version + " ?");
                 }
@@ -514,12 +514,12 @@ namespace poac::core::deper::semver {
                      && (second_comp_op == ">" || second_comp_op == ">="))
             {
                 if (Version(first_version) < second_version) { // Prioritize the smaller version
-                    throw exception::error(
+                    throw except::error(
                             "`" + name + ": " + interval + "` is invalid expression.\n"
                             "Did you mean " + first_comp_op + first_version + " ?");
                 }
                 else {
-                    throw exception::error(
+                    throw except::error(
                             "`" + name + ": " + interval + "` is invalid expression.\n"
                             "Did you mean " + second_comp_op + second_version + " ?");
                 }
@@ -538,7 +538,7 @@ namespace poac::core::deper::semver {
                 if ((first_comp_op == "<" || first_comp_op == "<=")
                     && (second_comp_op == ">" || second_comp_op == ">="))
                 {
-                    throw exception::error(
+                    throw except::error(
                             "`" + name + ": " + interval + "` is strange.\n"
                             "In this case of interval specification using `and`,\n"
                             " it is necessary to be a bounded interval.\n"
@@ -551,7 +551,7 @@ namespace poac::core::deper::semver {
                 if ((first_comp_op == ">" || first_comp_op == ">=")
                     && (second_comp_op == "<" || second_comp_op == "<="))
                 {
-                    throw exception::error(
+                    throw except::error(
                             "`" + name + ": " + interval + "` is strange.\n"
                             "In this case of interval specification using `and`,\n"
                             " it is necessary to be a bounded interval.\n"

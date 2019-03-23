@@ -7,7 +7,7 @@
 #include <string>
 #include <cstdlib>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/inference.hpp"
 #include "../io/cli.hpp"
 
@@ -31,7 +31,7 @@ namespace poac::option {
     namespace _help {
         template <typename S>
         void echo_option(S&& arg) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             using namespace std::string_literals;
 
             try {
@@ -87,7 +87,7 @@ namespace poac::option {
 
         template<typename VS>
         int _main(VS&& vs) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (vs.size() == 0) {
                 exec_help();
                 return EXIT_SUCCESS;

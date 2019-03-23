@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "./build.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/stroite/utils/absorb.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"

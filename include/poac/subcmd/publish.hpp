@@ -19,7 +19,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../util.hpp"
 #include "../config.hpp"
 
@@ -69,7 +69,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (argv.size() > 1) {
                 throw exception::invalid_second_arg("publish");
             }
@@ -88,7 +88,7 @@ namespace poac::subcmd {
         template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace cli = io::cli;
             using namespace std::string_literals;
 

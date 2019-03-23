@@ -17,7 +17,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
 #include "../util.hpp"
@@ -83,7 +83,7 @@ namespace poac::subcmd {
                 const bool quite,
                 const bool verbose)
         {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace naming = core::naming;
             namespace path = io::file::path;
             namespace tb = io::file::tarball;
@@ -158,7 +158,7 @@ namespace poac::subcmd {
 
         core::deper::resolver::Deps
         resolve_packages(const std::map<std::string, YAML::Node>& node) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace naming = core::naming;
             namespace resolver = core::deper::resolver;
 
@@ -183,7 +183,7 @@ namespace poac::subcmd {
 
         core::deper::resolver::Package<core::deper::resolver::Name, core::deper::resolver::Interval, core::deper::resolver::Source>
         parse_arg_package(const std::string& v) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace naming = core::naming;
 
             naming::validate_package_name(v);
@@ -217,7 +217,7 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace path = io::file::path;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;

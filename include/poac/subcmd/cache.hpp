@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
@@ -66,7 +66,7 @@ namespace poac::subcmd {
 
         template<typename VS>
         int _main(VS&& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
 
             if (argv[0] == "root" && argv.size() == 1) {
                 root();
@@ -85,7 +85,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (argv.empty()) throw exception::invalid_second_arg("cache");
         }
     }

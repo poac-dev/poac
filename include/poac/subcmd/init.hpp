@@ -12,7 +12,7 @@
 #include "./new.hpp"
 #include "../io/cli.hpp"
 #include "../io/file/yaml.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
 
 
@@ -26,7 +26,7 @@ namespace poac::subcmd {
         }
 
         std::string check_requirements() {
-            namespace exception = core::exception;
+            namespace exception = core::except;
 
             if (const auto result = io::file::yaml::exists_config()) {
                 std::cerr << io::cli::bold << io::cli::red
@@ -63,7 +63,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (!argv.empty()) throw exception::invalid_second_arg("init");
         }
     }

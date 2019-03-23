@@ -12,7 +12,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "./install.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
 #include "../core/deper/semver.hpp"
 #include "../core/deper/resolver.hpp"
@@ -30,7 +30,7 @@ namespace poac::subcmd {
         template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;

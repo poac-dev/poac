@@ -12,7 +12,7 @@
 #include <boost/filesystem.hpp>
 
 #include "./install.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
@@ -49,7 +49,7 @@ namespace poac::subcmd {
             for (const auto& v : argv) {
                 const auto result = std::find_if(first, last, [&](auto x){ return v == x.first; });
                 if (result == last) {
-                    throw core::exception::error("There is no package named " + v + " in the dependency.");
+                    throw core::except::error("There is no package named " + v + " in the dependency.");
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace poac::subcmd {
             namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;
-            namespace exception = core::exception;
+            namespace exception = core::except;
             namespace lock = core::deper::lock;
 
             auto node = yaml::load_config();
@@ -240,7 +240,7 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace exception = core::except;
             if (argv.empty()) {
                 throw exception::invalid_second_arg("uninstall");
             }

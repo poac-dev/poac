@@ -20,7 +20,7 @@
 
 #include "sat.hpp"
 #include "semver.hpp"
-#include "../exception.hpp"
+#include "../except.hpp"
 #include "../naming.hpp"
 #include "../../io/file.hpp"
 #include "../../io/net.hpp"
@@ -204,7 +204,7 @@ namespace poac::core::deper::resolver {
             io::cli::debugln(0);
         }
         else {
-            throw exception::error("Could not solve in this dependencies.");
+            throw except::error("Could not solve in this dependencies.");
         }
         return resolved_deps;
     }
@@ -282,8 +282,8 @@ namespace poac::core::deper::resolver {
                 copy_if(versions->begin(), versions->end(), back_inserter(res),
                         [&](std::string s) { return i.satisfies(s); });
                 if (res.empty()) {
-                    throw exception::error(
-                            exception::msg::not_found("`" + name + ": " + interval + "`"));
+                    throw except::error(
+                            except::msg::not_found("`" + name + ": " + interval + "`"));
                 }
                 else {
                     return res;
@@ -291,8 +291,8 @@ namespace poac::core::deper::resolver {
             }
         }
         else {
-            throw exception::error(
-                    exception::msg::not_found("`" + name + ": " + interval + "`"));
+            throw except::error(
+                    except::msg::not_found("`" + name + ": " + interval + "`"));
         }
     }
 
