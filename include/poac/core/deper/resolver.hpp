@@ -60,6 +60,7 @@ namespace poac::core::deper::resolver {
     struct Name { std::string name; };
     struct Interval { std::string interval; };
     struct Version { std::string version; };
+    struct Versions { std::vector<std::string> versions; };
     struct Source { std::string source; };
     struct InDeps { std::vector<Package<Name, Version, Source, InDeps>> deps; };
 
@@ -266,7 +267,7 @@ namespace poac::core::deper::resolver {
     // name is boost/config, no boost-config
     std::vector<std::string>
     decide_versions(const std::string& name, const std::string& interval) {
-//        io::cli::echo(name, ": ", interval);
+        io::cli::echo("[versions] ", name, ": ", interval);
 
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         if (const auto versions = io::net::api::versions(name)) {
@@ -295,89 +296,73 @@ namespace poac::core::deper::resolver {
         }
     }
 
-    //       ○
-    //      / |
-    //    _________________________
-    //   | ○ ← name & interval   ○ | ← prev_deps_node
-    //    ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
-    //    /|  /| |
-    //   ○ ○  ○ ○ ○
+    // BFS activator
     void activate(
             const std::string& name,
-            const std::string& interval,
+            const std::string& version,
             Activated& new_deps,
-            Activated& all_deps_node,
-            std::vector<Package<Name, Interval>>& cache_all_deps,
-            Activated& prev_deps_node)
+            std::vector<Package<Name, Interval, Versions>>& interval_cache)
     {
-        // Check resolved dependency (by interval)
-        if (auto last = cache_all_deps.cend(); std::find_if(cache_all_deps.cbegin(), last, [&](auto d) {
-            return d.name == name && d.interval == interval; }) != last)
-        {   // It is not added to cur_deps_node (N-1) by being skipped.
-            // Therefore, the problem of not being selected as a package dependency that occurs.
-            // As a solving measure, use information already in new_deps.
-            semver::Interval i(name, interval);
-            auto nd_last = new_deps.cend();
-            auto match_f = [&](auto d) { return d.name == name && i.satisfies(d.version); };
-            auto itr = std::find_if(new_deps.cbegin(), nd_last, match_f);
-            if (itr != nd_last) {
-                while (itr != nd_last) {
-                    prev_deps_node.push_back({ {itr->name}, {itr->version}, {"poac"}, {} });
-                    itr = std::find_if(itr + 1, nd_last, match_f);
-                }
-            }
-            // It is assumed that it is peer-dependency because it does not already exist in new_deps,
-            //  although it is cached in cache_all_deps. So I call API again. (TODO: any solutions?)
-            else { // FIXME: There is room for optimization. (Useless API calls)
-                for (const auto& version : decide_versions(name, interval)) {
-                    prev_deps_node.push_back({ {name}, {version}, {"poac"}, {} });
-                }
-            }
-
+        // Check if root package resolved dependency (by version), and Check circulating
+        if (auto last = new_deps.cend(); std::find_if(new_deps.cbegin(), last,
+                [&](auto d) { return d.name == name && d.version == version; }) != last) {
             return;
         }
-        cache_all_deps.push_back({ {name}, {interval} }); // push top
 
-        // Get versions using interval
-        for (const auto& version : decide_versions(name, interval)) {
-            prev_deps_node.push_back({ {name}, {version}, {"poac"}, {} });
+        // Get dependency of dependency
+        if (const auto current_deps = io::net::api::deps(name, version)) {
+            Activated cur_deps_deps;
 
-            const auto match_f = [&](auto d) { return d.name == name && d.version == version; };
-            // Check circulating
-            if (auto last = all_deps_node.cend(); std::find_if(all_deps_node.cbegin(), last, match_f) != last) {
-                continue;
-            }
-            // Check resolved dependency (by version)
-            if (auto last = new_deps.cend(); std::find_if(new_deps.cbegin(), last, match_f) != last) {
-                continue;
-            }
-            all_deps_node.push_back({ {name}, {version}, {"poac"}, {} }); // push top
+            for (const auto& current_dep : *current_deps) {
+                const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
 
-            // Get deps of deps
-            if (const auto current_deps = io::net::api::deps(name, version)) {
-                Activated cur_deps_node;
-
-                for (const auto& current_dep : *current_deps) {
-                    const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
-                    activate(dep_name, dep_interval, new_deps, all_deps_node, cache_all_deps, cur_deps_node);
+                // Check if node package is resolved dependency (by interval)
+                auto last = interval_cache.cend();
+                const auto itr = std::find_if(interval_cache.cbegin(), last,
+                        [&n=dep_name, &i=dep_interval](auto d) { return d.name == n && d.interval == i; });
+                if (itr != last)
+                {
+                    for (const auto& dep_version : itr->versions) {
+                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {"poac"}, {} });
+                    }
                 }
-                new_deps.push_back({ {name}, {version}, {"poac"}, {cur_deps_node} });
+                else {
+                    const auto dep_versions = decide_versions(dep_name, dep_interval);
+                    // Cache interval and versions pair
+                    interval_cache.push_back({ {dep_name}, {dep_interval}, {dep_versions} });
+                    for (const auto& dep_version : dep_versions) {
+                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {"poac"}, {} });
+                    }
+                }
             }
-            else {
-                new_deps.push_back({ {name}, {version}, {"poac"}, {} });
+            new_deps.push_back({ {name}, {version}, {"poac"}, {cur_deps_deps} });
+            for (const auto& cur_dep : cur_deps_deps) {
+                activate(cur_dep.name, cur_dep.version, new_deps, interval_cache);
             }
+        }
+        else {
+            new_deps.push_back({ {name}, {version}, {"poac"}, {} });
         }
     }
 
     Resolved activate_deps_loop(const Deps& deps) {
         Resolved new_deps{};
-        std::vector<Package<Name, Interval>> cache_all_deps;
-        Activated all_deps_node;
+        std::vector<Package<Name, Interval, Versions>> interval_cache;
 
+        // Activate the root of dependencies
         for (const auto& dep : deps) {
-            // Activate the top of dependencies
-            Activated cur_deps_node;
-            activate(dep.name, dep.interval, new_deps.activated, all_deps_node, cache_all_deps, cur_deps_node);
+            // Check if root package is resolved dependency (by interval)
+            if (auto last = interval_cache.cend(); std::find_if(interval_cache.cbegin(), last,
+                    [&](auto d) { return d.name == dep.name && d.interval == dep.interval; }) != last)
+            { continue; }
+
+            // Get versions using interval
+            const auto versions = decide_versions(dep.name, dep.interval);
+            // Cache interval and versions pair
+            interval_cache.push_back({ {dep.name}, {dep.interval}, {versions} });
+            for (const auto& version : versions) {
+                activate(dep.name, version, new_deps.activated, interval_cache);
+            }
         }
         return new_deps;
     }

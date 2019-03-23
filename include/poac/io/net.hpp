@@ -456,6 +456,8 @@ namespace poac::io::net {
 
         std::optional<boost::property_tree::ptree>
         deps(const std::string& name, const std::string& version) {
+//            io::cli::echo("[deps] ", name, ": ", version);
+
             using namespace std::string_literals;
             std::stringstream ss;
             {
