@@ -146,7 +146,6 @@ namespace poac::subcmd {
         }
         template <typename VS>
         int operator()(VS&& argv) {
-            _test::check_arguments(argv);
             return _test::_main(std::forward<VS>(argv));
         }
     };
