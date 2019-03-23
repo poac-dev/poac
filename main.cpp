@@ -12,7 +12,7 @@ template <typename VS>
 int exec(std::string&& str, VS&& vs)
 {
     namespace inference = poac::core::infer;
-    namespace exception = poac::core::exception;
+    namespace exception = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
 
