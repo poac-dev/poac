@@ -267,7 +267,7 @@ namespace poac::core::deper::resolver {
     // name is boost/config, no boost-config
     std::vector<std::string>
     decide_versions(const std::string& name, const std::string& interval) {
-        io::cli::echo("[versions] ", name, ": ", interval);
+//        io::cli::echo("[versions] ", name, ": ", interval);
 
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         if (const auto versions = io::net::api::versions(name)) {
