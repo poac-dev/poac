@@ -111,23 +111,28 @@ namespace poac::core::deper::resolver {
     // ¬A ∨ ¬B ∨ ¬C
     void multiple_versions_cnf(const std::vector<int>& clause, std::vector<std::vector<int>>& clauses) {
         const int combinations = 1 << clause.size();
-        for (int u = 0; u < combinations; ++u) { // index sequence
-            boost::dynamic_bitset<> bs(to_bin_str(u, clause.size()));
+        for (int i = 0; i < combinations; ++i) { // index sequence
+            boost::dynamic_bitset<> bs(to_bin_str(i, clause.size()));
             if (bs.count() == 1) {
                 continue;
             }
 
             std::vector<int> new_clause;
             for (std::size_t j = 0; j < bs.size(); ++j) {
-                if (bs[j] == 0) {
-                    new_clause.push_back(clause[j]);
+                if (bs[j]) {
+                    new_clause.emplace_back(clause[j] * -1);
                 }
                 else {
-                    new_clause.push_back(clause[j] * -1);
+                    new_clause.emplace_back(clause[j]);
                 }
             }
             clauses.emplace_back(new_clause);
         }
+    }
+
+    bool check_already_added(const std::vector<int>& already_added, const int i) {
+        auto last = already_added.cend();
+        return std::find(already_added.cbegin(), last, i + 1) != last;
     }
 
     std::vector<std::vector<int>>
@@ -135,16 +140,16 @@ namespace poac::core::deper::resolver {
         std::vector<std::vector<int>> clauses;
         std::vector<int> already_added;
 
-        const auto first = std::begin(activated);
-        const auto last = std::end(activated);
+        auto first = std::cbegin(activated);
+        auto last = std::cend(activated);
         for (int i = 0; i < static_cast<int>(activated.size()); ++i) {
-            if (std::find(already_added.begin(), already_added.end(), i + 1) != already_added.end()) {
+            if (check_already_added(already_added, i)) {
                 continue;
             }
 
             const auto name_lambda = [&](const auto& x){ return x.name == activated[i].name; };
-            const auto count = std::count_if(first, last, name_lambda);
-            if (count == 1) { // 現在指すパッケージと同名の他のパッケージは存在しない
+            // 現在指すパッケージと同名の他のパッケージは存在しない
+            if (const auto count = std::count_if(first, last, name_lambda); count == 1) {
                 std::vector<int> clause;
                 clause.emplace_back(i + 1);
                 clauses.emplace_back(clause);
@@ -154,8 +159,7 @@ namespace poac::core::deper::resolver {
                     clause[0] *= -1;
                     for (const auto& dep : activated[i].deps) {
                         // 必ず存在することが保証されている
-                        const auto index = std::distance(first, std::find(first, last, dep));
-                        clause.emplace_back(index + 1);
+                        clause.emplace_back(util::types::index_of(first, last, dep) + 1);
                     }
                     clauses.emplace_back(clause);
                 }
@@ -164,9 +168,9 @@ namespace poac::core::deper::resolver {
                 std::vector<int> clause;
 
                 for (auto found = first; found != last; found = std::find_if(found, last, name_lambda)) {
-                    const auto index = std::distance(first, found) + 1;
-                    clause.emplace_back(index);
-                    already_added.emplace_back(index);
+                    const auto index = std::distance(first, found);
+                    clause.emplace_back(index + 1);
+                    already_added.emplace_back(index + 1);
 
                     // index ⇒ deps
                     if (!found->deps.empty()) {
@@ -174,8 +178,7 @@ namespace poac::core::deper::resolver {
                         new_clause.emplace_back(index);
                         for (const auto& dep : found->deps) {
                             // 必ず存在することが保証されている
-                            const auto index2 = std::distance(first, std::find(first, last, dep)) + 1;
-                            new_clause.emplace_back(index2);
+                            new_clause.emplace_back(util::types::index_of(first, last, dep) + 1);
                         }
                         clauses.emplace_back(new_clause);
                     }
@@ -245,8 +248,9 @@ namespace poac::core::deper::resolver {
         const auto first = std::begin(rng);
         const auto last = std::end(rng);
         for (const auto& r : rng) {
-            long c = std::count_if(first, last, [&](const auto& x){ return x.name == r.name; });
-            if (c > 1) {
+            if (std::count_if(first, last, [&](const auto& x) {
+                return x.name == r.name;
+            }) > 1) {
                 return true;
             }
         }
@@ -255,9 +259,7 @@ namespace poac::core::deper::resolver {
 
     std::pair<std::string, std::string>
     get_from_dep(const boost::property_tree::ptree& dep) {
-        const auto name = dep.get<std::string>("name");
-        const auto interval = dep.get<std::string>("version");
-        return { name, interval };
+        return { dep.get<std::string>("name"), dep.get<std::string>("version") };
     }
 
 
@@ -282,8 +284,7 @@ namespace poac::core::deper::resolver {
                 copy_if(versions->begin(), versions->end(), back_inserter(res),
                         [&](std::string s) { return i.satisfies(s); });
                 if (res.empty()) {
-                    throw except::error(
-                            except::msg::not_found("`" + name + ": " + interval + "`"));
+                    throw except::error(except::msg::not_found("`" + name + ": " + interval + "`"));
                 }
                 else {
                     return res;
@@ -291,8 +292,7 @@ namespace poac::core::deper::resolver {
             }
         }
         else {
-            throw except::error(
-                    except::msg::not_found("`" + name + ": " + interval + "`"));
+            throw except::error(except::msg::not_found("`" + name + ": " + interval + "`"));
         }
     }
 
@@ -320,8 +320,7 @@ namespace poac::core::deper::resolver {
                 auto last = interval_cache.cend();
                 const auto itr = std::find_if(interval_cache.cbegin(), last,
                         [&n=dep_name, &i=dep_interval](auto d) { return d.name == n && d.interval == i; });
-                if (itr != last)
-                {
+                if (itr != last) {
                     for (const auto& dep_version : itr->versions) {
                         cur_deps_deps.push_back({ {dep_name}, {dep_version}, {"poac"}, {} });
                     }

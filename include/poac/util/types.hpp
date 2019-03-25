@@ -28,9 +28,9 @@ namespace poac::util::types {
 
     template <class SinglePassRange, class T>
     std::optional<std::size_t>
-    indexof(const SinglePassRange& rng, const T& t) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+    index_of(const SinglePassRange& rng, const T& t) {
+        auto first = std::cbegin(rng);
+        auto last = std::cend(rng);
         const auto result = std::find(first, last, t);
         if (result == last) {
             return std::nullopt;
@@ -39,12 +39,16 @@ namespace poac::util::types {
             return std::distance(first, result);
         }
     }
+    template <typename InputIterator, typename T>
+    inline auto index_of(InputIterator first, InputIterator last, const T& value) {
+        return std::distance(first, std::find(first, last, value));
+    }
 
     // Check if it has duplicate elements.
     template <class SinglePassRange>
     bool duplicate(const SinglePassRange& rng) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        auto first = std::cbegin(rng);
+        auto last = std::cend(rng);
         for (const auto& r : rng) {
             int c = std::count(first, last, r);
             if (c > 1) {
