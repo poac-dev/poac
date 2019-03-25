@@ -15,7 +15,7 @@
 #include "../util/types.hpp"
 
 
-namespace poac::core::infer { // TODO: ファイル名と，ifndefも, inferに変換する．
+namespace poac::core::infer {
     using namespace util::types;
 
     // Index of T
