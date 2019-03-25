@@ -4,7 +4,7 @@
 #include "core/abc.hpp"
 #include "core/deper.hpp"
 #include "core/except.hpp"
-#include "core/inference.hpp"
+#include "core/infer.hpp"
 #include "core/naming.hpp"
 #include "core/stroite.hpp"
 

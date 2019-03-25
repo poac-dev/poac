@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_INFERENCE_HPP
-#define POAC_CORE_INFERENCE_HPP
+#ifndef POAC_CORE_INFER_HPP
+#define POAC_CORE_INFER_HPP
 
 #include <iostream>
 #include <string>
@@ -15,7 +15,7 @@
 #include "../util/types.hpp"
 
 
-namespace poac::core::infer {
+namespace poac::core::infer { // TODO: ファイル名と，ifndefも, inferに変換する．
     using namespace util::types;
 
     // Index of T
@@ -162,4 +162,4 @@ namespace poac::core::infer {
             throw except::invalid_first_arg("Invalid argument");
     }
 }
-#endif // !POAC_CORE_INFERENCE_HPP
+#endif // !POAC_CORE_INFER_HPP

@@ -8,7 +8,7 @@
 #include <cstdlib>
 
 #include "../core/except.hpp"
-#include "../core/inference.hpp"
+#include "../core/infer.hpp"
 #include "../io/cli.hpp"
 
 
