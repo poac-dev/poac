@@ -21,9 +21,6 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       COMPILER: msvc
       GENERATOR: Visual Studio 15 2017
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019 Preview
-      COMPILER: msvc
-      GENERATOR: Visual Studio 16 2019
 #    - COMPILER: mingw-w64
 #      GENERATOR: MinGW Makefiles
 
