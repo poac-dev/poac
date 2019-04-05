@@ -31,7 +31,7 @@ before_install:
 install:
   - brew install --ignore-dependencies boost
   - if [[ "$NEED_LLVM" == "TRUE" ]]; then
-      brew install llvm@7
+      brew install llvm@7;
     fi
   - brew install yaml-cpp
 script:
