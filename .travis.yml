@@ -21,7 +21,7 @@ before_install:
   - brew unlink boost
   - brew install --ignore-dependencies boost
 install:
-  - brew install llvm yaml-cpp
+  - brew install llvm@7 yaml-cpp
 script:
   - mkdir build
   - cd build
