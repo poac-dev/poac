@@ -12,25 +12,19 @@ matrix:
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
-      env:
-        - NEED_LLVM="TRUE"
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
-      env:
-        - NEED_LLVM="TRUE"
     # macOS Mojave
     - os: osx
       osx_image: xcode10.2
-      env:
-        - NEED_LLVM="FALSE"
 
 before_install:
   - brew update
-  - brew unlink boost
 install:
-  - brew install --ignore-dependencies boost
-  - if [[ "$NEED_LLVM" == "TRUE" ]]; then
+  - if [[ "$TRAVIS_OSX_IMAGE" != "xcode10.2" ]]; then
+      brew unlink boost;
+      brew install --ignore-dependencies boost;
       brew install llvm@7;
     fi
   - brew install yaml-cpp
