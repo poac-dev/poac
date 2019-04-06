@@ -4,9 +4,6 @@ branches:
   except:
     - gh-pages
 
-image:
-  - Visual Studio 2017
-
 cache:
   - C:\Libraries\yaml-cpp -> appveyor.yml
   - C:\Libraries\boost-1.69.0 -> appveyor.yml
@@ -21,7 +18,8 @@ platform:
 
 environment:
   matrix:
-    - COMPILER: msvc
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      COMPILER: msvc
       GENERATOR: Visual Studio 15 2017
 #    - COMPILER: mingw-w64
 #      GENERATOR: MinGW Makefiles
