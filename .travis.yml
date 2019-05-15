@@ -15,13 +15,19 @@ matrix:
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
+    # macOS Mojave
+    - os: osx
+      osx_image: xcode10.2
 
 before_install:
   - brew update
-  - brew unlink boost
-  - brew install --ignore-dependencies boost
 install:
-  - brew install llvm yaml-cpp
+  - if [[ "$TRAVIS_OSX_IMAGE" != "xcode10.2" ]]; then
+      brew unlink boost;
+      brew install --ignore-dependencies boost;
+      brew install llvm@7;
+    fi
+  - brew install yaml-cpp
 script:
   - mkdir build
   - cd build

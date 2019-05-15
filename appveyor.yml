@@ -1,7 +1,8 @@
 version: 1.0.{build}
 
-image:
-  - Visual Studio 2017
+branches:
+  except:
+    - gh-pages
 
 cache:
   - C:\Libraries\yaml-cpp -> appveyor.yml
@@ -21,7 +22,8 @@ artifacts:
 
 environment:
   matrix:
-    - COMPILER: msvc
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      COMPILER: msvc
       GENERATOR: Visual Studio 15 2017
 #    - COMPILER: mingw-w64
 #      GENERATOR: MinGW Makefiles
