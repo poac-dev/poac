@@ -155,39 +155,6 @@ namespace poac::core::stroite::utils::options {
     }
 
     std::vector<std::string>
-    make_include_search_path(const bool exist_deps_key) {
-        namespace fs = boost::filesystem;
-        namespace lock = deper::lock;
-        namespace yaml = io::file::yaml;
-        namespace path = io::file::path;
-
-        std::vector<std::string> include_search_path;
-        if (exist_deps_key) { // depsキーが存在する // TODO: subcmd/build.hppで，存在確認が取れている
-            if (const auto locked_deps = lock::load_ignore_timestamp()) {
-                for (const auto& [name, dep] : locked_deps->backtracked) {
-                    const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
-                    const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
-
-                    if (path::validate_dir(include_dir)) {
-                        include_search_path.push_back(include_dir.string());
-                    }
-                    else {
-                        throw except::error(
-                                name + " is not installed.\n"
-                                       "Please build after running `poac install`");
-                    }
-                }
-            }
-            else {
-                throw except::error(
-                        "Could not load poac.lock.\n"
-                        "Please build after running `poac install`");
-            }
-        }
-        return include_search_path;
-    }
-
-    std::vector<std::string>
     make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
         namespace yaml = io::file::yaml;
         if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {

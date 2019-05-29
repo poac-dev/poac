@@ -67,12 +67,12 @@ namespace poac::subcmd {
 //                        continue;
                     }
                     else {
-                        if (const auto obj_files_path = bs._compile()) {
+                        if (const auto obj_files_path = bs.compile()) {
                             bs.configure_link(*obj_files_path);
                             bs.link_conf.project_name = bin_name;
                             bs.link_conf.output_root = io::file::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);
-                            if (bs._link()) {
+                            if (bs.link()) {
                                 std::cout << io::cli::green << "Compiled: " << io::cli::reset
                                           << "Output to `" +
                                              fs::relative(bin_path).string() +

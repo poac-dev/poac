@@ -62,14 +62,14 @@ namespace poac::subcmd {
             for (const auto& l : library_path) {
                 bs.link_conf.library_path.push_back(l);
             }
-            return handle_compile_message(bs._link());
+            return handle_compile_message(bs.link());
         }
         std::optional<std::string>
         handle_compile(
                 core::stroite::core::builder& bs,
                 const std::vector<std::string>& library_path)
         {
-            if (const auto obj_files_path = bs._compile()) {
+            if (const auto obj_files_path = bs.compile()) {
                 return handle_link(bs, *obj_files_path, library_path);
             }
             else { // Compile failure
@@ -82,7 +82,7 @@ namespace poac::subcmd {
                 const std::vector<std::string>& obj_files_path)
         {
             bs.configure_static_lib(obj_files_path);
-            return handle_generate_message(bs._gen_static_lib());
+            return handle_generate_message(bs.gen_static_lib());
         }
         std::optional<std::string>
         handle_generate_dynamic_lib(
@@ -90,7 +90,7 @@ namespace poac::subcmd {
                 const std::vector<std::string>& obj_files_path)
         {
             bs.configure_dynamic_lib(obj_files_path);
-            return handle_generate_message(bs._gen_dynamic_lib());
+            return handle_generate_message(bs.gen_dynamic_lib());
         }
 
         void handle_generate_lib(
@@ -162,7 +162,7 @@ namespace poac::subcmd {
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
                 return is_exist_lib(bs.project_name);
             }
-            if (auto obj_files_path = bs._compile()) {
+            if (auto obj_files_path = bs.compile()) {
                 for (const auto o : *obj_files_path) {
                     deps_obj_files_path.push_back(o);
                 }
@@ -195,7 +195,7 @@ namespace poac::subcmd {
                         if (!bs.compile_conf.source_files.empty()) {
                             io::cli::echo(io::cli::to_status(name));
 
-                            if (const auto obj_files_path = bs._compile()) {
+                            if (const auto obj_files_path = bs.compile()) {
                                 handle_generate_lib(bs, *obj_files_path);
                                 io::cli::echo();
                                 return *obj_files_path;
