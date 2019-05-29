@@ -7,22 +7,20 @@
 #include <string>
 #include <cstdlib>
 
-#include "../core/exception.hpp"
-#include "../core/inference.hpp"
+#include "../core/except.hpp"
+#include "../core/infer.hpp"
 #include "../io/cli.hpp"
 
 
 // Forward-declaration
 namespace poac::core::infer {
-    enum class op_type_e : int;
-
-    template <typename S, typename OpTypeE, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+    template <typename S, typename OpTypeE, typename VS>
     auto _apply(S&& func, const OpTypeE& cmd, VS&& arg);
-    template <typename S, typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    std::string apply(S&& func, const S& cmd, VS&& arg);
+    template <typename S, typename VS>
+    std::string apply(S&& func, S&& cmd, VS&& arg);
 
-    extern const std::unordered_map<std::string, op_type_e> subcmd_map;
-    extern const std::unordered_map<std::string, op_type_e> option_map;
+    extern const std::unordered_map<std::string, int> subcmd_map;
+    extern const std::unordered_map<std::string, int> option_map;
 }
 
 // TODO: help文を，コンパイル時に一つの文字列として変換する．
@@ -31,20 +29,24 @@ namespace poac::core::infer {
 // TODO: さらに，versionを，poacの部分に埋め込めば(もう一段階抽象化後)，optionを管理する必要がなくなる．
 namespace poac::option {
     namespace _help {
-        void echo_option(const std::string& arg) {
-            namespace exception = core::exception;
+        template <typename S>
+        void echo_option(S&& arg) {
+            namespace except = core::except;
+            using namespace std::string_literals;
+
             try {
                 std::cout << "Usage: poac " << arg << " "
-                          << core::infer::apply(std::string("options"), arg, std::vector<std::string>())
+                          << core::infer::apply("options"s, std::forward<S>(arg), std::vector<S>())
                           << std::endl;
             }
-            catch (const exception::invalid_first_arg& e) {
-                throw exception::invalid_second_arg("--help");
+            catch (const except::invalid_first_arg& e) {
+                throw except::invalid_second_arg("--help");
             }
         }
 
         template<typename T, typename U>
         void show(const T& key, const U& value) {
+            using namespace std::string_literals;
             // Eliminate -h and -v
             // It assumes two characters because the regular expression is slow.
             if (key.size() != 2) {
@@ -53,7 +55,7 @@ namespace poac::option {
                           << io::cli::reset;
 
                 std::cout << io::cli::yellow
-                          << _apply(std::string("summary"), value, std::vector<std::string>())
+                          << core::infer::_apply("summary"s, value, std::vector<std::string>())
                           << io::cli::reset
                           << std::endl;
             }
@@ -66,49 +68,51 @@ namespace poac::option {
                       << "Available subcommands:"
                       << io::cli::reset
                       << std::endl;
-            for (const auto&[name, value] : core::infer::subcmd_map)
+            for (const auto& [name, value] : core::infer::subcmd_map) {
                 show(name, value);
+            }
 
             std::cout << io::cli::bold
                       << "Available options:"
                       << io::cli::reset
                       << std::endl;
-            for (const auto&[name, value] : core::infer::option_map)
+            for (const auto& [name, value] : core::infer::option_map) {
                 show(name, value);
+            }
 
             std::cout << std::endl
                       << "See `poac <command> --help` for information on a specific command.\n"
                          "For full documentation, see: https://github.com/poacpm/poac#readme\n";
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& vs) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (vs.size() == 0) {
                 exec_help();
                 return EXIT_SUCCESS;
             }
             else if (vs.size() == 1) {
-                echo_option(vs[0]);
+                echo_option(std::move(vs[0]));
                 return EXIT_SUCCESS;
             }
             else {
-                throw exception::invalid_second_arg("--help");
+                throw except::invalid_second_arg("--help");
             }
             // show only --help's option
         }
     }
 
     struct help {
-        static const std::string summary() {
+        static std::string summary() {
             return "Display help for a command";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<subcommad or option>";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
-            return _help::_main(std::move(argv));
+            return _help::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

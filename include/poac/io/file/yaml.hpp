@@ -11,7 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../../core/exception.hpp"
+#include "../../core/except.hpp"
 
 
 namespace poac::io::file::yaml {
@@ -36,100 +36,112 @@ namespace poac::io::file::yaml {
         T get(const YAML::Node& node, Keys&&... keys) {
             return get<T>((wrapper(node) ->* ... ->* keys).node);
         }
+
+
+        // Private member accessor
+        using YAML_Node_t = bool YAML::Node::*;
+#if BOOST_COMP_MSVC
+        template <class T>
+        struct accessor {
+            static T m_isValid;
+            static T get() { return m_isValid; }
+        };
+        template <class T>
+        T accessor<T>::m_isValid;
+
+        template <class T, T V>
+        struct bastion {
+            bastion() { accessor<T>::m_isValid = V; }
+        };
+
+        template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
+        using access = accessor<YAML_Node_t>;
+#else
+        template <class T, T V>
+        struct accessor {
+            static constexpr T m_isValid = V;
+            static T get() { return m_isValid; }
+        };
+        template <typename T>
+        using bastion = accessor<T, &YAML::Node::m_isValid>;
+        using access = bastion<YAML_Node_t>;
+#endif
+
+        template <typename Head>
+        std::optional<const char*>
+        read(const YAML::Node& node, Head&& head) {
+            if (!(node[head].*access::get())) {
+                return head;
+            }
+            else {
+                return std::nullopt;
+            }
+        }
+        template <typename Head, typename ...Tail>
+        std::optional<const char*>
+        read(const YAML::Node& node, Head&& head, Tail&&... tail) {
+            if (!(node[head].*access::get())) {
+                return head;
+            }
+            else {
+                return read(node, tail...);
+            }
+        }
     }
 
     template <typename T>
     std::optional<T>
-    get(const YAML::Node& node) {
+    get(const YAML::Node& node) noexcept {
         try {
             return detail::get<T>(node);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             return std::nullopt;
         }
     }
 
     template <typename T, typename ...Args>
     std::optional<T>
-    get(const YAML::Node& node, Args&&... args) {
+    get(const YAML::Node& node, Args&&... args) noexcept {
         try {
             return detail::get<T>(node, args...);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             return std::nullopt;
         }
     }
     template <typename ...Args>
-    bool get(const YAML::Node& node, Args&&... args) {
+    bool get(const YAML::Node& node, Args&&... args) noexcept {
         try {
             return detail::get<bool>(node, args...);
         }
-        catch (const YAML::BadConversion& e) {
+        catch (...) {
             return false;
         }
     }
 
     template <typename T>
+    T get_with_throw(const YAML::Node& node) {
+        namespace except = core::except;
+        try {
+            return detail::get<T>(node);
+        }
+        catch (...) {
+            throw except::error(
+                    except::msg::key_does_not_exist("") + "\n" +
+                    except::msg::please_refer_docs(""));
+        }
+    }
+    template <typename T>
     T get_with_throw(const YAML::Node& node, const std::string& arg) {
-        namespace exception = core::exception;
+        namespace except = core::except;
         try {
             return detail::get<T>(node, arg);
         }
-        catch (const YAML::BadConversion& e) {
-            throw exception::error(
-                    "Required key `" + arg + "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.io");
-        }
-    }
-
-
-    // Private member accessor
-    using YAML_Node_t = bool YAML::Node::*;
-#if BOOST_COMP_MSVC
-    template <class T>
-    struct accessor {
-        static T m_isValid;
-        static T get() { return m_isValid; }
-    };
-    template <class T>
-    T accessor<T>::m_isValid;
-
-    template <class T, T V>
-    struct bastion {
-        bastion() { accessor<T>::m_isValid = V; }
-    };
-
-    template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
-    using access = accessor<YAML_Node_t>;
-#else
-    template <class T, T V>
-    struct accessor {
-        static constexpr T m_isValid = V;
-        static T get() { return m_isValid; }
-    };
-    template <typename T>
-    using bastion = accessor<T, &YAML::Node::m_isValid>;
-    using access = bastion<YAML_Node_t>;
-#endif
-
-    template <typename Head>
-    std::optional<const char*>
-    read(const YAML::Node& node, Head&& head) {
-        if (!(node[head].*access::get())) {
-            return head;
-        }
-        else {
-            return std::nullopt;
-        }
-    }
-    template <typename Head, typename ...Tail>
-    std::optional<const char*>
-    read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-        if (!(node[head].*access::get())) {
-            return head;
-        }
-        else {
-            return read(node, tail...);
+        catch (...) {
+            throw except::error(
+                    except::msg::key_does_not_exist(arg) + "\n" +
+                    except::msg::please_refer_docs(""));
         }
     }
 
@@ -137,12 +149,11 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
-        namespace exception = core::exception;
-        if (const auto result = read(node, args...)) {
-            throw exception::error(
-                    "Required key `" + std::string(*result) +
-                    "` does not exist in poac.yml.\n"
-                    "Please refer to https://docs.poac.io");
+        namespace except = core::except;
+        if (const auto result = detail::read(node, args...)) {
+            throw except::error(
+                    except::msg::key_does_not_exist(std::string(*result)) + "\n" +
+                    except::msg::please_refer_docs(""));
         }
         else {
             std::map<std::string, YAML::Node> mp;
@@ -153,7 +164,7 @@ namespace poac::io::file::yaml {
     template <typename... Args>
     static std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
-        if (read(node, args...)) {
+        if (detail::read(node, args...)) {
             return std::nullopt;
         }
         else {
@@ -188,19 +199,19 @@ namespace poac::io::file::yaml {
 
 
     YAML::Node load_config() {
-        namespace exception = core::exception;
+        namespace except = core::except;
         if (const auto op_filename = exists_config()) {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
             }
             else {
-                throw exception::error("Could not load poac.yml");
+                throw except::error(except::msg::could_not_load("poac.yml"));
             }
         }
         else {
-            throw exception::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute `poac init` or `poac new $PROJNAME`.");
+            throw except::error(
+                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
     template <typename ...Args>
@@ -212,26 +223,40 @@ namespace poac::io::file::yaml {
         return get_by_width_opt(load_config(), args...);
     }
 
-    YAML::Node load_config_by_dir(const boost::filesystem::path& base) {
-        namespace exception = core::exception;
+    std::optional<YAML::Node>
+    load_config_by_dir(const boost::filesystem::path& base) {
+        if (const auto op_filename = exists_config(base)) {
+            if (const auto op_node = load(*op_filename)) {
+                return op_node;
+            }
+            else {
+                return std::nullopt;
+            }
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+    YAML::Node load_config_by_dir_with_throw(const boost::filesystem::path& base) {
+        namespace except = core::except;
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
             }
             else {
-                throw exception::error("Could not load poac.yml");
+                throw except::error(except::msg::could_not_load("poac.yml"));
             }
         }
         else {
-            throw exception::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute $ poac init or $ poac new $PROJNAME.");
+            throw except::error(
+                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 
     std::string get_timestamp() {
         namespace fs = boost::filesystem;
-        namespace exception = core::exception;
+        namespace except = core::except;
 
         if (const auto op_filename = exists_config()) {
             boost::system::error_code error;
@@ -239,9 +264,9 @@ namespace poac::io::file::yaml {
             return std::to_string(last_time);
         }
         else {
-            throw exception::error(
-                    "poac.yml does not exists.\n"
-                    "Please execute `poac init` or `poac new $PROJNAME`.");
+            throw except::error(
+                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 } // end namespace

@@ -10,33 +10,30 @@
 //#define DEBUG
 
 namespace poac {
-    static constexpr char const* POAC_API_HOST =
-            "poac.io";
-    static constexpr char const* POAC_PACKAGES_API =
-            "/api/packages/";
-    static constexpr char const* POAC_TOKENS_VALIDATE_API =
-            "/api/tokens/validate";
-
-    static constexpr char const* POAC_UPLOAD_API_HOST =
-            "poac-pm.appspot.com";
-    static constexpr char const* POAC_UPLOAD_API =
+    constexpr char const* POAC_API_HOST =
+            "api.poac.pm";
+    constexpr char const* POAC_ARCHIVE_API =
+            "/packages/archive";
+    constexpr char const* POAC_DEPS_API =
+            "/packages/deps";
+    constexpr char const* POAC_EXISTS_API =
+            "/packages/exists";
+    constexpr char const* POAC_VERSIONS_API =
+            "/packages/versions";
+    constexpr char const* POAC_UPLOAD_API =
             "/packages/upload";
+    constexpr char const* POAC_TOKENS_VALIDATE_API =
+            "/tokens/validate";
 
-    static constexpr char const* POAC_STORAGE_HOST =
-            "storage.googleapis.com";
-
-    static constexpr char const* GITHUB_HOST =
-            "github.com";
-
-    static constexpr char const* ALGOLIA_APPLICATION_ID =
+    constexpr char const* ALGOLIA_APPLICATION_ID =
             "IOCVK5FECM";
-    static constexpr char const* ALGOLIA_SEARCH_ONLY_KEY =
+    constexpr char const* ALGOLIA_SEARCH_ONLY_KEY =
             "9c0a76bacf692daa9e8eca2aaff4b2ab";
-    static constexpr char const* ALGOLIA_INDEX_NAME =
+    constexpr char const* ALGOLIA_INDEX_NAME =
             "packages";
-    static constexpr char const* ALGOLIA_SEARCH_INDEX_API_HOST =
+    constexpr char const* ALGOLIA_SEARCH_INDEX_API_HOST =
             "IOCVK5FECM-dsn.algolia.net";
-    static constexpr char const* ALGOLIA_SEARCH_INDEX_API =
+    constexpr char const* ALGOLIA_SEARCH_INDEX_API =
             "/1/indexes/packages/query";
 }
 #endif // !POAC_CONFIG_HPP

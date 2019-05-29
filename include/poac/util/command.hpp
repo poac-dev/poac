@@ -6,12 +6,13 @@
 #include <vector>
 #include <optional>
 #include <cstdio>
+#include <cstdlib>
 
 
 namespace poac::util {
     class command {
     public:
-        std::string data() const { return cmd; }
+        std::string string() const { return cmd; }
 
         command() { cmd = ""; }
         command(const std::string& c) { cmd = c; }
@@ -22,7 +23,7 @@ namespace poac::util {
                 if (count++ == 0) cmd2 = util::command(s).stderr_to_stdout(); // TODO: std_err
                 else cmd2 &= util::command(s).stderr_to_stdout();
             }
-            cmd = cmd2.data();
+            cmd = cmd2.string();
         }
 
         command env(const std::string& name, const std::string& val) {
@@ -31,11 +32,14 @@ namespace poac::util {
         command stderr_to_stdout() {
             return cmd + " 2>&1";
         }
+        command to_dev_null() {
+            return cmd + " >/dev/null";
+        }
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
         std::optional<std::string> exec() const {
-            std::array<char, 128> buffer;
+            std::array<char, 128> buffer{};
             std::string result;
 
 #ifdef _WIN32
@@ -58,6 +62,10 @@ namespace poac::util {
                 return std::nullopt;
             }
             return result;
+        }
+
+        bool exec_incontinent() const {
+            return static_cast<bool>(std::system(cmd.c_str()));
         }
 
         friend std::ostream& operator<<(std::ostream& stream, const command& c) {

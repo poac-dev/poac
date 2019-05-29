@@ -8,17 +8,18 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../core/exception.hpp"
+#include "./build.hpp"
+#include "../core/except.hpp"
+#include "../core/stroite/utils/absorb.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/command.hpp"
 #include "../core/naming.hpp"
-#include "./build.hpp"
 
 
 namespace poac::subcmd {
     namespace _run {
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS &&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
 
@@ -26,34 +27,27 @@ namespace poac::subcmd {
 
             std::vector<std::string> program_args;
             // poac run -v -- -h build
-            if (const auto result = std::find(argv.begin(), argv.end(), "--"); result != argv.end()) {
+            auto result = std::find(argv.begin(), argv.end(), "--");
+            if (result != argv.end()) {
                 // -h build
                 program_args = std::vector<std::string>(result + 1, argv.end());
-                // -v
-                subcmd::build{}(std::vector<std::string>(argv.begin(), result));
             }
-            else {
-                subcmd::build{}(std::move(argv));
-            }
-
-            const std::string project_name = node.at("name").as<std::string>();
-#ifdef _WIN32
-            const std::string bin_name = project_name + ".exe";
-#else
-            const std::string bin_name = project_name;
-#endif
-            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
-            if (!fs::exists(executable_path)) {
+            // -v
+            _build::check_arguments(std::vector<std::string>(argv.begin(), result));
+            if (_build::_main(std::vector<std::string>{}) == EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
 
+            const std::string project_name = node.at("name").as<std::string>();
+            const std::string bin_name = project_name + core::stroite::utils::absorb::binary_extension;
+            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
             const std::string executable = executable_path.string();
             util::command cmd(executable);
             for (const auto &s : program_args) {
                 cmd += s;
             }
 
-            std::cout << io::cli::green << "Running: " << io::cli::reset
+            std::cout << io::cli::to_green("Running: ")
                       << "`" + executable + "`"
                       << std::endl;
             if (const auto ret = cmd.exec()) {
@@ -68,15 +62,15 @@ namespace poac::subcmd {
     }
 
     struct run {
-        static const std::string summary() {
+        static std::string summary() {
             return "Build project and exec it";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[-v | --verbose | -- [program args]]";
         }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
-            return _run::_main(std::move(argv));
+            return _run::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

@@ -8,28 +8,28 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
+#include "../core/stroite.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/stroite.hpp"
 #include "../util/argparse.hpp"
 
 
-// TODO: エラーがあるならちゃんと，EXIT_FAILUREを返す
 namespace poac::subcmd {
     namespace _test {
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace except = core::except;
+            namespace stroite = core::stroite;
 
             const auto node = io::file::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
 
-            stroite::builder bs;
-            bs.configure_compile(usemain, verbose);
+            stroite::core::builder bs(verbose);
+            bs.configure_compile(usemain);
 
             // You can use #include<> in test code.
             bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
@@ -45,7 +45,7 @@ namespace poac::subcmd {
 //                    static_link_lib = "gtest_main";
                 }
                 else {
-                    throw exception::error("Invalid test framework");
+                    throw except::error("Invalid test framework");
                 }
             }
 
@@ -55,11 +55,7 @@ namespace poac::subcmd {
                     const std::string bin_name = fs::path(
                             boost::replace_all_copy(
                                     fs::relative(cpp_relative, "test").string(), "/", "-")).stem().string();
-#ifdef _WIN32
-                    const std::string extension = ".exe";
-#else
-                    const std::string extension = "";
-#endif
+                    const std::string extension = core::stroite::utils::absorb::binary_extension;
                     const std::string bin_path = (io::file::path::current_build_test_bin_dir / bin_name).string() + extension;
 
                     bs.compile_conf.source_files = bs.hash_source_files({cpp_relative}, usemain);
@@ -71,12 +67,12 @@ namespace poac::subcmd {
 //                        continue;
                     }
                     else {
-                        if (const auto obj_files_path = bs._compile()) {
-                            bs.configure_link(*obj_files_path, verbose);
+                        if (const auto obj_files_path = bs.compile()) {
+                            bs.configure_link(*obj_files_path);
                             bs.link_conf.project_name = bin_name;
                             bs.link_conf.output_root = io::file::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);
-                            if (bs._link()) {
+                            if (bs.link()) {
                                 std::cout << io::cli::green << "Compiled: " << io::cli::reset
                                           << "Output to `" +
                                              fs::relative(bin_path).string() +
@@ -139,25 +135,18 @@ namespace poac::subcmd {
             }
             return EXIT_SUCCESS;
         }
-
-        void check_arguments([[maybe_unused]] const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
-//            if (argv.size() >= 2)
-//                throw except::invalid_second_arg("test");
-        }
     }
 
     struct test {
-        static const std::string summary() {
+        static std::string summary() {
             return "Execute tests";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[-v | --verbose, --report, -- args]";
         }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
-            _test::check_arguments(argv);
-            return _test::_main(std::move(argv));
+            return _test::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

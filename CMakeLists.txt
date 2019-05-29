@@ -3,7 +3,7 @@ project(poac)
 
 # Preprocessor definitions
 add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
-add_definitions(-DPOAC_VERSION="0.1.2")
+add_definitions(-DPOAC_VERSION="0.2.0")
 if(CYGWIN)
     add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj)
 elseif(UNIX)
@@ -58,6 +58,11 @@ if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm@7/include")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm@7/lib")
     endif()
+
+    # -DCMAKE_BUILD_TYPE=Debug
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fsanitize=address")
+    # -DCMAKE_BUILD_TYPE=Release
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mtune=native -march=native")
 else()
     if(WIN32 AND MSVC)
         link_directories(${BOOST_LIBRARYDIR})
@@ -77,6 +82,7 @@ else()
             set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
             string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
             set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+
             string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
             set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
             string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}")

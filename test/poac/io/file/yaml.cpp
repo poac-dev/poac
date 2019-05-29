@@ -17,8 +17,8 @@ BOOST_AUTO_TEST_CASE( poac_io_file_yaml_gets )
                                  "fuga: boo");
     if (const auto res = yaml::get_by_width(node, "hoge", "fuga"))
     {
-        BOOST_TEST( (*res).at("hoge").as<string>() == "foo" );
-        BOOST_TEST( (*res).at("fuga").as<string>() == "boo" );
+        BOOST_TEST( res->at("hoge").as<string>() == "foo" );
+        BOOST_TEST( res->at("fuga").as<string>() == "boo" );
     }
     else
     {
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( poac_io_file_yaml_gets3 )
                                  "  tag: yaml-cpp-0.6.2\n");
     if (const auto res = yaml::get_by_width(node, "jbeder/yaml-cpp"))
     {
-        const auto mp = (*res).at("jbeder/yaml-cpp").as<map<string, string>>();
+        const auto mp = res->at("jbeder/yaml-cpp").as<map<string, string>>();
         BOOST_TEST( mp.at("src") == "github" );
         BOOST_TEST( mp.at("tag") == "yaml-cpp-0.6.2" );
     }
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( poac_io_file_yaml_gets4 )
                                  "  - boost_filesystem\n");
     if (const auto res = yaml::get_by_width(node, "include"))
     {
-        const auto mp = (*res).at("include").as<vector<string>>();
+        const auto mp = res->at("include").as<vector<string>>();
         BOOST_TEST( mp[0] == "boost_system" );
         BOOST_TEST( mp[1] == "boost_filesystem" );
     }

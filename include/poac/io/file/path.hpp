@@ -9,13 +9,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../../core/exception.hpp"
+#include "../../core/except.hpp"
 #include "../../util/command.hpp"
 
 
 namespace poac::io::file::path {
     // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path) {
+        namespace except = core::except;
+
         if (!path.empty() && path[0] == '~') {
             assert(path.size() == 1 || path[1] == '/');
             const char* home = std::getenv("HOME");
@@ -28,11 +30,13 @@ namespace poac::io::file::path {
                         path.replace(0, 1, std::string(hdrive) + hpath);
                     }
                     else {
-                        throw core::exception::error("Could not read environment variable HOMEPATH.");
+                        throw except::error(
+                                except::msg::could_not_read("environment variable HOMEPATH"));
                     }
                 }
                 else {
-                    throw core::exception::error("Could not read environment variable HOMEDRIVE.");
+                    throw except::error(
+                            except::msg::could_not_read("environment variable HOMEDRIVE"));
                 }
             }
         }
@@ -63,7 +67,7 @@ namespace poac::io::file::path {
     const boost::filesystem::path current_build_cache_obj_dir(
             current_build_cache_dir / "obj"
     );
-    const boost::filesystem::path current_build_cache_hash_dir(
+    const boost::filesystem::path current_build_cache_hash_dir( // FIXME: hashでなく，timestamp
             current_build_cache_dir / "_hash"
     );
     const boost::filesystem::path current_build_bin_dir(

@@ -12,14 +12,14 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "./install.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
-#include "../core/semver.hpp"
-#include "../core/resolver.hpp"
+#include "../core/deper/semver.hpp"
+#include "../core/deper/resolver.hpp"
 #include "../io/file/path.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
-#include "../io/network.hpp"
+#include "../io/net.hpp"
 #include "../util/types.hpp"
 
 
@@ -27,13 +27,13 @@
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
 namespace poac::subcmd {
     namespace _update {
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace except = core::except;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
-            namespace resolver = core::resolver;
+            namespace resolver = core::deper::resolver;
             namespace naming = core::naming;
 
             const bool yes = util::argparse::use_rm(argv, "-y", "--yes");
@@ -77,7 +77,7 @@ namespace poac::subcmd {
                             current_version = "null";
                         }
 
-                        if (core::semver::Version(dep.version) != current_version) {
+                        if (core::deper::semver::Version(dep.version) != current_version) {
                             update_deps[name] = { {current_version}, {dep.source} };
                         }
                     }
@@ -91,7 +91,7 @@ namespace poac::subcmd {
                 for (const auto& [name, dep] : update_deps) {
                     const auto current_version = resolved_deps.backtracked[name].version;
                     std::cout << name << " (Current: " << current_version << " -> Update: ";
-                    if (core::semver::Version(current_version) < dep.version) {
+                    if (core::deper::semver::Version(current_version) < dep.version) {
                         std::cout << cli::to_green(dep.version) << ")" << std::endl;
                     }
                     else {
@@ -139,15 +139,15 @@ namespace poac::subcmd {
     }
 
     struct update {
-        static const std::string summary() {
+        static std::string summary() {
             return "Update package";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[ -y | --yes, -a | --all, --outside ]";
         }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
-            return _update::_main(std::move(argv));
+            return _update::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

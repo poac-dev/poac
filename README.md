@@ -5,18 +5,19 @@ Poac is a package manager for C++ users.
 
 Poac can download project's dependencies and compile project.
 
-Please see [poac.pm](https://poac.io) for [installation instructions](https://poacpm.github.io/poac/en/getting-started/installation.html) and [other documentations](https://docs.poac.io).
+Please see [poac.pm](https://poac.pm) for [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [other documentations](https://doc.poac.pm).
 
 
 [![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
 
 ## Supported Operating Systems
-| Linux (= x86_64 GNU/Linux) | macOS (>= sierra) | Windows (= Windows Subsystem for Linux) |
+| Linux (= x86-64 GNU/Linux) | macOS (>= sierra) | Windows (= MSVC >= 2017) |
 |:---:|:---:|:---:|
 |[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)|[![Build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/master?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/master)|
 
 ## Code Status
-[![GitHub](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
+[![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)]()
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
 [![Coverage Status](https://coveralls.io/repos/github/poacpm/poac/badge.svg?branch=master)](https://coveralls.io/github/poacpm/poac?branch=master)
 [![codecov](https://codecov.io/gh/poacpm/poac/branch/master/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
@@ -26,7 +27,7 @@ Please see [poac.pm](https://poac.io) for [installation instructions](https://po
 ## Installation
 ### Easy install
 ```bash
-curl -fsSL https://sh.poac.io | bash
+curl -fsSL https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
@@ -53,10 +54,11 @@ $ poac build
 ```
 -->
 
-## Requirements (runtime)
+## Runtime requirements
 * compiler (gcc | clang | MSVC | ICC)
 * `tar`: in publish command
 * `dot(graphviz)`: in graph command
+* `git`: in install command
 * `cmake`: optional
 * `make`: optional
 

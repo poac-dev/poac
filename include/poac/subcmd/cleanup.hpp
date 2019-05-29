@@ -10,21 +10,21 @@
 
 #include "./install.hpp"
 #include "./uninstall.hpp"
-#include "../core/exception.hpp"
-#include "../core/resolver.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
-#include "../core/lock.hpp"
+#include "../core/deper/resolver.hpp"
+#include "../core/deper/lock.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
 
 
 namespace poac::subcmd {
     namespace _cleanup {
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::file::yaml;
-            namespace resolver = core::resolver;
-            namespace lock = core::lock;
+            namespace resolver = core::deper::resolver;
+            namespace lock = core::deper::lock;
             namespace naming = core::naming;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;
@@ -66,24 +66,24 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (!argv.empty()) {
-                throw exception::invalid_second_arg("cleanup");
+                throw except::invalid_second_arg("cleanup");
             }
         }
     }
 
     struct cleanup {
-        static const std::string summary() {
+        static std::string summary() {
             return "Delete unnecessary things";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<Nothing>";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _cleanup::check_arguments(argv);
-            return _cleanup::_main(std::move(argv));
+            return _cleanup::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

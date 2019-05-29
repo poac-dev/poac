@@ -10,17 +10,18 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../core/exception.hpp"
-#include "../core/lock.hpp"
+#include "../core/except.hpp"
+#include "../core/stroite/utils/absorb.hpp"
+#include "../core/stroite/utils/detect.hpp"
+#include "../core/deper/lock.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/stroite.hpp"
+#include "../core/stroite.hpp"
 #include "../core/naming.hpp"
 #include "../util/argparse.hpp"
 
 
-// TODO: --release, --no-cache, --example, --backend cmake
-// TODO: --check-std(標準では標準ライブラリをチェックしないため，標準ライブラリを書き換えてもリビルドしない)
+// TODO: --release, --no-cache (build systemにpoacを使用する時のみ), --example
 namespace poac::subcmd {
     namespace _build {
         std::optional<std::string>
@@ -42,57 +43,62 @@ namespace poac::subcmd {
             }
         }
 
-        auto handle_compile_message(const std::optional<std::string>& output) {
+        std::optional<std::string>
+        handle_compile_message(const std::optional<std::string>& output) {
             return handle_message("Compiled", output);
         }
-        auto handle_generate_message(const std::optional<std::string>& output) {
+        std::optional<std::string>
+        handle_generate_message(const std::optional<std::string>& output) {
             return handle_message("Generated", output);
         }
 
-        auto handle_link(
-                stroite::builder& bs,
+        std::optional<std::string>
+        handle_link(
+                core::stroite::core::builder& bs,
                 const std::vector<std::string>& obj_files_path,
-                const bool verbose)
+                const std::vector<std::string>& library_path) // depsのlibや，自分自身のlib
         {
-            bs.configure_link(obj_files_path, verbose);
-            return handle_compile_message(bs._link());
+            bs.configure_link(obj_files_path);
+            for (const auto& l : library_path) {
+                bs.link_conf.library_path.push_back(l);
+            }
+            return handle_compile_message(bs.link());
         }
         std::optional<std::string>
         handle_compile(
-                stroite::builder& bs,
-                const bool verbose)
+                core::stroite::core::builder& bs,
+                const std::vector<std::string>& library_path)
         {
-            if (const auto obj_files_path = bs._compile()) {
-                return handle_link(bs, *obj_files_path, verbose);
+            if (const auto obj_files_path = bs.compile()) {
+                return handle_link(bs, *obj_files_path, library_path);
             }
             else { // Compile failure
                 return std::nullopt;
             }
         }
-        auto handle_generate_static_lib(
-                stroite::builder& bs,
-                const std::vector<std::string>& obj_files_path,
-                const bool verbose)
+        std::optional<std::string>
+        handle_generate_static_lib(
+                core::stroite::core::builder& bs,
+                const std::vector<std::string>& obj_files_path)
         {
-            bs.configure_static_lib(obj_files_path, verbose);
-            return handle_generate_message(bs._gen_static_lib());
+            bs.configure_static_lib(obj_files_path);
+            return handle_generate_message(bs.gen_static_lib());
         }
-        auto handle_generate_dynamic_lib(
-                stroite::builder& bs,
-                const std::vector<std::string>& obj_files_path,
-                const bool verbose)
+        std::optional<std::string>
+        handle_generate_dynamic_lib(
+                core::stroite::core::builder& bs,
+                const std::vector<std::string>& obj_files_path)
         {
-            bs.configure_dynamic_lib(obj_files_path, verbose);
-            return handle_generate_message(bs._gen_dynamic_lib());
+            bs.configure_dynamic_lib(obj_files_path);
+            return handle_generate_message(bs.gen_dynamic_lib());
         }
 
         void handle_generate_lib(
-                stroite::builder& bs,
-                const std::vector<std::string>& obj_files_path,
-                const bool verbose)
+                core::stroite::core::builder& bs,
+                const std::vector<std::string>& obj_files_path)
         {
-            handle_generate_static_lib(bs, obj_files_path, verbose);
-            handle_generate_dynamic_lib(bs, obj_files_path, verbose);
+            handle_generate_static_lib(bs, obj_files_path);
+            handle_generate_dynamic_lib(bs, obj_files_path);
         }
 
         void handle_exist_message(
@@ -113,13 +119,7 @@ namespace poac::subcmd {
             handle_exist_message(lib_path, ".a", "Static link library");
         }
         void is_exist_dynamic_lib(const std::string& lib_path) {
-#ifdef __APPLE__
-            const std::string extension = ".dylib";
-#elif defined(_WIN32)
-            const std::string extension = ".dll";
-#else
-            const std::string extension = ".so";
-#endif
+            const std::string extension = core::stroite::utils::absorb::dynamic_lib_extension;
             handle_exist_message(lib_path, extension, "Dynamic link library");
         }
         std::string is_exist_lib(const std::string& project_name) {
@@ -131,39 +131,42 @@ namespace poac::subcmd {
         }
 
 
-        std::optional<std::string>
-        build_bin(stroite::builder& bs, const bool verbose)
+        std::optional<std::string> // TODO: このあたり，builder.hppへ移動できる -> bs.build()のみで，binのビルドとかlibとかを意識せずに使いたい
+        build_bin(
+                core::stroite::core::builder& bs,
+                const std::vector<std::string>& library_path)
         {
-            bs.configure_compile(true, verbose);
+            bs.configure_compile(true);
             // Since the obj file already exists and has not been changed as a result
             //  of verification of the hash file, return only the list of existing obj_files
             //  and do not compile.
             // There is no necessity of linking that there is no change completely.
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
-#ifdef _WIN32
-                const std::string extension = ".exe";
-#else
-                const std::string extension = "";
-#endif
+                const std::string extension = core::stroite::utils::absorb::binary_extension;
                 const std::string bin_path =
                         (io::file::path::current_build_bin_dir / bs.project_name).string();
                 handle_exist_message(bin_path, extension, "Binary");
                 return bin_path;
             }
             else {
-                return handle_compile(bs, verbose);
+                return handle_compile(bs, library_path);
             }
         }
 
         std::optional<std::string>
-        build_link_libs(stroite::builder& bs, const bool verbose)
+        build_link_libs(
+                core::stroite::core::builder& bs,
+                std::vector<std::string>& deps_obj_files_path)
         {
-            bs.configure_compile(false, verbose);
+            bs.configure_compile(false);
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
                 return is_exist_lib(bs.project_name);
             }
-            if (const auto obj_files_path = bs._compile()) {
-                handle_generate_lib(bs, *obj_files_path, verbose);
+            if (auto obj_files_path = bs.compile()) {
+                for (const auto o : *obj_files_path) {
+                    deps_obj_files_path.push_back(o);
+                }
+                handle_generate_lib(bs, deps_obj_files_path);
                 return std::nullopt;
             }
             else { // Compile failure
@@ -172,85 +175,133 @@ namespace poac::subcmd {
         }
 
 
-        bool compile_deps(
+        std::optional<std::vector<std::string>>
+        compile_deps(
                 const YAML::Node& node,
                 const std::string& name,
                 const boost::filesystem::path& deps_path,
                 const bool verbose)
         {
-            namespace exception = core::exception;
+            namespace except = core::except;
+            namespace stroite = core::stroite;
 
-            // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
-            if (io::file::yaml::get(node, "build", "lib")) {
-                stroite::builder bs(deps_path);
+            if (const auto system = stroite::utils::detect::build_system(node)) {
+                if (*system == "poac") {
+                    // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
+                    if (io::file::yaml::get(node, "build", "lib")) {
+                        stroite::core::builder bs(verbose, deps_path);
 
-                bs.configure_compile(false, verbose);
-                if (!bs.compile_conf.source_files.empty()) {
-                    std::cout << io::cli::to_status(name) << std::endl;
+                        bs.configure_compile(false);
+                        if (!bs.compile_conf.source_files.empty()) {
+                            io::cli::echo(io::cli::to_status(name));
 
-                    if (const auto obj_files_path = bs._compile()) {
-                        handle_generate_lib(bs, *obj_files_path, verbose);
+                            if (const auto obj_files_path = bs.compile()) {
+                                handle_generate_lib(bs, *obj_files_path);
+                                io::cli::echo();
+                                return *obj_files_path;
+                            }
+                            else { // Compile failure
+                                throw except::error("\nCompile error.");
+                            }
+                        }
                     }
-                    else { // Compile failure
-                        throw exception::error("\nCompile error.");
-                    }
-                    std::cout << std::endl;
                 }
-
-                return true;
+                else if (*system == "cmake") {
+                    stroite::chain::cmake bs(deps_path);
+                    io::cli::echo(io::cli::to_status(name));
+                    bs.build();
+                    io::cli::echo();
+                    return {};
+                }
             }
-            return false;
+            return std::nullopt; // 結局compileしていない
         }
 
-        void build_deps(const YAML::Node& node, const bool verbose) {
+        // TODO: depends.hppで処理させる？ -> であれば，ビルド自体はすべきでない？
+        std::optional<std::vector<std::string>>
+        build_deps(const YAML::Node& node, std::vector<std::string>& obj_files_path, const bool verbose) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
-            namespace lock = core::lock;
+            namespace except = core::except;
+            namespace stroite = core::stroite;
+            namespace lock = core::deper::lock;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 
 
-            if (!yaml::get(node, "deps")) {
-                return; // depsが存在しない
-            }
-            // TODO: ビルド順序
-            if (const auto locked_deps = lock::load_ignore_timestamp()) {
-                for (const auto& [name, dep] : (*locked_deps).backtracked) {
-                    const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
-                    const auto deps_path = fs::current_path() / "deps" / current_package_name;
+            std::vector<std::string> library_path;
+            if (const auto deps_node = yaml::get<std::map<std::string, YAML::Node>>(node, "deps")) {
+                // TODO: ビルド順序
+                if (const auto locked_deps = lock::load_ignore_timestamp()) {
+                    for (const auto& [name, dep] : (*locked_deps).backtracked) {
+                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                        const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
-                    if (fs::exists(deps_path)) {
-                        // IF dep.source == "github"
-                        // ./deps/pack/poac.yml は存在しないと見做す (TODO: poac projectなのにgithubをsourceとしている場合がある)
-                        // 現状は，./poac.ymlから，buildキーを読み込む -> 無いなら header-onlyと見做す．
+                        if (fs::exists(deps_path)) {
+                            bool exist_build_key = true;
+                            try { // 依存の依存は，poac.ymlに書かれていないため，buildキーは存在しない
+                                (*deps_node).at(name);
+                            }
+                            catch(std::out_of_range&) {
+                                exist_build_key = false;
+                            }
 
-                        // IF dep.source == "poac"
-                        // プロジェクトルートの方に，buildキーがあるならそちらを
-                        //  -> 無いなら，提供者->deps_pathの方を選ぶ
-                        //  -> 無いなら，header-onlyと見做す．
-                        if (!compile_deps(node, name, deps_path, verbose) && dep.source == "poac") {
-                            const auto deps_config_node = yaml::load_config_by_dir(deps_path);
-                            compile_deps(deps_config_node, name, deps_path, verbose);
+                            if (exist_build_key) {
+                                if (const auto system = stroite::utils::detect::build_system((*deps_node).at(name))) {
+                                    if (const auto obj_files_path_opt = compile_deps((*deps_node).at(name), name, deps_path, verbose)) {
+                                        for (const auto& o : *obj_files_path_opt) {
+                                            obj_files_path.push_back(o);
+                                        }
+                                        library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい / dylibかa
+                                    }
+                                }
+                                else if (const auto deps_config_node = yaml::load_config_by_dir(deps_path)) {
+                                    if (const auto obj_files_path_opt = compile_deps(*deps_config_node, name, deps_path, verbose)) {
+                                        for (const auto& o : *obj_files_path_opt) {
+                                            obj_files_path.push_back(o);
+                                        }
+                                        library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
+                                    }
+                                }
+                                // header-only
+                            }
+                            else {
+                                if (const auto deps_config_node = yaml::load_config_by_dir(deps_path)) {
+                                    if (const auto obj_files_path_opt = compile_deps(*deps_config_node, name, deps_path, verbose)) {
+                                        for (const auto& o : *obj_files_path_opt) {
+                                            obj_files_path.push_back(o);
+                                        }
+                                        library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
+                                    }
+                                }
+                                // header-only
+                            }
+                        }
+                        else {
+                            throw except::error(
+                                    name + " is not installed.\n"
+                                    "Please build after running `poac install`");
                         }
                     }
-                    else {
-                        throw exception::error(
-                                name + " is not installed.\n"
-                                       "Please build after running `poac install`");
-                    }
+                }
+                else {
+                    throw except::error(
+                            "Could not load poac.lock.\n"
+                            "Please build after running `poac install`");
                 }
             }
+            if (library_path.empty()) {
+                return std::nullopt;
+            }
             else {
-                throw exception::error(
-                        "Could not load poac.lock.\n"
-                        "Please build after running `poac install`");
+                return library_path;
             }
         }
 
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace except = core::except;
+            namespace stroite = core::stroite;
             namespace naming = core::naming;
             namespace yaml = io::file::yaml;
 
@@ -258,49 +309,76 @@ namespace poac::subcmd {
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
-            build_deps(node, verbose);
-            stroite::builder bs;
-            std::cout << io::cli::to_status(project_name) << std::endl;
-            if (yaml::get(node, "build", "lib")) {
-                if (!build_link_libs(bs, verbose)) {
-                    // compile or gen error
+            if (const auto system = stroite::utils::detect::build_system(node)) {
+                std::vector<std::string> deps_obj_files_path;
+                const auto built_deps = build_deps(node, deps_obj_files_path, verbose);
+                const bool is_built_deps = static_cast<bool>(built_deps);
+
+                if (*system == "poac") {
+                    stroite::core::builder bs(verbose);
+
+                    if (is_built_deps) {
+                        io::cli::echo(io::cli::to_status(project_name));
+                    }
+
+//                    bool built_lib = false;
+                    if (yaml::get(node, "build", "lib")) {
+//                        built_lib = true;
+                        if (!build_link_libs(bs, deps_obj_files_path)) {
+                            // compile or gen error
+                            return EXIT_FAILURE;
+                        }
+                    }
+                    if (yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする -> まだ -> cpp_shell_cmdでテスト
+                        // TODO: ディレクトリで指定できるように
+                        if (!build_bin(bs, *built_deps)) {
+                            // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
+                            const auto binary_name = io::file::path::current_build_bin_dir / project_name;
+                            const fs::path executable_path = fs::relative(binary_name);
+                            boost::system::error_code error;
+                            fs::remove(executable_path, error);
+
+                            // compile or link error
+                            return EXIT_FAILURE;
+                        }
+                    }
+                }
+                else if (*system == "cmake") {
+                    stroite::chain::cmake bs;
+                    if (is_built_deps) {
+                        io::cli::echo(io::cli::to_status(project_name));
+                    }
+                    bs.build(); // only build
+                    io::cli::echo(io::cli::to_green("Compiled: "), project_name);
                 }
             }
-            if (yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする
-                // TODO: ディレクトリで指定できるように
-                if (!build_bin(bs, verbose)) {
-                    // compile or link error
-
-                    // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
-                    const auto binary_name = io::file::path::current_build_bin_dir / project_name;
-                    const fs::path executable_path = fs::relative(binary_name);
-                    boost::system::error_code error;
-                    fs::remove(executable_path, error);
-                }
+            else { // error
+                throw except::error(
+                        "Required key `build` does not exist in poac.yml.\n"
+                        "Please refer to https://doc.poac.pm");
             }
-
             return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (argv.size() > 1) {
-                throw exception::invalid_second_arg("build");
+                throw except::invalid_second_arg("build");
             }
         }
     }
 
     struct build {
-        static const std::string summary() {
+        static std::string summary() {
             return "Compile all sources that depend on this project";
         }
-        static const std::string options() {
+        static std::string options() {
             return "[-v | --verbose]";
         }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _build::check_arguments(argv);
-            return _build::_main(std::move(argv));
+            return _build::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

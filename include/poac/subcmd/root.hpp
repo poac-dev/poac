@@ -8,13 +8,13 @@
 
 namespace poac::subcmd {
     struct root {
-        static const std::string summary() {
+        static std::string summary() {
             return "Display the root installation directory";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<Nothing>";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()([[maybe_unused]] VS&& vs) {
             std::cout << POAC_PROJECT_ROOT << std::endl;
             return EXIT_SUCCESS;

@@ -19,7 +19,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../io.hpp"
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../util.hpp"
 #include "../config.hpp"
 
@@ -69,32 +69,28 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (argv.size() > 1) {
-                throw exception::invalid_second_arg("publish");
+                throw except::invalid_second_arg("publish");
             }
         }
 
         void check_requirements() {
             namespace fs = boost::filesystem;
-
             io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
-
-            // TODO: licenseの項があるのに，LICENSEファイルが存在しない => error
-            // TODO: licenseの項が無いのに，LICENSEファイルが存在する => error
-            if (!fs::exists("LICENSE")) {
-                std::cerr << io::cli::to_yellow("WARN: ") << "LICENSE does not exist" << std::endl;
-            }
             if (!fs::exists("README.md")) {
+                // TODO: もう少しほんわかと識別したい．README.txtやreadme.md等
+                // TODO: readmeが接頭辞にありつつ，最短なファイル．README.md, README-ja.mdだと，README.mdを優先
                 std::cerr << io::cli::to_yellow("WARN: ") << "README.md does not exist" << std::endl;
             }
         }
 
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace except = core::except;
             namespace cli = io::cli;
+            using namespace std::string_literals;
 
             check_arguments(argv);
             check_requirements();
@@ -115,8 +111,6 @@ namespace poac::subcmd {
 
             // TODO: poac.ymlに，system: manualが含まれている場合はpublishできない
             // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
-            // TODO: descriptionに，TODOが含まれてたらエラーではなく，**TODO: Add description**と完全一致ならエラー
-
 
             const std::string project_dir = fs::absolute(fs::current_path()).string();
             cli::echo(cli::status, "Packaging ", project_dir, "...");
@@ -133,7 +127,7 @@ namespace poac::subcmd {
                 json.put("token", token);
             }
             else {
-                throw exception::error("Could not read token");
+                throw except::error(except::msg::could_not_read("token"));
             }
             {
                 const auto node = io::file::yaml::load_config("owners");
@@ -157,37 +151,44 @@ namespace poac::subcmd {
             if (verbose) {
                 std::cout << json_s << std::endl;
             }
-            if (io::network::post(POAC_TOKENS_VALIDATE_API, json_s) == "err") {
-                throw exception::error("Token verification failed.\n"
-                                    "Please check the following check lists.\n"
-                                    "1. Does token really belong to you?\n"
-                                    "2. Is the user ID described `owners` in poac.yml\n"
-                                    "    the same as that of GitHub account?");
+            {
+                const io::net::requests req{};
+                const auto res = req.post(POAC_TOKENS_VALIDATE_API, json_s);
+                if (res.data() != "ok"s) {
+                    throw except::error(res.data());
+                }
             }
 
             const auto node = io::file::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
-            if (io::network::get(POAC_PACKAGES_API + node_name + "/" + node_version + "/exists") == "true") {
-                throw exception::error(node_name + ": " + node_version + " already exists");
+            {
+                const io::net::requests req{};
+                const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
+                if (res.data() == "true"s) {
+                    throw except::error(
+                            except::msg::already_exist(node_name + ": " + node_version));
+                }
             }
 
             // Post tarball to API.
             cli::echo(cli::to_status("Uploading..."));
             if (!fs::exists("poac.yml")) {
-                throw exception::error("poac.yml does not exists");
+                throw except::error(
+                        except::msg::does_not_exist("poac.yml"));
             }
-            if (const auto res = io::network::post_file(token, output_dir); res != "ok") {
-                throw exception::error(res); // TODO: Check exists packageは飛ばして，Delete fileはしてほしい
-            }
+            {
+                io::net::multiPartForm mp_form;
+                mp_form.set("token", token);
+                std::map<io::net::http::field, std::string> h;
+                h[io::net::http::field::content_type] = "application/x-gzip";
+                h[io::net::http::field::content_transfer_encoding] = "binary";
+                mp_form.set("file", output_dir, h);
 
-            // Check exists package
-            io::network::Headers headers;
-            headers.emplace(io::network::http::field::cache_control, "no-cache");
-            const std::string target = POAC_PACKAGES_API + node_name + "/" + node_version + "/exists";
-            const std::string res = io::network::get(target, POAC_API_HOST, headers);
-            if (res != "true") {
-                std::cerr << io::cli::to_red("ERROR: ") << "Could not create package." << std::endl;
+                const io::net::requests req{};
+                if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
+                    std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;
+                }
             }
 
             // Delete file
@@ -200,11 +201,11 @@ namespace poac::subcmd {
     }
 
     struct publish {
-        static const std::string summary() { return "Publish a package"; }
-        static const std::string options() { return "[-v | --verbose, -y | --yes]"; }
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        static std::string summary() { return "Publish a package"; }
+        static std::string options() { return "[-v | --verbose, -y | --yes]"; }
+        template<typename VS>
         int operator()(VS&& argv) {
-            return _publish::_main(std::move(argv));
+            return _publish::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

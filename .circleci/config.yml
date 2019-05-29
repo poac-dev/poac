@@ -1,81 +1,66 @@
-aliases:
-  - &restore-poac-cache
-    keys: # restores saved poac cache
-      - v1-poac-cache-{{ checksum "poac.lock" }}
-      - v1-poac-cache-{{ checksum "poac.yml" }}
-      - v1-poac-cache-{{ .Branch }}
-      - v1-poac-cache
-  - &save-poac-cache1
-    key: v1-poac-cache-{{ checksum "poac.lock" }}
-    paths: "deps"
-  - &save-poac-cache2
-    key: v1-poac-cache-{{ checksum "poac.yml" }}
-    paths: "deps"
-  - &save-poac-cache3
-    key: v1-poac-cache-{{ .Branch }}
-    paths: "deps"
-  - &save-poac-cache4
-    key: v1-poac-cache
-    paths: "deps"
+version: 2.1
 
-  - &restore-poac-build-cache
-    keys: # restores saved poac build cache
-      - v1-build-cache-{{ .Branch }}
-      - v1-build-cache
-  - &save-poac-build-cache1
-    key: v1-build-cache-{{ .Branch }}
-    paths: "_build"
-  - &save-poac-build-cache2
-    key: v1-build-cache
-    paths: "_build"
+executors:
+  x86_64:
+    parameters:
+      compiler:
+        description: "compiler-version"
+        type: string
+    docker:
+      - image: poacpm/x86_64-unknown-linux-gnu
+    environment:
+      CXX: << parameters.compiler >>
 
-  - &at-current
-    at: .
 
-  - &build-project
-    name: Build Project
-    command: mkdir build && cd build && cmake .. && make
-
-  - &run-poac-test
-    name: Test Project
-    command: >
-      ./build/poac test --report --
-      --output_format=XML
-      --log_level=all
-      --report_level=no
-  - &store-poac-test-result
-    path: _build/test/report
-
-  - &filter-ignore-gh-pages
-    branches:
-      ignore: gh-pages
-
-  - &defaults
+commands:
+  poac-install:
     steps:
-      - attach_workspace: *at-current
+      - restore_cache:
+          keys: # restores saved poac cache
+            - v1-poac-cache-{{ checksum "poac.lock" }}
+            - v1-poac-cache-{{ checksum "poac.yml" }}
+            - v1-poac-cache-{{ .Branch }}
+            - v1-poac-cache
+      - run: poac install # source file only (no pre-built)
+      - save_cache:
+          key: v1-poac-cache-{{ checksum "poac.lock" }}
+          paths: "deps"
+      - save_cache:
+          key: v1-poac-cache-{{ checksum "poac.yml" }}
+          paths: "deps"
+      - save_cache:
+          key: v1-poac-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:
+          key: v1-poac-cache
+          paths: "deps"
 
+  default-build:
+    steps:
       - run: uname -sm
-      - run: *build-project
+      - run: mkdir build && cd build && cmake .. && make
       - run: ./build/poac -h
       - run: file ./build/poac
 
-#      - run: *run-poac-test
-#      - store_test_results: *store-poac-test-result
+  default-test:
+    steps:
+      - run:
+          command: >
+            ./build/poac test --report --
+            --output_format=XML
+            --log_level=all
+            --report_level=no
+      - store_test_results:
+          path: _build/test/report
 
-version: 2
+
 jobs:
   checkout_code:
     docker:
       - image: poacpm/poac
     steps:
       - checkout
-
-      - restore_cache: *restore-poac-cache
-#      - run: poac install # source file only (no pre-built)
-      - save_cache: *save-poac-cache1
-      - save_cache: *save-poac-cache2
-      - save_cache: *save-poac-cache3
-      - save_cache: *save-poac-cache4
+#      - poac-install
 
       - persist_to_workspace:
           root: .
@@ -86,33 +71,37 @@ jobs:
 #      - image: poacpm/x86_64-unknown-linux-gnu
 #    environment:
 #      CXX: g++-6
-#    <<: *defaults
+#    steps:
+#      - default-build
 
   x86_64-unknown-linux-gnu_gcc-7:
-    docker:
-      - image: poacpm/x86_64-unknown-linux-gnu
-    environment:
-      CXX: g++-7
-    <<: *defaults
+    parameters:
+      compiler:
+        description: "compiler-version"
+        type: string
+    executor:
+      name: x86_64
+      compiler: << parameters.compiler >>
+    steps:
+      - attach_workspace:
+          at: .
+      - default-build
+#      - default-test
 
   x86_64-unknown-linux-gnu_gcc-8:
-    docker:
-      - image: poacpm/x86_64-unknown-linux-gnu
-    environment:
-      CXX: g++-8
+    parameters:
+      compiler:
+        description: "compiler-version"
+        type: string
+    executor:
+      name: x86_64
+      compiler: << parameters.compiler >>
     working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
     steps:
       - attach_workspace:
           at: /tmp/workspace/x86_64-unknown-linux-gnu
-
-      - run: uname -sm
-      - run: *build-project
-      - run: ./build/poac -h
-      - run: file ./build/poac
-
-#      - run: *run-poac-test
-#      - store_test_results: *store-poac-test-result
-
+      - default-build
+#      - default-test
       - persist_to_workspace:
           root: /tmp/workspace
           paths: x86_64-unknown-linux-gnu
@@ -124,7 +113,8 @@ jobs:
 #      CXX: /home/linuxbrew/.linuxbrew/opt/llvm@6/bin/clang++
 #      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm@6/lib"
 #      CPPFLAGS: "-I/home/linuxbrew/.linuxbrew/opt/llvm@6/include"
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  x86_64-unknown-linux-gnu_clang-7:
 #    docker:
@@ -132,118 +122,106 @@ jobs:
 #    environment:
 #      CXX: clang++
 #      LDFLAGS: "-L/home/linuxbrew/.linuxbrew/opt/llvm/lib -Wl,-rpath,/home/linuxbrew/.linuxbrew/opt/llvm/lib"
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  aarch64-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/aarch64-unknown-linux-gnu
 #    environment:
 #      CXX: g++-8
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  powerpc-unknown-linux-gnu_gcc-4_8:
 #    docker:
 #      - image: poacpm/powerpc-unknown-linux-gnu
 #    environment:
 #      CXX: powerpc-linux-gnu-g++
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  powerpc64-unknown-linux-gnu_gcc-5_4:
 #    docker:
 #      - image: poacpm/powerpc64-unknown-linux-gnu
 #    environment:
 #      CXX: powerpc64-linux-gnu-g++
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  powerpc64le-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/powerpc64le-unknown-linux-gnu
 #    environment:
 #      CXX: g++-8
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  s390x-unknown-linux-gnu:
 #    docker:
 #      - image: poacpm/s390x-unknown-linux-gnu
 #    environment:
 #      CXX: g++-8
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  x86_64-pc-windows-gnu_gcc-6:
 #    docker:
 #      - image: poacpm/x86_64-pc-windows-gnu
 #    environment:
 #      CXX: x86_64-w64-mingw32-g++-posix
-#    <<: *defaults
+#    steps:
+#      - default-build
 
 #  i686-pc-windows-gnu_gcc-6:
 #    docker:
 #      - image: poacpm/i686-pc-windows-gnu
 #    environment:
 #      CXX: i686-w64-mingw32-g++-posix
-#    <<: *defaults
+#    steps:
+#      - default-build
 
   release:
     docker:
       - image: circleci/golang:1.11
     steps:
-      - attach_workspace: *at-current
+      - attach_workspace:
+          at: .
       - run: mkdir out
       - run: ARCH=x86_64-unknown-linux-gnu tar czf $ARCH out/$ARCH.tar.gz
       - run: go get github.com/tcnksm/ghr
       - run: ghr $CIRCLE_TAG out
 #      - run: poac publish
 
-  gh_pages:
-    working_directory: ~/poac/docs
-    docker:
-      - image: node:10
-    steps:
-      - checkout
-      - run: git config --global user.name $USERNAME
-      - run: git config --global user.email $EMAIL
-      - run: cp -r .circleci docs
-      - run: npm --prefix "$PWD/docs" install
-      - run: npm --prefix "$PWD/docs" run build
-      - run: cp docs/assets/robots.txt docs/_book
-      - run: npm --prefix "$PWD/docs" run publish
-
 workflows:
   version: 2
   builds:
     jobs:
-      - checkout_code:
-          filters: *filter-ignore-gh-pages
+      - checkout_code
 #      - x86_64-unknown-linux-gnu_gcc-6:
-#          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
       - x86_64-unknown-linux-gnu_gcc-7:
-          filters: *filter-ignore-gh-pages
+          compiler: g++-7
           requires:
             - checkout_code
       - x86_64-unknown-linux-gnu_gcc-8:
-          filters: *filter-ignore-gh-pages
+          compiler: g++-8
           requires:
             - checkout_code
 #      - x86_64-unknown-linux-gnu_clang-6:
-#          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
 #      - x86_64-unknown-linux-gnu_clang-7:
-#          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
 #      - aarch64-unknown-linux-gnu:
-#          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
 #      - powerpc64le-unknown-linux-gnu:
-#          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
 #      - s390x-unknown-linux-gnu:
-#          filters: *filter-ignore-gh-pages
 #          requires:
 #            - checkout_code
       - release:
@@ -261,7 +239,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /^[0-9]+(\.[0-9]+){2}.*$/
-      - gh_pages:
-          filters:
-            branches:
-              only: master

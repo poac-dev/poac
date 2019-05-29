@@ -16,6 +16,10 @@ platform:
   - x86
   - x64
 
+artifacts:
+  - path: build\Release\poac.exe
+    name: Release
+
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -102,8 +106,7 @@ build_script:
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
-      cmake --build . --config %Configuration% &&
-      cd ..
+      cmake --build . --config %Configuration%
     )
 
   - if [%COMPILER%]==[cygwin64] (

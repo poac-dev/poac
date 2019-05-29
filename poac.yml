@@ -1,7 +1,7 @@
 # Package name
 name: poac
 # Package version
-version: 0.1.2
+version: 0.2.0
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
 description: "poac is a package manager for C++"
@@ -9,35 +9,36 @@ description: "poac is a package manager for C++"
 #  of the poac.pm account your created
 owners:
   - matken11235
-license: GPL-3.0
 links:
-  homepage: "https://poac.io"
+  homepage: "https://poac.pm"
   github: "https://github.com/poacpm/poac"
 
 # Describe deps as dependencies
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  boost/predef: ">=1.64.0 and <1.70.0"
-  boost/property_tree: ">=1.64.0 and <1.70.0"
-  boost/filesystem: ">=1.64.0 and <1.70.0"
-  boost/range: ">=1.64.0 and <1.70.0"
-  boost/algorithm: ">=1.64.0 and <1.70.0"
-  boost/foreach: ">=1.64.0 and <1.70.0"
-  boost/dynamic_bitset: ">=1.64.0 and <1.70.0"
-  boost/beast: ">=1.64.0 and <1.70.0"
+#  boost/predef: ">=1.64.0 and <1.70.0"
+#  boost/property_tree: ">=1.64.0 and <1.70.0"
+#  boost/filesystem: ">=1.64.0 and <1.70.0"
+#  boost/range: ">=1.64.0 and <1.70.0"
+#  boost/algorithm: ">=1.64.0 and <1.70.0"
+#  boost/foreach: ">=1.64.0 and <1.70.0"
+#  boost/dynamic_bitset: ">=1.64.0 and <1.70.0"
+#  boost/beast: ">=1.64.0 and <1.70.0"
   github/jbeder/yaml-cpp:
     tag: yaml-cpp-0.6.2
     build: cmake
     link: static
 
 # If nothing is specified, it is regarded as header only library
+# build: poac = build: system: poac
 build:
-  system: poac
+  system: cmake
   # Enable binary install (for CLI application)
   #  when you use poac as system.
   bin: true
 #  lib: true # Generate library from src/* .
+#  link: static # このライブラリに依存した時，使用者側から指定が無ければこれが使用される
   compile_args:
     - "-pthread"
   link_args:

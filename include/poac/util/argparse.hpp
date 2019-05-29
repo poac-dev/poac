@@ -15,20 +15,22 @@ namespace poac::util::argparse {
     template <class SinglePassRange, class... T>
     bool use(SinglePassRange& rng, T... args)
     {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        const auto first = std::cbegin(rng);
+        const auto last = std::cend(rng);
         return ((std::find(first, last, args) != last) || ...);
     }
 
+    // { arg1, arg2 }, arg2 -> { arg1 }
     template <class SinglePassRange, class... T>
     bool use_rm(SinglePassRange& rng, T... args)
     {
         const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        auto last = std::end(rng);
         bool found = false;
         for (const auto& a : types::tuple_to_array(std::tuple<T...>{ args... })) {
             if (const auto itr = std::find(first, last, a); itr != last) {
                 rng.erase(itr);
+                last = std::end(rng);
                 found = true;
             }
         }
@@ -39,8 +41,8 @@ namespace poac::util::argparse {
     template <class SinglePassRange, class T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        const auto first = std::cbegin(rng);
+        const auto last = std::cend(rng);
         if (const auto result = std::find(first, last, arg); result != last) {
             return *(result + 1);
         }
@@ -48,12 +50,12 @@ namespace poac::util::argparse {
             return std::nullopt;
         }
     }
-    // -o filename -> return filename
+    // -o filename OR --output filename -> return filename
     template <class SinglePassRange, class T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg1, T arg2) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
+        const auto first = std::cbegin(rng);
+        const auto last = std::cend(rng);
         if (const auto result1 = std::find(first, last, arg1); result1 != last) {
             return *(result1 + 1);
         }

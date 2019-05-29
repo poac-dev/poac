@@ -9,10 +9,11 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../io/cli.hpp"
-#include "../io/network.hpp"
+#include "../io/net.hpp"
 #include "../util/argparse.hpp"
+#include "../util/pretty.hpp"
 
 
 namespace poac::subcmd {
@@ -32,7 +33,7 @@ namespace poac::subcmd {
         }
 
         boost::property_tree::ptree get_search_api(const std::string& query) {
-            namespace exception = core::exception;
+            namespace except = core::except;
 
             std::string params;
             {
@@ -44,34 +45,39 @@ namespace poac::subcmd {
             }
 
             std::stringstream ss;
-            io::network::Headers headers;
+            io::net::Headers headers;
             headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
             headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
-            ss << io::network::post(ALGOLIA_SEARCH_INDEX_API, params, ALGOLIA_SEARCH_INDEX_API_HOST, headers);
+            const io::net::requests req{ ALGOLIA_SEARCH_INDEX_API_HOST };
+            const auto res = req.post(ALGOLIA_SEARCH_INDEX_API, params, headers);
+            ss << res.data();
 
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);
             if (const auto value = pt.get_optional<int>("nbHits")) {
                 if (*value <= 0) {
-                    throw exception::error(query + " not found");
+                    throw except::error(except::msg::not_found(query));
                 }
             }
             return pt;
         }
 
-        // If string size is over specified number of characters and it can be clipped,
-        //  display an ellipsis (...).
-        std::string string_pretty(const std::string& s, const unsigned long& n) {
-            if (s.size() <= n) {
-                return s;
+        unsigned int replace(std::string& s, const std::string& from, const std::string& target) {
+            const auto from_length = from.size();
+            const auto target_length = target.size();
+            std::size_t pos = 0;
+            unsigned int count = 0;
+            while ((pos = s.find(from, pos)) != std::string::npos) {
+                s.replace(pos, from_length, target);
+                pos += target_length;
+                ++count;
             }
-            else {
-                return s.substr(0, n) + "...";
-            }
+            return count;
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
+            namespace cli = io::cli;
             using namespace boost::property_tree;
 
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
@@ -86,13 +92,19 @@ namespace poac::subcmd {
             echo_first_line();
             for (const ptree::value_type& child : pt.get_child("hits")) {
                 const ptree& hits = child.second;
-                io::cli::set_left(25);
-                std::cout << string_pretty(hits.get<std::string>("name"), 21);
-                io::cli::set_left(50);
-                std::cout << string_pretty(hits.get<std::string>("description"), 45);
-                io::cli::set_left(15);
+
+                std::string name = hits.get<std::string>("_highlightResult.name.value");
+                auto count_s = replace(name, "<em>", cli::red) * cli::red.size();
+                auto count_l = replace(name, "</em>", cli::reset) * cli::reset.size();
+
+                cli::set_left(25 + count_s + count_l);
+                std::cout << util::pretty::clip_string(name, 21 + count_s + count_l);
+                cli::set_left(50);
+                std::cout << util::pretty::clip_string(hits.get<std::string>("description"), 45);
+                cli::set_left(15);
+                const auto cpp_version = hits.get<std::string>("cpp_version");
                 std::cout << hits.get<std::string>("version")
-                          << "    " << hits.get<std::string>("cpp_version")
+                          << "    " << (cpp_version == "3" ? "03" : cpp_version)
                           << std::endl;
             }
 
@@ -100,24 +112,24 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (argv.size() != 1) {
-                throw exception::invalid_second_arg("search");
+                throw except::invalid_second_arg("search");
             }
         }
     }
 
     struct search {
-        static const std::string summary() {
+        static std::string summary() {
             return "Search for packages in poac.pm";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<pkg-name>";
         }
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int operator()(VS&& argv) {
             _search::check_arguments(argv);
-            return _search::_main(std::move(argv));
+            return _search::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

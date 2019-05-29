@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
@@ -64,9 +64,9 @@ namespace poac::subcmd {
             std::cout << io::file::path::poac_cache_dir.string() << std::endl;
         }
 
-        template<typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
 
             if (argv[0] == "root" && argv.size() == 1) {
                 root();
@@ -78,29 +78,29 @@ namespace poac::subcmd {
                 clean(std::vector<std::string>(argv.begin() + 1, argv.begin() + argv.size()));
             }
             else {
-                throw exception::invalid_second_arg("cache");
+                throw except::invalid_second_arg("cache");
             }
 
             return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
-            namespace exception = core::exception;
-            if (argv.empty()) throw exception::invalid_second_arg("cache");
+            namespace except = core::except;
+            if (argv.empty()) throw except::invalid_second_arg("cache");
         }
     }
 
     struct cache {
-        static const std::string summary() {
+        static std::string summary() {
             return "Manipulate cache files";
         }
-        static const std::string options() {
+        static std::string options() {
             return "<command>";
         }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int operator()(VS&& argv) {
             _cache::check_arguments(argv);
-            return _cache::_main(std::move(argv));
+            return _cache::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

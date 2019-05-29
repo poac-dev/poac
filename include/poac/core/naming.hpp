@@ -1,5 +1,4 @@
 // Idempotent package naming library
-
 #ifndef POAC_CORE_NAMING_HPP
 #define POAC_CORE_NAMING_HPP
 
@@ -9,7 +8,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "exception.hpp"
+#include "except.hpp"
 #include "../io/file.hpp"
 
 
@@ -42,6 +41,12 @@ namespace poac::core::naming {
     std::string slash_to_hyphen(std::string name)
     {
         std::replace(name.begin(), name.end(), '/', '-');
+        return name;
+    }
+    // boost-bind -> boost/bind
+    std::string hyphen_to_slash(std::string name)
+    {
+        std::replace(name.begin(), name.end(), '-', '/');
         return name;
     }
 
@@ -104,7 +109,7 @@ namespace poac::core::naming {
             return to_cache_github(name, version);
         }
         else {
-            throw exception::error(err::source(src));
+            throw except::error(err::source(src));
         }
     }
     // boost/bind -> boost-bind
@@ -121,7 +126,7 @@ namespace poac::core::naming {
             return cache_to_current(cache_name);
         }
         else {
-            throw exception::error(err::source(src));
+            throw except::error(err::source(src));
         }
     }
 
@@ -146,7 +151,7 @@ namespace poac::core::naming {
                 return *ver2;
             }
         }
-        throw exception::error(err::source(src));
+        throw except::error(err::source(src));
     }
 
     // github/curl/curl -> src = github, name = curl/curl
@@ -172,42 +177,42 @@ namespace poac::core::naming {
 
         // only /, -, _, [0-9]
         if (std::regex_match(s, r1)) {
-            throw exception::error(
+            throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use / and -, _, number\n"
                     " only string of the project name.");
         }
         // /name, -name, _name, 0name
         else if (std::regex_match(std::string(1, s[0]), r2)) {
-            throw exception::error(
+            throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use / and -, _\n"
                     " at the begenning of the project name.");
         }
         // name/, name-, _name
         else if (std::regex_match(std::string(1, *(s.end()-1)), r2)) {
-            throw exception::error(
+            throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use / and -, _\n"
                     " at the last of the project name.");
         }
         // na--me, n/-ame, nam_-e
         else if (std::regex_match(s, r3)) {
-            throw exception::error(
+            throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use / and -, _\n"
                     " twice of the project name.");
         }
         // org/name/sub
         else if (std::count_if(s.begin(), s.end(), [](char c){ return c == '/'; }) > 1) {
-            throw exception::error(
+            throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use two\n"
                     " /(slashes) in a project name.");
         }
         // use the other than [a-z], [0-9], -, _, /
         else if (!std::regex_match(s, r4)) {
-            throw exception::error(
+            throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use a character string"
                     " that does not match ^([a-z|\\d|\\-|_|\\/]*)$\n"

@@ -12,10 +12,10 @@
 #include <boost/filesystem.hpp>
 
 #include "./install.hpp"
-#include "../core/exception.hpp"
-#include "../core/resolver.hpp"
+#include "../core/except.hpp"
 #include "../core/naming.hpp"
-#include "../core/lock.hpp"
+#include "../core/deper/resolver.hpp"
+#include "../core/deper/lock.hpp"
 #include "../io/file/path.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
@@ -49,7 +49,7 @@ namespace poac::subcmd {
             for (const auto& v : argv) {
                 const auto result = std::find_if(first, last, [&](auto x){ return v == x.first; });
                 if (result == last) {
-                    throw core::exception::error("There is no package named " + v + " in the dependency.");
+                    throw core::except::error("There is no package named " + v + " in the dependency.");
                 }
             }
         }
@@ -116,11 +116,11 @@ namespace poac::subcmd {
         void individual(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace yaml = io::file::yaml;
-            namespace resolver = core::resolver;
+            namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;
-            namespace exception = core::exception;
-            namespace lock = core::lock;
+            namespace except = core::except;
+            namespace lock = core::deper::lock;
 
             auto node = yaml::load_config();
             std::map<std::string, YAML::Node> deps_node;
@@ -129,7 +129,7 @@ namespace poac::subcmd {
                 check_exist_name(deps_node, argv);
             }
             else {
-                throw exception::error("Could not read deps in poac.yml");
+                throw except::error(except::msg::could_not_read("deps in poac.yml"));
             }
 
             // create resolved deps
@@ -192,7 +192,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw exception::error("Could not open poac.yml");
+                    throw except::error(except::msg::could_not_load("poac.yml"));
                 }
                 fs::remove("poac.lock");
             }
@@ -218,7 +218,7 @@ namespace poac::subcmd {
                     ofs << node;
                 }
                 else {
-                    throw exception::error("Could not open poac.yml");
+                    throw except::error(except::msg::could_not_load("poac.yml"));
                 }
                 _install::create_lock_file(timestamp, resolved_deps.activated);
             }
@@ -227,7 +227,7 @@ namespace poac::subcmd {
             cli::echo(cli::status_done());
         }
 
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template <typename VS>
         int _main(VS&& argv) {
             if (util::argparse::use(argv, "-a", "--all")) {
                 all(std::move(argv));
@@ -240,20 +240,20 @@ namespace poac::subcmd {
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (argv.empty()) {
-                throw exception::invalid_second_arg("uninstall");
+                throw except::invalid_second_arg("uninstall");
             }
         }
     }
 
     struct uninstall {
-        static const std::string summary() { return "Uninstall packages"; }
-        static const std::string options() { return "[<pkg-names>, -a | --all, -y | --yes]"; }
-        template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        static std::string summary() { return "Uninstall packages"; }
+        static std::string options() { return "[<pkg-names>, -a | --all, -y | --yes]"; }
+        template <typename VS>
         int operator()(VS&& argv) {
             _uninstall::check_arguments(argv);
-            return _uninstall::_main(std::move(argv));
+            return _uninstall::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

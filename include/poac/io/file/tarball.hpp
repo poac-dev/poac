@@ -12,7 +12,7 @@ namespace poac::io::file::tarball {
     namespace fs = boost::filesystem;
 
     bool extract(const fs::path& filename, const std::string& options = "") {
-        const std::string cmd = "tar -zxf " + filename.string() + " " + options;
+        const std::string cmd = "tar zxf " + filename.string() + " " + options;
         return static_cast<bool>(std::system(cmd.data()));
     }
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
@@ -24,7 +24,7 @@ namespace poac::io::file::tarball {
     // It is almost the same behavior as --remove-files,
     //  but deleted in fs::remove because there is a possibility
     //   that it is not compatible with --remove-files.
-    bool extract_spec_rm(const fs::path &input, const fs::path &output) {
+    bool extract_spec_rm(const fs::path& input, const fs::path& output) { // true == error
         // TODO: install.hpp用のエラー判定とfsのboolean値が逆
         return !(extract_spec(input, output) || fs::remove(input));
     }
@@ -36,7 +36,7 @@ namespace poac::io::file::tarball {
         }
         const std::string filepath = fs::relative(input.parent_path()).string();
         const std::string filename = input.filename().string();
-        const std::string cmd = "cd " + filepath + " && " + "tar -zcf " + output.string() + " " + exclude + filename;
+        const std::string cmd = "cd " + filepath + " && " + "tar zcf " + output.string() + " " + exclude + filename;
         return static_cast<bool>(std::system(cmd.data()));
     }
 } // end namespace

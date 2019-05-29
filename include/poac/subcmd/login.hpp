@@ -8,20 +8,20 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../core/exception.hpp"
+#include "../core/except.hpp"
 #include "../io/cli.hpp"
 #include "../io/file.hpp"
 
 
 namespace poac::subcmd {
     namespace _login {
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs     = boost::filesystem;
-            namespace exception = core::exception;
+            namespace except = core::except;
 
             if (fs::create_directories(io::file::path::poac_state_dir)) {
-                throw exception::invalid_second_arg("login");
+                throw except::invalid_second_arg("login");
             }
 
             const std::string token_path = io::file::path::poac_token_dir.string();
@@ -33,27 +33,27 @@ namespace poac::subcmd {
                           << std::endl;
             }
             else { // file open error
-                throw exception::invalid_second_arg("login");
+                throw except::invalid_second_arg("login");
             }
 
             return EXIT_SUCCESS;
         }
 
         void check_arguments(const std::vector<std::string> &argv) {
-            namespace exception = core::exception;
+            namespace except = core::except;
             if (argv.size() != 1) {
-                throw exception::invalid_second_arg("login");
+                throw except::invalid_second_arg("login");
             }
         }
     }
 
     struct login {
-        static const std::string summary() { return "Login to poac.pm"; }
-        static const std::string options() { return "<token>"; }
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        static std::string summary() { return "Login to poac.pm"; }
+        static std::string options() { return "<token>"; }
+        template <typename VS>
         int operator()(VS&& argv) {
             _login::check_arguments(argv);
-            return _login::_main(std::move(argv));
+            return _login::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace

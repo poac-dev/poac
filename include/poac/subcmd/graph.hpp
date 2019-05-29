@@ -17,9 +17,9 @@
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
-#include "../core/exception.hpp"
-#include "../core/lock.hpp"
-#include "../core/resolver.hpp"
+#include "../core/except.hpp"
+#include "../core/deper/lock.hpp"
+#include "../core/deper/resolver.hpp"
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
@@ -42,10 +42,10 @@ namespace poac::subcmd {
         using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
 
-        core::resolver::Resolved create_resolved_deps() {
-            namespace lock = core::lock;
-            namespace resolver = core::resolver;
-            namespace exception = core::exception;
+        core::deper::resolver::Resolved create_resolved_deps() {
+            namespace lock = core::deper::lock;
+            namespace resolver = core::deper::resolver;
+            namespace except = core::except;
             namespace yaml = io::file::yaml;
 
             // FIXME: uninstall.hppに同じのがある
@@ -55,7 +55,7 @@ namespace poac::subcmd {
                 deps_node = *deps_map;
             }
             else {
-                throw exception::error("Could not read deps in poac.yml");
+                throw except::error(except::msg::could_not_read("deps in poac.yml"));
             }
 
             // create resolved deps
@@ -103,10 +103,10 @@ namespace poac::subcmd {
             return { g, names };
         }
 
-        template<typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace exception = core::exception;
+            namespace except = core::except;
 
             if (const auto output_op = util::argparse::use_get(argv, "-o", "--output")) {
                 fs::path output = *output_op;
@@ -124,9 +124,8 @@ namespace poac::subcmd {
                         io::cli::echo(io::cli::status_done());
                     }
                     else {
-                        throw exception::error(
-                                "To output with .png you need graphviz.\n"
-                                "You need to install the graphviz.\n"
+                        throw except::error(
+                                "To output with .png you need to install the graphviz.\n"
                                 "Or please consider outputting in .dot format.");
                     }
                 }
@@ -137,7 +136,7 @@ namespace poac::subcmd {
                     io::cli::echo(io::cli::status_done());
                 }
                 else {
-                    throw exception::error(
+                    throw except::error(
                             "The extension of the output file must be .dot or .png.");
                 }
             }
@@ -155,11 +154,11 @@ namespace poac::subcmd {
     }
 
     struct graph {
-        static const std::string summary() { return "Create a dependency graph"; }
-        static const std::string options() { return "[-o | --output]"; }
-        template <typename VS, typename = std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
+        static std::string summary() { return "Create a dependency graph"; }
+        static std::string options() { return "[-o | --output]"; }
+        template <typename VS>
         int operator()(VS&& argv) {
-            return _graph::_main(std::move(argv));
+            return _graph::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace
