@@ -9,4 +9,7 @@ g++ -std=c++1z -I${ROOT_DIR}/include -I/usr/local/opt/openssl/include -L/usr/loc
 ./infer-test
 
 popd
+
+# Run gcov and upload report to coveralls
 coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
+bash <(curl -s https://codecov.io/bash)
