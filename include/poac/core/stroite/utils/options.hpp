@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_STROITE_UTILS_OPTIONS_HPP
 #define POAC_CORE_STROITE_UTILS_OPTIONS_HPP
 
+#include <cstdint>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -24,7 +25,7 @@ namespace poac::core::stroite::utils::options {
     struct compile {
         std::string system; // TODO: systemだけ別の管理にして，compiler.hppに，system, std::string optsとして渡したい．
         std::string version_prefix;
-        unsigned int cpp_version;
+        std::uint8_t cpp_version;
         std::vector<std::string> source_files;
         std::string source_file;
         std::vector<std::string> include_search_path;

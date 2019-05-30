@@ -99,7 +99,7 @@ namespace poac::core::stroite::core {
 
             compile_conf.system = compiler;
             compile_conf.version_prefix = utils::options::default_version_prefix();
-            compile_conf.cpp_version = yaml::get_with_throw<unsigned int>(node.at("cpp_version"));
+            compile_conf.cpp_version = yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
             compile_conf.other_args = utils::options::make_compile_other_args(node);
             compile_conf.source_files = hash_source_files(search::cpp(base_dir), usemain);
