@@ -16,5 +16,5 @@ g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs 
 popd
 
 # Run gcov and upload report to coveralls
-coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
+coveralls --exclude build --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
 bash <(curl -s https://codecov.io/bash)
