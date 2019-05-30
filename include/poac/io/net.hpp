@@ -32,6 +32,7 @@
 #include "../util/misc.hpp"
 #include "../util/types.hpp"
 #include "../util/pretty.hpp"
+#include "../config.hpp"
 
 
 namespace poac::io::net {
