@@ -1,12 +1,12 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <poac/core/exception.hpp>
+#include <poac/core/except.hpp>
 
 
-BOOST_AUTO_TEST_CASE( poac_core_exception_test1 )
+BOOST_AUTO_TEST_CASE( poac_core_except_test1 )
 {
-    using namespace poac::core::exception;
+    using namespace poac::core::except;
 
     const std::string msg = "hoge";
     try {
@@ -20,9 +20,9 @@ BOOST_AUTO_TEST_CASE( poac_core_exception_test1 )
     }
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_exception_test2 )
+BOOST_AUTO_TEST_CASE( poac_core_except_test2 )
 {
-    using namespace poac::core::exception;
+    using namespace poac::core::except;
 
     const std::string msg = "hoge";
     try {
@@ -36,9 +36,9 @@ BOOST_AUTO_TEST_CASE( poac_core_exception_test2 )
     }
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_exception_test3 )
+BOOST_AUTO_TEST_CASE( poac_core_except_test3 )
 {
-    using namespace poac::core::exception;
+    using namespace poac::core::except;
 
     const std::string msg = "hoge";
     try {
@@ -52,9 +52,9 @@ BOOST_AUTO_TEST_CASE( poac_core_exception_test3 )
     }
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_exception_test4 )
+BOOST_AUTO_TEST_CASE( poac_core_except_test4 )
 {
-    using namespace poac::core::exception;
+    using namespace poac::core::except;
 
     const std::string msg = "hoge";
     try {

@@ -17,3 +17,8 @@ package-lock.json
 # poac
 deps/
 _build/
+
+# gcov
+*.gcno
+*.gcda
+*.gcov

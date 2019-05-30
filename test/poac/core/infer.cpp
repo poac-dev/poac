@@ -5,15 +5,15 @@
 #include <vector>
 #include <string>
 
-#include <poac/core/inference.hpp>
-#include <poac/core/exception.hpp>
+#include <poac/core/infer.hpp>
+#include <poac/core/except.hpp>
 
 
-BOOST_AUTO_TEST_CASE( poac_core_inference_test1 )
+BOOST_AUTO_TEST_CASE( poac_core_infer_test1 )
 {
     using namespace std;
     using namespace poac::core;
-    using namespace poac::core::exception;
+    using namespace poac::core::except;
 
     BOOST_CHECK_THROW(
             infer::apply(

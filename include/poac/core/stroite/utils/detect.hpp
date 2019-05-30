@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../../except.hpp"
+#include "../../../io/file/yaml.hpp"
 #include "../../../util/command.hpp"
 
 
