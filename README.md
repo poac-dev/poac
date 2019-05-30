@@ -17,7 +17,7 @@ Please see [poac.pm](https://poac.pm) for [installation instructions](https://do
 
 ## Code Status
 [![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
-[![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)]()
+[![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)](https://github.com/poacpm/poac/releases)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
 [![Coverage Status](https://coveralls.io/repos/github/poacpm/poac/badge.svg?branch=master)](https://coveralls.io/github/poacpm/poac?branch=master)
 [![codecov](https://codecov.io/gh/poacpm/poac/branch/master/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
