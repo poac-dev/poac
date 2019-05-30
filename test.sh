@@ -13,6 +13,7 @@ popd
 
 pushd ./test/poac/util
 g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o pretty-test pretty.cpp
+./pretty-test
 popd
 
 # Run gcov and upload report to coveralls
