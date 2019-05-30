@@ -21,12 +21,7 @@ matrix:
 
 before_install:
   - brew update
-  - eval "$(pyenv init -)"
-  - pyenv install 2.7.6
-  - pyenv global 2.7.6
-  - pyenv rehash
   - pip install cpp-coveralls
-  - pyenv rehash
 install:
   - if [[ "$TRAVIS_OSX_IMAGE" != "xcode10.2" ]]; then
       brew unlink boost;
