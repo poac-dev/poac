@@ -37,7 +37,9 @@ script:
   - poac -h
   - cd ../
 after_success:
-  - bash ./test.sh
+  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode10.2" ]]; then
+      bash ./test.sh;
+    fi
 
 notifications:
   email: false
