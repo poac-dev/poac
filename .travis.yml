@@ -21,14 +21,13 @@ matrix:
 
 before_install:
   - brew update
-  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode10.2" ]]; then
-      pip install cpp-coveralls;
-    fi
 install:
   - if [[ "$TRAVIS_OSX_IMAGE" != "xcode10.2" ]]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
       brew install llvm@7;
+    else
+      pip install cpp-coveralls;
     fi
   - brew install yaml-cpp
 script:
