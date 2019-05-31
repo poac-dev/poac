@@ -1,8 +1,8 @@
-#ifndef STROITE_UTILS_HPP
-#define STROITE_UTILS_HPP
+#ifndef POAC_CORE_STROITE_UTILS_HPP
+#define POAC_CORE_STROITE_UTILS_HPP
 
 #include "utils/absorb.hpp"
 #include "utils/detect.hpp"
 #include "utils/options.hpp"
 
-#endif // STROITE_UTILS_HPP
+#endif // POAC_CORE_STROITE_UTILS_HPP
