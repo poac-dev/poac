@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_lt_test )
     BOOST_TEST( Version("1.2.3") < "1.3.3" );
     BOOST_TEST( Version("1.2.3") < "2.2.3" );
     BOOST_TEST( Version("1.2.3") < "1.3.3" );
+    BOOST_TEST( !(Version("9.1.1") < "1.9.9") );
     BOOST_TEST( Version("1.2.3-alpha") < "1.2.3" );
     BOOST_TEST( Version("1.2.3-alpha") < "1.2.3-beta" );
     BOOST_TEST( Version("1.2.3-beta") < "1.2.3-pre" );
@@ -49,6 +50,7 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_lte_test )
     BOOST_TEST( Version("1.2.3") <= "1.3.3" );
     BOOST_TEST( Version("1.2.3") <= "2.2.3" );
     BOOST_TEST( Version("1.2.3") <= "1.3.3" );
+    BOOST_TEST( !(Version("9.1.1") <= "1.9.9") );
     BOOST_TEST( Version("1.2.3-alpha") <= "1.2.3" );
     BOOST_TEST( Version("1.2.3-alpha") <= "1.2.3-beta" );
     BOOST_TEST( Version("1.2.3-beta") <= "1.2.3-pre" );
@@ -69,6 +71,7 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_gt_test )
     BOOST_TEST( Version("1.3.3") > "1.2.3" );
     BOOST_TEST( Version("2.2.3") > "1.2.3" );
     BOOST_TEST( Version("1.3.3") > "1.2.3" );
+    BOOST_TEST( !(Version("1.9.9") > "9.1.1") );
     BOOST_TEST( Version("1.2.3") > "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3-beta") > "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3-pre") > "1.2.3-beta" );
@@ -95,6 +98,7 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_gte_test )
     BOOST_TEST( Version("1.3.3") >= "1.2.3" );
     BOOST_TEST( Version("2.2.3") >= "1.2.3" );
     BOOST_TEST( Version("1.3.3") >= "1.2.3" );
+    BOOST_TEST( !(Version("1.9.9") >= "9.1.1") );
     BOOST_TEST( Version("1.2.3") >= "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3-beta") >= "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3-pre") >= "1.2.3-beta" );
