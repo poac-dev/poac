@@ -14,10 +14,10 @@ g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs 
 ./semver-test
 popd
 
-#pushd ./core/stroite/field
-#g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o standard-test standard.cpp
-#./standard-test
-#popd
+pushd ./core/stroite/field
+g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o standard-test standard.cpp
+./standard-test
+popd
 
 pushd ./core
 g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o exception-test except.cpp
