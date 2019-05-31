@@ -2,6 +2,11 @@
 
 ROOT_DIR=$PWD
 
+pushd ./test/poac/core/deper
+g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o semver-test semver.cpp
+./semver-test
+popd
+
 pushd ./test/poac/core
 g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o exception-test except.cpp
 ./exception-test
