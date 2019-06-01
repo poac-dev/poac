@@ -16,12 +16,12 @@ namespace poac::core::stroite::field::standard {
         return enable_gnu ? "-std=gnu++" : "-std=c++";
     }
 
+    const std::string ANY = R"([\s\S]*)";
+
     std::string get_compiler_version(const std::string& compiler) {
         if (util::_command::has_command(compiler)) {
             if (const auto res = util::command(compiler + " --version").stderr_to_stdout().exec()) {
-                const std::string ANY = R"([\s\S]*)";
                 const std::regex SEARCH_VERSION("^" + ANY + "(" + deper::semver::MAIN_VERSION + ")" + ANY + "$");
-
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH_VERSION)) {
                     return match[1];
@@ -237,11 +237,25 @@ namespace poac::core::stroite::field::standard {
             return "icc";
         }
 #ifndef _WIN32
-        else if (cmd == "g++") {
-            return "gcc";
-        }
-        else if (cmd == "clang++") {
-            return "clang";
+        else if (cmd == "g++" || cmd == "clang++") {
+#  ifdef __APPLE__
+            const std::string compiler(cmd);
+            if (util::_command::has_command(compiler)) {
+                if (const auto res = util::command(compiler + " --version").stderr_to_stdout().exec()) {
+                    const std::regex SEARCH("^" + ANY + "(Apple LLVM)" + ANY + "$");
+                    std::smatch match;
+                    if (std::regex_match(*res, match, SEARCH)) {
+                        return "apple-llvm";
+                    }
+                }
+            }
+#  endif
+            if (cmd == "g++") {
+                return "gcc";
+            }
+            else if (cmd == "clang++") {
+                return "clang";
+            }
         }
 #else
         else if (cmd == "cl.exe") {
