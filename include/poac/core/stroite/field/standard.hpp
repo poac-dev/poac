@@ -32,6 +32,7 @@ namespace poac::core::stroite::field::standard {
     }
 
     std::string apple_llvm_convert(const std::uint8_t& cpp_version, const bool& enable_gnu) {
+        // Apple LLVMは，コンパイラバージョンによる差異がないものとする．(半ば強制的にupdateされるため)
         if (cpp_version == 98) {
             return version_prefix(enable_gnu) + "98";
         }
@@ -152,13 +153,25 @@ namespace poac::core::stroite::field::standard {
             return ""; // unneeded version prefix
         }
         else if (cpp_version == 3 || cpp_version == 11) {
+#ifndef _WIN32
             return version_prefix(false) + "11";
+#else
+            return "/Qstd:c++11";
+#endif
         }
         else if (cpp_version == 14) {
+#ifndef _WIN32
             return version_prefix(false) + "14";
+#else
+            return "/Qstd:c++14";
+#endif
         }
         else if (cpp_version == 17) {
+#ifndef _WIN32
             return version_prefix(false) + "17";
+#else
+            return "/Qstd:c++17";
+#endif
         }
         else if (cpp_version == 20) {
             throw except::error("Currently, Intel C++ Compiler does not support C++20.\n"
@@ -170,26 +183,54 @@ namespace poac::core::stroite::field::standard {
         }
     }
 
-    std::string convert(const std::uint8_t& cpp_version, std::string_view compiler, const bool& enable_gnu) {
-        // Apple LLVMは，コンパイラバージョンによる差異がないものとする．(半ば強制的にupdateされるため)
-        if (compiler == "apple-llvm") {
-            // TODO: 判断では，g++等の--versionに，Apple LLVMという文言が含まれているかどうか．
-            // TODO: この，apple-llvmとかは，コマンド名に直接使用できない．-> つまり，detect.hppの内容が使用できない．
-            return apple_llvm_convert(cpp_version, enable_gnu);
+    std::string msvc_convert(const std::uint8_t& cpp_version) {
+        if (cpp_version == 98 || cpp_version == 3 || cpp_version == 11) {
+            return ""; // unneeded version prefix
         }
-        else if (compiler == "gcc") {
+        else if (cpp_version == 14) {
+            return "/std:c++14";
+        }
+        else if (cpp_version == 17) {
+            return "/std:c++17";
+        }
+        else if (cpp_version == 20) {
+            throw except::error("Currently, MSVC does not support C++20.\n"
+                                "If this error is displayed in spite of C++20 is supported,\n"
+                                " please report the issue to https://github.com/poacpm/poac/issues.");
+        }
+        else {
+            throw except::error("Unknown C++ version: " + std::to_string(cpp_version));
+        }
+        // TODO: latestを活用
+    }
+
+    std::string convert(const std::uint8_t& cpp_version, std::string_view compiler, const bool& enable_gnu) {
+        // Match a poac binary architecture and an architecture available to each compiler.
+
+        if (compiler == "icc") { // Support OS: macos, linux, mingw, cygwin, _WIN32
+            return icc_convert(cpp_version);
+        }
+#ifndef _WIN32
+        else if (compiler == "gcc") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
             return gcc_convert(cpp_version, get_compiler_version("g++"), enable_gnu);
         }
-        else if (compiler == "clang") {
+        else if (compiler == "clang") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
             return clang_convert(cpp_version, get_compiler_version("clang++"), enable_gnu);
         }
-        else if (compiler == "icc") {
-            return icc_convert(cpp_version);
-        } // TODO: WIN32環境下で動作させられるのは，msvcとiccのみ．
-        else if (compiler == "msvc") { //TODO: WIN32環境（MinGWとかCygwinじゃなく）は，どちらにせよ，そのバイナリしか動作しないため，preprocess時に決めてしまってよい．
-
+#endif
+#ifdef __APPLE__
+        else if (compiler == "apple-llvm") { // Support OS: Only macos
+            return apple_llvm_convert(cpp_version, enable_gnu);
         }
-        return "";
+#endif
+#ifdef _WIN32
+        else if (compiler == "msvc") { // Support OS: Only _WIN32
+            return msvc_convert(cpp_version);
+        }
+#endif
+        else {
+            throw except::error("Unknown compiler name: " + std::string(compiler));
+        }
     }
 } // end namespace
 #endif // POAC_CORE_STROITE_FIELD_STANDARD_HPP

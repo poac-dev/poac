@@ -122,10 +122,32 @@ BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_icc_convert_test )
     using poac::core::except::error;
 
     BOOST_TEST( icc_convert(98) == "" );
+#ifndef _WIN32
     BOOST_TEST( icc_convert(3) == "-std=c++11" );
     BOOST_TEST( icc_convert(11) == "-std=c++11" );
     BOOST_TEST( icc_convert(14) == "-std=c++14" );
     BOOST_TEST( icc_convert(17) == "-std=c++17" );
+#else
+    BOOST_TEST( icc_convert(3) == "/Qstd:c++11" );
+    BOOST_TEST( icc_convert(11) == "/Qstd:c++11" );
+    BOOST_TEST( icc_convert(14) == "/Qstd:c++14" );
+    BOOST_TEST( icc_convert(17) == "/Qstd:c++17" );
+#endif
     BOOST_CHECK_THROW( icc_convert(20), error );
     BOOST_CHECK_THROW( icc_convert(15), error );
+}
+
+// std::string msvc_convert(const std::uint8_t& cpp_version)
+BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_msvc_convert_test )
+{
+    using poac::core::stroite::field::standard::msvc_convert;
+    using poac::core::except::error;
+
+    BOOST_TEST( msvc_convert(98) == "" );
+    BOOST_TEST( msvc_convert(3) == "" );
+    BOOST_TEST( msvc_convert(11) == "" );
+    BOOST_TEST( msvc_convert(14) == "/std:c++14" );
+    BOOST_TEST( msvc_convert(17) == "/std:c++17" );
+    BOOST_CHECK_THROW( msvc_convert(20), error );
+    BOOST_CHECK_THROW( msvc_convert(18), error );
 }
