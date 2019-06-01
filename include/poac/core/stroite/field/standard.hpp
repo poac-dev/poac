@@ -217,19 +217,65 @@ namespace poac::core::stroite::field::standard {
         else if (compiler == "clang") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
             return clang_convert(cpp_version, get_compiler_version("clang++"), enable_gnu);
         }
+#else
+        else if (compiler == "msvc") { // Support OS: Only _WIN32
+            return msvc_convert(cpp_version);
+        }
 #endif
 #ifdef __APPLE__
         else if (compiler == "apple-llvm") { // Support OS: Only macos
             return apple_llvm_convert(cpp_version, enable_gnu);
         }
 #endif
-#ifdef _WIN32
-        else if (compiler == "msvc") { // Support OS: Only _WIN32
-            return msvc_convert(cpp_version);
+        else {
+            throw except::error("Unknown compiler name: " + std::string(compiler));
+        }
+    }
+
+    std::string command_to_name(std::string_view cmd) {
+        if (cmd == "icpc") {
+            return "icc";
+        }
+#ifndef _WIN32
+        else if (cmd == "g++") {
+            return "gcc";
+        }
+        else if (cmd == "clang++") {
+            return "clang";
+        }
+#else
+        else if (cmd == "cl.exe") {
+            return "msvc";
         }
 #endif
         else {
-            throw except::error("Unknown compiler name: " + std::string(compiler));
+            throw except::error("Unknown compiler command: " + std::string(cmd));
+        }
+    }
+
+    std::string detect_command() {
+        if (const char* cxx = std::getenv("CXX")) {
+            return cxx;
+        }
+        else if (util::_command::has_command("icpc")) {
+            return "icpc";
+        }
+#ifndef _WIN32
+        else if (util::_command::has_command("g++")) {
+            return "g++";
+        }
+        else if (util::_command::has_command("clang++")) {
+            return "clang++";
+        }
+#else
+        else if (util::_command::has_command("cl.exe")) {
+            return "cl.exe";
+        }
+#endif
+        else {
+            throw except::error(
+                    "Environment variable \"CXX\" was not found.\n"
+                    "Select the compiler and export it.");
         }
     }
 } // end namespace

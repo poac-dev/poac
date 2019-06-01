@@ -14,27 +14,6 @@
 
 
 namespace poac::core::stroite::utils::detect {
-    // Automatic selection of compiler
-    auto compiler() {
-        namespace command = util::_command;
-
-        if (const char* cxx = std::getenv("CXX")) {
-            return cxx;
-        }
-        else if (command::has_command("g++")) {
-            return "g++";
-        }
-        else if (command::has_command("clang++")) {
-            return "clang++";
-        }
-        else {
-            throw except::error(
-                    "Environment variable \"CXX\" was not found.\n"
-                    "Select the compiler and export it.");
-        }
-    }
-
-
     std::string check_support_build_system(const std::string& system) {
         if (system != "poac" && system != "cmake") {
             throw except::error("Unknown build system " + system);
@@ -43,7 +22,7 @@ namespace poac::core::stroite::utils::detect {
     }
 
     std::optional<std::string>
-    build_system(const YAML::Node &node)
+    build_system(const YAML::Node& node)
     {
         namespace yaml = io::file::yaml;
 

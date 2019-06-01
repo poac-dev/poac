@@ -20,6 +20,7 @@
 #include "./compiler.hpp"
 #include "./depends.hpp"
 #include "./search.hpp"
+#include "../field/standard.hpp"
 #include "../utils.hpp"
 #include "../../except.hpp"
 #include "../../naming.hpp"
@@ -98,8 +99,11 @@ namespace poac::core::stroite::core {
             namespace path = io::file::path;
 
             compile_conf.system = compiler;
-            compile_conf.version_prefix = utils::options::default_version_prefix();
-            compile_conf.cpp_version = yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
+
+            const auto cpp_version = yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
+            const std::string cn = field::standard::command_to_name(compiler);
+            compile_conf.std_version = field::standard::convert(cpp_version, cn, false);
+
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
             compile_conf.other_args = utils::options::make_compile_other_args(node);
             compile_conf.source_files = hash_source_files(search::cpp(base_dir), usemain);
@@ -239,7 +243,7 @@ namespace poac::core::stroite::core {
             }
 
 
-            compiler = utils::detect::compiler();
+            compiler = field::standard::detect_command();
             project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
             this->base_dir = base_dir;
             this->verbose = verbose;
