@@ -29,6 +29,8 @@ g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -lboost_filesys
 popd
 
 pushd ./util
+g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o command-test command.cpp
+./command-test
 g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o pretty-test pretty.cpp
 ./pretty-test
 popd
