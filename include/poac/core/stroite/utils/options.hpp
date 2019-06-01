@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_STROITE_UTILS_OPTIONS_HPP
 #define POAC_CORE_STROITE_UTILS_OPTIONS_HPP
 
+#include <cstdint>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -23,8 +24,7 @@
 namespace poac::core::stroite::utils::options {
     struct compile {
         std::string system; // TODO: systemだけ別の管理にして，compiler.hppに，system, std::string optsとして渡したい．
-        std::string version_prefix;
-        unsigned int cpp_version;
+        std::string std_version;
         std::vector<std::string> source_files;
         std::string source_file;
         std::vector<std::string> include_search_path;
@@ -38,7 +38,7 @@ namespace poac::core::stroite::utils::options {
         using command = util::command;
 
         command opts;
-        opts += c.version_prefix + std::to_string(c.cpp_version);
+        opts += c.std_version;
         opts += "-c";
         opts += accumulate(begin(c.source_files), end(c.source_files), command());
         opts += accumulate(begin(c.include_search_path), end(c.include_search_path), command(),
@@ -113,15 +113,6 @@ namespace poac::core::stroite::utils::options {
     }
 
 
-    template <typename Opts>
-    void enable_gnu(Opts& opts) { // TODO:
-        opts.version_prefix = "-std=gnu++";
-    }
-
-    // TODO: できれば，implに，
-    std::string default_version_prefix() {
-        return "-std=c++";
-    }
     template <typename T>
     std::string make_macro_defn(const std::string& first, const T& second) {
         return make_macro_defn(first, std::to_string(second));

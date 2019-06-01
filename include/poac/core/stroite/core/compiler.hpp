@@ -21,7 +21,7 @@ namespace poac::core::stroite::core::compiler {
     {
         util::command cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
-        cmd += opts.version_prefix + std::to_string(opts.cpp_version);
+        cmd += opts.std_version;
         cmd += "-c";
         cmd += opts.source_file;
         for (const auto& isp : opts.include_search_path)

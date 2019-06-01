@@ -341,20 +341,36 @@ namespace poac::core::deper::semver {
 
 
     bool operator>(const Version& lhs, const Version& rhs) { // gt
-        return lhs.major > rhs.major
-            || lhs.minor > rhs.minor
-            || lhs.patch > rhs.patch
-            || gt_pre(lhs, rhs);
+        if (lhs.major != rhs.major) {
+            return lhs.major > rhs.major;
+        }
+        else if (lhs.minor != rhs.minor) {
+            return lhs.minor > rhs.minor;
+        }
+        else if (lhs.patch != rhs.patch) {
+            return lhs.patch > rhs.patch;
+        }
+        else {
+            return gt_pre(lhs, rhs);
+        }
     }
     bool operator>(const Version& lhs, const std::string& rhs) {
         return lhs > Version(rhs);
     }
 
     bool operator<(const Version& lhs, const Version& rhs) { // lt
-        return lhs.major < rhs.major
-            || lhs.minor < rhs.minor
-            || lhs.patch < rhs.patch
-            || lt_pre(lhs, rhs);
+        if (lhs.major != rhs.major) {
+            return lhs.major < rhs.major;
+        }
+        else if (lhs.minor != rhs.minor) {
+            return lhs.minor < rhs.minor;
+        }
+        else if (lhs.patch != rhs.patch) {
+            return lhs.patch < rhs.patch;
+        }
+        else {
+            return lt_pre(lhs, rhs);
+        }
     }
     bool operator<(const Version& lhs, const std::string& rhs) {
         return lhs < Version(rhs);
@@ -381,22 +397,14 @@ namespace poac::core::deper::semver {
     }
 
     bool operator>=(const Version& lhs, const Version& rhs) { // gte
-        return lhs.major >= rhs.major
-            || lhs.minor >= rhs.minor
-            || lhs.patch >= rhs.patch
-            || (gt_pre(lhs, rhs)
-            || eq_pre(lhs, rhs));
+        return lhs > rhs || lhs == rhs;
     }
     bool operator>=(const Version& lhs, const std::string& rhs) {
         return lhs >= Version(rhs);
     }
 
     bool operator<=(const Version& lhs, const Version& rhs) { // lte
-        return lhs.major <= rhs.major
-            || lhs.minor <= rhs.minor
-            || lhs.patch <= rhs.patch
-            || (lt_pre(lhs, rhs)
-            || eq_pre(lhs, rhs));
+        return lhs < rhs || lhs == rhs;
     }
     bool operator<=(const Version& lhs, const std::string& rhs) {
         return lhs <= Version(rhs);

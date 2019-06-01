@@ -15,9 +15,6 @@ BOOST_AUTO_TEST_CASE( poac_core_except_test1 )
     catch (const invalid_first_arg& e) {
         BOOST_TEST(e.what() == msg);
     }
-    catch (...) {
-        BOOST_TEST(false);
-    }
 }
 
 BOOST_AUTO_TEST_CASE( poac_core_except_test2 )
@@ -30,9 +27,6 @@ BOOST_AUTO_TEST_CASE( poac_core_except_test2 )
     }
     catch (const invalid_second_arg& e) {
         BOOST_TEST(e.what() == msg);
-    }
-    catch (...) {
-        BOOST_TEST(false);
     }
 }
 
@@ -47,9 +41,6 @@ BOOST_AUTO_TEST_CASE( poac_core_except_test3 )
     catch (const error& e) {
         BOOST_TEST(e.what() == msg);
     }
-    catch (...) {
-        BOOST_TEST(false);
-    }
 }
 
 BOOST_AUTO_TEST_CASE( poac_core_except_test4 )
@@ -62,8 +53,5 @@ BOOST_AUTO_TEST_CASE( poac_core_except_test4 )
     }
     catch (const warn& e) {
         BOOST_TEST(e.what() == msg);
-    }
-    catch (...) {
-        BOOST_TEST(false);
     }
 }

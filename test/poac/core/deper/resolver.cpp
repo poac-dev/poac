@@ -1,12 +1,12 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <poac/core/resolver.hpp>
+#include <poac/core/deper/resolver.hpp>
 
 
 BOOST_AUTO_TEST_CASE( poac_core_resolver_test1 )
 {
-    using namespace poac::core::resolver;
+    using namespace poac::core::deper::resolver;
 
     Activated test{};
     test.push_back({ {"D"}, {"1.0.0"}, {""}, {} });
