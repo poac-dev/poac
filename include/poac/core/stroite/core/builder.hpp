@@ -102,7 +102,7 @@ namespace poac::core::stroite::core {
 
             const auto cpp_version = yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
             const std::string cn = field::standard::command_to_name(compiler);
-            compile_conf.std_version = field::standard::convert(cpp_version, cn, false);
+            compile_conf.std_version = field::standard::convert(cpp_version, cn, yaml::get(node.at("build"), "gnu"));
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
             compile_conf.other_args = utils::options::make_compile_other_args(node);
