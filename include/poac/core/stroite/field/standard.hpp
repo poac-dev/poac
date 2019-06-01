@@ -260,9 +260,7 @@ namespace poac::core::stroite::field::standard {
             return "msvc";
         }
 #endif
-        else {
-            throw except::error("Unknown compiler command: " + std::string(cmd));
-        }
+        throw except::error("Unknown compiler command: " + std::string(cmd));
     }
 
     std::string detect_command() {
