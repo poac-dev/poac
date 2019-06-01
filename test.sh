@@ -1,37 +1,38 @@
 #!/bin/bash
 
 ROOT_DIR=$PWD
+BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage"
 
 pushd ./test/poac
 
 
 pushd ./core/deper
-g++ -std=c++1z -I${ROOT_DIR}/include -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_unit_test_framework -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -fprofile-arcs -ftest-coverage -DPOAC_VERSION=\"0.2.0\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o resolver-test resolver.cpp
+g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.0\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o resolver-test resolver.cpp
 ./resolver-test
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o sat-test sat.cpp
+g++ ${BASE_OPT} -o sat-test sat.cpp
 ./sat-test
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o semver-test semver.cpp
+g++ ${BASE_OPT} -o semver-test semver.cpp
 ./semver-test
 popd
 
 pushd ./core/stroite/field
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o standard-test standard.cpp
+g++ ${BASE_OPT} -o standard-test standard.cpp
 ./standard-test
 popd
 
 pushd ./core
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o exception-test except.cpp
+g++ ${BASE_OPT} -o exception-test except.cpp
 ./exception-test
-g++ -std=c++1z -I${ROOT_DIR}/include -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_unit_test_framework -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -fprofile-arcs -ftest-coverage -DPOAC_VERSION=\"0.2.0\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o infer-test infer.cpp
+g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.0\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o infer-test infer.cpp
 ./infer-test
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -lboost_filesystem -lyaml-cpp -fprofile-arcs -ftest-coverage -o naming-test naming.cpp
+g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o naming-test naming.cpp
 ./naming-test
 popd
 
 pushd ./util
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o command-test command.cpp
+g++ ${BASE_OPT} -o command-test command.cpp
 ./command-test
-g++ -std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage -o pretty-test pretty.cpp
+g++ ${BASE_OPT} -o pretty-test pretty.cpp
 ./pretty-test
 popd
 
