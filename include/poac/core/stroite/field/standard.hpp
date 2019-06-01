@@ -240,13 +240,11 @@ namespace poac::core::stroite::field::standard {
         else if (cmd == "g++" || cmd == "clang++") {
 #  ifdef __APPLE__
             const std::string compiler(cmd);
-            if (util::_command::has_command(compiler)) {
-                if (const auto res = util::command(compiler + " --version").stderr_to_stdout().exec()) {
-                    const std::regex SEARCH("^" + ANY + "(Apple LLVM)" + ANY + "$");
-                    std::smatch match;
-                    if (std::regex_match(*res, match, SEARCH)) {
-                        return "apple-llvm";
-                    }
+            if (const auto res = util::command(compiler + " --version").stderr_to_stdout().exec()) {
+                const std::regex SEARCH("^" + ANY + "(Apple LLVM)" + ANY + "$");
+                std::smatch match;
+                if (std::regex_match(*res, match, SEARCH)) {
+                    return "apple-llvm";
                 }
             }
 #  endif
