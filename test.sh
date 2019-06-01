@@ -34,6 +34,8 @@ g++ ${BASE_OPT} -o argparse-test argparse.cpp
 ./argparse-test
 g++ ${BASE_OPT} -o command-test command.cpp
 ./command-test
+g++ ${BASE_OPT} -o misc-test misc.cpp
+./misc-test
 g++ ${BASE_OPT} -o pretty-test pretty.cpp
 ./pretty-test
 popd
