@@ -24,6 +24,7 @@ deps:
 #  boost/algorithm: ">=1.64.0 and <2.0.0"
 #  boost/foreach: ">=1.64.0 and <2.0.0"
 #  boost/dynamic_bitset: ">=1.64.0 and <2.0.0"
+#  boost/dll: ">=1.64.0 and <2.0.0"
 #  boost/beast: ">=1.64.0 and <2.0.0"
   github/jbeder/yaml-cpp:
     tag: yaml-cpp-0.6.2
