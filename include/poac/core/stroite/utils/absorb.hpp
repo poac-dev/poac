@@ -3,14 +3,14 @@
 
 
 namespace poac::core::stroite::utils::absorb {
-#ifdef __APPLE__
-    const std::string binary_extension = "";
-    const std::string dynamic_lib_extension = ".dylib";
-    const std::string dynamic_lib_option = "-dynamiclib";
-#elif defined(_WIN32)
+#ifdef _WIN32
     const std::string binary_extension = ".exe";
     const std::string dynamic_lib_extension = ".dll";
     const std::string dynamic_lib_option = "-shared -fPIC";
+#elif __APPLE__
+    const std::string binary_extension = "";
+    const std::string dynamic_lib_extension = ".dylib";
+    const std::string dynamic_lib_option = "-dynamiclib";
 #else
     const std::string binary_extension = "";
     const std::string dynamic_lib_extension = ".so";
