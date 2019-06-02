@@ -16,15 +16,6 @@ namespace poac::util {
 
         command() { cmd = ""; }
         command(const std::string& c) { cmd = c; }
-        command(const std::vector<std::string>& cs) {
-            util::command cmd2;
-            int count = 0;
-            for (const auto &s : cs) {
-                if (count++ == 0) cmd2 = util::command(s).stderr_to_stdout(); // TODO: std_err
-                else cmd2 &= util::command(s).stderr_to_stdout();
-            }
-            cmd = cmd2.string();
-        }
 
         command env(const std::string& name, const std::string& val) {
             return cmd.insert(0, name + "=" + val + " ");
@@ -108,7 +99,7 @@ namespace poac::util {
             return this->cmd += (" || " + rhs);
         }
 
-        command operator+(const command& rhs) const {
+        command operator+(const command& rhs) const { // TODO: "; "でなくても良いのか
             return command(this->cmd + " " + rhs.cmd);
         }
         command operator+(const std::string& rhs) const {
