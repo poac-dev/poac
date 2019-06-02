@@ -38,6 +38,8 @@ g++ ${BASE_OPT} -o misc-test misc.cpp
 ./misc-test
 g++ ${BASE_OPT} -o pretty-test pretty.cpp
 ./pretty-test
+g++ ${BASE_OPT} -o types-test types.cpp
+./types-test
 popd
 
 
