@@ -114,8 +114,8 @@ namespace poac::subcmd {
                 // Delete current version
                 for (const auto& [name, dep] : update_deps) {
                     const auto current_name = naming::to_current(dep.source, name, resolved_deps.backtracked[name].version);
-                    boost::system::error_code ec;
-                    fs::remove_all(fs::path("deps") / current_name, ec);
+                    boost::system::error_code error;
+                    fs::remove_all(fs::path("deps") / current_name, error);
                 }
 
                 // Install new version

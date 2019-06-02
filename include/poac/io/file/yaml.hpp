@@ -259,8 +259,8 @@ namespace poac::io::file::yaml {
         namespace except = core::except;
 
         if (const auto op_filename = exists_config()) {
-            boost::system::error_code ec;
-            const std::time_t last_time = fs::last_write_time(*op_filename, ec);
+            boost::system::error_code error;
+            const std::time_t last_time = fs::last_write_time(*op_filename, error);
             return std::to_string(last_time);
         }
         else {

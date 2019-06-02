@@ -118,9 +118,9 @@ namespace poac::io::file::path {
             }
             else {
                 // Found file: Copy
-                boost::system::error_code err;
-                fs::copy_file(current, dest / current.filename(), err);
-                if (err) {
+                boost::system::error_code error;
+                fs::copy_file(current, dest / current.filename(), error);
+                if (error) {
 //                    std::cerr << err.message() << std::endl;
                     return EXIT_FAILURE;
                 }
