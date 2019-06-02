@@ -17,14 +17,15 @@ links:
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-#  boost/predef: ">=1.64.0 and <1.70.0"
-#  boost/property_tree: ">=1.64.0 and <1.70.0"
-#  boost/filesystem: ">=1.64.0 and <1.70.0"
-#  boost/range: ">=1.64.0 and <1.70.0"
-#  boost/algorithm: ">=1.64.0 and <1.70.0"
-#  boost/foreach: ">=1.64.0 and <1.70.0"
-#  boost/dynamic_bitset: ">=1.64.0 and <1.70.0"
-#  boost/beast: ">=1.64.0 and <1.70.0"
+  boost/predef: ">=1.64.0 and <2.0.0"
+#  boost/property_tree: ">=1.64.0 and <2.0.0"
+#  boost/filesystem: ">=1.64.0 and <2.0.0"
+#  boost/range: ">=1.64.0 and <2.0.0"
+#  boost/algorithm: ">=1.64.0 and <2.0.0"
+#  boost/foreach: ">=1.64.0 and <2.0.0"
+#  boost/dynamic_bitset: ">=1.64.0 and <2.0.0"
+#  boost/dll: ">=1.64.0 and <2.0.0"
+#  boost/beast: ">=1.64.0 and <2.0.0"
   github/jbeder/yaml-cpp:
     tag: yaml-cpp-0.6.2
     build: cmake

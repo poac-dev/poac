@@ -392,11 +392,11 @@ namespace poac::io::net {
         void close_stream() const
         {
             // Gracefully close the stream
-            boost::system::error_code ec;
-            stream->shutdown(ec);
-            if (ec == boost::asio::error::eof) {
+            boost::system::error_code error;
+            stream->shutdown(error);
+            if (error == boost::asio::error::eof) {
                 // Rationale: https://stackoverflow.com/q/25587403
-                ec.assign(0, ec.category());
+                error.assign(0, error.category());
             }
         }
 
@@ -412,11 +412,11 @@ namespace poac::io::net {
             // Set SNI Hostname (many hosts need this to handshake successfully)
             if(!SSL_set_tlsext_host_name(stream->native_handle(), std::string(host).c_str()))
             {
-                boost::system::error_code ec{
+                boost::system::error_code error{
                         static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
                 };
-                cli::debugln(ec.message());
-                throw boost::system::system_error{ ec };
+                cli::debugln(error.message());
+                throw boost::system::system_error{ error };
             }
         }
         void lookup() const
