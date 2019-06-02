@@ -94,10 +94,5 @@ namespace poac::util::types {
                 std::forward<Tuple>(tuple),
                 std::make_index_sequence<std::tuple_size_v<remove_cvref_t<Tuple>>>());
     }
-
-    template <typename T>
-    std::stack<T> vector_to_stack(const std::vector<T>& v) {
-        return std::stack<T>(std::deque<T>(v.begin(), v.end()));
-    }
 } // end namespace
 #endif // !POAC_UTIL_TYPES_HPP

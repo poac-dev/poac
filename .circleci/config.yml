@@ -188,9 +188,10 @@ jobs:
       - attach_workspace:
           at: .
       - run: mkdir out
-      - run: ARCH=x86_64-unknown-linux-gnu tar czf $ARCH out/$ARCH.tar.gz
+      - run: tar czf ./out/x86_64-unknown-linux-gnu.tar.gz ./poac
       - run: go get github.com/tcnksm/ghr
-      - run: ghr $CIRCLE_TAG out
+      - run: cp -r ./poac/.git ./
+      - run: ghr -t $GITHUB_TOKEN $CIRCLE_TAG out
 #      - run: poac publish
 
 workflows:
