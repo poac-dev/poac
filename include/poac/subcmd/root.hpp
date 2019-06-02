@@ -25,11 +25,18 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             boost::system::error_code ec;
             const auto loc = boost::dll::program_location(ec);
-            std::cout << fs::read_symlink(loc, ec).parent_path().string() << std::endl;
-
             if (ec.failed()) {
                 throw core::except::error("Could not get root installation directory");
             }
+
+            const auto ln = fs::read_symlink(loc, ec);
+            if (!ec.failed()) {
+                std::cout << ln.parent_path().string() << std::endl;
+            }
+            else {
+                std::cout << loc.parent_path().string() << std::endl;
+            }
+
             return EXIT_SUCCESS;
         }
     };
