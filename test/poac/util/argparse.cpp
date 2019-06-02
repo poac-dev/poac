@@ -54,7 +54,15 @@ BOOST_AUTO_TEST_CASE( poac_util_argparse_use_get_test )
     BOOST_TEST( static_cast<bool>(res) );
     BOOST_TEST( *res == "output.o" );
 
+    temp = { "-h", "--help", "--flag" };
+    res = use_get(temp, "-o");
+    BOOST_TEST( !static_cast<bool>(res) );
+
     res = use_get(temp, "-o", "--output"); // 2
+    BOOST_TEST( static_cast<bool>(res) );
+    BOOST_TEST( *res == "output.o" );
+
+    res = use_get(temp, "--no", "-o");
     BOOST_TEST( static_cast<bool>(res) );
     BOOST_TEST( *res == "output.o" );
 
