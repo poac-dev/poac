@@ -66,14 +66,6 @@ jobs:
           root: .
           paths: .
 
-#  x86_64-unknown-linux-gnu_gcc-6:
-#    docker:
-#      - image: poacpm/x86_64-unknown-linux-gnu
-#    environment:
-#      CXX: g++-6
-#    steps:
-#      - default-build
-
   x86_64-unknown-linux-gnu_gcc-7:
     parameters:
       compiler:
@@ -89,6 +81,20 @@ jobs:
 #      - default-test
 
   x86_64-unknown-linux-gnu_gcc-8:
+    parameters:
+      compiler:
+        description: "compiler-version"
+        type: string
+      executor:
+        name: x86_64
+        compiler: << parameters.compiler >>
+      steps:
+        - attach_workspace:
+            at: .
+        - default-build
+#      - default-test
+
+  x86_64-unknown-linux-gnu_gcc-9:
     parameters:
       compiler:
         description: "compiler-version"
@@ -199,15 +205,16 @@ workflows:
   builds:
     jobs:
       - checkout_code
-#      - x86_64-unknown-linux-gnu_gcc-6:
-#          requires:
-#            - checkout_code
       - x86_64-unknown-linux-gnu_gcc-7:
           compiler: g++-7
           requires:
             - checkout_code
       - x86_64-unknown-linux-gnu_gcc-8:
           compiler: g++-8
+          requires:
+            - checkout_code
+      - x86_64-unknown-linux-gnu_gcc-9:
+          compiler: g++-9
           requires:
             - checkout_code
 #      - x86_64-unknown-linux-gnu_clang-6:
@@ -227,9 +234,9 @@ workflows:
 #            - checkout_code
       - release:
           requires:
-#            - x86_64-unknown-linux-gnu_gcc-6
             - x86_64-unknown-linux-gnu_gcc-7
             - x86_64-unknown-linux-gnu_gcc-8
+            - x86_64-unknown-linux-gnu_gcc-9
 #            - x86_64-unknown-linux-gnu_clang-6
 #            - x86_64-unknown-linux-gnu_clang-7
 #            - aarch64-unknown-linux-gnu
