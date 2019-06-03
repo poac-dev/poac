@@ -10,19 +10,6 @@ executors:
         description: "Compiler Version"
         type: integer
     docker:
-      - image: poacpm/x86_64-unknown-linux-gnu
-    environment:
-      CXX: << parameters.compiler >>-<< parameters.version >>
-
-  clang:
-    parameters:
-      compiler:
-        description: "Compiler Name"
-        type: string
-      version:
-        description: "Compiler Version"
-        type: integer
-    docker:
       - image: poacpm/x86_64-unknown-linux-gnu:<< parameters.compiler >>-<< parameters.version >>
 
 
@@ -129,21 +116,21 @@ workflows:
       - x86_64-unknown-linux-gnu:
           exec:
             name: x86_64
-            compiler: g++
+            compiler: gcc
             version: 7
           requires:
             - checkout_code
       - x86_64-unknown-linux-gnu:
           exec:
             name: x86_64
-            compiler: g++
+            compiler: gccc
             version: 8
           requires:
             - checkout_code
       - x86_64-unknown-linux-gnu:
           exec:
             name: x86_64
-            compiler: g++
+            compiler: gcc
             version: 9
           requires:
             - checkout_code
@@ -156,14 +143,14 @@ workflows:
             - checkout_code
       - x86_64-unknown-linux-gnu:
           exec:
-            name: clang
+            name: x86_64
             compiler: clang
             version: 7
           requires:
             - checkout_code
       - x86_64-unknown-linux-gnu:
           exec:
-            name: clang
+            name: x86_64
             compiler: clang
             version: 8
           requires:
@@ -182,7 +169,7 @@ workflows:
       - x86_64-unknown-linux-gnu:
           exec:
             name: x86_64
-            compiler: g++
+            compiler: gcc
             version: 9
           requires:
             - checkout_code
