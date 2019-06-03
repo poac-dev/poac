@@ -136,7 +136,7 @@ workflows:
             - checkout_code
       - x86_64-unknown-linux-gnu:
           exec:
-            name: clang
+            name: x86_64
             compiler: clang
             version: 6
           requires:
@@ -184,7 +184,7 @@ workflows:
       - release_build:
           exec:
             name: x86_64
-            compiler: g++
+            compiler: gcc
             version: 9
           requires:
             - checkout_code
