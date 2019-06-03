@@ -85,32 +85,32 @@ jobs:
       compiler:
         description: "compiler-version"
         type: string
-      executor:
-        name: x86_64
-        compiler: << parameters.compiler >>
-      steps:
-        - attach_workspace:
-            at: .
-        - default-build
-#      - default-test
+    executor:
+      name: x86_64
+      compiler: << parameters.compiler >>
+    steps:
+      - attach_workspace:
+          at: .
+      - default-build
+#    - default-test
 
   x86_64-unknown-linux-gnu_gcc-9:
     parameters:
       compiler:
         description: "compiler-version"
         type: string
-      executor:
-        name: x86_64
-        compiler: << parameters.compiler >>
-      working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
-      steps:
-        - attach_workspace:
-            at: /tmp/workspace/x86_64-unknown-linux-gnu
-        - default-build
-#        - default-test
-        - persist_to_workspace:
-            root: /tmp/workspace
-            paths: x86_64-unknown-linux-gnu
+    executor:
+      name: x86_64
+      compiler: << parameters.compiler >>
+    working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace/x86_64-unknown-linux-gnu
+      - default-build
+#      - default-test
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: x86_64-unknown-linux-gnu
 
 #  x86_64-unknown-linux-gnu_clang-6:
 #    docker:
