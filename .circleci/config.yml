@@ -4,12 +4,15 @@ executors:
   x86_64:
     parameters:
       compiler:
-        description: "compiler-version"
+        description: "Compiler Name"
         type: string
+      version:
+        description: "Compiler Version"
+        type: integer
     docker:
       - image: poacpm/x86_64-unknown-linux-gnu
     environment:
-      CXX: << parameters.compiler >>
+      CXX: << parameters.compiler >>-<< parameters.version >>
 
 
 commands:
@@ -66,51 +69,16 @@ jobs:
           root: .
           paths: .
 
-  x86_64-unknown-linux-gnu_gcc-7:
+  x86_64-unknown-linux-gnu:
     parameters:
-      compiler:
-        description: "compiler-version"
-        type: string
-    executor:
-      name: x86_64
-      compiler: << parameters.compiler >>
+      exec:
+        type: executor
+    executor: << parameters.exec >>
     steps:
       - attach_workspace:
           at: .
       - default-build
 #      - default-test
-
-  x86_64-unknown-linux-gnu_gcc-8:
-    parameters:
-      compiler:
-        description: "compiler-version"
-        type: string
-    executor:
-      name: x86_64
-      compiler: << parameters.compiler >>
-    steps:
-      - attach_workspace:
-          at: .
-      - default-build
-#    - default-test
-
-  x86_64-unknown-linux-gnu_gcc-9:
-    parameters:
-      compiler:
-        description: "compiler-version"
-        type: string
-    executor:
-      name: x86_64
-      compiler: << parameters.compiler >>
-    working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace/x86_64-unknown-linux-gnu
-      - default-build
-#      - default-test
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths: x86_64-unknown-linux-gnu
 
 #  x86_64-unknown-linux-gnu_clang-6:
 #    docker:
@@ -131,63 +99,23 @@ jobs:
 #    steps:
 #      - default-build
 
-#  aarch64-unknown-linux-gnu:
-#    docker:
-#      - image: poacpm/aarch64-unknown-linux-gnu
-#    environment:
-#      CXX: g++-8
-#    steps:
-#      - default-build
+  release_build:
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
+    working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace/x86_64-unknown-linux-gnu
+      - run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
+      - run: ./build/poac -h
+      - run: file ./build/poac
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: x86_64-unknown-linux-gnu
 
-#  powerpc-unknown-linux-gnu_gcc-4_8:
-#    docker:
-#      - image: poacpm/powerpc-unknown-linux-gnu
-#    environment:
-#      CXX: powerpc-linux-gnu-g++
-#    steps:
-#      - default-build
-
-#  powerpc64-unknown-linux-gnu_gcc-5_4:
-#    docker:
-#      - image: poacpm/powerpc64-unknown-linux-gnu
-#    environment:
-#      CXX: powerpc64-linux-gnu-g++
-#    steps:
-#      - default-build
-
-#  powerpc64le-unknown-linux-gnu:
-#    docker:
-#      - image: poacpm/powerpc64le-unknown-linux-gnu
-#    environment:
-#      CXX: g++-8
-#    steps:
-#      - default-build
-
-#  s390x-unknown-linux-gnu:
-#    docker:
-#      - image: poacpm/s390x-unknown-linux-gnu
-#    environment:
-#      CXX: g++-8
-#    steps:
-#      - default-build
-
-#  x86_64-pc-windows-gnu_gcc-6:
-#    docker:
-#      - image: poacpm/x86_64-pc-windows-gnu
-#    environment:
-#      CXX: x86_64-w64-mingw32-g++-posix
-#    steps:
-#      - default-build
-
-#  i686-pc-windows-gnu_gcc-6:
-#    docker:
-#      - image: poacpm/i686-pc-windows-gnu
-#    environment:
-#      CXX: i686-w64-mingw32-g++-posix
-#    steps:
-#      - default-build
-
-  release:
+  publish:
     docker:
       - image: circleci/golang:1.11
     steps:
@@ -200,48 +128,83 @@ jobs:
       - run: ghr -t $GITHUB_TOKEN $CIRCLE_TAG out
 #      - run: poac publish
 
+
 workflows:
   version: 2
   builds:
     jobs:
       - checkout_code
-      - x86_64-unknown-linux-gnu_gcc-7:
-          compiler: g++-7
+      - x86_64-unknown-linux-gnu:
+          exec:
+            name: x86_64
+            compiler: g++
+            version: 7
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu_gcc-8:
-          compiler: g++-8
+      - x86_64-unknown-linux-gnu:
+          exec:
+            name: x86_64
+            compiler: g++
+            version: 8
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu_gcc-9:
-          compiler: g++-9
+      - x86_64-unknown-linux-gnu:
+          exec:
+            name: x86_64
+            compiler: g++
+            version: 9
           requires:
             - checkout_code
+#      - x86_64-unknown-linux-gnu_clang-5:
+#          requires:
+#            - checkout_code
 #      - x86_64-unknown-linux-gnu_clang-6:
 #          requires:
 #            - checkout_code
 #      - x86_64-unknown-linux-gnu_clang-7:
 #          requires:
 #            - checkout_code
-#      - aarch64-unknown-linux-gnu:
-#          requires:
-#            - checkout_code
-#      - powerpc64le-unknown-linux-gnu:
-#          requires:
-#            - checkout_code
-#      - s390x-unknown-linux-gnu:
-#          requires:
-#            - checkout_code
-      - release:
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+                - beta
+    jobs:
+      - checkout_code
+      - x86_64-unknown-linux-gnu:
+          exec:
+            name: x86_64
+            compiler: g++
+            version: 9
           requires:
-            - x86_64-unknown-linux-gnu_gcc-7
-            - x86_64-unknown-linux-gnu_gcc-8
-            - x86_64-unknown-linux-gnu_gcc-9
-#            - x86_64-unknown-linux-gnu_clang-6
-#            - x86_64-unknown-linux-gnu_clang-7
-#            - aarch64-unknown-linux-gnu
-#            - powerpc64le-unknown-linux-gnu
-#            - s390x-unknown-linux-gnu
+            - checkout_code
+  release:
+    jobs:
+      - checkout_code:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9]+(\.[0-9]+){2}.*$/
+      - release_build:
+          exec:
+            name: x86_64
+            compiler: g++
+            version: 9
+          requires:
+            - checkout_code
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9]+(\.[0-9]+){2}.*$/
+      - publish:
+          requires:
+            - release_build
           filters:
             branches:
               ignore: /.*/
