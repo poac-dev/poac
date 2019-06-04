@@ -46,6 +46,12 @@ commands:
       - run: ./build/poac -h
       - run: file ./build/poac
 
+  no-exec-build:
+    steps:
+      - run: uname -sm
+      - run: mkdir build && cd build && cmake .. && make
+      - run: file ./build/poac
+
   default-test:
     steps:
       - run:
@@ -78,6 +84,17 @@ jobs:
       - attach_workspace:
           at: .
       - default-build
+#      - default-test
+
+  build-no-exec:
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
+    steps:
+      - attach_workspace:
+          at: .
+      - no-exec-build
 #      - default-test
 
   release_build:
@@ -163,7 +180,7 @@ workflows:
             version: 8
           requires:
             - checkout_code
-      - build:
+      - build-no-exec:
           exec:
             name: cpp
             arch: mips-unknown-linux-gnu
