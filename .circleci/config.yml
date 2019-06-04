@@ -1,8 +1,11 @@
 version: 2.1
 
 executors:
-  x86_64:
+  cpp:
     parameters:
+      arch:
+        description: "Architecture"
+        type: string
       compiler:
         description: "Compiler Name"
         type: string
@@ -10,7 +13,7 @@ executors:
         description: "Compiler Version"
         type: integer
     docker:
-      - image: poacpm/x86_64-unknown-linux-gnu:<< parameters.compiler >>-<< parameters.version >>
+      - image: poacpm/<< parameters.arch >>:<< parameters.compiler >>-<< parameters.version >>
 
 
 commands:
@@ -66,7 +69,7 @@ jobs:
           root: .
           paths: .
 
-  x86_64-unknown-linux-gnu:
+  build:
     parameters:
       exec:
         type: executor
@@ -112,46 +115,60 @@ workflows:
   builds:
     jobs:
       - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 7
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 8
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 9
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: clang
             version: 6
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: clang
             version: 7
           requires:
             - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: clang
             version: 8
+          requires:
+            - checkout_code
+      - build:
+          exec:
+            name: cpp
+            arch: mips-unknown-linux-gnu
+            compiler: gcc
+            version: 9
           requires:
             - checkout_code
   nightly:
@@ -165,9 +182,10 @@ workflows:
                 - beta
     jobs:
       - checkout_code
-      - x86_64-unknown-linux-gnu:
+      - build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 9
           requires:
@@ -182,7 +200,8 @@ workflows:
               only: /^[0-9]+(\.[0-9]+){2}.*$/
       - release_build:
           exec:
-            name: x86_64
+            name: cpp
+            arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 9
           requires:
