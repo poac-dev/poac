@@ -45,7 +45,7 @@ commands:
       build-type:
         description: "CMAKE_BUILD_TYPE"
         type: enum
-        enum: ["Debug", "Release"]
+        enum: ["Debug", "Release", ""]
     steps:
       - run: uname -sm
       - run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
@@ -201,7 +201,7 @@ workflows:
             arch: mips-unknown-linux-gnu
             compiler: gcc
             version: 9
-          build-type: "Debug"
+          build-type: ""
           requires:
             - checkout_code
       - build:
