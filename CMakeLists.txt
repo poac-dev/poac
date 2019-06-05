@@ -1,3 +1,13 @@
+# Reference: https://github.com/opencv/opencv/blob/e329c84d5e7cfa5965b5dbbe7aa94d377ede23cf/CMakeLists.txt#L9-L15
+# Disable in-source builds to prevent source tree corruption.
+if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+    message(FATAL_ERROR "
+FATAL: In-source builds are not allowed.
+       You should create a separate directory for build files.
+")
+endif()
+
+
 cmake_minimum_required(VERSION 3.0)
 project(poac)
 
@@ -60,9 +70,9 @@ if(APPLE)
     endif()
 
     # -DCMAKE_BUILD_TYPE=Debug
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fsanitize=address")
+    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
     # -DCMAKE_BUILD_TYPE=Release
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mtune=native -march=native")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
 else()
     if(WIN32 AND MSVC)
         link_directories(${BOOST_LIBRARYDIR})
@@ -92,8 +102,11 @@ else()
             string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
             set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
         endif()
-    elseif(ENABLE_STATIC) # -DENABLE_STATIC=true
+    elseif(${CMAKE_BUILD_TYPE} MATCHES Debug) # -DCMAKE_BUILD_TYPE=Debug
+        set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
+    elseif(${CMAKE_BUILD_TYPE} MATCHES Release) # -DCMAKE_BUILD_TYPE=Release
         set(STATIC_LINK_FLAG "-static")
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3") # -mtune=powerpc64le -mcpu=powerpc64le
     endif()
 endif()
 

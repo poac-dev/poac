@@ -8,7 +8,8 @@ executors:
         type: string
       compiler:
         description: "Compiler Name"
-        type: string
+        type: enum
+        enum: ["gcc", "clang"]
       version:
         description: "Compiler Version"
         type: integer
@@ -40,16 +41,14 @@ commands:
           paths: "deps"
 
   default-build:
+    parameters:
+      build-type:
+        description: "CMAKE_BUILD_TYPE"
+        type: enum
+        enum: ["Debug", "Release", ""]
     steps:
       - run: uname -sm
-      - run: mkdir build && cd build && cmake .. && make
-      - run: ./build/poac -h
-      - run: file ./build/poac
-
-  no-exec-build:
-    steps:
-      - run: uname -sm
-      - run: mkdir build && cd build && cmake .. && make
+      - run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
       - run: file ./build/poac
 
   default-test:
@@ -79,36 +78,33 @@ jobs:
     parameters:
       exec:
         type: executor
+      build-type:
+        type: string
+      after-build:
+        type: steps
+        default: []
     executor: << parameters.exec >>
     steps:
       - attach_workspace:
           at: .
-      - default-build
-#      - default-test
-
-  build-no-exec:
-    parameters:
-      exec:
-        type: executor
-    executor: << parameters.exec >>
-    steps:
-      - attach_workspace:
-          at: .
-      - no-exec-build
+      - default-build:
+          build-type: << parameters.build-type >>
+      - steps: << parameters.after-build >>
 #      - default-test
 
   release_build:
     parameters:
       exec:
         type: executor
+      build-type:
+        type: string
     executor: << parameters.exec >>
     working_directory: /tmp/workspace/x86_64-unknown-linux-gnu
     steps:
       - attach_workspace:
           at: /tmp/workspace/x86_64-unknown-linux-gnu
-      - run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
-      - run: ./build/poac -h
-      - run: file ./build/poac
+      - default-build:
+          build-type: << parameters.build-type >>
       - persist_to_workspace:
           root: /tmp/workspace
           paths: x86_64-unknown-linux-gnu
@@ -123,7 +119,7 @@ jobs:
       - run: tar czf ./out/x86_64-unknown-linux-gnu.tar.gz ./poac
       - run: go get github.com/tcnksm/ghr
       - run: cp -r ./poac/.git ./
-      - run: ghr -t $GITHUB_TOKEN $CIRCLE_TAG out
+      - deploy: ghr -t $GITHUB_TOKEN $CIRCLE_TAG out
 #      - run: poac publish
 
 
@@ -138,6 +134,9 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 7
+          build-type: "Debug"
+          after-build:
+            - run: ./build/poac -h
           requires:
             - checkout_code
       - build:
@@ -146,6 +145,9 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 8
+          build-type: "Debug"
+          after-build:
+            - run: ./build/poac -h
           requires:
             - checkout_code
       - build:
@@ -154,6 +156,9 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "Debug"
+          after-build:
+            - run: ./build/poac -h
           requires:
             - checkout_code
       - build:
@@ -162,6 +167,9 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: clang
             version: 6
+          build-type: "Debug"
+          after-build:
+            - run: ./build/poac -h
           requires:
             - checkout_code
       - build:
@@ -170,6 +178,9 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: clang
             version: 7
+          build-type: "Debug"
+          after-build:
+            - run: ./build/poac -h
           requires:
             - checkout_code
       - build:
@@ -178,57 +189,85 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: clang
             version: 8
+          build-type: "Debug"
+          after-build:
+            - run: ./build/poac -h
           requires:
             - checkout_code
-      - build-no-exec:
+
+      - build:
           exec:
             name: cpp
             arch: mips-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "" # libasan is not provided at mips architecture
           requires:
             - checkout_code
-      - build-no-exec:
+      - build:
+          exec:
+            name: cpp
+            arch: mips-unknown-linux-gnu
+            compiler: gcc
+            version: 9
+          build-type: "Release"
+          requires:
+            - checkout_code
+
+      - build:
           exec:
             name: cpp
             arch: powerpc-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "Debug"
           requires:
             - checkout_code
-      - build-no-exec:
+      - build:
+          exec:
+            name: cpp
+            arch: powerpc-unknown-linux-gnu
+            compiler: gcc
+            version: 9
+          build-type: "Release"
+          requires:
+            - checkout_code
+
+      - build:
           exec:
             name: cpp
             arch: powerpc64-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "Debug"
           requires:
             - checkout_code
-      - build-no-exec:
+      - build:
+          exec:
+            name: cpp
+            arch: powerpc64-unknown-linux-gnu
+            compiler: gcc
+            version: 9
+          build-type: "Release"
+          requires:
+            - checkout_code
+
+      - build:
           exec:
             name: cpp
             arch: powerpc64le-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "Debug"
           requires:
             - checkout_code
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - master
-                - beta
-    jobs:
-      - checkout_code
       - build:
           exec:
             name: cpp
-            arch: x86_64-unknown-linux-gnu
+            arch: powerpc64le-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "Release"
           requires:
             - checkout_code
   release:
@@ -245,6 +284,7 @@ workflows:
             arch: x86_64-unknown-linux-gnu
             compiler: gcc
             version: 9
+          build-type: "Release"
           requires:
             - checkout_code
           filters:
