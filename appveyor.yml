@@ -38,6 +38,9 @@ install:
       )
     )
 
+  - if [%COMPILER%]==[mingw-w64] set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  - if [%COMPILER%]==[mingw-w64] set PATH="%CXX_PATH"
+
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp (
       git clone https://github.com/jbeder/yaml-cpp.git &&
@@ -66,8 +69,6 @@ install:
       popd
     )
 
-  - if [%COMPILER%]==[mingw-w64] set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-  - if [%COMPILER%]==[mingw-w64] set PATH="%CXX_PATH"
 #  - if [%COMPILER%]==[mingw-w64] (
 #      rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe" &&
 #      pacman -Syu --noconfirm &&
