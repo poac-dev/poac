@@ -201,7 +201,7 @@ workflows:
             arch: mips-unknown-linux-gnu
             compiler: gcc
             version: 9
-          build-type: ""
+          build-type: "" # libasan is not provided at mips architecture
           requires:
             - checkout_code
       - build:
