@@ -65,7 +65,7 @@ install:
   - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
-      bootstrap.bat &&
+      bootstrap.bat %COMPILER% &&
       b2.exe install ^
         toolset=%COMPILER% ^
         variant=%ConfigLower% ^
@@ -76,14 +76,14 @@ install:
     )
   - dir C:\Libraries\boost-1.69.0\include
   - dir C:\Libraries\boost-1.69.0\lib
-  - ps: |
-      if ($env:GENERATOR -eq "MinGW Makefiles") {
-        pushd C:\Libraries\boost-1.69.0\lib
-        dir -name
-        dir | rename-item -NewName { $_.name -replace 'sd-x32-','' }
-        dir -name
-        popd
-      }
+#  - ps: |
+#      if ($env:GENERATOR -eq "MinGW Makefiles") {
+#        pushd C:\Libraries\boost-1.69.0\lib
+#        dir -name
+#        dir | rename-item -NewName { $_.name -replace 'sd-x32-','' }
+#        dir -name
+#        popd
+#      }
 
 
 build_script:
