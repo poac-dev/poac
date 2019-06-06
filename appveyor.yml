@@ -1,9 +1,5 @@
 version: 1.0.{build}
 
-branches:
-  except:
-    - gh-pages
-
 cache:
   - C:\Libraries\yaml-cpp -> appveyor.yml
   - C:\Libraries\boost-1.69.0 -> appveyor.yml
@@ -28,6 +24,7 @@ environment:
     - COMPILER: gcc  # gcc-6.3.0-posix
       GENERATOR: "MinGW Makefiles"
       CXX_PATH: 'C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin'
+
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -40,22 +37,18 @@ install:
         set TARGET_PLATFORM='\-A x64'
       )
     )
-
-  - dir C:\Program Files\Git\usr\bin
+  - dir "C:\Program Files\Git\usr\bin;"
+  - ps: |
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
+        if ($env:CXX_PATH -ne "") {
+          $env:path += ";$env:CXX_PATH"
+        }
+      }
 
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp (
-      git clone -q --branch=yaml-cpp-0.6.2 https://github.com/jbeder/yaml-cpp.git &&
-      set BUILD_REQUIRE=TRUE
-    )
-  - ps: |
-      if ($env:GENERATOR -eq "MinGW Makefiles") {
-          $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
-          if ($env:CXX_PATH -ne "") {
-              $env:path += ";$env:CXX_PATH"
-          }
-      }
-  - if %BUILD_REQUIRE% == TRUE (
+      C:\Program Files\Git\usr\bin\sh.exe clone -q --branch=yaml-cpp-0.6.2 https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
