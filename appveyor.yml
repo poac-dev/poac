@@ -61,7 +61,6 @@ install:
       }
   - if %BUILD_REQUIRE%==TRUE (
       cmake .. -G "%GENERATOR%" ^
-#        -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DMSVC_SHARED_RT=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
