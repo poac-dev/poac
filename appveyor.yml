@@ -36,9 +36,9 @@ environment:
 install:
   - if [%COMPILER%]==[msvc] (
       if [%platform%] == [x86] (
-        set TARGET_PLATFORM="-A Win32"
+        set TARGET_PLATFORM='-A Win32'
       ) else (
-        set TARGET_PLATFORM="-A x64"
+        set TARGET_PLATFORM='-A x64'
       )
     )
 
@@ -111,7 +111,6 @@ install:
 build_script:
   - mkdir build
   - pushd build
-
   - cmake .. -G "%GENERATOR%" ^
       %TARGET_PLATFORM% ^
       -DBoost_USE_STATIC_LIBS=ON ^
@@ -120,7 +119,6 @@ build_script:
       -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
-
   - cmake --build . --config %Configuration%
   - popd
 
