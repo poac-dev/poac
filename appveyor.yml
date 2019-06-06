@@ -70,8 +70,7 @@ install:
         toolset=%COMPILER% ^
         variant=%ConfigLower% ^
         runtime-link=static ^
-        -j2 --prefix=C:\Libraries\boost-1.69.0 ||
-      exit 0 &&
+        -j2 --prefix=C:\Libraries\boost-1.69.0 &&
       popd
     )
   - dir C:\Libraries\boost-1.69.0\include
@@ -79,7 +78,7 @@ install:
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         pushd C:\Libraries\boost-1.69.0\lib
-        dir | rename-item -NewName { $_.name -replace '-sd-x32','-sd' }
+        dir | rename-item -NewName { $_.name -replace '-sd-x64','-sd' }
         popd
         dir C:\Libraries\boost-1.69.0\lib
       }
