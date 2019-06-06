@@ -61,15 +61,11 @@ install:
     )
 
   # Build boost
-  - ps: |
-      $env:ConfigLower = $env:Configuration.ToLower()
-      if ($env:GENERATOR -eq "MinGW Makefiles") {
-        $env:BootStrapType = "mingw"
-      }
+  - ps: $env:ConfigLower = $env:Configuration.ToLower()
   - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
-      bootstrap.bat %BootStrapType% &&
+      bootstrap.bat &&
       b2.exe install ^
         toolset=%COMPILER% ^
         variant=%ConfigLower% ^
