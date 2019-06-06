@@ -74,7 +74,7 @@ if(APPLE)
     # -DCMAKE_BUILD_TYPE=Release
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
 else()
-    if(WIN32 AND MSVC)
+    if(WIN32) # AND MSVC
         link_directories(${BOOST_LIBRARYDIR})
 
         find_package(yaml-cpp REQUIRED)
