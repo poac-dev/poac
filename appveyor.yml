@@ -87,6 +87,7 @@ build_script:
       -DENABLE_STATIC=ON ^
       -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+      -DBoost_ADDITIONAL_VERSIONS="1.69.00;1.69" ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
 
