@@ -42,24 +42,24 @@ install:
 #  - if [%COMPILER%]==[mingw-w64] set PATH="%CXX_PATH%"
 
   # Build yaml-cpp
-  - cmd: >-
-      if not exist C:\Libraries\yaml-cpp (
-        git clone https://github.com/jbeder/yaml-cpp.git
-        cd yaml-cpp
-        mkdir build
-        cd build
-        if [%COMPILER%]==[mingw-w64] (
-          set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-          set PATH="%CXX_PATH%"
-        )
-        cmake .. -G "%GENERATOR%" ^
-          -A %TARGET_PLATFORM% ^
-          -DYAML_CPP_BUILD_TESTS=OFF ^
-          -DMSVC_SHARED_RT=OFF ^
-          -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
-        cmake --build . --target install --config %Configuration%
-        cd ..\..
+  - |-
+    if not exist C:\Libraries\yaml-cpp (
+      git clone https://github.com/jbeder/yaml-cpp.git
+      cd yaml-cpp
+      mkdir build
+      cd build
+      if [%COMPILER%]==[mingw-w64] (
+        set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+        set PATH="%CXX_PATH%"
       )
+      cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
+        -DYAML_CPP_BUILD_TESTS=OFF ^
+        -DMSVC_SHARED_RT=OFF ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
+      cmake --build . --target install --config %Configuration%
+      cd ..\..
+    )
 
   # Build boost
   - if not exist C:\Libraries\boost-1.69.0 (
