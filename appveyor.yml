@@ -54,12 +54,12 @@ install:
                   $env:path += ";$env:CXX_PATH"
               }
           }
-          cmake .. -G "%GENERATOR%" ^
-            -A %TARGET_PLATFORM% ^
+          cmake .. -G "$env:GENERATOR" ^
+            -A $env:TARGET_PLATFORM ^
             -DYAML_CPP_BUILD_TESTS=OFF ^
             -DMSVC_SHARED_RT=OFF ^
             -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
-          cmake --build . --target install --config %Configuration%
+          cmake --build . --target install --config $env:Configuration
           cd ..\..
       }
 
