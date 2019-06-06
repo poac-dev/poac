@@ -79,7 +79,8 @@ install:
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         pushd C:\Libraries\boost-1.69.0\lib
-        Get-ChildItem -Name | rename-item -NewName { $_.name -replace "sd-x32-","" }
+        Get-ChildItem
+        Get-ChildItem | rename-item -NewName { $_.name -replace "sd-x32-","" }
         Get-ChildItem -Path .\Image
         popd
       }
