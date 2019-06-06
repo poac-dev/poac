@@ -78,7 +78,12 @@ install:
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         pushd C:\Libraries\boost-1.69.0\lib
-        dir | rename-item -NewName { $_.name -replace '-sd-x64','-sd' }
+        if ($env:Configuration -eq "Debug") {
+          dir | rename-item -NewName { $_.name -replace '-sd-x64','-sd' }
+        }
+        else if ($env:Configuration -eq "Release") {
+          dir | rename-item -NewName { $_.name -replace '-s-x64','-s' }
+        }
         popd
         dir C:\Libraries\boost-1.69.0\lib
       }
