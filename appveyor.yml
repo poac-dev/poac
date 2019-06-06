@@ -47,8 +47,8 @@ install:
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
-      (if [%COMPILER%]==[mingw-w64] set PATH=%PATH:C:\Program Files\Git\usr\bin;=%) &&
-      (if [%COMPILER%]==[mingw-w64] set PATH="%CXX_PATH%") &&
+#      (if [%COMPILER%]==[mingw-w64] set PATH=%PATH:C:\Program Files\Git\usr\bin;=%) &&
+#      (if [%COMPILER%]==[mingw-w64] set PATH="%CXX_PATH%") &&
       cmake .. -G "%GENERATOR%" ^
         -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
