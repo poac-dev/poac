@@ -43,7 +43,7 @@ install:
 
   # Build yaml-cpp
   - ps: |
-      if (Test-Path C:\Libraries\yaml-cpp) {
+      if (-not (Test-Path C:\Libraries\yaml-cpp)) {
           git clone https://github.com/jbeder/yaml-cpp.git
           cd yaml-cpp
           mkdir build
