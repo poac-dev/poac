@@ -69,7 +69,7 @@ install:
   # Build boost
   - ps: |
       $ConfigLower = "%Configuration%".ToLower()
-      echo $env:$ConfigLower
+      echo $env:ConfigLower
 
   - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
