@@ -42,7 +42,7 @@ install:
 #  - if [%COMPILER%]==[mingw-w64] set PATH="%CXX_PATH%"
 
   # Build yaml-cpp
-  - cmd: |
+  - cmd: >-
       if not exist C:\Libraries\yaml-cpp (
         git clone https://github.com/jbeder/yaml-cpp.git
         cd yaml-cpp
