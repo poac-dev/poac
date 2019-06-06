@@ -34,10 +34,12 @@ environment:
 
 
 install:
-  - if [%platform%] == [x86] (
-      set TARGET_PLATFORM=Win32
-    ) else (
-      set TARGET_PLATFORM=x64
+  - if [%COMPILER%]==[msvc] (
+      if [%platform%] == [x86] (
+        set TARGET_PLATFORM="-A Win32"
+      ) else (
+        set TARGET_PLATFORM="-A x64"
+      )
     )
 
   # Build yaml-cpp
@@ -57,7 +59,7 @@ install:
       }
   - if %BUILD_REQUIRE%==TRUE (
       cmake .. -G "%GENERATOR%" ^
-        -A %TARGET_PLATFORM% ^
+        %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DMSVC_SHARED_RT=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
@@ -111,7 +113,7 @@ build_script:
   - pushd build
 
   - cmake .. -G "%GENERATOR%" ^
-      -A %TARGET_PLATFORM% ^
+      %TARGET_PLATFORM% ^
       -DBoost_USE_STATIC_LIBS=ON ^
       -DBoost_USE_STATIC_RUNTIME=ON ^
       -DENABLE_STATIC=ON ^
