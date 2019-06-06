@@ -83,16 +83,16 @@ install:
       bootstrap.bat &&
       if [%COMPILER%]==[mingw-w64] (
         if [%Configuration%]==[Debug] (
-          b2.exe toolset=gcc runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
+          b2.exe toolset=gcc runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0 || exit 0
         ) else (
-          b2.exe toolset=gcc runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
+          b2.exe toolset=gcc runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0 || exit 0
         )
       ) else if [%COMPILER%]==[msvc] (
-          if [%Configuration%]==[Debug] (
-            b2.exe runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
-          ) else (
-            b2.exe runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
-          )
+        if [%Configuration%]==[Debug] (
+          b2.exe runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
+        ) else (
+          b2.exe runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
+        )
       ) &&
       popd
     )
