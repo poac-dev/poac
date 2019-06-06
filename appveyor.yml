@@ -30,13 +30,14 @@ environment:
       CXX_PATH: 'C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin'
 
 install:
-  - if %COMPILER% == msvc (
-      if %platform% == x86 (
-        set TARGET_PLATFORM="-A Win32"
-      ) else (
-        set TARGET_PLATFORM="-A x64"
-      )
-    )
+  - ps: |
+      if ($env:COMPILER -eq "msvc") {
+        if ($env:platform -eq "x86") {
+          $env:TARGET_PLATFORM = "-A Win32"
+        } else {
+          $env:TARGET_PLATFORM = "-A x64"
+        }
+      }
   - echo %TARGET_PLATFORM%
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
