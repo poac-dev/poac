@@ -34,12 +34,10 @@ environment:
 
 
 install:
-  - if [%COMPILER%]==[msvc] (
-      if [%platform%] == [x86] (
-        set TARGET_PLATFORM=Win32
-      ) else (
-        set TARGET_PLATFORM=x64
-      )
+  - if [%platform%] == [x86] (
+      set TARGET_PLATFORM=Win32
+    ) else (
+      set TARGET_PLATFORM=x64
     )
 
   # Build yaml-cpp
@@ -58,20 +56,11 @@ install:
           }
       }
   - if %BUILD_REQUIRE%==TRUE (
-      if defined TARGET_PLATFORM (
-        cmake .. -G "%GENERATOR%" ^
-          -A %TARGET_PLATFORM% ^
-          -DYAML_CPP_BUILD_TESTS=OFF ^
-          -DMSVC_SHARED_RT=OFF ^
-          -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
-      ) else (
-        cmake .. -G "%GENERATOR%" ^
-          -DYAML_CPP_BUILD_TESTS=OFF ^
-          -DMSVC_SHARED_RT=OFF ^
-          -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
-      )
-    )
-  - if %BUILD_REQUIRE%==TRUE (
+      cmake .. -G "%GENERATOR%" ^
+        -A %TARGET_PLATFORM% ^
+        -DYAML_CPP_BUILD_TESTS=OFF ^
+        -DMSVC_SHARED_RT=OFF ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
       cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
@@ -121,24 +110,14 @@ build_script:
   - mkdir build
   - pushd build
 
-  - if [%COMPILER%]==[msvc] (
-      cmake .. -G "%GENERATOR%" ^
-        -A %TARGET_PLATFORM% ^
-        -DBoost_USE_STATIC_LIBS=ON ^
-        -DBoost_USE_STATIC_RUNTIME=ON ^
-        -DENABLE_STATIC=ON ^
-        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
-    ) else if [%COMPILER%]==[mingw-w64] (
-      cmake .. -G "%GENERATOR%" ^
-        -DBoost_USE_STATIC_LIBS=ON ^
-        -DBoost_USE_STATIC_RUNTIME=ON ^
-        -DENABLE_STATIC=ON ^
-        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
-    )
+  - cmake .. -G "%GENERATOR%" ^
+      -A %TARGET_PLATFORM% ^
+      -DBoost_USE_STATIC_LIBS=ON ^
+      -DBoost_USE_STATIC_RUNTIME=ON ^
+      -DENABLE_STATIC=ON ^
+      -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+      -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+      -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
 
   - cmake --build . --config %Configuration%
   - popd
