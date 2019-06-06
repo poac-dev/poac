@@ -48,9 +48,7 @@ install:
       mkdir build &&
       cd build &&
       if [%COMPILER%]==[mingw-w64] (
-        set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-      ) &&
-      if [%COMPILER%]==[mingw-w64] (
+        set PATH=%PATH:C:\Program Files\Git\usr\bin;=% &&
         set PATH="%CXX_PATH%"
       ) &&
       cmake .. -G "%GENERATOR%" ^
