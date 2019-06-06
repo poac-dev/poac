@@ -21,20 +21,20 @@ build:
 
 environment:
   matrix:
-    - COMPILER: gcc  # gcc-6.3.0-posix
-      GENERATOR: "MinGW Makefiles"
-      CXX_PATH: 'C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin'
-
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
+    - COMPILER: gcc  # gcc-6.3.0-posix
+      GENERATOR: "MinGW Makefiles"
+      CXX_PATH: 'C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin'
+
 install:
   - if %COMPILER% == msvc (
       if %platform% == x86 (
-        set TARGET_PLATFORM='\-A Win32'
+        set TARGET_PLATFORM='^-A Win32'
       ) else (
-        set TARGET_PLATFORM='\-A x64'
+        set TARGET_PLATFORM='^-A x64'
       )
     )
   - ps: |
