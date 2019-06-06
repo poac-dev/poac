@@ -43,10 +43,11 @@ install:
 
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp (
-      git clone https://github.com/jbeder/yaml-cpp.git &&
+      git clone -q --branch=yaml-cpp-0.6.2 https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
+      (if [%COMPILER%]==[mingw-w64] set PATH=%PATH:C:\Program Files\Git\usr\bin;=%) &&
       cmake .. -G "%GENERATOR%" ^
         -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
