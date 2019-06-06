@@ -38,7 +38,6 @@ install:
           $env:TARGET_PLATFORM = "-A x64"
         }
       }
-
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
         if ($env:CXX_PATH -ne "") {
@@ -80,7 +79,7 @@ install:
 
 build_script:
   - mkdir build
-  - pushd build
+  - cd build
   - cmake .. -G "%GENERATOR%" ^
       %TARGET_PLATFORM% ^
       -DBoost_USE_STATIC_LIBS=ON ^
@@ -90,7 +89,6 @@ build_script:
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
-  - popd
 
 notifications:
   - provider: Slack
