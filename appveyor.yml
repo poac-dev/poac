@@ -28,17 +28,16 @@ environment:
     - COMPILER: mingw-w64
       GENERATOR: "MinGW Makefiles"
       CXX_PATH: 'C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin'
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      COMPILER: msvc
+    - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
-
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
 install:
-  - if [%COMPILER%]==[msvc] (
-      if [%platform%] == [x86] (
-        set TARGET_PLATFORM='-A Win32'
+  - if %COMPILER% == msvc (
+      if %platform% == x86 (
+        set TARGET_PLATFORM='\-A Win32'
       ) else (
-        set TARGET_PLATFORM='-A x64'
+        set TARGET_PLATFORM='\-A x64'
       )
     )
 
@@ -57,7 +56,7 @@ install:
               $env:path += ";$env:CXX_PATH"
           }
       }
-  - if %BUILD_REQUIRE%==TRUE (
+  - if %BUILD_REQUIRE% == TRUE (
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
@@ -68,45 +67,24 @@ install:
     )
 
   # Build boost
+  - ps: |
+      $ConfigLower = "%Configuration%".ToLower()
+      echo $env:$ConfigLower
+
   - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
-      if [%COMPILER%]==[mingw-w64] (
-        if [%Configuration%]==[Debug] (
-          b2.exe toolset=gcc runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0 || exit 0
-        ) else (
-          b2.exe toolset=gcc runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0 || exit 0
-        )
-      ) else if [%COMPILER%]==[msvc] (
-        if [%Configuration%]==[Debug] (
-          b2.exe runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
-        ) else (
-          b2.exe runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
-        )
+      if %COMPILER% == mingw-w64 (
+        b2.exe toolset=gcc runtime-link=static variant=%ConfigLower% install -j2 --prefix=C:\Libraries\boost-1.69.0 || exit 0
+      ) else if %COMPILER% == msvc (
+        b2.exe runtime-link=static variant=%ConfigLower% install -j2 --prefix=C:\Libraries\boost-1.69.0
       ) &&
       popd
     )
 
   - dir C:\Libraries\boost-1.69.0\lib
   - dir C:\Libraries\boost-1.69.0\include
-
-#  - if [%COMPILER%]==[mingw-w64] (
-#      rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe" &&
-#      pacman -Syu --noconfirm &&
-#      pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc &&
-#      rename "C:\msys64\usr\bin\sh.exe" "sh2.exe" &&
-#      cd yaml-cpp && mkdir build && cd build &&
-#      cmake .. -G "%GENERATOR%" ^
-#        -DCMAKE_PREFIX_PATH=C:\mingw64 ^
-#        -DCMAKE_BUILD_TYPE=%Configuration% ^
-#        -DYAML_CPP_BUILD_TESTS=OFF ^
-#        -DCMAKE_SH=CMAKE_SH-NOTFOUND ^
-#        -DCMAKE_INSTALL_PREFIX=C:\Libraries\ &&
-#      cmake --build . --target install &&
-#      cd ..\..
-#    )
-
 
 build_script:
   - mkdir build
@@ -121,7 +99,6 @@ build_script:
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
   - popd
-
 
 notifications:
   - provider: Slack
