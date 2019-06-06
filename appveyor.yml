@@ -23,7 +23,7 @@ environment:
   matrix:
     - COMPILER: gcc  # gcc-6.3.0-posix
       GENERATOR: "MinGW Makefiles"
-      CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw32\bin'
+      CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
 
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
@@ -46,8 +46,8 @@ install:
       }
 
   - dir C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0
-  - dir C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw32
-  - dir C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw32\bin
+  - dir C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64
+  - dir C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
 
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp (
