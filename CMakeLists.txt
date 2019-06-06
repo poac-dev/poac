@@ -52,6 +52,7 @@ endif()
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
 
+set(Boost_DEBUG on)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
