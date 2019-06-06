@@ -75,6 +75,8 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
 else()
     if(WIN32 OR MINGW) # AND MSVC
+        message(STATUS "mingw?")
+
         link_directories(${BOOST_LIBRARYDIR})
 
         find_package(yaml-cpp REQUIRED)
