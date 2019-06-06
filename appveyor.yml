@@ -37,7 +37,7 @@ install:
         set TARGET_PLATFORM='\-A x64'
       )
     )
-  - dir "C:\Program Files\Git\usr\bin;"
+  - where git
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
