@@ -14,7 +14,8 @@ project(poac)
 # Preprocessor definitions
 add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 add_definitions(-DPOAC_VERSION="0.2.1")
-if(CYGWIN)
+if(CYGWIN OR MINGW)
+    message(STATUS "mingw?")
     add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj)
 elseif(UNIX)
     add_definitions("-fdiagnostics-color -Wall -Wextra") # -Werror
@@ -52,7 +53,7 @@ endif()
 include_directories( "/usr/local/include" )
 link_directories( "/usr/local/lib" )
 
-set(Boost_DEBUG on)
+#set(Boost_DEBUG on)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -76,8 +77,6 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
 else()
     if(WIN32 OR MINGW) # AND MSVC
-        message(STATUS "mingw?")
-
         link_directories(${BOOST_LIBRARYDIR})
 
         find_package(yaml-cpp REQUIRED)
