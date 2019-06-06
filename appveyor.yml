@@ -41,12 +41,11 @@ install:
       )
     )
 
+  - dir C:\Program Files\Git\usr\bin
+
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp (
       git clone -q --branch=yaml-cpp-0.6.2 https://github.com/jbeder/yaml-cpp.git &&
-      cd yaml-cpp &&
-      mkdir build &&
-      cd build &&
       set BUILD_REQUIRE=TRUE
     )
   - ps: |
@@ -57,6 +56,9 @@ install:
           }
       }
   - if %BUILD_REQUIRE% == TRUE (
+      cd yaml-cpp &&
+      mkdir build &&
+      cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
@@ -68,7 +70,6 @@ install:
 
   # Build boost
   - ps: $env:ConfigLower = $env:Configuration.ToLower()
-  - echo %ConfigLower%
   - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
