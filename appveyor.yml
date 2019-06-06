@@ -32,6 +32,7 @@ environment:
       COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
 
+
 install:
   - if [%COMPILER%]==[msvc] (
       if [%platform%] == [x86] (
@@ -60,10 +61,20 @@ install:
           }
       }
   - if %BUILD_REQUIRE%==TRUE (
-      cmake .. -G "%GENERATOR%" ^
-        -DYAML_CPP_BUILD_TESTS=OFF ^
-        -DMSVC_SHARED_RT=OFF ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
+      if defined TARGET_PLATFORM (
+        cmake .. -G "%GENERATOR%" ^
+          -A %TARGET_PLATFORM% ^
+          -DYAML_CPP_BUILD_TESTS=OFF ^
+          -DMSVC_SHARED_RT=OFF ^
+          -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
+      ) else (
+        cmake .. -G "%GENERATOR%" ^
+          -DYAML_CPP_BUILD_TESTS=OFF ^
+          -DMSVC_SHARED_RT=OFF ^
+          -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp
+      )
+    )
+  - if %BUILD_REQUIRE%==TRUE (
       cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
@@ -97,21 +108,15 @@ install:
 #      cd ..\..
 #    )
 
-#  - if [%COMPILER%]==[cygwin64] (
-#      xcopy /i /q /s C:\projects\poac\yaml-cpp C:\cygwin64\home\appveyor\yaml-cpp &&
-#      C:\cygwin64\setup-x86_64.exe -qgnNdO ^
-#      --root C:\cygwin64 ^
-#      -s http://cygwin.mirror.constant.com ^
-#      -P make -P openssl-devel &&
-#      mkdir C:\Libraries\yaml-cpp &&
-#      C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:/Libraries/yaml-cpp && cmake --build . --target install"
-#    )
 
 build_script:
+  - dir C:\Libraries\boost-1.69.0\lib
+  - dir C:\Libraries\boost-1.69.0\include
+
+  - mkdir build
+  - pushd build
+
   - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost-1.69.0\lib &&
-      dir C:\Libraries\boost-1.69.0\include &&
-      mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" ^
         -A %TARGET_PLATFORM% ^
         -DBoost_USE_STATIC_LIBS=ON ^
@@ -119,22 +124,20 @@ build_script:
         -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
-      cmake --build . --config %Configuration%
+        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
+    ) else if [%COMPILER%]==[mingw-w64] (
+      cmake .. -G "%GENERATOR%" ^
+        -DBoost_USE_STATIC_LIBS=ON ^
+        -DBoost_USE_STATIC_RUNTIME=ON ^
+        -DENABLE_STATIC=ON ^
+        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
     )
 
-  - if [%COMPILER%]==[mingw-w64] (
-      mkdir build && cd build &&
-      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
-      cmake --build . --config %Configuration% &&
-      cd ..
-    )
+  - cmake --build . --config %Configuration%
+  - popd
 
-#  - if [%COMPILER%]==[cygwin64] (
-#      dir C:\Libraries\boost_1_69_0\boost &&
-#      xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
-#      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_69_0 && cmake --build ."
-#    )
 
 notifications:
   - provider: Slack
