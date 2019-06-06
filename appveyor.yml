@@ -89,6 +89,10 @@ install:
 build_script:
   - mkdir build
   - cd build
+  - ps: |
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        $env:ABI_TAG = "-D_boost_DEBUG_ABI_TAG=sd-x32"
+      }
   - cmake .. -G "%GENERATOR%" ^
       %TARGET_PLATFORM% ^
       -DBoost_USE_STATIC_LIBS=ON ^
@@ -96,6 +100,7 @@ build_script:
       -DENABLE_STATIC=ON ^
       -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+      %ABI_TAG% ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
 
