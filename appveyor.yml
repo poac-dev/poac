@@ -64,7 +64,7 @@ install:
   - ps: |
       $env:ConfigLower = $env:Configuration.ToLower()
       if ($env:GENERATOR -eq "MinGW Makefiles") {
-        $env:BootStrapType = mingw
+        $env:BootStrapType = "mingw"
       }
   - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
