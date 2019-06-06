@@ -74,8 +74,14 @@ install:
       exit 0 &&
       popd
     )
-  - dir C:\Libraries\boost-1.69.0\lib
   - dir C:\Libraries\boost-1.69.0\include
+  - dir C:\Libraries\boost-1.69.0\lib
+  - ps: |
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        Get-ChildItem -Name | rename-item -NewName { $_.name -replace "sd-x32-","" }
+      }
+  - dir C:\Libraries\boost-1.69.0\lib
+
 
 build_script:
   - mkdir build
@@ -87,7 +93,6 @@ build_script:
       -DENABLE_STATIC=ON ^
       -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-      -DBoost_ADDITIONAL_VERSIONS="1.69.00;1.69" ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
 
