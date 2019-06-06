@@ -59,7 +59,7 @@ install:
               $env:path += ";$env:CXX_PATH"
           }
       }
-  - if [%BUILD_REQUIRE%]==["TRUE"] (
+  - if "%BUILD_REQUIRE%"=="TRUE" (
       cmake .. -G "%GENERATOR%" ^
         -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
