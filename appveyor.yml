@@ -38,8 +38,7 @@ install:
           $env:TARGET_PLATFORM = "-A x64"
         }
       }
-  - echo %TARGET_PLATFORM%
-  - ps: |
+
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
         if ($env:CXX_PATH -ne "") {
@@ -49,7 +48,7 @@ install:
 
   # Build yaml-cpp
   - if not exist C:\Libraries\yaml-cpp (
-      "C:\Program Files\Git\cmd\git.exe" clone -q --branch=yaml-cpp-0.6.2 https://github.com/jbeder/yaml-cpp.git &&
+      "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
