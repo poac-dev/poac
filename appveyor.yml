@@ -20,6 +20,9 @@ artifacts:
   - path: build\Release\poac.exe
     name: Release
 
+build:
+  verbosity: minimal
+
 environment:
   matrix:
     - COMPILER: mingw-w64
@@ -49,7 +52,6 @@ install:
       cd build &&
       set BUILD_REQUIRE=TRUE
     )
-
   - ps: |
       if ($env:COMPILER -eq "mingw-w64") {
           $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
@@ -57,8 +59,7 @@ install:
               $env:path += ";$env:CXX_PATH"
           }
       }
-
-  - if [%BUILD_REQUIRE%]==[TRUE] (
+  - if [%BUILD_REQUIRE%]==["TRUE"] (
       cmake .. -G "%GENERATOR%" ^
         -A %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
