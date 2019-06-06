@@ -81,7 +81,7 @@ install:
         pushd C:\Libraries\boost-1.69.0\lib
         Get-ChildItem
         Get-ChildItem | rename-item -NewName { $_.name -replace "sd-x32-","" }
-        Get-ChildItem -Path
+        Get-ChildItem
         popd
       }
 
