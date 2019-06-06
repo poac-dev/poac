@@ -23,7 +23,7 @@ environment:
   matrix:
     - COMPILER: gcc  # gcc-6.3.0-posix
       GENERATOR: "MinGW Makefiles"
-      CXX_PATH: 'C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin'
+      CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw32\bin'
 
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
@@ -79,10 +79,9 @@ install:
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         pushd C:\Libraries\boost-1.69.0\lib
-        dir -name
         dir | rename-item -NewName { $_.name -replace '-sd-x32','-sd' }
-        dir -name
         popd
+        dir C:\Libraries\boost-1.69.0\lib
       }
 
 
