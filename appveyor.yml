@@ -12,10 +12,6 @@ platform:
   - x86
   - x64
 
-artifacts:
-  - path: build\Release\poac.exe
-    name: Release
-
 build:
   verbosity: minimal
 
@@ -77,13 +73,11 @@ install:
   - dir C:\Libraries\boost-1.69.0\lib
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
-        pushd C:\Libraries\boost-1.69.0\lib
         if ($env:Configuration -eq "Debug") {
-          dir | rename-item -NewName { $_.name -replace '-sd-x64','-sd' }
+          dir C:\Libraries\boost-1.69.0\lib | rename-item -NewName { $_.name -replace '-sd-x64','-sd' }
         } else {
-          dir | rename-item -NewName { $_.name -replace '-s-x64','-s' }
+          dir C:\Libraries\boost-1.69.0\lib | rename-item -NewName { $_.name -replace '-s-x64','-s' }
         }
-        popd
         dir C:\Libraries\boost-1.69.0\lib
       }
 
@@ -99,6 +93,11 @@ build_script:
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
+  - dir
+
+artifacts:
+  - path: build\Release\poac.exe
+    name: Release
 
 notifications:
   - provider: Slack
