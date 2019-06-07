@@ -8,10 +8,6 @@ configuration:
   - Debug
   - Release
 
-platform:
-  - x86
-  - x64
-
 build:
   verbosity: minimal
 
@@ -28,6 +24,12 @@ environment:
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      platform: x86
+
+    - COMPILER: msvc
+      GENERATOR: "Visual Studio 15 2017"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      platform: x64
 
 install:
   - ps: |
