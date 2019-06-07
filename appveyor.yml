@@ -17,6 +17,10 @@ build:
 
 environment:
   matrix:
+#    - COMPILER: gcc  # gcc-7.3.0-posix
+#      GENERATOR: "MinGW Makefiles"
+#      CXX_PATH: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
+
     - COMPILER: gcc  # gcc-8.1.0-posix
       GENERATOR: "MinGW Makefiles"
       CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
@@ -79,7 +83,7 @@ install:
           $env:ABI_TAG = "-s"  # _boost_RELEASE_ABI_TAG
         }
         dir C:\Libraries\boost-1.69.0\lib |
-          rename-item -NewName { $_.name -replace '$env:ABI_TAG-x64','$env:ABI_TAG' }
+          rename-item -NewName { $_.name -replace "$env:ABI_TAG-x64","$env:ABI_TAG" }
         dir C:\Libraries\boost-1.69.0\lib
       }
 
