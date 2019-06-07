@@ -67,7 +67,6 @@ install:
         mkdir build &&
         cd build &&
         cmake .. -DYAML_CPP_BUILD_TESTS=OFF
-          -DCMAKE_INSTALL_PREFIX=../../../../Libraries/yaml-cpp
           -DCMAKE_BUILD_TYPE=%Configuration% &&
         make &&
         make install"
@@ -118,7 +117,7 @@ install:
 build_script:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
-        mkdir build &&
+        "mkdir build &&
         cd build &&
         cmake .. -DCMAKE_BUILD_TYPE=%Configuration% &&
         make"
