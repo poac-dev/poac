@@ -126,8 +126,7 @@ build_script:
         ls -a /usr/include &&
         mkdir build &&
         cd build &&
-        cmake .. -DBOOST_ROOT=/usr/src/boost_1_66_0
-          -DCMAKE_BUILD_TYPE=%Configuration% &&
+        cmake .. -DCMAKE_BUILD_TYPE=%Configuration% &&
         make"
     ) else (
       mkdir build &&
