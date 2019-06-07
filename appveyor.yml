@@ -59,14 +59,14 @@ install:
         --no-shortcuts --upgrade-also ^
         --local-package-dir "%CYG_ROOT%\var\cache\setup" ^
         --packages %CYG_PACKAGES% &&
-      %CYG_ROOT%\bin\bash -lc ^
-        "git clone -q https://github.com/jbeder/yaml-cpp.git && ^
-        cd yaml-cpp && ^
-        mkdir build && ^
+      %CYG_ROOT%\bin\bash -lc
+        "git clone -q https://github.com/jbeder/yaml-cpp.git &&
+        cd yaml-cpp &&
+        mkdir build &&
         cd build &&
-        cmake .. -DYAML_CPP_BUILD_TESTS=OFF ^
-          -DCMAKE_INSTALL_PREFIX=C:/Libraries/yaml-cpp && ^
-        make && ^
+        cmake .. -DYAML_CPP_BUILD_TESTS=OFF
+          -DCMAKE_INSTALL_PREFIX=C:/Libraries/yaml-cpp &&
+        make &&
         make install"
     )
 
