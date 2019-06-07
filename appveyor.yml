@@ -115,6 +115,7 @@ install:
       }
 
 build_script:
+  - cd
   - mkdir build
   - cd build
   - cmake .. -G "%GENERATOR%" ^
