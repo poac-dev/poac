@@ -15,7 +15,7 @@ build:
 
 environment:
   global:
-    CYG_PACKAGES: gcc-g++,git,make,cmake,openssl-devel,libboost-devel
+    CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,openssl-devel,libboost-devel
 
   matrix:
 #    - COMPILER: cygwin-gcc
