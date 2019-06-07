@@ -54,6 +54,8 @@ install:
         }
       }
 
+  - @cd
+
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\%CYG_SETUP% --quiet-mode ^
         --no-shortcuts --upgrade-also ^
