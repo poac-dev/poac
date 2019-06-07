@@ -74,10 +74,12 @@ install:
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         if ($env:Configuration -eq "Debug") {
-          dir C:\Libraries\boost-1.69.0\lib | rename-item -NewName { $_.name -replace '-sd-x64','-sd' }
+          $env:ABI_TAG = "-sd" # _boost_DEBUG_ABI_TAG
         } else {
-          dir C:\Libraries\boost-1.69.0\lib | rename-item -NewName { $_.name -replace '-s-x64','-s' }
+          $env:ABI_TAG = "-s"  # _boost_RELEASE_ABI_TAG
         }
+        dir C:\Libraries\boost-1.69.0\lib |
+          rename-item -NewName { $_.name -replace '$env:ABI_TAG-x64','$env:ABI_TAG' }
         dir C:\Libraries\boost-1.69.0\lib
       }
 
@@ -93,11 +95,12 @@ build_script:
       -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
       -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
   - cmake --build . --config %Configuration%
-  - dir
 
 artifacts:
   - path: build\Release\poac.exe
-    name: Release
+    name: release_msvc
+  - path: build\poac.exe
+    name: release_mingw-w64
 
 notifications:
   - provider: Slack
