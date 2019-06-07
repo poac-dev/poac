@@ -15,7 +15,7 @@ build:
 
 environment:
   global:
-    CYG_PACKAGES: gcc-g++,git,make,cmake,openssh,openssl-devel,libboost-devel
+    CYG_PACKAGES: gcc-g++,git,make,cmake,openssl-devel,libboost-devel
 
   matrix:
 #    - COMPILER: cygwin-gcc
@@ -123,7 +123,6 @@ build_script:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
         "cd $APPVEYOR_BUILD_FOLDER &&
-        ls -a /usr/include &&
         mkdir build &&
         cd build &&
         cmake .. -DCMAKE_BUILD_TYPE=%Configuration% &&
