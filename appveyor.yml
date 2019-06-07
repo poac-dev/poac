@@ -1,9 +1,5 @@
 version: 1.0.{build}
 
-branches:
-  except:
-    - gh-pages
-
 cache:
   - C:\Libraries\yaml-cpp -> appveyor.yml
   - C:\Libraries\boost-1.69.0 -> appveyor.yml
@@ -12,39 +8,53 @@ configuration:
   - Debug
   - Release
 
-platform:
-  - x86
-  - x64
-
-artifacts:
-  - path: build\Release\poac.exe
-    name: Release
+build:
+  verbosity: minimal
 
 environment:
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      COMPILER: msvc
-      GENERATOR: Visual Studio 15 2017
-#    - COMPILER: mingw-w64
-#      GENERATOR: MinGW Makefiles
+    - COMPILER: gcc  # gcc-7.3.0-posix
+      GENERATOR: "MinGW Makefiles"
+      CXX_PATH: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
+
+    - COMPILER: gcc  # gcc-8.1.0-posix
+      GENERATOR: "MinGW Makefiles"
+      CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
+
+    - COMPILER: msvc
+      GENERATOR: "Visual Studio 15 2017"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      platform: x86
+
+    - COMPILER: msvc
+      GENERATOR: "Visual Studio 15 2017"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      platform: x64
 
 install:
-  - if [%COMPILER%]==[msvc] (
-      if [%platform%] == [x86] (
-        set TARGET_PLATFORM=Win32
-      ) else (
-        set TARGET_PLATFORM=x64
-      )
-    )
+  - ps: |
+      if ($env:COMPILER -eq "msvc") {
+        if ($env:platform -eq "x86") {
+          $env:TARGET_PLATFORM = "-A Win32"
+        } else {
+          $env:TARGET_PLATFORM = "-A x64"
+        }
+      }
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
+        if ($env:CXX_PATH -ne "") {
+          $env:path += ";$env:CXX_PATH"
+        }
+      }
 
   # Build yaml-cpp
-  - if not exist C:\Libraries\yaml-cpp if [%COMPILER%]==[msvc] (
-      git clone https://github.com/jbeder/yaml-cpp.git &&
+  - if not exist C:\Libraries\yaml-cpp (
+      "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
-        -A %TARGET_PLATFORM% ^
+        %TARGET_PLATFORM% ^
         -DYAML_CPP_BUILD_TESTS=OFF ^
         -DMSVC_SHARED_RT=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
@@ -53,74 +63,50 @@ install:
     )
 
   # Build boost
-  - if not exist C:\Libraries\boost-1.69.0 if [%COMPILER%]==[msvc] (
+  - ps: $env:ConfigLower = $env:Configuration.ToLower()
+  - if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
-      if [%Configuration%]==[Debug] (
-        b2.exe runtime-link=static variant=debug install -j2 --prefix=C:\Libraries\boost-1.69.0
-      ) else (
-        b2.exe runtime-link=static variant=release install -j2 --prefix=C:\Libraries\boost-1.69.0
-      ) &&
+      b2.exe install ^
+        toolset=%COMPILER% ^
+        variant=%ConfigLower% ^
+        runtime-link=static ^
+        -j2 --prefix=C:\Libraries\boost-1.69.0 &&
       popd
     )
-
-  - if [%COMPILER%]==[cygwin64] (
-      xcopy /i /q /s C:\projects\poac\yaml-cpp C:\cygwin64\home\appveyor\yaml-cpp &&
-      C:\cygwin64\setup-x86_64.exe -qgnNdO ^
-        --root C:\cygwin64 ^
-        -s http://cygwin.mirror.constant.com ^
-        -P make -P openssl-devel &&
-      mkdir C:\Libraries\yaml-cpp &&
-      C:\cygwin64\bin\bash -l -c "cd yaml-cpp && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:/Libraries/yaml-cpp && cmake --build . --target install"
-    )
-
-  - if [%COMPILER%]==[mingw-w64] set PATH=C:\msys64\usr\bin;%PATH%
-  - if [%COMPILER%]==[mingw-w64] (
-      rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe" &&
-      pacman -Syu --noconfirm &&
-      pacman -Syyu python --noconfirm mingw-w64-x86_64-gcc &&
-      rename "C:\msys64\usr\bin\sh.exe" "sh2.exe" &&
-      cd yaml-cpp && mkdir build && cd build &&
-      cmake .. -G "%GENERATOR%" ^
-        -DCMAKE_PREFIX_PATH=C:\mingw64 ^
-        -DCMAKE_BUILD_TYPE=%Configuration% ^
-        -DYAML_CPP_BUILD_TESTS=OFF ^
-        -DCMAKE_SH=CMAKE_SH-NOTFOUND ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\ &&
-      cmake --build . --target install &&
-      cd ..\..
-    )
+  - dir C:\Libraries\boost-1.69.0\include
+  - dir C:\Libraries\boost-1.69.0\lib
+  - ps: |
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        if ($env:Configuration -eq "Debug") {
+          $env:ABI_TAG = "-sd" # _boost_DEBUG_ABI_TAG
+        } else {
+          $env:ABI_TAG = "-s"  # _boost_RELEASE_ABI_TAG
+        }
+        dir C:\Libraries\boost-1.69.0\lib |
+          rename-item -NewName { $_.name -replace "$env:ABI_TAG-x64","$env:ABI_TAG" }
+        dir C:\Libraries\boost-1.69.0\lib
+      }
 
 build_script:
-  - if [%COMPILER%]==[msvc] (
-      dir C:\Libraries\boost-1.69.0\lib &&
-      dir C:\Libraries\boost-1.69.0\include &&
-      mkdir build &&
-      cd build &&
-      cmake .. -G "%GENERATOR%" ^
-        -A %TARGET_PLATFORM% ^
-        -DBoost_USE_STATIC_LIBS=ON ^
-        -DBoost_USE_STATIC_RUNTIME=ON ^
-        -DENABLE_STATIC=ON ^
-        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
-      cmake --build . --config %Configuration%
-    )
+  - mkdir build
+  - cd build
+  - cmake .. -G "%GENERATOR%" ^
+      %TARGET_PLATFORM% ^
+      -DBoost_USE_STATIC_LIBS=ON ^
+      -DBoost_USE_STATIC_RUNTIME=ON ^
+      -DENABLE_STATIC=ON ^
+      -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+      -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+      -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
+  - cmake --build . --config %Configuration%
 
-  - if [%COMPILER%]==[cygwin64] (
-      dir C:\Libraries\boost_1_69_0\boost &&
-      xcopy /i /q /s C:\projects\poac C:\cygwin64\home\appveyor\poac &&
-      C:\cygwin64\bin\bash -l -c "cd poac && mkdir build && cd build && cmake .. -G '%GENERATOR%' -DBOOST_ROOT=C:/Libraries/boost_1_69_0 && cmake --build ."
-    )
-
-  - if [%COMPILER%]==[mingw-w64] (
-      mkdir build && cd build &&
-      cmake .. -G "%GENERATOR%" -DBOOST_ROOT=C:\Libraries\boost_1_69_0 &&
-      cmake --build . --config %Configuration% &&
-      cd ..
-    )
+artifacts:
+  - path: build\Release\poac.exe
+    name: release_msvc
+  - path: build\poac.exe
+    name: release_mingw-w64
 
 notifications:
   - provider: Slack
