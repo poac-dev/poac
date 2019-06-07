@@ -120,7 +120,8 @@ build_script:
         "cd $APPVEYOR_BUILD_FOLDER &&
         mkdir build &&
         cd build &&
-        cmake .. -DCMAKE_BUILD_TYPE=%Configuration% &&
+        cmake .. -DBOOST_ROOT=/usr/src/boost_1_66_0
+          -DCMAKE_BUILD_TYPE=%Configuration% &&
         make"
     ) else (
       mkdir build &&
