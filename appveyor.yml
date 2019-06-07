@@ -73,7 +73,7 @@ install:
     )
 
   # Build yaml-cpp
-  - if not exist C:\Libraries\yaml-cpp if not %COMPILER% == cygwin-gcc (
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\yaml-cpp (
       "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
@@ -89,7 +89,7 @@ install:
 
   # Build boost
   - ps: $env:ConfigLower = $env:Configuration.ToLower()
-  - if not exist C:\Libraries\boost-1.69.0 if not %COMPILER% == cygwin-gcc (
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
@@ -117,7 +117,8 @@ install:
 build_script:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
-        "mkdir build &&
+        "cd $APPVEYOR_BUILD_FOLDER &&
+        mkdir build &&
         cd build &&
         cmake .. -DCMAKE_BUILD_TYPE=%Configuration% &&
         make"
