@@ -119,7 +119,7 @@ install:
       }
 
 build_script:
-  - %CYG_ROOT%\bin\bash -lc "ls -a C:/cygwin64/var/cache/setup/http://cygwin.mirror.constant.com/"
+  - if %COMPILER% == cygwin-gcc ( %CYG_ROOT%\bin\bash -lc "ls -a C:/cygwin64/var/cache/setup/http://cygwin.mirror.constant.com/" )
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
         "cd $APPVEYOR_BUILD_FOLDER &&
