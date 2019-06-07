@@ -118,7 +118,7 @@ build_script:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
         "cd $APPVEYOR_BUILD_FOLDER &&
-        ls -a /usr/src/ &&
+        ls -a C:/cygwin64/var/cache/setup &&
         mkdir build &&
         cd build &&
         cmake .. -DBOOST_ROOT=/usr/src/boost_1_66_0
