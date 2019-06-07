@@ -18,9 +18,9 @@ environment:
     CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,libboost-devel
 
   matrix:
-#    - COMPILER: cygwin-gcc
-#      CYG_ROOT: 'C:\cygwin'
-#      CYG_SETUP: setup-x86.exe
+    - COMPILER: cygwin-gcc
+      CYG_ROOT: 'C:\cygwin'
+      CYG_SETUP: setup-x86.exe
 
     - COMPILER: cygwin-gcc
       CYG_ROOT: 'C:\cygwin64'
@@ -122,10 +122,8 @@ build_script:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
         "cd $APPVEYOR_BUILD_FOLDER &&
-        mkdir build &&
-        cd build &&
-        cmake .. &&
-        make"
+        mkdir build && cd build &&
+        cmake .. && make"
     ) else (
       mkdir build &&
       cd build &&
