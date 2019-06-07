@@ -67,7 +67,8 @@ install:
         mkdir build &&
         cd build &&
         cmake .. -DYAML_CPP_BUILD_TESTS=OFF
-          -DCMAKE_INSTALL_PREFIX=../../../../Libraries/yaml-cpp &&
+          -DCMAKE_INSTALL_PREFIX=../../../../Libraries/yaml-cpp
+          -DCMAKE_BUILD_TYPE=%Configuration% &&
         make &&
         make install"
     )
@@ -115,18 +116,25 @@ install:
       }
 
 build_script:
-  - cd
-  - mkdir build
-  - cd build
-  - cmake .. -G "%GENERATOR%" ^
-      %TARGET_PLATFORM% ^
-      -DBoost_USE_STATIC_LIBS=ON ^
-      -DBoost_USE_STATIC_RUNTIME=ON ^
-      -DENABLE_STATIC=ON ^
-      -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-      -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-      -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
-  - cmake --build . --config %Configuration%
+  - if %COMPILER% == cygwin-gcc (
+      %CYG_ROOT%\bin\bash -lc
+        mkdir build &&
+        cd build &&
+        cmake .. -DCMAKE_BUILD_TYPE=%Configuration% &&
+        make"
+    ) else (
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        %TARGET_PLATFORM% ^
+        -DBoost_USE_STATIC_LIBS=ON ^
+        -DBoost_USE_STATIC_RUNTIME=ON ^
+        -DENABLE_STATIC=ON ^
+        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
+      cmake --build . --config %Configuration%
+    )
 
 artifacts:
   - path: build\Release\poac.exe
