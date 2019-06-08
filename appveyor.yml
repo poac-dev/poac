@@ -1,8 +1,8 @@
-version: 1.0.{build}
+version: 0.2.1+{build}
 
 cache:
-  - C:\Libraries\yaml-cpp -> appveyor.yml
-  - C:\Libraries\boost-1.69.0 -> appveyor.yml
+  - C:\Libraries\yaml-cpp
+  - C:\Libraries\boost-1.69.0
 
 configuration:
   - Debug
@@ -12,7 +12,18 @@ build:
   verbosity: minimal
 
 environment:
+  global:
+    CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,libboost-devel
+
   matrix:
+    - COMPILER: cygwin-gcc
+      CYG_ROOT: 'C:\cygwin'
+      CYG_SETUP: setup-x86.exe
+
+    - COMPILER: cygwin-gcc
+      CYG_ROOT: 'C:\cygwin64'
+      CYG_SETUP: setup-x86_64.exe
+
     - COMPILER: gcc  # gcc-7.3.0-posix
       GENERATOR: "MinGW Makefiles"
       CXX_PATH: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
@@ -47,8 +58,24 @@ install:
         }
       }
 
+  - if %COMPILER% == cygwin-gcc (
+      %CYG_ROOT%\%CYG_SETUP% --quiet-mode ^
+        --no-shortcuts --upgrade-also ^
+        --local-package-dir "%CYG_ROOT%\var\cache\setup" ^
+        --packages %CYG_PACKAGES% &&
+      %CYG_ROOT%\bin\bash -lc
+        "git clone -q https://github.com/jbeder/yaml-cpp.git &&
+        cd yaml-cpp &&
+        mkdir build &&
+        cd build &&
+        cmake .. -DYAML_CPP_BUILD_TESTS=OFF
+          -DCMAKE_BUILD_TYPE=%Configuration% &&
+        make &&
+        make install"
+    )
+
   # Build yaml-cpp
-  - if not exist C:\Libraries\yaml-cpp (
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\yaml-cpp (
       "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/jbeder/yaml-cpp.git &&
       cd yaml-cpp &&
       mkdir build &&
@@ -64,7 +91,7 @@ install:
 
   # Build boost
   - ps: $env:ConfigLower = $env:Configuration.ToLower()
-  - if not exist C:\Libraries\boost-1.69.0 (
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\boost-1.69.0 (
       mkdir C:\Libraries\boost-1.69.0 &&
       pushd C:\Libraries\boost_1_69_0 &&
       bootstrap.bat &&
@@ -73,10 +100,10 @@ install:
         variant=%ConfigLower% ^
         runtime-link=static ^
         -j2 --prefix=C:\Libraries\boost-1.69.0 &&
-      popd
+      popd &&
+      dir C:\Libraries\boost-1.69.0\include &&
+      dir C:\Libraries\boost-1.69.0\lib
     )
-  - dir C:\Libraries\boost-1.69.0\include
-  - dir C:\Libraries\boost-1.69.0\lib
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         if ($env:Configuration -eq "Debug") {
@@ -90,23 +117,30 @@ install:
       }
 
 build_script:
-  - mkdir build
-  - cd build
-  - cmake .. -G "%GENERATOR%" ^
-      %TARGET_PLATFORM% ^
-      -DBoost_USE_STATIC_LIBS=ON ^
-      -DBoost_USE_STATIC_RUNTIME=ON ^
-      -DENABLE_STATIC=ON ^
-      -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-      -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-      -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake
-  - cmake --build . --config %Configuration%
+  - if %COMPILER% == cygwin-gcc (
+      %CYG_ROOT%\bin\bash -lc
+        "cd $APPVEYOR_BUILD_FOLDER &&
+        mkdir build && cd build &&
+        cmake .. && make"
+    ) else (
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        %TARGET_PLATFORM% ^
+        -DBoost_USE_STATIC_LIBS=ON ^
+        -DBoost_USE_STATIC_RUNTIME=ON ^
+        -DENABLE_STATIC=ON ^
+        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
+        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
+        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
+      cmake --build . --config %Configuration%
+    )
 
 artifacts:
   - path: build\Release\poac.exe
     name: release_msvc
   - path: build\poac.exe
-    name: release_mingw-w64
+    name: release_mingw
 
 notifications:
   - provider: Slack
