@@ -3,7 +3,6 @@ version: 1.0.{build}
 cache:
   - C:\Libraries\yaml-cpp
   - C:\Libraries\boost-1.69.0
-  - '%CYG_ROOT%\var\cache\setup -> appveyor.yml'
 
 configuration:
   - Debug
@@ -141,7 +140,7 @@ artifacts:
   - path: build\Release\poac.exe
     name: release_msvc
   - path: build\poac.exe
-    name: release_mingw-w64
+    name: release_mingw
 
 notifications:
   - provider: Slack
