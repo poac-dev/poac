@@ -7,6 +7,15 @@ cache:
   directories:
     - $HOME/Library/Caches/Homebrew
 
+addons:
+  coverity_scan:
+    project:
+      name: poacpm/poac
+      description: Package manager for C++
+    build_command_prepend: mkdir build && cd build
+    build_command: cmake .. && make
+    branch_pattern: coverity_scan
+
 matrix:
   include:
     # macOS Sierra
