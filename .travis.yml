@@ -41,7 +41,7 @@ matrix:
       if: branch != coverity_scan
 
 before_install:
-  - brew update
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
 install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
