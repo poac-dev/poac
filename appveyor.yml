@@ -1,8 +1,8 @@
 version: 1.0.{build}
 
 cache:
-  - C:\Libraries\yaml-cpp -> appveyor.yml
-  - C:\Libraries\boost-1.69.0 -> appveyor.yml
+  - C:\Libraries\yaml-cpp
+  - C:\Libraries\boost-1.69.0
   - '%CYG_ROOT%\var\cache\setup -> appveyor.yml'
 
 configuration:
