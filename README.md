@@ -6,7 +6,7 @@ Poac can download project's dependencies and compile project.
 
 Please see [poac.pm](https://poac.pm) for [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [other documentations](https://doc.poac.pm).
 
-![Poac Demo](https://github.com/poacpm/designs/raw/master/images/demo.gif)
+![Poac Demo](https://github.com/poacpm/designs/raw/master/images/gif/demo.gif)
 
 ## Supported Operating Systems
 
