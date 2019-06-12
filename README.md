@@ -64,7 +64,7 @@ $ poac build
 
 ## Runtime requirements
 
-* compiler (gcc | clang | MSVC | ICC)
+* compiler (GCC | Clang | MSVC | ICC)
 * `tar`: in publish command
 * `dot(graphviz)`: in graph command
 * `git`: in install command
