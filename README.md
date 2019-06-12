@@ -76,7 +76,7 @@ $ poac build
 
 ## Contributing
 Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
-You may also find the architecture documentation useful (https://doc.poac.pm/en/architecture/).
+You can also find useful [documentation](https://doc.poac.pm/en/architecture/) of the architecture.
 
 ## License
 
