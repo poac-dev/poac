@@ -71,7 +71,11 @@ Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 -->
 
 ## License
-
 Poac is licensed under the terms of the GNU General Public License version 3.
 
-See [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
+Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
+
+### Third party software
+* openssl - https://github.com/openssl/openssl/blob/master/LICENSE
+* yaml-cpp - https://github.com/jbeder/yaml-cpp/blob/master/LICENSE
+* boost - https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt
