@@ -1,14 +1,12 @@
 <img alt="poac" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
 
-
 Poac is a package manager for C++ users.
 
 Poac can download project's dependencies and compile project.
 
 Please see [poac.pm](https://poac.pm) for [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [other documentations](https://doc.poac.pm).
 
-
-[![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
+![Poac Demo](https://github.com/poacpm/designs/raw/master/images/demo.gif)
 
 ## Supported Operating Systems
 
