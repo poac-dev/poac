@@ -69,3 +69,9 @@ $ poac build
 ## Contribution
 Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 -->
+
+## License
+
+Poac is licensed under the terms of the GNU General Public License version 3.
+
+See [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
