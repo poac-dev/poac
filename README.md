@@ -74,11 +74,9 @@ $ poac build
 * `cmake`: optional
 * `make`: optional
 
-<!--
-## Contribution
-Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+## Contributing
+Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 You may also find the architecture documentation useful (https://doc.poac.pm/en/architecture/).
--->
 
 ## License
 
