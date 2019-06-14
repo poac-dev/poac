@@ -1,21 +1,28 @@
 <img alt="poac" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png" width="200px">
 
+## Description
 
 Poac is a package manager for C++ users.
 
 Poac can download project's dependencies and compile project.
+Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [The Poac Book](https://doc.poac.pm) for more details.
 
-Please see [poac.pm](https://poac.pm) for [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [other documentations](https://doc.poac.pm).
+## Demo
 
+By using poac, you can create a C++ project, build sources and execute an application:
 
-[![asciicast](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC.png)](https://asciinema.org/a/QwgRXsyeMYk62vwuZ6X6DZvcC)
+![Poac Demo](https://github.com/poacpm/designs/raw/master/images/gif/demo.gif)
 
 ## Supported Operating Systems
-| Linux (= x86-64 GNU/Linux) | macOS (>= sierra) | Windows (= MSVC >= 2017) |
+
+| Linux | macOS | Windows |
 |:---:|:---:|:---:|
 |[![CircleCI](https://circleci.com/gh/poacpm/poac.svg?style=shield)](https://circleci.com/gh/poacpm/poac)|[![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)|[![Build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/master?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/master)|
 
+Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-started/installation.html#supported-operating-systems) for more information about supported OS.
+
 ## Code Status
+
 [![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
 [![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)](https://github.com/poacpm/poac/releases)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
@@ -26,16 +33,19 @@ Please see [poac.pm](https://poac.pm) for [installation instructions](https://do
 [![CodeFactor](https://www.codefactor.io/repository/github/poacpm/poac/badge)](https://www.codefactor.io/repository/github/poacpm/poac)
 
 ## Installation
+
 ### Easy install
+
 ```bash
 curl -fsSL https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
 ### Manual install (Build)
+
 Poac requires the following tools and packages to build:
-* [`boost`](https://github.com/boostorg): `1.66.0` or higher
 * [`cmake`](https://github.com/Kitware/CMake): `3.0` or higher
+* [`boost`](https://github.com/boostorg): `1.66.0` or higher
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [`yaml-cpp`](https://github.com/jbeder/yaml-cpp): `0.6.0` or higher
 
@@ -55,15 +65,35 @@ $ poac build
 ```
 -->
 
-## Runtime requirements
-* compiler (gcc | clang | MSVC | ICC)
+### Runtime requirements
+
+* compiler (GCC | Clang | MSVC | ICC)
 * `tar`: in publish command
 * `dot(graphviz)`: in graph command
 * `git`: in install command
 * `cmake`: optional
 * `make`: optional
 
-<!--
-## Contribution
-Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
--->
+## Why poac?
+
+I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.
+It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
+
+By developing a package manager and build system that has an intuitive and easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and users can develop applications and libraries without being aware of CMake, you can focus on learning C++ without being stumble.
+I also plan to implement integration with many other build systems and package managers, so you should be able to switch seamlessly.
+
+## Contributing
+Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture/).
+
+## License
+
+Poac is licensed under the terms of the GNU General Public License version 3.
+
+Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
+
+### Third party software
+
+* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE>
+* yaml-cpp - <https://github.com/jbeder/yaml-cpp/blob/master/LICENSE>
+* boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
