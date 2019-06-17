@@ -278,7 +278,7 @@ namespace poac::core::stroite::field::standard {
             return "clang++";
         }
 #else
-        else if (util::_command::has_command("cl.exe")) {
+        else if (util::_shell::has_command("cl.exe")) {
             return "cl.exe";
         }
 #endif
