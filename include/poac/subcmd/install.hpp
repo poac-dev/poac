@@ -86,7 +86,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace naming = core::naming;
             namespace path = io::path;
-            namespace tb = io::file::tar;
+            namespace tar = io::tar;
             namespace resolver = core::deper::resolver;
             namespace fs = boost::filesystem;
 
@@ -127,7 +127,7 @@ namespace poac::subcmd {
                         req.get(target, {}, std::move(output_file));
                     }
                     // If res is true, does not execute func. (short-circuit evaluation)
-                    bool result = tb::extract_spec_rm(tar_dir, pkg_dir);
+                    bool result = tar::extract_spec_rm(tar_dir, pkg_dir);
                     result = !result && copy_to_current(cache_name, current_name);
 
                     if (!quite) {

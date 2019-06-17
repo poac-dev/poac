@@ -1,5 +1,5 @@
-#ifndef POAC_IO_FILE_TARBALL_HPP
-#define POAC_IO_FILE_TARBALL_HPP
+#ifndef POAC_IO_TAR_HPP
+#define POAC_IO_TAR_HPP
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 #include <boost/filesystem.hpp>
 
 
-namespace poac::io::file::tar {
+namespace poac::io::tar {
     namespace fs = boost::filesystem;
 
     bool extract(const fs::path& filename, const std::string& options = "") {
@@ -42,4 +42,4 @@ namespace poac::io::file::tar {
         return static_cast<bool>(std::system(cmd.data()));
     }
 } // end namespace
-#endif // !POAC_IO_FILE_TARBALL_HPP
+#endif // !POAC_IO_TAR_HPP
