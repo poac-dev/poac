@@ -34,7 +34,7 @@ namespace poac::subcmd {
             namespace yaml = io::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;
-            namespace naming = core::name;
+            namespace name = core::name;
 
             const bool yes = util::argparse::use_rm(argv, "-y", "--yes");
             const bool all = util::argparse::use_rm(argv, "-a", "--all");
@@ -58,7 +58,7 @@ namespace poac::subcmd {
 
                 for (const auto& [name, dep] : resolved_deps.backtracked) {
                     if (dep.source == "poac") {
-                        const auto current_name = naming::to_current(dep.source, name, dep.version);
+                        const auto current_name = name::to_current(dep.source, name, dep.version);
                         std::string current_version;
                         if (const auto yml = yaml::exists_config(fs::path("deps") / current_name)) {
                             if (const auto op_node = yaml::load(*yml)) {
@@ -113,7 +113,7 @@ namespace poac::subcmd {
 
                 // Delete current version
                 for (const auto& [name, dep] : update_deps) {
-                    const auto current_name = naming::to_current(dep.source, name, resolved_deps.backtracked[name].version);
+                    const auto current_name = name::to_current(dep.source, name, resolved_deps.backtracked[name].version);
                     boost::system::error_code error;
                     fs::remove_all(fs::path("deps") / current_name, error);
                 }

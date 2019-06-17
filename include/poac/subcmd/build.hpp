@@ -221,7 +221,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
             namespace lock = core::deper::lock;
-            namespace naming = core::name;
+            namespace name = core::name;
             namespace yaml = io::yaml;
 
 
@@ -230,7 +230,7 @@ namespace poac::subcmd {
                 // TODO: ビルド順序
                 if (const auto locked_deps = lock::load_ignore_timestamp()) {
                     for (const auto& [name, dep] : (*locked_deps).backtracked) {
-                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                        const std::string current_package_name = name::to_current(dep.source, name, dep.version);
                         const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                         if (fs::exists(deps_path)) {
@@ -299,7 +299,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace except = core::except;
             namespace stroite = core::stroite;
-            namespace naming = core::name;
+            namespace name = core::name;
             namespace yaml = io::yaml;
 
             const auto node = yaml::load_config();

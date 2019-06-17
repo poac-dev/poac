@@ -25,7 +25,7 @@ namespace poac::subcmd {
             namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace lock = core::deper::lock;
-            namespace naming = core::name;
+            namespace name = core::name;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;
 
@@ -43,7 +43,7 @@ namespace poac::subcmd {
 
             std::vector<std::string> package_names;
             for (const auto& [name, dep] : resolved_deps.backtracked) {
-                const auto package_name = naming::to_current(dep.source, name, dep.version);
+                const auto package_name = name::to_current(dep.source, name, dep.version);
                 package_names.push_back(package_name);
             }
 

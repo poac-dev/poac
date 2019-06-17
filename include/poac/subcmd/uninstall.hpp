@@ -118,7 +118,7 @@ namespace poac::subcmd {
             namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
-            namespace naming = core::name;
+            namespace name = core::name;
             namespace except = core::except;
             namespace lock = core::deper::lock;
 
@@ -173,7 +173,7 @@ namespace poac::subcmd {
             // Delete what was added to uninstall_list
             cli::echo();
             for (const auto& [name, dep] : uninstall_list) {
-                const auto package_name = naming::to_current(dep.source, name, dep.version);
+                const auto package_name = name::to_current(dep.source, name, dep.version);
                 const auto package_path = io::path::current_deps_dir / package_name;
                 if (io::path::validate_dir(package_path)) {
                     fs::remove_all(package_path);

@@ -84,7 +84,7 @@ namespace poac::subcmd {
                 const bool verbose)
         {
             namespace except = core::except;
-            namespace naming = core::name;
+            namespace name = core::name;
             namespace path = io::path;
             namespace tar = io::tar;
             namespace resolver = core::deper::resolver;
@@ -92,8 +92,8 @@ namespace poac::subcmd {
 
             int exists_count = 0;
             for (const auto& [name, dep] : deps) {
-                const auto cache_name = naming::to_cache(dep.source, name, dep.version);
-                const auto current_name = naming::to_current(dep.source, name, dep.version);
+                const auto cache_name = name::to_cache(dep.source, name, dep.version);
+                const auto current_name = name::to_current(dep.source, name, dep.version);
                 const bool is_cached = resolver::cache::resolve(cache_name);
 
                 if (verbose) {
@@ -159,7 +159,7 @@ namespace poac::subcmd {
         core::deper::resolver::Deps
         resolve_packages(const std::map<std::string, YAML::Node>& node) {
             namespace except = core::except;
-            namespace naming = core::name;
+            namespace name = core::name;
             namespace resolver = core::deper::resolver;
 
             resolver::Deps deps;
@@ -168,8 +168,8 @@ namespace poac::subcmd {
             // However, it can not deal with duplication of other information (e.g. version etc.).
             for (const auto& [name, next_node] : node) {
                 // itr->first: itr->second
-                const auto [source, parsed_name] = naming::get_source(name);
-                const auto interval = naming::get_version(next_node, source);
+                const auto [source, parsed_name] = name::get_source(name);
+                const auto interval = name::get_version(next_node, source);
 
                 if (source == "poac" || source == "github") {
                     deps.push_back({ {parsed_name}, {interval}, {source} });
@@ -184,19 +184,19 @@ namespace poac::subcmd {
         core::deper::resolver::Package<core::deper::resolver::Name, core::deper::resolver::Interval, core::deper::resolver::Source>
         parse_arg_package(const std::string& v) {
             namespace except = core::except;
-            namespace naming = core::name;
+            namespace name = core::name;
 
-            naming::validate_package_name(v);
+            name::validate_package_name(v);
 
             const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
             std::smatch match;
             if (std::regex_match(v, std::regex("^" + NAME + "$"))) { // TODO: 厳しくする
-                const auto [source, parsed_name] = naming::get_source(v);
+                const auto [source, parsed_name] = name::get_source(v);
                 return { {parsed_name}, {"latest"}, {source} };
             }
             else if (std::regex_match(v, match, std::regex("^" + NAME + "=(.*)$"))) {
                 const auto name = match[1].str();
-                const auto [source, parsed_name] = naming::get_source(name);
+                const auto [source, parsed_name] = name::get_source(name);
                 const auto interval = match[2].str();
                 return { {parsed_name}, {interval}, {source} };
             }

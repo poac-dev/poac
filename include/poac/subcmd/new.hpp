@@ -91,7 +91,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace path = io::path;
             namespace cli = io::cli;
-            namespace naming = core::name;
+            namespace name = core::name;
 
             bool lib = util::argparse::use_rm(argv, "-l", "--lib");
             // libが存在しないならどちらにせよ，binが選択される．
@@ -107,7 +107,7 @@ namespace poac::subcmd {
 
             const std::string project_name = argv[0];
             const fs::path project_path = fs::path(project_name);
-            naming::validate_package_name(project_name);
+            name::validate_package_name(project_name);
             if (io::path::validate_dir(project_name)) {
                 throw except::error(
                         except::msg::already_exist("The `" + project_name + "` directory"));

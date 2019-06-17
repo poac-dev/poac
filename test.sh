@@ -25,8 +25,8 @@ g++ ${BASE_OPT} -o exception-test except.cpp
 ./exception-test
 g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.0\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o infer-test infer.cpp
 ./infer-test
-g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o naming-test naming.cpp
-./naming-test
+g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp
+./name-test
 popd
 
 pushd ./util
