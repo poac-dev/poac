@@ -8,19 +8,21 @@
 #include <boost/filesystem.hpp>
 
 
-namespace poac::io::file::tarball {
+namespace poac::io::file::tar {
     namespace fs = boost::filesystem;
 
     bool extract(const fs::path& filename, const std::string& options = "") {
         const std::string cmd = "tar xf " + filename.string() + " " + options;
         return static_cast<bool>(std::system(cmd.data()));
     }
+
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
     bool extract_spec(const fs::path& input, const fs::path& output) {
         boost::system::error_code error;
         fs::create_directories(output, error);
         return extract(input, "-C " + output.string() + " --strip-components 1");
     }
+
     // It is almost the same behavior as --remove-files,
     //  but deleted in fs::remove because there is a possibility
     //   that it is not compatible with --remove-files.

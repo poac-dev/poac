@@ -86,7 +86,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace naming = core::naming;
             namespace path = io::file::path;
-            namespace tb = io::file::tarball;
+            namespace tb = io::file::tar;
             namespace resolver = core::deper::resolver;
             namespace fs = boost::filesystem;
 

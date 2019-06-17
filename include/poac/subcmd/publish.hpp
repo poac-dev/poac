@@ -61,7 +61,7 @@ namespace poac::subcmd {
             }
             const std::string output_dir = (temp_path / file_path.filename()).string() + ".tar.gz";
 
-            io::file::tarball::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
+            io::file::tar::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
 
             fs::remove_all(file_path.parent_path());
 
