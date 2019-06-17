@@ -32,12 +32,12 @@ popd
 pushd ./util
 g++ ${BASE_OPT} -o argparse-test argparse.cpp
 ./argparse-test
-g++ ${BASE_OPT} -o command-test command.cpp
-./command-test
 g++ ${BASE_OPT} -o misc-test misc.cpp
 ./misc-test
 g++ ${BASE_OPT} -o pretty-test pretty.cpp
 ./pretty-test
+g++ ${BASE_OPT} -o shell-test shell.cpp
+./shell-test
 g++ ${BASE_OPT} -o types-test types.cpp
 ./types-test
 popd
