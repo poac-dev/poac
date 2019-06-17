@@ -28,7 +28,7 @@ namespace poac::subcmd {
         std::string check_requirements() {
             namespace except = core::except;
 
-            if (const auto result = io::file::yaml::exists_config()) {
+            if (const auto result = io::yaml::exists_config()) {
                 std::cerr << io::cli::bold << io::cli::red
                           << "Already " << *result << " exists." << std::endl
                           << std::endl

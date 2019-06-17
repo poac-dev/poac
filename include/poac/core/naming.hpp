@@ -133,7 +133,7 @@ namespace poac::core::naming {
 
     std::string get_version(const YAML::Node& node, const std::string& src)
     {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         if (src == "github") {
             if (const auto ver = yaml::get<std::string>(node)) {

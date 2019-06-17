@@ -22,7 +22,7 @@ namespace poac::subcmd {
     namespace _cleanup {
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace lock = core::deper::lock;
             namespace naming = core::naming;

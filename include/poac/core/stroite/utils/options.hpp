@@ -131,7 +131,7 @@ namespace poac::core::stroite::utils::options {
     std::vector<std::string>
     make_macro_defns(const std::map<std::string, YAML::Node>& node) {
         namespace fs = boost::filesystem;
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         std::vector<std::string> macro_defns;
         // poac automatically define the absolute path of the project's root directory.
@@ -147,7 +147,7 @@ namespace poac::core::stroite::utils::options {
 
     std::vector<std::string>
     make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
         if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
             return *compile_args;
         }

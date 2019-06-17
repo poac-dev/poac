@@ -219,7 +219,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace except = core::except;
             namespace path = io::path;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;
 

@@ -186,7 +186,7 @@ namespace poac::subcmd {
             if (const auto system = stroite::utils::detect::build_system(node)) {
                 if (*system == "poac") {
                     // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
-                    if (io::file::yaml::get(node, "build", "lib")) {
+                    if (io::yaml::get(node, "build", "lib")) {
                         stroite::core::builder bs(verbose, deps_path);
 
                         bs.configure_compile(false);
@@ -223,7 +223,7 @@ namespace poac::subcmd {
             namespace stroite = core::stroite;
             namespace lock = core::deper::lock;
             namespace naming = core::naming;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
 
             std::vector<std::string> library_path;
@@ -301,7 +301,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
             namespace naming = core::naming;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             const auto node = yaml::load_config();
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");

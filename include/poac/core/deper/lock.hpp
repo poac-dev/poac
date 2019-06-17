@@ -16,7 +16,7 @@ namespace poac::core::deper::lock {
 
     std::optional<YAML::Node>
     check_timestamp(std::string_view timestamp) {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
         if (const auto lock = yaml::load(filename)) {
             if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
                 if (timestamp == *lock_timestamp) {
@@ -29,7 +29,7 @@ namespace poac::core::deper::lock {
 
     std::optional<std::map<std::string, YAML::Node>>
     load_deps(std::string_view timestamp) {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
         if (const auto lock = check_timestamp(timestamp)) {
             if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
                 return *locked_deps;
@@ -40,7 +40,7 @@ namespace poac::core::deper::lock {
 
     std::optional<resolver::Activated>
     load_deps_deps(const YAML::Node& node) {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
         // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
         if (const auto deps_deps = yaml::get<std::map<std::string, YAML::Node>>(node, "dependencies")) {
             resolver::Activated deps;
@@ -58,7 +58,7 @@ namespace poac::core::deper::lock {
 
     resolver::Resolved
     create_resolved_deps(const std::map<std::string, YAML::Node>& locked_deps) {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         resolver::Resolved resolved_deps{};
         for (const auto& [name, next_node] : locked_deps) {
@@ -79,7 +79,7 @@ namespace poac::core::deper::lock {
     // Ignore timestamp check
     std::optional<resolver::Resolved>
     load_ignore_timestamp() {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         if (const auto lock = yaml::load(filename)) {
             if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
@@ -90,8 +90,8 @@ namespace poac::core::deper::lock {
     }
 
     std::optional<resolver::Resolved>
-    load(const std::string& timestamp=io::file::yaml::get_timestamp()) {
-        namespace yaml = io::file::yaml;
+    load(const std::string& timestamp=io::yaml::get_timestamp()) {
+        namespace yaml = io::yaml;
 
         if (const auto locked_deps = load_deps(timestamp)) {
             return create_resolved_deps(*locked_deps);

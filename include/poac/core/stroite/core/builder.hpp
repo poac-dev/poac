@@ -70,7 +70,7 @@ namespace poac::core::stroite::core {
         void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
             namespace fs = boost::filesystem;
             namespace lock = deper::lock;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace path = io::path;
 
             if (const auto locked_deps = lock::load_ignore_timestamp()) {
@@ -96,7 +96,7 @@ namespace poac::core::stroite::core {
         }
         void configure_compile(const bool usemain)
         {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace path = io::path;
 
             compile_conf.system = compiler;
@@ -151,7 +151,7 @@ namespace poac::core::stroite::core {
 
         void make_link(const std::map<std::string, YAML::Node>& deps_node) {
             namespace fs = boost::filesystem;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             for (const auto& [raw_name, next_node] : deps_node) {
                 const auto [src, name] = naming::get_source(raw_name);
@@ -180,7 +180,7 @@ namespace poac::core::stroite::core {
         }
         void configure_link(const std::vector<std::string>& obj_files_path) // TODO: obj_files_path以外は，インスタンス時に作れるからメモリの無駄遣いにならない．
         {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             link_conf.obj_files_path = obj_files_path;
 
@@ -230,7 +230,7 @@ namespace poac::core::stroite::core {
         // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
         explicit builder(const bool verbose, const boost::filesystem::path& base_dir=boost::filesystem::current_path())
         {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             const auto config_file = yaml::load_config_by_dir_with_throw(base_dir);
             node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");

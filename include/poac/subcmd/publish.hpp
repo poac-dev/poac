@@ -33,7 +33,7 @@ namespace poac::subcmd {
             const fs::path copy_file = temp_path / fs::basename(project_dir);
             io::path::recursive_copy(project_dir, copy_file);
 
-            const auto node = io::file::yaml::load_config("name", "version");
+            const auto node = io::yaml::load_config("name", "version");
             std::string name = node.at("name").as<std::string>();
             std::replace(name.begin(), name.end(), '/', '-'); // boost/config -> boost-config
 
@@ -77,7 +77,7 @@ namespace poac::subcmd {
 
         void check_requirements() {
             namespace fs = boost::filesystem;
-            io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
+            io::yaml::load_config("name", "version", "cpp_version", "description", "owners");
             if (!fs::exists("README.md")) {
                 // TODO: もう少しほんわかと識別したい．README.txtやreadme.md等
                 // TODO: readmeが接頭辞にありつつ，最短なファイル．README.md, README-ja.mdだと，README.mdを優先
@@ -130,7 +130,7 @@ namespace poac::subcmd {
                 throw except::error(except::msg::could_not_read("token"));
             }
             {
-                const auto node = io::file::yaml::load_config("owners");
+                const auto node = io::yaml::load_config("owners");
                 boost::property_tree::ptree children;
                 for (const auto& s : node.at("owners").as<std::vector<std::string>>()) {
                     boost::property_tree::ptree child;
@@ -159,7 +159,7 @@ namespace poac::subcmd {
                 }
             }
 
-            const auto node = io::file::yaml::load_config("name", "version");
+            const auto node = io::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
             {

@@ -25,7 +25,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
 
-            const auto node = io::file::yaml::load_config("name");
+            const auto node = io::yaml::load_config("name");
 
             std::vector<std::string> program_args;
             // poac run -v -- -h build

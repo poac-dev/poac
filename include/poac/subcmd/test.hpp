@@ -25,7 +25,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
 
-            const auto node = io::file::yaml::load_config("test");
+            const auto node = io::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
@@ -37,7 +37,7 @@ namespace poac::subcmd {
             bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
 
             std::string static_link_lib;
-            if (const auto test_framework = io::file::yaml::get<std::string>(node.at("test"), "framework")) {
+            if (const auto test_framework = io::yaml::get<std::string>(node.at("test"), "framework")) {
                 if (*test_framework == "boost") {
                     static_link_lib = "boost_unit_test_framework";
                 }
@@ -102,7 +102,7 @@ namespace poac::subcmd {
                             cmd += s;
                         }
                     }
-                    else if (const auto test_args = io::file::yaml::get<std::vector<std::string>>(
+                    else if (const auto test_args = io::yaml::get<std::vector<std::string>>(
                             node.at("test"), "args"))
                     {
                         for (const auto &s : *test_args) {
@@ -114,7 +114,7 @@ namespace poac::subcmd {
                         cmd += ">";
                         cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
                     }
-                    else if (const auto test_report = io::file::yaml::get<bool>(node.at("test"), "report")) {
+                    else if (const auto test_report = io::yaml::get<bool>(node.at("test"), "report")) {
                         if (*test_report) {
                             fs::create_directories(io::path::current_build_test_report_dir);
                             cmd += ">";

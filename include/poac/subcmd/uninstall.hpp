@@ -115,7 +115,7 @@ namespace poac::subcmd {
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void individual(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
             namespace naming = core::naming;

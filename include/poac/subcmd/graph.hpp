@@ -46,7 +46,7 @@ namespace poac::subcmd {
             namespace lock = core::deper::lock;
             namespace resolver = core::deper::resolver;
             namespace except = core::except;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             // FIXME: uninstall.hppに同じのがある
             auto node = yaml::load_config();

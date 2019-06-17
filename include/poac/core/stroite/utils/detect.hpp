@@ -24,7 +24,7 @@ namespace poac::core::stroite::utils::detect {
     std::optional<std::string>
     build_system(const YAML::Node& node)
     {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         if (const auto system = yaml::get<std::string>(node, "build")) {
             return check_support_build_system(*system);

@@ -1,5 +1,5 @@
-#ifndef POAC_IO_FILE_YAML_HPP
-#define POAC_IO_FILE_YAML_HPP
+#ifndef POAC_IO_YAML_HPP
+#define POAC_IO_YAML_HPP
 
 #include <iostream>
 #include <string>
@@ -14,7 +14,7 @@
 #include "../core/except.hpp"
 
 
-namespace poac::io::file::yaml {
+namespace poac::io::yaml {
     namespace detail {
         struct wrapper {
             YAML::Node node;
@@ -270,4 +270,4 @@ namespace poac::io::file::yaml {
         }
     }
 } // end namespace
-#endif // !POAC_IO_FILE_YAML_HPP
+#endif // !POAC_IO_YAML_HPP
