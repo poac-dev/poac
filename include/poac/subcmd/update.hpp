@@ -13,7 +13,7 @@
 
 #include "./install.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../core/deper/semver.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../io/path.hpp"
@@ -34,7 +34,7 @@ namespace poac::subcmd {
             namespace yaml = io::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;
-            namespace naming = core::naming;
+            namespace naming = core::name;
 
             const bool yes = util::argparse::use_rm(argv, "-y", "--yes");
             const bool all = util::argparse::use_rm(argv, "-a", "--all");

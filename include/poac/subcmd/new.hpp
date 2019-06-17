@@ -12,7 +12,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../io.hpp"
 #include "../util/argparse.hpp"
 #include "../util/shell.hpp"
@@ -91,7 +91,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace path = io::path;
             namespace cli = io::cli;
-            namespace naming = core::naming;
+            namespace naming = core::name;
 
             bool lib = util::argparse::use_rm(argv, "-l", "--lib");
             // libが存在しないならどちらにせよ，binが選択される．

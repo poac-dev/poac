@@ -13,7 +13,7 @@
 
 #include "./install.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
 #include "../io/path.hpp"
@@ -118,7 +118,7 @@ namespace poac::subcmd {
             namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
-            namespace naming = core::naming;
+            namespace naming = core::name;
             namespace except = core::except;
             namespace lock = core::deper::lock;
 

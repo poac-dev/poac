@@ -13,7 +13,7 @@
 #include "../io/cli.hpp"
 #include "../io/yaml.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 
 
 namespace poac::subcmd {
@@ -21,7 +21,7 @@ namespace poac::subcmd {
         std::string basename(boost::filesystem::path&& s) {
             namespace fs = boost::filesystem;
             std::string tmp = fs::basename(s);
-            core::naming::validate_package_name(tmp);
+            core::name::validate_package_name(tmp);
             return tmp;
         }
 

@@ -16,11 +16,10 @@
 #include "../core/deper/lock.hpp"
 #include "../io.hpp"
 #include "../core/stroite.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../util/argparse.hpp"
 
 
-// TODO: --release, --no-cache (build systemにpoacを使用する時のみ), --example
 namespace poac::subcmd {
     namespace _build {
         std::optional<std::string>
@@ -222,7 +221,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
             namespace lock = core::deper::lock;
-            namespace naming = core::naming;
+            namespace naming = core::name;
             namespace yaml = io::yaml;
 
 
@@ -300,7 +299,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace except = core::except;
             namespace stroite = core::stroite;
-            namespace naming = core::naming;
+            namespace naming = core::name;
             namespace yaml = io::yaml;
 
             const auto node = yaml::load_config();

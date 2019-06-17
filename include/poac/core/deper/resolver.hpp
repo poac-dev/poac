@@ -21,7 +21,7 @@
 #include "sat.hpp"
 #include "semver.hpp"
 #include "../except.hpp"
-#include "../naming.hpp"
+#include "../name.hpp"
 #include "../../io.hpp"
 #include "../../config.hpp"
 #include "../../util/types.hpp"
@@ -49,7 +49,7 @@ namespace poac::core::deper::resolver {
     }
     std::string archive_url(const std::string& name, const std::string& version) {
         using namespace std::string_literals;
-        return POAC_ARCHIVE_API + "/"s + naming::hyphen_to_slash(name) + "/" + version;
+        return POAC_ARCHIVE_API + "/"s + name::hyphen_to_slash(name) + "/" + version;
     }
 
 

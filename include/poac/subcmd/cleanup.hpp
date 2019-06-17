@@ -11,7 +11,7 @@
 #include "./install.hpp"
 #include "./uninstall.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
 #include "../io/yaml.hpp"
@@ -25,7 +25,7 @@ namespace poac::subcmd {
             namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace lock = core::deper::lock;
-            namespace naming = core::naming;
+            namespace naming = core::name;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;
 

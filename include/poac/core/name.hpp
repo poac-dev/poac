@@ -1,6 +1,6 @@
-// Idempotent package naming library
-#ifndef POAC_CORE_NAMING_HPP
-#define POAC_CORE_NAMING_HPP
+// Idempotent package name library
+#ifndef POAC_CORE_NAME_HPP
+#define POAC_CORE_NAME_HPP
 
 #include <string>
 #include <regex>
@@ -12,7 +12,7 @@
 #include "../io.hpp"
 
 
-namespace poac::core::naming {
+namespace poac::core::name {
     // -- poac --
     // Cache package name
     //   * opencv-3.4.2
@@ -220,4 +220,4 @@ namespace poac::core::naming {
         }
     }
 } // end namespace
-#endif // !POAC_CORE_NAMING_HPP
+#endif // !POAC_CORE_NAME_HPP

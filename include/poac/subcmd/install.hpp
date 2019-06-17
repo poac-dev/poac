@@ -84,7 +84,7 @@ namespace poac::subcmd {
                 const bool verbose)
         {
             namespace except = core::except;
-            namespace naming = core::naming;
+            namespace naming = core::name;
             namespace path = io::path;
             namespace tar = io::tar;
             namespace resolver = core::deper::resolver;
@@ -159,7 +159,7 @@ namespace poac::subcmd {
         core::deper::resolver::Deps
         resolve_packages(const std::map<std::string, YAML::Node>& node) {
             namespace except = core::except;
-            namespace naming = core::naming;
+            namespace naming = core::name;
             namespace resolver = core::deper::resolver;
 
             resolver::Deps deps;
@@ -184,7 +184,7 @@ namespace poac::subcmd {
         core::deper::resolver::Package<core::deper::resolver::Name, core::deper::resolver::Interval, core::deper::resolver::Source>
         parse_arg_package(const std::string& v) {
             namespace except = core::except;
-            namespace naming = core::naming;
+            namespace naming = core::name;
 
             naming::validate_package_name(v);
 

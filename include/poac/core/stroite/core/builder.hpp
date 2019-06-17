@@ -24,7 +24,7 @@
 #include "../field/standard.hpp"
 #include "../utils.hpp"
 #include "../../except.hpp"
-#include "../../naming.hpp"
+#include "../../name.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
 #include "../../../io/path.hpp"
@@ -75,7 +75,7 @@ namespace poac::core::stroite::core {
 
             if (const auto locked_deps = lock::load_ignore_timestamp()) {
                 for (const auto& [name, dep] : locked_deps->backtracked) {
-                    const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                    const std::string current_package_name = name::to_current(dep.source, name, dep.version);
                     const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
 
                     if (path::validate_dir(include_dir)) {
@@ -154,12 +154,12 @@ namespace poac::core::stroite::core {
             namespace yaml = io::yaml;
 
             for (const auto& [raw_name, next_node] : deps_node) {
-                const auto [src, name] = naming::get_source(raw_name);
-                const std::string version = naming::get_version(next_node, src);
+                const auto [src, name] = name::get_source(raw_name);
+                const std::string version = name::get_version(next_node, src);
 
                 // FIXME: srcではなく，build systemを読む．
                 if (src != "poac") {
-                    const std::string caching_name = naming::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
+                    const std::string caching_name = name::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
                     const fs::path pkgpath = io::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
 
                     // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
@@ -244,7 +244,7 @@ namespace poac::core::stroite::core {
 
 
             compiler = field::standard::detect_command();
-            project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
+            project_name = name::slash_to_hyphen(node.at("name").as<std::string>());
             this->base_dir = base_dir;
             this->verbose = verbose;
         }

@@ -12,7 +12,7 @@
 
 #include "./absorb.hpp"
 #include "../../except.hpp"
-#include "../../naming.hpp"
+#include "../../name.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
 #include "../../../io/path.hpp"

@@ -16,7 +16,6 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/shell.hpp"
-#include "../core/naming.hpp"
 
 
 namespace poac::subcmd {
