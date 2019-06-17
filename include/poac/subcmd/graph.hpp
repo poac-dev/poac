@@ -20,7 +20,7 @@
 #include "../core/except.hpp"
 #include "../core/deper/lock.hpp"
 #include "../core/deper/resolver.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
 #include "../util/shell.hpp"

@@ -9,8 +9,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../../core/except.hpp"
-#include "../../util/shell.hpp"
+#include "../core/except.hpp"
+#include "../util/shell.hpp"
 
 
 namespace poac::io::file::path {

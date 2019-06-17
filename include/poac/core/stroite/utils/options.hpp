@@ -15,9 +15,9 @@
 #include "../../naming.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
-#include "../../../io/file/path.hpp"
+#include "../../../io/path.hpp"
 #include "../../../io/cli.hpp"
-#include "../../../io/file/yaml.hpp"
+#include "../../../io/yaml.hpp"
 #include "../../../util/shell.hpp"
 
 

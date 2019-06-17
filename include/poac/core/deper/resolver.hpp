@@ -22,8 +22,7 @@
 #include "semver.hpp"
 #include "../except.hpp"
 #include "../naming.hpp"
-#include "../../io/file.hpp"
-#include "../../io/net.hpp"
+#include "../../io.hpp"
 #include "../../config.hpp"
 #include "../../util/types.hpp"
 

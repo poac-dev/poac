@@ -10,7 +10,9 @@
 
 #include "../core/except.hpp"
 #include "../io/cli.hpp"
-#include "../io/file.hpp"
+#include "../io/path.hpp"
+#include "../io/tar.hpp"
+#include "../io/yaml.hpp"
 
 
 namespace poac::subcmd {

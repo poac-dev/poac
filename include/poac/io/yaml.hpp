@@ -11,7 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../../core/except.hpp"
+#include "../core/except.hpp"
 
 
 namespace poac::io::file::yaml {

@@ -7,7 +7,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../../except.hpp"
-#include "../../../io/file/path.hpp"
+#include "../../../io/path.hpp"
 #include "../../../util/shell.hpp"
 
 

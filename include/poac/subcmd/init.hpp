@@ -11,7 +11,7 @@
 
 #include "./new.hpp"
 #include "../io/cli.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/yaml.hpp"
 #include "../core/except.hpp"
 #include "../core/naming.hpp"
 
