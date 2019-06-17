@@ -1,5 +1,5 @@
-#ifndef POAC_IO_FILE_PATH_HPP
-#define POAC_IO_FILE_PATH_HPP
+#ifndef POAC_IO_PATH_HPP
+#define POAC_IO_PATH_HPP
 
 #include <iostream>
 #include <fstream>
@@ -184,4 +184,4 @@ namespace poac::io::path {
         }
     }
 } // end namespace
-#endif // !POAC_IO_FILE_PATH_HPP
+#endif // !POAC_IO_PATH_HPP
