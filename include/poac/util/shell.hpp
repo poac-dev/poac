@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_COMMAND_HPP
-#define POAC_UTIL_COMMAND_HPP
+#ifndef POAC_UTIL_SHELL_HPP
+#define POAC_UTIL_SHELL_HPP
 
 #include <iostream>
 #include <string>
@@ -10,20 +10,22 @@
 
 
 namespace poac::util {
-    class command {
+    class shell {
     public:
         std::string string() const { return cmd; }
 
-        command() { cmd = ""; }
-        command(const std::string& c) { cmd = c; }
+        shell() {
+            cmd = "";
+        }
+        shell(const std::string& c) { cmd = c; }
 
-        command env(const std::string& name, const std::string& val) {
+        shell env(const std::string& name, const std::string& val) {
             return cmd.insert(0, name + "=" + val + " ");
         }
-        command stderr_to_stdout() {
+        shell stderr_to_stdout() {
             return cmd + " 2>&1";
         }
-        command to_dev_null() {
+        shell to_dev_null() {
             return cmd + " >/dev/null";
         }
 
@@ -59,57 +61,57 @@ namespace poac::util {
             return static_cast<bool>(std::system(cmd.c_str()));
         }
 
-        friend std::ostream& operator<<(std::ostream& stream, const command& c) {
+        friend std::ostream& operator<<(std::ostream& stream, const shell& c) {
             stream << c.cmd;
             return stream;
         }
 
-        bool operator==(const command& rhs) const {
+        bool operator==(const shell& rhs) const {
             return this->cmd == rhs.cmd;
         }
         bool operator==(const std::string& rhs) const {
             return this->cmd == rhs;
         }
 
-        command operator&&(const command& rhs) const {
-            return command(this->cmd + " && " + rhs.cmd);
+        shell operator&&(const shell& rhs) const {
+            return shell(this->cmd + " && " + rhs.cmd);
         }
-        command operator&&(const std::string& rhs) const {
-            return command(this->cmd + " && " + rhs);
+        shell operator&&(const std::string& rhs) const {
+            return shell(this->cmd + " && " + rhs);
         }
 
-        command operator&=(const command& rhs) {
+        shell operator&=(const shell& rhs) {
             return this->cmd += (" && " + rhs.cmd);
         }
-        command operator&=(const std::string& rhs) {
+        shell operator&=(const std::string& rhs) {
             return this->cmd += (" && " + rhs);
         }
 
-        command operator||(const command& rhs) const {
-            return command(this->cmd + " || " + rhs.cmd);
+        shell operator||(const shell& rhs) const {
+            return shell(this->cmd + " || " + rhs.cmd);
         }
-        command operator||(const std::string& rhs) const {
-            return command(this->cmd + " || " + rhs);
+        shell operator||(const std::string& rhs) const {
+            return shell(this->cmd + " || " + rhs);
         }
 
-        command operator|=(const command& rhs) {
+        shell operator|=(const shell& rhs) {
             return this->cmd += (" || " + rhs.cmd);
         }
-        command operator|=(const std::string& rhs) {
+        shell operator|=(const std::string& rhs) {
             return this->cmd += (" || " + rhs);
         }
 
-        command operator+(const command& rhs) const { // TODO: "; "でなくても良いのか
-            return command(this->cmd + " " + rhs.cmd);
+        shell operator+(const shell& rhs) const { // TODO: "; "でなくても良いのか
+            return shell(this->cmd + " " + rhs.cmd);
         }
-        command operator+(const std::string& rhs) const {
-            return command(this->cmd + " " + rhs);
+        shell operator+(const std::string& rhs) const {
+            return shell(this->cmd + " " + rhs);
         }
 
-        command operator+=(const command& rhs) {
+        shell operator+=(const shell& rhs) {
             return this->cmd += " " + rhs.cmd;
         }
-        command operator+=(const std::string& rhs) {
+        shell operator+=(const std::string& rhs) {
             return this->cmd += " " + rhs;
         }
 
@@ -117,10 +119,10 @@ namespace poac::util {
         std::string cmd;
     };
 
-    namespace _command {
+    namespace _shell {
         bool has_command(const std::string& c) {
-            return static_cast<bool>(command("type " + c + " >/dev/null 2>&1").exec());
+            return static_cast<bool>(shell("type " + c + " >/dev/null 2>&1").exec());
         }
     }
 } // end namespace
-#endif // !POAC_UTIL_COMMAND_HPP
+#endif // !POAC_UTIL_SHELL_HPP

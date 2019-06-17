@@ -23,7 +23,7 @@
 #include "../io/file/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
-#include "../util/command.hpp"
+#include "../util/shell.hpp"
 
 
 // TODO: --input, -iで，入力する，poac.ymlファイルを指定. 指定しない場合はカレントディレクトリのを選択
@@ -111,14 +111,14 @@ namespace poac::subcmd {
             if (const auto output_op = util::argparse::use_get(argv, "-o", "--output")) {
                 fs::path output = *output_op;
                 if (output.extension() == ".png") {
-                    if (util::_command::has_command("dot")) {
+                    if (util::_shell::has_command("dot")) {
                         const auto [g, names] = create_graph();
 
                         const std::string file_dot = output.stem().string() + ".dot";
                         std::ofstream file(file_dot);
                         boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
 
-                        util::command("dot -Tpng " + file_dot + " -o " + output.string()).exec();
+                        util::shell("dot -Tpng " + file_dot + " -o " + output.string()).exec();
                         fs::remove(file_dot);
 
                         io::cli::echo(io::cli::status_done());

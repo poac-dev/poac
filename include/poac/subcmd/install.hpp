@@ -135,7 +135,7 @@ namespace poac::subcmd {
                     }
                 }
                 else if (dep.source == "github") {
-                    util::command clone_cmd = resolver::github::clone_command(name, dep.version);
+                    util::shell clone_cmd = resolver::github::clone_command(name, dep.version);
                     clone_cmd += (path::poac_cache_dir / cache_name).string();
                     clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
 

@@ -13,7 +13,7 @@
 #include "../core/stroite/utils/absorb.hpp"
 #include "../io/file.hpp"
 #include "../io/cli.hpp"
-#include "../util/command.hpp"
+#include "../util/shell.hpp"
 #include "../core/naming.hpp"
 
 
@@ -42,8 +42,8 @@ namespace poac::subcmd {
             const std::string bin_name = project_name + core::stroite::utils::absorb::binary_extension;
             const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
             const std::string executable = executable_path.string();
-            util::command cmd(executable);
             for (const auto &s : program_args) {
+            util::shell cmd(executable);
                 cmd += s;
             }
 

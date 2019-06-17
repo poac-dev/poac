@@ -15,7 +15,7 @@
 #include "../core/naming.hpp"
 #include "../io.hpp"
 #include "../util/argparse.hpp"
-#include "../util/command.hpp"
+#include "../util/shell.hpp"
 
 
 namespace poac::subcmd {
@@ -147,9 +147,9 @@ namespace poac::subcmd {
                       << "project"
                       << std::endl;
 
-            if (util::_command::has_command("git")) {
+            if (util::_shell::has_command("git")) {
                 const std::string git_init = "git init " + project_name;
-                util::command(git_init).exec();
+                util::shell(git_init).exec();
                 cli::echo(cli::to_green("Running: "), git_init);
             }
 

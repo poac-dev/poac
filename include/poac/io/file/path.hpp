@@ -10,7 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../../core/except.hpp"
-#include "../../util/command.hpp"
+#include "../../util/shell.hpp"
 
 
 namespace poac::io::file::path {
@@ -161,7 +161,7 @@ namespace poac::io::file::path {
     }
 
     boost::filesystem::path create_temp() {
-        const std::string temp = *(util::command("mktemp -d").exec());
+        const std::string temp = *(util::shell("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // delete \n
         return temp_path;
     }

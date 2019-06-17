@@ -8,7 +8,7 @@
 
 #include "../../except.hpp"
 #include "../../../io/file/path.hpp"
-#include "../../../util/command.hpp"
+#include "../../../util/shell.hpp"
 
 
 namespace poac::core::stroite::chain {
@@ -19,17 +19,17 @@ namespace poac::core::stroite::chain {
             namespace fs = boost::filesystem;
             namespace path = io::file::path;
 
-            util::command cmd("cd " + base_path.string());
+            util::shell cmd("cd " + base_path.string());
             if (!fs::exists(base_path / "_build")) {
                 cmd &= "mkdir _build";
             }
             cmd &= "cd _build";
-            util::command cmake_cmd("cmake ..");
+            util::shell cmake_cmd("cmake ..");
 //            for (const auto& [key, val] : cmake_args) { // TODO: -Dhoge 渡したい
 //                cmake_cmd.env(key, val);
 //            }
             cmd &= cmake_cmd;
-            cmd &= util::command("make");
+            cmd &= util::shell("make");
 
             return cmd.exec_incontinent();
         }

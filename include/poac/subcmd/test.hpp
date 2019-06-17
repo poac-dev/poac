@@ -91,7 +91,7 @@ namespace poac::subcmd {
                     //
                     // execute binary
                     //
-                    util::command cmd(fs::relative(bin_path).string());
+                    util::shell cmd(fs::relative(bin_path).string());
                     // poac test -v -- -h build
                     if (const auto result = std::find(argv.begin(), argv.end(), "--"); result != argv.end()) {
                         // -h build
