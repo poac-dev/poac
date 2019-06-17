@@ -10,7 +10,6 @@
 #include <boost/predef.h>
 
 #include "except.hpp"
-#include "../option.hpp"
 #include "../subcmd.hpp"
 #include "../util/types.hpp"
 
@@ -48,6 +47,7 @@ namespace poac::core::infer {
             subcmd::cache,
             subcmd::cleanup,
             subcmd::graph,
+            subcmd::help,
             subcmd::init,
             subcmd::install,
             subcmd::login,
@@ -59,14 +59,16 @@ namespace poac::core::infer {
             subcmd::test,
             subcmd::uninstall,
             subcmd::update,
-            option::help,
-            option::version
+            subcmd::version
     >;
     const std::unordered_map<std::string, int> subcmd_map {
             { "build",     op_type_list_t::index_of<subcmd::build> },
             { "cache",     op_type_list_t::index_of<subcmd::cache> },
             { "cleanup",   op_type_list_t::index_of<subcmd::cleanup> },
             { "graph",     op_type_list_t::index_of<subcmd::graph> },
+            { "help",    op_type_list_t::index_of<subcmd::help> },
+            { "--help",    op_type_list_t::index_of<subcmd::help> },
+            { "-h",        op_type_list_t::index_of<subcmd::help> },
             { "init",      op_type_list_t::index_of<subcmd::init> },
             { "install",   op_type_list_t::index_of<subcmd::install> },
             { "login",     op_type_list_t::index_of<subcmd::login> },
@@ -77,13 +79,10 @@ namespace poac::core::infer {
             { "search",    op_type_list_t::index_of<subcmd::search> },
             { "test",      op_type_list_t::index_of<subcmd::test> },
             { "uninstall", op_type_list_t::index_of<subcmd::uninstall> },
-            { "update",    op_type_list_t::index_of<subcmd::update> }
-    };
-    const std::unordered_map<std::string, int> option_map {
-            { "--help",    op_type_list_t::index_of<option::help> },
-            { "-h",        op_type_list_t::index_of<option::help> },
-            { "--version", op_type_list_t::index_of<option::version> },
-            { "-v",        op_type_list_t::index_of<option::version> }
+            { "update",    op_type_list_t::index_of<subcmd::update> },
+            { "version", op_type_list_t::index_of<subcmd::version> },
+            { "--version", op_type_list_t::index_of<subcmd::version> },
+            { "-v",        op_type_list_t::index_of<subcmd::version> }
     };
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
@@ -155,8 +154,6 @@ namespace poac::core::infer {
     std::string apply(S&& func, S&& cmd, VS&& arg) {
         namespace except = core::except;
         if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
-            return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
-        else if (itr = option_map.find(cmd); itr != option_map.end())
             return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
         else
             throw except::invalid_first_arg("Invalid argument");

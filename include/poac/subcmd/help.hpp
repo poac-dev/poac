@@ -1,5 +1,5 @@
-#ifndef POAC_OPTION_HELP_HPP
-#define POAC_OPTION_HELP_HPP
+#ifndef POAC_SUBCMD_HELP_HPP
+#define POAC_SUBCMD_HELP_HPP
 
 #include <iostream>
 #include <iomanip>
@@ -20,14 +20,13 @@ namespace poac::core::infer {
     std::string apply(S&& func, S&& cmd, VS&& arg);
 
     extern const std::unordered_map<std::string, int> subcmd_map;
-    extern const std::unordered_map<std::string, int> option_map;
 }
 
 // TODO: help文を，コンパイル時に一つの文字列として変換する．
 
 // TODO: optionではなく，helpコマンドとすれば，順序は，init helpを許されなくなるので明快になる．
 // TODO: さらに，versionを，poacの部分に埋め込めば(もう一段階抽象化後)，optionを管理する必要がなくなる．
-namespace poac::option {
+namespace poac::subcmd {
     namespace _help {
         template <typename S>
         void echo_option(S&& arg) {
@@ -49,7 +48,7 @@ namespace poac::option {
             using namespace std::string_literals;
             // Eliminate -h and -v
             // It assumes two characters because the regular expression is slow.
-            if (key.size() != 2) {
+            if (key[0] != '-') {
                 std::cout << io::cli::blue << io::cli::bold
                           << "   " << std::setw(9) << std::left << key << "   "
                           << io::cli::reset;
@@ -65,18 +64,10 @@ namespace poac::option {
             std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
 
             std::cout << io::cli::bold
-                      << "Available subcommands:"
+                      << "Available commands:"
                       << io::cli::reset
                       << std::endl;
             for (const auto& [name, value] : core::infer::subcmd_map) {
-                show(name, value);
-            }
-
-            std::cout << io::cli::bold
-                      << "Available options:"
-                      << io::cli::reset
-                      << std::endl;
-            for (const auto& [name, value] : core::infer::option_map) {
                 show(name, value);
             }
 
@@ -110,10 +101,11 @@ namespace poac::option {
         static std::string options() {
             return "<subcommad or option>";
         }
+
         template<typename VS>
         int operator()(VS&& argv) {
             return _help::_main(std::forward<VS>(argv));
         }
     };
 } // end namespace
-#endif // !POAC_OPTION_HELP_HPP
+#endif // !POAC_SUBCMD_HELP_HPP
