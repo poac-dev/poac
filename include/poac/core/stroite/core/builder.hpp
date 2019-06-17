@@ -71,7 +71,7 @@ namespace poac::core::stroite::core {
             namespace fs = boost::filesystem;
             namespace lock = deper::lock;
             namespace yaml = io::file::yaml;
-            namespace path = io::file::path;
+            namespace path = io::path;
 
             if (const auto locked_deps = lock::load_ignore_timestamp()) {
                 for (const auto& [name, dep] : locked_deps->backtracked) {
@@ -97,7 +97,7 @@ namespace poac::core::stroite::core {
         void configure_compile(const bool usemain)
         {
             namespace yaml = io::file::yaml;
-            namespace path = io::file::path;
+            namespace path = io::path;
 
             compile_conf.system = compiler;
 
@@ -128,9 +128,8 @@ namespace poac::core::stroite::core {
                             output_string += file_name + ": " + hash + "\n";
                         }
                         fs::create_directories(fs::path(hash_name).parent_path());
-                        io::file::path::write_to_file(ofs, hash_name, output_string);
+                        io::path::write_to_file(ofs, hash_name, output_string);
                     }
-
                 }
                 else {
                     return std::nullopt;
@@ -161,7 +160,7 @@ namespace poac::core::stroite::core {
                 // FIXME: srcではなく，build systemを読む．
                 if (src != "poac") {
                     const std::string caching_name = naming::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
-                    const fs::path pkgpath = io::file::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
+                    const fs::path pkgpath = io::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
 
                     // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
                     if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
@@ -187,7 +186,7 @@ namespace poac::core::stroite::core {
 
             link_conf.system = compiler;
             link_conf.project_name = project_name;
-            link_conf.output_root = io::file::path::current_build_bin_dir;
+            link_conf.output_root = io::path::current_build_bin_dir;
 //            make_link();
 //            link_conf.library_search_path = std::get<0>(links);
 //            link_conf.static_link_libs = std::get<1>(links);
@@ -204,7 +203,7 @@ namespace poac::core::stroite::core {
         void configure_static_lib(const std::vector<std::string>& obj_files_path)
         {
             static_lib_conf.project_name = project_name;
-            static_lib_conf.output_root = io::file::path::current_build_lib_dir;
+            static_lib_conf.output_root = io::path::current_build_lib_dir;
             static_lib_conf.obj_files_path = obj_files_path;
         }
         auto gen_static_lib()
@@ -218,7 +217,7 @@ namespace poac::core::stroite::core {
             dynamic_lib_conf.project_name = project_name;
             // outputを一箇所か分散か選べるように．boost::hoghoeみたいに，enumのオプションを渡すとOK
             // 一箇所ってのは，./ poac build -> ./_buildだけど，depsも./_buildに配置されるやつ
-            dynamic_lib_conf.output_root = io::file::path::current_build_lib_dir;
+            dynamic_lib_conf.output_root = io::path::current_build_lib_dir;
             dynamic_lib_conf.obj_files_path = obj_files_path;
         }
         auto gen_dynamic_lib()

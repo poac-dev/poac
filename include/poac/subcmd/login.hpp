@@ -22,11 +22,11 @@ namespace poac::subcmd {
             namespace fs     = boost::filesystem;
             namespace except = core::except;
 
-            if (fs::create_directories(io::file::path::poac_state_dir)) {
+            if (fs::create_directories(io::path::poac_state_dir)) {
                 throw except::invalid_second_arg("login");
             }
 
-            const std::string token_path = io::file::path::poac_token_dir.string();
+            const std::string token_path = io::path::poac_token_dir.string();
             if (std::ofstream ofs(token_path); ofs) {
                 ofs << argv[0] << std::endl;
                 std::cout << io::cli::bold

@@ -51,14 +51,14 @@ namespace poac::subcmd {
                 }
             }
 
-            for (const fs::path &p : fs::recursive_directory_iterator(fs::current_path() / "test")) {
+            for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "test")) {
                 if (!fs::is_directory(p) && p.extension().string() == ".cpp") {
                     const std::string cpp_relative = fs::relative(p).string();
                     const std::string bin_name = fs::path(
                             boost::replace_all_copy(
                                     fs::relative(cpp_relative, "test").string(), "/", "-")).stem().string();
                     const std::string extension = core::stroite::utils::absorb::binary_extension;
-                    const std::string bin_path = (io::file::path::current_build_test_bin_dir / bin_name).string() + extension;
+                    const std::string bin_path = (io::path::current_build_test_bin_dir / bin_name).string() + extension;
 
                     bs.compile_conf.source_files = bs.hash_source_files({cpp_relative}, usemain);
                     if (bs.compile_conf.source_files.empty()) { // No need for compile and link
@@ -72,7 +72,7 @@ namespace poac::subcmd {
                         if (const auto obj_files_path = bs.compile()) {
                             bs.configure_link(*obj_files_path);
                             bs.link_conf.project_name = bin_name;
-                            bs.link_conf.output_root = io::file::path::current_build_test_bin_dir;
+                            bs.link_conf.output_root = io::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);
                             if (bs.link()) {
                                 std::cout << io::cli::green << "Compiled: " << io::cli::reset
@@ -110,15 +110,15 @@ namespace poac::subcmd {
                         }
                     }
                     if (util::argparse::use(argv, "--report")) {
-                        fs::create_directories(io::file::path::current_build_test_report_dir);
+                        fs::create_directories(io::path::current_build_test_report_dir);
                         cmd += ">";
-                        cmd += (io::file::path::current_build_test_report_dir / bin_name).string() + ".xml";
+                        cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
                     }
                     else if (const auto test_report = io::file::yaml::get<bool>(node.at("test"), "report")) {
                         if (*test_report) {
-                            fs::create_directories(io::file::path::current_build_test_report_dir);
+                            fs::create_directories(io::path::current_build_test_report_dir);
                             cmd += ">";
-                            cmd += (io::file::path::current_build_test_report_dir / bin_name).string() + ".xml";
+                            cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
                         }
                     }
                     // TODO: echo => Output .xml ...

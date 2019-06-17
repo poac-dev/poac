@@ -23,7 +23,7 @@ namespace poac::core::stroite::core::search {
     std::vector<std::string>
     cpp(const boost::filesystem::path& base_dir) {
         namespace fs = boost::filesystem;
-        namespace path = io::file::path;
+        namespace path = io::path;
 
         std::vector<std::string> source_files;
         const auto source_dir = base_dir / "src";

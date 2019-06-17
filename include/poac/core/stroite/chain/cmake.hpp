@@ -17,7 +17,7 @@ namespace poac::core::stroite::chain {
 
         bool build() { // TODO: builderと同じinterfaceであるべき
             namespace fs = boost::filesystem;
-            namespace path = io::file::path;
+            namespace path = io::path;
 
             util::shell cmd("cd " + base_path.string());
             if (!fs::exists(base_path / "_build")) {

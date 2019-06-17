@@ -30,14 +30,14 @@
 namespace poac::core::deper::resolver {
     namespace cache {
         bool resolve(const std::string& package_name) {
-            namespace path = io::file::path;
+            namespace path = io::path;
             const auto package_path = path::poac_cache_dir / package_name;
             return path::validate_dir(package_path);
         }
     }
     namespace current {
         bool resolve(const std::string& current_package_name) {
-            namespace path = io::file::path;
+            namespace path = io::path;
             const auto package_path = path::current_deps_dir / current_package_name;
             return path::validate_dir(package_path);
         }

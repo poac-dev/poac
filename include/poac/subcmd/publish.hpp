@@ -29,9 +29,9 @@ namespace poac::subcmd {
         boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
             namespace fs = boost::filesystem;
 
-            const fs::path temp_path = io::file::path::create_temp();
+            const fs::path temp_path = io::path::create_temp();
             const fs::path copy_file = temp_path / fs::basename(project_dir);
-            io::file::path::recursive_copy(project_dir, copy_file);
+            io::path::recursive_copy(project_dir, copy_file);
 
             const auto node = io::file::yaml::load_config("name", "version");
             std::string name = node.at("name").as<std::string>();
@@ -48,12 +48,12 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
 
             const fs::path file_path = rename_copy(project_dir);
-            const fs::path temp_path = io::file::path::create_temp();
+            const fs::path temp_path = io::path::create_temp();
 
             std::vector<std::string> excludes({ "deps", "_build", ".git", ".gitignore" });
             // Read .gitignore
-            if (const auto ignore = io::file::path::read_file(".gitignore")) {
-                auto tmp = io::file::path::split(*ignore, "\n");
+            if (const auto ignore = io::path::read_file(".gitignore")) {
+                auto tmp = io::path::split(*ignore, "\n");
                 const auto itr = std::remove_if(tmp.begin(), tmp.end(), [](std::string x) {
                     return (x[0] == '#');
                 });
@@ -120,7 +120,7 @@ namespace poac::subcmd {
             // Get token
             boost::property_tree::ptree json;
             std::string token;
-            if (const auto token_opt = io::file::path::read_file(io::file::path::poac_token_dir)) {
+            if (const auto token_opt = io::path::read_file(io::path::poac_token_dir)) {
                 const std::string temp = *token_opt;
                 const std::string temp_path(temp, 0, temp.size()-1); // delete \n
                 token = temp_path;

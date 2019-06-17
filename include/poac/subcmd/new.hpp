@@ -89,7 +89,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace except = core::except;
             namespace fs = boost::filesystem;
-            namespace path = io::file::path;
+            namespace path = io::path;
             namespace cli = io::cli;
             namespace naming = core::naming;
 
@@ -108,7 +108,7 @@ namespace poac::subcmd {
             const std::string project_name = argv[0];
             const fs::path project_path = fs::path(project_name);
             naming::validate_package_name(project_name);
-            if (io::file::path::validate_dir(project_name)) {
+            if (io::path::validate_dir(project_name)) {
                 throw except::error(
                         except::msg::already_exist("The `" + project_name + "` directory"));
             }

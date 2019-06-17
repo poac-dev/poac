@@ -26,12 +26,12 @@ namespace poac::subcmd {
                 std::cout << "Usage: poac cache clean <pkg-name> [-a | --all]" << std::endl;
             }
             else if (util::argparse::use(argv, "-a", "--all")) {
-                fs::remove_all(io::file::path::poac_cache_dir);
+                fs::remove_all(io::path::poac_cache_dir);
             }
             else {
                 for (const auto &v : argv) {
-                    const fs::path pkg = io::file::path::poac_cache_dir / v;
-                    if (io::file::path::validate_dir(pkg)) {
+                    const fs::path pkg = io::path::poac_cache_dir / v;
+                    if (io::path::validate_dir(pkg)) {
                         fs::remove_all(pkg);
                         std::cout << v << " is deleted" << std::endl;
                     } else {
@@ -45,7 +45,7 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             if (argv.empty()) {
                 for (const auto &e : boost::make_iterator_range(
-                        fs::directory_iterator(io::file::path::poac_cache_dir), {}))
+                        fs::directory_iterator(io::path::poac_cache_dir), {}))
                 {
                     std::cout << e.path().filename().string() << std::endl;
                 }
@@ -53,7 +53,7 @@ namespace poac::subcmd {
             else if (argv.size() == 2 && argv[0] == "--pattern") {
                 std::regex pattern(argv[1]);
                 for (const auto &e : boost::make_iterator_range(
-                        fs::directory_iterator(io::file::path::poac_cache_dir), {}))
+                        fs::directory_iterator(io::path::poac_cache_dir), {}))
                 {
                     const std::string cachefile = e.path().filename().string();
                     if (std::regex_match(cachefile, pattern))
@@ -63,7 +63,7 @@ namespace poac::subcmd {
         }
 
         void root() {
-            std::cout << io::file::path::poac_cache_dir.string() << std::endl;
+            std::cout << io::path::poac_cache_dir.string() << std::endl;
         }
 
         template<typename VS>

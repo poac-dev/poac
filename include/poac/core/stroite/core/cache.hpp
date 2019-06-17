@@ -18,7 +18,7 @@ namespace poac::core::stroite::core::cache {
     std::string to_cache_hash_path(const std::string& s)
     {
         namespace fs = boost::filesystem;
-        namespace path = io::file::path;
+        namespace path = io::path;
 
         const auto hash_path = path::current_build_cache_hash_dir / fs::relative(s);
         return hash_path.string() + ".hash";
@@ -28,7 +28,7 @@ namespace poac::core::stroite::core::cache {
     load_timestamps(const std::string& src_cpp_hash)
     {
         namespace fs = boost::filesystem;
-        namespace path = io::file::path;
+        namespace path = io::path;
 
         if (!fs::exists(src_cpp_hash)) {
             return std::nullopt;

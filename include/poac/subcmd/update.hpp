@@ -41,7 +41,7 @@ namespace poac::subcmd {
             [[maybe_unused]] const bool outside = util::argparse::use_rm(argv, "--outside");
 
 
-            if (!io::file::path::validate_dir("deps")) {
+            if (!io::path::validate_dir("deps")) {
                 const auto err = "It is the same as executing install command because nothing is installed.";
                 cli::echo(cli::to_warning(err));
                 _install::_main(std::move(argv)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い

@@ -66,7 +66,7 @@ namespace poac::subcmd {
 
         // Copy package to ./deps
         bool copy_to_current(const std::string& from, const std::string& to) {
-            namespace path = io::file::path;
+            namespace path = io::path;
             const auto from_path = path::poac_cache_dir / from;
             const auto to_path = path::current_deps_dir / to;
             return path::recursive_copy(from_path, to_path);
@@ -85,7 +85,7 @@ namespace poac::subcmd {
         {
             namespace except = core::except;
             namespace naming = core::naming;
-            namespace path = io::file::path;
+            namespace path = io::path;
             namespace tb = io::file::tar;
             namespace resolver = core::deper::resolver;
             namespace fs = boost::filesystem;
@@ -218,7 +218,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace path = io::file::path;
+            namespace path = io::path;
             namespace yaml = io::file::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;

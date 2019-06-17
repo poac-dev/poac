@@ -42,7 +42,7 @@ namespace poac::subcmd {
 
             const std::string project_name = node.at("name").as<std::string>();
             const std::string bin_name = project_name + core::stroite::utils::absorb::binary_extension;
-            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
+            const fs::path executable_path = fs::relative(io::path::current_build_bin_dir / bin_name);
             const std::string executable = executable_path.string();
             util::shell cmd(executable);
             for (const auto& s : program_args) {

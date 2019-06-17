@@ -13,7 +13,7 @@
 #include "../util/shell.hpp"
 
 
-namespace poac::io::file::path {
+namespace poac::io::path {
     // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path) {
         namespace except = core::except;

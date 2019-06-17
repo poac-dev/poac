@@ -38,7 +38,7 @@ namespace poac::subcmd {
                     return;
                 }
             }
-            fs::remove_all(io::file::path::current_deps_dir);
+            fs::remove_all(io::path::current_deps_dir);
         }
 
 
@@ -174,8 +174,8 @@ namespace poac::subcmd {
             cli::echo();
             for (const auto& [name, dep] : uninstall_list) {
                 const auto package_name = naming::to_current(dep.source, name, dep.version);
-                const auto package_path = io::file::path::current_deps_dir / package_name;
-                if (io::file::path::validate_dir(package_path)) {
+                const auto package_path = io::path::current_deps_dir / package_name;
+                if (io::path::validate_dir(package_path)) {
                     fs::remove_all(package_path);
                     std::cout << name << " is deleted" << std::endl;
                 }
