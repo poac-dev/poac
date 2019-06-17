@@ -12,12 +12,16 @@
 namespace poac::util {
     class shell {
     public:
-        std::string string() const { return cmd; }
+        std::string string() const {
+            return cmd;
+        }
 
         shell() {
-            cmd = "";
+            cmd = {};
         }
-        shell(const std::string& c) { cmd = c; }
+        shell(const std::string& c) {
+            cmd = {c};
+        }
 
         shell env(const std::string& name, const std::string& val) {
             return cmd.insert(0, name + "=" + val + " ");
