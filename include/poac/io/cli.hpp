@@ -19,19 +19,6 @@ namespace poac::io::cli {
     const std::string clr_left = "\x1b[1K";
     // Clear the line at the cursor position
     const std::string clr_line = "\x1b[2K";
-    // Move cursor position
-    inline std::string up(unsigned int y) {
-        return "\x1b[" + std::to_string(y) + "A";
-    }
-    inline std::string down(unsigned int y) {
-        return "\x1b[" + std::to_string(y) + "B";
-    }
-    inline std::string right(unsigned int x) {
-        return "\x1b[" + std::to_string(x) + "C";
-    }
-    inline std::string left(unsigned int x) {
-        return "\x1b[" + std::to_string(x) + "D";
-    }
 
     inline void set_left(int&& n) {
         std::cout << std::setw(n) << std::left;
@@ -310,8 +297,7 @@ namespace poac::io::cli {
                 bar += "=";
             }
             bar += ">]";
-        }
-        else if ((bar_pos - 1) > 0) {
+        } else if ((bar_pos - 1) > 0) {
             for (int i = 0; i < (bar_pos - 1); ++i) {
                 bar += "=";
             }
@@ -320,15 +306,13 @@ namespace poac::io::cli {
                 bar += " ";
             }
             bar += "]";
-        }
-        else if (bar_pos == 1) {
+        } else if (bar_pos == 1) {
             bar += ">";
             for (int i = 0; i < (bar_size - 1); ++i) {
                 bar += " ";
             }
             bar += "]";
-        }
-        else {
+        } else {
             for (int i = 0; i < bar_size; ++i) {
                 bar += " ";
             }
