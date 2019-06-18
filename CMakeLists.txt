@@ -114,23 +114,29 @@ endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
 if(UNIX)
-    target_link_libraries(${PROJECT_NAME}
+    target_link_libraries(
+            ${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
             ${Boost_SYSTEM_LIBRARY}
             "ssl"
             "crypto"
             "dl"
-            "yaml-cpp")
+            "yaml-cpp"
+            "tar"
+    )
 elseif(WIN32)
-    target_link_libraries(${PROJECT_NAME}
+    target_link_libraries(
+            ${PROJECT_NAME}
             "${STATIC_LINK_FLAG}"
             ${Boost_FILESYSTEM_LIBRARY}
             ${Boost_SYSTEM_LIBRARY}
             ${OPENSSL_LIBRARIES}
-            "yaml-cpp"
             "bcrypt"
-            "ws2_32")
+            "ws2_32"
+            "tar"
+            "yaml-cpp"
+    )
 endif()
 
 install(TARGETS poac DESTINATION bin)
