@@ -121,7 +121,7 @@ namespace poac::subcmd {
                         util::shell("dot -Tpng " + file_dot + " -o " + output.string()).exec();
                         fs::remove(file_dot);
 
-                        io::cli::echo(io::cli::status_done());
+                        io::cli::println(io::cli::status_done());
                     }
                     else {
                         throw except::error(
@@ -133,7 +133,7 @@ namespace poac::subcmd {
                     const auto [g, names] = create_graph();
                     std::ofstream file(output.string());
                     boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
-                    io::cli::echo(io::cli::status_done());
+                    io::cli::println(io::cli::status_done());
                 }
                 else {
                     throw except::error(

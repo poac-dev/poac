@@ -43,7 +43,7 @@ namespace poac::subcmd {
 
             if (!io::path::validate_dir("deps")) {
                 const auto err = "It is the same as executing install command because nothing is installed.";
-                cli::echo(cli::to_warning(err));
+                cli::println(cli::to_warning(err));
                 _install::_main(std::move(argv)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
                 return EXIT_FAILURE;
             }
@@ -92,15 +92,15 @@ namespace poac::subcmd {
                     const auto current_version = resolved_deps.backtracked[name].version;
                     std::cout << name << " (Current: " << current_version << " -> Update: ";
                     if (core::deper::semver::Version(current_version) < dep.version) {
-                        std::cout << cli::to_green(dep.version) << ")" << std::endl;
+                        std::cout << cli::preset::green<> << dep.version << cli::preset::reset<> << ")" << std::endl;
                     }
                     else {
-                        std::cout << cli::to_yellow(dep.version) << ")" << std::endl;
+                        std::cout << cli::preset::yellow<> << dep.version << cli::preset::reset<> << ")" << std::endl;
                     }
                 }
 
                 if (!yes) {
-                    cli::echo();
+                    cli::println();
                     std::cout << "Do you approve of this update? [Y/n] ";
                     std::string yes_or_no;
                     std::cin >> yes_or_no;
@@ -119,11 +119,11 @@ namespace poac::subcmd {
                 }
 
                 // Install new version
-                cli::echo();
+                cli::println();
                 _install::fetch_packages(update_deps, false, false);
 
-                cli::echo();
-                cli::echo(cli::status_done());
+                cli::println();
+                cli::println(cli::status_done());
 
                 return EXIT_SUCCESS;
             }

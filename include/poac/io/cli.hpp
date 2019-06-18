@@ -20,72 +20,263 @@ namespace poac::io::cli {
     // Clear the line at the cursor position
     const std::string clr_line = "\x1b[2K";
     // Move cursor position
-    inline std::string up(unsigned int y)    { return "\x1b["+std::to_string(y)+"A"; }
-    inline std::string down(unsigned int y)  { return "\x1b["+std::to_string(y)+"B"; }
-    inline std::string right(unsigned int x) { return "\x1b["+std::to_string(x)+"C"; }
-    inline std::string left(unsigned int x)  { return "\x1b["+std::to_string(x)+"D"; }
-    inline std::string location(unsigned int x, unsigned int y) {
-        return "\x1b["+std::to_string(x)+";"+std::to_string(y)+"H";
+    inline std::string up(unsigned int y) {
+        return "\x1b[" + std::to_string(y) + "A";
+    }
+    inline std::string down(unsigned int y) {
+        return "\x1b[" + std::to_string(y) + "B";
+    }
+    inline std::string right(unsigned int x) {
+        return "\x1b[" + std::to_string(x) + "C";
+    }
+    inline std::string left(unsigned int x) {
+        return "\x1b[" + std::to_string(x) + "D";
     }
 
-    inline void rel_mv(int x=0, int y=0) {
-        if (x > 0) std::cout << right(static_cast<unsigned int>(x));
-        else       std::cout << left(static_cast<unsigned int>(-1 * x));
-        if (y > 0) std::cout << up(static_cast<unsigned int>(y));
-        else       std::cout << down(static_cast<unsigned int>(-1 * y));
+    inline void set_left(int&& n) {
+        std::cout << std::setw(n) << std::left;
     }
 
-    inline void set_left(int&& n) { std::cout << std::setw(n) << std::left; }
-    std::string set_left(const std::string& s, int&& n) {
-        if (const int diff = n - static_cast<int>(s.size()); diff > 0) {
-            std::string ret = s;
-            for (int i = 0; i < diff; ++i)
-                ret += " ";
-            return ret;
+    inline namespace literals
+    {
+        inline namespace color_literals
+        {
+            namespace preset
+            {
+                template <typename T = char>
+                const std::basic_string<T> red = reinterpret_cast<const T*>("\x1b[31m");
+
+                template <typename T = char>
+                const std::basic_string<T> green = reinterpret_cast<const T*>("\x1b[32m");
+
+                template <typename T = char>
+                const std::basic_string<T> yellow = reinterpret_cast<const T*>("\x1b[33m");
+
+                template <typename T = char>
+                const std::basic_string<T> blue = reinterpret_cast<const T*>("\x1b[34m");
+
+                template <typename T = char>
+                const std::basic_string<T> pink = reinterpret_cast<const T*>("\x1b[35m");
+
+                template <typename T = char>
+                const std::basic_string<T> gray = reinterpret_cast<const T*>("\x1b[90m");
+
+                template <typename T = char>
+                const std::basic_string<T> bold = reinterpret_cast<const T*>("\x1b[1m");
+
+                template <typename T = char>
+                const std::basic_string<T> underline = reinterpret_cast<const T*>("\x1b[4m");
+
+                template <typename T = char>
+                const std::basic_string<T> reset = reinterpret_cast<const T*>("\x1b[0m");
+            }
+
+            namespace detail
+            {
+                template <typename T>
+                inline std::basic_string<T> red(const T* __str, size_t __len)
+                {
+                    return preset::red<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> green(const T* __str, size_t __len)
+                {
+                    return preset::green<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> yellow(const T* __str, size_t __len)
+                {
+                    return preset::yellow<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> blue(const T* __str, size_t __len)
+                {
+                    return preset::blue<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> pink(const T* __str, size_t __len)
+                {
+                    return preset::pink<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> gray(const T* __str, size_t __len)
+                {
+                    return preset::gray<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> bold(const T* __str, size_t __len)
+                {
+                    return preset::bold<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+
+                template <typename T>
+                inline std::basic_string<T> underline(const T* __str, size_t __len)
+                {
+                    return preset::underline<T> + std::basic_string<T>(__str, __len) + preset::reset<T>;
+                }
+            }
+
+            inline std::string operator "" _red(const char* __str, size_t __len)
+            {
+                return detail::red(__str, __len);
+            }
+            inline std::wstring operator "" _red(const wchar_t* __str, size_t __len)
+            {
+                return detail::red(__str, __len);
+            }
+            inline std::u16string operator "" _red(const char16_t* __str, size_t __len)
+            {
+                return detail::red(__str, __len);
+            }
+            inline std::u32string operator "" _red(const char32_t* __str, size_t __len)
+            {
+                return detail::red(__str, __len);
+            }
+
+            inline std::string operator "" _green(const char* __str, size_t __len)
+            {
+                return detail::green(__str, __len);
+            }
+            inline std::wstring operator "" _green(const wchar_t* __str, size_t __len)
+            {
+                return detail::green(__str, __len);
+            }
+            inline std::u16string operator "" _green(const char16_t* __str, size_t __len)
+            {
+                return detail::green(__str, __len);
+            }
+            inline std::u32string operator "" _green(const char32_t* __str, size_t __len)
+            {
+                return detail::green(__str, __len);
+            }
+
+            inline std::string operator "" _yellow(const char* __str, size_t __len)
+            {
+                return detail::yellow(__str, __len);
+            }
+            inline std::wstring operator "" _yellow(const wchar_t* __str, size_t __len)
+            {
+                return detail::yellow(__str, __len);
+            }
+            inline std::u16string operator "" _yellow(const char16_t* __str, size_t __len)
+            {
+                return detail::yellow(__str, __len);
+            }
+            inline std::u32string operator "" _yellow(const char32_t* __str, size_t __len)
+            {
+                return detail::yellow(__str, __len);
+            }
+
+            inline std::string operator "" _blue(const char* __str, size_t __len)
+            {
+                return detail::blue(__str, __len);
+            }
+            inline std::wstring operator "" _blue(const wchar_t* __str, size_t __len)
+            {
+                return detail::blue(__str, __len);
+            }
+            inline std::u16string operator "" _blue(const char16_t* __str, size_t __len)
+            {
+                return detail::blue(__str, __len);
+            }
+            inline std::u32string operator "" _blue(const char32_t* __str, size_t __len)
+            {
+                return detail::blue(__str, __len);
+            }
+
+            inline std::string operator "" _pink(const char* __str, size_t __len)
+            {
+                return detail::pink(__str, __len);
+            }
+            inline std::wstring operator "" _pink(const wchar_t* __str, size_t __len)
+            {
+                return detail::pink(__str, __len);
+            }
+            inline std::u16string operator "" _pink(const char16_t* __str, size_t __len)
+            {
+                return detail::pink(__str, __len);
+            }
+            inline std::u32string operator "" _pink(const char32_t* __str, size_t __len)
+            {
+                return detail::pink(__str, __len);
+            }
+
+            inline std::string operator "" _gray(const char* __str, size_t __len)
+            {
+                return detail::gray(__str, __len);
+            }
+            inline std::wstring operator "" _gray(const wchar_t* __str, size_t __len)
+            {
+                return detail::gray(__str, __len);
+            }
+            inline std::u16string operator "" _gray(const char16_t* __str, size_t __len)
+            {
+                return detail::gray(__str, __len);
+            }
+            inline std::u32string operator "" _gray(const char32_t* __str, size_t __len)
+            {
+                return detail::gray(__str, __len);
+            }
+
+            inline std::string operator "" _bold(const char* __str, size_t __len)
+            {
+                return detail::bold(__str, __len);
+            }
+            inline std::wstring operator "" _bold(const wchar_t* __str, size_t __len)
+            {
+                return detail::bold(__str, __len);
+            }
+            inline std::u16string operator "" _bold(const char16_t* __str, size_t __len)
+            {
+                return detail::bold(__str, __len);
+            }
+            inline std::u32string operator "" _bold(const char32_t* __str, size_t __len)
+            {
+                return detail::bold(__str, __len);
+            }
+
+            inline std::string operator "" _underline(const char* __str, size_t __len)
+            {
+                return detail::underline(__str, __len);
+            }
+            inline std::wstring operator "" _underline(const wchar_t* __str, size_t __len)
+            {
+                return detail::underline(__str, __len);
+            }
+            inline std::u16string operator "" _underline(const char16_t* __str, size_t __len)
+            {
+                return detail::underline(__str, __len);
+            }
+            inline std::u32string operator "" _underline(const char32_t* __str, size_t __len)
+            {
+                return detail::underline(__str, __len);
+            }
         }
-        else {
-            return s;
-        }
     }
 
-    const std::string red = "\x1b[31m";
-    const std::string green = "\x1b[32m";
-    const std::string yellow = "\x1b[33m";
-    const std::string blue = "\x1b[34m";
-    const std::string pink = "\x1b[35m";
-    const std::string lightblue = "\x1b[36m";
-    const std::string gray = "\x1b[90m";
-    const std::string bold = "\x1b[1m";
-    const std::string underline = "\x1b[4m";
-    const std::string reset = "\x1b[0m";
 
-    inline std::string to_red(const std::string& s) { return red+s+reset; }
-    inline std::string to_green(const std::string& s) { return green+s+reset; }
-    inline std::string to_yellow(const std::string& s) { return yellow+s+reset; }
-    inline std::string to_blue(const std::string& s) { return blue+s+reset; }
-    inline std::string to_pink(const std::string& s) { return pink+s+reset; }
-    inline std::string to_lightblue(const std::string& s) { return lightblue+s+reset; }
-    inline std::string to_gray(const std::string& s) { return gray+s+reset; }
-    inline std::string to_bold(const std::string& s) { return bold+s+reset; }
-    inline std::string to_underline(const std::string& s) { return underline+s+reset; }
+    const std::string status = "==> "_green;
+    const std::string fetched = "  ●  "_green;
+    const std::string fetch_failed = "  ●  "_red;
 
+    const std::string warning = "WARN: "_yellow;
+    const std::string error = "ERROR: "_red;
+    const std::string info = "info: "_blue;
+    const std::string debug_m = "[debug] "_gray;
 
-    const std::string status = to_green("==> ");
-    const std::string fetched = to_green("  ●  ");
-    const std::string fetch_failed = to_red("  ●  ");
+    inline std::string to_status(const std::string& s) { return status + s; }
+    inline std::string to_fetched(const std::string& s) { return fetched + s; }
+    inline std::string to_fetch_failed(const std::string& s) { return fetch_failed + s; }
 
-    const std::string warning = to_yellow("WARN: ");
-    const std::string error = to_red("ERROR: ");
-    const std::string info = to_blue("info: ");
-    const std::string debug_m = to_gray("[debug] ");
-
-    inline std::string to_status(const std::string& s) { return status+s; }
-    inline std::string to_fetched(const std::string& s) { return fetched+s; }
-    inline std::string to_fetch_failed(const std::string& s) { return fetch_failed+s; }
-
-    inline std::string to_info(const std::string& s) { return info+s; }
-    inline std::string to_warning(const std::string& s) { return warning+s; }
-    inline std::string to_error(const std::string& s) { return error+s; }
+    inline std::string to_info(const std::string& s) { return info + s; }
+    inline std::string to_warning(const std::string& s) { return warning + s; }
+    inline std::string to_error(const std::string& s) { return error + s; }
 
     inline std::string status_done() { return to_status("Done."); }
 
@@ -157,24 +348,24 @@ namespace poac::io::cli {
 
 
     template <typename... T>
-    inline void echo(const T&... s) {
+    inline void println(const T&... s) {
         (std::cout << ... << s) << std::endl;
     }
     template <typename... T>
-    inline void echo_noln(const T&... s) {
+    inline void print(const T&... s) {
         (std::cout << ... << s);
     }
 
     template <typename... T>
     inline void debugln([[maybe_unused]] const T&... s) {
 #ifdef DEBUG
-        echo(debug_m, s...);
+        println(debug_m, s...);
 #endif
     }
     template <typename... T>
     inline void debug([[maybe_unused]] const T &... s) {
 #ifdef DEBUG
-        echo_noln(debug_m, s...);
+        print(debug_m, s...);
 #endif
     }
 } // end namespace

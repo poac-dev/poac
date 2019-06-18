@@ -35,7 +35,7 @@ namespace poac::subcmd {
                         fs::remove_all(pkg);
                         std::cout << v << " is deleted" << std::endl;
                     } else {
-                        std::cout << io::cli::red << v << " not found" << io::cli::reset << std::endl;
+                        std::cout << io::cli::preset::red<> << v << " not found" << io::cli::preset::reset<> << std::endl;
                     }
                 }
             }

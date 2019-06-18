@@ -15,13 +15,14 @@ int exec(std::string&& str, VS&& vs)
     namespace except = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
+    using namespace poac::io::cli::color_literals;
 
     // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {
         return std::stoi(inference::apply("exec"s, std::forward<std::string>(str), std::forward<VS>(vs)));
     }
     catch (const except::invalid_first_arg& e) {
-        std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl << std::endl;
+        std::cerr << "ERROR: "_red << e.what() << std::endl << std::endl;
         inference::apply("exec"s, "--help"s, VS());
         return EXIT_FAILURE;
     }
@@ -30,11 +31,11 @@ int exec(std::string&& str, VS&& vs)
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {
-        std::cerr << cli::to_red("ERROR: ") << e.what() << std::endl;
+        std::cerr << "ERROR: "_red << e.what() << std::endl;
         return EXIT_FAILURE;
     }
     catch (const except::warn& e) {
-        std::cout << cli::to_yellow("WARN: ") << e.what() << std::endl;
+        std::cout << "WARN: "_yellow << e.what() << std::endl;
         return EXIT_SUCCESS;
     }
     catch (const YAML::BadConversion& e) {

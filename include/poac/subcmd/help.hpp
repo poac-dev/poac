@@ -49,13 +49,13 @@ namespace poac::subcmd {
             // Eliminate -h and -v
             // It assumes two characters because the regular expression is slow.
             if (key[0] != '-') {
-                std::cout << io::cli::blue << io::cli::bold
+                std::cout << io::cli::preset::blue<> << io::cli::preset::bold<>
                           << "   " << std::setw(9) << std::left << key << "   "
-                          << io::cli::reset;
+                          << io::cli::preset::reset<>;
 
-                std::cout << io::cli::yellow
+                std::cout << io::cli::preset::yellow<>
                           << core::infer::_apply("summary"s, value, std::vector<std::string>())
-                          << io::cli::reset
+                          << io::cli::preset::reset<>
                           << std::endl;
             }
         }
@@ -63,9 +63,9 @@ namespace poac::subcmd {
         void exec_help() {
             std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
 
-            std::cout << io::cli::bold
+            std::cout << io::cli::preset::bold<>
                       << "Available commands:"
-                      << io::cli::reset
+                      << io::cli::preset::reset<>
                       << std::endl;
             for (const auto& [name, value] : core::infer::subcmd_map) {
                 show(name, value);

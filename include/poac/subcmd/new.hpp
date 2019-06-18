@@ -21,13 +21,20 @@
 namespace poac::subcmd {
     namespace _new {
         namespace files {
-            const std::string _gitignore(
-                    "#\n"
-                    "# poac\n"
-                    "#\n"
-                    "deps\n"
-                    "_build\n"
-            );
+            namespace bin {
+                const std::string _gitignore(
+                        "/deps\n"
+                        "/_build\n"
+                );
+            }
+            namespace lib {
+                const std::string _gitignore(
+                        "/deps\n"
+                        "/_build\n"
+                        "poac.lock\n"
+                );
+            }
+
             std::string README_md(const std::string& project_name) {
                 return "# " + project_name + "\n"
                        "**TODO: Add description**\n"
@@ -93,13 +100,12 @@ namespace poac::subcmd {
             namespace cli = io::cli;
             namespace name = core::name;
 
+            using namespace io::cli::color_literals;
+
             bool lib = util::argparse::use_rm(argv, "-l", "--lib");
             // libが存在しないならどちらにせよ，binが選択される．
             // libが存在し，binも存在するなら，binが優先される．
             const bool bin = !lib || util::argparse::use_rm(argv, "-b", "--bin");
-            if (bin) {
-                lib = false;
-            }
             // libとbinを引数から抜いた時点で，1じゃなかったらエラーになる．
             if (argv.size() != 1) {
                 throw except::invalid_second_arg("new");
@@ -118,29 +124,28 @@ namespace poac::subcmd {
             std::map<fs::path, std::string> file;
             if (bin) {
                 file = {
-                        { ".gitignore", files::_gitignore },
+                        { ".gitignore", files::bin::_gitignore },
                         { "README.md",  files::README_md(project_name) },
                         { "poac.yml",   files::poac_yml(project_name, "bin") },
                         { "main.cpp",   files::main_cpp }
                 };
             }
             else {
-                fs::create_directories(project_path / "include");
+                fs::create_directories(project_path / "include" / project_name);
                 file = {
-                        { ".gitignore", files::_gitignore },
+                        { ".gitignore", files::lib::_gitignore },
                         { "README.md",  files::README_md(project_name) },
                         { "poac.yml",   files::poac_yml(project_name, "lib") },
-                        { fs::path("include") / (project_name + ".hpp"), files::include_hpp(project_name) },
+                        { fs::path("include") / project_name / (project_name + ".hpp"), files::include_hpp(project_name) },
                 };
             }
             for (const auto& [name, text] : file) {
                 path::write_to_file(ofs, (project_path / name).string(), text);
             }
-            std::cout << io::cli::to_green("Created: ");
+            std::cout << "Created: "_green;
             if (bin) {
                 std::cout << "application ";
-            }
-            else {
+            } else {
                 std::cout << "library ";
             }
             std::cout << "`" << project_name << "` "
@@ -150,7 +155,7 @@ namespace poac::subcmd {
             if (util::_shell::has_command("git")) {
                 const std::string git_init = "git init " + project_name;
                 util::shell(git_init).exec();
-                cli::echo(cli::to_green("Running: "), git_init);
+                cli::println("Running: "_green, git_init);
             }
 
             return EXIT_SUCCESS;

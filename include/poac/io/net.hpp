@@ -290,7 +290,7 @@ namespace poac::io::net {
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.footer()));
-            cli::echo(cli::to_info("Waiting for server response..."));
+            cli::println(cli::to_info("Waiting for server response..."));
         }
 
 

@@ -203,23 +203,22 @@ namespace poac::core::deper::semver {
     };
 
     std::ostream& operator<<(std::ostream& os, const Version& v) {
-        using io::cli::to_green;
-        using io::cli::to_yellow;
+        namespace preset = io::cli::preset;
 
         os << "SemVer {\n";
-        os << "  full: " << to_green("\"" + v.get_full() + "\"") << ",\n";
-        os << "  version: " << to_green("\"" + v.get_version() + "\"") << ",\n";
-        os << "  major: " << to_yellow(std::to_string(v.major)) << ",\n";
-        os << "  minor: " << to_yellow(std::to_string(v.minor)) << ",\n";
-        os << "  patch: " << to_yellow(std::to_string(v.patch)) << ",\n";
+        os << "  full: " << preset::green<> << "\"" << v.get_full() << "\"" << preset::reset<> << ",\n";
+        os << "  version: " << preset::green<> << "\"" << v.get_version() << "\"" << preset::reset<> << ",\n";
+        os << "  major: " << preset::yellow<> << v.major << preset::reset<> << ",\n";
+        os << "  minor: " << preset::yellow<> << v.minor << preset::reset<> << ",\n";
+        os << "  patch: " << preset::yellow<> << v.patch << preset::reset<> << ",\n";
         os << "  prerelease: " << "[ ";
         for (const auto& s : v.pre) {
-            os << to_green("\"" + s + "\"") << ", ";
+            os << preset::green<> << "\"" << s << "\"" << preset::reset<> << ", ";
         }
         os << "],\n";
         os << "  build: " << "[ ";
         for (const auto& s : v.build) {
-            os << to_green("\"" + s + "\"") << ", ";
+            os << preset::green<> << "\"" << s << "\"" << preset::reset<> << ", ";
         }
         os << "],\n";
         os << "}";

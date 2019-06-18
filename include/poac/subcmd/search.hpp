@@ -19,16 +19,18 @@
 namespace poac::subcmd {
     namespace _search {
         void echo_first_line() {
-            const int ul_size = static_cast<int>(io::cli::underline.size());
-            const int reset_size = static_cast<int>(io::cli::reset.size());
+            using io::cli::color_literals::operator""_underline;
+
+            const int ul_size = static_cast<int>(io::cli::preset::underline<>.size());
+            const int reset_size = static_cast<int>(io::cli::preset::reset<>.size());
 
             io::cli::set_left(ul_size + 25 + reset_size);
-            std::cout << io::cli::to_underline("Package");
+            std::cout << "Package"_underline;
             io::cli::set_left(ul_size + 50 + reset_size);
-            std::cout << io::cli::to_underline("Description");
+            std::cout << "Description"_underline;
             io::cli::set_left(ul_size + 15 + reset_size);
-            std::cout << io::cli::to_underline("Version")
-                      << io::cli::to_underline("C++ Version")
+            std::cout << "Version"_underline
+                      << "C++ Version"_underline
                       << std::endl;
         }
 
@@ -94,8 +96,8 @@ namespace poac::subcmd {
                 const ptree& hits = child.second;
 
                 std::string name = hits.get<std::string>("_highlightResult.name.value");
-                auto count_s = replace(name, "<em>", cli::red) * cli::red.size();
-                auto count_l = replace(name, "</em>", cli::reset) * cli::reset.size();
+                auto count_s = replace(name, "<em>", cli::preset::red<>) * cli::preset::red<>.size();
+                auto count_l = replace(name, "</em>", cli::preset::reset<>) * cli::preset::reset<>.size();
 
                 cli::set_left(25 + count_s + count_l);
                 std::cout << util::pretty::clip_string(name, 21 + count_s + count_l);

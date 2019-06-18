@@ -22,11 +22,17 @@
 
 namespace poac::subcmd {
     namespace _build {
+
+
+
+        // TODO: この辺りの，ハンドラを，いい感じに，builder.hppに持っていく．
+
+
         std::optional<std::string>
         handle_message(const std::string& method, const std::optional<std::string>& output) {
             namespace fs = boost::filesystem;
             if (output) {
-                std::cout << io::cli::to_green(method + ": ")
+                std::cout << io::cli::preset::green<> << method << ": " << io::cli::preset::reset<>
                           << "Output to `"
                           << fs::relative(*output).string()
                           << "`"
@@ -105,9 +111,11 @@ namespace poac::subcmd {
                 const std::string& type)
         {
             namespace fs = boost::filesystem;
+            using io::cli::color_literals::operator""_yellow;
+
             // Dealing with an error which is said to have cache even though it is not going well.
             if (fs::exists(file_path + extension)) {
-                std::cout << io::cli::to_yellow("Warning: ")
+                std::cout << "Warning: "_yellow
                           << "There is no change. " << type << " exists in `"
                           << fs::relative(file_path).string() << extension << "`."
                           << std::endl;
@@ -190,11 +198,11 @@ namespace poac::subcmd {
 
                         bs.configure_compile(false);
                         if (!bs.compile_conf.source_files.empty()) {
-                            io::cli::echo(io::cli::to_status(name));
+                            io::cli::println(io::cli::to_status(name));
 
                             if (const auto obj_files_path = bs.compile()) {
                                 handle_generate_lib(bs, *obj_files_path);
-                                io::cli::echo();
+                                io::cli::println();
                                 return *obj_files_path;
                             }
                             else { // Compile failure
@@ -205,9 +213,9 @@ namespace poac::subcmd {
                 }
                 else if (*system == "cmake") {
                     stroite::chain::cmake bs(deps_path);
-                    io::cli::echo(io::cli::to_status(name));
+                    io::cli::println(io::cli::to_status(name));
                     bs.build();
-                    io::cli::echo();
+                    io::cli::println();
                     return {};
                 }
             }
@@ -302,6 +310,19 @@ namespace poac::subcmd {
             namespace name = core::name;
             namespace yaml = io::yaml;
 
+            using namespace io::cli::color_literals;
+
+
+            // {
+            //   stroite::core::Builder bs(fs::current_path());
+            //   bs.build(verbose);
+            // }
+
+            // for (l : lock_file) {
+            //   stroite::core::Builder bs(fs::current_path());
+            //   bs.build(verbose); -> Unneed build detected OR Compiled
+            // }
+
             const auto node = yaml::load_config();
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
@@ -315,7 +336,7 @@ namespace poac::subcmd {
                     stroite::core::builder bs(verbose);
 
                     if (is_built_deps) {
-                        io::cli::echo(io::cli::to_status(project_name));
+                        io::cli::println(io::cli::to_status(project_name));
                     }
 
 //                    bool built_lib = false;
@@ -343,10 +364,10 @@ namespace poac::subcmd {
                 else if (*system == "cmake") {
                     stroite::chain::cmake bs;
                     if (is_built_deps) {
-                        io::cli::echo(io::cli::to_status(project_name));
+                        io::cli::println(io::cli::to_status(project_name));
                     }
                     bs.build(); // only build
-                    io::cli::echo(io::cli::to_green("Compiled: "), project_name);
+                    io::cli::println("Compiled: "_green, project_name);
                 }
             }
             else { // error

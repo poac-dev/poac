@@ -75,7 +75,7 @@ namespace poac::subcmd {
         void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
             namespace cli = io::cli;
             const std::string status = n + " " + v + " (from: " + s + ")";
-            cli::echo('\r', cli::clr_line, res ? cli::to_fetch_failed(status) : cli::to_fetched(status));
+            cli::println('\r', cli::clr_line, res ? cli::to_fetch_failed(status) : cli::to_fetched(status));
         }
 
         void fetch_packages(
@@ -89,6 +89,7 @@ namespace poac::subcmd {
             namespace tar = io::tar;
             namespace resolver = core::deper::resolver;
             namespace fs = boost::filesystem;
+            using io::cli::color_literals::operator""_yellow;
 
             int exists_count = 0;
             for (const auto& [name, dep] : deps) {
@@ -152,7 +153,7 @@ namespace poac::subcmd {
                 }
             }
             if (exists_count == static_cast<int>(deps.size())) {
-                io::cli::echo(io::cli::to_yellow("WARN: "), "Already installed");
+                io::cli::println("WARN: "_yellow, "Already installed");
             }
         }
 
@@ -261,7 +262,7 @@ namespace poac::subcmd {
 
             // resolve dependency
             if (!quite) {
-                cli::echo(cli::to_status("Resolving dependencies..."));
+                cli::println(cli::to_status("Resolving dependencies..."));
             }
             if (!load_lock) {
                 resolved_deps = resolver::resolve(deps);
@@ -269,14 +270,14 @@ namespace poac::subcmd {
 
             // download packages
             if (!quite) {
-                cli::echo(cli::to_status("Fetching..."));
-                cli::echo();
+                cli::println(cli::to_status("Fetching..."));
+                cli::println();
             }
             fs::create_directories(path::current_deps_dir);
             fetch_packages(resolved_deps.backtracked, quite, verbose);
             if (!quite) {
-                cli::echo();
-                cli::echo(cli::status_done());
+                cli::println();
+                cli::println(cli::status_done());
             }
 
             // Rewrite poac.yml

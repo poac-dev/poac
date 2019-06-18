@@ -29,9 +29,9 @@ namespace poac::subcmd {
             const std::string token_path = io::path::poac_token_dir.string();
             if (std::ofstream ofs(token_path); ofs) {
                 ofs << argv[0] << std::endl;
-                std::cout << io::cli::bold
+                std::cout << io::cli::preset::bold<>
                           << "Write to " + token_path
-                          << io::cli::reset
+                          << io::cli::preset::reset<>
                           << std::endl;
             }
             else { // file open error

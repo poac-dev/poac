@@ -29,7 +29,7 @@ namespace poac::subcmd {
             namespace except = core::except;
 
             if (const auto result = io::yaml::exists_config()) {
-                std::cerr << io::cli::bold << io::cli::red
+                std::cerr << io::cli::preset::bold<> << io::cli::preset::red<>
                           << "Already " << *result << " exists." << std::endl
                           << std::endl
                           << "See `poac init --help`" << std::endl
@@ -38,7 +38,7 @@ namespace poac::subcmd {
                           << "save it as a dependency in the poac.yml file." << std::endl
                           << std::endl
                           << "Do you want overwrite? (Y/n): "
-                          << io::cli::reset;
+                          << io::cli::preset::reset<>;
                 std::string ans;
                 std::cin >> ans;
                 std::transform(ans.cbegin(), ans.cend(), ans.begin(), tolower);
