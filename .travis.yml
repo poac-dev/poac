@@ -29,7 +29,7 @@ install:
     else
       pip install cpp-coveralls;
     fi
-  - brew install libtar yaml-cpp
+  - brew install yaml-cpp
 script:
   - mkdir build
   - cd build

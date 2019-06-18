@@ -122,8 +122,8 @@ if(UNIX)
             "ssl"
             "crypto"
             "dl"
+#            "tar"
             "yaml-cpp"
-            "tar"
     )
 elseif(WIN32)
     target_link_libraries(
@@ -134,7 +134,7 @@ elseif(WIN32)
             ${OPENSSL_LIBRARIES}
             "bcrypt"
             "ws2_32"
-            "tar"
+#            "tar"
             "yaml-cpp"
     )
 endif()
