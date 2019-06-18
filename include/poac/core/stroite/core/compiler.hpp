@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../utils/absorb.hpp"
-#include "../../../util/command.hpp"
+#include "../../../util/shell.hpp"
 
 
 namespace poac::core::stroite::core::compiler {
@@ -19,7 +19,7 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::string>
     compile(const Opts& opts, const bool verbose)
     {
-        util::command cmd("cd " + opts.base_dir.string());
+        util::shell cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
         cmd += opts.std_version;
         cmd += "-c";
@@ -58,7 +58,7 @@ namespace poac::core::stroite::core::compiler {
         const std::string bin_path =
                 (opts.output_root / opts.project_name).string() + utils::absorb::binary_extension;
 
-        util::command cmd(opts.system);
+        util::shell cmd(opts.system);
         for (const auto& o : opts.obj_files_path)
             cmd += o;
         for (const auto& lsp : opts.library_search_path)
@@ -88,7 +88,7 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::string>
     gen_static_lib(const Opts& opts, const bool verbose)
     {
-        util::command cmd("ar rcs");
+        util::shell cmd("ar rcs");
         const std::string lib_name = "lib" + opts.project_name + ".a";
         const std::string lib_path = (opts.output_root / lib_name).string();
         cmd += lib_path;
@@ -112,7 +112,7 @@ namespace poac::core::stroite::core::compiler {
     std::optional<std::string>
     gen_dynamic_lib(const Opts& opts, const bool verbose)
     {
-        util::command cmd(opts.system);
+        util::shell cmd(opts.system);
         cmd += utils::absorb::dynamic_lib_option;
         for (const auto& o : opts.obj_files_path)
             cmd += o;

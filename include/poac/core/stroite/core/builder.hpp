@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_STROITE_CORE_BUILDER_HPP
 #define POAC_CORE_STROITE_CORE_BUILDER_HPP
 
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -23,12 +24,12 @@
 #include "../field/standard.hpp"
 #include "../utils.hpp"
 #include "../../except.hpp"
-#include "../../naming.hpp"
+#include "../../name.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
-#include "../../../io/file/path.hpp"
+#include "../../../io/path.hpp"
 #include "../../../io/cli.hpp"
-#include "../../../io/file/yaml.hpp"
+#include "../../../io/yaml.hpp"
 
 
 namespace poac::core::stroite::core {
@@ -69,12 +70,12 @@ namespace poac::core::stroite::core {
         void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
             namespace fs = boost::filesystem;
             namespace lock = deper::lock;
-            namespace yaml = io::file::yaml;
-            namespace path = io::file::path;
+            namespace yaml = io::yaml;
+            namespace path = io::path;
 
             if (const auto locked_deps = lock::load_ignore_timestamp()) {
                 for (const auto& [name, dep] : locked_deps->backtracked) {
-                    const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                    const std::string current_package_name = name::to_current(dep.source, name, dep.version);
                     const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
 
                     if (path::validate_dir(include_dir)) {
@@ -95,8 +96,8 @@ namespace poac::core::stroite::core {
         }
         void configure_compile(const bool usemain)
         {
-            namespace yaml = io::file::yaml;
-            namespace path = io::file::path;
+            namespace yaml = io::yaml;
+            namespace path = io::path;
 
             compile_conf.system = compiler;
 
@@ -127,9 +128,8 @@ namespace poac::core::stroite::core {
                             output_string += file_name + ": " + hash + "\n";
                         }
                         fs::create_directories(fs::path(hash_name).parent_path());
-                        io::file::path::write_to_file(ofs, hash_name, output_string);
+                        io::path::write_to_file(ofs, hash_name, output_string);
                     }
-
                 }
                 else {
                     return std::nullopt;
@@ -151,16 +151,16 @@ namespace poac::core::stroite::core {
 
         void make_link(const std::map<std::string, YAML::Node>& deps_node) {
             namespace fs = boost::filesystem;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             for (const auto& [raw_name, next_node] : deps_node) {
-                const auto [src, name] = naming::get_source(raw_name);
-                const std::string version = naming::get_version(next_node, src);
+                const auto [src, name] = name::get_source(raw_name);
+                const std::string version = name::get_version(next_node, src);
 
                 // FIXME: srcではなく，build systemを読む．
                 if (src != "poac") {
-                    const std::string caching_name = naming::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
-                    const fs::path pkgpath = io::file::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
+                    const std::string caching_name = name::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
+                    const fs::path pkgpath = io::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
 
                     // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
                     if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
@@ -180,13 +180,13 @@ namespace poac::core::stroite::core {
         }
         void configure_link(const std::vector<std::string>& obj_files_path) // TODO: obj_files_path以外は，インスタンス時に作れるからメモリの無駄遣いにならない．
         {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             link_conf.obj_files_path = obj_files_path;
 
             link_conf.system = compiler;
             link_conf.project_name = project_name;
-            link_conf.output_root = io::file::path::current_build_bin_dir;
+            link_conf.output_root = io::path::current_build_bin_dir;
 //            make_link();
 //            link_conf.library_search_path = std::get<0>(links);
 //            link_conf.static_link_libs = std::get<1>(links);
@@ -203,7 +203,7 @@ namespace poac::core::stroite::core {
         void configure_static_lib(const std::vector<std::string>& obj_files_path)
         {
             static_lib_conf.project_name = project_name;
-            static_lib_conf.output_root = io::file::path::current_build_lib_dir;
+            static_lib_conf.output_root = io::path::current_build_lib_dir;
             static_lib_conf.obj_files_path = obj_files_path;
         }
         auto gen_static_lib()
@@ -217,7 +217,7 @@ namespace poac::core::stroite::core {
             dynamic_lib_conf.project_name = project_name;
             // outputを一箇所か分散か選べるように．boost::hoghoeみたいに，enumのオプションを渡すとOK
             // 一箇所ってのは，./ poac build -> ./_buildだけど，depsも./_buildに配置されるやつ
-            dynamic_lib_conf.output_root = io::file::path::current_build_lib_dir;
+            dynamic_lib_conf.output_root = io::path::current_build_lib_dir;
             dynamic_lib_conf.obj_files_path = obj_files_path;
         }
         auto gen_dynamic_lib()
@@ -230,7 +230,7 @@ namespace poac::core::stroite::core {
         // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
         explicit builder(const bool verbose, const boost::filesystem::path& base_dir=boost::filesystem::current_path())
         {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
 
             const auto config_file = yaml::load_config_by_dir_with_throw(base_dir);
             node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
@@ -244,7 +244,7 @@ namespace poac::core::stroite::core {
 
 
             compiler = field::standard::detect_command();
-            project_name = naming::slash_to_hyphen(node.at("name").as<std::string>());
+            project_name = name::slash_to_hyphen(node.at("name").as<std::string>());
             this->base_dir = base_dir;
             this->verbose = verbose;
         }

@@ -12,13 +12,13 @@
 
 #include "./absorb.hpp"
 #include "../../except.hpp"
-#include "../../naming.hpp"
+#include "../../name.hpp"
 #include "../../deper/lock.hpp"
 #include "../../deper/semver.hpp"
-#include "../../../io/file/path.hpp"
+#include "../../../io/path.hpp"
 #include "../../../io/cli.hpp"
-#include "../../../io/file/yaml.hpp"
-#include "../../../util/command.hpp"
+#include "../../../io/yaml.hpp"
+#include "../../../util/shell.hpp"
 
 
 namespace poac::core::stroite::utils::options {
@@ -35,7 +35,7 @@ namespace poac::core::stroite::utils::options {
     };
     std::string to_string(const compile& c) {
         namespace fs = boost::filesystem;
-        using command = util::command;
+        using command = util::shell;
 
         command opts;
         opts += c.std_version;
@@ -66,7 +66,7 @@ namespace poac::core::stroite::utils::options {
         std::vector<std::string> other_args;
     };
     std::string to_string(const link& l) {
-        using command = util::command;
+        using command = util::shell;
 
         command opts;
         opts += accumulate(begin(l.obj_files_path), end(l.obj_files_path), command());
@@ -86,7 +86,7 @@ namespace poac::core::stroite::utils::options {
         std::vector<std::string> obj_files_path;
     };
     std::string to_string(const static_lib& s) {
-        using command = util::command;
+        using command = util::shell;
 
         command opts;
         opts += (s.output_root / s.project_name).string() + ".a";
@@ -101,7 +101,7 @@ namespace poac::core::stroite::utils::options {
         std::vector<std::string> obj_files_path;
     };
     std::string to_string(const dynamic_lib& d) {
-        using command = util::command;
+        using command = util::shell;
 
         command opts;
         opts += absorb::dynamic_lib_option;
@@ -131,7 +131,7 @@ namespace poac::core::stroite::utils::options {
     std::vector<std::string>
     make_macro_defns(const std::map<std::string, YAML::Node>& node) {
         namespace fs = boost::filesystem;
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         std::vector<std::string> macro_defns;
         // poac automatically define the absolute path of the project's root directory.
@@ -147,7 +147,7 @@ namespace poac::core::stroite::utils::options {
 
     std::vector<std::string>
     make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
         if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
             return *compile_args;
         }

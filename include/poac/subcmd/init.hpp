@@ -11,9 +11,9 @@
 
 #include "./new.hpp"
 #include "../io/cli.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/yaml.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 
 
 namespace poac::subcmd {
@@ -21,14 +21,14 @@ namespace poac::subcmd {
         std::string basename(boost::filesystem::path&& s) {
             namespace fs = boost::filesystem;
             std::string tmp = fs::basename(s);
-            core::naming::validate_package_name(tmp);
+            core::name::validate_package_name(tmp);
             return tmp;
         }
 
         std::string check_requirements() {
             namespace except = core::except;
 
-            if (const auto result = io::file::yaml::exists_config()) {
+            if (const auto result = io::yaml::exists_config()) {
                 std::cerr << io::cli::bold << io::cli::red
                           << "Already " << *result << " exists." << std::endl
                           << std::endl

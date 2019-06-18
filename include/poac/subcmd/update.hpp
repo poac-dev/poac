@@ -13,11 +13,11 @@
 
 #include "./install.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../core/deper/semver.hpp"
 #include "../core/deper/resolver.hpp"
-#include "../io/file/path.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/path.hpp"
+#include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
 #include "../util/types.hpp"
@@ -31,17 +31,17 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace cli = io::cli;
             namespace resolver = core::deper::resolver;
-            namespace naming = core::naming;
+            namespace name = core::name;
 
             const bool yes = util::argparse::use_rm(argv, "-y", "--yes");
             const bool all = util::argparse::use_rm(argv, "-a", "--all");
             [[maybe_unused]] const bool outside = util::argparse::use_rm(argv, "--outside");
 
 
-            if (!io::file::path::validate_dir("deps")) {
+            if (!io::path::validate_dir("deps")) {
                 const auto err = "It is the same as executing install command because nothing is installed.";
                 cli::echo(cli::to_warning(err));
                 _install::_main(std::move(argv)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
@@ -58,7 +58,7 @@ namespace poac::subcmd {
 
                 for (const auto& [name, dep] : resolved_deps.backtracked) {
                     if (dep.source == "poac") {
-                        const auto current_name = naming::to_current(dep.source, name, dep.version);
+                        const auto current_name = name::to_current(dep.source, name, dep.version);
                         std::string current_version;
                         if (const auto yml = yaml::exists_config(fs::path("deps") / current_name)) {
                             if (const auto op_node = yaml::load(*yml)) {
@@ -113,7 +113,7 @@ namespace poac::subcmd {
 
                 // Delete current version
                 for (const auto& [name, dep] : update_deps) {
-                    const auto current_name = naming::to_current(dep.source, name, resolved_deps.backtracked[name].version);
+                    const auto current_name = name::to_current(dep.source, name, resolved_deps.backtracked[name].version);
                     boost::system::error_code error;
                     fs::remove_all(fs::path("deps") / current_name, error);
                 }

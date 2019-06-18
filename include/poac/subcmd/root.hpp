@@ -36,7 +36,6 @@ namespace poac::subcmd {
             else {
                 std::cout << loc.parent_path().string() << std::endl;
             }
-
             return EXIT_SUCCESS;
         }
     };

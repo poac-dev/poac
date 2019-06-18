@@ -11,10 +11,10 @@
 #include "./install.hpp"
 #include "./uninstall.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 
 
@@ -22,10 +22,10 @@ namespace poac::subcmd {
     namespace _cleanup {
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace lock = core::deper::lock;
-            namespace naming = core::naming;
+            namespace name = core::name;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;
 
@@ -43,7 +43,7 @@ namespace poac::subcmd {
 
             std::vector<std::string> package_names;
             for (const auto& [name, dep] : resolved_deps.backtracked) {
-                const auto package_name = naming::to_current(dep.source, name, dep.version);
+                const auto package_name = name::to_current(dep.source, name, dep.version);
                 package_names.push_back(package_name);
             }
 

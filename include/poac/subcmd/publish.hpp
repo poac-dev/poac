@@ -29,11 +29,11 @@ namespace poac::subcmd {
         boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
             namespace fs = boost::filesystem;
 
-            const fs::path temp_path = io::file::path::create_temp();
+            const fs::path temp_path = io::path::create_temp();
             const fs::path copy_file = temp_path / fs::basename(project_dir);
-            io::file::path::recursive_copy(project_dir, copy_file);
+            io::path::recursive_copy(project_dir, copy_file);
 
-            const auto node = io::file::yaml::load_config("name", "version");
+            const auto node = io::yaml::load_config("name", "version");
             std::string name = node.at("name").as<std::string>();
             std::replace(name.begin(), name.end(), '/', '-'); // boost/config -> boost-config
 
@@ -48,12 +48,12 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
 
             const fs::path file_path = rename_copy(project_dir);
-            const fs::path temp_path = io::file::path::create_temp();
+            const fs::path temp_path = io::path::create_temp();
 
             std::vector<std::string> excludes({ "deps", "_build", ".git", ".gitignore" });
             // Read .gitignore
-            if (const auto ignore = io::file::path::read_file(".gitignore")) {
-                auto tmp = io::file::path::split(*ignore, "\n");
+            if (const auto ignore = io::path::read_file(".gitignore")) {
+                auto tmp = io::path::split(*ignore, "\n");
                 const auto itr = std::remove_if(tmp.begin(), tmp.end(), [](std::string x) {
                     return (x[0] == '#');
                 });
@@ -61,7 +61,7 @@ namespace poac::subcmd {
             }
             const std::string output_dir = (temp_path / file_path.filename()).string() + ".tar.gz";
 
-            io::file::tarball::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
+            io::tar::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
 
             fs::remove_all(file_path.parent_path());
 
@@ -77,7 +77,7 @@ namespace poac::subcmd {
 
         void check_requirements() {
             namespace fs = boost::filesystem;
-            io::file::yaml::load_config("name", "version", "cpp_version", "description", "owners");
+            io::yaml::load_config("name", "version", "cpp_version", "description", "owners");
             if (!fs::exists("README.md")) {
                 // TODO: もう少しほんわかと識別したい．README.txtやreadme.md等
                 // TODO: readmeが接頭辞にありつつ，最短なファイル．README.md, README-ja.mdだと，README.mdを優先
@@ -120,7 +120,7 @@ namespace poac::subcmd {
             // Get token
             boost::property_tree::ptree json;
             std::string token;
-            if (const auto token_opt = io::file::path::read_file(io::file::path::poac_token_dir)) {
+            if (const auto token_opt = io::path::read_file(io::path::poac_token_dir)) {
                 const std::string temp = *token_opt;
                 const std::string temp_path(temp, 0, temp.size()-1); // delete \n
                 token = temp_path;
@@ -130,7 +130,7 @@ namespace poac::subcmd {
                 throw except::error(except::msg::could_not_read("token"));
             }
             {
-                const auto node = io::file::yaml::load_config("owners");
+                const auto node = io::yaml::load_config("owners");
                 boost::property_tree::ptree children;
                 for (const auto& s : node.at("owners").as<std::vector<std::string>>()) {
                     boost::property_tree::ptree child;
@@ -159,7 +159,7 @@ namespace poac::subcmd {
                 }
             }
 
-            const auto node = io::file::yaml::load_config("name", "version");
+            const auto node = io::yaml::load_config("name", "version");
             const auto node_name = node.at("name").as<std::string>();
             const auto node_version = node.at("version").as<std::string>();
             {

@@ -14,14 +14,12 @@
 #include "../core/stroite/utils/absorb.hpp"
 #include "../core/stroite/utils/detect.hpp"
 #include "../core/deper/lock.hpp"
-#include "../io/file.hpp"
-#include "../io/cli.hpp"
+#include "../io.hpp"
 #include "../core/stroite.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../util/argparse.hpp"
 
 
-// TODO: --release, --no-cache (build systemにpoacを使用する時のみ), --example
 namespace poac::subcmd {
     namespace _build {
         std::optional<std::string>
@@ -38,7 +36,7 @@ namespace poac::subcmd {
             else { // Static link library generation failed // Dynamic link library generation failed
                 // TODO: 全部削除すると，testのcacheも消えてしまう．// .dylibだけ消せば？？？ __APPLE__で分岐必要
                 boost::system::error_code error;
-                fs::remove_all(io::file::path::current_build_cache_dir, error);
+                fs::remove_all(io::path::current_build_cache_dir, error);
                 return std::nullopt;
             }
         }
@@ -123,8 +121,7 @@ namespace poac::subcmd {
             handle_exist_message(lib_path, extension, "Dynamic link library");
         }
         std::string is_exist_lib(const std::string& project_name) {
-            namespace path = io::file::path;
-            const auto lib_path = (path::current_build_lib_dir / project_name).string();
+            const auto lib_path = (io::path::current_build_lib_dir / project_name).string();
             is_exist_static_lib(lib_path);
             is_exist_dynamic_lib(lib_path);
             return lib_path;
@@ -144,7 +141,7 @@ namespace poac::subcmd {
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
                 const std::string extension = core::stroite::utils::absorb::binary_extension;
                 const std::string bin_path =
-                        (io::file::path::current_build_bin_dir / bs.project_name).string();
+                        (io::path::current_build_bin_dir / bs.project_name).string();
                 handle_exist_message(bin_path, extension, "Binary");
                 return bin_path;
             }
@@ -188,7 +185,7 @@ namespace poac::subcmd {
             if (const auto system = stroite::utils::detect::build_system(node)) {
                 if (*system == "poac") {
                     // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
-                    if (io::file::yaml::get(node, "build", "lib")) {
+                    if (io::yaml::get(node, "build", "lib")) {
                         stroite::core::builder bs(verbose, deps_path);
 
                         bs.configure_compile(false);
@@ -224,8 +221,8 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
             namespace lock = core::deper::lock;
-            namespace naming = core::naming;
-            namespace yaml = io::file::yaml;
+            namespace name = core::name;
+            namespace yaml = io::yaml;
 
 
             std::vector<std::string> library_path;
@@ -233,7 +230,7 @@ namespace poac::subcmd {
                 // TODO: ビルド順序
                 if (const auto locked_deps = lock::load_ignore_timestamp()) {
                     for (const auto& [name, dep] : (*locked_deps).backtracked) {
-                        const std::string current_package_name = naming::to_current(dep.source, name, dep.version);
+                        const std::string current_package_name = name::to_current(dep.source, name, dep.version);
                         const auto deps_path = fs::current_path() / "deps" / current_package_name;
 
                         if (fs::exists(deps_path)) {
@@ -251,7 +248,7 @@ namespace poac::subcmd {
                                         for (const auto& o : *obj_files_path_opt) {
                                             obj_files_path.push_back(o);
                                         }
-                                        library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい / dylibかa
+                                        library_path.push_back((io::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい / dylibかa
                                     }
                                 }
                                 else if (const auto deps_config_node = yaml::load_config_by_dir(deps_path)) {
@@ -259,7 +256,7 @@ namespace poac::subcmd {
                                         for (const auto& o : *obj_files_path_opt) {
                                             obj_files_path.push_back(o);
                                         }
-                                        library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
+                                        library_path.push_back((io::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
                                     }
                                 }
                                 // header-only
@@ -270,7 +267,7 @@ namespace poac::subcmd {
                                         for (const auto& o : *obj_files_path_opt) {
                                             obj_files_path.push_back(o);
                                         }
-                                        library_path.push_back((io::file::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
+                                        library_path.push_back((io::path::current_build_lib_dir / current_package_name).string() + ".a"); // TODO: 可変にしたい
                                     }
                                 }
                                 // header-only
@@ -302,8 +299,8 @@ namespace poac::subcmd {
             namespace fs = boost::filesystem;
             namespace except = core::except;
             namespace stroite = core::stroite;
-            namespace naming = core::naming;
-            namespace yaml = io::file::yaml;
+            namespace name = core::name;
+            namespace yaml = io::yaml;
 
             const auto node = yaml::load_config();
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
@@ -333,7 +330,7 @@ namespace poac::subcmd {
                         // TODO: ディレクトリで指定できるように
                         if (!build_bin(bs, *built_deps)) {
                             // 一度コンパイルに成功した後にpoac runを実行し，コンパイルに失敗しても実行されるエラーの回避
-                            const auto binary_name = io::file::path::current_build_bin_dir / project_name;
+                            const auto binary_name = io::path::current_build_bin_dir / project_name;
                             const fs::path executable_path = fs::relative(binary_name);
                             boost::system::error_code error;
                             fs::remove(executable_path, error);

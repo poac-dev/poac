@@ -1,5 +1,5 @@
-#ifndef POAC_IO_FILE_PATH_HPP
-#define POAC_IO_FILE_PATH_HPP
+#ifndef POAC_IO_PATH_HPP
+#define POAC_IO_PATH_HPP
 
 #include <iostream>
 #include <fstream>
@@ -9,11 +9,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../../core/except.hpp"
-#include "../../util/command.hpp"
+#include "../core/except.hpp"
+#include "../util/shell.hpp"
 
 
-namespace poac::io::file::path {
+namespace poac::io::path {
     // Inspired by https://stackoverflow.com/q/4891006
     std::string expand_user(std::string path) {
         namespace except = core::except;
@@ -161,7 +161,7 @@ namespace poac::io::file::path {
     }
 
     boost::filesystem::path create_temp() {
-        const std::string temp = *(util::command("mktemp -d").exec());
+        const std::string temp = *(util::shell("mktemp -d").exec());
         const std::string temp_path(temp, 0, temp.size()-1); // delete \n
         return temp_path;
     }
@@ -184,4 +184,4 @@ namespace poac::io::file::path {
         }
     }
 } // end namespace
-#endif // !POAC_IO_FILE_PATH_HPP
+#endif // !POAC_IO_PATH_HPP

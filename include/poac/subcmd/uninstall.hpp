@@ -13,11 +13,11 @@
 
 #include "./install.hpp"
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../core/deper/resolver.hpp"
 #include "../core/deper/lock.hpp"
-#include "../io/file/path.hpp"
-#include "../io/file/yaml.hpp"
+#include "../io/path.hpp"
+#include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
 
@@ -38,7 +38,7 @@ namespace poac::subcmd {
                     return;
                 }
             }
-            fs::remove_all(io::file::path::current_deps_dir);
+            fs::remove_all(io::path::current_deps_dir);
         }
 
 
@@ -115,10 +115,10 @@ namespace poac::subcmd {
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void individual(VS&& argv) {
             namespace fs = boost::filesystem;
-            namespace yaml = io::file::yaml;
+            namespace yaml = io::yaml;
             namespace resolver = core::deper::resolver;
             namespace cli = io::cli;
-            namespace naming = core::naming;
+            namespace name = core::name;
             namespace except = core::except;
             namespace lock = core::deper::lock;
 
@@ -173,9 +173,9 @@ namespace poac::subcmd {
             // Delete what was added to uninstall_list
             cli::echo();
             for (const auto& [name, dep] : uninstall_list) {
-                const auto package_name = naming::to_current(dep.source, name, dep.version);
-                const auto package_path = io::file::path::current_deps_dir / package_name;
-                if (io::file::path::validate_dir(package_path)) {
+                const auto package_name = name::to_current(dep.source, name, dep.version);
+                const auto package_path = io::path::current_deps_dir / package_name;
+                if (io::path::validate_dir(package_path)) {
                     fs::remove_all(package_path);
                     std::cout << name << " is deleted" << std::endl;
                 }

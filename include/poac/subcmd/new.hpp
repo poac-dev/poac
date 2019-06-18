@@ -12,10 +12,10 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/except.hpp"
-#include "../core/naming.hpp"
+#include "../core/name.hpp"
 #include "../io.hpp"
 #include "../util/argparse.hpp"
-#include "../util/command.hpp"
+#include "../util/shell.hpp"
 
 
 namespace poac::subcmd {
@@ -89,9 +89,9 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace except = core::except;
             namespace fs = boost::filesystem;
-            namespace path = io::file::path;
+            namespace path = io::path;
             namespace cli = io::cli;
-            namespace naming = core::naming;
+            namespace name = core::name;
 
             bool lib = util::argparse::use_rm(argv, "-l", "--lib");
             // libが存在しないならどちらにせよ，binが選択される．
@@ -107,8 +107,8 @@ namespace poac::subcmd {
 
             const std::string project_name = argv[0];
             const fs::path project_path = fs::path(project_name);
-            naming::validate_package_name(project_name);
-            if (io::file::path::validate_dir(project_name)) {
+            name::validate_package_name(project_name);
+            if (io::path::validate_dir(project_name)) {
                 throw except::error(
                         except::msg::already_exist("The `" + project_name + "` directory"));
             }
@@ -147,9 +147,9 @@ namespace poac::subcmd {
                       << "project"
                       << std::endl;
 
-            if (util::_command::has_command("git")) {
+            if (util::_shell::has_command("git")) {
                 const std::string git_init = "git init " + project_name;
-                util::command(git_init).exec();
+                util::shell(git_init).exec();
                 cli::echo(cli::to_green("Running: "), git_init);
             }
 

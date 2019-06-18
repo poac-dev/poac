@@ -8,7 +8,7 @@
 
 #include "../../deper/semver.hpp"
 #include "../../except.hpp"
-#include "../../../util/command.hpp"
+#include "../../../util/shell.hpp"
 
 
 namespace poac::core::stroite::field::standard {
@@ -19,8 +19,8 @@ namespace poac::core::stroite::field::standard {
     const std::string ANY = R"([\s\S]*)";
 
     std::string get_compiler_version(const std::string& compiler) {
-        if (util::_command::has_command(compiler)) {
-            if (const auto res = util::command(compiler + " --version").stderr_to_stdout().exec()) {
+        if (util::_shell::has_command(compiler)) {
+            if (const auto res = util::shell(compiler + " --version").stderr_to_stdout().exec()) {
                 const std::regex SEARCH_VERSION("^" + ANY + "(" + deper::semver::MAIN_VERSION + ")" + ANY + "$");
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH_VERSION)) {
@@ -240,7 +240,7 @@ namespace poac::core::stroite::field::standard {
         else if (cmd == "g++" || cmd == "clang++") {
 #  ifdef __APPLE__
             const std::string compiler(cmd);
-            if (const auto res = util::command(compiler + " --version").stderr_to_stdout().exec()) {
+            if (const auto res = util::shell(compiler + " --version").stderr_to_stdout().exec()) {
                 const std::regex SEARCH("^" + ANY + "(Apple LLVM)" + ANY + "$");
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH)) {
@@ -267,18 +267,18 @@ namespace poac::core::stroite::field::standard {
         if (const char* cxx = std::getenv("CXX")) {
             return cxx;
         }
-        else if (util::_command::has_command("icpc")) {
+        else if (util::_shell::has_command("icpc")) {
             return "icpc";
         }
 #ifndef _WIN32
-        else if (util::_command::has_command("g++")) {
+        else if (util::_shell::has_command("g++")) {
             return "g++";
         }
-        else if (util::_command::has_command("clang++")) {
+        else if (util::_shell::has_command("clang++")) {
             return "clang++";
         }
 #else
-        else if (util::_command::has_command("cl.exe")) {
+        else if (util::_shell::has_command("cl.exe")) {
             return "cl.exe";
         }
 #endif

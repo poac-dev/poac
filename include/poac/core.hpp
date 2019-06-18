@@ -4,7 +4,7 @@
 #include "core/deper.hpp"
 #include "core/except.hpp"
 #include "core/infer.hpp"
-#include "core/naming.hpp"
+#include "core/name.hpp"
 #include "core/stroite.hpp"
 
 #endif // !POAC_CORE_HPP

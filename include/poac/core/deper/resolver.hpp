@@ -21,9 +21,8 @@
 #include "sat.hpp"
 #include "semver.hpp"
 #include "../except.hpp"
-#include "../naming.hpp"
-#include "../../io/file.hpp"
-#include "../../io/net.hpp"
+#include "../name.hpp"
+#include "../../io.hpp"
 #include "../../config.hpp"
 #include "../../util/types.hpp"
 
@@ -31,14 +30,14 @@
 namespace poac::core::deper::resolver {
     namespace cache {
         bool resolve(const std::string& package_name) {
-            namespace path = io::file::path;
+            namespace path = io::path;
             const auto package_path = path::poac_cache_dir / package_name;
             return path::validate_dir(package_path);
         }
     }
     namespace current {
         bool resolve(const std::string& current_package_name) {
-            namespace path = io::file::path;
+            namespace path = io::path;
             const auto package_path = path::current_deps_dir / current_package_name;
             return path::validate_dir(package_path);
         }
@@ -50,7 +49,7 @@ namespace poac::core::deper::resolver {
     }
     std::string archive_url(const std::string& name, const std::string& version) {
         using namespace std::string_literals;
-        return POAC_ARCHIVE_API + "/"s + naming::hyphen_to_slash(name) + "/" + version;
+        return POAC_ARCHIVE_API + "/"s + name::hyphen_to_slash(name) + "/" + version;
     }
 
 

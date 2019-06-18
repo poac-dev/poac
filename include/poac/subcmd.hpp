@@ -5,6 +5,7 @@
 #include "subcmd/cache.hpp"
 #include "subcmd/cleanup.hpp"
 #include "subcmd/graph.hpp"
+#include "subcmd/help.hpp"
 #include "subcmd/init.hpp"
 #include "subcmd/install.hpp"
 #include "subcmd/login.hpp"
@@ -16,5 +17,6 @@
 #include "subcmd/test.hpp"
 #include "subcmd/uninstall.hpp"
 #include "subcmd/update.hpp"
+#include "subcmd/version.hpp"
 
 #endif // !POAC_SUBCMD_HPP

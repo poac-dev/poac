@@ -1,6 +1,6 @@
-// Idempotent package naming library
-#ifndef POAC_CORE_NAMING_HPP
-#define POAC_CORE_NAMING_HPP
+// Idempotent package name library
+#ifndef POAC_CORE_NAME_HPP
+#define POAC_CORE_NAME_HPP
 
 #include <string>
 #include <regex>
@@ -9,10 +9,10 @@
 #include <yaml-cpp/yaml.h>
 
 #include "except.hpp"
-#include "../io/file.hpp"
+#include "../io.hpp"
 
 
-namespace poac::core::naming {
+namespace poac::core::name {
     // -- poac --
     // Cache package name
     //   * opencv-3.4.2
@@ -133,7 +133,7 @@ namespace poac::core::naming {
 
     std::string get_version(const YAML::Node& node, const std::string& src)
     {
-        namespace yaml = io::file::yaml;
+        namespace yaml = io::yaml;
 
         if (src == "github") {
             if (const auto ver = yaml::get<std::string>(node)) {
@@ -220,4 +220,4 @@ namespace poac::core::naming {
         }
     }
 } // end namespace
-#endif // !POAC_CORE_NAMING_HPP
+#endif // !POAC_CORE_NAME_HPP

@@ -11,10 +11,11 @@
 #include "./build.hpp"
 #include "../core/except.hpp"
 #include "../core/stroite/utils/absorb.hpp"
-#include "../io/file.hpp"
+#include "../io/path.hpp"
+#include "../io/tar.hpp"
+#include "../io/yaml.hpp"
 #include "../io/cli.hpp"
-#include "../util/command.hpp"
-#include "../core/naming.hpp"
+#include "../util/shell.hpp"
 
 
 namespace poac::subcmd {
@@ -23,7 +24,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
 
-            const auto node = io::file::yaml::load_config("name");
+            const auto node = io::yaml::load_config("name");
 
             std::vector<std::string> program_args;
             // poac run -v -- -h build
@@ -40,10 +41,10 @@ namespace poac::subcmd {
 
             const std::string project_name = node.at("name").as<std::string>();
             const std::string bin_name = project_name + core::stroite::utils::absorb::binary_extension;
-            const fs::path executable_path = fs::relative(io::file::path::current_build_bin_dir / bin_name);
+            const fs::path executable_path = fs::relative(io::path::current_build_bin_dir / bin_name);
             const std::string executable = executable_path.string();
-            util::command cmd(executable);
-            for (const auto &s : program_args) {
+            util::shell cmd(executable);
+            for (const auto& s : program_args) {
                 cmd += s;
             }
 
