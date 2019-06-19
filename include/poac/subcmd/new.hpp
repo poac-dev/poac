@@ -129,8 +129,7 @@ namespace poac::subcmd {
                         { "poac.yml",   files::poac_yml(project_name, "bin") },
                         { "main.cpp",   files::main_cpp }
                 };
-            }
-            else {
+            } else {
                 fs::create_directories(project_path / "include" / project_name);
                 file = {
                         { ".gitignore", files::lib::_gitignore },
@@ -155,7 +154,7 @@ namespace poac::subcmd {
             if (util::_shell::has_command("git")) {
                 const std::string git_init = "git init " + project_name;
                 util::shell(git_init).exec();
-                cli::println("Running: "_green, git_init);
+                std::cout << "Running: "_green << git_init << std::endl;
             }
 
             return EXIT_SUCCESS;

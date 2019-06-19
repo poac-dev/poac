@@ -75,7 +75,7 @@ namespace poac::subcmd {
         void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
             namespace cli = io::cli;
             const std::string status = n + " " + v + " (from: " + s + ")";
-            cli::println('\r', cli::clr_line, res ? cli::to_fetch_failed(status) : cli::to_fetched(status));
+            std::cout << '\r' << cli::clr_line << (res ? cli::fetch_failed : cli::fetched) << status << std::endl;
         }
 
         void fetch_packages(
@@ -153,7 +153,7 @@ namespace poac::subcmd {
                 }
             }
             if (exists_count == static_cast<int>(deps.size())) {
-                io::cli::println("WARN: "_yellow, "Already installed");
+                std::cout << io::cli::warning << "Already installed" << std::endl;
             }
         }
 
@@ -262,7 +262,7 @@ namespace poac::subcmd {
 
             // resolve dependency
             if (!quite) {
-                cli::println(cli::to_status("Resolving dependencies..."));
+                std::cout << cli::status << "Resolving dependencies..." << std::endl;
             }
             if (!load_lock) {
                 resolved_deps = resolver::resolve(deps);
@@ -270,14 +270,14 @@ namespace poac::subcmd {
 
             // download packages
             if (!quite) {
-                cli::println(cli::to_status("Fetching..."));
-                cli::println();
+                std::cout << cli::status << "Fetching..." << std::endl;
+                std::cout << std::endl;
             }
             fs::create_directories(path::current_deps_dir);
             fetch_packages(resolved_deps.backtracked, quite, verbose);
             if (!quite) {
-                cli::println();
-                cli::println(cli::status_done());
+                std::cout << std::endl;
+                cli::status_done();
             }
 
             // Rewrite poac.yml

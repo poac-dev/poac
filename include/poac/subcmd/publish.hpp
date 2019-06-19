@@ -116,7 +116,7 @@ namespace poac::subcmd {
             // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
 
             const std::string project_dir = fs::absolute(fs::current_path()).string();
-            cli::println(cli::status, "Packaging ", project_dir, "...");
+            std::cout << cli::status << "Packaging " << project_dir << "..." << std::endl;
             const std::string output_dir = compress_project(project_dir);
             if (verbose) std::cout << output_dir << std::endl;
 
@@ -150,7 +150,7 @@ namespace poac::subcmd {
             }
 
             // Validating
-            cli::println(cli::to_status("Validating..."));
+            std::cout << cli::status << "Validating..." << std::endl;
             if (verbose) {
                 std::cout << json_s << std::endl;
             }
@@ -175,7 +175,7 @@ namespace poac::subcmd {
             }
 
             // Post tarball to API.
-            cli::println(cli::to_status("Uploading..."));
+            std::cout << cli::status << "Uploading..." << std::endl;
             if (!fs::exists("poac.yml")) {
                 throw except::error(
                         except::msg::does_not_exist("poac.yml"));
@@ -195,10 +195,10 @@ namespace poac::subcmd {
             }
 
             // Delete file
-            cli::println(cli::to_status("Cleanup..."));
+            std::cout << cli::status << "Cleanup..." << std::endl;
             fs::remove_all(fs::path(output_dir).parent_path());
 
-            cli::println(cli::to_status("Done."));
+            std::cout << cli::status << "Done." << std::endl;
             return EXIT_SUCCESS;
         }
     }

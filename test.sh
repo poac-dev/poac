@@ -29,6 +29,11 @@ g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp
 ./name-test
 popd
 
+pushd ./io
+g++ ${BASE_OPT} -o cli-test cli.cpp
+./cli-test
+popd
+
 pushd ./util
 g++ ${BASE_OPT} -o argparse-test argparse.cpp
 ./argparse-test

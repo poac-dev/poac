@@ -198,11 +198,11 @@ namespace poac::subcmd {
 
                         bs.configure_compile(false);
                         if (!bs.compile_conf.source_files.empty()) {
-                            io::cli::println(io::cli::to_status(name));
+                            std::cout << io::cli::status << name << std::endl;
 
                             if (const auto obj_files_path = bs.compile()) {
                                 handle_generate_lib(bs, *obj_files_path);
-                                io::cli::println();
+                                std::cout << std::endl;
                                 return *obj_files_path;
                             }
                             else { // Compile failure
@@ -213,9 +213,9 @@ namespace poac::subcmd {
                 }
                 else if (*system == "cmake") {
                     stroite::chain::cmake bs(deps_path);
-                    io::cli::println(io::cli::to_status(name));
+                    std::cout << io::cli::status << name << std::endl;
                     bs.build();
-                    io::cli::println();
+                    std::cout << std::endl;
                     return {};
                 }
             }
@@ -336,7 +336,7 @@ namespace poac::subcmd {
                     stroite::core::builder bs(verbose);
 
                     if (is_built_deps) {
-                        io::cli::println(io::cli::to_status(project_name));
+                        std::cout << io::cli::status << project_name << std::endl;
                     }
 
 //                    bool built_lib = false;
@@ -364,10 +364,10 @@ namespace poac::subcmd {
                 else if (*system == "cmake") {
                     stroite::chain::cmake bs;
                     if (is_built_deps) {
-                        io::cli::println(io::cli::to_status(project_name));
+                        std::cout << io::cli::status << project_name << std::endl;
                     }
                     bs.build(); // only build
-                    io::cli::println("Compiled: "_green, project_name);
+                    std::cout << "Compiled: "_green << project_name << std::endl;
                 }
             }
             else { // error

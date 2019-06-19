@@ -282,15 +282,15 @@ namespace poac::io::net {
                     stream->write_some(boost::asio::buffer(buf, ifs.gcount()));
 
                     // Print progress bar
-                    std::cout << '\r' << cli::to_info("Uploading ");
+                    std::cout << '\r' << cli::info << "Uploading ";
                     cli::echo_byte_progress(file.size, cur_file_size += 512);
                     std::cout << "  ";
                 }
-                std::cout << '\r' << cli::clr_line << cli::to_info("Uploaded.") << std::endl;
+                std::cout << '\r' << cli::clr_line << cli::info << "Uploaded." << std::endl;
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.footer()));
-            cli::println(cli::to_info("Waiting for server response..."));
+            std::cout << cli::info << "Waiting for server response..." << std::endl;
         }
 
 
@@ -357,7 +357,7 @@ namespace poac::io::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            std::cout << '\r' << cli::to_info("Downloading ");
+                            std::cout << '\r' << cli::info << "Downloading ";
                             cli::echo_byte_progress(content_length, acc);
                             std::cout << "  ";
                         }
