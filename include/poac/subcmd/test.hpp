@@ -15,6 +15,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -25,7 +26,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
 
-            using namespace io::cli::color_literals;
+            using namespace termcolor2::color_literals;
 
             const auto node = io::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");

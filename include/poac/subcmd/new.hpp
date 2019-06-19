@@ -16,6 +16,7 @@
 #include "../io.hpp"
 #include "../util/argparse.hpp"
 #include "../util/shell.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -99,8 +100,7 @@ namespace poac::subcmd {
             namespace path = io::path;
             namespace cli = io::cli;
             namespace name = core::name;
-
-            using namespace io::cli::color_literals;
+            using termcolor2::color_literals::operator""_green;
 
             bool lib = util::argparse::use_rm(argv, "-l", "--lib");
             // libが存在しないならどちらにせよ，binが選択される．

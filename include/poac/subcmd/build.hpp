@@ -18,6 +18,7 @@
 #include "../core/stroite.hpp"
 #include "../core/name.hpp"
 #include "../util/argparse.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -32,7 +33,7 @@ namespace poac::subcmd {
         handle_message(const std::string& method, const std::optional<std::string>& output) {
             namespace fs = boost::filesystem;
             if (output) {
-                std::cout << io::cli::preset::green<> << method << ": " << io::cli::preset::reset<>
+                std::cout << termcolor2::green<> << method << ": " << termcolor2::reset<>
                           << "Output to `"
                           << fs::relative(*output).string()
                           << "`"
@@ -111,7 +112,7 @@ namespace poac::subcmd {
                 const std::string& type)
         {
             namespace fs = boost::filesystem;
-            using io::cli::color_literals::operator""_yellow;
+            using termcolor2::color_literals::operator""_yellow;
 
             // Dealing with an error which is said to have cache even though it is not going well.
             if (fs::exists(file_path + extension)) {
@@ -309,8 +310,7 @@ namespace poac::subcmd {
             namespace stroite = core::stroite;
             namespace name = core::name;
             namespace yaml = io::yaml;
-
-            using namespace io::cli::color_literals;
+            using termcolor2::color_literals::operator""_green;
 
 
             // {

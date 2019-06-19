@@ -15,6 +15,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -35,7 +36,7 @@ namespace poac::subcmd {
                         fs::remove_all(pkg);
                         std::cout << v << " is deleted" << std::endl;
                     } else {
-                        std::cout << io::cli::preset::red<> << v << " not found" << io::cli::preset::reset<> << std::endl;
+                        std::cout << termcolor2::red<> << v << " not found" << termcolor2::reset<> << std::endl;
                     }
                 }
             }

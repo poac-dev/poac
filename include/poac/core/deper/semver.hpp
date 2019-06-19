@@ -16,6 +16,7 @@
 
 #include "../except.hpp"
 #include "../../io/cli.hpp"
+#include "../../util/termcolor2.hpp"
 
 
 namespace poac::core::deper::semver {
@@ -203,27 +204,25 @@ namespace poac::core::deper::semver {
     };
 
     std::ostream& operator<<(std::ostream& os, const Version& v) {
-        namespace preset = io::cli::preset;
-
         os << "SemVer {\n";
-        os << "  full: " << preset::green<> << "\"" << v.get_full() << "\"" << preset::reset<> << ",\n";
-        os << "  version: " << preset::green<> << "\"" << v.get_version() << "\"" << preset::reset<> << ",\n";
-        os << "  major: " << preset::yellow<> << v.major << preset::reset<> << ",\n";
-        os << "  minor: " << preset::yellow<> << v.minor << preset::reset<> << ",\n";
-        os << "  patch: " << preset::yellow<> << v.patch << preset::reset<> << ",\n";
+        os << "  full: " << termcolor2::green<> << "\"" << v.get_full() << "\"" << termcolor2::reset<> << ",\n";
+        os << "  version: " << termcolor2::green<> << "\"" << v.get_version() << "\"" << termcolor2::reset<> << ",\n";
+        os << "  major: " << termcolor2::yellow<> << v.major << termcolor2::reset<> << ",\n";
+        os << "  minor: " << termcolor2::yellow<> << v.minor << termcolor2::reset<> << ",\n";
+        os << "  patch: " << termcolor2::yellow<> << v.patch << termcolor2::reset<> << ",\n";
         os << "  prerelease: " << "[ ";
         for (const auto& s : v.pre) {
-            os << preset::green<> << "\"" << s << "\"" << preset::reset<> << ", ";
+            os << termcolor2::green<> << "\"" << s << "\"" << termcolor2::reset<> << ", ";
         }
         os << "],\n";
         os << "  build: " << "[ ";
         for (const auto& s : v.build) {
-            os << preset::green<> << "\"" << s << "\"" << preset::reset<> << ", ";
+            os << termcolor2::green<> << "\"" << s << "\"" << termcolor2::reset<> << ", ";
         }
         os << "],\n";
         os << "}";
         return os;
-    };
+    }
 
     bool is_number(const std::string& s)
     {

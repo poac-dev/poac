@@ -10,6 +10,7 @@
 #include "../core/except.hpp"
 #include "../core/infer.hpp"
 #include "../io/cli.hpp"
+#include "../util/termcolor2.hpp"
 
 
 // Forward-declaration
@@ -49,13 +50,13 @@ namespace poac::subcmd {
             // Eliminate -h and -v
             // It assumes two characters because the regular expression is slow.
             if (key[0] != '-') {
-                std::cout << io::cli::preset::blue<> << io::cli::preset::bold<>
+                std::cout << termcolor2::blue<> << termcolor2::bold<>
                           << "   " << std::setw(9) << std::left << key << "   "
-                          << io::cli::preset::reset<>;
+                          << termcolor2::reset<>;
 
-                std::cout << io::cli::preset::yellow<>
+                std::cout << termcolor2::yellow<>
                           << core::infer::_apply("summary"s, value, std::vector<std::string>())
-                          << io::cli::preset::reset<>
+                          << termcolor2::reset<>
                           << std::endl;
             }
         }
@@ -63,9 +64,9 @@ namespace poac::subcmd {
         void exec_help() {
             std::cout << "Usage: poac <command> [<args>]" << std::endl << std::endl;
 
-            std::cout << io::cli::preset::bold<>
+            std::cout << termcolor2::bold<>
                       << "Available commands:"
-                      << io::cli::preset::reset<>
+                      << termcolor2::reset<>
                       << std::endl;
             for (const auto& [name, value] : core::infer::subcmd_map) {
                 show(name, value);

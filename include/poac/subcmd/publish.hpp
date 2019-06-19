@@ -22,6 +22,7 @@
 #include "../core/except.hpp"
 #include "../util.hpp"
 #include "../config.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -77,7 +78,7 @@ namespace poac::subcmd {
 
         void check_requirements() {
             namespace fs = boost::filesystem;
-            using io::cli::color_literals::operator""_yellow;
+            using termcolor2::color_literals::operator""_yellow;
 
             io::yaml::load_config("name", "version", "cpp_version", "description", "owners");
             if (!fs::exists("README.md")) {
@@ -93,7 +94,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace cli = io::cli;
             using namespace std::string_literals;
-            using namespace io::cli::color_literals;
+            using termcolor2::color_literals::operator""_red;
 
             check_arguments(argv);
             check_requirements();

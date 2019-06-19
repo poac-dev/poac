@@ -15,7 +15,7 @@ int exec(std::string&& str, VS&& vs)
     namespace except = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
-    using namespace poac::io::cli::color_literals;
+    using namespace termcolor2::color_literals;
 
     // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {

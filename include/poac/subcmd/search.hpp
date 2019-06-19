@@ -14,12 +14,13 @@
 #include "../io/net.hpp"
 #include "../util/argparse.hpp"
 #include "../util/pretty.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
     namespace _search {
         void echo_first_line() {
-            std::cout << io::cli::preset::underline<>;
+            std::cout << termcolor2::underline<>;
             io::cli::set_left(25);
             std::cout << "Package";
             io::cli::set_left(50);
@@ -27,7 +28,7 @@ namespace poac::subcmd {
             io::cli::set_left(15);
             std::cout << "|Version"
                       << "|C++ Version"
-                      << io::cli::preset::reset<>
+                      << termcolor2::reset<>
                       << std::endl;
         }
 
@@ -93,8 +94,8 @@ namespace poac::subcmd {
                 const ptree& hits = child.second;
 
                 std::string name = hits.get<std::string>("_highlightResult.name.value");
-                auto count_s = replace(name, "<em>", cli::preset::red<>.to_string()) * cli::preset::red<>.size();
-                auto count_l = replace(name, "</em>", cli::preset::reset<>.to_string()) * cli::preset::reset<>.size();
+                auto count_s = replace(name, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
+                auto count_l = replace(name, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
 
                 cli::set_left(25 + count_s + count_l);
                 std::cout << util::pretty::clip_string(name, 21 + count_s + count_l);

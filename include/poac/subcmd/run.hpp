@@ -16,6 +16,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/shell.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -24,7 +25,7 @@ namespace poac::subcmd {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
 
-            using namespace io::cli::color_literals;
+            using termcolor2::color_literals::operator""_green;
 
 
             // stroite::core::Builder bs(fs::current_directory());

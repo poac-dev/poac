@@ -22,8 +22,6 @@
 #include "../core/deper/lock.hpp"
 #include "../util.hpp"
 
-
-// TODO: --source (source file only (not pre-built))
 namespace poac::subcmd {
     namespace _install {
         void stream_deps(YAML::Emitter& out, const core::deper::resolver::Activated& deps) {
@@ -78,18 +76,14 @@ namespace poac::subcmd {
             std::cout << '\r' << cli::clr_line << (res ? cli::fetch_failed : cli::fetched) << status << std::endl;
         }
 
-        void fetch_packages(
+        void fetch_packages( // TODO: そもそも関数が長くてキモい．
                 const core::deper::resolver::Backtracked& deps,
                 const bool quite,
                 const bool verbose)
         {
-            namespace except = core::except;
             namespace name = core::name;
             namespace path = io::path;
-            namespace tar = io::tar;
             namespace resolver = core::deper::resolver;
-            namespace fs = boost::filesystem;
-            using io::cli::color_literals::operator""_yellow;
 
             int exists_count = 0;
             for (const auto& [name, dep] : deps) {
@@ -128,6 +122,7 @@ namespace poac::subcmd {
                         req.get(target, {}, std::move(output_file));
                     }
                     // If res is true, does not execute func. (short-circuit evaluation)
+                    namespace tar = io::tar;
                     bool result = tar::extract_spec_rm(tar_dir, pkg_dir);
                     result = !result && copy_to_current(cache_name, current_name);
 
@@ -149,6 +144,7 @@ namespace poac::subcmd {
                 }
                 else {
                     // If called this, it is a bug.
+                    namespace except = core::except;
                     throw except::error("Unexcepted error");
                 }
             }

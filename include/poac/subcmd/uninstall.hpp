@@ -20,6 +20,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -121,7 +122,7 @@ namespace poac::subcmd {
             namespace name = core::name;
             namespace except = core::except;
             namespace lock = core::deper::lock;
-            using namespace io::cli::color_literals;
+            using termcolor2::color_literals::operator""_red;
 
             auto node = yaml::load_config();
             std::map<std::string, YAML::Node> deps_node;

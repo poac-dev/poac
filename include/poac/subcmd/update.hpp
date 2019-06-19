@@ -21,6 +21,7 @@
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
 #include "../util/types.hpp"
+#include "../util/termcolor2.hpp"
 
 
 // TODO: --selfを指定することで，poacのupdateを行う -> globalなパッケージに対応した時，どうする？
@@ -92,10 +93,10 @@ namespace poac::subcmd {
                     const auto current_version = resolved_deps.backtracked[name].version;
                     std::cout << name << " (Current: " << current_version << " -> Update: ";
                     if (core::deper::semver::Version(current_version) < dep.version) {
-                        std::cout << cli::preset::green<> << dep.version << cli::preset::reset<> << ")" << std::endl;
+                        std::cout << termcolor2::green<> << dep.version << termcolor2::reset<> << ")" << std::endl;
                     }
                     else {
-                        std::cout << cli::preset::yellow<> << dep.version << cli::preset::reset<> << ")" << std::endl;
+                        std::cout << termcolor2::yellow<> << dep.version << termcolor2::reset<> << ")" << std::endl;
                     }
                 }
 
