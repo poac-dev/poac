@@ -244,7 +244,7 @@ namespace poac::io::cli {
     operator<<(std::basic_ostream<_CharT, _Traits>& os,
                const basic_string<_CharT, N, _Traits>& str)
     {
-        return std::__put_character_sequence(os, str.data(), str.size());
+        return _VSTD::__put_character_sequence(os, str.data(), str.size());
     }
 
 
