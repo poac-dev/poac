@@ -16,6 +16,7 @@
 
 #include "../except.hpp"
 #include "../../io/cli.hpp"
+#include "../../util/termcolor2.hpp"
 
 
 namespace poac::core::deper::semver {
@@ -203,28 +204,25 @@ namespace poac::core::deper::semver {
     };
 
     std::ostream& operator<<(std::ostream& os, const Version& v) {
-        using io::cli::to_green;
-        using io::cli::to_yellow;
-
         os << "SemVer {\n";
-        os << "  full: " << to_green("\"" + v.get_full() + "\"") << ",\n";
-        os << "  version: " << to_green("\"" + v.get_version() + "\"") << ",\n";
-        os << "  major: " << to_yellow(std::to_string(v.major)) << ",\n";
-        os << "  minor: " << to_yellow(std::to_string(v.minor)) << ",\n";
-        os << "  patch: " << to_yellow(std::to_string(v.patch)) << ",\n";
+        os << "  full: " << termcolor2::green<> << "\"" << v.get_full() << "\"" << termcolor2::reset<> << ",\n";
+        os << "  version: " << termcolor2::green<> << "\"" << v.get_version() << "\"" << termcolor2::reset<> << ",\n";
+        os << "  major: " << termcolor2::yellow<> << v.major << termcolor2::reset<> << ",\n";
+        os << "  minor: " << termcolor2::yellow<> << v.minor << termcolor2::reset<> << ",\n";
+        os << "  patch: " << termcolor2::yellow<> << v.patch << termcolor2::reset<> << ",\n";
         os << "  prerelease: " << "[ ";
         for (const auto& s : v.pre) {
-            os << to_green("\"" + s + "\"") << ", ";
+            os << termcolor2::green<> << "\"" << s << "\"" << termcolor2::reset<> << ", ";
         }
         os << "],\n";
         os << "  build: " << "[ ";
         for (const auto& s : v.build) {
-            os << to_green("\"" + s + "\"") << ", ";
+            os << termcolor2::green<> << "\"" << s << "\"" << termcolor2::reset<> << ", ";
         }
         os << "],\n";
         os << "}";
         return os;
-    };
+    }
 
     bool is_number(const std::string& s)
     {

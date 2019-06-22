@@ -14,21 +14,21 @@
 #include "../io/net.hpp"
 #include "../util/argparse.hpp"
 #include "../util/pretty.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
     namespace _search {
         void echo_first_line() {
-            const int ul_size = static_cast<int>(io::cli::underline.size());
-            const int reset_size = static_cast<int>(io::cli::reset.size());
-
-            io::cli::set_left(ul_size + 25 + reset_size);
-            std::cout << io::cli::to_underline("Package");
-            io::cli::set_left(ul_size + 50 + reset_size);
-            std::cout << io::cli::to_underline("Description");
-            io::cli::set_left(ul_size + 15 + reset_size);
-            std::cout << io::cli::to_underline("Version")
-                      << io::cli::to_underline("C++ Version")
+            std::cout << termcolor2::underline<>;
+            io::cli::set_left(25);
+            std::cout << "Package";
+            io::cli::set_left(50);
+            std::cout << "|Description";
+            io::cli::set_left(15);
+            std::cout << "|Version"
+                      << "|C++ Version"
+                      << termcolor2::reset<>
                       << std::endl;
         }
 
@@ -94,20 +94,19 @@ namespace poac::subcmd {
                 const ptree& hits = child.second;
 
                 std::string name = hits.get<std::string>("_highlightResult.name.value");
-                auto count_s = replace(name, "<em>", cli::red) * cli::red.size();
-                auto count_l = replace(name, "</em>", cli::reset) * cli::reset.size();
+                auto count_s = replace(name, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
+                auto count_l = replace(name, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
 
                 cli::set_left(25 + count_s + count_l);
                 std::cout << util::pretty::clip_string(name, 21 + count_s + count_l);
                 cli::set_left(50);
-                std::cout << util::pretty::clip_string(hits.get<std::string>("description"), 45);
+                std::cout << "|" + util::pretty::clip_string(hits.get<std::string>("description"), 45);
                 cli::set_left(15);
                 const auto cpp_version = hits.get<std::string>("cpp_version");
-                std::cout << hits.get<std::string>("version")
-                          << "    " << (cpp_version == "3" ? "03" : cpp_version)
+                std::cout << "|" + hits.get<std::string>("version")
+                          << "|    " << (cpp_version == "3" ? "03" : cpp_version)
                           << std::endl;
             }
-
             return EXIT_SUCCESS;
         }
 

@@ -22,8 +22,6 @@
 #include "../core/deper/lock.hpp"
 #include "../util.hpp"
 
-
-// TODO: --source (source file only (not pre-built))
 namespace poac::subcmd {
     namespace _install {
         void stream_deps(YAML::Emitter& out, const core::deper::resolver::Activated& deps) {
@@ -75,20 +73,17 @@ namespace poac::subcmd {
         void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
             namespace cli = io::cli;
             const std::string status = n + " " + v + " (from: " + s + ")";
-            cli::echo('\r', cli::clr_line, res ? cli::to_fetch_failed(status) : cli::to_fetched(status));
+            std::cout << '\r' << cli::clr_line << (res ? cli::fetch_failed : cli::fetched) << status << std::endl;
         }
 
-        void fetch_packages(
+        void fetch_packages( // TODO: そもそも関数が長くてキモい．
                 const core::deper::resolver::Backtracked& deps,
                 const bool quite,
                 const bool verbose)
         {
-            namespace except = core::except;
             namespace name = core::name;
             namespace path = io::path;
-            namespace tar = io::tar;
             namespace resolver = core::deper::resolver;
-            namespace fs = boost::filesystem;
 
             int exists_count = 0;
             for (const auto& [name, dep] : deps) {
@@ -127,6 +122,7 @@ namespace poac::subcmd {
                         req.get(target, {}, std::move(output_file));
                     }
                     // If res is true, does not execute func. (short-circuit evaluation)
+                    namespace tar = io::tar;
                     bool result = tar::extract_spec_rm(tar_dir, pkg_dir);
                     result = !result && copy_to_current(cache_name, current_name);
 
@@ -148,11 +144,12 @@ namespace poac::subcmd {
                 }
                 else {
                     // If called this, it is a bug.
+                    namespace except = core::except;
                     throw except::error("Unexcepted error");
                 }
             }
             if (exists_count == static_cast<int>(deps.size())) {
-                io::cli::echo(io::cli::to_yellow("WARN: "), "Already installed");
+                std::cout << io::cli::warning << "Already installed" << std::endl;
             }
         }
 
@@ -261,7 +258,7 @@ namespace poac::subcmd {
 
             // resolve dependency
             if (!quite) {
-                cli::echo(cli::to_status("Resolving dependencies..."));
+                std::cout << cli::status << "Resolving dependencies..." << std::endl;
             }
             if (!load_lock) {
                 resolved_deps = resolver::resolve(deps);
@@ -269,14 +266,14 @@ namespace poac::subcmd {
 
             // download packages
             if (!quite) {
-                cli::echo(cli::to_status("Fetching..."));
-                cli::echo();
+                std::cout << cli::status << "Fetching..." << std::endl;
+                std::cout << std::endl;
             }
             fs::create_directories(path::current_deps_dir);
             fetch_packages(resolved_deps.backtracked, quite, verbose);
             if (!quite) {
-                cli::echo();
-                cli::echo(cli::status_done());
+                std::cout << std::endl;
+                cli::status_done();
             }
 
             // Rewrite poac.yml

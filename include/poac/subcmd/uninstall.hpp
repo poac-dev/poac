@@ -20,6 +20,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -91,7 +92,7 @@ namespace poac::subcmd {
                                                   " can not be deleted because " +
                                                   itr->name + ": " + itr->version +
                                                   " depends on it";
-                                cli::echo(cli::to_warning(warn));
+                                std::cout << cli::warning << warn << std::endl;
                                 return;
                             }
                         }
@@ -121,6 +122,7 @@ namespace poac::subcmd {
             namespace name = core::name;
             namespace except = core::except;
             namespace lock = core::deper::lock;
+            using termcolor2::color_literals::operator""_red;
 
             auto node = yaml::load_config();
             std::map<std::string, YAML::Node> deps_node;
@@ -144,7 +146,7 @@ namespace poac::subcmd {
             }
 
             // create uninstall list
-            cli::echo();
+            std::cout << std::endl;
             resolver::Backtracked uninstall_list{};
             const auto first = resolved_deps.activated.begin();
             const auto last = resolved_deps.activated.end();
@@ -159,7 +161,7 @@ namespace poac::subcmd {
                 for (const auto& [name, dep] : uninstall_list) {
                     std::cout << name << ": " << dep.version << std::endl;
                 }
-                cli::echo();
+                std::cout << std::endl;
                 std::cout << "Are you sure delete above packages? [Y/n] ";
                 std::string yes_or_no;
                 std::cin >> yes_or_no;
@@ -171,7 +173,7 @@ namespace poac::subcmd {
             }
 
             // Delete what was added to uninstall_list
-            cli::echo();
+            std::cout << std::endl;
             for (const auto& [name, dep] : uninstall_list) {
                 const auto package_name = name::to_current(dep.source, name, dep.version);
                 const auto package_path = io::path::current_deps_dir / package_name;
@@ -180,7 +182,7 @@ namespace poac::subcmd {
                     std::cout << name << " is deleted" << std::endl;
                 }
                 else {
-                    std::cout << io::cli::to_red(name + " is not found") << std::endl;
+                    std::cout << name << " is not found"_red << std::endl;
                 }
             }
 
@@ -223,8 +225,8 @@ namespace poac::subcmd {
                 _install::create_lock_file(timestamp, resolved_deps.activated);
             }
 
-            cli::echo();
-            cli::echo(cli::status_done());
+            std::cout << std::endl;
+            cli::status_done();
         }
 
         template <typename VS>

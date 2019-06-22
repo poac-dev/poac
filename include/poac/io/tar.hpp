@@ -1,6 +1,8 @@
 #ifndef POAC_IO_TAR_HPP
 #define POAC_IO_TAR_HPP
 
+//#include <libtar.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -41,5 +43,58 @@ namespace poac::io::tar {
         const std::string cmd = "cd " + filepath + " && " + "tar zcf " + output.string() + " " + exclude + filename;
         return static_cast<bool>(std::system(cmd.data()));
     }
+
+    // https://gist.github.com/cat-in-136/5509961
+//    bool archive(std::string source_file, std::string output_file_name) {
+//        TAR* tar;
+//        std::string tarFilename = "file.tar";
+//        std::string srcDir = "hoge";
+//        std::string extractTo = "./hoge";
+//
+//        int result = tar_open(&tar, tarFilename.data(), NULL, O_WRONLY | O_CREAT, 0644, TAR_GNU);
+//        if (result != EXIT_SUCCESS) {
+//            return EXIT_FAILURE;
+//        }
+//
+////        tar_append_file(tar, srcDir.data(), srcDir.data());
+//        result = tar_append_tree(tar, srcDir.data(), extractTo.data());
+//        if (result != EXIT_SUCCESS) {
+//            tar_close(tar);
+//            return EXIT_FAILURE;
+//        }
+//
+////        char* subfile1 = "./sub1/1.txt";
+////        tar_append_file(tar_handle, subfile1,  subfile1);
+////        char* subfile2 = "test1.c";
+////        tar_append_file(tar_handle, subfile2,  subfile2);
+//
+//        result = tar_append_eof(tar);
+//        if (result != EXIT_SUCCESS) {
+//            tar_close(tar);
+//            return EXIT_FAILURE;
+//        }
+//
+//        result = tar_close(tar);
+//        if (result != EXIT_SUCCESS) {
+//            return EXIT_FAILURE;
+//        }
+//
+//        return EXIT_SUCCESS;
+//    }
+//
+//    bool archive_exclude(const fs::path path) {
+//    }
+//
+//    bool extract() {
+////        TAR* tar_handle;
+////        char* tar_fname = "test.tar";
+////
+////        tar_open(&tar_handle, tar_fname, NULL,  O_RDONLY,  0644,  TAR_GNU);
+////        char* savefold = "temp";
+////        tar_extract_all(tar_handle, "temp");
+////        tar_close(tar_handle);
+//
+//        return EXIT_SUCCESS;
+//    }
 } // end namespace
 #endif // !POAC_IO_TAR_HPP

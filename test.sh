@@ -3,7 +3,7 @@
 ROOT_DIR=$PWD
 BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage"
 
-pushd ./test/poac
+pushd ./tests/poac
 
 
 pushd ./core/deper
@@ -27,6 +27,11 @@ g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -l
 ./infer-test
 g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp
 ./name-test
+popd
+
+pushd ./io
+g++ ${BASE_OPT} -o cli-test cli.cpp
+./cli-test
 popd
 
 pushd ./util

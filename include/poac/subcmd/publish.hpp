@@ -22,6 +22,7 @@
 #include "../core/except.hpp"
 #include "../util.hpp"
 #include "../config.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -77,11 +78,13 @@ namespace poac::subcmd {
 
         void check_requirements() {
             namespace fs = boost::filesystem;
+            using termcolor2::color_literals::operator""_yellow;
+
             io::yaml::load_config("name", "version", "cpp_version", "description", "owners");
             if (!fs::exists("README.md")) {
                 // TODO: もう少しほんわかと識別したい．README.txtやreadme.md等
                 // TODO: readmeが接頭辞にありつつ，最短なファイル．README.md, README-ja.mdだと，README.mdを優先
-                std::cerr << io::cli::to_yellow("WARN: ") << "README.md does not exist" << std::endl;
+                std::cerr << "WARN: "_yellow << "README.md does not exist" << std::endl;
             }
         }
 
@@ -91,6 +94,7 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace cli = io::cli;
             using namespace std::string_literals;
+            using termcolor2::color_literals::operator""_red;
 
             check_arguments(argv);
             check_requirements();
@@ -113,7 +117,7 @@ namespace poac::subcmd {
             // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
 
             const std::string project_dir = fs::absolute(fs::current_path()).string();
-            cli::echo(cli::status, "Packaging ", project_dir, "...");
+            std::cout << cli::status << "Packaging " << project_dir << "..." << std::endl;
             const std::string output_dir = compress_project(project_dir);
             if (verbose) std::cout << output_dir << std::endl;
 
@@ -147,7 +151,7 @@ namespace poac::subcmd {
             }
 
             // Validating
-            cli::echo(cli::to_status("Validating..."));
+            std::cout << cli::status << "Validating..." << std::endl;
             if (verbose) {
                 std::cout << json_s << std::endl;
             }
@@ -172,7 +176,7 @@ namespace poac::subcmd {
             }
 
             // Post tarball to API.
-            cli::echo(cli::to_status("Uploading..."));
+            std::cout << cli::status << "Uploading..." << std::endl;
             if (!fs::exists("poac.yml")) {
                 throw except::error(
                         except::msg::does_not_exist("poac.yml"));
@@ -187,15 +191,15 @@ namespace poac::subcmd {
 
                 const io::net::requests req{};
                 if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
-                    std::cerr << io::cli::to_red("ERROR: ") << res << std::endl;
+                    std::cerr << "ERROR: "_red << res << std::endl;
                 }
             }
 
             // Delete file
-            cli::echo(cli::to_status("Cleanup..."));
+            std::cout << cli::status << "Cleanup..." << std::endl;
             fs::remove_all(fs::path(output_dir).parent_path());
 
-            cli::echo(cli::to_status("Done."));
+            std::cout << cli::status << "Done." << std::endl;
             return EXIT_SUCCESS;
         }
     }

@@ -55,7 +55,7 @@ namespace poac::subcmd {
                 if (found == last) { // not found
                     fs::remove_all(e.path());
                     const auto info_state = "Remove unused package " + e.path().filename().string();
-                    cli::echo(cli::to_info(info_state));
+                    std::cout << cli::info << info_state << std::endl;
                 }
             }
 

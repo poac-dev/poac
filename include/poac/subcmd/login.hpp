@@ -13,6 +13,7 @@
 #include "../io/path.hpp"
 #include "../io/tar.hpp"
 #include "../io/yaml.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -29,15 +30,14 @@ namespace poac::subcmd {
             const std::string token_path = io::path::poac_token_dir.string();
             if (std::ofstream ofs(token_path); ofs) {
                 ofs << argv[0] << std::endl;
-                std::cout << io::cli::bold
+                std::cout << termcolor2::bold<>
                           << "Write to " + token_path
-                          << io::cli::reset
+                          << termcolor2::reset<>
                           << std::endl;
             }
             else { // file open error
                 throw except::invalid_second_arg("login");
             }
-
             return EXIT_SUCCESS;
         }
 

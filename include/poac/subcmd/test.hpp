@@ -15,6 +15,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -25,17 +26,36 @@ namespace poac::subcmd {
             namespace except = core::except;
             namespace stroite = core::stroite;
 
+            using namespace termcolor2::color_literals;
+
             const auto node = io::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
 
+
+            // {
+            //   stroite::core::Builder bs(fs::current_directory());
+            //   bs.test(verbose); -> build system内で，testディレクトリを掘って，どんどんテストしていく．
+            //   -> つまり，build sysytem使用側が，for文回すとかは無い．また，------------------------こういう区切り線も，test内で行われる．
+            //   -> ただし，その区切り線は，もちろん，quiteがtrueだと表示しない．verboseがtrueだと情報を増やす．
+            // }
+
+
             stroite::core::builder bs(verbose);
             bs.configure_compile(usemain);
 
-            // You can use #include<> in test code.
+
+
+            /// TODO: これは重要！忘れない！！！！！！！！！！！！！！！！
+            // You can use #include<> in test code. // TODO: これは，builder.hpp: 255で書いたように，build.hppでもできるようにすべき．
             bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
 
+
+
+
+            // TODO: buildsystemで，testモード実行なら，以下の内容が付与される．
+            // TODO: つまり，bs.build(), bs.test()みたいな感じ？
             std::string static_link_lib;
             if (const auto test_framework = io::yaml::get<std::string>(node.at("test"), "framework")) {
                 if (*test_framework == "boost") {
@@ -60,9 +80,11 @@ namespace poac::subcmd {
                     const std::string extension = core::stroite::utils::absorb::binary_extension;
                     const std::string bin_path = (io::path::current_build_test_bin_dir / bin_name).string() + extension;
 
+                    // TODO: こちらでハンドリングしようと思ったのは，ioへの依存を無くそうとしたから．
+                    // TODO: 無くす必要は無い．それよりも美しく書く方が重要である．
                     bs.compile_conf.source_files = bs.hash_source_files({cpp_relative}, usemain);
                     if (bs.compile_conf.source_files.empty()) { // No need for compile and link
-                        std::cout << io::cli::yellow << "Warning: " << io::cli::reset
+                        std::cout << "Warning: "_yellow
                                   << "There is no change. Binary exists in `" +
                                      fs::relative(bin_path).string() + "`."
                                   << std::endl;
@@ -75,7 +97,7 @@ namespace poac::subcmd {
                             bs.link_conf.output_root = io::path::current_build_test_bin_dir;
                             bs.link_conf.static_link_libs.push_back(static_link_lib);
                             if (bs.link()) {
-                                std::cout << io::cli::green << "Compiled: " << io::cli::reset
+                                std::cout << "Compiled: "_green
                                           << "Output to `" +
                                              fs::relative(bin_path).string() +
                                              "`"
@@ -123,7 +145,7 @@ namespace poac::subcmd {
                     }
                     // TODO: echo => Output .xml ...
 
-                    std::cout << io::cli::green << "Running: " << io::cli::reset
+                    std::cout << "Running: "_green
                               << "`" + fs::relative(bin_path).string() + "`"
                               << std::endl;
                     if (const auto ret = cmd.exec())

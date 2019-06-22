@@ -16,6 +16,7 @@
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/shell.hpp"
+#include "../util/termcolor2.hpp"
 
 
 namespace poac::subcmd {
@@ -23,6 +24,13 @@ namespace poac::subcmd {
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
+
+            using termcolor2::color_literals::operator""_green;
+
+
+            // stroite::core::Builder bs(fs::current_directory());
+            // bs.build(verbose); -> if EXIT_SUCCESS ->
+            // return bs.build(verbose) && bs.run(verbose); -> 短絡評価される？されない？
 
             const auto node = io::yaml::load_config("name");
 
@@ -39,6 +47,7 @@ namespace poac::subcmd {
                 return EXIT_FAILURE;
             }
 
+            // TODO: このexecutableなパスをもう一度取ってくるのが二度手間感がある．-> build systemに，runも付ける？ -> そうすれば，下のログ表示も，二分されないので，便利では？
             const std::string project_name = node.at("name").as<std::string>();
             const std::string bin_name = project_name + core::stroite::utils::absorb::binary_extension;
             const fs::path executable_path = fs::relative(io::path::current_build_bin_dir / bin_name);
@@ -48,7 +57,7 @@ namespace poac::subcmd {
                 cmd += s;
             }
 
-            std::cout << io::cli::to_green("Running: ")
+            std::cout << "Running: "_green
                       << "`" + executable + "`"
                       << std::endl;
             if (const auto ret = cmd.exec()) {
