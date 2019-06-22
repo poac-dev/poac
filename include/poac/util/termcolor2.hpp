@@ -2,6 +2,7 @@
 #define TERMCOLOR2_HPP
 
 #include "termcolor2/alias.hpp"
+#include "termcolor2/char_traits.hpp"
 #include "termcolor2/comparison.hpp"
 #include "termcolor2/concat.hpp"
 #include "termcolor2/config.hpp"

@@ -3,12 +3,13 @@
 
 #include <cstddef> // std::size_t
 #include <algorithm> // std::min
-#include <string> // std::char_traits
 #include <stdexcept> // std::length_error, std::out_of_range
 #include <utility> // std::index_sequence, std::make_index_sequence, std::forward
 
+#include "./char_traits.hpp"
+
 namespace termcolor2 {
-    template <typename CharT, std::size_t N, typename Traits = std::char_traits<CharT>>
+    template <typename CharT, std::size_t N, typename Traits = termcolor2::char_traits<CharT>>
     class basic_string {
     public:
         using value_type = typename Traits::char_type;
@@ -28,11 +29,15 @@ namespace termcolor2 {
 
     public:
         basic_string(const basic_string&) = default;
-        basic_string(basic_string &&) = default;
+        basic_string(basic_string &&) noexcept = default;
+        basic_string& operator=(const basic_string&) = default;
+        basic_string& operator=(basic_string&&) noexcept = default;
+        ~basic_string() = default;
+
         constexpr basic_string()
                 : elems{}, len() {}
 
-        template<typename Str, std::size_t... Indexes>
+        template <typename Str, std::size_t... Indexes>
         constexpr basic_string(
                 std::index_sequence<Indexes...>,
                 const Str& str, size_type pos, size_type n
@@ -48,7 +53,7 @@ namespace termcolor2 {
             )
         {}
 
-        template<typename... Args, std::size_t... Indexes>
+        template <typename... Args, std::size_t... Indexes>
         constexpr basic_string(
                 std::index_sequence<Indexes...>,
                 size_type n, Args&&... args
@@ -67,22 +72,22 @@ namespace termcolor2 {
               ) // delegation
         {}
 
-        constexpr basic_string(std::initializer_list<value_type> il)
+        explicit constexpr basic_string(std::initializer_list<value_type> il)
             : basic_string(
                   std::make_index_sequence<N>{},
                   il.begin(), 0, il.size()
               ) // delegation
         {}
 
-        template<typename... Args, typename = typename std::enable_if_t<(sizeof...(Args) <= N)>>
-        constexpr basic_string(size_type n, Args&&... args)
+        template <typename... Args, typename = typename std::enable_if_t<(sizeof...(Args) <= N)>>
+        explicit constexpr basic_string(size_type n, Args&&... args)
             : basic_string(
                   std::make_index_sequence<sizeof...(Args)>{},
                   n, std::forward<Args>(args)...
               ) // delegation
         {}
 
-        std::basic_string<CharT, Traits>
+        std::basic_string<CharT>
         to_string() const noexcept {
             return c_str();
         }

@@ -9,16 +9,16 @@
 
 namespace termcolor2 {
     namespace detail {
-        template<typename T, std::size_t N, typename Traits = std::char_traits<T>>
+        template <typename T, std::size_t N, typename Traits = std::char_traits<T>>
         struct string_construct_access {
-            template<typename... Args>
+            template <typename... Args>
             static constexpr basic_string<T, N, Traits>
             raw_construct(typename basic_string<T, N, Traits>::size_type n, Args&&... args) {
                 return basic_string<T, N, Traits>(n, std::forward<Args>(args)...);
             }
         };
 
-        template<typename T, std::size_t N, typename Traits, std::size_t... Indexes>
+        template <typename T, std::size_t N, typename Traits, std::size_t... Indexes>
         constexpr basic_string<T, N + 1, Traits>
         string_concat(
                 basic_string<T, N, Traits> const& lhs,
@@ -37,7 +37,7 @@ namespace termcolor2 {
                     )...
             );
         }
-        template<typename T, std::size_t N, typename Traits, std::size_t... Indexes>
+        template <typename T, std::size_t N, typename Traits, std::size_t... Indexes>
         constexpr basic_string<T, 1 + N, Traits>
         string_concat(
                 T const& lhs,
@@ -55,7 +55,7 @@ namespace termcolor2 {
                     )...
             );
         }
-        template<typename T, std::size_t N, typename Traits, std::size_t M, std::size_t... Indexes>
+        template <typename T, std::size_t N, typename Traits, std::size_t M, std::size_t... Indexes>
         constexpr basic_string<T, N + (M - 1), Traits>
                 string_concat(
                 basic_string<T, N, Traits> const& lhs, std::size_t lsize,
@@ -73,7 +73,7 @@ namespace termcolor2 {
                     )...
             );
         }
-        template<typename T, std::size_t N, typename Traits, std::size_t M, std::size_t... Indexes>
+        template <typename T, std::size_t N, typename Traits, std::size_t M, std::size_t... Indexes>
         constexpr basic_string<T, (M - 1) + N, Traits>
         string_concat(
             const T(&lhs)[M], std::size_t lsize,
@@ -91,7 +91,7 @@ namespace termcolor2 {
                     )...
             );
         }
-        template<typename T, std::size_t N1, std::size_t N2, typename Traits, std::size_t... Indexes>
+        template <typename T, std::size_t N1, std::size_t N2, typename Traits, std::size_t... Indexes>
         constexpr basic_string<T, N1 + N2, Traits>
         string_concat(
             const basic_string<T, N1, Traits>& lhs, std::size_t lsize,
@@ -111,7 +111,7 @@ namespace termcolor2 {
         }
     } // end namespace detail
 
-    template<typename T, std::size_t N, typename Traits>
+    template <typename T, std::size_t N, typename Traits>
     constexpr basic_string<T, N + 1, Traits>
     operator+(const basic_string<T, N, Traits>& lhs, const T& rhs) {
         return detail::string_concat(
@@ -120,7 +120,7 @@ namespace termcolor2 {
             std::make_index_sequence<N + 1>{}
         );
     }
-    template<typename T, std::size_t N, typename Traits>
+    template <typename T, std::size_t N, typename Traits>
     constexpr basic_string<T, 1 + N, Traits>
     operator+(const T& lhs, const basic_string<T, N, Traits>& rhs) {
         return detail::string_concat(
@@ -129,7 +129,7 @@ namespace termcolor2 {
             std::make_index_sequence<1 + N>{}
         );
     }
-    template<typename T, std::size_t N, typename Traits, std::size_t M>
+    template <typename T, std::size_t N, typename Traits, std::size_t M>
     constexpr basic_string<T, N + (M - 1), Traits>
     operator+(const basic_string<T, N, Traits>& lhs, const T(&rhs)[M]) {
         return detail::string_concat(
@@ -138,7 +138,7 @@ namespace termcolor2 {
             std::make_index_sequence<N + (M - 1)>{}
         );
     }
-    template<typename T, std::size_t N, typename Traits, std::size_t M>
+    template <typename T, std::size_t N, typename Traits, std::size_t M>
     constexpr basic_string<T, (M - 1) + N, Traits>
     operator+(const T(&lhs)[M], const basic_string<T, N, Traits>& rhs) {
         return detail::string_concat(
@@ -147,7 +147,7 @@ namespace termcolor2 {
             std::make_index_sequence<(M - 1) + N>{}
         );
     }
-    template<typename T, std::size_t N1, std::size_t N2, typename Traits>
+    template <typename T, std::size_t N1, std::size_t N2, typename Traits>
     constexpr basic_string<T, N1 + N2, Traits>
     operator+(const basic_string<T, N1, Traits>& lhs, const basic_string<T, N2, Traits>& rhs) {
         return detail::string_concat(

@@ -9,9 +9,9 @@
 #include "./string.hpp"
 
 namespace termcolor2 {
-    template<class CharT, std::size_t N, class Traits>
-    inline std::basic_ostream<CharT, Traits>&
-    operator<<(std::basic_ostream<CharT, Traits>& os,
+    template <typename CharT, std::size_t N, typename Traits, typename StreamTraits>
+    inline std::basic_ostream<CharT, StreamTraits>&
+    operator<<(std::basic_ostream<CharT, StreamTraits>& os,
                const basic_string<CharT, N, Traits>& str)
     {
 #ifdef __APPLE__
