@@ -1,6 +1,7 @@
 #ifndef POAC_IO_PATH_HPP
 #define POAC_IO_PATH_HPP
 
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>

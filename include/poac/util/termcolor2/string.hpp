@@ -9,7 +9,8 @@
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N, typename Traits = std::char_traits<CharT>>
-    struct basic_string {
+    class basic_string {
+    public:
         using value_type = typename Traits::char_type;
         using reference = value_type&;
         using const_reference = const value_type&;
@@ -21,9 +22,11 @@ namespace termcolor2 {
         using iterator = CharT*;
         using const_iterator = const CharT*;
 
+    private:
         value_type elems[N + 1];
         size_type len;
 
+    public:
         basic_string(const basic_string&) = default;
         basic_string(basic_string &&) = default;
         constexpr basic_string()
