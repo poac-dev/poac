@@ -63,8 +63,8 @@ namespace poac::subcmd {
                        "  " + project_name + ": \">=0.1.0 and <1.0.0\"\n"
                        "```\n"
                        "\n"
-                       "Execute the following command:\n"
-                       "`poac install`\n";
+                       "After that, execute `poac install` command to install `" + project_name + "`.\n"
+                       ;
             }
             std::string poac_yml(const std::string& project_name, const std::string& type) {
                 return "name: " + project_name + "\n"
