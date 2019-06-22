@@ -125,6 +125,12 @@ namespace termcolor2 {
             return traits_type::length(str);
         }
 
+        [[nodiscard]] constexpr bool
+        empty() const noexcept
+        {
+            return size() == 0;
+        }
+
         template <std::size_t N2>
         constexpr int
         compare(const basic_string<CharT, N2, Traits>& str) const {

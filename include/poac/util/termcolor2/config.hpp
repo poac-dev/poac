@@ -12,7 +12,7 @@
 #  elif !defined(TERMCOLOR2_NO_WARNING)
 #    warning "gnu-string-literal-operator-template is enabled." \
              "You will see a warning associated with it." \
-             "If you want to hide warning, please pass -Wno-gnu-string-literal-operator-template to compile option."
+             "If you want to hide warning, please pass -Wno-gnu-string-literal-operator-template to compiler option."
 #    define COLOR_LITERALS_CONSTEXPR constexpr
 #  else
 #    define COLOR_LITERALS_CONSTEXPR constexpr
