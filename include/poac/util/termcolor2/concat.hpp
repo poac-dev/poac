@@ -134,7 +134,7 @@ namespace termcolor2 {
     operator+(const basic_string<T, N, Traits>& lhs, const T(&rhs)[M]) {
         return detail::string_concat(
             lhs, lhs.size(),
-            rhs, Traits::length(rhs, M - 1),
+            rhs, M - 1,
             std::make_index_sequence<N + (M - 1)>{}
         );
     }
@@ -142,7 +142,7 @@ namespace termcolor2 {
     constexpr basic_string<T, (M - 1) + N, Traits>
     operator+(const T(&lhs)[M], const basic_string<T, N, Traits>& rhs) {
         return detail::string_concat(
-            lhs, Traits::length(lhs, M - 1),
+            lhs, M - 1,
             rhs, rhs.size(),
             std::make_index_sequence<(M - 1) + N>{}
         );
