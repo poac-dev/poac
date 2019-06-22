@@ -52,9 +52,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _green(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_green(str, len);
     }
 #else
     inline std::basic_string<char>
@@ -88,9 +88,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _yellow(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_yellow(str, len);
     }
 #else
     inline std::basic_string<char>
@@ -124,9 +124,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _blue(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_blue(str, len);
     }
 #else
     inline std::basic_string<char>
@@ -160,9 +160,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _pink(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_pink(str, len);
     }
 #else
     inline std::basic_string<char>
@@ -196,9 +196,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _gray(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_gray(str, len);
     }
 #else
     inline std::basic_string<char>
@@ -232,9 +232,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _bold(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_bold(str, len);
     }
 #else
     inline std::basic_string<char>
@@ -268,9 +268,9 @@ inline namespace color_literals {
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
+    operator "" _underline(const char* str, std::size_t len) noexcept
     {
-        return to_red(str, len);
+        return to_underline(str, len);
     }
 #else
     inline std::basic_string<char>
