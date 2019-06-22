@@ -10,7 +10,6 @@
 #include "../util/pretty.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::io::cli {
     // Clear screen
     constexpr auto clr_screen = termcolor2::make_string("\x1b[2J");
