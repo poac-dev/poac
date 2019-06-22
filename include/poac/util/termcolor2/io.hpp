@@ -15,7 +15,11 @@ namespace termcolor2 {
                const basic_string<CharT, N, Traits>& str)
     {
 #ifdef __APPLE__
-        return _VSTD::__put_character_sequence(os, str.data(), str.size());
+        return std::__put_character_sequence(os, str.data(), str.size());
+#elif defined(_MSC_VER)
+        // MSVC doesn't define __ostream_insert
+        using streamsize = decltype(os.precision());
+        return os.write(str.data(), static_cast<streamsize>(str.size()));
 #else
         return std::__ostream_insert(os, str.data(), str.size());
 #endif
