@@ -3,7 +3,7 @@
 ROOT_DIR=$PWD
 BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage"
 
-pushd ./test/poac
+pushd ./tests/poac
 
 
 pushd ./core/deper
