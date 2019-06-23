@@ -128,7 +128,7 @@ namespace poac::io::yaml {
         }
         catch (...) {
             throw except::error(
-                    except::msg::key_does_not_exist("") + "\n" +
+                    except::msg::key_does_not_exist(""), "\n",
                     except::msg::please_refer_docs(""));
         }
     }
@@ -140,19 +140,19 @@ namespace poac::io::yaml {
         }
         catch (...) {
             throw except::error(
-                    except::msg::key_does_not_exist(arg) + "\n" +
+                    except::msg::key_does_not_exist(arg), "\n",
                     except::msg::please_refer_docs(""));
         }
     }
 
 
     template <typename... Args>
-    static std::map<std::string, YAML::Node>
+    std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
         namespace except = core::except;
         if (const auto result = detail::read(node, args...)) {
             throw except::error(
-                    except::msg::key_does_not_exist(std::string(*result)) + "\n" +
+                    except::msg::key_does_not_exist(std::string(*result)), "\n",
                     except::msg::please_refer_docs(""));
         }
         else {
@@ -161,8 +161,22 @@ namespace poac::io::yaml {
             return mp;
         }
     }
+    template <typename Args>
+    YAML::Node
+    get_by_width(const YAML::Node& node, const Args& args) {
+        namespace except = core::except;
+        if (const auto result = detail::read(node, args)) {
+            throw except::error(
+                    except::msg::key_does_not_exist(std::string(*result)), "\n",
+                    except::msg::please_refer_docs(""));
+        }
+        else {
+            return node[args];
+        }
+    }
+
     template <typename... Args>
-    static std::optional<std::map<std::string, YAML::Node>>
+    std::optional<std::map<std::string, YAML::Node>>
     get_by_width_opt(const YAML::Node& node, const Args&... args) {
         if (detail::read(node, args...)) {
             return std::nullopt;
@@ -210,16 +224,25 @@ namespace poac::io::yaml {
         }
         else {
             throw except::error(
-                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::does_not_exist("poac.yml"), "\n",
                     except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
+    // TODO: この時点で，型情報を渡していて，これに則しない，keyを読むとエラー？
+    //  load_config<CppVersion, Deps>()
+    //  struct hog : hoge... {
+    //     cpp_version: u64,
+    //     deps: any
+    //  }
+    //  -> return
+    // config.cpp_version() -> u64
     template <typename ...Args>
-    static auto load_config(Args ...args) {
+    auto load_config(const Args&... args) {
         return get_by_width(load_config(), args...);
     }
-    template <typename ...Args>
-    static auto load_config_opt(Args ...args) {
+
+    template <typename ...Args> // TODO: これ結局使ってないのどうにかしなよ？
+    auto load_config_opt(const Args&...args) {
         return get_by_width_opt(load_config(), args...);
     }
 
@@ -249,7 +272,7 @@ namespace poac::io::yaml {
         }
         else {
             throw except::error(
-                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::does_not_exist("poac.yml"), "\n",
                     except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
@@ -265,7 +288,7 @@ namespace poac::io::yaml {
         }
         else {
             throw except::error(
-                    except::msg::does_not_exist("poac.yml") + "\n" +
+                    except::msg::does_not_exist("poac.yml"), "\n",
                     except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }

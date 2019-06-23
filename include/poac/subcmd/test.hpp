@@ -28,7 +28,7 @@ namespace poac::subcmd {
 
             using namespace termcolor2::color_literals;
 
-            const auto node = io::yaml::load_config("test");
+            const auto node_test = io::yaml::load_config("test");
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
             const bool usemain = false;
@@ -57,7 +57,7 @@ namespace poac::subcmd {
             // TODO: buildsystemで，testモード実行なら，以下の内容が付与される．
             // TODO: つまり，bs.build(), bs.test()みたいな感じ？
             std::string static_link_lib;
-            if (const auto test_framework = io::yaml::get<std::string>(node.at("test"), "framework")) {
+            if (const auto test_framework = io::yaml::get<std::string>(node_test, "framework")) {
                 if (*test_framework == "boost") {
                     static_link_lib = "boost_unit_test_framework";
                 }
@@ -124,8 +124,7 @@ namespace poac::subcmd {
                             cmd += s;
                         }
                     }
-                    else if (const auto test_args = io::yaml::get<std::vector<std::string>>(
-                            node.at("test"), "args"))
+                    else if (const auto test_args = io::yaml::get<std::vector<std::string>>(node_test, "args"))
                     {
                         for (const auto &s : *test_args) {
                             cmd += s;
@@ -136,7 +135,7 @@ namespace poac::subcmd {
                         cmd += ">";
                         cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
                     }
-                    else if (const auto test_report = io::yaml::get<bool>(node.at("test"), "report")) {
+                    else if (const auto test_report = io::yaml::get<bool>(node_test, "report")) {
                         if (*test_report) {
                             fs::create_directories(io::path::current_build_test_report_dir);
                             cmd += ">";

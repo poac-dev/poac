@@ -284,7 +284,7 @@ namespace poac::subcmd {
                         }
                         else {
                             throw except::error(
-                                    name + " is not installed.\n"
+                                    name, " is not installed.\n"
                                     "Please build after running `poac install`");
                         }
                     }

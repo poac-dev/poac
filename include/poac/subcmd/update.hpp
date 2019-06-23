@@ -51,8 +51,7 @@ namespace poac::subcmd {
 
             if (all) {
                 // FIXME: install.hppと同じ内容が多い
-                const auto node = yaml::load_config("deps");
-                const auto deps_node = node.at("deps").as<std::map<std::string, YAML::Node>>();
+                const auto deps_node = yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
                 const resolver::Deps deps = _install::resolve_packages(deps_node);
                 resolver::Resolved resolved_deps = resolver::resolve(deps);
                 resolver::Backtracked update_deps;

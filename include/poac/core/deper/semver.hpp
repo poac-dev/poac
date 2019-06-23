@@ -457,8 +457,7 @@ namespace poac::core::deper::semver {
             }
             else {
                 throw except::error(
-                        "`" + name + ": " + interval +
-                        "` is invalid expression.\n"
+                        "`", name, ": ", interval, "` is invalid expression.\n"
                         "Comparison operators:\n"
                         "  >, >=, <, <=\n"
                         "Logical operator:\n"
@@ -507,13 +506,13 @@ namespace poac::core::deper::semver {
             {
                 if (Version(first_version) > second_version) { // Prioritize the larger version
                     throw except::error(
-                            "`" + name + ": " + interval + "` is invalid expression.\n"
-                            "Did you mean " + first_comp_op + first_version + " ?");
+                            "`", name, ": ", interval, "` is invalid expression.\n"
+                            "Did you mean ", first_comp_op, first_version, " ?");
                 }
                 else {
                     throw except::error(
-                            "`" + name + ": " + interval + "` is invalid expression.\n"
-                            "Did you mean " + second_comp_op + second_version + " ?");
+                            "`", name, ": ", interval, "` is invalid expression.\n"
+                            "Did you mean ", second_comp_op, second_version, " ?");
                 }
             }
             else if ((first_comp_op == ">" || first_comp_op == ">=")
@@ -521,13 +520,13 @@ namespace poac::core::deper::semver {
             {
                 if (Version(first_version) < second_version) { // Prioritize the smaller version
                     throw except::error(
-                            "`" + name + ": " + interval + "` is invalid expression.\n"
-                            "Did you mean " + first_comp_op + first_version + " ?");
+                            "`", name, ": ", interval, "` is invalid expression.\n"
+                            "Did you mean ", first_comp_op, first_version, " ?");
                 }
                 else {
                     throw except::error(
-                            "`" + name + ": " + interval + "` is invalid expression.\n"
-                            "Did you mean " + second_comp_op + second_version + " ?");
+                            "`", name, ": ", interval, "` is invalid expression.\n"
+                            "Did you mean ", second_comp_op, second_version, " ?");
                 }
             }
         }
@@ -545,12 +544,12 @@ namespace poac::core::deper::semver {
                     && (second_comp_op == ">" || second_comp_op == ">="))
                 {
                     throw except::error(
-                            "`" + name + ": " + interval + "` is strange.\n"
+                            "`", name, ": ", interval, "` is strange.\n"
                             "In this case of interval specification using `and`,\n"
                             " it is necessary to be a bounded interval.\n"
                             "Please specify as in the following example:\n"
-                            "e.g. `" + second_comp_op + first_version + " and "
-                            + first_comp_op + second_version + "`");
+                            "e.g. `", second_comp_op, first_version, " and ",
+                            first_comp_op, second_version, "`");
                 }
             }
             else if (Version(first_version) > second_version) {
@@ -558,12 +557,12 @@ namespace poac::core::deper::semver {
                     && (second_comp_op == "<" || second_comp_op == "<="))
                 {
                     throw except::error(
-                            "`" + name + ": " + interval + "` is strange.\n"
+                            "`", name, ": ", interval, "` is strange.\n"
                             "In this case of interval specification using `and`,\n"
                             " it is necessary to be a bounded interval.\n"
                             "Please specify as in the following example:\n"
-                            "e.g. `" + first_comp_op + second_version + " and "
-                            + second_comp_op + first_version + "`");
+                            "e.g. `", first_comp_op, second_version, " and ",
+                            second_comp_op, first_version, "`");
                 }
             }
         }

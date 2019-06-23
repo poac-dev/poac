@@ -50,7 +50,7 @@ namespace poac::subcmd {
             for (const auto& v : argv) {
                 const auto result = std::find_if(first, last, [&](auto x){ return v == x.first; });
                 if (result == last) {
-                    throw core::except::error("There is no package named " + v + " in the dependency.");
+                    throw core::except::error("There is no package named ", v, " in the dependency.");
                 }
             }
         }

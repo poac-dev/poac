@@ -36,7 +36,7 @@ namespace poac::subcmd {
                 resolved_deps = *locked_deps;
             }
             else { // poac.lock does not exist
-                const auto deps_node = yaml::load_config("deps").at("deps").as<std::map<std::string, YAML::Node>>();
+                const auto deps_node = yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
                 const resolver::Deps deps = _install::resolve_packages(deps_node);
                 resolved_deps = resolver::resolve(deps);
             }

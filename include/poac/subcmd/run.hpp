@@ -32,8 +32,6 @@ namespace poac::subcmd {
             // bs.build(verbose); -> if EXIT_SUCCESS ->
             // return bs.build(verbose) && bs.run(verbose); -> 短絡評価される？されない？
 
-            const auto node = io::yaml::load_config("name");
-
             std::vector<std::string> program_args;
             // poac run -v -- -h build
             auto result = std::find(argv.begin(), argv.end(), "--");
@@ -48,7 +46,7 @@ namespace poac::subcmd {
             }
 
             // TODO: このexecutableなパスをもう一度取ってくるのが二度手間感がある．-> build systemに，runも付ける？ -> そうすれば，下のログ表示も，二分されないので，便利では？
-            const std::string project_name = node.at("name").as<std::string>();
+            const std::string project_name = io::yaml::load_config("name").as<std::string>();
             const std::string bin_name = project_name + core::stroite::utils::absorb::binary_extension;
             const fs::path executable_path = fs::relative(io::path::current_build_bin_dir / bin_name);
             const std::string executable = executable_path.string();

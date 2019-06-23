@@ -16,7 +16,7 @@
 namespace poac::core::stroite::utils::detect {
     std::string check_support_build_system(const std::string& system) {
         if (system != "poac" && system != "cmake") {
-            throw except::error("Unknown build system " + system);
+            throw except::error("Unknown build system ", system);
         }
         return system;
     }

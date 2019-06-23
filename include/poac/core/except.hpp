@@ -66,11 +66,14 @@ namespace poac::core::except {
 
         virtual ~invalid_second_arg() = default;
     };
+    using std::string_literals::operator""s;
     class error : public std::invalid_argument
     {
     public:
         explicit error(const std::string& __s) : invalid_argument(__s) {}
         explicit error(const char* __s)        : invalid_argument(__s) {}
+        template <typename... Args>
+        error(const Args&... __s) : invalid_argument((""s + ... + __s)) {}
 
         virtual ~error() = default;
     };

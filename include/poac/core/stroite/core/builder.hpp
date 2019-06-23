@@ -350,8 +350,8 @@ namespace poac::core::stroite::core {
                     }
                     else {
                         throw except::error(
-                                name + " is not installed.\n"
-                                       "Please build after running `poac install`");
+                                name, " is not installed.\n"
+                                "Please build after running `poac install`");
                     }
                 }
             }
