@@ -134,9 +134,8 @@ namespace poac::subcmd {
                 throw except::error(except::msg::could_not_read("token"));
             }
             {
-                const auto node = io::yaml::load_config("owners");
                 boost::property_tree::ptree children;
-                for (const auto& s : node.at("owners").as<std::vector<std::string>>()) {
+                for (const auto& s : io::yaml::load_config("owners").as<std::vector<std::string>>()) {
                     boost::property_tree::ptree child;
                     child.put("", s);
                     children.push_back(std::make_pair("", child));
@@ -205,8 +204,12 @@ namespace poac::subcmd {
     }
 
     struct publish {
-        static std::string summary() { return "Publish a package"; }
-        static std::string options() { return "[-v | --verbose, -y | --yes]"; }
+        static std::string summary() {
+            return "Publish a package";
+        }
+        static std::string options() {
+            return "[-v | --verbose, -y | --yes]";
+        }
         template<typename VS>
         int operator()(VS&& argv) {
             return _publish::_main(std::forward<VS>(argv));
