@@ -94,7 +94,7 @@ namespace poac::core::except {
             : invalid_argument(__s) {}
 
         template <typename... Args>
-        error(const Args&... __s)
+        explicit error(const Args&... __s)
             : invalid_argument(
                     (... + except::to_string(__s))
               )
