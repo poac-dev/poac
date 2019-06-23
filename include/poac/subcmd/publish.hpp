@@ -13,50 +13,139 @@
 #include <functional>
 #include <thread>
 #include <map>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../io.hpp"
+#include "../core/deper/semver.hpp"
 #include "../core/except.hpp"
-#include "../util.hpp"
+#include "../io/cli.hpp"
+#include "../io/net.hpp"
 #include "../config.hpp"
 #include "../util/termcolor2.hpp"
+#include "../util/pretty.hpp"
 
 
 namespace poac::subcmd {
     namespace _publish {
+        struct PackageInfo {
+            std::string name;
+            core::deper::semver::Version version;
+            std::optional<std::string> description;
+            std::uint16_t cpp_version;
+            std::optional<std::string> license;
+            std::string package_type;
+        };
 
-
-
+        int
+        do_register() {
 
         }
 
-
-
-
-
-        }
-
-        void check_arguments(const std::vector<std::string>& argv) {
-            namespace except = core::except;
-            if (argv.size() > 1) {
-                throw except::invalid_second_arg("publish");
+        template <typename VS>
+        int
+        confirm(const VS& argv) {
+            const bool yes = util::argparse::use(argv, "-y", "--yes");
+            if (!yes) {
+                std::cout << "Are you sure publish this package? [Y/n] ";
+                if (!io::cli::yes_or_no()) {
+                    std::cout << "canceled." << std::endl;
+                    return EXIT_FAILURE;
+                }
             }
+            return EXIT_SUCCESS;
         }
 
-        void check_requirements() {
-            namespace fs = boost::filesystem;
-            using termcolor2::color_literals::operator""_yellow;
+        void
+        summarize(const PackageInfo& package_info) {
+            namespace pretty = util::pretty;
+            std::cout << "Summary:"
+                      << "\n  Name: " << package_info.name
+                      << "\n  Version: " << package_info.version.get_version() // TODO: GET /repos/:owner/:repo/releases/latest tag_name -> SemVerに即している必要がある．
+                      << "\n  Description: " << pretty::clip_string(package_info.description.value_or("null"), 50) // TODO: GET /repos/:owner/:repo, なければ，nullとなる．-> 長い場合，prettyする？50くらい
+                      << "\n  C++ Version (minimum required version): " << package_info.cpp_version
+                      << "\n  License: " << package_info.license.value_or("null") // TODO: /repos/poacpm/poac/license\?ref\=0.2.1 -> license -> name
+                      << "\n  Package Type: " << package_info.package_type
+                      << "\n\n" << std::endl;
+        }
 
-            io::yaml::load_config("name", "version", "cpp_version", "description", "owners");
-            if (!fs::exists("README.md")) {
-                // TODO: もう少しほんわかと識別したい．README.txtやreadme.md等
-                // TODO: readmeが接頭辞にありつつ，最短なファイル．README.md, README-ja.mdだと，README.mdを優先
-                std::cerr << "WARN: "_yellow << "README.md does not exist" << std::endl;
+        std::string
+        get_package_type() {
+
+        }
+
+        std::optional<std::string>
+        get_license(const std::string& full_name) {
+
+        }
+
+        std::uint16_t
+        get_cpp_version() {
+            return io::yaml::load_config("cpp_version").as<std::uint16_t>();
+        }
+
+        std::optional<std::string>
+        get_description(const std::string& full_name) {
+
+        }
+
+        core::deper::semver::Version
+        get_version(const std::string& full_name) {
+            // https://developer.github.com/v3/repos/releases/#get-the-latest-release
+            const io::net::requests req{ GITHUB_API_HOST };
+            const auto res = req.get(GITHUB_REPOS_API + full_name + "/releases/latest");
+
+            std::stringstream ss;
+            ss << res.data();
+
+            boost::property_tree::ptree pt;
+            boost::property_tree::json_parser::read_json(ss, pt);
+        }
+
+        std::string_view
+        extract_full_name(std::string_view repository) {
+            auto first = repository.find("https://github.com/");
+            auto last = repository.find(".git", first);
+            return repository.substr(first, last - first);
+        }
+
+        std::string
+        get_name() {
+            const std::string repository = io::yaml::load_config("repository").as<std::string>();
+            std::string_view full_name = extract_full_name(repository);
+            return std::string(full_name);
+        }
+
+        PackageInfo
+        gather_package_info() {
+            const std::string full_name = get_name();
+            return PackageInfo{
+                    full_name,
+                    get_version(full_name),
+                    get_description(full_name),
+                    get_cpp_version(),
+                    get_license(full_name),
+                    get_package_type()
+            };
+        }
+
+        PackageInfo
+        report_publish_start() { // TODO: optionalで返さなくてOK????
+            std::cout << "Verifying your package ...\n" << std::endl;
+            const PackageInfo package_info = gather_package_info();
+            summarize(package_info);
+            return package_info;
+        }
+
+        template <typename VS>
+        void
+        check_arguments(const VS& argv) {
+            namespace except = core::except;
+            if (!argv.empty()) {
+                throw except::invalid_second_arg("publish");
             }
         }
 
@@ -69,19 +158,24 @@ namespace poac::subcmd {
             using termcolor2::color_literals::operator""_red;
 
             check_arguments(argv);
-            check_requirements();
 
-            const bool yes = util::argparse::use(argv, "-y", "--yes");
-            if (!yes) {
-                std::cout << "Are you sure publish this package? [Y/n] ";
-                std::string yes_or_no;
-                std::cin >> yes_or_no;
-                std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
-                if (!(yes_or_no == "yes" || yes_or_no == "y")) {
-                    std::cout << "canceled." << std::endl;
-                    return EXIT_FAILURE;
-                }
-            }
+//            const auto maybeKnownVersions = Registry.getVersions(pkg, registry);
+//            if (report_publish_start() != EXIT_SUCCESS) {
+//                return EXIT_FAILURE;
+//            }
+////
+////            verifyVersion(env, pkg, version, maybeKnownVersions);
+////            git = getGit
+////            commitHash = verifyTag(git, manager, pkg, version);
+////            verifyNoChanges(git, commitHash, version);
+////            zipHash = verifyZip(env, pkg, version);
+////
+////            Task.io $ putStrLn "";
+//            if (confirm(argv) != EXIT_SUCCESS) {
+//                return EXIT_FAILURE;
+//            }
+//            do_register(manager, pkg, version, docs, commitHash, zipHash);
+////            Task.io $ putStrLn "Success!";
 
 
 
