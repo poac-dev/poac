@@ -1,6 +1,8 @@
 #ifndef POAC_SUBCMD_PUBLISH_HPP
 #define POAC_SUBCMD_PUBLISH_HPP
 
+#include <cstdlib>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -111,28 +113,13 @@ namespace poac::subcmd {
                 }
             }
 
+
+
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
-
-            // TODO: poac.ymlに，system: manualが含まれている場合はpublishできない
-            // TODO: ヘッダの名前衝突が起きそうな気がしました、#include <package_name/header_name.hpp>だと安心感がある
-
-            const std::string project_dir = fs::absolute(fs::current_path()).string();
-            std::cout << cli::status << "Packaging " << project_dir << "..." << std::endl;
-            const std::string output_dir = compress_project(project_dir);
-            if (verbose) std::cout << output_dir << std::endl;
 
             // Get token
             boost::property_tree::ptree json;
             std::string token;
-            if (const auto token_opt = io::path::read_file(io::path::poac_token_dir)) {
-                const std::string temp = *token_opt;
-                const std::string temp_path(temp, 0, temp.size()-1); // delete \n
-                token = temp_path;
-                json.put("token", token);
-            }
-            else {
-                throw except::error(except::msg::could_not_read("token"));
-            }
             {
                 boost::property_tree::ptree children;
                 for (const auto& s : io::yaml::load_config("owners").as<std::vector<std::string>>()) {
@@ -186,7 +173,7 @@ namespace poac::subcmd {
                 std::map<io::net::http::field, std::string> h;
                 h[io::net::http::field::content_type] = "application/x-gzip";
                 h[io::net::http::field::content_transfer_encoding] = "binary";
-                mp_form.set("file", output_dir, h);
+//                mp_form.set("file", output_dir, h);
 
                 const io::net::requests req{};
                 if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
@@ -196,7 +183,7 @@ namespace poac::subcmd {
 
             // Delete file
             std::cout << cli::status << "Cleanup..." << std::endl;
-            fs::remove_all(fs::path(output_dir).parent_path());
+//            fs::remove_all(fs::path(output_dir).parent_path());
 
             std::cout << cli::status << "Done." << std::endl;
             return EXIT_SUCCESS;
