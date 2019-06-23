@@ -1,11 +1,12 @@
 #ifndef POAC_IO_CLI_HPP
 #define POAC_IO_CLI_HPP
 
+#include <cstdio>
+#include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <string>
-#include <cstdio>
-#include <iomanip>
 
 #include "../util/pretty.hpp"
 #include "../util/termcolor2.hpp"
@@ -37,6 +38,12 @@ namespace poac::io::cli {
         std::cout << status << "Done." << std::endl;
     }
 
+    bool yes_or_no() {
+        std::string y_n;
+        std::cin >> y_n;
+        std::transform(y_n.begin(), y_n.end(), y_n.begin(), ::tolower);
+        return (y_n == "yes" || y_n == "y");
+    }
 
     const std::vector<std::string> spinners{
         "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
