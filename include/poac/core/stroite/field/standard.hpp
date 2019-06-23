@@ -51,7 +51,7 @@ namespace poac::core::stroite::field::standard {
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
         }
         else {
-            throw except::error("Unknown C++ version: ", std::to_string(cpp_version));
+            throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
 
@@ -100,7 +100,7 @@ namespace poac::core::stroite::field::standard {
             }
         }
         else {
-            throw except::error("Unknown C++ version: ", std::to_string(cpp_version));
+            throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
 
@@ -144,7 +144,7 @@ namespace poac::core::stroite::field::standard {
             }
         }
         else {
-            throw except::error("Unknown C++ version: ", std::to_string(cpp_version));
+            throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
 
@@ -179,7 +179,7 @@ namespace poac::core::stroite::field::standard {
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
         }
         else {
-            throw except::error("Unknown C++ version: ", std::to_string(cpp_version));
+            throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
 
@@ -199,7 +199,7 @@ namespace poac::core::stroite::field::standard {
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
         }
         else {
-            throw except::error("Unknown C++ version: ", std::to_string(cpp_version));
+            throw except::error("Unknown C++ version: ", cpp_version);
         }
         // TODO: latestを活用
     }
@@ -228,7 +228,7 @@ namespace poac::core::stroite::field::standard {
         }
 #endif
         else {
-            throw except::error("Unknown compiler name: ", std::string(compiler));
+            throw except::error("Unknown compiler name: ", compiler);
         }
     }
 
@@ -260,7 +260,7 @@ namespace poac::core::stroite::field::standard {
             return "msvc";
         }
 #endif
-        throw except::error("Unknown compiler command: ", std::string(cmd));
+        throw except::error("Unknown compiler command: ", cmd);
     }
 
     std::string detect_command() {

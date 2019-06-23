@@ -2,8 +2,8 @@
 #define POAC_CORE_EXCEPT_HPP
 
 #include <string>
+#include <string_view>
 #include <stdexcept>
-
 
 namespace poac::core::except {
     namespace msg {
@@ -58,6 +58,7 @@ namespace poac::core::except {
 
         virtual ~invalid_first_arg() = default;
     };
+
     class invalid_second_arg : public std::invalid_argument
     {
     public:
@@ -66,14 +67,38 @@ namespace poac::core::except {
 
         virtual ~invalid_second_arg() = default;
     };
-    using std::string_literals::operator""s;
+
+    template <typename Arg>
+    std::string to_string(const Arg& str) {
+        return std::to_string(str);
+    }
+    template <>
+    std::string to_string(const std::string& str) {
+        return str;
+    }
+    std::string to_string(std::string_view str) {
+        return std::string(str);
+    }
+    template <typename CharT, std::size_t N>
+    std::string to_string(const CharT(&str)[N]) {
+        return str;
+    }
+
     class error : public std::invalid_argument
     {
     public:
-        explicit error(const std::string& __s) : invalid_argument(__s) {}
-        explicit error(const char* __s)        : invalid_argument(__s) {}
+        explicit error(const std::string& __s)
+            : invalid_argument(__s) {}
+
+        explicit error(const char* __s)
+            : invalid_argument(__s) {}
+
         template <typename... Args>
-        error(const Args&... __s) : invalid_argument((""s + ... + __s)) {}
+        error(const Args&... __s)
+            : invalid_argument(
+                    (... + except::to_string(__s))
+              )
+        {}
 
         virtual ~error() = default;
     };

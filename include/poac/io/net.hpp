@@ -329,8 +329,7 @@ namespace poac::io::net {
                             std::forward<Ofstream>(ofs));
                 default:
                     throw core::except::error(
-                            "io::net received a bad response code: ",
-                            std::to_string(res.base().result_int())
+                            "io::net received a bad response code: ", res.base().result_int()
                           ); // TODO: if constepxr res.body() == std::string -> res.body()
             }
         }
