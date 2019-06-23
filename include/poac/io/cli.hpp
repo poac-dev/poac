@@ -69,7 +69,7 @@ namespace poac::io::cli {
         const int bar_pos = percent / 2;
 
         std::string bar = "[";
-        if (now_count >= max_count) {
+        if (now_count == max_count) {
             for (int i = 0; i < (bar_size - 1); ++i) {
                 bar += "=";
             }
