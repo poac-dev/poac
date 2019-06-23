@@ -6,8 +6,6 @@
 
 #include "./include/poac/poac.hpp"
 
-
-// TODO: このあたりの処理をmain.cppがするべきではない．もう一段階抽象化すべき
 template <typename VS>
 int exec(std::string&& str, VS&& vs)
 {
@@ -17,7 +15,6 @@ int exec(std::string&& str, VS&& vs)
     using namespace std::string_literals;
     using namespace termcolor2::color_literals;
 
-    // TODO: 広い空間でcatchするのは危険．Result typeを使用したい
     try {
         return std::stoi(inference::apply("exec"s, std::forward<std::string>(str), std::forward<VS>(vs)));
     }
