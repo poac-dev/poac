@@ -15,7 +15,7 @@ namespace poac::io::tar {
 
     bool extract(const fs::path& filename, const std::string& options = "") {
         const std::string cmd = "tar xf " + filename.string() + " " + options;
-        return static_cast<bool>(std::system(cmd.data()));
+        return static_cast<bool>(std::system(cmd.data())); // TODO: false == error
     }
 
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
@@ -28,9 +28,8 @@ namespace poac::io::tar {
     // It is almost the same behavior as --remove-files,
     //  but deleted in fs::remove because there is a possibility
     //   that it is not compatible with --remove-files.
-    bool extract_spec_rm(const fs::path& input, const fs::path& output) { // true == error
-        // TODO: install.hpp用のエラー判定とfsのboolean値が逆
-        return !(extract_spec(input, output) || fs::remove(input));
+    bool extract_spec_rm(const fs::path& input, const fs::path& output) {
+        return extract_spec(input, output) && fs::remove(input);
     }
 
     bool compress_spec_exclude(const fs::path& input, const fs::path& output, const std::vector<std::string> opts) {

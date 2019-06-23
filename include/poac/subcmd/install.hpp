@@ -73,7 +73,7 @@ namespace poac::subcmd {
         void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
             namespace cli = io::cli;
             const std::string status = n + " " + v + " (from: " + s + ")";
-            std::cout << '\r' << cli::clr_line << (res ? cli::fetch_failed : cli::fetched) << status << std::endl;
+            std::cout << '\r' << cli::clr_line << (res ? cli::fetched : cli::fetch_failed) << status << std::endl;
         }
 
         void fetch_packages( // TODO: そもそも関数が長くてキモい．
@@ -122,9 +122,8 @@ namespace poac::subcmd {
                         req.get(target, {}, std::move(output_file));
                     }
                     // If res is true, does not execute func. (short-circuit evaluation)
-                    namespace tar = io::tar;
-                    bool result = tar::extract_spec_rm(tar_dir, pkg_dir);
-                    result = !result && copy_to_current(cache_name, current_name);
+                    bool result = io::tar::extract_spec_rm(tar_dir, pkg_dir);
+                    result = result && copy_to_current(cache_name, current_name);
 
                     if (!quite) {
                         echo_install_status(result, name, dep.version, dep.source);
@@ -135,11 +134,11 @@ namespace poac::subcmd {
                     clone_cmd += (path::poac_cache_dir / cache_name).string();
                     clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
 
-                    bool res = static_cast<bool>(clone_cmd.exec());
-                    res = !res && copy_to_current(cache_name, current_name);
+                    bool result = static_cast<bool>(clone_cmd.exec()); // true == error
+                    result = !result && copy_to_current(cache_name, current_name);
 
                     if (!quite) {
-                        echo_install_status(res, name, dep.version, dep.source);
+                        echo_install_status(result, name, dep.version, dep.source);
                     }
                 }
                 else {

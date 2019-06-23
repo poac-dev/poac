@@ -1,7 +1,6 @@
 #ifndef POAC_IO_PATH_HPP
 #define POAC_IO_PATH_HPP
 
-#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <optional>
@@ -10,7 +9,6 @@
 #include <boost/filesystem.hpp>
 
 #include "../core/except.hpp"
-
 
 namespace poac::io::path {
     std::optional<std::string>
@@ -120,18 +118,18 @@ namespace poac::io::path {
     }
 
     bool recursive_copy(
-        const boost::filesystem::path &from,
-        const boost::filesystem::path &dest )
-    {
+        const boost::filesystem::path& from,
+        const boost::filesystem::path& dest
+    ) {
         namespace fs = boost::filesystem;
 
         // Does the copy source exist?
         if (!fs::exists(from) || !fs::is_directory(from)) {
-            return EXIT_FAILURE;
+            return false;
         }
         // Does the copy destination exist?
         if (!validate_dir(dest) && !fs::create_directories(dest)) {
-            return EXIT_FAILURE; // Unable to create destination directory
+            return false; // Unable to create destination directory
         }
         // Iterate through the source directory
         for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
@@ -139,7 +137,7 @@ namespace poac::io::path {
             if (fs::is_directory(current)) {
                 // Found directory: Recursion
                 if (recursive_copy(current, dest / current.filename())) {
-                    return EXIT_FAILURE;
+                    return false;
                 }
             }
             else {
@@ -147,16 +145,18 @@ namespace poac::io::path {
                 boost::system::error_code error;
                 fs::copy_file(current, dest / current.filename(), error);
                 if (error) {
-                    return EXIT_FAILURE;
+                    return false;
                 }
             }
         }
-        return EXIT_SUCCESS;
+        return true;
     }
 
     void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
         ofs.open(fname);
-        if (ofs.is_open()) ofs << text;
+        if (ofs.is_open()) {
+            ofs << text;
+        }
         ofs.close();
         ofs.clear();
     }
