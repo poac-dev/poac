@@ -327,11 +327,9 @@ namespace poac::io::net {
                             std::forward<Request>(old_req),
                             std::forward<Response>(res),
                             std::forward<Ofstream>(ofs));
-                default: // 500
-                    // TODO: handle error
-                    return parse_response(
-                            std::forward<Response>(res),
-                            std::forward<Ofstream>(ofs));
+                default:
+                    throw core::except::error(
+                            "io::net received a bad response code: ", std::to_string(res.base().result_int()));
             }
         }
 
