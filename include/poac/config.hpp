@@ -35,5 +35,10 @@ namespace poac {
             "IOCVK5FECM-dsn.algolia.net";
     constexpr char const* ALGOLIA_SEARCH_INDEX_API =
             "/1/indexes/packages/query";
+
+    constexpr char const* GITHUB_API_HOST =
+            "api.github.com";
+    constexpr char const* GITHUB_REPOS_API =
+            "/repos";
 }
 #endif // !POAC_CONFIG_HPP
