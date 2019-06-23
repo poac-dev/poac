@@ -53,9 +53,6 @@ namespace poac::io::path {
     const boost::filesystem::path poac_log_dir(
             poac_state_dir / "logs"
     );
-    const boost::filesystem::path poac_token_dir(
-            poac_state_dir / "token"
-    );
     const boost::filesystem::path current_deps_dir(
             boost::filesystem::current_path() / "deps"
     );
@@ -130,59 +127,11 @@ namespace poac::io::path {
         return EXIT_SUCCESS;
     }
 
-    std::optional<std::string> read_file(const boost::filesystem::path& path) {
-        if (!boost::filesystem::exists(path)) {
-            return std::nullopt;
-        }
-        else if (std::ifstream ifs(path.string()); !ifs.fail()) {
-            std::istreambuf_iterator<char> it(ifs);
-            std::istreambuf_iterator<char> last;
-            return std::string(it, last);
-        }
-        else {
-            return std::nullopt;
-        }
-    }
-
     void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
         ofs.open(fname);
         if (ofs.is_open()) ofs << text;
         ofs.close();
         ofs.clear();
-    }
-
-    std::vector<std::string>
-    split(const std::string& raw, const std::string& delim) {
-        using boost::algorithm::token_compress_on;
-        using boost::is_any_of;
-
-        std::vector<std::string> ret;
-        boost::split(ret, raw, is_any_of(delim), token_compress_on);
-        return ret;
-    }
-
-    boost::filesystem::path create_temp() {
-        const std::string temp = *(util::shell("mktemp -d").exec());
-        const std::string temp_path(temp, 0, temp.size()-1); // delete \n
-        return temp_path;
-    }
-
-    void remove_matched_files(const boost::filesystem::path& p, std::regex r) {
-        namespace fs = boost::filesystem;
-
-        fs::directory_iterator end_itr; // Default ctor yields past-the-end
-        for (fs::directory_iterator i(p); i != end_itr; ++i) {
-            // Skip if not a file
-            if (!fs::is_regular_file(i->status())) {
-                continue;
-            }
-            // Skip if no match
-            if (!std::regex_match(i->path().filename().string(), r)) {
-                continue;
-            }
-            // File matches, delete it
-            fs::remove_all(i->path());
-        }
     }
 } // end namespace
 #endif // !POAC_IO_PATH_HPP

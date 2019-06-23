@@ -12,6 +12,7 @@
 #include "./depends.hpp"
 #include "../utils/options.hpp"
 #include "../../../io/path.hpp"
+#include "../../../util/misc.hpp"
 
 
 namespace poac::core::stroite::core::cache {
@@ -28,7 +29,7 @@ namespace poac::core::stroite::core::cache {
     load_timestamps(const std::string& src_cpp_hash)
     {
         namespace fs = boost::filesystem;
-        namespace path = io::path;
+        namespace misc = util::misc;
 
         if (!fs::exists(src_cpp_hash)) {
             return std::nullopt;
@@ -41,7 +42,7 @@ namespace poac::core::stroite::core::cache {
         std::string buff;
         std::map<std::string, std::string> hash;
         while (std::getline(ifs, buff)) {
-            const auto list_string = path::split(buff, ": \n");
+            const auto list_string = misc::split(buff, ": \n");
             hash[list_string[0]] = list_string[1];
         }
         return hash;
