@@ -16,7 +16,7 @@ namespace poac::io::path {
 #if BOOST_COMP_MSVC
         std::string env;
         std::size_t len;
-        if (std::_dupenv_s(env.c_str(), &len, sv.c_str())) {
+        if (_dupenv_s(&env.c_str(), &len, sv.c_str())) {
             return std::nullopt;
         }
         else {
