@@ -49,16 +49,16 @@ endif()
 
 
 # Add dependency information
-include_directories( "/usr/local/include" )
-link_directories( "/usr/local/lib" )
+include_directories("/usr/local/include")
+link_directories("/usr/local/lib")
 
 #set(Boost_DEBUG on)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
 if(APPLE)
-    include_directories( "/usr/local/opt/openssl/include" )
-    link_directories( "/usr/local/opt/openssl/lib" )
+    include_directories("/usr/local/opt/openssl/include")
+    link_directories("/usr/local/opt/openssl/lib")
     execute_process(
             COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
             OUTPUT_VARIABLE OSX_VERSION
@@ -112,7 +112,8 @@ else()
 endif()
 
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
+include_directories("${CMAKE_SOURCE_DIR}/include")
 if(UNIX)
     target_link_libraries(
             ${PROJECT_NAME}

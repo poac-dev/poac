@@ -4,11 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "./include/poac/poac.hpp"
+#include <poac/poac.hpp>
 
 template <typename VS>
-int exec(std::string&& str, VS&& vs)
-{
+int exec(std::string&& str, VS&& vs) {
     namespace inference = poac::core::infer;
     namespace except = poac::core::except;
     namespace cli = poac::io::cli;
@@ -45,8 +44,7 @@ int exec(std::string&& str, VS&& vs)
     }
 }
 
-int main(int argc, const char** argv)
-{
+int main(int argc, const char** argv) {
     using VS = std::vector<std::string>;
     using namespace std::string_literals;
     // argv[0]: poac, argv[1]: install, argv[2]: 1, ...
