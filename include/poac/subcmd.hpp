@@ -8,7 +8,6 @@
 #include "subcmd/help.hpp"
 #include "subcmd/init.hpp"
 #include "subcmd/install.hpp"
-#include "subcmd/login.hpp"
 #include "subcmd/new.hpp"
 #include "subcmd/publish.hpp"
 #include "subcmd/root.hpp"
