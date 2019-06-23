@@ -29,46 +29,16 @@
 
 namespace poac::subcmd {
     namespace _publish {
-        boost::filesystem::path rename_copy(const boost::filesystem::path& project_dir) {
-            namespace fs = boost::filesystem;
 
-            const fs::path temp_path = io::path::create_temp();
-            const fs::path copy_file = temp_path / fs::basename(project_dir);
-            io::path::recursive_copy(project_dir, copy_file);
 
-            const auto node = io::yaml::load_config("name", "version");
-            std::string name = node.at("name").as<std::string>();
-            std::replace(name.begin(), name.end(), '/', '-'); // boost/config -> boost-config
 
-            const auto filename = name + "-" + node.at("version").as<std::string>();
-            const fs::path file_path = temp_path / filename;
-            fs::rename(copy_file, file_path);
 
-            return file_path;
         }
 
-        std::string compress_project(const boost::filesystem::path& project_dir) {
-            namespace fs = boost::filesystem;
 
-            const fs::path file_path = rename_copy(project_dir);
-            const fs::path temp_path = io::path::create_temp();
 
-            std::vector<std::string> excludes({ "deps", "_build", ".git", ".gitignore" });
-            // Read .gitignore
-            if (const auto ignore = io::path::read_file(".gitignore")) {
-                auto tmp = io::path::split(*ignore, "\n");
-                const auto itr = std::remove_if(tmp.begin(), tmp.end(), [](std::string x) {
-                    return (x[0] == '#');
-                });
-                excludes.insert(excludes.end(), tmp.begin(), itr-1);
-            }
-            const std::string output_dir = (temp_path / file_path.filename()).string() + ".tar.gz";
 
-            io::tar::compress_spec_exclude(fs::relative(file_path), output_dir, excludes);
 
-            fs::remove_all(file_path.parent_path());
-
-            return output_dir;
         }
 
         void check_arguments(const std::vector<std::string>& argv) {
