@@ -13,7 +13,7 @@ int exec(std::string&& str, VS&& vs)
     namespace except = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
-    using namespace termcolor2::color_literals;
+    using termcolor2::color_literals::operator""_red;
 
     try {
         return std::stoi(inference::apply("exec"s, std::forward<std::string>(str), std::forward<VS>(vs)));
@@ -30,10 +30,6 @@ int exec(std::string&& str, VS&& vs)
     catch (const except::error& e) {
         std::cerr << "ERROR: "_red << e.what() << std::endl;
         return EXIT_FAILURE;
-    }
-    catch (const except::warn& e) {
-        std::cout << "WARN: "_yellow << e.what() << std::endl;
-        return EXIT_SUCCESS;
     }
     catch (const YAML::BadConversion& e) {
         std::cout << cli::error << "poac.yml " << e.what()

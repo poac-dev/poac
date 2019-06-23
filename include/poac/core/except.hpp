@@ -74,13 +74,5 @@ namespace poac::core::except {
 
         virtual ~error() = default;
     };
-    class warn : public std::invalid_argument
-    {
-    public:
-        explicit warn(const std::string& __s) : invalid_argument(__s) {}
-        explicit warn(const char* __s)        : invalid_argument(__s) {}
-
-        virtual ~warn() = default;
-    };
 } // end namespace
 #endif // !POAC_CORE_EXCEPT_HPP
