@@ -6,7 +6,6 @@
 #include <poac/core/name.hpp>
 #include <poac/core/except.hpp>
 
-
 // std::string basename(const std::string& name)
 BOOST_AUTO_TEST_CASE( poac_core_name_basename_test )
 {
