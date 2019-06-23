@@ -54,11 +54,12 @@ namespace poac::subcmd {
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace fs = boost::filesystem;
+            using io::path::path_literals::operator""_path;
 
             const std::string filename = check_requirements();
             std::ofstream yml_ofs(filename);
             yml_ofs << _new::files::poac_yml(basename(fs::current_path()), "bin");
-            std::cout << fs::path(".") / filename << " was created." << std::endl;
+            std::cout << "."_path / filename << " was created." << std::endl;
 
             return EXIT_SUCCESS;
         }

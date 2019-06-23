@@ -101,6 +101,7 @@ namespace poac::subcmd {
             namespace cli = io::cli;
             namespace name = core::name;
             using termcolor2::color_literals::operator""_green;
+            using io::path::path_literals::operator""_path;
 
             bool lib = util::argparse::use_rm(argv, "-l", "--lib");
             // libが存在しないならどちらにせよ，binが選択される．
@@ -135,7 +136,7 @@ namespace poac::subcmd {
                         { ".gitignore", files::lib::_gitignore },
                         { "README.md",  files::README_md(project_name) },
                         { "poac.yml",   files::poac_yml(project_name, "lib") },
-                        { fs::path("include") / project_name / (project_name + ".hpp"), files::include_hpp(project_name) },
+                        { "include"_path / project_name / (project_name + ".hpp"), files::include_hpp(project_name) },
                 };
             }
             for (const auto& [name, text] : file) {

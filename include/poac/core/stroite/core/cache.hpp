@@ -21,7 +21,7 @@ namespace poac::core::stroite::core::cache {
         namespace fs = boost::filesystem;
         namespace path = io::path;
 
-        const auto hash_path = path::current_build_cache_hash_dir / fs::relative(s);
+        const auto hash_path = path::current_build_cache_ts_dir / fs::relative(s);
         return hash_path.string() + ".hash";
     }
 
