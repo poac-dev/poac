@@ -1,23 +1,14 @@
-# Package name
-name: poac
-# Package version
-version: 0.2.0
 # 98, 03, 11(Include TR1), 14, 17, 20
 cpp_version: 17
-description: "poac is a package manager for C++"
-# It must be the same as the user name
-#  of the poac.pm account your created
-owners:
-  - matken11235
-links:
-  homepage: "https://poac.pm"
-  github: "https://github.com/poacpm/poac"
 
 # Describe deps as dependencies
 # Writing latest will automatically
 #  fetch the latest package
 deps:
-  boost/predef: ">=1.64.0 and <2.0.0"
+  matken11235/termcolor2: ">=0.1.0 and <1.0.0"
+#  matken11235/semver: ">=0.1.0 and <1.0.0"
+#  matken11235/tar-cpp: ">=0.1.0 and <1.0.0" # ダウンロードしたパッケージのextractに必要
+  poac-community/boost-predef: ">=1.64.0 and <2.0.0"
 #  boost/property_tree: ">=1.64.0 and <2.0.0"
 #  boost/filesystem: ">=1.64.0 and <2.0.0"
 #  boost/range: ">=1.64.0 and <2.0.0"
@@ -26,10 +17,10 @@ deps:
 #  boost/dynamic_bitset: ">=1.64.0 and <2.0.0"
 #  boost/dll: ">=1.64.0 and <2.0.0"
 #  boost/beast: ">=1.64.0 and <2.0.0"
-  github/jbeder/yaml-cpp:
-    tag: yaml-cpp-0.6.2
-    build: cmake
-    link: static
+#  jbeder/yaml-cpp:
+#    tag: yaml-cpp-0.6.2
+#    build: cmake
+#    link: static
 
 # If nothing is specified, it is regarded as header only library
 # build: poac = build: system: poac
