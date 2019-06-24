@@ -13,11 +13,11 @@
 
 namespace poac::io::path {
     std::optional<std::string>
-    dupenv(const std::string& sv) {
+    dupenv(const std::string& name) {
 #if BOOST_COMP_MSVC
         char* env;
         std::size_t len;
-        if (_dupenv_s(&env, &len, sv.c_str())) {
+        if (_dupenv_s(&env, &len, name.c_str())) {
             return std::nullopt;
         }
         else {
@@ -26,7 +26,7 @@ namespace poac::io::path {
             return env_s;
         }
 #else
-        if (const char* env = std::getenv(sv.c_str())) {
+        if (const char* env = std::getenv(name.c_str())) {
             return env;
         }
         else {
