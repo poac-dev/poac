@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_SEARCH_HPP
-#define POAC_SUBCMD_SEARCH_HPP
+#ifndef POAC_OPTS_SEARCH_HPP
+#define POAC_OPTS_SEARCH_HPP
 
 #include <iostream>
 #include <string>
@@ -17,7 +17,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _search {
         void echo_first_line() {
             std::cout << termcolor2::underline<>;
@@ -132,4 +132,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_SEARCH_HPP
+#endif // !POAC_OPTS_SEARCH_HPP

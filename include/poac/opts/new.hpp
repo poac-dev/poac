@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_NEW_HPP
-#define POAC_SUBCMD_NEW_HPP
+#ifndef POAC_OPTS_NEW_HPP
+#define POAC_OPTS_NEW_HPP
 
 #include <iostream>
 #include <fstream>
@@ -19,7 +19,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _new {
         namespace files {
             namespace bin {
@@ -175,4 +175,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_NEW_HPP
+#endif // !POAC_OPTS_NEW_HPP

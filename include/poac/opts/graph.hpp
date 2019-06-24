@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_GRAPH_HPP
-#define POAC_SUBCMD_GRAPH_HPP
+#ifndef POAC_OPTS_GRAPH_HPP
+#define POAC_OPTS_GRAPH_HPP
 
 #include <iostream>
 #include <fstream>
@@ -33,7 +33,7 @@
 
 // TODO: ついでにlockファイルも作成しておく -> -iでymlを指定指定している場合は，lockファイルを生成しない
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _graph {
         struct Vertex {
             std::string name;
@@ -162,4 +162,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_GRAPH_HPP
+#endif // !POAC_OPTS_GRAPH_HPP

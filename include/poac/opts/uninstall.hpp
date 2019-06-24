@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_UNINSTALL_HPP
-#define POAC_SUBCMD_UNINSTALL_HPP
+#ifndef POAC_OPTS_UNINSTALL_HPP
+#define POAC_OPTS_UNINSTALL_HPP
 
 #include <iostream>
 #include <vector>
@@ -23,7 +23,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _uninstall {
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void all(VS&& argv) {
@@ -259,4 +259,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_UNINSTALL_HPP
+#endif // !POAC_OPTS_UNINSTALL_HPP

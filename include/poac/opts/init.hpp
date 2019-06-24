@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_INIT_HPP
-#define POAC_SUBCMD_INIT_HPP
+#ifndef POAC_OPTS_INIT_HPP
+#define POAC_OPTS_INIT_HPP
 
 #include <iostream>
 #include <fstream>
@@ -17,7 +17,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _init {
         std::string basename(boost::filesystem::path&& s) {
             namespace fs = boost::filesystem;
@@ -84,4 +84,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_INIT_HPP
+#endif // !POAC_OPTS_INIT_HPP

@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_INSTALL_HPP
-#define POAC_SUBCMD_INSTALL_HPP
+#ifndef POAC_OPTS_INSTALL_HPP
+#define POAC_OPTS_INSTALL_HPP
 
 #include <iostream>
 #include <vector>
@@ -22,7 +22,7 @@
 #include "../core/deper/lock.hpp"
 #include "../util.hpp"
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _install {
         void stream_deps(YAML::Emitter& out, const core::deper::resolver::Activated& deps) {
             out << YAML::Key << "dependencies";
@@ -319,4 +319,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_INSTALL_HPP
+#endif // !POAC_OPTS_INSTALL_HPP

@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_CLEANUP_HPP
-#define POAC_SUBCMD_CLEANUP_HPP
+#ifndef POAC_OPTS_CLEANUP_HPP
+#define POAC_OPTS_CLEANUP_HPP
 
 #include <iostream>
 #include <string>
@@ -18,7 +18,7 @@
 #include "../io/cli.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _cleanup {
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
@@ -87,4 +87,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_CLEANUP_HPP
+#endif // !POAC_OPTS_CLEANUP_HPP

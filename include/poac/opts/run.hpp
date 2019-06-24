@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_RUN_HPP
-#define POAC_SUBCMD_RUN_HPP
+#ifndef POAC_OPTS_RUN_HPP
+#define POAC_OPTS_RUN_HPP
 
 #include <iostream>
 #include <string>
@@ -19,7 +19,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _run {
         template<typename VS>
         int _main(VS&& argv) {
@@ -82,4 +82,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_RUN_HPP
+#endif // !POAC_OPTS_RUN_HPP

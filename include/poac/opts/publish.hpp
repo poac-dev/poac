@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_PUBLISH_HPP
-#define POAC_SUBCMD_PUBLISH_HPP
+#ifndef POAC_OPTS_PUBLISH_HPP
+#define POAC_OPTS_PUBLISH_HPP
 
 #include <cstdlib>
 #include <cstdint>
@@ -29,7 +29,7 @@
 #include "../util/pretty.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _publish {
 //        struct PackageInfo {
 //            std::string name;
@@ -267,4 +267,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_PUBLISH_HPP
+#endif // !POAC_OPTS_PUBLISH_HPP

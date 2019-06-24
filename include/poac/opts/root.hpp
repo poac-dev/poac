@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_ROOT_HPP
-#define POAC_SUBCMD_ROOT_HPP
+#ifndef POAC_OPTS_ROOT_HPP
+#define POAC_OPTS_ROOT_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "../core/except.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     struct root {
         static std::string summary() {
             return "Display the root installation directory";
@@ -40,4 +40,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_ROOT_HPP
+#endif // !POAC_OPTS_ROOT_HPP

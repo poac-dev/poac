@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_BUILD_HPP
-#define POAC_SUBCMD_BUILD_HPP
+#ifndef POAC_OPTS_BUILD_HPP
+#define POAC_OPTS_BUILD_HPP
 
 #include <iostream>
 #include <string>
@@ -21,7 +21,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _build {
 
 
@@ -400,4 +400,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_BUILD_HPP
+#endif // !POAC_OPTS_BUILD_HPP

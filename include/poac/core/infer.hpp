@@ -10,7 +10,7 @@
 #include <boost/predef.h>
 
 #include "except.hpp"
-#include "../subcmd.hpp"
+#include "../opts.hpp"
 #include "../util/types.hpp"
 
 
@@ -43,44 +43,44 @@ namespace poac::core::infer {
     };
 
     using op_type_list_t = type_list_t<
-            subcmd::build,
-            subcmd::cache,
-            subcmd::cleanup,
-            subcmd::graph,
-            subcmd::help,
-            subcmd::init,
-            subcmd::install,
-            subcmd::new_,
-            subcmd::publish,
-            subcmd::root,
-            subcmd::run,
-            subcmd::search,
-            subcmd::test,
-            subcmd::uninstall,
-            subcmd::update,
-            subcmd::version
+            opts::build,
+            opts::cache,
+            opts::cleanup,
+            opts::graph,
+            opts::help,
+            opts::init,
+            opts::install,
+            opts::new_,
+            opts::publish,
+            opts::root,
+            opts::run,
+            opts::search,
+            opts::test,
+            opts::uninstall,
+            opts::update,
+            opts::version
     >;
-    const std::unordered_map<std::string, int> subcmd_map {
-            { "build",     op_type_list_t::index_of<subcmd::build> },
-            { "cache",     op_type_list_t::index_of<subcmd::cache> },
-            { "cleanup",   op_type_list_t::index_of<subcmd::cleanup> },
-            { "graph",     op_type_list_t::index_of<subcmd::graph> },
-            { "help",    op_type_list_t::index_of<subcmd::help> },
-            { "--help",    op_type_list_t::index_of<subcmd::help> },
-            { "-h",        op_type_list_t::index_of<subcmd::help> },
-            { "init",      op_type_list_t::index_of<subcmd::init> },
-            { "install",   op_type_list_t::index_of<subcmd::install> },
-            { "new",       op_type_list_t::index_of<subcmd::new_> },
-            { "publish",   op_type_list_t::index_of<subcmd::publish> },
-            { "root",      op_type_list_t::index_of<subcmd::root> },
-            { "run",       op_type_list_t::index_of<subcmd::run> },
-            { "search",    op_type_list_t::index_of<subcmd::search> },
-            { "test",      op_type_list_t::index_of<subcmd::test> },
-            { "uninstall", op_type_list_t::index_of<subcmd::uninstall> },
-            { "update",    op_type_list_t::index_of<subcmd::update> },
-            { "version", op_type_list_t::index_of<subcmd::version> },
-            { "--version", op_type_list_t::index_of<subcmd::version> },
-            { "-v",        op_type_list_t::index_of<subcmd::version> }
+    const std::unordered_map<std::string, int> opts_map {
+            { "build",     op_type_list_t::index_of<opts::build> },
+            { "cache",     op_type_list_t::index_of<opts::cache> },
+            { "cleanup",   op_type_list_t::index_of<opts::cleanup> },
+            { "graph",     op_type_list_t::index_of<opts::graph> },
+            { "help",    op_type_list_t::index_of<opts::help> },
+            { "--help",    op_type_list_t::index_of<opts::help> },
+            { "-h",        op_type_list_t::index_of<opts::help> },
+            { "init",      op_type_list_t::index_of<opts::init> },
+            { "install",   op_type_list_t::index_of<opts::install> },
+            { "new",       op_type_list_t::index_of<opts::new_> },
+            { "publish",   op_type_list_t::index_of<opts::publish> },
+            { "root",      op_type_list_t::index_of<opts::root> },
+            { "run",       op_type_list_t::index_of<opts::run> },
+            { "search",    op_type_list_t::index_of<opts::search> },
+            { "test",      op_type_list_t::index_of<opts::test> },
+            { "uninstall", op_type_list_t::index_of<opts::uninstall> },
+            { "update",    op_type_list_t::index_of<opts::update> },
+            { "version", op_type_list_t::index_of<opts::version> },
+            { "--version", op_type_list_t::index_of<opts::version> },
+            { "-v",        op_type_list_t::index_of<opts::version> }
     };
 
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
@@ -151,7 +151,7 @@ namespace poac::core::infer {
     template <typename S, typename VS>
     std::string apply(S&& func, S&& cmd, VS&& arg) {
         namespace except = core::except;
-        if (auto itr = subcmd_map.find(cmd); itr != subcmd_map.end())
+        if (auto itr = opts_map.find(cmd); itr != opts_map.end())
             return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
         else
             throw except::invalid_first_arg("Invalid argument");

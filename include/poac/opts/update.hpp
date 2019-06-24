@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_UPDATE_HPP
-#define POAC_SUBCMD_UPDATE_HPP
+#ifndef POAC_OPTS_UPDATE_HPP
+#define POAC_OPTS_UPDATE_HPP
 
 #include <iostream>
 #include <string>
@@ -26,7 +26,7 @@
 
 // TODO: --selfを指定することで，poacのupdateを行う -> globalなパッケージに対応した時，どうする？
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _update {
         template <typename VS>
         int _main(VS&& argv) {
@@ -152,4 +152,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_UPDATE_HPP
+#endif // !POAC_OPTS_UPDATE_HPP

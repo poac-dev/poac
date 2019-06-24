@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_CACHE_HPP
-#define POAC_SUBCMD_CACHE_HPP
+#ifndef POAC_OPTS_CACHE_HPP
+#define POAC_OPTS_CACHE_HPP
 
 #include <iostream>
 #include <string>
@@ -18,7 +18,7 @@
 #include "../util/termcolor2.hpp"
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _cache {
         void clean(const std::vector<std::string>& argv) {
             namespace fs = boost::filesystem;
@@ -107,4 +107,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_CACHE_HPP
+#endif // !POAC_OPTS_CACHE_HPP

@@ -1,5 +1,5 @@
-#ifndef POAC_SUBCMD_HELP_HPP
-#define POAC_SUBCMD_HELP_HPP
+#ifndef POAC_OPTS_HELP_HPP
+#define POAC_OPTS_HELP_HPP
 
 #include <iostream>
 #include <iomanip>
@@ -20,14 +20,14 @@ namespace poac::core::infer {
     template <typename S, typename VS>
     std::string apply(S&& func, S&& cmd, VS&& arg);
 
-    extern const std::unordered_map<std::string, int> subcmd_map;
+    extern const std::unordered_map<std::string, int> opts_map;
 }
 
 // TODO: help文を，コンパイル時に一つの文字列として変換する．
 
 // TODO: optionではなく，helpコマンドとすれば，順序は，init helpを許されなくなるので明快になる．
 // TODO: さらに，versionを，poacの部分に埋め込めば(もう一段階抽象化後)，optionを管理する必要がなくなる．
-namespace poac::subcmd {
+namespace poac::opts {
     namespace _help {
         template <typename S>
         void echo_option(S&& arg) {
@@ -68,7 +68,7 @@ namespace poac::subcmd {
                       << "Available commands:"
                       << termcolor2::reset<>
                       << std::endl;
-            for (const auto& [name, value] : core::infer::subcmd_map) {
+            for (const auto& [name, value] : core::infer::opts_map) {
                 show(name, value);
             }
 
@@ -109,4 +109,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_HELP_HPP
+#endif // !POAC_OPTS_HELP_HPP

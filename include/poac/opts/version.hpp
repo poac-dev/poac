@@ -1,11 +1,11 @@
-#ifndef POAC_SUBCMD_VERSION_HPP
-#define POAC_SUBCMD_VERSION_HPP
+#ifndef POAC_OPTS_VERSION_HPP
+#define POAC_OPTS_VERSION_HPP
 
 #include <iostream>
 #include <cstdlib>
 
 
-namespace poac::subcmd {
+namespace poac::opts {
     struct version {
         static std::string summary() {
             return "Show the current poac version";
@@ -21,4 +21,4 @@ namespace poac::subcmd {
         }
     };
 } // end namespace
-#endif // !POAC_SUBCMD_VERSION_HPP
+#endif // !POAC_OPTS_VERSION_HPP
