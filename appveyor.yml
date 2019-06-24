@@ -108,17 +108,17 @@ install:
       dir C:\Libraries\boost-1.70.0\include &&
       dir C:\Libraries\boost-1.70.0\lib
     )
-  - ps: |
-      if ($env:GENERATOR -eq "MinGW Makefiles") {
-        if ($env:Configuration -eq "Debug") {
-          $env:ABI_TAG = "-sd" # _boost_DEBUG_ABI_TAG
-        } else {
-          $env:ABI_TAG = "-s"  # _boost_RELEASE_ABI_TAG
-        }
-        dir C:\Libraries\boost-1.70.0\lib |
-          rename-item -NewName { $_.name -replace "$env:ABI_TAG-x64","$env:ABI_TAG" }
-        dir C:\Libraries\boost-1.70.0\lib
-      }
+#  - ps: |
+#      if ($env:GENERATOR -eq "MinGW Makefiles") {
+#        if ($env:Configuration -eq "Debug") {
+#          $env:ABI_TAG = "-sd" # _boost_DEBUG_ABI_TAG
+#        } else {
+#          $env:ABI_TAG = "-s"  # _boost_RELEASE_ABI_TAG
+#        }
+#        dir C:\Libraries\boost-1.70.0\lib |
+#          rename-item -NewName { $_.name -replace "$env:ABI_TAG-x64","$env:ABI_TAG" }
+#        dir C:\Libraries\boost-1.70.0\lib
+#      }
 
 build_script:
   - if %COMPILER% == cygwin-gcc (
@@ -134,6 +134,7 @@ build_script:
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DENABLE_STATIC=ON ^
+        -DBOOST_VERSION=1.70.0 ^
         -DBOOST_ROOT=C:\Libraries\boost-1.70.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.70.0\lib ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&

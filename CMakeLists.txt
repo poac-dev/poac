@@ -28,7 +28,6 @@ elseif(WIN32)
     endif()
 endif()
 
-
 # Check of c++17
 if(WIN32 AND MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
@@ -47,14 +46,35 @@ else()
     endif()
 endif()
 
-
 # Add dependency information
-include_directories("/usr/local/include")
-link_directories("/usr/local/lib")
+include_directories(/usr/local/include)
+link_directories(/usr/local/lib)
 
 #set(Boost_DEBUG on)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
+if(DEFINED BOOST_VERSION) # -DBOOST_VERSION
+    if(${BOOST_VERSION} VERSION_GREATER 1.69)
+        set(Boost_NO_BOOST_CMAKE OFF)
+    else()
+        set(Boost_NO_BOOST_CMAKE ON)
+    endif()
+else() # If doesn't define BOOST_VERSION when executing the cmake command, the version of boost is assumed to be 1.70 or more.
+    set(Boost_NO_BOOST_CMAKE OFF)
+endif()
+
+find_package(Boost REQUIRED COMPONENTS system filesystem)
+if(NOT ${Boost_FOUND})
+    message(FATAL_ERROR "Could not find boost.")
+endif()
+
+# If boost version greater than 1.69.0 and cmake version less then 3.12, occur error.
+if(${Boost_VERSION} GREATER 106900)
+    if(${CMAKE_VERSION} VERSION_LESS 3.12)
+        message(FATAL_ERROR "If cmake version less than 3.12, doesn't use Boost::system style.")
+    endif()
+    set(BOOST_LINK_LIBS Boost::system Boost::filesystem)
+else()
+    set(BOOST_LINK_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+endif()
 
 if(APPLE)
     include_directories("/usr/local/opt/openssl/include")
@@ -76,8 +96,6 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
 else()
     if((WIN32 AND MSVC) OR MINGW)
-        link_directories(${BOOST_LIBRARYDIR})
-
         find_package(yaml-cpp REQUIRED)
         include_directories(${YAML_CPP_INCLUDE_DIR})
 
@@ -113,30 +131,28 @@ endif()
 
 
 add_executable(${PROJECT_NAME} src/main.cpp)
-include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories(${CMAKE_SOURCE_DIR}/include)
 if(UNIX)
     target_link_libraries(
             ${PROJECT_NAME}
-            "${STATIC_LINK_FLAG}"
-            ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
-            "ssl"
-            "crypto"
-            "dl"
-#            "tar"
-            "yaml-cpp"
+            ${STATIC_LINK_FLAG}
+            ${BOOST_LINK_LIBS}
+            ssl
+            crypto
+            dl
+#            tar
+            yaml-cpp
     )
 elseif(WIN32)
     target_link_libraries(
             ${PROJECT_NAME}
-            "${STATIC_LINK_FLAG}"
-            ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
+            ${STATIC_LINK_FLAG}
+            ${BOOST_LINK_LIBS}
             ${OPENSSL_LIBRARIES}
-            "bcrypt"
-            "ws2_32"
-#            "tar"
-            "yaml-cpp"
+            bcrypt
+            ws2_32
+#            tar
+            yaml-cpp
     )
 endif()
 
