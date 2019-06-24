@@ -16,7 +16,7 @@ g++ ${BASE_OPT} -o semver-test semver.cpp
 popd
 
 pushd ./core/stroite/field
-g++ ${BASE_OPT} -o standard-test standard.cpp
+g++ ${BASE_OPT} -lboost_filesystem -o standard-test standard.cpp
 ./standard-test
 popd
 
