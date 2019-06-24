@@ -8,6 +8,7 @@
 
 #include "../../deper/semver.hpp"
 #include "../../except.hpp"
+#include "../../../io/path.hpp"
 #include "../../../util/shell.hpp"
 
 
@@ -264,8 +265,8 @@ namespace poac::core::stroite::field::standard {
     }
 
     std::string detect_command() {
-        if (const char* cxx = std::getenv("CXX")) {
-            return cxx;
+        if (const auto cxx = io::path::dupenv("CXX")) {
+            return *cxx;
         }
         else if (util::_shell::has_command("icpc")) {
             return "icpc";
