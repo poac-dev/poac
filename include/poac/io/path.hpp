@@ -1,6 +1,7 @@
 #ifndef POAC_IO_PATH_HPP
 #define POAC_IO_PATH_HPP
 
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <optional>
@@ -14,13 +15,15 @@ namespace poac::io::path {
     std::optional<std::string>
     dupenv(const std::string& sv) {
 #if BOOST_COMP_MSVC
-        std::string env;
+        char* env;
         std::size_t len;
-        if (_dupenv_s(&env.c_str(), &len, sv.c_str())) {
+        if (_dupenv_s(&env, &len, sv.c_str())) {
             return std::nullopt;
         }
         else {
-            return env;
+            std::string env_s(env);
+            std::free(env);
+            return env_s;
         }
 #else
         if (const char* env = std::getenv(sv.c_str())) {
