@@ -9,13 +9,13 @@
 
 #include <boost/filesystem.hpp>
 
-
+// false == error
 namespace poac::io::tar {
     namespace fs = boost::filesystem;
 
     bool extract(const fs::path& filename, const std::string& options = "") {
         const std::string cmd = "tar xf " + filename.string() + " " + options;
-        return static_cast<bool>(std::system(cmd.data())); // TODO: false == error
+        return static_cast<bool>(std::system(cmd.data()));
     }
 
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
