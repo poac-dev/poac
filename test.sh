@@ -32,6 +32,8 @@ popd
 pushd ./io
 g++ ${BASE_OPT} -o cli-test cli.cpp
 ./cli-test
+g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o yaml-test yaml.cpp
+./yaml-test
 popd
 
 pushd ./util
