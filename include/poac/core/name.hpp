@@ -189,14 +189,14 @@ namespace poac::core::name {
                     "It is prohibited to use / and -, _\n"
                     " at the begenning of the project name.");
         }
-        // name/, name-, _name
+        // name/, name-, name_
         else if (std::regex_match(std::string(1, *(s.end()-1)), r2)) {
             throw except::error(
                     "Invalid name.\n"
                     "It is prohibited to use / and -, _\n"
                     " at the last of the project name.");
         }
-        // na--me, n/-ame, nam_-e
+        // na--me, n/-ame, nam_-_e
         else if (std::regex_match(s, r3)) {
             throw except::error(
                     "Invalid name.\n"
