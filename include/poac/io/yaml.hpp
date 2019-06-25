@@ -218,15 +218,10 @@ namespace poac::io::yaml {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
             }
-            else {
-                throw except::error(except::msg::could_not_load("poac.yml"));
-            }
         }
-        else {
-            throw except::error(
-                    except::msg::does_not_exist("poac.yml"), "\n",
-                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
-        }
+        throw except::error(
+                except::msg::does_not_exist("poac.yml"), "\n",
+                except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
     }
     // TODO: この時点で，型情報を渡していて，これに則しない，keyを読むとエラー？
     //  load_config<CppVersion, Deps>()
@@ -241,24 +236,14 @@ namespace poac::io::yaml {
         return get_by_width(load_config(), args...);
     }
 
-    template <typename ...Args> // TODO: これ結局使ってない
-    auto load_config_opt(const Args&...args) {
-        return get_by_width_opt(load_config(), args...);
-    }
-
     std::optional<YAML::Node>
     load_config_by_dir(const boost::filesystem::path& base) {
         if (const auto op_filename = exists_config(base)) {
             if (const auto op_node = load(*op_filename)) {
                 return op_node;
             }
-            else {
-                return std::nullopt;
-            }
         }
-        else {
-            return std::nullopt;
-        }
+        return std::nullopt;
     }
     YAML::Node load_config_by_dir_with_throw(const boost::filesystem::path& base) {
         namespace except = core::except;
@@ -266,15 +251,10 @@ namespace poac::io::yaml {
             if (const auto op_node = load(*op_filename)) {
                 return *op_node;
             }
-            else {
-                throw except::error(except::msg::could_not_load("poac.yml"));
-            }
         }
-        else {
-            throw except::error(
-                    except::msg::does_not_exist("poac.yml"), '\n', // TODO: poac.ymlが無いとだけ伝われば，ハンドラ側で，please_exec出せる
-                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
-        }
+        throw except::error(
+                except::msg::does_not_exist("poac.yml"), '\n', // TODO: poac.ymlが無いとだけ伝われば，ハンドラ側で，please_exec出せる
+                except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
     }
 
     std::string get_timestamp() {
