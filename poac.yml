@@ -4,7 +4,7 @@ cpp_version: 17
 # Describe deps as dependencies
 # Writing latest will automatically
 #  fetch the latest package
-deps:
+dependencies:
   matken11235/termcolor2: ">=0.1.0 and <1.0.0"
 #  matken11235/semver: ">=0.1.0 and <1.0.0"
 #  matken11235/tar-cpp: ">=0.1.0 and <1.0.0" # ダウンロードしたパッケージのextractに必要
@@ -21,6 +21,9 @@ deps:
 #    tag: yaml-cpp-0.6.2
 #    build: cmake
 #    link: static
+
+#dependencies.test:
+#  poac-community/boost-test: ">=1.64.0 and <2.0.0"
 
 # If nothing is specified, it is regarded as header only library
 # build: poac = build: system: poac

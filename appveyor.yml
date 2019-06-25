@@ -1,4 +1,4 @@
-version: 0.2.1+{build}
+version: "#{build}"
 
 cache:
   - C:\Libraries\yaml-cpp
@@ -47,10 +47,8 @@ install:
       if ($env:COMPILER -eq "msvc") {
         if ($env:platform -eq "x86") {
           $env:TARGET_PLATFORM = "-A Win32"
-          $env:ADDRESS_MODEL = "32"
         } else {
           $env:TARGET_PLATFORM = "-A x64"
-          $env:ADDRESS_MODEL = "64"
         }
       }
       if ($env:GENERATOR -eq "MinGW Makefiles") {
@@ -58,7 +56,6 @@ install:
         if ($env:CXX_PATH -ne "") {
           $env:path += ";$env:CXX_PATH"
         }
-        $env:ADDRESS_MODEL = "64"
       }
 
   - if %COMPILER% == cygwin-gcc (
@@ -100,9 +97,7 @@ install:
       bootstrap.bat &&
       b2.exe install ^
         toolset=%COMPILER% ^
-        address-model=%ADDRESS_MODEL% ^
         variant=%ConfigLower% ^
-        link=static ^
         runtime-link=static ^
         -j2 --prefix=C:\Libraries\boost-1.69.0 &&
       popd &&
@@ -131,7 +126,6 @@ build_script:
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBoost_INCLUDE_DIR=C:\Libraries\boost-1.69.0\include ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
       cmake --build . --config %Configuration%
