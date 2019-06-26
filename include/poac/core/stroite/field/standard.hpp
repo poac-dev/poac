@@ -22,7 +22,7 @@ namespace poac::core::stroite::field::standard {
     std::string get_compiler_version(const std::string& compiler) {
         if (util::_shell::has_command(compiler)) {
             if (const auto res = util::shell(compiler + " --version").stderr_to_stdout().exec()) {
-                const std::regex SEARCH_VERSION("^" + ANY + "(" + deper::semver::MAIN_VERSION + ")" + ANY + "$");
+                const std::regex SEARCH_VERSION("^" + ANY + "(" + resolver::semver::MAIN_VERSION + ")" + ANY + "$");
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH_VERSION)) {
                     return match[1];
@@ -57,7 +57,7 @@ namespace poac::core::stroite::field::standard {
     }
 
     std::string gcc_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu) {
-        const deper::semver::Version cv(compiler_version);
+        const resolver::semver::Version cv(compiler_version);
 
         if (cpp_version == 98) {
             return ""; // unneeded version prefix
@@ -106,7 +106,7 @@ namespace poac::core::stroite::field::standard {
     }
 
     std::string clang_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu) {
-        const deper::semver::Version cv(compiler_version);
+        const resolver::semver::Version cv(compiler_version);
 
         if (cpp_version == 98) {
             return ""; // unneeded version prefix

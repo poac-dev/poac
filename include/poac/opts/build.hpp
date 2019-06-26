@@ -229,7 +229,7 @@ namespace poac::opts {
             namespace fs = boost::filesystem;
             namespace except = core::except;
             namespace stroite = core::stroite;
-            namespace lock = core::deper::lock;
+            namespace lock = core::resolver::lock;
             namespace name = core::name;
             namespace yaml = io::yaml;
 

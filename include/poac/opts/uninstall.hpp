@@ -117,11 +117,11 @@ namespace poac::opts {
         void individual(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace yaml = io::yaml;
-            namespace resolver = core::deper::resolve;
+            namespace resolver = core::resolver::resolve;
             namespace cli = io::cli;
             namespace name = core::name;
             namespace except = core::except;
-            namespace lock = core::deper::lock;
+            namespace lock = core::resolver::lock;
             using termcolor2::color_literals::operator""_red;
 
             auto node = yaml::load_config();

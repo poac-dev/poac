@@ -11,7 +11,7 @@
 #include "../../io/yaml.hpp"
 
 
-namespace poac::core::deper::lock {
+namespace poac::core::resolver::lock {
     const std::string filename = "poac.lock";
 
     std::optional<YAML::Node>

@@ -23,8 +23,8 @@ namespace poac::opts {
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::yaml;
-            namespace resolver = core::deper::resolve;
-            namespace lock = core::deper::lock;
+            namespace resolver = core::resolver::resolve;
+            namespace lock = core::resolver::lock;
             namespace name = core::name;
             namespace fs = boost::filesystem;
             namespace cli = io::cli;

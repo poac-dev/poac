@@ -27,7 +27,7 @@
 #include "../../util/types.hpp"
 
 
-namespace poac::core::deper::resolve {
+namespace poac::core::resolver::resolve {
     namespace cache {
         bool resolve(const std::string& package_name) {
             namespace path = io::path;

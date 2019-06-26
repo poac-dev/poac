@@ -137,7 +137,7 @@ namespace poac::core::stroite::utils::options {
         // poac automatically define the absolute path of the project's root directory.
         // TODO: これ，依存関係もこれ使ってたら，それも，ルートのにならへん？header-only libの時
         macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
-        const auto version = deper::semver::Version(yaml::get_with_throw<std::string>(node.at("version")));
+        const auto version = resolver::semver::Version(yaml::get_with_throw<std::string>(node.at("version")));
         macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
         macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
         macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));

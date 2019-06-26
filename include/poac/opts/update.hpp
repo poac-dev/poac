@@ -34,7 +34,7 @@ namespace poac::opts {
             namespace except = core::except;
             namespace yaml = io::yaml;
             namespace cli = io::cli;
-            namespace resolver = core::deper::resolve;
+            namespace resolver = core::resolver::resolve;
             namespace name = core::name;
             using io::path::path_literals::operator""_path;
 
@@ -78,7 +78,7 @@ namespace poac::opts {
                             current_version = "null";
                         }
 
-                        if (core::deper::semver::Version(dep.version) != current_version) {
+                        if (core::resolver::semver::Version(dep.version) != current_version) {
                             update_deps[name] = { {current_version}, {dep.source} };
                         }
                     }
@@ -92,7 +92,7 @@ namespace poac::opts {
                 for (const auto& [name, dep] : update_deps) {
                     const auto current_version = resolved_deps.backtracked[name].version;
                     std::cout << name << " (Current: " << current_version << " -> Update: ";
-                    if (core::deper::semver::Version(current_version) < dep.version) {
+                    if (core::resolver::semver::Version(current_version) < dep.version) {
                         std::cout << termcolor2::green<> << dep.version << termcolor2::reset<> << ")" << std::endl;
                     }
                     else {

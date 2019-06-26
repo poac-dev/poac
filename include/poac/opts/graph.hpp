@@ -42,9 +42,9 @@ namespace poac::opts {
         using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
 
-        core::deper::resolve::Resolved create_resolved_deps() {
-            namespace lock = core::deper::lock;
-            namespace resolver = core::deper::resolve;
+        core::resolver::resolve::Resolved create_resolved_deps() {
+            namespace lock = core::resolver::lock;
+            namespace resolver = core::resolver::resolve;
             namespace except = core::except;
             namespace yaml = io::yaml;
 

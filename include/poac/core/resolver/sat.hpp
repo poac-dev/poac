@@ -13,7 +13,7 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 
-namespace poac::core::deper::sat {
+namespace poac::core::resolver::sat {
     enum class Sat : int {
         satisfied, // found a satisfying assignment
         unsatisfied, // found no satisfying assignment
