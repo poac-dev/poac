@@ -20,7 +20,7 @@
 #include "./cache.hpp"
 #include "./compiler.hpp"
 #include "./depends.hpp"
-#include "./search.hpp"
+#include "./detect.hpp"
 #include "./standard.hpp"
 #include "./options.hpp"
 #include "../except.hpp"
@@ -373,7 +373,7 @@ namespace poac::core::builder {
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
             compile_conf.other_args = options::make_compile_other_args(node);
-            compile_conf.source_files = hash_source_files(search::cpp(base_dir), usemain);
+            compile_conf.source_files = hash_source_files(detect::search_cpp_file(base_dir), usemain);
             compile_conf.macro_defns = options::make_macro_defns(node);
             compile_conf.base_dir = base_dir;
             compile_conf.output_root = path::current_build_cache_obj_dir;

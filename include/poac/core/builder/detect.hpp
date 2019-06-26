@@ -6,10 +6,12 @@
 #include <sstream>
 #include <vector>
 
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "../except.hpp"
 #include "../../io/yaml.hpp"
+#include "../../io/path.hpp"
 #include "../../util/shell.hpp"
 
 namespace poac::core::builder::detect {
@@ -43,6 +45,32 @@ namespace poac::core::builder::detect {
         }
         // No build required
         return std::nullopt;
+    }
+
+    bool is_cpp_file(const boost::filesystem::path& p) {
+        namespace fs = boost::filesystem;
+        return !fs::is_directory(p)
+               && (p.extension().string() == ".cpp"
+                   || p.extension().string() == ".cxx"
+                   || p.extension().string() == ".cc"
+                   || p.extension().string() == ".cp");
+    }
+
+    std::vector<std::string>
+    search_cpp_file(const boost::filesystem::path& base_dir) {
+        namespace fs = boost::filesystem;
+        namespace path = io::path;
+
+        std::vector<std::string> source_files;
+        const auto source_dir = base_dir / "src";
+        if (path::validate_dir(source_dir)) {
+            for (const fs::path& p : fs::recursive_directory_iterator(source_dir)) {
+                if (is_cpp_file(p)) {
+                    source_files.push_back(p.string());
+                }
+            }
+        }
+        return source_files;
     }
 } // end namespace
 #endif // POAC_CORE_BUILDER_DETECT_HPP

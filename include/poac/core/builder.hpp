@@ -9,7 +9,6 @@
 #include "builder/depends.hpp"
 #include "builder/detect.hpp"
 #include "builder/options.hpp"
-#include "builder/search.hpp"
 #include "builder/standard.hpp"
 
 #endif // POAC_CORE_BUILDER_HPP
