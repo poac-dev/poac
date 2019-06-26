@@ -14,7 +14,7 @@
 #include "./install.hpp"
 #include "../core/except.hpp"
 #include "../core/name.hpp"
-#include "../core/deper/resolver.hpp"
+#include "poac/core/deper/resolve.hpp"
 #include "../core/deper/lock.hpp"
 #include "../io/path.hpp"
 #include "../io/yaml.hpp"
@@ -117,7 +117,7 @@ namespace poac::opts {
         void individual(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace yaml = io::yaml;
-            namespace resolver = core::deper::resolver;
+            namespace resolver = core::deper::resolve;
             namespace cli = io::cli;
             namespace name = core::name;
             namespace except = core::except;

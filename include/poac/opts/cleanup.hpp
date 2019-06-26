@@ -12,7 +12,7 @@
 #include "./uninstall.hpp"
 #include "../core/except.hpp"
 #include "../core/name.hpp"
-#include "../core/deper/resolver.hpp"
+#include "poac/core/deper/resolve.hpp"
 #include "../core/deper/lock.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
@@ -23,7 +23,7 @@ namespace poac::opts {
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::yaml;
-            namespace resolver = core::deper::resolver;
+            namespace resolver = core::deper::resolve;
             namespace lock = core::deper::lock;
             namespace name = core::name;
             namespace fs = boost::filesystem;

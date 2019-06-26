@@ -7,7 +7,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "./resolver.hpp"
+#include "resolve.hpp"
 #include "../../io/yaml.hpp"
 
 
@@ -38,12 +38,12 @@ namespace poac::core::deper::lock {
         return std::nullopt;
     }
 
-    std::optional<resolver::Activated>
+    std::optional<resolve::Activated>
     load_deps_deps(const YAML::Node& node) {
         namespace yaml = io::yaml;
         // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
         if (const auto deps_deps = yaml::get<std::map<std::string, YAML::Node>>(node, "dependencies")) {
-            resolver::Activated deps;
+            resolve::Activated deps;
             for (const auto&[name2, next_node2] : *deps_deps) {
                 const auto version2 = yaml::get_with_throw<std::string>(next_node2, "version");
                 const auto source2 = yaml::get_with_throw<std::string>(next_node2, "source");
@@ -56,11 +56,11 @@ namespace poac::core::deper::lock {
         }
     }
 
-    resolver::Resolved
+    resolve::Resolved
     create_resolved_deps(const std::map<std::string, YAML::Node>& locked_deps) {
         namespace yaml = io::yaml;
 
-        resolver::Resolved resolved_deps{};
+        resolve::Resolved resolved_deps{};
         for (const auto& [name, next_node] : locked_deps) {
             const auto version = yaml::get_with_throw<std::string>(next_node, "version");
             const auto source = yaml::get_with_throw<std::string>(next_node, "source");
@@ -77,7 +77,7 @@ namespace poac::core::deper::lock {
     }
 
     // Ignore timestamp check
-    std::optional<resolver::Resolved>
+    std::optional<resolve::Resolved>
     load_ignore_timestamp() {
         namespace yaml = io::yaml;
 
@@ -89,7 +89,7 @@ namespace poac::core::deper::lock {
         return std::nullopt;
     }
 
-    std::optional<resolver::Resolved>
+    std::optional<resolve::Resolved>
     load(const std::string& timestamp=io::yaml::get_timestamp()) {
         namespace yaml = io::yaml;
 

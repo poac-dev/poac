@@ -1,7 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <poac/core/deper/resolver.hpp>
+#include <poac/core/deper/resolve.hpp>
 
 
 BOOST_AUTO_TEST_CASE( poac_core_resolver_test1 )

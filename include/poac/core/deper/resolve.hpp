@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_DEPER_RESOLVER_HPP
-#define POAC_CORE_DEPER_RESOLVER_HPP
+#ifndef POAC_CORE_DEPER_RESOLVE_HPP
+#define POAC_CORE_DEPER_RESOLVE_HPP
 
 #include <iostream>
 #include <vector>
@@ -27,7 +27,7 @@
 #include "../../util/types.hpp"
 
 
-namespace poac::core::deper::resolver {
+namespace poac::core::deper::resolve {
     namespace cache {
         bool resolve(const std::string& package_name) {
             namespace path = io::path;
@@ -398,4 +398,4 @@ namespace poac::core::deper::resolver {
         return resolved_deps;
     }
 } // end namespace
-#endif // !POAC_CORE_DEPER_RESOLVER_HPP
+#endif // !POAC_CORE_DEPER_RESOLVE_HPP

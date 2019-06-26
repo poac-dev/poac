@@ -15,7 +15,7 @@
 #include "../core/except.hpp"
 #include "../core/name.hpp"
 #include "../core/deper/semver.hpp"
-#include "../core/deper/resolver.hpp"
+#include "poac/core/deper/resolve.hpp"
 #include "../io/path.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
@@ -34,7 +34,7 @@ namespace poac::opts {
             namespace except = core::except;
             namespace yaml = io::yaml;
             namespace cli = io::cli;
-            namespace resolver = core::deper::resolver;
+            namespace resolver = core::deper::resolve;
             namespace name = core::name;
             using io::path::path_literals::operator""_path;
 

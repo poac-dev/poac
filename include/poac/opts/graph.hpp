@@ -19,7 +19,7 @@
 
 #include "../core/except.hpp"
 #include "../core/deper/lock.hpp"
-#include "../core/deper/resolver.hpp"
+#include "poac/core/deper/resolve.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
@@ -42,9 +42,9 @@ namespace poac::opts {
         using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
 
-        core::deper::resolver::Resolved create_resolved_deps() {
+        core::deper::resolve::Resolved create_resolved_deps() {
             namespace lock = core::deper::lock;
-            namespace resolver = core::deper::resolver;
+            namespace resolver = core::deper::resolve;
             namespace except = core::except;
             namespace yaml = io::yaml;
 
