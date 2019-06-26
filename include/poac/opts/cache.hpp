@@ -19,6 +19,13 @@
 
 namespace poac::opts {
     namespace _cache {
+        constexpr auto summary() {
+            return termcolor2::make_string("Manipulate cache files");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("<command>");
+        }
+
         void clean(const std::vector<std::string>& argv) {
             namespace fs = boost::filesystem;
             if (argv.empty()) {
@@ -93,12 +100,6 @@ namespace poac::opts {
     }
 
     struct cache {
-        static std::string summary() {
-            return "Manipulate cache files";
-        }
-        static std::string options() {
-            return "<command>";
-        }
         template <typename VS>
         int operator()(VS&& argv) {
             _cache::check_arguments(argv);

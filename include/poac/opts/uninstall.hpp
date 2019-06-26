@@ -22,9 +22,15 @@
 #include "../util/argparse.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _uninstall {
+        constexpr auto summary() {
+            return termcolor2::make_string("Uninstall packages");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[<pkg-names>, -a | --all, -y | --yes]");
+        }
+
         template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
         void all(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -250,8 +256,6 @@ namespace poac::opts {
     }
 
     struct uninstall {
-        static std::string summary() { return "Uninstall packages"; }
-        static std::string options() { return "[<pkg-names>, -a | --all, -y | --yes]"; }
         template <typename VS>
         int operator()(VS&& argv) {
             _uninstall::check_arguments(argv);

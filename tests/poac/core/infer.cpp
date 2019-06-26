@@ -8,19 +8,15 @@
 #include <poac/core/infer.hpp>
 #include <poac/core/except.hpp>
 
-
-BOOST_AUTO_TEST_CASE( poac_core_infer_test1 )
+BOOST_AUTO_TEST_CASE( poac_core_infer_execute_test )
 {
-    using namespace std;
-    using namespace poac::core;
-    using namespace poac::core::except;
+    using poac::core::infer::execute;
 
     BOOST_CHECK_THROW(
-            infer::apply(
-                    string("exec"),
-                    string("nothing"),
-                    vector<string>()
+            execute(
+                    std::string("nothing"),
+                    std::vector<std::string>()
             ),
-            invalid_first_arg
+            poac::core::except::invalid_first_arg
     );
 }

@@ -16,9 +16,15 @@
 #include "../core/name.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _init {
+        constexpr auto summary() {
+            return termcolor2::make_string("Create the poac.yml");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("<Nothing>");
+        }
+
         std::string basename(boost::filesystem::path&& s) {
             namespace fs = boost::filesystem;
             std::string tmp = fs::basename(s);
@@ -71,12 +77,6 @@ namespace poac::opts {
     }
 
     struct init {
-        static std::string summary() {
-            return "Create the poac.yml";
-        }
-        static std::string options() {
-            return "<Nothing>";
-        }
         template<typename VS>
         int operator()(VS&& argv) {
             _init::check_arguments(argv);

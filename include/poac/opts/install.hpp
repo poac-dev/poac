@@ -24,6 +24,13 @@
 
 namespace poac::opts {
     namespace _install {
+        constexpr auto summary() {
+            return termcolor2::make_string("Install packages");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("-v | --verbose, -q | --quite, [args]");
+        }
+
         void stream_deps(YAML::Emitter& out, const core::resolver::resolve::Activated& deps) {
             out << YAML::Key << "dependencies";
             out << YAML::Value << YAML::BeginMap;
@@ -307,12 +314,6 @@ namespace poac::opts {
     }
 
     struct install {
-        static std::string summary() {
-            return "Install packages";
-        }
-        static std::string options() {
-            return "-v | --verbose, -q | --quite, [args]";
-        }
         template<typename VS>
         int operator()(VS&& argv) {
             return _install::_main(std::forward<VS>(argv));

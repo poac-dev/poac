@@ -23,11 +23,17 @@
 #include "../util/types.hpp"
 #include "../util/termcolor2.hpp"
 
-
 // TODO: --selfを指定することで，poacのupdateを行う -> globalなパッケージに対応した時，どうする？
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
 namespace poac::opts {
     namespace _update {
+        constexpr auto summary() {
+            return termcolor2::make_string("Update a package");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[ -y | --yes, -a | --all, --outside ]");
+        }
+
         template <typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -140,12 +146,6 @@ namespace poac::opts {
     }
 
     struct update {
-        static std::string summary() {
-            return "Update package";
-        }
-        static std::string options() {
-            return "[ -y | --yes, -a | --all, --outside ]";
-        }
         template <typename VS>
         int operator()(VS&& argv) {
             return _update::_main(std::forward<VS>(argv));

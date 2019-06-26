@@ -18,9 +18,14 @@
 #include "../util/argparse.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _build {
+        constexpr auto summary() {
+            return termcolor2::make_string("Compile all sources that depend on this project");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[-v | --verbose]");
+        }
 
 
 
@@ -385,12 +390,6 @@ namespace poac::opts {
     }
 
     struct build {
-        static std::string summary() {
-            return "Compile all sources that depend on this project";
-        }
-        static std::string options() {
-            return "[-v | --verbose]";
-        }
         template<typename VS>
         int operator()(VS&& argv) {
             _build::check_arguments(argv);

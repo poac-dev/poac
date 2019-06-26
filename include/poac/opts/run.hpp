@@ -18,9 +18,15 @@
 #include "../util/shell.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _run {
+        constexpr auto summary() {
+            return termcolor2::make_string("Build project and exec it");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[-v | --verbose | -- [program args]]");
+        }
+
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -70,12 +76,6 @@ namespace poac::opts {
     }
 
     struct run {
-        static std::string summary() {
-            return "Build project and exec it";
-        }
-        static std::string options() {
-            return "[-v | --verbose | -- [program args]]";
-        }
         template <typename VS>
         int operator()(VS&& argv) {
             return _run::_main(std::forward<VS>(argv));

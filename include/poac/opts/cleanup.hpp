@@ -16,10 +16,17 @@
 #include "../core/resolver/lock.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
-
+#include "../util/termcolor2.hpp"
 
 namespace poac::opts {
     namespace _cleanup {
+        constexpr auto summary() {
+            return termcolor2::make_string("Delete unnecessary things");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("<Nothing>");
+        }
+
         template<typename VS>
         int _main([[maybe_unused]] VS&& argv) {
             namespace yaml = io::yaml;
@@ -74,12 +81,6 @@ namespace poac::opts {
     }
 
     struct cleanup {
-        static std::string summary() {
-            return "Delete unnecessary things";
-        }
-        static std::string options() {
-            return "<Nothing>";
-        }
         template<typename VS>
         int operator()(VS&& argv) {
             _cleanup::check_arguments(argv);

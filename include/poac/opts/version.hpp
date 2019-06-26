@@ -4,16 +4,19 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "../util/termcolor2.hpp"
 
 namespace poac::opts {
-    struct version {
-        static std::string summary() {
-            return "Show the current poac version";
+    namespace _version {
+        constexpr auto summary() {
+            return termcolor2::make_string("Show the current poac version");
         }
-        static std::string options() {
-            return "<Nothing>";
+        constexpr auto options() {
+            return termcolor2::make_string("<Nothing>");
         }
+    }
 
+    struct version {
         template<typename VS>
         int operator()([[maybe_unused]] VS&& argv) {
             std::cout << POAC_VERSION << std::endl;

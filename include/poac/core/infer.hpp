@@ -13,7 +13,6 @@
 #include "../opts.hpp"
 #include "../util/types.hpp"
 
-
 namespace poac::core::infer {
     using namespace util::types;
 
@@ -65,7 +64,7 @@ namespace poac::core::infer {
             { "cache",     op_type_list_t::index_of<opts::cache> },
             { "cleanup",   op_type_list_t::index_of<opts::cleanup> },
             { "graph",     op_type_list_t::index_of<opts::graph> },
-            { "help",    op_type_list_t::index_of<opts::help> },
+            { "help",      op_type_list_t::index_of<opts::help> },
             { "--help",    op_type_list_t::index_of<opts::help> },
             { "-h",        op_type_list_t::index_of<opts::help> },
             { "init",      op_type_list_t::index_of<opts::init> },
@@ -78,7 +77,7 @@ namespace poac::core::infer {
             { "test",      op_type_list_t::index_of<opts::test> },
             { "uninstall", op_type_list_t::index_of<opts::uninstall> },
             { "update",    op_type_list_t::index_of<opts::update> },
-            { "version", op_type_list_t::index_of<opts::version> },
+            { "version",   op_type_list_t::index_of<opts::version> },
             { "--version", op_type_list_t::index_of<opts::version> },
             { "-v",        op_type_list_t::index_of<opts::version> }
     };
@@ -86,28 +85,14 @@ namespace poac::core::infer {
 // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 #if BOOST_COMP_GNUC
     template <typename T, typename VS>
-    auto execute2(VS&& vs) { return std::to_string(T()(std::forward<VS>(vs))); }
-    template <typename T>
-    auto summary2() { return T::summary(); }
-    template <typename T>
-    auto options2() { return T::options(); }
+    auto execute2(VS&& vs) {
+        return std::to_string(T()(std::forward<VS>(vs)));
+    }
     template <std::size_t... Is, typename VS>
     auto execute(std::index_sequence<Is...>, int idx, VS&& vs) {
         using func_t = decltype(&execute2<op_type_list_t::at_t<0>, VS>);
         static func_t func_table[] = { &execute2<op_type_list_t::at_t<Is>>... };
         return func_table[idx](std::forward<VS>(vs));
-    }
-    template <std::size_t... Is>
-    auto summary(std::index_sequence<Is...>, int idx) {
-        using func_t = decltype(&summary2<op_type_list_t::at_t<0>>);
-        static func_t func_table[] = { &summary2<op_type_list_t::at_t<Is>>... };
-        return func_table[idx]();
-    }
-    template <std::size_t... Is>
-    auto options(std::index_sequence<Is...>, int idx) {
-        using func_t = decltype(&options2<op_type_list_t::at_t<0>>);
-        static func_t func_table[] = { &options2<op_type_list_t::at_t<Is>>... };
-        return func_table[idx]();
     }
 #else
     // Create function pointer table: { &func<0>, &func<1>, ... }
@@ -119,42 +104,17 @@ namespace poac::core::infer {
             return std::to_string(op_type_list_t::at_t<Is>()(std::forward<VS>(vs)));
         }... })[idx](std::forward<VS>(vs));
     }
-    template <std::size_t... Is>
-    auto summary(std::index_sequence<Is...>, int idx) {
-        return std::vector({ +[]{ return op_type_list_t::at_t<Is>::summary(); }... })[idx]();
-    }
-    template <std::size_t... Is>
-    auto options(std::index_sequence<Is...>, int idx) {
-        return std::vector({ +[]{ return op_type_list_t::at_t<Is>::options(); }... })[idx]();
-    }
 #endif
 
-    // Execute function: execute or summary or options
-    template <typename S, typename Index, typename VS,
+    template <typename S, typename VS,
               typename Indices=std::make_index_sequence<op_type_list_t::size()>>
-    auto branch(S&& s, Index idx, VS&& vs) {
+    std::string execute(S&& cmd, VS&& arg) {
         namespace except = core::except;
-        if (s == "exec")
-            return execute(Indices(), static_cast<int>(idx), std::forward<VS>(vs));
-        else if (s == "summary")
-            return summary(Indices(), static_cast<int>(idx));
-        else if (s == "options")
-            return options(Indices(), static_cast<int>(idx));
-        else
+        if (auto itr = opts_map.find(cmd); itr != opts_map.end()) {
+            return execute(Indices(), static_cast<int>(itr->second), std::forward<VS>(arg));
+        } else {
             throw except::invalid_first_arg("Invalid argument");
-    }
-
-    template <typename S, typename OpTypeE, typename VS>
-    auto _apply(S&& func, const OpTypeE& cmd, VS&& arg) {
-        return branch(std::forward<S>(func), cmd, std::forward<VS>(arg));
-    }
-    template <typename S, typename VS>
-    std::string apply(S&& func, S&& cmd, VS&& arg) {
-        namespace except = core::except;
-        if (auto itr = opts_map.find(cmd); itr != opts_map.end())
-            return _apply(std::forward<S>(func), itr->second, std::forward<VS>(arg));
-        else
-            throw except::invalid_first_arg("Invalid argument");
+        }
     }
 }
 #endif // !POAC_CORE_INFER_HPP

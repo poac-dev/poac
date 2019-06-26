@@ -8,22 +8,22 @@
 
 template <typename VS>
 int exec(std::string&& str, VS&& vs) {
-    namespace inference = poac::core::infer;
+    namespace infer = poac::core::infer;
     namespace except = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;
     using termcolor2::color_literals::operator""_red;
 
     try {
-        return std::stoi(inference::apply("exec"s, std::forward<std::string>(str), std::forward<VS>(vs)));
+        return std::stoi(infer::execute(std::forward<std::string>(str), std::forward<VS>(vs)));
     }
     catch (const except::invalid_first_arg& e) {
         std::cerr << "ERROR: "_red << e.what() << std::endl << std::endl;
-        inference::apply("exec"s, "--help"s, VS());
+        infer::execute("--help"s, VS());
         return EXIT_FAILURE;
     }
     catch (const except::invalid_second_arg& e) {
-        inference::apply("exec"s, "--help"s, VS({e.what()}));
+        infer::execute("--help"s, VS({e.what()}));
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {

@@ -28,9 +28,15 @@
 #include "../util/termcolor2.hpp"
 #include "../util/pretty.hpp"
 
-
 namespace poac::opts {
     namespace _publish {
+        constexpr auto summary() {
+            return termcolor2::make_string("Publish a package");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[-v | --verbose, -y | --yes]");
+        }
+
 //        struct PackageInfo {
 //            std::string name;
 //            core::resolver::semver::Version version;
@@ -255,12 +261,6 @@ namespace poac::opts {
     }
 
     struct publish {
-        static std::string summary() {
-            return "Publish a package";
-        }
-        static std::string options() {
-            return "[-v | --verbose, -y | --yes]";
-        }
         template<typename VS>
         int operator()(VS&& argv) {
             return _publish::_main(std::forward<VS>(argv));

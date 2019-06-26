@@ -8,17 +8,19 @@
 #include <boost/dll/runtime_symbol_info.hpp>
 
 #include "../core/except.hpp"
-
+#include "../util/termcolor2.hpp"
 
 namespace poac::opts {
-    struct root {
-        static std::string summary() {
-            return "Display the root installation directory";
+    namespace _root {
+        constexpr auto summary() {
+            return termcolor2::make_string("Display the root installation directory");
         }
-        static std::string options() {
-            return "<Nothing>";
+        constexpr auto options() {
+            return termcolor2::make_string("<Nothing>");
         }
+    }
 
+    struct root {
         // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
         template <typename VS>
         int operator()([[maybe_unused]] VS&& vs) {

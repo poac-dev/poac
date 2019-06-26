@@ -18,9 +18,15 @@
 #include "../util/shell.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _new {
+        constexpr auto summary() {
+            return termcolor2::make_string("Create a new poac project");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("<project-name>, (-b | --bin) | (-l | --lib)");
+        }
+
         namespace files {
             namespace bin {
                 const std::string _gitignore(
@@ -163,12 +169,6 @@ namespace poac::opts {
     }
 
     struct new_ {
-        static std::string summary() {
-            return "Create a new poac project";
-        }
-        static std::string options() {
-            return "<project-name>, (-b | --bin) | (-l | --lib)";
-        }
         template<typename VS>
         int operator()(VS&& argv) {
             return _new::_main(std::forward<VS>(argv));

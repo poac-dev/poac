@@ -24,7 +24,7 @@
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"
 #include "../util/shell.hpp"
-
+#include "../util/termcolor2.hpp"
 
 // TODO: --input, -iで，入力する，poac.ymlファイルを指定. 指定しない場合はカレントディレクトリのを選択
 // poac graph -i ./deps/boost/poac.yml -o hoge.png
@@ -35,6 +35,13 @@
 
 namespace poac::opts {
     namespace _graph {
+        constexpr auto summary() {
+            return termcolor2::make_string("Create a dependency graph");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[-o | --output]");
+        }
+
         struct Vertex {
             std::string name;
             std::string version;
@@ -154,8 +161,6 @@ namespace poac::opts {
     }
 
     struct graph {
-        static std::string summary() { return "Create a dependency graph"; }
-        static std::string options() { return "[-o | --output]"; }
         template <typename VS>
         int operator()(VS&& argv) {
             return _graph::_main(std::forward<VS>(argv));

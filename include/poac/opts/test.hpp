@@ -17,9 +17,15 @@
 #include "../util/argparse.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _test {
+        constexpr auto summary() {
+            return termcolor2::make_string("Execute tests");
+        }
+        constexpr auto options() {
+            return termcolor2::make_string("[-v | --verbose, --report, -- args]");
+        }
+
         template<typename VS>
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
@@ -161,12 +167,6 @@ namespace poac::opts {
     }
 
     struct test {
-        static std::string summary() {
-            return "Execute tests";
-        }
-        static std::string options() {
-            return "[-v | --verbose, --report, -- args]";
-        }
         template <typename VS>
         int operator()(VS&& argv) {
             return _test::_main(std::forward<VS>(argv));
