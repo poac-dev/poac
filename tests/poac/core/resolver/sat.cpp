@@ -1,12 +1,12 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <poac/core/deper/sat.hpp>
+#include <poac/core/resolver/sat.hpp>
 
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test1 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1, 2 },
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test1 )
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test3 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1 },
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test3 )
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test4 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1, 2 },
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test4 )
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test5 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1, 2 },
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test5 )
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test7 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1 },
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test7 )
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test8 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1 },
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test8 )
 
 BOOST_AUTO_TEST_CASE( poac_core_unsat_test1 )
 {
-    using namespace poac::core::deper;
+    using namespace poac::core::resolver;
 
     std::vector<std::vector<int>> clauses{
             { 1 },
