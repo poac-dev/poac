@@ -15,7 +15,7 @@ int exec(std::string&& str, VS&& vs) {
     using termcolor2::color_literals::operator""_red;
 
     try {
-        return std::stoi(infer::execute(std::forward<std::string>(str), std::forward<VS>(vs)));
+        return infer::execute(std::forward<std::string>(str), std::forward<VS>(vs));
     }
     catch (const except::invalid_first_arg& e) {
         std::cerr << "ERROR: "_red << e.what() << std::endl << std::endl;
