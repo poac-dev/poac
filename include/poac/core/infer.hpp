@@ -36,9 +36,10 @@ namespace poac::core::infer {
     template <typename S, typename VS>
     int execute(S&& cmd, VS&& arg) {
         namespace except = core::except;
-        if (auto itr = opts_map.find(cmd); itr != opts_map.end()) {
-            return itr->second(arg);
-        } else {
+        try {
+            return opts_map.at(cmd)(arg);
+        }
+        catch(std::out_of_range&) {
             throw except::invalid_first_arg("Invalid argument");
         }
     }
