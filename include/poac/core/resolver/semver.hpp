@@ -2,8 +2,8 @@
 // minimalistic and dedicated to poac
 // (A grammar not used by poac (or etc.) is not implemented)
 // Check if the package exists within the specified range
-#ifndef POAC_CORE_DEPER_SEMVER_HPP
-#define POAC_CORE_DEPER_SEMVER_HPP
+#ifndef POAC_CORE_RESOLVER_SEMVER_HPP
+#define POAC_CORE_RESOLVER_SEMVER_HPP
 
 #include <iostream>
 #include <string>
@@ -608,4 +608,4 @@ namespace poac::core::resolver::semver {
         return Interval(name, interval).satisfies(version);
     }
 } // end namespace
-#endif // !POAC_CORE_DEPER_SEMVER_HPP
+#endif // !POAC_CORE_RESOLVER_SEMVER_HPP
