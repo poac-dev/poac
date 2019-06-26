@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_CORE_CACHE_HPP
-#define POAC_CORE_STROITE_CORE_CACHE_HPP
+#ifndef POAC_CORE_STROITE_CACHE_HPP
+#define POAC_CORE_STROITE_CACHE_HPP
 
 #include <iostream>
 #include <string>
@@ -10,11 +10,11 @@
 #include <boost/filesystem.hpp>
 
 #include "./depends.hpp"
-#include "../options.hpp"
-#include "../../../io/path.hpp"
-#include "../../../util/misc.hpp"
+#include "./options.hpp"
+#include "../../io/path.hpp"
+#include "../../util/misc.hpp"
 
-namespace poac::core::builder::core::cache {
+namespace poac::core::builder::cache {
     std::string to_cache_hash_path(const std::string& s)
     {
         namespace fs = boost::filesystem;
@@ -121,4 +121,4 @@ namespace poac::core::builder::core::cache {
 
     // TODO: storeと，load, compare(check) => cacheのAPIをわかりやすくしたい．StoreとLoadのみで，わかりやすく
 } // end namespace
-#endif // POAC_CORE_STROITE_CORE_CACHE_HPP
+#endif // POAC_CORE_STROITE_CACHE_HPP

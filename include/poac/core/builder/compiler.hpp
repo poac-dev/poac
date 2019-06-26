@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_CORE_COMPILER_HPP
-#define POAC_CORE_STROITE_CORE_COMPILER_HPP
+#ifndef POAC_CORE_STROITE_COMPILER_HPP
+#define POAC_CORE_STROITE_COMPILER_HPP
 
 #include <iostream>
 #include <string>
@@ -8,10 +8,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../absorb.hpp"
-#include "../../../util/shell.hpp"
+#include "./absorb.hpp"
+#include "../../util/shell.hpp"
 
-namespace poac::core::builder::core::compiler {
+namespace poac::core::builder::compiler {
     namespace fs = boost::filesystem;
 
     template <typename Opts>
@@ -133,4 +133,4 @@ namespace poac::core::builder::core::compiler {
         }
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_CORE_COMPILER_HPP
+#endif // POAC_CORE_STROITE_COMPILER_HPP

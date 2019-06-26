@@ -24,7 +24,7 @@ namespace poac::opts {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace stroite = core::builder;
+            namespace builder = core::builder;
 
             using namespace termcolor2::color_literals;
 
@@ -42,7 +42,7 @@ namespace poac::opts {
             // }
 
 
-            stroite::core::compilation bs(verbose);
+            builder::compilation bs(verbose);
             bs.configure_compile(usemain);
 
 

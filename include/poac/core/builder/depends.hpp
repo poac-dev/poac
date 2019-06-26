@@ -1,15 +1,15 @@
-#ifndef POAC_CORE_STROITE_CORE_DEPENDS_HPP
-#define POAC_CORE_STROITE_CORE_DEPENDS_HPP
+#ifndef POAC_CORE_STROITE_DEPENDS_HPP
+#define POAC_CORE_STROITE_DEPENDS_HPP
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <optional>
 
-#include "../../../util/shell.hpp"
-#include "../../../util/misc.hpp"
+#include "../../util/shell.hpp"
+#include "../../util/misc.hpp"
 
-namespace poac::core::builder::core::depends {
+namespace poac::core::builder::depends {
     template <typename Opts>
     std::optional<std::string>
     calc(const Opts& opts, const std::string& src_cpp, const bool verbose)
@@ -50,4 +50,4 @@ namespace poac::core::builder::core::depends {
         }
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_CORE_DEPENDS_HPP
+#endif // POAC_CORE_STROITE_DEPENDS_HPP

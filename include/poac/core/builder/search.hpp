@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_CORE_SEARCH_HPP
-#define POAC_CORE_STROITE_CORE_SEARCH_HPP
+#ifndef POAC_CORE_BUILDER_SEARCH_HPP
+#define POAC_CORE_BUILDER_SEARCH_HPP
 
 #include <iostream>
 #include <string>
@@ -7,10 +7,9 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../../../io/path.hpp"
+#include "../../io/path.hpp"
 
-
-namespace poac::core::builder::core::search {
+namespace poac::core::builder::search {
     bool is_cpp_file(const boost::filesystem::path& p) {
         namespace fs = boost::filesystem;
         return !fs::is_directory(p)
@@ -37,4 +36,4 @@ namespace poac::core::builder::core::search {
         return source_files;
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_CORE_SEARCH_HPP
+#endif // POAC_CORE_BUILDER_SEARCH_HPP

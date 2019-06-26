@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_CHAIN_CMAKE_HPP
-#define POAC_CORE_STROITE_CHAIN_CMAKE_HPP
+#ifndef POAC_CORE_BUILDER_CHAIN_CMAKE_HPP
+#define POAC_CORE_BUILDER_CHAIN_CMAKE_HPP
 
 #include <iostream>
 #include <string>
@@ -45,4 +45,4 @@ namespace poac::core::builder::chain {
         }
     };
 } // end namespace
-#endif // POAC_CORE_STROITE_CHAIN_CMAKE_HPP
+#endif // POAC_CORE_BUILDER_CHAIN_CMAKE_HPP

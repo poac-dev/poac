@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILER_CORE_BUILDER_HPP
-#define POAC_CORE_BUILER_CORE_BUILDER_HPP
+#ifndef POAC_CORE_BUILER_COMPILATION_HPP
+#define POAC_CORE_BUILER_COMPILATION_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -21,17 +21,17 @@
 #include "./compiler.hpp"
 #include "./depends.hpp"
 #include "./search.hpp"
-#include "../standard.hpp"
-#include "../options.hpp"
-#include "../../except.hpp"
-#include "../../name.hpp"
-#include "../../resolver/lock.hpp"
-#include "../../resolver/semver.hpp"
-#include "../../../io/path.hpp"
-#include "../../../io/cli.hpp"
-#include "../../../io/yaml.hpp"
+#include "./standard.hpp"
+#include "./options.hpp"
+#include "../except.hpp"
+#include "../name.hpp"
+#include "../resolver/lock.hpp"
+#include "../resolver/semver.hpp"
+#include "../../io/path.hpp"
+#include "../../io/cli.hpp"
+#include "../../io/yaml.hpp"
 
-namespace poac::core::builder::core {
+namespace poac::core::builder {
 //    namespace builder {
 //        void message() {
 //        }
@@ -330,7 +330,7 @@ namespace poac::core::builder::core {
                     source_files.push_back("main.cpp");
                 }
             }
-            return core::cache::check_src_cpp(compile_conf, depends_ts, source_files, verbose);
+            return cache::check_src_cpp(compile_conf, depends_ts, source_files, verbose);
         }
 
         void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
@@ -385,7 +385,7 @@ namespace poac::core::builder::core {
             for (const auto& s : compile_conf.source_files) {
                 // sourceファイルを一つづつコンパイルする．
                 compile_conf.source_file = s;
-                if (const auto ret = core::compiler::compile(compile_conf, verbose)) {
+                if (const auto ret = compiler::compile(compile_conf, verbose)) {
                     // Since compile succeeded, save hash
                     std::ofstream ofs;
                     for (const auto& [hash_name, data] : depends_ts) { // TODO: ここまで持ち回るから落ちる？
@@ -463,7 +463,7 @@ namespace poac::core::builder::core {
         }
         auto link()
         {
-            return core::compiler::link(link_conf, verbose);
+            return compiler::link(link_conf, verbose);
         }
 
         void configure_static_lib(const std::vector<std::string>& obj_files_path)
@@ -474,7 +474,7 @@ namespace poac::core::builder::core {
         }
         auto gen_static_lib()
         {
-            return core::compiler::gen_static_lib(static_lib_conf, verbose);
+            return compiler::gen_static_lib(static_lib_conf, verbose);
         }
 
         void configure_dynamic_lib(const std::vector<std::string>& obj_files_path)
@@ -488,7 +488,7 @@ namespace poac::core::builder::core {
         }
         auto gen_dynamic_lib()
         {
-            return core::compiler::gen_dynamic_lib(dynamic_lib_conf, verbose);
+            return compiler::gen_dynamic_lib(dynamic_lib_conf, verbose);
         }
 
         // TODO: poac.ymlのhashもcheck
@@ -516,4 +516,4 @@ namespace poac::core::builder::core {
         }
     };
 } // end namespace
-#endif // POAC_CORE_BUILER_CORE_BUILDER_HPP
+#endif // POAC_CORE_BUILER_COMPILATION_HPP

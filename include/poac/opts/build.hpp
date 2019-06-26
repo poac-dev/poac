@@ -57,7 +57,7 @@ namespace poac::opts {
 
         std::optional<std::string>
         handle_link(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 const std::vector<std::string>& obj_files_path,
                 const std::vector<std::string>& library_path) // depsのlibや，自分自身のlib
         {
@@ -69,7 +69,7 @@ namespace poac::opts {
         }
         std::optional<std::string>
         handle_compile(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 const std::vector<std::string>& library_path)
         {
             if (const auto obj_files_path = bs.compile()) {
@@ -81,7 +81,7 @@ namespace poac::opts {
         }
         std::optional<std::string>
         handle_generate_static_lib(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 const std::vector<std::string>& obj_files_path)
         {
             bs.configure_static_lib(obj_files_path);
@@ -89,7 +89,7 @@ namespace poac::opts {
         }
         std::optional<std::string>
         handle_generate_dynamic_lib(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 const std::vector<std::string>& obj_files_path)
         {
             bs.configure_dynamic_lib(obj_files_path);
@@ -97,7 +97,7 @@ namespace poac::opts {
         }
 
         void handle_generate_lib(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 const std::vector<std::string>& obj_files_path)
         {
             handle_generate_static_lib(bs, obj_files_path);
@@ -137,7 +137,7 @@ namespace poac::opts {
 
         std::optional<std::string> // TODO: このあたり，builder.hppへ移動できる -> bs.build()のみで，binのビルドとかlibとかを意識せずに使いたい
         build_bin(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 const std::vector<std::string>& library_path)
         {
             bs.configure_compile(true);
@@ -159,7 +159,7 @@ namespace poac::opts {
 
         std::optional<std::string>
         build_link_libs(
-                core::builder::core::compilation& bs,
+                core::builder::compilation& bs,
                 std::vector<std::string>& deps_obj_files_path)
         {
             bs.configure_compile(false);
@@ -187,13 +187,13 @@ namespace poac::opts {
                 const bool verbose)
         {
             namespace except = core::except;
-            namespace stroite = core::builder;
+            namespace builder = core::builder;
 
-            if (const auto system = stroite::detect::build_system(node)) {
+            if (const auto system = builder::detect::build_system(node)) {
                 if (*system == "poac") {
                     // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
                     if (io::yaml::get(node, "build", "lib")) {
-                        stroite::core::compilation bs(verbose, deps_path);
+                        builder::compilation bs(verbose, deps_path);
 
                         bs.configure_compile(false);
                         if (!bs.compile_conf.source_files.empty()) {
@@ -211,7 +211,7 @@ namespace poac::opts {
                     }
                 }
                 else if (*system == "cmake") {
-                    stroite::chain::cmake bs(deps_path);
+                    builder::chain::cmake bs(deps_path);
                     std::cout << io::cli::status << name << std::endl;
                     bs.build();
                     std::cout << std::endl;
@@ -305,7 +305,7 @@ namespace poac::opts {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace stroite = core::builder;
+            namespace builder = core::builder;
             namespace name = core::name;
             namespace yaml = io::yaml;
             using termcolor2::color_literals::operator""_green;
@@ -325,13 +325,13 @@ namespace poac::opts {
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
-            if (const auto system = stroite::detect::build_system(node)) {
+            if (const auto system = builder::detect::build_system(node)) {
                 std::vector<std::string> deps_obj_files_path;
                 const auto built_deps = build_deps(node, deps_obj_files_path, verbose);
                 const bool is_built_deps = static_cast<bool>(built_deps);
 
                 if (*system == "poac") {
-                    stroite::core::compilation bs(verbose);
+                    builder::compilation bs(verbose);
 
                     if (is_built_deps) {
                         std::cout << io::cli::status << project_name << std::endl;
@@ -360,7 +360,7 @@ namespace poac::opts {
                     }
                 }
                 else if (*system == "cmake") {
-                    stroite::chain::cmake bs;
+                    builder::chain::cmake bs;
                     if (is_built_deps) {
                         std::cout << io::cli::status << project_name << std::endl;
                     }
