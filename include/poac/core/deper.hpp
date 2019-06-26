@@ -1,9 +1,9 @@
-#ifndef POAC_CORE_DEPER_HPP
-#define POAC_CORE_DEPER_HPP
+#ifndef POAC_CORE_RESOLVER_HPP
+#define POAC_CORE_RESOLVER_HPP
 
-#include "deper/lock.hpp"
-#include "deper/resolve.hpp"
-#include "deper/sat.hpp"
-#include "deper/semver.hpp"
+#include "resolver/lock.hpp"
+#include "resolver/resolve.hpp"
+#include "resolver/sat.hpp"
+#include "resolver/semver.hpp"
 
-#endif // POAC_CORE_DEPER_HPP
+#endif // POAC_CORE_RESOLVER_HPP

@@ -18,8 +18,8 @@
 
 #include "../io.hpp"
 #include "../core/except.hpp"
-#include "poac/core/deper/resolve.hpp"
-#include "../core/deper/lock.hpp"
+#include "../core/resolver/resolve.hpp"
+#include "../core/resolver/lock.hpp"
 #include "../util.hpp"
 
 namespace poac::opts {

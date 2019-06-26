@@ -25,8 +25,8 @@
 #include "../utils.hpp"
 #include "../../except.hpp"
 #include "../../name.hpp"
-#include "../../deper/lock.hpp"
-#include "../../deper/semver.hpp"
+#include "../../resolver/lock.hpp"
+#include "../../resolver/semver.hpp"
 #include "../../../io/path.hpp"
 #include "../../../io/cli.hpp"
 #include "../../../io/yaml.hpp"
@@ -81,7 +81,7 @@ namespace poac::core::stroite::core {
 //
 //        void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
 //            namespace fs = boost::filesystem;
-//            namespace lock = deper::lock;
+//            namespace lock = resolver::lock;
 //            namespace yaml = io::file::yaml;
 //            namespace path = io::file::path;
 //

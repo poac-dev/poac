@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test5 )
 // FIXME: Maybe SAT solver has bug
 //BOOST_AUTO_TEST_CASE( poac_core_sat_test6 )
 //{
-//    using namespace poac::core::deper;
+//    using namespace poac::core::resolver;
 //
 //    std::vector<std::vector<int>> clauses{
 //            { 1 },

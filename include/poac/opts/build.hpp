@@ -13,7 +13,7 @@
 #include "../core/except.hpp"
 #include "../core/stroite/utils/absorb.hpp"
 #include "../core/stroite/utils/detect.hpp"
-#include "../core/deper/lock.hpp"
+#include "../core/resolver/lock.hpp"
 #include "../io.hpp"
 #include "../core/stroite.hpp"
 #include "../core/name.hpp"

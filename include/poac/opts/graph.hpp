@@ -18,8 +18,8 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 #include "../core/except.hpp"
-#include "../core/deper/lock.hpp"
-#include "poac/core/deper/resolve.hpp"
+#include "../core/resolver/lock.hpp"
+#include "../core/resolver/resolve.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../util/argparse.hpp"

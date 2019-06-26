@@ -6,7 +6,7 @@
 #include <string_view>
 #include <regex>
 
-#include "../../deper/semver.hpp"
+#include "../../resolver/semver.hpp"
 #include "../../except.hpp"
 #include "../../../io/path.hpp"
 #include "../../../util/shell.hpp"

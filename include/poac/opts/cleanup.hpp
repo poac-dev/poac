@@ -12,8 +12,8 @@
 #include "./uninstall.hpp"
 #include "../core/except.hpp"
 #include "../core/name.hpp"
-#include "poac/core/deper/resolve.hpp"
-#include "../core/deper/lock.hpp"
+#include "../core/resolver/resolve.hpp"
+#include "../core/resolver/lock.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 

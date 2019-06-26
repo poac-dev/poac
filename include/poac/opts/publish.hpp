@@ -20,7 +20,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../core/deper/semver.hpp"
+#include "../core/resolver/semver.hpp"
 #include "../core/except.hpp"
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
@@ -33,7 +33,7 @@ namespace poac::opts {
     namespace _publish {
 //        struct PackageInfo {
 //            std::string name;
-//            core::deper::semver::Version version;
+//            core::resolver::semver::Version version;
 //            std::optional<std::string> description;
 //            std::uint16_t cpp_version;
 //            std::optional<std::string> license;
@@ -92,7 +92,7 @@ namespace poac::opts {
 //
 //        }
 //
-//        core::deper::semver::Version
+//        core::resolver::semver::Version
 //        get_version(const std::string& full_name) {
 //            // https://developer.github.com/v3/repos/releases/#get-the-latest-release
 //            const io::net::requests req{ GITHUB_API_HOST };
