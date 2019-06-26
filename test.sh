@@ -6,6 +6,11 @@ BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile
 pushd ./tests/poac
 
 
+pushd ./core/builder
+g++ ${BASE_OPT} -lboost_filesystem -o standard-test standard.cpp
+./standard-test
+popd
+
 pushd ./core/resolver
 g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.0\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o resolve-test resolve.cpp
 ./resolve-test
@@ -13,11 +18,6 @@ g++ ${BASE_OPT} -o sat-test sat.cpp
 ./sat-test
 g++ ${BASE_OPT} -o semver-test semver.cpp
 ./semver-test
-popd
-
-pushd ./core/builder
-g++ ${BASE_OPT} -lboost_filesystem -o standard-test standard.cpp
-./standard-test
 popd
 
 pushd ./core
