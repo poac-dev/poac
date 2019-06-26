@@ -17,7 +17,6 @@
 #include "../util/argparse.hpp"
 #include "../util/termcolor2.hpp"
 
-
 namespace poac::opts {
     namespace _cache {
         void clean(const std::vector<std::string>& argv) {

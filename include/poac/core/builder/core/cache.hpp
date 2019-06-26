@@ -10,12 +10,11 @@
 #include <boost/filesystem.hpp>
 
 #include "./depends.hpp"
-#include "../utils/options.hpp"
+#include "../options.hpp"
 #include "../../../io/path.hpp"
 #include "../../../util/misc.hpp"
 
-
-namespace poac::core::stroite::core::cache {
+namespace poac::core::builder::core::cache {
     std::string to_cache_hash_path(const std::string& s)
     {
         namespace fs = boost::filesystem;
@@ -62,7 +61,7 @@ namespace poac::core::stroite::core::cache {
     // *.cpp -> hash
     std::optional<std::map<std::string, std::string>>
     generate_timestamps(
-            const utils::options::compile& compile_conf,
+            const options::compile& compile_conf,
             const std::string& source_file,
             const bool verbose)
     {
@@ -82,7 +81,7 @@ namespace poac::core::stroite::core::cache {
 
     std::vector<std::string>
     check_src_cpp(
-            const utils::options::compile& compile_conf,
+            const options::compile& compile_conf,
             std::map<std::string, std::map<std::string, std::string>>& depends_ts,
             const std::vector<std::string>& source_files,
             const bool verbose)

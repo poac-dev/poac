@@ -3,11 +3,11 @@
 
 #include <iostream>
 #include <string>
+#include <array>
 #include <vector>
 #include <optional>
 #include <cstdio>
 #include <cstdlib>
-
 
 namespace poac::util {
     class shell {

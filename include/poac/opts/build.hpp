@@ -11,11 +11,9 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../core/except.hpp"
-#include "../core/stroite/utils/absorb.hpp"
-#include "../core/stroite/utils/detect.hpp"
+#include "../core/builder.hpp"
 #include "../core/resolver/lock.hpp"
 #include "../io.hpp"
-#include "../core/stroite.hpp"
 #include "../core/name.hpp"
 #include "../util/argparse.hpp"
 #include "../util/termcolor2.hpp"
@@ -59,7 +57,7 @@ namespace poac::opts {
 
         std::optional<std::string>
         handle_link(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 const std::vector<std::string>& obj_files_path,
                 const std::vector<std::string>& library_path) // depsのlibや，自分自身のlib
         {
@@ -71,7 +69,7 @@ namespace poac::opts {
         }
         std::optional<std::string>
         handle_compile(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 const std::vector<std::string>& library_path)
         {
             if (const auto obj_files_path = bs.compile()) {
@@ -83,7 +81,7 @@ namespace poac::opts {
         }
         std::optional<std::string>
         handle_generate_static_lib(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 const std::vector<std::string>& obj_files_path)
         {
             bs.configure_static_lib(obj_files_path);
@@ -91,7 +89,7 @@ namespace poac::opts {
         }
         std::optional<std::string>
         handle_generate_dynamic_lib(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 const std::vector<std::string>& obj_files_path)
         {
             bs.configure_dynamic_lib(obj_files_path);
@@ -99,7 +97,7 @@ namespace poac::opts {
         }
 
         void handle_generate_lib(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 const std::vector<std::string>& obj_files_path)
         {
             handle_generate_static_lib(bs, obj_files_path);
@@ -126,7 +124,7 @@ namespace poac::opts {
             handle_exist_message(lib_path, ".a", "Static link library");
         }
         void is_exist_dynamic_lib(const std::string& lib_path) {
-            const std::string extension = core::stroite::utils::absorb::dynamic_lib_extension;
+            const std::string extension = core::builder::absorb::dynamic_lib_extension;
             handle_exist_message(lib_path, extension, "Dynamic link library");
         }
         std::string is_exist_lib(const std::string& project_name) {
@@ -139,7 +137,7 @@ namespace poac::opts {
 
         std::optional<std::string> // TODO: このあたり，builder.hppへ移動できる -> bs.build()のみで，binのビルドとかlibとかを意識せずに使いたい
         build_bin(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 const std::vector<std::string>& library_path)
         {
             bs.configure_compile(true);
@@ -148,7 +146,7 @@ namespace poac::opts {
             //  and do not compile.
             // There is no necessity of linking that there is no change completely.
             if (bs.compile_conf.source_files.empty()) { // No need for compile and link
-                const std::string extension = core::stroite::utils::absorb::binary_extension;
+                const std::string extension = core::builder::absorb::binary_extension;
                 const std::string bin_path =
                         (io::path::current_build_bin_dir / bs.project_name).string();
                 handle_exist_message(bin_path, extension, "Binary");
@@ -161,7 +159,7 @@ namespace poac::opts {
 
         std::optional<std::string>
         build_link_libs(
-                core::stroite::core::builder& bs,
+                core::builder::core::compilation& bs,
                 std::vector<std::string>& deps_obj_files_path)
         {
             bs.configure_compile(false);
@@ -189,13 +187,13 @@ namespace poac::opts {
                 const bool verbose)
         {
             namespace except = core::except;
-            namespace stroite = core::stroite;
+            namespace stroite = core::builder;
 
-            if (const auto system = stroite::utils::detect::build_system(node)) {
+            if (const auto system = stroite::detect::build_system(node)) {
                 if (*system == "poac") {
                     // depsのビルド時はbinaryは不要．必要になる可能性があるのはlibraryのみ
                     if (io::yaml::get(node, "build", "lib")) {
-                        stroite::core::builder bs(verbose, deps_path);
+                        stroite::core::compilation bs(verbose, deps_path);
 
                         bs.configure_compile(false);
                         if (!bs.compile_conf.source_files.empty()) {
@@ -228,7 +226,7 @@ namespace poac::opts {
         build_deps(const YAML::Node& node, std::vector<std::string>& obj_files_path, const bool verbose) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace stroite = core::stroite;
+            namespace stroite = core::builder;
             namespace lock = core::resolver::lock;
             namespace name = core::name;
             namespace yaml = io::yaml;
@@ -252,7 +250,7 @@ namespace poac::opts {
                             }
 
                             if (exist_build_key) {
-                                if (const auto system = stroite::utils::detect::build_system((*deps_node).at(name))) {
+                                if (const auto system = stroite::detect::build_system((*deps_node).at(name))) {
                                     if (const auto obj_files_path_opt = compile_deps((*deps_node).at(name), name, deps_path, verbose)) {
                                         for (const auto& o : *obj_files_path_opt) {
                                             obj_files_path.push_back(o);
@@ -307,19 +305,19 @@ namespace poac::opts {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace stroite = core::stroite;
+            namespace stroite = core::builder;
             namespace name = core::name;
             namespace yaml = io::yaml;
             using termcolor2::color_literals::operator""_green;
 
 
             // {
-            //   stroite::core::Builder bs(fs::current_path());
+            //   builder::core::Builder bs(fs::current_path());
             //   bs.build(verbose);
             // }
 
             // for (l : lock_file) {
-            //   stroite::core::Builder bs(fs::current_path());
+            //   builder::core::Builder bs(fs::current_path());
             //   bs.build(verbose); -> Unneed build detected OR Compiled
             // }
 
@@ -327,13 +325,13 @@ namespace poac::opts {
             const bool verbose = util::argparse::use(argv, "-v", "--verbose");
             const auto project_name = yaml::get_with_throw<std::string>(node, "name");
 
-            if (const auto system = stroite::utils::detect::build_system(node)) {
+            if (const auto system = stroite::detect::build_system(node)) {
                 std::vector<std::string> deps_obj_files_path;
                 const auto built_deps = build_deps(node, deps_obj_files_path, verbose);
                 const bool is_built_deps = static_cast<bool>(built_deps);
 
                 if (*system == "poac") {
-                    stroite::core::builder bs(verbose);
+                    stroite::core::compilation bs(verbose);
 
                     if (is_built_deps) {
                         std::cout << io::cli::status << project_name << std::endl;

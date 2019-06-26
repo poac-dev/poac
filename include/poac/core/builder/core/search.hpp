@@ -10,7 +10,7 @@
 #include "../../../io/path.hpp"
 
 
-namespace poac::core::stroite::core::search {
+namespace poac::core::builder::core::search {
     bool is_cpp_file(const boost::filesystem::path& p) {
         namespace fs = boost::filesystem;
         return !fs::is_directory(p)

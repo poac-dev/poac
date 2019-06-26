@@ -6,12 +6,10 @@
 #include <vector>
 #include <optional>
 
-#include "../utils.hpp"
 #include "../../../util/shell.hpp"
 #include "../../../util/misc.hpp"
 
-
-namespace poac::core::stroite::core::depends {
+namespace poac::core::builder::core::depends {
     template <typename Opts>
     std::optional<std::string>
     calc(const Opts& opts, const std::string& src_cpp, const bool verbose)

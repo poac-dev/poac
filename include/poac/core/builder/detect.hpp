@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_UTILS_DETECT_HPP
-#define POAC_CORE_STROITE_UTILS_DETECT_HPP
+#ifndef POAC_CORE_BUILDER_DETECT_HPP
+#define POAC_CORE_BUILDER_DETECT_HPP
 
 #include <iostream>
 #include <string>
@@ -8,12 +8,11 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "../../except.hpp"
-#include "../../../io/yaml.hpp"
-#include "../../../util/shell.hpp"
+#include "../except.hpp"
+#include "../../io/yaml.hpp"
+#include "../../util/shell.hpp"
 
-
-namespace poac::core::stroite::utils::detect {
+namespace poac::core::builder::detect {
     std::string check_support_build_system(const std::string& system) {
         if (system != "poac" && system != "cmake") {
             throw except::error("Unknown build system ", system);
@@ -46,4 +45,4 @@ namespace poac::core::stroite::utils::detect {
         return std::nullopt;
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_UTILS_DETECT_HPP
+#endif // POAC_CORE_BUILDER_DETECT_HPP

@@ -1,9 +1,9 @@
-#ifndef POAC_CORE_STROITE_UTILS_ABSORB_HPP
-#define POAC_CORE_STROITE_UTILS_ABSORB_HPP
+#ifndef POAC_CORE_BUILDER_ABSORB_HPP
+#define POAC_CORE_BUILDER_ABSORB_HPP
 
 #include <boost/predef.h>
 
-namespace poac::core::stroite::utils::absorb {
+namespace poac::core::builder::absorb {
 #if BOOST_OS_WINDOWS
     const std::string binary_extension = ".exe";
     const std::string dynamic_lib_extension = ".dll";
@@ -18,4 +18,4 @@ namespace poac::core::stroite::utils::absorb {
     const std::string dynamic_lib_option = "-shared -fPIC";
 #endif
 } // end namespace
-#endif // POAC_CORE_STROITE_UTILS_ABSORB_HPP
+#endif // POAC_CORE_BUILDER_ABSORB_HPP

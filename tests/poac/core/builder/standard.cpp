@@ -2,22 +2,21 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <poac/core/stroite/field/standard.hpp>
+#include <poac/core/builder/standard.hpp>
 #include <poac/core/except.hpp>
 
-
 // inline std::string version_prefix(const bool& enable_gnu) noexcept
-BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_version_prefix_test )
+BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_version_prefix_test )
 {
-    using poac::core::stroite::field::standard::version_prefix;
+    using poac::core::builder::standard::version_prefix;
     BOOST_TEST( version_prefix(false) == "-std=c++" );
     BOOST_TEST( version_prefix(true) == "-std=gnu++" );
 }
 
 // std::string apple_llvm_convert(const std::uint8_t& cpp_version, const bool& enable_gnu)
-BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_apple_llvm_convert_test )
+BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_apple_llvm_convert_test )
 {
-    using poac::core::stroite::field::standard::apple_llvm_convert;
+    using poac::core::builder::standard::apple_llvm_convert;
     using poac::core::except::error;
 
     BOOST_TEST( apple_llvm_convert(98, false) == "-std=c++98" );
@@ -40,9 +39,9 @@ BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_apple_llvm_convert_test )
 }
 
 // std::string gcc_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu)
-BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_gcc_convert_test )
+BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_gcc_convert_test )
 {
-    using poac::core::stroite::field::standard::gcc_convert;
+    using poac::core::builder::standard::gcc_convert;
     using poac::core::except::error;
 
     BOOST_TEST( gcc_convert(98, "1.0.0", false) == "" );
@@ -78,9 +77,9 @@ BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_gcc_convert_test )
 }
 
 // std::string clang_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu)
-BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_clang_convert_test )
+BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_clang_convert_test )
 {
-    using poac::core::stroite::field::standard::clang_convert;
+    using poac::core::builder::standard::clang_convert;
     using poac::core::except::error;
 
     BOOST_TEST( clang_convert(98, "1.0.0", false) == "" );
@@ -116,9 +115,9 @@ BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_clang_convert_test )
 }
 
 // std::string icc_convert(const std::uint8_t& cpp_version)
-BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_icc_convert_test )
+BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_icc_convert_test )
 {
-    using poac::core::stroite::field::standard::icc_convert;
+    using poac::core::builder::standard::icc_convert;
     using poac::core::except::error;
 
     BOOST_TEST( icc_convert(98) == "" );
@@ -138,9 +137,9 @@ BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_icc_convert_test )
 }
 
 // std::string msvc_convert(const std::uint8_t& cpp_version)
-BOOST_AUTO_TEST_CASE( poac_core_stroite_field_standard_msvc_convert_test )
+BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_msvc_convert_test )
 {
-    using poac::core::stroite::field::standard::msvc_convert;
+    using poac::core::builder::standard::msvc_convert;
     using poac::core::except::error;
 
     BOOST_TEST( msvc_convert(98) == "" );

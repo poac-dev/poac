@@ -10,8 +10,7 @@
 #include "../../../io/path.hpp"
 #include "../../../util/shell.hpp"
 
-
-namespace poac::core::stroite::chain {
+namespace poac::core::builder::chain {
     struct cmake {
         boost::filesystem::path base_path;
 

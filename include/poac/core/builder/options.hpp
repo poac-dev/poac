@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_UTILS_OPTIONS_HPP
-#define POAC_CORE_STROITE_UTILS_OPTIONS_HPP
+#ifndef POAC_CORE_BUILDER_OPTIONS_HPP
+#define POAC_CORE_BUILDER_OPTIONS_HPP
 
 #include <cstdint>
 #include <string>
@@ -11,17 +11,16 @@
 #include <boost/algorithm/string.hpp>
 
 #include "./absorb.hpp"
-#include "../../except.hpp"
-#include "../../name.hpp"
-#include "../../resolver/lock.hpp"
-#include "../../resolver/semver.hpp"
-#include "../../../io/path.hpp"
-#include "../../../io/cli.hpp"
-#include "../../../io/yaml.hpp"
-#include "../../../util/shell.hpp"
+#include "../except.hpp"
+#include "../name.hpp"
+#include "../resolver/lock.hpp"
+#include "../resolver/semver.hpp"
+#include "../../io/path.hpp"
+#include "../../io/cli.hpp"
+#include "../../io/yaml.hpp"
+#include "../../util/shell.hpp"
 
-
-namespace poac::core::stroite::utils::options {
+namespace poac::core::builder::options {
     struct compile {
         std::string system; // TODO: systemだけ別の管理にして，compiler.hppに，system, std::string optsとして渡したい．
         std::string std_version;
@@ -156,4 +155,4 @@ namespace poac::core::stroite::utils::options {
         }
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_UTILS_OPTIONS_HPP
+#endif // POAC_CORE_BUILDER_OPTIONS_HPP

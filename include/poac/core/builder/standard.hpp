@@ -1,18 +1,17 @@
-#ifndef POAC_CORE_STROITE_FIELD_STANDARD_HPP
-#define POAC_CORE_STROITE_FIELD_STANDARD_HPP
+#ifndef POAC_CORE_BUILDER_STANDARD_HPP
+#define POAC_CORE_BUILDER_STANDARD_HPP
 
 #include <cstdint>
 #include <string>
 #include <string_view>
 #include <regex>
 
-#include "../../resolver/semver.hpp"
-#include "../../except.hpp"
-#include "../../../io/path.hpp"
-#include "../../../util/shell.hpp"
+#include "../resolver/semver.hpp"
+#include "../except.hpp"
+#include "../../io/path.hpp"
+#include "../../util/shell.hpp"
 
-
-namespace poac::core::stroite::field::standard {
+namespace poac::core::builder::standard {
     inline std::string version_prefix(const bool& enable_gnu) noexcept {
         return enable_gnu ? "-std=gnu++" : "-std=c++";
     }
@@ -290,4 +289,4 @@ namespace poac::core::stroite::field::standard {
         }
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_FIELD_STANDARD_HPP
+#endif // POAC_CORE_BUILDER_STANDARD_HPP

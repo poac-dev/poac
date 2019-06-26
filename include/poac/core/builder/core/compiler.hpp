@@ -8,11 +8,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../utils/absorb.hpp"
+#include "../absorb.hpp"
 #include "../../../util/shell.hpp"
 
-
-namespace poac::core::stroite::core::compiler {
+namespace poac::core::builder::core::compiler {
     namespace fs = boost::filesystem;
 
     template <typename Opts>
@@ -56,7 +55,7 @@ namespace poac::core::stroite::core::compiler {
     link(const Opts& opts, const bool verbose)
     {
         const std::string bin_path =
-                (opts.output_root / opts.project_name).string() + utils::absorb::binary_extension;
+                (opts.output_root / opts.project_name).string() + absorb::binary_extension;
 
         util::shell cmd(opts.system);
         for (const auto& o : opts.obj_files_path)
@@ -113,11 +112,11 @@ namespace poac::core::stroite::core::compiler {
     gen_dynamic_lib(const Opts& opts, const bool verbose)
     {
         util::shell cmd(opts.system);
-        cmd += utils::absorb::dynamic_lib_option;
+        cmd += absorb::dynamic_lib_option;
         for (const auto& o : opts.obj_files_path)
             cmd += o;
         cmd += "-o";
-        const std::string lib_name = "lib" + opts.project_name + utils::absorb::dynamic_lib_extension;
+        const std::string lib_name = "lib" + opts.project_name + absorb::dynamic_lib_extension;
         const std::string lib_path = (opts.output_root / lib_name).string();
         cmd += lib_path;
 

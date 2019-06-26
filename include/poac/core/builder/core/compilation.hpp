@@ -21,8 +21,8 @@
 #include "./compiler.hpp"
 #include "./depends.hpp"
 #include "./search.hpp"
-#include "../field/standard.hpp"
-#include "../utils.hpp"
+#include "../standard.hpp"
+#include "../options.hpp"
 #include "../../except.hpp"
 #include "../../name.hpp"
 #include "../../resolver/lock.hpp"
@@ -31,8 +31,7 @@
 #include "../../../io/cli.hpp"
 #include "../../../io/yaml.hpp"
 
-
-namespace poac::core::stroite::core {
+namespace poac::core::builder::core {
 //    namespace builder {
 //        void message() {
 //        }
@@ -294,17 +293,17 @@ namespace poac::core::stroite::core {
 
 
 
-    struct builder {
+    struct compilation {
         // Prohibit copy and move.
-        builder(const builder&) = delete;
-        builder& operator=(const builder&) = delete;
-        builder(builder&&) = delete;
-        builder& operator=(builder&&) = delete;
+        compilation(const compilation&) = delete;
+        compilation& operator=(const compilation&) = delete;
+        compilation(compilation&&) = delete;
+        compilation& operator=(compilation&&) = delete;
 
-        utils::options::compile compile_conf;
-        utils::options::link link_conf;
-        utils::options::static_lib static_lib_conf;
-        utils::options::dynamic_lib dynamic_lib_conf;
+        options::compile compile_conf;
+        options::link link_conf;
+        options::static_lib static_lib_conf;
+        options::dynamic_lib dynamic_lib_conf;
 
         std::string compiler;
         std::string project_name;
@@ -369,13 +368,13 @@ namespace poac::core::stroite::core {
             compile_conf.system = compiler;
 
             const auto cpp_version = yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
-            const std::string cn = field::standard::command_to_name(compiler);
-            compile_conf.std_version = field::standard::convert(cpp_version, cn, yaml::get(node.at("build"), "gnu"));
+            const std::string cn = standard::command_to_name(compiler);
+            compile_conf.std_version = standard::convert(cpp_version, cn, yaml::get(node.at("build"), "gnu"));
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
-            compile_conf.other_args = utils::options::make_compile_other_args(node);
+            compile_conf.other_args = options::make_compile_other_args(node);
             compile_conf.source_files = hash_source_files(search::cpp(base_dir), usemain);
-            compile_conf.macro_defns = utils::options::make_macro_defns(node);
+            compile_conf.macro_defns = options::make_macro_defns(node);
             compile_conf.base_dir = base_dir;
             compile_conf.output_root = path::current_build_cache_obj_dir;
         }
@@ -495,7 +494,7 @@ namespace poac::core::stroite::core {
         // TODO: poac.ymlのhashもcheck
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
-        explicit builder(const bool verbose, const boost::filesystem::path& base_dir=boost::filesystem::current_path())
+        explicit compilation(const bool verbose, const boost::filesystem::path& base_dir=boost::filesystem::current_path())
         {
             namespace yaml = io::yaml;
 
@@ -510,7 +509,7 @@ namespace poac::core::stroite::core {
             }
 
 
-            compiler = field::standard::detect_command();
+            compiler = standard::detect_command();
             project_name = name::slash_to_hyphen(node.at("name").as<std::string>());
             this->base_dir = base_dir;
             this->verbose = verbose;

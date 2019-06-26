@@ -9,7 +9,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "../core/except.hpp"
-#include "../core/stroite.hpp"
+#include "../core/builder.hpp"
 #include "../io/path.hpp"
 #include "../io/tar.hpp"
 #include "../io/yaml.hpp"
@@ -24,7 +24,7 @@ namespace poac::opts {
         int _main(VS&& argv) {
             namespace fs = boost::filesystem;
             namespace except = core::except;
-            namespace stroite = core::stroite;
+            namespace stroite = core::builder;
 
             using namespace termcolor2::color_literals;
 
@@ -35,14 +35,14 @@ namespace poac::opts {
 
 
             // {
-            //   stroite::core::Builder bs(fs::current_directory());
+            //   builder::core::Builder bs(fs::current_directory());
             //   bs.test(verbose); -> build system内で，testディレクトリを掘って，どんどんテストしていく．
             //   -> つまり，build sysytem使用側が，for文回すとかは無い．また，------------------------こういう区切り線も，test内で行われる．
             //   -> ただし，その区切り線は，もちろん，quiteがtrueだと表示しない．verboseがtrueだと情報を増やす．
             // }
 
 
-            stroite::core::builder bs(verbose);
+            stroite::core::compilation bs(verbose);
             bs.configure_compile(usemain);
 
 
@@ -77,7 +77,7 @@ namespace poac::opts {
                     const std::string bin_name = fs::path(
                             boost::replace_all_copy(
                                     fs::relative(cpp_relative, "test").string(), "/", "-")).stem().string();
-                    const std::string extension = core::stroite::utils::absorb::binary_extension;
+                    const std::string extension = core::builder::absorb::binary_extension;
                     const std::string bin_path = (io::path::current_build_test_bin_dir / bin_name).string() + extension;
 
                     // TODO: こちらでハンドリングしようと思ったのは，ioへの依存を無くそうとしたから．
