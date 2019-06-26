@@ -82,7 +82,7 @@ namespace poac::opts::help {
             "For full documentation, see: https://github.com/poacpm/poac#readme";
 
     const std::unordered_map<std::string, std::string>
-    options_map({
+    options_map{
         { "build",     opts::build::options.to_string() },
         { "cache",     opts::cache::options.to_string() },
         { "cleanup",   opts::cleanup::options.to_string() },
@@ -99,7 +99,7 @@ namespace poac::opts::help {
         { "uninstall", opts::uninstall::options.to_string() },
         { "update",    opts::update::options.to_string() },
         { "version",   opts::version::options.to_string() }
-    });
+    };
 
     int _main(const std::vector<std::string>& vs) {
         namespace except = core::except;
