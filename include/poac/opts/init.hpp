@@ -17,12 +17,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::init {
-    constexpr auto summary() {
-        return termcolor2::make_string("Create the poac.yml");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<Nothing>");
-    }
+    constexpr auto summary = termcolor2::make_string("Create the poac.yml");
+    constexpr auto options = termcolor2::make_string("<Nothing>");
 
     std::string basename(boost::filesystem::path&& s) {
         namespace fs = boost::filesystem;

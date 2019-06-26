@@ -23,12 +23,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::uninstall {
-    constexpr auto summary() {
-        return termcolor2::make_string("Uninstall packages");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[<pkg-names>, -a | --all, -y | --yes]");
-    }
+    constexpr auto summary = termcolor2::make_string("Uninstall packages");
+    constexpr auto options = termcolor2::make_string("[<pkg-names>, -a | --all, -y | --yes]");
 
     template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
     void all(VS&& argv) {

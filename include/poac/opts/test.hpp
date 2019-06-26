@@ -18,12 +18,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::test {
-    constexpr auto summary() {
-        return termcolor2::make_string("Execute tests");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[-v | --verbose, --report, -- args]");
-    }
+    constexpr auto summary = termcolor2::make_string("Execute tests");
+    constexpr auto options = termcolor2::make_string("[-v | --verbose, --report, -- args]");
 
     int _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;

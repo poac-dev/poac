@@ -34,12 +34,8 @@
 // TODO: ついでにlockファイルも作成しておく -> -iでymlを指定指定している場合は，lockファイルを生成しない
 
 namespace poac::opts::graph {
-    constexpr auto summary() {
-        return termcolor2::make_string("Create a dependency graph");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[-o | --output]");
-    }
+    constexpr auto summary = termcolor2::make_string("Create a dependency graph");
+    constexpr auto options = termcolor2::make_string("[-o | --output]");
 
     struct Vertex {
         std::string name;

@@ -19,12 +19,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::build {
-    constexpr auto summary() {
-        return termcolor2::make_string("Compile all sources that depend on this project");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[-v | --verbose]");
-    }
+    constexpr auto summary = termcolor2::make_string("Compile all sources that depend on this project");
+    constexpr auto options = termcolor2::make_string("[-v | --verbose]");
 
 
 

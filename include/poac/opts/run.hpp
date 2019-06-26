@@ -19,12 +19,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::run {
-    constexpr auto summary() {
-        return termcolor2::make_string("Build project and exec it");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[-v | --verbose | -- [program args]]");
-    }
+    constexpr auto summary = termcolor2::make_string("Build project and exec it");
+    constexpr auto options = termcolor2::make_string("[-v | --verbose | -- [program args]]");
 
     int _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;

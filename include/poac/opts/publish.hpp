@@ -29,12 +29,8 @@
 #include "../util/pretty.hpp"
 
 namespace poac::opts::publish {
-    constexpr auto summary() {
-        return termcolor2::make_string("Publish a package");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[-v | --verbose, -y | --yes]");
-    }
+    constexpr auto summary = termcolor2::make_string("Publish a package");
+    constexpr auto options = termcolor2::make_string("[-v | --verbose, -y | --yes]");
 
 //    struct PackageInfo {
 //        std::string name;

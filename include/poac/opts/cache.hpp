@@ -18,12 +18,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::cache {
-    constexpr auto summary() {
-        return termcolor2::make_string("Manipulate cache files");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<command>");
-    }
+    constexpr auto summary = termcolor2::make_string("Manipulate cache files");
+    constexpr auto options = termcolor2::make_string("<command>");
 
     void clean(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;

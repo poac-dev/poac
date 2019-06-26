@@ -23,12 +23,8 @@
 #include "../util.hpp"
 
 namespace poac::opts::install {
-    constexpr auto summary() {
-        return termcolor2::make_string("Install packages");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("-v | --verbose, -q | --quite, [args]");
-    }
+    constexpr auto summary = termcolor2::make_string("Install packages");
+    constexpr auto options = termcolor2::make_string("-v | --verbose, -q | --quite, [args]");
 
     void stream_deps(YAML::Emitter& out, const core::resolver::resolve::Activated& deps) {
         out << YAML::Key << "dependencies";

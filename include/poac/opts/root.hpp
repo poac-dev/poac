@@ -11,12 +11,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::root {
-    constexpr auto summary() {
-        return termcolor2::make_string("Display the root installation directory");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<Nothing>");
-    }
+    constexpr auto summary = termcolor2::make_string("Display the root installation directory");
+    constexpr auto options = termcolor2::make_string("<Nothing>");
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     int _main(const std::vector<std::string>&) {

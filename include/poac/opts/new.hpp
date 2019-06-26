@@ -19,12 +19,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::_new {
-    constexpr auto summary() {
-        return termcolor2::make_string("Create a new poac project");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<project-name>, (-b | --bin) | (-l | --lib)");
-    }
+    constexpr auto summary = termcolor2::make_string("Create a new poac project");
+    constexpr auto options = termcolor2::make_string("<project-name>, (-b | --bin) | (-l | --lib)");
 
     namespace files {
         namespace bin {

@@ -19,12 +19,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::cleanup {
-    constexpr auto summary() {
-        return termcolor2::make_string("Delete unnecessary things");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<Nothing>");
-    }
+    constexpr auto summary = termcolor2::make_string("Delete unnecessary things");
+    constexpr auto options = termcolor2::make_string("<Nothing>");
 
     void check_arguments(const std::vector<std::string>& argv) {
         namespace except = core::except;

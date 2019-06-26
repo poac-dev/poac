@@ -17,12 +17,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::search {
-    constexpr auto summary() {
-        return termcolor2::make_string("Search for packages in poac.pm");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<pkg-name>");
-    }
+    constexpr auto summary = termcolor2::make_string("Search for packages in poac.pm");
+    constexpr auto options = termcolor2::make_string("<pkg-name>");
 
     void echo_first_line() {
         std::cout << termcolor2::underline<>;

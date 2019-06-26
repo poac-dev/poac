@@ -26,12 +26,8 @@
 // TODO: --selfを指定することで，poacのupdateを行う -> globalなパッケージに対応した時，どうする？
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．
 namespace poac::opts::update {
-    constexpr auto summary() {
-        return termcolor2::make_string("Update a package");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("[ -y | --yes, -a | --all, --outside ]");
-    }
+    constexpr auto summary = termcolor2::make_string("Update a package");
+    constexpr auto options = termcolor2::make_string("[ -y | --yes, -a | --all, --outside ]");
 
     int _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;

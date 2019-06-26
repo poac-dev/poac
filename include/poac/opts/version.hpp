@@ -7,12 +7,8 @@
 #include "../util/termcolor2.hpp"
 
 namespace poac::opts::version {
-    constexpr auto summary() {
-        return termcolor2::make_string("Show the current poac version");
-    }
-    constexpr auto options() {
-        return termcolor2::make_string("<Nothing>");
-    }
+    constexpr auto summary = termcolor2::make_string("Show the current poac version");
+    constexpr auto options = termcolor2::make_string("<Nothing>");
 
     int _main(const std::vector<std::string>&) {
         std::cout << POAC_VERSION << std::endl;
