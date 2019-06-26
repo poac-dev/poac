@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_CORE_BUILDER_HPP
-#define POAC_CORE_STROITE_CORE_BUILDER_HPP
+#ifndef POAC_CORE_BUILER_CORE_BUILDER_HPP
+#define POAC_CORE_BUILER_CORE_BUILDER_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -516,4 +516,4 @@ namespace poac::core::builder::core {
         }
     };
 } // end namespace
-#endif // POAC_CORE_STROITE_CORE_BUILDER_HPP
+#endif // POAC_CORE_BUILER_CORE_BUILDER_HPP
