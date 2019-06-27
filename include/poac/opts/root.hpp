@@ -1,9 +1,9 @@
 #ifndef POAC_OPTS_ROOT_HPP
 #define POAC_OPTS_ROOT_HPP
 
-#include <cstdlib>
 #include <iostream>
 #include <string>
+#include <optional>
 
 #include <boost/dll/runtime_symbol_info.hpp>
 
@@ -15,12 +15,17 @@ namespace poac::opts::root {
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
-    int _main(const std::vector<std::string>&) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>&) {
         namespace fs = boost::filesystem;
+        namespace except = core::except;
+
         boost::system::error_code error;
         const auto loc = boost::dll::program_location(error);
         if (error) {
-            throw core::except::error("Could not get root installation directory");
+            return except::Error::General{
+                    "Could not get root installation directory"
+            };
         }
 
         const auto ln = fs::read_symlink(loc, error);
@@ -30,7 +35,7 @@ namespace poac::opts::root {
         else {
             std::cout << loc.parent_path().string() << std::endl;
         }
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_ROOT_HPP

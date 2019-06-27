@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -76,18 +76,23 @@ namespace poac::opts::search {
         return count;
     }
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.size() != 1) {
-            throw except::invalid_second_arg("search");
+            return except::Error::InvalidSecondArg::Search;
         }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace cli = io::cli;
         using namespace boost::property_tree;
 
-        check_arguments(argv);
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        }
 
         const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
@@ -116,7 +121,7 @@ namespace poac::opts::search {
                       << "|    " << (cpp_version == "3" ? "03" : cpp_version)
                       << std::endl;
         }
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_SEARCH_HPP

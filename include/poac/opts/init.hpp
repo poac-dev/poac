@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
@@ -52,23 +52,29 @@ namespace poac::opts::init {
         return "poac.yml";
     }
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
-        if (!argv.empty()) throw except::invalid_second_arg("init");
+        if (!argv.empty()) {
+            return except::Error::InvalidSecondArg::Init;
+        }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error> _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         using io::path::path_literals::operator""_path;
 
-        check_arguments(argv);
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        }
 
         const std::string filename = check_requirements();
         std::ofstream yml_ofs(filename);
         yml_ofs << _new::files::poac_yml(basename(fs::current_path()), "bin");
         std::cout << "."_path / filename << " was created." << std::endl;
 
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_INIT_HPP

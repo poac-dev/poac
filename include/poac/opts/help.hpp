@@ -101,18 +101,22 @@ namespace poac::opts::help {
         { "version",   opts::version::options.to_string() }
     };
 
-    int _main(const std::vector<std::string>& vs) {
+    void usage(const std::string& s) {
+        const std::string opt = options_map.at(s);
+        std::cout << "Usage: poac " << s << " " << opt << std::endl;
+    }
+
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& vs) {
         namespace except = core::except;
         if (vs.size() == 0) {
             std::cout << summary_string << std::endl;
-            return EXIT_SUCCESS;
+            return std::nullopt;
         } else if (vs.size() == 1) {
-            std::cout << "Usage: poac " << vs[0] << " "
-                      << options_map.at(vs[0])
-                      << std::endl;
-            return EXIT_SUCCESS;
+            usage(vs[0]);
+            return std::nullopt;
         } else {
-            throw except::invalid_second_arg("--help");
+            return except::Error::InvalidSecondArg::Help;
         }
     }
 } // end namespace

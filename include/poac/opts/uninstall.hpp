@@ -229,22 +229,25 @@ namespace poac::opts::uninstall {
         cli::status_done();
     }
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.empty()) {
-            throw except::invalid_second_arg("uninstall");
+            return except::Error::InvalidSecondArg::Uninstall;
         }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
-        check_arguments(argv);
-        if (util::argparse::use(argv, "-a", "--all")) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        } else if (util::argparse::use(argv, "-a", "--all")) {
             all(std::move(argv));
-            return EXIT_SUCCESS;
-        }
-        else {
+            return std::nullopt;
+        } else {
             individual(argv);
-            return EXIT_SUCCESS;
+            return std::nullopt;
         }
     }
 } // end namespace

@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 #include <optional>
-#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
@@ -301,14 +300,17 @@ namespace poac::opts::build {
         }
     }
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.size() > 1) {
-            throw except::invalid_second_arg("build");
+            return except::Error::InvalidSecondArg::Build;
         }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace builder = core::builder;
@@ -316,7 +318,9 @@ namespace poac::opts::build {
         namespace yaml = io::yaml;
         using termcolor2::color_literals::operator""_green;
 
-        check_arguments(argv);
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        }
 
 
         // {
@@ -350,7 +354,7 @@ namespace poac::opts::build {
 //                    built_lib = true;
                     if (!build_link_libs(bs, deps_obj_files_path)) {
                         // compile or gen error
-                        return EXIT_FAILURE;
+                        return except::Error::General{"Compile or generate error"};
                     }
                 }
                 if (yaml::get(node, "build", "bin")) { // TODO: もし上でlibをビルドしたのなら，それを利用してバイナリをビルドする -> まだ -> cpp_shell_cmdでテスト
@@ -363,7 +367,7 @@ namespace poac::opts::build {
                         fs::remove(executable_path, error);
 
                         // compile or link error
-                        return EXIT_FAILURE;
+                        return except::Error::General{"Compile or link error"};
                     }
                 }
             }
@@ -381,7 +385,7 @@ namespace poac::opts::build {
                     "Required key `build` does not exist in poac.yml.\n"
                     "Please refer to https://doc.poac.pm");
         }
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_BUILD_HPP

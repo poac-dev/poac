@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -22,14 +22,17 @@ namespace poac::opts::cleanup {
     constexpr auto summary = termcolor2::make_string("Delete unnecessary things");
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (!argv.empty()) {
-            throw except::invalid_second_arg("cleanup");
+            return except::Error::InvalidSecondArg::Cleanup;
         }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace yaml = io::yaml;
         namespace resolver = core::resolver::resolve;
         namespace lock = core::resolver::lock;
@@ -37,7 +40,9 @@ namespace poac::opts::cleanup {
         namespace fs = boost::filesystem;
         namespace cli = io::cli;
 
-        check_arguments(argv);
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        }
 
         // create resolved deps
         resolver::Resolved resolved_deps{};
@@ -68,8 +73,7 @@ namespace poac::opts::cleanup {
             }
         }
 
-        return EXIT_SUCCESS;
-
+        return std::nullopt;
         // TODO: cleanup _build directory
         // TODO: auto cleanup in install sub-command
     }

@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 #include <string>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -105,7 +105,8 @@ namespace poac::opts::graph {
         return { g, names };
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
 
@@ -125,9 +126,10 @@ namespace poac::opts::graph {
                     io::cli::status_done();
                 }
                 else {
-                    throw except::error(
+                    return except::Error::General{
                             "To output with .png you need to install the graphviz.\n"
-                            "Or please consider outputting in .dot format.");
+                            "Or please consider outputting in .dot format."
+                    };
                 }
             }
             else if (output.extension() == ".dot") {
@@ -137,8 +139,9 @@ namespace poac::opts::graph {
                 io::cli::status_done();
             }
             else {
-                throw except::error(
-                        "The extension of the output file must be .dot or .png.");
+                return except::Error::General{
+                        "The extension of the output file must be .dot or .png."
+                };
             }
         }
         else {
@@ -150,7 +153,7 @@ namespace poac::opts::graph {
                           << boost::get(&Vertex::name, g)[target(*itr, g)] << '\n';
             }
         }
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_GRAPH_HPP

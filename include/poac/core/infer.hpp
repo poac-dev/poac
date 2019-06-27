@@ -4,12 +4,17 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include <optional>
 
 #include "except.hpp"
 #include "../opts.hpp"
 
 namespace poac::core::infer {
-    const std::unordered_map<std::string, std::function<int(std::vector<std::string>)>>
+    using main_arg = std::vector<std::string>;
+    using main_ret = std::optional<except::Error>;
+    using main_fun = std::function<main_ret(main_arg)>;
+
+    const std::unordered_map<std::string, main_fun>
     opts_map{
         { "build",     opts::build::_main },
         { "cache",     opts::cache::_main },
@@ -34,13 +39,13 @@ namespace poac::core::infer {
     };
 
     template <typename S, typename VS>
-    int execute(S&& cmd, VS&& arg) {
-        namespace except = core::except;
+    main_ret
+    execute(S&& cmd, VS&& arg) {
         try {
             return opts_map.at(cmd)(arg);
         }
         catch(std::out_of_range&) {
-            throw except::invalid_first_arg("Invalid argument");
+            return except::Error::InvalidFirstArg{};
         }
     }
 }

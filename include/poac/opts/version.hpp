@@ -2,7 +2,7 @@
 #define POAC_OPTS_VERSION_HPP
 
 #include <iostream>
-#include <cstdlib>
+#include <optional>
 
 #include "../util/termcolor2.hpp"
 
@@ -10,9 +10,10 @@ namespace poac::opts::version {
     constexpr auto summary = termcolor2::make_string("Show the current poac version");
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
-    int _main(const std::vector<std::string>&) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>&) noexcept {
         std::cout << POAC_VERSION << std::endl;
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_VERSION_HPP

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -68,29 +68,31 @@ namespace poac::opts::cache {
         std::cout << io::path::poac_cache_dir.string() << std::endl;
     }
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
-        if (argv.empty()) throw except::invalid_second_arg("cache");
+        if (argv.empty()) {
+            return except::Error::InvalidSecondArg::Cache;
+        }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace except = core::except;
 
-        check_arguments(argv);
-        if (argv[0] == "root" && argv.size() == 1) {
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        } else if (argv[0] == "root" && argv.size() == 1) {
             root();
-        }
-        else if (argv[0] == "list") {
+        } else if (argv[0] == "list") {
             list(std::vector<std::string>(argv.begin() + 1, argv.begin() + argv.size()));
-        }
-        else if (argv[0] == "clean") {
+        } else if (argv[0] == "clean") {
             clean(std::vector<std::string>(argv.begin() + 1, argv.begin() + argv.size()));
+        } else {
+            return except::Error::InvalidSecondArg::Cache;
         }
-        else {
-            throw except::invalid_second_arg("cache");
-        }
-
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_CACHE_HPP

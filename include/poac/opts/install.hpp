@@ -9,7 +9,6 @@
 #include <map>
 #include <regex>
 #include <optional>
-#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -212,7 +211,8 @@ namespace poac::opts::install {
     }
 
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace path = io::path;
@@ -252,9 +252,10 @@ namespace poac::opts::install {
                 deps.insert(deps.end(), resolved_packages.begin(), resolved_packages.end());
             }
             else if (argv_cpy.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
-                throw except::error(
+                return except::Error::General{
                         "Required key `deps` does not exist in poac.yml.\n"
-                        "Please refer to https://doc.poac.pm");
+                        "Please refer to https://doc.poac.pm"
+                };
             }
         }
 
@@ -305,7 +306,7 @@ namespace poac::opts::install {
             create_lock_file(timestamp, resolved_deps.activated);
         }
 
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_INSTALL_HPP

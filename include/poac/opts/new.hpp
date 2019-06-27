@@ -7,7 +7,7 @@
 #include <map>
 #include <regex>
 #include <algorithm>
-#include <cstdlib>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 
@@ -94,7 +94,8 @@ namespace poac::opts::_new {
         }
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace except = core::except;
         namespace fs = boost::filesystem;
         namespace path = io::path;
@@ -110,15 +111,16 @@ namespace poac::opts::_new {
         const bool bin = !lib || util::argparse::use_rm(argv_cpy, "-b", "--bin");
         // libとbinを引数から抜いた時点で，1じゃなかったらエラーになる．
         if (argv_cpy.size() != 1) {
-            throw except::invalid_second_arg("new");
+            return except::Error::InvalidSecondArg::New;
         }
 
         const std::string project_name = argv_cpy[0];
         const fs::path project_path = fs::path(project_name);
         name::validate_package_name(project_name);
         if (io::path::validate_dir(project_name)) {
-            throw except::error(
-                    except::msg::already_exist("The `" + project_name + "` directory"));
+            return except::Error::General{
+                    except::msg::already_exist("The `" + project_name + "` directory")
+            };
         }
 
         fs::create_directories(project_name);
@@ -159,7 +161,7 @@ namespace poac::opts::_new {
             std::cout << "Running: "_green << git_init << std::endl;
         }
 
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_NEW_HPP

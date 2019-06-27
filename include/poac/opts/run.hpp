@@ -22,7 +22,8 @@ namespace poac::opts::run {
     constexpr auto summary = termcolor2::make_string("Build project and exec it");
     constexpr auto options = termcolor2::make_string("[-v | --verbose | -- [program args]]");
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
 
         using termcolor2::color_literals::operator""_green;
@@ -41,8 +42,8 @@ namespace poac::opts::run {
         }
         // -v
         build::check_arguments(std::vector<std::string>(argv.begin(), result));
-        if (build::_main(std::vector<std::string>{}) == EXIT_FAILURE) {
-            return EXIT_FAILURE;
+        if (const auto result = build::_main(std::vector<std::string>{})) {
+            return result;
         }
 
         // TODO: このexecutableなパスをもう一度取ってくるのが二度手間感がある．-> build systemに，runも付ける？ -> そうすれば，下のログ表示も，二分されないので，便利では？
@@ -65,7 +66,7 @@ namespace poac::opts::run {
             std::cout << project_name + " returned 1" << std::endl;
         }
 
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_RUN_HPP

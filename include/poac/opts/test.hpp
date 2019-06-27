@@ -21,7 +21,8 @@ namespace poac::opts::test {
     constexpr auto summary = termcolor2::make_string("Execute tests");
     constexpr auto options = termcolor2::make_string("[-v | --verbose, --report, -- args]");
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace builder = core::builder;
@@ -67,7 +68,9 @@ namespace poac::opts::test {
 //                static_link_lib = "gtest_main";
             }
             else {
-                throw except::error("Invalid test framework");
+                return except::Error::General{
+                        "Invalid test framework"
+                };
             }
         }
 
@@ -156,7 +159,7 @@ namespace poac::opts::test {
                 std::cout << "----------------------------------------------------------------" << std::endl;
             }
         }
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_TEST_HPP

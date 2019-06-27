@@ -3,9 +3,39 @@
 
 #include <string>
 #include <string_view>
+#include <variant>
 #include <stdexcept>
 
 namespace poac::core::except {
+    struct Error {
+        struct InvalidFirstArg {};
+        enum class InvalidSecondArg {
+            Build,
+            Cache,
+            Cleanup,
+            Help,
+            Init,
+            New,
+            Publish,
+            Search,
+            Uninstall
+        };
+        struct General {
+            const std::string impl;
+            explicit General(const std::string& s) : impl(s) {}
+            explicit General(const char* s) : impl(s) {}
+
+            std::string what() const { return impl; }
+        };
+
+        using state_type = std::variant<InvalidFirstArg, InvalidSecondArg, General>;
+        state_type state;
+
+        Error(InvalidFirstArg err) : state(err) {}
+        Error(InvalidSecondArg err) : state(err) {}
+        Error(General err) : state(err) {}
+    };
+
     namespace msg {
         std::string put_period(const std::string& str) {
             if (*(str.end()) != '.') {
@@ -49,24 +79,6 @@ namespace poac::core::except {
             return put_period(please("Please execute " + str));
         }
     }
-
-    class invalid_first_arg : public std::invalid_argument
-    {
-    public:
-        explicit invalid_first_arg(const std::string& __s) : invalid_argument(__s) {}
-        explicit invalid_first_arg(const char* __s)        : invalid_argument(__s) {}
-
-        virtual ~invalid_first_arg() = default;
-    };
-
-    class invalid_second_arg : public std::invalid_argument
-    {
-    public:
-        explicit invalid_second_arg(const std::string& __s) : invalid_argument(__s) {}
-        explicit invalid_second_arg(const char* __s)        : invalid_argument(__s) {}
-
-        virtual ~invalid_second_arg() = default;
-    };
 
     template <typename Arg>
     std::string to_string(const Arg& str) {

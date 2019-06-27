@@ -141,21 +141,26 @@ namespace poac::opts::publish {
 //        return package_info;
 //    }
 
-    void check_arguments(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (!argv.empty()) {
-            throw except::invalid_second_arg("publish");
+            return except::Error::InvalidSecondArg::Publish;
         }
+        return std::nullopt;
     }
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace cli = io::cli;
         using namespace std::string_literals;
         using termcolor2::color_literals::operator""_red;
 
-        check_arguments(argv);
+        if (const auto result = check_arguments(argv)) {
+            return result;
+        }
 
 //        const auto maybeKnownVersions = Registry.getVersions(pkg, registry);
 //        if (report_publish_start() != EXIT_SUCCESS) {
@@ -218,16 +223,18 @@ namespace poac::opts::publish {
             const io::net::requests req{};
             const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
             if (res.data() == "true"s) {
-                throw except::error(
-                        except::msg::already_exist(node_name + ": " + node_version));
+                return except::Error::General{
+                        except::msg::already_exist(node_name + ": " + node_version)
+                };
             }
         }
 
         // Post tarball to API.
         std::cout << cli::status << "Uploading..." << std::endl;
         if (!fs::exists("poac.yml")) {
-            throw except::error(
-                    except::msg::does_not_exist("poac.yml"));
+            return except::Error::General{
+                    except::msg::does_not_exist("poac.yml")
+            };
         }
         {
             io::net::multiPartForm mp_form;
@@ -248,7 +255,7 @@ namespace poac::opts::publish {
 //        fs::remove_all(fs::path(output_dir).parent_path());
 
         std::cout << cli::status << "Done." << std::endl;
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_PUBLISH_HPP

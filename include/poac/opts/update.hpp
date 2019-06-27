@@ -29,7 +29,8 @@ namespace poac::opts::update {
     constexpr auto summary = termcolor2::make_string("Update a package");
     constexpr auto options = termcolor2::make_string("[ -y | --yes, -a | --all, --outside ]");
 
-    int _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error>
+    _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace yaml = io::yaml;
@@ -48,7 +49,7 @@ namespace poac::opts::update {
             const auto err = "It is the same as executing install command because nothing is installed.";
             std::cout << cli::warning << err << std::endl;
             install::_main(std::move(argv_cpy)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
-            return EXIT_FAILURE;
+            return except::Error::General{"Could not find deps directory"};
         }
 
         if (all) {
@@ -87,7 +88,7 @@ namespace poac::opts::update {
 
             if (update_deps.empty()) {
                 std::cout << "No changes detected." << std::endl;
-                return EXIT_FAILURE;
+                return std::nullopt;
             }
 
             for (const auto& [name, dep] : update_deps) {
@@ -109,7 +110,7 @@ namespace poac::opts::update {
                 std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
                 if (!(yes_or_no == "yes" || yes_or_no == "y")) {
                     std::cout << "canceled." << std::endl;
-                    return EXIT_FAILURE;
+                    return std::nullopt;
                 }
             }
 
@@ -127,11 +128,12 @@ namespace poac::opts::update {
             std::cout << std::endl;
             cli::status_done();
 
-            return EXIT_SUCCESS;
+            return std::nullopt;
         }
         else { // TODO: Individually update
-            std::cout << "Individually update is coming soon" << std::endl;
-            return EXIT_FAILURE;
+            return except::Error::General{
+                    "Individually update is coming soon"
+            };
 //            if (const auto versions = get_versions_api(argv[0])) {
 //                const auto versions_v = util::types::ptree_to_vector<std::string>(*versions);
 //
