@@ -3,11 +3,18 @@
 
 #include <string>
 #include <regex>
+#include <stdexcept>
+#include <optional>
 
 #include "version.hpp"
-#include "../../core/except.hpp"
 
 namespace semver {
+    enum class IntervalMode {
+        Equal,
+        ClosedUnbounded,
+        Bounded
+    };
+
     class Interval {
     public:
         const std::string name;
@@ -21,7 +28,7 @@ namespace semver {
         std::string first_version;
         std::string second_version;
 
-        int mode;
+        IntervalMode mode;
 
         explicit Interval(const std::string& n, const std::string& i) : name(n), interval(i) {
             std::smatch match;
@@ -31,10 +38,10 @@ namespace semver {
 
                 // Check
                 if (comp_op.empty()) { // equal
-                    mode = 0;
+                    mode = IntervalMode::Equal;
                 }
                 else {
-                    mode = 1;
+                    mode = IntervalMode::ClosedUnbounded;
                 }
             }
             else if (std::regex_match(interval, match, std::regex(BOUNDED_INTERVAL))) {
@@ -50,13 +57,17 @@ namespace semver {
                 second_version += match[14].matched ? ("+" + match[14].str()) : "";
 
                 // Checks
-                is_wasteful_comparison_operation();
-                is_bounded_interval();
-                mode = 2;
+                if (const auto result = is_wasteful_comparison_operation()) {
+                    throw std::range_error(result.value());
+                }
+                if (const auto result = is_bounded_interval()) {
+                    throw std::range_error(result.value());
+                }
+                mode = IntervalMode::Bounded;
             }
             else {
-                throw poac::core::except::error(
-                        "`", name, ": ", interval, "` is invalid expression.\n"
+                throw std::invalid_argument(
+                        "`" + name + ": " + interval + "` is invalid expression.\n"
                         "Comparison operators:\n"
                         "  >, >=, <, <=\n"
                         "Logical operator:\n"
@@ -66,16 +77,14 @@ namespace semver {
             }
         }
 
-        bool satisfies(const std::string& version) {
+        bool satisfies(const std::string& version) const {
             switch (mode) {
-                case 0:
+                case IntervalMode::Equal:
                     return version == interval;
-                case 1:
+                case IntervalMode::ClosedUnbounded:
                     return satisfies_closed_unbounded_interval(version);
-                case 2:
+                case IntervalMode::Bounded:
                     return satisfies_bounded_interval(version);
-                default:
-                    throw poac::core::except::error("Unexcepted error");
             }
         }
 
@@ -97,37 +106,34 @@ namespace semver {
             return false;
         }
 
-
         // e.g. `>0.1.3 and >=0.3.2`, `<0.1.3 and <0.3.2`
-        void is_wasteful_comparison_operation() {
+        std::optional<std::string>
+        is_wasteful_comparison_operation() const { // TODO: noexcept
             if ((first_comp_op == "<" || first_comp_op == "<=")
                 && (second_comp_op == "<" || second_comp_op == "<="))
             {
                 if (Version(first_version) > second_version) { // Prioritize the larger version
-                    throw poac::core::except::error(
-                            "`", name, ": ", interval, "` is invalid expression.\n"
-                            "Did you mean ", first_comp_op, first_version, " ?");
+                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                           "Did you mean " + first_comp_op + first_version + " ?";
                 }
                 else {
-                    throw poac::core::except::error(
-                            "`", name, ": ", interval, "` is invalid expression.\n"
-                            "Did you mean ", second_comp_op, second_version, " ?");
+                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                           "Did you mean " + second_comp_op + second_version + " ?";
                 }
             }
             else if ((first_comp_op == ">" || first_comp_op == ">=")
                      && (second_comp_op == ">" || second_comp_op == ">="))
             {
                 if (Version(first_version) < second_version) { // Prioritize the smaller version
-                    throw poac::core::except::error(
-                            "`", name, ": ", interval, "` is invalid expression.\n"
-                            "Did you mean ", first_comp_op, first_version, " ?");
+                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                           "Did you mean " + first_comp_op + first_version + " ?";
                 }
                 else {
-                    throw poac::core::except::error(
-                            "`", name, ": ", interval, "` is invalid expression.\n"
-                            "Did you mean ", second_comp_op, second_version, " ?");
+                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                           "Did you mean " + second_comp_op + second_version + " ?";
                 }
             }
+            return std::nullopt;
         }
 
         // Check if it is bounded interval
@@ -137,33 +143,33 @@ namespace semver {
         // [a, ∞) => closed unbounded interval => one_exp
         // (-∞, ∞) => closed unbounded interval => ERR!
         // e.g. <0.1.1 and >=0.3.2
-        void is_bounded_interval() { // TODO: std::optional
+        std::optional<std::string>
+        is_bounded_interval() const { // TODO: noexcept
             if (Version(first_version) < second_version) {
                 if ((first_comp_op == "<" || first_comp_op == "<=")
                     && (second_comp_op == ">" || second_comp_op == ">="))
                 {
-                    throw poac::core::except::error(
-                            "`", name, ": ", interval, "` is strange.\n"
-                            "In this case of interval specification using `and`,\n"
-                            " it is necessary to be a bounded interval.\n"
-                            "Please specify as in the following example:\n"
-                            "e.g. `", second_comp_op, first_version, " and ",
-                            first_comp_op, second_version, "`");
+                    return "`" + name + ": " + interval + "` is strange.\n"
+                           "In this case of interval specification using `and` +\n"
+                           " it is necessary to be a bounded interval.\n"
+                           "Please specify as in the following example:\n"
+                           "e.g. `" + second_comp_op + first_version + " and " +
+                           first_comp_op + second_version + "`";
                 }
             }
             else if (Version(first_version) > second_version) {
                 if ((first_comp_op == ">" || first_comp_op == ">=")
                     && (second_comp_op == "<" || second_comp_op == "<="))
                 {
-                    throw poac::core::except::error(
-                            "`", name, ": ", interval, "` is strange.\n"
-                            "In this case of interval specification using `and`,\n"
-                            " it is necessary to be a bounded interval.\n"
-                            "Please specify as in the following example:\n"
-                            "e.g. `", first_comp_op, second_version, " and ",
-                            second_comp_op, first_version, "`");
+                    return "`" + name + ": " + interval + "` is strange.\n"
+                           "In this case of interval specification using `and` +\n"
+                           " it is necessary to be a bounded interval.\n"
+                           "Please specify as in the following example:\n"
+                           "e.g. `" + first_comp_op + second_version + " and " +
+                           second_comp_op + first_version + "`";
                 }
             }
+            return std::nullopt;
         }
 
         bool satisfies_bounded_interval(const std::string& v) const {
