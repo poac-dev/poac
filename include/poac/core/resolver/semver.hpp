@@ -18,7 +18,6 @@
 #include "../../io/cli.hpp"
 #include "../../util/termcolor2.hpp"
 
-
 namespace poac::core::resolver::semver {
     // The following Regular Expressions can be used for tokenizing,
     // validating, and parsing SemVer version strings.
@@ -136,6 +135,14 @@ namespace poac::core::resolver::semver {
                 throw except::error("Invalid version");
             }
         }
+        Version(const char* version)
+            : Version(std::string(version))
+        {}
+
+        template <typename CharT, std::size_t N>
+        Version(const CharT(&version)[N])
+                : Version(std::string(version, N))
+        {}
 
         std::string get_version() const {
             std::string version = std::to_string(major);
@@ -382,6 +389,15 @@ namespace poac::core::resolver::semver {
     }
     bool operator==(const Version& lhs, const std::string& rhs) {
         return lhs == Version(rhs);
+    }
+
+    template <typename CharT>
+    bool operator==(const Version& lhs, const CharT* rhs) {
+        return lhs == Version(rhs);
+    }
+    template <typename CharT>
+    bool operator==(const CharT* lhs, const Version& rhs) {
+        return Version(lhs) == rhs;
     }
 
     bool operator!=(const Version& lhs, const Version& rhs) { // neq
