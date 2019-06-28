@@ -6,12 +6,12 @@
 namespace termcolor2 {
     template <typename CharT, std::size_t N1, std::size_t N2, typename Traits>
     constexpr bool
-    operator==(basic_string<CharT, N1, Traits> const& lhs, basic_string<CharT, N2, Traits> const& rhs) {
+    operator==(const basic_string<CharT, N1, Traits>& lhs, const basic_string<CharT, N2, Traits>& rhs) {
         return lhs.compare(rhs) == 0;
     }
     template <typename CharT, std::size_t N, typename Traits>
     constexpr bool
-    operator==(basic_string<CharT, N, Traits> const& lhs, CharT const* rhs) {
+    operator==(const basic_string<CharT, N, Traits>& lhs, const CharT* rhs) {
         return lhs.compare(rhs) == 0;
     }
     template <typename CharT, std::size_t N, typename Traits>
