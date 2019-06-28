@@ -145,7 +145,7 @@ namespace poac::opts::publish {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (!argv.empty()) {
-            return except::Error::InvalidSecondArg::Publish;
+            return except::Error::InvalidSecondArg::Publish{};
         }
         return std::nullopt;
     }
@@ -232,9 +232,12 @@ namespace poac::opts::publish {
         // Post tarball to API.
         std::cout << cli::status << "Uploading..." << std::endl;
         if (!fs::exists("poac.yml")) {
-            return except::Error::General{
-                    except::msg::does_not_exist("poac.yml")
+            return except::Error::DoesNotExist{
+                    "poac.yml"
             };
+//            return except::Error::General{
+//                    except::msg::does_not_exist("poac.yml")
+//            };
         }
         {
             io::net::multiPartForm mp_form;

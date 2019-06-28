@@ -111,7 +111,7 @@ namespace poac::opts::_new {
         const bool bin = !lib || util::argparse::use_rm(argv_cpy, "-b", "--bin");
         // libとbinを引数から抜いた時点で，1じゃなかったらエラーになる．
         if (argv_cpy.size() != 1) {
-            return except::Error::InvalidSecondArg::New;
+            return except::Error::InvalidSecondArg::New{};
         }
 
         const std::string project_name = argv_cpy[0];

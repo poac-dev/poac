@@ -21,47 +21,11 @@ int handle(std::string&& str, VS&& vs) {
         }
 
         const except::Error err = result.value();
-        if (std::holds_alternative<except::Error::InvalidFirstArg>(err.state)) {
-            std::cerr << cli::error << "Invalid argument" << std::endl;
-            return EXIT_FAILURE;
+        if (std::holds_alternative<except::Error::InvalidSecondArg>(err.state)) {
+            infer::execute("help"s, VS{ err.what() });
         }
-        else if (std::holds_alternative<except::Error::InvalidSecondArg>(err.state)) {
-            const auto e = std::get<except::Error::InvalidSecondArg>(err.state);
-            switch (e) {
-                case except::Error::InvalidSecondArg::Build:
-                    infer::execute("help"s, VS{"build"});
-                    break;
-                case except::Error::InvalidSecondArg::Cache:
-                    infer::execute("help"s, VS{"cache"});
-                    break;
-                case except::Error::InvalidSecondArg::Cleanup:
-                    infer::execute("help"s, VS{"cleanup"});
-                    break;
-                case except::Error::InvalidSecondArg::Help:
-                    infer::execute("help"s, VS{"help"});
-                    break;
-                case except::Error::InvalidSecondArg::Init:
-                    infer::execute("help"s, VS{"init"});
-                    break;
-                case except::Error::InvalidSecondArg::New:
-                    infer::execute("help"s, VS{"new"});
-                    break;
-                case except::Error::InvalidSecondArg::Publish:
-                    infer::execute("help"s, VS{"publish"});
-                    break;
-                case except::Error::InvalidSecondArg::Search:
-                    infer::execute("help"s, VS{"search"});
-                    break;
-                case except::Error::InvalidSecondArg::Uninstall:
-                    infer::execute("help"s, VS{"uninstall"});
-                    break;
-            }
-            return EXIT_FAILURE;
-        }
-        else if (std::holds_alternative<except::Error::General>(err.state)) {
-            const auto e = std::get<except::Error::General>(err.state);
-            std::cerr << cli::error << e.what() << std::endl;
-            return EXIT_FAILURE;
+        else {
+            std::cerr << cli::error << err.what() << std::endl;
         }
         return EXIT_FAILURE;
     }

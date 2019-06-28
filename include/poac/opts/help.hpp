@@ -116,7 +116,7 @@ namespace poac::opts::help {
             usage(vs[0]);
             return std::nullopt;
         } else {
-            return except::Error::InvalidSecondArg::Help;
+            return except::Error::InvalidSecondArg::Help{};
         }
     }
 } // end namespace

@@ -72,7 +72,7 @@ namespace poac::opts::cache {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.empty()) {
-            return except::Error::InvalidSecondArg::Cache;
+            return except::Error::InvalidSecondArg::Cache{};
         }
         return std::nullopt;
     }
@@ -90,7 +90,7 @@ namespace poac::opts::cache {
         } else if (argv[0] == "clean") {
             clean(std::vector<std::string>(argv.begin() + 1, argv.begin() + argv.size()));
         } else {
-            return except::Error::InvalidSecondArg::Cache;
+            return except::Error::InvalidSecondArg::Cache{};
         }
         return std::nullopt;
     }

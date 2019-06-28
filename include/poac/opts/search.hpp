@@ -80,7 +80,7 @@ namespace poac::opts::search {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.size() != 1) {
-            return except::Error::InvalidSecondArg::Search;
+            return except::Error::InvalidSecondArg::Search{};
         }
         return std::nullopt;
     }

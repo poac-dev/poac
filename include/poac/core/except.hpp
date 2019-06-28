@@ -7,46 +7,164 @@
 #include <stdexcept>
 
 namespace poac::core::except {
+    template <typename Arg>
+    std::string to_string(const Arg& str) {
+        return std::to_string(str);
+    }
+    template <>
+    std::string to_string(const std::string& str) {
+        return str;
+    }
+    std::string to_string(std::string_view str) {
+        return std::string(str);
+    }
+    template <typename CharT, std::size_t N>
+    std::string to_string(const CharT(&str)[N]) {
+        return str;
+    }
+
     struct Error {
-        struct InvalidFirstArg {};
-        enum class InvalidSecondArg {
-            Build,
-            Cache,
-            Cleanup,
-            Help,
-            Init,
-            New,
-            Publish,
-            Search,
-            Uninstall
-        };
         struct General {
             const std::string impl;
+
+            General() = delete;
+            General(const General&) = default;
+            General& operator=(const General&) = delete;
+
+            General(General&&) = default;
+            General& operator=(General&&) = delete;
+
             explicit General(const std::string& s) : impl(s) {}
             explicit General(const char* s) : impl(s) {}
+            template <typename... Args>
+            explicit General(const Args&... s)
+                : General(
+                      (... + except::to_string(s))
+                  ) // delegation
+            {}
 
-            std::string what() const { return impl; }
+            virtual ~General() noexcept = default;
+
+            virtual std::string what() const {
+                return impl;
+            }
         };
 
-        using state_type = std::variant<InvalidFirstArg, InvalidSecondArg, General>;
-        state_type state;
+        struct InvalidFirstArg {
+            std::string what() const noexcept {
+                return "Invalid argument";
+            }
+        };
 
-        Error(InvalidFirstArg err) : state(err) {}
-        Error(InvalidSecondArg err) : state(err) {}
-        Error(General err) : state(err) {}
+        struct InvalidSecondArg {
+            struct Build {
+                std::string what() const noexcept {
+                    return "build";
+                }
+            };
+            struct Cache {
+                std::string what() const noexcept {
+                    return "cache";
+                }
+            };
+            struct Cleanup {
+                std::string what() const noexcept {
+                    return "cleanup";
+                }
+            };
+            struct Help {
+                std::string what() const noexcept {
+                    return "help";
+                }
+            };
+            struct Init {
+                std::string what() const noexcept {
+                    return "init";
+                }
+            };
+            struct New {
+                std::string what() const noexcept {
+                    return "new";
+                }
+            };
+            struct Publish {
+                std::string what() const noexcept {
+                    return "publish";
+                }
+            };
+            struct Search {
+                std::string what() const noexcept {
+                    return "search";
+                }
+            };
+            struct Uninstall {
+                std::string what() const noexcept {
+                    return "uninstall";
+                }
+            };
+
+            using state_type = std::variant<
+                    Build,
+                    Cache,
+                    Cleanup,
+                    Help,
+                    Init,
+                    New,
+                    Publish,
+                    Search,
+                    Uninstall
+            >;
+            state_type state;
+            template <typename T>
+            InvalidSecondArg(T err) : state(err) {}
+
+            std::string what() const {
+                return std::visit([](auto&& arg) { return arg.what(); }, state);
+            }
+        };
+
+        struct DoesNotExist : General {
+            // Inheriting constructors
+            using General::General;
+            virtual ~DoesNotExist() noexcept = default;
+            virtual std::string what() const {
+                return "`" + General::what() + "` does not exist";
+            }
+        };
+        struct KeyDoesNotExist final : DoesNotExist {
+            // Inheriting constructors
+            using DoesNotExist::DoesNotExist;
+            ~KeyDoesNotExist() noexcept = default;
+            std::string what() const {
+                return "Required key " + DoesNotExist::what() + " in poac.yml";
+            }
+        };
+
+        using state_type = std::variant<
+                InvalidFirstArg,
+                InvalidSecondArg,
+                General,
+                DoesNotExist,
+                KeyDoesNotExist
+        >;
+        state_type state;
+        template <typename T>
+        Error(T err) : state(err) {}
+
+        std::string what() const {
+            return std::visit([](auto&& arg) { return arg.what(); }, state);
+        }
     };
 
     namespace msg {
         std::string put_period(const std::string& str) {
-            if (*(str.end()) != '.') {
-                return str + ".";
-            }
-            return str;
+            return str + ".";
         }
 
         std::string not_found(const std::string& str) {
             return put_period(str + " not found");
         }
+
         std::string does_not_exist(const std::string& str) {
             return put_period(str + " does not exist");
         }
@@ -73,27 +191,11 @@ namespace poac::core::except {
         }
         std::string please_refer_docs(const std::string& str) {
             // str <- /en/getting_started.html
-            return put_period(please("refer to https://doc.poac.pm" + str));
+            return please("refer to https://doc.poac.pm" + str);
         }
         std::string please_exec(const std::string& str) {
-            return put_period(please("Please execute " + str));
+            return please("Please execute " + str);
         }
-    }
-
-    template <typename Arg>
-    std::string to_string(const Arg& str) {
-        return std::to_string(str);
-    }
-    template <>
-    std::string to_string(const std::string& str) {
-        return str;
-    }
-    std::string to_string(std::string_view str) {
-        return std::string(str);
-    }
-    template <typename CharT, std::size_t N>
-    std::string to_string(const CharT(&str)[N]) {
-        return str;
     }
 
     class error : public std::invalid_argument

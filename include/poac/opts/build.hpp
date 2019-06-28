@@ -304,7 +304,7 @@ namespace poac::opts::build {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.size() > 1) {
-            return except::Error::InvalidSecondArg::Build;
+            return except::Error::InvalidSecondArg::Build{};
         }
         return std::nullopt;
     }

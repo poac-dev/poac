@@ -233,7 +233,7 @@ namespace poac::opts::uninstall {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.empty()) {
-            return except::Error::InvalidSecondArg::Uninstall;
+            return except::Error::InvalidSecondArg::Uninstall{};
         }
         return std::nullopt;
     }
