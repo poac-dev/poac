@@ -128,7 +128,7 @@ namespace poac::io::yaml {
         }
         catch (...) {
             throw except::error(
-                    except::msg::key_does_not_exist(""), '\n',
+                    except::msg::key_does_not_exist(""), "\n",
                     except::msg::please_refer_docs(""));
         }
     }
@@ -140,7 +140,7 @@ namespace poac::io::yaml {
         }
         catch (...) {
             throw except::error(
-                    except::msg::key_does_not_exist(arg), '\n',
+                    except::msg::key_does_not_exist(arg), "\n",
                     except::msg::please_refer_docs(""));
         }
     }
@@ -152,7 +152,7 @@ namespace poac::io::yaml {
         namespace except = core::except;
         if (const auto result = detail::read(node, args...)) {
             throw except::error(
-                    except::msg::key_does_not_exist(std::string(*result)), '\n',
+                    except::msg::key_does_not_exist(std::string(*result)), "\n",
                     except::msg::please_refer_docs(""));
         }
         else {
@@ -167,7 +167,7 @@ namespace poac::io::yaml {
         namespace except = core::except;
         if (const auto result = detail::read(node, args)) {
             throw except::error(
-                    except::msg::key_does_not_exist(std::string(*result)), '\n',
+                    except::msg::key_does_not_exist(std::string(*result)), "\n",
                     except::msg::please_refer_docs(""));
         }
         else {
@@ -253,7 +253,7 @@ namespace poac::io::yaml {
             }
         }
         throw except::error(
-                except::msg::does_not_exist("poac.yml"), '\n', // TODO: poac.ymlが無いとだけ伝われば，ハンドラ側で，please_exec出せる
+                except::msg::does_not_exist("poac.yml"), "\n",
                 except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
     }
 
@@ -268,7 +268,7 @@ namespace poac::io::yaml {
         }
         else {
             throw except::error(
-                    except::msg::does_not_exist("poac.yml"), '\n',
+                    except::msg::does_not_exist("poac.yml"), "\n",
                     except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
