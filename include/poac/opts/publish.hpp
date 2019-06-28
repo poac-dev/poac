@@ -20,13 +20,13 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../core/resolver/semver.hpp"
 #include "../core/except.hpp"
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
 #include "../config.hpp"
 #include "../util/termcolor2.hpp"
 #include "../util/pretty.hpp"
+#include "../util/semver.hpp"
 
 namespace poac::opts::publish {
     constexpr auto summary = termcolor2::make_string("Publish a package");

@@ -4,6 +4,7 @@
 #include "util/argparse.hpp"
 #include "util/misc.hpp"
 #include "util/pretty.hpp"
+#include "util/semver.hpp"
 #include "util/shell.hpp"
 #include "util/termcolor2.hpp"
 #include "util/types.hpp"

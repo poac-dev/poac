@@ -6,9 +6,9 @@
 #include <string_view>
 #include <regex>
 
-#include "../resolver/semver.hpp"
 #include "../except.hpp"
 #include "../../io/path.hpp"
+#include "../../util/semver.hpp"
 #include "../../util/shell.hpp"
 
 namespace poac::core::builder::standard {

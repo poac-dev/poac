@@ -14,9 +14,9 @@
 #include <cctype>
 #include <algorithm>
 
-#include "../except.hpp"
-#include "../../io/cli.hpp"
-#include "../../util/termcolor2.hpp"
+#include "../core/except.hpp"
+#include "../io/cli.hpp"
+#include "termcolor2.hpp"
 
 namespace poac::core::resolver::semver {
     // The following Regular Expressions can be used for tokenizing,
@@ -362,6 +362,10 @@ namespace poac::core::resolver::semver {
     bool operator>(const Version& lhs, const std::string& rhs) {
         return lhs > Version(rhs);
     }
+    template <typename CharT>
+    bool operator>(const Version& lhs, const CharT* rhs) { // lt
+        return lhs > Version(rhs);
+    }
 
     bool operator<(const Version& lhs, const Version& rhs) { // lt
         if (lhs.major != rhs.major) {
@@ -376,6 +380,10 @@ namespace poac::core::resolver::semver {
         else {
             return lt_pre(lhs, rhs);
         }
+    }
+    template <typename CharT>
+    bool operator<(const Version& lhs, const CharT* rhs) { // lt
+        return lhs < Version(rhs);
     }
     bool operator<(const Version& lhs, const std::string& rhs) {
         return lhs < Version(rhs);
@@ -416,11 +424,19 @@ namespace poac::core::resolver::semver {
     bool operator>=(const Version& lhs, const std::string& rhs) {
         return lhs >= Version(rhs);
     }
+    template <typename CharT>
+    bool operator>=(const Version& lhs, const CharT* rhs) { // lt
+        return lhs >= Version(rhs);
+    }
 
     bool operator<=(const Version& lhs, const Version& rhs) { // lte
         return lhs < rhs || lhs == rhs;
     }
     bool operator<=(const Version& lhs, const std::string& rhs) {
+        return lhs <= Version(rhs);
+    }
+    template <typename CharT>
+    bool operator<=(const Version& lhs, const CharT* rhs) { // lt
         return lhs <= Version(rhs);
     }
 

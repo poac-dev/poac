@@ -19,13 +19,12 @@
 #include <boost/dynamic_bitset.hpp>
 
 #include "sat.hpp"
-#include "semver.hpp"
 #include "../except.hpp"
 #include "../name.hpp"
 #include "../../io.hpp"
 #include "../../config.hpp"
+#include "../../util/semver.hpp"
 #include "../../util/types.hpp"
-
 
 namespace poac::core::resolver::resolve {
     namespace cache {

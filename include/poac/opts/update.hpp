@@ -14,12 +14,12 @@
 #include "./install.hpp"
 #include "../core/except.hpp"
 #include "../core/name.hpp"
-#include "../core/resolver/semver.hpp"
 #include "../core/resolver/resolve.hpp"
 #include "../io/path.hpp"
 #include "../io/yaml.hpp"
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
+#include "../util/semver.hpp"
 #include "../util/types.hpp"
 #include "../util/termcolor2.hpp"
 

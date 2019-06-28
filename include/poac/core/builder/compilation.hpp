@@ -26,10 +26,10 @@
 #include "../except.hpp"
 #include "../name.hpp"
 #include "../resolver/lock.hpp"
-#include "../resolver/semver.hpp"
 #include "../../io/path.hpp"
 #include "../../io/cli.hpp"
 #include "../../io/yaml.hpp"
+#include "../../util/semver.hpp"
 
 namespace poac::core::builder {
 //    namespace builder {
