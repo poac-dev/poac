@@ -203,7 +203,7 @@ namespace poac::opts::install {
     }
 
     std::string convert_to_interval(const std::string &version) {
-        core::resolver::semver::Version upper(version);
+        semver::Version upper(version);
         upper.major += 1;
         upper.minor = 0;
         upper.patch = 0;

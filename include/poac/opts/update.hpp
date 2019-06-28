@@ -80,7 +80,7 @@ namespace poac::opts::update {
                         current_version = "null";
                     }
 
-                    if (core::resolver::semver::Version(dep.version) != current_version) {
+                    if (semver::Version(dep.version) != current_version) {
                         update_deps[name] = { {current_version}, {dep.source} };
                     }
                 }
@@ -94,7 +94,7 @@ namespace poac::opts::update {
             for (const auto& [name, dep] : update_deps) {
                 const auto current_version = resolved_deps.backtracked[name].version;
                 std::cout << name << " (Current: " << current_version << " -> Update: ";
-                if (core::resolver::semver::Version(current_version) < dep.version) {
+                if (semver::Version(current_version) < dep.version) {
                     std::cout << termcolor2::green<> << dep.version << termcolor2::reset<> << ")" << std::endl;
                 }
                 else {

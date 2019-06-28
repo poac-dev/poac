@@ -18,7 +18,7 @@
 #include "../io/cli.hpp"
 #include "termcolor2.hpp"
 
-namespace poac::core::resolver::semver {
+namespace semver {
     // The following Regular Expressions can be used for tokenizing,
     // validating, and parsing SemVer version strings.
     // A regular expression before binding is https://github.com/semver/semver/issues/232#issue-48635632
@@ -125,14 +125,14 @@ namespace poac::core::resolver::semver {
             std::smatch match;
             if (std::regex_match(version, match, std::regex(FULL))) {
                 apply_version(match);
-                io::cli::debugln(*this);
+                poac::io::cli::debugln(*this);
             }
             else if (std::regex_match(version, match, std::regex(COERCE))) {
                 apply_version(match);
-                io::cli::debugln(*this);
+                poac::io::cli::debugln(*this);
             }
             else {
-                throw except::error("Invalid version");
+                throw poac::core::except::error("Invalid version");
             }
         }
         Version(const char* version)
@@ -488,7 +488,7 @@ namespace poac::core::resolver::semver {
                 mode = 2;
             }
             else {
-                throw except::error(
+                throw poac::core::except::error(
                         "`", name, ": ", interval, "` is invalid expression.\n"
                         "Comparison operators:\n"
                         "  >, >=, <, <=\n"
@@ -508,7 +508,7 @@ namespace poac::core::resolver::semver {
                 case 2:
                     return satisfies_bounded_interval(version);
                 default:
-                    throw except::error("Unexcepted error");
+                    throw poac::core::except::error("Unexcepted error");
             }
         }
 
@@ -537,12 +537,12 @@ namespace poac::core::resolver::semver {
                 && (second_comp_op == "<" || second_comp_op == "<="))
             {
                 if (Version(first_version) > second_version) { // Prioritize the larger version
-                    throw except::error(
+                    throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
                             "Did you mean ", first_comp_op, first_version, " ?");
                 }
                 else {
-                    throw except::error(
+                    throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
                             "Did you mean ", second_comp_op, second_version, " ?");
                 }
@@ -551,12 +551,12 @@ namespace poac::core::resolver::semver {
                      && (second_comp_op == ">" || second_comp_op == ">="))
             {
                 if (Version(first_version) < second_version) { // Prioritize the smaller version
-                    throw except::error(
+                    throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
                             "Did you mean ", first_comp_op, first_version, " ?");
                 }
                 else {
-                    throw except::error(
+                    throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
                             "Did you mean ", second_comp_op, second_version, " ?");
                 }
@@ -575,7 +575,7 @@ namespace poac::core::resolver::semver {
                 if ((first_comp_op == "<" || first_comp_op == "<=")
                     && (second_comp_op == ">" || second_comp_op == ">="))
                 {
-                    throw except::error(
+                    throw poac::core::except::error(
                             "`", name, ": ", interval, "` is strange.\n"
                             "In this case of interval specification using `and`,\n"
                             " it is necessary to be a bounded interval.\n"
@@ -588,7 +588,7 @@ namespace poac::core::resolver::semver {
                 if ((first_comp_op == ">" || first_comp_op == ">=")
                     && (second_comp_op == "<" || second_comp_op == "<="))
                 {
-                    throw except::error(
+                    throw poac::core::except::error(
                             "`", name, ": ", interval, "` is strange.\n"
                             "In this case of interval specification using `and`,\n"
                             " it is necessary to be a bounded interval.\n"

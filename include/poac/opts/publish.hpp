@@ -34,7 +34,7 @@ namespace poac::opts::publish {
 
     struct PackageInfo {
         std::string name;
-        core::resolver::semver::Version version;
+        semver::Version version;
         std::optional<std::string> description;
         std::uint16_t cpp_version;
         std::optional<std::string> license;
@@ -118,7 +118,7 @@ namespace poac::opts::publish {
         return std::nullopt;
     }
 
-    core::resolver::semver::Version
+    semver::Version
     get_version(const std::string& full_name) {
         // https://developer.github.com/v3/repos/releases/#get-the-latest-release
         const io::net::requests req{ GITHUB_API_HOST };
@@ -131,7 +131,7 @@ namespace poac::opts::publish {
         boost::property_tree::json_parser::read_json(ss, pt);
         if (const auto version = pt.get_optional<std::string>("tag_name")) {
             // If version do not obey SemVer, error.
-            return core::resolver::semver::Version{ version.get() };
+            return semver::Version{ version.get() };
         }
         throw core::except::error(
                 "Could not find latest release.\n"
@@ -178,7 +178,7 @@ namespace poac::opts::publish {
 
     PackageInfo gather_package_info() {
         const std::string full_name = get_name();
-        const core::resolver::semver::Version version = get_version(full_name);
+        const semver::Version version = get_version(full_name);
 
         return PackageInfo{
                 full_name,
@@ -244,7 +244,7 @@ namespace poac::opts::publish {
 
 
 
-        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
+//        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
         const auto node = io::yaml::load_config("name", "version");
         const auto node_name = node.at("name").as<std::string>();
