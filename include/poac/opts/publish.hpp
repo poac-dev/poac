@@ -9,9 +9,6 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
-#include <future>
-#include <functional>
-#include <thread>
 #include <map>
 #include <optional>
 
@@ -23,123 +20,182 @@
 #include "../core/except.hpp"
 #include "../io/cli.hpp"
 #include "../io/net.hpp"
-#include "../config.hpp"
-#include "../util/termcolor2.hpp"
+#include "../io/yaml.hpp"
+#include "../util/argparse.hpp"
 #include "../util/pretty.hpp"
 #include "../util/semver.hpp"
+#include "../util/shell.hpp"
+#include "../util/termcolor2.hpp"
+#include "../config.hpp"
 
 namespace poac::opts::publish {
     constexpr auto summary = termcolor2::make_string("Publish a package");
     constexpr auto options = termcolor2::make_string("[-v | --verbose, -y | --yes]");
 
-//    struct PackageInfo {
-//        std::string name;
-//        core::resolver::semver::Version version;
-//        std::optional<std::string> description;
-//        std::uint16_t cpp_version;
-//        std::optional<std::string> license;
-//        std::string package_type;
-//    };
-//
-//    int
-//    do_register() {
-//
-//    }
-//
-//    template <typename VS>
-//    int
-//    confirm(const VS& argv) {
-//        const bool yes = util::argparse::use(argv, "-y", "--yes");
-//        if (!yes) {
-//            std::cout << "Are you sure publish this package? [Y/n] ";
-//            if (!io::cli::yes_or_no()) {
-//                std::cout << "canceled." << std::endl;
-//                return EXIT_FAILURE;
-//            }
-//        }
-//        return EXIT_SUCCESS;
-//    }
-//
-//    void
-//    summarize(const PackageInfo& package_info) {
-//        namespace pretty = util::pretty;
-//        std::cout << "Summary:"
-//                  << "\n  Name: " << package_info.name
-//                  << "\n  Version: " << package_info.version.get_version() // TODO: GET /repos/:owner/:repo/releases/latest tag_name -> SemVerに即している必要がある．
-//                  << "\n  Description: " << pretty::clip_string(package_info.description.value_or("null"), 50) // TODO: GET /repos/:owner/:repo, なければ，nullとなる．-> 長い場合，prettyする？50くらい
-//                  << "\n  C++ Version (minimum required version): " << package_info.cpp_version
-//                  << "\n  License: " << package_info.license.value_or("null") // TODO: /repos/poacpm/poac/license\?ref\=0.2.1 -> license -> name
-//                  << "\n  Package Type: " << package_info.package_type
-//                  << "\n\n" << std::endl;
-//    }
-//
-//    std::string
-//    get_package_type() {
-//
-//    }
-//
-//    std::optional<std::string>
-//    get_license(const std::string& full_name) {
-//
-//    }
-//
-//    std::uint16_t
-//    get_cpp_version() {
-//        return io::yaml::load_config("cpp_version").as<std::uint16_t>();
-//    }
-//
-//    std::optional<std::string>
-//    get_description(const std::string& full_name) {
-//
-//    }
-//
-//    core::resolver::semver::Version
-//    get_version(const std::string& full_name) {
-//        // https://developer.github.com/v3/repos/releases/#get-the-latest-release
-//        const io::net::requests req{ GITHUB_API_HOST };
-//        const auto res = req.get(GITHUB_REPOS_API + full_name + "/releases/latest");
-//
-//        std::stringstream ss;
-//        ss << res.data();
-//
-//        boost::property_tree::ptree pt;
-//        boost::property_tree::json_parser::read_json(ss, pt);
-//    }
-//
-//    std::string_view
-//    extract_full_name(std::string_view repository) {
-//        auto first = repository.find("https://github.com/");
-//        auto last = repository.find(".git", first);
-//        return repository.substr(first, last - first);
-//    }
-//
-//    std::string
-//    get_name() {
-//        const std::string repository = io::yaml::load_config("repository").as<std::string>();
-//        std::string_view full_name = extract_full_name(repository);
-//        return std::string(full_name);
-//    }
-//
-//    PackageInfo
-//    gather_package_info() {
-//        const std::string full_name = get_name();
-//        return PackageInfo{
-//                full_name,
-//                get_version(full_name),
-//                get_description(full_name),
-//                get_cpp_version(),
-//                get_license(full_name),
-//                get_package_type()
-//        };
-//    }
-//
-//    PackageInfo
-//    report_publish_start() { // TODO: optionalで返さなくてOK????
-//        std::cout << "Verifying your package ...\n" << std::endl;
-//        const PackageInfo package_info = gather_package_info();
-//        summarize(package_info);
-//        return package_info;
-//    }
+    struct PackageInfo {
+        std::string name;
+        core::resolver::semver::Version version;
+        std::optional<std::string> description;
+        std::uint16_t cpp_version;
+        std::optional<std::string> license;
+        std::string package_type;
+    };
+
+    int do_register() {
+
+    }
+
+    template <typename VS>
+    int confirm(const VS& argv) {
+        const bool yes = util::argparse::use(argv, "-y", "--yes");
+        if (!yes) {
+            std::cout << "Are you sure publish this package? [Y/n] ";
+            if (!io::cli::yes_or_no()) {
+                std::cout << "canceled." << std::endl;
+                return EXIT_FAILURE; // InterruptByUser
+            }
+        }
+        return EXIT_SUCCESS;
+    }
+
+    void summarize(const PackageInfo& package_info) {
+        namespace pretty = util::pretty;
+        std::cout << "Summary:"
+                  << "\n  Name: " << package_info.name
+                  << "\n  Version: " << package_info.version.get_version()
+                  << "\n  Description: " << pretty::clip_string(package_info.description.value_or("null"), 50)
+                  << "\n  C++ Version (minimum required version): " << package_info.cpp_version
+                  << "\n  License: " << package_info.license.value_or("null") // TODO: /repos/poacpm/poac/license\?ref\=0.2.1 -> license -> name
+                  << "\n  Package Type: " << package_info.package_type
+                  << "\n\n" << std::endl;
+    }
+
+    std::string get_package_type() {
+
+    }
+
+    std::optional<std::string>
+    get_license(const std::string& full_name, const std::string& version) {
+        // https://developer.github.com/v3/licenses/#get-the-contents-of-a-repositorys-license
+        const io::net::requests req{ GITHUB_API_HOST };
+        const auto res = req.get(GITHUB_REPOS_API + ("/" + full_name) + "/license?ref=" + version);
+
+        std::stringstream ss;
+        ss << res.data();
+
+        boost::property_tree::ptree pt;
+        boost::property_tree::json_parser::read_json(ss, pt);
+        if (const auto license = pt.get_optional<std::string>("license.name")) {
+            if (license.get() == "null") {
+                return std::nullopt;
+            }
+            return license.get();
+        }
+        return std::nullopt;
+    }
+
+    std::uint16_t get_cpp_version() {
+        return io::yaml::load_config("cpp_version").as<std::uint16_t>();
+    }
+
+    std::optional<std::string>
+    get_description(const std::string& full_name) {
+        // https://developer.github.com/v3/repos/#get
+        const io::net::requests req{ GITHUB_API_HOST };
+        const auto res = req.get(GITHUB_REPOS_API + ("/" + full_name));
+
+        std::stringstream ss;
+        ss << res.data();
+
+        boost::property_tree::ptree pt;
+        boost::property_tree::json_parser::read_json(ss, pt);
+        if (const auto description = pt.get_optional<std::string>("description")) {
+            if (description.get() == "null") {
+                return std::nullopt;
+            }
+            return description.get();
+        }
+        return std::nullopt;
+    }
+
+    core::resolver::semver::Version
+    get_version(const std::string& full_name) {
+        // https://developer.github.com/v3/repos/releases/#get-the-latest-release
+        const io::net::requests req{ GITHUB_API_HOST };
+        const auto res = req.get(GITHUB_REPOS_API + ("/" + full_name) + "/releases/latest");
+
+        std::stringstream ss;
+        ss << res.data();
+
+        boost::property_tree::ptree pt;
+        boost::property_tree::json_parser::read_json(ss, pt);
+        if (const auto version = pt.get_optional<std::string>("tag_name")) {
+            // If version do not obey SemVer, error.
+            return core::resolver::semver::Version{ version.get() };
+        }
+        throw core::except::error(
+                "Could not find latest release.\n"
+                "Please execute the following commands:\n"
+                "  git tag 0.1.0\n"
+                "  git push origin 0.1.0");
+    }
+
+    std::optional<std::string_view>
+    extract_str(std::string_view target, std::string_view prefix, std::string_view suffix) {
+        auto first = target.find(prefix);
+        if (first == std::string_view::npos) {
+            return std::nullopt;
+        }
+        else {
+            first += prefix.size();
+        }
+        auto last = target.find(suffix, first);
+        return target.substr(first, last - first);
+    }
+
+    std::string_view extract_full_name(std::string_view repository) {
+        if (const auto sub = extract_str(repository, "https://github.com/", ".git")) {
+            return sub.value();
+        }
+        else {
+            if (const auto sub2 = extract_str(repository, "git@github.com:", ".git")) {
+                return sub2.value();
+            }
+        }
+        throw core::except::error(
+                "Invalid repository name");
+    }
+
+    std::string get_name() {
+        if (const auto repository = util::shell("git config --get remote.origin.url").exec()) {
+            return std::string(extract_full_name(repository.value()));
+        }
+        throw core::except::error(
+                "Could not find origin url.\n"
+                "Please execute the following command:\n"
+                "  git remote add origin https://github.com/:owner/:repo.git");
+    }
+
+    PackageInfo gather_package_info() {
+        const std::string full_name = get_name();
+        const core::resolver::semver::Version version = get_version(full_name);
+
+        return PackageInfo{
+                full_name,
+                version,
+                get_description(full_name),
+                get_cpp_version(),
+                get_license(full_name, version.get_version()),
+                get_package_type()
+        };
+    }
+
+    PackageInfo report_publish_start() {
+        std::cout << "Verifying your package ...\n" << std::endl;
+        const PackageInfo package_info = gather_package_info();
+        summarize(package_info);
+        return package_info;
+    }
 
     std::optional<core::except::Error>
     check_arguments(const std::vector<std::string>& argv) noexcept {
@@ -154,13 +210,19 @@ namespace poac::opts::publish {
     _main(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
-        namespace cli = io::cli;
         using namespace std::string_literals;
-        using termcolor2::color_literals::operator""_red;
 
         if (const auto result = check_arguments(argv)) {
             return result;
         }
+
+        std::cout << get_name() << std::endl;
+        throw except::error("hoge");
+
+        const auto package_info = report_publish_start();
+        // if(is_known_version(package_info.version)) {
+        //     return except::Error::General{"hoge is already exists"}
+        // };
 
 //        const auto maybeKnownVersions = Registry.getVersions(pkg, registry);
 //        if (report_publish_start() != EXIT_SUCCESS) {
@@ -184,38 +246,6 @@ namespace poac::opts::publish {
 
         const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
-        // Get token
-        boost::property_tree::ptree json;
-        std::string token;
-        {
-            boost::property_tree::ptree children;
-            for (const auto& s : io::yaml::load_config("owners").as<std::vector<std::string>>()) {
-                boost::property_tree::ptree child;
-                child.put("", s);
-                children.push_back(std::make_pair("", child));
-            }
-            json.add_child("owners", children);
-        }
-        std::string json_s;
-        {
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, json, false);
-            json_s = ss.str();
-        }
-
-        // Validating
-        std::cout << cli::status << "Validating..." << std::endl;
-        if (verbose) {
-            std::cout << json_s << std::endl;
-        }
-        {
-            const io::net::requests req{};
-            const auto res = req.post(POAC_TOKENS_VALIDATE_API, json_s);
-            if (res.data() != "ok"s) {
-                throw except::error(res.data());
-            }
-        }
-
         const auto node = io::yaml::load_config("name", "version");
         const auto node_name = node.at("name").as<std::string>();
         const auto node_version = node.at("version").as<std::string>();
@@ -230,7 +260,7 @@ namespace poac::opts::publish {
         }
 
         // Post tarball to API.
-        std::cout << cli::status << "Uploading..." << std::endl;
+        std::cout << io::cli::status << "Uploading..." << std::endl;
         if (!fs::exists("poac.yml")) {
             return except::Error::DoesNotExist{
                     "poac.yml"
@@ -241,7 +271,7 @@ namespace poac::opts::publish {
         }
         {
             io::net::multiPartForm mp_form;
-            mp_form.set("token", token);
+//            mp_form.set("token", token);
             std::map<io::net::http::field, std::string> h;
             h[io::net::http::field::content_type] = "application/x-gzip";
             h[io::net::http::field::content_transfer_encoding] = "binary";
@@ -249,15 +279,15 @@ namespace poac::opts::publish {
 
             const io::net::requests req{};
             if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
-                std::cerr << "ERROR: "_red << res << std::endl;
+                std::cerr << io::cli::error << res << std::endl;
             }
         }
 
         // Delete file
-        std::cout << cli::status << "Cleanup..." << std::endl;
+        std::cout << io::cli::status << "Cleanup..." << std::endl;
 //        fs::remove_all(fs::path(output_dir).parent_path());
 
-        std::cout << cli::status << "Done." << std::endl;
+        std::cout << io::cli::status << "Done." << std::endl;
         return std::nullopt;
     }
 } // end namespace
