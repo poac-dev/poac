@@ -5,24 +5,22 @@
 
 #include "version.hpp"
 
-#include "../termcolor2.hpp"
-
 namespace semver {
     std::ostream& operator<<(std::ostream& os, const Version& v) {
         os << "SemVer {\n";
-        os << "  full: " << termcolor2::green<> << "\"" << v.get_full() << "\"" << termcolor2::reset<> << ",\n";
-        os << "  version: " << termcolor2::green<> << "\"" << v.get_version() << "\"" << termcolor2::reset<> << ",\n";
-        os << "  major: " << termcolor2::yellow<> << v.major << termcolor2::reset<> << ",\n";
-        os << "  minor: " << termcolor2::yellow<> << v.minor << termcolor2::reset<> << ",\n";
-        os << "  patch: " << termcolor2::yellow<> << v.patch << termcolor2::reset<> << ",\n";
+        os << "  full: " << "\"" << v.get_full() << "\",\n";
+        os << "  version: " << "\"" << v.get_version() << "\",\n";
+        os << "  major: " << v.major << ",\n";
+        os << "  minor: " << v.minor << ",\n";
+        os << "  patch: " << v.patch << ",\n";
         os << "  prerelease: " << "[ ";
         for (const auto& s : v.pre) {
-            os << termcolor2::green<> << "\"" << s << "\"" << termcolor2::reset<> << ", ";
+            os << "\"" << s << "\", ";
         }
         os << "],\n";
         os << "  build: " << "[ ";
         for (const auto& s : v.build) {
-            os << termcolor2::green<> << "\"" << s << "\"" << termcolor2::reset<> << ", ";
+            os << "\"" << s << "\", ";
         }
         os << "],\n";
         os << "}";
