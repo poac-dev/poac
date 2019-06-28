@@ -1,11 +1,11 @@
 #ifndef SEMVER_INTERVAL_HPP
 #define SEMVER_INTERVAL_HPP
 
-#include <ostream> // std::ostream
+#include <string>
+#include <regex>
 
 #include "version.hpp"
-
-#include "../termcolor2.hpp"
+#include "../../core/except.hpp"
 
 namespace semver {
     class Interval {
@@ -57,12 +57,12 @@ namespace semver {
             else {
                 throw poac::core::except::error(
                         "`", name, ": ", interval, "` is invalid expression.\n"
-                                                   "Comparison operators:\n"
-                                                   "  >, >=, <, <=\n"
-                                                   "Logical operator:\n"
-                                                   "  and\n"
-                                                   "The following example is the meaning for equals:\n"
-                                                   "  example: \"1.2.0\"");
+                        "Comparison operators:\n"
+                        "  >, >=, <, <=\n"
+                        "Logical operator:\n"
+                        "  and\n"
+                        "The following example is the meaning for equals:\n"
+                        "  example: \"1.2.0\"");
             }
         }
 
@@ -106,12 +106,12 @@ namespace semver {
                 if (Version(first_version) > second_version) { // Prioritize the larger version
                     throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
-                                                       "Did you mean ", first_comp_op, first_version, " ?");
+                            "Did you mean ", first_comp_op, first_version, " ?");
                 }
                 else {
                     throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
-                                                       "Did you mean ", second_comp_op, second_version, " ?");
+                            "Did you mean ", second_comp_op, second_version, " ?");
                 }
             }
             else if ((first_comp_op == ">" || first_comp_op == ">=")
@@ -120,12 +120,12 @@ namespace semver {
                 if (Version(first_version) < second_version) { // Prioritize the smaller version
                     throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
-                                                       "Did you mean ", first_comp_op, first_version, " ?");
+                            "Did you mean ", first_comp_op, first_version, " ?");
                 }
                 else {
                     throw poac::core::except::error(
                             "`", name, ": ", interval, "` is invalid expression.\n"
-                                                       "Did you mean ", second_comp_op, second_version, " ?");
+                            "Did you mean ", second_comp_op, second_version, " ?");
                 }
             }
         }
@@ -137,17 +137,17 @@ namespace semver {
         // [a, ∞) => closed unbounded interval => one_exp
         // (-∞, ∞) => closed unbounded interval => ERR!
         // e.g. <0.1.1 and >=0.3.2
-        void is_bounded_interval() {
+        void is_bounded_interval() { // TODO: std::optional
             if (Version(first_version) < second_version) {
                 if ((first_comp_op == "<" || first_comp_op == "<=")
                     && (second_comp_op == ">" || second_comp_op == ">="))
                 {
                     throw poac::core::except::error(
                             "`", name, ": ", interval, "` is strange.\n"
-                                                       "In this case of interval specification using `and`,\n"
-                                                       " it is necessary to be a bounded interval.\n"
-                                                       "Please specify as in the following example:\n"
-                                                       "e.g. `", second_comp_op, first_version, " and ",
+                            "In this case of interval specification using `and`,\n"
+                            " it is necessary to be a bounded interval.\n"
+                            "Please specify as in the following example:\n"
+                            "e.g. `", second_comp_op, first_version, " and ",
                             first_comp_op, second_version, "`");
                 }
             }
@@ -157,10 +157,10 @@ namespace semver {
                 {
                     throw poac::core::except::error(
                             "`", name, ": ", interval, "` is strange.\n"
-                                                       "In this case of interval specification using `and`,\n"
-                                                       " it is necessary to be a bounded interval.\n"
-                                                       "Please specify as in the following example:\n"
-                                                       "e.g. `", first_comp_op, second_version, " and ",
+                            "In this case of interval specification using `and`,\n"
+                            " it is necessary to be a bounded interval.\n"
+                            "Please specify as in the following example:\n"
+                            "e.g. `", first_comp_op, second_version, " and ",
                             second_comp_op, first_version, "`");
                 }
             }
