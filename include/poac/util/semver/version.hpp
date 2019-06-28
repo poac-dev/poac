@@ -3,7 +3,12 @@
 
 #include <cstdint>
 #include <string>
+#include <sstream>
 #include <vector>
+#include <regex>
+#include <algorithm>
+
+#include "../../core/except.hpp"
 
 namespace semver {
     // The following Regular Expressions can be used for tokenizing,
@@ -118,14 +123,6 @@ namespace semver {
                 throw poac::core::except::error("Invalid version");
             }
         }
-        Version(const char* version)
-                : Version(std::string(version))
-        {}
-
-        template <typename CharT, std::size_t N>
-        Version(const CharT(&version)[N])
-                : Version(std::string(version, N))
-        {}
 
         std::string get_version() const {
             std::string version = std::to_string(major);
