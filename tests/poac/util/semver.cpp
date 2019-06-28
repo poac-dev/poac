@@ -2,13 +2,13 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <poac/core/resolver/semver.hpp>
+#include <poac/core/util/semver.hpp>
 #include <poac/core/except.hpp>
 
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_eq_test )
+BOOST_AUTO_TEST_CASE( semver_eq_test )
 {
-    using poac::core::resolver::semver::Version;
+    using semver::Version;
     BOOST_TEST( Version("1.2.3") == "1.2.3" );
     BOOST_TEST( Version("1.2.3-alpha") == "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3+2013") == "1.2.3+2014" );
@@ -16,9 +16,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_eq_test )
     BOOST_TEST( Version("1.0.0-beta+exp.sha.5114f85") == "1.0.0-beta" );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_lt_test )
+BOOST_AUTO_TEST_CASE( semver_lt_test )
 {
-    using poac::core::resolver::semver::Version;
+    using semver::Version;
     BOOST_TEST( Version("1.2.3") < "1.2.4" );
     BOOST_TEST( Version("1.2.3") < "1.3.3" );
     BOOST_TEST( Version("1.2.3") < "2.2.3" );
@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_lt_test )
     BOOST_TEST( Version("1.0.0-rc.1") < "1.0.0" );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_lte_test )
+BOOST_AUTO_TEST_CASE( semver_lte_test )
 {
-    using poac::core::resolver::semver::Version;
+    using semver::Version;
     BOOST_TEST( Version("1.2.3") <= "1.2.3" );
     BOOST_TEST( Version("1.2.3-alpha") <= "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3+2013") <= "1.2.3+2014" );
@@ -64,9 +64,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_lte_test )
     BOOST_TEST( Version("1.0.0-rc.1") <= "1.0.0" );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_gt_test )
+BOOST_AUTO_TEST_CASE( semver_gt_test )
 {
-    using poac::core::resolver::semver::Version;
+    using semver::Version;
     BOOST_TEST( Version("1.2.4") > "1.2.3" );
     BOOST_TEST( Version("1.3.3") > "1.2.3" );
     BOOST_TEST( Version("2.2.3") > "1.2.3" );
@@ -85,9 +85,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_gt_test )
     BOOST_TEST( Version("1.0.0") > "1.0.0-rc.1" );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_gte_test )
+BOOST_AUTO_TEST_CASE( semver_gte_test )
 {
-    using poac::core::resolver::semver::Version;
+    using semver::Version;
     BOOST_TEST( Version("1.2.3") >= "1.2.3" );
     BOOST_TEST( Version("1.2.3-alpha") >= "1.2.3-alpha" );
     BOOST_TEST( Version("1.2.3+2013") >= "1.2.3+2014" );
@@ -112,9 +112,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_gte_test )
     BOOST_TEST( Version("1.0.0") >= "1.0.0-rc.1" );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_satisfies_test )
+BOOST_AUTO_TEST_CASE( semver_satisfies_test )
 {
-    using poac::core::resolver::semver::Interval;
+    using semver::Interval;
     Interval interval("test", ">=1.66.0 and <1.70.0");
     BOOST_TEST( interval.satisfies("1.66.0") );
     BOOST_TEST( interval.satisfies("1.67.0") );
@@ -124,9 +124,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_satisfies_test )
     BOOST_TEST( !interval.satisfies("1.70.0") );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_satisfies_test2 )
+BOOST_AUTO_TEST_CASE( semver_satisfies_test2 )
 {
-    using poac::core::resolver::semver::Interval;
+    using semver::Interval;
     Interval interval("test", ">=1.0.0-alpha and <1.0.0");
     BOOST_TEST( interval.satisfies("1.0.0-alpha") );
     BOOST_TEST( interval.satisfies("1.0.0-alpha.1") );
@@ -138,9 +138,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_satisfies_test2 )
     BOOST_TEST( !interval.satisfies("1.0.0") );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_is_wasteful_comparison_operation_test )
+BOOST_AUTO_TEST_CASE( semver_is_wasteful_comparison_operation_test )
 {
-    using poac::core::resolver::semver::Interval;
+    using semver::Interval;
     using poac::core::except::error;
 
     BOOST_CHECK_THROW( Interval("test", "<2.0.0 and <1.0.0"), error );
@@ -160,9 +160,9 @@ BOOST_AUTO_TEST_CASE( poac_core_semver_is_wasteful_comparison_operation_test )
     BOOST_CHECK_THROW( Interval("test", ">1.0.0 and >1.0.0"), error );
 }
 
-BOOST_AUTO_TEST_CASE( poac_core_semver_is_bounded_interval_test )
+BOOST_AUTO_TEST_CASE( semver_is_bounded_interval_test )
 {
-    using poac::core::resolver::semver::Interval;
+    using semver::Interval;
     using poac::core::except::error;
 
     BOOST_CHECK_THROW( Interval("test", "<1.0.0 and >2.0.0"), error );
