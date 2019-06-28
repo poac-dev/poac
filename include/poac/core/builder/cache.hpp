@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_CACHE_HPP
-#define POAC_CORE_STROITE_CACHE_HPP
+#ifndef POAC_CORE_BUILDER_CACHE_HPP
+#define POAC_CORE_BUILDER_CACHE_HPP
 
 #include <iostream>
 #include <string>
@@ -121,4 +121,4 @@ namespace poac::core::builder::cache {
 
     // TODO: storeと，load, compare(check) => cacheのAPIをわかりやすくしたい．StoreとLoadのみで，わかりやすく
 } // end namespace
-#endif // POAC_CORE_STROITE_CACHE_HPP
+#endif // POAC_CORE_BUILDER_CACHE_HPP

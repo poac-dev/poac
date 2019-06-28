@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_STROITE_DEPENDS_HPP
-#define POAC_CORE_STROITE_DEPENDS_HPP
+#ifndef POAC_CORE_BUILDER_DEPENDS_HPP
+#define POAC_CORE_BUILDER_DEPENDS_HPP
 
 #include <iostream>
 #include <string>
@@ -50,4 +50,4 @@ namespace poac::core::builder::depends {
         }
     }
 } // end namespace
-#endif // POAC_CORE_STROITE_DEPENDS_HPP
+#endif // POAC_CORE_BUILDER_DEPENDS_HPP
