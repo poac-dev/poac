@@ -2,9 +2,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <poac/core/util/semver.hpp>
+#include <poac/util/semver.hpp>
 #include <poac/core/except.hpp>
-
 
 BOOST_AUTO_TEST_CASE( semver_eq_test )
 {
