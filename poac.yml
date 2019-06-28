@@ -22,7 +22,7 @@ dependencies:
 #    build: cmake
 #    link: static
 
-#dependencies.test:
+#dev-dependencies:
 #  poac-community/boost-test: ">=1.64.0 and <2.0.0"
 
 # If nothing is specified, it is regarded as header only library
