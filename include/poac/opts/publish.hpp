@@ -41,9 +41,9 @@ namespace poac::opts::publish {
         std::string package_type;
     };
 
-    int do_register() {
-
-    }
+//    int do_register() {
+//
+//    }
 
     template <typename VS>
     int confirm(const VS& argv) {
@@ -71,7 +71,7 @@ namespace poac::opts::publish {
     }
 
     std::string get_package_type() {
-
+        return "dummy";
     }
 
     std::optional<std::string>
