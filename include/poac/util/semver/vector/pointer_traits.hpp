@@ -6,7 +6,10 @@
 #include <memory>
 #include <type_traits>
 
+#include "../config.hpp"
+
 namespace semver {
+#ifdef SEMVER_AFTER_CXX14
     template <typename Ptr>
     using pointer_traits_element_type_t = typename std::__pointer_traits_element_type<Ptr>::type;
 
@@ -17,8 +20,7 @@ namespace semver {
     using pointer_traits_rebind_t = typename std::__pointer_traits_rebind<Ptr, Up>::type;
 
     template <typename Ptr>
-    struct pointer_traits
-    {
+    struct pointer_traits {
         using pointer = Ptr;
         using element_type = pointer_traits_element_type_t<pointer>;
         using difference_type = pointer_traits_difference_type_t<pointer>;
@@ -38,8 +40,7 @@ namespace semver {
     };
 
     template <typename T>
-    struct pointer_traits<T*>
-    {
+    struct pointer_traits<T*> {
         using pointer = T*;
         using element_type = T;
         using difference_type = std::ptrdiff_t;
@@ -57,6 +58,11 @@ namespace semver {
             return std::addressof(r);
         }
     };
+
+#elif defined(SEMVER_AFTER_CXX17)
+    template <typename Ptr>
+    using pointer_traits = std::pointer_traits<Ptr>;
+#endif
 } // end namespace semver
 
 #endif // !SEMVER_VECTOR_POINTER_TRAITS_HPP
