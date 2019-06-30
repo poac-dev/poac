@@ -4,6 +4,7 @@
 #include <cstddef> // std::size_t
 #include <algorithm> // std::min
 #include <stdexcept> // std::length_error, std::out_of_range
+#include <iterator> // std::reverse_iterator
 #include <utility> // std::index_sequence, std::make_index_sequence, std::forward
 
 #include "./char_traits.hpp"
@@ -22,6 +23,8 @@ namespace termcolor2 {
         using traits_type = Traits;
         using iterator = CharT*;
         using const_iterator = const CharT*;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     private:
         value_type elems[N + 1];
@@ -113,10 +116,59 @@ namespace termcolor2 {
         begin() const noexcept {
             return data();
         }
+        constexpr iterator
+        end() noexcept {
+            return data() + size();
+        }
+        constexpr const_iterator
+        end() const noexcept {
+            return data() + size();
+        }
+
+        constexpr const_iterator
+        cbegin() const noexcept {
+            return data();
+        }
+        constexpr const_iterator
+        cend() const noexcept {
+            return data() + size();
+        }
+
+#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
+        constexpr reverse_iterator
+        rbegin() noexcept {
+            return const_reverse_iterator(end());
+        }
+        constexpr const_reverse_iterator
+        rbegin() const noexcept {
+            return const_reverse_iterator(end());
+        }
+        constexpr reverse_iterator
+        rend() noexcept {
+            return const_reverse_iterator(begin());
+        }
+        constexpr const_reverse_iterator
+        rend() const noexcept {
+            return const_reverse_iterator(begin());
+        }
+
+        constexpr const_reverse_iterator
+        crbegin() const noexcept {
+            return const_reverse_iterator(end());
+        }
+        constexpr const_reverse_iterator
+        crend() const noexcept {
+            return const_reverse_iterator(begin());
+        }
+#endif
 
         constexpr size_type
         size() const noexcept {
             return len;
+        }
+        constexpr size_type
+        length() const noexcept {
+            return size();
         }
 
         constexpr size_type
