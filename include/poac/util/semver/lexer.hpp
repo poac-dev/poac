@@ -3,10 +3,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 #include <string_view>
 #include <tuple>
 #include <variant>
+#include <optional>
+#include <initializer_list>
 #include <utility>
 
 namespace semver {
@@ -53,7 +54,12 @@ namespace semver {
         using alphanumeric_type = std::string_view;
 
         Kind kind;
-        std::variant<std::monostate, whitespace_type, numeric_type, alphanumeric_type> component;
+        std::variant<
+                std::monostate,
+                whitespace_type,
+                numeric_type,
+                alphanumeric_type
+        > component;
 
         constexpr explicit
         Token(Kind k) noexcept
@@ -89,6 +95,12 @@ namespace semver {
               ),
               component(c)
         {}
+
+        Token() = default;
+        Token(const Token&) = default;
+        Token(Token&&) = default;
+        Token& operator=(const Token&) = default;
+        Token& operator=(Token&&) = default;
 
         constexpr bool
         is_whitespace() const noexcept {
@@ -128,8 +140,8 @@ namespace semver {
 
     constexpr bool
     is_alphabet(const char& c) noexcept {
-        return ('A' <= c && c < 'Z')
-            || ('a' <= c && c < 'z');
+        return ('A' <= c && c <= 'Z')
+            || ('a' <= c && c <= 'z');
     }
 
     constexpr bool
@@ -137,10 +149,27 @@ namespace semver {
         return is_digit(c) || is_alphabet(c);
     }
 
+    constexpr std::optional<int>
+    str_to_int(std::string_view s) noexcept {
+        int i = 0;
+        int digit = 1;
+        for (int size = s.size() - 1; size >= 0; --size) {
+            char c = s[size];
+            if (is_digit(c)) {
+                i += (c - '0') * digit;
+            } else {
+                return std::nullopt;
+            }
+            digit *= 10;
+        }
+        return i;
+    }
+
     class Lexer {
     public:
         using string_type = std::string_view;
         using value_type = string_type::value_type;
+        using traits_type = string_type::traits_type;
         using size_type = std::size_t;
 
         size_type c1_index;
@@ -148,8 +177,7 @@ namespace semver {
         value_type c2;
         string_type chars;
 
-
-        explicit
+        constexpr explicit
         Lexer(string_type s)
             : c1_index(0)
             , c1(s[c1_index])
@@ -157,7 +185,7 @@ namespace semver {
             , chars(s)
         {}
 
-        Token
+        constexpr Token
         next() {
             // two subsequent char tokens.
             const auto [a, b] = two();
@@ -221,15 +249,21 @@ namespace semver {
             return tokens;
         }
 
+        constexpr size_type
+        size() const noexcept {
+            return chars.size();
+        }
+
     private:
         /// Access the one character, or set it if it is not set.
-        value_type one() noexcept {
+        constexpr value_type
+        one() const noexcept {
             return c1;
         }
 
         /// Access two characters.
-        std::pair<value_type, value_type>
-        two() noexcept {
+        constexpr std::pair<value_type, value_type>
+        two() const noexcept {
             return { c1, c2 };
         }
 
@@ -249,17 +283,18 @@ namespace semver {
         ///
         /// A component can either be an alphanumeric or numeric.
         /// Does not permit leading zeroes if numeric.
-        Token component() {
+        constexpr Token
+        component() { // TODO: const
             if (is_alphabet(one())) {
                 const size_type start = c1_index;
                 while (is_alpha_numeric(one())) {
                     step();
                 }
-                return Token{ Kind::AlphaNumeric, chars.substr(start, c1_index - start) };
+                std::string_view sub = chars.substr(start, c1_index - start);
+                return Token{ Kind::AlphaNumeric, sub };
             }
 
             const char* start = chars.begin() + c1_index;
-
             // exactly zero
             if (*start == '0' && !is_digit(*(start + 1))) {
                 return Token{ Kind::Numeric, 0 };
@@ -271,19 +306,21 @@ namespace semver {
             }
 
             if (*start != '0' && !is_alphabet(one())) {
-                return Token{ Kind::Numeric, std::stoi(std::string(start, c1_index)) };
+                std::string_view sub = chars.substr(start_index, c1_index - start_index);
+                return Token{ Kind::Numeric, str_to_int(sub).value() };
             }
 
             while (is_alphabet(one())) {
                 step();
             }
-            return Token{ Kind::AlphaNumeric, chars.substr(start_index, c1_index - start_index) };
+            std::string_view sub = chars.substr(start_index, c1_index - start_index);
+            return Token{ Kind::AlphaNumeric, sub };
         }
 
         /// Consume whitespace.
-        Token whitespace() noexcept {
+        constexpr Token
+        whitespace() noexcept { // TODO: const
             const size_type start = c1_index;
-
             while (is_whitespace(one())) {
                 step();
             }
