@@ -41,6 +41,9 @@ pushd ./util
 g++ ${BASE_OPT} -o argparse-test argparse.cpp && ./argparse-test
 g++ ${BASE_OPT} -o misc-test misc.cpp && ./misc-test
 g++ ${BASE_OPT} -o pretty-test pretty.cpp && ./pretty-test
+  pushd ./semver
+    g++ ${BASE_OPT} -o lexer-test lexer.cpp && ./lexer-test
+  popd
 g++ ${BASE_OPT} -o semver-test semver.cpp && ./semver-test
 g++ ${BASE_OPT} -o shell-test shell.cpp && ./shell-test
 g++ ${BASE_OPT} -o types-test types.cpp && ./types-test
