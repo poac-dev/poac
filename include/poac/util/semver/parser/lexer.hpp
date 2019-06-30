@@ -1,5 +1,5 @@
-#ifndef SEMVER_LEXER_HPP
-#define SEMVER_LEXER_HPP
+#ifndef SEMVER_PARSER_LEXER_HPP
+#define SEMVER_PARSER_LEXER_HPP
 
 #include <cstddef>
 #include <cstdint>
@@ -329,4 +329,4 @@ namespace semver {
     };
 } // end namespace semver
 
-#endif // !SEMVER_LEXER_HPP
+#endif // !SEMVER_PARSER_LEXER_HPP
