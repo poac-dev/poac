@@ -17,16 +17,6 @@ namespace semver {
         a = std::move(b);
         b = std::move(temp);
     }
-
-    template<typename T, std::size_t N>
-    constexpr void
-    swap(T(&a)[N], T(&b)[N])
-    noexcept(semver::swap(*a, *b))
-    {
-        for (std::size_t i = 0; i < N; ++i) {
-            semver::swap(a[i], b[i]);
-        }
-    }
 } // end namespace semver
 
 #endif // !SEMVER_UTILITY_SWAP_HPP
