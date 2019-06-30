@@ -2,6 +2,7 @@
 #define SEMVER_HPP
 
 #include "semver/comparison.hpp"
+#include "semver/config.hpp"
 #include "semver/interval.hpp"
 #include "semver/io.hpp"
 #include "semver/lexer.hpp"
