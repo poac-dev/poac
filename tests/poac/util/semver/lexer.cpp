@@ -3,7 +3,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <poac/util/semver/lexer.hpp>
-#include <poac/core/except.hpp>
 
 BOOST_AUTO_TEST_CASE( semver_lexer_token_test )
 {
