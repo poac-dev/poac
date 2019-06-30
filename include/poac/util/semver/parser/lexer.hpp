@@ -268,12 +268,14 @@ namespace semver {
         }
 
         /// Shift all lookahead storage by one.
-        void step() noexcept {
+        constexpr void
+        step() noexcept {
             c1 = c2;
             c2 = chars[(++c1_index) + 1];
         }
 
-        void step_n(const size_type& n) noexcept {
+        constexpr void
+        step_n(const size_type& n) noexcept {
             for (size_type i = 0; i < n; ++i) {
                 step();
             }
