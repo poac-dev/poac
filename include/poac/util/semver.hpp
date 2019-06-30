@@ -6,6 +6,7 @@
 #include "semver/interval.hpp"
 #include "semver/io.hpp"
 #include "semver/lexer.hpp"
+#include "semver/utility.hpp"
 #include "semver/vector.hpp"
 #include "semver/version.hpp"
 
