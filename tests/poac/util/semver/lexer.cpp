@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_token_test )
     }
 }
 
-BOOST_AUTO_TEST_CASE( semver_lexer_lexer_simple_tokens_test )
+BOOST_AUTO_TEST_CASE( semver_lexer_simple_tokens_test )
 {
     using semver::Lexer;
     using semver::Token;
@@ -42,67 +42,67 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_simple_tokens_test )
 
     Lexer lexer{"=><<=>=^~*.,-+||"};
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Eq;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Gt;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Lt;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::LtEq;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::GtEq;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Caret;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Tilde;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Star;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Dot;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Comma;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Hyphen;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Plus;
         BOOST_TEST(test);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test = token.kind == Kind::Or;
         BOOST_TEST(test);
     }
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
 
     Lexer lexer{"  foo \t\n\rbar"};
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::Whitespace;
         BOOST_TEST(test1);
 
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test2);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::AlphaNumeric;
         BOOST_TEST(test1);
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test2);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::Whitespace;
         BOOST_TEST(test1);
 
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test2);
     }
     {
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::AlphaNumeric;
         BOOST_TEST(test1);
 
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
 
     {
         Lexer lexer{"42"};
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::Numeric;
         BOOST_TEST(test1);
 
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
     }
     {
         Lexer lexer{"0"};
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::Numeric;
         BOOST_TEST(test1);
 
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
     }
     {
         Lexer lexer{"01"};
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::AlphaNumeric;
         BOOST_TEST(test1);
 
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
     }
     {
         Lexer lexer{"5885644aa"};
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::AlphaNumeric;
         BOOST_TEST(test1);
 
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
     }
     {
         Lexer lexer{"beta2"};
-        Token token = lexer.next();
+        const Token token = lexer.next();
         const bool test1 = token.kind == Kind::AlphaNumeric;
         BOOST_TEST(test1);
 
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
     {
         Lexer lexer{"beta.2"};
         {
-            Token token = lexer.next();
+            const Token token = lexer.next();
             const bool test1 = token.kind == Kind::AlphaNumeric;
             BOOST_TEST(test1);
 
@@ -221,12 +221,12 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
             BOOST_TEST(test2);
         }
         {
-            Token token = lexer.next();
+            const Token token = lexer.next();
             const bool test = token.kind == Kind::Dot;
             BOOST_TEST(test);
         }
         {
-            Token token = lexer.next();
+            const Token token = lexer.next();
             const bool test1 = token.kind == Kind::Numeric;
             BOOST_TEST(test1);
 
@@ -237,24 +237,21 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
     }
 }
 
-BOOST_AUTO_TEST_CASE( semver_lexer_lexer_is_wildcard_test )
+BOOST_AUTO_TEST_CASE( semver_lexer_is_wildcard_test )
 {
-    using semver::Lexer;
     using semver::Token;
     using semver::Kind;
 
-    BOOST_TEST( Token{Kind::Star}.is_whildcard() );
+    static_assert( Token{Kind::Star}.is_whildcard() );
+    static_assert( Token(Kind::AlphaNumeric, "x").is_whildcard() );
+    static_assert( Token(Kind::AlphaNumeric, "X").is_whildcard() );
+    static_assert( !Token(Kind::AlphaNumeric, "other").is_whildcard() );
+}
 
-    {
-        const Token t{ Kind::AlphaNumeric, "x" };
-        BOOST_TEST( t.is_whildcard() );
-    }
-    {
-        const Token t{ Kind::AlphaNumeric, "X" };
-        BOOST_TEST( t.is_whildcard() );
-    }
-    {
-        const Token t{ Kind::AlphaNumeric, "other" };
-        BOOST_TEST( !t.is_whildcard() );
-    }
+BOOST_AUTO_TEST_CASE( semver_lexer_str_to_int_test )
+{
+    using semver::str_to_int;
+    static_assert( str_to_int("123").value() == 123 );
+    static_assert( !static_cast<bool>(str_to_int("abc")) );
+    static_assert( !static_cast<bool>(str_to_int("12a")) );
 }
