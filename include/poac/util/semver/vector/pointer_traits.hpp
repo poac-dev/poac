@@ -9,7 +9,11 @@
 #include "../config.hpp"
 
 namespace semver {
-#ifdef SEMVER_AFTER_CXX14
+#ifdef SEMVER_AFTER_CXX17
+    template <typename Ptr>
+    using pointer_traits = std::pointer_traits<Ptr>;
+
+#elif defined(SEMVER_AFTER_CXX14)
     template <typename Tp, typename = void>
     struct has_element_type : std::false_type {};
 
@@ -140,10 +144,6 @@ namespace semver {
             return std::addressof(r);
         }
     };
-
-#elif defined(SEMVER_AFTER_CXX17)
-    template <typename Ptr>
-    using pointer_traits = std::pointer_traits<Ptr>;
 #endif
 } // end namespace semver
 
