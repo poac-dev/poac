@@ -4,10 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
-#include <tuple>
 #include <variant>
+#include <vector>
 #include <optional>
-#include <initializer_list>
 #include <utility>
 
 namespace semver {
@@ -48,18 +47,21 @@ namespace semver {
         Unexpected
     };
 
-    struct Token {
-        using whitespace_type = std::tuple<std::size_t, std::size_t>;
+    class Token {
+    public:
+        using whitespace_type = std::pair<std::size_t, std::size_t>;
         using numeric_type = std::uint64_t;
         using alphanumeric_type = std::string_view;
+        using variant_type =
+                std::variant<std::monostate, whitespace_type,
+                             numeric_type, alphanumeric_type>;
 
         Kind kind;
-        std::variant<
-                std::monostate,
-                whitespace_type,
-                numeric_type,
-                alphanumeric_type
-        > component;
+        variant_type component;
+
+        constexpr Token() noexcept
+                : Token(Kind::Unexpected)
+        {} // delegation
 
         constexpr explicit
         Token(Kind k) noexcept
@@ -68,40 +70,35 @@ namespace semver {
 
         constexpr
         Token(Kind k, const std::size_t& s1, const std::size_t& s2)
-            : kind(
-                  k != Kind::Whitespace
-                      ? throw std::invalid_argument("")
-                      : Kind::Whitespace
-              ),
-              component(std::make_tuple(s1, s2))
-        {}
+            : Token(k, Kind::Whitespace, std::make_pair(s1, s2))
+        {} // delegation
 
         constexpr
         Token(Kind k, const numeric_type& n)
-            : kind(
-                  k != Kind::Numeric
-                      ? throw std::invalid_argument("")
-                      : Kind::Numeric
-              ),
-              component(n)
-        {}
+            : Token(k, Kind::Numeric, n)
+        {} // delegation
 
         constexpr
-        Token(Kind k, alphanumeric_type c)
-            : kind(
-                  k != Kind::AlphaNumeric
-                      ? throw std::invalid_argument("")
-                      : Kind::AlphaNumeric
+        Token(Kind k, const alphanumeric_type& c)
+            : Token(k, Kind::AlphaNumeric, c)
+        {} // delegation
+
+        Token(const Token&) = default;
+        Token& operator=(const Token&) = default;
+        Token(Token&&) noexcept = default;
+        Token& operator=(Token&&) noexcept = default;
+
+    private:
+        constexpr
+        Token(Kind k, Kind target, const variant_type& c)
+            : kind(k != target
+                      ? throw std::invalid_argument("semver::Token")
+                      : target
               ),
               component(c)
         {}
 
-        Token() = default;
-        Token(const Token&) = default;
-        Token(Token&&) = default;
-        Token& operator=(const Token&) = default;
-        Token& operator=(Token&&) = default;
-
+    public:
         constexpr bool
         is_whitespace() const noexcept {
             return kind == Kind::Whitespace;
@@ -172,163 +169,145 @@ namespace semver {
         using traits_type = string_type::traits_type;
         using size_type = std::size_t;
 
-        size_type c1_index;
-        value_type c1;
-        value_type c2;
-        string_type chars;
+        string_type str;
 
         constexpr explicit
         Lexer(string_type s)
-            : c1_index(0)
-            , c1(s[c1_index])
-            , c2(s[c1_index + 1])
-            , chars(s)
+            : str(s)
         {}
 
-        constexpr Token
-        next() {
+//        template <typename... Args>
+//        std::vector<Token>
+//        to_std_vector(const size_type& i, Args&... tokens) const {
+//            if (i < str.size()) {
+//                const auto result = pick(i);
+//                return to_std_vector(i + result.first, tokens..., result.second);
+//            } else {
+//                return { tokens... };
+//            }
+//        }
+//        std::vector<Token>
+//        to_std_vector() const {
+//            const auto [count, token] = pick(0);
+//            return to_std_vector(count, token);
+//        }
+
+        constexpr std::pair<std::size_t, Token>
+        pick(const std::size_t& i) const {
             // two subsequent char tokens.
-            const auto [a, b] = two();
-            if (a == '<' && b == '=') {
-                step_n(2);
-                return Token{ Kind::LtEq };
-            } else if (a == '>' && b == '=') {
-                step_n(2);
-                return Token{ Kind::GtEq };
-            } else if (a == '|' && b == '|') {
-                step_n(2);
-                return Token{ Kind::Or };
+            const auto two_c = two(i);
+            if (two_c.first == '<' && two_c.second == '=') {
+                return { 2, Token{ Kind::LtEq } };
+            } else if (two_c.first == '>' && two_c.second == '=') {
+                return { 2, Token{ Kind::GtEq } };
+            } else if (two_c.first == '|' && two_c.second == '|') {
+                return { 2, Token{ Kind::Or } };
             }
 
             // single char and start of numeric tokens.
-            const value_type c = one();
+            const value_type c = one(i);
             if (is_whitespace(c)) {
-                return whitespace();
+                return whitespace(str, i);
             } else if (c == '=') {
-                step();
-                return Token{ Kind::Eq };
+                return { 1, Token{ Kind::Eq } };
             } else if (c == '>') {
-                step();
-                return Token{ Kind::Gt };
+                return { 1, Token{ Kind::Gt } };
             } else if (c == '<') {
-                step();
-                return Token{ Kind::Lt };
+                return { 1, Token{ Kind::Lt } };
             } else if (c == '^') {
-                step();
-                return Token{ Kind::Caret };
+                return { 1, Token{ Kind::Caret } };
             } else if (c == '~') {
-                step();
-                return Token{ Kind::Tilde };
+                return { 1, Token{ Kind::Tilde } };
             } else if (c == '*') {
-                step();
-                return Token{ Kind::Star };
+                return { 1, Token{ Kind::Star } };
             } else if (c == '.') {
-                step();
-                return Token{ Kind::Dot };
+                return { 1, Token{ Kind::Dot } };
             } else if (c == ',') {
-                step();
-                return Token{ Kind::Comma };
+                return { 1, Token{ Kind::Comma } };
             } else if (c == '-') {
-                step();
-                return Token{ Kind::Hyphen };
+                return { 1, Token{ Kind::Hyphen } };
             } else if (c == '+') {
-                step();
-                return Token{ Kind::Plus };
-            } else if (is_alpha_numeric(c1)) {
-                return component();
+                return { 1, Token{ Kind::Plus } };
+            } else if (is_alpha_numeric(c)) {
+                return component(str, i);
             }
-            return Token{ Kind::Unexpected };
-        }
-
-        std::vector<Token>
-        to_vec() {
-            std::vector<Token> tokens;
-            for (auto token = next(); token.kind != Kind::Unexpected; token = next()) {
-                tokens.emplace_back(token);
-            }
-            return tokens;
+            return { 1, Token{ Kind::Unexpected } };
         }
 
         constexpr size_type
         size() const noexcept {
-            return chars.size();
+            return str.size();
+        }
+        constexpr size_type
+        max_size() const noexcept {
+            return size();
+        }
+        constexpr bool
+        empty() const noexcept {
+            return size() == 0;
         }
 
     private:
         /// Access the one character, or set it if it is not set.
         constexpr value_type
-        one() const noexcept {
-            return c1;
+        one(const size_type& i) const noexcept {
+            return str[i];
         }
 
         /// Access two characters.
         constexpr std::pair<value_type, value_type>
-        two() const noexcept {
-            return { c1, c2 };
-        }
-
-        /// Shift all lookahead storage by one.
-        constexpr void
-        step() noexcept {
-            c1 = c2;
-            c2 = chars[(++c1_index) + 1];
-        }
-
-        constexpr void
-        step_n(const size_type& n) noexcept {
-            for (size_type i = 0; i < n; ++i) {
-                step();
-            }
+        two(const size_type& i) const noexcept {
+            return { str[i], str[i + 1] };
         }
 
         /// Consume a component.
         ///
         /// A component can either be an alphanumeric or numeric.
         /// Does not permit leading zeroes if numeric.
-        constexpr Token
-        component() { // TODO: const
-            if (is_alphabet(one())) {
-                const size_type start = c1_index;
-                while (is_alpha_numeric(one())) {
-                    step();
-                }
-                std::string_view sub = chars.substr(start, c1_index - start);
-                return Token{ Kind::AlphaNumeric, sub };
+        constexpr std::pair<size_type, Token>
+        component(std::string_view str, size_type i) const {
+            // e.g. abcde
+            if (is_alphabet(str[i])) {
+                const size_type start = i;
+                while (is_alpha_numeric(str[++i]));
+                std::string_view sub = str.substr(start, i - start);
+                return { i - start, Token{ Kind::AlphaNumeric, sub } };
             }
 
-            const char* start = chars.data() + c1_index;
             // exactly zero
-            if (*start == '0' && !is_digit(*(start + 1))) {
-                return Token{ Kind::Numeric, 0 };
+            if (str[i] == '0' && !is_digit(str[i + 1])) {
+                return { 1, Token{ Kind::Numeric, 0 } };
             }
 
-            const size_type start_index = c1_index;
-            while (is_digit(one())) {
-                step();
+            const size_type start = i;
+            while (is_digit(str[++i]));
+            if (str[start] != '0' && !is_alphabet(str[i])) {
+                // e.g. 3425
+                std::string_view sub = str.substr(start, i - start);
+                std::uint64_t value = str_to_uint(sub).value();
+                return { i - start, Token{ Kind::Numeric, static_cast<std::size_t>(value) } };
             }
 
-            if (*start != '0' && !is_alphabet(one())) {
-                std::string_view sub = chars.substr(start_index, c1_index - start_index);
-                return Token{ Kind::Numeric, static_cast<std::size_t>(str_to_uint(sub).value()) };
-            }
-
-            while (is_alphabet(one())) {
-                step();
-            }
-            std::string_view sub = chars.substr(start_index, c1_index - start_index);
-            return Token{ Kind::AlphaNumeric, sub };
+            // e.g. 3425dec
+            while (is_alphabet(str[++i]));
+            std::string_view sub = str.substr(start, i - start);
+            return { i - start, Token{ Kind::AlphaNumeric, sub } };
         }
 
         /// Consume whitespace.
-        constexpr Token
-        whitespace() noexcept { // TODO: const
-            const size_type start = c1_index;
-            while (is_whitespace(one())) {
-                step();
-            }
-            return Token{ Kind::Whitespace, start, c1_index };
+        constexpr std::pair<size_type, Token>
+        whitespace(std::string_view str, size_type i) const noexcept {
+            const size_type start = i;
+            while (is_whitespace(str[++i]));
+            return { i - start, Token{ Kind::Whitespace, start, i } };
         }
     };
+
+//    template <std::size_t N>
+//    constexpr std::array<Token, N>
+//    lex(const char(&arr)[N]) {
+//        return Lexer<N>(arr).to_array();
+//    }
 } // end namespace semver
 
 #endif // !SEMVER_PARSER_LEXER_HPP

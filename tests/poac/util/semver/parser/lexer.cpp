@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_token_test )
         constexpr Token t{ Kind::Whitespace, 0, 2 };
         static_assert( t.kind == Kind::Whitespace );
         static_assert( std::holds_alternative<Token::whitespace_type>(t.component) );
-        static_assert( std::get<Token::whitespace_type>(t.component) == std::make_tuple(0, 2) );
+        static_assert( std::get<Token::whitespace_type>(t.component) == std::make_pair(0, 2) );
     }
     {
         constexpr Token t{ Kind::Numeric, 0 };
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test1);
 
         BOOST_TEST(std::holds_alternative<Token::whitespace_type>(token.component));
-        const bool test2 = std::get<Token::whitespace_type>(token.component) == std::make_tuple(0, 2);
+        const bool test2 = std::get<Token::whitespace_type>(token.component) == std::make_pair(0, 2);
         BOOST_TEST(test2);
     }
     {
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test1);
 
         BOOST_TEST(std::holds_alternative<Token::whitespace_type>(token.component));
-        const bool test2 = std::get<Token::whitespace_type>(token.component) == std::make_tuple(5, 9);
+        const bool test2 = std::get<Token::whitespace_type>(token.component) == std::make_pair(5, 9);
         BOOST_TEST(test2);
     }
     {
