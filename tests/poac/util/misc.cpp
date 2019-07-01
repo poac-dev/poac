@@ -15,9 +15,9 @@ BOOST_AUTO_TEST_CASE( poac_util_misc_split_test )
 
     const std::string test_case = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ...";
 
-    std::vector<std::string> comp{ "Lorem ipsum dolor sit amet", " consectetur adipiscing elit", " sed do eiusmod ..." };
-    BOOST_TEST( split(test_case, ",") == comp );
+    std::vector<std::string> excepted{ "Lorem ipsum dolor sit amet", " consectetur adipiscing elit", " sed do eiusmod ..." };
+    BOOST_TEST( split(test_case, ",") == excepted );
 
-    comp = { "Lorem ", "psum dolor s", "t amet, consectetur ad", "p", "sc", "ng el", "t, sed do e", "usmod ..." };
-    BOOST_TEST( split(test_case, "i") == comp );
+    excepted = { "Lorem ", "psum dolor s", "t amet, consectetur ad", "p", "sc", "ng el", "t, sed do e", "usmod ..." };
+    BOOST_TEST( split(test_case, "i") == excepted );
 }
