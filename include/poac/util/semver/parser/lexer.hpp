@@ -149,10 +149,10 @@ namespace semver {
         return is_digit(c) || is_alphabet(c);
     }
 
-    constexpr std::optional<int>
-    str_to_int(std::string_view s) noexcept {
-        int i = 0;
-        int digit = 1;
+    constexpr std::optional<std::uint64_t>
+    str_to_uint(std::string_view s) noexcept {
+        std::uint64_t i = 0;
+        std::uint64_t digit = 1;
         for (int size = s.size() - 1; size >= 0; --size) {
             char c = s[size];
             if (is_digit(c)) {
@@ -296,7 +296,7 @@ namespace semver {
                 return Token{ Kind::AlphaNumeric, sub };
             }
 
-            const char* start = chars.begin() + c1_index;
+            const char* start = chars.data() + c1_index;
             // exactly zero
             if (*start == '0' && !is_digit(*(start + 1))) {
                 return Token{ Kind::Numeric, 0 };
@@ -309,7 +309,7 @@ namespace semver {
 
             if (*start != '0' && !is_alphabet(one())) {
                 std::string_view sub = chars.substr(start_index, c1_index - start_index);
-                return Token{ Kind::Numeric, str_to_int(sub).value() };
+                return Token{ Kind::Numeric, static_cast<std::size_t>(str_to_uint(sub).value()) };
             }
 
             while (is_alphabet(one())) {

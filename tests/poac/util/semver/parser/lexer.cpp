@@ -249,8 +249,8 @@ BOOST_AUTO_TEST_CASE( semver_lexer_is_wildcard_test )
 
 BOOST_AUTO_TEST_CASE( semver_lexer_str_to_int_test )
 {
-    using semver::str_to_int;
-    static_assert( str_to_int("123").value() == 123 );
-    static_assert( !static_cast<bool>(str_to_int("abc")) );
-    static_assert( !static_cast<bool>(str_to_int("12a")) );
+    using semver::str_to_uint;
+    static_assert( str_to_uint("123").value() == 123 );
+    static_assert( !static_cast<bool>(str_to_uint("abc")) );
+    static_assert( !static_cast<bool>(str_to_uint("12a")) );
 }
