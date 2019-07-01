@@ -6,8 +6,8 @@
 
 BOOST_AUTO_TEST_CASE( semver_lexer_token_test )
 {
-    using semver::Token;
-    using semver::Kind;
+    using semver::lexer::Token;
+    using semver::lexer::Kind;
 
     {
         constexpr Token t{ Kind::Eq };
@@ -35,9 +35,9 @@ BOOST_AUTO_TEST_CASE( semver_lexer_token_test )
 
 BOOST_AUTO_TEST_CASE( semver_lexer_simple_tokens_test )
 {
-    using semver::Lexer;
-    using semver::Token;
-    using semver::Kind;
+    using semver::lexer::Lexer;
+    using semver::lexer::Token;
+    using semver::lexer::Kind;
 
     Lexer lexer{"=><<=>=^~*.,-+||"};
     {
@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( semver_lexer_simple_tokens_test )
 
 BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
 {
-    using semver::Lexer;
-    using semver::Token;
-    using semver::Kind;
+    using semver::lexer::Lexer;
+    using semver::lexer::Token;
+    using semver::lexer::Kind;
 
     Lexer lexer{"  foo \t\n\rbar"};
     {
@@ -154,9 +154,9 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
 
 BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
 {
-    using semver::Lexer;
-    using semver::Token;
-    using semver::Kind;
+    using semver::lexer::Lexer;
+    using semver::lexer::Token;
+    using semver::lexer::Kind;
 
     {
         Lexer lexer{"42"};
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
 
 BOOST_AUTO_TEST_CASE( semver_lexer_is_wildcard_test )
 {
-    using semver::Token;
-    using semver::Kind;
+    using semver::lexer::Token;
+    using semver::lexer::Kind;
 
     static_assert( Token{Kind::Star}.is_whildcard() );
     static_assert( Token(Kind::AlphaNumeric, "x").is_whildcard() );
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_is_wildcard_test )
 
 BOOST_AUTO_TEST_CASE( semver_lexer_str_to_int_test )
 {
-    using semver::str_to_uint;
+    using semver::lexer::str_to_uint;
     static_assert( str_to_uint("123").value() == 123 );
     static_assert( !static_cast<bool>(str_to_uint("abc")) );
     static_assert( !static_cast<bool>(str_to_uint("12a")) );

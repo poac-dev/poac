@@ -9,7 +9,7 @@
 #include <optional>
 #include <utility>
 
-namespace semver {
+namespace semver::lexer {
     enum class Kind {
         /// `=`
         Eq,
