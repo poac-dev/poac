@@ -308,6 +308,6 @@ namespace semver::lexer {
 //    lex(const char(&arr)[N]) {
 //        return Lexer<N>(arr).to_array();
 //    }
-} // end namespace semver
+} // end namespace semver::lexer
 
 #endif // !SEMVER_PARSER_LEXER_HPP
