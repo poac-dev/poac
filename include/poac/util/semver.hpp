@@ -5,6 +5,7 @@
 #include "semver/config.hpp"
 #include "semver/interval.hpp"
 #include "semver/io.hpp"
+#include "semver/iterator.hpp"
 #include "semver/memory.hpp"
 #include "semver/parser.hpp"
 #include "semver/utility.hpp"
