@@ -31,6 +31,7 @@ pushd ./util
   pushd ./semver
     pushd ./parser
       g++ ${BASE_OPT} -o lexer-test lexer.cpp && { ./lexer-test; rm -rf ./lexer-test; }
+      g++ ${BASE_OPT} -o token-test token.cpp && { ./token-test; rm -rf ./token-test; }
     popd
     g++ ${BASE_OPT} -o interval-test interval.cpp && { ./interval-test; rm -rf ./interval-test; }
     g++ ${BASE_OPT} -o version-test version.cpp && { ./version-test; rm -rf ./version-test; }

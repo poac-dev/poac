@@ -95,11 +95,11 @@ namespace semver::parser {
             // two subsequent char tokens.
             const auto two_c = two(i);
             if (two_c.first == '<' && two_c.second == '=') {
-                return { 2, Token{ Kind::LtEq } };
+                return { 2, Token{ Token::Kind::LtEq } };
             } else if (two_c.first == '>' && two_c.second == '=') {
-                return { 2, Token{ Kind::GtEq } };
+                return { 2, Token{ Token::Kind::GtEq } };
             } else if (two_c.first == '|' && two_c.second == '|') {
-                return { 2, Token{ Kind::Or } };
+                return { 2, Token{ Token::Kind::Or } };
             }
 
             // single char and start of numeric tokens.
@@ -107,29 +107,29 @@ namespace semver::parser {
             if (is_whitespace(c)) {
                 return whitespace(str, i);
             } else if (c == '=') {
-                return { 1, Token{ Kind::Eq } };
+                return { 1, Token{ Token::Kind::Eq } };
             } else if (c == '>') {
-                return { 1, Token{ Kind::Gt } };
+                return { 1, Token{ Token::Kind::Gt } };
             } else if (c == '<') {
-                return { 1, Token{ Kind::Lt } };
+                return { 1, Token{ Token::Kind::Lt } };
             } else if (c == '^') {
-                return { 1, Token{ Kind::Caret } };
+                return { 1, Token{ Token::Kind::Caret } };
             } else if (c == '~') {
-                return { 1, Token{ Kind::Tilde } };
+                return { 1, Token{ Token::Kind::Tilde } };
             } else if (c == '*') {
-                return { 1, Token{ Kind::Star } };
+                return { 1, Token{ Token::Kind::Star } };
             } else if (c == '.') {
-                return { 1, Token{ Kind::Dot } };
+                return { 1, Token{ Token::Kind::Dot } };
             } else if (c == ',') {
-                return { 1, Token{ Kind::Comma } };
+                return { 1, Token{ Token::Kind::Comma } };
             } else if (c == '-') {
-                return { 1, Token{ Kind::Hyphen } };
+                return { 1, Token{ Token::Kind::Hyphen } };
             } else if (c == '+') {
-                return { 1, Token{ Kind::Plus } };
+                return { 1, Token{ Token::Kind::Plus } };
             } else if (is_alpha_numeric(c)) {
                 return component(str, i);
             }
-            return { 1, Token{ Kind::Unexpected } };
+            return { 1, Token{ Token::Kind::Unexpected } };
         }
 
         constexpr size_type
@@ -169,12 +169,12 @@ namespace semver::parser {
                 const size_type start = i;
                 while (is_alpha_numeric(str[++i]));
                 std::string_view sub = str.substr(start, i - start);
-                return { i - start, Token{ Kind::AlphaNumeric, sub } };
+                return { i - start, Token{ Token::Kind::AlphaNumeric, sub } };
             }
 
             // exactly zero
             if (str[i] == '0' && !is_digit(str[i + 1])) {
-                return { 1, Token{ Kind::Numeric, 0 } };
+                return { 1, Token{ Token::Kind::Numeric, 0 } };
             }
 
             const size_type start = i;
@@ -183,13 +183,13 @@ namespace semver::parser {
                 // e.g. 3425
                 std::string_view sub = str.substr(start, i - start);
                 std::uint64_t value = str_to_uint(sub).value();
-                return { i - start, Token{ Kind::Numeric, static_cast<std::size_t>(value) } };
+                return { i - start, Token{ Token::Kind::Numeric, static_cast<std::size_t>(value) } };
             }
 
             // e.g. 3425dec
             while (is_alphabet(str[++i]));
             std::string_view sub = str.substr(start, i - start);
-            return { i - start, Token{ Kind::AlphaNumeric, sub } };
+            return { i - start, Token{ Token::Kind::AlphaNumeric, sub } };
         }
 
         /// Consume whitespace.
@@ -197,7 +197,7 @@ namespace semver::parser {
         whitespace(std::string_view str, size_type i) const noexcept {
             const size_type start = i;
             while (is_whitespace(str[++i]));
-            return { i - start, Token{ Kind::Whitespace, start, i } };
+            return { i - start, Token{ Token::Kind::Whitespace, start, i } };
         }
     };
 

@@ -2,44 +2,44 @@
 #define SEMVER_PARSER_TOKEN_HPP
 
 namespace semver::parser {
-    enum class Kind {
-        /// `=`
-        Eq,
-        /// `>`
-        Gt,
-        /// `<`
-        Lt,
-        /// `<=`
-        LtEq,
-        /// `>=`
-        GtEq,
-        /// '^`
-        Caret,
-        /// '~`
-        Tilde,
-        /// '*`
-        Star,
-        /// `.`
-        Dot,
-        /// `,`
-        Comma,
-        /// `-`
-        Hyphen,
-        /// `+`
-        Plus,
-        /// '||'
-        Or,
-        /// any number of whitespace (`\t\r\n `) and its span.
-        Whitespace,
-        /// Numeric component, like `0` or `42`.
-        Numeric,
-        /// Alphanumeric component, like `alpha1` or `79deadbe`.
-        AlphaNumeric,
-        /// UnexpectedChar
-        Unexpected
-    };
-
     struct Token {
+        enum class Kind {
+            /// `=`
+            Eq,
+            /// `>`
+            Gt,
+            /// `<`
+            Lt,
+            /// `<=`
+            LtEq,
+            /// `>=`
+            GtEq,
+            /// '^`
+            Caret,
+            /// '~`
+            Tilde,
+            /// '*`
+            Star,
+            /// `.`
+            Dot,
+            /// `,`
+            Comma,
+            /// `-`
+            Hyphen,
+            /// `+`
+            Plus,
+            /// '||'
+            Or,
+            /// any number of whitespace (`\t\r\n `) and its span.
+            Whitespace,
+            /// Numeric component, like `0` or `42`.
+            Numeric,
+            /// Alphanumeric component, like `alpha1` or `79deadbe`.
+            AlphaNumeric,
+            /// UnexpectedChar
+            Unexpected
+        };
+
         using null_type = std::monostate;
         using whitespace_type = std::pair<std::size_t, std::size_t>;
         using numeric_type = std::uint64_t;
@@ -109,12 +109,35 @@ namespace semver::parser {
         }
     };
 
-//    constexpr bool
-//    operator==(const Token& lhs, const Token& rhs) {
-//        if (lhs.is_simple_token() && rhs.is_simple_token()) {
-//            return lhs.kind == rhs.kind;
-//        }
-//    }
+    constexpr bool
+    operator==(const Token& lhs, const Token& rhs) {
+        if (lhs.is_simple_token() && rhs.is_simple_token()) {
+            return lhs.kind == rhs.kind;
+        }
+        return (lhs.kind == rhs.kind)
+            && (lhs.component == rhs.component);
+    }
+    constexpr bool
+    operator==(const Token& lhs, const Token::Kind& rhs) {
+        return lhs.is_simple_token() && (lhs.kind == rhs);
+    }
+    constexpr bool
+    operator==(const Token::Kind& lhs, const Token& rhs) {
+        return rhs.is_simple_token() && (lhs == rhs.kind);
+    }
+
+    constexpr bool
+    operator!=(const Token& lhs, const Token& rhs) {
+        return !(lhs == rhs);
+    }
+    constexpr bool
+    operator!=(const Token& lhs, const Token::Kind& rhs) {
+        return !(lhs == rhs);
+    }
+    constexpr bool
+    operator!=(const Token::Kind& lhs, const Token& rhs) {
+        return !(lhs == rhs);
+    }
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_TOKEN_HPP
