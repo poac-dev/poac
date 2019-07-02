@@ -9,112 +9,9 @@
 #include <optional>
 #include <utility>
 
+#include "token.hpp"
+
 namespace semver::parser {
-    enum class Kind {
-        /// `=`
-        Eq,
-        /// `>`
-        Gt,
-        /// `<`
-        Lt,
-        /// `<=`
-        LtEq,
-        /// `>=`
-        GtEq,
-        /// '^`
-        Caret,
-        /// '~`
-        Tilde,
-        /// '*`
-        Star,
-        /// `.`
-        Dot,
-        /// `,`
-        Comma,
-        /// `-`
-        Hyphen,
-        /// `+`
-        Plus,
-        /// '||'
-        Or,
-        /// any number of whitespace (`\t\r\n `) and its span.
-        Whitespace,
-        /// Numeric component, like `0` or `42`.
-        Numeric,
-        /// Alphanumeric component, like `alpha1` or `79deadbe`.
-        AlphaNumeric,
-        /// UnexpectedChar
-        Unexpected
-    };
-
-    class Token {
-    public:
-        using whitespace_type = std::pair<std::size_t, std::size_t>;
-        using numeric_type = std::uint64_t;
-        using alphanumeric_type = std::string_view;
-        using variant_type =
-                std::variant<std::monostate, whitespace_type,
-                             numeric_type, alphanumeric_type>;
-
-        Kind kind;
-        variant_type component;
-
-        constexpr Token() noexcept
-                : Token(Kind::Unexpected)
-        {} // delegation
-
-        constexpr explicit
-        Token(Kind k) noexcept
-            : kind(k), component()
-        {}
-
-        constexpr
-        Token(Kind k, const std::size_t& s1, const std::size_t& s2)
-            : Token(k, Kind::Whitespace, std::make_pair(s1, s2))
-        {} // delegation
-
-        constexpr
-        Token(Kind k, const numeric_type& n)
-            : Token(k, Kind::Numeric, n)
-        {} // delegation
-
-        constexpr
-        Token(Kind k, const alphanumeric_type& c)
-            : Token(k, Kind::AlphaNumeric, c)
-        {} // delegation
-
-        Token(const Token&) = default;
-        Token& operator=(const Token&) = default;
-        Token(Token&&) noexcept = default;
-        Token& operator=(Token&&) noexcept = default;
-        ~Token() = default;
-
-    private:
-        constexpr
-        Token(Kind k, Kind target, const variant_type& c)
-            : kind(k != target
-                      ? throw std::invalid_argument("semver::Token")
-                      : target
-              ),
-              component(c)
-        {}
-
-    public:
-        constexpr bool
-        is_whitespace() const noexcept {
-            return kind == Kind::Whitespace;
-        }
-
-        constexpr bool
-        is_whildcard() const noexcept {
-            return kind == Kind::Star
-                   || (std::holds_alternative<alphanumeric_type>(component)
-                      && (std::get<alphanumeric_type>(component) == "X"
-                          || std::get<alphanumeric_type>(component) == "x"
-                      ));
-        }
-    };
-
     constexpr bool
     is_whitespace(const char& c) noexcept {
         switch (c) {
@@ -309,6 +206,6 @@ namespace semver::parser {
 //    lex(const char(&arr)[N]) {
 //        return Lexer<N>(arr).to_array();
 //    }
-} // end namespace semver::lexer
+} // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_LEXER_HPP
