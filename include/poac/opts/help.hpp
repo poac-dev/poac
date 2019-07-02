@@ -30,48 +30,41 @@ namespace poac::opts::help {
     constexpr auto summary = termcolor2::make_string("Display help for a command");
     constexpr auto options = termcolor2::make_string("<sub-command or option>");
 
-    template <typename Str>
+    template <typename T, std::size_t N, typename Traits>
     constexpr auto
-    decorate_summary(const Str& s) {
-        return termcolor2::yellow<> + s + termcolor2::reset<> + '\n';
+    decorate_summary(const termcolor2::basic_string<T, N, Traits>& str) {
+        return termcolor2::yellow<> + str + termcolor2::reset<> + '\n';
     }
-    template <typename Str>
+    template <typename T, std::size_t N, typename Traits>
     constexpr auto
-    decorate_name(const Str& s) {
+    decorate_name(const termcolor2::basic_string<T, N, Traits>& str) {
         // TODO: padding function s -> "build" 9 -> "build    "
-        return termcolor2::blue<> + termcolor2::bold<> + "   " + s + "   " + termcolor2::reset<>;
+        return termcolor2::blue<> + termcolor2::bold<> + "   " + str + "   " + termcolor2::reset<>;
     }
-    template <typename Op>
+    template <typename T, std::size_t N, typename Traits, std::size_t M>
     constexpr auto
-    decorate(Op&& op) {
-        return decorate_name(op.first) + decorate_summary(op.second);
+    decorate(const termcolor2::basic_string<T, N, Traits>& s1, const termcolor2::basic_string<T, M, Traits>& s2) {
+        return decorate_name(s1) + decorate_summary(s2);
     }
 
-    template <typename... Opts>
-    constexpr auto
-    construct_summary(Opts&&... opts) {
-        return (... + decorate(std::forward<Opts>(opts)));
-    }
     constexpr auto
     construct_summary() {
-        return construct_summary(
-                std::make_pair(termcolor2::make_string("build    "), opts::build::summary),
-                std::make_pair(termcolor2::make_string("cache    "), opts::cache::summary),
-                std::make_pair(termcolor2::make_string("cleanup  "), opts::cleanup::summary),
-                std::make_pair(termcolor2::make_string("graph    "), opts::graph::summary),
-                std::make_pair(termcolor2::make_string("help     "), opts::help::summary),
-                std::make_pair(termcolor2::make_string("init     "), opts::init::summary),
-                std::make_pair(termcolor2::make_string("install  "), opts::install::summary),
-                std::make_pair(termcolor2::make_string("new      "), opts::_new::summary),
-                std::make_pair(termcolor2::make_string("publish  "), opts::publish::summary),
-                std::make_pair(termcolor2::make_string("root     "), opts::root::summary),
-                std::make_pair(termcolor2::make_string("run      "), opts::run::summary),
-                std::make_pair(termcolor2::make_string("search   "), opts::search::summary),
-                std::make_pair(termcolor2::make_string("test     "), opts::test::summary),
-                std::make_pair(termcolor2::make_string("uninstall"), opts::uninstall::summary),
-                std::make_pair(termcolor2::make_string("update   "), opts::update::summary),
-                std::make_pair(termcolor2::make_string("version  "), opts::version::summary)
-        );
+        return decorate(termcolor2::make_string("build    "), opts::build::summary)
+             + decorate(termcolor2::make_string("cache    "), opts::cache::summary)
+             + decorate(termcolor2::make_string("cleanup  "), opts::cleanup::summary)
+             + decorate(termcolor2::make_string("graph    "), opts::graph::summary)
+             + decorate(termcolor2::make_string("help     "), opts::help::summary)
+             + decorate(termcolor2::make_string("init     "), opts::init::summary)
+             + decorate(termcolor2::make_string("install  "), opts::install::summary)
+             + decorate(termcolor2::make_string("new      "), opts::_new::summary)
+             + decorate(termcolor2::make_string("publish  "), opts::publish::summary)
+             + decorate(termcolor2::make_string("root     "), opts::root::summary)
+             + decorate(termcolor2::make_string("run      "), opts::run::summary)
+             + decorate(termcolor2::make_string("search   "), opts::search::summary)
+             + decorate(termcolor2::make_string("test     "), opts::test::summary)
+             + decorate(termcolor2::make_string("uninstall"), opts::uninstall::summary)
+             + decorate(termcolor2::make_string("update   "), opts::update::summary)
+             + decorate(termcolor2::make_string("version  "), opts::version::summary);
     }
 
     constexpr auto summary_string =
