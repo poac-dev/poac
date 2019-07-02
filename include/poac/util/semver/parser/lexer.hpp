@@ -87,6 +87,7 @@ namespace semver::lexer {
         Token& operator=(const Token&) = default;
         Token(Token&&) noexcept = default;
         Token& operator=(Token&&) noexcept = default;
+        ~Token() = default;
 
     private:
         constexpr
