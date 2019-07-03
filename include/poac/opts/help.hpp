@@ -30,41 +30,41 @@ namespace poac::opts::help {
     constexpr auto summary = termcolor2::make_string("Display help for a command");
     constexpr auto options = termcolor2::make_string("<sub-command or option>");
 
-    template <typename T, std::size_t N, typename Traits>
+    template <typename CharT, std::size_t N, typename Traits>
     constexpr auto
-    decorate_summary(const termcolor2::basic_string<T, N, Traits>& str) {
+    decorate_summary(const termcolor2::basic_string<CharT, N, Traits>& str) {
         return termcolor2::yellow<> + str + termcolor2::reset<> + '\n';
     }
-    template <typename T, std::size_t N, typename Traits>
+    template <typename CharT, std::size_t N, typename Traits>
     constexpr auto
-    decorate_name(const termcolor2::basic_string<T, N, Traits>& str) {
+    decorate_name(const termcolor2::basic_string<CharT, N, Traits>& str) {
         // TODO: padding function s -> "build" 9 -> "build    "
         return termcolor2::blue<> + termcolor2::bold<> + "   " + str + "   " + termcolor2::reset<>;
     }
-    template <typename T, std::size_t N, typename Traits, std::size_t M>
+    template <typename CharT, std::size_t N, typename Traits, std::size_t M>
     constexpr auto
-    decorate(const termcolor2::basic_string<T, N, Traits>& s1, const termcolor2::basic_string<T, M, Traits>& s2) {
-        return decorate_name(s1) + decorate_summary(s2);
+    decorate(const CharT(&s1)[N], const termcolor2::basic_string<CharT, M, Traits>& s2) {
+        return decorate_name(termcolor2::basic_string<CharT, N - 1>(s1)) + decorate_summary(s2);
     }
 
     constexpr auto
     construct_summary() {
-        return decorate(termcolor2::make_string("build    "), opts::build::summary)
-             + decorate(termcolor2::make_string("cache    "), opts::cache::summary)
-             + decorate(termcolor2::make_string("cleanup  "), opts::cleanup::summary)
-             + decorate(termcolor2::make_string("graph    "), opts::graph::summary)
-             + decorate(termcolor2::make_string("help     "), opts::help::summary)
-             + decorate(termcolor2::make_string("init     "), opts::init::summary)
-             + decorate(termcolor2::make_string("install  "), opts::install::summary)
-             + decorate(termcolor2::make_string("new      "), opts::_new::summary)
-             + decorate(termcolor2::make_string("publish  "), opts::publish::summary)
-             + decorate(termcolor2::make_string("root     "), opts::root::summary)
-             + decorate(termcolor2::make_string("run      "), opts::run::summary)
-             + decorate(termcolor2::make_string("search   "), opts::search::summary)
-             + decorate(termcolor2::make_string("test     "), opts::test::summary)
-             + decorate(termcolor2::make_string("uninstall"), opts::uninstall::summary)
-             + decorate(termcolor2::make_string("update   "), opts::update::summary)
-             + decorate(termcolor2::make_string("version  "), opts::version::summary);
+        return decorate("build    ", opts::build::summary)
+             + decorate("cache    ", opts::cache::summary)
+             + decorate("cleanup  ", opts::cleanup::summary)
+             + decorate("graph    ", opts::graph::summary)
+             + decorate("help     ", opts::help::summary)
+             + decorate("init     ", opts::init::summary)
+             + decorate("install  ", opts::install::summary)
+             + decorate("new      ", opts::_new::summary)
+             + decorate("publish  ", opts::publish::summary)
+             + decorate("root     ", opts::root::summary)
+             + decorate("run      ", opts::run::summary)
+             + decorate("search   ", opts::search::summary)
+             + decorate("test     ", opts::test::summary)
+             + decorate("uninstall", opts::uninstall::summary)
+             + decorate("update   ", opts::update::summary)
+             + decorate("version  ", opts::version::summary);
     }
 
     constexpr auto summary_string =
