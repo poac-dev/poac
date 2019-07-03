@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_INFER_HPP
-#define POAC_CORE_INFER_HPP
+#ifndef POAC_CORE_CLI_HPP
+#define POAC_CORE_CLI_HPP
 
 #include <string>
 #include <unordered_map>
@@ -9,7 +9,7 @@
 #include <poac/core/except.hpp>
 #include <poac/opts.hpp>
 
-namespace poac::core::infer {
+namespace poac::core::cli {
     using exec_arg = std::vector<std::string>;
     using exec_ret = std::optional<except::Error>;
     using exec_fn = std::function<exec_ret(exec_arg)>;
@@ -48,4 +48,4 @@ namespace poac::core::infer {
         }
     }
 }
-#endif // !POAC_CORE_INFER_HPP
+#endif // !POAC_CORE_CLI_HPP

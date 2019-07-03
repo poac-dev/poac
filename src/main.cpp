@@ -9,7 +9,7 @@
 
 template <typename VS>
 int handle(std::string&& str, VS&& vs) {
-    namespace infer = poac::core::infer;
+    namespace infer = poac::core::cli;
     namespace except = poac::core::except;
     namespace cli = poac::io::cli;
     using namespace std::string_literals;

@@ -13,8 +13,8 @@ pushd ./core
     g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o resolve-test resolve.cpp && { ./resolve-test; rm -rf ./resolve-test; }
     g++ ${BASE_OPT} -o sat-test sat.cpp && { ./sat-test; rm -rf ./sat-test; }
   popd
+  g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o cli-test cli.cpp && { ./cli-test; rm -rf ./cli-test; }
   g++ ${BASE_OPT} -o exception-test except.cpp && { ./exception-test; rm -rf ./exception-test; }
-  g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o infer-test infer.cpp && { ./infer-test; rm -rf ./infer-test; }
   g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp && { ./name-test; rm -rf ./name-test; }
 popd
 pushd ./io
