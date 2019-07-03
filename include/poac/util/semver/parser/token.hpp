@@ -1,6 +1,13 @@
 #ifndef SEMVER_PARSER_TOKEN_HPP
 #define SEMVER_PARSER_TOKEN_HPP
 
+#include <cstddef>
+#include <cstdint>
+#include <stdexcept>
+#include <string_view>
+#include <variant>
+#include <utility>
+
 namespace semver::parser {
     struct Token {
         enum Kind {
