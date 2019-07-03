@@ -27,13 +27,12 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../core/except.hpp"
-#include "./cli.hpp"
-#include "../util/misc.hpp"
-#include "../util/types.hpp"
-#include "../util/pretty.hpp"
-#include "../config.hpp"
-
+#include <poac/core/except.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/util/misc.hpp>
+#include <poac/util/pretty.hpp>
+#include <poac/util/types.hpp>
+#include <poac/config.hpp>
 
 namespace poac::io::net {
     namespace http = boost::beast::http;

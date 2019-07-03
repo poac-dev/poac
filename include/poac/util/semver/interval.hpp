@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <optional>
 
-#include "version.hpp"
+#include <poac/util/semver/version.hpp>
 
 namespace semver {
     enum class IntervalMode {

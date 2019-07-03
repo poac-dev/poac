@@ -8,14 +8,14 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
-#include "../core/except.hpp"
-#include "../core/builder.hpp"
-#include "../io/path.hpp"
-#include "../io/tar.hpp"
-#include "../io/yaml.hpp"
-#include "../io/cli.hpp"
-#include "../util/argparse.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/except.hpp>
+#include <poac/core/builder.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/tar.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::test {
     constexpr auto summary = termcolor2::make_string("Execute tests");

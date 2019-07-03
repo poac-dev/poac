@@ -9,7 +9,7 @@
 #include <boost/predef.h>
 #include <boost/filesystem.hpp>
 
-#include "../core/except.hpp"
+#include <poac/core/except.hpp>
 
 namespace poac::io::path {
     std::optional<std::string>

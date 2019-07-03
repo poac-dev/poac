@@ -9,13 +9,13 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include "../core/except.hpp"
-#include "../io/path.hpp"
-#include "../io/tar.hpp"
-#include "../io/yaml.hpp"
-#include "../io/cli.hpp"
-#include "../util/argparse.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/except.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/tar.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::cache {
     constexpr auto summary = termcolor2::make_string("Manipulate cache files");

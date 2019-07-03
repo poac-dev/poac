@@ -6,8 +6,8 @@
 #include <vector>
 #include <optional>
 
-#include "../../util/shell.hpp"
-#include "../../util/misc.hpp"
+#include <poac/util/shell.hpp>
+#include <poac/util/misc.hpp>
 
 namespace poac::core::builder::depends {
     template <typename Opts>

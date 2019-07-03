@@ -3,7 +3,7 @@
 
 #include <string> // std::char_traits
 
-#include "./config.hpp"
+#include <poac/util/termcolor2/config.hpp>
 
 namespace termcolor2 {
     template <typename CharT>

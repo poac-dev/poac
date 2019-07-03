@@ -7,7 +7,7 @@
 #include <iterator> // std::reverse_iterator
 #include <utility> // std::index_sequence, std::make_index_sequence, std::forward
 
-#include "./char_traits.hpp"
+#include <poac/util/termcolor2/char_traits.hpp>
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N, typename Traits = termcolor2::char_traits<CharT>>

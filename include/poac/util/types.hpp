@@ -6,7 +6,6 @@
 #include <vector>
 #include <stack>
 
-
 namespace poac::util::types {
     // If the type T is a reference type, provides the member typedef type
     //  which is the type referred to by T with its topmost cv-qualifiers removed.

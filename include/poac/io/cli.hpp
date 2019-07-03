@@ -8,8 +8,8 @@
 #include <vector>
 #include <string>
 
-#include "../util/pretty.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/util/pretty.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::io::cli {
     // Clear screen

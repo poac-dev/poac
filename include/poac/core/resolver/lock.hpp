@@ -7,9 +7,8 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "resolve.hpp"
-#include "../../io/yaml.hpp"
-
+#include <poac/core/resolver/resolve.hpp>
+#include <poac/io/yaml.hpp>
 
 namespace poac::core::resolver::lock {
     const std::string filename = "poac.lock";

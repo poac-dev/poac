@@ -17,14 +17,14 @@
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
-#include "../core/except.hpp"
-#include "../core/resolver/lock.hpp"
-#include "../core/resolver/resolve.hpp"
-#include "../io/yaml.hpp"
-#include "../io/cli.hpp"
-#include "../util/argparse.hpp"
-#include "../util/shell.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/except.hpp>
+#include <poac/core/resolver/lock.hpp>
+#include <poac/core/resolver/resolve.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/shell.hpp>
+#include <poac/util/termcolor2.hpp>
 
 // TODO: --input, -iで，入力する，poac.ymlファイルを指定. 指定しない場合はカレントディレクトリのを選択
 // poac graph -i ./deps/boost/poac.yml -o hoge.png

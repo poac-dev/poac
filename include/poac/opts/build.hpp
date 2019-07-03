@@ -9,13 +9,15 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../core/except.hpp"
-#include "../core/builder.hpp"
-#include "../core/resolver/lock.hpp"
-#include "../io.hpp"
-#include "../core/name.hpp"
-#include "../util/argparse.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/builder.hpp>
+#include <poac/core/resolver/lock.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::build {
     constexpr auto summary = termcolor2::make_string("Compile all sources that depend on this project");

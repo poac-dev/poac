@@ -9,7 +9,7 @@
 #include <optional>
 #include <utility>
 
-#include "token.hpp"
+#include <poac/util/semver/parser/token.hpp>
 
 namespace semver::parser {
     constexpr bool

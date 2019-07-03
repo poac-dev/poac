@@ -6,10 +6,10 @@
 #include <string_view>
 #include <regex>
 
-#include "../except.hpp"
-#include "../../io/path.hpp"
-#include "../../util/semver.hpp"
-#include "../../util/shell.hpp"
+#include <poac/core/except.hpp>
+#include <poac/io/path.hpp>
+#include <poac/util/semver.hpp>
+#include <poac/util/shell.hpp>
 
 namespace poac::core::builder::standard {
     inline std::string version_prefix(const bool& enable_gnu) noexcept {

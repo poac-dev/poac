@@ -17,16 +17,16 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../core/except.hpp"
-#include "../io/cli.hpp"
-#include "../io/net.hpp"
-#include "../io/yaml.hpp"
-#include "../util/argparse.hpp"
-#include "../util/pretty.hpp"
-#include "../util/semver.hpp"
-#include "../util/shell.hpp"
-#include "../util/termcolor2.hpp"
-#include "../config.hpp"
+#include <poac/core/except.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/net.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/pretty.hpp>
+#include <poac/util/semver.hpp>
+#include <poac/util/shell.hpp>
+#include <poac/util/termcolor2.hpp>
+#include <poac/config.hpp>
 
 namespace poac::opts::publish {
     constexpr auto summary = termcolor2::make_string("Publish a package");

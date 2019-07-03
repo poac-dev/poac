@@ -6,7 +6,7 @@
 #include <iterator> // std::ostreambuf_iterator
 #include <ios> // std::ios_base
 
-#include "./string.hpp"
+#include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N, typename Traits, typename StreamTraits>

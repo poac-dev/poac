@@ -3,7 +3,7 @@
 
 #include <ostream> // std::ostream
 
-#include "version.hpp"
+#include <poac/util/semver/version.hpp>
 
 namespace semver {
     std::ostream& operator<<(std::ostream& os, const Version& v) {

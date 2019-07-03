@@ -11,17 +11,17 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "./install.hpp"
-#include "../core/except.hpp"
-#include "../core/name.hpp"
-#include "../core/resolver/resolve.hpp"
-#include "../io/path.hpp"
-#include "../io/yaml.hpp"
-#include "../io/cli.hpp"
-#include "../io/net.hpp"
-#include "../util/semver.hpp"
-#include "../util/types.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/opts/install.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/core/resolver/resolve.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/net.hpp>
+#include <poac/util/semver.hpp>
+#include <poac/util/types.hpp>
+#include <poac/util/termcolor2.hpp>
 
 // TODO: --selfを指定することで，poacのupdateを行う -> globalなパッケージに対応した時，どうする？
 // TODO: --select | --intractive とすると，インタラクティブに選択してupdateできる．

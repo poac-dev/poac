@@ -5,7 +5,7 @@
 #include <string> // std::char_traits
 #include <utility> // std::forward, std::index_sequence, std::make_index_sequence
 
-#include "./string.hpp"
+#include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
     namespace detail {

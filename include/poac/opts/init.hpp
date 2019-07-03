@@ -9,12 +9,12 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "./new.hpp"
-#include "../io/cli.hpp"
-#include "../io/yaml.hpp"
-#include "../core/except.hpp"
-#include "../core/name.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/opts/new.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::init {
     constexpr auto summary = termcolor2::make_string("Create the poac.yml");

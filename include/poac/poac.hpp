@@ -1,10 +1,10 @@
 #ifndef POAC_HPP
 #define POAC_HPP
 
-#include "config.hpp"
-#include "core.hpp"
-#include "io.hpp"
-#include "opts.hpp"
-#include "util.hpp"
+#include <poac/config.hpp>
+#include <poac/core.hpp>
+#include <poac/io.hpp>
+#include <poac/opts.hpp>
+#include <poac/util.hpp>
 
 #endif // !POAC_HPP

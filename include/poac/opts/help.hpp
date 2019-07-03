@@ -10,23 +10,23 @@
 
 #include <boost/predef.h>
 
-#include "build.hpp"
-#include "cache.hpp"
-#include "cleanup.hpp"
-#include "graph.hpp"
-#include "init.hpp"
-#include "install.hpp"
-#include "new.hpp"
-#include "publish.hpp"
-#include "root.hpp"
-#include "run.hpp"
-#include "search.hpp"
-#include "test.hpp"
-#include "uninstall.hpp"
-#include "update.hpp"
-#include "version.hpp"
-#include "../core/except.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/opts/build.hpp>
+#include <poac/opts/cache.hpp>
+#include <poac/opts/cleanup.hpp>
+#include <poac/opts/graph.hpp>
+#include <poac/opts/init.hpp>
+#include <poac/opts/install.hpp>
+#include <poac/opts/new.hpp>
+#include <poac/opts/publish.hpp>
+#include <poac/opts/root.hpp>
+#include <poac/opts/run.hpp>
+#include <poac/opts/search.hpp>
+#include <poac/opts/test.hpp>
+#include <poac/opts/uninstall.hpp>
+#include <poac/opts/update.hpp>
+#include <poac/opts/version.hpp>
+#include <poac/core/except.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::help {
     constexpr auto summary = termcolor2::make_string("Display help for a command");

@@ -4,7 +4,6 @@
 #include <string>
 #include <utility>
 
-
 namespace poac::util::pretty {
     std::string to_time(const std::string& s) {
         double total_seconds = std::stod(s);

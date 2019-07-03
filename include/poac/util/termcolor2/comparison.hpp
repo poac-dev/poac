@@ -1,7 +1,7 @@
 #ifndef TERMCOLOR2_COMPARISON_HPP
 #define TERMCOLOR2_COMPARISON_HPP
 
-#include "./string.hpp"
+#include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N1, std::size_t N2, typename Traits>

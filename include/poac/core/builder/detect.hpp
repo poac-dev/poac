@@ -9,10 +9,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../except.hpp"
-#include "../../io/yaml.hpp"
-#include "../../io/path.hpp"
-#include "../../util/shell.hpp"
+#include <poac/core/except.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/io/path.hpp>
+#include <poac/util/shell.hpp>
 
 namespace poac::core::builder::detect {
     std::string check_support_build_system(const std::string& system) {

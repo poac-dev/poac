@@ -18,13 +18,15 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/dynamic_bitset.hpp>
 
-#include "sat.hpp"
-#include "../except.hpp"
-#include "../name.hpp"
-#include "../../io.hpp"
-#include "../../config.hpp"
-#include "../../util/semver.hpp"
-#include "../../util/types.hpp"
+#include <poac/core/resolver/sat.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/net.hpp>
+#include <poac/io/path.hpp>
+#include <poac/util/semver.hpp>
+#include <poac/util/types.hpp>
+#include <poac/config.hpp>
 
 namespace poac::core::resolver::resolve {
     namespace cache {
@@ -46,9 +48,9 @@ namespace poac::core::resolver::resolve {
             return "git clone -q https://github.com/" + name + ".git -b " + tag;
         }
     }
-    std::string archive_url(const std::string& name, const std::string& version) {
+    std::string archive_url(const std::string& n, const std::string& version) {
         using namespace std::string_literals;
-        return POAC_ARCHIVE_API + "/"s + name::hyphen_to_slash(name) + "/" + version;
+        return POAC_ARCHIVE_API + "/"s + name::hyphen_to_slash(n) + "/" + version;
     }
 
 

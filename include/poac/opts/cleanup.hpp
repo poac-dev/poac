@@ -8,15 +8,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include "./install.hpp"
-#include "./uninstall.hpp"
-#include "../core/except.hpp"
-#include "../core/name.hpp"
-#include "../core/resolver/resolve.hpp"
-#include "../core/resolver/lock.hpp"
-#include "../io/yaml.hpp"
-#include "../io/cli.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/opts/install.hpp>
+#include <poac/opts/uninstall.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/core/resolver/resolve.hpp>
+#include <poac/core/resolver/lock.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::cleanup {
     constexpr auto summary = termcolor2::make_string("Delete unnecessary things");

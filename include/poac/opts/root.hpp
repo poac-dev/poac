@@ -7,8 +7,8 @@
 
 #include <boost/dll/runtime_symbol_info.hpp>
 
-#include "../core/except.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/except.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::root {
     constexpr auto summary = termcolor2::make_string("Display the root installation directory");

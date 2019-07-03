@@ -11,12 +11,13 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../core/except.hpp"
-#include "../core/name.hpp"
-#include "../io.hpp"
-#include "../util/argparse.hpp"
-#include "../util/shell.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/path.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/shell.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::_new {
     constexpr auto summary = termcolor2::make_string("Create a new poac project");

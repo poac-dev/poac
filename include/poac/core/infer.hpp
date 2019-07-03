@@ -6,8 +6,8 @@
 #include <functional>
 #include <optional>
 
-#include "except.hpp"
-#include "../opts.hpp"
+#include <poac/core/except.hpp>
+#include <poac/opts.hpp>
 
 namespace poac::core::infer {
     using main_arg = std::vector<std::string>;

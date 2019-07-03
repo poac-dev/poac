@@ -9,10 +9,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include "./depends.hpp"
-#include "./options.hpp"
-#include "../../io/path.hpp"
-#include "../../util/misc.hpp"
+#include <poac/core/builder/depends.hpp>
+#include <poac/core/builder/options.hpp>
+#include <poac/io/path.hpp>
+#include <poac/util/misc.hpp>
 
 namespace poac::core::builder::cache {
     std::string to_cache_hash_path(const std::string& s)

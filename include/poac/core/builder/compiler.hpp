@@ -8,8 +8,8 @@
 
 #include <boost/filesystem.hpp>
 
-#include "./absorb.hpp"
-#include "../../util/shell.hpp"
+#include <poac/core/builder/absorb.hpp>
+#include <poac/util/shell.hpp>
 
 namespace poac::core::builder::compiler {
     namespace fs = boost::filesystem;

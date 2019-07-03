@@ -17,19 +17,19 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "./cache.hpp"
-#include "./compiler.hpp"
-#include "./depends.hpp"
-#include "./detect.hpp"
-#include "./standard.hpp"
-#include "./options.hpp"
-#include "../except.hpp"
-#include "../name.hpp"
-#include "../resolver/lock.hpp"
-#include "../../io/path.hpp"
-#include "../../io/cli.hpp"
-#include "../../io/yaml.hpp"
-#include "../../util/semver.hpp"
+#include <poac/core/builder/cache.hpp>
+#include <poac/core/builder/compiler.hpp>
+#include <poac/core/builder/depends.hpp>
+#include <poac/core/builder/detect.hpp>
+#include <poac/core/builder/standard.hpp>
+#include <poac/core/builder/options.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/core/resolver/lock.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/yaml.hpp>
+#include <poac/util/semver.hpp>
 
 namespace poac::core::builder {
 //    namespace builder {

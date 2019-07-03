@@ -4,7 +4,7 @@
 #include <string>
 #include <algorithm>
 
-#include "version.hpp"
+#include <poac/util/semver/version.hpp>
 
 namespace semver {
     namespace detail {

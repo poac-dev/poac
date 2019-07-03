@@ -4,8 +4,8 @@
 #include <cstddef> // std::size_t
 #include <string> // std::basic_string
 
-#include "./presets.hpp"
-#include "./string.hpp"
+#include <poac/util/termcolor2/presets.hpp>
+#include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N, CharT... Str>

@@ -9,12 +9,12 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../core/except.hpp"
-#include "../io/cli.hpp"
-#include "../io/net.hpp"
-#include "../util/argparse.hpp"
-#include "../util/pretty.hpp"
-#include "../util/termcolor2.hpp"
+#include <poac/core/except.hpp>
+#include <poac/io/cli.hpp>
+#include <poac/io/net.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/pretty.hpp>
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::search {
     constexpr auto summary = termcolor2::make_string("Search for packages in poac.pm");

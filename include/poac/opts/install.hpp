@@ -15,11 +15,12 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "../io.hpp"
-#include "../core/except.hpp"
-#include "../core/resolver/resolve.hpp"
-#include "../core/resolver/lock.hpp"
-#include "../util.hpp"
+#include <poac/io.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/resolver/resolve.hpp>
+#include <poac/core/resolver/lock.hpp>
+#include <poac/util/argparse.hpp>
+#include <poac/util/shell.hpp>
 
 namespace poac::opts::install {
     constexpr auto summary = termcolor2::make_string("Install packages");

@@ -1,7 +1,7 @@
 #ifndef TERMCOLOR2_ALIAS_HPP
 #define TERMCOLOR2_ALIAS_HPP
 
-#include "./string.hpp"
+#include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
     template <std::size_t N>

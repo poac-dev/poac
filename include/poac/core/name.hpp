@@ -8,9 +8,8 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "./except.hpp"
-#include "../io/yaml.hpp"
-
+#include <poac/core/except.hpp>
+#include <poac/io/yaml.hpp>
 
 namespace poac::core::name {
     // -- poac --

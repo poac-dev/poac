@@ -1,11 +1,11 @@
 #ifndef SEMVER_HPP
 #define SEMVER_HPP
 
-#include "semver/comparison.hpp"
-#include "semver/config.hpp"
-#include "semver/interval.hpp"
-#include "semver/io.hpp"
-#include "semver/parser.hpp"
-#include "semver/version.hpp"
+#include <poac/util/semver/comparison.hpp>
+#include <poac/util/semver/config.hpp>
+#include <poac/util/semver/interval.hpp>
+#include <poac/util/semver/io.hpp>
+#include <poac/util/semver/parser.hpp>
+#include <poac/util/semver/version.hpp>
 
 #endif // !SEMVER_HPP

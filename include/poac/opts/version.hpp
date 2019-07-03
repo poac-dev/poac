@@ -4,7 +4,7 @@
 #include <iostream>
 #include <optional>
 
-#include "../util/termcolor2.hpp"
+#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::version {
     constexpr auto summary = termcolor2::make_string("Show the current poac version");

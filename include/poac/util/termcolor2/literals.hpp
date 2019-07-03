@@ -4,7 +4,7 @@
 #include <cstddef> // std::size_t
 #include <string> // std::basic_string
 
-#include "./to_color.hpp"
+#include <poac/util/termcolor2/to_color.hpp>
 
 namespace termcolor2 {
 inline namespace literals {
