@@ -16,15 +16,18 @@ add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 add_definitions(-DPOAC_VERSION="0.2.1")
 
 # Compiler options.
-if(CYGWIN OR MINGW)
-    add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj)
-elseif(UNIX)
-    add_definitions("-fdiagnostics-color -Wall -Wextra") # -Werror
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj /constexpr:steps10000000")
+else()
+    if(UNIX)
+        add_definitions(-fdiagnostics-color -Wall -Wextra) # -Werror
+    endif()
     if(NOT APPLE)
         add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
     endif()
-elseif(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj /constexpr:steps10000000")
+    if(CYGWIN OR MINGW)
+        add_definitions(-Wa,-mbig-obj)
+    endif()
 endif()
 
 # Check if C++17 can use.
