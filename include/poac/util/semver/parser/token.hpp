@@ -146,13 +146,54 @@ namespace semver::parser {
         return !(lhs == rhs);
     }
 
+    struct Identifier {
+        enum Kind {
+            /// An identifier that's solely numbers.
+            Numeric,
+            /// An identifier with letters and numbers.
+            AlphaNumeric
+        };
 
-//    struct Identifier {
-//        /// An identifier that's solely numbers.
-//        Numeric(u64),
-//        /// An identifier with letters and numbers.
-//                AlphaNumeric(String),
-//    };
+        using numeric_type = std::uint64_t;
+        using alphanumeric_type = std::string_view;
+        using variant_type = std::variant<numeric_type, alphanumeric_type>;
+
+        Kind kind;
+        variant_type component;
+
+        Identifier() = delete;
+        Identifier(const Identifier&) = default;
+        Identifier& operator=(const Identifier&) = default;
+        Identifier(Identifier&&) noexcept = default;
+        Identifier& operator=(Identifier&&) noexcept = default;
+        ~Identifier() = default;
+
+        constexpr
+        Identifier(Kind k, const numeric_type& n)
+            : kind(k != Kind::Numeric
+            ? throw std::invalid_argument("semver::Identifier")
+            : Kind::Numeric)
+            , component(n)
+        {}
+
+        constexpr
+        Identifier(Kind k, const alphanumeric_type& c)
+            : kind(k != Kind::AlphaNumeric
+                      ? throw std::invalid_argument("semver::Identifier")
+                      : Kind::AlphaNumeric)
+            , component(c)
+        {}
+    };
+
+    constexpr bool
+    operator==(const Identifier& lhs, const Identifier& rhs) {
+        return (lhs.kind == rhs.kind)
+            && (lhs.component == rhs.component);
+    }
+    constexpr bool
+    operator!=(const Identifier& lhs, const Identifier& rhs) {
+        return !(lhs == rhs);
+    }
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_TOKEN_HPP
