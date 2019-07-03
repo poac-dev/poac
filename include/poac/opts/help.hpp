@@ -107,7 +107,7 @@ namespace poac::opts::help {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& vs) {
+    exec(const std::vector<std::string> &vs) {
         namespace except = core::except;
         if (vs.size() == 0) {
             std::cout << summary_string << std::endl;

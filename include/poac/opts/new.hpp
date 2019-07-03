@@ -96,7 +96,7 @@ namespace poac::opts::_new {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace except = core::except;
         namespace fs = boost::filesystem;
         namespace path = io::path;

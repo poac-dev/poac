@@ -78,7 +78,7 @@ namespace poac::opts::cache {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace except = core::except;
 
         if (const auto result = check_arguments(argv)) {

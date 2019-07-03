@@ -239,7 +239,7 @@ namespace poac::opts::uninstall {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         if (const auto result = check_arguments(argv)) {
             return result;
         } else if (util::argparse::use(argv, "-a", "--all")) {

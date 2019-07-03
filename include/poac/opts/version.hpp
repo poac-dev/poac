@@ -11,7 +11,7 @@ namespace poac::opts::version {
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>&) noexcept {
+    exec(const std::vector<std::string>&) noexcept {
         std::cout << POAC_VERSION << std::endl;
         return std::nullopt;
     }

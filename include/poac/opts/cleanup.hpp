@@ -32,7 +32,7 @@ namespace poac::opts::cleanup {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace yaml = io::yaml;
         namespace resolver = core::resolver::resolve;
         namespace lock = core::resolver::lock;

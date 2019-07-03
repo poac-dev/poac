@@ -86,7 +86,7 @@ namespace poac::opts::search {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace cli = io::cli;
         using namespace boost::property_tree;
 

@@ -16,7 +16,7 @@ namespace poac::opts::root {
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>&) {
+    exec(const std::vector<std::string>&) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
 

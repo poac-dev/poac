@@ -61,7 +61,7 @@ namespace poac::opts::init {
         return std::nullopt;
     }
 
-    std::optional<core::except::Error> _main(const std::vector<std::string>& argv) {
+    std::optional<core::except::Error> exec(const std::vector<std::string> &argv) {
         namespace fs = boost::filesystem;
         using io::path::path_literals::operator""_path;
 

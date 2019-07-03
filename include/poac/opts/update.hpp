@@ -30,7 +30,7 @@ namespace poac::opts::update {
     constexpr auto options = termcolor2::make_string("[ -y | --yes, -a | --all, --outside ]");
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace yaml = io::yaml;
@@ -48,7 +48,7 @@ namespace poac::opts::update {
         if (!io::path::validate_dir("deps")) {
             const auto err = "It is the same as executing install command because nothing is installed.";
             std::cout << cli::warning << err << std::endl;
-            install::_main(std::move(argv_cpy)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
+            install::exec(std::move(argv_cpy)); // FIXME: これだと現状，allの動作になってしまう．-> install hoge の機能がつけば良い
             return except::Error::General{"Could not find deps directory"};
         }
 

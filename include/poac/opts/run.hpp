@@ -23,7 +23,7 @@ namespace poac::opts::run {
     constexpr auto options = termcolor2::make_string("[-v | --verbose | -- [program args]]");
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace fs = boost::filesystem;
 
         using termcolor2::color_literals::operator""_green;
@@ -42,7 +42,7 @@ namespace poac::opts::run {
         }
         // -v
         build::check_arguments(std::vector<std::string>(argv.begin(), result));
-        if (const auto result = build::_main(std::vector<std::string>{})) {
+        if (const auto result = build::exec(std::vector<std::string>{})) {
             return result;
         }
 

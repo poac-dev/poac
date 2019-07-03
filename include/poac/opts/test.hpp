@@ -22,7 +22,7 @@ namespace poac::opts::test {
     constexpr auto options = termcolor2::make_string("[-v | --verbose, --report, -- args]");
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace builder = core::builder;

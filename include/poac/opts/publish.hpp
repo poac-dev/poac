@@ -207,7 +207,7 @@ namespace poac::opts::publish {
     }
 
     std::optional<core::except::Error>
-    _main(const std::vector<std::string>& argv) {
+    exec(const std::vector<std::string> &argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         using namespace std::string_literals;
