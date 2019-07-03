@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <cstdlib>
 
+#include <boost/predef.h>
+
 #include "build.hpp"
 #include "cache.hpp"
 #include "cleanup.hpp"
@@ -67,7 +69,12 @@ namespace poac::opts::help {
              + decorate("version  ", opts::version::summary);
     }
 
-    constexpr auto summary_string =
+#if BOOST_COMP_MSVC
+    const
+#else
+    constexpr
+#endif
+    auto summary_string =
             termcolor2::make_string("Usage: poac <command> [<args>]\n\n") +
             termcolor2::bold<> + "Available commands:" + termcolor2::reset<> + '\n' +
             construct_summary() +
