@@ -3,7 +3,7 @@
 
 namespace semver::parser {
     struct Token {
-        enum class Kind {
+        enum Kind {
             /// `=`
             Eq,
             /// `>`
@@ -138,6 +138,14 @@ namespace semver::parser {
     operator!=(const Token::Kind& lhs, const Token& rhs) {
         return !(lhs == rhs);
     }
+
+
+//    struct Identifier {
+//        /// An identifier that's solely numbers.
+//        Numeric(u64),
+//        /// An identifier with letters and numbers.
+//                AlphaNumeric(String),
+//    };
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_TOKEN_HPP
