@@ -15,14 +15,14 @@ int handle(std::string&& str, VS&& vs) {
     using namespace std::string_literals;
 
     try {
-        const auto result = infer::execute(std::forward<std::string>(str), std::forward<VS>(vs));
+        const auto result = infer::exec(std::forward<std::string>(str), std::forward<VS>(vs));
         if (!result.has_value()) {
             return EXIT_SUCCESS;
         }
 
         const except::Error err = result.value();
         if (std::holds_alternative<except::Error::InvalidSecondArg>(err.state)) {
-            infer::execute("help"s, VS{ err.what() });
+            infer::exec("help"s, VS{err.what()});
         }
         else {
             std::cerr << cli::error << err.what() << std::endl;

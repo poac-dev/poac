@@ -40,7 +40,7 @@ namespace poac::core::infer {
 
     template <typename S, typename VS>
     main_ret
-    execute(S&& cmd, VS&& arg) {
+    exec(S&& cmd, VS&& arg) {
         try {
             return opts_map.at(cmd)(arg);
         }

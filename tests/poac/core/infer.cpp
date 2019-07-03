@@ -10,10 +10,10 @@
 
 BOOST_AUTO_TEST_CASE( poac_core_infer_execute_test )
 {
-    using poac::core::infer::execute;
+    using poac::core::infer::exec;
 
     BOOST_CHECK_THROW(
-            execute(
+            exec(
                     std::string("nothing"),
                     std::vector<std::string>()
             ),
