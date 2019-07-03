@@ -33,7 +33,7 @@ namespace poac::opts::help {
     template <typename CharT, std::size_t N, typename Traits>
     constexpr auto
     decorate_summary(const termcolor2::basic_string<CharT, N, Traits>& str) {
-        return termcolor2::yellow<> + str + termcolor2::reset<> + '\n';
+        return termcolor2::yellow<> + str + termcolor2::reset<> + "\n";
     }
     template <typename CharT, std::size_t N, typename Traits>
     constexpr auto
