@@ -194,6 +194,21 @@ namespace semver::parser {
     operator!=(const Identifier& lhs, const Identifier& rhs) {
         return !(lhs == rhs);
     }
+
+    struct Version {
+        /// Major version as number (`0` in `"0.1.2"`).
+        std::uint64_t major;
+        /// Minor version as number (`1` in `"0.1.2"`).
+        std::uint64_t minor;
+        /// Patch version as number (`2` in `"0.1.2"`).
+        std::uint64_t patch;
+        /// Pre-release metadata as a vector of `Identifier` (`"alpha1"` in `"0.1.2-alpha1"`
+        /// or `7` (numeric) in `"0.1.2-7"`, `"pre"` and `0` (numeric) in `"0.1.2-pre.0"`).
+        std::vector<Identifier> pre;
+        /// Build metadata as a vector of `Identifier` (`"build1"` in `"0.1.2+build1"`
+        /// or `7` (numeric) in `"0.1.2+7"`, `"build"` and `0` (numeric) in `"0.1.2+pre.0"`).
+        std::vector<Identifier> build;
+    };
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_TOKEN_HPP
