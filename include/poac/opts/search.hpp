@@ -10,7 +10,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/pretty.hpp>
@@ -22,11 +22,11 @@ namespace poac::opts::search {
 
     void echo_first_line() {
         std::cout << termcolor2::underline<>;
-        io::cli::set_left(25);
+        io::term::set_left(25);
         std::cout << "Package";
-        io::cli::set_left(50);
+        io::term::set_left(50);
         std::cout << "|Description";
-        io::cli::set_left(15);
+        io::term::set_left(15);
         std::cout << "|Version"
                   << "|C++ Version"
                   << termcolor2::reset<>
@@ -87,7 +87,7 @@ namespace poac::opts::search {
 
     std::optional<core::except::Error>
     exec(const std::vector<std::string> &argv) {
-        namespace cli = io::cli;
+        namespace cli = io::term;
         using namespace boost::property_tree;
 
         if (const auto result = check_arguments(argv)) {

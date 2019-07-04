@@ -21,7 +21,7 @@
 #include <poac/core/resolver/lock.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/yaml.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
 #include <poac/util/termcolor2.hpp>
@@ -123,7 +123,7 @@ namespace poac::opts::graph {
                     util::shell("dot -Tpng " + file_dot + " -o " + output.string()).exec();
                     fs::remove(file_dot);
 
-                    io::cli::status_done();
+                    io::term::status_done();
                 }
                 else {
                     return except::Error::General{
@@ -136,7 +136,7 @@ namespace poac::opts::graph {
                 const auto [g, names] = create_graph();
                 std::ofstream file(output.string());
                 boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
-                io::cli::status_done();
+                io::term::status_done();
             }
             else {
                 return except::Error::General{

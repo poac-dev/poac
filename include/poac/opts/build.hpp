@@ -13,7 +13,7 @@
 #include <poac/core/resolver/lock.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/util/argparse.hpp>
@@ -198,7 +198,7 @@ namespace poac::opts::build {
 
                     bs.configure_compile(false);
                     if (!bs.compile_conf.source_files.empty()) {
-                        std::cout << io::cli::status << name << std::endl;
+                        std::cout << io::term::status << name << std::endl;
 
                         if (const auto obj_files_path = bs.compile()) {
                             handle_generate_lib(bs, *obj_files_path);
@@ -213,7 +213,7 @@ namespace poac::opts::build {
             }
             else if (*system == "cmake") {
                 builder::chain::cmake bs(deps_path);
-                std::cout << io::cli::status << name << std::endl;
+                std::cout << io::term::status << name << std::endl;
                 bs.build();
                 std::cout << std::endl;
                 return {};
@@ -348,7 +348,7 @@ namespace poac::opts::build {
                 builder::compilation bs(verbose);
 
                 if (is_built_deps) {
-                    std::cout << io::cli::status << project_name << std::endl;
+                    std::cout << io::term::status << project_name << std::endl;
                 }
 
 //                bool built_lib = false;
@@ -376,7 +376,7 @@ namespace poac::opts::build {
             else if (*system == "cmake") {
                 builder::chain::cmake bs;
                 if (is_built_deps) {
-                    std::cout << io::cli::status << project_name << std::endl;
+                    std::cout << io::term::status << project_name << std::endl;
                 }
                 bs.build(); // only build
                 std::cout << "Compiled: "_green << project_name << std::endl;

@@ -28,7 +28,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/types.hpp>
@@ -202,7 +202,7 @@ namespace poac::io::net {
         get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const
         {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
-            cli::debugln(req);
+            term::debugln(req);
             return do_<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
         }
 
@@ -257,7 +257,7 @@ namespace poac::io::net {
         template <typename Request>
         void simple_write(const Request& req) const
         {
-            cli::debugln("Write type: string");
+            term::debugln("Write type: string");
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
@@ -265,7 +265,7 @@ namespace poac::io::net {
         template <typename Request>
         void progress_write(const Request& req) const
         {
-            cli::debugln("Write type: multipart/form-data");
+            term::debugln("Write type: multipart/form-data");
 
             // Send the HTTP request to the remote host
             stream->write_some(boost::asio::buffer(req.header()));
@@ -281,15 +281,15 @@ namespace poac::io::net {
                     stream->write_some(boost::asio::buffer(buf, ifs.gcount()));
 
                     // Print progress bar
-                    std::cout << '\r' << cli::info << "Uploading ";
-                    cli::echo_byte_progress(file.size, cur_file_size += 512);
+                    std::cout << '\r' << term::info << "Uploading ";
+                    term::echo_byte_progress(file.size, cur_file_size += 512);
                     std::cout << "  ";
                 }
-                std::cout << '\r' << cli::clr_line << cli::info << "Uploaded." << std::endl;
+                std::cout << '\r' << term::clr_line << term::info << "Uploaded." << std::endl;
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.footer()));
-            std::cout << cli::info << "Waiting for server response..." << std::endl;
+            std::cout << term::info << "Waiting for server response..." << std::endl;
         }
 
 
@@ -339,11 +339,11 @@ namespace poac::io::net {
         parse_response(Response&& res, Ofstream&& ofs) const
         {
             if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
-                cli::debugln("Read type: string");
+                term::debugln("Read type: string");
                 return res.body();
             }
             else {
-                cli::debugln("Read type: file with progress");
+                term::debugln("Read type: file with progress");
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
@@ -355,8 +355,8 @@ namespace poac::io::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            std::cout << '\r' << cli::info << "Downloading ";
-                            cli::echo_byte_progress(content_length, acc);
+                            std::cout << '\r' << term::info << "Downloading ";
+                            term::echo_byte_progress(content_length, acc);
                             std::cout << "  ";
                         }
                     }
@@ -372,7 +372,7 @@ namespace poac::io::net {
         {
             const std::string new_location = res.base()["Location"].to_string();
             const auto [new_host, new_target] = parse_url(new_location);
-            cli::debugln("Redirect to ", new_location, '\n');
+            term::debugln("Redirect to ", new_location, '\n');
 
             // FIXME: header information is gone.
             const requests req(new_host);
@@ -413,7 +413,7 @@ namespace poac::io::net {
                 boost::system::error_code error{
                         static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
                 };
-                cli::debugln(error.message());
+                term::debugln(error.message());
                 throw boost::system::system_error{ error };
             }
         }
@@ -444,7 +444,7 @@ namespace poac::io::net {
                     const auto res = req.get(POAC_VERSIONS_API + "/"s + name); // TODO: /演算子が欲しい
                     ss << res.data();
                 }
-                cli::debugln(name, ": ", ss.str());
+                term::debugln(name, ": ", ss.str());
                 if (ss.str() == "null") {
                     return std::nullopt;
                 }

@@ -14,7 +14,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/lock.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/util/termcolor2.hpp>
 
@@ -38,7 +38,7 @@ namespace poac::opts::cleanup {
         namespace lock = core::resolver::lock;
         namespace name = core::name;
         namespace fs = boost::filesystem;
-        namespace cli = io::cli;
+        namespace cli = io::term;
 
         if (const auto result = check_arguments(argv)) {
             return result;

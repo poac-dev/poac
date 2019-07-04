@@ -13,7 +13,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
@@ -100,7 +100,7 @@ namespace poac::opts::_new {
         namespace except = core::except;
         namespace fs = boost::filesystem;
         namespace path = io::path;
-        namespace cli = io::cli;
+        namespace cli = io::term;
         namespace name = core::name;
         using termcolor2::color_literals::operator""_green;
         using io::path::path_literals::operator""_path;

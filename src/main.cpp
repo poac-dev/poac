@@ -9,37 +9,37 @@
 
 template <typename VS>
 int handle(std::string&& str, VS&& vs) {
-    namespace infer = poac::core::cli;
+    namespace cli = poac::core::cli;
     namespace except = poac::core::except;
-    namespace cli = poac::io::cli;
+    namespace term = poac::io::term;
     using namespace std::string_literals;
 
     try {
-        const auto result = infer::exec(std::forward<std::string>(str), std::forward<VS>(vs));
+        const auto result = cli::exec(std::forward<std::string>(str), std::forward<VS>(vs));
         if (!result.has_value()) {
             return EXIT_SUCCESS;
         }
 
         const except::Error err = result.value();
         if (std::holds_alternative<except::Error::InvalidSecondArg>(err.state)) {
-            infer::exec("help"s, VS{err.what()});
+            cli::exec("help"s, VS{err.what()});
         }
         else {
-            std::cerr << cli::error << err.what() << std::endl;
+            std::cerr << term::error << err.what() << std::endl;
         }
         return EXIT_FAILURE;
     }
     catch (const except::error& e) {
-        std::cerr << cli::error << e.what() << std::endl;
+        std::cerr << term::error << e.what() << std::endl;
         return EXIT_FAILURE;
     }
     catch (const YAML::BadConversion& e) {
-        std::cout << cli::error << "poac.yml " << e.what()
+        std::cout << term::error << "poac.yml " << e.what()
                   << std::endl;
         return EXIT_SUCCESS;
     }
     catch (...) {
-        std::cerr << cli::error << "Unexpected error" << std::endl;
+        std::cerr << term::error << "Unexpected error" << std::endl;
         return EXIT_FAILURE;
     }
 }

@@ -73,7 +73,7 @@ namespace poac::opts::install {
     }
 
     void echo_install_status(const bool res, const std::string& n, const std::string& v, const std::string& s) {
-        namespace cli = io::cli;
+        namespace cli = io::term;
         const std::string status = n + " " + v + " (from: " + s + ")";
         std::cout << '\r' << cli::clr_line << (res ? cli::fetched : cli::fetch_failed) << status << std::endl;
     }
@@ -150,7 +150,7 @@ namespace poac::opts::install {
             }
         }
         if (exists_count == static_cast<int>(deps.size())) {
-            std::cout << io::cli::warning << "Already installed" << std::endl;
+            std::cout << io::term::warning << "Already installed" << std::endl;
         }
     }
 
@@ -218,7 +218,7 @@ namespace poac::opts::install {
         namespace except = core::except;
         namespace path = io::path;
         namespace yaml = io::yaml;
-        namespace cli = io::cli;
+        namespace cli = io::term;
         namespace resolver = core::resolver::resolve;
 
 

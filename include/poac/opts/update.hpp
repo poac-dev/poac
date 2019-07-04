@@ -17,7 +17,7 @@
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/yaml.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/util/semver.hpp>
 #include <poac/util/types.hpp>
@@ -34,7 +34,7 @@ namespace poac::opts::update {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         namespace yaml = io::yaml;
-        namespace cli = io::cli;
+        namespace cli = io::term;
         namespace resolver = core::resolver::resolve;
         namespace name = core::name;
         using io::path::path_literals::operator""_path;

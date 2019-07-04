@@ -18,7 +18,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <poac/core/except.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/util/argparse.hpp>
@@ -50,7 +50,7 @@ namespace poac::opts::publish {
         const bool yes = util::argparse::use(argv, "-y", "--yes");
         if (!yes) {
             std::cout << "Are you sure publish this package? [Y/n] ";
-            if (!io::cli::yes_or_no()) {
+            if (!io::term::yes_or_no()) {
                 std::cout << "canceled." << std::endl;
                 return EXIT_FAILURE; // InterruptByUser
             }
@@ -260,7 +260,7 @@ namespace poac::opts::publish {
         }
 
         // Post tarball to API.
-        std::cout << io::cli::status << "Uploading..." << std::endl;
+        std::cout << io::term::status << "Uploading..." << std::endl;
         if (!fs::exists("poac.yml")) {
             return except::Error::DoesNotExist{
                     "poac.yml"
@@ -279,15 +279,15 @@ namespace poac::opts::publish {
 
             const io::net::requests req{};
             if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
-                std::cerr << io::cli::error << res << std::endl;
+                std::cerr << io::term::error << res << std::endl;
             }
         }
 
         // Delete file
-        std::cout << io::cli::status << "Cleanup..." << std::endl;
+        std::cout << io::term::status << "Cleanup..." << std::endl;
 //        fs::remove_all(fs::path(output_dir).parent_path());
 
-        std::cout << io::cli::status << "Done." << std::endl;
+        std::cout << io::term::status << "Done." << std::endl;
         return std::nullopt;
     }
 } // end namespace

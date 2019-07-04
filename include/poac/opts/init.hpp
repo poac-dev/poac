@@ -10,7 +10,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <poac/opts/new.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>

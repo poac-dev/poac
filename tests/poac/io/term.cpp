@@ -7,13 +7,13 @@
 #include <vector>
 #include <string>
 
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 
 // std::string to_spinner(const size_t& index)
-BOOST_AUTO_TEST_CASE( poac_io_cli_to_spinner_test )
+BOOST_AUTO_TEST_CASE( poac_io_term_to_spinner_test )
 {
-    using poac::io::cli::to_spinner;
-    using poac::io::cli::spinners;
+    using poac::io::term::to_spinner;
+    using poac::io::term::spinners;
 
     for (int i = 0; i < 100; ++i) {
         for (int j = 0; j < spinners.size(); ++j) {
@@ -23,10 +23,10 @@ BOOST_AUTO_TEST_CASE( poac_io_cli_to_spinner_test )
 }
 
 // std::string to_pointer(const size_t& index)
-BOOST_AUTO_TEST_CASE( poac_io_cli_to_pointer_test )
+BOOST_AUTO_TEST_CASE( poac_io_term_to_pointer_test )
 {
-    using poac::io::cli::to_pointer;
-    using poac::io::cli::pointers;
+    using poac::io::term::to_pointer;
+    using poac::io::term::pointers;
 
     constexpr std::size_t num = 10;
     std::vector<std::string> result(num);
@@ -44,9 +44,9 @@ BOOST_AUTO_TEST_CASE( poac_io_cli_to_pointer_test )
 }
 
 // std::string to_progress(const int& max_count, int now_count)
-BOOST_AUTO_TEST_CASE( poac_io_cli_to_progress_test )
+BOOST_AUTO_TEST_CASE( poac_io_term_to_progress_test )
 {
-    using poac::io::cli::to_progress;
+    using poac::io::term::to_progress;
 
     BOOST_TEST( to_progress(50, 0) ==   "[                                                  ]" );
     BOOST_TEST( to_progress(50, 1) ==   "[>                                                 ]" );

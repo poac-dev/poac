@@ -27,7 +27,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/lock.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/util/semver.hpp>
 

@@ -21,7 +21,7 @@
 #include <poac/core/resolver/sat.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/semver.hpp>
@@ -195,16 +195,16 @@ namespace poac::core::resolver::resolve {
         // deps.activated.size() == variables
         const auto [result, assignments] = sat::solve(clauses, activated.size());
         if (result == sat::Sat::completed) {
-            io::cli::debugln("SAT");
+            io::term::debugln("SAT");
             for (const auto& a : assignments) {
-                io::cli::debug(a, " ");
+                io::term::debug(a, " ");
                 if (a > 0) {
                     const auto dep = activated[a - 1];
                     resolved_deps.activated.push_back(dep);
                     resolved_deps.backtracked[dep.name] = { {dep.version}, {dep.source} };
                 }
             }
-            io::cli::debugln(0);
+            io::term::debugln(0);
         }
         else {
             throw except::error("Could not solve in this dependencies.");
@@ -225,9 +225,9 @@ namespace poac::core::resolver::resolve {
                     index = (l * -1) - 1;
                 }
                 const auto ac = activated[index];
-                io::cli::debug(ac.name, "-", ac.version, ": ", l, ", ");
+                io::term::debug(ac.name, "-", ac.version, ": ", l, ", ");
             }
-            io::cli::debugln();
+            io::term::debugln();
         }
         return solve_sat(activated, clauses);
     }

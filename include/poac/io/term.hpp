@@ -1,5 +1,5 @@
-#ifndef POAC_IO_CLI_HPP
-#define POAC_IO_CLI_HPP
+#ifndef POAC_IO_TERM_HPP
+#define POAC_IO_TERM_HPP
 
 #include <cstdio>
 #include <algorithm>
@@ -11,7 +11,7 @@
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2.hpp>
 
-namespace poac::io::cli {
+namespace poac::io::term {
     // Clear screen
     constexpr auto clr_screen = termcolor2::make_string("\x1b[2J");
     // Clear from the cursor position to the right end
@@ -101,7 +101,7 @@ namespace poac::io::cli {
     void echo_byte_progress(const int& max_count, const int& now_count) {
         const auto [ parsed_max_byte, max_byte_unit ] = util::pretty::to_byte(max_count);
         const auto [ parsed_now_byte, now_byte_unit ] = util::pretty::to_byte(now_count);
-        std::cout << cli::to_progress(max_count, now_count) << " ";
+        std::cout << term::to_progress(max_count, now_count) << " ";
         std::cout << std::fixed;
         std::cout << std::setprecision(2) << parsed_now_byte << now_byte_unit << "/";
         std::cout << std::setprecision(2) << parsed_max_byte << max_byte_unit << std::flush;
@@ -120,4 +120,4 @@ namespace poac::io::cli {
 #endif
     }
 } // end namespace
-#endif // !POAC_IO_CLI_HPP
+#endif // !POAC_IO_TERM_HPP

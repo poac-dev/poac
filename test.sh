@@ -18,7 +18,7 @@ pushd ./core
   g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp && { ./name-test; rm -rf ./name-test; }
 popd
 pushd ./io
-  g++ ${BASE_OPT} -o cli-test cli.cpp && { ./cli-test; rm -rf ./cli-test; }
+  g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -rf ./term-test; }
   g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o yaml-test yaml.cpp && { ./yaml-test; rm -rf ./yaml-test; }
 popd
 pushd ./opts

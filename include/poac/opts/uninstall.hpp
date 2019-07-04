@@ -16,7 +16,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/lock.hpp>
-#include <poac/io/cli.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/util/argparse.hpp>
@@ -63,7 +63,7 @@ namespace poac::opts::uninstall {
             std::string_view target_name,
             Backtracked& uninstall_list)
     {
-        namespace cli = io::cli;
+        namespace cli = io::term;
 
         // 同じ名前で複数のバージョンは存在しないことが，
         // resolved_deps = lock_to_resolved(*locked_deps);
@@ -118,7 +118,7 @@ namespace poac::opts::uninstall {
         namespace fs = boost::filesystem;
         namespace yaml = io::yaml;
         namespace resolver = core::resolver::resolve;
-        namespace cli = io::cli;
+        namespace cli = io::term;
         namespace name = core::name;
         namespace except = core::except;
         namespace lock = core::resolver::lock;
