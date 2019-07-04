@@ -62,74 +62,75 @@ namespace semver::parser {
 
     class Lexer {
     public:
+        using size_type = std::size_t;
         using string_type = std::string_view;
         using value_type = string_type::value_type;
         using traits_type = string_type::traits_type;
-        using size_type = std::size_t;
+        using const_iterator = string_type::const_iterator;
+        using const_reverse_iterator = string_type::const_reverse_iterator;
 
         string_type str;
+        size_type c1_index;
 
-        constexpr explicit
+        explicit
         Lexer(string_type s)
-            : str(s)
+            : str(s), c1_index(0)
         {}
 
-//        template <typename... Args>
-//        std::vector<Token>
-//        to_std_vector(const size_type& i, Args&... tokens) const {
-//            if (i < str.size()) {
-//                const auto result = pick(i);
-//                return to_std_vector(i + result.first, tokens..., result.second);
-//            } else {
-//                return { tokens... };
-//            }
-//        }
-//        std::vector<Token>
-//        to_std_vector() const {
-//            const auto [count, token] = pick(0);
-//            return to_std_vector(count, token);
-//        }
-
-        constexpr std::pair<std::size_t, Token>
-        pick(const std::size_t& i) const {
+        Token
+        next() {
             // two subsequent char tokens.
-            const auto two_c = two(i);
-            if (two_c.first == '<' && two_c.second == '=') {
-                return { 2, Token{ Token::LtEq } };
-            } else if (two_c.first == '>' && two_c.second == '=') {
-                return { 2, Token{ Token::GtEq } };
-            } else if (two_c.first == '|' && two_c.second == '|') {
-                return { 2, Token{ Token::Or } };
+            const auto [c1, c2] = this->two();
+            if (c1 == '<' && c2 == '=') {
+                this->step_n(2);
+                return Token{ Token::LtEq };
+            } else if (c1 == '>' && c2 == '=') {
+                this->step_n(2);
+                return Token{ Token::GtEq };
+            } else if (c1 == '|' && c2 == '|') {
+                this->step_n(2);
+                return Token{ Token::Or };
             }
 
             // single char and start of numeric tokens.
-            const value_type c = one(i);
-            if (is_whitespace(c)) {
-                return whitespace(str, i);
-            } else if (c == '=') {
-                return { 1, Token{ Token::Eq } };
-            } else if (c == '>') {
-                return { 1, Token{ Token::Gt } };
-            } else if (c == '<') {
-                return { 1, Token{ Token::Lt } };
-            } else if (c == '^') {
-                return { 1, Token{ Token::Caret } };
-            } else if (c == '~') {
-                return { 1, Token{ Token::Tilde } };
-            } else if (c == '*') {
-                return { 1, Token{ Token::Star } };
-            } else if (c == '.') {
-                return { 1, Token{ Token::Dot } };
-            } else if (c == ',') {
-                return { 1, Token{ Token::Comma } };
-            } else if (c == '-') {
-                return { 1, Token{ Token::Hyphen } };
-            } else if (c == '+') {
-                return { 1, Token{ Token::Plus } };
-            } else if (is_alpha_numeric(c)) {
-                return component(str, i);
+            if (is_whitespace(c1)) {
+                return whitespace();
+            } else if (c1 == '=') {
+                this->step();
+                return Token{ Token::Eq };
+            } else if (c1 == '>') {
+                this->step();
+                return Token{ Token::Gt };
+            } else if (c1 == '<') {
+                this->step();
+                return Token{ Token::Lt };
+            } else if (c1 == '^') {
+                this->step();
+                return Token{ Token::Caret };
+            } else if (c1 == '~') {
+                this->step();
+                return Token{ Token::Tilde };
+            } else if (c1 == '*') {
+                this->step();
+                return Token{ Token::Star };
+            } else if (c1 == '.') {
+                this->step();
+                return Token{ Token::Dot };
+            } else if (c1 == ',') {
+                this->step();
+                return Token{ Token::Comma };
+            } else if (c1 == '-') {
+                this->step();
+                return Token{ Token::Hyphen };
+            } else if (c1 == '+') {
+                this->step();
+                return Token{ Token::Plus };
+            } else if (is_alpha_numeric(c1)) {
+                return component();
+            } else {
+                this->step();
+                return Token{ Token::Unexpected };
             }
-            return { 1, Token{ Token::Unexpected } };
         }
 
         constexpr size_type
@@ -138,74 +139,86 @@ namespace semver::parser {
         }
         constexpr size_type
         max_size() const noexcept {
-            return size();
+            return str.max_size();
         }
         constexpr bool
         empty() const noexcept {
-            return size() == 0;
+            return str.empty();
         }
 
     private:
+        void step() noexcept {
+            ++c1_index;
+        }
+
+        void step_n(const size_type& n) noexcept {
+            for (size_type i = 0; i < n; ++i) {
+                step();
+            }
+        }
+
         /// Access the one character, or set it if it is not set.
-        constexpr value_type
-        one(const size_type& i) const noexcept {
-            return str[i];
+        value_type
+        one() const noexcept {
+            return str[c1_index];
         }
 
         /// Access two characters.
-        constexpr std::pair<value_type, value_type>
-        two(const size_type& i) const noexcept {
-            return { str[i], str[i + 1] };
+        std::pair<value_type, value_type>
+        two() const noexcept {
+            return { str[c1_index], str[c1_index + 1] };
         }
 
         /// Consume a component.
         ///
         /// A component can either be an alphanumeric or numeric.
         /// Does not permit leading zeroes if numeric.
-        constexpr std::pair<size_type, Token>
-        component(std::string_view str, size_type i) const {
+        Token
+        component() {
             // e.g. abcde
-            if (is_alphabet(str[i])) {
-                const size_type start = i;
-                while (is_alpha_numeric(str[++i]));
-                std::string_view sub = str.substr(start, i - start);
-                return { i - start, Token{ Token::AlphaNumeric, sub } };
+            if (is_alphabet(this->one())) {
+                const size_type start = this->c1_index;
+                while (is_alpha_numeric(this->one())) {
+                    this->step();
+                }
+                std::string_view sub = str.substr(start, this->c1_index - start);
+                return Token{ Token::AlphaNumeric, sub };
             }
 
             // exactly zero
-            if (str[i] == '0' && !is_digit(str[i + 1])) {
-                return { 1, Token{ Token::Numeric, 0 } };
+            if (const auto [c1, c2] = this->two(); c1 == '0' && !is_digit(c2)) {
+                return Token{ Token::Numeric, 0 };
             }
 
-            const size_type start = i;
-            while (is_digit(str[++i]));
-            if (str[start] != '0' && !is_alphabet(str[i])) {
+            const size_type start = this->c1_index;
+            while (is_digit(this->one())) {
+                this->step();
+            }
+            if (str[start] != '0' && !is_alphabet(this->one())) {
                 // e.g. 3425
-                std::string_view sub = str.substr(start, i - start);
+                std::string_view sub = str.substr(start, this->c1_index - start);
                 std::uint64_t value = str_to_uint(sub).value();
-                return { i - start, Token{ Token::Numeric, static_cast<std::size_t>(value) } };
+                return Token{ Token::Numeric, static_cast<std::size_t>(value) };
             }
 
             // e.g. 3425dec
-            while (is_alphabet(str[++i]));
-            std::string_view sub = str.substr(start, i - start);
-            return { i - start, Token{ Token::AlphaNumeric, sub } };
+            while (is_alphabet(this->one())) {
+                this->step();
+            }
+            std::string_view sub = str.substr(start, this->c1_index - start);
+            return Token{ Token::AlphaNumeric, sub };
         }
 
         /// Consume whitespace.
-        constexpr std::pair<size_type, Token>
-        whitespace(std::string_view str, size_type i) const noexcept {
-            const size_type start = i;
-            while (is_whitespace(str[++i]));
-            return { i - start, Token{ Token::Whitespace, start, i } };
+        Token
+        whitespace() noexcept {
+            const size_type start = this->c1_index;
+            while (is_whitespace(this->one())) {
+                this->step();
+            }
+            return Token{ Token::Whitespace, start, this->c1_index };
         }
     };
-
-//    template <std::size_t N>
-//    constexpr std::array<Token, N>
-//    lex(const char(&arr)[N]) {
-//        return Lexer<N>(arr).to_array();
-//    }
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_LEXER_HPP

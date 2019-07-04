@@ -4,33 +4,6 @@
 
 #include <poac/util/semver/parser/lexer.hpp>
 
-BOOST_AUTO_TEST_CASE( semver_lexer_token_test )
-{
-    using semver::parser::Token;
-    {
-        constexpr Token t{ Token::Eq };
-        static_assert( t.kind == Token::Eq );
-        static_assert( std::holds_alternative<std::monostate>(t.component) );
-    }
-    {
-        constexpr Token t{ Token::Whitespace, 0, 2 };
-        static_assert( t.kind == Token::Whitespace );
-        static_assert( std::holds_alternative<Token::whitespace_type>(t.component) );
-        static_assert( std::get<Token::whitespace_type>(t.component) == std::make_pair(0, 2) );
-    }
-    {
-        constexpr Token t{ Token::Numeric, 0 };
-        static_assert( t.kind == Token::Numeric );
-        static_assert( std::holds_alternative<Token::numeric_type>(t.component) );
-        static_assert( std::get<Token::numeric_type>(t.component) == 0 );
-    }
-    {
-        constexpr Token t{ Token::AlphaNumeric, "hoge" };
-        static_assert( t.kind == Token::AlphaNumeric );
-        static_assert( std::holds_alternative<Token::alphanumeric_type>(t.component) );
-    }
-}
-
 BOOST_AUTO_TEST_CASE( semver_lexer_simple_tokens_test )
 {
     using semver::parser::Lexer;
@@ -116,7 +89,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test1);
 
         BOOST_TEST(std::holds_alternative<Token::whitespace_type>(token.component));
-        const bool test2 = std::get<Token::whitespace_type>(token.component) == std::make_pair(0, 2);
+        const bool test2 = std::get<Token::whitespace_type>(token.component) == Token::whitespace_type(0, 2);
         BOOST_TEST(test2);
     }
     {
@@ -134,7 +107,7 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_whitespace_test )
         BOOST_TEST(test1);
 
         BOOST_TEST(std::holds_alternative<Token::whitespace_type>(token.component));
-        const bool test2 = std::get<Token::whitespace_type>(token.component) == std::make_pair(5, 9);
+        const bool test2 = std::get<Token::whitespace_type>(token.component) == Token::whitespace_type(5, 9);
         BOOST_TEST(test2);
     }
     {
