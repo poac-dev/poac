@@ -83,7 +83,7 @@ namespace semver::parser {
         {}
 
         constexpr
-        Token(Kind k, const alphanumeric_type& c)
+        Token(Kind k, alphanumeric_type c)
             : kind(k != Kind::AlphaNumeric
                        ? throw std::invalid_argument("semver::Token")
                        : Kind::AlphaNumeric)
@@ -177,7 +177,7 @@ namespace semver::parser {
         {}
 
         constexpr
-        Identifier(Kind k, const alphanumeric_type& c)
+        Identifier(Kind k, alphanumeric_type c)
             : kind(k != Kind::AlphaNumeric
                       ? throw std::invalid_argument("semver::Identifier")
                       : Kind::AlphaNumeric)
