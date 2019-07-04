@@ -171,8 +171,8 @@ namespace semver::parser {
         constexpr
         Identifier(Kind k, const numeric_type& n)
             : kind(k != Kind::Numeric
-            ? throw std::invalid_argument("semver::Identifier")
-            : Kind::Numeric)
+                      ? throw std::invalid_argument("semver::Identifier")
+                      : Kind::Numeric)
             , component(n)
         {}
 
