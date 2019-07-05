@@ -237,3 +237,21 @@ BOOST_AUTO_TEST_CASE( semver_parser_parser_complex_metadata_02_test )
     };
     BOOST_CHECK( expected_build == parsed.build );
 }
+
+BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_regression_01_test )
+{
+    using semver::parser::Parser;
+    using semver::parser::Identifier;
+
+    Parser parser("0.0.0-WIP");
+    const auto parsed = parser.version();
+
+    BOOST_CHECK( parsed.major == 0 );
+    BOOST_CHECK( parsed.minor == 0 );
+    BOOST_CHECK( parsed.patch == 0 );
+
+    const std::vector<Identifier> expected_pre = {
+            Identifier(Identifier::AlphaNumeric, "WIP")
+    };
+    BOOST_CHECK( expected_pre == parsed.pre );
+}
