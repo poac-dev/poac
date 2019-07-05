@@ -74,7 +74,7 @@ namespace poac::opts::help {
     const auto summary_string =
             "Usage: poac <command> [<args>]\n\n" +
             "Available commands:"_bold + '\n' +
-            construct_summary() +
+            construct_summary().to_string() +
             "\nSee `poac <command> --help` for information on a specific command.\n"
             "For full documentation, see: https://github.com/poacpm/poac#readme";
 #else
