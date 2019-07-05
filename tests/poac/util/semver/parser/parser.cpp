@@ -218,22 +218,22 @@ BOOST_AUTO_TEST_CASE( semver_parser_parser_complex_metadata_01_test )
     BOOST_CHECK( expected_build == parsed.build );
 }
 
-//BOOST_AUTO_TEST_CASE( semver_parser_parser_complex_metadata_02_test )
-//{
-//    using semver::parser::Parser;
-//    using semver::parser::Identifier;
-//
-//    Parser parser("0.4.0-beta.1+0851523");
-//    const auto parsed = parser.version();
-//
-//    const std::vector<Identifier> expected_pre = {
-//            Identifier(Identifier::AlphaNumeric, "beta"),
-//            Identifier(Identifier::Numeric, 1)
-//    };
-//    BOOST_CHECK( expected_pre == parsed.pre );
-//
-//    const std::vector<Identifier> expected_build = {
-//            Identifier(Identifier::AlphaNumeric, "0851523")
-//    };
-//    BOOST_CHECK( expected_build == parsed.build );
-//}
+BOOST_AUTO_TEST_CASE( semver_parser_parser_complex_metadata_02_test )
+{
+    using semver::parser::Parser;
+    using semver::parser::Identifier;
+
+    Parser parser("0.4.0-beta.1+0851523");
+    const auto parsed = parser.version();
+
+    const std::vector<Identifier> expected_pre = {
+            Identifier(Identifier::AlphaNumeric, "beta"),
+            Identifier(Identifier::Numeric, 1)
+    };
+    BOOST_CHECK( expected_pre == parsed.pre );
+
+    const std::vector<Identifier> expected_build = {
+            Identifier(Identifier::AlphaNumeric, "0851523")
+    };
+    BOOST_CHECK( expected_build == parsed.build );
+}
