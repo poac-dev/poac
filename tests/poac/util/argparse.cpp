@@ -52,19 +52,21 @@ BOOST_AUTO_TEST_CASE( poac_util_argparse_use_get_test )
 
     auto res = use_get(temp, "-o"); // 1
     BOOST_CHECK( static_cast<bool>(res) );
-    BOOST_CHECK( *res == "output.o" );
+    BOOST_CHECK( res.value() == "output.o" );
 
     temp = { "-h", "--help", "--flag" };
     res = use_get(temp, "-o");
     BOOST_CHECK( !static_cast<bool>(res) );
 
+    temp = { "--output", "output.o", "--flag" };
     res = use_get(temp, "-o", "--output"); // 2
     BOOST_CHECK( static_cast<bool>(res) );
-    BOOST_CHECK( *res == "output.o" );
+    BOOST_CHECK( res.value() == "output.o" );
 
+    temp = { "-o", "output.o", "--flag" };
     res = use_get(temp, "--no", "-o");
     BOOST_CHECK( static_cast<bool>(res) );
-    BOOST_CHECK( *res == "output.o" );
+    BOOST_CHECK( res.value() == "output.o" );
 
     temp = { "-h", "--help", "--flag" };
     res = use_get(temp, "-o", "--output");
