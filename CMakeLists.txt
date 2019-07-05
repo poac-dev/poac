@@ -17,7 +17,7 @@ add_definitions(-DPOAC_VERSION="0.2.1")
 
 # Compiler options.
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj /constexpr:steps2000000 /constexpr:depth4096")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj")
 else()
     if(UNIX)
         add_definitions(-fdiagnostics-color -Wall -Wextra) # -Werror
