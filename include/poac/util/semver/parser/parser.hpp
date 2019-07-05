@@ -292,24 +292,22 @@ namespace semver::parser {
 
         /// Check if we have reached the end of input.
         bool is_eof() const {
-            return lexer.max_size() < lexer.c1_index;
+            return lexer.size() < lexer.c1_index;
         }
 
         /// Get the rest of the tokens in the parser.
         ///
         /// Useful for debugging.
-//        std::vector<Token>
-//        tail() {
-//            std::vector<Token> out{};
-//
-//            out.push_back(c1);
-//            for (std::size_t i = c1_index; i < lexer.size(); ) {
-//                const auto [count, token] = lexer.pick(i);
-//                out.push_back(token);
-//                i += count;
-//            }
-//            return out;
-//        }
+        std::vector<Token>
+        tail() {
+            std::vector<Token> out{};
+
+            out.push_back(c1);
+            for (const Token token = lexer.next(); token != Token::Unexpected; ) {
+                out.push_back(token);
+            }
+            return out;
+        }
 
     private:
         bool has_ws_separator(const Token::Kind& pat) {
@@ -325,6 +323,18 @@ namespace semver::parser {
             return false;
         }
     };
+
+    std::optional<Version>
+    parse(std::string_view input) {
+
+    }
+
+    namespace range {
+        VersionReq
+        parse(std::string_view input) {
+
+        }
+    } // end namespace range
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_PARSER_HPP
