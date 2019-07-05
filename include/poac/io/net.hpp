@@ -1,11 +1,13 @@
 #ifndef POAC_IO_NET_HPP
 #define POAC_IO_NET_HPP
 
+#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <string_view>
 #include <sstream>
+#include <numeric>
 #include <map>
 #include <memory>
 #include <variant>
@@ -66,112 +68,122 @@ namespace poac::io::net {
         return { host, target };
     }
 
+    class MultiPartForm {
+    private:
+        const std::string CRLF = "\r\n";
+        std::string header;
+        std::string boundary;
+        std::string footer;
+        const std::string content_disposition = "Content-Disposition: form-data; ";
+        std::vector<std::string> form_param;
 
-    class multiPartForm {
+        using file_name_type = std::string;
+        using file_path_type = boost::filesystem::path;
+        using header_type = std::map<http::field, std::string>;
+        std::vector<std::tuple<file_name_type, file_path_type, header_type>> file_param;
+
     public:
-        multiPartForm()
-        : boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
-        , footer_(CRLF + "--" + boundary + "--" + CRLF)
+        using self_reference = MultiPartForm&;
+        using const_self_reference = const MultiPartForm&;
+
+        MultiPartForm()
+            : boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
+            , footer(CRLF + "--" + boundary + "--" + CRLF)
         {}
 
-        std::string header() const noexcept {
-            return header_;
+        std::string
+        get_header() const noexcept {
+            return header;
         }
-        std::string footer() const noexcept {
-            return footer_;
+        std::string
+        get_footer() const noexcept {
+            return footer;
         }
 
-        void set(const std::string& name, const std::string& value) {
+        void set(const file_name_type& name, const std::string& value) {
             form_param.emplace_back(
                     "--" + boundary + CRLF + content_disposition +
                     "name=\"" + name + "\"" + CRLF + CRLF + value);
-            gen_header(); // re-generate
+            generate_header(); // re-generate
         }
-        void set(const std::string& name, const boost::filesystem::path& value, const std::map<http::field, std::string>& h={}) {
+        void set(const file_name_type& name, const file_path_type& value, const header_type& h={}) {
             file_param.emplace_back(name, value, h);
-            gen_header(); // re-generate
+            generate_header(); // re-generate
         }
         template <typename Request>
         void set_req(const Request& req) {
             std::stringstream ss;
             ss << req;
             form_param.insert(form_param.begin(), ss.str());
-            gen_header(); // re-generate
+            generate_header(); // re-generate
         }
 
         std::string content_type() const {
             return "multipart/form-data; boundary=" + boundary;
         }
-        std::size_t content_length() const {
+        std::uintmax_t content_length() const {
             namespace fs = boost::filesystem;
-
-            std::size_t filesize = 0;
-            for (const auto& [name, filename, h] : file_param) {
-                (void)name; (void)h;
-                filesize += static_cast<std::size_t>(fs::file_size(filename));
-            }
-            return header_.size() + filesize + footer_.size();
+            return std::accumulate(file_param.begin(), file_param.end(), header.size() + footer.size(),
+                    [](std::uintmax_t acc, const auto& f) { return acc + fs::file_size(std::get<1>(f)); });
         }
 
-        struct fileInfo {
+        struct FileInfo {
             std::string path;
-            std::size_t size;
+            std::uintmax_t size;
         };
-        std::vector<fileInfo>
-        file() const {
+        std::vector<FileInfo>
+        get_files() const {
             namespace fs = boost::filesystem;
 
-            std::vector<fileInfo> file_info;
-            for (const auto& [name, filename, h] : file_param) {
-                (void)name; (void)h;
-                file_info.push_back({filename.string(), static_cast<std::size_t>(fs::file_size(filename))});
+            std::vector<FileInfo> file_info;
+            for (const auto& f : file_param) {
+                const fs::path file_path = std::get<1>(f);
+                file_info.push_back({file_path.string(), fs::file_size(file_path)});
             }
             return file_info;
         }
 
-//        multiPartForm* body() { return this; }
-//        const multiPartForm* body() const { return this; }
-        multiPartForm& body() { return *this; }
-        const multiPartForm& body() const { return *this; }
-//        multiPartForm body() const { return *this; }
+        self_reference
+        body() noexcept {
+            return *this;
+        }
+        const_self_reference
+        body() const noexcept {
+            return *this;
+        }
+
+        const_self_reference
+        cbody() const noexcept {
+            return *this;
+        }
 
     private:
-        const std::string CRLF = "\r\n";
-        std::string header_;
-        std::string boundary;
-        std::string footer_;
-        const std::string content_disposition = "Content-Disposition: form-data; ";
-        std::vector<std::string> form_param;
-        std::vector<std::tuple<std::string, boost::filesystem::path, std::map<http::field, std::string>>> file_param;
-
-        void gen_header() {
-            std::string r;
-            if (form_param.size() > 0) {
-                r = form_param[0];
-                if (form_param.size() != 1) {
-                    for (auto itr = form_param.cbegin()+1; itr != form_param.cend(); ++itr) {
-                        r += CRLF + (*itr);
-                    }
+        void generate_header() {
+            this->header = "";
+            for (std::size_t i = 0; i < form_param.size(); ++i) {
+                if (i != 0) {
+                    this->header += CRLF;
                 }
+                this->header += form_param[i];
             }
-            for (const auto& [name, filename, h] : file_param) {
-                std::string h_ =
+            for (const auto& [name, filename, header] : file_param) {
+                std::string h =
                         "--" + boundary + CRLF + content_disposition +
                         "name=\"" + name + "\"; filename=\"" + filename.filename().string() + "\"";
-                if (!h.empty()) {
-                    for (const auto& [field, content] : h) {
-                        h_ += CRLF;
-                        h_ += std::string(http::to_string(field)) + ": " + content;
+                if (!header.empty()) {
+                    for (const auto& [field, content] : header) {
+                        h += CRLF;
+                        h += std::string(http::to_string(field)) + ": " + content;
                     }
                 }
-                r += CRLF + h_;
+                this->header += CRLF + h;
             }
-            r += CRLF + CRLF;
-            header_ = r;
+            this->header += CRLF + CRLF;
         }
     };
 
-
+    // TODO: ioc, ctx, resolver,...等はget等を呼び出し後，解体し，host等は残すことで，連続で呼び出し可能にする．
+    // TODO: GITHUB APIを使っている時，403の場合は，GitHub API rate limit exceededだから，GITHUB tokenを登録するように促す
     // Only SSL usage
     class requests {
     public:
@@ -187,8 +199,7 @@ namespace poac::io::net {
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
         typename ResponseBody::value_type
-        do_(Request&& req, Ofstream&& ofs) const
-        {
+        do_(Request&& req, Ofstream&& ofs) const {
             ssl_prepare();
             write_request(req);
             return read_response<method, ResponseBody>(std::forward<Request>(req), std::forward<Ofstream>(ofs));
@@ -199,8 +210,7 @@ namespace poac::io::net {
                         std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>,
                         http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
-        get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const
-        {
+        get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
             term::debugln(req);
             return do_<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
@@ -208,16 +218,15 @@ namespace poac::io::net {
 
         template <typename BodyType, typename Ofstream=std::nullptr_t,
                 typename RequestBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<BodyType>, multiPartForm>,
+                        std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>,
                         http::empty_body, http::string_body>,
                 typename ResponseBody=std::conditional_t<
                         std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>,
                         http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
-        post(std::string_view target, BodyType&& body, const Headers& headers={}, Ofstream&& ofs=nullptr) const
-        {
+        post(std::string_view target, BodyType&& body, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             auto req = create_request<RequestBody>(http::verb::post, target, host, headers);
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<BodyType>, multiPartForm>) {
+            if constexpr (!std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>) {
                 req.set(http::field::content_type, "application/json");
                 body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
@@ -244,9 +253,8 @@ namespace poac::io::net {
         std::unique_ptr<ssl::stream<boost::asio::ip::tcp::socket>> stream;
 
         template <typename Request>
-        void write_request(const Request& req) const
-        {
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<Request>, multiPartForm>) {
+        void write_request(const Request& req) const {
+            if constexpr (!std::is_same_v<util::types::remove_cvref_t<Request>, MultiPartForm>) {
                 simple_write(req);
             }
             else {
@@ -255,24 +263,22 @@ namespace poac::io::net {
         }
 
         template <typename Request>
-        void simple_write(const Request& req) const
-        {
+        void simple_write(const Request& req) const {
             term::debugln("Write type: string");
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
 
         template <typename Request>
-        void progress_write(const Request& req) const
-        {
+        void progress_write(const Request& req) const {
             term::debugln("Write type: multipart/form-data");
 
             // Send the HTTP request to the remote host
-            stream->write_some(boost::asio::buffer(req.header()));
+            stream->write_some(boost::asio::buffer(req.get_header()));
             // Read file and write to stream
-            // FIXME: 複数のファイル送信を想定していない．
-            //  FIXME: -> 複数ファイルだと，req.headerをちょびちょびで送る必要がある．
-            for (const auto& file : req.file()) {
+            // TODO: 複数のファイル送信を想定していない．
+            //  TODO: -> 複数ファイルだと，req.headerをちょびちょびで送る必要がある．
+            for (const auto& file : req.get_files()) {
                 std::ifstream ifs(file.path, std::ios::in | std::ios::binary);
                 char buf[512];
                 unsigned long cur_file_size = 0;
@@ -288,15 +294,13 @@ namespace poac::io::net {
                 std::cout << '\r' << term::clr_line << term::info << "Uploaded." << std::endl;
             }
             // Send footer to stream
-            stream->write_some(boost::asio::buffer(req.footer()));
+            stream->write_some(boost::asio::buffer(req.get_footer()));
             std::cout << term::info << "Waiting for server response..." << std::endl;
         }
 
-
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
         typename ResponseBody::value_type
-        read_response(Request&& old_req, Ofstream&& ofs) const
-        {
+        read_response(Request&& old_req, Ofstream&& ofs) const {
             // This buffer is used for reading and must be persisted
             boost::beast::flat_buffer buffer;
             // Declare a container to hold the response
@@ -313,8 +317,7 @@ namespace poac::io::net {
         template <http::verb method, typename Request, typename Response, typename Ofstream,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
-        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const
-        {
+        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             close_stream();
             switch (res.base().result_int() / 100) {
                 case 2:
@@ -336,8 +339,7 @@ namespace poac::io::net {
         template <typename Response, typename Ofstream,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
-        parse_response(Response&& res, Ofstream&& ofs) const
-        {
+        parse_response(Response&& res, Ofstream&& ofs) const {
             if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
                 term::debugln("Read type: string");
                 return res.body();
@@ -368,11 +370,10 @@ namespace poac::io::net {
         template <http::verb method, typename Request, typename Response, typename Ofstream,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
-        redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const
-        {
+        redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             const std::string new_location = res.base()["Location"].to_string();
             const auto [new_host, new_target] = parse_url(new_location);
-            term::debugln("Redirect to ", new_location, '\n');
+            term::debugln("Redirect to ", new_location, "\n");
 
             // FIXME: header information is gone.
             const requests req(new_host);
@@ -387,8 +388,7 @@ namespace poac::io::net {
             }
         }
 
-        void close_stream() const
-        {
+        void close_stream() const {
             // Gracefully close the stream
             boost::system::error_code error;
             stream->shutdown(error);
@@ -399,14 +399,12 @@ namespace poac::io::net {
         }
 
         // Prepare ssl connection
-        void ssl_prepare() const
-        {
+        void ssl_prepare() const {
             ssl_set_tlsext();
             lookup();
             ssl_handshake();
         }
-        void ssl_set_tlsext() const
-        {
+        void ssl_set_tlsext() const {
             // Set SNI Hostname (many hosts need this to handshake successfully)
             if(!SSL_set_tlsext_host_name(stream->native_handle(), std::string(host).c_str()))
             {
@@ -417,20 +415,17 @@ namespace poac::io::net {
                 throw boost::system::system_error{ error };
             }
         }
-        void lookup() const
-        {
+        void lookup() const {
             // Look up the domain name
             const auto results = resolver->resolve(host, port);
             // Make the connection on the IP address we get from a lookup
             boost::asio::connect(stream->next_layer(), results.begin(), results.end());
         }
-        void ssl_handshake() const
-        {
+        void ssl_handshake() const {
             // Perform the SSL handshake
             stream->handshake(ssl::stream_base::client);
         }
     };
-
 
     namespace api {
         std::optional<std::vector<std::string>>
