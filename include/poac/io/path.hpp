@@ -19,8 +19,7 @@ namespace poac::io::path {
         std::size_t len;
         if (_dupenv_s(&env, &len, name.c_str())) {
             return std::nullopt;
-        }
-        else {
+        } else {
             std::string env_s(env);
             std::free(env);
             return env_s;
@@ -28,8 +27,7 @@ namespace poac::io::path {
 #else
         if (const char* env = std::getenv(name.c_str())) {
             return env;
-        }
-        else {
+        } else {
             return std::nullopt;
         }
 #endif
@@ -50,9 +48,9 @@ namespace poac::io::path {
             if (hdrive && hpath) {
                 return hdrive.value() + hpath.value();
             }
+            throw except::error(
+                    except::msg::could_not_read("environment variable"));
         }
-        throw except::error(
-                except::msg::could_not_read("environment variable"));
     }
 
     inline namespace path_literals {
