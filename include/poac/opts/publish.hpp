@@ -89,7 +89,7 @@ namespace poac::opts::publish {
         std::string_view target = GITHUB_REPOS_API + ("/" + full_name) + "/license?ref=" + version;
 #ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
         io::net::Headers headers;
-        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("GITHUB_TOKEN").value());
+        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("POAC_GITHUB_API_TOKEN").value());
         const auto res = req.get(target, headers);
 #else
         const auto res = req.get(target);
@@ -120,7 +120,7 @@ namespace poac::opts::publish {
         std::string_view target = GITHUB_REPOS_API + ("/" + full_name);
 #ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
         io::net::Headers headers;
-        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("GITHUB_TOKEN").value());
+        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("POAC_GITHUB_API_TOKEN").value());
         const auto res = req.get(target);
 #else
         const auto res = req.get(target);
@@ -147,7 +147,7 @@ namespace poac::opts::publish {
         std::string_view target = GITHUB_REPOS_API + ("/" + full_name) + "/releases/latest";
 #ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
         io::net::Headers headers;
-        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("GITHUB_TOKEN").value());
+        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("POAC_GITHUB_API_TOKEN").value());
         const auto res = req.get(target);
 #else
         const auto res = req.get(target);
