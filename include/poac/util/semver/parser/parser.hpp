@@ -324,17 +324,17 @@ namespace semver::parser {
         }
     };
 
-    std::optional<Version>
-    parse(std::string_view input) {
-
-    }
-
-    namespace range {
-        VersionReq
-        parse(std::string_view input) {
-
-        }
-    } // end namespace range
+//    std::optional<Version>
+//    parse(std::string_view input) {
+//
+//    }
+//
+//    namespace range {
+//        VersionReq
+//        parse(std::string_view input) {
+//
+//        }
+//    } // end namespace range
 } // end namespace semver::parser
 
 #endif // !SEMVER_PARSER_PARSER_HPP
