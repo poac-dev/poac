@@ -22,7 +22,7 @@ pushd ./io
   g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o yaml-test yaml.cpp && { ./yaml-test; rm -rf ./yaml-test; }
 popd
 pushd ./opts
-  g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o publish-test publish.cpp && { ./publish-test; rm -rf ./publish-test; }
+  g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DTRAVIS=${TRAVIS} -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o publish-test publish.cpp && { ./publish-test; rm -rf ./publish-test; }
 popd
 pushd ./util
   g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -rf ./argparse-test; }

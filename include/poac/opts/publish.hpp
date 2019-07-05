@@ -18,8 +18,9 @@
 #include <yaml-cpp/yaml.h>
 
 #include <poac/core/except.hpp>
-#include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/term.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/pretty.hpp>
@@ -59,18 +60,25 @@ namespace poac::opts::publish {
     }
 
     void summarize(const PackageInfo& package_info) {
+        using termcolor2::color_literals::operator""_bold;
         namespace pretty = util::pretty;
-        std::cout << "Summary:"
-                  << "\n  Name: " << package_info.name
-                  << "\n  Version: " << package_info.version.get_version()
-                  << "\n  Description: " << pretty::clip_string(package_info.description.value_or("null"), 50)
-                  << "\n  C++ Version (minimum required version): " << package_info.cpp_version
-                  << "\n  License: " << package_info.license.value_or("null") // TODO: /repos/poacpm/poac/license\?ref\=0.2.1 -> license -> name
-                  << "\n  Package Type: " << package_info.package_type
+        std::cout << "Summary:"_bold
+                  << "\n  Name: "_bold << package_info.name
+                  << "\n  Version: "_bold << package_info.version.get_version()
+                  << "\n  Description: "_bold << pretty::clip_string(package_info.description.value_or("null"), 50)
+                  << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
+                  << "\n  License: "_bold << package_info.license.value_or("null")
+                  << "\n  Package Type: "_bold << package_info.package_type
                   << "\n\n" << std::endl;
     }
 
     std::string get_package_type() {
+        // poac.ymlに，
+        // buildキーがなければ，header-only library
+        // 例外：buildキーがあり，libとbinキーがなければ，エラー
+        // buildキーがあり，libキーがありtrue，binキーがない，もしくは，falseなれば，build-required library
+        // buildキーがあり，binキーがあれば，application -> 現状は，applicationはpublishできない
+
         return "dummy";
     }
 
@@ -78,7 +86,14 @@ namespace poac::opts::publish {
     get_license(const std::string& full_name, const std::string& version) {
         // https://developer.github.com/v3/licenses/#get-the-contents-of-a-repositorys-license
         const io::net::requests req{ GITHUB_API_HOST };
-        const auto res = req.get(GITHUB_REPOS_API + ("/" + full_name) + "/license?ref=" + version);
+        std::string_view target = GITHUB_REPOS_API + ("/" + full_name) + "/license?ref=" + version;
+#ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
+        io::net::Headers headers;
+        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("GITHUB_TOKEN").value());
+        const auto res = req.get(target, headers);
+#else
+        const auto res = req.get(target);
+#endif
 
         std::stringstream ss;
         ss << res.data();
@@ -102,7 +117,14 @@ namespace poac::opts::publish {
     get_description(const std::string& full_name) {
         // https://developer.github.com/v3/repos/#get
         const io::net::requests req{ GITHUB_API_HOST };
-        const auto res = req.get(GITHUB_REPOS_API + ("/" + full_name));
+        std::string_view target = GITHUB_REPOS_API + ("/" + full_name);
+#ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
+        io::net::Headers headers;
+        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("GITHUB_TOKEN").value());
+        const auto res = req.get(target);
+#else
+        const auto res = req.get(target);
+#endif
 
         std::stringstream ss;
         ss << res.data();
@@ -122,7 +144,14 @@ namespace poac::opts::publish {
     get_version(const std::string& full_name) {
         // https://developer.github.com/v3/repos/releases/#get-the-latest-release
         const io::net::requests req{ GITHUB_API_HOST };
-        const auto res = req.get(GITHUB_REPOS_API + ("/" + full_name) + "/releases/latest");
+        std::string_view target = GITHUB_REPOS_API + ("/" + full_name) + "/releases/latest";
+#ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
+        io::net::Headers headers;
+        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("GITHUB_TOKEN").value());
+        const auto res = req.get(target);
+#else
+        const auto res = req.get(target);
+#endif
 
         std::stringstream ss;
         ss << res.data();
@@ -161,9 +190,9 @@ namespace poac::opts::publish {
             if (const auto sub2 = extract_str(repository, "git@github.com:", ".git")) {
                 return sub2.value();
             }
+            throw core::except::error(
+                    "Invalid repository name");
         }
-        throw core::except::error(
-                "Invalid repository name");
     }
 
     std::string get_name() {
@@ -216,10 +245,9 @@ namespace poac::opts::publish {
             return result;
         }
 
-        std::cout << get_name() << std::endl;
+        const auto package_info = report_publish_start();
         throw except::error("hoge");
 
-        const auto package_info = report_publish_start();
         // if(is_known_version(package_info.version)) {
         //     return except::Error::General{"hoge is already exists"}
         // };
@@ -246,48 +274,48 @@ namespace poac::opts::publish {
 
 //        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
 
-        const auto node = io::yaml::load_config("name", "version");
-        const auto node_name = node.at("name").as<std::string>();
-        const auto node_version = node.at("version").as<std::string>();
-        {
-            const io::net::requests req{};
-            const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
-            if (res.data() == "true"s) {
-                return except::Error::General{
-                        except::msg::already_exist(node_name + ": " + node_version)
-                };
-            }
-        }
-
-        // Post tarball to API.
-        std::cout << io::term::status << "Uploading..." << std::endl;
-        if (!fs::exists("poac.yml")) {
-            return except::Error::DoesNotExist{
-                    "poac.yml"
-            };
-//            return except::Error::General{
-//                    except::msg::does_not_exist("poac.yml")
+//        const auto node = io::yaml::load_config("name", "version");
+//        const auto node_name = node.at("name").as<std::string>();
+//        const auto node_version = node.at("version").as<std::string>();
+//        {
+//            const io::net::requests req{};
+//            const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
+//            if (res.data() == "true"s) {
+//                return except::Error::General{
+//                        except::msg::already_exist(node_name + ": " + node_version)
+//                };
+//            }
+//        }
+//
+//        // Post tarball to API.
+//        std::cout << io::term::status << "Uploading..." << std::endl;
+//        if (!fs::exists("poac.yml")) {
+//            return except::Error::DoesNotExist{
+//                    "poac.yml"
 //            };
-        }
-        {
-            io::net::multiPartForm mp_form;
-//            mp_form.set("token", token);
-            std::map<io::net::http::field, std::string> h;
-            h[io::net::http::field::content_type] = "application/x-gzip";
-            h[io::net::http::field::content_transfer_encoding] = "binary";
-//            mp_form.set("file", output_dir, h);
-
-            const io::net::requests req{};
-            if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
-                std::cerr << io::term::error << res << std::endl;
-            }
-        }
-
-        // Delete file
-        std::cout << io::term::status << "Cleanup..." << std::endl;
-//        fs::remove_all(fs::path(output_dir).parent_path());
-
-        std::cout << io::term::status << "Done." << std::endl;
+////            return except::Error::General{
+////                    except::msg::does_not_exist("poac.yml")
+////            };
+//        }
+//        {
+//            io::net::multiPartForm mp_form;
+////            mp_form.set("token", token);
+//            std::map<io::net::http::field, std::string> h;
+//            h[io::net::http::field::content_type] = "application/x-gzip";
+//            h[io::net::http::field::content_transfer_encoding] = "binary";
+////            mp_form.set("file", output_dir, h);
+//
+//            const io::net::requests req{};
+//            if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
+//                std::cerr << io::term::error << res << std::endl;
+//            }
+//        }
+//
+//        // Delete file
+//        std::cout << io::term::status << "Cleanup..." << std::endl;
+////        fs::remove_all(fs::path(output_dir).parent_path());
+//
+//        std::cout << io::term::status << "Done." << std::endl;
         return std::nullopt;
     }
 } // end namespace

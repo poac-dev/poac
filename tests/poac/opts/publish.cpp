@@ -8,6 +8,9 @@
 #include <fstream>
 
 #include <poac/core/except.hpp>
+#if TRAVIS
+#  define POAC_USE_GITHUB_TOKEN_FROM_ENV
+#endif
 #include <poac/opts/publish.hpp>
 #include <poac/config.hpp>
 
