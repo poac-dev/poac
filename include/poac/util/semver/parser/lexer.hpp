@@ -79,6 +79,11 @@ namespace semver::parser {
 
         Token
         next() {
+            // Check out of range
+            if (c1_index > this->size()) {
+                return Token{ Token::Unexpected };
+            }
+
             // two subsequent char tokens.
             const auto [c1, c2] = this->two();
             if (c1 == '<' && c2 == '=') {
