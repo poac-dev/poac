@@ -47,8 +47,8 @@ namespace poac::io::net {
             http::verb method,
             std::string_view target,
             std::string_view host=POAC_API_HOST,
-            const Headers& headers={})
-    {
+            const Headers& headers={}
+    ) {
         // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
         http::request<RequestBody> req{ method, std::string(target), 11 };
         req.set(http::field::host, host);
