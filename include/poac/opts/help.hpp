@@ -70,16 +70,21 @@ namespace poac::opts::help {
     }
 
 #if BOOST_COMP_MSVC
-    const
+    using termcolor2::color_literals::operator""_bold;
+    const auto summary_string =
+            "Usage: poac <command> [<args>]\n\n" +
+            "Available commands:"_bold + '\n' +
+            construct_summary() +
+            "\nSee `poac <command> --help` for information on a specific command.\n"
+            "For full documentation, see: https://github.com/poacpm/poac#readme";
 #else
-    constexpr
-#endif
-    auto summary_string =
+    constexpr auto summary_string =
             termcolor2::make_string("Usage: poac <command> [<args>]\n\n") +
             termcolor2::bold<> + "Available commands:" + termcolor2::reset<> + '\n' +
             construct_summary() +
             "\nSee `poac <command> --help` for information on a specific command.\n"
             "For full documentation, see: https://github.com/poacpm/poac#readme";
+#endif
 
     const std::unordered_map<std::string, std::string>
     options_map{
