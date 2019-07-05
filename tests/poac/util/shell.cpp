@@ -13,9 +13,9 @@
 BOOST_AUTO_TEST_CASE( poac_util_shell_shell_test )
 {
     using poac::util::shell;
-    BOOST_TEST( shell().string() == "" ); // 1
-    BOOST_TEST( shell("cd").string() == "cd" ); // 2
-    BOOST_TEST( shell("cd").string() == "cd" ); // 3
+    BOOST_CHECK( shell().string() == "" ); // 1
+    BOOST_CHECK( shell("cd").string() == "cd" ); // 2
+    BOOST_CHECK( shell("cd").string() == "cd" ); // 3
 }
 
 // shell env(const std::string& name, const std::string& val)
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_env_test )
     cmd = cmd.env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/");
     cmd = cmd.env("MACOSX_RPATH", "1");
 
-    BOOST_TEST( cmd.string() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .." );
+    BOOST_CHECK( cmd.string() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .." );
 }
 
 // shell stderr_to_stdout()
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_stderr_to_stdout_test )
 
     shell cmd("cmake ..");
     cmd = cmd.stderr_to_stdout();
-    BOOST_TEST( cmd.string() == "cmake .. 2>&1" );
+    BOOST_CHECK( cmd.string() == "cmake .. 2>&1" );
 }
 
 // shell to_dev_null()
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_to_dev_null_test )
 
     shell cmd("cmake ..");
     cmd = cmd.to_dev_null();
-    BOOST_TEST( cmd.string() == "cmake .. >/dev/null" );
+    BOOST_CHECK( cmd.string() == "cmake .. >/dev/null" );
 }
 
 // boost::optional<std::string> exec()
@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
     using poac::util::shell;
     {
         shell cmd("echo test");
-        BOOST_TEST(*(cmd.exec()) == "test\n");
+        BOOST_CHECK(*(cmd.exec()) == "test\n");
     }
     {
         shell cmd("nocmd");
-        BOOST_TEST(!static_cast<bool>(cmd.exec()));
+        BOOST_CHECK(!static_cast<bool>(cmd.exec()));
     }
 }
 
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_incontinent_test )
 {
     using poac::util::shell;
     shell cmd("cd");
-    BOOST_TEST( cmd.exec_incontinent() == EXIT_SUCCESS );
+    BOOST_CHECK( cmd.exec_incontinent() == EXIT_SUCCESS );
 }
 
 // friend std::ostream& operator<<(std::ostream& stream, const shell& c)
@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test1 )
     boost::test_tools::output_test_stream output;
     output << cmd;
 
-    BOOST_TEST( !output.is_empty( false ) );
-    BOOST_TEST( output.is_equal( "mkdir test && cd test" ) );
+    BOOST_CHECK( !output.is_empty( false ) );
+    BOOST_CHECK( output.is_equal( "mkdir test && cd test" ) );
 }
 
 // bool operator==(const shell& rhs)
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test2 )
     shell cmd("mkdir test");
     cmd &= "cd test";
 
-    BOOST_TEST( cmd == shell("mkdir test && cd test") );
+    BOOST_CHECK( cmd == shell("mkdir test && cd test") );
 }
 // bool operator==(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test3 )
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test3 )
     shell cmd("mkdir test");
     cmd &= "cd test";
 
-    BOOST_TEST( cmd == "mkdir test && cd test" );
+    BOOST_CHECK( cmd == "mkdir test && cd test" );
 }
 
 // shell operator&&(const shell& rhs)
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test4 )
     shell cmd("mkdir test");
     shell cmd2 = (cmd && shell("cd test"));
 
-    BOOST_TEST( cmd2.string() == "mkdir test && cd test" );
+    BOOST_CHECK( cmd2.string() == "mkdir test && cd test" );
 }
 // shell operator&&(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test5 )
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test5 )
     const shell cmd("mkdir test");
     const shell cmd2 = (cmd && "cd test");
 
-    BOOST_TEST( cmd2.string() == "mkdir test && cd test" );
+    BOOST_CHECK( cmd2.string() == "mkdir test && cd test" );
 }
 
 // shell operator&=(const shell& rhs)
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test6 )
     shell cmd("mkdir test");
     cmd &= shell("cd test");
 
-    BOOST_TEST( cmd.string() == "mkdir test && cd test" );
+    BOOST_CHECK( cmd.string() == "mkdir test && cd test" );
 }
 // shell operator&=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test7 )
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test7 )
     shell cmd("mkdir test");
     cmd &= "cd test";
 
-    BOOST_TEST( cmd.string() == "mkdir test && cd test" );
+    BOOST_CHECK( cmd.string() == "mkdir test && cd test" );
 }
 
 // shell operator||(const shell& rhs)
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test8 )
     shell cmd("mkdir test");
     shell cmd2 = (cmd || shell("cd test"));
 
-    BOOST_TEST( cmd2.string() == "mkdir test || cd test" );
+    BOOST_CHECK( cmd2.string() == "mkdir test || cd test" );
 }
 // shell operator||(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test9 )
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test9 )
     const shell cmd("mkdir test");
     const shell cmd2 = (cmd || "cd test");
 
-    BOOST_TEST( cmd2.string() == "mkdir test || cd test" );
+    BOOST_CHECK( cmd2.string() == "mkdir test || cd test" );
 }
 
 // shell operator|=(const shell& rhs)
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test10 )
     shell cmd("mkdir test");
     cmd |= shell("cd test");
 
-    BOOST_TEST( cmd.string() == "mkdir test || cd test" );
+    BOOST_CHECK( cmd.string() == "mkdir test || cd test" );
 }
 // shell operator|=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test11 )
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test11 )
     shell cmd("mkdir test");
     cmd |= "cd test";
 
-    BOOST_TEST( cmd.string() == "mkdir test || cd test" );
+    BOOST_CHECK( cmd.string() == "mkdir test || cd test" );
 }
 
 // shell operator+(const shell& rhs)
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test12 )
     shell cmd("mkdir test");
     shell cmd2 = (cmd + shell("cd test"));
 
-    BOOST_TEST( cmd2.string() == "mkdir test cd test" );
+    BOOST_CHECK( cmd2.string() == "mkdir test cd test" );
 }
 // shell operator+(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test13 )
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test13 )
     const shell cmd("mkdir test");
     const shell cmd2 = (cmd + "cd test");
 
-    BOOST_TEST( cmd2.string() == "mkdir test cd test" );
+    BOOST_CHECK( cmd2.string() == "mkdir test cd test" );
 }
 
 // shell operator+=(const shell& rhs)
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test14 )
     shell cmd("mkdir test");
     cmd += shell("cd test");
 
-    BOOST_TEST( cmd.string() == "mkdir test cd test" );
+    BOOST_CHECK( cmd.string() == "mkdir test cd test" );
 }
 // shell operator+=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test15 )
@@ -231,12 +231,12 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test15 )
     shell cmd("mkdir test");
     cmd += "cd test";
 
-    BOOST_TEST( cmd.string() == "mkdir test cd test" );
+    BOOST_CHECK( cmd.string() == "mkdir test cd test" );
 }
 
 // bool has_shell(const std::string& c)
 BOOST_AUTO_TEST_CASE( poac_util_shell_has_command_test )
 {
     using poac::util::_shell::has_command;
-    BOOST_TEST( has_command("cd") );
+    BOOST_CHECK( has_command("cd") );
 }

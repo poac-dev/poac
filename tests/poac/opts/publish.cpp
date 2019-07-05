@@ -15,8 +15,8 @@
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_license_test )
 {
     using poac::opts::publish::get_license;
-    BOOST_TEST( get_license("poacpm/poac", "0.2.1").value() == "GNU General Public License v3.0" );
-    BOOST_TEST( get_license("poacpm/api.poac.pm", "master").value() == "MIT License" );
+    BOOST_CHECK( get_license("poacpm/poac", "0.2.1").value() == "GNU General Public License v3.0" );
+    BOOST_CHECK( get_license("poacpm/api.poac.pm", "master").value() == "MIT License" );
 }
 
 // std::uint16_t get_cpp_version()
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_cpp_version_test )
     }
 
     using poac::opts::publish::get_cpp_version;
-    BOOST_TEST( get_cpp_version() == 17 );
+    BOOST_CHECK( get_cpp_version() == 17 );
 
     fs::remove(config_path);
 }
@@ -40,15 +40,15 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_cpp_version_test )
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_description_test )
 {
     using poac::opts::publish::get_description;
-    BOOST_TEST( get_description("poacpm/poac").value() == "Package manager for C++" );
-    BOOST_TEST( !static_cast<bool>(get_description("matken11235/to_TFRecord")) );
+    BOOST_CHECK( get_description("poacpm/poac").value() == "Package manager for C++" );
+    BOOST_CHECK( !static_cast<bool>(get_description("matken11235/to_TFRecord")) );
 }
 
 // core::resolver::semver::Version get_version(const std::string& full_name)
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_version_test )
 {
     using poac::opts::publish::get_version;
-    BOOST_TEST( get_version("poacpm/poac") == POAC_VERSION );
+    BOOST_CHECK( get_version("poacpm/poac") == POAC_VERSION );
 
     BOOST_CHECK_THROW(
             get_version("poacpm/poac.pm"),
@@ -63,15 +63,15 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_extract_str_test )
 
     {
         std::string_view target = "https://github.com/poacpm/poac.git";
-        BOOST_TEST( extract_str(target, "https://github.com/", ".git").value() == "poacpm/poac" );
+        BOOST_CHECK( extract_str(target, "https://github.com/", ".git").value() == "poacpm/poac" );
     }
     {
         std::string_view target = "git@github.com:poacpm/poac.git";
-        BOOST_TEST( !static_cast<bool>(extract_str(target, "https://github.com/", ".git")) );
+        BOOST_CHECK( !static_cast<bool>(extract_str(target, "https://github.com/", ".git")) );
     }
     {
         std::string_view target = "git@github.com:poacpm/poac.git";
-        BOOST_TEST( extract_str(target, "git@github.com:", ".git").value() == "poacpm/poac" );
+        BOOST_CHECK( extract_str(target, "git@github.com:", ".git").value() == "poacpm/poac" );
     }
 }
 
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_extract_full_name_test )
 
     {
         std::string_view repo = "https://github.com/poacpm/poac.git";
-        BOOST_TEST( extract_full_name(repo) == "poacpm/poac" );
+        BOOST_CHECK( extract_full_name(repo) == "poacpm/poac" );
     }
     {
         std::string_view repo = "github.com/poacpm/poac.git";
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_extract_full_name_test )
     }
     {
         std::string_view repo = "git@github.com:poacpm/poac.git";
-        BOOST_TEST( extract_full_name(repo) == "poacpm/poac" );
+        BOOST_CHECK( extract_full_name(repo) == "poacpm/poac" );
     }
 }
 
@@ -101,5 +101,5 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_extract_full_name_test )
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_name_test )
 {
     using poac::opts::publish::get_name;
-    BOOST_TEST( get_name() == "poacpm/poac" );
+    BOOST_CHECK( get_name() == "poacpm/poac" );
 }

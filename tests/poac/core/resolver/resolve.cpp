@@ -30,5 +30,5 @@ BOOST_AUTO_TEST_CASE( poac_core_resolver_test1 )
     backtracked["E"] = { {"1.0.0"}, {""} };
 
     const Resolved result = backtrack_loop(test);
-    BOOST_TEST( result.backtracked == backtracked );
+    BOOST_CHECK( result.backtracked == backtracked );
 }

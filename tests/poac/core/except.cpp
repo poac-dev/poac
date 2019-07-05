@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE( poac_core_except_error_test )
         throw error(msg);
     }
     catch (const error& e) {
-        BOOST_TEST(e.what() == msg);
+        BOOST_CHECK(e.what() == msg);
     }
 
     try {
@@ -24,6 +24,6 @@ BOOST_AUTO_TEST_CASE( poac_core_except_error_test )
         throw error("ho", msg1, msg2, msg3);
     }
     catch (const error& e) {
-        BOOST_TEST(e.what() == "hoge,hoge: 10");
+        BOOST_CHECK(e.what() == "hoge,hoge: 10");
     }
 }
