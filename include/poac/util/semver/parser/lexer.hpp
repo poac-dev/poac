@@ -192,6 +192,7 @@ namespace semver::parser {
 
             // exactly zero
             if (const auto [c1, c2] = this->two(); c1 == '0' && !is_digit(c2)) {
+                this->step();
                 return Token{ Token::Numeric, 0 };
             }
 
