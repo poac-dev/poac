@@ -26,7 +26,7 @@ namespace poac::opts::cleanup {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (!argv.empty()) {
-            return except::Error::InvalidSecondArg::Cleanup{};
+            return except::Error::InvalidSecondArg::Cleanup;
         }
         return std::nullopt;
     }

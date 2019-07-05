@@ -56,7 +56,7 @@ namespace poac::opts::init {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (!argv.empty()) {
-            return except::Error::InvalidSecondArg::Init{};
+            return except::Error::InvalidSecondArg::Init;
         }
         return std::nullopt;
     }

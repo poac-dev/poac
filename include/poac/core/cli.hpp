@@ -44,7 +44,7 @@ namespace poac::core::cli {
             return opts_map.at(cmd)(arg);
         }
         catch(std::out_of_range&) {
-            return except::Error::InvalidFirstArg{};
+            return except::Error::InvalidFirstArg;
         }
     }
 }

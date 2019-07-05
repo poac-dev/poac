@@ -46,17 +46,16 @@ namespace poac::opts::publish {
 //
 //    }
 
-    template <typename VS>
-    int confirm(const VS& argv) {
+    std::optional<core::except::Error>
+    confirm(const std::vector<std::string>& argv) {
         const bool yes = util::argparse::use(argv, "-y", "--yes");
         if (!yes) {
             std::cout << "Are you sure publish this package? [Y/n] ";
             if (!io::term::yes_or_no()) {
-                std::cout << "canceled." << std::endl;
-                return EXIT_FAILURE; // InterruptByUser
+                return core::except::Error::InterruptedByUser;
             }
         }
-        return EXIT_SUCCESS;
+        return std::nullopt;
     }
 
     void summarize(const PackageInfo& package_info) {
@@ -69,7 +68,7 @@ namespace poac::opts::publish {
                   << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
                   << "\n  License: "_bold << package_info.license.value_or("null")
                   << "\n  Package Type: "_bold << package_info.package_type
-                  << "\n\n" << std::endl;
+                  << "\n" << std::endl;
     }
 
     std::string get_package_type() {
@@ -78,8 +77,16 @@ namespace poac::opts::publish {
         // 例外：buildキーがあり，libとbinキーがなければ，エラー
         // buildキーがあり，libキーがありtrue，binキーがない，もしくは，falseなれば，build-required library
         // buildキーがあり，binキーがあれば，application -> 現状は，applicationはpublishできない
-
-        return "dummy";
+        const auto node = io::yaml::load_config();
+        if (io::yaml::get(node, "build", "bin")) {
+            return "application";
+        }
+        else if (io::yaml::get(node, "build", "lib")) {
+            return "build-required library";
+        }
+        else { // TODO: buildキーはあるのに，binとlibが無くて，header-onlyとなってしまう問題がある
+            return "header-only library";
+        }
     }
 
     std::optional<std::string>
@@ -230,13 +237,13 @@ namespace poac::opts::publish {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (!argv.empty()) {
-            return except::Error::InvalidSecondArg::Publish{};
+            return except::Error::InvalidSecondArg::Publish;
         }
         return std::nullopt;
     }
 
     std::optional<core::except::Error>
-    exec(const std::vector<std::string> &argv) {
+    exec(const std::vector<std::string>& argv) {
         namespace fs = boost::filesystem;
         namespace except = core::except;
         using namespace std::string_literals;
@@ -246,7 +253,6 @@ namespace poac::opts::publish {
         }
 
         const auto package_info = report_publish_start();
-        throw except::error("hoge");
 
         // if(is_known_version(package_info.version)) {
         //     return except::Error::General{"hoge is already exists"}
@@ -269,6 +275,11 @@ namespace poac::opts::publish {
 //        }
 //        do_register(manager, pkg, version, docs, commitHash, zipHash);
 ////        Task.io $ putStrLn "Success!";
+
+        if (const auto result = confirm(argv)) {
+            return result;
+        }
+        throw except::error("hoge");
 
 
 

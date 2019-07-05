@@ -50,77 +50,21 @@ namespace poac::core::except {
             }
         };
 
-        struct InvalidFirstArg {
-            std::string what() const noexcept {
-                return "Invalid argument";
-            }
+        enum NoStates {
+            InterruptedByUser,
+            InvalidFirstArg
         };
 
-        struct InvalidSecondArg {
-            struct Build {
-                std::string what() const noexcept {
-                    return "build";
-                }
-            };
-            struct Cache {
-                std::string what() const noexcept {
-                    return "cache";
-                }
-            };
-            struct Cleanup {
-                std::string what() const noexcept {
-                    return "cleanup";
-                }
-            };
-            struct Help {
-                std::string what() const noexcept {
-                    return "help";
-                }
-            };
-            struct Init {
-                std::string what() const noexcept {
-                    return "init";
-                }
-            };
-            struct New {
-                std::string what() const noexcept {
-                    return "new";
-                }
-            };
-            struct Publish {
-                std::string what() const noexcept {
-                    return "publish";
-                }
-            };
-            struct Search {
-                std::string what() const noexcept {
-                    return "search";
-                }
-            };
-            struct Uninstall {
-                std::string what() const noexcept {
-                    return "uninstall";
-                }
-            };
-
-            using state_type = std::variant<
-                    Build,
-                    Cache,
-                    Cleanup,
-                    Help,
-                    Init,
-                    New,
-                    Publish,
-                    Search,
-                    Uninstall
-            >;
-            state_type state;
-            template <typename T>
-            InvalidSecondArg(T err) : state(err) {}
-
-            std::string what() const {
-                return std::visit([](auto&& arg) { return arg.what(); }, state);
-            }
+        enum class InvalidSecondArg {
+            Build,
+            Cache,
+            Cleanup,
+            Help,
+            Init,
+            New,
+            Publish,
+            Search,
+            Uninstall
         };
 
         struct DoesNotExist : General {
@@ -140,19 +84,57 @@ namespace poac::core::except {
             }
         };
 
+        template <typename T>
+        std::string what(const T& s) const {
+            return s.what();
+        }
+        std::string
+        what(NoStates err) const noexcept {
+            switch (err) {
+                case NoStates::InterruptedByUser:
+                    return "Interrupted by user";
+                case NoStates::InvalidFirstArg:
+                    return "Invalid argument";
+            }
+        }
+        std::string
+        what(InvalidSecondArg err) const noexcept {
+            switch (err) {
+                case InvalidSecondArg::Build:
+                    return "build";
+                case InvalidSecondArg::Cache:
+                    return "cache";
+                case InvalidSecondArg::Cleanup:
+                    return "cleanup";
+                case InvalidSecondArg::Help:
+                    return "help";
+                case InvalidSecondArg::Init:
+                    return "init";
+                case InvalidSecondArg::New:
+                    return "new";
+                case InvalidSecondArg::Publish:
+                    return "publish";
+                case InvalidSecondArg::Search:
+                    return "search";
+                case InvalidSecondArg::Uninstall:
+                    return "uninstall";
+            }
+        }
+
         using state_type = std::variant<
-                InvalidFirstArg,
+                NoStates,
                 InvalidSecondArg,
                 General,
                 DoesNotExist,
                 KeyDoesNotExist
         >;
         state_type state;
+
         template <typename T>
         Error(T err) : state(err) {}
 
         std::string what() const {
-            return std::visit([](auto&& arg) { return arg.what(); }, state);
+            return std::visit([this](auto&& arg) { return what(arg); }, state);
         }
     };
 

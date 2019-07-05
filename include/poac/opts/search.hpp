@@ -80,13 +80,13 @@ namespace poac::opts::search {
     check_arguments(const std::vector<std::string>& argv) noexcept {
         namespace except = core::except;
         if (argv.size() != 1) {
-            return except::Error::InvalidSecondArg::Search{};
+            return except::Error::InvalidSecondArg::Search;
         }
         return std::nullopt;
     }
 
     std::optional<core::except::Error>
-    exec(const std::vector<std::string> &argv) {
+    exec(const std::vector<std::string>& argv) {
         namespace cli = io::term;
         using namespace boost::property_tree;
 

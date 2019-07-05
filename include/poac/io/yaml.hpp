@@ -36,7 +36,6 @@ namespace poac::io::yaml {
             return get<T>((wrapper(node) ->* ... ->* keys).node);
         }
 
-
         // Private member accessor
         using YAML_Node_t = bool YAML::Node::*;
 #if BOOST_COMP_MSVC
@@ -144,7 +143,6 @@ namespace poac::io::yaml {
         }
     }
 
-
     template <typename... Args>
     std::map<std::string, YAML::Node>
     get_by_width(const YAML::Node& node, const Args&... args) {
@@ -187,7 +185,6 @@ namespace poac::io::yaml {
         }
     }
 
-
     std::optional<std::string>
     exists_config(const boost::filesystem::path& base)
     {
@@ -209,7 +206,6 @@ namespace poac::io::yaml {
         try { return YAML::LoadFile(filename); }
         catch (...) { return std::nullopt; }
     }
-
 
     YAML::Node load_config() {
         namespace except = core::except;
