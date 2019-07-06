@@ -156,9 +156,9 @@ namespace poac::opts::publish {
         if (const auto result = verify_version(package_info)) {
             return result;
         }
-//        if (const auto result = verify_no_changes(package_info)) {
-//            return result;
-//        }
+        if (const auto result = verify_no_changes(package_info)) {
+            return result;
+        }
         return std::nullopt;
     }
 
