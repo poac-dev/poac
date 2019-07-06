@@ -42,7 +42,9 @@ namespace poac::io::yaml {
         template <class T>
         struct accessor {
             static T m_isValid;
-            static T get() { return m_isValid; }
+            static T get() noexcept {
+                return m_isValid;
+            }
         };
         template <class T>
         T accessor<T>::m_isValid;
@@ -58,7 +60,9 @@ namespace poac::io::yaml {
         template <class T, T V>
         struct accessor {
             static constexpr T m_isValid = V;
-            static T get() { return m_isValid; }
+            static T get() noexcept {
+                return m_isValid;
+            }
         };
         template <typename T>
         using bastion = accessor<T, &YAML::Node::m_isValid>;
