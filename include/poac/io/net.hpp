@@ -187,7 +187,7 @@ namespace poac::io::net {
     // Only SSL usage
     class requests {
     public:
-        explicit requests(std::string_view host_=POAC_API_HOST) : host(host_) {
+        explicit requests(std::string_view host_) : host(host_) {
             // The io_context is required for all I/O
             ioc = std::make_unique<boost::asio::io_context>();
             // The SSL context is required, and holds certificates
@@ -435,7 +435,7 @@ namespace poac::io::net {
             {
                 std::stringstream ss;
                 {
-                    requests req{};
+                    requests req{ POAC_API_HOST };
                     const auto res = req.get(POAC_VERSIONS_API + "/"s + name); // TODO: /演算子が欲しい
                     ss << res.data();
                 }
@@ -455,7 +455,7 @@ namespace poac::io::net {
             using namespace std::string_literals;
             std::stringstream ss;
             {
-                requests req{};
+                requests req{ POAC_API_HOST };
                 const auto res = req.get(POAC_DEPS_API + "/"s + name + "/" + version);
                 ss << res.data();
             }
