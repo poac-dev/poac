@@ -7,30 +7,35 @@
 #include <stdexcept>
 
 namespace poac::core::except {
-    template <typename Arg>
-    std::string to_string(const Arg& str) {
-        return std::to_string(str);
-    }
-    template <>
-    std::string to_string(const std::string& str) {
-        return str;
-    }
-    std::string to_string(std::string_view str) {
-        return std::string(str);
-    }
-    template <typename CharT, std::size_t N>
-    std::string to_string(const CharT(&str)[N]) {
-        return str;
+    namespace detail {
+        template<typename Arg>
+        std::string to_string(const Arg& str) {
+            return std::to_string(str);
+        }
+
+        template<>
+        std::string to_string(const std::string& str) {
+            return str;
+        }
+
+        std::string to_string(std::string_view str) {
+            return std::string(str);
+        }
+
+        template<typename CharT, std::size_t N>
+        std::string to_string(const CharT(&str)[N]) {
+            return str;
+        }
     }
 
-    struct Error {
+    class Error {
+    public:
         struct General {
             const std::string impl;
 
             General() = delete;
             General(const General&) = default;
             General& operator=(const General&) = delete;
-
             General(General&&) = default;
             General& operator=(General&&) = delete;
 
@@ -39,7 +44,7 @@ namespace poac::core::except {
             template <typename... Args>
             explicit General(const Args&... s)
                 : General(
-                      (... + except::to_string(s))
+                      (... + detail::to_string(s))
                   ) // delegation
             {}
 
@@ -75,6 +80,7 @@ namespace poac::core::except {
                 return "`" + General::what() + "` does not exist";
             }
         };
+
         struct KeyDoesNotExist final : DoesNotExist {
             // Inheriting constructors
             using DoesNotExist::DoesNotExist;
@@ -84,6 +90,7 @@ namespace poac::core::except {
             }
         };
 
+    private:
         template <typename T>
         std::string what(const T& s) const {
             return s.what();
@@ -94,7 +101,7 @@ namespace poac::core::except {
                 case NoStates::InterruptedByUser:
                     return "Interrupted by user";
                 case NoStates::InvalidFirstArg:
-                    return "Invalid argument";
+                    return "Invalid arguments";
             }
         }
         std::string
@@ -121,6 +128,7 @@ namespace poac::core::except {
             }
         }
 
+    public:
         using state_type = std::variant<
                 NoStates,
                 InvalidSecondArg,
@@ -130,53 +138,56 @@ namespace poac::core::except {
         >;
         state_type state;
 
+        Error() = delete;
+        Error(const Error&) = default;
+        Error& operator=(const Error&) = delete;
+        Error(Error&&) = default;
+        Error& operator=(Error&&) = delete;
+        ~Error() = default;
+
         template <typename T>
         Error(T err) : state(err) {}
 
         std::string what() const {
-            return std::visit([this](auto&& arg) { return what(arg); }, state);
+            return std::visit([this](auto&& err) { return what(err); }, state);
         }
     };
 
     namespace msg {
-        std::string put_period(const std::string& str) {
-            return str + ".";
-        }
-
         std::string not_found(const std::string& str) {
-            return put_period(str + " not found");
+            return str + " not found";
         }
 
         std::string does_not_exist(const std::string& str) {
-            return put_period(str + " does not exist");
+            return str + " does not exist";
         }
         std::string key_does_not_exist(const std::string& str) {
-            return put_period("Required key `" + str + "` does not exist in poac.yml");
+            return "Required key `" + str + "` does not exist in poac.yml";
         }
 
         std::string already_exist(const std::string& str) {
-            return put_period(str + " already exist");
+            return str + " already exist";
         }
 
         std::string could_not(const std::string& str) {
-            return put_period("Could not " + str);
+            return "Could not " + str;
         }
         std::string could_not_load(const std::string& str) {
-            return put_period(could_not("load " + str));
+            return could_not("load " + str);
         }
         std::string could_not_read(const std::string& str) {
-            return put_period(could_not("read " + str));
+            return could_not("read " + str);
         }
 
         std::string please(const std::string& str) {
-            return put_period("Please " + str);
+            return "Please " + str;
         }
         std::string please_refer_docs(const std::string& str) {
             // str <- /en/getting_started.html
             return please("refer to https://doc.poac.pm" + str);
         }
         std::string please_exec(const std::string& str) {
-            return please("Please execute " + str);
+            return please("execute " + str);
         }
     }
 
@@ -192,7 +203,7 @@ namespace poac::core::except {
         template <typename... Args>
         explicit error(const Args&... __s)
             : invalid_argument(
-                    (... + except::to_string(__s))
+                    (... + detail::to_string(__s))
               )
         {}
 
