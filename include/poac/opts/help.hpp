@@ -86,6 +86,7 @@ namespace poac::opts::help {
             "For full documentation, see: https://github.com/poacpm/poac#readme";
 #endif
 
+    // TODO: このmapを用意しているのが無駄．summaryの形成に使用していない
     const std::unordered_map<std::string, std::string>
     summaries_map{
         { "build",     opts::build::summary.to_string() },
@@ -135,7 +136,7 @@ namespace poac::opts::help {
                   << "USAGE:\n"
                   << indent << "poac " << s << " [OPTIONS]\n\n"
                   << "OPTIONS:\n"
-                  << indent << opt << std::endl;
+                  << indent << opt << std::endl; // TODO: optionの表示をもっとわかりやすくする．cargoのように
     }
 
     std::optional<core::except::Error>
