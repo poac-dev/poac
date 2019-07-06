@@ -8,14 +8,10 @@
 #include <string_view>
 #include <sstream>
 #include <vector>
-#include <fstream>
-#include <map>
 #include <optional>
 
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <yaml-cpp/yaml.h>
 
 #include <poac/core/except.hpp>
 #include <poac/io/net.hpp>
@@ -44,7 +40,8 @@ namespace poac::opts::publish {
         Application
     };
 
-    std::string to_string(PackageType package_type) {
+    std::string
+    to_string(PackageType package_type) noexcept {
         switch (package_type) {
             case PackageType::HeaderOnlyLib:
                 return "header-only library";
@@ -64,29 +61,110 @@ namespace poac::opts::publish {
         PackageType package_type;
     };
 
-//    std::optional<core::except::Error>
-//    do_register(const PackageInfo& package_info) {
-//        std::cout << "Registering " << package_info.name << package_info.version << " ..." << std::endl;
-//
-//        // TODO: POST
-//    }
+    std::optional<core::except::Error>
+    do_register(const PackageInfo& package_info) {
+        std::cout << "Registering " << package_info.name << package_info.version << " ..." << std::endl;
+
+        return std::nullopt;
+        // TODO: POST
+    }
 
     std::optional<core::except::Error>
-    verify_version(const PackageInfo& package_info) {
-        if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
+    verify_no_changes(const PackageInfo& package_info) {
+        // https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommited-changes
+        const std::string cmd = "git diff-index --quiet " + package_info.version.get_full() + " --";
+        if (!util::shell(cmd).exec_ignore()) {
             return core::except::Error::General{
-                    package_info.name, ": ", package_info.version.get_version(), " is already exists."
+                "Changes from ", package_info.version.get_full(), " was detected.\n"
+                "Use the following command, depending on the situation:\n"
+                "    git stash\n"
+                "    git checkout ", package_info.version.get_full()
             };
         }
         return std::nullopt;
     }
 
     std::optional<core::except::Error>
-    confirm(const publish::Options& opts) {
-        if (!opts.yes) {
-            if (!io::term::yes_or_no("Are you sure publish this package?")) {
-                return core::except::Error::InterruptedByUser;
+    verify_version(const PackageInfo& package_info) {
+        if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
+            return core::except::Error::General{
+                package_info.name, ": ", package_info.version.get_full(), " is already exists."
+            };
+        }
+        return std::nullopt;
+    }
+
+    std::optional<core::except::Error>
+    verify_commit_sha(const PackageInfo& package_info, std::string_view remote_commit_sha) {
+        // https://stackoverflow.com/questions/1862423/how-to-tell-which-commit-a-tag-points-to-in-git
+        // Check if the local git tag commit sha and obtained commit sha match.
+        const std::string cmd = "git rev-list -n 1 " + package_info.version.get_full();
+        if (const auto local_commit_hash = util::shell(cmd).exec()) {
+            if (remote_commit_sha == local_commit_hash->substr(0, local_commit_hash->size() - 1)) { // Delete \n
+                return std::nullopt;
             }
+        }
+        return core::except::Error::General{
+            "GitHub release commit sha does not match local tag commit sha.\n"
+            "Make sure that the same tag indicates the same commit.\n"
+            "Perhaps, with the same tag name, someone else had rewrite B\n"
+            "  by executing the command as shown below in the past, which may not be synchronized locally:\n"
+            "    git tag -d ", package_info.version.get_full(), "\n"
+            "    git push origin :", package_info.version.get_full(), "\n"
+            "    git commit --amend  # commit sha has changed! (https://stackoverflow.com/q/23791999)\n"
+            "    git tag ", package_info.version.get_full(), "\n"
+            "    git push origin ", package_info.version.get_full(), "\n"
+            "In that case, may solve it by the following command:\n"
+            "    git fetch origin ", package_info.version.get_full()
+        };
+    }
+
+    std::optional<core::except::Error>
+    verify_tag(const PackageInfo& package_info) noexcept {
+        // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
+        // Get commit sha using obtained tag.
+        // https://stackoverflow.com/questions/28496319/github-a-tag-but-not-a-release
+        // Note: GitHub regards tags and releases as the same thing, and the method to get tags is also legal.
+        try {
+            const std::string target = "/" + package_info.name + "/git/refs/tags/" + package_info.version.get_full();
+            const auto pt = io::net::api::github::repos(target);
+            if (const auto commit_sha = pt.get_optional<std::string>("object.sha")) {
+                if (const auto result = verify_commit_sha(package_info, commit_sha.value())) {
+                    return result;
+                } else {
+                    return std::nullopt;
+                }
+            } else {
+                throw core::except::error{""};
+            }
+        }
+        catch (...) {
+            return core::except::Error::General{
+                    "Could not find a current tag release.\n"
+                    "Please execute the following command:\n"
+                    "    git push origin ", package_info.version.get_full()
+            };
+        }
+    }
+
+    std::optional<core::except::Error>
+    verify_package(const PackageInfo& package_info) {
+        if (const auto result = verify_tag(package_info)) {
+            return result;
+        }
+        if (const auto result = verify_version(package_info)) {
+            return result;
+        }
+        if (const auto result = verify_no_changes(package_info)) {
+            return result;
+        }
+        return std::nullopt;
+    }
+
+    std::optional<core::except::Error>
+    confirm(const publish::Options& opts) {
+        if (!opts.yes && !io::term::yes_or_no("Are you sure publish this package?")) {
+            return core::except::Error::InterruptedByUser;
         }
         return std::nullopt;
     }
@@ -96,7 +174,7 @@ namespace poac::opts::publish {
         using util::pretty::clip_string;
         std::cout << "Summary:"_bold
                   << "\n  Name: "_bold << package_info.name
-                  << "\n  Version: "_bold << package_info.version.get_version()
+                  << "\n  Version: "_bold << package_info.version.get_full()
                   << "\n  Description: "_bold << clip_string(package_info.description.value_or("null"), 50)
                   << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
                   << "\n  License: "_bold << package_info.license.value_or("null")
@@ -150,18 +228,18 @@ namespace poac::opts::publish {
     }
 
     semver::Version
-    get_version(const std::string& full_name) {
-        // https://developer.github.com/v3/repos/releases/#get-the-latest-release
-        const auto pt = io::net::api::github::repos("/" + full_name + "/releases/latest");
-        if (const auto version = pt.get_optional<std::string>("tag_name")) {
-            // If version do not obey SemVer, error.
-            return semver::Version{ version.get() };
+    get_version() {
+        // https://stackoverflow.com/questions/3404936/show-which-git-tag-you-are-on
+        // Get current tag from workspace git information.
+        if (const auto tag = util::shell("git describe --tags --abbrev=0").exec()) {
+            return semver::Version{ tag->substr(0, tag->size() - 1) }; // Delte \n
         }
-        throw core::except::error(
-                "Could not find latest release.\n"
-                "Please execute the following commands:\n"
-                "  git tag 0.1.0\n"
-                "  git push origin 0.1.0");
+        else {
+            throw core::except::error(
+                    "Could not get a current tag.\n"
+                    "Please execute the following command:\n"
+                    "    git tag 0.1.0");
+        }
     }
 
     std::optional<std::string_view>
@@ -169,8 +247,7 @@ namespace poac::opts::publish {
         auto first = target.find(prefix);
         if (first == std::string_view::npos) {
             return std::nullopt;
-        }
-        else {
+        } else {
             first += prefix.size();
         }
         auto last = target.find(suffix, first);
@@ -180,8 +257,7 @@ namespace poac::opts::publish {
     std::string_view extract_full_name(std::string_view repository) {
         if (const auto sub = extract_str(repository, "https://github.com/", ".git")) {
             return sub.value();
-        }
-        else {
+        } else {
             if (const auto sub2 = extract_str(repository, "git@github.com:", ".git")) {
                 return sub2.value();
             }
@@ -197,66 +273,52 @@ namespace poac::opts::publish {
         throw core::except::error(
                 "Could not find origin url.\n"
                 "Please execute the following command:\n"
-                "  git remote add origin https://github.com/:owner/:repo.git");
+                "    git remote add origin https://github.com/:owner/:repo.git");
     }
 
     PackageInfo gather_package_info() {
         const std::string full_name = get_name();
-        const semver::Version version = get_version(full_name);
+        const semver::Version version = get_version();
 
-        return PackageInfo{
+        return PackageInfo {
                 full_name,
                 version,
                 get_description(full_name),
                 get_cpp_version(),
-                get_license(full_name, version.get_version()),
+                get_license(full_name, version.get_full()),
                 get_package_type()
         };
     }
 
     PackageInfo report_publish_start() {
         std::cout << "Verifying your package ...\n" << std::endl;
-        const PackageInfo package_info = gather_package_info();
-        summarize(package_info);
-        return package_info;
+        return gather_package_info();
     }
 
     std::optional<core::except::Error>
     publish(const publish::Options& opts) {
         const auto package_info = report_publish_start();
 
-        // TODO: Currently, we can not publish application.
+        // TODO: Currently, we can not publish an application.
         if (package_info.package_type == PackageType::Application) {
             return core::except::Error::General{
-                "Sorry, we can not publish application currently."
+                "Sorry, we can not publish an application currently."
             };
         }
-        if (const auto result = verify_version(package_info)) {
+        if (const auto result = verify_package(package_info)) {
             return result;
         }
+
+        summarize(package_info);
+
         if (const auto result = confirm(opts)) {
             return result;
         }
+        if (const auto result = do_register(package_info)) {
+            return result;
+        }
 
-//        const auto maybeKnownVersions = Registry.getVersions(pkg, registry);
-//        if (report_publish_start() != EXIT_SUCCESS) {
-//            return EXIT_FAILURE;
-//        }
-////
-////        verifyVersion(env, pkg, version, maybeKnownVersions);
-////        git = getGit
-////        commitHash = verifyTag(getGit(), manager, pkg, version);
-////        verifyNoChanges(getGit(), commitHash, version);
-////        zipHash = verifyZip(env, pkg, version);
-////
-////        Task.io $ putStrLn "";
-//        if (confirm(argv) != EXIT_SUCCESS) {
-//            return EXIT_FAILURE;
-//        }
-//        do_register(manager, pkg, version, docs, commitHash, zipHash);
-////        Task.io $ putStrLn "Success!";
-
-        std::cout << io::term::status << "Done." << std::endl;
+        std::cout << "\n" << io::term::status << "Done." << std::endl;
         return std::nullopt;
     }
 
