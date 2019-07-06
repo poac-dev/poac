@@ -30,7 +30,7 @@ namespace poac::core::builder::chain {
             cmd &= cmake_cmd;
             cmd &= util::shell("make");
 
-            return cmd.exec_incontinent();
+            return cmd.exec_ignore();
         }
 
         explicit cmake(const boost::filesystem::path& base_path = boost::filesystem::current_path())

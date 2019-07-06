@@ -31,7 +31,8 @@ namespace poac::util {
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
-        std::optional<std::string> exec() const {
+        std::optional<std::string>
+        exec() const {
             std::array<char, 128> buffer{};
             std::string result;
 
@@ -57,8 +58,10 @@ namespace poac::util {
             return result;
         }
 
-        bool exec_incontinent() const {
-            return static_cast<bool>(std::system(cmd.c_str()));
+        bool exec_ignore() const {
+            // EXIT_SUCCESS -> 0 -> false -> true
+            // EXIT_FAILURE -> 1 -> true -> false
+            return !static_cast<bool>(std::system(cmd.c_str()));
         }
 
         friend std::ostream& operator<<(std::ostream& stream, const shell& c) {
