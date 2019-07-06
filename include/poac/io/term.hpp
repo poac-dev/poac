@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <string_view>
 
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2.hpp>
@@ -38,7 +39,8 @@ namespace poac::io::term {
         std::cout << status << "Done." << std::endl;
     }
 
-    bool yes_or_no() {
+    bool yes_or_no(std::string_view question) {
+        std::cout << question << " [Y/n] ";
         std::string y_n;
         std::cin >> y_n;
         std::transform(y_n.begin(), y_n.end(), y_n.begin(), ::tolower);

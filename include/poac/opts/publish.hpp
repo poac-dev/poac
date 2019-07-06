@@ -84,8 +84,7 @@ namespace poac::opts::publish {
     std::optional<core::except::Error>
     confirm(const publish::Options& opts) {
         if (!opts.yes) {
-            std::cout << "Are you sure publish this package? [Y/n] ";
-            if (!io::term::yes_or_no()) {
+            if (!io::term::yes_or_no("Are you sure publish this package?")) {
                 return core::except::Error::InterruptedByUser;
             }
         }
