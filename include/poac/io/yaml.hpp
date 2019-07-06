@@ -108,7 +108,7 @@ namespace poac::io::yaml {
             return std::nullopt;
         }
     }
-    template <typename ...Args>
+    template <typename... Args>
     bool get(const YAML::Node& node, Args&&... args) noexcept {
         try {
             return detail::get<bool>(node, args...);
@@ -116,6 +116,12 @@ namespace poac::io::yaml {
         catch (...) {
             return false;
         }
+    }
+
+    template <typename... Args>
+    bool contains(const YAML::Node& node, Args&&... args) {
+        // has_value -> not contains
+        return !static_cast<bool>(detail::read(node, args...));
     }
 
     template <typename T>

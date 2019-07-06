@@ -127,6 +127,21 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_get_by_width_test )
     }
 }
 
+// bool contains(const YAML::Node& node, Args&&... args)
+BOOST_AUTO_TEST_CASE( poac_io_yaml_contains_test )
+{
+    using poac::io::yaml::contains;
+
+    YAML::Node node = YAML::Load(
+            "hoge: foo\n"
+            "fuga: boo");
+
+    BOOST_CHECK( contains(node, "hoge") );
+    BOOST_CHECK( contains(node, "hoge", "fuga") );
+    BOOST_CHECK( !contains(node, "unknown") );
+    BOOST_CHECK( !contains(node, "hoge", "unknown") );
+}
+
 // std::optional<std::map<std::string, YAML::Node>> get_by_width_opt(const YAML::Node& node, const Args&... args)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_get_by_width_opt_test )
 {
