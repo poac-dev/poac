@@ -87,6 +87,26 @@ namespace poac::opts::help {
 #endif
 
     const std::unordered_map<std::string, std::string>
+    summaries_map{
+        { "build",     opts::build::summary.to_string() },
+        { "cache",     opts::cache::summary.to_string() },
+        { "cleanup",   opts::cleanup::summary.to_string() },
+        { "graph",     opts::graph::summary.to_string() },
+        { "help",      opts::help::summary.to_string() },
+        { "init",      opts::init::summary.to_string() },
+        { "install",   opts::install::summary.to_string() },
+        { "new",       opts::_new::summary.to_string() },
+        { "publish",   opts::publish::summary.to_string() },
+        { "root",      opts::root::summary.to_string() },
+        { "run",       opts::run::summary.to_string() },
+        { "search",    opts::search::summary.to_string() },
+        { "test",      opts::test::summary.to_string() },
+        { "uninstall", opts::uninstall::summary.to_string() },
+        { "update",    opts::update::summary.to_string() },
+        { "version",   opts::version::summary.to_string() }
+    };
+
+    const std::unordered_map<std::string, std::string>
     options_map{
         { "build",     opts::build::options.to_string() },
         { "cache",     opts::cache::options.to_string() },
@@ -108,7 +128,14 @@ namespace poac::opts::help {
 
     void usage(const std::string& s) {
         const std::string opt = options_map.at(s);
-        std::cout << "Usage: poac " << s << " " << opt << std::endl;
+        const std::string indent = "    ";
+
+        std::cout << "poac-" << s << "\n"
+                  << summaries_map.at(s) << "\n\n"
+                  << "USAGE:\n"
+                  << indent << "poac " << s << " [OPTIONS]\n\n"
+                  << "OPTIONS:\n"
+                  << indent << opt << std::endl;
     }
 
     std::optional<core::except::Error>
