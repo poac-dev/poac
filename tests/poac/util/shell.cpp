@@ -65,11 +65,11 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
 }
 
 // bool exec_incontinent()
-BOOST_AUTO_TEST_CASE( poac_util_shell_exec_incontinent_test )
+BOOST_AUTO_TEST_CASE( poac_util_shell_exec_ignore_test )
 {
     using poac::util::shell;
     shell cmd("cd");
-    BOOST_CHECK( cmd.exec_incontinent() == EXIT_SUCCESS );
+    BOOST_CHECK( cmd.exec_ignore() );
 }
 
 // friend std::ostream& operator<<(std::ostream& stream, const shell& c)
