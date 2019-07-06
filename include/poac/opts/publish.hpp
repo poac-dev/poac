@@ -63,7 +63,8 @@ namespace poac::opts::publish {
 
     std::optional<core::except::Error>
     do_register(const PackageInfo& package_info) {
-        std::cout << "Registering " << package_info.name << package_info.version << " ..." << std::endl;
+        std::cout << "Registering " << package_info.name << ": "
+                  << package_info.version.get_full() << " ..." << std::endl;
 
         return std::nullopt;
         // TODO: POST
@@ -155,9 +156,9 @@ namespace poac::opts::publish {
         if (const auto result = verify_version(package_info)) {
             return result;
         }
-        if (const auto result = verify_no_changes(package_info)) {
-            return result;
-        }
+//        if (const auto result = verify_no_changes(package_info)) {
+//            return result;
+//        }
         return std::nullopt;
     }
 
