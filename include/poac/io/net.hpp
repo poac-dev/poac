@@ -435,8 +435,8 @@ namespace poac::io::net {
             {
                 std::stringstream ss;
                 {
-                    requests req{ POAC_API_HOST };
-                    const auto res = req.get(POAC_VERSIONS_API + "/"s + name); // TODO: /演算子が欲しい
+                    const requests req{ POAC_API_HOST };
+                    const auto res = req.get(POAC_VERSIONS_API + "/"s + name);
                     ss << res.data();
                 }
                 term::debugln(name, ": ", ss.str());
@@ -450,12 +450,10 @@ namespace poac::io::net {
 
         std::optional<boost::property_tree::ptree>
         deps(const std::string& name, const std::string& version) {
-//            io::cli::echo("[deps] ", name, ": ", version);
-
             using namespace std::string_literals;
             std::stringstream ss;
             {
-                requests req{ POAC_API_HOST };
+                const requests req{ POAC_API_HOST };
                 const auto res = req.get(POAC_DEPS_API + "/"s + name + "/" + version);
                 ss << res.data();
             }
@@ -466,6 +464,23 @@ namespace poac::io::net {
                 boost::property_tree::ptree pt;
                 boost::property_tree::json_parser::read_json(ss, pt);
                 return pt;
+            }
+        }
+
+        bool
+        exists(const std::string& name, const std::string& version) {
+            using namespace std::string_literals;
+            std::stringstream ss;
+            {
+                const requests req{ POAC_API_HOST };
+                const auto res = req.get(POAC_EXISTS_API + "/"s + name + "/" + version);
+                ss << res.data();
+            }
+            if (ss.str() == "true") {
+                return true;
+            }
+            else {
+                return false;
             }
         }
     }
