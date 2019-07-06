@@ -25,7 +25,7 @@ namespace poac::io::term {
         std::cout << std::setw(n) << std::left;
     }
 
-    constexpr auto status = termcolor2::to_green("==> ");
+    constexpr auto status = termcolor2::bold<> + termcolor2::green<> + "==> " + termcolor2::reset<>;
     constexpr auto fetched = termcolor2::to_green("  ●  ");
     constexpr auto fetch_failed = termcolor2::to_red("  ●  ");
 
