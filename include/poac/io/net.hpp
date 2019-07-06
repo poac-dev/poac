@@ -30,6 +30,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <poac/core/except.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
@@ -430,13 +431,12 @@ namespace poac::io::net {
     namespace api {
         std::optional<std::vector<std::string>>
         versions(const std::string& name) {
-            using namespace std::string_literals;
             boost::property_tree::ptree pt;
             {
                 std::stringstream ss;
                 {
                     const requests req{ POAC_API_HOST };
-                    const auto res = req.get(POAC_VERSIONS_API + "/"s + name);
+                    const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
                     ss << res.data();
                 }
                 term::debugln(name, ": ", ss.str());
@@ -450,11 +450,10 @@ namespace poac::io::net {
 
         std::optional<boost::property_tree::ptree>
         deps(const std::string& name, const std::string& version) {
-            using namespace std::string_literals;
             std::stringstream ss;
             {
                 const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_DEPS_API + "/"s + name + "/" + version);
+                const auto res = req.get(POAC_DEPS_API + ("/" + name) + "/" + version);
                 ss << res.data();
             }
             if (ss.str() == "null") {
@@ -469,19 +468,36 @@ namespace poac::io::net {
 
         bool
         exists(const std::string& name, const std::string& version) {
-            using namespace std::string_literals;
             std::stringstream ss;
             {
                 const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_EXISTS_API + "/"s + name + "/" + version);
+                const auto res = req.get(POAC_EXISTS_API + ("/" + name) + "/" + version);
                 ss << res.data();
             }
-            if (ss.str() == "true") {
-                return true;
+            return ss.str() == "true";
+        }
+    }
+
+    namespace api::github {
+        boost::property_tree::ptree
+        repos(const std::string& target) {
+            const requests req{ GITHUB_API_HOST };
+            http::string_body::value_type res;
+
+            if (const auto github_token = path::dupenv("POAC_GITHUB_API_TOKEN")) {
+                Headers headers;
+                headers.emplace(http::field::authorization, "token " + github_token.value());
+                res = req.get(GITHUB_REPOS_API + target, headers);
             }
             else {
-                return false;
+                res = req.get(GITHUB_REPOS_API + target);
             }
+            std::stringstream ss;
+            ss << res.data();
+
+            boost::property_tree::ptree pt;
+            boost::property_tree::json_parser::read_json(ss, pt);
+            return pt;
         }
     }
 } // end namespace

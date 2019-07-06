@@ -31,7 +31,29 @@
 
 namespace poac::opts::publish {
     constexpr auto summary = termcolor2::make_string("Publish a package");
-    constexpr auto options = termcolor2::make_string("[-v | --verbose, -y | --yes]");
+    constexpr auto options = termcolor2::make_string("[-v, --verbose | -y, --yes]");
+
+    struct Options {
+        bool verbose;
+        bool yes;
+    };
+
+    enum class PackageType {
+        HeaderOnlyLib,
+        BuildReqLib,
+        Application
+    };
+
+    std::string to_string(PackageType package_type) {
+        switch (package_type) {
+            case PackageType::HeaderOnlyLib:
+                return "header-only library";
+            case PackageType::BuildReqLib:
+                return "build-required library";
+            case PackageType::Application:
+                return "application";
+        }
+    }
 
     struct PackageInfo {
         std::string name;
@@ -39,17 +61,29 @@ namespace poac::opts::publish {
         std::optional<std::string> description;
         std::uint16_t cpp_version;
         std::optional<std::string> license;
-        std::string package_type;
+        PackageType package_type;
     };
 
-//    int do_register() {
+//    std::optional<core::except::Error>
+//    do_register(const PackageInfo& package_info) {
+//        std::cout << "Registering " << package_info.name << package_info.version << " ..." << std::endl;
 //
+//        // TODO: POST
 //    }
 
     std::optional<core::except::Error>
-    confirm(const std::vector<std::string>& argv) {
-        const bool yes = util::argparse::use(argv, "-y", "--yes");
-        if (!yes) {
+    verify_version(const PackageInfo& package_info) {
+        if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
+            return core::except::Error::General{
+                    package_info.name, ": ", package_info.version.get_version(), " is already exists."
+            };
+        }
+        return std::nullopt;
+    }
+
+    std::optional<core::except::Error>
+    confirm(const publish::Options& opts) {
+        if (!opts.yes) {
             std::cout << "Are you sure publish this package? [Y/n] ";
             if (!io::term::yes_or_no()) {
                 return core::except::Error::InterruptedByUser;
@@ -60,53 +94,36 @@ namespace poac::opts::publish {
 
     void summarize(const PackageInfo& package_info) {
         using termcolor2::color_literals::operator""_bold;
-        namespace pretty = util::pretty;
+        using util::pretty::clip_string;
         std::cout << "Summary:"_bold
                   << "\n  Name: "_bold << package_info.name
                   << "\n  Version: "_bold << package_info.version.get_version()
-                  << "\n  Description: "_bold << pretty::clip_string(package_info.description.value_or("null"), 50)
+                  << "\n  Description: "_bold << clip_string(package_info.description.value_or("null"), 50)
                   << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
                   << "\n  License: "_bold << package_info.license.value_or("null")
-                  << "\n  Package Type: "_bold << package_info.package_type
+                  << "\n  Package Type: "_bold << to_string(package_info.package_type)
                   << "\n" << std::endl;
     }
 
-    std::string get_package_type() {
-        // poac.ymlに，
-        // buildキーがなければ，header-only library
-        // 例外：buildキーがあり，libとbinキーがなければ，エラー
-        // buildキーがあり，libキーがありtrue，binキーがない，もしくは，falseなれば，build-required library
-        // buildキーがあり，binキーがあれば，application -> 現状は，applicationはpublishできない
+    PackageType get_package_type() {
         const auto node = io::yaml::load_config();
         if (io::yaml::get(node, "build", "bin")) {
-            return "application";
-        }
-        else if (io::yaml::get(node, "build", "lib")) {
-            return "build-required library";
-        }
-        else { // TODO: buildキーはあるのに，binとlibが無くて，header-onlyとなってしまう問題がある
-            return "header-only library";
+            // bin: true
+            return PackageType::Application;
+        } else if (io::yaml::get(node, "build", "lib")) {
+            // lib: true
+            return PackageType::BuildReqLib;
+        } else if (io::yaml::contains(node, "build")) {
+            return PackageType::BuildReqLib;
+        } else {
+            return PackageType::HeaderOnlyLib;
         }
     }
 
     std::optional<std::string>
     get_license(const std::string& full_name, const std::string& version) {
         // https://developer.github.com/v3/licenses/#get-the-contents-of-a-repositorys-license
-        const io::net::requests req{ GITHUB_API_HOST };
-        std::string_view target = GITHUB_REPOS_API + ("/" + full_name) + "/license?ref=" + version;
-#ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
-        io::net::Headers headers;
-        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("POAC_GITHUB_API_TOKEN").value());
-        const auto res = req.get(target, headers);
-#else
-        const auto res = req.get(target);
-#endif
-
-        std::stringstream ss;
-        ss << res.data();
-
-        boost::property_tree::ptree pt;
-        boost::property_tree::json_parser::read_json(ss, pt);
+        const auto pt = io::net::api::github::repos("/" + full_name + "/license?ref=" + version);
         if (const auto license = pt.get_optional<std::string>("license.name")) {
             if (license.get() == "null") {
                 return std::nullopt;
@@ -123,21 +140,7 @@ namespace poac::opts::publish {
     std::optional<std::string>
     get_description(const std::string& full_name) {
         // https://developer.github.com/v3/repos/#get
-        const io::net::requests req{ GITHUB_API_HOST };
-        std::string_view target = GITHUB_REPOS_API + ("/" + full_name);
-#ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
-        io::net::Headers headers;
-        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("POAC_GITHUB_API_TOKEN").value());
-        const auto res = req.get(target);
-#else
-        const auto res = req.get(target);
-#endif
-
-        std::stringstream ss;
-        ss << res.data();
-
-        boost::property_tree::ptree pt;
-        boost::property_tree::json_parser::read_json(ss, pt);
+        const auto pt = io::net::api::github::repos("/" + full_name);
         if (const auto description = pt.get_optional<std::string>("description")) {
             if (description.get() == "null") {
                 return std::nullopt;
@@ -150,21 +153,7 @@ namespace poac::opts::publish {
     semver::Version
     get_version(const std::string& full_name) {
         // https://developer.github.com/v3/repos/releases/#get-the-latest-release
-        const io::net::requests req{ GITHUB_API_HOST };
-        std::string_view target = GITHUB_REPOS_API + ("/" + full_name) + "/releases/latest";
-#ifdef POAC_USE_GITHUB_TOKEN_FROM_ENV
-        io::net::Headers headers;
-        headers.emplace(io::net::http::field::authorization, "token " + io::path::dupenv("POAC_GITHUB_API_TOKEN").value());
-        const auto res = req.get(target);
-#else
-        const auto res = req.get(target);
-#endif
-
-        std::stringstream ss;
-        ss << res.data();
-
-        boost::property_tree::ptree pt;
-        boost::property_tree::json_parser::read_json(ss, pt);
+        const auto pt = io::net::api::github::repos("/" + full_name + "/releases/latest");
         if (const auto version = pt.get_optional<std::string>("tag_name")) {
             // If version do not obey SemVer, error.
             return semver::Version{ version.get() };
@@ -234,29 +223,21 @@ namespace poac::opts::publish {
     }
 
     std::optional<core::except::Error>
-    check_arguments(const std::vector<std::string>& argv) noexcept {
-        namespace except = core::except;
-        if (!argv.empty()) {
-            return except::Error::InvalidSecondArg::Publish;
-        }
-        return std::nullopt;
-    }
-
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string>& argv) {
-        namespace fs = boost::filesystem;
-        namespace except = core::except;
-        using namespace std::string_literals;
-
-        if (const auto result = check_arguments(argv)) {
-            return result;
-        }
-
+    publish(const publish::Options& opts) {
         const auto package_info = report_publish_start();
 
-        // if(is_known_version(package_info.version)) {
-        //     return except::Error::General{"hoge is already exists"}
-        // };
+        // TODO: Currently, we can not publish application.
+        if (package_info.package_type == PackageType::Application) {
+            return core::except::Error::General{
+                "Sorry, we can not publish application currently."
+            };
+        }
+        if (const auto result = verify_version(package_info)) {
+            return result;
+        }
+        if (const auto result = confirm(opts)) {
+            return result;
+        }
 
 //        const auto maybeKnownVersions = Registry.getVersions(pkg, registry);
 //        if (report_publish_start() != EXIT_SUCCESS) {
@@ -265,8 +246,8 @@ namespace poac::opts::publish {
 ////
 ////        verifyVersion(env, pkg, version, maybeKnownVersions);
 ////        git = getGit
-////        commitHash = verifyTag(git, manager, pkg, version);
-////        verifyNoChanges(git, commitHash, version);
+////        commitHash = verifyTag(getGit(), manager, pkg, version);
+////        verifyNoChanges(getGit(), commitHash, version);
 ////        zipHash = verifyZip(env, pkg, version);
 ////
 ////        Task.io $ putStrLn "";
@@ -276,58 +257,16 @@ namespace poac::opts::publish {
 //        do_register(manager, pkg, version, docs, commitHash, zipHash);
 ////        Task.io $ putStrLn "Success!";
 
-        if (const auto result = confirm(argv)) {
-            return result;
-        }
-        throw except::error("hoge");
-
-
-
-//        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
-
-//        const auto node = io::yaml::load_config("name", "version");
-//        const auto node_name = node.at("name").as<std::string>();
-//        const auto node_version = node.at("version").as<std::string>();
-//        {
-//            const io::net::requests req{};
-//            const auto res = req.get(POAC_EXISTS_API + "/"s + node_name + "/" + node_version);
-//            if (res.data() == "true"s) {
-//                return except::Error::General{
-//                        except::msg::already_exist(node_name + ": " + node_version)
-//                };
-//            }
-//        }
-//
-//        // Post tarball to API.
-//        std::cout << io::term::status << "Uploading..." << std::endl;
-//        if (!fs::exists("poac.yml")) {
-//            return except::Error::DoesNotExist{
-//                    "poac.yml"
-//            };
-////            return except::Error::General{
-////                    except::msg::does_not_exist("poac.yml")
-////            };
-//        }
-//        {
-//            io::net::multiPartForm mp_form;
-////            mp_form.set("token", token);
-//            std::map<io::net::http::field, std::string> h;
-//            h[io::net::http::field::content_type] = "application/x-gzip";
-//            h[io::net::http::field::content_transfer_encoding] = "binary";
-////            mp_form.set("file", output_dir, h);
-//
-//            const io::net::requests req{};
-//            if (const auto res = req.post(POAC_UPLOAD_API, std::move(mp_form)); res != "ok") {
-//                std::cerr << io::term::error << res << std::endl;
-//            }
-//        }
-//
-//        // Delete file
-//        std::cout << io::term::status << "Cleanup..." << std::endl;
-////        fs::remove_all(fs::path(output_dir).parent_path());
-//
-//        std::cout << io::term::status << "Done." << std::endl;
+        std::cout << io::term::status << "Done." << std::endl;
         return std::nullopt;
+    }
+
+    std::optional<core::except::Error>
+    exec(const std::vector<std::string>& args) {
+        publish::Options opts{};
+        opts.verbose = util::argparse::use(args, "-v", "--verbose");
+        opts.yes = util::argparse::use(args, "-y", "--yes");
+        return publish::publish(opts);
     }
 } // end namespace
 #endif // !POAC_OPTS_PUBLISH_HPP
