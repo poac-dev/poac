@@ -135,7 +135,7 @@ namespace poac::opts::uninstall {
         }
 
         // create resolved deps
-        const auto timestamp = yaml::get_timestamp();
+        const auto timestamp = yaml::load_timestamp();
         resolver::Resolved resolved_deps{};
         if (const auto locked_deps = lock::load(timestamp)) {
             resolved_deps = *locked_deps;

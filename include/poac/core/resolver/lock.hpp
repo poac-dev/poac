@@ -89,7 +89,7 @@ namespace poac::core::resolver::lock {
     }
 
     std::optional<resolve::Resolved>
-    load(const std::string& timestamp=io::yaml::get_timestamp()) {
+    load(const std::string& timestamp= io::yaml::load_timestamp()) {
         namespace yaml = io::yaml;
 
         if (const auto locked_deps = load_deps(timestamp)) {

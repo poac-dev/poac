@@ -224,7 +224,7 @@ namespace poac::opts::install {
 
         fs::create_directories(path::poac_cache_dir);
         auto node = yaml::load_config();
-        std::string timestamp = yaml::get_timestamp();
+        std::string timestamp = yaml::load_timestamp();
 
         std::vector<std::string> argv_cpy = argv;
         const bool quite = util::argparse::use_rm(argv_cpy, "-q", "--quite");
@@ -300,7 +300,7 @@ namespace poac::opts::install {
             if (std::ofstream ofs("poac.yml"); ofs) {
                 ofs << node;
             }
-            timestamp = yaml::get_timestamp();
+            timestamp = yaml::load_timestamp();
         }
 
         if (!load_lock) {

@@ -262,7 +262,7 @@ namespace poac::io::yaml {
                 except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
     }
 
-    std::string get_timestamp() {
+    std::string load_timestamp() {
         namespace fs = boost::filesystem;
         namespace except = core::except;
 
