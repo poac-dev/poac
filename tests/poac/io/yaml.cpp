@@ -248,21 +248,21 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_load_config_by_dir_with_throw_test )
     fs::remove(config_path);
 }
 
-// std::string get_timestamp()
-BOOST_AUTO_TEST_CASE( poac_io_yaml_get_timestamp_test )
+// std::string load_timestamp()
+BOOST_AUTO_TEST_CASE( poac_io_yaml_load_timestamp_test )
 {
     namespace fs = boost::filesystem;
-    using poac::io::yaml::get_timestamp;
+    using poac::io::yaml::load_timestamp;
 
     BOOST_CHECK_THROW(
-            get_timestamp(),
+            load_timestamp(),
             poac::core::except::error
     );
 
     const fs::path config_path = fs::current_path() / "poac.yml";
     std::ofstream(config_path.string());
 
-    BOOST_CHECK_NO_THROW( get_timestamp() );
+    BOOST_CHECK_NO_THROW( load_timestamp() );
 
     fs::remove(config_path);
 }
