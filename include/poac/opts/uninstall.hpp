@@ -24,37 +24,13 @@
 
 namespace poac::opts::uninstall {
     constexpr auto summary = termcolor2::make_string("Uninstall packages");
-    constexpr auto options = termcolor2::make_string("[<pkg-names>, -a | --all, -y | --yes]");
+    constexpr auto options = termcolor2::make_string("[<pkg-names> | -a, --all | -y, --yes]");
 
-    template <typename VS, typename=std::enable_if_t<std::is_rvalue_reference_v<VS&&>>>
-    void all(VS&& argv) {
-        namespace fs = boost::filesystem;
-
-        if (!util::argparse::use(argv, "-y", "--yes")) {
-            std::cout << "Are you sure delete all packages? [Y/n] ";
-            std::string yes_or_no;
-            std::cin >> yes_or_no;
-            std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
-            if (!(yes_or_no == "yes" || yes_or_no == "y")) {
-                std::cout << "canceled." << std::endl;
-                return;
-            }
-        }
-        fs::remove_all(io::path::current_deps_dir);
-    }
-
-
-    template <typename SingleRangePass, typename T>
-    void check_exist_name(const SingleRangePass& rng, const T& argv) {
-        const auto first = std::begin(rng);
-        const auto last = std::end(rng);
-        for (const auto& v : argv) {
-            const auto result = std::find_if(first, last, [&](auto x){ return v == x.first; });
-            if (result == last) {
-                throw core::except::error("There is no package named ", v, " in the dependency.");
-            }
-        }
-    }
+    struct Options {
+        bool yes;
+        bool all;
+        std::vector<std::string> package_list;
+    };
 
     template <typename InputIterator, typename Backtracked>
     void create_uninstall_list(
@@ -63,8 +39,6 @@ namespace poac::opts::uninstall {
             std::string_view target_name,
             Backtracked& uninstall_list)
     {
-        namespace cli = io::term;
-
         // 同じ名前で複数のバージョンは存在しないことが，
         // resolved_deps = lock_to_resolved(*locked_deps);
         // と，
@@ -93,7 +67,7 @@ namespace poac::opts::uninstall {
                                               " can not be deleted because " +
                                               itr->name + ": " + itr->version +
                                               " depends on it";
-                            std::cout << cli::warning << warn << std::endl;
+                            std::cout << io::term::warning << warn << std::endl;
                             return;
                         }
                     }
@@ -114,68 +88,69 @@ namespace poac::opts::uninstall {
         }
     }
 
-    void individual(std::vector<std::string> argv) {
+    template <typename SingleRangePass, typename T>
+    void check_exist_name(const SingleRangePass& rng, const T& argv) {
+        const auto first = std::begin(rng);
+        const auto last = std::end(rng);
+        for (const auto& v : argv) {
+            const auto result = std::find_if(first, last, [&](auto x){ return v == x.first; });
+            if (result == last) {
+                throw core::except::error("There is no package named ", v, " in the dependency.");
+            }
+        }
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    individual(std::optional<io::yaml::Config>&& config, uninstall::Options&& opts) {
         namespace fs = boost::filesystem;
-        namespace yaml = io::yaml;
-        namespace resolver = core::resolver::resolve;
-        namespace cli = io::term;
-        namespace name = core::name;
-        namespace except = core::except;
+        namespace resolve = core::resolver::resolve;
         namespace lock = core::resolver::lock;
         using termcolor2::color_literals::operator""_red;
 
-        auto node = yaml::load_config();
-        std::map<std::string, YAML::Node> deps_node;
-        if (const auto deps_map = yaml::get<std::map<std::string, YAML::Node>>(node["deps"])) {
-            deps_node = *deps_map;
-            check_exist_name(deps_node, argv);
-        }
-        else {
-            throw except::error(except::msg::could_not_read("deps in poac.yml"));
+        if (config->dependencies) {
+            check_exist_name(config->dependencies.value(), opts.package_list);
+        } else {
+            return core::except::Error::General{
+                core::except::msg::could_not_read("deps in poac.yml")
+            };
         }
 
         // create resolved deps
-        const auto timestamp = yaml::load_timestamp();
-        resolver::Resolved resolved_deps{};
+        const auto timestamp = io::yaml::load_timestamp();
+        resolve::Resolved resolved_deps{};
         if (const auto locked_deps = lock::load(timestamp)) {
-            resolved_deps = *locked_deps;
-        }
-        else { // poac.lock does not exist
-            const resolver::Deps deps = install::resolve_packages(deps_node);
-            resolved_deps = resolver::resolve(deps);
+            resolved_deps = locked_deps.value();
+        } else { // poac.lock does not exist
+            const resolve::Deps deps = install::resolve_packages(config->dependencies.value());
+            resolved_deps = resolve::resolve(deps);
         }
 
         // create uninstall list
         std::cout << std::endl;
-        resolver::Backtracked uninstall_list{};
+        resolve::Backtracked uninstall_list{};
         const auto first = resolved_deps.activated.begin();
         const auto last = resolved_deps.activated.end();
-        for (const auto& v : argv) {
+        for (const auto& v : opts.package_list) {
             create_uninstall_list(first, last, v, uninstall_list);
         }
 
-        // Omit package that does not already exist
+        // Omit a package that does not already exist
 
         // confirm
-        if (!util::argparse::use_rm(argv, "-y", "--yes")) {
+        if (!opts.yes) {
             for (const auto& [name, dep] : uninstall_list) {
                 std::cout << name << ": " << dep.version << std::endl;
             }
             std::cout << std::endl;
-            std::cout << "Are you sure delete above packages? [Y/n] ";
-            std::string yes_or_no;
-            std::cin >> yes_or_no;
-            std::transform(yes_or_no.begin(), yes_or_no.end(), yes_or_no.begin(), ::tolower);
-            if (!(yes_or_no == "yes" || yes_or_no == "y")) {
-                std::cout << "canceled." << std::endl;
-                return;
+            if (const auto error = io::term::yes_or_no("Are you sure delete above packages?")) {
+                return error;
             }
         }
 
         // Delete what was added to uninstall_list
         std::cout << std::endl;
         for (const auto& [name, dep] : uninstall_list) {
-            const auto package_name = name::to_current(dep.source, name, dep.version);
+            const auto package_name = core::name::to_current(dep.source, name, dep.version);
             const auto package_path = io::path::current_deps_dir / package_name;
             if (io::path::validate_dir(package_path)) {
                 fs::remove_all(package_path);
@@ -186,69 +161,84 @@ namespace poac::opts::uninstall {
             }
         }
 
-        // lockファイルとymlファイルを書き換える
+        // TODO: lockファイルとymlファイルを書き換える
         // もし，uninstall_listと，lockファイルの中身が同一なら，完全にdepsがないということだから，poac.ymlのdepsキーとpoac.lockを消す
-        if (resolved_deps.backtracked == uninstall_list) {
-            node.remove("deps");
-            if (std::ofstream ofs("poac.yml"); ofs) {
-                ofs << node;
-            }
-            else {
-                throw except::error(except::msg::could_not_load("poac.yml"));
-            }
-            fs::remove("poac.lock");
-        }
-        else {
-            // uninstall_listに入っていないパッケージのみを書き込む
-            for (const auto& [name, dep] : uninstall_list) {
-                // 先に，resolved_deps.activatedから，uninstall_listと同じものを削除する
-                const auto itr = std::find_if(resolved_deps.activated.begin(), resolved_deps.activated.end(),
-                        [name=name](auto x){ return x.name == name; });
-                if (itr != resolved_deps.activated.end()) {
-                    resolved_deps.activated.erase(itr);
-                }
-
-                // 同様に，deps_nodeからそのkeyを削除する
-                if (dep.source == "poac") {
-                    node["deps"].remove(name);
-                }
-                else if (dep.source == "github") {
-                    node["deps"].remove("github/" + name);
-                }
-            }
-            if (std::ofstream ofs("poac.yml"); ofs) {
-                ofs << node;
-            }
-            else {
-                throw except::error(except::msg::could_not_load("poac.yml"));
-            }
-            install::create_lock_file(timestamp, resolved_deps.activated);
-        }
-
+//        if (resolved_deps.backtracked == uninstall_list) {
+//            node.remove("deps");
+//            if (std::ofstream ofs("poac.yml"); ofs) {
+//                ofs << node;
+//            }
+//            else {
+//                return core::except::Error::General{
+//                    core::except::msg::could_not_load("poac.yml")
+//                };
+//            }
+//            fs::remove("poac.lock");
+//        }
+//        else {
+//            // uninstall_listに入っていないパッケージのみを書き込む
+//            for (const auto& [name, dep] : uninstall_list) {
+//                // 先に，resolved_deps.activatedから，uninstall_listと同じものを削除する
+//                const auto itr = std::find_if(resolved_deps.activated.begin(), resolved_deps.activated.end(),
+//                        [name=name](auto x){ return x.name == name; });
+//                if (itr != resolved_deps.activated.end()) {
+//                    resolved_deps.activated.erase(itr);
+//                }
+//
+//                // 同様に，deps_nodeからそのkeyを削除する
+//                if (dep.source == "poac") {
+//                    node["deps"].remove(name);
+//                }
+//                else if (dep.source == "github") {
+//                    node["deps"].remove("github/" + name);
+//                }
+//            }
+//
+//            if (std::ofstream ofs("poac.yml"); ofs) {
+//                ofs << node;
+//            } else {
+//                return core::except::Error::General{
+//                    core::except::msg::could_not_load("poac.yml")
+//                };
+//            }
+//            install::create_lock_file(timestamp, resolved_deps.activated);
+//        }
         std::cout << std::endl;
-        cli::status_done();
-    }
-
-    std::optional<core::except::Error>
-    check_arguments(const std::vector<std::string>& argv) noexcept {
-        namespace except = core::except;
-        if (argv.empty()) {
-            return except::Error::InvalidSecondArg::Uninstall;
-        }
+        io::term::status_done();
         return std::nullopt;
     }
 
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string>& argv) {
-        if (const auto result = check_arguments(argv)) {
-            return result;
-        } else if (util::argparse::use(argv, "-a", "--all")) {
-            all(std::move(argv));
-            return std::nullopt;
-        } else {
-            individual(argv);
-            return std::nullopt;
+    [[nodiscard]] std::optional<core::except::Error>
+    all(uninstall::Options&& opts) {
+        if (!opts.yes) {
+            if (const auto error = io::term::yes_or_no("Are you sure uninstall all packages?")) {
+                return error;
+            }
         }
+        boost::filesystem::remove_all(io::path::current_deps_dir);
+        return std::nullopt;
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    uninstall(std::optional<io::yaml::Config>&& config, uninstall::Options&& opts) {
+        if (opts.all) {
+            return all(std::move(opts));
+        } else {
+            return individual(std::move(config), std::move(opts));
+        }
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+        if (args.empty()) {
+            return core::except::Error::InvalidSecondArg::Uninstall;
+        }
+        uninstall::Options opts{};
+        opts.yes = util::argparse::use_rm(args, "-y", "--yes");
+        opts.all = util::argparse::use_rm(args, "-a", "--all");
+        args.shrink_to_fit();
+        opts.package_list = args;
+        return uninstall::uninstall(std::move(config), std::move(opts));
     }
 } // end namespace
 #endif // !POAC_OPTS_UNINSTALL_HPP

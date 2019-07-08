@@ -362,21 +362,18 @@ namespace poac::core::builder {
         }
         void configure_compile(const bool usemain)
         {
-            namespace yaml = io::yaml;
-            namespace path = io::path;
-
             compile_conf.system = compiler;
 
-            const auto cpp_version = yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
+//            const auto cpp_version = io::yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
             const std::string cn = standard::command_to_name(compiler);
-            compile_conf.std_version = standard::convert(cpp_version, cn, yaml::get(node.at("build"), "gnu"));
+//            compile_conf.std_version = standard::convert(cpp_version, cn, io::yaml::get(node.at("build"), "gnu"));
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
             compile_conf.other_args = options::make_compile_other_args(node);
             compile_conf.source_files = hash_source_files(detect::search_cpp_file(base_dir), usemain);
-            compile_conf.macro_defns = options::make_macro_defns(node);
+//            compile_conf.macro_defns = options::make_macro_defns(node);
             compile_conf.base_dir = base_dir;
-            compile_conf.output_root = path::current_build_cache_obj_dir;
+            compile_conf.output_root = io::path::current_build_cache_obj_dir;
         }
         std::optional<std::vector<std::string>>
         compile() {
@@ -495,24 +492,19 @@ namespace poac::core::builder {
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
         explicit compilation(const bool verbose, const boost::filesystem::path& base_dir=boost::filesystem::current_path())
+        : base_dir(base_dir), verbose(verbose)
         {
-            namespace yaml = io::yaml;
-
-            const auto config_file = yaml::load_config_by_dir_with_throw(base_dir);
-            node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
-
+//            const auto config_file = yaml::load_config_by_dir_with_throw(base_dir);
+//            node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
 
             // Create link configure and include search path
-            if (const auto deps_node = yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps")) {
-                make_link(*deps_node);
-                make_include_search_path();
-            }
-
+//            if (const auto deps_node = io::yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps")) {
+//                make_link(*deps_node);
+//                make_include_search_path();
+//            }
 
             compiler = standard::detect_command();
             project_name = name::slash_to_hyphen(node.at("name").as<std::string>());
-            this->base_dir = base_dir;
-            this->verbose = verbose;
         }
     };
 } // end namespace

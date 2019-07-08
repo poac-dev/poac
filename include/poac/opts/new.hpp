@@ -21,7 +21,7 @@
 
 namespace poac::opts::_new {
     constexpr auto summary = termcolor2::make_string("Create a new poac project");
-    constexpr auto options = termcolor2::make_string("<project-name>, (-b | --bin) | (-l | --lib)");
+    constexpr auto options = termcolor2::make_string("[<project-name> | -b, --bin | -l, --lib]");
 
     namespace files {
         namespace bin {
@@ -95,74 +95,93 @@ namespace poac::opts::_new {
         }
     }
 
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string>& argv) {
-        namespace except = core::except;
+    struct Options {
+        bool lib;
+        bool bin;
+        std::string project_name;
+    };
+
+    std::map<boost::filesystem::path, std::string>
+    create_template_files(const _new::Options& opts) {
         namespace fs = boost::filesystem;
-        namespace path = io::path;
-        namespace cli = io::term;
-        namespace name = core::name;
+        using io::path::path_literals::operator""_path;
+
+        if (opts.bin) {
+            return {
+                { ".gitignore", files::bin::_gitignore },
+                { "README.md",  files::README_md(opts.project_name) },
+                { "poac.yml",   files::poac_yml(opts.project_name, "bin") },
+                { "main.cpp",   files::main_cpp }
+            };
+        } else {
+            fs::create_directories(fs::path(opts.project_name) / "include" / opts.project_name);
+            return {
+                { ".gitignore", files::lib::_gitignore },
+                { "README.md",  files::README_md(opts.project_name) },
+                { "poac.yml",   files::poac_yml(opts.project_name, "lib") },
+                { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
+                  files::include_hpp(opts.project_name)
+                },
+            };
+        }
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    validate(const _new::Options& opts) {
+        core::name::validate_package_name(opts.project_name);
+        if (io::path::validate_dir(opts.project_name)) {
+            return core::except::Error::General{
+                    core::except::msg::already_exist("The `" + opts.project_name + "` directory")
+            };
+        }
+        return std::nullopt;
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    _new(_new::Options&& opts) {
+        namespace fs = boost::filesystem;
         using termcolor2::color_literals::operator""_green;
         using io::path::path_literals::operator""_path;
 
-        std::vector<std::string> argv_cpy = argv;
-        bool lib = util::argparse::use_rm(argv_cpy, "-l", "--lib");
-        // libが存在しないならどちらにせよ，binが選択される．
-        // libが存在し，binも存在するなら，binが優先される．
-        const bool bin = !lib || util::argparse::use_rm(argv_cpy, "-b", "--bin");
-        // libとbinを引数から抜いた時点で，1じゃなかったらエラーになる．
-        if (argv_cpy.size() != 1) {
-            return except::Error::InvalidSecondArg::New;
+        if (const auto error = validate(opts)) {
+            return error;
         }
 
-        const std::string project_name = argv_cpy[0];
-        const fs::path project_path = fs::path(project_name);
-        name::validate_package_name(project_name);
-        if (io::path::validate_dir(project_name)) {
-            return except::Error::General{
-                    except::msg::already_exist("The `" + project_name + "` directory")
-            };
-        }
-
-        fs::create_directories(project_name);
+        fs::create_directories(opts.project_name);
         std::ofstream ofs;
-        std::map<fs::path, std::string> file;
-        if (bin) {
-            file = {
-                    { ".gitignore", files::bin::_gitignore },
-                    { "README.md",  files::README_md(project_name) },
-                    { "poac.yml",   files::poac_yml(project_name, "bin") },
-                    { "main.cpp",   files::main_cpp }
-            };
-        } else {
-            fs::create_directories(project_path / "include" / project_name);
-            file = {
-                    { ".gitignore", files::lib::_gitignore },
-                    { "README.md",  files::README_md(project_name) },
-                    { "poac.yml",   files::poac_yml(project_name, "lib") },
-                    { "include"_path / project_name / (project_name + ".hpp"), files::include_hpp(project_name) },
-            };
+        for (auto&& [name, text] : create_template_files(opts)) {
+            io::path::write_to_file(ofs, (fs::path(opts.project_name) / name).string(), text);
         }
-        for (const auto& [name, text] : file) {
-            path::write_to_file(ofs, (project_path / name).string(), text);
-        }
+
         std::cout << "Created: "_green;
-        if (bin) {
+        if (opts.bin) {
             std::cout << "application ";
         } else {
             std::cout << "library ";
         }
-        std::cout << "`" << project_name << "` "
+        std::cout << "`" << opts.project_name << "` "
                   << "project"
                   << std::endl;
 
         if (util::_shell::has_command("git")) {
-            const std::string git_init = "git init " + project_name;
+            const std::string git_init = "git init " + opts.project_name;
             util::shell(git_init).exec();
             std::cout << "Running: "_green << git_init << std::endl;
         }
-
         return std::nullopt;
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&& args) {
+        _new::Options opts{};
+        opts.lib = util::argparse::use_rm(args, "-l", "--lib");
+        // If lib is false then bin is true. If both are specified, bin takes precedence.
+        opts.bin = !opts.lib || util::argparse::use_rm(args, "-b", "--bin");
+        if (args.size() != 1) {
+            return core::except::Error::InvalidSecondArg::New;
+        }
+        opts.project_name = args[0];
+        return _new::_new(std::move(opts));
     }
 } // end namespace
 #endif // !POAC_OPTS_NEW_HPP

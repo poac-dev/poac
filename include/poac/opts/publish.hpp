@@ -61,7 +61,7 @@ namespace poac::opts::publish {
         PackageType package_type;
     };
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     do_register(const PackageInfo& package_info) {
         std::cout << "Registering " << package_info.name << ": "
                   << package_info.version.get_full() << " ..." << std::endl;
@@ -70,7 +70,7 @@ namespace poac::opts::publish {
         // TODO: POST
     }
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     verify_no_changes(const PackageInfo& package_info) {
         // https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommited-changes
         const std::string cmd = "git diff-index --quiet " + package_info.version.get_full() + " --";
@@ -85,7 +85,7 @@ namespace poac::opts::publish {
         return std::nullopt;
     }
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     verify_version(const PackageInfo& package_info) {
         if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
             return core::except::Error::General{
@@ -95,7 +95,7 @@ namespace poac::opts::publish {
         return std::nullopt;
     }
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     verify_commit_sha(const PackageInfo& package_info, std::string_view remote_commit_sha) {
         // https://stackoverflow.com/questions/1862423/how-to-tell-which-commit-a-tag-points-to-in-git
         // Check if the local git tag commit sha and obtained commit sha match.
@@ -120,7 +120,7 @@ namespace poac::opts::publish {
         };
     }
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     verify_tag(const PackageInfo& package_info) noexcept {
         // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
         // Get commit sha using obtained tag.
@@ -130,8 +130,8 @@ namespace poac::opts::publish {
             const std::string target = "/" + package_info.name + "/git/refs/tags/" + package_info.version.get_full();
             const auto pt = io::net::api::github::repos(target);
             if (const auto commit_sha = pt.get_optional<std::string>("object.sha")) {
-                if (const auto result = verify_commit_sha(package_info, commit_sha.value())) {
-                    return result;
+                if (const auto error = verify_commit_sha(package_info, commit_sha.value())) {
+                    return error;
                 } else {
                     return std::nullopt;
                 }
@@ -148,24 +148,26 @@ namespace poac::opts::publish {
         }
     }
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     verify_package(const PackageInfo& package_info) {
-        if (const auto result = verify_tag(package_info)) {
-            return result;
+        if (const auto error = verify_tag(package_info)) {
+            return error;
         }
-        if (const auto result = verify_version(package_info)) {
-            return result;
+        if (const auto error = verify_version(package_info)) {
+            return error;
         }
-        if (const auto result = verify_no_changes(package_info)) {
-            return result;
+        if (const auto error = verify_no_changes(package_info)) {
+            return error;
         }
         return std::nullopt;
     }
 
-    std::optional<core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     confirm(const publish::Options& opts) {
-        if (!opts.yes && !io::term::yes_or_no("Are you sure publish this package?")) {
-            return core::except::Error::InterruptedByUser;
+        if (!opts.yes) {
+            if (const auto error = io::term::yes_or_no("Are you sure publish this package?")) {
+                return error;
+            }
         }
         return std::nullopt;
     }
@@ -183,16 +185,18 @@ namespace poac::opts::publish {
                   << "\n" << std::endl;
     }
 
-    PackageType get_package_type() {
-        const auto node = io::yaml::load_config();
-        if (io::yaml::get(node, "build", "bin")) {
-            // bin: true
-            return PackageType::Application;
-        } else if (io::yaml::get(node, "build", "lib")) {
-            // lib: true
-            return PackageType::BuildReqLib;
-        } else if (io::yaml::contains(node, "build")) {
-            return PackageType::BuildReqLib;
+    PackageType
+    get_package_type(const std::optional<io::yaml::Config>& config) {
+        if (config->build) {
+            if (config->build->bin && config->build->bin.value()) {
+                // bin: true
+                return PackageType::Application;
+            } else if (config->build->lib && config->build->lib.value()) {
+                // lib: true
+                return PackageType::BuildReqLib;
+            } else {
+                return PackageType::BuildReqLib;
+            }
         } else {
             return PackageType::HeaderOnlyLib;
         }
@@ -211,8 +215,9 @@ namespace poac::opts::publish {
         return std::nullopt;
     }
 
-    std::uint16_t get_cpp_version() {
-        return io::yaml::load_config("cpp_version").as<std::uint16_t>();
+    std::uint16_t
+    get_cpp_version(const std::optional<io::yaml::Config>& config) {
+        return config->cpp_version.value();
     }
 
     std::optional<std::string>
@@ -277,7 +282,8 @@ namespace poac::opts::publish {
                 "    git remote add origin https://github.com/:owner/:repo.git");
     }
 
-    PackageInfo gather_package_info() {
+    PackageInfo
+    gather_package_info(const std::optional<io::yaml::Config>& config) {
         const std::string full_name = get_name();
         const semver::Version version = get_version();
 
@@ -285,20 +291,21 @@ namespace poac::opts::publish {
                 full_name,
                 version,
                 get_description(full_name),
-                get_cpp_version(),
+                get_cpp_version(config),
                 get_license(full_name, version.get_full()),
-                get_package_type()
+                get_package_type(config)
         };
     }
 
-    PackageInfo report_publish_start() {
+    PackageInfo
+    report_publish_start(const std::optional<io::yaml::Config>& config) {
         std::cout << "Verifying your package ...\n" << std::endl;
-        return gather_package_info();
+        return gather_package_info(config);
     }
 
-    std::optional<core::except::Error>
-    publish(const publish::Options& opts) {
-        const auto package_info = report_publish_start();
+    [[nodiscard]] std::optional<core::except::Error>
+    publish(std::optional<io::yaml::Config>&& config, publish::Options&& opts) {
+        const auto package_info = report_publish_start(config);
 
         // TODO: Currently, we can not publish an application.
         if (package_info.package_type == PackageType::Application) {
@@ -306,29 +313,29 @@ namespace poac::opts::publish {
                 "Sorry, we can not publish an application currently."
             };
         }
-        if (const auto result = verify_package(package_info)) {
-            return result;
+        if (const auto error = verify_package(package_info)) {
+            return error;
         }
 
         summarize(package_info);
 
-        if (const auto result = confirm(opts)) {
-            return result;
+        if (const auto error = confirm(opts)) {
+            return error;
         }
-        if (const auto result = do_register(package_info)) {
-            return result;
+        if (const auto error = do_register(package_info)) {
+            return error;
         }
 
         std::cout << "\n" << io::term::status << "Done." << std::endl;
         return std::nullopt;
     }
 
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string>& args) {
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
         publish::Options opts{};
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         opts.yes = util::argparse::use(args, "-y", "--yes");
-        return publish::publish(opts);
+        return publish::publish(std::move(config), std::move(opts));
     }
 } // end namespace
 #endif // !POAC_OPTS_PUBLISH_HPP

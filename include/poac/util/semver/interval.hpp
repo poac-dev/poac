@@ -57,11 +57,11 @@ namespace semver {
                 second_version += match[14].matched ? ("+" + match[14].str()) : "";
 
                 // Checks
-                if (const auto result = is_wasteful_comparison_operation()) {
-                    throw std::range_error(result.value());
+                if (const auto error = is_wasteful_comparison_operation()) {
+                    throw std::range_error(error.value());
                 }
-                if (const auto result = is_bounded_interval()) {
-                    throw std::range_error(result.value());
+                if (const auto error = is_bounded_interval()) {
+                    throw std::range_error(error.value());
                 }
                 mode = IntervalMode::Bounded;
             }

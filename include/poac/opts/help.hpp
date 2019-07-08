@@ -32,6 +32,15 @@ namespace poac::opts::help {
     constexpr auto summary = termcolor2::make_string("Display help for a command");
     constexpr auto options = termcolor2::make_string("<sub-command or option>");
 
+    struct Options {
+        enum class Type {
+            Summary,
+            Usage,
+        };
+        Type type;
+        std::string cmd;
+    };
+
     template <typename CharT, std::size_t N, typename Traits>
     constexpr auto
     decorate_summary(const termcolor2::basic_string<CharT, N, Traits>& str) {
@@ -139,18 +148,30 @@ namespace poac::opts::help {
                   << indent << opt << std::endl; // TODO: optionの表示をもっとわかりやすくする．cargoのように
     }
 
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string> &vs) {
-        namespace except = core::except;
-        if (vs.size() == 0) {
-            std::cout << summary_string << std::endl;
-            return std::nullopt;
-        } else if (vs.size() == 1) {
-            usage(vs[0]);
-            return std::nullopt;
-        } else {
-            return except::Error::InvalidSecondArg::Help;
+    [[nodiscard]] std::optional<core::except::Error>
+    help(help::Options&& opts) {
+        switch (opts.type) {
+            case help::Options::Type::Summary:
+                std::cout << summary_string << std::endl;
+                return std::nullopt;
+            case help::Options::Type::Usage:
+                usage(opts.cmd);
+                return std::nullopt;
         }
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&& args) {
+        help::Options opts{};
+        if (args.size() == 0) {
+            opts.type = help::Options::Type::Summary;
+        } else if (args.size() == 1) {
+            opts.type = help::Options::Type::Usage;
+            opts.cmd = args[0];
+        } else {
+            return core::except::Error::InvalidSecondArg::Help;
+        }
+        return help::help(std::move(opts));
     }
 } // end namespace
 #endif // !POAC_OPTS_HELP_HPP

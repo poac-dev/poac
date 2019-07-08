@@ -16,10 +16,10 @@ namespace poac::core::resolver::lock {
     std::optional<YAML::Node>
     check_timestamp(std::string_view timestamp) {
         namespace yaml = io::yaml;
-        if (const auto lock = yaml::load(filename)) {
-            if (const auto lock_timestamp = yaml::get<std::string>(*lock, "timestamp")) {
-                if (timestamp == *lock_timestamp) {
-                    return *lock;
+        if (const auto lock = yaml::detail::load_yaml(filename)) {
+            if (const auto lock_timestamp = yaml::get<std::string>(lock.value(), "timestamp")) {
+                if (timestamp == lock_timestamp.value()) {
+                    return lock.value();
                 }
             }
         }
@@ -27,7 +27,7 @@ namespace poac::core::resolver::lock {
     }
 
     std::optional<std::map<std::string, YAML::Node>>
-    load_deps(std::string_view timestamp) {
+    load_deps(std::string_view timestamp) { // TODO: lockファイルもstruct化する
         namespace yaml = io::yaml;
         if (const auto lock = check_timestamp(timestamp)) {
             if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
@@ -43,10 +43,23 @@ namespace poac::core::resolver::lock {
         // dependenciesも読む -> 順番に削除していく必要があるためと，対象でないパッケージが依存していることを防ぐため
         if (const auto deps_deps = yaml::get<std::map<std::string, YAML::Node>>(node, "dependencies")) {
             resolve::Activated deps;
-            for (const auto&[name2, next_node2] : *deps_deps) {
-                const auto version2 = yaml::get_with_throw<std::string>(next_node2, "version");
-                const auto source2 = yaml::get_with_throw<std::string>(next_node2, "source");
-                deps.push_back({{name2}, {version2}, {source2}, {}});
+            for (const auto& [name, next_node] : *deps_deps) {
+                std::string version;
+                if (const auto version_opt = yaml::get<std::string>(next_node, "version")) {
+                    version = version_opt.value();
+                } else {
+                    throw except::error(
+                            except::msg::key_does_not_exist("version")); // TODO: poac.ymlではなくpoac.lock
+                }
+
+                std::string source;
+                if (const auto source_opt = yaml::get<std::string>(next_node, "source")) {
+                    source = source_opt.value();
+                } else {
+                    throw except::error(
+                            except::msg::key_does_not_exist("source")); // TODO: poac.ymlではなくpoac.lock
+                }
+                deps.push_back({{name}, {version}, {source}, {}});
             }
             return deps;
         }
@@ -61,13 +74,25 @@ namespace poac::core::resolver::lock {
 
         resolve::Resolved resolved_deps{};
         for (const auto& [name, next_node] : locked_deps) {
-            const auto version = yaml::get_with_throw<std::string>(next_node, "version");
-            const auto source = yaml::get_with_throw<std::string>(next_node, "source");
+            std::string version;
+            if (const auto version_opt = yaml::get<std::string>(next_node, "version")) {
+                version = version_opt.value();
+            } else {
+                throw except::error(
+                        except::msg::key_does_not_exist("version")); // TODO: poac.ymlではなくpoac.lock
+            }
+
+            std::string source;
+            if (const auto source_opt = yaml::get<std::string>(next_node, "source")) {
+                source = source_opt.value();
+            } else {
+                throw except::error(
+                        except::msg::key_does_not_exist("source")); // TODO: poac.ymlではなくpoac.lock
+            }
 
             if (const auto deps_deps = load_deps_deps(next_node)) {
-                resolved_deps.activated.push_back({ {name}, {version}, {source}, {*deps_deps} });
-            }
-            else {
+                resolved_deps.activated.push_back({ {name}, {version}, {source}, {deps_deps.value()} });
+            } else {
                 resolved_deps.activated.push_back({ {name}, {version}, {source}, {} });
             }
             resolved_deps.backtracked[name] = { {version}, {source} };
@@ -80,8 +105,8 @@ namespace poac::core::resolver::lock {
     load_ignore_timestamp() {
         namespace yaml = io::yaml;
 
-        if (const auto lock = yaml::load(filename)) {
-            if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(*lock, "dependencies")) {
+        if (const auto lock = yaml::detail::load_yaml(filename)) {
+            if (const auto locked_deps = yaml::get<std::map<std::string, YAML::Node>>(lock.value(), "dependencies")) {
                 return create_resolved_deps(*locked_deps);
             }
         }
@@ -90,12 +115,9 @@ namespace poac::core::resolver::lock {
 
     std::optional<resolve::Resolved>
     load(const std::string& timestamp= io::yaml::load_timestamp()) {
-        namespace yaml = io::yaml;
-
         if (const auto locked_deps = load_deps(timestamp)) {
             return create_resolved_deps(*locked_deps);
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }

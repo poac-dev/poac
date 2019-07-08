@@ -10,8 +10,8 @@ namespace poac::opts::version {
     constexpr auto summary = termcolor2::make_string("Show the current poac version");
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string>&) noexcept {
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&&) noexcept {
         std::cout << POAC_VERSION << std::endl;
         return std::nullopt;
     }

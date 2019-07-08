@@ -8,7 +8,9 @@
 #include <vector>
 #include <string>
 #include <string_view>
+#include <optional>
 
+#include <poac/core/except.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2.hpp>
 
@@ -39,12 +41,17 @@ namespace poac::io::term {
         std::cout << status << "Done." << std::endl;
     }
 
-    bool yes_or_no(std::string_view question) {
+    [[nodiscard]] std::optional<core::except::Error>
+    yes_or_no(std::string_view question) {
         std::cout << question << " [Y/n] ";
         std::string y_n;
         std::cin >> y_n;
         std::transform(y_n.begin(), y_n.end(), y_n.begin(), ::tolower);
-        return (y_n == "yes" || y_n == "y");
+        if (y_n == "yes" || y_n == "y") {
+            return std::nullopt;
+        } else {
+            return core::except::Error::InterruptedByUser;
+        }
     }
 
     const std::vector<std::string> spinners{

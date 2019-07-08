@@ -2,19 +2,23 @@
 #define POAC_CORE_CLI_HPP
 
 #include <string>
+#include <string_view>
+#include <vector>
 #include <unordered_map>
 #include <functional>
 #include <optional>
 
 #include <poac/core/except.hpp>
+#include <poac/io/yaml.hpp>
 #include <poac/opts.hpp>
 
 namespace poac::core::cli {
-    using exec_arg = std::vector<std::string>;
-    using exec_ret = std::optional<except::Error>;
-    using exec_fn = std::function<exec_ret(exec_arg)>;
+    using arg1_type = std::optional<io::yaml::Config>;
+    using arg2_type = std::vector<std::string>;
+    using ret_type = std::optional<except::Error>;
+    using fn_type = std::function<ret_type(arg1_type, arg2_type)>;
 
-    const std::unordered_map<std::string, exec_fn>
+    const std::unordered_map<std::string_view, fn_type>
     opts_map{
         { "build",     opts::build::exec },
         { "cache",     opts::cache::exec },
@@ -38,10 +42,10 @@ namespace poac::core::cli {
         { "-v",        opts::version::exec }
     };
 
-    template <typename S, typename VS>
-    exec_ret exec(S&& cmd, VS&& arg) {
+    [[nodiscard]] ret_type
+    exec(std::string_view cmd, std::vector<std::string>&& args) {
         try {
-            return opts_map.at(cmd)(arg);
+            return opts_map.at(cmd)(io::yaml::load(), std::move(args));
         }
         catch(std::out_of_range&) {
             return except::Error::InvalidFirstArg;

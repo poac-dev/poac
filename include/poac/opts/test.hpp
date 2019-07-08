@@ -19,21 +19,49 @@
 
 namespace poac::opts::test {
     constexpr auto summary = termcolor2::make_string("Execute tests");
-    constexpr auto options = termcolor2::make_string("[-v | --verbose, --report, -- args]");
+    constexpr auto options = termcolor2::make_string("[-v, --verbose | --report | -- <program args>]");
 
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string> &argv) {
+    struct Options {
+        bool verbose;
+        bool report;
+        std::vector<std::string> program_args;
+    };
+
+    [[nodiscard]] std::optional<core::except::Error>
+    execute_test_binary(const test::Options& opts, const std::string& bin_name, const std::string& bin_path) {
         namespace fs = boost::filesystem;
-        namespace except = core::except;
-        namespace builder = core::builder;
+        using termcolor2::color_literals::operator""_green;
 
+        util::shell cmd(fs::relative(bin_path).string());
+        for (const auto& s : opts.program_args) {
+            cmd += s;
+        }
+        if (opts.report) {
+            fs::create_directories(io::path::current_build_test_report_dir);
+            cmd += ">";
+            cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
+        }
+        // TODO: echo => Output .xml ...
+
+        std::cout << "Running: "_green
+                  << "`" + fs::relative(bin_path).string() + "`"
+                  << std::endl;
+        if (const auto ret = cmd.exec()) {
+            std::cout << ret.value();
+            return std::nullopt;
+        } else {
+            return core::except::Error::General{
+                fs::relative(bin_path).string(), " returned 1" // TODO: 1じゃない可能性がある
+            };
+        }
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    test(std::optional<io::yaml::Config>&& config, test::Options&& opts) {
+        namespace fs = boost::filesystem;
         using namespace termcolor2::color_literals;
 
-        const auto node_test = io::yaml::load_config("test");
-        const bool verbose = util::argparse::use(argv, "-v", "--verbose");
-
         const bool usemain = false;
-
 
         // {
         //   builder::core::Builder bs(fs::current_directory());
@@ -42,36 +70,29 @@ namespace poac::opts::test {
         //   -> ただし，その区切り線は，もちろん，quiteがtrueだと表示しない．verboseがtrueだと情報を増やす．
         // }
 
-
-        builder::compilation bs(verbose);
+        core::builder::compilation bs(opts.verbose);
         bs.configure_compile(usemain);
-
-
 
         /// TODO: これは重要！忘れない！！！！！！！！！！！！！！！！
         // You can use #include<> in test code. // TODO: これは，builder.hpp: 255で書いたように，build.hppでもできるようにすべき．
         bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
 
-
-
-
         // TODO: buildsystemで，testモード実行なら，以下の内容が付与される．
-        // TODO: つまり，bs.build(), bs.test()みたいな感じ？
+        // TODO: つまり，bs.build(), bs.test()
         std::string static_link_lib;
-        if (const auto test_framework = io::yaml::get<std::string>(node_test, "framework")) {
-            if (*test_framework == "boost") {
-                static_link_lib = "boost_unit_test_framework";
+        if (const auto test_framework = config->test->framework) {
+            switch (test_framework.value()) {
+                case io::yaml::Config::Test::Framework::Boost:
+                    static_link_lib = "boost_unit_test_framework";
+                    break;
+                case io::yaml::Config::Test::Framework::Google:
+                    static_link_lib = "gtest"; // TODO: or "gtest_main"
+                    break;
             }
-            else if (*test_framework == "google") {
-                // TODO: select
-                static_link_lib = "gtest";
-//                static_link_lib = "gtest_main";
-            }
-            else {
-                return except::Error::General{
-                        "Invalid test framework"
-                };
-            }
+        } else {
+            return core::except::Error::General{
+                "Invalid test framework"
+            };
         }
 
         for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "test")) {
@@ -92,8 +113,7 @@ namespace poac::opts::test {
                                  fs::relative(bin_path).string() + "`."
                               << std::endl;
 //                    continue;
-                }
-                else {
+                } else {
                     if (const auto obj_files_path = bs.compile()) {
                         bs.configure_link(*obj_files_path);
                         bs.link_conf.project_name = bin_name;
@@ -105,61 +125,35 @@ namespace poac::opts::test {
                                          fs::relative(bin_path).string() +
                                          "`"
                                       << std::endl;
-                        }
-                        else { // Link failure
+                        } else { // Link failure
                             continue;
                         }
-                    }
-                    else { // Compile failure
+                    } else { // Compile failure
                         continue;
                     }
                 }
 
-                //
-                // execute binary
-                //
-                util::shell cmd(fs::relative(bin_path).string());
-                // poac test -v -- -h build
-                if (const auto result = std::find(argv.begin(), argv.end(), "--"); result != argv.end()) {
-                    // -h build
-                    std::vector<std::string> test_args(result + 1, argv.end());
-                    for (const auto &s : test_args) {
-                        cmd += s;
-                    }
+                if (const auto error = execute_test_binary(opts, bin_name, bin_path)) {
+                    return error;
                 }
-                else if (const auto test_args = io::yaml::get<std::vector<std::string>>(node_test, "args"))
-                {
-                    for (const auto &s : *test_args) {
-                        cmd += s;
-                    }
-                }
-                if (util::argparse::use(argv, "--report")) {
-                    fs::create_directories(io::path::current_build_test_report_dir);
-                    cmd += ">";
-                    cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
-                }
-                else if (const auto test_report = io::yaml::get<bool>(node_test, "report")) {
-                    if (*test_report) {
-                        fs::create_directories(io::path::current_build_test_report_dir);
-                        cmd += ">";
-                        cmd += (io::path::current_build_test_report_dir / bin_name).string() + ".xml";
-                    }
-                }
-                // TODO: echo => Output .xml ...
-
-                std::cout << "Running: "_green
-                          << "`" + fs::relative(bin_path).string() + "`"
-                          << std::endl;
-                if (const auto ret = cmd.exec())
-                    std::cout << *ret;
-                else
-                    std::cout << std::endl
-                              << fs::relative(bin_path).string() + " returned 1" << std::endl;
-
                 std::cout << "----------------------------------------------------------------" << std::endl;
             }
         }
         return std::nullopt;
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+        test::Options opts{};
+        opts.verbose = util::argparse::use(args, "-v", "--verbose");
+        opts.report = util::argparse::use(args, "--report");
+        // poac test -v -- -h build
+        auto found = std::find(args.begin(), args.end(), "--");
+        if (found != args.end()) {
+            // -h build
+            opts.program_args = std::vector<std::string>(found + 1, args.end());
+        }
+        return test::test(std::move(config), std::move(opts));
     }
 } // end namespace
 #endif // !POAC_OPTS_TEST_HPP

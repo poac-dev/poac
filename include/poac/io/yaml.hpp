@@ -4,7 +4,9 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <optional>
+#include <vector>
 #include <fstream>
 
 #include <boost/predef.h>
@@ -31,7 +33,7 @@ namespace poac::io::yaml {
         T get(const YAML::Node& node) {
             return node.as<T>();
         }
-        template <typename T, typename ...Keys>
+        template <typename T, typename... Keys>
         T get(const YAML::Node& node, Keys&&... keys) {
             return get<T>((wrapper(node) ->* ... ->* keys).node);
         }
@@ -74,19 +76,17 @@ namespace poac::io::yaml {
         read(const YAML::Node& node, Head&& head) {
             if (!(node[head].*access::get())) {
                 return head;
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
-        template <typename Head, typename ...Tail>
+        template <typename Head, typename... Tail>
         std::optional<const char*>
         read(const YAML::Node& node, Head&& head, Tail&&... tail) {
             if (!(node[head].*access::get())) {
                 return head;
-            }
-            else {
-                return read(node, tail...);
+            } else {
+                return read(node, std::forward<Tail>(tail)...);
             }
         }
     }
@@ -102,7 +102,7 @@ namespace poac::io::yaml {
         }
     }
 
-    template <typename T, typename ...Args>
+    template <typename T, typename... Args>
     std::optional<T>
     get(const YAML::Node& node, Args&&... args) noexcept {
         try {
@@ -123,158 +123,159 @@ namespace poac::io::yaml {
     }
 
     template <typename... Args>
-    bool contains(const YAML::Node& node, Args&&... args) {
+    bool contains(const YAML::Node& node, Args&&... args) noexcept {
         // has_value -> not contains
-        return !static_cast<bool>(detail::read(node, args...));
-    }
-
-    template <typename T>
-    T get_with_throw(const YAML::Node& node) {
-        namespace except = core::except;
         try {
-            return detail::get<T>(node);
+            return !static_cast<bool>(detail::read(node, args...));
         }
         catch (...) {
-            throw except::error(
-                    except::msg::key_does_not_exist(""), "\n",
-                    except::msg::please_refer_docs(""));
-        }
-    }
-    template <typename T>
-    T get_with_throw(const YAML::Node& node, const std::string& arg) {
-        namespace except = core::except;
-        try {
-            return detail::get<T>(node, arg);
-        }
-        catch (...) {
-            throw except::error(
-                    except::msg::key_does_not_exist(arg), "\n",
-                    except::msg::please_refer_docs(""));
+            return false;
         }
     }
 
-    template <typename... Args>
-    std::map<std::string, YAML::Node>
-    get_by_width(const YAML::Node& node, const Args&... args) {
-        namespace except = core::except;
-        if (const auto result = detail::read(node, args...)) {
-            throw except::error(
-                    except::msg::key_does_not_exist(std::string(*result)), "\n",
-                    except::msg::please_refer_docs(""));
-        }
-        else {
-            std::map<std::string, YAML::Node> mp;
-            ((mp[args] = node[args]), ...);
-            return mp;
-        }
-    }
-    template <typename Arg>
-    YAML::Node
-    get_by_width(const YAML::Node& node, const Arg& args) {
-        namespace except = core::except;
-        if (const auto result = detail::read(node, args)) {
-            throw except::error(
-                    except::msg::key_does_not_exist(std::string(*result)), "\n",
-                    except::msg::please_refer_docs(""));
-        }
-        else {
-            return node[args];
-        }
-    }
+    struct Config {
+        struct Build {
+            enum class System {
+                Poac,
+                CMake,
+            };
+            std::optional<System> system;
+            std::optional<bool> bin;
+            std::optional<bool> lib;
+            std::optional<std::vector<std::string>> compile_args;
+            std::optional<std::vector<std::string>> link_args;
+        };
 
-    template <typename... Args>
-    std::optional<std::map<std::string, YAML::Node>>
-    get_by_width_opt(const YAML::Node& node, const Args&... args) {
-        if (detail::read(node, args...)) {
-            return std::nullopt;
-        }
-        else {
-            std::map<std::string, YAML::Node> mp;
-            ((mp[args] = node[args]), ...);
-            return mp;
-        }
-    }
+        struct Test {
+            enum class Framework {
+                Boost,
+                Google,
+            };
+            std::optional<Framework> framework;
+        };
 
-    std::optional<std::string>
-    exists_config(const boost::filesystem::path& base)
-    {
-        namespace fs = boost::filesystem;
-        if (const auto yml = base / "poac.yml"; fs::exists(yml)) {
-            return yml.string();
-        }
-        else {
-            return std::nullopt;
-        }
-    }
-    std::optional<std::string>
-    exists_config() {
-        namespace fs = boost::filesystem;
-        return exists_config(fs::current_path());
-    }
-    std::optional<YAML::Node>
-    load(const std::string& filename) {
-        try { return YAML::LoadFile(filename); }
-        catch (...) { return std::nullopt; }
-    }
+        std::optional<std::uint64_t> cpp_version;
+        std::optional<std::map<std::string, std::string>> dependencies;
+        std::optional<std::map<std::string, std::string>> dev_dependencies;
+        std::optional<std::map<std::string, std::string>> build_dependencies;
+        std::optional<Build> build;
+        std::optional<Test> test;
+    };
 
-    YAML::Node load_config() {
-        namespace except = core::except;
-        if (const auto op_filename = exists_config()) {
-            if (const auto op_node = load(*op_filename)) {
-                return *op_node;
+    namespace detail {
+        std::optional<Config::Build::System>
+        to_build_system(const std::optional<std::string>& str) noexcept {
+            if (!str.has_value()) {
+                // If not specified poac will be selected as default.
+                return Config::Build::System::Poac;
+            } else if (str.value() == "poac") {
+                return Config::Build::System::Poac;
+            } else if (str.value() == "cmake") {
+                return Config::Build::System::CMake;
+            } else {
+                return std::nullopt;
             }
         }
-        throw except::error(
-                except::msg::does_not_exist("poac.yml"), "\n",
-                except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
-    }
-    // TODO: この時点で，型情報を渡していて，これに則しない，keyを読むとエラー？
-    //  load_config<CppVersion, Deps>()
-    //  struct hog : hoge... {
-    //     cpp_version: u64,
-    //     deps: any
-    //  }
-    //  -> return
-    // config.cpp_version() -> u64
-    template <typename ...Args>
-    auto load_config(const Args&... args) {
-        return get_by_width(load_config(), args...);
+
+        std::optional<Config::Test::Framework>
+        to_test_framework(const std::optional<std::string>& str) noexcept {
+            if (!str.has_value()) {
+                return std::nullopt;
+            } else if (str.value() == "boost") {
+                return Config::Test::Framework::Boost;
+            } else if (str.value() == "google") {
+                return Config::Test::Framework::Google;
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        inline boost::system::error_code error{};
+
+        std::optional<YAML::Node>
+        load_yaml(const std::string& filename) noexcept {
+            try { return YAML::LoadFile(filename); }
+            catch (...) { return std::nullopt; }
+        }
+
+        std::optional<std::string>
+        validate_config(const boost::filesystem::path& base = boost::filesystem::current_path(error)) noexcept {
+            const auto config_path = base / "poac.yml";
+            if (boost::filesystem::exists(config_path, error)) {
+                return config_path.string();
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        std::optional<YAML::Node>
+        load_config(const boost::filesystem::path& base) noexcept {
+            if (const auto config_path = validate_config(base)) {
+                if (const auto node = load_yaml(config_path.value())) {
+                    return node;
+                }
+            }
+            return std::nullopt;
+        }
+
+        std::optional<Config::Test>
+        create_config_test(const YAML::Node& config_yaml) noexcept {
+            if (contains(config_yaml, "test")) {
+                return Config::Test {
+                    detail::to_test_framework(get<std::string>(config_yaml, "test", "framework")),
+                };
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        std::optional<Config::Build>
+        create_config_build(const YAML::Node& config_yaml) noexcept {
+            if (contains(config_yaml, "build")) {
+                return Config::Build {
+                    detail::to_build_system(get<std::string>(config_yaml, "build", "system")),
+                    get<decltype(Config::Build::bin)::value_type>(config_yaml, "build", "bin"),
+                    get<decltype(Config::Build::lib)::value_type>(config_yaml, "build", "lib"),
+                    get<decltype(Config::Build::compile_args)::value_type>(config_yaml, "build", "compile_args"),
+                    get<decltype(Config::Build::link_args)::value_type>(config_yaml, "build", "link_args"),
+                };
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        Config
+        create_config(const YAML::Node& config_yaml) noexcept {
+            return Config {
+                get<decltype(Config::cpp_version)::value_type>(config_yaml, "cpp_version"),
+                get<decltype(Config::dependencies)::value_type>(config_yaml, "dependencies"),
+                get<decltype(Config::dev_dependencies)::value_type>(config_yaml, "dev_dependencies"),
+                get<decltype(Config::build_dependencies)::value_type>(config_yaml, "build_dependencies"),
+                create_config_build(config_yaml),
+                create_config_test(config_yaml),
+            };
+        }
     }
 
-    std::optional<YAML::Node>
-    load_config_by_dir(const boost::filesystem::path& base) {
-        if (const auto op_filename = exists_config(base)) {
-            if (const auto op_node = load(*op_filename)) {
-                return op_node;
-            }
+    std::optional<Config>
+    load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::error)
+    ) noexcept {
+        if (const auto config_yaml = detail::load_config(base)) {
+            return detail::create_config(config_yaml.value());
         }
         return std::nullopt;
-    }
-    YAML::Node load_config_by_dir_with_throw(const boost::filesystem::path& base) {
-        namespace except = core::except;
-        if (const auto op_filename = exists_config(base)) {
-            if (const auto op_node = load(*op_filename)) {
-                return *op_node;
-            }
-        }
-        throw except::error(
-                except::msg::does_not_exist("poac.yml"), "\n",
-                except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
     }
 
     std::string load_timestamp() {
         namespace fs = boost::filesystem;
-        namespace except = core::except;
 
-        if (const auto op_filename = exists_config()) {
-            boost::system::error_code error;
-            const std::time_t last_time = fs::last_write_time(*op_filename, error);
+        if (const auto filename = detail::validate_config()) {
+            const std::time_t last_time = fs::last_write_time(filename.value(), detail::error);
             return std::to_string(last_time);
-        }
-        else {
-            throw except::error(
-                    except::msg::does_not_exist("poac.yml"), "\n",
-                    except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
+        } else {
+            throw core::except::error(
+                    core::except::msg::does_not_exist("poac.yml"), "\n",
+                    core::except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
 } // end namespace

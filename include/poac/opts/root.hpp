@@ -15,15 +15,14 @@ namespace poac::opts::root {
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
-    std::optional<core::except::Error>
-    exec(const std::vector<std::string>&) {
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&&) {
         namespace fs = boost::filesystem;
-        namespace except = core::except;
 
         boost::system::error_code error;
         const auto loc = boost::dll::program_location(error);
         if (error) {
-            return except::Error::General{
+            return core::except::Error::General{
                     "Could not get root installation directory"
             };
         }
@@ -31,8 +30,7 @@ namespace poac::opts::root {
         const auto ln = fs::read_symlink(loc, error);
         if (!error) {
             std::cout << ln.parent_path().string() << std::endl;
-        }
-        else {
+        } else {
             std::cout << loc.parent_path().string() << std::endl;
         }
         return std::nullopt;

@@ -2,30 +2,28 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <variant>
 
 #include <poac/poac.hpp>
 
-template <typename VS>
-int handle(std::string&& str, VS&& vs) {
+int handle(std::string_view cmd, std::vector<std::string>&& args) {
     namespace cli = poac::core::cli;
     namespace except = poac::core::except;
     namespace term = poac::io::term;
-    using namespace std::string_literals;
 
     try {
-        const auto result = cli::exec(std::forward<std::string>(str), std::forward<VS>(vs));
-        if (!result.has_value()) {
+        const auto error = cli::exec(std::move(cmd), std::move(args));
+        if (!error) {
             return EXIT_SUCCESS;
         }
 
-        const except::Error err = result.value();
-        if (std::holds_alternative<except::Error::InvalidSecondArg>(err.state)) {
-            cli::exec("help"s, VS{err.what()});
+        if (std::holds_alternative<except::Error::InvalidSecondArg>(error->state)) {
+            handle("help", std::vector<std::string>{error->what()});
         }
         else {
-            std::cerr << term::error << err.what() << std::endl;
+            std::cerr << term::error << error->what() << std::endl;
         }
         return EXIT_FAILURE;
     }
