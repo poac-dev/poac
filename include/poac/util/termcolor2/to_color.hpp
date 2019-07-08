@@ -164,6 +164,161 @@ namespace termcolor2 {
     }
 
     //
+    // Background manipulators
+    //
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_gray<CharT>.size() + N + reset<CharT>.size()>
+    to_on_gray() noexcept
+    {
+        return on_gray<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_gray<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_gray(const CharT(&arr)[N]) noexcept
+    {
+        return on_gray<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_gray(const CharT* str, std::size_t len) noexcept
+    {
+        return on_gray<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_red<CharT>.size() + N + reset<CharT>.size()>
+    to_on_red() noexcept
+    {
+        return on_red<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_red<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_red(const CharT(&arr)[N]) noexcept
+    {
+        return on_red<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_red(const CharT* str, std::size_t len) noexcept
+    {
+        return on_red<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_green<CharT>.size() + N + reset<CharT>.size()>
+    to_on_green() noexcept
+    {
+        return on_green<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_green<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_green(const CharT(&arr)[N]) noexcept
+    {
+        return on_green<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_green(const CharT* str, std::size_t len) noexcept
+    {
+        return on_green<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_yellow<CharT>.size() + N + reset<CharT>.size()>
+    to_on_yellow() noexcept
+    {
+        return on_yellow<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_yellow<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_yellow(const CharT(&arr)[N]) noexcept
+    {
+        return on_yellow<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_yellow(const CharT* str, std::size_t len) noexcept
+    {
+        return on_yellow<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_blue<CharT>.size() + N + reset<CharT>.size()>
+    to_on_blue() noexcept
+    {
+        return on_blue<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_blue<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_blue(const CharT(&arr)[N]) noexcept
+    {
+        return on_blue<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_blue(const CharT* str, std::size_t len) noexcept
+    {
+        return on_blue<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_magenta<CharT>.size() + N + reset<CharT>.size()>
+    to_on_magenta() noexcept
+    {
+        return on_magenta<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_magenta<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_magenta(const CharT(&arr)[N]) noexcept
+    {
+        return on_magenta<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_magenta(const CharT* str, std::size_t len) noexcept
+    {
+        return on_magenta<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_cyan<CharT>.size() + N + reset<CharT>.size()>
+    to_on_cyan() noexcept
+    {
+        return on_cyan<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_cyan<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_cyan(const CharT(&arr)[N]) noexcept
+    {
+        return on_cyan<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_cyan(const CharT* str, std::size_t len) noexcept
+    {
+        return on_cyan<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, on_white<CharT>.size() + N + reset<CharT>.size()>
+    to_on_white() noexcept
+    {
+        return on_white<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, on_white<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_on_white(const CharT(&arr)[N]) noexcept
+    {
+        return on_white<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_on_white(const CharT* str, std::size_t len) noexcept
+    {
+        return on_white<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    //
     // Attribute manipulators
     //
     template <typename CharT, std::size_t N, CharT... Str>
