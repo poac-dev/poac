@@ -201,6 +201,17 @@ namespace termcolor2 {
 #endif
 
     template <typename CharT = char>
+    constexpr auto dark = make_string("\x1b[2m");
+#ifndef _MSC_VER
+    template <>
+    constexpr auto dark<wchar_t> = make_string(L"\x1b[2m");
+    template <>
+    constexpr auto dark<char16_t> = make_string(u"\x1b[2m");
+    template <>
+    constexpr auto dark<char32_t> = make_string(U"\x1b[2m");
+#endif
+
+    template <typename CharT = char>
     constexpr auto underline = make_string("\x1b[4m");
 #ifndef _MSC_VER
     template <>
@@ -209,6 +220,39 @@ namespace termcolor2 {
     constexpr auto underline<char16_t> = make_string(u"\x1b[4m");
     template <>
     constexpr auto underline<char32_t> = make_string(U"\x1b[4m");
+#endif
+
+    template <typename CharT = char>
+    constexpr auto blink = make_string("\x1b[5m");
+#ifndef _MSC_VER
+    template <>
+    constexpr auto blink<wchar_t> = make_string(L"\x1b[5m");
+    template <>
+    constexpr auto blink<char16_t> = make_string(u"\x1b[5m");
+    template <>
+    constexpr auto blink<char32_t> = make_string(U"\x1b[5m");
+#endif
+
+    template <typename CharT = char>
+    constexpr auto reverse = make_string("\x1b[7m");
+#ifndef _MSC_VER
+    template <>
+    constexpr auto reverse<wchar_t> = make_string(L"\x1b[7m");
+    template <>
+    constexpr auto reverse<char16_t> = make_string(u"\x1b[7m");
+    template <>
+    constexpr auto reverse<char32_t> = make_string(U"\x1b[7m");
+#endif
+
+    template <typename CharT = char>
+    constexpr auto concealed = make_string("\x1b[8m");
+#ifndef _MSC_VER
+    template <>
+    constexpr auto concealed<wchar_t> = make_string(L"\x1b[8m");
+    template <>
+    constexpr auto concealed<char16_t> = make_string(u"\x1b[8m");
+    template <>
+    constexpr auto concealed<char32_t> = make_string(U"\x1b[8m");
 #endif
 
     template <typename CharT = char>

@@ -341,6 +341,25 @@ namespace termcolor2 {
     }
 
     template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, dark<CharT>.size() + N + reset<CharT>.size()>
+    to_dark() noexcept
+    {
+        return dark<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, dark<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_dark(const CharT(&arr)[N]) noexcept
+    {
+        return dark<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_dark(const CharT* str, std::size_t len) noexcept
+    {
+        return dark<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
     constexpr basic_string<CharT, underline<CharT>.size() + N + reset<CharT>.size()>
     to_underline() noexcept
     {
@@ -357,6 +376,63 @@ namespace termcolor2 {
     to_underline(const CharT* str, std::size_t len) noexcept
     {
         return underline<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, blink<CharT>.size() + N + reset<CharT>.size()>
+    to_blink() noexcept
+    {
+        return blink<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, blink<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_blink(const CharT(&arr)[N]) noexcept
+    {
+        return blink<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_blink(const CharT* str, std::size_t len) noexcept
+    {
+        return blink<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, reverse<CharT>.size() + N + reset<CharT>.size()>
+    to_reverse() noexcept
+    {
+        return reverse<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, reverse<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_reverse(const CharT(&arr)[N]) noexcept
+    {
+        return reverse<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_reverse(const CharT* str, std::size_t len) noexcept
+    {
+        return reverse<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, concealed<CharT>.size() + N + reset<CharT>.size()>
+    to_concealed() noexcept
+    {
+        return concealed<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, concealed<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_concealed(const CharT(&arr)[N]) noexcept
+    {
+        return concealed<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_concealed(const CharT* str, std::size_t len) noexcept
+    {
+        return concealed<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
     }
 }
 

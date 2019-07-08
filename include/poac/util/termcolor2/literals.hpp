@@ -612,6 +612,41 @@ inline namespace attribute_literals {
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
+    constexpr auto operator "" _dark() noexcept
+    {
+        return to_dark<CharT, sizeof...(Str), Str...>();
+    }
+#elif defined(_MSC_VER)
+    inline std::basic_string<char>
+    operator "" _dark(const char* str, std::size_t len) noexcept
+    {
+        return to_dark(str, len);
+    }
+#else
+    inline std::basic_string<char>
+    operator "" _dark(const char* str, std::size_t len) noexcept
+    {
+        return to_dark(str, len);
+    }
+    inline std::basic_string<wchar_t>
+    operator "" _dark(const wchar_t* str, std::size_t len) noexcept
+    {
+        return to_dark(str, len);
+    }
+    inline std::basic_string<char16_t>
+    operator "" _dark(const char16_t* str, std::size_t len) noexcept
+    {
+        return to_dark(str, len);
+    }
+    inline std::basic_string<char32_t>
+    operator "" _dark(const char32_t* str, std::size_t len) noexcept
+    {
+        return to_dark(str, len);
+    }
+#endif
+
+#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
+    template <typename CharT, CharT... Str>
     constexpr auto operator "" _underline() noexcept
     {
         return to_underline<CharT, sizeof...(Str), Str...>();
@@ -642,6 +677,111 @@ inline namespace attribute_literals {
     operator "" _underline(const char32_t* str, std::size_t len) noexcept
     {
         return to_underline(str, len);
+    }
+#endif
+
+#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
+    template <typename CharT, CharT... Str>
+    constexpr auto operator "" _blink() noexcept
+    {
+        return to_blink<CharT, sizeof...(Str), Str...>();
+    }
+#elif defined(_MSC_VER)
+    inline std::basic_string<char>
+    operator "" _blink(const char* str, std::size_t len) noexcept
+    {
+        return to_blink(str, len);
+    }
+#else
+    inline std::basic_string<char>
+    operator "" _blink(const char* str, std::size_t len) noexcept
+    {
+        return to_blink(str, len);
+    }
+    inline std::basic_string<wchar_t>
+    operator "" _blink(const wchar_t* str, std::size_t len) noexcept
+    {
+        return to_blink(str, len);
+    }
+    inline std::basic_string<char16_t>
+    operator "" _blink(const char16_t* str, std::size_t len) noexcept
+    {
+        return to_blink(str, len);
+    }
+    inline std::basic_string<char32_t>
+    operator "" _blink(const char32_t* str, std::size_t len) noexcept
+    {
+        return to_blink(str, len);
+    }
+#endif
+
+#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
+    template <typename CharT, CharT... Str>
+    constexpr auto operator "" _reverse() noexcept
+    {
+        return to_reverse<CharT, sizeof...(Str), Str...>();
+    }
+#elif defined(_MSC_VER)
+    inline std::basic_string<char>
+    operator "" _reverse(const char* str, std::size_t len) noexcept
+    {
+        return to_reverse(str, len);
+    }
+#else
+    inline std::basic_string<char>
+    operator "" _reverse(const char* str, std::size_t len) noexcept
+    {
+        return to_reverse(str, len);
+    }
+    inline std::basic_string<wchar_t>
+    operator "" _reverse(const wchar_t* str, std::size_t len) noexcept
+    {
+        return to_reverse(str, len);
+    }
+    inline std::basic_string<char16_t>
+    operator "" _reverse(const char16_t* str, std::size_t len) noexcept
+    {
+        return to_reverse(str, len);
+    }
+    inline std::basic_string<char32_t>
+    operator "" _reverse(const char32_t* str, std::size_t len) noexcept
+    {
+        return to_reverse(str, len);
+    }
+#endif
+
+#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
+    template <typename CharT, CharT... Str>
+    constexpr auto operator "" _concealed() noexcept
+    {
+        return to_concealed<CharT, sizeof...(Str), Str...>();
+    }
+#elif defined(_MSC_VER)
+    inline std::basic_string<char>
+    operator "" _concealed(const char* str, std::size_t len) noexcept
+    {
+        return to_concealed(str, len);
+    }
+#else
+    inline std::basic_string<char>
+    operator "" _concealed(const char* str, std::size_t len) noexcept
+    {
+        return to_concealed(str, len);
+    }
+    inline std::basic_string<wchar_t>
+    operator "" _concealed(const wchar_t* str, std::size_t len) noexcept
+    {
+        return to_concealed(str, len);
+    }
+    inline std::basic_string<char16_t>
+    operator "" _concealed(const char16_t* str, std::size_t len) noexcept
+    {
+        return to_concealed(str, len);
+    }
+    inline std::basic_string<char32_t>
+    operator "" _concealed(const char32_t* str, std::size_t len) noexcept
+    {
+        return to_concealed(str, len);
     }
 #endif
 } // end namespace attribute_literals
