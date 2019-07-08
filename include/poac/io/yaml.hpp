@@ -30,12 +30,12 @@ namespace poac::io::yaml {
             }
         };
         template <typename T>
-        T get(const YAML::Node& node) {
+        T dig(const YAML::Node& node) {
             return node.as<T>();
         }
         template <typename T, typename... Keys>
-        T get(const YAML::Node& node, Keys&&... keys) {
-            return get<T>((wrapper(node) ->* ... ->* keys).node);
+        T dig(const YAML::Node& node, Keys&&... keys) {
+            return dig<T>((wrapper(node) ->* ... ->* keys).node);
         }
 
         // Private member accessor
@@ -95,7 +95,7 @@ namespace poac::io::yaml {
     std::optional<T>
     get(const YAML::Node& node) noexcept {
         try {
-            return detail::get<T>(node);
+            return detail::dig<T>(node);
         }
         catch (...) {
             return std::nullopt;
@@ -106,7 +106,7 @@ namespace poac::io::yaml {
     std::optional<T>
     get(const YAML::Node& node, Args&&... args) noexcept {
         try {
-            return detail::get<T>(node, args...);
+            return detail::dig<T>(node, args...);
         }
         catch (...) {
             return std::nullopt;
@@ -115,7 +115,7 @@ namespace poac::io::yaml {
     template <typename... Args>
     bool get(const YAML::Node& node, Args&&... args) noexcept {
         try {
-            return detail::get<bool>(node, args...);
+            return detail::dig<bool>(node, args...);
         }
         catch (...) {
             return false;
