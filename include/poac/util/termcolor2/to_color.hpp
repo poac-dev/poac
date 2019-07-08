@@ -8,6 +8,28 @@
 #include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
+    //
+    // Foreground manipulators
+    //
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, gray<CharT>.size() + N + reset<CharT>.size()>
+    to_gray() noexcept
+    {
+        return gray<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, gray<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_gray(const CharT(&arr)[N]) noexcept
+    {
+        return gray<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_gray(const CharT* str, std::size_t len) noexcept
+    {
+        return gray<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
     template <typename CharT, std::size_t N, CharT... Str>
     constexpr basic_string<CharT, red<CharT>.size() + N + reset<CharT>.size()>
     to_red() noexcept
@@ -34,7 +56,7 @@ namespace termcolor2 {
         return green<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    constexpr basic_string<CharT, green<CharT>.size() + (N - 1) + reset<CharT>.size()>
     to_green(const CharT(&arr)[N]) noexcept
     {
         return green<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
@@ -53,7 +75,7 @@ namespace termcolor2 {
         return yellow<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    constexpr basic_string<CharT, yellow<CharT>.size() + (N - 1) + reset<CharT>.size()>
     to_yellow(const CharT(&arr)[N]) noexcept
     {
         return yellow<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
@@ -72,7 +94,7 @@ namespace termcolor2 {
         return blue<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    constexpr basic_string<CharT, blue<CharT>.size() + (N - 1) + reset<CharT>.size()>
     to_blue(const CharT(&arr)[N]) noexcept
     {
         return blue<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
@@ -85,43 +107,65 @@ namespace termcolor2 {
     }
 
     template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, pink<CharT>.size() + N + reset<CharT>.size()>
-    to_pink() noexcept
+    constexpr basic_string<CharT, magenta<CharT>.size() + N + reset<CharT>.size()>
+    to_magenta() noexcept
     {
-        return pink<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+        return magenta<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
-    to_pink(const CharT(&arr)[N]) noexcept
+    constexpr basic_string<CharT, magenta<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_magenta(const CharT(&arr)[N]) noexcept
     {
-        return pink<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+        return magenta<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
     }
     template <typename CharT>
     inline std::basic_string<CharT>
-    to_pink(const CharT* str, std::size_t len) noexcept
+    to_magenta(const CharT* str, std::size_t len) noexcept
     {
-        return pink<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+        return magenta<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
     }
 
     template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, gray<CharT>.size() + N + reset<CharT>.size()>
-    to_gray() noexcept
+    constexpr basic_string<CharT, cyan<CharT>.size() + N + reset<CharT>.size()>
+    to_cyan() noexcept
     {
-        return gray<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+        return cyan<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
-    to_gray(const CharT(&arr)[N]) noexcept
+    constexpr basic_string<CharT, cyan<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_cyan(const CharT(&arr)[N]) noexcept
     {
-        return gray<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+        return cyan<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
     }
     template <typename CharT>
     inline std::basic_string<CharT>
-    to_gray(const CharT* str, std::size_t len) noexcept
+    to_cyan(const CharT* str, std::size_t len) noexcept
     {
-        return gray<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+        return cyan<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
     }
 
+    template <typename CharT, std::size_t N, CharT... Str>
+    constexpr basic_string<CharT, white<CharT>.size() + N + reset<CharT>.size()>
+    to_white() noexcept
+    {
+        return white<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
+    }
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, white<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    to_white(const CharT(&arr)[N]) noexcept
+    {
+        return white<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
+    }
+    template <typename CharT>
+    inline std::basic_string<CharT>
+    to_white(const CharT* str, std::size_t len) noexcept
+    {
+        return white<CharT>.to_string() + std::basic_string<CharT>(str, len) + reset<CharT>.to_string();
+    }
+
+    //
+    // Attribute manipulators
+    //
     template <typename CharT, std::size_t N, CharT... Str>
     constexpr basic_string<CharT, bold<CharT>.size() + N + reset<CharT>.size()>
     to_bold() noexcept
@@ -129,7 +173,7 @@ namespace termcolor2 {
         return bold<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    constexpr basic_string<CharT, bold<CharT>.size() + (N - 1) + reset<CharT>.size()>
     to_bold(const CharT(&arr)[N]) noexcept
     {
         return bold<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;
@@ -148,7 +192,7 @@ namespace termcolor2 {
         return underline<CharT> + basic_string<CharT, N>({Str...}) + reset<CharT>;
     }
     template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red<CharT>.size() + (N - 1) + reset<CharT>.size()>
+    constexpr basic_string<CharT, underline<CharT>.size() + (N - 1) + reset<CharT>.size()>
     to_underline(const CharT(&arr)[N]) noexcept
     {
         return underline<CharT> + basic_string<CharT, N - 1>(arr) + reset<CharT>;

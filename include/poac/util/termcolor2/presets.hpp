@@ -4,6 +4,20 @@
 #include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
+    //
+    // Foreground manipulators
+    //
+    template <typename CharT = char>
+    constexpr auto gray = make_string("\x1b[90m");
+#ifndef _MSC_VER
+    template <>
+    constexpr auto gray<wchar_t> = make_string(L"\x1b[90m");
+    template <>
+    constexpr auto gray<char16_t> = make_string(u"\x1b[90m");
+    template <>
+    constexpr auto gray<char32_t> = make_string(U"\x1b[90m");
+#endif
+
     template <typename CharT = char>
     constexpr auto red = make_string("\x1b[31m");
 #ifndef _MSC_VER
@@ -49,27 +63,41 @@ namespace termcolor2 {
 #endif
 
     template <typename CharT = char>
-    constexpr auto pink = make_string("\x1b[35m");
+    constexpr auto magenta = make_string("\x1b[35m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto pink<wchar_t> = make_string(L"\x1b[35m");
+    constexpr auto magenta<wchar_t> = make_string(L"\x1b[35m");
     template <>
-    constexpr auto pink<char16_t> = make_string(u"\x1b[35m");
+    constexpr auto magenta<char16_t> = make_string(u"\x1b[35m");
     template <>
-    constexpr auto pink<char32_t> = make_string(U"\x1b[35m");
+    constexpr auto magenta<char32_t> = make_string(U"\x1b[35m");
 #endif
 
     template <typename CharT = char>
-    constexpr auto gray = make_string("\x1b[90m");
+    constexpr auto cyan = make_string("\x1b[36m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto gray<wchar_t> = make_string(L"\x1b[90m");
+    constexpr auto cyan<wchar_t> = make_string(L"\x1b[36m");
     template <>
-    constexpr auto gray<char16_t> = make_string(u"\x1b[90m");
+    constexpr auto cyan<char16_t> = make_string(u"\x1b[36m");
     template <>
-    constexpr auto gray<char32_t> = make_string(U"\x1b[90m");
+    constexpr auto cyan<char32_t> = make_string(U"\x1b[36m");
 #endif
 
+    template <typename CharT = char>
+    constexpr auto white = make_string("\x1b[37m");
+#ifndef _MSC_VER
+    template <>
+    constexpr auto white<wchar_t> = make_string(L"\x1b[37m");
+    template <>
+    constexpr auto white<char16_t> = make_string(u"\x1b[37m");
+    template <>
+    constexpr auto white<char32_t> = make_string(U"\x1b[37m");
+#endif
+
+    //
+    // Attribute manipulators
+    //
     template <typename CharT = char>
     constexpr auto bold = make_string("\x1b[1m");
 #ifndef _MSC_VER

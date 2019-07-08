@@ -7,8 +7,43 @@
 #include <poac/util/termcolor2/to_color.hpp>
 
 namespace termcolor2 {
-inline namespace literals {
 inline namespace color_literals {
+inline namespace foreground_literals {
+#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
+    template <typename CharT, CharT... Str>
+    constexpr auto operator "" _gray() noexcept
+    {
+        return to_gray<CharT, sizeof...(Str), Str...>();
+    }
+#elif defined(_MSC_VER)
+    inline std::basic_string<char>
+    operator "" _gray(const char* str, std::size_t len) noexcept
+    {
+        return to_gray(str, len);
+    }
+#else
+    inline std::basic_string<char>
+    operator "" _gray(const char* str, std::size_t len) noexcept
+    {
+        return to_gray(str, len);
+    }
+    inline std::basic_string<wchar_t>
+    operator "" _gray(const wchar_t* str, std::size_t len) noexcept
+    {
+        return to_gray(str, len);
+    }
+    inline std::basic_string<char16_t>
+    operator "" _gray(const char16_t* str, std::size_t len) noexcept
+    {
+        return to_gray(str, len);
+    }
+    inline std::basic_string<char32_t>
+    operator "" _gray(const char32_t* str, std::size_t len) noexcept
+    {
+        return to_gray(str, len);
+    }
+#endif
+
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr auto operator "" _red() noexcept
@@ -79,7 +114,6 @@ inline namespace color_literals {
     }
 #endif
 
-
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr auto operator "" _yellow() noexcept
@@ -114,7 +148,6 @@ inline namespace color_literals {
         return to_yellow(str, len);
     }
 #endif
-
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
@@ -151,79 +184,114 @@ inline namespace color_literals {
     }
 #endif
 
-
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
-    constexpr auto operator "" _pink() noexcept
+    constexpr auto operator "" _magenta() noexcept
     {
-        return to_pink<CharT, sizeof...(Str), Str...>();
+        return to_magenta<CharT, sizeof...(Str), Str...>();
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _pink(const char* str, std::size_t len) noexcept
+    operator "" _magenta(const char* str, std::size_t len) noexcept
     {
-        return to_pink(str, len);
+        return to_magenta(str, len);
     }
 #else
     inline std::basic_string<char>
-    operator "" _pink(const char* str, std::size_t len) noexcept
+    operator "" _magenta(const char* str, std::size_t len) noexcept
     {
-        return to_pink(str, len);
+        return to_magenta(str, len);
     }
     inline std::basic_string<wchar_t>
-    operator "" _pink(const wchar_t* str, std::size_t len) noexcept
+    operator "" _magenta(const wchar_t* str, std::size_t len) noexcept
     {
-        return to_pink(str, len);
+        return to_magenta(str, len);
     }
     inline std::basic_string<char16_t>
-    operator "" _pink(const char16_t* str, std::size_t len) noexcept
+    operator "" _magenta(const char16_t* str, std::size_t len) noexcept
     {
-        return to_pink(str, len);
+        return to_magenta(str, len);
     }
     inline std::basic_string<char32_t>
-    operator "" _pink(const char32_t* str, std::size_t len) noexcept
+    operator "" _magenta(const char32_t* str, std::size_t len) noexcept
     {
-        return to_pink(str, len);
+        return to_magenta(str, len);
     }
 #endif
-
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
-    constexpr auto operator "" _gray() noexcept
+    constexpr auto operator "" _cyan() noexcept
     {
-        return to_gray<CharT, sizeof...(Str), Str...>();
+        return to_cyan<CharT, sizeof...(Str), Str...>();
     }
 #elif defined(_MSC_VER)
     inline std::basic_string<char>
-    operator "" _gray(const char* str, std::size_t len) noexcept
+    operator "" _cyan(const char* str, std::size_t len) noexcept
     {
-        return to_gray(str, len);
+        return to_cyan(str, len);
     }
 #else
     inline std::basic_string<char>
-    operator "" _gray(const char* str, std::size_t len) noexcept
+    operator "" _cyan(const char* str, std::size_t len) noexcept
     {
-        return to_gray(str, len);
+        return to_cyan(str, len);
     }
     inline std::basic_string<wchar_t>
-    operator "" _gray(const wchar_t* str, std::size_t len) noexcept
+    operator "" _cyan(const wchar_t* str, std::size_t len) noexcept
     {
-        return to_gray(str, len);
+        return to_cyan(str, len);
     }
     inline std::basic_string<char16_t>
-    operator "" _gray(const char16_t* str, std::size_t len) noexcept
+    operator "" _cyan(const char16_t* str, std::size_t len) noexcept
     {
-        return to_gray(str, len);
+        return to_cyan(str, len);
     }
     inline std::basic_string<char32_t>
-    operator "" _gray(const char32_t* str, std::size_t len) noexcept
+    operator "" _cyan(const char32_t* str, std::size_t len) noexcept
     {
-        return to_gray(str, len);
+        return to_cyan(str, len);
     }
 #endif
 
+#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
+    template <typename CharT, CharT... Str>
+    constexpr auto operator "" _white() noexcept
+    {
+        return to_white<CharT, sizeof...(Str), Str...>();
+    }
+#elif defined(_MSC_VER)
+    inline std::basic_string<char>
+    operator "" _white(const char* str, std::size_t len) noexcept
+    {
+        return to_white(str, len);
+    }
+#else
+    inline std::basic_string<char>
+    operator "" _white(const char* str, std::size_t len) noexcept
+    {
+        return to_white(str, len);
+    }
+    inline std::basic_string<wchar_t>
+    operator "" _white(const wchar_t* str, std::size_t len) noexcept
+    {
+        return to_white(str, len);
+    }
+    inline std::basic_string<char16_t>
+    operator "" _white(const char16_t* str, std::size_t len) noexcept
+    {
+        return to_white(str, len);
+    }
+    inline std::basic_string<char32_t>
+    operator "" _white(const char32_t* str, std::size_t len) noexcept
+    {
+        return to_white(str, len);
+    }
+#endif
+} // end namespace foreground
 
+
+inline namespace attribute_literals {
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr auto operator "" _bold() noexcept
@@ -259,7 +327,6 @@ inline namespace color_literals {
     }
 #endif
 
-
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr auto operator "" _underline() noexcept
@@ -294,8 +361,8 @@ inline namespace color_literals {
         return to_underline(str, len);
     }
 #endif
+} // end namespace attribute_literals
 } // end namespace color_literals
-} // end namespace literals
 } // end namespace termcolor2
 
 #endif	// !TERMCOLOR2_LITERALS_HPP
