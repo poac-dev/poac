@@ -70,7 +70,7 @@ namespace poac::opts::test {
         //   -> ただし，その区切り線は，もちろん，quiteがtrueだと表示しない．verboseがtrueだと情報を増やす．
         // }
 
-        core::builder::compilation bs(opts.verbose);
+        core::builder::Builder bs(opts.verbose);
         bs.configure_compile(usemain);
 
         /// TODO: これは重要！忘れない！！！！！！！！！！！！！！！！
