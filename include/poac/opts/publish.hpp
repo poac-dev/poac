@@ -86,7 +86,7 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    verify_version(const PackageInfo& package_info) {
+    verify_exists(const PackageInfo& package_info) {
         if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
             return core::except::Error::General{
                 package_info.name, ": ", package_info.version.get_full(), " is already exists."
@@ -153,7 +153,7 @@ namespace poac::opts::publish {
         if (const auto error = verify_tag(package_info)) {
             return error;
         }
-        if (const auto error = verify_version(package_info)) {
+        if (const auto error = verify_exists(package_info)) {
             return error;
         }
         if (const auto error = verify_no_changes(package_info)) {
@@ -172,7 +172,8 @@ namespace poac::opts::publish {
         return std::nullopt;
     }
 
-    void summarize(const PackageInfo& package_info) {
+    void
+    summarize(const PackageInfo& package_info) {
         using termcolor2::color_literals::operator""_bold;
         using util::pretty::clip_string;
         std::cout << "Summary:"_bold
@@ -260,7 +261,8 @@ namespace poac::opts::publish {
         return target.substr(first, last - first);
     }
 
-    std::string_view extract_full_name(std::string_view repository) {
+    std::string_view
+    extract_full_name(std::string_view repository) {
         if (const auto sub = extract_str(repository, "https://github.com/", ".git")) {
             return sub.value();
         } else {
@@ -272,7 +274,8 @@ namespace poac::opts::publish {
         }
     }
 
-    std::string get_name() {
+    std::string
+    get_name() {
         if (const auto repository = util::shell("git config --get remote.origin.url").exec()) {
             return std::string(extract_full_name(repository.value()));
         }
