@@ -331,9 +331,16 @@ namespace poac::io::net {
                             std::forward<Response>(res),
                             std::forward<Ofstream>(ofs));
                 default:
-                    throw core::except::error(
-                            "io::net received a bad response code: ", res.base().result_int()
-                          ); // TODO: if constepxr res.body() == std::string -> res.body()
+                    if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
+                        throw core::except::error(
+                                "io::net received a bad response code: ", res.base().result_int(), "\n",
+                                res.body()
+                        );
+                    } else {
+                        throw core::except::error(
+                                "io::net received a bad response code: ", res.base().result_int()
+                        );
+                    }
             }
         }
 
@@ -344,15 +351,15 @@ namespace poac::io::net {
             if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
                 term::debugln("Read type: string");
                 return res.body();
-            }
-            else {
+            } else {
                 term::debugln("Read type: file with progress");
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
-                    for (const auto& r : response_body) { ofs << r; }
-                }
-                else {
+                    for (const auto& r : response_body) {
+                        ofs << r;
+                    }
+                } else {
                     int acc = 0;
                     for (const auto& r : response_body) {
                         ofs << r;
@@ -458,8 +465,7 @@ namespace poac::io::net {
             }
             if (ss.str() == "null") {
                 return std::nullopt;
-            }
-            else {
+            } else {
                 boost::property_tree::ptree pt;
                 boost::property_tree::json_parser::read_json(ss, pt);
                 return pt;
@@ -488,9 +494,29 @@ namespace poac::io::net {
                 Headers headers;
                 headers.emplace(http::field::authorization, "token " + github_token.value());
                 res = req.get(GITHUB_REPOS_API + target, headers);
-            }
-            else {
-                res = req.get(GITHUB_REPOS_API + target);
+            } else {
+                try {
+                    res = req.get(GITHUB_REPOS_API + target);
+                }
+                catch (const core::except::error& error) {
+                    std::string_view err = error.what();
+                    auto found = err.find('\n');
+                    if (err.substr(found - 3, 3) == "403") {
+                        boost::property_tree::ptree pt;
+                        {
+                            std::stringstream ss;
+                            ss << err.substr(found + 1);
+                            boost::property_tree::json_parser::read_json(ss, pt);
+                        }
+                        throw core::except::error(
+                                "GitHub ", pt.get<std::string>("message"), "\n"
+                                "Please create a personal access token:\n"
+                                "    https://github.com/settings/tokens/new?scopes=&description=Poac\n"
+                                "and then set the token:\n"
+                                "    export POAC_GITHUB_API_TOKEN=$YOUR_TOKEN");
+                    }
+                    throw error;
+                }
             }
             std::stringstream ss;
             ss << res.data();
