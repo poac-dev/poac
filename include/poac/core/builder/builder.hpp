@@ -36,36 +36,37 @@ namespace poac::core::builder {
         // Prohibit copy and move.
         Builder(const Builder&) = delete;
         Builder& operator=(const Builder&) = delete;
-        Builder(Builder&&) = delete;
-        Builder& operator=(Builder&&) = delete;
+        Builder(Builder&&) noexcept = delete;
+        Builder& operator=(Builder&&) noexcept = delete;
+        ~Builder() = default;
 
         options::compile compile_conf;
         options::link link_conf;
         options::static_lib static_lib_conf;
         options::dynamic_lib dynamic_lib_conf;
 
-        std::string compiler;
         std::string project_name;
+        std::optional<io::yaml::Config> config;
         boost::filesystem::path base_dir;
+        std::string compiler;
+        bool verbose;
 
-        std::map<std::string, YAML::Node> node;
         std::map<std::string, std::map<std::string, std::string>> depends_ts;
 
-        bool verbose; // TODO: 一旦依存関係を集めて，一気に変換だとメモリが保たない．なので，インクリメンタルに変換するのが良い．
+
 
 
         std::vector<std::string>
         hash_source_files(
             std::vector<std::string>&& source_files,
-            const bool usemain )
-        {
+            const bool usemain
+        ) {
             namespace fs = boost::filesystem;
 
             if (usemain) {
                 if (!fs::exists("main.cpp")) {
                     throw except::error(except::msg::does_not_exist("main.cpp"));
-                }
-                else {
+                } else {
                     source_files.push_back("main.cpp");
                 }
             }
@@ -99,8 +100,7 @@ namespace poac::core::builder {
                         "Please build after running `poac install`");
             }
         }
-        void configure_compile(const bool usemain)
-        {
+        void configure_compile(const bool usemain) {
             compile_conf.system = compiler;
 
 //            const auto cpp_version = io::yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
@@ -108,7 +108,7 @@ namespace poac::core::builder {
 //            compile_conf.std_version = standard::convert(cpp_version, cn, io::yaml::get(node.at("build"), "gnu"));
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
-            compile_conf.other_args = options::make_compile_other_args(node);
+//            compile_conf.other_args = options::make_compile_other_args(node);
             compile_conf.source_files = hash_source_files(detect::search_cpp_file(base_dir), usemain);
 //            compile_conf.macro_defns = options::make_macro_defns(node);
             compile_conf.base_dir = base_dir;
@@ -153,7 +153,6 @@ namespace poac::core::builder {
 
         void make_link(const std::map<std::string, YAML::Node>& deps_node) {
             namespace fs = boost::filesystem;
-            namespace yaml = io::yaml;
 
             for (const auto& [raw_name, next_node] : deps_node) {
                 const auto [src, name] = name::get_source(raw_name);
@@ -168,7 +167,7 @@ namespace poac::core::builder {
                     if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
                         link_conf.library_search_path.push_back(lib_dir.string());
 
-                        if (const auto link = yaml::get<std::vector<std::string>>(next_node, "link", "include")) {
+                        if (const auto link = io::yaml::get<std::vector<std::string>>(next_node, "link", "include")) {
                             for (const auto& l : *link) {
                                 link_conf.static_link_libs.push_back(l);
                             }
@@ -180,10 +179,7 @@ namespace poac::core::builder {
                 }
             }
         }
-        void configure_link(const std::vector<std::string>& obj_files_path) // TODO: obj_files_path以外は，インスタンス時に作れるからメモリの無駄遣いにならない．
-        {
-            namespace yaml = io::yaml;
-
+        void configure_link(const std::vector<std::string>& obj_files_path) {
             link_conf.obj_files_path = obj_files_path;
 
             link_conf.system = compiler;
@@ -193,28 +189,24 @@ namespace poac::core::builder {
 //            link_conf.library_search_path = std::get<0>(links);
 //            link_conf.static_link_libs = std::get<1>(links);
 //            link_conf.library_path = std::get<2>(links);
-            if (const auto link_args = yaml::get<std::vector<std::string>>(node.at("build"), "link_args")) {
-                link_conf.other_args = *link_args;
+            if (config->build->link_args.has_value()) {
+                link_conf.other_args = config->build->link_args.value();
             }
         }
-        auto link()
-        {
+        auto link() {
             return compiler::link(link_conf, verbose);
         }
 
-        void configure_static_lib(const std::vector<std::string>& obj_files_path)
-        {
+        void configure_static_lib(const std::vector<std::string>& obj_files_path) {
             static_lib_conf.project_name = project_name;
             static_lib_conf.output_root = io::path::current_build_lib_dir;
             static_lib_conf.obj_files_path = obj_files_path;
         }
-        auto gen_static_lib()
-        {
+        auto gen_static_lib() {
             return compiler::gen_static_lib(static_lib_conf, verbose);
         }
 
-        void configure_dynamic_lib(const std::vector<std::string>& obj_files_path)
-        {
+        void configure_dynamic_lib(const std::vector<std::string>& obj_files_path) {
             dynamic_lib_conf.system = compiler;
             dynamic_lib_conf.project_name = project_name;
             // outputを一箇所か分散か選べるように．boost::hoghoeみたいに，enumのオプションを渡すとOK
@@ -222,28 +214,25 @@ namespace poac::core::builder {
             dynamic_lib_conf.output_root = io::path::current_build_lib_dir;
             dynamic_lib_conf.obj_files_path = obj_files_path;
         }
-        auto gen_dynamic_lib()
-        {
+        auto gen_dynamic_lib() {
             return compiler::gen_dynamic_lib(dynamic_lib_conf, verbose);
         }
 
         // TODO: poac.ymlのhashもcheck
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
-        explicit Builder(const bool verbose, const boost::filesystem::path& base_dir=boost::filesystem::current_path())
-        : base_dir(base_dir), verbose(verbose)
+        Builder(
+//                const std::optional<io::yaml::Config>& config,
+                const bool verbose,
+                const boost::filesystem::path& base_dir=boost::filesystem::current_path()
+        ) : /*config(config),*/ base_dir(base_dir), compiler(standard::detect_command()), verbose(verbose)
         {
-//            const auto config_file = yaml::load_config_by_dir_with_throw(base_dir);
-//            node = yaml::get_by_width(config_file, "name", "version", "cpp_version", "build");
-
             // Create link configure and include search path
-//            if (const auto deps_node = io::yaml::get<std::map<std::string, YAML::Node>>(config_file, "deps")) {
-//                make_link(*deps_node);
+//            if (config->dependencies) {
+//                make_link(config->dependencies.value());
 //                make_include_search_path();
 //            }
-
-            compiler = standard::detect_command();
-            project_name = name::slash_to_hyphen(node.at("name").as<std::string>());
+//            project_name = name::slash_to_hyphen(node.at("name").as<std::string>()); // TODO: どうやって生成する？？？
         }
     };
 } // end namespace
