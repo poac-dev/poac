@@ -343,8 +343,10 @@ namespace poac::opts::publish {
 
         // TODO: Currently, we can not publish an application.
         if (package_info.package_type == PackageType::Application) {
+            summarize(package_info);
             return core::except::Error::General{
-                "Sorry, you can not publish an application currently."
+                "Sorry, you can not publish an application currently.\n"
+                "This condition may change in the future."
             };
         }
         if (const auto error = verify_package(package_info)) {
