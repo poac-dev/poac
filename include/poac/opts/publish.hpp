@@ -27,10 +27,9 @@
 
 namespace poac::opts::publish {
     constexpr auto summary = termcolor2::make_string("Publish a package");
-    constexpr auto options = termcolor2::make_string("[-v, --verbose | -y, --yes]");
+    constexpr auto options = termcolor2::make_string("[-y, --yes]");
 
     struct Options {
-        bool verbose;
         bool yes;
     };
 
@@ -59,15 +58,31 @@ namespace poac::opts::publish {
         std::uint16_t cpp_version;
         std::optional<std::string> license;
         PackageType package_type;
+        std::string local_commit_sha;
     };
 
     [[nodiscard]] std::optional<core::except::Error>
     do_register(const PackageInfo& package_info) {
-        std::cout << "Registering " << package_info.name << ": "
+        std::cout << "\nRegistering " << package_info.name << ": "
                   << package_info.version.get_full() << " ..." << std::endl;
 
+        io::net::MultiPartForm mpf{};
+        mpf.set("name", package_info.name);
+        mpf.set("version", package_info.version.get_full());
+        mpf.set("description", package_info.description.value_or("null"));
+        mpf.set("license", package_info.license.value_or("null"));
+        mpf.set("package_type", to_string(package_info.package_type));
+        mpf.set("commit_hash", package_info.local_commit_sha);
+
+        io::net::MultiPartForm::header_type header;
+        header[io::net::http::field::content_type] = "text/plain";
+        mpf.set("poac.yml", "poac.yml", header);
+
+        const io::net::requests req{ POAC_API_HOST };
+        if (const auto res = req.post(POAC_UPLOAD_API, std::move(mpf)); res != "ok") {
+            return core::except::Error::General{ res };
+        }
         return std::nullopt;
-        // TODO: POST
     }
 
     [[nodiscard]] std::optional<core::except::Error>
@@ -89,7 +104,7 @@ namespace poac::opts::publish {
     verify_exists(const PackageInfo& package_info) {
         if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
             return core::except::Error::General{
-                package_info.name, ": ", package_info.version.get_full(), " is already exists."
+                package_info.name, ": ", package_info.version.get_full(), " is already registered."
             };
         }
         return std::nullopt;
@@ -97,13 +112,9 @@ namespace poac::opts::publish {
 
     [[nodiscard]] std::optional<core::except::Error>
     verify_commit_sha(const PackageInfo& package_info, std::string_view remote_commit_sha) {
-        // https://stackoverflow.com/questions/1862423/how-to-tell-which-commit-a-tag-points-to-in-git
         // Check if the local git tag commit sha and obtained commit sha match.
-        const std::string cmd = "git rev-list -n 1 " + package_info.version.get_full();
-        if (const auto local_commit_hash = util::shell(cmd).exec()) {
-            if (remote_commit_sha == local_commit_hash->substr(0, local_commit_hash->size() - 1)) { // Delete \n
-                return std::nullopt;
-            }
+        if (remote_commit_sha == package_info.local_commit_sha) {
+            return std::nullopt;
         }
         return core::except::Error::General{
             "GitHub release commit sha does not match local tag commit sha.\n"
@@ -126,8 +137,8 @@ namespace poac::opts::publish {
         // Get commit sha using obtained tag.
         // https://stackoverflow.com/questions/28496319/github-a-tag-but-not-a-release
         // Note: GitHub regards tags and releases as the same thing, and the method to get tags is also legal.
+        const std::string target = "/" + package_info.name + "/git/refs/tags/" + package_info.version.get_full();
         try {
-            const std::string target = "/" + package_info.name + "/git/refs/tags/" + package_info.version.get_full();
             const auto pt = io::net::api::github::repos(target);
             if (const auto commit_sha = pt.get_optional<std::string>("object.sha")) {
                 if (const auto error = verify_commit_sha(package_info, commit_sha.value())) {
@@ -141,9 +152,9 @@ namespace poac::opts::publish {
         }
         catch (...) {
             return core::except::Error::General{
-                    "Could not find a current tag release.\n"
-                    "Please execute the following command:\n"
-                    "    git push origin ", package_info.version.get_full()
+                "Could not find a current tag release.\n"
+                "Please execute the following command:\n"
+                "    git push origin ", package_info.version.get_full()
             };
         }
     }
@@ -186,13 +197,26 @@ namespace poac::opts::publish {
                   << "\n" << std::endl;
     }
 
+    std::string
+    get_local_commit_sha(const std::string& version) {
+        // https://stackoverflow.com/questions/1862423/how-to-tell-which-commit-a-tag-points-to-in-git
+        const std::string cmd = "git rev-list -n 1 " + version;
+        if (const auto local_commit_sha = util::shell(cmd).exec()) {
+            return local_commit_sha->substr(0, local_commit_sha->size() - 1); // Delete \n
+        } else {
+            throw core::except::error(
+                    "Could not get current tag commit sha.\n"
+                    "Is tag ", version, " exists?");
+        }
+    }
+
     PackageType
     get_package_type(const std::optional<io::yaml::Config>& config) {
-        if (config->build) {
-            if (config->build->bin && config->build->bin.value()) {
+        if (config->build.has_value()) {
+            if (config->build->bin.has_value() && config->build->bin.value()) {
                 // bin: true
                 return PackageType::Application;
-            } else if (config->build->lib && config->build->lib.value()) {
+            } else if (config->build->lib.has_value() && config->build->lib.value()) {
                 // lib: true
                 return PackageType::BuildReqLib;
             } else {
@@ -270,7 +294,13 @@ namespace poac::opts::publish {
                 return sub2.value();
             }
             throw core::except::error(
-                    "Invalid repository name");
+                    "Could not extract repository name.\n"
+                    "Is the URL that can be acquired by the following command the URL of GitHub?:\n"
+                    "    git config --get remote.origin.url\n"
+                    "If not, please execute the following command:\n"
+                    "    git remote add origin https://github.com/:owner/:repo.git\n"
+                    "Note: Currently, it can only publish on GitHub.\n"
+                    "      This condition may change in the future.");
         }
     }
 
@@ -296,7 +326,8 @@ namespace poac::opts::publish {
                 get_description(full_name),
                 get_cpp_version(config),
                 get_license(full_name, version.get_full()),
-                get_package_type(config)
+                get_package_type(config),
+                get_local_commit_sha(version.get_full()),
         };
     }
 
@@ -313,7 +344,7 @@ namespace poac::opts::publish {
         // TODO: Currently, we can not publish an application.
         if (package_info.package_type == PackageType::Application) {
             return core::except::Error::General{
-                "Sorry, we can not publish an application currently."
+                "Sorry, you can not publish an application currently."
             };
         }
         if (const auto error = verify_package(package_info)) {
@@ -336,7 +367,6 @@ namespace poac::opts::publish {
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
         publish::Options opts{};
-        opts.verbose = util::argparse::use(args, "-v", "--verbose");
         opts.yes = util::argparse::use(args, "-y", "--yes");
         return publish::publish(std::move(config), std::move(opts));
     }

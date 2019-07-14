@@ -78,12 +78,11 @@ namespace poac::io::net {
         const std::string content_disposition = "Content-Disposition: form-data; ";
         std::vector<std::string> form_param;
 
+    public:
         using file_name_type = std::string;
         using file_path_type = boost::filesystem::path;
         using header_type = std::map<http::field, std::string>;
         std::vector<std::tuple<file_name_type, file_path_type, header_type>> file_param;
-
-    public:
         using self_reference = MultiPartForm&;
         using const_self_reference = const MultiPartForm&;
 
@@ -107,7 +106,7 @@ namespace poac::io::net {
                     "name=\"" + name + "\"" + CRLF + CRLF + value);
             generate_header(); // re-generate
         }
-        void set(const file_name_type& name, const file_path_type& value, const header_type& h={}) {
+        void set(const file_name_type& name, const file_path_type& value, const header_type& h) {
             file_param.emplace_back(name, value, h);
             generate_header(); // re-generate
         }
@@ -123,9 +122,11 @@ namespace poac::io::net {
             return "multipart/form-data; boundary=" + boundary;
         }
         std::uintmax_t content_length() const {
-            namespace fs = boost::filesystem;
             return std::accumulate(file_param.begin(), file_param.end(), header.size() + footer.size(),
-                    [](std::uintmax_t acc, const auto& f) { return acc + fs::file_size(std::get<1>(f)); });
+                [](std::uintmax_t acc, const auto& f) {
+                    return acc + boost::filesystem::file_size(std::get<1>(f));
+                }
+            );
         }
 
         struct FileInfo {
@@ -188,15 +189,16 @@ namespace poac::io::net {
     // Only SSL usage
     class requests {
     public:
-        explicit requests(std::string_view host_) : host(host_) {
+        explicit requests(std::string_view host)
+            : host(host)
             // The io_context is required for all I/O
-            ioc = std::make_unique<boost::asio::io_context>();
+            , ioc(std::make_unique<boost::asio::io_context>())
             // The SSL context is required, and holds certificates
-            ctx = std::make_unique<ssl::context>(ssl::context::sslv23);
+            , ctx(std::make_unique<ssl::context>(ssl::context::sslv23))
             // These objects perform our I/O
-            resolver = std::make_unique<boost::asio::ip::tcp::resolver>(*ioc);
-            stream = std::make_unique<ssl::stream<boost::asio::ip::tcp::socket>>(*ioc, *ctx);
-        }
+            , resolver(std::make_unique<boost::asio::ip::tcp::resolver>(*ioc))
+            , stream(std::make_unique<ssl::stream<boost::asio::ip::tcp::socket>>(*ioc, *ctx))
+        {}
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
         typename ResponseBody::value_type
@@ -257,8 +259,7 @@ namespace poac::io::net {
         void write_request(const Request& req) const {
             if constexpr (!std::is_same_v<util::types::remove_cvref_t<Request>, MultiPartForm>) {
                 simple_write(req);
-            }
-            else {
+            } else {
                 progress_write(req);
             }
         }
@@ -389,11 +390,9 @@ namespace poac::io::net {
             const requests req(new_host);
             if constexpr (method == http::verb::get) {
                 return req.get(new_target, {}, std::forward<Ofstream>(ofs));
-            }
-            else if (method == http::verb::post) {
+            } else if (method == http::verb::post) {
                 return req.post(new_target, old_req.body(), {}, std::forward<Ofstream>(ofs));
-            }
-            else { // verb error
+            } else { // verb error
                 return {};
             }
         }
