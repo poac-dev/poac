@@ -281,15 +281,17 @@ namespace poac::io::net {
             //  TODO: -> 複数ファイルだと，req.headerをちょびちょびで送る必要がある．
             for (const auto& file : req.get_files()) {
                 std::ifstream ifs(file.path, std::ios::in | std::ios::binary);
-                char buf[512];
+                constexpr std::size_t read_bites = 512;
+
+                char buf[read_bites];
                 unsigned long cur_file_size = 0;
                 while (!ifs.eof()) {
-                    ifs.read(buf, 512);
+                    ifs.read(buf, read_bites);
                     stream->write_some(boost::asio::buffer(buf, ifs.gcount()));
 
                     // Print progress bar
                     std::cout << '\r' << term::info << "Uploading ";
-                    term::echo_byte_progress(file.size, cur_file_size += 512);
+                    term::echo_byte_progress(file.size, cur_file_size += read_bites);
                     std::cout << "  ";
                 }
                 std::cout << '\r' << term::clr_line << term::info << "Uploaded." << std::endl;
