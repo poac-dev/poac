@@ -72,39 +72,6 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_contains_test )
     BOOST_CHECK( !contains(node, "hoge", "unknown") );
 }
 
-// YAML::Node load_config()
-// auto load_config(const Args&... args)
-//BOOST_AUTO_TEST_CASE( poac_io_yaml_load_config_test )
-//{
-//    namespace fs = boost::filesystem;
-//    using poac::io::yaml::detail::load_config;
-//
-//    BOOST_CHECK_THROW(
-//            load_config(),
-//            poac::core::except::error
-//    );
-//
-//    const fs::path config_path = fs::current_path() / "poac.yml";
-//    {
-//        std::ofstream ofs(config_path.string());
-//        ofs << "hoge: foo\n"
-//               "fuga: boo";
-//    }
-//
-//    BOOST_CHECK_NO_THROW( load_config() );
-//
-//    const auto res = load_config("hoge", "fuga");
-//    BOOST_CHECK( res.at("hoge").as<std::string>() == "foo" );
-//    BOOST_CHECK( res.at("fuga").as<std::string>() == "boo" );
-//
-//    BOOST_CHECK_THROW(
-//            load_config("hoge", "nokey"),
-//            poac::core::except::error
-//    );
-//
-//    fs::remove(config_path);
-//}
-
 // std::optional<Config::Build::System> to_build_system(const std::optional<std::string>& str)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_to_build_system_test )
 {
@@ -172,6 +139,42 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_load_config_test )
     std::ofstream(config_path.string());
 
     BOOST_CHECK( load_config(fs::current_path()).has_value() );
+
+    fs::remove(config_path);
+}
+
+// std::optional<Config> load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)
+BOOST_AUTO_TEST_CASE( poac_io_yaml_load_config_test )
+{
+    namespace fs = boost::filesystem;
+    using poac::io::yaml::load;
+
+    BOOST_CHECK_NO_THROW( load() );
+    BOOST_CHECK( !load().has_value() );
+
+    const fs::path config_path = fs::current_path() / "poac.yml";
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "cpp_version: 17";
+    }
+
+    const auto config = load();
+    BOOST_CHECK( config.has_value() );
+    BOOST_CHECK( config->cpp_version.has_value() );
+    BOOST_CHECK( config->cpp_version.value() == 17 );
+    BOOST_CHECK( !config->dependencies.has_value() );
+    BOOST_CHECK( !config->dev_dependencies.has_value() );
+    BOOST_CHECK( !config->build_dependencies.has_value() );
+
+    BOOST_CHECK( !config->build.has_value() );
+    BOOST_CHECK( !config->build->system.has_value() );
+    BOOST_CHECK( !config->build->bin.has_value() );
+    BOOST_CHECK( !config->build->lib.has_value() );
+    BOOST_CHECK( !config->build->compile_args.has_value() );
+    BOOST_CHECK( !config->build->link_args.has_value() );
+
+    BOOST_CHECK( !config->test.has_value() );
+    BOOST_CHECK( config->test->framework.has_value() ); // TODO: why???
 
     fs::remove(config_path);
 }
