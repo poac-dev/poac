@@ -124,7 +124,7 @@ namespace poac::util {
 
     namespace _shell {
         bool has_command(const std::string& c) {
-            return static_cast<bool>(shell("type " + c + " >/dev/null 2>&1").exec());
+            return shell("type " + c + " >/dev/null 2>&1").exec().has_value();
         }
     }
 } // end namespace
