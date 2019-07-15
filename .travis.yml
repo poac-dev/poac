@@ -26,10 +26,12 @@ install:
       brew unlink boost;
       brew install --ignore-dependencies boost;
       brew install llvm@7;
-      if [[ "$TRAVIS_OSX_IMAGE" == "xcode9.2" ]]; then
-        brew upgrade cmake;
-      fi
-    else
+    fi
+  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode9.2" ]]; then
+      brew upgrade cmake;
+    fi
+  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode10.2" ]]; then
+      brew upgrade boost;
       pip install cpp-coveralls;
     fi
   - brew install yaml-cpp
