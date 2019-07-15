@@ -190,7 +190,7 @@ namespace poac::io::yaml {
             }
         }
 
-        inline boost::system::error_code error{};
+        inline boost::system::error_code ec{};
 
         std::optional<YAML::Node>
         load_yaml(const std::string& filename) noexcept {
@@ -199,9 +199,9 @@ namespace poac::io::yaml {
         }
 
         std::optional<std::string>
-        validate_config(const boost::filesystem::path& base = boost::filesystem::current_path(error)) noexcept {
+        validate_config(const boost::filesystem::path& base = boost::filesystem::current_path(ec)) noexcept {
             const auto config_path = base / "poac.yml";
-            if (boost::filesystem::exists(config_path, error)) {
+            if (boost::filesystem::exists(config_path, ec)) {
                 return config_path.string();
             } else {
                 return std::nullopt;
@@ -258,7 +258,7 @@ namespace poac::io::yaml {
     }
 
     std::optional<Config>
-    load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::error)
+    load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)
     ) noexcept {
         if (const auto config_yaml = detail::load_config(base)) {
             return detail::create_config(config_yaml.value());
@@ -270,7 +270,7 @@ namespace poac::io::yaml {
         namespace fs = boost::filesystem;
 
         if (const auto filename = detail::validate_config()) {
-            const std::time_t last_time = fs::last_write_time(filename.value(), detail::error);
+            const std::time_t last_time = fs::last_write_time(filename.value(), detail::ec);
             return std::to_string(last_time);
         } else {
             throw core::except::error(
