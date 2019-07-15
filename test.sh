@@ -6,7 +6,7 @@ REQUIRE_OPENSSL="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -
 REQUIRE_POAC_VARIABLES="-DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\""
 
 execute () {
-  echo "$@\n"
+  echo "Executing: $@"
   "$@"
 }
 
