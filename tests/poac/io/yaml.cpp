@@ -167,14 +167,14 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_load_config_test )
     BOOST_CHECK( !config->build_dependencies.has_value() );
 
     BOOST_CHECK( !config->build.has_value() );
-    BOOST_CHECK( !config->build->system.has_value() );
-    BOOST_CHECK( !config->build->bin.has_value() );
-    BOOST_CHECK( !config->build->lib.has_value() );
-    BOOST_CHECK( !config->build->compile_args.has_value() );
-    BOOST_CHECK( !config->build->link_args.has_value() );
+//    BOOST_CHECK( !config->build->system.has_value() );
+//    BOOST_CHECK( !config->build->bin.has_value() );
+//    BOOST_CHECK( !config->build->lib.has_value() );
+//    BOOST_CHECK( !config->build->compile_args.has_value() );
+//    BOOST_CHECK( !config->build->link_args.has_value() );
 
     BOOST_CHECK( !config->test.has_value() );
-    BOOST_CHECK( config->test->framework.has_value() ); // TODO: why???
+//    BOOST_CHECK( !config->test->framework.has_value() );
 
     fs::remove(config_path);
 }
