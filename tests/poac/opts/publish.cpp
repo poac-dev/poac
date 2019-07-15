@@ -12,6 +12,28 @@
 #include <poac/opts/publish.hpp>
 #include <poac/config.hpp>
 
+// std::optional<core::except::Error> verify_cpp_version(const std::uint16_t& cpp_version)
+BOOST_AUTO_TEST_CASE( poac_opts_publish_verify_cpp_version_test )
+{
+    using poac::opts::publish::verify_cpp_version;
+
+    BOOST_CHECK( !verify_cpp_version(98).has_value() );
+    BOOST_CHECK( !verify_cpp_version(3).has_value() );
+    BOOST_CHECK( !verify_cpp_version(11).has_value() );
+    BOOST_CHECK( !verify_cpp_version(14).has_value() );
+    BOOST_CHECK( !verify_cpp_version(17).has_value() );
+    BOOST_CHECK( !verify_cpp_version(20).has_value() );
+
+    BOOST_CHECK( verify_cpp_version(1).has_value() );
+    BOOST_CHECK( verify_cpp_version(6).has_value() );
+    BOOST_CHECK( verify_cpp_version(9).has_value() );
+    BOOST_CHECK( verify_cpp_version(12).has_value() );
+    BOOST_CHECK( verify_cpp_version(15).has_value() );
+    BOOST_CHECK( verify_cpp_version(18).has_value() );
+    BOOST_CHECK( verify_cpp_version(21).has_value() );
+    BOOST_CHECK( verify_cpp_version(99).has_value() );
+}
+
 // std::string get_local_commit_sha(const std::string& version)
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_local_commit_sha_test )
 {

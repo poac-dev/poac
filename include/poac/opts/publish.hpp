@@ -160,8 +160,8 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    verify_cpp_version(const PackageInfo& package_info) {
-        switch (package_info.cpp_version) {
+    verify_cpp_version(const std::uint16_t& cpp_version) {
+        switch (cpp_version) {
             case 98:
                 [[fallthrough]];
             case 3:
@@ -176,7 +176,7 @@ namespace poac::opts::publish {
                 return std::nullopt;
             default:
                 return core::except::Error::General{
-                    "Invalid C++ version ", package_info.cpp_version, "\n"
+                    "Invalid C++ version ", cpp_version, "\n"
                     "Please specify one of the following versions:\n"
                     "    98, 3, 11, 14, 17, 20"
                 };
@@ -185,7 +185,7 @@ namespace poac::opts::publish {
 
     [[nodiscard]] std::optional<core::except::Error>
     verify_package(const PackageInfo& package_info) {
-        if (const auto error = verify_cpp_version(package_info)) {
+        if (const auto error = verify_cpp_version(package_info.cpp_version)) {
             return error;
         }
         if (const auto error = verify_tag(package_info)) {
