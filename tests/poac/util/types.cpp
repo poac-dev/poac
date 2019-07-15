@@ -20,12 +20,12 @@ BOOST_AUTO_TEST_CASE( poac_util_types_index_of_test )
 
     std::vector<std::string> test_case{"0", "1", "2"};
     auto res = index_of(test_case, "1"); // 1
-    BOOST_CHECK( static_cast<bool>(res) );
-    BOOST_CHECK( *res == 1 );
+    BOOST_CHECK( res.has_value() );
+    BOOST_CHECK( res.value() == 1 );
 
     res = index_of(test_case.cbegin(), test_case.cend(), "0"); // 2
-    BOOST_CHECK( static_cast<bool>(res) );
-    BOOST_CHECK( *res == 0 );
+    BOOST_CHECK( res.has_value() );
+    BOOST_CHECK( res.value() == 0 );
 }
 
 // bool duplicate(const SinglePassRange& rng)

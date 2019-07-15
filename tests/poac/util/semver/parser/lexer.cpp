@@ -217,6 +217,6 @@ BOOST_AUTO_TEST_CASE( semver_lexer_str_to_int_test )
 {
     using semver::parser::str_to_uint;
     static_assert( str_to_uint("123").value() == 123 );
-    static_assert( !static_cast<bool>(str_to_uint("abc")) );
-    static_assert( !static_cast<bool>(str_to_uint("12a")) );
+    static_assert( !str_to_uint("abc").has_value() );
+    static_assert( !str_to_uint("12a").has_value() );
 }

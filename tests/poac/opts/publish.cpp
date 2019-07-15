@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_description_test )
 {
     using poac::opts::publish::get_description;
     BOOST_CHECK( get_description("poacpm/poac").value() == "Package manager for C++" );
-    BOOST_CHECK( !static_cast<bool>(get_description("matken11235/to_TFRecord")) );
+    BOOST_CHECK( !get_description("matken11235/to_TFRecord").has_value() );
 }
 
 // core::resolver::semver::Version get_version(const std::string& full_name)
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_extract_str_test )
     }
     {
         std::string_view target = "git@github.com:poacpm/poac.git";
-        BOOST_CHECK( !static_cast<bool>(extract_str(target, "https://github.com/", ".git")) );
+        BOOST_CHECK( !extract_str(target, "https://github.com/", ".git").has_value() );
     }
     {
         std::string_view target = "git@github.com:poacpm/poac.git";

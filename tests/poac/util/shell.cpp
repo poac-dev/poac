@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
     using poac::util::shell;
     {
         shell cmd("echo test");
-        BOOST_CHECK(*(cmd.exec()) == "test\n");
+        BOOST_CHECK(cmd.exec().value() == "test\n");
     }
     {
         shell cmd("nocmd");
-        BOOST_CHECK(!static_cast<bool>(cmd.exec()));
+        BOOST_CHECK( !cmd.exec().has_value() );
     }
 }
 
