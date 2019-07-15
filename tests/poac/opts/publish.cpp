@@ -12,6 +12,100 @@
 #include <poac/opts/publish.hpp>
 #include <poac/config.hpp>
 
+// std::string get_local_commit_sha(const std::string& version)
+BOOST_AUTO_TEST_CASE( poac_opts_publish_get_local_commit_sha_test )
+{
+    using poac::opts::publish::get_local_commit_sha;
+    BOOST_CHECK_THROW(
+            get_local_commit_sha("unknown"),
+            poac::core::except::error
+    );
+    BOOST_CHECK( get_local_commit_sha("0.2.1") == "353368f90544bb160b258a9cc1ecba8d467c4020" );
+}
+
+// PackageType get_package_type(const std::optional<io::yaml::Config>& config)
+BOOST_AUTO_TEST_CASE( poac_opts_publish_get_package_type_test )
+{
+    namespace fs = boost::filesystem;
+    using poac::opts::publish::get_package_type;
+    using poac::opts::publish::PackageType;
+    using poac::io::yaml::load;
+
+    const fs::path config_path = fs::current_path() / "poac.yml";
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "cpp_version: 17";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::HeaderOnlyLib );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  bin: true";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::Application );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  lib: true";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::BuildReqLib );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  hoge: fuga";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::BuildReqLib );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  bin: false";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::BuildReqLib );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  lib: false";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::BuildReqLib );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  bin: false\n"
+               "  lib: false";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::BuildReqLib );
+    fs::remove(config_path);
+
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  bin: true\n"
+               "  lib: true";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::Application );
+    fs::remove(config_path);
+    {
+        std::ofstream ofs(config_path.string());
+        ofs << "build:\n"
+               "  lib: true\n"
+               "  bin: true";
+    }
+    BOOST_CHECK( get_package_type(load()) == PackageType::Application );
+    fs::remove(config_path);
+}
+
 // std::optional<std::string> get_license(const std::string& full_name, const std::string& version)
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_license_test )
 {
