@@ -79,7 +79,7 @@ namespace poac::opts::publish {
         mpf.set("poac.yml", "poac.yml", header);
 
         const io::net::requests req{ POAC_API_HOST };
-        if (const auto res = req.post(POAC_UPLOAD_API, std::move(mpf)); res != "ok") {
+        if (const auto res = req.post(POAC_REGISTER_API, std::move(mpf)); res != "ok") {
             return core::except::Error::General{ res };
         }
         return std::nullopt;

@@ -20,8 +20,8 @@ namespace poac {
             "/packages/exists";
     constexpr char const* POAC_VERSIONS_API =
             "/packages/versions";
-    constexpr char const* POAC_UPLOAD_API =
-            "/packages/upload";
+    constexpr char const* POAC_REGISTER_API =
+            "/packages/register";
     constexpr char const* POAC_TOKENS_VALIDATE_API =
             "/tokens/validate";
 
