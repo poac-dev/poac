@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include <poac/core/except.hpp>
+#include <poac/io/yaml.hpp>
 #include <poac/opts/publish.hpp>
 #include <poac/config.hpp>
 
@@ -23,6 +24,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_license_test )
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_cpp_version_test )
 {
     namespace fs = boost::filesystem;
+    using poac::opts::publish::get_cpp_version;
 
     const fs::path config_path = fs::current_path() / "poac.yml";
     {
@@ -30,9 +32,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_cpp_version_test )
         ofs << "cpp_version: 17";
     }
 
-    using poac::opts::publish::get_cpp_version;
-    BOOST_CHECK( get_cpp_version() == 17 );
-
+    BOOST_CHECK( get_cpp_version(poac::io::yaml::load()) == 17 );
     fs::remove(config_path);
 }
 
@@ -48,12 +48,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_description_test )
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_version_test )
 {
     using poac::opts::publish::get_version;
-    BOOST_CHECK( get_version("poacpm/poac") == POAC_VERSION );
-
-    BOOST_CHECK_THROW(
-            get_version("poacpm/poac.pm"),
-            poac::core::except::error
-    );
+    BOOST_CHECK( get_version() == POAC_VERSION );
 }
 
 // std::optional<std::string_view> extract_str(std::string_view target, std::string_view prefix, std::string_view suffix)
