@@ -128,8 +128,9 @@ namespace poac::opts::_new {
 
     [[nodiscard]] std::optional<core::except::Error>
     validate(const _new::Options& opts) {
-        core::name::validate_package_name(opts.project_name);
-        if (io::path::validate_dir(opts.project_name)) {
+        if (const auto error = core::name::validate_package_name(opts.project_name)) {
+            return error;
+        } else if (io::path::validate_dir(opts.project_name)) {
             return core::except::Error::General{
                     core::except::msg::already_exist("The `" + opts.project_name + "` directory")
             };

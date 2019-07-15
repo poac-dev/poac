@@ -179,7 +179,9 @@ namespace poac::opts::install {
 
     core::resolver::resolve::Package<core::resolver::resolve::Name, core::resolver::resolve::Interval, core::resolver::resolve::Source>
     parse_arg_package(const std::string& v) {
-        core::name::validate_package_name(v);
+        if (const auto error = core::name::validate_package_name(v)) {
+            throw core::except::error( error->what() );
+        }
 
         const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
         std::smatch match;

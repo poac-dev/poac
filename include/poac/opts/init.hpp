@@ -45,7 +45,9 @@ namespace poac::opts::init {
             }
         }
         const std::string project_name = fs::basename(fs::current_path());
-        core::name::validate_package_name(project_name);
+        if (const auto error = core::name::validate_package_name(project_name)) {
+            return error;
+        }
 
         const std::string config_path = "poac.yml";
         std::ofstream yml_ofs(config_path);
