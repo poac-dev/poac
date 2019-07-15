@@ -2,43 +2,50 @@
 
 ROOT_DIR=$PWD
 BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage"
+REQUIRE_OPENSSL="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -ldl"
+REQUIRE_POAC_VARIABLES="-DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\""
+
+execute () {
+  echo "$@\n"
+  "$@"
+}
 
 pushd ./tests/poac
 
 pushd ./core
   pushd ./builder
-    g++ ${BASE_OPT} -lboost_filesystem -o standard-test standard.cpp && { ./standard-test; rm -rf ./standard-test; }
+    execute g++ ${BASE_OPT} -lboost_filesystem -o standard-test standard.cpp && { ./standard-test; rm -rf ./standard-test; }
   popd
   pushd ./resolver
-    g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o resolve-test resolve.cpp && { ./resolve-test; rm -rf ./resolve-test; }
-    g++ ${BASE_OPT} -o sat-test sat.cpp && { ./sat-test; rm -rf ./sat-test; }
+    execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lyaml-cpp -o resolve-test resolve.cpp && { ./resolve-test; rm -rf ./resolve-test; }
+    execute g++ ${BASE_OPT} -o sat-test sat.cpp && { ./sat-test; rm -rf ./sat-test; }
   popd
-  g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o cli-test cli.cpp && { ./cli-test; rm -rf ./cli-test; }
-  g++ ${BASE_OPT} -o exception-test except.cpp && { ./exception-test; rm -rf ./exception-test; }
-  g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp && { ./name-test; rm -rf ./name-test; }
+  execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lyaml-cpp -o cli-test cli.cpp && { ./cli-test; rm -rf ./cli-test; }
+  execute g++ ${BASE_OPT} -o exception-test except.cpp && { ./exception-test; rm -rf ./exception-test; }
+  execute g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp && { ./name-test; rm -rf ./name-test; }
 popd
 pushd ./io
-  g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -rf ./term-test; }
-  g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o yaml-test yaml.cpp && { ./yaml-test; rm -rf ./yaml-test; }
+  execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -rf ./term-test; }
+  execute g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o yaml-test yaml.cpp && { ./yaml-test; rm -rf ./yaml-test; }
 popd
 pushd ./opts
-  g++ ${BASE_OPT} -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lboost_filesystem -lssl -lcrypto -ldl -lyaml-cpp -DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\" -o publish-test publish.cpp && { ./publish-test; rm -rf ./publish-test; }
+  execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lyaml-cpp -o publish-test publish.cpp && { ./publish-test; rm -rf ./publish-test; }
 popd
 pushd ./util
-  g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -rf ./argparse-test; }
-  g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -rf ./misc-test; }
-  g++ ${BASE_OPT} -o pretty-test pretty.cpp && { ./pretty-test; rm -rf ./pretty-test; }
+  execute g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -rf ./argparse-test; }
+  execute g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -rf ./misc-test; }
+  execute g++ ${BASE_OPT} -o pretty-test pretty.cpp && { ./pretty-test; rm -rf ./pretty-test; }
   pushd ./semver
     pushd ./parser
-      g++ ${BASE_OPT} -o lexer-test lexer.cpp && { ./lexer-test; rm -rf ./lexer-test; }
-      g++ ${BASE_OPT} -o parser-test parser.cpp && { ./parser-test; rm -rf ./parser-test; }
-      g++ ${BASE_OPT} -o token-test token.cpp && { ./token-test; rm -rf ./token-test; }
+      execute g++ ${BASE_OPT} -o lexer-test lexer.cpp && { ./lexer-test; rm -rf ./lexer-test; }
+      execute g++ ${BASE_OPT} -o parser-test parser.cpp && { ./parser-test; rm -rf ./parser-test; }
+      execute g++ ${BASE_OPT} -o token-test token.cpp && { ./token-test; rm -rf ./token-test; }
     popd
-    g++ ${BASE_OPT} -o interval-test interval.cpp && { ./interval-test; rm -rf ./interval-test; }
-    g++ ${BASE_OPT} -o version-test version.cpp && { ./version-test; rm -rf ./version-test; }
+    execute g++ ${BASE_OPT} -o interval-test interval.cpp && { ./interval-test; rm -rf ./interval-test; }
+    execute g++ ${BASE_OPT} -o version-test version.cpp && { ./version-test; rm -rf ./version-test; }
   popd
-  g++ ${BASE_OPT} -o shell-test shell.cpp && { ./shell-test; rm -rf ./shell-test; }
-  g++ ${BASE_OPT} -o types-test types.cpp && { ./types-test; rm -rf ./types-test; }
+  execute g++ ${BASE_OPT} -o shell-test shell.cpp && { ./shell-test; rm -rf ./shell-test; }
+  execute g++ ${BASE_OPT} -o types-test types.cpp && { ./types-test; rm -rf ./types-test; }
 popd
 
 popd
