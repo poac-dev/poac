@@ -138,7 +138,7 @@ namespace poac::opts::install {
                 clone_cmd += (io::path::poac_cache_dir / cache_name).string();
                 clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
 
-                bool result = static_cast<bool>(clone_cmd.exec()); // true == error
+                bool result = clone_cmd.exec().has_value(); // true == error
                 result = !result && copy_to_current(cache_name, current_name);
 
                 if (!quite) {
