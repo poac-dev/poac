@@ -132,103 +132,11 @@ BOOST_AUTO_TEST_CASE( poac_core_name_validate_package_name_test )
 {
     using poac::core::name::validate_package_name;
 
-    BOOST_CHECK_THROW(
-            validate_package_name("/"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("-"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("_"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("1"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("/-"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("-_"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("_2"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("1/"),
-            poac::core::except::error
-    );
+    BOOST_CHECK( validate_package_name("na$me").has_value() );
+    BOOST_CHECK( validate_package_name("nam()e").has_value() );
+    BOOST_CHECK( validate_package_name("namße").has_value() );
 
-    BOOST_CHECK_THROW(
-            validate_package_name("/name"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("-name"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("_name"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_NO_THROW(validate_package_name("1name"));
-
-    BOOST_CHECK_THROW(
-            validate_package_name("name/"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("name-"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("name_"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_NO_THROW(validate_package_name("name3"));
-
-    BOOST_CHECK_THROW(
-            validate_package_name("na/-me"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("na//me"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("na_-_me"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_NO_THROW(validate_package_name("name-to-name"));
-    BOOST_CHECK_NO_THROW(validate_package_name("na23me"));
-
-    BOOST_CHECK_THROW(
-            validate_package_name("owner/repo/name"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("owner/repo/name/subname"),
-            poac::core::except::error
-    );
-
-    BOOST_CHECK_THROW(
-            validate_package_name("na$me"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("nam()e"),
-            poac::core::except::error
-    );
-    BOOST_CHECK_THROW(
-            validate_package_name("namße"),
-            poac::core::except::error
-    );
-
-    BOOST_CHECK_NO_THROW( validate_package_name("poacpm/poac") );
+    BOOST_CHECK( !validate_package_name("poacpm/poac-api").has_value() );
+    BOOST_CHECK( !validate_package_name("poacpm/poac_api").has_value() );
+    BOOST_CHECK( !validate_package_name("poacpm/poac").has_value() );
 }
