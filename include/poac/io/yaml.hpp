@@ -126,7 +126,7 @@ namespace poac::io::yaml {
     bool contains(const YAML::Node& node, Args&&... args) noexcept {
         // has_value -> not contains
         try {
-            return !static_cast<bool>(detail::read(node, args...));
+            return !detail::read(node, args...).has_value();
         }
         catch (...) {
             return false;
