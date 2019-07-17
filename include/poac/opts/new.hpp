@@ -130,6 +130,8 @@ namespace poac::opts::_new {
 
     [[nodiscard]] std::optional<core::except::Error>
     check_name(std::string_view name) {
+        // Ban keywords
+        // https://en.cppreference.com/w/cpp/keyword
         std::vector<std::string_view> blacklist{
             "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept",
             "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t",
