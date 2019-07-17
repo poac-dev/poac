@@ -4,9 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <string_view>
 #include <map>
 #include <regex>
 #include <algorithm>
+#include <vector>
 #include <optional>
 
 #include <boost/filesystem.hpp>
@@ -127,13 +129,39 @@ namespace poac::opts::_new {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
+    check_name(std::string_view name) {
+        std::vector<std::string_view> blacklist{
+            "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept",
+            "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t",
+            "class", "compl", "concept", "const", "consteval", "constexpr", "const_cast", "continue", "co_await",
+            "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum",
+            "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long",
+            "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private",
+            "protected", "public", "reflexpr", "register", "reinterpret_cast", "requires", "return", "short", "signed",
+            "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "synchronized", "template", "this",
+            "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
+            "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
+        };
+        if (std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end()) {
+            return core::except::Error::General{
+                "`", name, "` is a keyword, so it cannot be used as a package name."
+            };
+        }
+        return std::nullopt;
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
     validate(const _new::Options& opts) {
         if (const auto error = core::name::validate_package_name(opts.project_name)) {
             return error;
-        } else if (io::path::validate_dir(opts.project_name)) {
+        }
+        if (io::path::validate_dir(opts.project_name)) {
             return core::except::Error::General{
-                    core::except::msg::already_exist("The `" + opts.project_name + "` directory")
+                core::except::msg::already_exist("The `" + opts.project_name + "` directory")
             };
+        }
+        if (const auto error = check_name(opts.project_name)) {
+            return error;
         }
         return std::nullopt;
     }
@@ -142,7 +170,6 @@ namespace poac::opts::_new {
     _new(_new::Options&& opts) {
         namespace fs = boost::filesystem;
         using termcolor2::color_literals::operator""_green;
-        using io::path::path_literals::operator""_path;
 
         if (const auto error = validate(opts)) {
             return error;
