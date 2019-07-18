@@ -17,8 +17,6 @@ namespace poac::opts::root {
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&&) {
-        namespace fs = boost::filesystem;
-
         boost::system::error_code error;
         const auto loc = boost::dll::program_location(error);
         if (error) {
@@ -27,7 +25,7 @@ namespace poac::opts::root {
             };
         }
 
-        const auto ln = fs::read_symlink(loc, error);
+        const auto ln = boost::filesystem::read_symlink(loc, error);
         if (!error) {
             std::cout << ln.parent_path().string() << std::endl;
         } else {
