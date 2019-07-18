@@ -63,16 +63,16 @@ namespace poac::opts::publish {
 
     [[nodiscard]] std::optional<core::except::Error>
     do_register(const PackageInfo& package_info) {
-        std::cout << "\nRegistering " << package_info.name << ": "
-                  << package_info.version.get_full() << " ..." << std::endl;
+        std::cout << "\nRegistering `" << package_info.name << ": "
+                  << package_info.version.get_full() << "` ..." << std::endl;
 
         io::net::MultiPartForm mpf{};
         mpf.set("name", package_info.name);
         mpf.set("version", package_info.version.get_full());
         mpf.set("description", package_info.description.value_or("null"));
-        mpf.set("license", package_info.license.value_or("null"));
+        mpf.set("cpp_version", std::to_string(package_info.cpp_version));
         mpf.set("package_type", to_string(package_info.package_type));
-        mpf.set("commit_hash", package_info.local_commit_sha);
+        mpf.set("commit_sha", package_info.local_commit_sha);
 
         io::net::MultiPartForm::header_type header;
         header[io::net::http::field::content_type] = "text/plain";
@@ -257,14 +257,19 @@ namespace poac::opts::publish {
     std::optional<std::string>
     get_license(const std::string& full_name, const std::string& version) {
         // https://developer.github.com/v3/licenses/#get-the-contents-of-a-repositorys-license
-        const auto pt = io::net::api::github::repos("/" + full_name + "/license?ref=" + version);
-        if (const auto license = pt.get_optional<std::string>("license.name")) {
-            if (license.get() == "null") {
-                return std::nullopt;
+        try {
+            const auto pt = io::net::api::github::repos("/" + full_name + "/license?ref=" + version);
+            if (const auto license = pt.get_optional<std::string>("license.name")) {
+                if (license.get() == "null") {
+                    return std::nullopt;
+                }
+                return license.get();
             }
-            return license.get();
+            return std::nullopt;
         }
-        return std::nullopt;
+        catch (...) {
+            return std::nullopt;
+        }
     }
 
     std::uint16_t
