@@ -42,17 +42,24 @@ namespace poac::opts::init {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    init(init::Options&& opts) {
+    validate() {
         namespace fs = boost::filesystem;
-        using termcolor2::color_literals::operator""_green;
-
         if (const auto config_path = io::yaml::detail::validate_config()) {
             if (const auto error = overwrite(config_path.value())) {
                 return error;
             }
         }
-
         if (const auto error = core::name::validate_package_name(fs::basename(fs::current_path()))) {
+            return error;
+        }
+        return std::nullopt;
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    init(init::Options&& opts) {
+        using termcolor2::color_literals::operator""_green;
+
+        if (const auto error = validate()) {
             return error;
         }
 
