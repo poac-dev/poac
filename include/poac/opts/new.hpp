@@ -28,72 +28,34 @@ namespace poac::opts::_new {
     namespace files {
         namespace bin {
             const std::string _gitignore(
-                    "/deps\n"
-                    "/_build\n"
+                    "/target"
+            );
+            const std::string poac_yml(
+                    "cpp_version: 17\n"
+                    "build:\n"
+                    "  bin: true"
+            );
+            const std::string main_cpp(
+                    "#include <iostream>\n\n"
+                    "int main(int argc, char** argv) {\n"
+                    "    std::cout << \"Hello, world!\" << std::endl;\n"
+                    "}"
             );
         }
         namespace lib {
             const std::string _gitignore(
-                    "/deps\n"
-                    "/_build\n"
-                    "poac.lock\n"
+                    "/target\n"
+                    "poac.lock"
             );
-        }
-
-        std::string README_md(const std::string& project_name) {
-            return "# " + project_name + "\n"
-                   "**TODO: Add description**\n"
-                   "\n"
-                   "---\n"
-                   "This project uses [poac](https://github.com/poacpm/poac).\n"
-                   "\n"
-                   "For more information on poac please see below:\n"
-                   "* https://poac.pm\n"
-                   "* https://github.com/poacpm\n"
-                   "* https://github.com/poacpm/poac#readme\n"
-                   "\n"
-                   "## Build\n"
-                   "\n"
-                   "```bash\n"
-                   "$ poac build # or run\n"
-                   "```\n"
-                   "\n"
-                   "## Installation\n"
-                   "\n"
-                   "To install `" + project_name + "`, add it to the dependency list of `poac.yml`:\n"
-                   "\n"
-                   "```yaml\n"
-                   "deps:\n"
-                   "  " + project_name + ": \">=0.1.0 and <1.0.0\"\n"
-                   "```\n"
-                   "\n"
-                   "After that, execute `poac install` command to install `" + project_name + "`.\n"
-                   ;
-        }
-        std::string poac_yml(const std::string& project_name, const std::string& type) {
-            return "name: " + project_name + "\n"
-                   "version: 0.1.0\n"
-                   "cpp_version: 17\n"
-                   "description: \"**TODO: Add description**\"\n"
-                   "owners:\n"
-                   "  - \"Your ID\"\n"
-                   "build:\n"
-                   "  system: poac\n" +
-                   "  " + type + ": true\n";
-        }
-        const std::string main_cpp(
-                "#include <iostream>\n"
-                "\n"
-                "int main(int argc, char** argv) {\n"
-                "    std::cout << \"Hello, world!\" << std::endl;\n"
-                "}\n"
-        );
-        std::string include_hpp(const std::string& project_name) {
-            return "#include <iostream>\n"
-                   "\n"
-                   "namespace " + project_name + " {\n"
-                   "\n"
-                   "}\n";
+            const std::string poac_yml(
+                    "cpp_version: 17"
+            );
+            std::string include_hpp(std::string project_name) {
+                std::transform(project_name.cbegin(), project_name.cend(), project_name.begin(), ::toupper);
+                return "#ifndef " + project_name + "_HPP\n"
+                       "#define " + project_name + "_HPP\n\n"
+                       "#endif // !" + project_name + "_HPP";
+            }
         }
     }
 
@@ -109,20 +71,19 @@ namespace poac::opts::_new {
         using io::path::path_literals::operator""_path;
 
         if (opts.bin) {
+            fs::create_directories(opts.project_name / "src"_path);
             return {
                 { ".gitignore", files::bin::_gitignore },
-                { "README.md",  files::README_md(opts.project_name) },
-                { "poac.yml",   files::poac_yml(opts.project_name, "bin") },
-                { "main.cpp",   files::main_cpp }
+                { "poac.yml", files::bin::poac_yml },
+                { "src"_path / "main.cpp", files::bin::main_cpp }
             };
         } else {
-            fs::create_directories(fs::path(opts.project_name) / "include" / opts.project_name);
+            fs::create_directories(opts.project_name / "include"_path / opts.project_name);
             return {
                 { ".gitignore", files::lib::_gitignore },
-                { "README.md",  files::README_md(opts.project_name) },
-                { "poac.yml",   files::poac_yml(opts.project_name, "lib") },
+                { "poac.yml", files::lib::poac_yml },
                 { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
-                  files::include_hpp(opts.project_name)
+                    files::lib::include_hpp(opts.project_name)
                 },
             };
         }
@@ -177,10 +138,9 @@ namespace poac::opts::_new {
             return error;
         }
 
-        fs::create_directories(opts.project_name);
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
-            io::path::write_to_file(ofs, (fs::path(opts.project_name) / name).string(), text);
+            io::path::write_to_file(ofs, (opts.project_name / name).string(), text);
         }
 
         std::cout << "Created: "_green;

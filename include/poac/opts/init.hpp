@@ -51,7 +51,7 @@ namespace poac::opts::init {
 
         const std::string config_path = "poac.yml";
         std::ofstream yml_ofs(config_path);
-        yml_ofs << _new::files::poac_yml(project_name, "bin");
+        yml_ofs << _new::files::bin::poac_yml;
         std::cout << config_path << " was created." << std::endl;
 
         return std::nullopt;
