@@ -150,7 +150,7 @@ namespace poac::opts::_new {
             std::cout << "library ";
         }
         std::cout << "`" << opts.project_name << "` "
-                  << "project"
+                  << "package"
                   << std::endl;
 
         if (util::_shell::has_command("git")) {
