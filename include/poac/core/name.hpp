@@ -3,6 +3,7 @@
 #define POAC_CORE_NAME_HPP
 
 #include <string>
+#include <string_view>
 #include <regex>
 #include <utility>
 
@@ -143,23 +144,33 @@ namespace poac::core::name {
         }
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
-    validate_package_name(const std::string& s) {
-        std::regex r1("^(\\/|\\-|_|\\d)+$");
-        std::regex r2("^(\\/|\\-|_)$");
-        std::regex r3("^.*(\\/|\\-|_){2,}.*$");
-        std::regex r4("^([a-z|\\d|\\-|_|\\/]*)$");
+    constexpr bool
+    is_digit(const char& c) noexcept {
+        return '0' <= c && c <= '9';
+    }
 
-        // GitHubでは，/は-に変換される．
-        // よって，GitHubのURLからpackage nameを取得する以上，/が2個以上のアサーションは不要．
-        // use the other than [a-z], [0-9], -, _, /
-        if (!std::regex_match(s, r4)) {
-            return except::Error::General{
-                "Invalid name.\n"
-                "It is prohibited to use a character string"
-                " that does not match ^([a-z|\\d|\\-|_|\\/]*)$\n"
-                " in the project name."
-            };
+    constexpr bool
+    is_alphabet(const char& c) noexcept {
+        return ('A' <= c && c <= 'Z')
+            || ('a' <= c && c <= 'z');
+    }
+
+    constexpr bool
+    is_alpha_numeric(const char& c) noexcept {
+        return is_digit(c) || is_alphabet(c);
+    }
+
+    [[nodiscard]] std::optional<core::except::Error>
+    validate_package_name(std::string_view s) {
+        for (const auto& c : s) {
+            if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
+                return except::Error::General{
+                        "Invalid name.\n"
+                        "It is prohibited to use a character string\n"
+                        " that does not match ^([a-z|\\d|_|\\-|\\/]*)$\n"
+                        " in the project name."
+                };
+            }
         }
         return std::nullopt;
     }
