@@ -185,7 +185,6 @@ namespace poac::io::net {
     };
 
     // TODO: ioc, ctx, resolver,...等はget等を呼び出し後，解体し，host等は残すことで，連続で呼び出し可能にする．
-    // TODO: GITHUB APIを使っている時，403の場合は，GitHub API rate limit exceededだから，GITHUB tokenを登録するように促す
     // Only SSL usage
     class requests {
     public:
