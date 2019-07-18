@@ -285,21 +285,21 @@ namespace poac::io::net {
                 constexpr std::size_t read_bites = 512;
 
                 char buf[read_bites];
-                unsigned long cur_file_size = 0;
+//                unsigned long cur_file_size = 0;
                 while (!ifs.eof()) {
                     ifs.read(buf, read_bites);
                     stream->write_some(boost::asio::buffer(buf, ifs.gcount()));
 
-                    // Print progress bar
-                    std::cout << '\r' << term::info << "Uploading ";
-                    term::echo_byte_progress(file.size, cur_file_size += read_bites);
-                    std::cout << "  ";
+                    // Print progress bar TODO:
+//                    std::cout << '\r' << term::info << "Uploading ";
+//                    term::echo_byte_progress(file.size, cur_file_size += read_bites);
+//                    std::cout << "  ";
                 }
-                std::cout << '\r' << term::clr_line << term::info << "Uploaded." << std::endl;
+//                std::cout << '\r' << term::clr_line << term::info << "Uploaded." << std::endl;
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.get_footer()));
-            std::cout << term::info << "Waiting for server response..." << std::endl;
+            term::debugln("Waiting for server response...");
         }
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
