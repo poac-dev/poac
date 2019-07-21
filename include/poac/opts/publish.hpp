@@ -132,7 +132,7 @@ namespace poac::opts::publish {
         return core::except::Error::General{
             "GitHub release commit sha does not match local tag commit sha.\n"
             "Make sure that the same tag indicates the same commit.\n"
-            "Perhaps, with the same tag name, someone else had rewrite B\n"
+            "Perhaps, with the same tag name, someone else had rewrite commit sha\n"
             "  by executing the command as shown below in the past, which may not be synchronized locally:\n"
             "    git tag -d ", package_info.version.get_full(), "\n"
             "    git push origin :", package_info.version.get_full(), "\n"
