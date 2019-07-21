@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <optional>
+#include <utility>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -52,7 +53,8 @@ namespace poac::opts::publish {
     }
 
     struct PackageInfo {
-        std::string name;
+        std::string owner;
+        std::string repo;
         semver::Version version;
         std::optional<std::string> description;
         std::uint16_t cpp_version;
@@ -61,13 +63,24 @@ namespace poac::opts::publish {
         std::string local_commit_sha;
     };
 
+    std::string
+    create_full_name(const std::string& owner, const std::string& repo) {
+        return owner + "/" + repo;
+    }
+
+    std::string
+    get_full_name(const PackageInfo& package_info) {
+        return create_full_name(package_info.owner, package_info.repo);
+    }
+
     [[nodiscard]] std::optional<core::except::Error>
     do_register(const PackageInfo& package_info) {
-        std::cout << "\nRegistering `" << package_info.name << ": "
+        std::cout << "\nRegistering `" << get_full_name(package_info) << ": "
                   << package_info.version.get_full() << "` ..." << std::endl;
 
         io::net::MultiPartForm mpf{};
-        mpf.set("name", package_info.name);
+        mpf.set("owner", package_info.owner);
+        mpf.set("repo", package_info.repo);
         mpf.set("version", package_info.version.get_full());
         mpf.set("description", package_info.description.value_or("null"));
         mpf.set("cpp_version", std::to_string(package_info.cpp_version));
@@ -102,9 +115,9 @@ namespace poac::opts::publish {
 
     [[nodiscard]] std::optional<core::except::Error>
     verify_exists(const PackageInfo& package_info) {
-        if (io::net::api::exists(package_info.name, package_info.version.get_full())) {
+        if (io::net::api::exists(get_full_name(package_info), package_info.version.get_full())) {
             return core::except::Error::General{
-                package_info.name, ": ", package_info.version.get_full(), " is already registered."
+                get_full_name(package_info), ": ", package_info.version.get_full(), " is already registered."
             };
         }
         return std::nullopt;
@@ -137,7 +150,7 @@ namespace poac::opts::publish {
         // Get commit sha using obtained tag.
         // https://stackoverflow.com/questions/28496319/github-a-tag-but-not-a-release
         // Note: GitHub regards tags and releases as the same thing, and the method to get tags is also legal.
-        const std::string target = "/" + package_info.name + "/git/refs/tags/" + package_info.version.get_full();
+        const std::string target = "/" + get_full_name(package_info) + "/git/refs/tags/" + package_info.version.get_full();
         try {
             const auto pt = io::net::api::github::repos(target);
             if (const auto commit_sha = pt.get_optional<std::string>("object.sha")) {
@@ -215,7 +228,7 @@ namespace poac::opts::publish {
         using termcolor2::color_literals::operator""_bold;
         using util::pretty::clip_string;
         std::cout << "Summary:"_bold
-                  << "\n  Name: "_bold << package_info.name
+                  << "\n  Name: "_bold << get_full_name(package_info)
                   << "\n  Version: "_bold << package_info.version.get_full()
                   << "\n  Description: "_bold << clip_string(package_info.description.value_or("null"), 50)
                   << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
@@ -336,10 +349,12 @@ namespace poac::opts::publish {
         }
     }
 
-    std::string
+    std::pair<std::string, std::string>
     get_name() {
         if (const auto repository = util::shell("git config --get remote.origin.url").exec()) {
-            return std::string(extract_full_name(repository.value()));
+            std::string_view full_name = extract_full_name(repository.value());
+            auto found = full_name.find('/');
+            return { std::string(full_name.substr(0, found)), std::string(full_name.substr(found + 1)) };
         }
         throw core::except::error(
                 "Could not find origin url.\n"
@@ -349,15 +364,16 @@ namespace poac::opts::publish {
 
     PackageInfo
     gather_package_info(const std::optional<io::yaml::Config>& config) {
-        const std::string full_name = get_name();
+        const auto [owner, repo] = get_name();
         const semver::Version version = get_version();
 
         return PackageInfo {
-                full_name,
+                owner,
+                repo,
                 version,
-                get_description(full_name),
+                get_description(create_full_name(owner, repo)),
                 get_cpp_version(config),
-                get_license(full_name, version.get_full()),
+                get_license(create_full_name(owner, repo), version.get_full()),
                 get_package_type(config),
                 get_local_commit_sha(version.get_full()),
         };
