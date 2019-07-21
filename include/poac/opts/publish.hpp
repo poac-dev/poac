@@ -410,7 +410,7 @@ namespace poac::opts::publish {
             return error;
         }
 
-        std::cout << "\n" << io::term::status << "Done." << std::endl;
+        std::cout << io::term::status << "Done." << std::endl;
         return std::nullopt;
     }
 
