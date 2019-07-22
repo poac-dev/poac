@@ -94,8 +94,8 @@ jobs:
           at: .
       - default-build:
           build-type: << parameters.build-type >>
-      - test-script
       - steps: << parameters.after-build >>
+      - test-script
 #      - default-test
 
   artifact_build:
