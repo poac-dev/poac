@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ROOT_DIR=$PWD
-BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -lboost_unit_test_framework -fprofile-arcs -ftest-coverage"
+BASE_OPT="-std=c++1z -I${ROOT_DIR}/include -I/usr/local/include -L/usr/local/lib -lboost_unit_test_framework -fprofile-arcs -ftest-coverage"
 REQUIRE_OPENSSL="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -ldl"
 REQUIRE_POAC_VARIABLES="-DPOAC_VERSION=\"0.2.1\" -DPOAC_PROJECT_ROOT=\"${ROOT_DIR}\""
 
