@@ -226,13 +226,14 @@ namespace poac::opts::publish {
     void
     summarize(const PackageInfo& package_info) {
         using termcolor2::color_literals::operator""_bold;
+        using termcolor2::color_literals::operator""_yellow;
         using util::pretty::clip_string;
         std::cout << "Summary:"_bold
                   << "\n  Name: "_bold << get_full_name(package_info)
                   << "\n  Version: "_bold << package_info.version.get_full()
                   << "\n  Description: "_bold << clip_string(package_info.description.value_or("null"), 50)
                   << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
-                  << "\n  License: "_bold << package_info.license.value_or("null")
+                  << "\n  License: "_bold << package_info.license.value_or("null"_yellow)
                   << "\n  Package Type: "_bold << to_string(package_info.package_type)
                   << "\n" << std::endl;
     }
