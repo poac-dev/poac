@@ -22,8 +22,6 @@ namespace poac {
             "/packages/versions";
     constexpr char const* POAC_REGISTER_API =
             "/packages/register";
-    constexpr char const* POAC_TOKENS_VALIDATE_API =
-            "/tokens/validate";
 
     constexpr char const* ALGOLIA_APPLICATION_ID =
             "IOCVK5FECM";
