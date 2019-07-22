@@ -212,5 +212,6 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_extract_full_name_test )
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_name_test )
 {
     using poac::opts::publish::get_name;
-    BOOST_CHECK( get_name() == "poacpm/poac" );
+    const bool result = get_name() == std::pair<std::string, std::string>{"poacpm", "poac"};
+    BOOST_CHECK( result );
 }
