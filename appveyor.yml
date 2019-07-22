@@ -116,7 +116,9 @@ build_script:
       %CYG_ROOT%\bin\bash -lc
         "cd $APPVEYOR_BUILD_FOLDER &&
         mkdir build && cd build &&
-        cmake .. && make"
+        cmake .. &&
+        make install &&
+        poac --help"
     ) else (
       mkdir build &&
       cd build &&
@@ -128,7 +130,8 @@ build_script:
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
-      cmake --build . --config %Configuration%
+      cmake --build . --target install --config %Configuration% &&
+      poac --help
     )
 
 artifacts:
