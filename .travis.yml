@@ -44,7 +44,7 @@ script:
   - cd ../
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode10.2" ]]; then
-      bash ./test.sh;
+      bash ./test.sh --coverage;
     fi
 
 notifications:
