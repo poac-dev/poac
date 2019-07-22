@@ -201,7 +201,7 @@ namespace poac::io::net {
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
         typename ResponseBody::value_type
-        do_(Request&& req, Ofstream&& ofs) const {
+        request(Request&& req, Ofstream&& ofs) const {
             ssl_prepare();
             write_request(req);
             return read_response<method, ResponseBody>(std::forward<Request>(req), std::forward<Ofstream>(ofs));
@@ -215,7 +215,7 @@ namespace poac::io::net {
         get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
             term::debugln(req);
-            return do_<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
+            return request<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
         }
 
         template <typename BodyType, typename Ofstream=std::nullptr_t,
@@ -233,7 +233,7 @@ namespace poac::io::net {
                 body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
                 req.prepare_payload();
-                return do_<http::verb::post, ResponseBody>(
+                return request<http::verb::post, ResponseBody>(
                         std::forward<decltype(req)>(req), std::forward<Ofstream>(ofs));
             }
             else {
@@ -241,7 +241,7 @@ namespace poac::io::net {
                 req.set(http::field::content_type, body.content_type());
                 req.set(http::field::content_length, body.content_length());
                 body.set_req(req);
-                return do_<http::verb::post, ResponseBody>(
+                return request<http::verb::post, ResponseBody>(
                         std::forward<BodyType>(body), std::forward<Ofstream>(ofs));
             }
         }
