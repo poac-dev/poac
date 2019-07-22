@@ -48,7 +48,8 @@ commands:
         enum: ["Debug", "Release", ""]
     steps:
       - run: uname -sm
-      - run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
+      - run: mkdir build
+      - run: cd build && cmake -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
       - run: file ./build/poac
 
   default-test:
@@ -56,11 +57,15 @@ commands:
       - run:
           command: >
             ./build/poac test --report --
-            --output_format=XML
-            --log_level=all
-            --report_level=no
+                --output_format=XML
+                --log_level=all
+                --report_level=no
       - store_test_results:
           path: _build/test/report
+
+  test-script:
+    steps:
+      - run: bash ./test.sh
 
 
 jobs:
@@ -89,10 +94,11 @@ jobs:
           at: .
       - default-build:
           build-type: << parameters.build-type >>
+      - test-script
       - steps: << parameters.after-build >>
 #      - default-test
 
-  release_build:
+  artifact_build:
     parameters:
       exec:
         type: executor
@@ -278,7 +284,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /^[0-9]+(\.[0-9]+){2}.*$/
-      - release_build:
+      - artifact_build:
           exec:
             name: cpp
             arch: x86_64-unknown-linux-gnu
@@ -294,7 +300,7 @@ workflows:
               only: /^[0-9]+(\.[0-9]+){2}.*$/
       - publish:
           requires:
-            - release_build
+            - artifact_build
           filters:
             branches:
               ignore: /.*/
