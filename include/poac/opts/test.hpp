@@ -17,6 +17,10 @@
 #include <poac/util/argparse.hpp>
 #include <poac/util/termcolor2.hpp>
 
+
+// args:
+//    - "--log_level=test_suite" -> testのオプションとして引き受ける
+
 namespace poac::opts::test {
     constexpr auto summary = termcolor2::make_string("Execute tests");
     constexpr auto options = termcolor2::make_string("[-v, --verbose | --report | -- <program args>]");

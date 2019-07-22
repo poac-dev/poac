@@ -32,5 +32,3 @@ build:
 
 test:
   framework: boost
-  args:
-    - "--log_level=test_suite"
