@@ -157,7 +157,6 @@ namespace poac::opts::graph {
         } else {
             return console_output(std::move(config));
         }
-        return std::nullopt;
     }
 
     [[nodiscard]] std::optional<core::except::Error>
