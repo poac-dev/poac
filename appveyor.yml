@@ -50,7 +50,6 @@ install:
         } else {
           $env:TARGET_PLATFORM = "-A x64"
         }
-        $env:path += ";C:\Program Files (x86)\poac\bin"
       }
       if ($env:GENERATOR -eq "MinGW Makefiles") {
         $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
@@ -131,7 +130,12 @@ build_script:
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
-      cmake --build . --target install --config %Configuration% &&
+      cmake --build . --target install --config %Configuration%
+    )
+  - if %COMPILER% == msvc (
+      C:\Program Files (x86)\poac\bin\poac --help
+    )
+  - if %COMPILER% == gcc (
       poac --help
     )
 
