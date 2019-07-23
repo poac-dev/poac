@@ -76,8 +76,13 @@ namespace poac::core::resolver::resolve {
             && lhs.version == rhs.version;
     }
 
-    using Backtracked = std::map<std::string, std::string>;
-    using Deps = std::vector<Package<Name, Interval>>;
+    namespace {
+        using NameField = std::string;
+        using VersionField = std::string;
+        using IntervalField = std::string;
+    }
+    using Backtracked = std::map<NameField, VersionField>;
+    using Deps = std::map<NameField, IntervalField>;
 
     struct Resolved {
         // Dependency information after activate.
@@ -354,19 +359,24 @@ namespace poac::core::resolver::resolve {
         std::vector<Package<Name, Interval, Versions>> interval_cache;
 
         // Activate the root of dependencies
-        for (const auto& dep : deps) {
+        for (const auto& [name, interval] : deps) {
             // Check if root package is resolved dependency (by interval)
-            if (auto last = interval_cache.cend(); std::find_if(interval_cache.cbegin(), last,
-                    [&](auto d) { return d.name == dep.name && d.interval == dep.interval; }) != last) {
+            if (auto last = interval_cache.cend();
+                std::find_if(interval_cache.cbegin(), last,
+                    [&name=name, interval=interval](auto d) {
+                        return d.name == name && d.interval == interval;
+                    }
+                ) != last
+            ) {
                 continue;
             }
 
             // Get versions using interval
-            const auto versions = decide_versions(dep.name, dep.interval);
+            const auto versions = decide_versions(name, interval);
             // Cache interval and versions pair
-            interval_cache.push_back({ {dep.name}, {dep.interval}, {versions} });
+            interval_cache.push_back({ {name}, {interval}, {versions} });
             for (const auto& version : versions) {
-                activate(dep.name, version, new_deps.activated, interval_cache);
+                activate(name, version, new_deps.activated, interval_cache);
             }
         }
         return new_deps;

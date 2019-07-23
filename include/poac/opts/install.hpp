@@ -133,19 +133,16 @@ namespace poac::opts::install {
 
     core::resolver::resolve::Deps
     resolve_packages(const std::map<std::string, std::string>& dependencies) {
-        namespace resolve = core::resolver::resolve;
-
-        resolve::Deps deps;
-
+        core::resolver::resolve::Deps deps;
         // Even if a package of the same name is written, it is excluded.
         // However, it can not deal with duplication of other information (e.g. version etc.).
         for (const auto& [name, interval] : dependencies) {
-            deps.push_back({ {name}, {interval} });
+            deps.emplace(name, interval);
         }
         return deps;
     }
 
-    core::resolver::resolve::Package<core::resolver::resolve::Name, core::resolver::resolve::Interval>
+    core::resolver::resolve::Deps::value_type
     parse_arg_package(const std::string& v) {
         if (const auto error = core::name::validate_package_name(v)) {
             throw core::except::error( error->what() );
@@ -154,12 +151,12 @@ namespace poac::opts::install {
         const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
         std::smatch match;
         if (std::regex_match(v, std::regex("^" + NAME + "$"))) { // TODO: 厳しくする
-            return { {v}, {"latest"} };
+            return { v, "latest" };
         }
         else if (std::regex_match(v, match, std::regex("^" + NAME + "=(.*)$"))) {
             const auto name = match[1].str();
             const auto interval = match[2].str();
-            return { {name}, {interval} };
+            return { name, interval };
         }
         else {
             throw core::except::error("Invalid arguments");
@@ -188,12 +185,10 @@ namespace poac::opts::install {
 
     [[nodiscard]] std::optional<core::except::Error>
     install(std::optional<io::yaml::Config>&& config, install::Options&& opts) {
-        namespace resolve = core::resolver::resolve;
-
         std::string timestamp = io::yaml::get_timestamp();
 
         // load lock file
-        resolve::Resolved resolved_deps{};
+        core::resolver::resolve::Resolved resolved_deps{};
         const auto lockfile = load_lockfile(opts, timestamp);
 
 //        bool load_lock = false;
@@ -211,14 +206,14 @@ namespace poac::opts::install {
 //        }
 
         // YAML::Node -> resolver:Deps
-        resolve::Deps deps;
+        core::resolver::resolve::Deps deps;
         for (const auto& v : opts.package_list) {
-            deps.push_back(parse_arg_package(v));
+            deps.emplace(parse_arg_package(v));
         }
         if (!lockfile.has_value()) {
-            if (const auto dependencies = config->dependencies) { // io::yaml::get<std::map<std::string, YAML::Node>>(node, "deps")
+            if (const auto dependencies = config->dependencies) {
                 const auto resolved_packages = resolve_packages(dependencies.value());
-                deps.insert(deps.end(), resolved_packages.begin(), resolved_packages.end());
+                deps.insert(resolved_packages.begin(), resolved_packages.end());
             }
             else if (opts.package_list.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
                 return core::except::Error::General{
@@ -233,7 +228,7 @@ namespace poac::opts::install {
             std::cout << io::term::status << "Resolving dependencies..." << std::endl;
         }
         if (!lockfile.has_value()) {
-            resolved_deps = resolve::resolve(deps); // TODO: これの結果は？？？？？
+            resolved_deps = core::resolver::resolve::resolve(deps);
         }
 
         // download packages
