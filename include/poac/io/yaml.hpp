@@ -162,6 +162,33 @@ namespace poac::io::yaml {
         std::optional<Test> test;
     };
 
+    enum class PackageType {
+        HeaderOnlyLib,
+        BuildReqLib,
+        Application
+    };
+
+    std::string
+    to_string(PackageType package_type) noexcept {
+        switch (package_type) {
+            case PackageType::HeaderOnlyLib:
+                return "header-only library";
+            case PackageType::BuildReqLib:
+                return "build-required library";
+            case PackageType::Application:
+                return "application";
+        }
+    }
+
+    struct LockConfig {
+        std::string timestamp;
+        struct Deps {
+            std::string version;
+            PackageType package_type;
+        };
+        std::optional<std::map<std::string, Deps>> dependencies;
+    };
+
     namespace detail {
         std::optional<Config::Build::System>
         to_build_system(const std::optional<std::string>& str) noexcept {

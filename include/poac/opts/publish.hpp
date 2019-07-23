@@ -34,24 +34,6 @@ namespace poac::opts::publish {
         bool yes;
     };
 
-    enum class PackageType {
-        HeaderOnlyLib,
-        BuildReqLib,
-        Application
-    };
-
-    std::string
-    to_string(PackageType package_type) noexcept {
-        switch (package_type) {
-            case PackageType::HeaderOnlyLib:
-                return "header-only library";
-            case PackageType::BuildReqLib:
-                return "build-required library";
-            case PackageType::Application:
-                return "application";
-        }
-    }
-
     struct PackageInfo {
         std::string owner;
         std::string repo;
@@ -59,7 +41,7 @@ namespace poac::opts::publish {
         std::optional<std::string> description;
         std::uint16_t cpp_version;
         std::optional<std::string> license;
-        PackageType package_type;
+        io::yaml::PackageType package_type;
         std::string local_commit_sha;
     };
 
@@ -251,20 +233,20 @@ namespace poac::opts::publish {
         }
     }
 
-    PackageType
+    io::yaml::PackageType
     get_package_type(const std::optional<io::yaml::Config>& config) {
         if (config->build.has_value()) {
             if (config->build->bin.has_value() && config->build->bin.value()) {
                 // bin: true
-                return PackageType::Application;
+                return io::yaml::PackageType::Application;
             } else if (config->build->lib.has_value() && config->build->lib.value()) {
                 // lib: true
-                return PackageType::BuildReqLib;
+                return io::yaml::PackageType::BuildReqLib;
             } else {
-                return PackageType::BuildReqLib;
+                return io::yaml::PackageType::BuildReqLib;
             }
         } else {
-            return PackageType::HeaderOnlyLib;
+            return io::yaml::PackageType::HeaderOnlyLib;
         }
     }
 
@@ -391,7 +373,7 @@ namespace poac::opts::publish {
         const auto package_info = report_publish_start(config);
 
         // TODO: Currently, we can not publish an application.
-        if (package_info.package_type == PackageType::Application) {
+        if (package_info.package_type == io::yaml::PackageType::Application) {
             summarize(package_info);
             return core::except::Error::General{
                 "Sorry, you can not publish an application currently.\n"
