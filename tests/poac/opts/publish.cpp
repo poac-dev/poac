@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_package_type_test )
 {
     namespace fs = boost::filesystem;
     using poac::opts::publish::get_package_type;
-    using poac::opts::publish::PackageType;
+    using poac::io::yaml::PackageType;
     using poac::io::yaml::load;
 
     const fs::path config_path = fs::current_path() / "poac.yml";
