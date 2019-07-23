@@ -132,9 +132,6 @@ build_script:
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
       cmake --build . --target install --config %Configuration%
     )
-  - if %COMPILER% == msvc (
-      "C:\Program Files (x86)\poac\bin\poac" --help
-    )
   - if %COMPILER% == gcc (
       poac --help
     )
