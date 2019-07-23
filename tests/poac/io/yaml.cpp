@@ -16,7 +16,7 @@
 // bool get(const YAML::Node& node, Args&&... args)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_get_test )
 {
-    using poac::io::yaml::get;
+    using poac::io::yaml::detail::get;
 
     // std::optional<T> get(const YAML::Node& node)
     {
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_get_test )
 // bool contains(const YAML::Node& node, Args&&... args)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_contains_test )
 {
-    using poac::io::yaml::contains;
+    using poac::io::yaml::detail::contains;
 
     YAML::Node node = YAML::Load(
             "hoge: foo\n"
