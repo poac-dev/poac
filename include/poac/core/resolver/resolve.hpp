@@ -48,41 +48,20 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    template <typename... Bases>
-    struct Package : Bases... {};
-
-    struct Name {
-        std::string name;
-    };
-    struct Interval {
-        std::string interval;
-    };
-    struct Version {
-        std::string version;
-    };
-    struct Versions {
-        std::vector<std::string> versions;
-    };
-    struct PackageType {
-        std::string package_type;
-    };
-    struct InDeps {
-        std::vector<Package<Name, Version, InDeps>> deps;
-    };
-
-    using Activated = std::vector<Package<Name, Version, InDeps>>;
-    bool operator==(const Activated::value_type& lhs, const Activated::value_type& rhs) {
-        return lhs.name == rhs.name
-            && lhs.version == rhs.version;
-    }
-
     namespace {
         using NameField = std::string;
         using VersionField = std::string;
+        using VersionsField = std::vector<VersionField>;
         using IntervalField = std::string;
     }
+    using Activated = std::vector<std::pair<NameField, io::yaml::Lockfile::Package>>;
     using Backtracked = std::map<NameField, VersionField>;
     using Deps = std::map<NameField, IntervalField>;
+
+    using IntervalCache = std::vector<std::tuple<NameField, IntervalField, VersionsField>>;
+    constexpr std::size_t name_index = 0;
+    constexpr std::size_t interval_index = 1;
+    constexpr std::size_t versions_index = 2;
 
     struct Resolved {
         // Dependency information after activate.
@@ -98,8 +77,6 @@ namespace poac::core::resolver::resolve {
 //    lockfile_to_resolved(const io::yaml::Lockfile& lockfile) {
 //
 //    }
-
-
 
     template <typename T>
     std::string
@@ -157,7 +134,7 @@ namespace poac::core::resolver::resolve {
                 continue;
             }
 
-            const auto name_lambda = [&](const auto& x){ return x.name == activated[i].name; };
+            const auto name_lambda = [&](const auto& x){ return x.first == activated[i].first; };
             // 現在指すパッケージと同名の他のパッケージは存在しない
             if (const auto count = std::count_if(first, last, name_lambda); count == 1) {
                 std::vector<int> clause;
@@ -165,11 +142,11 @@ namespace poac::core::resolver::resolve {
                 clauses.emplace_back(clause);
 
                 // index ⇒ deps
-                if (!activated[i].deps.empty()) {
+                if (!activated[i].second.dependencies.has_value()) {
                     clause[0] *= -1;
-                    for (const auto& dep : activated[i].deps) {
+                    for (const auto& [name, version] : activated[i].second.dependencies.value()) {
                         // 必ず存在することが保証されている
-                        clause.emplace_back(util::types::index_of(first, last, dep) + 1);
+                        clause.emplace_back(util::types::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
                     }
                     clauses.emplace_back(clause);
                 }
@@ -183,12 +160,12 @@ namespace poac::core::resolver::resolve {
                     already_added.emplace_back(index + 1);
 
                     // index ⇒ deps
-                    if (!found->deps.empty()) {
+                    if (!found->second.dependencies.has_value()) {
                         std::vector<int> new_clause;
                         new_clause.emplace_back(index);
-                        for (const auto& dep : found->deps) {
+                        for (const auto& [name, version] : found->second.dependencies.value()) {
                             // 必ず存在することが保証されている
-                            new_clause.emplace_back(util::types::index_of(first, last, dep) + 1);
+                            new_clause.emplace_back(util::types::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
                         }
                         clauses.emplace_back(new_clause);
                     }
@@ -211,7 +188,7 @@ namespace poac::core::resolver::resolve {
                 if (a > 0) {
                     const auto dep = activated[a - 1];
                     resolved_deps.activated.push_back(dep);
-                    resolved_deps.backtracked[dep.name] = dep.version;
+                    resolved_deps.backtracked[dep.first] = dep.second.version;
                 }
             }
             io::term::debugln(0);
@@ -230,12 +207,11 @@ namespace poac::core::resolver::resolve {
                 int index;
                 if (l > 0) {
                     index = l - 1;
-                }
-                else {
+                } else {
                     index = (l * -1) - 1;
                 }
-                const auto ac = activated[index];
-                io::term::debug(ac.name, "-", ac.version, ": ", l, ", ");
+                const auto [name, package] = activated[index];
+                io::term::debug(name, "-", package.version, ": ", l, ", ");
             }
             io::term::debugln();
         }
@@ -246,8 +222,8 @@ namespace poac::core::resolver::resolve {
     Resolved activated_to_backtracked(const Resolved& activated_deps) {
         Resolved resolved_deps;
         resolved_deps.activated = activated_deps.activated;
-        for (const auto& a : activated_deps.activated) {
-            resolved_deps.backtracked[a.name] = a.version;
+        for (const auto& [name, package] : activated_deps.activated) {
+            resolved_deps.backtracked[name] = package.version;
         }
         return resolved_deps;
     }
@@ -259,7 +235,7 @@ namespace poac::core::resolver::resolve {
         const auto last = std::end(rng);
         for (const auto& r : rng) {
             if (std::count_if(first, last, [&](const auto& x) {
-                return x.name == r.name;
+                return x.first == r.first;
             }) > 1) {
                 return true;
             }
@@ -311,11 +287,11 @@ namespace poac::core::resolver::resolve {
             const std::string& name,
             const std::string& version,
             Activated& new_deps,
-            std::vector<Package<Name, Interval, Versions>>& interval_cache)
+            IntervalCache& interval_cache)
     {
         // Check if root package resolved dependency (by version), and Check circulating
         if (auto last = new_deps.cend(); std::find_if(new_deps.cbegin(), last,
-                [&](auto d) { return d.name == name && d.version == version; }) != last) {
+                [&](auto d) { return d.first == name && d.second.version == version; }) != last) {
             return;
         }
 
@@ -329,46 +305,42 @@ namespace poac::core::resolver::resolve {
                 // Check if node package is resolved dependency (by interval)
                 auto last = interval_cache.cend();
                 const auto itr = std::find_if(interval_cache.cbegin(), last,
-                        [&n=dep_name, &i=dep_interval](auto d) { return d.name == n && d.interval == i; });
+                        [&n=dep_name, &i=dep_interval](auto d) { return std::get<name_index>(d) == n && std::get<interval_index>(d) == i; });
                 if (itr != last) {
-                    for (const auto& dep_version : itr->versions) {
-                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {} });
+                    for (const auto& dep_version : std::get<versions_index>(*itr)) {
+                        cur_deps_deps.emplace_back(dep_name, io::yaml::Lockfile::Package{ dep_version, io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
                     }
-                }
-                else {
+                } else {
                     const auto dep_versions = decide_versions(dep_name, dep_interval);
                     // Cache interval and versions pair
-                    interval_cache.push_back({ {dep_name}, {dep_interval}, {dep_versions} });
+                    interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
                     for (const auto& dep_version : dep_versions) {
-                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {} });
+                        cur_deps_deps.emplace_back(dep_name, io::yaml::Lockfile::Package{ dep_version, io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
                     }
                 }
             }
-            new_deps.push_back({ {name}, {version}, {cur_deps_deps} });
-            for (const auto& cur_dep : cur_deps_deps) {
-                activate(cur_dep.name, cur_dep.version, new_deps, interval_cache);
+            // FIXME
+//            new_deps.emplace_back(name, io::yaml::Lockfile::Package{ version, io::yaml::PackageType::HeaderOnlyLib, cur_deps_deps });
+            for (const auto& [name, package] : cur_deps_deps) {
+                activate(name, package.version, new_deps, interval_cache);
             }
         }
         else {
-            new_deps.push_back({ {name}, {version}, {} });
+            new_deps.emplace_back(name, io::yaml::Lockfile::Package{ version, io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
         }
     }
 
     Resolved activate_deps_loop(const Deps& deps) {
         Resolved new_deps{};
-        std::vector<Package<Name, Interval, Versions>> interval_cache;
+        IntervalCache interval_cache;
 
         // Activate the root of dependencies
         for (const auto& [name, interval] : deps) {
             // Check if root package is resolved dependency (by interval)
-            if (auto last = interval_cache.cend();
-                std::find_if(interval_cache.cbegin(), last,
-                    [&name=name, interval=interval](auto d) {
-                        return d.name == name && d.interval == interval;
-                    }
-                ) != last
-            ) {
-                continue;
+            for (const auto& [n, i, versions] : interval_cache) {
+                if (name == n && interval == i) {
+                    continue;
+                }
             }
 
             // Get versions using interval

@@ -31,61 +31,61 @@ namespace poac::opts::uninstall {
         std::vector<std::string> package_list;
     };
 
-    template <typename InputIterator, typename Backtracked>
-    void create_uninstall_list(
-            InputIterator first,
-            InputIterator last,
-            std::string_view target_name,
-            Backtracked& uninstall_list)
-    {
-        // 同じ名前で複数のバージョンは存在しないことが，
-        // resolved_deps = lock_to_resolved(*locked_deps);
-        // と，
-        // const resolver::Deps deps = _install::resolve_packages(deps_node);
-        // resolved_deps = resolver::resolve(deps);
-        // の両方で保証されているため，同一の名前を検索するだけでパッケージを一意に特定できる．(versionの比較が不要)
-        const auto target = std::find_if(first, last, [&](auto x){ return x.name == target_name; });
-        if (target == last) { // 同じパッケージ名を二つ以上いれた
-            return;
-        }
-
-        // 他に依存されているパッケージは削除しない
-        if (!target->deps.empty()) {
-            for (auto itr = first; itr != last; ++itr) {
-                // uninstall_listに入ってない
-                const auto found1 = std::find_if(uninstall_list.begin(), uninstall_list.end(),
-                        [&](auto x){ return x.first == itr->name; });
-                // targetのdepsに入っていない
-                const auto found2 = std::find_if(target->deps.begin(), target->deps.end(),
-                        [&](auto x) { return x.name == itr->name; });
-                if (found1 == uninstall_list.end() && found2 == target->deps.end()) {
-                    for (const auto& deps : itr->deps) {
-                        // 他のパッケージに依存されている
-                        if (target->name == deps.name) {
-                            const auto warn = deps.name + ": " + deps.version +
-                                              " can not be deleted because " +
-                                              itr->name + ": " + itr->version +
-                                              " depends on it";
-                            std::cout << io::term::warning << warn << std::endl;
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        // 循環していないかチェック
-        const auto cycle_check = std::find_if(uninstall_list.begin(), uninstall_list.end(),
-                [&](auto x){ return x.first == target->name; });
-        if (cycle_check == uninstall_list.end()) {
-            // ここまでたどり着いたなら，他に依存されていないということなので，削除リストに加える
-            uninstall_list[target->name] = { {target->version} };
-            // さらにそれの依存も，削除リストに加える
-            for (const auto& td : target->deps) {
-                create_uninstall_list(first, last, td.name, uninstall_list);
-            }
-        }
-    }
+//    template <typename InputIterator, typename Backtracked>
+//    void create_uninstall_list(
+//            InputIterator first,
+//            InputIterator last,
+//            std::string_view target_name,
+//            Backtracked& uninstall_list)
+//    {
+//        // 同じ名前で複数のバージョンは存在しないことが，
+//        // resolved_deps = lock_to_resolved(*locked_deps);
+//        // と，
+//        // const resolver::Deps deps = _install::resolve_packages(deps_node);
+//        // resolved_deps = resolver::resolve(deps);
+//        // の両方で保証されているため，同一の名前を検索するだけでパッケージを一意に特定できる．(versionの比較が不要)
+//        const auto target = std::find_if(first, last, [&](auto x){ return x.name == target_name; });
+//        if (target == last) { // 同じパッケージ名を二つ以上いれた
+//            return;
+//        }
+//
+//        // 他に依存されているパッケージは削除しない
+//        if (!target->second.dependencies.has_value()) {
+//            for (auto itr = first; itr != last; ++itr) {
+//                // uninstall_listに入ってない
+//                const auto found1 = std::find_if(uninstall_list.begin(), uninstall_list.end(),
+//                        [&](auto x){ return x.first == itr->first; });
+//                // targetのdepsに入っていない
+//                const auto found2 = std::find_if(target->second.dependencies->begin(), target->second.dependencies->end(),
+//                        [&](auto x) { return x.name == itr->first; });
+//                if (found1 == uninstall_list.end() && found2 == target->second.dependencies->end()) {
+//                    for (const auto& [name, version] : itr) {
+//                        // 他のパッケージに依存されている
+//                        if (target->first == name) {
+//                            const auto warn = name + ": " + version +
+//                                              " can not be deleted because " +
+//                                              itr->name + ": " + itr->version +
+//                                              " depends on it";
+//                            std::cout << io::term::warning << warn << std::endl;
+//                            return;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        // 循環していないかチェック
+//        const auto cycle_check = std::find_if(uninstall_list.begin(), uninstall_list.end(),
+//                [&](auto x){ return x.first == target->name; });
+//        if (cycle_check == uninstall_list.end()) {
+//            // ここまでたどり着いたなら，他に依存されていないということなので，削除リストに加える
+//            uninstall_list[target->name] = { {target->version} };
+//            // さらにそれの依存も，削除リストに加える
+//            for (const auto& td : target->deps) {
+//                create_uninstall_list(first, last, td.name, uninstall_list);
+//            }
+//        }
+//    }
 
     template <typename SingleRangePass, typename T>
     void check_exist_name(const SingleRangePass& rng, const T& argv) {
@@ -126,11 +126,11 @@ namespace poac::opts::uninstall {
         // create uninstall list
         std::cout << std::endl;
         resolve::Backtracked uninstall_list{};
-        const auto first = resolved_deps.activated.begin();
-        const auto last = resolved_deps.activated.end();
-        for (const auto& v : opts.package_list) {
-            create_uninstall_list(first, last, v, uninstall_list); // FIXME
-        }
+//        const auto first = resolved_deps.activated.begin();
+//        const auto last = resolved_deps.activated.end();
+//        for (const auto& v : opts.package_list) {
+//            create_uninstall_list(first, last, v, uninstall_list); // FIXME
+//        }
 
         // Omit a package that does not already exist
 

@@ -197,11 +197,12 @@ namespace poac::io::yaml {
     struct Lockfile {
         std::string timestamp;
         struct Package {
-            std::string version;
+            std::string version; // TODO: semver::Version
             PackageType package_type;
             std::optional<std::map<std::string, std::string>> dependencies;
         };
-        std::map<std::string, Package> dependencies;
+        using dependencies_type = std::map<std::string, Package>;
+        dependencies_type dependencies;
     };
 
     namespace detail {
@@ -283,7 +284,7 @@ namespace poac::io::yaml {
 
         decltype(Lockfile::dependencies)
         create_lockfile_dependencies(const YAML::Node& lockfile) {
-            decltype(Lockfile::dependencies) dependencies;
+            Lockfile::dependencies_type dependencies;
             const auto lock_dependencies = get<std::map<std::string, YAML::Node>>(lockfile, "dependencies");
             for (const auto& [name, node] : lock_dependencies.value()) {
                 dependencies[name] = create_lockfile_package(node);

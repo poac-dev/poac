@@ -23,17 +23,14 @@ namespace poac::opts::cleanup {
 
     [[nodiscard]] std::optional<core::except::Error>
     cleanup(std::optional<io::yaml::Config>&& config) {
-        namespace resolver = core::resolver::resolve;
-        namespace fs = boost::filesystem;
-
         // create resolved deps
-        resolver::Resolved resolved_deps{};
+        core::resolver::resolve::Resolved resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load()) {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
             const auto dependencies = config->dependencies.value(); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
-            const resolver::Deps deps = install::resolve_packages(dependencies);
-            resolved_deps = resolver::resolve(deps);
+            const core::resolver::resolve::Deps deps = install::resolve_packages(dependencies);
+            resolved_deps = core::resolver::resolve::resolve(deps);
 //        }
 
         std::vector<std::string> package_names;
@@ -45,10 +42,10 @@ namespace poac::opts::cleanup {
         // iterate directory
         auto first = package_names.cbegin();
         auto last = package_names.cend();
-        for (const auto& e : boost::make_iterator_range( fs::directory_iterator("deps"), {} )) {
+        for (const auto& e : boost::make_iterator_range( boost::filesystem::directory_iterator("deps"), {} )) {
             const auto found = std::find(first, last, e.path().filename().string());
             if (found == last) { // not found
-                fs::remove_all(e.path());
+                boost::filesystem::remove_all(e.path());
                 const auto info_state = "Remove unused package " + e.path().filename().string();
                 std::cout << io::term::info << info_state << std::endl;
             }

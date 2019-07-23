@@ -42,6 +42,10 @@ namespace poac::util::types {
     inline auto index_of(InputIterator first, InputIterator last, const T& value) {
         return std::distance(first, std::find(first, last, value));
     }
+    template <typename InputIterator, typename Predicate>
+    inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred) {
+        return std::distance(first, std::find_if(first, last, pred));
+    }
 
     // Check if it has duplicate elements.
     template <class SinglePassRange>

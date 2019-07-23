@@ -35,18 +35,18 @@ namespace poac::opts::install {
         out << YAML::Key << "dependencies";
         out << YAML::Value << YAML::BeginMap;
 
-        for (const auto& dep : deps) { // TODO: depsじゃなくて，io::yaml::LockFileでは？？？
-            out << YAML::Key << dep.name;
+        for (const auto& [name, package] : deps) { // TODO: depsじゃなくて，io::yaml::LockFileでは？？？
+            out << YAML::Key << name;
             out << YAML::Value << YAML::BeginMap;
 
             out << YAML::Key << "version";
-            out << YAML::Value << dep.version;
+            out << YAML::Value << package.version;
 
-//            out << YAML::Key << "package_type";
-//            out << YAML::Value << dep.package_type;
+            out << YAML::Key << "package_type";
+            out << YAML::Value << to_string(package.package_type);
 
-            if (!dep.deps.empty()) {
-                stream_deps(out, dep.deps);
+            if (!package.dependencies.has_value()) {
+//                stream_deps(out, package.dependencies.value()); // FIXME
             }
             out << YAML::EndMap;
         }

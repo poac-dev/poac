@@ -76,9 +76,9 @@ namespace poac::opts::graph {
         }
         // Add edge
         for (const auto& dep : resolved_deps.activated | boost::adaptors::indexed()) {
-            if (!dep.value().deps.empty()) {
-                for (const auto& d : dep.value().deps) {
-                    const auto result = std::find(resolved_deps.activated.begin(), resolved_deps.activated.end(), d);
+            if (!dep.value().second.dependencies.has_value()) {
+                for (const auto& [name, version] : dep.value().second.dependencies.value()) {
+                    const auto result = std::find_if(resolved_deps.activated.begin(), resolved_deps.activated.end(), [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; });
                     if (result != resolved_deps.activated.end()) {
                         const auto index = std::distance(resolved_deps.activated.begin(), result);
                         boost::add_edge(desc[dep.index()], desc[index], g);
@@ -87,9 +87,9 @@ namespace poac::opts::graph {
             }
         }
 
-        std::vector<std::string> names;
-        for (const auto& dep : resolved_deps.activated) {
-            names.push_back(dep.name + ": " + dep.version);
+        std::vector<std::string> names; // TODO: <algorithm>等で同じことができるはず
+        for (const auto& [name, package] : resolved_deps.activated) {
+            names.push_back(name + ": " + package.version);
         }
         return { g, names };
     }
