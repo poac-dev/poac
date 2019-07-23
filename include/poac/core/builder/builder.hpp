@@ -25,7 +25,6 @@
 #include <poac/core/builder/options.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/core/resolver/lock.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/yaml.hpp>
@@ -73,33 +72,33 @@ namespace poac::core::builder {
             return cache::check_src_cpp(compile_conf, depends_ts, source_files, verbose);
         }
 
-        void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
-            namespace fs = boost::filesystem;
-            namespace lock = resolver::lock;
-            namespace yaml = io::yaml;
-            namespace path = io::path;
-
-            if (const auto locked_deps = lock::load_ignore_timestamp()) {
-                for (const auto& [name, dep] : locked_deps->backtracked) {
-                    const std::string current_package_name = name::to_current(dep.source, name, dep.version);
-                    const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
-
-                    if (path::validate_dir(include_dir)) {
-                        compile_conf.include_search_path.push_back(include_dir.string());
-                    }
-                    else {
-                        throw except::error(
-                                name, " is not installed.\n"
-                                "Please build after running `poac install`");
-                    }
-                }
-            }
-            else {
-                throw except::error(
-                        "Could not load poac.lock.\n"
-                        "Please build after running `poac install`");
-            }
-        }
+//        void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
+//            namespace fs = boost::filesystem;
+//            namespace lock = resolver::lock;
+//            namespace yaml = io::yaml;
+//            namespace path = io::path;
+//
+//            if (const auto locked_deps = lock::load_ignore_timestamp()) {
+//                for (const auto& [name, dep] : locked_deps->backtracked) {
+//                    const std::string current_package_name = name::to_current(dep.source, name, dep.version);
+//                    const fs::path include_dir = path::current_deps_dir / current_package_name / "include";
+//
+//                    if (path::validate_dir(include_dir)) {
+//                        compile_conf.include_search_path.push_back(include_dir.string());
+//                    }
+//                    else {
+//                        throw except::error(
+//                                name, " is not installed.\n"
+//                                "Please build after running `poac install`");
+//                    }
+//                }
+//            }
+//            else {
+//                throw except::error(
+//                        "Could not load poac.lock.\n"
+//                        "Please build after running `poac install`");
+//            }
+//        }
         void configure_compile(const bool usemain) {
             compile_conf.system = compiler;
 
@@ -151,34 +150,31 @@ namespace poac::core::builder {
             return obj_files;
         }
 
-        void make_link(const std::map<std::string, YAML::Node>& deps_node) {
-            namespace fs = boost::filesystem;
+//        void make_link(const std::map<std::string, YAML::Node>& deps_node) {
+//            namespace fs = boost::filesystem;
 
-            for (const auto& [raw_name, next_node] : deps_node) {
-                const auto [src, name] = name::get_source(raw_name);
-                const std::string version = name::get_version(next_node, src);
-
-                // FIXME: srcではなく，build systemを読む．
-                if (src != "poac") {
-                    const std::string caching_name = name::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
-                    const fs::path pkgpath = io::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
-
-                    // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
-                    if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
-                        link_conf.library_search_path.push_back(lib_dir.string());
-
-                        if (const auto link = io::yaml::get<std::vector<std::string>>(next_node, "link", "include")) {
-                            for (const auto& l : *link) {
-                                link_conf.static_link_libs.push_back(l);
-                            }
-                        }
-                        else {
-                            link_conf.static_link_libs.push_back(caching_name);
-                        }
-                    }
-                }
-            }
-        }
+//            for (const auto& [name, next_node] : deps_node) {
+//                // FIXME: srcではなく，build systemを読む．
+//                if (src != "poac") {
+//                    const std::string caching_name = name::to_cache(src, name, version); // TODO: これ，なんで，cacheなのに，
+//                    const fs::path pkgpath = io::path::current_deps_dir / caching_name; // TODO: depsを読んでるん？？？
+//
+//                    // TODO: できればlockファイルに書かれたパッケージの./depsディレクトリのpoac.ymlを読むのが好ましい
+//                    if (const fs::path lib_dir = pkgpath / "lib"; fs::exists(lib_dir)) {
+//                        link_conf.library_search_path.push_back(lib_dir.string());
+//
+//                        if (const auto link = io::yaml::get<std::vector<std::string>>(next_node, "link", "include")) {
+//                            for (const auto& l : *link) {
+//                                link_conf.static_link_libs.push_back(l);
+//                            }
+//                        }
+//                        else {
+//                            link_conf.static_link_libs.push_back(caching_name);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         void configure_link(const std::vector<std::string>& obj_files_path) {
             link_conf.obj_files_path = obj_files_path;
 

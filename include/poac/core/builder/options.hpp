@@ -11,7 +11,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include <poac/core/builder/absorb.hpp>
-#include <poac/core/resolver/lock.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/io/path.hpp>
@@ -143,15 +142,15 @@ namespace poac::core::builder::options {
         return macro_defns;
     }
 
-    std::vector<std::string>
-    make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
-        namespace yaml = io::yaml;
-        if (const auto compile_args = yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
-            return *compile_args;
-        }
-        else {
-            return {};
-        }
-    }
+//    std::vector<std::string>
+//    make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
+//        namespace yaml = io::yaml;
+//        if (const auto compile_args = io::yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
+//            return *compile_args;
+//        }
+//        else {
+//            return {};
+//        }
+//    }
 } // end namespace
 #endif // POAC_CORE_BUILDER_OPTIONS_HPP

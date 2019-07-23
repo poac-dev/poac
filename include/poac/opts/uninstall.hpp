@@ -15,7 +15,6 @@
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
-#include <poac/core/resolver/lock.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/yaml.hpp>
@@ -80,7 +79,7 @@ namespace poac::opts::uninstall {
                 [&](auto x){ return x.first == target->name; });
         if (cycle_check == uninstall_list.end()) {
             // ここまでたどり着いたなら，他に依存されていないということなので，削除リストに加える
-            uninstall_list[target->name] = { {target->version}, {target->source} };
+            uninstall_list[target->name] = { {target->version} };
             // さらにそれの依存も，削除リストに加える
             for (const auto& td : target->deps) {
                 create_uninstall_list(first, last, td.name, uninstall_list);
@@ -104,7 +103,6 @@ namespace poac::opts::uninstall {
     individual(std::optional<io::yaml::Config>&& config, uninstall::Options&& opts) {
         namespace fs = boost::filesystem;
         namespace resolve = core::resolver::resolve;
-        namespace lock = core::resolver::lock;
         using termcolor2::color_literals::operator""_red;
 
         if (config->dependencies) {
@@ -116,14 +114,14 @@ namespace poac::opts::uninstall {
         }
 
         // create resolved deps
-        const auto timestamp = io::yaml::load_timestamp();
+        const auto timestamp = io::yaml::get_timestamp();
         resolve::Resolved resolved_deps{};
-        if (const auto locked_deps = lock::load(timestamp)) {
-            resolved_deps = locked_deps.value();
-        } else { // poac.lock does not exist
+//        if (const auto locked_deps = core::resolver::lock::load(timestamp)) {
+//            resolved_deps = locked_deps.value();
+//        } else { // poac.lock does not exist
             const resolve::Deps deps = install::resolve_packages(config->dependencies.value());
             resolved_deps = resolve::resolve(deps);
-        }
+//        }
 
         // create uninstall list
         std::cout << std::endl;
@@ -131,15 +129,15 @@ namespace poac::opts::uninstall {
         const auto first = resolved_deps.activated.begin();
         const auto last = resolved_deps.activated.end();
         for (const auto& v : opts.package_list) {
-            create_uninstall_list(first, last, v, uninstall_list);
+            create_uninstall_list(first, last, v, uninstall_list); // FIXME
         }
 
         // Omit a package that does not already exist
 
         // confirm
         if (!opts.yes) {
-            for (const auto& [name, dep] : uninstall_list) {
-                std::cout << name << ": " << dep.version << std::endl;
+            for (const auto& [name, version] : uninstall_list) {
+                std::cout << name << ": " << version << std::endl;
             }
             std::cout << std::endl;
             if (const auto error = io::term::yes_or_no("Are you sure delete above packages?")) {
@@ -149,15 +147,15 @@ namespace poac::opts::uninstall {
 
         // Delete what was added to uninstall_list
         std::cout << std::endl;
-        for (const auto& [name, dep] : uninstall_list) {
-            const auto package_name = core::name::to_current(dep.source, name, dep.version);
+        for (const auto& dep : uninstall_list) {
+            const auto package_name = core::name::to_current(dep.first);
             const auto package_path = io::path::current_deps_dir / package_name;
             if (io::path::validate_dir(package_path)) {
                 fs::remove_all(package_path);
-                std::cout << name << " is deleted" << std::endl;
+                std::cout << dep.first << " is deleted" << std::endl;
             }
             else {
-                std::cout << name << " is not found"_red << std::endl;
+                std::cout << dep.first << " is not found"_red << std::endl;
             }
         }
 

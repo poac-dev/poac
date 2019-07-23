@@ -18,7 +18,6 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/core/resolver/lock.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/yaml.hpp>
 #include <poac/io/term.hpp>
@@ -42,9 +41,7 @@ namespace poac::opts::graph {
 
     core::resolver::resolve::Resolved
     create_resolved_deps(std::optional<io::yaml::Config>&& config) {
-        namespace lock = core::resolver::lock;
         namespace resolver = core::resolver::resolve;
-        namespace yaml = io::yaml;
 
         if (!config->dependencies) {
             throw core::except::error(
@@ -54,26 +51,28 @@ namespace poac::opts::graph {
 
         // create resolved deps
         resolver::Resolved resolved_deps{};
-        if (const auto locked_deps = lock::load()) {
-            resolved_deps = *locked_deps;
-        } else { // poac.lock does not exist
+//        if (const auto locked_deps = core::resolver::lock::load()) {
+//            resolved_deps = locked_deps.value();
+//        } else { // poac.lock does not exist
             const resolver::Deps deps = install::resolve_packages(deps_node);
             resolved_deps = resolver::resolve(deps);
-        }
+//        }
         return resolved_deps;
     }
 
     std::pair<Graph, std::vector<std::string>>
     create_graph(std::optional<io::yaml::Config>&& config) {
+        const auto lockfile = io::yaml::load_lockfile();
+
         const auto resolved_deps = create_resolved_deps(std::move(config));
         Graph g;
 
         // Add vertex
         std::vector<Graph::vertex_descriptor> desc;
-        for (const auto& dep : resolved_deps.activated | boost::adaptors::indexed()) {
+        for (const auto& dep : lockfile->dependencies | boost::adaptors::indexed()) {
             desc.push_back(boost::add_vertex(g));
-            g[dep.index()].name = dep.value().name;
-            g[dep.index()].version = dep.value().version;
+            g[dep.index()].name = dep.value().first;
+            g[dep.index()].version = dep.value().second.version;
         }
         // Add edge
         for (const auto& dep : resolved_deps.activated | boost::adaptors::indexed()) {

@@ -54,30 +54,28 @@ namespace poac::opts::update {
         resolve::Resolved resolved_deps = resolve::resolve(deps);
         resolve::Backtracked update_deps;
 
-        for (const auto& [name, dep] : resolved_deps.backtracked) {
-            if (dep.source == "poac") {
-                const auto current_name = core::name::to_current(dep.source, name, dep.version);
-                std::string current_version;
-                if (const auto yml = io::yaml::detail::validate_config("deps"_path / current_name)) {
-                    if (const auto deps_config = io::yaml::load(*yml)) {
+        for (const auto& [name, version] : resolved_deps.backtracked) {
+            const std::string current_name = core::name::to_current(name);
+            std::string current_version;
+            if (const auto yml = io::yaml::detail::validate_config("deps"_path / current_name)) {
+                if (const auto deps_config = io::yaml::load(*yml)) {
 //                        if (const auto version = deps_config->version) { // TODO: versionは存在しない
 //                            current_version = *version;
 //                        }
 //                        else { // Key not founded TODO: error
 //                            current_version = "null";
 //                        }
-                    }
-                    else { // Could not read
-                        current_version = "null";
-                    }
                 }
-                else { // Not installed
+                else { // Could not read
                     current_version = "null";
                 }
+            }
+            else { // Not installed
+                current_version = "null";
+            }
 
-                if (semver::Version(dep.version) != current_version) {
-                    update_deps[name] = { {current_version}, {dep.source} };
-                }
+            if (semver::Version(version) != current_version) {
+                update_deps[name] = current_version;
             }
         }
 
@@ -86,14 +84,14 @@ namespace poac::opts::update {
             return std::nullopt;
         }
 
-        for (const auto& [name, dep] : update_deps) {
-            const auto current_version = resolved_deps.backtracked[name].version;
+        for (const auto& [name, version] : update_deps) {
+            const auto current_version = resolved_deps.backtracked[name];
             std::cout << name << " (Current: " << current_version << " -> Update: ";
-            if (semver::Version(current_version) < dep.version) {
-                std::cout << termcolor2::green<> << dep.version << termcolor2::reset<> << ")" << std::endl;
+            if (semver::Version(current_version) < version) {
+                std::cout << termcolor2::green<> << version << termcolor2::reset<> << ")" << std::endl;
             }
             else {
-                std::cout << termcolor2::yellow<> << dep.version << termcolor2::reset<> << ")" << std::endl;
+                std::cout << termcolor2::yellow<> << version << termcolor2::reset<> << ")" << std::endl;
             }
         }
 
@@ -105,14 +103,14 @@ namespace poac::opts::update {
 
         // Delete current version
         for (const auto& [name, dep] : update_deps) {
-            const auto current_name = core::name::to_current(dep.source, name, resolved_deps.backtracked[name].version);
+            const std::string current_name = core::name::to_current(name);
             boost::system::error_code error;
             fs::remove_all("deps"_path / current_name, error);
         }
 
         // Install new version
         std::cout << std::endl;
-        install::fetch_packages(update_deps, false, false);
+        install::fetch_packages(update_deps, install::Options{false, false, {}});
 
         std::cout << std::endl;
         io::term::status_done();

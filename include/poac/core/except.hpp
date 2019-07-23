@@ -189,11 +189,6 @@ namespace poac::core::except {
         std::string please_exec(const std::string& str) {
             return please("execute " + str);
         }
-
-        std::string unknown_source(const std::string& src) {
-            return "poac.yml error.\n"
-                   "What source is " + src + "?";
-        }
     }
 
     class error : public std::invalid_argument

@@ -24,6 +24,7 @@
 #include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
+#include <poac/io/yaml.hpp>
 #include <poac/util/semver.hpp>
 #include <poac/util/types.hpp>
 #include <poac/config.hpp>
@@ -31,16 +32,14 @@
 namespace poac::core::resolver::resolve {
     namespace cache {
         bool resolve(const std::string& package_name) {
-            namespace path = io::path;
-            const auto package_path = path::poac_cache_dir / package_name;
-            return path::validate_dir(package_path);
+            const auto package_path = io::path::poac_cache_dir / package_name;
+            return io::path::validate_dir(package_path);
         }
     }
     namespace current {
         bool resolve(const std::string& current_package_name) {
-            namespace path = io::path;
-            const auto package_path = path::current_deps_dir / current_package_name;
-            return path::validate_dir(package_path);
+            const auto package_path = io::path::current_deps_dir / current_package_name;
+            return io::path::validate_dir(package_path);
         }
     }
     namespace github {
@@ -48,37 +47,37 @@ namespace poac::core::resolver::resolve {
             return "git clone -q https://github.com/" + name + ".git -b " + tag;
         }
     }
-    std::string archive_url(const std::string& n, const std::string& version) {
-        using namespace std::string_literals;
-        return POAC_ARCHIVE_API + "/"s + name::hyphen_to_slash(n) + "/" + version;
-    }
-
 
     template <typename... Bases>
     struct Package : Bases... {};
 
-    struct Name { std::string name; };
-    struct Interval { std::string interval; };
-    struct Version { std::string version; };
-    struct Versions { std::vector<std::string> versions; };
-    struct Source { std::string source; };
-    struct InDeps { std::vector<Package<Name, Version, Source, InDeps>> deps; };
+    struct Name {
+        std::string name;
+    };
+    struct Interval {
+        std::string interval;
+    };
+    struct Version {
+        std::string version;
+    };
+    struct Versions {
+        std::vector<std::string> versions;
+    };
+    struct PackageType {
+        std::string package_type;
+    };
+    struct InDeps {
+        std::vector<Package<Name, Version, InDeps>> deps;
+    };
 
-    using PackageAll = Package<Name, Version, Source, InDeps>;
-    bool operator==(const PackageAll& lhs, const PackageAll& rhs) {
+    using Activated = std::vector<Package<Name, Version, InDeps>>;
+    bool operator==(const Activated::value_type& lhs, const Activated::value_type& rhs) {
         return lhs.name == rhs.name
-            && lhs.version == rhs.version
-            && lhs.source == rhs.source;
-    }
-    using PackageMini = Package<Version, Source>;
-    bool operator==(const PackageMini& lhs, const PackageMini& rhs) {
-        return lhs.version == rhs.version
-            && lhs.source == rhs.source;
+            && lhs.version == rhs.version;
     }
 
-    using Deps = std::vector<Package<Name, Interval, Source>>;
-    using Activated = std::vector<PackageAll>;
-    using Backtracked = std::map<std::string, PackageMini>;
+    using Backtracked = std::map<std::string, std::string>;
+    using Deps = std::vector<Package<Name, Interval>>;
 
     struct Resolved {
         // Dependency information after activate.
@@ -90,10 +89,16 @@ namespace poac::core::resolver::resolve {
         Backtracked backtracked;
     };
 
+//    Resolved
+//    lockfile_to_resolved(const io::yaml::Lockfile& lockfile) {
+//
+//    }
+
 
 
     template <typename T>
-    inline std::string to_bin_str(T n, const std::size_t& digit_num) {
+    std::string
+    to_bin_str(T n, const std::size_t& digit_num) {
         std::string str;
         while (n > 0) {
             str.push_back('0' + (n & 1));
@@ -201,7 +206,7 @@ namespace poac::core::resolver::resolve {
                 if (a > 0) {
                     const auto dep = activated[a - 1];
                     resolved_deps.activated.push_back(dep);
-                    resolved_deps.backtracked[dep.name] = { {dep.version}, {dep.source} };
+                    resolved_deps.backtracked[dep.name] = dep.version;
                 }
             }
             io::term::debugln(0);
@@ -237,7 +242,7 @@ namespace poac::core::resolver::resolve {
         Resolved resolved_deps;
         resolved_deps.activated = activated_deps.activated;
         for (const auto& a : activated_deps.activated) {
-            resolved_deps.backtracked[a.name] = { {a.version}, {a.source} };
+            resolved_deps.backtracked[a.name] = a.version;
         }
         return resolved_deps;
     }
@@ -322,7 +327,7 @@ namespace poac::core::resolver::resolve {
                         [&n=dep_name, &i=dep_interval](auto d) { return d.name == n && d.interval == i; });
                 if (itr != last) {
                     for (const auto& dep_version : itr->versions) {
-                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {"poac"}, {} });
+                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {} });
                     }
                 }
                 else {
@@ -330,17 +335,17 @@ namespace poac::core::resolver::resolve {
                     // Cache interval and versions pair
                     interval_cache.push_back({ {dep_name}, {dep_interval}, {dep_versions} });
                     for (const auto& dep_version : dep_versions) {
-                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {"poac"}, {} });
+                        cur_deps_deps.push_back({ {dep_name}, {dep_version}, {} });
                     }
                 }
             }
-            new_deps.push_back({ {name}, {version}, {"poac"}, {cur_deps_deps} });
+            new_deps.push_back({ {name}, {version}, {cur_deps_deps} });
             for (const auto& cur_dep : cur_deps_deps) {
                 activate(cur_dep.name, cur_dep.version, new_deps, interval_cache);
             }
         }
         else {
-            new_deps.push_back({ {name}, {version}, {"poac"}, {} });
+            new_deps.push_back({ {name}, {version}, {} });
         }
     }
 
@@ -352,8 +357,9 @@ namespace poac::core::resolver::resolve {
         for (const auto& dep : deps) {
             // Check if root package is resolved dependency (by interval)
             if (auto last = interval_cache.cend(); std::find_if(interval_cache.cbegin(), last,
-                    [&](auto d) { return d.name == dep.name && d.interval == dep.interval; }) != last)
-            { continue; }
+                    [&](auto d) { return d.name == dep.name && d.interval == dep.interval; }) != last) {
+                continue;
+            }
 
             // Get versions using interval
             const auto versions = decide_versions(dep.name, dep.interval);
@@ -368,20 +374,7 @@ namespace poac::core::resolver::resolve {
 
     // Builds the list of all packages required to build the first argument.
     Resolved resolve(const Deps& deps) {
-        Deps poac_deps;
-        Deps others_deps;
-
-        // Divide poac and others only when src is poac, solve dependency.
-        for (const auto& dep : deps) {
-            if (dep.source == "poac") {
-                poac_deps.emplace_back(dep);
-            }
-            else {
-                others_deps.emplace_back(dep);
-            }
-        }
-
-        const Resolved activated_deps = activate_deps_loop(poac_deps);
+        const Resolved activated_deps = activate_deps_loop(deps);
         Resolved resolved_deps;
         // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
         if (duplicate_loose(activated_deps.activated)) {
@@ -389,12 +382,6 @@ namespace poac::core::resolver::resolve {
         }
         else {
             resolved_deps = activated_to_backtracked(activated_deps);
-        }
-
-        // Merge others_deps into resolved_deps
-        for (const auto& dep : others_deps) {
-            resolved_deps.activated.push_back({ {dep.name}, {dep.interval}, {dep.source}, {} });
-            resolved_deps.backtracked[dep.name] = { {dep.interval}, {dep.source} };
         }
         return resolved_deps;
     }

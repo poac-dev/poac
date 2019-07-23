@@ -10,7 +10,6 @@
 #include <yaml-cpp/yaml.h>
 
 #include <poac/core/builder.hpp>
-#include <poac/core/resolver/lock.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/io/term.hpp>

@@ -25,12 +25,10 @@ namespace poac::core::builder::detect {
     std::optional<std::string>
     build_system(const YAML::Node& node)
     {
-        namespace yaml = io::yaml;
-
-        if (const auto system = yaml::get<std::string>(node, "build")) {
+        if (const auto system = io::yaml::detail::get<std::string>(node, "build")) {
             return check_support_build_system(*system);
         }
-        else if (const auto build_node = yaml::get<std::map<std::string, YAML::Node>>(node, "build")) {
+        else if (const auto build_node = io::yaml::detail::get<std::map<std::string, YAML::Node>>(node, "build")) {
             YAML::Node build_node2;
             try {
                 build_node2 = (*build_node).at("system");
@@ -39,7 +37,7 @@ namespace poac::core::builder::detect {
                 return std::nullopt;
             }
 
-            if (const auto system2 = yaml::get<std::string>(build_node2)) {
+            if (const auto system2 = io::yaml::detail::get<std::string>(build_node2)) {
                 return check_support_build_system(*system2);
             }
         }
