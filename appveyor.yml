@@ -130,14 +130,10 @@ build_script:
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
-      cmake --build . --target install --config %Configuration%
+      cmake --build . --config %Configuration%
     )
-  - if %COMPILER% == msvc (
-      C:\Program Files (x86)\poac\bin\poac --help
-    )
-  - if %COMPILER% == gcc (
-      poac --help
-    )
+  - if %COMPILER% == msvc ( build\Release\poac --help )
+  - if %COMPILER% == gcc ( build\poac --help )
 
 artifacts:
   - path: build\Release\poac.exe
