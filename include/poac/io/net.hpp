@@ -71,58 +71,61 @@ namespace poac::io::net {
 
     class MultiPartForm {
     private:
-        const std::string CRLF = "\r\n";
-        std::string header;
-        std::string boundary;
-        std::string footer;
-        const std::string content_disposition = "Content-Disposition: form-data; ";
-        std::vector<std::string> form_param;
+        const std::string m_crlf = "\r\n";
+        std::string m_header;
+        std::string m_boundary;
+        std::string m_footer;
+        const std::string m_content_disposition = "Content-Disposition: form-data; ";
+        std::vector<std::string> m_form_param;
 
     public:
         using file_name_type = std::string;
         using file_path_type = boost::filesystem::path;
         using header_type = std::map<http::field, std::string>;
-        std::vector<std::tuple<file_name_type, file_path_type, header_type>> file_param;
         using self_reference = MultiPartForm&;
         using const_self_reference = const MultiPartForm&;
 
+    private:
+        std::vector<std::tuple<file_name_type, file_path_type, header_type>> m_file_param;
+
+    public:
         MultiPartForm()
-            : boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
-            , footer(CRLF + "--" + boundary + "--" + CRLF)
+            : m_boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
+            , m_footer(m_crlf + "--" + m_boundary + "--" + m_crlf)
         {}
 
         std::string
         get_header() const noexcept {
-            return header;
+            return m_header;
         }
         std::string
         get_footer() const noexcept {
-            return footer;
+            return m_footer;
         }
 
         void set(const file_name_type& name, const std::string& value) {
-            form_param.emplace_back(
-                    "--" + boundary + CRLF + content_disposition +
-                    "name=\"" + name + "\"" + CRLF + CRLF + value);
+            m_form_param.emplace_back(
+                    "--" + m_boundary + m_crlf + m_content_disposition +
+                    "name=\"" + name + "\"" + m_crlf + m_crlf + value);
             generate_header(); // re-generate
         }
         void set(const file_name_type& name, const file_path_type& value, const header_type& h) {
-            file_param.emplace_back(name, value, h);
+            m_file_param.emplace_back(name, value, h);
             generate_header(); // re-generate
         }
         template <typename Request>
         void set_req(const Request& req) {
             std::stringstream ss;
             ss << req;
-            form_param.insert(form_param.begin(), ss.str());
+            m_form_param.insert(m_form_param.begin(), ss.str());
             generate_header(); // re-generate
         }
 
         std::string content_type() const {
-            return "multipart/form-data; boundary=" + boundary;
+            return "multipart/form-data; boundary=" + m_boundary;
         }
         std::uintmax_t content_length() const {
-            return std::accumulate(file_param.begin(), file_param.end(), header.size() + footer.size(),
+            return std::accumulate(m_file_param.begin(), m_file_param.end(), m_header.size() + m_footer.size(),
                 [](std::uintmax_t acc, const auto& f) {
                     return acc + boost::filesystem::file_size(std::get<1>(f));
                 }
@@ -138,7 +141,7 @@ namespace poac::io::net {
             namespace fs = boost::filesystem;
 
             std::vector<FileInfo> file_info;
-            for (const auto& f : file_param) {
+            for (const auto& f : m_file_param) {
                 const fs::path file_path = std::get<1>(f);
                 file_info.push_back({file_path.string(), fs::file_size(file_path)});
             }
@@ -161,26 +164,26 @@ namespace poac::io::net {
 
     private:
         void generate_header() {
-            this->header = "";
-            for (std::size_t i = 0; i < form_param.size(); ++i) {
+            m_header = "";
+            for (std::size_t i = 0; i < m_form_param.size(); ++i) {
                 if (i != 0) {
-                    this->header += CRLF;
+                    m_header += m_crlf;
                 }
-                this->header += form_param[i];
+                m_header += m_form_param[i];
             }
-            for (const auto& [name, filename, header] : file_param) {
+            for (const auto& [name, filename, header] : m_file_param) {
                 std::string h =
-                        "--" + boundary + CRLF + content_disposition +
+                        "--" + m_boundary + m_crlf + m_content_disposition +
                         "name=\"" + name + "\"; filename=\"" + filename.filename().string() + "\"";
                 if (!header.empty()) {
                     for (const auto& [field, content] : header) {
-                        h += CRLF;
+                        h += m_crlf;
                         h += std::string(http::to_string(field)) + ": " + content;
                     }
                 }
-                this->header += CRLF + h;
+                m_header += m_crlf + h;
             }
-            this->header += CRLF + CRLF;
+            m_header += m_crlf + m_crlf;
         }
     };
 
