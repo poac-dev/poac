@@ -14,20 +14,38 @@ cpp_version = 17
 #"poac-community/boost-dynamic_bitset" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-dll" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-beast" = ">=1.64.0 and <2.0.0"
-#"ToruNiina/Boost.toml" = ">=1.0.0 and <2.0.0"
+#"ToruNiina/toml11" = ">=3.0.0 and <4.0.0"
 
-[dev-dependencies]
-"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
+#[dev-dependencies]
+#"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
 
 [build]
-system = "cmake"
-bin = true
-compile_args = [
-  "-pthread"
-]
-link_args = [
-  "-pthread"
-]
+system = "poac"
+
+[[build.bin]]
+path = "src/main.cpp"
+name = "poac"
+
+[target.'cfg(os = "linux")'.build.properties]
+definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
+
+[target.'cfg(os = "unix")'.build.properties]
+options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
+libraries = ["dl"]
+
+[target.'cfg(os = "windows", not(platform = "mingw"))'.build.properties]
+definitions = ["BOOST_ASIO_HAS_STD_STRING_VIEW"]
+options = ["/W4", "/bigobj"]
+libraries = ["bcrypt", "ws2_32"]
+
+[target.'cfg(any(os = "cygwin", platform = "mingw"))'.build.properties]
+definitions = ["-Wa", "-mbig-obj"]
+
+[target.'cfg(all(os = "unix", target = "debug"))'.build.additional-properties]
+options = ["-fsanitize=address"]
+
+[target.'cfg(all(os = "macos", target = "release"))'.build.additional-properties]
+options = ["-mtune=native", "-march=native"]
 
 [test]
 framework = "boost"
