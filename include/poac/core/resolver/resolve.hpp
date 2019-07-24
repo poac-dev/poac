@@ -50,13 +50,12 @@ namespace poac::core::resolver::resolve {
 
     namespace {
         using NameField = std::string;
-        using VersionField = std::string;
-        using VersionsField = std::vector<VersionField>;
+        using VersionOrIntervalField = std::string;
+        using VersionsField = std::vector<std::string>;
         using IntervalField = std::string;
     }
-    using Activated = std::vector<std::pair<NameField, io::yaml::Lockfile::Package>>;
-    using Backtracked = std::map<NameField, VersionField>;
-    using Deps = std::map<NameField, IntervalField>;
+    using DuplicateDeps = std::vector<std::pair<NameField, io::yaml::Lockfile::Package>>;
+    using NoDuplicateDeps = std::map<NameField, VersionOrIntervalField>;
 
     using IntervalCache = std::vector<std::tuple<NameField, IntervalField, VersionsField>>;
     constexpr std::size_t name_index = 0;
@@ -66,11 +65,11 @@ namespace poac::core::resolver::resolve {
     struct Resolved {
         // Dependency information after activate.
         // Use for lock file and it is a state including another version of the same package.
-        Activated activated;
+        DuplicateDeps activated;
         // Dependency information after backtrack.
         // Use for fetch packages.
         // Exclude them because you can not install different versions of packages with the same name.
-        Backtracked backtracked;
+        NoDuplicateDeps backtracked;
     };
 
 //    Resolved
@@ -108,8 +107,7 @@ namespace poac::core::resolver::resolve {
             for (std::size_t j = 0; j < bs.size(); ++j) {
                 if (bs[j]) {
                     new_clause.emplace_back(clause[j] * -1);
-                }
-                else {
+                } else {
                     new_clause.emplace_back(clause[j]);
                 }
             }
@@ -123,7 +121,7 @@ namespace poac::core::resolver::resolve {
     }
 
     std::vector<std::vector<int>>
-    create_cnf(const Activated& activated) {
+    create_cnf(const DuplicateDeps& activated) {
         std::vector<std::vector<int>> clauses;
         std::vector<int> already_added;
 
@@ -177,7 +175,7 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    Resolved solve_sat(const Activated& activated, const std::vector<std::vector<int>>& clauses) {
+    Resolved solve_sat(const DuplicateDeps& activated, const std::vector<std::vector<int>>& clauses) {
         Resolved resolved_deps{};
         // deps.activated.size() == variables
         const auto [result, assignments] = sat::solve(clauses, activated.size());
@@ -199,7 +197,7 @@ namespace poac::core::resolver::resolve {
         return resolved_deps;
     }
 
-    Resolved backtrack_loop(const Activated& activated) {
+    Resolved backtrack_loop(const DuplicateDeps& activated) {
         const auto clauses = create_cnf(activated);
         // debug
         for (const auto& c : clauses) {
@@ -286,7 +284,7 @@ namespace poac::core::resolver::resolve {
     void activate(
             const std::string& name,
             const std::string& version,
-            Activated& new_deps,
+            DuplicateDeps& new_deps,
             IntervalCache& interval_cache)
     {
         // Check if root package resolved dependency (by version), and Check circulating
@@ -297,7 +295,7 @@ namespace poac::core::resolver::resolve {
 
         // Get dependency of dependency
         if (const auto current_deps = io::net::api::deps(name, version)) {
-            Activated cur_deps_deps;
+            DuplicateDeps cur_deps_deps;
 
             for (const auto& current_dep : *current_deps) {
                 const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
@@ -330,7 +328,7 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    Resolved activate_deps_loop(const Deps& deps) {
+    Resolved activate_deps_loop(const NoDuplicateDeps& deps) {
         Resolved new_deps{};
         IntervalCache interval_cache;
 
@@ -355,7 +353,7 @@ namespace poac::core::resolver::resolve {
     }
 
     // Builds the list of all packages required to build the first argument.
-    Resolved resolve(const Deps& deps) {
+    Resolved resolve(const NoDuplicateDeps& deps) {
         const Resolved activated_deps = activate_deps_loop(deps);
         Resolved resolved_deps;
         // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要

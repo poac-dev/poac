@@ -52,7 +52,7 @@ namespace poac::opts::update {
 
         const auto deps = install::resolve_packages(config->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
         resolve::Resolved resolved_deps = resolve::resolve(deps);
-        resolve::Backtracked update_deps;
+        resolve::NoDuplicateDeps update_deps;
 
         for (const auto& [name, version] : resolved_deps.backtracked) {
             const std::string current_name = core::name::to_current(name);
@@ -110,7 +110,7 @@ namespace poac::opts::update {
 
         // Install new version
         std::cout << std::endl;
-        install::fetch_packages(update_deps, install::Options{false, false, {}});
+        install::fetch(update_deps, install::Options{false, false, {}});
 
         std::cout << std::endl;
         io::term::status_done();

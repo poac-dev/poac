@@ -29,7 +29,7 @@ namespace poac::opts::cleanup {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
             const auto dependencies = config->dependencies.value(); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
-            const core::resolver::resolve::Deps deps = install::resolve_packages(dependencies);
+            const core::resolver::resolve::NoDuplicateDeps deps = install::resolve_packages(dependencies);
             resolved_deps = core::resolver::resolve::resolve(deps);
 //        }
 

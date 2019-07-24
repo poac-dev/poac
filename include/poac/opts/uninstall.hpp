@@ -119,13 +119,13 @@ namespace poac::opts::uninstall {
 //        if (const auto locked_deps = core::resolver::lock::load(timestamp)) {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
-            const resolve::Deps deps = install::resolve_packages(config->dependencies.value());
+            const resolve::NoDuplicateDeps deps = install::resolve_packages(config->dependencies.value());
             resolved_deps = resolve::resolve(deps);
 //        }
 
         // create uninstall list
         std::cout << std::endl;
-        resolve::Backtracked uninstall_list{};
+        resolve::NoDuplicateDeps uninstall_list{};
 //        const auto first = resolved_deps.activated.begin();
 //        const auto last = resolved_deps.activated.end();
 //        for (const auto& v : opts.package_list) {

@@ -54,7 +54,7 @@ namespace poac::opts::graph {
 //        if (const auto locked_deps = core::resolver::lock::load()) {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
-            const resolver::Deps deps = install::resolve_packages(deps_node);
+            const resolver::NoDuplicateDeps deps = install::resolve_packages(deps_node);
             resolved_deps = resolver::resolve(deps);
 //        }
         return resolved_deps;
