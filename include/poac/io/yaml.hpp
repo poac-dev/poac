@@ -201,11 +201,11 @@ namespace poac::io::yaml {
             PackageType package_type;
             std::optional<std::map<std::string, std::string>> dependencies;
 
-            Package() = default;
-            Package(const Package&) = default;
-            Package& operator=(const Package&) = default;
-            Package(Package&&) noexcept = default;
-            Package& operator=(Package&&) noexcept = default;
+            Package() // std::map::operator[] needs default constructor.
+                : version("")
+                , package_type(PackageType::HeaderOnlyLib)
+                , dependencies(std::nullopt)
+            {}
 
             Package(
                 const std::string& version,
@@ -216,11 +216,18 @@ namespace poac::io::yaml {
                 , package_type(package_type)
                 , dependencies(dependencies)
             {}
+
             explicit Package(const std::string& version)
                 : version(version)
                 , package_type(PackageType::HeaderOnlyLib)
                 , dependencies(std::nullopt)
             {}
+
+            ~Package() = default;
+            Package(const Package&) = default;
+            Package& operator=(const Package&) = default;
+            Package(Package&&) noexcept = default;
+            Package& operator=(Package&&) noexcept = default;
         };
         using dependencies_type = std::map<std::string, Package>;
         dependencies_type dependencies;
