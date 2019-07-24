@@ -1,13 +1,10 @@
 #ifndef POAC_IO_YAML_HPP
 #define POAC_IO_YAML_HPP
 
-#include <iostream>
 #include <string>
 #include <map>
-#include <unordered_map>
 #include <optional>
 #include <vector>
-#include <fstream>
 
 #include <boost/predef.h>
 #include <boost/filesystem.hpp>
@@ -201,7 +198,8 @@ namespace poac::io::yaml {
             PackageType package_type;
             std::optional<std::map<std::string, std::string>> dependencies;
 
-            Package() // std::map::operator[] needs default constructor.
+            // std::map::operator[] needs default constructor.
+            Package()
                 : version("")
                 , package_type(PackageType::HeaderOnlyLib)
                 , dependencies(std::nullopt)
