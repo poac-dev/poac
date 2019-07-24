@@ -144,8 +144,7 @@ namespace poac::opts::publish {
             } else {
                 throw core::except::error{""};
             }
-        }
-        catch (...) {
+        } catch (...) {
             return core::except::Error::General{
                 "Could not find a current tag release.\n"
                 "Please execute the following command:\n"
@@ -262,8 +261,7 @@ namespace poac::opts::publish {
                 return license.get();
             }
             return std::nullopt;
-        }
-        catch (...) {
+        } catch (...) {
             return std::nullopt;
         }
     }

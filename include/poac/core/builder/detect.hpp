@@ -32,8 +32,7 @@ namespace poac::core::builder::detect {
             YAML::Node build_node2;
             try {
                 build_node2 = (*build_node).at("system");
-            }
-            catch(std::out_of_range&) {
+            } catch(std::out_of_range&) {
                 return std::nullopt;
             }
 

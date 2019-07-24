@@ -26,17 +26,14 @@ int handle(std::string_view cmd, std::vector<std::string>&& args) {
             std::cerr << term::error << error->what() << std::endl;
         }
         return EXIT_FAILURE;
-    }
-    catch (const except::error& e) {
+    } catch (const except::error& e) {
         std::cerr << term::error << e.what() << std::endl;
         return EXIT_FAILURE;
-    }
-    catch (const YAML::BadConversion& e) {
+    } catch (const YAML::BadConversion& e) {
         std::cout << term::error << "poac.yml " << e.what()
                   << std::endl;
         return EXIT_SUCCESS;
-    }
-    catch (...) {
+    } catch (...) {
         std::cerr << term::error << "Unexpected error" << std::endl;
         return EXIT_FAILURE;
     }

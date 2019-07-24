@@ -500,8 +500,7 @@ namespace poac::io::net {
             } else {
                 try {
                     res = req.get(GITHUB_REPOS_API + target);
-                }
-                catch (const core::except::error& error) {
+                } catch (const core::except::error& error) {
                     std::string_view err = error.what();
                     auto found = err.find('\n');
                     if (err.substr(found - 3, 3) == "403") {
