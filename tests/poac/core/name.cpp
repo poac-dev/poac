@@ -2,7 +2,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <yaml-cpp/yaml.h>
 #include <poac/core/name.hpp>
 #include <poac/core/except.hpp>
 
