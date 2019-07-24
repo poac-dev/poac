@@ -9,25 +9,26 @@ BOOST_AUTO_TEST_CASE( poac_core_resolver_test1 )
     using namespace poac::core::resolver::resolve;
 
     Activated test{};
-    test.push_back({ {"D"}, {"1.0.0"}, {""}, {} });
-    test.push_back({ {"D"}, {"1.1.0"}, {""}, {} });
-    test.push_back({ {"E"}, {"1.0.0"}, {""}, {} });
-    test.push_back({ {"A"}, {"1.0.0"}, {""}, {} });
-    test.push_back({ {"B"}, {"1.0.0"}, {""}, {{
+    test.emplace_back("D", io::yaml::Lockfile::Package{"1.0.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("D", io::yaml::Lockfile::Package{"1.1.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("E", io::yaml::Lockfile::Package{"1.0.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("A", io::yaml::Lockfile::Package{"1.0.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back(
+            { {"B"}, {"1.0.0"}, {""}, {{
             { {"D"}, {"1.0.0"}, {""}, {} },
             { {"D"}, {"1.1.0"}, {""}, {} },
             { {"E"}, {"1.0.0"}, {""}, {} }
     }} });
-    test.push_back({ {"C"}, {"1.0.0"}, {""}, {{
+    test.emplace_back({ {"C"}, {"1.0.0"}, {""}, {{
             { {"D"}, {"1.1.0"}, {""}, {} }
     }} });
 
     Backtracked backtracked;
-    backtracked["A"] = { {"1.0.0"}, {""} };
-    backtracked["B"] = { {"1.0.0"}, {""} };
-    backtracked["C"] = { {"1.0.0"}, {""} };
-    backtracked["D"] = { {"1.1.0"}, {""} };
-    backtracked["E"] = { {"1.0.0"}, {""} };
+    backtracked["A"] = { "1.0.0", "" };
+    backtracked["B"] = { "1.0.0", "" };
+    backtracked["C"] = { "1.0.0", "" };
+    backtracked["D"] = { "1.1.0", "" };
+    backtracked["E"] = { "1.0.0", "" };
 
     const Resolved result = backtrack_loop(test);
     BOOST_CHECK( result.backtracked == backtracked );
