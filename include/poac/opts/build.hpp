@@ -7,7 +7,6 @@
 #include <optional>
 
 #include <boost/filesystem.hpp>
-#include <yaml-cpp/yaml.h>
 
 #include <poac/core/builder.hpp>
 #include <poac/core/except.hpp>
