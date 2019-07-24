@@ -24,7 +24,7 @@ namespace poac::opts::cleanup {
     [[nodiscard]] std::optional<core::except::Error>
     cleanup(std::optional<io::yaml::Config>&& config) {
         // create resolved deps
-        core::resolver::resolve::Resolved resolved_deps{};
+        core::resolver::resolve::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load()) {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
@@ -34,7 +34,7 @@ namespace poac::opts::cleanup {
 //        }
 
         std::vector<std::string> package_names;
-        for (const auto& dep : resolved_deps.backtracked) {
+        for (const auto& dep : resolved_deps.no_duplicate_deps) {
             const auto package_name = core::name::to_current(dep.first);
             package_names.push_back(package_name);
         }

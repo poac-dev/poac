@@ -39,7 +39,7 @@ namespace poac::opts::graph {
     };
     using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
-    core::resolver::resolve::Resolved
+    core::resolver::resolve::ResolvedDeps
     create_resolved_deps(std::optional<io::yaml::Config>&& config) {
         namespace resolver = core::resolver::resolve;
 
@@ -50,7 +50,7 @@ namespace poac::opts::graph {
         const auto deps_node = config->dependencies.value();
 
         // create resolved deps
-        resolver::Resolved resolved_deps{};
+        resolver::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load()) {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
@@ -75,12 +75,12 @@ namespace poac::opts::graph {
             g[dep.index()].version = dep.value().second.version;
         }
         // Add edge
-        for (const auto& dep : resolved_deps.activated | boost::adaptors::indexed()) {
+        for (const auto& dep : resolved_deps.duplicate_deps | boost::adaptors::indexed()) {
             if (!dep.value().second.dependencies.has_value()) {
                 for (const auto& [name, version] : dep.value().second.dependencies.value()) {
-                    const auto result = std::find_if(resolved_deps.activated.begin(), resolved_deps.activated.end(), [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; });
-                    if (result != resolved_deps.activated.end()) {
-                        const auto index = std::distance(resolved_deps.activated.begin(), result);
+                    const auto result = std::find_if(resolved_deps.duplicate_deps.begin(), resolved_deps.duplicate_deps.end(), [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; });
+                    if (result != resolved_deps.duplicate_deps.end()) {
+                        const auto index = std::distance(resolved_deps.duplicate_deps.begin(), result);
                         boost::add_edge(desc[dep.index()], desc[index], g);
                     }
                 }
@@ -88,7 +88,7 @@ namespace poac::opts::graph {
         }
 
         std::vector<std::string> names; // TODO: <algorithm>等で同じことができるはず
-        for (const auto& [name, package] : resolved_deps.activated) {
+        for (const auto& [name, package] : resolved_deps.duplicate_deps) {
             names.push_back(name + ": " + package.version);
         }
         return { g, names };

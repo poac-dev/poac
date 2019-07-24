@@ -206,7 +206,7 @@ namespace poac::opts::install {
         std::string timestamp = io::yaml::get_timestamp();
 
         // load lock file
-        core::resolver::resolve::Resolved resolved_deps{};
+        core::resolver::resolve::ResolvedDeps resolved_deps{};
         const auto lockfile = load_lockfile(opts, timestamp);
 
 //        bool load_lock = false;
@@ -249,7 +249,7 @@ namespace poac::opts::install {
             resolved_deps = core::resolver::resolve::resolve(deps);
         }
 
-        download(resolved_deps.backtracked, opts);
+        download(resolved_deps.no_duplicate_deps, opts);
 
         // TODO: Rewrite poac.yml
 //        bool fix_yml = false;
@@ -275,7 +275,7 @@ namespace poac::opts::install {
 //        }
 
         if (!lockfile.has_value()) {
-            create_lockfile(timestamp, resolved_deps.activated);
+            create_lockfile(timestamp, resolved_deps.duplicate_deps);
         }
 
         return std::nullopt;

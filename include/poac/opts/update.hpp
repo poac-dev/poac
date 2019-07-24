@@ -51,10 +51,10 @@ namespace poac::opts::update {
         using io::path::path_literals::operator""_path;
 
         const auto deps = install::resolve_packages(config->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
-        resolve::Resolved resolved_deps = resolve::resolve(deps);
+        resolve::ResolvedDeps resolved_deps = resolve::resolve(deps);
         resolve::NoDuplicateDeps update_deps;
 
-        for (const auto& [name, version] : resolved_deps.backtracked) {
+        for (const auto& [name, version] : resolved_deps.no_duplicate_deps) {
             const std::string current_name = core::name::to_current(name);
             std::string current_version;
             if (const auto yml = io::yaml::detail::validate_config("deps"_path / current_name)) {
@@ -85,7 +85,7 @@ namespace poac::opts::update {
         }
 
         for (const auto& [name, version] : update_deps) {
-            const auto current_version = resolved_deps.backtracked[name];
+            const auto current_version = resolved_deps.no_duplicate_deps[name];
             std::cout << name << " (Current: " << current_version << " -> Update: ";
             if (semver::Version(current_version) < version) {
                 std::cout << termcolor2::green<> << version << termcolor2::reset<> << ")" << std::endl;

@@ -57,19 +57,14 @@ namespace poac::core::resolver::resolve {
     using DuplicateDeps = std::vector<std::pair<NameField, io::yaml::Lockfile::Package>>;
     using NoDuplicateDeps = std::map<NameField, VersionOrIntervalField>;
 
-    using IntervalCache = std::vector<std::tuple<NameField, IntervalField, VersionsField>>;
-    constexpr std::size_t name_index = 0;
-    constexpr std::size_t interval_index = 1;
-    constexpr std::size_t versions_index = 2;
-
-    struct Resolved {
+    struct ResolvedDeps {
         // Dependency information after activate.
         // Use for lock file and it is a state including another version of the same package.
-        DuplicateDeps activated;
+        DuplicateDeps duplicate_deps;
         // Dependency information after backtrack.
         // Use for fetch packages.
         // Exclude them because you can not install different versions of packages with the same name.
-        NoDuplicateDeps backtracked;
+        NoDuplicateDeps no_duplicate_deps;
     };
 
 //    Resolved
@@ -175,8 +170,8 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    Resolved solve_sat(const DuplicateDeps& activated, const std::vector<std::vector<int>>& clauses) {
-        Resolved resolved_deps{};
+    ResolvedDeps solve_sat(const DuplicateDeps& activated, const std::vector<std::vector<int>>& clauses) {
+        ResolvedDeps resolved_deps{};
         // deps.activated.size() == variables
         const auto [result, assignments] = sat::solve(clauses, activated.size());
         if (result == sat::Sat::completed) {
@@ -185,8 +180,8 @@ namespace poac::core::resolver::resolve {
                 io::term::debug(a, " ");
                 if (a > 0) {
                     const auto dep = activated[a - 1];
-                    resolved_deps.activated.push_back(dep);
-                    resolved_deps.backtracked[dep.first] = dep.second.version;
+                    resolved_deps.duplicate_deps.push_back(dep);
+                    resolved_deps.no_duplicate_deps[dep.first] = dep.second.version;
                 }
             }
             io::term::debugln(0);
@@ -197,7 +192,7 @@ namespace poac::core::resolver::resolve {
         return resolved_deps;
     }
 
-    Resolved backtrack_loop(const DuplicateDeps& activated) {
+    ResolvedDeps backtrack_loop(const DuplicateDeps& activated) {
         const auto clauses = create_cnf(activated);
         // debug
         for (const auto& c : clauses) {
@@ -217,11 +212,11 @@ namespace poac::core::resolver::resolve {
     }
 
 
-    Resolved activated_to_backtracked(const Resolved& activated_deps) {
-        Resolved resolved_deps;
-        resolved_deps.activated = activated_deps.activated;
-        for (const auto& [name, package] : activated_deps.activated) {
-            resolved_deps.backtracked[name] = package.version;
+    ResolvedDeps activated_to_backtracked(const ResolvedDeps& activated_deps) {
+        ResolvedDeps resolved_deps;
+        resolved_deps.duplicate_deps = activated_deps.duplicate_deps;
+        for (const auto& [name, package] : activated_deps.duplicate_deps) {
+            resolved_deps.no_duplicate_deps[name] = package.version;
         }
         return resolved_deps;
     }
@@ -280,6 +275,11 @@ namespace poac::core::resolver::resolve {
         }
     }
 
+    using IntervalCache = std::vector<std::tuple<NameField, IntervalField, VersionsField>>;
+    constexpr std::size_t name_index = 0;
+    constexpr std::size_t interval_index = 1;
+    constexpr std::size_t versions_index = 2;
+
     // BFS activator
     void activate(
             const std::string& name,
@@ -328,8 +328,8 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    Resolved activate_deps_loop(const NoDuplicateDeps& deps) {
-        Resolved new_deps{};
+    ResolvedDeps activate_deps_loop(const NoDuplicateDeps& deps) {
+        ResolvedDeps new_deps{};
         IntervalCache interval_cache;
 
         // Activate the root of dependencies
@@ -346,19 +346,19 @@ namespace poac::core::resolver::resolve {
             // Cache interval and versions pair
             interval_cache.push_back({ {name}, {interval}, {versions} });
             for (const auto& version : versions) {
-                activate(name, version, new_deps.activated, interval_cache);
+                activate(name, version, new_deps.duplicate_deps, interval_cache);
             }
         }
         return new_deps;
     }
 
     // Builds the list of all packages required to build the first argument.
-    Resolved resolve(const NoDuplicateDeps& deps) {
-        const Resolved activated_deps = activate_deps_loop(deps);
-        Resolved resolved_deps;
+    ResolvedDeps resolve(const NoDuplicateDeps& deps) {
+        const ResolvedDeps activated_deps = activate_deps_loop(deps);
+        ResolvedDeps resolved_deps;
         // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
-        if (duplicate_loose(activated_deps.activated)) {
-            resolved_deps = backtrack_loop(activated_deps.activated);
+        if (duplicate_loose(activated_deps.duplicate_deps)) {
+            resolved_deps = backtrack_loop(activated_deps.duplicate_deps);
         }
         else {
             resolved_deps = activated_to_backtracked(activated_deps);
