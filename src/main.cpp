@@ -26,9 +26,6 @@ int handle(std::string_view cmd, std::vector<std::string>&& args) {
     } catch (const YAML::Exception& e) {
         std::cout << poac::io::term::error << "poac.yml " << e.what() << std::endl;
         return EXIT_SUCCESS;
-    } catch (const toml::exception& e) {
-        std::cout << poac::io::term::error << e.what() << std::endl;
-        return EXIT_FAILURE;
     } catch (...) {
         std::cerr << poac::io::term::error << "Unexpected error" << std::endl;
         return EXIT_FAILURE;
