@@ -54,7 +54,7 @@ namespace poac::opts::update {
         resolve::ResolvedDeps resolved_deps = resolve::resolve(deps);
         resolve::NoDuplicateDeps update_deps;
 
-        for (const auto& [name, version] : resolved_deps.no_duplicate_deps) {
+        for (const auto& [name, package] : resolved_deps.no_duplicate_deps) {
             const std::string current_name = core::name::to_current(name);
             std::string current_version;
             if (const auto yml = io::yaml::detail::validate_config("deps"_path / current_name)) {
@@ -74,8 +74,8 @@ namespace poac::opts::update {
                 current_version = "null";
             }
 
-            if (semver::Version(version) != current_version) {
-                update_deps[name] = current_version;
+            if (semver::Version(package.version) != current_version) {
+                update_deps[name] = { current_version, io::yaml::PackageType::HeaderOnlyLib, std::nullopt };
             }
         }
 
@@ -84,14 +84,14 @@ namespace poac::opts::update {
             return std::nullopt;
         }
 
-        for (const auto& [name, version] : update_deps) {
-            const auto current_version = resolved_deps.no_duplicate_deps[name];
+        for (const auto& [name, package] : update_deps) {
+            const auto current_version = resolved_deps.no_duplicate_deps[name].version;
             std::cout << name << " (Current: " << current_version << " -> Update: ";
-            if (semver::Version(current_version) < version) {
-                std::cout << termcolor2::green<> << version << termcolor2::reset<> << ")" << std::endl;
+            if (semver::Version(current_version) < package.version) {
+                std::cout << termcolor2::green<> << package.version << termcolor2::reset<> << ")" << std::endl;
             }
             else {
-                std::cout << termcolor2::yellow<> << version << termcolor2::reset<> << ")" << std::endl;
+                std::cout << termcolor2::yellow<> << package.version << termcolor2::reset<> << ")" << std::endl;
             }
         }
 

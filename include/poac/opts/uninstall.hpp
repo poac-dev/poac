@@ -136,8 +136,8 @@ namespace poac::opts::uninstall {
 
         // confirm
         if (!opts.yes) {
-            for (const auto& [name, version] : uninstall_list) {
-                std::cout << name << ": " << version << std::endl;
+            for (const auto& [name, package] : uninstall_list) {
+                std::cout << name << ": " << package.version << std::endl;
             }
             std::cout << std::endl;
             if (const auto error = io::term::yes_or_no("Are you sure delete above packages?")) {

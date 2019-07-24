@@ -55,7 +55,7 @@ namespace poac::core::resolver::resolve {
         using IntervalField = std::string;
     }
     using DuplicateDeps = std::vector<std::pair<NameField, io::yaml::Lockfile::Package>>;
-    using NoDuplicateDeps = std::map<NameField, VersionOrIntervalField>;
+    using NoDuplicateDeps = io::yaml::Lockfile::dependencies_type;
 
     struct ResolvedDeps {
         // Dependency information after activate.
@@ -181,7 +181,7 @@ namespace poac::core::resolver::resolve {
                 if (a > 0) {
                     const auto dep = activated[a - 1];
                     resolved_deps.duplicate_deps.push_back(dep);
-                    resolved_deps.no_duplicate_deps[dep.first] = dep.second.version;
+                    resolved_deps.no_duplicate_deps[dep.first] = dep.second;
                 }
             }
             io::term::debugln(0);
@@ -216,7 +216,7 @@ namespace poac::core::resolver::resolve {
         ResolvedDeps resolved_deps;
         resolved_deps.duplicate_deps = activated_deps.duplicate_deps;
         for (const auto& [name, package] : activated_deps.duplicate_deps) {
-            resolved_deps.no_duplicate_deps[name] = package.version;
+            resolved_deps.no_duplicate_deps[name] = package;
         }
         return resolved_deps;
     }
@@ -333,18 +333,18 @@ namespace poac::core::resolver::resolve {
         IntervalCache interval_cache;
 
         // Activate the root of dependencies
-        for (const auto& [name, interval] : deps) {
+        for (const auto& [name, package] : deps) {
             // Check if root package is resolved dependency (by interval)
             for (const auto& [n, i, versions] : interval_cache) {
-                if (name == n && interval == i) {
+                if (name == n && package.version == i) {
                     continue;
                 }
             }
 
             // Get versions using interval
-            const auto versions = decide_versions(name, interval);
+            const auto versions = decide_versions(name, package.version);
             // Cache interval and versions pair
-            interval_cache.push_back({ {name}, {interval}, {versions} });
+            interval_cache.push_back({ {name}, {package.version}, {versions} });
             for (const auto& version : versions) {
                 activate(name, version, new_deps.duplicate_deps, interval_cache);
             }
