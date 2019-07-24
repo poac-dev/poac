@@ -27,7 +27,7 @@
 #include <poac/core/name.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/util/semver.hpp>
 
 namespace poac::core::builder {
@@ -45,7 +45,7 @@ namespace poac::core::builder {
         options::dynamic_lib dynamic_lib_conf;
 
         std::string project_name;
-        std::optional<io::yaml::Config> config;
+        std::optional<io::config::Config> config;
         boost::filesystem::path base_dir;
         std::string compiler;
         bool verbose;

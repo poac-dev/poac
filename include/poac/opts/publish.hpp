@@ -18,7 +18,7 @@
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/semver.hpp>
@@ -41,7 +41,7 @@ namespace poac::opts::publish {
         std::optional<std::string> description;
         std::uint16_t cpp_version;
         std::optional<std::string> license;
-        io::yaml::PackageType package_type;
+        io::config::PackageType package_type;
         std::string local_commit_sha;
     };
 
@@ -233,20 +233,20 @@ namespace poac::opts::publish {
         }
     }
 
-    io::yaml::PackageType
-    get_package_type(const std::optional<io::yaml::Config>& config) {
+    io::config::PackageType
+    get_package_type(const std::optional<io::config::Config>& config) {
         if (config->build.has_value()) {
             if (config->build->bin.has_value() && config->build->bin.value()) {
                 // bin: true
-                return io::yaml::PackageType::Application;
+                return io::config::PackageType::Application;
             } else if (config->build->lib.has_value() && config->build->lib.value()) {
                 // lib: true
-                return io::yaml::PackageType::BuildReqLib;
+                return io::config::PackageType::BuildReqLib;
             } else {
-                return io::yaml::PackageType::BuildReqLib;
+                return io::config::PackageType::BuildReqLib;
             }
         } else {
-            return io::yaml::PackageType::HeaderOnlyLib;
+            return io::config::PackageType::HeaderOnlyLib;
         }
     }
 
@@ -269,7 +269,7 @@ namespace poac::opts::publish {
     }
 
     std::uint16_t
-    get_cpp_version(const std::optional<io::yaml::Config>& config) {
+    get_cpp_version(const std::optional<io::config::Config>& config) {
         return config->cpp_version.value();
     }
 
@@ -346,7 +346,7 @@ namespace poac::opts::publish {
     }
 
     PackageInfo
-    gather_package_info(const std::optional<io::yaml::Config>& config) {
+    gather_package_info(const std::optional<io::config::Config>& config) {
         const auto [owner, repo] = get_name();
         const semver::Version version = get_version();
 
@@ -363,17 +363,17 @@ namespace poac::opts::publish {
     }
 
     PackageInfo
-    report_publish_start(const std::optional<io::yaml::Config>& config) {
+    report_publish_start(const std::optional<io::config::Config>& config) {
         std::cout << "Verifying your package ...\n" << std::endl;
         return gather_package_info(config);
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    publish(std::optional<io::yaml::Config>&& config, publish::Options&& opts) {
+    publish(std::optional<io::config::Config>&& config, publish::Options&& opts) {
         const auto package_info = report_publish_start(config);
 
         // TODO: Currently, we can not publish an application.
-        if (package_info.package_type == io::yaml::PackageType::Application) {
+        if (package_info.package_type == io::config::PackageType::Application) {
             summarize(package_info);
             return core::except::Error::General{
                 "Sorry, you can not publish an application currently.\n"
@@ -398,7 +398,7 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         publish::Options opts{};
         opts.yes = util::argparse::use(args, "-y", "--yes");
         return publish::publish(std::move(config), std::move(opts));

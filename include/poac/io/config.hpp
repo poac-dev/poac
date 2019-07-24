@@ -1,5 +1,5 @@
-#ifndef POAC_IO_YAML_HPP
-#define POAC_IO_YAML_HPP
+#ifndef POAC_IO_CONFIG_HPP
+#define POAC_IO_CONFIG_HPP
 
 #include <string>
 #include <map>
@@ -12,7 +12,7 @@
 
 #include <poac/core/except.hpp>
 
-namespace poac::io::yaml {
+namespace poac::io::config {
     namespace detail {
         struct wrapper {
             YAML::Node node;
@@ -385,4 +385,4 @@ namespace poac::io::yaml {
         }
     }
 } // end namespace
-#endif // !POAC_IO_YAML_HPP
+#endif // !POAC_IO_CONFIG_HPP

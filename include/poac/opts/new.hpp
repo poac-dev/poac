@@ -161,7 +161,7 @@ namespace poac::opts::_new {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
         _new::Options opts{};
         opts.lib = util::argparse::use_rm(args, "-l", "--lib");
         // If lib is false then bin is true. If both are specified, bin takes precedence.

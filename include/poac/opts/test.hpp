@@ -12,7 +12,7 @@
 #include <poac/core/builder.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/tar.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/termcolor2.hpp>
@@ -61,7 +61,7 @@ namespace poac::opts::test {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    test(std::optional<io::yaml::Config>&& config, test::Options&& opts) {
+    test(std::optional<io::config::Config>&& config, test::Options&& opts) {
         namespace fs = boost::filesystem;
         using namespace termcolor2::color_literals;
 
@@ -86,10 +86,10 @@ namespace poac::opts::test {
         std::string static_link_lib;
         if (const auto test_framework = config->test->framework) {
             switch (test_framework.value()) {
-                case io::yaml::Config::Test::Framework::Boost:
+                case io::config::Config::Test::Framework::Boost:
                     static_link_lib = "boost_unit_test_framework";
                     break;
-                case io::yaml::Config::Test::Framework::Google:
+                case io::config::Config::Test::Framework::Google:
                     static_link_lib = "gtest"; // TODO: or "gtest_main"
                     break;
             }
@@ -147,7 +147,7 @@ namespace poac::opts::test {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         test::Options opts{};
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         opts.report = util::argparse::use(args, "--report");

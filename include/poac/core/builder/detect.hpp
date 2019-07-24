@@ -10,7 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
 
@@ -25,10 +25,10 @@ namespace poac::core::builder::detect {
     std::optional<std::string>
     build_system(const YAML::Node& node)
     {
-        if (const auto system = io::yaml::detail::get<std::string>(node, "build")) {
+        if (const auto system = io::config::detail::get<std::string>(node, "build")) {
             return check_support_build_system(*system);
         }
-        else if (const auto build_node = io::yaml::detail::get<std::map<std::string, YAML::Node>>(node, "build")) {
+        else if (const auto build_node = io::config::detail::get<std::map<std::string, YAML::Node>>(node, "build")) {
             YAML::Node build_node2;
             try {
                 build_node2 = (*build_node).at("system");
@@ -37,7 +37,7 @@ namespace poac::core::builder::detect {
                 return std::nullopt;
             }
 
-            if (const auto system2 = io::yaml::detail::get<std::string>(build_node2)) {
+            if (const auto system2 = io::config::detail::get<std::string>(build_node2)) {
                 return check_support_build_system(*system2);
             }
         }

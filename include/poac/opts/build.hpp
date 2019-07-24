@@ -14,7 +14,7 @@
 #include <poac/core/name.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/termcolor2.hpp>
 
@@ -306,7 +306,7 @@ namespace poac::opts::build {
 //    }
 
     [[nodiscard]] std::optional<core::except::Error>
-    build(std::optional<io::yaml::Config>&&, build::Options&&) {
+    build(std::optional<io::config::Config>&&, build::Options&&) {
         namespace fs = boost::filesystem;
         using termcolor2::color_literals::operator""_green;
 
@@ -378,7 +378,7 @@ namespace poac::opts::build {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         if (args.size() > 1) {
             return core::except::Error::InvalidSecondArg::Build;
         }

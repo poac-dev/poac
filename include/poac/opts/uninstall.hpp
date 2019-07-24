@@ -17,7 +17,7 @@
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/termcolor2.hpp>
 
@@ -100,7 +100,7 @@ namespace poac::opts::uninstall {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    individual(std::optional<io::yaml::Config>&& config, uninstall::Options&& opts) {
+    individual(std::optional<io::config::Config>&& config, uninstall::Options&& opts) {
         namespace fs = boost::filesystem;
         namespace resolve = core::resolver::resolve;
         using termcolor2::color_literals::operator""_red;
@@ -114,7 +114,7 @@ namespace poac::opts::uninstall {
         }
 
         // create resolved deps
-        const auto timestamp = io::yaml::get_timestamp();
+        const auto timestamp = io::config::get_timestamp();
         resolve::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load(timestamp)) {
 //            resolved_deps = locked_deps.value();
@@ -218,7 +218,7 @@ namespace poac::opts::uninstall {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    uninstall(std::optional<io::yaml::Config>&& config, uninstall::Options&& opts) {
+    uninstall(std::optional<io::config::Config>&& config, uninstall::Options&& opts) {
         if (opts.all) {
             return all(std::move(opts));
         } else {
@@ -227,7 +227,7 @@ namespace poac::opts::uninstall {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         if (args.empty()) {
             return core::except::Error::InvalidSecondArg::Uninstall;
         }

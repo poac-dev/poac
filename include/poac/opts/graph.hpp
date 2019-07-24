@@ -19,7 +19,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
@@ -40,7 +40,7 @@ namespace poac::opts::graph {
     using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
     core::resolver::resolve::ResolvedDeps
-    create_resolved_deps(std::optional<io::yaml::Config>&& config) {
+    create_resolved_deps(std::optional<io::config::Config>&& config) {
         namespace resolver = core::resolver::resolve;
 
         if (!config->dependencies) {
@@ -61,8 +61,8 @@ namespace poac::opts::graph {
     }
 
     std::pair<Graph, std::vector<std::string>>
-    create_graph(std::optional<io::yaml::Config>&& config) {
-        const auto lockfile = io::yaml::load_lockfile();
+    create_graph(std::optional<io::config::Config>&& config) {
+        const auto lockfile = io::config::load_lockfile();
 
         const auto resolved_deps = create_resolved_deps(std::move(config));
         Graph g;
@@ -95,7 +95,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    dot_file_output(std::optional<io::yaml::Config>&& config, graph::Options&& opts) {
+    dot_file_output(std::optional<io::config::Config>&& config, graph::Options&& opts) {
         const auto [g, names] = create_graph(std::move(config));
         std::ofstream file(opts.output_file->string());
         boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
@@ -104,7 +104,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    png_file_output(std::optional<io::yaml::Config>&& config, graph::Options&& opts) {
+    png_file_output(std::optional<io::config::Config>&& config, graph::Options&& opts) {
         if (util::_shell::has_command("dot")) {
             const auto [g, names] = create_graph(std::move(config));
 
@@ -125,7 +125,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    file_output(std::optional<io::yaml::Config>&& config, graph::Options&& opts) {
+    file_output(std::optional<io::config::Config>&& config, graph::Options&& opts) {
         if (opts.output_file->extension() == ".png") {
             return png_file_output(std::move(config), std::move(opts));
         } else if (opts.output_file->extension() == ".dot") {
@@ -138,7 +138,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    console_output(std::optional<io::yaml::Config>&& config) {
+    console_output(std::optional<io::config::Config>&& config) {
         const auto [g, names] = create_graph(std::move(config));
         (void)names; // error: unused variable
         boost::graph_traits<Graph>::edge_iterator itr, end;
@@ -150,7 +150,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    graph(std::optional<io::yaml::Config>&& config, graph::Options&& opts) {
+    graph(std::optional<io::config::Config>&& config, graph::Options&& opts) {
         if (opts.output_file) {
             return file_output(std::move(config), std::move(opts));
         } else {
@@ -159,7 +159,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         graph::Options opts{};
         opts.output_file = util::argparse::use_get(args, "-o", "--output");
         return graph::graph(std::move(config), std::move(opts));

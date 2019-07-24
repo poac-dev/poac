@@ -8,7 +8,7 @@
 #include <map>
 #include <fstream>
 
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
 
 // std::optional<T> get(const YAML::Node& node)
@@ -16,7 +16,7 @@
 // bool get(const YAML::Node& node, Args&&... args)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_get_test )
 {
-    using poac::io::yaml::detail::get;
+    using poac::io::config::detail::get;
 
     // std::optional<T> get(const YAML::Node& node)
     {
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_get_test )
 // bool contains(const YAML::Node& node, Args&&... args)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_contains_test )
 {
-    using poac::io::yaml::detail::contains;
+    using poac::io::config::detail::contains;
 
     YAML::Node node = YAML::Load(
             "hoge: foo\n"
@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_contains_test )
 // std::optional<Config::Build::System> to_build_system(const std::optional<std::string>& str)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_to_build_system_test )
 {
-    using poac::io::yaml::detail::to_build_system;
-    using poac::io::yaml::Config;
+    using poac::io::config::detail::to_build_system;
+    using poac::io::config::Config;
 
     BOOST_CHECK( to_build_system(std::nullopt) == Config::Build::System::Poac );
     BOOST_CHECK( to_build_system("poac") == Config::Build::System::Poac );
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_to_build_system_test )
 // std::optional<Config::Test::Framework> to_test_framework(const std::optional<std::string>& str)
 BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_to_test_framework_test )
 {
-    using poac::io::yaml::detail::to_test_framework;
-    using poac::io::yaml::Config;
+    using poac::io::config::detail::to_test_framework;
+    using poac::io::config::Config;
 
     BOOST_CHECK( !to_test_framework(std::nullopt).has_value() );
     BOOST_CHECK( to_test_framework("boost") == Config::Test::Framework::Boost );
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_to_test_framework_test )
 BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_load_yaml_test )
 {
     namespace fs = boost::filesystem;
-    using poac::io::yaml::detail::load_yaml;
+    using poac::io::config::detail::load_yaml;
 
     const fs::path config_path = fs::current_path() / "poac.yml";
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_load_yaml_test )
 BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_validate_config_test )
 {
     namespace fs = boost::filesystem;
-    using poac::io::yaml::detail::validate_config;
+    using poac::io::config::detail::validate_config;
 
     BOOST_CHECK( !validate_config().has_value() );
 
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_validate_config_test )
 BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_load_config_test )
 {
     namespace fs = boost::filesystem;
-    using poac::io::yaml::detail::load_config;
+    using poac::io::config::detail::load_config;
 
     BOOST_CHECK( !load_config(fs::current_path()).has_value() );
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_detail_load_config_test )
 BOOST_AUTO_TEST_CASE( poac_io_yaml_load_config_test )
 {
     namespace fs = boost::filesystem;
-    using poac::io::yaml::load;
+    using poac::io::config::load;
 
     BOOST_CHECK_NO_THROW( load() );
     BOOST_CHECK( !load().has_value() );
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( poac_io_yaml_load_config_test )
 BOOST_AUTO_TEST_CASE( poac_io_yaml_load_timestamp_test )
 {
     namespace fs = boost::filesystem;
-    using poac::io::yaml::load_timestamp;
+    using poac::io::config::load_timestamp;
 
     BOOST_CHECK_THROW(
             load_timestamp(),

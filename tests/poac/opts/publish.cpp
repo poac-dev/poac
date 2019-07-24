@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include <poac/core/except.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/opts/publish.hpp>
 #include <poac/config.hpp>
 
@@ -45,13 +45,13 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_local_commit_sha_test )
     BOOST_CHECK( get_local_commit_sha("0.2.1") == "353368f90544bb160b258a9cc1ecba8d467c4020" );
 }
 
-// PackageType get_package_type(const std::optional<io::yaml::Config>& config)
+// PackageType get_package_type(const std::optional<io::config::Config>& config)
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_package_type_test )
 {
     namespace fs = boost::filesystem;
     using poac::opts::publish::get_package_type;
-    using poac::io::yaml::PackageType;
-    using poac::io::yaml::load;
+    using poac::io::config::PackageType;
+    using poac::io::config::load;
 
     const fs::path config_path = fs::current_path() / "poac.yml";
     {
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_cpp_version_test )
         ofs << "cpp_version: 17";
     }
 
-    BOOST_CHECK( get_cpp_version(poac::io::yaml::load()) == 17 );
+    BOOST_CHECK( get_cpp_version(poac::io::config::load()) == 17 );
     fs::remove(config_path);
 }
 

@@ -16,7 +16,7 @@ namespace poac::opts::root {
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&&) {
+    exec(std::optional<io::config::Config>&&, std::vector<std::string>&&) {
         boost::system::error_code error;
         const auto loc = boost::dll::program_location(error);
         if (error) {

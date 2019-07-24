@@ -9,10 +9,10 @@ BOOST_AUTO_TEST_CASE( poac_core_resolver_test1 )
     using namespace poac::core::resolver::resolve;
 
     Activated test{};
-    test.emplace_back("D", io::yaml::Lockfile::Package{"1.0.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
-    test.emplace_back("D", io::yaml::Lockfile::Package{"1.1.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
-    test.emplace_back("E", io::yaml::Lockfile::Package{"1.0.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
-    test.emplace_back("A", io::yaml::Lockfile::Package{"1.0.0", io::yaml::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("D", io::config::Lockfile::Package{"1.0.0", io::config::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("D", io::config::Lockfile::Package{"1.1.0", io::config::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("E", io::config::Lockfile::Package{"1.0.0", io::config::PackageType::HeaderOnlyLib, std::nullopt });
+    test.emplace_back("A", io::config::Lockfile::Package{"1.0.0", io::config::PackageType::HeaderOnlyLib, std::nullopt });
     test.emplace_back(
             { {"B"}, {"1.0.0"}, {""}, {{
             { {"D"}, {"1.0.0"}, {""}, {} },

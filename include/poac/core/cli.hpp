@@ -9,11 +9,11 @@
 #include <optional>
 
 #include <poac/core/except.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/opts.hpp>
 
 namespace poac::core::cli {
-    using arg1_type = std::optional<io::yaml::Config>;
+    using arg1_type = std::optional<io::config::Config>;
     using arg2_type = std::vector<std::string>;
     using ret_type = std::optional<except::Error>;
     using fn_type = std::function<ret_type(arg1_type, arg2_type)>;
@@ -45,7 +45,7 @@ namespace poac::core::cli {
     [[nodiscard]] ret_type
     exec(std::string_view cmd, std::vector<std::string>&& args) {
         try {
-            return opts_map.at(cmd)(io::yaml::load(), std::move(args));
+            return opts_map.at(cmd)(io::config::load(), std::move(args));
         }
         catch(std::out_of_range&) {
             return except::Error::InvalidFirstArg;

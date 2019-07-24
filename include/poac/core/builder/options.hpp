@@ -15,7 +15,7 @@
 #include <poac/core/name.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/util/semver.hpp>
 #include <poac/util/shell.hpp>
 
@@ -127,7 +127,7 @@ namespace poac::core::builder::options {
     }
 
     std::vector<std::string>
-    make_macro_defns(const io::yaml::Config&) {
+    make_macro_defns(const io::config::Config&) {
         namespace fs = boost::filesystem;
 
         std::vector<std::string> macro_defns;

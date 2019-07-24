@@ -11,7 +11,7 @@
 
 #include <poac/opts/new.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/util/termcolor2.hpp>
@@ -44,7 +44,7 @@ namespace poac::opts::init {
     [[nodiscard]] std::optional<core::except::Error>
     validate() {
         namespace fs = boost::filesystem;
-        if (const auto config_path = io::yaml::detail::validate_config()) {
+        if (const auto config_path = io::config::detail::validate_config()) {
             if (const auto error = overwrite(config_path.value())) {
                 return error;
             }
@@ -78,7 +78,7 @@ namespace poac::opts::init {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
         if (args.size() > 1) {
             return core::except::Error::InvalidSecondArg::Init;
         }

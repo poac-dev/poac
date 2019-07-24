@@ -16,7 +16,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/util/semver.hpp>
@@ -45,7 +45,7 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    all_update(std::optional<io::yaml::Config>&& config, update::Options&& opts) {
+    all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
         namespace fs = boost::filesystem;
         namespace resolve = core::resolver::resolve;
         using io::path::path_literals::operator""_path;
@@ -57,8 +57,8 @@ namespace poac::opts::update {
         for (const auto& [name, package] : resolved_deps.no_duplicate_deps) {
             const std::string current_name = core::name::to_current(name);
             std::string current_version;
-            if (const auto yml = io::yaml::detail::validate_config("deps"_path / current_name)) {
-                if (const auto deps_config = io::yaml::load(*yml)) {
+            if (const auto yml = io::config::detail::validate_config("deps"_path / current_name)) {
+                if (const auto deps_config = io::config::load(*yml)) {
 //                        if (const auto version = deps_config->version) { // TODO: versionは存在しない
 //                            current_version = *version;
 //                        }
@@ -75,7 +75,7 @@ namespace poac::opts::update {
             }
 
             if (semver::Version(package.version) != current_version) {
-                update_deps[name] = { current_version, io::yaml::PackageType::HeaderOnlyLib, std::nullopt };
+                update_deps[name] = { current_version, io::config::PackageType::HeaderOnlyLib, std::nullopt };
             }
         }
 
@@ -119,7 +119,7 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    update(std::optional<io::yaml::Config>&& config, update::Options&& opts) {
+    update(std::optional<io::config::Config>&& config, update::Options&& opts) {
         if (!io::path::validate_dir("deps")) {
             return core::except::Error::General{
                 "Could not find deps directory.\n"
@@ -133,7 +133,7 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         update::Options opts{};
         opts.yes = util::argparse::use(args, "-y", "--yes");
         opts.all = util::argparse::use(args, "-a", "--all");

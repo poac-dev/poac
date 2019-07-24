@@ -26,9 +26,9 @@ main() {
     execute g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o name-test name.cpp && { ./name-test; rm -f ./name-test; }
   popd
   pushd ./io
+    execute g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o config-test config.cpp && { ./config-test; rm -f ./config-test; }
     execute g++ ${BASE_OPT} -lboost_filesystem -o path-test path.cpp && { ./path-test; rm -f ./path-test; }
     execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
-    execute g++ ${BASE_OPT} -lboost_filesystem -lyaml-cpp -o yaml-test yaml.cpp && { ./yaml-test; rm -f ./yaml-test; }
   popd
   pushd ./opts
     execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lyaml-cpp -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }

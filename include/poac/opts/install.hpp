@@ -169,12 +169,12 @@ namespace poac::opts::install {
         const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
         std::smatch match;
         if (std::regex_match(v, std::regex("^" + NAME + "$"))) { // TODO: 厳しくする
-            return { v, { "latest", io::yaml::PackageType::HeaderOnlyLib, std::nullopt } };
+            return { v, { "latest", io::config::PackageType::HeaderOnlyLib, std::nullopt } };
         }
         else if (std::regex_match(v, match, std::regex("^" + NAME + "=(.*)$"))) {
             const auto name = match[1].str();
             const auto interval = match[2].str();
-            return { name, { interval, io::yaml::PackageType::HeaderOnlyLib, std::nullopt } };
+            return { name, { interval, io::config::PackageType::HeaderOnlyLib, std::nullopt } };
         }
         else {
             throw core::except::error("Invalid arguments");
@@ -189,10 +189,10 @@ namespace poac::opts::install {
         return ">=" + version + " and <" + upper.get_version();
     }
 
-    std::optional<io::yaml::Lockfile> // TODO:
+    std::optional<io::config::Lockfile> // TODO:
     load_lockfile(const install::Options& opts, std::string_view timestamp) {
         if (opts.package_list.empty()) {
-            if (const auto lockfile = io::yaml::load_lockfile()) {
+            if (const auto lockfile = io::config::load_lockfile()) {
                 if (lockfile.has_value() && lockfile->timestamp == timestamp) {
                     return lockfile.value();
                 }
@@ -202,8 +202,8 @@ namespace poac::opts::install {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    install(std::optional<io::yaml::Config>&& config, install::Options&& opts) {
-        std::string timestamp = io::yaml::get_timestamp();
+    install(std::optional<io::config::Config>&& config, install::Options&& opts) {
+        std::string timestamp = io::config::get_timestamp();
 
         // load lock file
         core::resolver::resolve::ResolvedDeps resolved_deps{};
@@ -286,7 +286,7 @@ namespace poac::opts::install {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         install::Options opts{};
         opts.quite = util::argparse::use_rm(args, "-q", "--quite");
         opts.verbose = util::argparse::use_rm(args, "-v", "--verbose") && !opts.quite;

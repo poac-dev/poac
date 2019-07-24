@@ -161,7 +161,7 @@ namespace poac::opts::help {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&&, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
         help::Options opts{};
         if (args.size() == 0) {
             opts.type = help::Options::Type::Summary;

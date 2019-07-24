@@ -14,7 +14,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/yaml.hpp>
+#include <poac/io/config.hpp>
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::cleanup {
@@ -22,7 +22,7 @@ namespace poac::opts::cleanup {
     constexpr auto options = termcolor2::make_string("<Nothing>");
 
     [[nodiscard]] std::optional<core::except::Error>
-    cleanup(std::optional<io::yaml::Config>&& config) {
+    cleanup(std::optional<io::config::Config>&& config) {
         // create resolved deps
         core::resolver::resolve::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load()) {
@@ -57,7 +57,7 @@ namespace poac::opts::cleanup {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::yaml::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         if (!args.empty()) {
             return core::except::Error::InvalidSecondArg::Cleanup;
         }
