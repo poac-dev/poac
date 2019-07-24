@@ -26,7 +26,7 @@ else()
         add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
     endif()
     if(CYGWIN OR MINGW)
-        add_definitions(-Wa,-mbig-obj)
+        add_definitions(-Wa -mbig-obj)
     endif()
 endif()
 
