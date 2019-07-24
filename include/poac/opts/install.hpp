@@ -13,7 +13,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <yaml-cpp/yaml.h>
 
 #include <poac/io.hpp>
 #include <poac/core/except.hpp>
