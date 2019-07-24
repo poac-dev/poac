@@ -48,13 +48,7 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    namespace {
-        using NameField = std::string;
-        using VersionOrIntervalField = std::string;
-        using VersionsField = std::vector<std::string>;
-        using IntervalField = std::string;
-    }
-    using DuplicateDeps = std::vector<std::pair<NameField, io::config::Lockfile::Package>>;
+    using DuplicateDeps = std::vector<std::pair<std::string, io::config::Lockfile::Package>>;
     using NoDuplicateDeps = io::config::Lockfile::dependencies_type;
 
     struct ResolvedDeps {
@@ -275,7 +269,7 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    using IntervalCache = std::vector<std::tuple<NameField, IntervalField, VersionsField>>;
+    using IntervalCache = std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>;
     constexpr std::size_t name_index = 0;
     constexpr std::size_t interval_index = 1;
     constexpr std::size_t versions_index = 2;
