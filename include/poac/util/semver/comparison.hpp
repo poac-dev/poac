@@ -8,13 +8,15 @@
 
 namespace semver {
     namespace detail {
-        bool is_number(const std::string& s)
-        {
-            // https://stackoverflow.com/a/15039928
-            int (*isdigit)(int) = std::isdigit;
+        constexpr bool
+        is_digit(const char& c) noexcept {
+            return '0' <= c && c <= '9';
+        }
+
+        bool is_number(const std::string& s) {
             return !s.empty()
                 && std::find_if(s.begin(), s.end(),
-                       [&](unsigned char c) { return !isdigit(c); }) == s.end();
+                       [&](auto& c) { return !is_digit(c); }) == s.end();
         }
 
         bool gt_pre(const Version& lhs, const Version& rhs) {
