@@ -1,0 +1,33 @@
+cpp_version = 17
+
+[dependencies]
+"matken11235/termcolor2" = ">=0.1.0 and <1.0.0"
+#"matken11235/semver" = ">=0.1.0 and <1.0.0"
+#"matken11235/tar-cpp" = ">=0.1.0 and <1.0.0"
+#"matken11235/url-cpp" = ">=0.1.0 and <1.0.0"
+"poac-community/boost-predef" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-property_tree" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-filesystem" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-range" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-algorithm" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-foreach" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-dynamic_bitset" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-dll" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-beast" = ">=1.64.0 and <2.0.0"
+#"ToruNiina/Boost.toml" = ">=1.0.0 and <2.0.0"
+
+[dev-dependencies]
+"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
+
+[build]
+system = "cmake"
+bin = true
+compile_args = [
+  "-pthread"
+]
+link_args = [
+  "-pthread"
+]
+
+[test]
+framework = "boost"
