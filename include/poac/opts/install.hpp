@@ -204,24 +204,7 @@ namespace poac::opts::install {
     [[nodiscard]] std::optional<core::except::Error>
     install(std::optional<io::config::Config>&& config, install::Options&& opts) {
         std::string timestamp = io::config::get_timestamp();
-
-        // load lock file
-        core::resolver::resolve::ResolvedDeps resolved_deps{};
         const auto lockfile = load_lockfile(opts, timestamp);
-
-//        bool load_lock = false;
-//        if (opts.package_list.empty()) { // 引数からの指定が無い時，poac.ymlからしか読まないことになるため，lockファイルを読む．
-//            if (const auto lockfile = io::yaml::load_lockfile()) {
-//                if (lockfile.has_value() && lockfile->timestamp == timestamp) {
-//                    return lockfile.value();
-//                }
-//            }
-//
-//            if (const auto locked_deps = core::resolver::lock::load(timestamp)) {
-//                resolved_deps = locked_deps.value();
-//                load_lock = true;
-//            }
-//        }
 
         // YAML::Node -> resolver:Deps
         core::resolver::resolve::NoDuplicateDeps deps;
@@ -245,14 +228,14 @@ namespace poac::opts::install {
         if (!opts.quite) {
             std::cout << io::term::status << "Resolving dependencies..." << std::endl;
         }
-        if (!lockfile.has_value()) {
-            resolved_deps = core::resolver::resolve::resolve(deps);
-        }
 
-        if (lockfile.has_value()) {
-            download(lockfile->dependencies, opts);
-        } else {
+        if (!lockfile.has_value()) {
+            core::resolver::resolve::ResolvedDeps resolved_deps{};
+            resolved_deps = core::resolver::resolve::resolve(deps);
             download(resolved_deps.no_duplicate_deps, opts);
+            create_lockfile(timestamp, resolved_deps.no_duplicate_deps);
+        } else {
+            download(lockfile->dependencies, opts);
         }
 
         // TODO: Rewrite poac.yml
@@ -277,10 +260,10 @@ namespace poac::opts::install {
 //            }
 //            timestamp = io::yaml::load_timestamp();
 //        }
-
-        if (!lockfile.has_value()) {
-            create_lockfile(timestamp, resolved_deps.no_duplicate_deps);
-        }
+//
+//        if (!lockfile.has_value()) {
+//            create_lockfile(timestamp, resolved_deps.no_duplicate_deps);
+//        }
 
         return std::nullopt;
     }
