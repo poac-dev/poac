@@ -2,129 +2,91 @@
 #define POAC_IO_CONFIG_HPP
 
 #include <string>
-#include <map>
+#include <string_view>
+#include <unordered_map>
 #include <optional>
 #include <vector>
 
-#include <boost/predef.h>
 #include <boost/filesystem.hpp>
-#include <yaml-cpp/yaml.h>
+#include <toml.hpp>
 
 #include <poac/core/except.hpp>
 
 namespace poac::io::config {
     namespace detail {
-        struct wrapper {
-            YAML::Node node;
-            explicit wrapper(const YAML::Node& n) {
-                // Argument-dependent lookup (ADL)
-                node = Clone(n);
+        inline boost::system::error_code ec{};
+
+        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V> const&>()))
+        >>
+        find_opt(const toml::basic_value<C, M, V>& v, const toml::key& key) noexcept {
+            try {
+                return toml::find<T>(v, key);
+            } catch (...) {
+                return std::nullopt;
             }
-            template <typename Key>
-            wrapper& operator->*(const Key& key) {
-                this->node = node[key];
-                return *this;
-            }
-        };
-        template <typename T>
-        T dig(const YAML::Node& node) {
-            return node.as<T>();
-        }
-        template <typename T, typename... Keys>
-        T dig(const YAML::Node& node, Keys&&... keys) {
-            return dig<T>((wrapper(node) ->* ... ->* keys).node);
         }
 
-        // Private member accessor
-        using YAML_Node_t = bool YAML::Node::*;
-#if BOOST_COMP_MSVC
-        template <class T>
-        struct accessor {
-            static T m_isValid;
-            static T get() noexcept {
-                return m_isValid;
+        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V> const&>()))
+        >>
+        find_opt(toml::basic_value<C, M, V>& v, const toml::key& key) noexcept {
+            try {
+                return toml::find<T>(v, key);
+            } catch (...) {
+                return std::nullopt;
             }
-        };
-        template <class T>
-        T accessor<T>::m_isValid;
+        }
 
-        template <class T, T V>
-        struct bastion {
-            bastion() { accessor<T>::m_isValid = V; }
-        };
-
-        template struct bastion<YAML_Node_t, &YAML::Node::m_isValid>;
-        using access = accessor<YAML_Node_t>;
-#else
-        template <class T, T V>
-        struct accessor {
-            static constexpr T m_isValid = V;
-            static T get() noexcept {
-                return m_isValid;
+        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V> const&>()))
+        >>
+        find_opt(toml::basic_value<C, M, V>&& v, const toml::key& key) noexcept {
+            try {
+                return toml::find<T>(std::move(v), key);
+            } catch (...) {
+                return std::nullopt;
             }
-        };
-        template <typename T>
-        using bastion = accessor<T, &YAML::Node::m_isValid>;
-        using access = bastion<YAML_Node_t>;
-#endif
+        }
 
-        template <typename Head>
-        std::optional<const char*>
-        read(const YAML::Node& node, Head&& head) {
-            if (!(node[head].*access::get())) {
-                return head;
+        template <typename T, typename C, template <typename ...> class M,
+                  template <typename ...> class V, typename ... Ts>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >>
+        find_opt(const toml::basic_value<C, M, V>& v, const toml::key& ky, Ts&&... keys) noexcept {
+            return find_opt<T>(find_opt(v, ky), std::forward<Ts>(keys)...);
+        }
+
+        template <typename T, typename C, template <typename ...> class M,
+                  template <typename ...> class V, typename ... Ts>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >>
+        find_opt(toml::basic_value<C, M, V>& v, const toml::key& ky, Ts&&... keys) noexcept {
+            return find_opt<T>(find_opt(v, ky), std::forward<Ts>(keys)...);
+        }
+
+        template <typename T, typename C, template <typename ...> class M,
+                  template <typename ...> class V, typename ... Ts>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >>
+        find_opt(toml::basic_value<C, M, V>&& v, const toml::key& ky, Ts&&... keys) noexcept {
+            return find_opt<T>(find_opt(std::move(v), ky), std::forward<Ts>(keys)...);
+        }
+
+        std::optional<std::string>
+        validate_config(const boost::filesystem::path& base = boost::filesystem::current_path(ec)
+        ) noexcept {
+            const auto config_path = base / "poac.toml";
+            if (boost::filesystem::exists(config_path, ec)) {
+                return config_path.string();
             } else {
                 return std::nullopt;
-            }
-        }
-        template <typename Head, typename... Tail>
-        std::optional<const char*>
-        read(const YAML::Node& node, Head&& head, Tail&&... tail) {
-            if (!(node[head].*access::get())) {
-                return head;
-            } else {
-                return read(node, std::forward<Tail>(tail)...);
-            }
-        }
-
-        template <typename T>
-        std::optional<T>
-        get(const YAML::Node& node) noexcept {
-            try {
-                return detail::dig<T>(node);
-            }
-            catch (...) {
-                return std::nullopt;
-            }
-        }
-        template <typename T, typename... Args>
-        std::optional<T>
-        get(const YAML::Node& node, Args&&... args) noexcept {
-            try {
-                return detail::dig<T>(node, args...);
-            }
-            catch (...) {
-                return std::nullopt;
-            }
-        }
-        template <typename... Args>
-        bool get(const YAML::Node& node, Args&&... args) noexcept {
-            try {
-                return detail::dig<bool>(node, args...);
-            }
-            catch (...) {
-                return false;
-            }
-        }
-
-        template <typename... Args>
-        bool contains(const YAML::Node& node, Args&&... args) noexcept {
-            // has_value -> not contains
-            try {
-                return !detail::read(node, args...).has_value();
-            }
-            catch (...) {
-                return false;
             }
         }
     }
@@ -135,11 +97,29 @@ namespace poac::io::config {
                 Poac,
                 CMake,
             };
+            struct Bin {
+                std::optional<std::string> path;
+                std::optional<std::string> name;
+                std::optional<std::string> link;
+
+                template <typename C, template <typename ...> class M, template <typename ...> class V>
+                void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+            };
+            struct Properties {
+                std::optional<std::vector<std::string>> definitions;
+                std::optional<std::vector<std::string>> options;
+                std::optional<std::vector<std::string>> libraries;
+
+                template <typename C, template <typename ...> class M, template <typename ...> class V>
+                void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+            };
+
             std::optional<System> system;
-            std::optional<bool> bin;
-            std::optional<bool> lib;
-            std::optional<std::vector<std::string>> compile_args;
-            std::optional<std::vector<std::string>> link_args;
+            std::optional<std::vector<Bin>> bins;
+            std::optional<Properties> properties;
+
+            template <typename C, template <typename ...> class M, template <typename ...> class V>
+            void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
         };
 
         struct Test {
@@ -148,87 +128,21 @@ namespace poac::io::config {
                 Google,
             };
             std::optional<Framework> framework;
+
+            template <typename C, template <typename ...> class M, template <typename ...> class V>
+            void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
         };
 
         std::optional<std::uint64_t> cpp_version;
-        std::optional<std::map<std::string, std::string>> dependencies;
-        std::optional<std::map<std::string, std::string>> dev_dependencies;
-        std::optional<std::map<std::string, std::string>> build_dependencies;
+        std::optional<std::unordered_map<std::string, std::string>> dependencies;
+        std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
+        std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
         std::optional<Build> build;
         std::optional<Test> test;
-    };
+//        std::optional<std::unordered_map<std::string, toml::value>> target;
 
-    enum class PackageType {
-        HeaderOnlyLib,
-        BuildReqLib,
-        Application
-    };
-
-    std::string
-    to_string(PackageType package_type) noexcept {
-        switch (package_type) {
-            case PackageType::HeaderOnlyLib:
-                return "header-only library";
-            case PackageType::BuildReqLib:
-                return "build-required library";
-            case PackageType::Application:
-                return "application";
-        }
-    }
-
-    std::optional<PackageType>
-    to_package_type(const std::optional<std::string>& str) noexcept {
-        if (!str.has_value()) {
-            return std::nullopt;
-        } else if (str.value() == "header-only library") {
-            return PackageType::HeaderOnlyLib;
-        } else if (str.value() == "build-required library") {
-            return PackageType::BuildReqLib;
-        } else if (str.value() == "application") {
-            return PackageType::Application;
-        } else {
-            return std::nullopt;
-        }
-    }
-
-    struct Lockfile {
-        std::string timestamp;
-        struct Package {
-            std::string version; // TODO: semver::Version
-            PackageType package_type;
-            std::optional<std::map<std::string, std::string>> dependencies;
-
-            // std::map::operator[] needs default constructor.
-            Package()
-                : version("")
-                , package_type(PackageType::HeaderOnlyLib)
-                , dependencies(std::nullopt)
-            {}
-
-            Package(
-                const std::string& version,
-                PackageType package_type,
-                std::optional<std::map<std::string, std::string>> dependencies
-            )
-                : version(version)
-                , package_type(package_type)
-                , dependencies(dependencies)
-            {}
-
-            explicit Package(const std::string& version)
-                : version(version)
-                , package_type(PackageType::HeaderOnlyLib)
-                , dependencies(std::nullopt)
-            {}
-
-            ~Package() = default;
-            Package(const Package&) = default;
-            Package& operator=(const Package&) = default;
-            Package(Package&&) noexcept = default;
-            Package& operator=(Package&&) noexcept = default;
-        };
-        using dependencies_type = std::map<std::string, Package>;
-        dependencies_type dependencies;
+        template <typename C, template <typename ...> class M, template <typename ...> class V>
+        void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
     };
 
     namespace detail {
@@ -258,126 +172,161 @@ namespace poac::io::config {
                 return std::nullopt;
             }
         }
+    }
 
-        inline boost::system::error_code ec{};
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Config::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
+        cpp_version = detail::find_opt<std::uint64_t>(v, "cpp-version");
+        dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
+        dev_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dev-dependencies");
+        build_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "build-dependencies");
+        build = detail::find_opt<Build>(v, "build");
+        test = detail::find_opt<Test>(v, "test");
+    }
 
-        std::optional<Config::Test>
-        create_config_test(const YAML::Node& config_yaml) noexcept {
-            if (contains(config_yaml, "test")) {
-                return Config::Test {
-                    to_test_framework(get<std::string>(config_yaml, "test", "framework")),
-                };
-            } else {
-                return std::nullopt;
-            }
-        }
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Config::Build::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
+        system = detail::to_build_system(detail::find_opt<std::string>(v, "system"));
+        bins = detail::find_opt<std::vector<Bin>>(v, "bin");
+        properties = detail::find_opt<Properties>(v, "properties");
+    }
 
-        std::optional<Config::Build>
-        create_config_build(const YAML::Node& config_yaml) noexcept {
-            if (contains(config_yaml, "build")) {
-                return Config::Build {
-                    to_build_system(get<std::string>(config_yaml, "build", "system")),
-                    get<decltype(Config::Build::bin)::value_type>(config_yaml, "build", "bin"),
-                    get<decltype(Config::Build::lib)::value_type>(config_yaml, "build", "lib"),
-                    get<decltype(Config::Build::compile_args)::value_type>(config_yaml, "build", "compile_args"),
-                    get<decltype(Config::Build::link_args)::value_type>(config_yaml, "build", "link_args"),
-                };
-            } else {
-                return std::nullopt;
-            }
-        }
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Config::Build::Bin::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
+        path = detail::find_opt<std::string>(v, "path");
+        name = detail::find_opt<std::string>(v, "name");
+        link = detail::find_opt<std::string>(v, "link");
+    }
 
-        Config
-        create_config(const YAML::Node& config_yaml) noexcept {
-            return Config {
-                get<decltype(Config::cpp_version)::value_type>(config_yaml, "cpp_version"),
-                get<decltype(Config::dependencies)::value_type>(config_yaml, "dependencies"),
-                get<decltype(Config::dev_dependencies)::value_type>(config_yaml, "dev_dependencies"),
-                get<decltype(Config::build_dependencies)::value_type>(config_yaml, "build_dependencies"),
-                create_config_build(config_yaml),
-                create_config_test(config_yaml),
-            };
-        }
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Config::Build::Properties::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
+        definitions = detail::find_opt<std::vector<std::string>>(v, "definitions");
+        options = detail::find_opt<std::vector<std::string>>(v, "options");
+        libraries = detail::find_opt<std::vector<std::string>>(v, "libraries");
+    }
 
-        Lockfile::Package
-        create_lockfile_package(const YAML::Node& value) {
-            return Lockfile::Package {
-                get<decltype(Lockfile::Package::version)>(value, "version").value(),
-                to_package_type(get<std::string>(value, "package_type")).value(),
-                get<decltype(Lockfile::Package::dependencies)::value_type>(value, "dependencies"),
-            };
-        }
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Config::Test::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
+        framework = detail::to_test_framework(detail::find_opt<std::string>(v, "framework"));
+    }
 
-        decltype(Lockfile::dependencies)
-        create_lockfile_dependencies(const YAML::Node& lockfile) {
-            Lockfile::dependencies_type dependencies;
-            const auto lock_dependencies = get<std::map<std::string, YAML::Node>>(lockfile, "dependencies");
-            for (const auto& [name, node] : lock_dependencies.value()) {
-                dependencies[name] = create_lockfile_package(node);
-            }
-            return dependencies;
-        }
-
-        Lockfile
-        create_lockfile(const YAML::Node& lockfile) {
-            return Lockfile {
-                get<decltype(Lockfile::timestamp)>(lockfile, "timestamp").value(),
-                create_lockfile_dependencies(lockfile),
-            };
-        }
-
-        std::optional<YAML::Node>
-        load_yaml(const std::string& filename) noexcept {
-            try { return YAML::LoadFile(filename); }
-            catch (...) { return std::nullopt; }
-        }
-
-        std::optional<std::string>
-        validate_config(
-                const boost::filesystem::path& base = boost::filesystem::current_path(ec),
-                const std::string& config_name = "poac.yml"
-        ) noexcept {
-            const auto config_path = base / config_name;
-            if (boost::filesystem::exists(config_path, ec)) {
-                return config_path.string();
-            } else {
-                return std::nullopt;
-            }
-        }
-
-        std::optional<YAML::Node>
-        load_config(const boost::filesystem::path& base, const std::string& config_name) noexcept {
-            if (const auto config = validate_config(base, config_name)) {
-                if (const auto node = load_yaml(config.value())) {
-                    return node;
-                }
-            }
+    template <typename C>
+    std::optional<C>
+    load_toml(const boost::filesystem::path& base, const std::string& fname) {
+        if (boost::filesystem::exists(base / fname, detail::ec)) {
+            const auto config_toml = toml::parse<toml::preserve_comments>(fname);
+            const auto config = toml::get<C>(config_toml);
+            return config;
+        } else {
             return std::nullopt;
         }
     }
 
+//        std::cout << std::setw(80) << std::setprecision(16) << toml::format(config_toml) << std::endl;
     std::optional<Config>
-    load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)
-    ) noexcept {
-        if (const auto config_yaml = detail::load_config(base, "poac.yml")) {
-            return detail::create_config(config_yaml.value());
+    load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)) {
+         return load_toml<Config>(base, "poac.toml");
+    }
+
+    enum class PackageType {
+        HeaderOnlyLib,
+        BuildReqLib,
+        Application
+    };
+
+    std::string
+    to_string(PackageType package_type) noexcept {
+        switch (package_type) {
+            case PackageType::HeaderOnlyLib:
+                return "header-only library";
+            case PackageType::BuildReqLib:
+                return "build-required library";
+            case PackageType::Application:
+                return "application";
         }
-        return std::nullopt;
+    }
+
+    std::optional<PackageType>
+    to_package_type(std::string_view str) noexcept {
+        if (str == "header-only library") {
+            return PackageType::HeaderOnlyLib;
+        } else if (str == "build-required library") {
+            return PackageType::BuildReqLib;
+        } else if (str == "application") {
+            return PackageType::Application;
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    struct Lockfile {
+        struct Package {
+            std::string version; // TODO: semver::Version
+            PackageType package_type;
+            std::optional<std::unordered_map<std::string, std::string>> dependencies;
+
+            // std::unordered_map::operator[] needs default constructor.
+            Package()
+                : version("")
+                , package_type(PackageType::HeaderOnlyLib)
+                , dependencies(std::nullopt)
+            {}
+
+            Package(
+                const std::string& version,
+                PackageType package_type,
+                std::optional<std::unordered_map<std::string, std::string>> dependencies
+            )
+                : version(version)
+                , package_type(package_type)
+                , dependencies(dependencies)
+            {}
+
+            explicit Package(const std::string& version)
+                : version(version)
+                , package_type(PackageType::HeaderOnlyLib)
+                , dependencies(std::nullopt)
+            {}
+
+            ~Package() = default;
+            Package(const Package&) = default;
+            Package& operator=(const Package&) = default;
+            Package(Package&&) noexcept = default;
+            Package& operator=(Package&&) noexcept = default;
+
+            template <typename C, template <typename ...> class M, template <typename ...> class V>
+            void from_toml(const toml::basic_value<C, M, V>& v);
+        };
+        using dependencies_type = std::unordered_map<std::string, Package>;
+        std::string timestamp;
+        dependencies_type dependencies;
+
+        template <typename C, template <typename ...> class M, template <typename ...> class V>
+        void from_toml(const toml::basic_value<C, M, V>& v);
+    };
+
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Lockfile::from_toml(const toml::basic_value<C, M, V>& v) {
+        timestamp = toml::find<std::string>(v, "timestamp");
+        dependencies = toml::find<Lockfile::dependencies_type>(v, "dependencies");
+    }
+
+    template <typename C, template <typename ...> class M, template <typename ...> class V>
+    void Lockfile::Package::from_toml(const toml::basic_value<C, M, V>& v) {
+        version = toml::find<std::string>(v, "version");
+        package_type = to_package_type(toml::find<std::string>(v, "package-type")).value();
+        dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
     }
 
     std::optional<Lockfile>
-    load_lockfile(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)
-    ) {
-        if (const auto lockfile = detail::load_config(base, "poac.lock")) {
-            return detail::create_lockfile(lockfile.value());
-        }
-        return std::nullopt;
+    load_lockfile(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)) {
+        return load_toml<Lockfile>(base, "poac.lock");
     }
 
-    std::string get_timestamp() {
+    std::string
+    get_timestamp() {
         if (const auto filename = detail::validate_config()) {
-            const std::time_t last_time = boost::filesystem::last_write_time(filename.value(), detail::ec);
-            return std::to_string(last_time);
+            return std::to_string(boost::filesystem::last_write_time(filename.value(), detail::ec));
         } else {
             throw core::except::error(
                     core::except::msg::does_not_exist("poac.yml"), "\n",

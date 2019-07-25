@@ -34,7 +34,13 @@ install:
       brew upgrade boost;
       pip install cpp-coveralls;
     fi
-  - brew install yaml-cpp
+  - git clone -q https://github.com/ToruNiina/toml11.git
+  - cd toml11
+  - mkdir build
+  - cd build
+  - cmake -Dtoml11_BUILD_TEST=OFF ..
+  - make install
+  - cd ../../
 script:
   - mkdir build
   - cd build

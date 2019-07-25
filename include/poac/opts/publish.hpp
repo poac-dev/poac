@@ -235,12 +235,8 @@ namespace poac::opts::publish {
     io::config::PackageType
     get_package_type(const std::optional<io::config::Config>& config) {
         if (config->build.has_value()) {
-            if (config->build->bin.has_value() && config->build->bin.value()) {
-                // bin: true
+            if (config->build->bins.has_value()) {
                 return io::config::PackageType::Application;
-            } else if (config->build->lib.has_value() && config->build->lib.value()) {
-                // lib: true
-                return io::config::PackageType::BuildReqLib;
             } else {
                 return io::config::PackageType::BuildReqLib;
             }

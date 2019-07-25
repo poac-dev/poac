@@ -26,7 +26,7 @@ else()
         add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
     endif()
     if(CYGWIN OR MINGW)
-        add_definitions(-Wa,-mbig-obj)
+        add_definitions(-O3 -Wa,-mbig-obj)
     endif()
 endif()
 
@@ -69,27 +69,10 @@ else()
     set(BOOST_LINK_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
 endif()
 
-# Find a yaml-cpp library.
-if(NOT CYGWIN)
-    if(WIN32)
-        find_package(yaml-cpp REQUIRED)
-    else()
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
-    endif()
-    if(NOT ${YAML_CPP_FOUND})
-        message(FATAL_ERROR "Could not find yaml-cpp.")
-    endif()
-    include_directories(${YAML_CPP_INCLUDE_DIR})
-    message(STATUS "yaml-cpp include directory is ... ${YAML_CPP_INCLUDE_DIR}")
-    link_directories(${YAML_CPP_LIBRARY_DIRS})
-    message(STATUS "yaml-cpp library directories are ... ${YAML_CPP_LIBRARY_DIRS}")
-    message(STATUS "yaml-cpp libraries are ... ${YAML_CPP_LIBRARIES}")
-else()
-    # In cygwin, could not find yaml-cpp:
-    #   Package 'yaml-cpp', required by 'virtual:world', not found
-    set(YAML_CPP_LIBRARIES yaml-cpp)
-    link_directories(/usr/local/lib)
+# Include a toml11 library.
+if(WIN32)
+    include_directories(C:/Libraries/toml11/include)
+    message(STATUS "toml11 include directory is ... C:/Libraries/toml11/include")
 endif()
 
 # Find a openssl library.
@@ -170,6 +153,5 @@ target_link_libraries(
         ${OPENSSL_LIBRARIES}
         ${SSL_RELATED_LIBS}
         ${BOOST_LINK_LIBS}
-        ${YAML_CPP_LIBRARIES}
 )
 install(TARGETS poac DESTINATION bin)

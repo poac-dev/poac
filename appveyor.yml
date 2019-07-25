@@ -1,8 +1,8 @@
 version: "#{build}"
 
 cache:
-  - C:\Libraries\yaml-cpp
   - C:\Libraries\boost-1.69.0
+  - C:\Libraries\toml11
 
 configuration:
   - Debug
@@ -64,27 +64,25 @@ install:
         --local-package-dir "%CYG_ROOT%\var\cache\setup" ^
         --packages %CYG_PACKAGES% &&
       %CYG_ROOT%\bin\bash -lc
-        "git clone -q https://github.com/jbeder/yaml-cpp.git &&
-        cd yaml-cpp &&
+        "git clone -q https://github.com/ToruNiina/toml11.git &&
+        cd toml11 &&
         mkdir build &&
         cd build &&
-        cmake .. -DYAML_CPP_BUILD_TESTS=OFF
-          -DCMAKE_BUILD_TYPE=%Configuration% &&
+        cmake .. -Dtoml11_BUILD_TEST=OFF &&
         make &&
         make install"
     )
 
-  # Build yaml-cpp
-  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\yaml-cpp (
-      "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/jbeder/yaml-cpp.git &&
-      cd yaml-cpp &&
+  # Build toml11
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\toml11 (
+      "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/ToruNiina/toml11.git &&
+      cd toml11 &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
-        -DYAML_CPP_BUILD_TESTS=OFF ^
-        -DMSVC_SHARED_RT=OFF ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\yaml-cpp &&
+        -Dtoml11_BUILD_TEST=OFF ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11 &&
       cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
@@ -129,7 +127,7 @@ build_script:
         -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -Dyaml-cpp_DIR=C:\Libraries\yaml-cpp\CMake &&
+        -Dtoml11_DIR=C:\Libraries\toml11\lib\cmake\toml11 &&
       cmake --build . --target install --config %Configuration%
     )
   - if %COMPILER% == gcc (

@@ -185,9 +185,9 @@ namespace poac::core::builder {
 //            link_conf.library_search_path = std::get<0>(links);
 //            link_conf.static_link_libs = std::get<1>(links);
 //            link_conf.library_path = std::get<2>(links);
-            if (config->build->link_args.has_value()) {
-                link_conf.other_args = config->build->link_args.value();
-            }
+//            if (config->build->link_args.has_value()) {
+//                link_conf.other_args = config->build->link_args.value();
+//            }
         }
         auto link() {
             return compiler::link(link_conf, verbose);

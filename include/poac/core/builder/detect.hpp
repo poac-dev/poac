@@ -22,27 +22,26 @@ namespace poac::core::builder::detect {
         return system;
     }
 
-    std::optional<std::string>
-    build_system(const YAML::Node& node)
-    {
-        if (const auto system = io::config::detail::get<std::string>(node, "build")) {
-            return check_support_build_system(*system);
-        }
-        else if (const auto build_node = io::config::detail::get<std::map<std::string, YAML::Node>>(node, "build")) {
-            YAML::Node build_node2;
-            try {
-                build_node2 = (*build_node).at("system");
-            } catch(std::out_of_range&) {
-                return std::nullopt;
-            }
-
-            if (const auto system2 = io::config::detail::get<std::string>(build_node2)) {
-                return check_support_build_system(*system2);
-            }
-        }
-        // No build required
-        return std::nullopt;
-    }
+//    std::optional<std::string>
+//    build_system(const YAML::Node& node) {
+//        if (const auto system = io::config::detail::get<std::string>(node, "build")) {
+//            return check_support_build_system(*system);
+//        }
+//        else if (const auto build_node = io::config::detail::get<std::map<std::string, YAML::Node>>(node, "build")) {
+//            YAML::Node build_node2;
+//            try {
+//                build_node2 = (*build_node).at("system");
+//            } catch(std::out_of_range&) {
+//                return std::nullopt;
+//            }
+//
+//            if (const auto system2 = io::config::detail::get<std::string>(build_node2)) {
+//                return check_support_build_system(*system2);
+//            }
+//        }
+//        // No build required
+//        return std::nullopt;
+//    }
 
     bool is_cpp_file(const boost::filesystem::path& p) {
         namespace fs = boost::filesystem;

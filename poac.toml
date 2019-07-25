@@ -1,4 +1,4 @@
-cpp_version = 17
+cpp-version = 17
 
 [dependencies]
 "matken11235/termcolor2" = ">=0.1.0 and <1.0.0"
@@ -25,6 +25,7 @@ system = "poac"
 [[build.bin]]
 path = "src/main.cpp"
 name = "poac"
+link = "static"
 
 [target.'cfg(os = "linux")'.build.properties]
 definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
@@ -33,18 +34,20 @@ definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
 options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
 libraries = ["dl"]
 
-[target.'cfg(os = "windows", not(platform = "mingw"))'.build.properties]
+[target.'cfg(compiler = "msvc")'.build.properties]
 definitions = ["BOOST_ASIO_HAS_STD_STRING_VIEW"]
 options = ["/W4", "/bigobj"]
-libraries = ["bcrypt", "ws2_32"]
 
 [target.'cfg(any(os = "cygwin", platform = "mingw"))'.build.properties]
-definitions = ["-Wa", "-mbig-obj"]
+options = ["-Wa,-mbig-obj"]
 
-[target.'cfg(all(os = "unix", target = "debug"))'.build.additional-properties]
+[target.'cfg(os = "windows")'.build.properties]
+libraries = ["bcrypt", "ws2_32"]
+
+[target.'cfg(all(os = "unix", type = "debug"))'.build.properties]
 options = ["-fsanitize=address"]
 
-[target.'cfg(all(os = "macos", target = "release"))'.build.additional-properties]
+[target.'cfg(all(os = "macos", type = "release"))'.build.properties]
 options = ["-mtune=native", "-march=native"]
 
 [test]
