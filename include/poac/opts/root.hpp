@@ -21,7 +21,7 @@ namespace poac::opts::root {
         const auto loc = boost::dll::program_location(error);
         if (error) {
             return core::except::Error::General{
-                    "Could not get root installation directory"
+                "Could not get root installation directory"
             };
         }
 
