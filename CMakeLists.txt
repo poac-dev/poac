@@ -9,42 +9,23 @@ endif()
 
 
 cmake_minimum_required(VERSION 3.0)
-project(poac)
+project(poac VERSION 0.2.1 LANGUAGES CXX)
 
-# Preprocessor definitions.
-add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
-add_definitions(-DPOAC_VERSION="0.2.1")
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DPOAC_PROJECT_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DPOAC_VERSION="${PROJECT_VERSION}")
 
-# Compiler options.
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj")
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
 else()
-    if(UNIX)
-        add_definitions(-fdiagnostics-color -Wall -Wextra) # -Werror
-    endif()
+    target_compile_options(${PROJECT_NAME} PRIVATE -pthread -fdiagnostics-color -Wall -Wextra) # -Werror
     if(NOT APPLE)
-        add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
+        target_compile_options(${PROJECT_NAME} PRIVATE -D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
     endif()
     if(CYGWIN OR MINGW)
-        add_definitions(-O3 -Wa,-mbig-obj)
-    endif()
-endif()
-
-# Check if C++17 can use.
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-else()
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
-    if(COMPILER_SUPPORTS_CXX17)
-        message(STATUS "CXX_FLAG: -std=c++17")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
-    elseif(COMPILER_SUPPORTS_CXX1z)
-        message(STATUS "CXX_FLAG: -std=c++1z")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -pthread")
-    else()
-        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
+        target_compile_options(${PROJECT_NAME} PRIVATE -pthread -O3 -Wa,-mbig-obj)
     endif()
 endif()
 
@@ -55,9 +36,9 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 if(NOT ${Boost_FOUND})
     message(FATAL_ERROR "Could not find boost.")
 endif()
-include_directories(${Boost_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 message(STATUS "Boost include directory is ... ${Boost_INCLUDE_DIRS}")
-link_directories(${Boost_LIBRARY_DIRS})
+target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
 message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
 # If boost version greater than 1.69.0 and cmake version less then 3.12, occur error.
 if(${Boost_VERSION} GREATER 106900)
@@ -69,11 +50,8 @@ else()
     set(BOOST_LINK_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
 endif()
 
-# Include a toml11 library.
-if(WIN32)
-    include_directories(C:/Libraries/toml11/include)
-    message(STATUS "toml11 include directory is ... C:/Libraries/toml11/include")
-endif()
+# toml11
+target_include_directories(${PROJECT_NAME} PRIVATE C:/Libraries/toml11/include) # toml11
 
 # Find a openssl library.
 if(APPLE)
@@ -83,7 +61,7 @@ find_package(OpenSSL REQUIRED)
 if(NOT ${OPENSSL_FOUND})
     message(FATAL_ERROR "Could not find openssl.")
 endif()
-include_directories(${OPENSSL_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
 message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
@@ -101,8 +79,8 @@ if(APPLE)
         endif()
         message(STATUS "Set compiler to homebrew llvm@7.")
         set(CMAKE_CXX_COMPILER "${HOMEBREW_LLVM_PATH}/bin/clang++")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${HOMEBREW_LLVM_PATH}/include")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${HOMEBREW_LLVM_PATH}/lib")
+        target_include_directories(${PROJECT_NAME} PRIVATE ${HOMEBREW_LLVM_PATH}/include)
+        target_link_directories(${PROJECT_NAME} PRIVATE ${HOMEBREW_LLVM_PATH}/lib)
         unset(HOMEBREW_LLVM_PATH)
     endif()
 
@@ -139,9 +117,6 @@ else()
     endif()
 endif()
 
-add_executable(${PROJECT_NAME} src/main.cpp)
-include_directories(${CMAKE_SOURCE_DIR}/include)
-
 if(UNIX)
     set(SSL_RELATED_LIBS dl)
 elseif(WIN32)
@@ -154,4 +129,4 @@ target_link_libraries(
         ${SSL_RELATED_LIBS}
         ${BOOST_LINK_LIBS}
 )
-install(TARGETS poac DESTINATION bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
