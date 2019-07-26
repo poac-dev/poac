@@ -104,6 +104,7 @@ namespace poac::io::config {
 
                 template <typename C, template <typename ...> class M, template <typename ...> class V>
                 void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+                toml::table into_toml() const;
             };
             struct Properties {
                 std::optional<std::vector<std::string>> definitions;
@@ -112,6 +113,7 @@ namespace poac::io::config {
 
                 template <typename C, template <typename ...> class M, template <typename ...> class V>
                 void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+                toml::table into_toml() const;
             };
 
             std::optional<System> system;
@@ -120,6 +122,7 @@ namespace poac::io::config {
 
             template <typename C, template <typename ...> class M, template <typename ...> class V>
             void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+            toml::table into_toml() const;
         };
 
         struct Test {
@@ -131,6 +134,7 @@ namespace poac::io::config {
 
             template <typename C, template <typename ...> class M, template <typename ...> class V>
             void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+            toml::table into_toml() const;
         };
 
         std::optional<std::uint64_t> cpp_version;
@@ -143,6 +147,7 @@ namespace poac::io::config {
 
         template <typename C, template <typename ...> class M, template <typename ...> class V>
         void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+        toml::table into_toml() const;
     };
 
     namespace detail {
@@ -160,6 +165,16 @@ namespace poac::io::config {
             }
         }
 
+        std::string
+        to_string(Config::Build::System system) noexcept {
+            switch (system) {
+                case Config::Build::System::Poac:
+                    return "poac";
+                case Config::Build::System::CMake:
+                    return "cmake";
+            }
+        }
+
         std::optional<Config::Test::Framework>
         to_test_framework(const std::optional<std::string>& str) noexcept {
             if (!str.has_value()) {
@@ -170,6 +185,16 @@ namespace poac::io::config {
                 return Config::Test::Framework::Google;
             } else {
                 return std::nullopt;
+            }
+        }
+
+        std::string
+        to_string(Config::Test::Framework framework) noexcept {
+            switch (framework) {
+                case Config::Test::Framework::Boost:
+                    return "boost";
+                case Config::Test::Framework::Google:
+                    return "google";
             }
         }
     }
@@ -183,12 +208,47 @@ namespace poac::io::config {
         build = detail::find_opt<Build>(v, "build");
         test = detail::find_opt<Test>(v, "test");
     }
+    toml::table Config::into_toml() const {
+        toml::table t{};
+        if (cpp_version.has_value()) {
+            t.emplace("cpp-version", cpp_version.value());
+        }
+        if (dependencies.has_value()) {
+            t.emplace("dependencies", dependencies.value());
+        }
+        if (dev_dependencies.has_value()) {
+            t.emplace("dev-dependencies", dev_dependencies.value());
+        }
+        if (build_dependencies.has_value()) {
+            t.emplace("build-dependencies", build_dependencies.value());
+        }
+        if (build.has_value()) {
+            t.emplace("build", build.value());
+        }
+        if (test.has_value()) {
+            t.emplace("test", test.value());
+        }
+        return t;
+    }
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::Build::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
         system = detail::to_build_system(detail::find_opt<std::string>(v, "system"));
         bins = detail::find_opt<std::vector<Bin>>(v, "bin");
         properties = detail::find_opt<Properties>(v, "properties");
+    }
+    toml::table Config::Build::into_toml() const {
+        toml::table t{};
+        if (system.has_value()) {
+            t.emplace("system", detail::to_string(system.value()));
+        }
+        if (bins.has_value()) {
+            t.emplace("bin", bins.value());
+        }
+        if (properties.has_value()) {
+            t.emplace("properties", properties.value());
+        }
+        return t;
     }
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
@@ -197,6 +257,19 @@ namespace poac::io::config {
         name = detail::find_opt<std::string>(v, "name");
         link = detail::find_opt<std::string>(v, "link");
     }
+    toml::table Config::Build::Bin::into_toml() const {
+        toml::table t{};
+        if (path.has_value()) {
+            t.emplace("path", path.value());
+        }
+        if (name.has_value()) {
+            t.emplace("name", name.value());
+        }
+        if (link.has_value()) {
+            t.emplace("link", link.value());
+        }
+        return t;
+    }
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::Build::Properties::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
@@ -204,10 +277,30 @@ namespace poac::io::config {
         options = detail::find_opt<std::vector<std::string>>(v, "options");
         libraries = detail::find_opt<std::vector<std::string>>(v, "libraries");
     }
+    toml::table Config::Build::Properties::into_toml() const {
+        toml::table t{};
+        if (definitions.has_value()) {
+            t.emplace("definitions", definitions.value());
+        }
+        if (options.has_value()) {
+            t.emplace("options", options.value());
+        }
+        if (libraries.has_value()) {
+            t.emplace("libraries", libraries.value());
+        }
+        return t;
+    }
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::Test::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
         framework = detail::to_test_framework(detail::find_opt<std::string>(v, "framework"));
+    }
+    toml::table Config::Test::into_toml() const {
+        toml::table t{};
+        if (framework.has_value()) {
+            t.emplace("framework", detail::to_string(framework.value()));
+        }
+        return t;
     }
 
     template <typename C>
@@ -222,7 +315,6 @@ namespace poac::io::config {
         }
     }
 
-//        std::cout << std::setw(80) << std::setprecision(16) << toml::format(config_toml) << std::endl;
     std::optional<Config>
     load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)) {
          return load_toml<Config>(base, "poac.toml");
