@@ -72,6 +72,9 @@ namespace poac::opts::publish {
         io::net::MultiPartForm::header_type header;
         header[io::net::http::field::content_type] = "text/plain";
         mpf.set("poac.toml", "poac.toml", header);
+        if (package_info.package_type == io::lockfile::PackageType::Application) {
+            mpf.set("poac.lock", "poac.lock", header);
+        }
 
         const io::net::requests req{ POAC_API_HOST };
         if (const auto res = req.post(POAC_REGISTER_API, std::move(mpf)); res != "ok") {
