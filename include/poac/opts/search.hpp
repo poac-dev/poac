@@ -42,13 +42,13 @@ namespace poac::opts::search {
 
     void echo_title_line() {
         std::cout << termcolor2::underline<>;
-        io::term::set_left(25);
+        io::term::set_left(27);
         std::cout << "Package";
         io::term::set_left(50);
-        std::cout << "|Description";
-        io::term::set_left(15);
-        std::cout << "|Version"
-                  << "|C++ Version"
+        std::cout << "| Description";
+        io::term::set_left(10);
+        std::cout << "| Version"
+                  << "| C++ "
                   << termcolor2::reset<>
                   << std::endl;
     }
@@ -96,18 +96,25 @@ namespace poac::opts::search {
         for (const boost::property_tree::ptree::value_type& child : pt.get_child("hits")) {
             const boost::property_tree::ptree& hits = child.second;
 
-            std::string name = hits.get<std::string>("_highlightResult.name.value");
-            auto count_s = replace(name, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
-            auto count_l = replace(name, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
+            std::string owner = hits.get<std::string>("_highlightResult.owner.value");
+            auto owner_count = replace(owner, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
+            owner_count += replace(owner, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
 
-            io::term::set_left(25 + count_s + count_l);
-            std::cout << util::pretty::clip_string(name, 21 + count_s + count_l);
+            std::string repo = hits.get<std::string>("_highlightResult.repo.value");
+            auto repo_count = replace(repo, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
+            repo_count += replace(repo, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
+
+            io::term::set_left(27 + owner_count + repo_count);
+            std::cout << util::pretty::clip_string(owner + "/" + repo, 23 + owner_count + repo_count);
+
             io::term::set_left(50);
-            std::cout << "|" + util::pretty::clip_string(hits.get<std::string>("description"), 45);
-            io::term::set_left(15);
-            const auto cpp_version = hits.get<std::string>("cpp_version");
-            std::cout << "|" + hits.get<std::string>("version")
-                      << "|    " << (cpp_version == "3" ? "03" : cpp_version)
+            std::cout << "| " + util::pretty::clip_string(hits.get<std::string>("description"), 45);
+
+            io::term::set_left(10);
+            std::cout << "|  " + hits.get<std::string>("version");
+
+            const auto cpp_version = hits.get<std::string>("cpp_version"); // TODO: cpp-version
+            std::cout << "| " << (cpp_version == "3" ? "03" : cpp_version)
                       << std::endl;
         }
         return std::nullopt;
