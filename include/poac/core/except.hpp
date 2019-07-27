@@ -86,7 +86,7 @@ namespace poac::core::except {
             using DoesNotExist::DoesNotExist;
             ~KeyDoesNotExist() noexcept = default;
             std::string what() const {
-                return "Required key " + DoesNotExist::what() + " in poac.yml";
+                return "Required key " + DoesNotExist::what() + " in poac.toml";
             }
         };
 
@@ -162,7 +162,7 @@ namespace poac::core::except {
             return str + " does not exist";
         }
         std::string key_does_not_exist(const std::string& str) {
-            return "Required key `" + str + "` does not exist in poac.yml";
+            return "Required key `" + str + "` does not exist in poac.toml";
         }
 
         std::string already_exist(const std::string& str) {
