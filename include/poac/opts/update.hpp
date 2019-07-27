@@ -75,7 +75,7 @@ namespace poac::opts::update {
             }
 
             if (semver::Version(package.version) != current_version) {
-                update_deps[name] = { current_version, io::config::PackageType::HeaderOnlyLib, std::nullopt };
+                update_deps[name] = { current_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt };
             }
         }
 

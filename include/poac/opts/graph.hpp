@@ -62,7 +62,7 @@ namespace poac::opts::graph {
 
     std::pair<Graph, std::vector<std::string>>
     create_graph(std::optional<io::config::Config>&& config) {
-        const auto lockfile = io::config::load_lockfile();
+        const auto lockfile = io::lockfile::load_lockfile();
 
         const auto resolved_deps = create_resolved_deps(std::move(config));
         Graph g;

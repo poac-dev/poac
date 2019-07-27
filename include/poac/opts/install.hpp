@@ -21,7 +21,7 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::install {
-    constexpr auto summary = termcolor2::make_string("Install packages");
+    constexpr auto summary = termcolor2::make_string("Install a C++ binary. Default location is $HOME/.poac/bin");
     constexpr auto options = termcolor2::make_string("-v | --verbose, -q | --quite, [args]");
 
     struct Options {
@@ -168,12 +168,12 @@ namespace poac::opts::install {
         const std::string NAME = "([a-z|\\d|\\-|_|\\/]*)";
         std::smatch match;
         if (std::regex_match(v, std::regex("^" + NAME + "$"))) { // TODO: 厳しくする
-            return { v, { "latest", io::config::PackageType::HeaderOnlyLib, std::nullopt } };
+            return { v, { "latest", io::lockfile::PackageType::HeaderOnlyLib, std::nullopt } };
         }
         else if (std::regex_match(v, match, std::regex("^" + NAME + "=(.*)$"))) {
             const auto name = match[1].str();
             const auto interval = match[2].str();
-            return { name, { interval, io::config::PackageType::HeaderOnlyLib, std::nullopt } };
+            return { name, { interval, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt } };
         }
         else {
             throw core::except::error("Invalid arguments");
@@ -188,10 +188,10 @@ namespace poac::opts::install {
         return ">=" + version + " and <" + upper.get_version();
     }
 
-    std::optional<io::config::Lockfile> // TODO:
+    std::optional<io::lockfile::Lockfile> // TODO:
     load_lockfile(const install::Options& opts, std::string_view timestamp) {
         if (opts.package_list.empty()) {
-            if (const auto lockfile = io::config::load_lockfile()) {
+            if (const auto lockfile = io::lockfile::load_lockfile()) {
                 if (lockfile.has_value() && lockfile->timestamp == timestamp) {
                     return lockfile.value();
                 }
@@ -202,7 +202,7 @@ namespace poac::opts::install {
 
     [[nodiscard]] std::optional<core::except::Error>
     install(std::optional<io::config::Config>&& config, install::Options&& opts) {
-        std::string timestamp = io::config::get_timestamp();
+        std::string timestamp = io::lockfile::get_timestamp();
         const auto lockfile = load_lockfile(opts, timestamp);
 
         // YAML::Node -> resolver:Deps

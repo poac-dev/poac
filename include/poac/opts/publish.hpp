@@ -41,7 +41,7 @@ namespace poac::opts::publish {
         std::optional<std::string> description;
         std::uint16_t cpp_version;
         std::optional<std::string> license;
-        io::config::PackageType package_type;
+        io::lockfile::PackageType package_type;
         std::string local_commit_sha;
     };
 
@@ -232,16 +232,16 @@ namespace poac::opts::publish {
         }
     }
 
-    io::config::PackageType
+    io::lockfile::PackageType
     get_package_type(const std::optional<io::config::Config>& config) {
         if (config->build.has_value()) {
             if (config->build->bins.has_value()) {
-                return io::config::PackageType::Application;
+                return io::lockfile::PackageType::Application;
             } else {
-                return io::config::PackageType::BuildReqLib;
+                return io::lockfile::PackageType::BuildReqLib;
             }
         } else {
-            return io::config::PackageType::HeaderOnlyLib;
+            return io::lockfile::PackageType::HeaderOnlyLib;
         }
     }
 
@@ -367,7 +367,7 @@ namespace poac::opts::publish {
         const auto package_info = report_publish_start(config);
 
         // TODO: Currently, we can not publish an application.
-        if (package_info.package_type == io::config::PackageType::Application) {
+        if (package_info.package_type == io::lockfile::PackageType::Application) {
             summarize(package_info);
             return core::except::Error::General{
                 "Sorry, you can not publish an application currently.\n"
