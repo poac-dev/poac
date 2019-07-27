@@ -115,7 +115,7 @@ namespace poac::io::lockfile {
             return std::to_string(boost::filesystem::last_write_time(filename.value(), config::detail::ec));
         } else {
             throw core::except::error(
-                    core::except::msg::does_not_exist("poac.yml"), "\n",
+                    core::except::msg::does_not_exist("poac.toml"), "\n",
                     core::except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
         }
     }
