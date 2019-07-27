@@ -17,16 +17,16 @@ namespace poac::opts::root {
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::config::Config>&&, std::vector<std::string>&&) {
-        boost::system::error_code error;
-        const auto loc = boost::dll::program_location(error);
-        if (error) {
+        boost::system::error_code ec;
+        const auto loc = boost::dll::program_location(ec);
+        if (ec) {
             return core::except::Error::General{
                 "Could not get root installation directory"
             };
         }
 
-        const auto ln = boost::filesystem::read_symlink(loc, error);
-        if (!error) {
+        const auto ln = boost::filesystem::read_symlink(loc, ec);
+        if (!ec) {
             std::cout << ln.parent_path().string() << std::endl;
         } else {
             std::cout << loc.parent_path().string() << std::endl;
