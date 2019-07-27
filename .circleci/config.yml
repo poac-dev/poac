@@ -71,7 +71,7 @@ commands:
 jobs:
   checkout_code:
     docker:
-      - image: ubuntu:19.04
+      - image: buildpack-deps:19.04
     steps:
       - checkout
 #      - poac-install
