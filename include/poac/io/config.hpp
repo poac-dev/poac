@@ -137,7 +137,7 @@ namespace poac::io::config {
             toml::table into_toml() const;
         };
 
-        std::optional<std::uint8_t> cpp_version;
+        std::optional<std::uint16_t> cpp_version;
         std::optional<std::unordered_map<std::string, std::string>> dependencies;
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
@@ -201,7 +201,7 @@ namespace poac::io::config {
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        cpp_version = detail::find_opt<std::uint8_t>(v, "cpp-version");
+        cpp_version = detail::find_opt<std::uint16_t>(v, "cpp-version");
         dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
         dev_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dev-dependencies");
         build_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "build-dependencies");
