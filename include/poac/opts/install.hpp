@@ -191,7 +191,7 @@ namespace poac::opts::install {
     std::optional<io::lockfile::Lockfile> // TODO:
     load_lockfile(const install::Options& opts, std::string_view timestamp) {
         if (opts.package_list.empty()) {
-            if (const auto lockfile = io::lockfile::load_lockfile()) {
+            if (const auto lockfile = io::lockfile::load()) {
                 if (lockfile.has_value() && lockfile->timestamp == timestamp) {
                     return lockfile.value();
                 }

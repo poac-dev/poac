@@ -105,7 +105,7 @@ namespace poac::io::lockfile {
     }
 
     std::optional<Lockfile>
-    load_lockfile(const boost::filesystem::path& base = boost::filesystem::current_path(config::detail::ec)) {
+    load(const boost::filesystem::path &base = boost::filesystem::current_path(config::detail::ec)) {
         return config::load_toml<Lockfile>(base, "poac.lock");
     }
 
