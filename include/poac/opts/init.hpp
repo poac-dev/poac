@@ -57,6 +57,7 @@ namespace poac::opts::init {
 
     [[nodiscard]] std::optional<core::except::Error>
     init(init::Options&& opts) {
+        namespace fs = boost::filesystem;
         using termcolor2::color_literals::operator""_green;
 
         if (const auto error = validate()) {
@@ -64,12 +65,12 @@ namespace poac::opts::init {
         }
 
         std::cout << "Created: "_green;
-        std::ofstream ofs_config("poac.yml");
+        std::ofstream ofs_config("poac.toml");
         if (opts.bin) {
-            ofs_config << _new::files::bin::poac_yml;
+            ofs_config << _new::files::bin::poac_toml(fs::basename(fs::current_path()));
             std::cout << "application ";
         } else {
-            ofs_config << _new::files::lib::poac_yml;
+            ofs_config << _new::files::lib::poac_toml;
             std::cout << "library ";
         }
         std::cout << "package" << std::endl;
