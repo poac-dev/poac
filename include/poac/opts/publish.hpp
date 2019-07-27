@@ -28,7 +28,7 @@
 
 namespace poac::opts::publish {
     constexpr auto summary = termcolor2::make_string("Publish a package");
-    constexpr auto options = termcolor2::make_string("[-y, --yes]");
+    constexpr auto options = termcolor2::make_string("[-y | --yes]");
 
     struct Options {
         bool yes;
@@ -39,7 +39,7 @@ namespace poac::opts::publish {
         std::string repo;
         semver::Version version;
         std::optional<std::string> description;
-        std::uint8_t cpp_version;
+        std::uint16_t cpp_version;
         std::optional<std::string> license;
         io::lockfile::PackageType package_type;
         std::string local_commit_sha;
@@ -154,7 +154,7 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    verify_cpp_version(const std::uint8_t& cpp_version) {
+    verify_cpp_version(const std::uint16_t& cpp_version) {
         switch (cpp_version) {
             case 98:
                 [[fallthrough]];
@@ -262,9 +262,16 @@ namespace poac::opts::publish {
         }
     }
 
-    std::uint8_t
+    std::uint16_t
     get_cpp_version(const std::optional<io::config::Config>& config) {
-        return config->cpp_version.value();
+        if (config->cpp_version.has_value()) {
+            return config->cpp_version.value();
+        } else {
+            throw core::except::error(
+                    "Could not get cpp-version from poac.toml.\n"
+                    "poac.toml needs a cpp-version string:\n"
+                    "    cpp-version = 17");
+        }
     }
 
     std::optional<std::string>
@@ -365,15 +372,6 @@ namespace poac::opts::publish {
     [[nodiscard]] std::optional<core::except::Error>
     publish(std::optional<io::config::Config>&& config, publish::Options&& opts) {
         const auto package_info = report_publish_start(config);
-
-        // TODO: Currently, we can not publish an application.
-        if (package_info.package_type == io::lockfile::PackageType::Application) {
-            summarize(package_info);
-            return core::except::Error::General{
-                "Sorry, you can not publish an application currently.\n"
-                "This condition may change in the future."
-            };
-        }
         if (const auto error = verify_package(package_info)) {
             return error;
         }
