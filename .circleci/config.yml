@@ -71,7 +71,7 @@ commands:
 jobs:
   checkout_code:
     docker:
-      - image: buildpack-deps:19.04
+      - image: circleci/buildpack-deps:disco
     steps:
       - checkout
 #      - poac-install
