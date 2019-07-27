@@ -85,7 +85,7 @@ namespace poac::opts::build {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    build(std::optional<io::config::Config>&& config, build::Options&& opts) {
+    build(std::optional<io::config::Config>&&, build::Options&& opts) {
         const auto [repo, name] = get_name();
         const int base_size = 12;
         std::cout << std::right << std::setw(base_size + termcolor2::green<>.size() + termcolor2::reset<>.size())
