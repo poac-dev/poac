@@ -18,8 +18,8 @@
 #include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/argparse.hpp>
-#include <poac/util/shell.hpp>
 #include <poac/util/termcolor2.hpp>
+#include <poac/util/git2/git2.hpp>
 
 namespace poac::opts::_new {
     constexpr auto summary = termcolor2::make_string("Create a new poac project");
@@ -60,9 +60,25 @@ namespace poac::opts::_new {
         }
     }
 
+    enum class NewProjectKind {
+        Bin,
+        Lib,
+    };
+
+    std::ostream& operator<<(std::ostream& os, NewProjectKind kind) {
+        switch (kind) {
+            case NewProjectKind::Bin:
+                os << "binary (application)";
+                break;
+            case NewProjectKind::Lib:
+                os << "library";
+                break;
+        }
+        return os;
+    }
+
     struct Options {
-        bool lib;
-        bool bin;
+        NewProjectKind kind;
         std::string project_name;
     };
 
@@ -71,22 +87,23 @@ namespace poac::opts::_new {
         namespace fs = boost::filesystem;
         using io::path::path_literals::operator""_path;
 
-        if (opts.bin) {
-            fs::create_directories(opts.project_name / "src"_path);
-            return {
-                { ".gitignore", files::bin::_gitignore },
-                { "poac.toml", files::bin::poac_toml(opts.project_name) },
-                { "src"_path / "main.cpp", files::bin::main_cpp }
-            };
-        } else {
-            fs::create_directories(opts.project_name / "include"_path / opts.project_name);
-            return {
-                { ".gitignore", files::lib::_gitignore },
-                { "poac.toml", files::lib::poac_toml },
-                { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
-                    files::lib::include_hpp(opts.project_name)
-                },
-            };
+        switch (opts.kind) {
+            case NewProjectKind::Bin:
+                fs::create_directories(opts.project_name / "src"_path);
+                return {
+                    { ".gitignore", files::bin::_gitignore },
+                    { "poac.toml", files::bin::poac_toml(opts.project_name) },
+                    { "src"_path / "main.cpp", files::bin::main_cpp }
+                };
+            case NewProjectKind::Lib:
+                fs::create_directories(opts.project_name / "include"_path / opts.project_name);
+                return {
+                    { ".gitignore", files::lib::_gitignore },
+                    { "poac.toml", files::lib::poac_toml },
+                    { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
+                        files::lib::include_hpp(opts.project_name)
+                    },
+                };
         }
     }
 
@@ -132,41 +149,36 @@ namespace poac::opts::_new {
 
     [[nodiscard]] std::optional<core::except::Error>
     _new(_new::Options&& opts) {
-        namespace fs = boost::filesystem;
         using termcolor2::color_literals::operator""_green;
 
         if (const auto error = validate(opts)) {
             return error;
         }
-
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
             io::path::write_to_file(ofs, (opts.project_name / name).string(), text);
         }
-
-        std::cout << "Created: "_green;
-        if (opts.bin) {
-            std::cout << "application ";
-        } else {
-            std::cout << "library ";
-        }
-        std::cout << "`" << opts.project_name << "` "
-                  << "package" << std::endl;
-
-        if (util::_shell::has_command("git")) {
-            const std::string git_init = "git init " + opts.project_name;
-            util::shell(git_init).exec();
-            std::cout << "Running: "_green << git_init << std::endl;
-        }
+        git2::repository::init(opts.project_name);
+        std::cout << "Created: "_green << opts.kind
+                  << " `" << opts.project_name << "` " << "package" << std::endl;
         return std::nullopt;
     }
 
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
         _new::Options opts{};
-        opts.lib = util::argparse::use_rm(args, "-l", "--lib");
-        // If lib is false then bin is true. If both are specified, bin takes precedence.
-        opts.bin = !opts.lib || util::argparse::use_rm(args, "-b", "--bin");
+        const bool bin = util::argparse::use_rm(args, "-b", "--bin");
+        const bool lib = util::argparse::use_rm(args, "-l", "--lib");
+        if (bin && lib) {
+            return core::except::Error::General{
+                "You cannot specify both lib and binary outputs."
+            };
+        } else if (!bin && lib) {
+            opts.kind = NewProjectKind::Lib;
+        } else {
+            opts.kind = NewProjectKind::Bin;
+        }
+
         if (args.size() != 1) {
             return core::except::Error::InvalidSecondArg::New;
         }
