@@ -49,7 +49,8 @@ namespace poac::opts::help {
     std::string
     decorate_name(const std::string& str) {
         // TODO: padding function s -> "build" 9 -> "build    "
-        return termcolor2::blue<> + termcolor2::bold<> + "   " + str + "   " + termcolor2::reset<>;
+        return termcolor2::blue<>.to_string() + termcolor2::bold<>.to_string() +
+               "   " + str + "   " + termcolor2::reset<>.to_string();
     }
     std::string
     decorate(const std::string& s1, const std::string& s2) {
@@ -58,29 +59,29 @@ namespace poac::opts::help {
 
     std::string
     construct_summary() {
-        return decorate("build    ", opts::build::summary)
-             + decorate("cache    ", opts::cache::summary)
-             + decorate("cleanup  ", opts::cleanup::summary)
-             + decorate("graph    ", opts::graph::summary)
-             + decorate("help     ", opts::help::summary)
-             + decorate("init     ", opts::init::summary)
-             + decorate("install  ", opts::install::summary)
-             + decorate("new      ", opts::_new::summary)
-             + decorate("publish  ", opts::publish::summary)
-             + decorate("root     ", opts::root::summary)
-             + decorate("run      ", opts::run::summary)
-             + decorate("search   ", opts::search::summary)
-             + decorate("test     ", opts::test::summary)
-             + decorate("uninstall", opts::uninstall::summary)
-             + decorate("update   ", opts::update::summary)
-             + decorate("version  ", opts::version::summary);
+        return decorate("build    ", opts::build::summary.to_string())
+             + decorate("cache    ", opts::cache::summary.to_string())
+             + decorate("cleanup  ", opts::cleanup::summary.to_string())
+             + decorate("graph    ", opts::graph::summary.to_string())
+             + decorate("help     ", opts::help::summary.to_string())
+             + decorate("init     ", opts::init::summary.to_string())
+             + decorate("install  ", opts::install::summary.to_string())
+             + decorate("new      ", opts::_new::summary.to_string())
+             + decorate("publish  ", opts::publish::summary.to_string())
+             + decorate("root     ", opts::root::summary.to_string())
+             + decorate("run      ", opts::run::summary.to_string())
+             + decorate("search   ", opts::search::summary.to_string())
+             + decorate("test     ", opts::test::summary.to_string())
+             + decorate("uninstall", opts::uninstall::summary.to_string())
+             + decorate("update   ", opts::update::summary.to_string())
+             + decorate("version  ", opts::version::summary.to_string());
     }
 
     using termcolor2::color_literals::operator""_bold;
     const std::string summary_string =
             "Usage: poac <command> [<args>]\n\n" +
             "Available commands:"_bold + '\n' +
-            construct_summary().to_string() +
+            construct_summary() +
             "\nSee `poac <command> --help` for information on a specific command.\n"
             "For full documentation, see: https://github.com/poacpm/poac#readme";
 #else
