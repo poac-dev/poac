@@ -30,7 +30,7 @@
 #include <poac/io/config.hpp>
 #include <poac/util/semver.hpp>
 
-namespace poac::core::builder {
+namespace poac::core {
     struct Builder {
         // Prohibit copy and move.
         Builder(const Builder&) = delete;
@@ -39,10 +39,10 @@ namespace poac::core::builder {
         Builder& operator=(Builder&&) noexcept = delete;
         ~Builder() = default;
 
-        options::compile compile_conf;
-        options::link link_conf;
-        options::static_lib static_lib_conf;
-        options::dynamic_lib dynamic_lib_conf;
+        builder::options::compile compile_conf;
+        builder::options::link link_conf;
+        builder::options::static_lib static_lib_conf;
+        builder::options::dynamic_lib dynamic_lib_conf;
 
         std::string project_name;
         std::optional<io::config::Config> config;
@@ -69,7 +69,7 @@ namespace poac::core::builder {
                     source_files.push_back("main.cpp");
                 }
             }
-            return cache::check_src_cpp(compile_conf, depends_ts, source_files, verbose);
+            return builder::cache::check_src_cpp(compile_conf, depends_ts, source_files, verbose);
         }
 
 //        void make_include_search_path() { // TODO: hashチェック時の大量の文字列配列が恐らくキツイ．
@@ -103,12 +103,12 @@ namespace poac::core::builder {
             compile_conf.system = compiler;
 
 //            const auto cpp_version = io::yaml::get_with_throw<std::uint8_t>(node.at("cpp_version"));
-            const std::string cn = standard::command_to_name(compiler);
+            const std::string cn = builder::standard::command_to_name(compiler);
 //            compile_conf.std_version = standard::convert(cpp_version, cn, io::yaml::get(node.at("build"), "gnu"));
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
 //            compile_conf.other_args = options::make_compile_other_args(node);
-            compile_conf.source_files = hash_source_files(detect::search_cpp_file(base_dir), usemain);
+            compile_conf.source_files = hash_source_files(builder::detect::search_cpp_file(base_dir), usemain);
 //            compile_conf.macro_defns = options::make_macro_defns(node);
             compile_conf.base_dir = base_dir;
             compile_conf.output_root = io::path::current_build_cache_obj_dir;
@@ -120,7 +120,7 @@ namespace poac::core::builder {
             for (const auto& s : compile_conf.source_files) {
                 // sourceファイルを一つづつコンパイルする．
                 compile_conf.source_file = s;
-                if (const auto ret = compiler::compile(compile_conf, verbose)) {
+                if (const auto ret = builder::compiler::compile(compile_conf, verbose)) {
                     // Since compile succeeded, save hash
                     std::ofstream ofs;
                     for (const auto& [hash_name, data] : depends_ts) { // TODO: ここまで持ち回るから落ちる？
@@ -190,7 +190,7 @@ namespace poac::core::builder {
 //            }
         }
         auto link() {
-            return compiler::link(link_conf, verbose);
+            return builder::compiler::link(link_conf, verbose);
         }
 
         void configure_static_lib(const std::vector<std::string>& obj_files_path) {
@@ -199,7 +199,7 @@ namespace poac::core::builder {
             static_lib_conf.obj_files_path = obj_files_path;
         }
         auto gen_static_lib() {
-            return compiler::gen_static_lib(static_lib_conf, verbose);
+            return builder::compiler::gen_static_lib(static_lib_conf, verbose);
         }
 
         void configure_dynamic_lib(const std::vector<std::string>& obj_files_path) {
@@ -211,7 +211,7 @@ namespace poac::core::builder {
             dynamic_lib_conf.obj_files_path = obj_files_path;
         }
         auto gen_dynamic_lib() {
-            return compiler::gen_dynamic_lib(dynamic_lib_conf, verbose);
+            return builder::compiler::gen_dynamic_lib(dynamic_lib_conf, verbose);
         }
 
         // TODO: poac.ymlのhashもcheck
@@ -220,8 +220,8 @@ namespace poac::core::builder {
         Builder(
 //                const std::optional<io::yaml::Config>& config,
                 const bool verbose,
-                const boost::filesystem::path& base_dir=boost::filesystem::current_path()
-        ) : /*config(config),*/ base_dir(base_dir), compiler(standard::detect_command()), verbose(verbose)
+                const boost::filesystem::path& base_dir = boost::filesystem::current_path()
+        ) : /*config(config),*/ base_dir(base_dir), compiler(builder::standard::detect_command()), verbose(verbose)
         {
             // Create link configure and include search path
 //            if (config->dependencies) {
