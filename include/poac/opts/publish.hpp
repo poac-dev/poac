@@ -214,7 +214,7 @@ namespace poac::opts::publish {
         using util::pretty::clip_string;
         std::cout << "Summary:"_bold
                   << "\n  Name: "_bold << get_full_name(package_info)
-                  << "\n  Version: "_bold << package_info.version.get_full()
+                  << "\n  Version: "_bold << package_info.version
                   << "\n  Description: "_bold << clip_string(package_info.description.value_or("null"), 50)
                   << "\n  C++ Version (minimum required version): "_bold << package_info.cpp_version
                   << "\n  License: "_bold << package_info.license.value_or("null"_yellow)
