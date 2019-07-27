@@ -71,7 +71,7 @@ namespace poac::opts::publish {
 
         io::net::MultiPartForm::header_type header;
         header[io::net::http::field::content_type] = "text/plain";
-        mpf.set("poac.yml", "poac.yml", header);
+        mpf.set("poac.toml", "poac.toml", header);
 
         const io::net::requests req{ POAC_API_HOST };
         if (const auto res = req.post(POAC_REGISTER_API, std::move(mpf)); res != "ok") {
