@@ -31,7 +31,7 @@ namespace poac::opts::_new {
                     "/target"
             );
             std::string poac_toml(const std::string& project_name) {
-                return "cpp_version = 17\n"
+                return "cpp-version = 17\n"
                        "[[build.bin]]\n"
                        "path = \"src/main.cpp\"\n"
                        "name = \"" + project_name + "\"";
