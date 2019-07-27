@@ -18,7 +18,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE -DPOAC_PROJECT_ROOT="${CMAKE_
 target_compile_definitions(${PROJECT_NAME} PRIVATE -DPOAC_VERSION="${PROJECT_VERSION}")
 
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj /constexpr:steps500000)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
     target_compile_options(${PROJECT_NAME} PRIVATE -fdiagnostics-color -Wall -Wextra) # -Werror
