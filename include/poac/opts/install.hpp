@@ -217,7 +217,7 @@ namespace poac::opts::install {
             }
             else if (opts.package_list.empty()) { // 引数から指定しておらず(poac install)，poac.ymlにdeps keyが存在しない
                 return core::except::Error::General{
-                    "Required key `deps` does not exist in poac.yml.\n"
+                    "Required key `dependencies` does not exist in poac.toml.\n"
                     "Please refer to https://doc.poac.pm"
                 };
             }
@@ -236,6 +236,8 @@ namespace poac::opts::install {
         } else {
             download(lockfile->dependencies, opts);
         }
+
+        // TODO: Applicationのみ，install可能．~/.poac/bin -> そのまま，buildを実行して良い．
 
         // TODO: Rewrite poac.yml
 //        bool fix_yml = false;
