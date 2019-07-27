@@ -32,11 +32,12 @@
 
 namespace poac::core {
     struct Builder {
-        // Prohibit copy and move.
+        // Prohibit copy.
         Builder(const Builder&) = delete;
         Builder& operator=(const Builder&) = delete;
-        Builder(Builder&&) noexcept = delete;
-        Builder& operator=(Builder&&) noexcept = delete;
+        Builder(Builder&&) noexcept = default;
+        Builder& operator=(Builder&&) noexcept = default;
+        Builder() = delete;
         ~Builder() = default;
 
         builder::options::compile compile_conf;
@@ -46,7 +47,7 @@ namespace poac::core {
 
         std::string project_name;
         std::optional<io::config::Config> config;
-        boost::filesystem::path base_dir;
+        boost::filesystem::path base_directory;
         std::string compiler;
         bool verbose;
 
@@ -108,9 +109,9 @@ namespace poac::core {
 
 //            compile_conf.include_search_path = utils::options::make_include_search_path(exist_deps_key);
 //            compile_conf.other_args = options::make_compile_other_args(node);
-            compile_conf.source_files = hash_source_files(builder::detect::search_cpp_file(base_dir), usemain);
+            compile_conf.source_files = hash_source_files(builder::detect::search_cpp_file(base_directory), usemain);
 //            compile_conf.macro_defns = options::make_macro_defns(node);
-            compile_conf.base_dir = base_dir;
+            compile_conf.base_dir = base_directory;
             compile_conf.output_root = io::path::current_build_cache_obj_dir;
         }
         std::optional<std::vector<std::string>>
@@ -217,11 +218,11 @@ namespace poac::core {
         // TODO: poac.ymlのhashもcheck
         // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
         // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
-        Builder(
+        explicit Builder(
 //                const std::optional<io::yaml::Config>& config,
                 const bool verbose,
                 const boost::filesystem::path& base_dir = boost::filesystem::current_path()
-        ) : /*config(config),*/ base_dir(base_dir), compiler(builder::standard::detect_command()), verbose(verbose)
+        ) : /*config(config),*/ base_directory(base_dir), compiler(builder::standard::detect_command()), verbose(verbose)
         {
             // Create link configure and include search path
 //            if (config->dependencies) {
