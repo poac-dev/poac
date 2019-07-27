@@ -28,6 +28,12 @@ namespace poac::util {
         shell to_dev_null() {
             return cmd + " >/dev/null";
         }
+        shell dump_stdout() {
+            return cmd + " 1>/dev/null";
+        }
+        shell dump_stderr() {
+            return cmd + " 2>/dev/null";
+        }
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
