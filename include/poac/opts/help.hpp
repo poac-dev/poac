@@ -41,6 +41,49 @@ namespace poac::opts::help {
         std::string cmd;
     };
 
+#if BOOST_COMP_MSVC
+    std::string
+    decorate_summary(const std::string& str) {
+        return termcolor2::yellow<>.to_string() + str + termcolor2::reset<>.to_string() + "\n";
+    }
+    std::string
+    decorate_name(const std::string& str) {
+        // TODO: padding function s -> "build" 9 -> "build    "
+        return termcolor2::blue<> + termcolor2::bold<> + "   " + str + "   " + termcolor2::reset<>;
+    }
+    std::string
+    decorate(const std::string& s1, const std::string& s2) {
+        return decorate_name(s1) + decorate_summary(s2);
+    }
+
+    std::string
+    construct_summary() {
+        return decorate("build    ", opts::build::summary)
+             + decorate("cache    ", opts::cache::summary)
+             + decorate("cleanup  ", opts::cleanup::summary)
+             + decorate("graph    ", opts::graph::summary)
+             + decorate("help     ", opts::help::summary)
+             + decorate("init     ", opts::init::summary)
+             + decorate("install  ", opts::install::summary)
+             + decorate("new      ", opts::_new::summary)
+             + decorate("publish  ", opts::publish::summary)
+             + decorate("root     ", opts::root::summary)
+             + decorate("run      ", opts::run::summary)
+             + decorate("search   ", opts::search::summary)
+             + decorate("test     ", opts::test::summary)
+             + decorate("uninstall", opts::uninstall::summary)
+             + decorate("update   ", opts::update::summary)
+             + decorate("version  ", opts::version::summary);
+    }
+
+    using termcolor2::color_literals::operator""_bold;
+    const std::string summary_string =
+            "Usage: poac <command> [<args>]\n\n" +
+            "Available commands:"_bold + '\n' +
+            construct_summary().to_string() +
+            "\nSee `poac <command> --help` for information on a specific command.\n"
+            "For full documentation, see: https://github.com/poacpm/poac#readme";
+#else
     template <typename CharT, std::size_t N, typename Traits>
     constexpr auto
     decorate_summary(const termcolor2::basic_string<CharT, N, Traits>& str) {
@@ -61,32 +104,23 @@ namespace poac::opts::help {
     constexpr auto
     construct_summary() {
         return decorate("build    ", opts::build::summary)
-             + decorate("cache    ", opts::cache::summary)
-             + decorate("cleanup  ", opts::cleanup::summary)
-             + decorate("graph    ", opts::graph::summary)
-             + decorate("help     ", opts::help::summary)
-             + decorate("init     ", opts::init::summary)
-             + decorate("install  ", opts::install::summary)
-             + decorate("new      ", opts::_new::summary)
-             + decorate("publish  ", opts::publish::summary)
-             + decorate("root     ", opts::root::summary)
-             + decorate("run      ", opts::run::summary)
-             + decorate("search   ", opts::search::summary)
-             + decorate("test     ", opts::test::summary)
-             + decorate("uninstall", opts::uninstall::summary)
-             + decorate("update   ", opts::update::summary)
-             + decorate("version  ", opts::version::summary);
+               + decorate("cache    ", opts::cache::summary)
+               + decorate("cleanup  ", opts::cleanup::summary)
+               + decorate("graph    ", opts::graph::summary)
+               + decorate("help     ", opts::help::summary)
+               + decorate("init     ", opts::init::summary)
+               + decorate("install  ", opts::install::summary)
+               + decorate("new      ", opts::_new::summary)
+               + decorate("publish  ", opts::publish::summary)
+               + decorate("root     ", opts::root::summary)
+               + decorate("run      ", opts::run::summary)
+               + decorate("search   ", opts::search::summary)
+               + decorate("test     ", opts::test::summary)
+               + decorate("uninstall", opts::uninstall::summary)
+               + decorate("update   ", opts::update::summary)
+               + decorate("version  ", opts::version::summary);
     }
 
-#if BOOST_COMP_MSVC
-    using termcolor2::color_literals::operator""_bold;
-    const auto summary_string =
-            "Usage: poac <command> [<args>]\n\n" +
-            "Available commands:"_bold + '\n' +
-            construct_summary().to_string() +
-            "\nSee `poac <command> --help` for information on a specific command.\n"
-            "For full documentation, see: https://github.com/poacpm/poac#readme";
-#else
     constexpr auto summary_string =
             termcolor2::make_string("Usage: poac <command> [<args>]\n\n") +
             termcolor2::bold<> + "Available commands:" + termcolor2::reset<> + '\n' +
