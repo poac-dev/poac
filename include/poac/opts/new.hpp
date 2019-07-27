@@ -34,8 +34,7 @@ namespace poac::opts::_new {
                 return "cpp_version = 17\n"
                        "[[build.bin]]\n"
                        "path = \"src/main.cpp\"\n"
-                       "name = \"" + project_name + "\"\n"
-                       "link = \"static\"";
+                       "name = \"" + project_name + "\"";
             }
             const std::string main_cpp(
                     "#include <iostream>\n\n"
