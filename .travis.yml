@@ -31,6 +31,7 @@ install:
       brew upgrade boost;
       pip install cpp-coveralls;
     fi
+  - brew install libgit2
   - git clone -q https://github.com/ToruNiina/toml11.git
   - cd toml11
   - mkdir build

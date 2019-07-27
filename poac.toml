@@ -3,6 +3,7 @@ cpp-version = 17
 [dependencies]
 "matken11235/termcolor2" = ">=0.1.0 and <1.0.0"
 #"matken11235/semver" = ">=0.1.0 and <1.0.0"
+#"matken11235/git2-cpp" = ">=0.1.0 and <1.0.0"
 #"matken11235/tar-cpp" = ">=0.1.0 and <1.0.0"
 #"matken11235/url-cpp" = ">=0.1.0 and <1.0.0"
 "poac-community/boost-predef" = ">=1.64.0 and <2.0.0"

@@ -129,5 +129,6 @@ target_link_libraries(
         ${OPENSSL_LIBRARIES}
         ${SSL_RELATED_LIBS}
         ${BOOST_LINK_LIBS}
+        git2
 )
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

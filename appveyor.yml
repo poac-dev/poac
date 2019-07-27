@@ -3,6 +3,7 @@ version: "#{build}"
 cache:
   - C:\Libraries\boost-1.69.0
   - C:\Libraries\toml11
+  - C:\Libraries\libgit2
 
 configuration:
   - Debug
@@ -13,7 +14,7 @@ build:
 
 environment:
   global:
-    CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,libboost-devel
+    CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,libboost-devel,libgit2
 
   matrix:
     - COMPILER: cygwin-gcc
@@ -83,6 +84,19 @@ install:
         %TARGET_PLATFORM% ^
         -Dtoml11_BUILD_TEST=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11 &&
+      cmake --build . --target install --config %Configuration% &&
+      cd ..\..
+    )
+
+  # Build libgit2
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\libgit2 (
+      "C:\Program Files\Git\cmd\git.exe" clone -q https://github.com/libgit2/libgit2.git &&
+      cd libgit2 &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        %TARGET_PLATFORM% ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\libgit2 &&
       cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
