@@ -1,7 +1,6 @@
 #ifndef POAC_IO_TERM_HPP
 #define POAC_IO_TERM_HPP
 
-#include <cstdio>
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
