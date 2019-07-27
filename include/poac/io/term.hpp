@@ -117,15 +117,21 @@ namespace poac::io::term {
     }
 
     template <typename... T>
-    inline void debugln([[maybe_unused]] const T&... s) {
+    inline void debugln(const T&...
 #ifdef DEBUG
+    s) {
         ((std::cout << debug_m) << ... << s) << std::endl;
+#else
+    ) {
 #endif
     }
     template <typename... T>
-    inline void debug([[maybe_unused]] const T &... s) {
+    inline void debug(const T &...
 #ifdef DEBUG
+    s) {
         ((std::cout << debug_m) << ... << s);
+#else
+    ) {
 #endif
     }
 } // end namespace
