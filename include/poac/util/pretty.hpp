@@ -8,21 +8,21 @@ namespace poac::util::pretty {
     std::string to_time(const std::string& s) {
         double total_seconds = std::stod(s);
         if (total_seconds > 1.0) {
-            int days = static_cast<int>( total_seconds / 60 / 60 / 24 );
-            int hours = static_cast<int>( total_seconds / 60 / 60 ) % 24;
-            int minutes = static_cast<int>( total_seconds / 60 ) % 60;
-            int seconds = static_cast<int>( total_seconds ) % 60;
-
             std::string res;
+
+            int days = static_cast<int>(total_seconds / 60 / 60 / 24);
             if (days > 0) {
                 res += std::to_string(days) + "d ";
             }
+            int hours = static_cast<int>(total_seconds / 60 / 60) % 24;
             if (hours > 0) {
                 res += std::to_string(hours) + "h ";
             }
+            int minutes = static_cast<int>(total_seconds / 60) % 60;
             if (minutes > 0) {
                 res += std::to_string(minutes) + "m ";
             }
+            int seconds = static_cast<int>(total_seconds) % 60;
             res += std::to_string(seconds) + "s";
 
             return res;
