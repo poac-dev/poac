@@ -20,12 +20,13 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE -DPOAC_VERSION="${PROJECT_VER
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -pthread -fdiagnostics-color -Wall -Wextra) # -Werror
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+    target_compile_options(${PROJECT_NAME} PRIVATE -fdiagnostics-color -Wall -Wextra) # -Werror
     if(NOT APPLE)
         target_compile_options(${PROJECT_NAME} PRIVATE -D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
     endif()
     if(CYGWIN OR MINGW)
-        target_compile_options(${PROJECT_NAME} PRIVATE -pthread -O3 -Wa,-mbig-obj)
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -Wa,-mbig-obj)
     endif()
 endif()
 
