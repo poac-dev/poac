@@ -114,7 +114,7 @@ namespace poac::opts::uninstall {
         }
 
         // create resolved deps
-        const auto timestamp = io::lockfile::get_timestamp();
+        const auto timestamp = io::config::get_timestamp();
         resolve::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load(timestamp)) {
 //            resolved_deps = locked_deps.value();

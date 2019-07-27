@@ -108,16 +108,5 @@ namespace poac::io::lockfile {
     load(const boost::filesystem::path &base = boost::filesystem::current_path(config::detail::ec)) {
         return config::load_toml<Lockfile>(base, "poac.lock");
     }
-
-    std::string
-    get_timestamp() { // FIXME
-        if (const auto filename = config::detail::validate_config()) {
-            return std::to_string(boost::filesystem::last_write_time(filename.value(), config::detail::ec));
-        } else {
-            throw core::except::error(
-                    core::except::msg::does_not_exist("poac.toml"), "\n",
-                    core::except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
-        }
-    }
 } // end namespace
 #endif // !POAC_IO_LOCKFILE_HPP

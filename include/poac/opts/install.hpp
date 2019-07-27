@@ -22,7 +22,7 @@
 
 namespace poac::opts::install {
     constexpr auto summary = termcolor2::make_string("Install a C++ binary. Default location is $HOME/.poac/bin");
-    constexpr auto options = termcolor2::make_string("-v | --verbose, -q | --quite, [args]");
+    constexpr auto options = termcolor2::make_string("-v | --verbose, -q | --quite, [packages]...");
 
     struct Options {
         bool quite;
@@ -202,7 +202,7 @@ namespace poac::opts::install {
 
     [[nodiscard]] std::optional<core::except::Error>
     install(std::optional<io::config::Config>&& config, install::Options&& opts) {
-        std::string timestamp = io::lockfile::get_timestamp();
+        std::string timestamp = io::config::get_timestamp();
         const auto lockfile = load_lockfile(opts, timestamp);
 
         // YAML::Node -> resolver:Deps

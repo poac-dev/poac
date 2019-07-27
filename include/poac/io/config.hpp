@@ -319,5 +319,16 @@ namespace poac::io::config {
     load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)) {
          return load_toml<Config>(base, "poac.toml");
     }
+
+    std::string
+    get_timestamp() {
+        if (const auto filename = config::detail::validate_config()) {
+            return std::to_string(boost::filesystem::last_write_time(filename.value(), config::detail::ec));
+        } else {
+            throw core::except::error(
+                    core::except::msg::does_not_exist("poac.toml"), "\n",
+                    core::except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
+        }
+    }
 } // end namespace
 #endif // !POAC_IO_CONFIG_HPP
