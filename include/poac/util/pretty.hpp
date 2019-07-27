@@ -14,9 +14,15 @@ namespace poac::util::pretty {
             int seconds = static_cast<int>( total_seconds ) % 60;
 
             std::string res;
-            if (days > 0) res += std::to_string(days) + "d ";
-            if (hours > 0) res += std::to_string(hours) + "h ";
-            if (minutes > 0) res += std::to_string(minutes) + "m ";
+            if (days > 0) {
+                res += std::to_string(days) + "d ";
+            }
+            if (hours > 0) {
+                res += std::to_string(hours) + "h ";
+            }
+            if (minutes > 0) {
+                res += std::to_string(minutes) + "m ";
+            }
             res += std::to_string(seconds) + "s";
 
             return res;
@@ -53,8 +59,7 @@ namespace poac::util::pretty {
     std::string clip_string(const std::string& s, const unsigned long& n) {
         if (s.size() <= n) {
             return s;
-        }
-        else {
+        } else {
             return s.substr(0, n) + "...";
         }
     }
