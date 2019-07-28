@@ -71,12 +71,6 @@ $ poac build
 ```
 -->
 
-### Runtime requirements
-
-* compiler (GCC | Clang | MSVC | ICC)
-* `git` command
-* `dot(graphviz)` command
-
 ## Why poac?
 
 I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.

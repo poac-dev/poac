@@ -2,7 +2,7 @@
 #define POAC_UTIL_HPP
 
 #include <poac/util/argparse.hpp>
-#include <poac/util/git2/git2.hpp>
+#include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/semver.hpp>

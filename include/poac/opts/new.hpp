@@ -19,7 +19,7 @@
 #include <poac/io/path.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/termcolor2.hpp>
-#include <poac/util/git2/git2.hpp>
+#include <poac/util/git2-cpp/git2.hpp>
 
 namespace poac::opts::_new {
     constexpr auto summary = termcolor2::make_string("Create a new poac project");
@@ -158,7 +158,7 @@ namespace poac::opts::_new {
         for (auto&& [name, text] : create_template_files(opts)) {
             io::path::write_to_file(ofs, (opts.project_name / name).string(), text);
         }
-        git2::repository::init(opts.project_name);
+        git2::repository().init(opts.project_name);
         std::cout << "Created: "_green << opts.kind
                   << " `" << opts.project_name << "` " << "package" << std::endl;
         return std::nullopt;
