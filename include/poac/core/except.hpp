@@ -31,8 +31,10 @@ namespace poac::core::except {
     class Error {
     public:
         struct General {
-            const std::string impl;
+        private:
+            std::string impl;
 
+        public:
             General() = delete;
             General(const General&) = default;
             General& operator=(const General&) = delete;
