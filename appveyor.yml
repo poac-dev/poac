@@ -145,9 +145,6 @@ build_script:
         -DGIT2_DIR=C:\Libraries\libgit2 &&
       cmake --build . --target install --config %Configuration%
     )
-  - if %COMPILER% == gcc (
-      poac --help
-    )
 
 artifacts:
   - path: build\Release\poac.exe
