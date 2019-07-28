@@ -141,7 +141,8 @@ build_script:
         -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -Dtoml11_DIR=C:\Libraries\toml11\lib\cmake\toml11 &&
+        -DTOML11_DIR=C:\Libraries\toml11 ^
+        -DGIT2_DIR=C:\Libraries\libgit2 &&
       cmake --build . --target install --config %Configuration%
     )
   - if %COMPILER% == gcc (
