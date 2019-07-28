@@ -115,7 +115,7 @@ namespace poac::opts::install {
                 }
             }
             else {
-                util::shell clone_cmd = core::resolver::resolve::github::clone_command(name, package.version);
+                util::shell clone_cmd(core::resolver::resolve::github::clone_command(name, package.version));
                 clone_cmd += (io::path::poac_cache_dir / cache_name).string();
                 clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
 

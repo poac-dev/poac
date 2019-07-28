@@ -17,22 +17,27 @@ namespace poac::util {
         }
 
         shell() : cmd() {}
-        shell(const std::string& c) : cmd(c) {}
+        explicit shell(const std::string& c) : cmd(c) {}
 
-        shell env(const std::string& name, const std::string& value) {
-            return cmd.insert(0, name + "=" + value + " ");
+        shell& env(const std::string& name, const std::string& value) {
+            cmd.insert(0, name + "=" + value + " ");
+            return *this;
         }
-        shell stderr_to_stdout() {
-            return cmd + " 2>&1";
+        shell& stderr_to_stdout() {
+            cmd += " 2>&1";
+            return *this;
         }
-        shell to_dev_null() {
-            return cmd + " >/dev/null";
+        shell& to_dev_null() {
+            cmd += " >/dev/null";
+            return *this;
         }
-        shell dump_stdout() {
-            return cmd + " 1>/dev/null";
+        shell& dump_stdout() {
+            cmd += " 1>/dev/null";
+            return *this;
         }
-        shell dump_stderr() {
-            return cmd + " 2>/dev/null";
+        shell& dump_stderr() {
+            cmd += " 2>/dev/null";
+            return *this;
         }
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
@@ -89,11 +94,13 @@ namespace poac::util {
             return shell(this->cmd + " && " + rhs);
         }
 
-        shell operator&=(const shell& rhs) {
-            return this->cmd += (" && " + rhs.cmd);
+        shell& operator&=(const shell& rhs) {
+            this->cmd += " && " + rhs.cmd;
+            return *this;
         }
-        shell operator&=(const std::string& rhs) {
-            return this->cmd += (" && " + rhs);
+        shell& operator&=(const std::string& rhs) {
+            this->cmd += " && " + rhs;
+            return *this;
         }
 
         shell operator||(const shell& rhs) const {
@@ -103,11 +110,13 @@ namespace poac::util {
             return shell(this->cmd + " || " + rhs);
         }
 
-        shell operator|=(const shell& rhs) {
-            return this->cmd += (" || " + rhs.cmd);
+        shell& operator|=(const shell& rhs) {
+            this->cmd += " || " + rhs.cmd;
+            return *this;
         }
-        shell operator|=(const std::string& rhs) {
-            return this->cmd += (" || " + rhs);
+        shell& operator|=(const std::string& rhs) {
+            this->cmd += " || " + rhs;
+            return *this;
         }
 
         shell operator+(const shell& rhs) const { // TODO: "; "でなくても良いのか
@@ -117,11 +126,13 @@ namespace poac::util {
             return shell(this->cmd + " " + rhs);
         }
 
-        shell operator+=(const shell& rhs) {
-            return this->cmd += " " + rhs.cmd;
+        shell& operator+=(const shell& rhs) {
+            this->cmd += " " + rhs.cmd;
+            return *this;
         }
-        shell operator+=(const std::string& rhs) {
-            return this->cmd += " " + rhs;
+        shell& operator+=(const std::string& rhs) {
+            this->cmd += " " + rhs;
+            return *this;
         }
 
     private:
