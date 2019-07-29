@@ -28,7 +28,6 @@ install:
       brew install llvm@7;
       brew upgrade cmake;
     else
-      brew upgrade boost;
       pip install cpp-coveralls;
     fi
   - brew install libgit2
