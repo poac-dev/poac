@@ -50,7 +50,7 @@ namespace poac::core::except {
                   ) // delegation
             {}
 
-            virtual ~General() noexcept override = default;
+            virtual ~General() noexcept = default;
 
             virtual std::string what() const {
                 return impl;
