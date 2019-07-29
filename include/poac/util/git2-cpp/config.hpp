@@ -4,6 +4,7 @@
 #include <string>
 #include <git2/config.h>
 #include <poac/util/git2-cpp/global.hpp>
+#include <poac/util/git2-cpp/exception.hpp>
 
 namespace git2 {
     class config {
@@ -25,7 +26,7 @@ namespace git2 {
 
     config::config() {
         git2::init();
-        git_config_new(&this->cfg);
+        git2_throw(git_config_new(&this->cfg));
     }
 
     config::~config() {
@@ -36,7 +37,7 @@ namespace git2 {
     std::string
     config::get_string(const std::string& name) {
         git_buf ret = { nullptr, 0, 0 };
-        git_config_get_string_buf(&ret, this->cfg, name.c_str());
+        git2_throw(git_config_get_string_buf(&ret, this->cfg, name.c_str()));
         return std::string(ret.ptr, ret.size);
     }
 
