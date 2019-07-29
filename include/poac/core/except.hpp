@@ -78,7 +78,7 @@ namespace poac::core::except {
             // Inheriting constructors
             using General::General;
             virtual ~DoesNotExist() noexcept = default;
-            virtual std::string what() const {
+            virtual std::string what() const override {
                 return "`" + General::what() + "` does not exist";
             }
         };
@@ -87,7 +87,7 @@ namespace poac::core::except {
             // Inheriting constructors
             using DoesNotExist::DoesNotExist;
             ~KeyDoesNotExist() noexcept = default;
-            std::string what() const {
+            std::string what() const override {
                 return "Required key " + DoesNotExist::what() + " in poac.toml";
             }
         };
@@ -193,8 +193,7 @@ namespace poac::core::except {
         }
     }
 
-    class error : public std::invalid_argument
-    {
+    class error : public std::invalid_argument {
     public:
         explicit error(const std::string& __s) : invalid_argument(__s) {}
         explicit error(const char* __s) : invalid_argument(__s) {}
