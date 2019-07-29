@@ -1,9 +1,10 @@
-#ifndef GIT2_REPO_HPP
-#define GIT2_REPO_HPP
+#ifndef GIT2_REPOSITORY_HPP
+#define GIT2_REPOSITORY_HPP
 
 #include <string>
-
-#include <git2.h>
+#include <git2/repository.h>
+#include <poac/util/git2-cpp/config.hpp>
+#include <poac/util/git2-cpp/exception.hpp>
 
 namespace git2 {
     class repository {
@@ -18,12 +19,37 @@ namespace git2 {
         repository(repository&&) = default;
         repository& operator=(repository&&) = default;
 
-        void init(const std::string& path);
-        void init_bare(const std::string& path);
+        repository& open(const std::string& path);
+        repository& open_bare(const std::string& path);
+
+        repository& init(const std::string& path);
+        repository& init_bare(const std::string& path);
+
+        git2::config config();
     };
 
     repository::~repository() {
-        git_repository_free(repo);
+        git_repository_free(this->repo);
+    }
+
+    /// Attempt to open an already-existing repository at `path`.
+    ///
+    /// The path can point to either a normal or bare repository.
+    repository&
+    repository::open(const std::string& path) {
+        git2::init();
+        git2_throw(git_repository_open(&this->repo, path.c_str()));
+        return *this;
+    }
+
+    /// Attempt to open an already-existing bare repository at `path`.
+    ///
+    /// The path can point to only a bare repository.
+    repository&
+    repository::open_bare(const std::string& path) {
+        git2::init();
+        git2_throw(git_repository_open_bare(&this->repo, path.c_str()));
+        return *this;
     }
 
     /// Creates a new repository in the specified folder.
@@ -31,37 +57,34 @@ namespace git2 {
     /// This by default will create any necessary directories to create the
     /// repository, and it will read any user-specified templates when creating
     /// the repository. This behavior can be configured through `init_opts`.
-    void repository::init(const std::string& path) {
+    repository&
+    repository::init(const std::string& path) {
         git2::init();
-        git_repository_init(&repo, path.c_str(), false);
+        git2_throw(git_repository_init(&this->repo, path.c_str(), false));
+        return *this;
     }
 
     /// Creates a new `--bare` repository in the specified folder.
     ///
     /// The folder must exist prior to invoking this function.
-    void repository::init_bare(const std::string& path) {
+    repository&
+    repository::init_bare(const std::string& path) {
         git2::init();
-        git_repository_init(&repo, path.c_str(), true);
+        git2_throw(git_repository_init(&this->repo, path.c_str(), true));
+        return *this;
     }
 
-
-
-    void hoge2() {
-        git_libgit2_init();
-
-        git_repository* repo = nullptr;
-        git_repository_open(&repo, boost::filesystem::absolute(boost::filesystem::current_path()).string().c_str());
+    /// Get the configuration file for this repository.
+    ///
+    /// If a configuration file has not been set, the default config set for the
+    /// repository will be returned, including global and system configurations
+    /// (if they are available).
+    git2::config
+    repository::config() { // git2::config
         git_config* cfg = nullptr;
-        git_repository_config(&cfg, repo);
-        git_buf strval = { nullptr, 0, 0 };
-        git_config_get_string_buf(&strval, cfg, "remote.origin.url");
-
-        std::cout << std::string(strval.ptr, strval.size) << std::endl;
-
-        git_buf_dispose(&strval);
-        git_config_free(cfg);
-        git_libgit2_shutdown();
+        git2_throw(git_repository_config(&cfg, this->repo));
+        return git2::config(cfg);
     }
 } // end namespace git2
 
-#endif	// !GIT2_REPO_HPP
+#endif	// !GIT2_REPOSITORY_HPP
