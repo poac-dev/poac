@@ -50,7 +50,7 @@ namespace poac::core::except {
                   ) // delegation
             {}
 
-            virtual ~General() noexcept = default;
+            virtual ~General() noexcept override = default;
 
             virtual std::string what() const {
                 return impl;
@@ -77,7 +77,7 @@ namespace poac::core::except {
         struct DoesNotExist : General {
             // Inheriting constructors
             using General::General;
-            virtual ~DoesNotExist() noexcept = default;
+            virtual ~DoesNotExist() noexcept override = default;
             virtual std::string what() const override {
                 return "`" + General::what() + "` does not exist";
             }
@@ -86,7 +86,7 @@ namespace poac::core::except {
         struct KeyDoesNotExist final : DoesNotExist {
             // Inheriting constructors
             using DoesNotExist::DoesNotExist;
-            ~KeyDoesNotExist() noexcept = default;
+            ~KeyDoesNotExist() noexcept override = default;
             std::string what() const override {
                 return "Required key " + DoesNotExist::what() + " in poac.toml";
             }
@@ -204,7 +204,7 @@ namespace poac::core::except {
               )
         {}
 
-        virtual ~error() = default;
+        virtual ~error() noexcept override = default;
     };
 } // end namespace
 #endif // !POAC_CORE_EXCEPT_HPP
