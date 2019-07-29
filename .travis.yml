@@ -17,12 +17,12 @@ matrix:
       osx_image: xcode10.1
     # macOS Mojave
     - os: osx
-      osx_image: xcode10.2
+      osx_image: xcode11
 
 before_install:
   - brew update
 install:
-  - if [[ "$TRAVIS_OSX_IMAGE" != "xcode10.2" ]]; then
+  - if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
       brew install llvm@7;
@@ -47,7 +47,7 @@ script:
   - poac -h
   - cd ../
 after_success:
-  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode10.2" ]]; then
+  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
       bash ./test.sh --coverage;
     fi
 
