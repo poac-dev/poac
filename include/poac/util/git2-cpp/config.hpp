@@ -13,7 +13,7 @@ namespace git2 {
         config();
         ~config();
 
-        config(git_config* cfg) : cfg(cfg) {}
+        explicit config(git_config* cfg) : cfg(cfg) {}
 
         config(const config&) = delete;
         config& operator=(const config&) = delete;
