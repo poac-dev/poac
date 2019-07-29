@@ -7,10 +7,9 @@
 #include <poac/util/git2-cpp/exception.hpp>
 
 namespace git2 {
-    class repository {
+    struct repository {
         git_repository* repo = nullptr;
 
-    public:
         repository() = default;
         ~repository();
 
