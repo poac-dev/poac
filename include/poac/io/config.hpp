@@ -11,6 +11,7 @@
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
+#include <poac/io/path.hpp>
 
 namespace poac::io::config {
     namespace detail {
@@ -80,8 +81,7 @@ namespace poac::io::config {
         }
 
         std::optional<std::string>
-        validate_config(const boost::filesystem::path& base = boost::filesystem::current_path(ec)
-        ) noexcept {
+        validate_config(const boost::filesystem::path& base = path::current) noexcept {
             const auto config_path = base / "poac.toml";
             if (boost::filesystem::exists(config_path, ec)) {
                 return config_path.string();
@@ -316,7 +316,7 @@ namespace poac::io::config {
     }
 
     std::optional<Config>
-    load(const boost::filesystem::path& base = boost::filesystem::current_path(detail::ec)) {
+    load(const boost::filesystem::path& base = path::current) {
          return load_toml<Config>(base, "poac.toml");
     }
 
