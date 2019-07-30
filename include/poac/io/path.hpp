@@ -95,16 +95,16 @@ namespace poac::io::path {
         }
         // Iterate through the source directory
         for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
-            fs::path current(file->path());
-            if (fs::is_directory(current)) {
+            const fs::path cur(file->path());
+            if (fs::is_directory(cur)) {
                 // Found directory: Recursion
-                if (recursive_copy(current, dest / current.filename())) {
+                if (recursive_copy(cur, dest / cur.filename())) {
                     return false;
                 }
             } else {
                 // Found file: Copy
                 boost::system::error_code error;
-                fs::copy_file(current, dest / current.filename(), error);
+                fs::copy_file(cur, dest / cur.filename(), error);
                 if (error) {
                     return false;
                 }
