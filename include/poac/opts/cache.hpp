@@ -17,8 +17,8 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::cache {
-    constexpr auto summary = termcolor2::make_string("Manipulate cache files");
-    constexpr auto options = termcolor2::make_string("[-a, --all | --pattern regex_pattern]");
+    const std::string summary = "Manipulate cache files";
+    const std::string options = "[-a, --all | --pattern regex_pattern]";
 
     struct Options {
         enum class SubCmd {

@@ -22,8 +22,8 @@
 //    - "--log_level=test_suite" -> testのオプションとして引き受ける
 
 namespace poac::opts::test {
-    constexpr auto summary = termcolor2::make_string("Execute tests");
-    constexpr auto options = termcolor2::make_string("[-v, --verbose | --report | -- <program args>]");
+    const std::string summary = "Execute tests";
+    const std::string options = "[-v, --verbose | --report | -- <program args>]";
 
     struct Options {
         bool verbose;

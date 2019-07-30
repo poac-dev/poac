@@ -11,11 +11,10 @@
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
-#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::build {
-    constexpr auto summary = termcolor2::make_string("Compile a project and all sources that depend on its");
-    constexpr auto options = termcolor2::make_string("[--release, -v | --verbose]");
+    const std::string summary = "Compile a project and all sources that depend on its";
+    const std::string options = "[--release, -v | --verbose]";
 
     enum class Mode {
         Debug,

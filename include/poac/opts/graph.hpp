@@ -23,11 +23,10 @@
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
-#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::graph {
-    constexpr auto summary = termcolor2::make_string("Create a dependency graph");
-    constexpr auto options = termcolor2::make_string("[-o | --output]");
+    const std::string summary = "Create a dependency graph";
+    const std::string options = "[-o | --output]";
 
     struct Options {
         std::optional<boost::filesystem::path> output_file;

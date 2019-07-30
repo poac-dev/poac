@@ -22,8 +22,8 @@
 #include <poac/util/git2-cpp/git2.hpp>
 
 namespace poac::opts::_new {
-    constexpr auto summary = termcolor2::make_string("Create a new poac project");
-    constexpr auto options = termcolor2::make_string("[<project-name> | -b, --bin | -l, --lib]");
+    const std::string summary = "Create a new poac project";
+    const std::string options = "[<project-name> | -b, --bin | -l, --lib]";
 
     namespace files {
         namespace bin {

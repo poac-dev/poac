@@ -22,8 +22,8 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::uninstall {
-    constexpr auto summary = termcolor2::make_string("Uninstall packages");
-    constexpr auto options = termcolor2::make_string("[<pkg-names> | -a, --all | -y, --yes]");
+    const std::string summary = "Uninstall packages";
+    const std::string options = "[<pkg-names> | -a, --all | -y, --yes]";
 
     struct Options {
         bool yes;

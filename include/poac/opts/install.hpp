@@ -21,8 +21,8 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::install {
-    constexpr auto summary = termcolor2::make_string("Install a C++ binary. Default location is $HOME/.poac/bin");
-    constexpr auto options = termcolor2::make_string("-v | --verbose, -q | --quite, [packages]...");
+    const std::string summary = "Install a C++ binary. Default location is $HOME/.poac/bin";
+    const std::string options = "-v | --verbose, -q | --quite, [packages]...";
 
     struct Options {
         bool quite;

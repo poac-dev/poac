@@ -26,11 +26,10 @@
 #include <poac/opts/update.hpp>
 #include <poac/opts/version.hpp>
 #include <poac/core/except.hpp>
-#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::help {
-    constexpr auto summary = termcolor2::make_string("Display help for a command");
-    constexpr auto options = termcolor2::make_string("<sub-command or option>");
+    const std::string summary = "Display help for a command";
+    const std::string options = "<sub-command or option>";
 
     struct Options {
         enum class Type {
@@ -41,7 +40,6 @@ namespace poac::opts::help {
         std::string cmd;
     };
 
-#if BOOST_COMP_MSVC
     std::string
     decorate_summary(const std::string& str) {
         return termcolor2::yellow<>.to_string() + str + termcolor2::reset<>.to_string() + "\n";
@@ -59,22 +57,22 @@ namespace poac::opts::help {
 
     std::string
     construct_summary() {
-        return decorate("build    ", opts::build::summary.to_string())
-             + decorate("cache    ", opts::cache::summary.to_string())
-             + decorate("cleanup  ", opts::cleanup::summary.to_string())
-             + decorate("graph    ", opts::graph::summary.to_string())
-             + decorate("help     ", opts::help::summary.to_string())
-             + decorate("init     ", opts::init::summary.to_string())
-             + decorate("install  ", opts::install::summary.to_string())
-             + decorate("new      ", opts::_new::summary.to_string())
-             + decorate("publish  ", opts::publish::summary.to_string())
-             + decorate("root     ", opts::root::summary.to_string())
-             + decorate("run      ", opts::run::summary.to_string())
-             + decorate("search   ", opts::search::summary.to_string())
-             + decorate("test     ", opts::test::summary.to_string())
-             + decorate("uninstall", opts::uninstall::summary.to_string())
-             + decorate("update   ", opts::update::summary.to_string())
-             + decorate("version  ", opts::version::summary.to_string());
+        return decorate("build    ", opts::build::summary)
+             + decorate("cache    ", opts::cache::summary)
+             + decorate("cleanup  ", opts::cleanup::summary)
+             + decorate("graph    ", opts::graph::summary)
+             + decorate("help     ", opts::help::summary)
+             + decorate("init     ", opts::init::summary)
+             + decorate("install  ", opts::install::summary)
+             + decorate("new      ", opts::_new::summary)
+             + decorate("publish  ", opts::publish::summary)
+             + decorate("root     ", opts::root::summary)
+             + decorate("run      ", opts::run::summary)
+             + decorate("search   ", opts::search::summary)
+             + decorate("test     ", opts::test::summary)
+             + decorate("uninstall", opts::uninstall::summary)
+             + decorate("update   ", opts::update::summary)
+             + decorate("version  ", opts::version::summary);
     }
 
     using termcolor2::color_literals::operator""_bold;
@@ -84,91 +82,46 @@ namespace poac::opts::help {
             construct_summary() +
             "\nSee `poac <command> --help` for information on a specific command.\n"
             "For full documentation, see: https://github.com/poacpm/poac#readme";
-#else
-    template <typename CharT, std::size_t N, typename Traits>
-    constexpr auto
-    decorate_summary(const termcolor2::basic_string<CharT, N, Traits>& str) {
-        return termcolor2::yellow<> + str + termcolor2::reset<> + "\n";
-    }
-    template <typename CharT, std::size_t N, typename Traits>
-    constexpr auto
-    decorate_name(const termcolor2::basic_string<CharT, N, Traits>& str) {
-        // TODO: padding function s -> "build" 9 -> "build    "
-        return termcolor2::blue<> + termcolor2::bold<> + "   " + str + "   " + termcolor2::reset<>;
-    }
-    template <typename CharT, std::size_t N, typename Traits, std::size_t M>
-    constexpr auto
-    decorate(const CharT(&s1)[N], const termcolor2::basic_string<CharT, M, Traits>& s2) {
-        return decorate_name(termcolor2::basic_string<CharT, N - 1>(s1)) + decorate_summary(s2);
-    }
-
-    constexpr auto
-    construct_summary() {
-        return decorate("build    ", opts::build::summary)
-               + decorate("cache    ", opts::cache::summary)
-               + decorate("cleanup  ", opts::cleanup::summary)
-               + decorate("graph    ", opts::graph::summary)
-               + decorate("help     ", opts::help::summary)
-               + decorate("init     ", opts::init::summary)
-               + decorate("install  ", opts::install::summary)
-               + decorate("new      ", opts::_new::summary)
-               + decorate("publish  ", opts::publish::summary)
-               + decorate("root     ", opts::root::summary)
-               + decorate("run      ", opts::run::summary)
-               + decorate("search   ", opts::search::summary)
-               + decorate("test     ", opts::test::summary)
-               + decorate("uninstall", opts::uninstall::summary)
-               + decorate("update   ", opts::update::summary)
-               + decorate("version  ", opts::version::summary);
-    }
-
-    constexpr auto summary_string =
-            termcolor2::make_string("Usage: poac <command> [<args>]\n\n") +
-            termcolor2::bold<> + "Available commands:" + termcolor2::reset<> + '\n' +
-            construct_summary() +
-            "\nSee `poac <command> --help` for information on a specific command.\n"
-            "For full documentation, see: https://github.com/poacpm/poac#readme";
-#endif
 
     // TODO: このmapを用意しているのが無駄．summaryの形成に使用していない
     const std::unordered_map<std::string, std::string>
     summaries_map{
-        { "build",     opts::build::summary.to_string() },
-        { "cache",     opts::cache::summary.to_string() },
-        { "cleanup",   opts::cleanup::summary.to_string() },
-        { "graph",     opts::graph::summary.to_string() },
-        { "help",      opts::help::summary.to_string() },
-        { "init",      opts::init::summary.to_string() },
-        { "install",   opts::install::summary.to_string() },
-        { "new",       opts::_new::summary.to_string() },
-        { "publish",   opts::publish::summary.to_string() },
-        { "root",      opts::root::summary.to_string() },
-        { "run",       opts::run::summary.to_string() },
-        { "search",    opts::search::summary.to_string() },
-        { "test",      opts::test::summary.to_string() },
-        { "uninstall", opts::uninstall::summary.to_string() },
-        { "update",    opts::update::summary.to_string() },
-        { "version",   opts::version::summary.to_string() }
+        { "build",     opts::build::summary },
+        { "cache",     opts::cache::summary },
+        { "cleanup",   opts::cleanup::summary },
+        { "graph",     opts::graph::summary },
+        { "help",      opts::help::summary },
+        { "init",      opts::init::summary },
+        { "install",   opts::install::summary },
+        { "new",       opts::_new::summary },
+        { "publish",   opts::publish::summary },
+        { "root",      opts::root::summary },
+        { "run",       opts::run::summary },
+        { "search",    opts::search::summary },
+        { "test",      opts::test::summary },
+        { "uninstall", opts::uninstall::summary },
+        { "update",    opts::update::summary },
+        { "version",   opts::version::summary }
     };
 
     const std::unordered_map<std::string, std::string>
     options_map{
-        { "build",     opts::build::options.to_string() },
-        { "cache",     opts::cache::options.to_string() },
-        { "cleanup",   opts::cleanup::options.to_string() },
-        { "graph",     opts::graph::options.to_string() },
-        { "help",      opts::help::options.to_string() },
-        { "init",      opts::init::options.to_string() },
-        { "install",   opts::install::options.to_string() },
-        { "new",       opts::_new::options.to_string() },
-        { "publish",   opts::publish::options.to_string() },
-        { "root",      opts::root::options.to_string() },
-        { "run",       opts::run::options.to_string() },
-        { "search",    opts::search::options.to_string() },
-        { "test",      opts::test::options.to_string() },
-        { "uninstall", opts::uninstall::options.to_string() },
-        { "update",    opts::update::options.to_string() },
-        { "version",   opts::version::options.to_string() }
+        { "build",     opts::build::options },
+        { "cache",     opts::cache::options },
+        { "cleanup",   opts::cleanup::options },
+        { "graph",     opts::graph::options },
+        { "help",      opts::help::options },
+        { "init",      opts::init::options },
+        { "install",   opts::install::options },
+        { "new",       opts::_new::options },
+        { "publish",   opts::publish::options },
+        { "root",      opts::root::options },
+        { "run",       opts::run::options },
+        { "search",    opts::search::options },
+        { "test",      opts::test::options },
+        { "uninstall", opts::uninstall::options },
+        { "update",    opts::update::options },
+        { "version",   opts::version::options }
     };
 
     void usage(const std::string& s) {

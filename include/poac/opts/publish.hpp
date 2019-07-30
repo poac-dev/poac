@@ -28,8 +28,8 @@
 #include <poac/config.hpp>
 
 namespace poac::opts::publish {
-    constexpr auto summary = termcolor2::make_string("Publish a package");
-    constexpr auto options = termcolor2::make_string("[-y | --yes]");
+    const std::string summary = "Publish a package";
+    const std::string options = "[-y | --yes]";
 
     struct Options {
         bool yes;

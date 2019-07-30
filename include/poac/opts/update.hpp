@@ -24,8 +24,8 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::update {
-    constexpr auto summary = termcolor2::make_string("Update a package");
-    constexpr auto options = termcolor2::make_string("[ -y | --yes, -a | --all, --outside ]");
+    const std::string summary = "Update a package";
+    const std::string options = "[ -y | --yes, -a | --all, --outside ]";
 
     struct Options {
         bool yes;

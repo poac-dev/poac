@@ -15,11 +15,10 @@
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
-#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::cleanup {
-    constexpr auto summary = termcolor2::make_string("Delete unnecessary things");
-    constexpr auto options = termcolor2::make_string("<Nothing>");
+    const std::string summary = "Delete unnecessary things";
+    const std::string options = "<Nothing>";
 
     [[nodiscard]] std::optional<core::except::Error>
     cleanup(std::optional<io::config::Config>&& config) {

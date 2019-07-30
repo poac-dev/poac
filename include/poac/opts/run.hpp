@@ -8,11 +8,10 @@
 
 #include <poac/core/except.hpp>
 #include <poac/util/argparse.hpp>
-#include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::run {
-    constexpr auto summary = termcolor2::make_string("Build project and exec it");
-    constexpr auto options = termcolor2::make_string("[-v, --verbose | -- <program args>]");
+    const std::string summary = "Build project and exec it";
+    const std::string options = "[-v, --verbose | -- <program args>]";
 
     struct Options {
         bool verbose;

@@ -17,8 +17,8 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::init {
-    constexpr auto summary = termcolor2::make_string("Create the poac.yml");
-    constexpr auto options = termcolor2::make_string("[-b, --bin | -l, --lib]");
+    const std::string summary = "Create the poac.yml";
+    const std::string options = "[-b, --bin | -l, --lib]";
 
     struct Options {
         bool lib;

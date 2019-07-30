@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include <optional>
+#include <string>
+#include <vector>
 
-#include <poac/util/termcolor2.hpp>
+#include <poac/core/except.hpp>
+#include <poac/io/config.hpp>
 
 namespace poac::opts::version {
-    constexpr auto summary = termcolor2::make_string("Show the current poac version");
-    constexpr auto options = termcolor2::make_string("<Nothing>");
+    const std::string summary = "Show the current poac version";
+    const std::string options = "<Nothing>";
 
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::config::Config>&&, std::vector<std::string>&&) noexcept {

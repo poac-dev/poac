@@ -18,8 +18,8 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::search {
-    constexpr auto summary = termcolor2::make_string("Search for packages in poac.pm");
-    constexpr auto options = termcolor2::make_string("<pkg-name> [-v, --verbose]");
+    const std::string summary = "Search for packages in poac.pm";
+    const std::string options = "<pkg-name> [-v, --verbose]";
 
     struct Options {
         bool verbose;
