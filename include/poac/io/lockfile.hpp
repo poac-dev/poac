@@ -12,6 +12,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
+#include <poac/io/path.hpp>
 
 namespace poac::io::lockfile {
     enum class PackageType {
@@ -105,7 +106,7 @@ namespace poac::io::lockfile {
     }
 
     std::optional<Lockfile>
-    load(const boost::filesystem::path &base = boost::filesystem::current_path(config::detail::ec)) {
+    load(const boost::filesystem::path& base = path::current) {
         return config::load_toml<Lockfile>(base, "poac.lock");
     }
 } // end namespace
