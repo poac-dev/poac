@@ -60,68 +60,29 @@ namespace poac::io::path {
         }
     }
 
-    const boost::filesystem::path poac_dir{
-        expand_user() / ".poac"_path
-    };
+    inline const boost::filesystem::path poac_dir(expand_user() / ".poac"_path);
+    inline const boost::filesystem::path poac_cache_dir(poac_dir / "cache");
+    inline const boost::filesystem::path poac_log_dir(poac_dir / "logs");
 
-    const boost::filesystem::path poac_cache_dir{
-        poac_dir / "cache"
-    };
-
-    const boost::filesystem::path poac_log_dir{
-        poac_dir / "logs"
-    };
-
-    const boost::filesystem::path current_deps_dir{
-        boost::filesystem::current_path() / "deps"
-    };
-
-    const boost::filesystem::path current_build_dir{
-        boost::filesystem::current_path() / "_build"
-    };
-
-    const boost::filesystem::path current_build_cache_dir{
-        current_build_dir / "_cache"
-    };
-
-    const boost::filesystem::path current_build_cache_obj_dir{
-        current_build_cache_dir / "obj"
-    };
-
-    // timestamp
-    const boost::filesystem::path current_build_cache_ts_dir{
-        current_build_cache_dir / "_ts"
-    };
-
-    const boost::filesystem::path current_build_bin_dir{
-        current_build_dir / "bin"
-    };
-
-    const boost::filesystem::path current_build_lib_dir{
-        current_build_dir / "lib"
-    };
-
-    const boost::filesystem::path current_build_test_dir{
-        current_build_dir / "test"
-    };
-
-    const boost::filesystem::path current_build_test_bin_dir{
-        current_build_test_dir / "bin"
-    };
-
-    const boost::filesystem::path current_build_test_report_dir{
-        current_build_test_dir / "report"
-    };
+    inline boost::system::error_code ec{};
+    inline const boost::filesystem::path current(boost::filesystem::current_path(ec));
+    inline const boost::filesystem::path current_deps_dir(current / "deps");
+    inline const boost::filesystem::path current_build_dir(current / "_build");
+    inline const boost::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
+    inline const boost::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
+    inline const boost::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
+    inline const boost::filesystem::path current_build_bin_dir(current_build_dir / "bin");
+    inline const boost::filesystem::path current_build_lib_dir(current_build_dir / "lib");
+    inline const boost::filesystem::path current_build_test_dir(current_build_dir / "test");
+    inline const boost::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
+    inline const boost::filesystem::path current_build_test_report_dir(current_build_test_dir / "report");
 
     bool validate_dir(const boost::filesystem::path& path) {
         namespace fs = boost::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool recursive_copy(
-        const boost::filesystem::path& from,
-        const boost::filesystem::path& dest
-    ) {
+    bool recursive_copy(const boost::filesystem::path& from, const boost::filesystem::path& dest) {
         namespace fs = boost::filesystem;
 
         // Does the copy source exist?
@@ -140,8 +101,7 @@ namespace poac::io::path {
                 if (recursive_copy(current, dest / current.filename())) {
                     return false;
                 }
-            }
-            else {
+            } else {
                 // Found file: Copy
                 boost::system::error_code error;
                 fs::copy_file(current, dest / current.filename(), error);
