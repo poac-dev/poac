@@ -22,7 +22,7 @@ namespace poac::core::cli {
     opts_map{
         { "build",     opts::build::exec },
         { "cache",     opts::cache::exec },
-        { "cleanup",   opts::cleanup::exec },
+        { "clean",     opts::clean::exec },
         { "graph",     opts::graph::exec },
         { "help",      opts::help::exec },
         { "--help",    opts::help::exec },

@@ -3,7 +3,7 @@
 
 #include <poac/opts/build.hpp>
 #include <poac/opts/cache.hpp>
-#include <poac/opts/cleanup.hpp>
+#include <poac/opts/clean.hpp>
 #include <poac/opts/graph.hpp>
 #include <poac/opts/help.hpp>
 #include <poac/opts/init.hpp>

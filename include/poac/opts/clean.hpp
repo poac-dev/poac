@@ -1,5 +1,5 @@
-#ifndef POAC_OPTS_CLEANUP_HPP
-#define POAC_OPTS_CLEANUP_HPP
+#ifndef POAC_OPTS_CLEAN_HPP
+#define POAC_OPTS_CLEAN_HPP
 
 #include <iostream>
 #include <string>
@@ -16,12 +16,12 @@
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 
-namespace poac::opts::cleanup {
+namespace poac::opts::clean {
     const std::string summary = "Delete unnecessary things";
     const std::string options = "<Nothing>";
 
     [[nodiscard]] std::optional<core::except::Error>
-    cleanup(std::optional<io::config::Config>&& config) {
+    clean(std::optional<io::config::Config>&& config) {
         // create resolved deps
         core::resolver::resolve::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load()) {
@@ -60,7 +60,7 @@ namespace poac::opts::cleanup {
         if (!args.empty()) {
             return core::except::Error::InvalidSecondArg::Cleanup;
         }
-        return cleanup::cleanup(std::move(config));
+        return clean::clean(std::move(config));
     }
 } // end namespace
-#endif // !POAC_OPTS_CLEANUP_HPP
+#endif // !POAC_OPTS_CLEAN_HPP

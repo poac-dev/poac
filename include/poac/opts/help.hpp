@@ -9,7 +9,7 @@
 #include <poac/core/except.hpp>
 #include <poac/opts/build.hpp>
 #include <poac/opts/cache.hpp>
-#include <poac/opts/cleanup.hpp>
+#include <poac/opts/clean.hpp>
 #include <poac/opts/graph.hpp>
 #include <poac/opts/init.hpp>
 #include <poac/opts/install.hpp>
@@ -40,7 +40,7 @@ namespace poac::opts::help {
     summaries_map{
         { "build",     opts::build::summary },
         { "cache",     opts::cache::summary },
-        { "cleanup",   opts::cleanup::summary },
+        { "clean",     opts::clean::summary },
         { "graph",     opts::graph::summary },
         { "help",      opts::help::summary },
         { "init",      opts::init::summary },
@@ -60,7 +60,7 @@ namespace poac::opts::help {
     options_map{
         { "build",     opts::build::options },
         { "cache",     opts::cache::options },
-        { "cleanup",   opts::cleanup::options },
+        { "clean",     opts::clean::options },
         { "graph",     opts::graph::options },
         { "help",      opts::help::options },
         { "init",      opts::init::options },
@@ -89,7 +89,7 @@ namespace poac::opts::help {
 
         std::cout << "\nSome common poac commands are (see all commands with --list):\n";
         std::vector<std::string> commons = {
-                "build", "cleanup", "new", "init", "run", "test",
+                "build", "clean", "new", "init", "run", "test",
                 "update", "search", "publish", "install", "uninstall"
         };
         for (const auto& common : commons) {
