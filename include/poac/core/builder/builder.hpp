@@ -25,9 +25,10 @@
 #include <poac/core/builder/options.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
+#include <poac/core/project.hpp>
+#include <poac/io/config.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/config.hpp>
 #include <poac/util/semver.hpp>
 
 namespace poac::core {
@@ -215,15 +216,17 @@ namespace poac::core {
             return builder::compiler::gen_dynamic_lib(dynamic_lib_conf, verbose);
         }
 
-        // TODO: poac.ymlのhashもcheck
-        // TODO: 自らのinclude，dirも，(存在するなら！) includeパスに渡してほしい．そうすると，poacでinclude<poac/poac.hpp>できる
-        // TODO: この段階で，どこまでするのかが分かれば，コンパイルしないのに，コンパイル用の設定を生成した，とかが無くなって良さそう．
         explicit Builder(
 //                const std::optional<io::yaml::Config>& config,
                 const bool verbose,
-                const boost::filesystem::path& base_dir = boost::filesystem::current_path()
+                const boost::filesystem::path& base_dir = io::path::current
         ) : /*config(config),*/ base_directory(base_dir), compiler(builder::standard::detect_command()), verbose(verbose)
         {
+            const auto [repo, name] = core::project::name();
+            const int base_size = 12;
+            std::cout << std::right << std::setw(base_size + termcolor2::green<>.size() + termcolor2::reset<>.size())
+                      << termcolor2::to_green("Compiling ") << name << " v" << core::project::version() << std::endl;
+
             // Create link configure and include search path
 //            if (config->dependencies) {
 //                make_link(config->dependencies.value());
