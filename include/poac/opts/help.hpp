@@ -4,12 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <utility>
 #include <unordered_map>
-#include <cstdlib>
 
-#include <boost/predef.h>
-
+#include <poac/core/except.hpp>
 #include <poac/opts/build.hpp>
 #include <poac/opts/cache.hpp>
 #include <poac/opts/cleanup.hpp>
@@ -25,7 +22,6 @@
 #include <poac/opts/uninstall.hpp>
 #include <poac/opts/update.hpp>
 #include <poac/opts/version.hpp>
-#include <poac/core/except.hpp>
 
 namespace poac::opts::help {
     const std::string summary = "Display help for a command";
@@ -40,50 +36,6 @@ namespace poac::opts::help {
         std::string cmd;
     };
 
-    std::string
-    decorate_summary(const std::string& str) {
-        return termcolor2::yellow<>.to_string() + str + termcolor2::reset<>.to_string() + "\n";
-    }
-    std::string
-    decorate_name(const std::string& str) {
-        // TODO: padding function s -> "build" 9 -> "build    "
-        return termcolor2::blue<>.to_string() + termcolor2::bold<>.to_string() +
-               "   " + str + "   " + termcolor2::reset<>.to_string();
-    }
-    std::string
-    decorate(const std::string& s1, const std::string& s2) {
-        return decorate_name(s1) + decorate_summary(s2);
-    }
-
-    std::string
-    construct_summary() {
-        return decorate("build    ", opts::build::summary)
-             + decorate("cache    ", opts::cache::summary)
-             + decorate("cleanup  ", opts::cleanup::summary)
-             + decorate("graph    ", opts::graph::summary)
-             + decorate("help     ", opts::help::summary)
-             + decorate("init     ", opts::init::summary)
-             + decorate("install  ", opts::install::summary)
-             + decorate("new      ", opts::_new::summary)
-             + decorate("publish  ", opts::publish::summary)
-             + decorate("root     ", opts::root::summary)
-             + decorate("run      ", opts::run::summary)
-             + decorate("search   ", opts::search::summary)
-             + decorate("test     ", opts::test::summary)
-             + decorate("uninstall", opts::uninstall::summary)
-             + decorate("update   ", opts::update::summary)
-             + decorate("version  ", opts::version::summary);
-    }
-
-    using termcolor2::color_literals::operator""_bold;
-    const std::string summary_string =
-            "Usage: poac <command> [<args>]\n\n" +
-            "Available commands:"_bold + '\n' +
-            construct_summary() +
-            "\nSee `poac <command> --help` for information on a specific command.\n"
-            "For full documentation, see: https://github.com/poacpm/poac#readme";
-
-    // TODO: このmapを用意しているのが無駄．summaryの形成に使用していない
     const std::unordered_map<std::string, std::string>
     summaries_map{
         { "build",     opts::build::summary },
@@ -124,6 +76,28 @@ namespace poac::opts::help {
         { "version",   opts::version::options }
     };
 
+    void summarize() {
+        const std::string indent = "    ";
+
+        std::cout << "C++'s package manager\n\n"
+                  << "USAGE:\n"
+                  << indent << "poac [OPTIONS] [SUBCOMMAND]\n\n"
+                  << "OPTIONS:\n";
+
+        std::cout << indent << std::left << std::setw(16) << "-v, --version" << summaries_map.at("version") << "\n";
+        std::cout << indent << std::left << std::setw(16) << "-h, --help" << summaries_map.at("help") << "\n";
+
+        std::cout << "\nSome common poac commands are (see all commands with --list):\n";
+        std::vector<std::string> commons = {
+                "build", "cleanup", "new", "init", "run", "test",
+                "update", "search", "publish", "install", "uninstall"
+        };
+        for (const auto& common : commons) {
+            std::cout << indent << std::left << std::setw(12) << common << summaries_map.at(common) << "\n";
+        }
+        std::cout << "\nSee `poac help <command>` for information on a specific command." << std::endl;
+    }
+
     void usage(const std::string& s) {
         const std::string opt = options_map.at(s);
         const std::string indent = "    ";
@@ -136,15 +110,14 @@ namespace poac::opts::help {
                   << indent << opt << std::endl; // TODO: optionの表示をもっとわかりやすくする．cargoのように
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
-    help(help::Options&& opts) {
+    void help(help::Options&& opts) {
         switch (opts.type) {
             case help::Options::Type::Summary:
-                std::cout << summary_string << std::endl;
-                return std::nullopt;
+                summarize();
+                break;
             case help::Options::Type::Usage:
                 usage(opts.cmd);
-                return std::nullopt;
+                break;
         }
     }
 
@@ -159,7 +132,8 @@ namespace poac::opts::help {
         } else {
             return core::except::Error::InvalidSecondArg::Help;
         }
-        return help::help(std::move(opts));
+        help::help(std::move(opts));
+        return std::nullopt;
     }
 } // end namespace
 #endif // !POAC_OPTS_HELP_HPP
