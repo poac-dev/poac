@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 #include <poac/core/except.hpp>
@@ -36,7 +37,7 @@ namespace poac::opts::help {
         std::string cmd;
     };
 
-    const std::unordered_map<std::string, std::string>
+    const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
         { "build",     opts::build::summary },
         { "cache",     opts::cache::summary },
@@ -56,7 +57,7 @@ namespace poac::opts::help {
         { "version",   opts::version::summary }
     };
 
-    const std::unordered_map<std::string, std::string>
+    const std::unordered_map<std::string_view, std::string_view>
     options_map{
         { "build",     opts::build::options },
         { "cache",     opts::cache::options },
@@ -76,16 +77,25 @@ namespace poac::opts::help {
         { "version",   opts::version::options }
     };
 
+    void item(const int n, std::string_view name, std::string_view key) {
+        std::string_view indent = "    ";
+        std::cout << indent << std::left << std::setw(n) << name << summaries_map.at(key) << "\n";
+    }
+
+    void item(const int n, std::string_view key) {
+        item(n, key, key);
+    }
+
     void summarize() {
-        const std::string indent = "    ";
+        std::string_view indent = "    ";
 
         std::cout << "C++'s package manager\n\n"
                   << "USAGE:\n"
                   << indent << "poac [OPTIONS] [SUBCOMMAND]\n\n"
                   << "OPTIONS:\n";
 
-        std::cout << indent << std::left << std::setw(16) << "-v, --version" << summaries_map.at("version") << "\n";
-        std::cout << indent << std::left << std::setw(16) << "-h, --help" << summaries_map.at("help") << "\n";
+        item(16, "-v, --version", "version");
+        item(16, "-h, --help", "help");
 
         std::cout << "\nSome common poac commands are (see all commands with --list):\n";
         std::vector<std::string> commons = {
@@ -93,21 +103,20 @@ namespace poac::opts::help {
                 "update", "search", "publish", "install", "uninstall"
         };
         for (const auto& common : commons) {
-            std::cout << indent << std::left << std::setw(12) << common << summaries_map.at(common) << "\n";
+            item(12, common);
         }
         std::cout << "\nSee `poac help <command>` for information on a specific command." << std::endl;
     }
 
-    void usage(const std::string& s) {
-        const std::string opt = options_map.at(s);
-        const std::string indent = "    ";
+    void usage(std::string_view s) {
+        std::string_view indent = "    ";
 
         std::cout << "poac-" << s << "\n"
                   << summaries_map.at(s) << "\n\n"
                   << "USAGE:\n"
                   << indent << "poac " << s << " [OPTIONS]\n\n"
                   << "OPTIONS:\n"
-                  << indent << opt << std::endl; // TODO: optionの表示をもっとわかりやすくする．cargoのように
+                  << indent << options_map.at(s) << std::endl;
     }
 
     void help(help::Options&& opts) {
