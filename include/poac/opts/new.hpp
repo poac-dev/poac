@@ -6,7 +6,6 @@
 #include <string>
 #include <string_view>
 #include <map>
-#include <regex>
 #include <algorithm>
 #include <vector>
 #include <optional>
@@ -23,16 +22,13 @@
 
 namespace poac::opts::_new {
     const std::string summary = "Create a new poac project";
-    const std::string options = "[<project-name> | -b, --bin | -l, --lib]";
+    const std::string options = "[-b, --bin | -l, --lib | --vcs <VCS> | --cpp <VERSION> | --name <NAME> | -h, --help]";
 
     namespace files {
         namespace bin {
-            const std::string _gitignore(
-                    "/target"
-            );
             std::string poac_toml(const std::string& project_name) {
-                return "cpp-version = 17\n"
-                       "[[build.bin]]\n"
+                return "cpp = 17\n"
+                       "[[bin]]\n"
                        "path = \"src/main.cpp\"\n"
                        "name = \"" + project_name + "\"";
             }
@@ -44,12 +40,8 @@ namespace poac::opts::_new {
             );
         }
         namespace lib {
-            const std::string _gitignore(
-                    "/target\n"
-                    "poac.lock"
-            );
             const std::string poac_toml(
-                    "cpp-version = 17"
+                    "cpp = 17"
             );
             std::string include_hpp(std::string project_name) {
                 std::transform(project_name.cbegin(), project_name.cend(), project_name.begin(), ::toupper);
@@ -91,14 +83,14 @@ namespace poac::opts::_new {
             case NewProjectKind::Bin:
                 fs::create_directories(opts.project_name / "src"_path);
                 return {
-                    { ".gitignore", files::bin::_gitignore },
+                    { ".gitignore", "/target" },
                     { "poac.toml", files::bin::poac_toml(opts.project_name) },
                     { "src"_path / "main.cpp", files::bin::main_cpp }
                 };
             case NewProjectKind::Lib:
                 fs::create_directories(opts.project_name / "include"_path / opts.project_name);
                 return {
-                    { ".gitignore", files::lib::_gitignore },
+                    { ".gitignore", "/target\npoac.lock" },
                     { "poac.toml", files::lib::poac_toml },
                     { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
                         files::lib::include_hpp(opts.project_name)
