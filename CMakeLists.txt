@@ -96,7 +96,7 @@ if (APPLE)
     # -DCMAKE_BUILD_TYPE=Debug
     set(CMAKE_CXX_FLAGS_DEBUG "-g -Og -fsanitize=address")
     # -DCMAKE_BUILD_TYPE=Release
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native -march=native")
 else ()
     if ((MSVC OR MINGW) AND ENABLE_STATIC)
         string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -122,7 +122,7 @@ else ()
     # -DCMAKE_BUILD_TYPE=Release
     elseif (${CMAKE_BUILD_TYPE} MATCHES Release)
         set(STATIC_LINK_FLAG "-static")
-        set(CMAKE_CXX_FLAGS_RELEASE "-O3") # -mtune=powerpc64le -mcpu=powerpc64le
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto") # -mtune=powerpc64le -mcpu=powerpc64le
     endif ()
 endif ()
 
