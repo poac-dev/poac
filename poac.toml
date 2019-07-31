@@ -1,4 +1,12 @@
-cpp-version = 17
+[package]
+name = "poac"
+version = "0.3.0"
+cpp = 17
+authors = ["Ken Matsui <26405363+matken11235@users.noreply.github.com>"]
+license = "GPL-3.0"
+homepage = "https://poac.pm"
+repository = "https://github.com/poacpm/poac"
+description = "Poac is a package manager for C++"
 
 [dependencies]
 "matken11235/termcolor2" = ">=0.1.0 and <1.0.0"
@@ -8,7 +16,7 @@ cpp-version = 17
 #"matken11235/url-cpp" = ">=0.1.0 and <1.0.0"
 "poac-community/boost-predef" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-property_tree" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-filesystem" = ">=1.64.0 and <2.0.0"
+#"poac-community/boost-filesystem" = { version = ">=1.64.0 and <2.0.0", link = "static" }
 #"poac-community/boost-range" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-algorithm" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-foreach" = ">=1.64.0 and <2.0.0"
@@ -20,41 +28,37 @@ cpp-version = 17
 #[dev-dependencies]
 #"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
 
-[build]
-system = "poac"
-
-[[build.bin]]
+[[bin]]
 path = "src/main.cpp"
 name = "poac"
-link = "static"
 
-[target.'cfg(os = "linux")'.build.properties]
+[target.'cfg(os = "linux")'.profile]
 definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
 
-[target.'cfg(os = "unix")'.build.properties]
+[target.'cfg(os = "unix")'.profile]
 options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
 libraries = ["dl"]
 
-[target.'cfg(compiler = "msvc")'.build.properties]
+[target.'cfg(compiler = "msvc")'.profile]
 definitions = ["BOOST_ASIO_HAS_STD_STRING_VIEW"]
 options = ["/W4", "/bigobj"]
 
-[target.'cfg(any(os = "cygwin", platform = "mingw"))'.build.properties]
+[target.'cfg(any(os = "cygwin", platform = "mingw"))'.profile]
 options = ["-Wa,-mbig-obj"]
 
-[target.'cfg(os = "windows")'.build.properties]
+[target.'cfg(os = "windows")'.profile]
 libraries = ["bcrypt", "ws2_32"]
 
-[target.'cfg(all(os = "unix", type = "debug"))'.build.properties]
+[target.'cfg(all(os = "unix", type = "debug"))'.profile]
 options = ["-fsanitize=address"]
 
-[target.'cfg(all(os = "macos", type = "release"))'.build.properties]
+[target.'cfg(all(os = "macos", type = "release"))'.profile]
 options = ["-mtune=native", "-march=native"]
 
-[target.'cfg(all(os = "macos", os_version < 14))'.build.properties]
+[target.'cfg(all(os = "macos", os_version < 14))'.profile]
 compiler = "/usr/local/opt/llvm@7/bin/clang++"
 include_directories = ["/usr/local/opt/llvm@7/include"]
 link_directories = ["/usr/local/opt/llvm@7/lib"]
 
-[test]
-framework = "boost"
+[profile.release]
+lto = true
