@@ -94,7 +94,7 @@ if (APPLE)
     endif ()
 
     # -DCMAKE_BUILD_TYPE=Debug
-    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -Og -fsanitize=address")
     # -DCMAKE_BUILD_TYPE=Release
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
 else ()
@@ -118,7 +118,7 @@ else ()
         set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
     # -DCMAKE_BUILD_TYPE=Debug
     elseif (${CMAKE_BUILD_TYPE} MATCHES Debug)
-        set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
+        set(CMAKE_CXX_FLAGS_DEBUG "-g -Og -fsanitize=address")
     # -DCMAKE_BUILD_TYPE=Release
     elseif (${CMAKE_BUILD_TYPE} MATCHES Release)
         set(STATIC_LINK_FLAG "-static")
