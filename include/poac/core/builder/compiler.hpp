@@ -23,12 +23,15 @@ namespace poac::core::builder::compiler {
         cmd += opts.std_version;
         cmd += "-c";
         cmd += opts.source_file;
-        for (const auto& isp : opts.include_search_path)
+        for (const auto& isp : opts.include_search_path) {
             cmd += "-I" + isp;
-        for (const auto& oa : opts.other_args)
+        }
+        for (const auto& oa : opts.other_args) {
             cmd += oa;
-        for (const auto& md : opts.macro_defns)
+        }
+        for (const auto& md : opts.macro_defns) {
             cmd += md;
+        }
 
         cmd += "-o";
         auto obj_path = opts.output_root / fs::relative(opts.source_file);
@@ -44,8 +47,7 @@ namespace poac::core::builder::compiler {
 
         if (cmd.exec()) {
             return obj_files_path;
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
@@ -58,16 +60,21 @@ namespace poac::core::builder::compiler {
                 (opts.output_root / opts.project_name).string() + absorb::binary_extension;
 
         util::shell cmd(opts.system);
-        for (const auto& o : opts.obj_files_path)
+        for (const auto& o : opts.obj_files_path) {
             cmd += o;
-        for (const auto& lsp : opts.library_search_path)
+        }
+        for (const auto& lsp : opts.library_search_path) {
             cmd += "-L" + lsp;
-        for (const auto& sll : opts.static_link_libs)
+        }
+        for (const auto& sll : opts.static_link_libs) {
             cmd += "-l" + sll;
-        for (const auto& lp : opts.library_path)
+        }
+        for (const auto& lp : opts.library_path) {
             cmd += lp;
-        for (const auto& oa : opts.other_args)
+        }
+        for (const auto& oa : opts.other_args) {
             cmd += oa;
+        }
         cmd += "-o " + bin_path;
 
         if (verbose) {
@@ -77,8 +84,7 @@ namespace poac::core::builder::compiler {
         fs::create_directories(opts.output_root);
         if (cmd.exec()) {
             return bin_path;
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
@@ -91,8 +97,9 @@ namespace poac::core::builder::compiler {
         const std::string lib_name = "lib" + opts.project_name + ".a";
         const std::string lib_path = (opts.output_root / lib_name).string();
         cmd += lib_path;
-        for (const auto& o : opts.obj_files_path)
+        for (const auto& o : opts.obj_files_path) {
             cmd += o;
+        }
 
         if (verbose) {
             std::cout << cmd << std::endl;
@@ -101,8 +108,7 @@ namespace poac::core::builder::compiler {
         fs::create_directories(opts.output_root);
         if (cmd.exec()) {
             return lib_path;
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
@@ -113,8 +119,9 @@ namespace poac::core::builder::compiler {
     {
         util::shell cmd(opts.system);
         cmd += absorb::dynamic_lib_option;
-        for (const auto& o : opts.obj_files_path)
+        for (const auto& o : opts.obj_files_path) {
             cmd += o;
+        }
         cmd += "-o";
         const std::string lib_name = "lib" + opts.project_name + absorb::dynamic_lib_extension;
         const std::string lib_path = (opts.output_root / lib_name).string();
@@ -127,8 +134,7 @@ namespace poac::core::builder::compiler {
         fs::create_directories(opts.output_root);
         if (cmd.exec()) {
             return lib_path;
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
