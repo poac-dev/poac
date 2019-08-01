@@ -20,7 +20,7 @@ namespace poac::opts::cache {
     const clap::subcommand cli =
             clap::subcommand("cache")
                 .about("Manipulate cache files")
-                .arg(clap::opt("all", "Manipulate all caches"))
+                .arg(clap::opt("all", "Manipulate all caches").short_("a"))
                 .arg(clap::opt("pattern", "Regex pattern").value_name("PATTERN"))
             ;
 
