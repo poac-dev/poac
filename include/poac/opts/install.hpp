@@ -21,8 +21,13 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::install {
-    const std::string summary = "Install a C++ binary. Default location is $HOME/.poac/bin";
-    const std::string options = "-v | --verbose, -q | --quite, [packages]...";
+    const clap::subcommand cli =
+            clap::subcommand("install")
+                .about("Install a C++ binary. Default location is $HOME/.poac/bin")
+                .arg(clap::opt("verbose", "Use verbose output").short_("v"))
+                .arg(clap::opt("quiet", "No output printed to stdout").short_("q"))
+                .arg(clap::arg("<package>..."))
+            ;
 
     struct Options {
         bool quite;
