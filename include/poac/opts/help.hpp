@@ -57,22 +57,17 @@ namespace poac::opts::help {
         { "test",      opts::test::cli },
         { "uninstall", opts::uninstall::cli },
         { "update",    opts::update::cli },
-//        { "version",   opts::version::cli },
+        { "version",   opts::version::cli },
     };
 
-    const std::unordered_map<std::string_view, std::string_view>
-    summaries_map{
-        { "version",   opts::version::summary }
-    };
+//    void item(const int n, std::string_view name, std::string_view key) {
+//        std::string_view indent = "    ";
+//        std::cout << indent << std::left << std::setw(n) << name << summaries_map.at(key) << "\n";
+//    }
 
-    void item(const int n, std::string_view name, std::string_view key) {
-        std::string_view indent = "    ";
-        std::cout << indent << std::left << std::setw(n) << name << summaries_map.at(key) << "\n";
-    }
-
-    void item(const int n, std::string_view key) {
-        item(n, key, key);
-    }
+//    void item(const int n, std::string_view key) {
+//        item(n, key, key);
+//    }
 
     void summarize() {
         std::string_view indent = "    ";

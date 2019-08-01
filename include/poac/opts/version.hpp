@@ -10,8 +10,10 @@
 #include <poac/io/config.hpp>
 
 namespace poac::opts::version {
-    const std::string summary = "Show the current poac version";
-    const std::string options = "<Nothing>";
+    const clap::subcommand cli =
+            clap::subcommand("update")
+                .about("Show the current poac version")
+            ;
 
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::config::Config>&&, std::vector<std::string>&&) noexcept {
