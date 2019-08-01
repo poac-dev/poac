@@ -16,8 +16,7 @@ namespace poac::core::builder::compiler {
 
     template <typename Opts>
     std::optional<std::string>
-    compile(const Opts& opts, const bool verbose)
-    {
+    compile(const Opts& opts, const bool verbose) {
         util::shell cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
         cmd += opts.std_version;
@@ -54,8 +53,7 @@ namespace poac::core::builder::compiler {
 
     template <typename Opts>
     std::optional<std::string>
-    link(const Opts& opts, const bool verbose)
-    {
+    link(const Opts& opts, const bool verbose) {
         const std::string bin_path =
                 (opts.output_root / opts.project_name).string() + absorb::binary_extension;
 
@@ -91,8 +89,7 @@ namespace poac::core::builder::compiler {
 
     template <typename Opts>
     std::optional<std::string>
-    gen_static_lib(const Opts& opts, const bool verbose)
-    {
+    gen_static_lib(const Opts& opts, const bool verbose) {
         util::shell cmd("ar rcs");
         const std::string lib_name = "lib" + opts.project_name + ".a";
         const std::string lib_path = (opts.output_root / lib_name).string();
@@ -115,8 +112,7 @@ namespace poac::core::builder::compiler {
 
     template <typename Opts>
     std::optional<std::string>
-    gen_dynamic_lib(const Opts& opts, const bool verbose)
-    {
+    gen_dynamic_lib(const Opts& opts, const bool verbose) {
         util::shell cmd(opts.system);
         cmd += absorb::dynamic_lib_option;
         for (const auto& o : opts.obj_files_path) {
