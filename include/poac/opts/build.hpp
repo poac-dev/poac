@@ -11,10 +11,15 @@
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
+#include <poac/util/clap/clap.hpp>
 
 namespace poac::opts::build {
-    const std::string summary = "Compile a project and all sources that depend on its";
-    const std::string options = "[--release, -v | --verbose]";
+    const clap::subcommand cli =
+            clap::subcommand("build")
+                .about("Compile a project and all sources that depend on its")
+                .arg(clap::opt("release", "Build artifacts in release mode, with optimizations"))
+                .arg(clap::arg("verbose").long_("verbose").short_("v"))
+            ;
 
     enum class Mode {
         Debug,

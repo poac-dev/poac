@@ -39,27 +39,27 @@ namespace poac::opts::help {
 
     const std::unordered_map<std::string_view, clap::subcommand>
     subcommands{
-//        { "build",     opts::build::summary },
-//        { "cache",     opts::cache::summary },
-//        { "clean",     opts::clean::summary },
-//        { "graph",     opts::graph::summary },
-//        { "help",      opts::help::summary },
-//        { "init",      opts::init::summary },
-//        { "install",   opts::install::summary },
+        { "build",     opts::build::cli },
+//        { "cache",     opts::cache::cli },
+//        { "clean",     opts::clean::cli },
+//        { "graph",     opts::graph::cli },
+//        { "help",      opts::help::cli },
+//        { "init",      opts::init::cli },
+//        { "install",   opts::install::cli },
         { "new",       opts::_new::cli },
-//        { "publish",   opts::publish::summary },
-//        { "root",      opts::root::summary },
-//        { "run",       opts::run::summary },
-//        { "search",    opts::search::summary },
-//        { "test",      opts::test::summary },
-//        { "uninstall", opts::uninstall::summary },
-//        { "update",    opts::update::summary },
-//        { "version",   opts::version::summary },
+//        { "publish",   opts::publish::cli },
+//        { "root",      opts::root::cli },
+//        { "run",       opts::run::cli },
+//        { "search",    opts::search::cli },
+//        { "test",      opts::test::cli },
+//        { "uninstall", opts::uninstall::cli },
+//        { "update",    opts::update::cli },
+//        { "version",   opts::version::cli },
     };
 
     const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
-        { "build",     opts::build::summary },
+//        { "build",     opts::build::summary },
         { "cache",     opts::cache::summary },
         { "clean",     opts::clean::summary },
         { "graph",     opts::graph::summary },
@@ -79,7 +79,7 @@ namespace poac::opts::help {
 
     const std::unordered_map<std::string_view, std::string_view>
     options_map{
-        { "build",     opts::build::options },
+//        { "build",     opts::build::options },
         { "cache",     opts::cache::options },
         { "clean",     opts::clean::options },
         { "graph",     opts::graph::options },
@@ -118,27 +118,27 @@ namespace poac::opts::help {
         item(16, "-h, --help", "help");
 
         std::cout << "\nSome common poac commands are (see all commands with --list):\n";
-        std::vector<std::string> commons = {
-                "build", "clean", "new", "init", "run", "test",
-                "update", "search", "publish", "install", "uninstall"
-        };
-        for (const auto& common : commons) {
-            item(12, common);
-        }
+//        std::vector<std::string> commons = {
+//                "build", "clean", "new", "init", "run", "test",
+//                "update", "search", "publish", "install", "uninstall"
+//        };
+//        for (const auto& common : commons) {
+//            item(12, common);
+//        }
         std::cout << "\nSee `poac help <command>` for information on a specific command." << std::endl;
     }
 
     void usage(std::string_view s) {
-        std::string_view indent = "    ";
+//        std::string_view indent = "    ";
 
         std::cout << subcommands.at(s);
 
-        std::cout << "poac-" << s << "\n"
-                  << summaries_map.at(s) << "\n\n"
-                  << "USAGE:\n"
-                  << indent << "poac " << s << " [OPTIONS]\n\n"
-                  << "OPTIONS:\n"
-                  << indent << options_map.at(s) << std::endl;
+//        std::cout << "poac-" << s << "\n"
+//                  << summaries_map.at(s) << "\n\n"
+//                  << "USAGE:\n"
+//                  << indent << "poac " << s << " [OPTIONS]\n\n"
+//                  << "OPTIONS:\n"
+//                  << indent << options_map.at(s) << std::endl;
     }
 
     void help(help::Options&& opts) {
