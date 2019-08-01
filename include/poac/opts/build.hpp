@@ -32,19 +32,14 @@ namespace poac::opts::build {
     };
 
     [[nodiscard]] std::optional<core::except::Error>
-    build(std::optional<io::config::Config>&&, build::Options&& opts) {
+    build(std::optional<io::config::Config>&& config, build::Options&& opts) {
         // if (const auto error = core::resolver::install_deps()) {
         //    return error;
         // }
-        core::Builder bs(opts.verbose);
-        // if (const auto error = bs.build()) {
-        //    return error;
-        // }
-
-        // TODO: install package to ~/.poac/src/
-        // TODO: header-only -> -I~/.poac/src/${package}/include
-        // TODO: build-required -> cp ~/.poac/src/${package} target/debug/deps/ -> build
-
+        core::Builder bs(config, opts.verbose);
+        if (const auto error = bs.build()) {
+            return error;
+        }
         return std::nullopt;
     }
 
