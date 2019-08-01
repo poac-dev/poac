@@ -35,22 +35,17 @@ namespace poac::core::builder::standard {
         // Apple LLVMは，コンパイラバージョンによる差異がないものとする．(半ば強制的にupdateされるため)
         if (cpp_version == 98) {
             return version_prefix(enable_gnu) + "98";
-        }
-        else if (cpp_version == 3 || cpp_version == 11) {
+        } else if (cpp_version == 3 || cpp_version == 11) {
             return version_prefix(enable_gnu) + "11";
-        }
-        else if (cpp_version == 14) {
+        } else if (cpp_version == 14) {
             return version_prefix(enable_gnu) + "14";
-        }
-        else if (cpp_version == 17) {
+        } else if (cpp_version == 17) {
             return version_prefix(enable_gnu) + "17";
-        }
-        else if (cpp_version == 20) {
+        } else if (cpp_version == 20) {
             throw except::error("Currently, Apple LLVM does not support C++20.\n"
                                 "If this error is displayed in spite of C++20 is supported,\n"
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
-        }
-        else {
+        } else {
             throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
@@ -60,46 +55,35 @@ namespace poac::core::builder::standard {
 
         if (cpp_version == 98) {
             return ""; // unneeded version prefix
-        }
-        else if (cpp_version == 3 || cpp_version == 11) {
+        } else if (cpp_version == 3 || cpp_version == 11) {
             if (cv < "4.3") {
                 throw except::error("Invalid using C++11 less than gcc-4.3.0");
-            }
-            else if (cv >= "4.3" && cv < "4.7") {
+            } else if (cv >= "4.3" && cv < "4.7") {
                 return version_prefix(enable_gnu) + "0x";
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "11";
             }
-        }
-        else if (cpp_version == 14) {
+        } else if (cpp_version == 14) {
             if (cv < "4.8") {
                 throw except::error("Invalid using C++14 less than gcc-4.8.0");
-            }
-            else if (cv >= "4.8" && cv < "4.9") {
+            } else if (cv >= "4.8" && cv < "4.9") {
                 return version_prefix(enable_gnu) + "1y";
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "14";
             }
-        }
-        else if (cpp_version == 17) {
+        } else if (cpp_version == 17) {
             if (cv < "5") {
                 throw except::error("Invalid using C++17 less than gcc-5.0.0");
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "17";
             }
-        }
-        else if (cpp_version == 20) {
+        } else if (cpp_version == 20) {
             if (cv < "8") {
                 throw except::error("Invalid using C++20 less than gcc-8.0.0");
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "2a";
             }
-        }
-        else {
+        } else {
             throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
@@ -109,41 +93,31 @@ namespace poac::core::builder::standard {
 
         if (cpp_version == 98) {
             return ""; // unneeded version prefix
-        }
-        else if (cpp_version == 3 || cpp_version == 11) {
+        } else if (cpp_version == 3 || cpp_version == 11) {
             return version_prefix(enable_gnu) + "11";
-        }
-        else if (cpp_version == 14) {
+        } else if (cpp_version == 14) {
             if (cv < "3.2") {
                 throw except::error("Invalid using C++14 less than clang-3.2");
-            }
-            else if (cv >= "3.2" && cv < "3.5") {
+            } else if (cv >= "3.2" && cv < "3.5") {
                 return version_prefix(enable_gnu) + "1y";
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "14";
             }
-        }
-        else if (cpp_version == 17) {
+        } else if (cpp_version == 17) {
             if (cv < "3.5.0") {
                 throw except::error("Invalid using C++17 less than clang-3.5.0");
-            }
-            else if (cv >= "3.5.0" && cv < "5.0.0") {
+            } else if (cv >= "3.5.0" && cv < "5.0.0") {
                 return version_prefix(enable_gnu) + "1z";
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "17";
             }
-        }
-        else if (cpp_version == 20) {
+        } else if (cpp_version == 20) {
             if (cv < "6.0.0") {
                 throw except::error("Invalid using C++20 less than clang-5.0.0");
-            }
-            else {
+            } else {
                 return version_prefix(enable_gnu) + "2a";
             }
-        }
-        else {
+        } else {
             throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
@@ -151,34 +125,29 @@ namespace poac::core::builder::standard {
     std::string icc_convert(const std::uint8_t& cpp_version) {
         if (cpp_version == 98) {
             return ""; // unneeded version prefix
-        }
-        else if (cpp_version == 3 || cpp_version == 11) {
+        } else if (cpp_version == 3 || cpp_version == 11) {
 #ifndef _WIN32
             return version_prefix(false) + "11";
 #else
             return "/Qstd:c++11";
 #endif
-        }
-        else if (cpp_version == 14) {
+        } else if (cpp_version == 14) {
 #ifndef _WIN32
             return version_prefix(false) + "14";
 #else
             return "/Qstd:c++14";
 #endif
-        }
-        else if (cpp_version == 17) {
+        } else if (cpp_version == 17) {
 #ifndef _WIN32
             return version_prefix(false) + "17";
 #else
             return "/Qstd:c++17";
 #endif
-        }
-        else if (cpp_version == 20) {
+        } else if (cpp_version == 20) {
             throw except::error("Currently, Intel C++ Compiler does not support C++20.\n"
                                 "If this error is displayed in spite of C++20 is supported,\n"
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
-        }
-        else {
+        } else {
             throw except::error("Unknown C++ version: ", cpp_version);
         }
     }
@@ -186,19 +155,15 @@ namespace poac::core::builder::standard {
     std::string msvc_convert(const std::uint8_t& cpp_version) {
         if (cpp_version == 98 || cpp_version == 3 || cpp_version == 11) {
             return ""; // unneeded version prefix
-        }
-        else if (cpp_version == 14) {
+        } else if (cpp_version == 14) {
             return "/std:c++14";
-        }
-        else if (cpp_version == 17) {
+        } else if (cpp_version == 17) {
             return "/std:c++17";
-        }
-        else if (cpp_version == 20) {
+        } else if (cpp_version == 20) {
             throw except::error("Currently, MSVC does not support C++20.\n"
                                 "If this error is displayed in spite of C++20 is supported,\n"
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
-        }
-        else {
+        } else {
             throw except::error("Unknown C++ version: ", cpp_version);
         }
         // TODO: latestを活用
@@ -213,8 +178,7 @@ namespace poac::core::builder::standard {
 #ifndef _WIN32
         else if (compiler == "gcc") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
             return gcc_convert(cpp_version, get_compiler_version("g++"), enable_gnu);
-        }
-        else if (compiler == "clang") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
+        } else if (compiler == "clang") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
             return clang_convert(cpp_version, get_compiler_version("clang++"), enable_gnu);
         }
 #else
@@ -250,8 +214,7 @@ namespace poac::core::builder::standard {
 #  endif
             if (cmd == "g++") {
                 return "gcc";
-            }
-            else if (cmd == "clang++") {
+            } else if (cmd == "clang++") {
                 return "clang";
             }
         }
@@ -266,15 +229,13 @@ namespace poac::core::builder::standard {
     std::string detect_command() {
         if (const auto cxx = io::path::dupenv("CXX")) {
             return *cxx;
-        }
-        else if (util::_shell::has_command("icpc")) {
+        } else if (util::_shell::has_command("icpc")) {
             return "icpc";
         }
 #ifndef _WIN32
         else if (util::_shell::has_command("g++")) {
             return "g++";
-        }
-        else if (util::_shell::has_command("clang++")) {
+        } else if (util::_shell::has_command("clang++")) {
             return "clang++";
         }
 #else
