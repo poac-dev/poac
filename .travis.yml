@@ -38,6 +38,7 @@ install:
   - cmake -Dtoml11_BUILD_TEST=OFF ..
   - make install
   - cd ../../
+  - rm -rf toml11
 script:
   - mkdir build
   - cd build
