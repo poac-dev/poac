@@ -142,7 +142,7 @@ workflows:
             version: 7
           build-type: "Debug"
           after-build:
-            - run: ./build/poac --help
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -153,7 +153,7 @@ workflows:
             version: 8
           build-type: "Debug"
           after-build:
-            - run: ./build/poac --help
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -164,7 +164,7 @@ workflows:
             version: 9
           build-type: "Debug"
           after-build:
-            - run: ./build/poac --help
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -175,7 +175,7 @@ workflows:
             version: 6
           build-type: "Debug"
           after-build:
-            - run: ./build/poac --help
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -186,7 +186,7 @@ workflows:
             version: 7
           build-type: "Debug"
           after-build:
-            - run: ./build/poac --help
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -197,7 +197,7 @@ workflows:
             version: 8
           build-type: "Debug"
           after-build:
-            - run: ./build/poac --help
+            - run: ./build/poac help
           requires:
             - checkout_code
 
