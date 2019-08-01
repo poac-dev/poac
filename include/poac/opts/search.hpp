@@ -18,8 +18,12 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::search {
-    const std::string summary = "Search for packages in poac.pm";
-    const std::string options = "<pkg-name> [-v, --verbose]";
+    const clap::subcommand cli =
+            clap::subcommand("search")
+                .about("Search for packages in poac.pm")
+                .arg(clap::opt("verbose", "Use verbose output").short_("v"))
+                .arg(clap::arg("<pkg-name>"))
+            ;
 
     struct Options {
         bool verbose;
