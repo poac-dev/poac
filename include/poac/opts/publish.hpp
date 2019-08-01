@@ -28,8 +28,11 @@
 #include <poac/config.hpp>
 
 namespace poac::opts::publish {
-    const std::string summary = "Publish a package";
-    const std::string options = "[-y | --yes]";
+    const clap::subcommand cli =
+            clap::subcommand("publish")
+                .about("Upload a package to the registry")
+                .arg(clap::opt("yes", "Pass confirmation").short_("y"))
+            ;
 
     struct Options {
         bool yes;
