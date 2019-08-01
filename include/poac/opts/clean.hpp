@@ -18,7 +18,7 @@
 
 namespace poac::opts::clean {
     const clap::subcommand cli =
-            clap::subcommand("build")
+            clap::subcommand("clean")
                 .about("Delete unnecessary things")
             ;
 
