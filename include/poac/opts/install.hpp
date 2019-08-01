@@ -30,7 +30,7 @@ namespace poac::opts::install {
             ;
 
     struct Options {
-        bool quite;
+        bool quiet;
         bool verbose;
         std::vector<std::string> package_list;
     };
@@ -115,7 +115,7 @@ namespace poac::opts::install {
             }
             else if (is_cached) {
                 const bool res = copy_to_current(cache_name, current_name);
-                if (!opts.quite) {
+                if (!opts.quiet) {
                     echo_install_status(res, name, package.version);
                 }
             }
@@ -127,7 +127,7 @@ namespace poac::opts::install {
                 bool result = clone_cmd.exec().has_value(); // true == error
                 result = !result && copy_to_current(cache_name, current_name);
 
-                if (!opts.quite) {
+                if (!opts.quiet) {
                     echo_install_status(result, name, package.version);
                 }
             }
@@ -139,7 +139,7 @@ namespace poac::opts::install {
 
     void
     download(const core::resolver::resolve::NoDuplicateDeps& deps, const install::Options& opts) {
-        if (!opts.quite) {
+        if (!opts.quiet) {
             std::cout << io::term::status << "Fetching..." << std::endl;
             std::cout << std::endl;
         }
@@ -147,7 +147,7 @@ namespace poac::opts::install {
         boost::filesystem::create_directories(io::path::current_deps_dir);
         fetch(deps, opts);
 
-        if (!opts.quite) {
+        if (!opts.quiet) {
             std::cout << std::endl;
             io::term::status_done();
         }
@@ -229,7 +229,7 @@ namespace poac::opts::install {
         }
 
         // resolve dependency
-        if (!opts.quite) {
+        if (!opts.quiet) {
             std::cout << io::term::status << "Resolving dependencies..." << std::endl;
         }
 
@@ -277,8 +277,8 @@ namespace poac::opts::install {
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
         install::Options opts{};
-        opts.quite = util::argparse::use_rm(args, "-q", "--quite");
-        opts.verbose = util::argparse::use_rm(args, "-v", "--verbose") && !opts.quite;
+        opts.quiet = util::argparse::use_rm(args, "-q", "--quite");
+        opts.verbose = util::argparse::use_rm(args, "-v", "--verbose") && !opts.quiet;
         args.shrink_to_fit();
         opts.package_list = args;
         return install::install(std::move(config), std::move(opts));
