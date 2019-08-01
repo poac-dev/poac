@@ -201,7 +201,7 @@ namespace poac::io::config {
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        cpp_version = detail::find_opt<std::uint16_t>(v, "cpp-version");
+        cpp = detail::find_opt<std::uint16_t>(v, "cpp");
         dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
         dev_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dev-dependencies");
         build_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "build-dependencies");
