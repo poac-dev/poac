@@ -12,8 +12,10 @@
 #include <poac/io/config.hpp>
 
 namespace poac::opts::root {
-    const std::string summary = "Display the root installation directory";
-    const std::string options = "<Nothing>";
+    const clap::subcommand cli =
+            clap::subcommand("root")
+                .about("Display the root installation directory")
+            ;
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     [[nodiscard]] std::optional<core::except::Error>
