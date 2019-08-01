@@ -19,10 +19,41 @@
 #include <poac/util/argparse.hpp>
 #include <poac/util/termcolor2.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
+#include <poac/util/clap/clap.hpp>
 
 namespace poac::opts::_new {
-    const std::string summary = "Create a new poac project";
-    const std::string options = "[-b, --bin | -l, --lib | --vcs <VCS> | --cpp <VERSION> | --name <NAME> | -h, --help]";
+    const clap::subcommand cli =
+            clap::subcommand("new")
+                .about("Create a new poac package at <path>")
+                .arg(clap::opt("quiet", "No output printed to stdout").short_("q"))
+                .arg(clap::arg("path").required(true))
+                .arg(clap::opt("registry", "Registry to use").value_name("REGISTRY"))
+                .arg(
+                    clap::opt(
+                        "vcs",
+                        "Initialize a new repository for the given version "
+                        "control system (git, hg, pijul, or fossil) or do not "
+                        "initialize any version control at all (none), overriding "
+                        "a global configuration."
+                    )
+                    .value_name("VCS")
+                    .possible_values({"git", "hg", "pijul", "fossil", "none"})
+                )
+                .arg(clap::opt("bin", "Use a binary (application) template [default]"))
+                .arg(clap::opt("lib", "Use a library template"))
+                .arg(
+                    clap::opt("cpp", "Edition to set for the package generated")
+                    .possible_values({"98", "3", "11", "14", "17", "20"})
+                    .value_name("VERSION")
+                )
+                .arg(
+                    clap::opt(
+                        "name",
+                        "Set the resulting package name, defaults to the directory name"
+                    )
+                    .value_name("NAME")
+                )
+            ;
 
     namespace files {
         namespace bin {

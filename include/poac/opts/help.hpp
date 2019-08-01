@@ -37,6 +37,26 @@ namespace poac::opts::help {
         std::string cmd;
     };
 
+    const std::unordered_map<std::string_view, clap::subcommand>
+    subcommands{
+//        { "build",     opts::build::summary },
+//        { "cache",     opts::cache::summary },
+//        { "clean",     opts::clean::summary },
+//        { "graph",     opts::graph::summary },
+//        { "help",      opts::help::summary },
+//        { "init",      opts::init::summary },
+//        { "install",   opts::install::summary },
+        { "new",       opts::_new::cli },
+//        { "publish",   opts::publish::summary },
+//        { "root",      opts::root::summary },
+//        { "run",       opts::run::summary },
+//        { "search",    opts::search::summary },
+//        { "test",      opts::test::summary },
+//        { "uninstall", opts::uninstall::summary },
+//        { "update",    opts::update::summary },
+//        { "version",   opts::version::summary },
+    };
+
     const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
         { "build",     opts::build::summary },
@@ -46,7 +66,7 @@ namespace poac::opts::help {
         { "help",      opts::help::summary },
         { "init",      opts::init::summary },
         { "install",   opts::install::summary },
-        { "new",       opts::_new::summary },
+//        { "new",       opts::_new::summary },
         { "publish",   opts::publish::summary },
         { "root",      opts::root::summary },
         { "run",       opts::run::summary },
@@ -66,7 +86,7 @@ namespace poac::opts::help {
         { "help",      opts::help::options },
         { "init",      opts::init::options },
         { "install",   opts::install::options },
-        { "new",       opts::_new::options },
+//        { "new",       opts::_new::options },
         { "publish",   opts::publish::options },
         { "root",      opts::root::options },
         { "run",       opts::run::options },
@@ -110,6 +130,8 @@ namespace poac::opts::help {
 
     void usage(std::string_view s) {
         std::string_view indent = "    ";
+
+        std::cout << subcommands.at(s);
 
         std::cout << "poac-" << s << "\n"
                   << summaries_map.at(s) << "\n\n"
