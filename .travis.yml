@@ -44,7 +44,7 @@ script:
   - cd build
   - cmake ..
   - make install
-  - poac -h
+  - poac help
   - cd ../
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
