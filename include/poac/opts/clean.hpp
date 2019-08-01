@@ -17,8 +17,10 @@
 #include <poac/io/config.hpp>
 
 namespace poac::opts::clean {
-    const std::string summary = "Delete unnecessary things";
-    const std::string options = "<Nothing>";
+    const clap::subcommand cli =
+            clap::subcommand("build")
+                .about("Delete unnecessary things")
+            ;
 
     [[nodiscard]] std::optional<core::except::Error>
     clean(std::optional<io::config::Config>&& config) {

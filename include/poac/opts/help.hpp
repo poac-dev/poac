@@ -41,7 +41,7 @@ namespace poac::opts::help {
     subcommands{
         { "build",     opts::build::cli },
         { "cache",     opts::cache::cli },
-//        { "clean",     opts::clean::cli },
+        { "clean",     opts::clean::cli },
 //        { "graph",     opts::graph::cli },
 //        { "help",      opts::help::cli },
 //        { "init",      opts::init::cli },
@@ -61,7 +61,7 @@ namespace poac::opts::help {
     summaries_map{
 //        { "build",     opts::build::summary },
 //        { "cache",     opts::cache::summary },
-        { "clean",     opts::clean::summary },
+//        { "clean",     opts::clean::summary },
         { "graph",     opts::graph::summary },
         { "help",      opts::help::summary },
         { "init",      opts::init::summary },
@@ -75,26 +75,6 @@ namespace poac::opts::help {
         { "uninstall", opts::uninstall::summary },
         { "update",    opts::update::summary },
         { "version",   opts::version::summary }
-    };
-
-    const std::unordered_map<std::string_view, std::string_view>
-    options_map{
-//        { "build",     opts::build::options },
-//        { "cache",     opts::cache::options },
-        { "clean",     opts::clean::options },
-        { "graph",     opts::graph::options },
-        { "help",      opts::help::options },
-        { "init",      opts::init::options },
-        { "install",   opts::install::options },
-//        { "new",       opts::_new::options },
-        { "publish",   opts::publish::options },
-        { "root",      opts::root::options },
-        { "run",       opts::run::options },
-        { "search",    opts::search::options },
-        { "test",      opts::test::options },
-        { "uninstall", opts::uninstall::options },
-        { "update",    opts::update::options },
-        { "version",   opts::version::options }
     };
 
     void item(const int n, std::string_view name, std::string_view key) {
