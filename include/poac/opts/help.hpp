@@ -25,8 +25,11 @@
 #include <poac/opts/version.hpp>
 
 namespace poac::opts::help {
-    const std::string summary = "Display help for a command";
-    const std::string options = "<sub-command or option>";
+    const clap::subcommand cli =
+            clap::subcommand("help")
+                .about("Prints this message or the help of the given subcommand(s)")
+                .arg(clap::arg("<subcommand>..."))
+            ;
 
     struct Options {
         enum class Type {
@@ -43,7 +46,7 @@ namespace poac::opts::help {
         { "cache",     opts::cache::cli },
         { "clean",     opts::clean::cli },
         { "graph",     opts::graph::cli },
-//        { "help",      opts::help::cli },
+        { "help",      opts::help::cli },
 //        { "init",      opts::init::cli },
 //        { "install",   opts::install::cli },
         { "new",       opts::_new::cli },
@@ -63,7 +66,7 @@ namespace poac::opts::help {
 //        { "cache",     opts::cache::summary },
 //        { "clean",     opts::clean::summary },
 //        { "graph",     opts::graph::summary },
-        { "help",      opts::help::summary },
+//        { "help",      opts::help::summary },
         { "init",      opts::init::summary },
         { "install",   opts::install::summary },
 //        { "new",       opts::_new::summary },
