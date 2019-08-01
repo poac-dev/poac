@@ -1,9 +1,6 @@
 #ifndef POAC_CONFIG_HPP
 #define POAC_CONFIG_HPP
 
-#ifndef POAC_PROJECT_ROOT
-#   warning "POAC_PROJECT_ROOT is not defined"
-#endif
 #ifndef POAC_VERSION
 #   warning "POAC_VERSION is not defined"
 #endif
