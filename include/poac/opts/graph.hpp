@@ -25,8 +25,11 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::graph {
-    const std::string summary = "Create a dependency graph";
-    const std::string options = "[-o | --output]";
+    const clap::subcommand cli =
+            clap::subcommand("graph")
+                .about("Create a dependency graph")
+                .arg(clap::opt("output", "Output file name").short_("o").value_name("NAME"))
+            ;
 
     struct Options {
         std::optional<boost::filesystem::path> output_file;
