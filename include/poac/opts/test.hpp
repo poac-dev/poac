@@ -22,8 +22,13 @@
 //    - "--log_level=test_suite" -> testのオプションとして引き受ける
 
 namespace poac::opts::test {
-    const std::string summary = "Run the tests";
-    const std::string options = "[-v, --verbose | --report | -- <program args>]";
+    const clap::subcommand cli =
+            clap::subcommand("test")
+                .about("Run the tests")
+                .arg(clap::opt("verbose", "Use verbose output").short_("v"))
+                .arg(clap::opt("report", "Report the test"))
+                .arg(clap::arg("<args>..."))
+            ;
 
     struct Options {
         bool verbose;
