@@ -15,8 +15,7 @@ _book/
 package-lock.json
 
 # poac
-deps/
-_build/
+/target
 
 # gcov
 *.gcno
