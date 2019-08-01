@@ -57,11 +57,8 @@ namespace poac::opts::_new {
 
     namespace files {
         namespace bin {
-            std::string poac_toml(const std::string& project_name) {
-                return "cpp = 17\n"
-                       "[[bin]]\n"
-                       "path = \"src/main.cpp\"\n"
-                       "name = \"" + project_name + "\"";
+            std::string poac_toml(const std::string&) {
+                return "cpp = 17";
             }
             const std::string main_cpp(
                     "#include <iostream>\n\n"
