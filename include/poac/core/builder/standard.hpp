@@ -169,33 +169,6 @@ namespace poac::core::builder::standard {
         // TODO: latestを活用
     }
 
-    std::string convert(const std::uint8_t& cpp_version, std::string_view compiler, const bool& enable_gnu) {
-        // Match a poac binary architecture and an architecture available to each compiler.
-
-        if (compiler == "icc") { // Support OS: macos, linux, mingw, cygwin, _WIN32
-            return icc_convert(cpp_version);
-        }
-#ifndef _WIN32
-        else if (compiler == "gcc") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
-            return gcc_convert(cpp_version, get_compiler_version("g++"), enable_gnu);
-        } else if (compiler == "clang") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
-            return clang_convert(cpp_version, get_compiler_version("clang++"), enable_gnu);
-        }
-#else
-        else if (compiler == "msvc") { // Support OS: Only _WIN32
-            return msvc_convert(cpp_version);
-        }
-#endif
-#ifdef __APPLE__
-        else if (compiler == "apple-llvm") { // Support OS: Only macos
-            return apple_llvm_convert(cpp_version, enable_gnu);
-        }
-#endif
-        else {
-            throw except::error("Unknown compiler name: ", compiler);
-        }
-    }
-
     std::string command_to_name(std::string_view cmd) {
         if (cmd == "icpc") {
             return "icc";
@@ -224,6 +197,34 @@ namespace poac::core::builder::standard {
         }
 #endif
         throw except::error("Unknown compiler command: ", cmd);
+    }
+
+    std::string convert(const std::uint8_t& cpp_version, const std::string& command, const bool& enable_gnu) {
+        // Match a poac binary architecture and an architecture available to each compiler.
+        const std::string compiler = command_to_name(command);
+
+        if (compiler == "icc") { // Support OS: macos, linux, mingw, cygwin, _WIN32
+            return icc_convert(cpp_version);
+        }
+#ifndef _WIN32
+        else if (compiler == "gcc") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
+            return gcc_convert(cpp_version, get_compiler_version("g++"), enable_gnu);
+        } else if (compiler == "clang") { // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
+            return clang_convert(cpp_version, get_compiler_version("clang++"), enable_gnu);
+        }
+#else
+        else if (compiler == "msvc") { // Support OS: Only _WIN32
+            return msvc_convert(cpp_version);
+        }
+#endif
+#ifdef __APPLE__
+        else if (compiler == "apple-llvm") { // Support OS: Only macos
+            return apple_llvm_convert(cpp_version, enable_gnu);
+        }
+#endif
+        else {
+            throw except::error("Unknown compiler name: ", compiler);
+        }
     }
 
     std::string detect_command() {
