@@ -10,8 +10,12 @@
 #include <poac/util/argparse.hpp>
 
 namespace poac::opts::run {
-    const std::string summary = "Build project and exec it";
-    const std::string options = "[-v, --verbose | -- <program args>]";
+    const clap::subcommand cli =
+            clap::subcommand("run")
+                .about("Build project and exec it")
+                .arg(clap::opt("verbose", "Use verbose output").short_("v"))
+                .arg(clap::arg("-- <args>..."))
+            ;
 
     struct Options {
         bool verbose;

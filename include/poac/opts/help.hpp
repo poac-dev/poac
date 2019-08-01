@@ -52,7 +52,7 @@ namespace poac::opts::help {
         { "new",       opts::_new::cli },
         { "publish",   opts::publish::cli },
         { "root",      opts::root::cli },
-//        { "run",       opts::run::cli },
+        { "run",       opts::run::cli },
 //        { "search",    opts::search::cli },
 //        { "test",      opts::test::cli },
 //        { "uninstall", opts::uninstall::cli },
@@ -62,7 +62,6 @@ namespace poac::opts::help {
 
     const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
-        { "run",       opts::run::summary },
         { "search",    opts::search::summary },
         { "test",      opts::test::summary },
         { "uninstall", opts::uninstall::summary },
