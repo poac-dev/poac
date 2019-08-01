@@ -7,7 +7,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
-#include <poac/util/semver.hpp>
+#include <poac/util/semver/semver.hpp>
 
 namespace poac::core::project {
     semver::Version

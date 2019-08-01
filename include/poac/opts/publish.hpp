@@ -22,7 +22,7 @@
 #include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/pretty.hpp>
-#include <poac/util/semver.hpp>
+#include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/config.hpp>

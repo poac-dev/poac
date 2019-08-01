@@ -16,7 +16,7 @@
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
-#include <poac/util/semver.hpp>
+#include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::options {

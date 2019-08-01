@@ -25,7 +25,7 @@
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/config.hpp>
-#include <poac/util/semver.hpp>
+#include <poac/util/semver/semver.hpp>
 #include <poac/util/types.hpp>
 #include <poac/config.hpp>
 

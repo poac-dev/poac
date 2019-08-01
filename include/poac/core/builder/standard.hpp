@@ -8,7 +8,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
-#include <poac/util/semver.hpp>
+#include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::standard {
