@@ -17,8 +17,12 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::init {
-    const std::string summary = "Create the poac.yml";
-    const std::string options = "[-b, --bin | -l, --lib]";
+    const clap::subcommand cli =
+            clap::subcommand("init")
+                .about("Create a new poac package in an existing directory")
+                .arg(clap::opt("bin", "Use a binary (application) template [default]"))
+                .arg(clap::opt("lib", "Use a library template"))
+            ;
 
     struct Options {
         bool lib;

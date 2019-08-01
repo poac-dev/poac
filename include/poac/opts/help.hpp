@@ -47,7 +47,7 @@ namespace poac::opts::help {
         { "clean",     opts::clean::cli },
         { "graph",     opts::graph::cli },
         { "help",      opts::help::cli },
-//        { "init",      opts::init::cli },
+        { "init",      opts::init::cli },
 //        { "install",   opts::install::cli },
         { "new",       opts::_new::cli },
 //        { "publish",   opts::publish::cli },
@@ -62,12 +62,6 @@ namespace poac::opts::help {
 
     const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
-//        { "build",     opts::build::summary },
-//        { "cache",     opts::cache::summary },
-//        { "clean",     opts::clean::summary },
-//        { "graph",     opts::graph::summary },
-//        { "help",      opts::help::summary },
-        { "init",      opts::init::summary },
         { "install",   opts::install::summary },
 //        { "new",       opts::_new::summary },
         { "publish",   opts::publish::summary },
