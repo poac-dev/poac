@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace clap {
-    class arg {
+    struct arg {
         std::string m_name;
         std::string m_help;
         std::string m_short;
@@ -13,8 +13,9 @@ namespace clap {
         std::string m_value_name;
         std::vector<std::string> m_possible_values;
         bool m_required;
+        bool m_multiple;
+        bool m_global;
 
-    public:
         arg() = delete;
         explicit arg(const std::string& name) : m_name(name) {}
         ~arg() = default;
@@ -30,6 +31,8 @@ namespace clap {
         arg& value_name(const std::string&);
         arg& possible_values(const std::vector<std::string>&);
         arg& required(const bool);
+        arg& multiple(const bool);
+        arg& global(const bool);
     };
 
     arg&
@@ -51,20 +54,32 @@ namespace clap {
     }
 
     arg&
-    arg::value_name(const std::string& value_name) {
-        this->m_value_name = value_name;
+    arg::value_name(const std::string& name) {
+        this->m_value_name = name;
         return *this;
     }
 
     arg&
-    arg::possible_values(const std::vector<std::string>& possible_values) {
-        this->m_possible_values = possible_values;
+    arg::possible_values(const std::vector<std::string>& values) {
+        this->m_possible_values = values;
         return *this;
     }
 
     arg&
     arg::required(const bool required) {
         this->m_required = required;
+        return *this;
+    }
+
+    arg&
+    arg::multiple(const bool multiple) {
+        this->m_multiple = multiple;
+        return *this;
+    }
+
+    arg&
+    arg::global(const bool global) {
+        this->m_global = global;
         return *this;
     }
 } // end namespace clap

@@ -51,7 +51,37 @@ namespace clap {
         os << "poac-" << s.m_name << "\n"
            << s.m_about << "\n\n"
            << "USAGE:\n"
-           << "    " << "poac " << s.m_name << " [OPTIONS] <path>" << "\n\n";
+           << "    " << "poac " << s.m_name << " [OPTIONS] <path>" << "\n";
+
+        std::vector<clap::arg> args;
+
+        bool first = true;
+        for (const auto& h : s.m_args) {
+            if (h.m_short.empty() && h.m_long.empty()) {
+                args.emplace_back(h);
+            } else {
+                if (first) {
+                    first = false;
+                    os << "\nOPTIONS:\n";
+                }
+
+                std::string option;
+                if (h.m_short.empty()) {
+                    option = "    --" + h.m_long;
+                } else {
+                    option = "-" + h.m_short + ", " + "--" + h.m_long;
+                }
+                os << "    " << std::left << std::setw(20) << option << h.m_help << "\n";
+            }
+        }
+
+        if (!args.empty()) {
+            os << "\nARGS:\n";
+            for (const auto& a : args) {
+                os << "    " << "<" << a.m_name << ">" << (a.m_multiple ? "..." : "") << "\n";
+            }
+        }
+
         return os;
     }
 } // end namespace clap

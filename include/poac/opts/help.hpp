@@ -23,12 +23,13 @@
 #include <poac/opts/uninstall.hpp>
 #include <poac/opts/update.hpp>
 #include <poac/opts/version.hpp>
+#include <poac/util/clap/clap.hpp>
 
 namespace poac::opts::help {
     const clap::subcommand cli =
             clap::subcommand("help")
                 .about("Prints this message or the help of the given subcommand(s)")
-                .arg(clap::arg("<subcommand>..."))
+                .arg(clap::arg("subcommand").multiple(true))
             ;
 
     struct Options {

@@ -26,7 +26,7 @@ namespace poac::opts::install {
                 .about("Install a C++ binary. Default location is $HOME/.poac/bin")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))
                 .arg(clap::opt("quiet", "No output printed to stdout").short_("q"))
-                .arg(clap::arg("<package>..."))
+                .arg(clap::arg("package").multiple(true))
             ;
 
     struct Options {

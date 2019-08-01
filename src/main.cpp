@@ -30,6 +30,27 @@ int handle(std::string_view cmd, std::vector<std::string>&& args) {
 }
 
 int main(int argc, const char** argv) {
+    // TODO:
+//    try {
+//        const auto args = poac::core::cli::cli.parse(std::vector<std::string>(argv, argv + argc));
+//        const auto error = poac::core::cli::exec(args[0], std::move(args[1..]));
+//        if (!error) {
+//            return EXIT_SUCCESS;
+//        }
+//        if (std::holds_alternative<poac::core::except::Error::InvalidSecondArg>(error->state)) {
+//            handle("help", std::vector<std::string>{error->what()});
+//        } else {
+//            std::cerr << poac::io::term::error << error->what() << std::endl;
+//        }
+//        return EXIT_FAILURE;
+//    } catch (const std::exception& e) {
+//        std::cerr << poac::io::term::error << e.what() << std::endl;
+//        return EXIT_FAILURE;
+//    } catch (...) {
+//        std::cerr << poac::io::term::error << "Unexpected error" << std::endl;
+//        return EXIT_FAILURE;
+//    }
+
     using namespace std::string_literals;
     // argv[0]: poac, argv[1]: install, argv[2]: 1, ...
 

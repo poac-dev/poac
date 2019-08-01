@@ -14,7 +14,7 @@ namespace poac::opts::run {
             clap::subcommand("run")
                 .about("Build project and exec it")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))
-                .arg(clap::arg("-- <args>..."))
+                .arg(clap::arg("args").multiple(true))
             ;
 
     struct Options {
