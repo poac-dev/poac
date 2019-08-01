@@ -28,16 +28,16 @@ description = "Poac is a package manager for C++"
 #[dev-dependencies]
 #"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
 
-[[bin]]
-path = "src/main.cpp"
-name = "poac"
-
 [target.'cfg(os = "linux")'.profile]
 definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
 
 [target.'cfg(os = "unix")'.profile]
 options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
-libraries = ["dl"]
+libraries = ["dl", "ssl", "crypt"]
+
+[target.'cfg(os = "macos")'.profile]
+include_directories = ["/usr/local/opt/openssl/include"]
+link_directories = ["/usr/local/opt/openssl/lib"]
 
 [target.'cfg(compiler = "msvc")'.profile]
 definitions = ["BOOST_ASIO_HAS_STD_STRING_VIEW"]
@@ -49,16 +49,19 @@ options = ["-Wa,-mbig-obj"]
 [target.'cfg(os = "windows")'.profile]
 libraries = ["bcrypt", "ws2_32"]
 
-[target.'cfg(all(os = "unix", type = "debug"))'.profile]
+[target.'cfg(os = "unix")'.profile.dev]
 options = ["-fsanitize=address"]
 
-[target.'cfg(all(os = "macos", type = "release"))'.profile]
+[target.'cfg(os = "macos")'.profile.release]
 options = ["-mtune=native", "-march=native"]
 
 [target.'cfg(all(os = "macos", os_version < 14))'.profile]
 compiler = "/usr/local/opt/llvm@7/bin/clang++"
 include_directories = ["/usr/local/opt/llvm@7/include"]
 link_directories = ["/usr/local/opt/llvm@7/lib"]
+
+[profile]
+libraries = ["boost_sysytem", "boost_filesystem", "git2"]
 
 [profile.dev]
 opt-level = "g"
