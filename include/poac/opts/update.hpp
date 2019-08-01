@@ -21,7 +21,7 @@
 #include <poac/io/net.hpp>
 #include <poac/util/semver.hpp>
 #include <poac/util/types.hpp>
-#include <poac/util/termcolor2.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::update {
     const clap::subcommand cli =

@@ -8,7 +8,7 @@
 #include <poac/util/pretty.hpp>
 #include <poac/util/semver.hpp>
 #include <poac/util/shell.hpp>
-#include <poac/util/termcolor2.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/types.hpp>
 #include <poac/util/vcs.hpp>
 

@@ -19,7 +19,7 @@
 #include <poac/io/path.hpp>
 #include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
-#include <poac/util/termcolor2.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::uninstall {
     const clap::subcommand cli =

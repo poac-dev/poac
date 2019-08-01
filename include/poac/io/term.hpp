@@ -11,7 +11,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/util/pretty.hpp>
-#include <poac/util/termcolor2.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::io::term {
     // Clear screen

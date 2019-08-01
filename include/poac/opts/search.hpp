@@ -15,7 +15,7 @@
 #include <poac/io/net.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/pretty.hpp>
-#include <poac/util/termcolor2.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::search {
     const clap::subcommand cli =
