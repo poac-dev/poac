@@ -137,7 +137,7 @@ namespace poac::io::config {
             toml::table into_toml() const;
         };
 
-        std::optional<std::uint16_t> cpp_version;
+        std::optional<std::uint16_t> cpp;
         std::optional<std::unordered_map<std::string, std::string>> dependencies;
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;

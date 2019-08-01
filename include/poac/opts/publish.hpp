@@ -271,8 +271,8 @@ namespace poac::opts::publish {
 
     std::uint16_t
     get_cpp_version(const std::optional<io::config::Config>& config) {
-        if (config->cpp_version.has_value()) {
-            return config->cpp_version.value();
+        if (config->cpp.has_value()) {
+            return config->cpp.value();
         } else {
             throw core::except::error(
                     "Could not get cpp-version from poac.toml.\n"
