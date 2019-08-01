@@ -22,8 +22,14 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::uninstall {
-    const std::string summary = "Uninstall packages";
-    const std::string options = "[<pkg-names> | -a, --all | -y, --yes]";
+    const clap::subcommand cli =
+            clap::subcommand("uninstall")
+                .about("Remove a C++ binary")
+                .arg(clap::opt("verbose", "Use verbose output").short_("v"))
+                .arg(clap::opt("all", "Remove all binaries").short_("a"))
+                .arg(clap::opt("yes", "Pass confirmation").short_("y"))
+                .arg(clap::arg("<package>..."))
+            ;
 
     struct Options {
         bool yes;

@@ -55,14 +55,13 @@ namespace poac::opts::help {
         { "run",       opts::run::cli },
         { "search",    opts::search::cli },
         { "test",      opts::test::cli },
-//        { "uninstall", opts::uninstall::cli },
+        { "uninstall", opts::uninstall::cli },
 //        { "update",    opts::update::cli },
 //        { "version",   opts::version::cli },
     };
 
     const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
-        { "uninstall", opts::uninstall::summary },
         { "update",    opts::update::summary },
         { "version",   opts::version::summary }
     };
