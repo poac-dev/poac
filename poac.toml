@@ -60,5 +60,8 @@ compiler = "/usr/local/opt/llvm@7/bin/clang++"
 include_directories = ["/usr/local/opt/llvm@7/include"]
 link_directories = ["/usr/local/opt/llvm@7/lib"]
 
+[profile.dev]
+opt-level = "g"
+
 [profile.release]
 lto = true
