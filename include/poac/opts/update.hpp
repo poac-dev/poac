@@ -24,8 +24,13 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::update {
-    const std::string summary = "Update a package";
-    const std::string options = "[ -y | --yes, -a | --all, --outside ]";
+    const clap::subcommand cli =
+            clap::subcommand("update")
+                .about("Update a package")
+                .arg(clap::opt("outside", "Update a outside package"))
+                .arg(clap::opt("all", "Remove all binaries").short_("a"))
+                .arg(clap::opt("yes", "Pass confirmation").short_("y"))
+            ;
 
     struct Options {
         bool yes;
