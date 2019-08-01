@@ -36,9 +36,8 @@ namespace poac::core::builder::compiler {
         auto obj_path = opts.output_root / fs::relative(opts.source_file);
         obj_path.replace_extension("o");
         fs::create_directories(obj_path.parent_path());
-        const auto obj_path_str = obj_path.string();
-        std::string obj_files_path = obj_path_str;
-        cmd += obj_path_str;
+        const std::string obj_files_path = obj_path.string();
+        cmd += obj_files_path;
 
         if (verbose) {
             std::cout << cmd << std::endl;
