@@ -17,8 +17,12 @@
 #include <poac/util/termcolor2.hpp>
 
 namespace poac::opts::cache {
-    const std::string summary = "Manipulate cache files";
-    const std::string options = "[-a, --all | --pattern regex_pattern]";
+    const clap::subcommand cli =
+            clap::subcommand("build")
+                .about("Manipulate cache files")
+                .arg(clap::opt("all", "Manipulate all caches"))
+                .arg(clap::opt("pattern", "Regex pattern").value_name("PATTERN"))
+            ;
 
     struct Options {
         enum class SubCmd {

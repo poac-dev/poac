@@ -40,7 +40,7 @@ namespace poac::opts::help {
     const std::unordered_map<std::string_view, clap::subcommand>
     subcommands{
         { "build",     opts::build::cli },
-//        { "cache",     opts::cache::cli },
+        { "cache",     opts::cache::cli },
 //        { "clean",     opts::clean::cli },
 //        { "graph",     opts::graph::cli },
 //        { "help",      opts::help::cli },
@@ -60,7 +60,7 @@ namespace poac::opts::help {
     const std::unordered_map<std::string_view, std::string_view>
     summaries_map{
 //        { "build",     opts::build::summary },
-        { "cache",     opts::cache::summary },
+//        { "cache",     opts::cache::summary },
         { "clean",     opts::clean::summary },
         { "graph",     opts::graph::summary },
         { "help",      opts::help::summary },
@@ -80,7 +80,7 @@ namespace poac::opts::help {
     const std::unordered_map<std::string_view, std::string_view>
     options_map{
 //        { "build",     opts::build::options },
-        { "cache",     opts::cache::options },
+//        { "cache",     opts::cache::options },
         { "clean",     opts::clean::options },
         { "graph",     opts::graph::options },
         { "help",      opts::help::options },
