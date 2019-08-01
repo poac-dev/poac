@@ -86,8 +86,8 @@ namespace poac::opts::help {
                   << indent << "poac [OPTIONS] [SUBCOMMAND]\n\n"
                   << "OPTIONS:\n";
 
-        item(16, "-v, --version", "version");
-        item(16, "-h, --help", "help");
+//        item(16, "-v, --version", "version");
+//        item(16, "-h, --help", "help");
 
         std::cout << "\nSome common poac commands are (see all commands with --list):\n";
 //        std::vector<std::string> commons = {
