@@ -210,8 +210,8 @@ namespace poac::io::config {
     }
     toml::table Config::into_toml() const {
         toml::table t{};
-        if (cpp_version.has_value()) {
-            t.emplace("cpp-version", cpp_version.value());
+        if (cpp.has_value()) {
+            t.emplace("cpp-version", cpp.value());
         }
         if (dependencies.has_value()) {
             t.emplace("dependencies", dependencies.value());
