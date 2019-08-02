@@ -44,23 +44,23 @@ namespace poac::util::target {
         xsaves,
     };
 
-    enum class os {
-        windows,
-        macos,
-        ios,
-        linux,
-        android,
-        freebsd,
-        dragonfly,
-        bitrig,
-        openbsd,
-        netbsd,
-    };
-
-    enum class family {
-        windows,
-        unix,
-    };
+//    enum class os {
+//        windows,
+//        macos,
+//        ios,
+//        linux,
+//        android,
+//        freebsd,
+//        dragonfly,
+//        bitrig,
+//        openbsd,
+//        netbsd,
+//    };
+//
+//    enum class family {
+//        windows,
+//        unix,
+//    };
 
     enum class compiler {
         gcc,
