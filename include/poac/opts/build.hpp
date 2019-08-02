@@ -21,13 +21,8 @@ namespace poac::opts::build {
                 .arg(clap::arg("verbose").long_("verbose").short_("v"))
             ;
 
-    enum class Mode {
-        Debug,
-        Release,
-    };
-
     struct Options {
-        Mode mode;
+        core::builder::Mode mode;
         bool verbose;
     };
 
@@ -36,7 +31,7 @@ namespace poac::opts::build {
         // if (const auto error = core::resolver::install_deps()) {
         //    return error;
         // }
-        core::Builder bs(config, opts.verbose);
+        core::Builder bs(config, opts.mode, opts.verbose);
         if (const auto error = bs.build()) {
             return error;
         }
@@ -49,7 +44,7 @@ namespace poac::opts::build {
             return core::except::Error::InvalidSecondArg::Build;
         }
         build::Options opts{};
-        opts.mode = util::argparse::use(args, "--release") ? Mode::Release : Mode::Debug;
+        opts.mode = util::argparse::use(args, "--release") ? core::builder::Mode::Release : core::builder::Mode::Debug;
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         return build::build(std::move(config), std::move(opts));
     }

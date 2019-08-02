@@ -22,7 +22,10 @@
 
 namespace poac::core {
     namespace builder {
-
+        enum class Mode {
+            Debug,
+            Release,
+        };
     }
 
     struct Builder {
@@ -41,9 +44,10 @@ namespace poac::core {
 
 //        std::string project_name;
         std::optional<io::config::Config> config;
+        builder::Mode mode;
+        bool verbose;
         boost::filesystem::path base_directory;
         std::string compiler;
-        bool verbose;
 
         [[nodiscard]] std::optional<core::except::Error>
         build() {
@@ -71,12 +75,14 @@ namespace poac::core {
 
         explicit Builder(
                 const std::optional<io::config::Config>& config,
+                builder::Mode mode,
                 const bool verbose,
-                const boost::filesystem::path& base_dir = io::path::current
-        ) : config(config)
+                const boost::filesystem::path& base_dir = io::path::current)
+        : config(config)
+        , mode(mode)
+        , verbose(verbose)
         , base_directory(base_dir)
         , compiler(builder::standard::detect_command())
-        , verbose(verbose)
         {}
     };
 } // end namespace
