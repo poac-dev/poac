@@ -85,10 +85,11 @@ namespace poac::core::cli {
     [[nodiscard]] ret_type
     exec(std::string_view cmd, std::vector<std::string>&& args) {
         try {
-            return opts_map.at(cmd)(io::config::load(), std::move(args));
+            opts_map.at(cmd);
         } catch(std::out_of_range&) {
             return except::Error::InvalidFirstArg;
         }
+        return opts_map.at(cmd)(io::config::load(), std::move(args));
     }
 }
 #endif // !POAC_CORE_CLI_HPP
