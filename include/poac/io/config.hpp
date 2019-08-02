@@ -17,13 +17,96 @@ namespace poac::io::config {
     namespace detail {
         inline boost::system::error_code ec{};
 
+        [[noreturn]] inline void
+        rethrow_bad_cast(const std::string& what) {
+            throw toml::type_error(
+                    "[error] value type should be" + what.substr(what.rfind(' ', what.find('\n'))));
+        }
+
+        //
+        // find and force T type
+        // TODO: もし，Tに変換できなければthrowし，そのvalueが存在しない場合はstd::out_of_rangeを消し，std::nulloptを返す
+        //
         template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
         std::optional<std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V> const&>()))
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >>
+        find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key) {
+            try {
+                return toml::find<T>(v, key);
+            } catch (const toml::type_error& e) {
+                rethrow_bad_cast(e.what());
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+
+        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >>
+        find_force_opt(toml::basic_value<C, M, V>& v, const toml::key& key) {
+            try {
+                return toml::find<T>(v, key);
+            } catch (const toml::type_error& e) {
+                rethrow_bad_cast(e.what());
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+
+        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >>
+        find_force_opt(toml::basic_value<C, M, V>&& v, const toml::key& key) {
+            try {
+                return toml::find<T>(std::move(v), key);
+            } catch (const toml::type_error& e) {
+                rethrow_bad_cast(e.what());
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+
+        template <typename T, typename C, template <typename ...> class M,
+                template <typename ...> class V, typename ... Ts>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >>
+        find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) {
+            return find_force_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
+        }
+
+        template <typename T, typename C, template <typename ...> class M,
+                template <typename ...> class V, typename ... Ts>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >>
+        find_force_opt(toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) {
+            return find_force_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
+        }
+
+        template <typename T, typename C, template <typename ...> class M,
+                template <typename ...> class V, typename ... Ts>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >>
+        find_force_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, Ts&&... keys) {
+            return find_force_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
+        }
+
+        //
+        // find as optional
+        // TODO: Tに変換できない場合も，valueが存在しない場合も，同様にstd::nulloptを返却する．
+        //
+        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
         >>
         find_opt(const toml::basic_value<C, M, V>& v, const toml::key& key) noexcept {
             try {
-                return toml::find<T>(v, key);
+                return find_force_opt<T>(v, key);
             } catch (...) {
                 return std::nullopt;
             }
@@ -31,11 +114,11 @@ namespace poac::io::config {
 
         template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
         std::optional<std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V> const&>()))
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
         >>
         find_opt(toml::basic_value<C, M, V>& v, const toml::key& key) noexcept {
             try {
-                return toml::find<T>(v, key);
+                return find_force_opt<T>(v, key);
             } catch (...) {
                 return std::nullopt;
             }
@@ -43,11 +126,11 @@ namespace poac::io::config {
 
         template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
         std::optional<std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V> const&>()))
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
         >>
         find_opt(toml::basic_value<C, M, V>&& v, const toml::key& key) noexcept {
             try {
-                return toml::find<T>(std::move(v), key);
+                return find_force_opt<T>(std::move(v), key);
             } catch (...) {
                 return std::nullopt;
             }
@@ -58,8 +141,8 @@ namespace poac::io::config {
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
         >>
-        find_opt(const toml::basic_value<C, M, V>& v, const toml::key& ky, Ts&&... keys) noexcept {
-            return find_opt<T>(find_opt(v, ky), std::forward<Ts>(keys)...);
+        find_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) noexcept {
+            return find_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
         }
 
         template <typename T, typename C, template <typename ...> class M,
@@ -67,8 +150,8 @@ namespace poac::io::config {
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
         >>
-        find_opt(toml::basic_value<C, M, V>& v, const toml::key& ky, Ts&&... keys) noexcept {
-            return find_opt<T>(find_opt(v, ky), std::forward<Ts>(keys)...);
+        find_opt(toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) noexcept {
+            return find_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
         }
 
         template <typename T, typename C, template <typename ...> class M,
@@ -76,8 +159,8 @@ namespace poac::io::config {
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
         >>
-        find_opt(toml::basic_value<C, M, V>&& v, const toml::key& ky, Ts&&... keys) noexcept {
-            return find_opt<T>(find_opt(std::move(v), ky), std::forward<Ts>(keys)...);
+        find_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, Ts&&... keys) noexcept {
+            return find_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
         }
 
         std::optional<std::string>
@@ -146,7 +229,7 @@ namespace poac::io::config {
 //        std::optional<std::unordered_map<std::string, toml::value>> target;
 
         template <typename C, template <typename ...> class M, template <typename ...> class V>
-        void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
+        void from_toml(const toml::basic_value<C, M, V>& v);
         toml::table into_toml() const;
     };
 
@@ -200,18 +283,32 @@ namespace poac::io::config {
     }
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Config::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        cpp = detail::find_opt<std::uint16_t>(v, "cpp");
-        dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
-        dev_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dev-dependencies");
-        build_dependencies = detail::find_opt<std::unordered_map<std::string, std::string>>(v, "build-dependencies");
-        build = detail::find_opt<Build>(v, "build");
-        test = detail::find_opt<Test>(v, "test");
+    void Config::from_toml(const toml::basic_value<C, M, V>& v) {
+        cpp = detail::find_force_opt<std::uint16_t>(v, "cpp"); // TODO: package
+        std::cout << std::boolalpha << cpp.has_value() << std::endl;
+
+        // TODO: ここで，cfgのパースをする..?? -> tomlとして，exceptionを出したい．
+
+        for (const auto& [key, value] : toml::find<toml::table>(v, "target")) {
+            std::cout << key << std::endl;
+            if (key == "cfg(os = \"macos\")") {
+                for (const auto& [key2, value2] : toml::find<toml::table>(value, "profile")) {
+                    std::cout << key2 << std::endl;
+                }
+            }
+            // TODO: keyを一個ずつ，parseしていく！！！ -> もし，存在しないものとか，文法エラーは，toml::format_errorとしてthrow
+        }
+
+        dependencies = detail::find_force_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
+        dev_dependencies = detail::find_force_opt<std::unordered_map<std::string, std::string>>(v, "dev-dependencies");
+        build_dependencies = detail::find_force_opt<std::unordered_map<std::string, std::string>>(v, "build-dependencies");
+        build = detail::find_force_opt<Build>(v, "build");
+        test = detail::find_force_opt<Test>(v, "test");
     }
     toml::table Config::into_toml() const {
         toml::table t{};
         if (cpp.has_value()) {
-            t.emplace("cpp-version", cpp.value());
+            t.emplace("cpp", cpp.value());
         }
         if (dependencies.has_value()) {
             t.emplace("dependencies", dependencies.value());
