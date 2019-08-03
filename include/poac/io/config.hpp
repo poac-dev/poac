@@ -414,6 +414,99 @@ namespace poac::io::config {
         }
     };
 
+    // https://doc.poac.pm/en/reference/manifest.html#the-profile-sections
+    struct ProfileUnder {
+        std::string opt_level; // optional with default
+        bool debug; // optional with default
+        bool lto; // optional with default
+        bool incremental; // optional with default
+
+        toml::table into_toml() const {
+            return {
+                { "opt-level", opt_level },
+                { "debug", debug },
+                { "lto", lto },
+                { "incremental", incremental }
+            };
+        }
+    };
+    struct ProfileDev : ProfileUnder {
+        void from_toml(const toml::value& v) {
+            opt_level = detail::find_force_opt<decltype(opt_level)>(v, "opt-level").value_or("0");
+            debug = detail::find_force_opt<decltype(debug)>(v, "debug").value_or(true);
+            lto = detail::find_force_opt<decltype(lto)>(v, "lto").value_or(false);
+            incremental = detail::find_force_opt<decltype(incremental)>(v, "incremental").value_or(true);
+        }
+    };
+    struct ProfileRelease : ProfileUnder {
+        void from_toml(const toml::value& v) {
+            opt_level = detail::find_force_opt<decltype(opt_level)>(v, "opt-level").value_or("3");
+            debug = detail::find_force_opt<decltype(debug)>(v, "debug").value_or(false);
+            lto = detail::find_force_opt<decltype(lto)>(v, "lto").value_or(false);
+            incremental = detail::find_force_opt<decltype(incremental)>(v, "incremental").value_or(false);
+        }
+    };
+    struct Profile {
+        std::optional<std::vector<std::string>> definitions; // optional
+        std::optional<std::vector<std::string>> options; // optional
+        std::optional<std::vector<std::string>> libraries; // optional
+        std::optional<std::vector<std::string>> include_directories; // optional
+        std::optional<std::vector<std::string>> link_directories; // optional
+        std::optional<std::string> compiler; // optional
+        std::optional<ProfileDev> dev; // optional
+        std::optional<ProfileRelease> release; // optional
+        std::optional<ProfileDev> test; // optional
+        std::optional<ProfileRelease> bench; // optional
+
+        void from_toml(const toml::value& v) {
+            definitions = detail::find_force_opt<decltype(definitions)::value_type>(v, "definitions");
+            options = detail::find_force_opt<decltype(options)::value_type>(v, "options");
+            libraries = detail::find_force_opt<decltype(libraries)::value_type>(v, "libraries");
+            include_directories = detail::find_force_opt<decltype(include_directories)::value_type>(v, "include-directories");
+            link_directories = detail::find_force_opt<decltype(link_directories)::value_type>(v, "link-directories");
+            compiler = detail::find_force_opt<decltype(compiler)::value_type>(v, "compiler");
+            dev = detail::find_force_opt<decltype(dev)::value_type>(v, "dev");
+            release = detail::find_force_opt<decltype(release)::value_type>(v, "release");
+            test = detail::find_force_opt<decltype(test)::value_type>(v, "test");
+            bench = detail::find_force_opt<decltype(bench)::value_type>(v, "bench");
+        }
+        toml::table into_toml() const {
+            toml::table t{};
+            if (definitions.has_value()) {
+                t.emplace("definitions", definitions.value());
+            }
+            if (options.has_value()) {
+                t.emplace("options", options.value());
+            }
+            if (libraries.has_value()) {
+                t.emplace("libraries", libraries.value());
+            }
+            if (include_directories.has_value()) {
+                t.emplace("include-directories", include_directories.value());
+            }
+            if (link_directories.has_value()) {
+                t.emplace("link-directories", link_directories.value());
+            }
+            if (compiler.has_value()) {
+                t.emplace("compiler", compiler.value());
+            }
+            if (dev.has_value()) {
+                t.emplace("dev", dev.value());
+            }
+            if (release.has_value()) {
+                t.emplace("release", release.value());
+            }
+            if (test.has_value()) {
+                t.emplace("test", test.value());
+            }
+            if (bench.has_value()) {
+                t.emplace("bench", bench.value());
+            }
+            return t;
+        }
+    };
+
+
     struct Bin {
         std::optional<std::string> path;
         std::optional<std::string> name;
@@ -489,6 +582,7 @@ namespace poac::io::config {
         std::optional<std::unordered_map<std::string, std::string>> dependencies;
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
+        std::optional<Profile> profile;
         std::optional<Build> build;
 //        std::optional<std::unordered_map<std::string, toml::value>> target;
 
@@ -497,6 +591,7 @@ namespace poac::io::config {
             dependencies = detail::find_force_opt<decltype(dependencies)::value_type>(v, "dependencies");
             dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
             build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
+            profile = detail::find_force_opt<decltype(profile)::value_type>(v, "profile");
             build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
         }
         toml::table into_toml() const {
@@ -510,6 +605,9 @@ namespace poac::io::config {
             }
             if (build_dependencies.has_value()) {
                 t.emplace("build-dependencies", build_dependencies.value());
+            }
+            if (profile.has_value()) {
+                t.emplace("properties", profile.value());
             }
             if (build.has_value()) {
                 t.emplace("build", build.value());
