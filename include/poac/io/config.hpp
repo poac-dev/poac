@@ -338,6 +338,7 @@ namespace poac::io::config {
         std::optional<std::string> readme; // optional
         std::optional<std::string> license; // optional
         std::optional<std::string> license_file; // optional
+        std::optional<std::string> default_run; // optional
 
         void from_toml(const toml::value& v) {
             name = detail::find_force<decltype(name)>(v, "name");
@@ -357,6 +358,7 @@ namespace poac::io::config {
             readme = detail::find_force_opt<decltype(readme)::value_type>(v, "readme");
             license = detail::find_force_opt<decltype(license)::value_type>(v, "license");
             license_file = detail::find_force_opt<decltype(license_file)::value_type>(v, "license-file");
+            default_run = detail::find_force_opt<decltype(default_run)::value_type>(v, "default-run");
         }
         toml::table into_toml() const {
             toml::table t{};
@@ -404,6 +406,9 @@ namespace poac::io::config {
             }
             if (license_file.has_value()) {
                 t.emplace("license-file", license_file.value());
+            }
+            if (default_run.has_value()) {
+                t.emplace("default-run", default_run.value());
             }
             return t;
         }
