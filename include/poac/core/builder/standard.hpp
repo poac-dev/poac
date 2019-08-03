@@ -195,7 +195,7 @@ namespace poac::core::builder::standard {
         }
 #else
         else if (cmd == "cl.exe") {
-            return util::target::compiler::msvc;
+            return util::cfg::compiler::msvc;
         }
 #endif
         throw except::error("Unknown compiler command: ", cmd);
