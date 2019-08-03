@@ -86,7 +86,7 @@ You can also find the useful [architecture documentation](https://doc.poac.pm/en
 
 ## License
 
-Poac is licensed under the terms of the GNU General Public License version 3.
+Poac is licensed under the terms of the Apache License version 2.0.
 
 Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
 
