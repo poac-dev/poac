@@ -32,8 +32,8 @@ namespace poac::core {
         // Prohibit copy.
         Builder(const Builder&) = delete;
         Builder& operator=(const Builder&) = delete;
-        Builder(Builder&&) noexcept = default;
-        Builder& operator=(Builder&&) noexcept = default;
+        Builder(Builder&&) = default;
+        Builder& operator=(Builder&&) = default;
         Builder() = delete;
         ~Builder() = default;
 

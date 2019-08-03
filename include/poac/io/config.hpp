@@ -327,6 +327,10 @@ namespace poac::io::config {
         std::uint16_t cpp; // optional with default(17)
         std::optional<std::string> build; // optional
         std::optional<std::string> links; // optional
+        std::optional<std::vector<std::string>> exclude; // optional
+        std::optional<std::vector<std::string>> include; // optional
+        std::optional<toml::value> publish; // optional (bool or vec<string>) TODO: variant
+        std::optional<std::string> workspace; // optional
         std::optional<std::string> description; // optional
         std::optional<std::string> documentation; // optional
         std::optional<std::string> homepage; // optional
@@ -342,6 +346,10 @@ namespace poac::io::config {
             cpp = detail::find_enum_opt<decltype(cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
             build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
             links = detail::find_force_opt<decltype(links)::value_type>(v, "links");
+            exclude = detail::find_force_opt<decltype(exclude)::value_type>(v, "exclude");
+            include = detail::find_force_opt<decltype(include)::value_type>(v, "include");
+            publish = detail::find_opt<decltype(publish)::value_type>(v, "publish");
+            workspace = detail::find_force_opt<decltype(workspace)::value_type>(v, "workspace");
             description = detail::find_force_opt<decltype(description)::value_type>(v, "description");
             documentation = detail::find_force_opt<decltype(documentation)::value_type>(v, "documentation");
             homepage = detail::find_force_opt<decltype(homepage)::value_type>(v, "homepage");
@@ -363,6 +371,18 @@ namespace poac::io::config {
             }
             if (links.has_value()) {
                 t.emplace("links", links.value());
+            }
+            if (exclude.has_value()) {
+                t.emplace("exclude", exclude.value());
+            }
+            if (include.has_value()) {
+                t.emplace("include", include.value());
+            }
+            if (publish.has_value()) {
+                t.emplace("publish", publish.value());
+            }
+            if (workspace.has_value()) {
+                t.emplace("workspace", workspace.value());
             }
             if (description.has_value()) {
                 t.emplace("description", description.value());
