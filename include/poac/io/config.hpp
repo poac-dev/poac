@@ -506,7 +506,22 @@ namespace poac::io::config {
         }
     };
 
-    // #configuring-a-target
+    // https://doc.poac.pm/en/reference/manifest.html#configuring-a-target
+    struct Bin {
+        std::string name; // required
+        std::string path; // required
+
+        void from_toml(const toml::value& v) {
+            name = detail::find_force<decltype(name)>(v, "name");
+            path = detail::find_force<decltype(path)>(v, "path");
+        }
+        toml::table into_toml() const {
+            return {
+                { "name", name },
+                { "path", path }
+            };
+        }
+    };
 
     struct Config {
         Package package;
@@ -514,6 +529,7 @@ namespace poac::io::config {
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
         std::optional<Profile> profile;
+        std::optional<std::vector<Bin>> bin;
 //        std::optional<std::unordered_map<std::string, toml::value>> target;
 
         void from_toml(const toml::value& v) {
@@ -522,6 +538,7 @@ namespace poac::io::config {
             dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
             build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
             profile = detail::find_force_opt<decltype(profile)::value_type>(v, "profile");
+            bin = detail::find_force_opt<decltype(bin)::value_type>(v, "bin");
         }
         toml::table into_toml() const {
             toml::table t{};
@@ -537,6 +554,9 @@ namespace poac::io::config {
             }
             if (profile.has_value()) {
                 t.emplace("properties", profile.value());
+            }
+            if (bin.has_value()) {
+                t.emplace("bin", bin.value());
             }
             return t;
         }
