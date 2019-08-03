@@ -350,7 +350,6 @@ namespace poac::io::config {
             license = detail::find_force_opt<decltype(license)::value_type>(v, "license");
             license_file = detail::find_force_opt<decltype(license_file)::value_type>(v, "license-file");
         }
-
         toml::table into_toml() const {
             toml::table t{};
             t.emplace("name", name);
@@ -390,85 +389,112 @@ namespace poac::io::config {
         }
     };
 
+    struct Bin {
+        std::optional<std::string> path;
+        std::optional<std::string> name;
+        std::optional<std::string> link;
+
+        void from_toml(const toml::value& v) noexcept {
+            path = detail::find_opt<std::string>(v, "path");
+            name = detail::find_opt<std::string>(v, "name");
+            link = detail::find_opt<std::string>(v, "link");
+        }
+        toml::table into_toml() const {
+            toml::table t{};
+            if (path.has_value()) {
+                t.emplace("path", path.value());
+            }
+            if (name.has_value()) {
+                t.emplace("name", name.value());
+            }
+            if (link.has_value()) {
+                t.emplace("link", link.value());
+            }
+            return t;
+        }
+    };
+
+    struct Properties {
+        std::optional<std::vector<std::string>> definitions;
+        std::optional<std::vector<std::string>> options;
+        std::optional<std::vector<std::string>> libraries;
+
+        void from_toml(const toml::value& v) noexcept {
+            definitions = detail::find_opt<std::vector<std::string>>(v, "definitions");
+            options = detail::find_opt<std::vector<std::string>>(v, "options");
+            libraries = detail::find_opt<std::vector<std::string>>(v, "libraries");
+        }
+        toml::table into_toml() const {
+            toml::table t{};
+            if (definitions.has_value()) {
+                t.emplace("definitions", definitions.value());
+            }
+            if (options.has_value()) {
+                t.emplace("options", options.value());
+            }
+            if (libraries.has_value()) {
+                t.emplace("libraries", libraries.value());
+            }
+            return t;
+        }
+    };
+
+    struct Build {
+        std::optional<std::vector<Bin>> bins;
+        std::optional<Properties> properties;
+
+        void from_toml(const toml::value& v) noexcept {
+            bins = detail::find_opt<std::vector<Bin>>(v, "bin");
+            properties = detail::find_opt<Properties>(v, "properties");
+        }
+        toml::table into_toml() const {
+            toml::table t{};
+            if (bins.has_value()) {
+                t.emplace("bin", bins.value());
+            }
+            if (properties.has_value()) {
+                t.emplace("properties", properties.value());
+            }
+            return t;
+        }
+    };
+
     struct Config {
-        struct Build {
-            enum class System {
-                Poac,
-                CMake,
-            };
-            struct Bin {
-                std::optional<std::string> path;
-                std::optional<std::string> name;
-                std::optional<std::string> link;
-
-                template <typename C, template <typename ...> class M, template <typename ...> class V>
-                void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
-                toml::table into_toml() const;
-            };
-            struct Properties {
-                std::optional<std::vector<std::string>> definitions;
-                std::optional<std::vector<std::string>> options;
-                std::optional<std::vector<std::string>> libraries;
-
-                template <typename C, template <typename ...> class M, template <typename ...> class V>
-                void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
-                toml::table into_toml() const;
-            };
-
-            std::optional<System> system;
-            std::optional<std::vector<Bin>> bins;
-            std::optional<Properties> properties;
-
-            template <typename C, template <typename ...> class M, template <typename ...> class V>
-            void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
-            toml::table into_toml() const;
-        };
-
         Package package;
-        std::optional<std::uint16_t> cpp;
         std::optional<std::unordered_map<std::string, std::string>> dependencies;
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
         std::optional<Build> build;
 //        std::optional<std::unordered_map<std::string, toml::value>> target;
 
-        template <typename C, template <typename ...> class M, template <typename ...> class V>
-        void from_toml(const toml::basic_value<C, M, V>& v);
-        toml::table into_toml() const;
+        void from_toml(const toml::value& v) {
+            package = toml::find<decltype(package)>(v, "package");
+            dependencies = detail::find_force_opt<decltype(dependencies)::value_type>(v, "dependencies");
+            dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
+            build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
+            build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
+        }
+        toml::table into_toml() const {
+            toml::table t{};
+            t.emplace("package", package);
+            if (dependencies.has_value()) {
+                t.emplace("dependencies", dependencies.value());
+            }
+            if (dev_dependencies.has_value()) {
+                t.emplace("dev-dependencies", dev_dependencies.value());
+            }
+            if (build_dependencies.has_value()) {
+                t.emplace("build-dependencies", build_dependencies.value());
+            }
+            if (build.has_value()) {
+                t.emplace("build", build.value());
+            }
+            return t;
+        }
     };
 
-    namespace detail {
-        std::optional<Config::Build::System>
-        to_build_system(const std::optional<std::string>& str) noexcept {
-            if (!str.has_value()) {
-                // If not specified poac will be selected as default.
-                return Config::Build::System::Poac;
-            } else if (str.value() == "poac") {
-                return Config::Build::System::Poac;
-            } else if (str.value() == "cmake") {
-                return Config::Build::System::CMake;
-            } else {
-                return std::nullopt;
-            }
-        }
-
-        std::string
-        to_string(Config::Build::System system) noexcept {
-            switch (system) {
-                case Config::Build::System::Poac:
-                    return "poac";
-                case Config::Build::System::CMake:
-                    return "cmake";
-            }
-        }
-    }
-
-    template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Config::from_toml(const toml::basic_value<C, M, V>& v) {
-        package = toml::find<decltype(package)>(v, "package");
-        std::cout << package.cpp << std::endl;
-
-        // TODO: ここで，cfgのパースをする..?? -> tomlとして，exceptionを出したい．
+    /*
+     * // TODO: ここで，cfgのパースをする..?? -> tomlとして，exceptionを出したい．
 
         for (const auto& [key, value] : toml::find<toml::table>(v, "target")) {
             std::cout << key << std::endl;
@@ -479,91 +505,8 @@ namespace poac::io::config {
             }
             // TODO: keyを一個ずつ，parseしていく！！！ -> もし，存在しないものとか，文法エラーは，toml::format_errorとしてthrow
         }
-
-        dependencies = detail::find_force_opt<decltype(dependencies)::value_type>(v, "dependencies");
-        dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
-        build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
-        build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
-    }
-    toml::table Config::into_toml() const {
-        toml::table t{};
-        if (cpp.has_value()) {
-            t.emplace("cpp", cpp.value());
-        }
-        if (dependencies.has_value()) {
-            t.emplace("dependencies", dependencies.value());
-        }
-        if (dev_dependencies.has_value()) {
-            t.emplace("dev-dependencies", dev_dependencies.value());
-        }
-        if (build_dependencies.has_value()) {
-            t.emplace("build-dependencies", build_dependencies.value());
-        }
-        if (build.has_value()) {
-            t.emplace("build", build.value());
-        }
-        return t;
-    }
-
-    template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Config::Build::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        system = detail::to_build_system(detail::find_opt<std::string>(v, "system"));
-        bins = detail::find_opt<std::vector<Bin>>(v, "bin");
-        properties = detail::find_opt<Properties>(v, "properties");
-    }
-    toml::table Config::Build::into_toml() const {
-        toml::table t{};
-        if (system.has_value()) {
-            t.emplace("system", detail::to_string(system.value()));
-        }
-        if (bins.has_value()) {
-            t.emplace("bin", bins.value());
-        }
-        if (properties.has_value()) {
-            t.emplace("properties", properties.value());
-        }
-        return t;
-    }
-
-    template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Config::Build::Bin::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        path = detail::find_opt<std::string>(v, "path");
-        name = detail::find_opt<std::string>(v, "name");
-        link = detail::find_opt<std::string>(v, "link");
-    }
-    toml::table Config::Build::Bin::into_toml() const {
-        toml::table t{};
-        if (path.has_value()) {
-            t.emplace("path", path.value());
-        }
-        if (name.has_value()) {
-            t.emplace("name", name.value());
-        }
-        if (link.has_value()) {
-            t.emplace("link", link.value());
-        }
-        return t;
-    }
-
-    template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Config::Build::Properties::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        definitions = detail::find_opt<std::vector<std::string>>(v, "definitions");
-        options = detail::find_opt<std::vector<std::string>>(v, "options");
-        libraries = detail::find_opt<std::vector<std::string>>(v, "libraries");
-    }
-    toml::table Config::Build::Properties::into_toml() const {
-        toml::table t{};
-        if (definitions.has_value()) {
-            t.emplace("definitions", definitions.value());
-        }
-        if (options.has_value()) {
-            t.emplace("options", options.value());
-        }
-        if (libraries.has_value()) {
-            t.emplace("libraries", libraries.value());
-        }
-        return t;
-    }
+     *
+     */
 
     template <typename C>
     std::optional<C>

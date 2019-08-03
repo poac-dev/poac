@@ -270,15 +270,8 @@ namespace poac::opts::publish {
     }
 
     std::uint16_t
-    get_cpp_version(const std::optional<io::config::Config>& config) {
-        if (config->cpp.has_value()) {
-            return config->cpp.value();
-        } else {
-            throw core::except::error(
-                    "Could not get cpp-version from poac.toml.\n"
-                    "poac.toml needs a cpp-version string:\n"
-                    "    cpp-version = 17");
-        }
+    get_cpp_version(const std::optional<io::config::Config>& config) noexcept {
+        return config->package.cpp;
     }
 
     std::optional<std::string>

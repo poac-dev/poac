@@ -58,7 +58,7 @@ namespace poac::core {
 
             builder::options::compile compile_conf;
             compile_conf.system = compiler;
-            compile_conf.std_version = builder::standard::convert(config->cpp.value(), compiler, false);
+            compile_conf.std_version = builder::standard::convert(config->package.cpp, compiler, false);
             compile_conf.source_file = "src/main.cpp";
             compile_conf.include_search_path.emplace_back("include");
             compile_conf.base_dir = this->base_directory;
