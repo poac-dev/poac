@@ -36,8 +36,8 @@ options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
 libraries = ["dl", "ssl", "crypt"]
 
 [target.'cfg(os = "macos")'.profile]
-include_directories = ["/usr/local/opt/openssl/include"]
-link_directories = ["/usr/local/opt/openssl/lib"]
+include-directories = ["/usr/local/opt/openssl/include"]
+link-directories = ["/usr/local/opt/openssl/lib"]
 
 [target.'cfg(compiler = "msvc")'.profile]
 definitions = ["BOOST_ASIO_HAS_STD_STRING_VIEW"]
@@ -57,8 +57,8 @@ options = ["-mtune=native", "-march=native"]
 
 [target.'cfg(all(os = "macos", os_version < 14))'.profile]
 compiler = "/usr/local/opt/llvm@7/bin/clang++"
-include_directories = ["/usr/local/opt/llvm@7/include"]
-link_directories = ["/usr/local/opt/llvm@7/lib"]
+include-directories = ["/usr/local/opt/llvm@7/include"]
+link-directories = ["/usr/local/opt/llvm@7/lib"]
 
 [profile]
 libraries = ["boost_sysytem", "boost_filesystem", "git2"]
