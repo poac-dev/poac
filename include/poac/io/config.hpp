@@ -506,76 +506,7 @@ namespace poac::io::config {
         }
     };
 
-
-    struct Bin {
-        std::optional<std::string> path;
-        std::optional<std::string> name;
-        std::optional<std::string> link;
-
-        void from_toml(const toml::value& v) noexcept {
-            path = detail::find_opt<std::string>(v, "path");
-            name = detail::find_opt<std::string>(v, "name");
-            link = detail::find_opt<std::string>(v, "link");
-        }
-        toml::table into_toml() const {
-            toml::table t{};
-            if (path.has_value()) {
-                t.emplace("path", path.value());
-            }
-            if (name.has_value()) {
-                t.emplace("name", name.value());
-            }
-            if (link.has_value()) {
-                t.emplace("link", link.value());
-            }
-            return t;
-        }
-    };
-
-    struct Properties {
-        std::optional<std::vector<std::string>> definitions;
-        std::optional<std::vector<std::string>> options;
-        std::optional<std::vector<std::string>> libraries;
-
-        void from_toml(const toml::value& v) noexcept {
-            definitions = detail::find_opt<std::vector<std::string>>(v, "definitions");
-            options = detail::find_opt<std::vector<std::string>>(v, "options");
-            libraries = detail::find_opt<std::vector<std::string>>(v, "libraries");
-        }
-        toml::table into_toml() const {
-            toml::table t{};
-            if (definitions.has_value()) {
-                t.emplace("definitions", definitions.value());
-            }
-            if (options.has_value()) {
-                t.emplace("options", options.value());
-            }
-            if (libraries.has_value()) {
-                t.emplace("libraries", libraries.value());
-            }
-            return t;
-        }
-    };
-
-    struct Build {
-        std::optional<std::vector<Bin>> bins;
-        std::optional<Properties> properties;
-
-        void from_toml(const toml::value& v) noexcept {
-            bins = detail::find_opt<std::vector<Bin>>(v, "bin");
-            properties = detail::find_opt<Properties>(v, "properties");
-        }
-        toml::table into_toml() const {
-            toml::table t{};
-            if (bins.has_value()) {
-                t.emplace("bin", bins.value());
-            }
-            if (properties.has_value()) {
-                t.emplace("properties", properties.value());
-            }
-            return t;
-        }
-    };
+    // #configuring-a-target
 
     struct Config {
         Package package;
@@ -583,7 +514,6 @@ namespace poac::io::config {
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
         std::optional<Profile> profile;
-        std::optional<Build> build;
 //        std::optional<std::unordered_map<std::string, toml::value>> target;
 
         void from_toml(const toml::value& v) {
@@ -592,7 +522,6 @@ namespace poac::io::config {
             dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
             build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
             profile = detail::find_force_opt<decltype(profile)::value_type>(v, "profile");
-            build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
         }
         toml::table into_toml() const {
             toml::table t{};
@@ -608,9 +537,6 @@ namespace poac::io::config {
             }
             if (profile.has_value()) {
                 t.emplace("properties", profile.value());
-            }
-            if (build.has_value()) {
-                t.emplace("build", build.value());
             }
             return t;
         }

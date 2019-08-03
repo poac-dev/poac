@@ -240,16 +240,17 @@ namespace poac::opts::publish {
     }
 
     io::lockfile::PackageType
-    get_package_type(const std::optional<io::config::Config>& config) {
-        if (config->build.has_value()) {
-            if (config->build->bins.has_value()) {
-                return io::lockfile::PackageType::Application;
-            } else {
-                return io::lockfile::PackageType::BuildReqLib;
-            }
-        } else {
-            return io::lockfile::PackageType::HeaderOnlyLib;
-        }
+    get_package_type(const std::optional<io::config::Config>&) {
+        return io::lockfile::PackageType::HeaderOnlyLib;
+//        if (config->build.has_value()) {
+//            if (config->build->bins.has_value()) {
+//                return io::lockfile::PackageType::Application;
+//            } else {
+//                return io::lockfile::PackageType::BuildReqLib;
+//            }
+//        } else {
+//            return io::lockfile::PackageType::HeaderOnlyLib;
+//        }
     }
 
     std::optional<std::string>
