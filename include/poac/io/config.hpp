@@ -319,16 +319,6 @@ namespace poac::io::config {
         }
     }
 
-#define PARSE_FIELD( fn, value, key ) \
-key = fn<decltype(key)>(value, #key)
-
-#define PARSE_FIELD_OPT2( fn, value, key, field ) \
-field = fn<decltype(field)::value_type>(value, key)
-
-#define PARSE_FIELD_OPT( fn, value, key ) \
-PARSE_FIELD_OPT2(fn, value, #key, key)
-
-
     // https://doc.poac.pm/en/reference/manifest.html#the-package-section
     struct Package {
         std::string name; // required
@@ -347,18 +337,18 @@ PARSE_FIELD_OPT2(fn, value, #key, key)
 
         void from_toml(const toml::value& v) {
             name = detail::find_force<decltype(name)>(v, "name");
-            PARSE_FIELD(detail::find_force, v, version);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, authors);
+            version = detail::find_force<decltype(version)>(v, "version");
+            authors = detail::find_force_opt<decltype(authors)::value_type>(v, "authors");
             cpp = detail::find_enum_opt<decltype(cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, build);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, links);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, description);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, documentation);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, homepage);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, repository);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, readme);
-            PARSE_FIELD_OPT(detail::find_force_opt, v, license);
-            PARSE_FIELD_OPT2(detail::find_force_opt, v, "license-file", license_file);
+            build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
+            links = detail::find_force_opt<decltype(links)::value_type>(v, "links");
+            description = detail::find_force_opt<decltype(description)::value_type>(v, "description");
+            documentation = detail::find_force_opt<decltype(documentation)::value_type>(v, "documentation");
+            homepage = detail::find_force_opt<decltype(homepage)::value_type>(v, "homepage");
+            repository = detail::find_force_opt<decltype(repository)::value_type>(v, "repository");
+            readme = detail::find_force_opt<decltype(readme)::value_type>(v, "readme");
+            license = detail::find_force_opt<decltype(license)::value_type>(v, "license");
+            license_file = detail::find_force_opt<decltype(license_file)::value_type>(v, "license-file");
         }
 
         toml::table into_toml() const {
@@ -475,11 +465,8 @@ PARSE_FIELD_OPT2(fn, value, #key, key)
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::from_toml(const toml::basic_value<C, M, V>& v) {
-        PARSE_FIELD(toml::find, v, package);
-//        PARSE_FIELD_OPT(detail::find_force_opt, v, cpp);
+        package = toml::find<decltype(package)>(v, "package");
         std::cout << package.cpp << std::endl;
-
-
 
         // TODO: ここで，cfgのパースをする..?? -> tomlとして，exceptionを出したい．
 
@@ -493,10 +480,10 @@ PARSE_FIELD_OPT2(fn, value, #key, key)
             // TODO: keyを一個ずつ，parseしていく！！！ -> もし，存在しないものとか，文法エラーは，toml::format_errorとしてthrow
         }
 
-        PARSE_FIELD_OPT(detail::find_force_opt, v, dependencies);
-        PARSE_FIELD_OPT2(detail::find_force_opt, v, "dev-dependencies", dev_dependencies);
-        PARSE_FIELD_OPT2(detail::find_force_opt, v, "build-dependencies", build_dependencies);
-        PARSE_FIELD_OPT(detail::find_force_opt, v, build);
+        dependencies = detail::find_force_opt<decltype(dependencies)::value_type>(v, "dependencies");
+        dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
+        build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
+        build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
     }
     toml::table Config::into_toml() const {
         toml::table t{};
