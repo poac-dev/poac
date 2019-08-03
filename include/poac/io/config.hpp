@@ -1,6 +1,7 @@
 #ifndef POAC_IO_CONFIG_HPP
 #define POAC_IO_CONFIG_HPP
 
+#include <algorithm>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -8,6 +9,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
@@ -25,82 +27,229 @@ namespace poac::io::config {
 
         //
         // find and force T type
-        // TODO: もし，Tに変換できなければthrowし，そのvalueが存在しない場合はstd::out_of_rangeを消し，std::nulloptを返す
+        // If it cannot converted to T, throw exception.
         //
-        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        template <typename T, typename C,
+                template <typename...> class M,
+                template <typename...> class V>
+        decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        find_force(const toml::basic_value<C, M, V>& v, const toml::key& key) {
+            try {
+                return toml::find<T>(v, key);
+            } catch (const toml::type_error& e) {
+                rethrow_bad_cast(e.what());
+            }
+        }
+        template <typename T, typename C,
+                template <typename...> class M,
+                template <typename...> class V>
+        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        find_force(toml::basic_value<C, M, V>& v, const toml::key& key) {
+            try {
+                return toml::find<T>(v, key);
+            } catch (const toml::type_error& e) {
+                rethrow_bad_cast(e.what());
+            }
+        }
+        template <typename T, typename C,
+                template <typename...> class M,
+                template <typename...> class V>
+        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        find_force(toml::basic_value<C, M, V>&& v, const toml::key& key) {
+            try {
+                return toml::find<T>(std::move(v), key);
+            } catch (const toml::type_error& e) {
+                rethrow_bad_cast(e.what());
+            }
+        }
+
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
+        decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        find_force(const toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) {
+            return find_force<T>(find_force(v, key), std::forward<Ts>(keys)...);
+        }
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
+        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        find_force(toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) {
+            return find_force<T>(find_force(v, key), std::forward<Ts>(keys)...);
+        }
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
+        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        find_force(toml::basic_value<C, M, V>&& v, const toml::key& key, Ts&&... keys) {
+            return find_force<T>(find_force(std::move(v), key), std::forward<Ts>(keys)...);
+        }
+
+        //
+        // find and check possible values
+        // If value cannot convert to T, or if value does not exist, throw exception.
+        //
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        find_enum(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            const T value = find_force<T>(v, key);
+            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
+                return value;
+            } else {
+                std::vector<std::string> pvs(pv.size());
+                std::transform(pv.cbegin(), pv.cend(), pvs.begin(), [](T x){ return std::to_string(x); });
+                const auto f = "[error] value should be any of [" + boost::algorithm::join(pvs, ", ") + "]";
+                throw toml::type_error(toml::format_error(
+                        f, toml::get<toml::table>(v).at(key),
+                        "one of the above listed is required"));
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        find_enum(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            const T value = find_force<T>(v, key);
+            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
+                return value;
+            } else {
+                std::vector<std::string> pvs(pv.size());
+                std::transform(pv.cbegin(), pv.cend(), pvs.begin(), [](T x){ return std::to_string(x); });
+                const auto f = "[error] value should be any of [" + boost::algorithm::join(pvs, ", ") + "]";
+                throw toml::type_error(toml::format_error(
+                        f, toml::get<toml::table>(v).at(key),
+                        "one of the above listed is required"));
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        find_enum(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
+            const T value = find_force<T>(std::move(v), key);
+            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
+                return value;
+            } else {
+                std::vector<std::string> pvs(pv.size());
+                std::transform(pv.cbegin(), pv.cend(), pvs.begin(), [](T x){ return std::to_string(x); });
+                const auto f = "[error] value should be any of [" + boost::algorithm::join(pvs, ", ") + "]";
+                throw toml::type_error(toml::format_error(
+                        f, toml::get<toml::table>(v).at(key),
+                        "one of the above listed is required"));
+            }
+        }
+
+        //
+        // find and check possible values
+        // If it cannot converted to T, throw exception, and if the value does not exist, return std::nullopt.
+        //
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >>
+        find_enum_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            try {
+                return find_enum<T>(v, key, std::move(pv));
+            } catch (const toml::type_error& e) {
+                throw e;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >>
+        find_enum_opt(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            try {
+                return find_enum<T>(v, key, std::move(pv));
+            } catch (const toml::type_error& e) {
+                throw e;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >>
+        find_enum_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
+            try {
+                return find_enum<T>(std::move(v), key, std::move(pv));
+            } catch (const toml::type_error& e) {
+                throw e;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+
+        //
+        // find and force T type
+        // If it cannot converted to T, throw exception, and if the value does not exist, return std::nullopt.
+        //
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
         >>
         find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key) {
             try {
-                return toml::find<T>(v, key);
+                return find_force<T>(v, key);
             } catch (const toml::type_error& e) {
-                rethrow_bad_cast(e.what());
+                throw e;
             } catch (...) {
                 return std::nullopt;
             }
         }
-
-        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
         >>
         find_force_opt(toml::basic_value<C, M, V>& v, const toml::key& key) {
             try {
-                return toml::find<T>(v, key);
+                return find_force<T>(v, key);
             } catch (const toml::type_error& e) {
-                rethrow_bad_cast(e.what());
+                throw e;
             } catch (...) {
                 return std::nullopt;
             }
         }
-
-        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
         >>
         find_force_opt(toml::basic_value<C, M, V>&& v, const toml::key& key) {
             try {
-                return toml::find<T>(std::move(v), key);
+                return find_force<T>(std::move(v), key);
             } catch (const toml::type_error& e) {
-                rethrow_bad_cast(e.what());
+                throw e;
             } catch (...) {
                 return std::nullopt;
             }
         }
 
-        template <typename T, typename C, template <typename ...> class M,
-                template <typename ...> class V, typename ... Ts>
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
         >>
         find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) {
-            return find_force_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
+            return find_force_opt<T>(find_force_opt(v, key), std::forward<Ts>(keys)...);
         }
-
-        template <typename T, typename C, template <typename ...> class M,
-                template <typename ...> class V, typename ... Ts>
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
         >>
         find_force_opt(toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) {
-            return find_force_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
+            return find_force_opt<T>(find_force_opt(v, key), std::forward<Ts>(keys)...);
         }
-
-        template <typename T, typename C, template <typename ...> class M,
-                template <typename ...> class V, typename ... Ts>
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
         >>
         find_force_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, Ts&&... keys) {
-            return find_force_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
+            return find_force_opt<T>(find_force_opt(std::move(v), key), std::forward<Ts>(keys)...);
         }
 
         //
         // find as optional
-        // TODO: Tに変換できない場合も，valueが存在しない場合も，同様にstd::nulloptを返却する．
+        // If value cannot convert to T, or if value does not exist, return std::nullopt.
         //
-        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
         >>
@@ -111,8 +260,7 @@ namespace poac::io::config {
                 return std::nullopt;
             }
         }
-
-        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
         >>
@@ -123,8 +271,7 @@ namespace poac::io::config {
                 return std::nullopt;
             }
         }
-
-        template <typename T, typename C, template <typename ...> class M, template <typename ...> class V>
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
         >>
@@ -136,26 +283,24 @@ namespace poac::io::config {
             }
         }
 
-        template <typename T, typename C, template <typename ...> class M,
-                  template <typename ...> class V, typename ... Ts>
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
         >>
         find_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) noexcept {
             return find_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
         }
-
-        template <typename T, typename C, template <typename ...> class M,
-                  template <typename ...> class V, typename ... Ts>
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
         >>
         find_opt(toml::basic_value<C, M, V>& v, const toml::key& key, Ts&&... keys) noexcept {
             return find_opt<T>(find_opt(v, key), std::forward<Ts>(keys)...);
         }
-
-        template <typename T, typename C, template <typename ...> class M,
-                  template <typename ...> class V, typename ... Ts>
+        template <typename T, typename C, template <typename...> class M,
+                template <typename...> class V, typename... Ts>
         std::optional<std::remove_reference_t<
             decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
         >>
@@ -173,6 +318,87 @@ namespace poac::io::config {
             }
         }
     }
+
+#define PARSE_FIELD( fn, value, key ) \
+key = fn<decltype(key)>(value, #key)
+
+#define PARSE_FIELD_OPT2( fn, value, key, field ) \
+field = fn<decltype(field)::value_type>(value, key)
+
+#define PARSE_FIELD_OPT( fn, value, key ) \
+PARSE_FIELD_OPT2(fn, value, #key, key)
+
+
+    // https://doc.poac.pm/en/reference/manifest.html#the-package-section
+    struct Package {
+        std::string name; // required
+        std::string version; // required
+        std::optional<std::vector<std::string>> authors; // optional
+        std::uint16_t cpp; // optional with default(17)
+        std::optional<std::string> build; // optional
+        std::optional<std::string> links; // optional
+        std::optional<std::string> description; // optional
+        std::optional<std::string> documentation; // optional
+        std::optional<std::string> homepage; // optional
+        std::optional<std::string> repository; // optional
+        std::optional<std::string> readme; // optional
+        std::optional<std::string> license; // optional
+        std::optional<std::string> license_file; // optional
+
+        void from_toml(const toml::value& v) {
+            name = detail::find_force<decltype(name)>(v, "name");
+            PARSE_FIELD(detail::find_force, v, version);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, authors);
+            cpp = detail::find_enum_opt<decltype(cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, build);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, links);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, description);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, documentation);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, homepage);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, repository);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, readme);
+            PARSE_FIELD_OPT(detail::find_force_opt, v, license);
+            PARSE_FIELD_OPT2(detail::find_force_opt, v, "license-file", license_file);
+        }
+
+        toml::table into_toml() const {
+            toml::table t{};
+            t.emplace("name", name);
+            t.emplace("version", version);
+            if (authors.has_value()) {
+                t.emplace("authors", authors.value());
+            }
+            t.emplace("cpp", cpp);
+            if (build.has_value()) {
+                t.emplace("build", build.value());
+            }
+            if (links.has_value()) {
+                t.emplace("links", links.value());
+            }
+            if (description.has_value()) {
+                t.emplace("description", description.value());
+            }
+            if (documentation.has_value()) {
+                t.emplace("documentation", documentation.value());
+            }
+            if (homepage.has_value()) {
+                t.emplace("homepage", homepage.value());
+            }
+            if (repository.has_value()) {
+                t.emplace("repository", repository.value());
+            }
+            if (readme.has_value()) {
+                t.emplace("readme", readme.value());
+            }
+            if (license.has_value()) {
+                t.emplace("license", license.value());
+            }
+            if (license_file.has_value()) {
+                t.emplace("license-file", license_file.value());
+            }
+            return t;
+        }
+    };
 
     struct Config {
         struct Build {
@@ -208,24 +434,12 @@ namespace poac::io::config {
             toml::table into_toml() const;
         };
 
-        struct Test {
-            enum class Framework {
-                Boost,
-                Google,
-            };
-            std::optional<Framework> framework;
-
-            template <typename C, template <typename ...> class M, template <typename ...> class V>
-            void from_toml(const toml::basic_value<C, M, V>& v) noexcept;
-            toml::table into_toml() const;
-        };
-
+        Package package;
         std::optional<std::uint16_t> cpp;
         std::optional<std::unordered_map<std::string, std::string>> dependencies;
         std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
         std::optional<Build> build;
-        std::optional<Test> test;
 //        std::optional<std::unordered_map<std::string, toml::value>> target;
 
         template <typename C, template <typename ...> class M, template <typename ...> class V>
@@ -257,35 +471,15 @@ namespace poac::io::config {
                     return "cmake";
             }
         }
-
-        std::optional<Config::Test::Framework>
-        to_test_framework(const std::optional<std::string>& str) noexcept {
-            if (!str.has_value()) {
-                return std::nullopt;
-            } else if (str.value() == "boost") {
-                return Config::Test::Framework::Boost;
-            } else if (str.value() == "google") {
-                return Config::Test::Framework::Google;
-            } else {
-                return std::nullopt;
-            }
-        }
-
-        std::string
-        to_string(Config::Test::Framework framework) noexcept {
-            switch (framework) {
-                case Config::Test::Framework::Boost:
-                    return "boost";
-                case Config::Test::Framework::Google:
-                    return "google";
-            }
-        }
     }
 
     template <typename C, template <typename ...> class M, template <typename ...> class V>
     void Config::from_toml(const toml::basic_value<C, M, V>& v) {
-        cpp = detail::find_force_opt<std::uint16_t>(v, "cpp"); // TODO: package
-        std::cout << std::boolalpha << cpp.has_value() << std::endl;
+        PARSE_FIELD(toml::find, v, package);
+//        PARSE_FIELD_OPT(detail::find_force_opt, v, cpp);
+        std::cout << package.cpp << std::endl;
+
+
 
         // TODO: ここで，cfgのパースをする..?? -> tomlとして，exceptionを出したい．
 
@@ -299,11 +493,10 @@ namespace poac::io::config {
             // TODO: keyを一個ずつ，parseしていく！！！ -> もし，存在しないものとか，文法エラーは，toml::format_errorとしてthrow
         }
 
-        dependencies = detail::find_force_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
-        dev_dependencies = detail::find_force_opt<std::unordered_map<std::string, std::string>>(v, "dev-dependencies");
-        build_dependencies = detail::find_force_opt<std::unordered_map<std::string, std::string>>(v, "build-dependencies");
-        build = detail::find_force_opt<Build>(v, "build");
-        test = detail::find_force_opt<Test>(v, "test");
+        PARSE_FIELD_OPT(detail::find_force_opt, v, dependencies);
+        PARSE_FIELD_OPT2(detail::find_force_opt, v, "dev-dependencies", dev_dependencies);
+        PARSE_FIELD_OPT2(detail::find_force_opt, v, "build-dependencies", build_dependencies);
+        PARSE_FIELD_OPT(detail::find_force_opt, v, build);
     }
     toml::table Config::into_toml() const {
         toml::table t{};
@@ -321,9 +514,6 @@ namespace poac::io::config {
         }
         if (build.has_value()) {
             t.emplace("build", build.value());
-        }
-        if (test.has_value()) {
-            t.emplace("test", test.value());
         }
         return t;
     }
@@ -384,18 +574,6 @@ namespace poac::io::config {
         }
         if (libraries.has_value()) {
             t.emplace("libraries", libraries.value());
-        }
-        return t;
-    }
-
-    template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Config::Test::from_toml(const toml::basic_value<C, M, V>& v) noexcept {
-        framework = detail::to_test_framework(detail::find_opt<std::string>(v, "framework"));
-    }
-    toml::table Config::Test::into_toml() const {
-        toml::table t{};
-        if (framework.has_value()) {
-            t.emplace("framework", detail::to_string(framework.value()));
         }
         return t;
     }
