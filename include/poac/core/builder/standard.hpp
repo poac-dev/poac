@@ -10,7 +10,7 @@
 #include <poac/io/path.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
-#include <poac/util/target.hpp>
+#include <poac/util/cfg.hpp>
 
 namespace poac::core::builder::standard {
     inline std::string version_prefix(const bool& enable_gnu) noexcept {
@@ -170,10 +170,10 @@ namespace poac::core::builder::standard {
         // TODO: latestを活用
     }
 
-    util::target::compiler
+    util::cfg::compiler
     command_to_name(std::string_view cmd) {
         if (cmd == "icpc") {
-            return util::target::compiler::icc;
+            return util::cfg::compiler::icc;
         }
 #ifndef _WIN32
         else if (cmd == "g++" || cmd == "clang++") {
@@ -183,14 +183,14 @@ namespace poac::core::builder::standard {
                 const std::regex SEARCH("^" + ANY + "(Apple LLVM)" + ANY + "$");
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH)) {
-                    return util::target::compiler::apple_clang;
+                    return util::cfg::compiler::apple_clang;
                 }
             }
 #  endif
             if (cmd == "g++") {
-                return util::target::compiler::gcc;
+                return util::cfg::compiler::gcc;
             } else if (cmd == "clang++") {
-                return util::target::compiler::clang;
+                return util::cfg::compiler::clang;
             }
         }
 #else
@@ -205,19 +205,19 @@ namespace poac::core::builder::standard {
         // Match a poac binary architecture and an architecture available to each compiler.
         switch (command_to_name(command)) {
             // Support OS: macos, linux, mingw, cygwin, _WIN32
-            case util::target::compiler::icc:
+            case util::cfg::compiler::icc:
                 return icc_convert(cpp_version);
             // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
-            case util::target::compiler::gcc:
+            case util::cfg::compiler::gcc:
                 return gcc_convert(cpp_version, get_compiler_version("g++"), enable_gnu);
             // Support OS: macos, linux, mingw, cygwin (exclude _WIN32)
-            case util::target::compiler::clang:
+            case util::cfg::compiler::clang:
                 return clang_convert(cpp_version, get_compiler_version("clang++"), enable_gnu);
             // Support OS: Only _WIN32
-            case util::target::compiler::msvc:
+            case util::cfg::compiler::msvc:
                 return msvc_convert(cpp_version);
             // Support OS: Only macos
-            case util::target::compiler::apple_clang:
+            case util::cfg::compiler::apple_clang:
                 return apple_llvm_convert(cpp_version, enable_gnu);
         }
     }

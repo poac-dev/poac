@@ -1,9 +1,9 @@
-#ifndef POAC_UTIL_TARGET_HPP
-#define POAC_UTIL_TARGET_HPP
+#ifndef POAC_UTIL_CFG_HPP
+#define POAC_UTIL_CFG_HPP
 
 #include <boost/predef.h>
 
-namespace poac::util::target {
+namespace poac::util::cfg {
 //    enum class arch {
 //        alpha,
 //        arm,
@@ -74,6 +74,6 @@ namespace poac::util::target {
 //        mingw,
 //    };
 
-} // end namespace poac::util
+} // end namespace poac::util::cfg
 
-#endif // !POAC_UTIL_TARGET_HPP
+#endif // !POAC_UTIL_CFG_HPP
