@@ -14,15 +14,45 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
+#include <poac/util/cfg.hpp>
 
 namespace poac::io::config {
     namespace detail {
-        inline boost::system::error_code ec{};
-
         [[noreturn]] inline void
         rethrow_bad_cast(const std::string& what) {
             throw toml::type_error(
-                    "[error] value type should be" + what.substr(what.rfind(' ', what.find('\n'))));
+                    "[error] value type should be" +
+                    what.substr(what.rfind(' ', what.find('\n'))));
+        }
+
+        template <typename Exception>
+        [[noreturn]] inline void
+        rethrow_cfg_exception(const Exception& e, const toml::value& v, std::string msg) {
+            const toml::source_location loc = v.location();
+            msg += "\n --> " + loc.file_name() + "\n";
+
+            const std::string line = std::to_string(loc.line()) + " ";
+            const std::string line_str = line + "| " + loc.line_str();
+            msg += line_str + "\n";
+
+            const std::string ewhat = e.what();
+            std::vector<std::string> result;
+            boost::algorithm::split(result, ewhat, boost::is_any_of("\n"));
+            const std::size_t index = line_str.find(result[0]);
+
+            msg += std::string(line.size(), ' ');
+            msg +=  "|" + std::string(index - line.size() - 1, ' ') + result[1];
+            throw util::cfg::string_error(msg);
+        }
+
+        [[noreturn]] inline void
+        rethrow_cfg_exception(const util::cfg::string_error& e, const toml::value& v) {
+            rethrow_cfg_exception(e, v, "missing terminating '\"' character");
+        }
+
+        [[noreturn]] inline void
+        rethrow_cfg_exception(const util::cfg::ident_error& e, const toml::value& v) {
+            rethrow_cfg_exception(e, v, "cfg expected parens, a comma, an identifier, or a string");
         }
 
         //
@@ -308,6 +338,8 @@ namespace poac::io::config {
             return find_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
         }
 
+        inline boost::system::error_code ec{};
+
         std::optional<std::string>
         validate_config(const boost::filesystem::path& base = path::current) noexcept {
             const auto config_path = base / "poac.toml";
@@ -530,7 +562,6 @@ namespace poac::io::config {
         std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
         std::optional<Profile> profile;
         std::optional<std::vector<Bin>> bin;
-//        std::optional<std::unordered_map<std::string, toml::value>> target;
 
         void from_toml(const toml::value& v) {
             package = toml::find<decltype(package)>(v, "package");
@@ -539,6 +570,24 @@ namespace poac::io::config {
             build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
             profile = detail::find_force_opt<decltype(profile)::value_type>(v, "profile");
             bin = detail::find_force_opt<decltype(bin)::value_type>(v, "bin");
+
+            const auto target = toml::find<toml::table>(v, "target");
+            for (const auto& [key, value] : target) {
+                try {
+                    util::cfg::parse(key);
+                } catch (const util::cfg::string_error& e) {
+                    detail::rethrow_cfg_exception(e, target.at(key));
+                } catch (const util::cfg::ident_error& e) {
+                    detail::rethrow_cfg_exception(e, target.at(key));
+                }
+
+//                if (util::cfg::parse(key)) {
+//                    const auto dependencies2 = detail::find_force_opt<decltype(profile)::value_type>(value, "profile");
+//                    dependencies.value().insert(profile.value().end(), profile2.begin(), profile2.end());
+//                    const auto profile2 = detail::find_force_opt<decltype(profile)::value_type>(value, "profile");
+//                    profile.value().insert(profile.value().end(), profile2.begin(), profile2.end());
+//                }
+            }
         }
         toml::table into_toml() const {
             toml::table t{};
@@ -561,21 +610,6 @@ namespace poac::io::config {
             return t;
         }
     };
-
-    /*
-     * // TODO: ここで，cfgのパースをする..?? -> tomlとして，exceptionを出したい．
-
-        for (const auto& [key, value] : toml::find<toml::table>(v, "target")) {
-            std::cout << key << std::endl;
-            if (key == "cfg(os = \"macos\")") {
-                for (const auto& [key2, value2] : toml::find<toml::table>(value, "profile")) {
-                    std::cout << key2 << std::endl;
-                }
-            }
-            // TODO: keyを一個ずつ，parseしていく！！！ -> もし，存在しないものとか，文法エラーは，toml::format_errorとしてthrow
-        }
-     *
-     */
 
     template <typename C>
     std::optional<C>
