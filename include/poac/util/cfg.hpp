@@ -165,18 +165,18 @@ namespace poac::util::cfg {
         explicit
         Token(Kind k)
             : kind(k != Kind::String && k != Kind::Ident ? k
-                   : throw std::invalid_argument("semver::Token"))
+                   : throw std::invalid_argument("poac::util::cfg::Token"))
         {}
 
         Token(Kind k, const std::string& s)
             : kind(k == Kind::String ? k
-                   : throw std::invalid_argument("semver::Token"))
+                   : throw std::invalid_argument("poac::util::cfg::Token"))
             , str(s)
         {}
 
         Token(Kind k, ident i)
             : kind(k == Kind::Ident ? k
-                   : throw std::invalid_argument("semver::Token"))
+                   : throw std::invalid_argument("poac::util::cfg::Token"))
             , id(i)
         {}
 
