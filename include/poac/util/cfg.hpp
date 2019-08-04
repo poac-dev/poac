@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <optional>
 #include <stdexcept>
-#include <string_view>
+#include <string>
 #include <vector>
 
 #include <boost/predef.h>
@@ -153,10 +153,6 @@ namespace poac::util::cfg {
             family,
             platform,
         };
-
-        using null_type = std::monostate;
-        using string_type = std::string;
-        using variant_type = std::variant<null_type, ident, string_type>;
 
         Kind kind;
         std::string str;
