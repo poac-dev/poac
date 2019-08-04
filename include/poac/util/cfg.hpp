@@ -140,20 +140,44 @@ namespace poac::util::cfg {
             Ident,
         };
 
+        enum class ident {
+            cfg,
+            not_,
+            all,
+            any,
+            compiler,
+            arch,
+            feature,
+            os,
+            os_version,
+            family,
+            platform,
+        };
+
+        using null_type = std::monostate;
+        using string_type = std::string;
+        using variant_type = std::variant<null_type, ident, string_type>;
+
         Kind kind;
-        std::string component;
+        std::string str;
+        ident id;
 
         explicit
         Token(Kind k)
             : kind(k != Kind::String && k != Kind::Ident ? k
                    : throw std::invalid_argument("semver::Token"))
-            , component()
         {}
 
         Token(Kind k, const std::string& s)
-            : kind(k == Kind::String || k == Kind::Ident ? k
+            : kind(k == Kind::String ? k
                    : throw std::invalid_argument("semver::Token"))
-            , component(s)
+            , str(s)
+        {}
+
+        Token(Kind k, ident i)
+            : kind(k == Kind::Ident ? k
+                   : throw std::invalid_argument("semver::Token"))
+            , id(i)
         {}
 
         Token() = delete;
@@ -165,6 +189,45 @@ namespace poac::util::cfg {
 
         friend std::ostream& operator<<(std::ostream& os, const Token& token);
     };
+
+    std::ostream& operator<<(std::ostream& os, Token::ident ident) {
+        switch (ident) {
+            case Token::ident::cfg:
+                os << "cfg";
+                break;
+            case Token::ident::not_:
+                os << "not";
+                break;
+            case Token::ident::all:
+                os << "all";
+                break;
+            case Token::ident::any:
+                os << "any";
+                break;
+            case Token::ident::compiler:
+                os << "compiler";
+                break;
+            case Token::ident::arch:
+                os << "arch";
+                break;
+            case Token::ident::feature:
+                os << "feature";
+                break;
+            case Token::ident::os:
+                os << "os";
+                break;
+            case Token::ident::os_version:
+                os << "os_version";
+                break;
+            case Token::ident::family:
+                os << "family";
+                break;
+            case Token::ident::platform:
+                os << "platform";
+                break;
+        }
+        return os;
+    }
 
     std::ostream& operator<<(std::ostream& os, const Token& token) {
         switch (token.kind) {
@@ -184,21 +247,21 @@ namespace poac::util::cfg {
                 os << "gt: >";
                 break;
             case Token::GtEq:
-                os << "gt: >=";
+                os << "gteq: >=";
                 break;
             case Token::Lt:
                 os << "lt: <";
                 break;
             case Token::LtEq:
-                os << "lt: <=";
+                os << "lteq: <=";
                 break;
             case Token::String:
                 os << "string: ";
-                os << token.component;
+                os << token.str;
                 break;
             case Token::Ident:
                 os << "ident: ";
-                os << token.component;
+                os << token.id;
                 break;
         }
         return os;
@@ -306,8 +369,47 @@ namespace poac::util::cfg {
             while (is_ident_rest(this->one())) {
                 this->step();
             }
+
             const string_type s = str.substr(start, this->index - start);
-            return Token{ Token::Ident, s };
+            if (const auto ident = to_ident(s)) {
+                return Token{ Token::Ident, ident.value() };
+            } else {
+                std::string msg;
+                msg += std::string(start, ' ');
+                msg += "^";
+                msg += std::string(this->index - start - 1, '-');
+                msg += " unknown identify";
+                throw cfg::ident_error(str + "\n" + msg);
+            }
+        }
+
+        std::optional<Token::ident>
+        to_ident(const string_type& s) const noexcept {
+            if (s == "cfg") {
+                return Token::ident::cfg;
+            } else if (s == "not") {
+                return Token::ident::not_;
+            } else if (s == "all") {
+                return Token::ident::all;
+            } else if (s == "any") {
+                return Token::ident::any;
+            } else if (s == "compiler") {
+                return Token::ident::compiler;
+            } else if (s == "arch") {
+                return Token::ident::arch;
+            } else if (s == "feature") {
+                return Token::ident::feature;
+            } else if (s == "os") {
+                return Token::ident::os;
+            } else if (s == "family") {
+                return Token::ident::family;
+            } else if (s == "platform") {
+                return Token::ident::platform;
+            } else if (s == "os_version") {
+                return Token::ident::os_version;
+            } else {
+                return std::nullopt;
+            }
         }
     };
 
