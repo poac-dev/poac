@@ -592,11 +592,15 @@ namespace poac::util::cfg {
 #endif
                 case Cfg::Ident::feature:
 //        aes,
-//        avx,
-//        avx2,
-//        bmi1,
-//        bmi2,
-#if BOOST_HW_SIMD_X86_FMA3_VERSION
+#ifdef __AVX__
+                    return c.value == "avx";
+#elif defined(__AVX2__)
+                    return c.value == "avx2";
+#elif defined(__BMI1__)
+                    return c.value == "bmi1";
+#elif defined(__BMI2__)
+                    return c.value == "bmi2";
+#elif defined(__FMA__)
                     return c.value == "fma";
 //        fxsr,
 //        lzcnt,
@@ -605,12 +609,18 @@ namespace poac::util::cfg {
 //        rdrand,
 //        rdseed,
 //        sha,
-//        sse,
-//        sse2,
-//        sse3,
-//        sse4_1,
-//        sse4_2,
-//        ssse3,
+#elif defined(__SSE__)
+                    return c.value == "sse";
+#elif defined(__SSE2__)
+                    return c.value == "sse2";
+#elif defined(__SSE3__)
+                    return c.value == "sse3";
+#elif defined(__SSE4_1__)
+                    return c.value == "sse4.1";
+#elif defined(__SSE4_2__)
+                    return c.value == "sse4.2";
+#elif defined(__SSSE3__)
+                    return c.value == "ssse3";
 //        xsave,
 //        xsavec,
 //        xsaveopt,
