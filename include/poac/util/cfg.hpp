@@ -567,27 +567,37 @@ namespace poac::util::cfg {
                 case Cfg::Ident::compiler:
                     return false;
                 case Cfg::Ident::arch:
-//        alpha,
-//        arm,
-//        blackfin,
-//        convex,
-//        ia64,
-//        m68k,
-//        mips,
-//        s390x,
-//        x86,
-//        x86_32,
-//        x86_64,
+#if BOOST_ARCH_ALPHA
+                    return c.value == "alpha";
+#elif BOOST_ARCH_ARM
+                    return c.value == "arm";
+#elif BOOST_ARCH_BLACKFIN
+                    return c.value == "blackfin";
+#elif BOOST_ARCH_CONVEX
+                    return c.value == "convex";
+#elif BOOST_ARCH_IA64
+                    return c.value == "ia64";
+#elif BOOST_ARCH_M68K
+                    return c.value == "m68k";
+#elif BOOST_ARCH_MIPS
+                    return c.value == "mips";
+#elif BOOST_ARCH_SYS390
+                    return c.value == "s390x";
+#elif BOOST_ARCH_X86_32
+                    return c.value == "x86_32" || c.value == "x86";
+#elif BOOST_ARCH_X86_64
+                    return c.value == "x86_64" || c.value == "x86";
+#else
                     return false;
+#endif
                 case Cfg::Ident::feature:
-#if BOOST_HW_SIMD_X86_FMA3_VERSION
-                    return c.value == "fma";
 //        aes,
 //        avx,
 //        avx2,
 //        bmi1,
 //        bmi2,
-//        fma,
+#if BOOST_HW_SIMD_X86_FMA3_VERSION
+                    return c.value == "fma";
 //        fxsr,
 //        lzcnt,
 //        pclmulqdq,
