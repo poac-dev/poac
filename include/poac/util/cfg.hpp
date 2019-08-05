@@ -2,9 +2,11 @@
 #define POAC_UTIL_CFG_HPP
 
 #include <cstddef>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include <boost/predef.h>
@@ -38,75 +40,17 @@ namespace poac::util::cfg {
         std::string what_;
     };
 
-    enum class compiler {
-        gcc,
-        clang,
-        apple_clang,
-        msvc,
-        icc,
+    struct syntax_error : public cfg::exception {
+    public:
+        explicit syntax_error(const std::string& what_) : what_(what_) {}
+        explicit syntax_error(const char* what_)        : what_(what_) {}
+        virtual ~syntax_error() noexcept override = default;
+        virtual const char* what() const noexcept override { return what_.c_str(); }
+
+    protected:
+        std::string what_;
     };
 
-//    enum class arch {
-//        alpha,
-//        arm,
-//        blackfin,
-//        convex,
-//        ia64,
-//        m68k,
-//        mips,
-//        s390x,
-//        x86,
-//        x86_32,
-//        x86_64,
-//    };
-
-//    enum class feature {
-//        aes,
-//        avx,
-//        avx2,
-//        bmi1,
-//        bmi2,
-//        fma,
-//        fxsr,
-//        lzcnt,
-//        pclmulqdq,
-//        popcnt,
-//        rdrand,
-//        rdseed,
-//        sha,
-//        sse,
-//        sse2,
-//        sse3,
-//        sse4_1,
-//        sse4_2,
-//        ssse3,
-//        xsave,
-//        xsavec,
-//        xsaveopt,
-//        xsaves,
-//    };
-
-//    enum class os {
-//        windows,
-//        macos,
-//        ios,
-//        linux,
-//        android,
-//        freebsd,
-//        dragonfly,
-//        bitrig,
-//        openbsd,
-//        netbsd,
-//    };
-//
-//    enum class family {
-//        windows,
-//        unix,
-//    };
-
-//    enum class platform {
-//        mingw,
-//    };
 
     constexpr bool
     is_ident_start(const char& c) noexcept {
@@ -150,7 +94,6 @@ namespace poac::util::cfg {
             feature,
             os,
             os_version,
-            family,
             platform,
         };
 
@@ -186,42 +129,33 @@ namespace poac::util::cfg {
         friend std::ostream& operator<<(std::ostream& os, const Token& token);
     };
 
-    std::ostream& operator<<(std::ostream& os, Token::ident ident) {
+    std::string to_string(Token::ident ident) noexcept {
         switch (ident) {
             case Token::ident::cfg:
-                os << "cfg";
-                break;
+                return "cfg";
             case Token::ident::not_:
-                os << "not";
-                break;
+                return "not";
             case Token::ident::all:
-                os << "all";
-                break;
+                return "all";
             case Token::ident::any:
-                os << "any";
-                break;
+                return "any";
             case Token::ident::compiler:
-                os << "compiler";
-                break;
+                return "compiler";
             case Token::ident::arch:
-                os << "arch";
-                break;
+                return "arch";
             case Token::ident::feature:
-                os << "feature";
-                break;
+                return "feature";
             case Token::ident::os:
-                os << "os";
-                break;
+                return "os";
             case Token::ident::os_version:
-                os << "os_version";
-                break;
-            case Token::ident::family:
-                os << "family";
-                break;
+                return "os_version";
             case Token::ident::platform:
-                os << "platform";
-                break;
+                return "platform";
         }
+    }
+
+    std::ostream& operator<<(std::ostream& os, Token::ident ident) {
+        os << to_string(ident);
         return os;
     }
 
@@ -300,7 +234,7 @@ namespace poac::util::cfg {
                     return Token{ Token::Equals };
                 case '>':
                     this->step();
-                    if (one() == '=') {
+                    if (this->one() == '=') {
                         this->step();
                         return Token{ Token::GtEq };
                     } else {
@@ -308,7 +242,7 @@ namespace poac::util::cfg {
                     }
                 case '<':
                     this->step();
-                    if (one() == '=') {
+                    if (this->one() == '=') {
                         this->step();
                         return Token{ Token::LtEq };
                     } else {
@@ -321,7 +255,51 @@ namespace poac::util::cfg {
             }
         }
 
+        std::optional<Token>
+        peek() const {
+            return this->peek(this->index);
+        }
+
     private:
+        std::optional<Token>
+        peek(size_type index_copy) const {
+            if (index_copy >= this->str.size()) {
+                return std::nullopt;
+            }
+            switch (this->str[index_copy]) {
+                case ' ': {
+                    do {
+                        ++index_copy;
+                    } while (this->str[index_copy] == ' ');
+                    return peek(index_copy);
+                }
+                case '(':
+                    return Token{ Token::LeftParen };
+                case ')':
+                    return Token{ Token::RightParen };
+                case ',':
+                    return Token{ Token::Comma };
+                case '=':
+                    return Token{ Token::Equals };
+                case '>':
+                    if (this->str[index_copy + 1] == '=') {
+                        return Token{ Token::GtEq };
+                    } else {
+                        return Token{ Token::Gt };
+                    }
+                case '<':
+                    if (this->str[index_copy + 1] == '=') {
+                        return Token{ Token::LtEq };
+                    } else {
+                        return Token{ Token::Lt };
+                    }
+                case '"':
+                    return string_copy(index_copy);
+                default:
+                    return ident_copy(index_copy);
+            }
+        }
+
         void step() noexcept {
             if (this->index < this->str.size()) {
                 ++this->index;
@@ -330,6 +308,9 @@ namespace poac::util::cfg {
 
         value_type one() const noexcept {
             return this->str[this->index];
+        }
+        value_type one(const size_type index_) const noexcept {
+            return this->str[index_];
         }
 
         std::optional<Token>
@@ -349,6 +330,25 @@ namespace poac::util::cfg {
             }
             const string_type s = str.substr(start, this->index - start);
             this->step();
+            return Token{ Token::String, s };
+        }
+
+        std::optional<Token>
+        string_copy(size_type index_copy) const {
+            ++index_copy;
+            const size_type start = index_copy;
+            while (this->str[index_copy] != '"') {
+                ++index_copy;
+                if (index_copy >= this->str.size()) {
+                    std::string msg;
+                    msg += std::string(start - 1, ' ');
+                    msg += "^";
+                    msg += std::string(this->str.size() - start, '-');
+                    msg += " unterminated string";
+                    throw cfg::string_error(str + "\n" + msg);
+                }
+            }
+            const string_type s = str.substr(start, index_copy - start);
             return Token{ Token::String, s };
         }
 
@@ -379,6 +379,33 @@ namespace poac::util::cfg {
             }
         }
 
+        std::optional<Token>
+        ident_copy(size_type index_copy) const {
+            if (!is_ident_start(this->str[index_copy])) {
+                std::string msg;
+                msg += std::string(index_copy, ' ');
+                msg += "^ unexpected character";
+                throw cfg::ident_error(str + "\n" + msg);
+            }
+            const size_type start = index_copy;
+            ++index_copy;
+            while (is_ident_rest(this->str[index_copy])) {
+                ++index_copy;
+            }
+
+            const string_type s = str.substr(start, index_copy - start);
+            if (const auto ident = to_ident(s)) {
+                return Token{ Token::Ident, ident.value() };
+            } else {
+                std::string msg;
+                msg += std::string(start, ' ');
+                msg += "^";
+                msg += std::string(index_copy - start - 1, '-');
+                msg += " unknown identify";
+                throw cfg::ident_error(str + "\n" + msg);
+            }
+        }
+
         std::optional<Token::ident>
         to_ident(const string_type& s) const noexcept {
             if (s == "cfg") {
@@ -397,8 +424,6 @@ namespace poac::util::cfg {
                 return Token::ident::feature;
             } else if (s == "os") {
                 return Token::ident::os;
-            } else if (s == "family") {
-                return Token::ident::family;
             } else if (s == "platform") {
                 return Token::ident::platform;
             } else if (s == "os_version") {
@@ -409,29 +434,325 @@ namespace poac::util::cfg {
         }
     };
 
-    struct Parser {
-        // std::vector<Token> tokens;
+    enum class compiler {
+        gcc,
+        clang,
+        apple_clang,
+        msvc,
+        icc,
+    };
 
-//        bool match() const {
-//
-//        }
+    struct Cfg {
+        enum class Ident {
+            compiler,
+            arch,
+            feature,
+            os,
+            platform,
+            os_version,
+        };
+        enum class Op {
+            Equals,
+            Gt,
+            GtEq,
+            Lt,
+            LtEq,
+        };
 
-        void eat() {
+        Ident key;
+        Op op;
+        std::string value;
 
+        Cfg(Token::ident key, Op op, const std::string& value)
+            : key(from_token_ident(key))
+            , op(op != Op::Equals && this->key != Ident::os_version
+                 ? throw cfg::syntax_error("You can not specify operators other than os_version except '='") : op)
+            , value(value)
+        {}
+
+        Cfg() = delete;
+        Cfg(const Cfg&) = default;
+        Cfg& operator=(const Cfg&) = default;
+        Cfg(Cfg&&) noexcept = default;
+        Cfg& operator=(Cfg&&) noexcept = default;
+        ~Cfg() = default;
+
+    private:
+        Ident from_token_ident(Token::ident ident) const {
+            switch (ident) {
+                case Token::ident::compiler:
+                    return Ident::compiler;
+                case Token::ident::arch:
+                    return Ident::arch;
+                case Token::ident::feature:
+                    return Ident::feature;
+                case Token::ident::os:
+                    return Ident::os;
+                case Token::ident::platform:
+                    return Ident::platform;
+                case Token::ident::os_version:
+                    return Ident::os_version;
+                default:
+                    throw std::invalid_argument("poac::util::cfg::Cfg");
+            }
         }
     };
 
-//    Parser parse(std::string_view s) {
-//    }
+    struct CfgExpr {
+        enum Kind {
+            cfg,
+            not_,
+            all,
+            any,
+            value,
+        };
 
-    void parse(const std::string& s) {
-        Lexer lex(s);
-        for (auto token = lex.next(); token.has_value(); token = lex.next()) {
-            std::cout << token.value() << std::endl;
+        using null_type = std::monostate;
+        using variant_type = std::variant<null_type, std::shared_ptr<CfgExpr>, std::vector<CfgExpr>, Cfg>;
+
+        Kind kind;
+        variant_type expr;
+
+        CfgExpr(Kind kind, std::shared_ptr<CfgExpr>&& expr)
+            : kind(kind == Kind::not_ || kind == Kind::cfg ? kind
+                   : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
+            , expr(std::move(expr))
+        {}
+        CfgExpr(Kind kind, const std::vector<CfgExpr>& expr)
+            : kind(kind == Kind::all || kind == Kind::any ? kind
+                   : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
+            , expr(expr)
+        {}
+        CfgExpr(Kind kind, const Cfg& c)
+            : kind(kind == Kind::value ? kind
+                   : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
+            , expr(c)
+        {}
+
+        CfgExpr() = delete;
+        CfgExpr(const CfgExpr&) = default;
+        CfgExpr& operator=(const CfgExpr&) = default;
+        CfgExpr(CfgExpr&&) noexcept = default;
+        CfgExpr& operator=(CfgExpr&&) noexcept = default;
+        ~CfgExpr() = default;
+
+        bool match() const {
+            switch (this->kind) {
+                case Kind::cfg:
+                    return std::get<std::shared_ptr<CfgExpr>>(this->expr)->match();
+                case Kind::not_:
+                    return !(std::get<std::shared_ptr<CfgExpr>>(this->expr)->match());
+                case Kind::all: {
+                    bool res = true;
+                    for (const auto& c : std::get<std::vector<CfgExpr>>(this->expr)) {
+                        res &= c.match();
+                    }
+                    return res;
+                }
+                case Kind::any: {
+                    bool res = false;
+                    for (const auto& c : std::get<std::vector<CfgExpr>>(this->expr)) {
+                        res |= c.match();
+                    }
+                    return res;
+                }
+                case Kind::value:
+                    return this->match(std::get<Cfg>(this->expr));
+            }
         }
-        std::cout << "end." << std::endl << std::endl;
-    }
 
+    private:
+        bool match(const Cfg& c) const {
+            switch (c.key) {
+                case Cfg::Ident::compiler:
+                    return false;
+                case Cfg::Ident::arch:
+//        alpha,
+//        arm,
+//        blackfin,
+//        convex,
+//        ia64,
+//        m68k,
+//        mips,
+//        s390x,
+//        x86,
+//        x86_32,
+//        x86_64,
+                    return false;
+                case Cfg::Ident::feature:
+#if BOOST_HW_SIMD_X86_FMA3_VERSION
+                    return c.value == "fma";
+//        aes,
+//        avx,
+//        avx2,
+//        bmi1,
+//        bmi2,
+//        fma,
+//        fxsr,
+//        lzcnt,
+//        pclmulqdq,
+//        popcnt,
+//        rdrand,
+//        rdseed,
+//        sha,
+//        sse,
+//        sse2,
+//        sse3,
+//        sse4_1,
+//        sse4_2,
+//        ssse3,
+//        xsave,
+//        xsavec,
+//        xsaveopt,
+//        xsaves,
+#else
+                    return false;
+#endif
+                case Cfg::Ident::os:
+#if BOOST_OS_WINDOWS
+                    return c.value == "windows";
+#elif BOOST_OS_MACOS
+                    return c.value == "macos" || c.value == "unix";
+#elif BOOST_OS_IOS
+                    return c.value == "ios";
+#elif BOOST_OS_LINUX
+                    return c.value == "linux" || c.value == "unix";
+#elif BOOST_OS_CYGWIN
+                    return c.value == "cygwin" || c.value == "unix";
+#elif BOOST_OS_ANDROID
+                    return c.value == "android";
+#elif BOOST_OS_BSD_FREE
+                    return c.value == "freebsd";
+#elif BOOST_OS_BSD_DRAGONFLY
+                    return c.value == "dragonfly";
+#elif BOOST_OS_BSD_OPEN
+                    return c.value == "openbsd";
+#elif  BOOST_OS_BSD_NET
+                    return c.value == "netbsd";
+#else
+                    return false;
+#endif
+                case Cfg::Ident::platform:
+#if BOOST_PLAT_MINGW
+                    return c.value == "mingw";
+#else
+                    return false;
+#endif
+                case Cfg::Ident::os_version:
+                    return false;
+            }
+        }
+    };
+
+    struct Parser {
+        Lexer lexer;
+
+        explicit Parser(const std::string& str)
+            : lexer(str)
+        {}
+
+        CfgExpr expr() {
+            if (const auto token = lexer.peek(); !token.has_value()) {
+                throw cfg::syntax_error("expected start of a cfg expression, found nothing");
+            } else if (token->kind == Token::Ident) {
+                if (token->id == Token::ident::all || token->id == Token::ident::any) {
+                    this->lexer.next();
+                    this->eat_left_paren(token->id);
+
+                    std::vector<CfgExpr> e;
+                    while (!r_try(Token::RightParen)) {
+                        e.emplace_back(this->expr());
+                        if (!this->r_try(Token::Comma)) {
+                            this->eat_right_paren();
+                            break;
+                        }
+                    }
+                    if (token->id == Token::ident::all) {
+                        return CfgExpr{ CfgExpr::all, e };
+                    } else {
+                        return CfgExpr{ CfgExpr::any, e };
+                    }
+                } else if (token->id == Token::ident::not_ || token->id == Token::ident::cfg) {
+                    this->lexer.next();
+                    this->eat_left_paren(token->id);
+                    CfgExpr&& e = this->expr();
+                    this->eat_right_paren();
+                    if (token->id == Token::ident::not_) {
+                        return CfgExpr{ CfgExpr::not_, std::make_shared<CfgExpr>(std::move(e)) };
+                    } else {
+                        return CfgExpr{ CfgExpr::cfg, std::make_shared<CfgExpr>(std::move(e)) };
+                    }
+
+                }
+            }
+            return CfgExpr{ CfgExpr::value, this->cfg() };
+        }
+
+        Cfg cfg() {
+            if (const auto token = lexer.next(); !token.has_value()) {
+                throw cfg::syntax_error("expected identifier, found nothing");
+            } else if (token->kind == Token::Ident) {
+                if (this->r_try(Token::Equals)) {
+                    return this->cfg_str(token->id, Cfg::Op::Equals);
+                } else if (this->r_try(Token::Gt)) {
+                    return this->cfg_str(token->id, Cfg::Op::Gt);
+                } else if (this->r_try(Token::GtEq)) {
+                    return this->cfg_str(token->id, Cfg::Op::GtEq);
+                } else if (this->r_try(Token::Lt)) {
+                    return this->cfg_str(token->id, Cfg::Op::Lt);
+                } else if (this->r_try(Token::LtEq)) {
+                    return this->cfg_str(token->id, Cfg::Op::LtEq);
+                }
+            }
+            throw cfg::syntax_error("expected identifier, found {}");
+        }
+
+    private:
+        Cfg cfg_str(Token::ident ident, Cfg::Op op) {
+            if (const auto t = lexer.next()) {
+                if (t->kind == Token::String) {
+                    return { ident, op, t->str };
+                } else {
+                    throw cfg::syntax_error("expected a string, found {}");
+                }
+            } else {
+                throw cfg::syntax_error("expected a string, found nothing");
+            }
+        }
+
+        bool r_try(Token::Kind kind) {
+            if (const auto token = lexer.peek()) {
+                if (token->kind == kind) {
+                    this->lexer.next();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        void eat_left_paren(Token::ident prev) {
+            if (const auto token = lexer.next()) {
+                if (token->kind != Token::LeftParen) {
+                    throw cfg::syntax_error("excepted '(' after `" + to_string(prev) + "`");
+                }
+            } else {
+                throw cfg::syntax_error("expected '(', but cfg expr ended");
+            }
+        }
+        void eat_right_paren() {
+            if (const auto token = lexer.next()) {
+                if (token->kind != Token::RightParen) {
+                    throw cfg::syntax_error("excepted ')' to match this '('");
+                }
+            } else {
+                throw cfg::syntax_error("expected ')', but cfg expr ended");
+            }
+        }
+    };
+
+    CfgExpr parse(const std::string& s) {
+         return Parser(s).expr();
+    }
 } // end namespace poac::util::cfg
 
 #endif // !POAC_UTIL_CFG_HPP
