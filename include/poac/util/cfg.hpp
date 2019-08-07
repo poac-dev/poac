@@ -245,9 +245,6 @@ namespace poac::util::cfg {
 
         std::optional<Token>
         next() {
-            if (this->index >= this->str.size()) {
-                return std::nullopt;
-            }
             const auto [diff, token] = tokenize(this->index);
             this->step_n(diff);
             return token;
@@ -255,16 +252,16 @@ namespace poac::util::cfg {
 
         std::optional<Token>
         peek() const {
-            if (this->index >= this->str.size()) {
-                return std::nullopt;
-            }
             const auto [diff, token] = tokenize(this->index);
             return token;
         }
 
     private:
-        std::pair<size_type, Token>
+        std::pair<size_type, std::optional<Token>>
         tokenize(size_type index_) const {
+            if (index_ >= this->str.size()) {
+                return { this->diff_step(index_), std::nullopt };
+            }
             switch (this->one(index_)) {
                 case ' ':
                     do {
