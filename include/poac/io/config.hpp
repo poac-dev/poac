@@ -25,9 +25,13 @@ namespace poac::io::config {
                     what.substr(what.rfind(' ', what.find('\n'))));
         }
 
-        template <typename Exception>
         [[noreturn]] inline void
-        rethrow_cfg_exception(const Exception& e, const toml::value& v, std::string msg) {
+        rethrow_cfg_exception(const util::cfg::exception& e, const toml::value& v) {
+            const std::string what = e.what();
+            std::vector<std::string> result;
+            boost::algorithm::split(result, what, boost::is_any_of("\n"));
+
+            std::string msg = result[0];
             const toml::source_location loc = v.location();
             msg += "\n --> " + loc.file_name() + "\n";
 
@@ -35,36 +39,17 @@ namespace poac::io::config {
             const std::string line_str = line + "| " + loc.line_str();
             msg += line_str + "\n";
 
-            const std::string ewhat = e.what();
-            std::vector<std::string> result;
-            boost::algorithm::split(result, ewhat, boost::is_any_of("\n"));
-            const std::size_t index = line_str.find(result[0]);
-
             msg += std::string(line.size(), ' ');
-            msg +=  "|" + std::string(index - line.size() - 1, ' ') + result[1];
-            throw Exception(msg);
+            msg +=  "|";
+            msg += std::string(line_str.find(result[1]) - line.size() - 1, ' ');
+            msg += result[2];
+            throw util::cfg::exception(msg);
         }
 
         [[noreturn]] inline void
-        rethrow_cfg_exception(const util::cfg::string_error& e, const toml::value& v) {
-            rethrow_cfg_exception(e, v, "missing terminating '\"' character");
-        }
-        [[noreturn]] inline void
-        rethrow_cfg_exception(const util::cfg::ident_error& e, const toml::value& v) {
-            rethrow_cfg_exception(e, v, "cfg expected parens, a comma, an identifier, or a string");
-        }
-        [[noreturn]] inline void
-        rethrow_cfg_exception(const util::cfg::operator_error& e, const toml::value& v) {
-            rethrow_cfg_exception(e, v, "cfg operator error");
-        }
-        [[noreturn]] inline void
-        rethrow_cfg_exception(const util::cfg::expr_error& e, const toml::value& v) {
+        rethrow_cfg_expr_error(const util::cfg::expr_error& e, const toml::value& v) {
             throw util::cfg::expr_error(toml::format_error(
                     "cfg expression error", v, e.what()));
-        }
-        [[noreturn]] inline void
-        rethrow_cfg_exception(const util::cfg::syntax_error& e, const toml::value& v) {
-            rethrow_cfg_exception(e, v, "cfg syntax error");
         }
 
         //
@@ -593,15 +578,9 @@ namespace poac::io::config {
                         std::cout << "unmatch..." << std::endl;
                     }
                     std::cout << std::endl;
-                } catch (const util::cfg::string_error& e) {
-                    detail::rethrow_cfg_exception(e, target.at(key));
-                } catch (const util::cfg::ident_error& e) {
-                    detail::rethrow_cfg_exception(e, target.at(key));
-                } catch (const util::cfg::operator_error& e) {
-                    detail::rethrow_cfg_exception(e, target.at(key));
                 } catch (const util::cfg::expr_error& e) {
-                    detail::rethrow_cfg_exception(e, target.at(key));
-                } catch (const util::cfg::syntax_error& e) {
+                    detail::rethrow_cfg_expr_error(e, target.at(key));
+                } catch (const util::cfg::exception& e) {
                     detail::rethrow_cfg_exception(e, target.at(key));
                 }
 

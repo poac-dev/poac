@@ -25,13 +25,14 @@ namespace poac::util::cfg {
         exception(exception&&) noexcept = default;
         exception& operator=(exception&&) noexcept = default;
 
-    private:
+    protected:
         std::string what_;
     };
 
     struct string_error : public cfg::exception {
-        explicit string_error(const std::string& what_) : exception(what_) {}
-        explicit string_error(const char* what_)        : exception(what_) {}
+        explicit string_error(const std::string& what_)
+            : exception("missing terminating '\"' character\n" + what_) {}
+        explicit string_error(const char* what_) : string_error(std::string(what_)) {}
         virtual ~string_error() noexcept override = default;
 
         string_error(const string_error&) = default;
@@ -42,8 +43,9 @@ namespace poac::util::cfg {
 
     struct ident_error : public cfg::exception {
     public:
-        explicit ident_error(const std::string& what_) : exception(what_) {}
-        explicit ident_error(const char* what_)        : exception(what_) {}
+        explicit ident_error(const std::string& what_)
+            : exception("cfg expected parens, a comma, an identifier, or a string\n" + what_) {}
+        explicit ident_error(const char* what_) : ident_error(std::string(what_)) {}
         virtual ~ident_error() noexcept override = default;
 
         ident_error(const ident_error&) = default;
@@ -54,8 +56,9 @@ namespace poac::util::cfg {
 
     struct operator_error : public cfg::exception {
     public:
-        explicit operator_error(const std::string& what_) : exception(what_) {}
-        explicit operator_error(const char* what_)        : exception(what_) {}
+        explicit operator_error(const std::string& what_)
+            : exception("cfg operator error\n" + what_) {}
+        explicit operator_error(const char* what_) : operator_error(std::string(what_)) {}
         virtual ~operator_error() noexcept override = default;
 
         operator_error(const operator_error&) = default;
@@ -78,8 +81,9 @@ namespace poac::util::cfg {
 
     struct syntax_error : public cfg::exception {
     public:
-        explicit syntax_error(const std::string& what_) : exception(what_) {}
-        explicit syntax_error(const char* what_)        : exception(what_) {}
+        explicit syntax_error(const std::string& what_)
+            : exception("cfg syntax error\n" + what_) {}
+        explicit syntax_error(const char* what_) : syntax_error(std::string(what_)) {}
         virtual ~syntax_error() noexcept override = default;
 
         syntax_error(const syntax_error&) = default;
@@ -87,7 +91,6 @@ namespace poac::util::cfg {
         syntax_error(syntax_error&&) noexcept = default;
         syntax_error& operator=(syntax_error&&) noexcept = default;
     };
-
 
     constexpr bool
     is_ident_start(const char& c) noexcept {
