@@ -47,8 +47,8 @@ namespace poac::io::config {
         }
 
         [[noreturn]] inline void
-        rethrow_cfg_expr_error(const util::cfg::expr_error& e, const toml::value& v) {
-            throw util::cfg::expr_error(toml::format_error(
+        rethrow_cfg_expr_error(const util::cfg::expression_error& e, const toml::value& v) {
+            throw util::cfg::expression_error(toml::format_error(
                     "cfg expression error", v, e.what()));
         }
 
@@ -578,7 +578,7 @@ namespace poac::io::config {
                         std::cout << "unmatch..." << std::endl;
                     }
                     std::cout << std::endl;
-                } catch (const util::cfg::expr_error& e) {
+                } catch (const util::cfg::expression_error& e) {
                     detail::rethrow_cfg_expr_error(e, target.at(key));
                 } catch (const util::cfg::exception& e) {
                     detail::rethrow_cfg_exception(e, target.at(key));

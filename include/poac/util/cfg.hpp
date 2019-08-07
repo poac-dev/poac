@@ -67,16 +67,16 @@ namespace poac::util::cfg {
         operator_error& operator=(operator_error&&) noexcept = default;
     };
 
-    struct expr_error : public cfg::exception {
+    struct expression_error : public cfg::exception {
     public:
-        explicit expr_error(const std::string& what_) : exception(what_) {}
-        explicit expr_error(const char* what_)        : exception(what_) {}
-        virtual ~expr_error() noexcept override = default;
+        explicit expression_error(const std::string& what_) : exception(what_) {}
+        explicit expression_error(const char* what_)        : exception(what_) {}
+        virtual ~expression_error() noexcept override = default;
 
-        expr_error(const expr_error&) = default;
-        expr_error& operator=(const expr_error&) = default;
-        expr_error(expr_error&&) noexcept = default;
-        expr_error& operator=(expr_error&&) noexcept = default;
+        expression_error(const expression_error&) = default;
+        expression_error& operator=(const expression_error&) = default;
+        expression_error(expression_error&&) noexcept = default;
+        expression_error& operator=(expression_error&&) noexcept = default;
     };
 
     struct syntax_error : public cfg::exception {
@@ -642,7 +642,7 @@ namespace poac::util::cfg {
 
         CfgExpr expr() {
             if (const auto token = lexer.peek(); !token.has_value()) {
-                throw cfg::expr_error("expected start of a cfg expression");
+                throw cfg::expression_error("expected start of a cfg expression");
             } else if (token->kind == Token::Ident) {
                 if (token->id == Token::ident::all
                  || token->id == Token::ident::any) {
