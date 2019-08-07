@@ -6,8 +6,10 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <variant>
 #include <vector>
+#include <utility>
 
 #include <boost/predef.h>
 
@@ -133,7 +135,7 @@ namespace poac::util::cfg {
         };
 
         Kind kind;
-        std::string str;
+        std::string_view str;
         ident id;
 
         explicit
@@ -142,7 +144,7 @@ namespace poac::util::cfg {
                    : throw std::invalid_argument("poac::util::cfg::Token"))
         {}
 
-        Token(Kind k, const std::string& s)
+        Token(Kind k, std::string_view s)
             : kind(k == Kind::String ? k
                    : throw std::invalid_argument("poac::util::cfg::Token"))
             , str(s)
@@ -228,14 +230,13 @@ namespace poac::util::cfg {
     }
 
     struct Lexer {
+        using value_type = std::string_view::value_type;
         using size_type = std::size_t;
-        using string_type = std::string;
-        using value_type = string_type::value_type;
 
-        string_type str;
+        std::string_view str;
         size_type index;
 
-        explicit Lexer(const string_type& str)
+        explicit Lexer(std::string_view str)
             : str(str), index(0)
         {}
 
@@ -244,200 +245,139 @@ namespace poac::util::cfg {
             if (this->index >= this->str.size()) {
                 return std::nullopt;
             }
-            switch (this->one()) {
-                case ' ':
-                    do {
-                        this->step();
-                    } while (this->one() == ' ');
-                    return next();
-                case '(':
-                    this->step();
-                    return Token{ Token::LeftParen };
-                case ')':
-                    this->step();
-                    return Token{ Token::RightParen };
-                case ',':
-                    this->step();
-                    return Token{ Token::Comma };
-                case '=':
-                    this->step();
-                    return Token{ Token::Equals };
-                case '>':
-                    this->step();
-                    if (this->one() == '=') {
-                        this->step();
-                        return Token{ Token::GtEq };
-                    } else {
-                        return Token{ Token::Gt };
-                    }
-                case '<':
-                    this->step();
-                    if (this->one() == '=') {
-                        this->step();
-                        return Token{ Token::LtEq };
-                    } else {
-                        return Token{ Token::Lt };
-                    }
-                case '"':
-                    return string();
-                default:
-                    return ident();
-            }
+            const auto [diff, token] = tokenize(this->index);
+            this->step_n(diff);
+            return token;
         }
 
         std::optional<Token>
         peek() const {
-            return this->peek(this->index);
+            if (this->index >= this->str.size()) {
+                return std::nullopt;
+            }
+            const auto [diff, token] = tokenize(this->index);
+            return token;
         }
 
     private:
-        std::optional<Token>
-        peek(size_type index_copy) const {
-            if (index_copy >= this->str.size()) {
-                return std::nullopt;
-            }
-            switch (this->str[index_copy]) {
-                case ' ': {
+        std::pair<size_type, Token>
+        tokenize(size_type index_) const {
+            switch (this->one(index_)) {
+                case ' ':
                     do {
-                        ++index_copy;
-                    } while (this->str[index_copy] == ' ');
-                    return peek(index_copy);
-                }
+                        this->step(index_);
+                    } while (this->one(index_) == ' ');
+                    return tokenize(index_);
                 case '(':
-                    return Token{ Token::LeftParen };
+                    this->step(index_);
+                    return { this->diff_step(index_), Token{Token::LeftParen} };
                 case ')':
-                    return Token{ Token::RightParen };
+                    this->step(index_);
+                    return { this->diff_step(index_), Token{Token::RightParen} };
                 case ',':
-                    return Token{ Token::Comma };
+                    this->step(index_);
+                    return { this->diff_step(index_), Token{Token::Comma} };
                 case '=':
-                    return Token{ Token::Equals };
+                    this->step(index_);
+                    return { this->diff_step(index_), Token{Token::Equals} };
                 case '>':
-                    if (this->str[index_copy + 1] == '=') {
-                        return Token{ Token::GtEq };
+                    this->step(index_);
+                    if (this->one(index_) == '=') {
+                        this->step(index_);
+                        return { this->diff_step(index_), Token{Token::GtEq} };
                     } else {
-                        return Token{ Token::Gt };
+                        return { this->diff_step(index_), Token{Token::Gt} };
                     }
                 case '<':
-                    if (this->str[index_copy + 1] == '=') {
-                        return Token{ Token::LtEq };
+                    this->step(index_);
+                    if (this->one(index_) == '=') {
+                        this->step(index_);
+                        return { this->diff_step(index_), Token{Token::LtEq} };
                     } else {
-                        return Token{ Token::Lt };
+                        return { this->diff_step(index_), Token{Token::Lt} };
                     }
                 case '"':
-                    return string_copy(index_copy);
+                    return string(index_);
                 default:
-                    return ident_copy(index_copy);
+                    return ident(index_);
             }
         }
 
-        void step() noexcept {
-            if (this->index < this->str.size()) {
-                ++this->index;
+        void
+        step(size_type& index_) const noexcept {
+            if (index_ < this->str.size()) {
+                ++index_;
+            }
+        }
+        void
+        step_n(const size_type n) noexcept {
+            for (size_type i = 0; i < n; ++i) {
+                this->step(this->index);
             }
         }
 
-        value_type one() const noexcept {
-            return this->str[this->index];
+        size_type
+        diff_step(const size_type index_) const noexcept {
+            return index_ - this->index;
         }
-        value_type one(const size_type index_) const noexcept {
+
+        value_type
+        one(const size_type index_) const noexcept {
             return this->str[index_];
         }
 
-        std::optional<Token>
-        string() {
-            this->step();
-            const size_type start = this->index;
-            while (this->one() != '"') {
-                this->step();
-                if (this->index >= this->str.size()) {
+        std::pair<size_type, Token>
+        string(size_type index_) const {
+            this->step(index_);
+            const size_type start = index_;
+            while (this->one(index_) != '"') {
+                this->step(index_);
+                if (index_ >= this->str.size()) {
                     std::string msg;
                     msg += std::string(start - 1, ' ');
                     msg += "^";
                     msg += std::string(this->str.size() - start, '-');
                     msg += " unterminated string";
-                    throw cfg::string_error(str + "\n" + msg);
+                    throw cfg::string_error(std::string(this->str) + "\n" + msg);
                 }
             }
-            const string_type s = str.substr(start, this->index - start);
-            this->step();
-            return Token{ Token::String, s };
+            std::string_view s = this->str.substr(start, index_ - start);
+            this->step(index_);
+            return { this->diff_step(index_), Token{Token::String, s} };
         }
 
-        std::optional<Token>
-        string_copy(size_type index_copy) const {
-            ++index_copy;
-            const size_type start = index_copy;
-            while (this->str[index_copy] != '"') {
-                ++index_copy;
-                if (index_copy >= this->str.size()) {
-                    std::string msg;
-                    msg += std::string(start - 1, ' ');
-                    msg += "^";
-                    msg += std::string(this->str.size() - start, '-');
-                    msg += " unterminated string";
-                    throw cfg::string_error(str + "\n" + msg);
-                }
-            }
-            const string_type s = str.substr(start, index_copy - start);
-            return Token{ Token::String, s };
-        }
-
-        std::optional<Token>
-        ident() {
-            if (!is_ident_start(this->one())) {
+        std::pair<size_type, Token>
+        ident(size_type index_) const {
+            if (!is_ident_start(this->one(index_))) {
                 std::string msg;
-                msg += std::string(this->index, ' ');
+                msg += std::string(index_, ' ');
                 msg += "^ unexpected character";
-                throw cfg::ident_error(str + "\n" + msg);
+                throw cfg::ident_error(std::string(this->str) + "\n" + msg);
             }
-            const size_type start = this->index;
-            this->step();
-            while (is_ident_rest(this->one())) {
-                this->step();
+            const size_type start = index_;
+            this->step(index_);
+            while (is_ident_rest(this->one(index_))) {
+                this->step(index_);
             }
 
-            const string_type s = str.substr(start, this->index - start);
+            std::string_view s = this->str.substr(start, index_ - start);
             if (const auto ident = to_ident(s)) {
-                return Token{ Token::Ident, ident.value() };
+                return {
+                    this->diff_step(index_),
+                    Token{Token::Ident, ident.value()}
+                };
             } else {
                 std::string msg;
                 msg += std::string(start, ' ');
                 msg += "^";
-                msg += std::string(this->index - start - 1, '-');
+                msg += std::string(index_ - start - 1, '-');
                 msg += " unknown identify";
-                throw cfg::ident_error(str + "\n" + msg);
-            }
-        }
-
-        std::optional<Token>
-        ident_copy(size_type index_copy) const {
-            if (!is_ident_start(this->str[index_copy])) {
-                std::string msg;
-                msg += std::string(index_copy, ' ');
-                msg += "^ unexpected character";
-                throw cfg::ident_error(str + "\n" + msg);
-            }
-            const size_type start = index_copy;
-            ++index_copy;
-            while (is_ident_rest(this->str[index_copy])) {
-                ++index_copy;
-            }
-
-            const string_type s = str.substr(start, index_copy - start);
-            if (const auto ident = to_ident(s)) {
-                return Token{ Token::Ident, ident.value() };
-            } else {
-                std::string msg;
-                msg += std::string(start, ' ');
-                msg += "^";
-                msg += std::string(index_copy - start - 1, '-');
-                msg += " unknown identify";
-                throw cfg::ident_error(str + "\n" + msg);
+                throw cfg::ident_error(std::string(this->str) + "\n" + msg);
             }
         }
 
         std::optional<Token::ident>
-        to_ident(const string_type& s) const noexcept {
+        to_ident(std::string_view s) const noexcept {
             if (s == "cfg") {
                 return Token::ident::cfg;
             } else if (s == "not") {
@@ -491,9 +431,9 @@ namespace poac::util::cfg {
 
         Ident key;
         Op op;
-        std::string value;
+        std::string_view value;
 
-        Cfg(Token::ident key, Op op, const std::string& value)
+        Cfg(Token::ident key, Op op, std::string_view value)
             : key(from_token_ident(key)), op(op), value(value)
         {}
 
@@ -535,17 +475,19 @@ namespace poac::util::cfg {
         };
 
         using null_type = std::monostate;
-        using variant_type = std::variant<null_type, std::shared_ptr<CfgExpr>, std::vector<CfgExpr>, Cfg>;
+        using expr_type = std::shared_ptr<CfgExpr>;
+        using expr_list_type = std::vector<CfgExpr>;
+        using variant_type = std::variant<null_type, expr_type, expr_list_type, Cfg>;
 
         Kind kind;
         variant_type expr;
 
-        CfgExpr(Kind kind, std::shared_ptr<CfgExpr>&& expr)
+        CfgExpr(Kind kind, expr_type&& expr)
             : kind(kind == Kind::not_ || kind == Kind::cfg ? kind
                    : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
             , expr(std::move(expr))
         {}
-        CfgExpr(Kind kind, const std::vector<CfgExpr>& expr)
+        CfgExpr(Kind kind, const expr_list_type& expr)
             : kind(kind == Kind::all || kind == Kind::any ? kind
                    : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
             , expr(expr)
@@ -566,19 +508,19 @@ namespace poac::util::cfg {
         bool match() const {
             switch (this->kind) {
                 case Kind::cfg:
-                    return std::get<std::shared_ptr<CfgExpr>>(this->expr)->match();
+                    return std::get<expr_type>(this->expr)->match();
                 case Kind::not_:
-                    return !(std::get<std::shared_ptr<CfgExpr>>(this->expr)->match());
+                    return !(std::get<expr_type>(this->expr)->match());
                 case Kind::all: {
                     bool res = true;
-                    for (const auto& c : std::get<std::vector<CfgExpr>>(this->expr)) {
+                    for (const auto& c : std::get<expr_list_type>(this->expr)) {
                         res &= c.match();
                     }
                     return res;
                 }
                 case Kind::any: {
                     bool res = false;
-                    for (const auto& c : std::get<std::vector<CfgExpr>>(this->expr)) {
+                    for (const auto& c : std::get<expr_list_type>(this->expr)) {
                         res |= c.match();
                     }
                     return res;
@@ -694,7 +636,7 @@ namespace poac::util::cfg {
     struct Parser {
         Lexer lexer;
 
-        explicit Parser(const std::string& str)
+        explicit Parser(std::string_view str)
             : lexer(str)
         {}
 
@@ -746,7 +688,7 @@ namespace poac::util::cfg {
             if (const auto token = lexer.next(); !token.has_value()) {
                 std::string msg = std::string(index + 1, ' ');
                 msg += " ^ expected operator, but cfg expression ended";
-                throw cfg::syntax_error(lexer.str + "\n" + msg);
+                throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
             } else if (token->kind == Token::Ident) {
                 if (this->r_try(Token::Equals)) {
                     return this->cfg_str(token->id, Cfg::Op::Equals);
@@ -763,7 +705,7 @@ namespace poac::util::cfg {
             }
             std::string msg = std::string(lexer.index + 1, ' ');
             msg += "^ expected operator";
-            throw cfg::syntax_error(lexer.str + "\n" + msg);
+            throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
         }
 
     private:
@@ -778,7 +720,7 @@ namespace poac::util::cfg {
                 msg += "^-";
             }
             msg += " cannot be specified except os_version";
-            throw cfg::operator_error(lexer.str + "\n" + msg);
+            throw cfg::operator_error(std::string(lexer.str) + "\n" + msg);
         }
 
         Cfg cfg_str(const std::size_t index, Token::ident ident, Cfg::Op op) {
@@ -800,12 +742,12 @@ namespace poac::util::cfg {
                     const int range = lexer.index - index - 2;
                     msg += std::string(range < 0 ? 0 : range, '-');
                     msg += " expected a string";
-                    throw cfg::syntax_error(lexer.str + "\n" + msg);
+                    throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
                 }
             } else {
                 std::string msg = std::string(index, ' ');
                 msg += "^ expected a string, but cfg expression ended";
-                throw cfg::syntax_error(lexer.str + "\n" + msg);
+                throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
             }
         }
 
@@ -825,12 +767,12 @@ namespace poac::util::cfg {
                 if (token->kind != Token::LeftParen) {
                     std::string msg = std::string(index, ' ');
                     msg += "^ excepted '(' after `" + to_string(prev) + "`";
-                    throw cfg::syntax_error(lexer.str + "\n" + msg);
+                    throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
                 }
             } else {
                 std::string msg = std::string(index, ' ');
                 msg += "^ expected '(', but cfg expression ended";
-                throw cfg::syntax_error(lexer.str + "\n" + msg);
+                throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
             }
         }
         void eat_right_paren() {
@@ -841,17 +783,17 @@ namespace poac::util::cfg {
                     msg += "^";
                     msg += std::string(lexer.index - index - 1, '-');
                     msg += " excepted ')'";
-                    throw cfg::syntax_error(lexer.str + "\n" + msg);
+                    throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
                 }
             } else {
                 std::string msg = std::string(index, ' ');
                 msg += "^ expected ')', but cfg expression ended";
-                throw cfg::syntax_error(lexer.str + "\n" + msg);
+                throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
             }
         }
     };
 
-    CfgExpr parse(const std::string& s) {
+    CfgExpr parse(std::string_view s) {
          return Parser(s).expr();
     }
 } // end namespace poac::util::cfg
