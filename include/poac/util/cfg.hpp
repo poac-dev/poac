@@ -13,64 +13,77 @@
 
 namespace poac::util::cfg {
     struct exception : public std::exception {
-    public:
+        explicit exception(const std::string& what_) : what_(what_) {}
+        explicit exception(const char* what_)        : what_(what_) {}
         virtual ~exception() noexcept override = default;
-        virtual const char* what() const noexcept override { return ""; }
+        virtual const char* what() const noexcept override { return what_.c_str(); }
+
+        exception(const exception&) = default;
+        exception& operator=(const exception&) = default;
+        exception(exception&&) noexcept = default;
+        exception& operator=(exception&&) noexcept = default;
+
+    private:
+        std::string what_;
     };
 
     struct string_error : public cfg::exception {
-    public:
-        explicit string_error(const std::string& what_) : what_(what_) {}
-        explicit string_error(const char* what_)        : what_(what_) {}
+        explicit string_error(const std::string& what_) : exception(what_) {}
+        explicit string_error(const char* what_)        : exception(what_) {}
         virtual ~string_error() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
 
-    protected:
-        std::string what_;
+        string_error(const string_error&) = default;
+        string_error& operator=(const string_error&) = default;
+        string_error(string_error&&) noexcept = default;
+        string_error& operator=(string_error&&) noexcept = default;
     };
 
     struct ident_error : public cfg::exception {
     public:
-        explicit ident_error(const std::string& what_) : what_(what_) {}
-        explicit ident_error(const char* what_)        : what_(what_) {}
+        explicit ident_error(const std::string& what_) : exception(what_) {}
+        explicit ident_error(const char* what_)        : exception(what_) {}
         virtual ~ident_error() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
 
-    protected:
-        std::string what_;
+        ident_error(const ident_error&) = default;
+        ident_error& operator=(const ident_error&) = default;
+        ident_error(ident_error&&) noexcept = default;
+        ident_error& operator=(ident_error&&) noexcept = default;
     };
 
     struct operator_error : public cfg::exception {
     public:
-        explicit operator_error(const std::string& what_) : what_(what_) {}
-        explicit operator_error(const char* what_)        : what_(what_) {}
+        explicit operator_error(const std::string& what_) : exception(what_) {}
+        explicit operator_error(const char* what_)        : exception(what_) {}
         virtual ~operator_error() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
 
-    protected:
-        std::string what_;
+        operator_error(const operator_error&) = default;
+        operator_error& operator=(const operator_error&) = default;
+        operator_error(operator_error&&) noexcept = default;
+        operator_error& operator=(operator_error&&) noexcept = default;
     };
 
     struct expr_error : public cfg::exception {
     public:
-        explicit expr_error(const std::string& what_) : what_(what_) {}
-        explicit expr_error(const char* what_)        : what_(what_) {}
+        explicit expr_error(const std::string& what_) : exception(what_) {}
+        explicit expr_error(const char* what_)        : exception(what_) {}
         virtual ~expr_error() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
 
-    protected:
-        std::string what_;
+        expr_error(const expr_error&) = default;
+        expr_error& operator=(const expr_error&) = default;
+        expr_error(expr_error&&) noexcept = default;
+        expr_error& operator=(expr_error&&) noexcept = default;
     };
 
     struct syntax_error : public cfg::exception {
     public:
-        explicit syntax_error(const std::string& what_) : what_(what_) {}
-        explicit syntax_error(const char* what_)        : what_(what_) {}
+        explicit syntax_error(const std::string& what_) : exception(what_) {}
+        explicit syntax_error(const char* what_)        : exception(what_) {}
         virtual ~syntax_error() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
 
-    protected:
-        std::string what_;
+        syntax_error(const syntax_error&) = default;
+        syntax_error& operator=(const syntax_error&) = default;
+        syntax_error(syntax_error&&) noexcept = default;
+        syntax_error& operator=(syntax_error&&) noexcept = default;
     };
 
 
