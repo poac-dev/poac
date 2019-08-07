@@ -736,7 +736,6 @@ namespace poac::util::cfg {
                             std::make_shared<CfgExpr>(std::move(e))
                         };
                     }
-
                 }
             }
             return CfgExpr{ CfgExpr::value, this->cfg() };
@@ -746,7 +745,7 @@ namespace poac::util::cfg {
             const std::size_t index = lexer.index;
             if (const auto token = lexer.next(); !token.has_value()) {
                 std::string msg = std::string(index + 1, ' ');
-                msg += "^ expected identifier";
+                msg += " ^ expected operator, but cfg expression ended";
                 throw cfg::syntax_error(lexer.str + "\n" + msg);
             } else if (token->kind == Token::Ident) {
                 if (this->r_try(Token::Equals)) {
@@ -760,9 +759,10 @@ namespace poac::util::cfg {
                 } else if (this->r_try(Token::LtEq)) {
                     return this->cfg_str(lexer.index, token->id, Cfg::Op::LtEq);
                 }
+                std::cout << "expected operator" << std::endl;
             }
-            std::string msg = std::string(index + 1, ' ');
-            msg += "^ expected identifier";
+            std::string msg = std::string(lexer.index + 1, ' ');
+            msg += "^ expected operator";
             throw cfg::syntax_error(lexer.str + "\n" + msg);
         }
 
@@ -797,7 +797,8 @@ namespace poac::util::cfg {
                 } else {
                     std::string msg = std::string(index + 1, ' ');
                     msg += "^";
-                    msg += std::string(lexer.index - index - 2, '-');
+                    const int range = lexer.index - index - 2;
+                    msg += std::string(range < 0 ? 0 : range, '-');
                     msg += " expected a string";
                     throw cfg::syntax_error(lexer.str + "\n" + msg);
                 }
