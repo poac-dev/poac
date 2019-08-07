@@ -40,6 +40,28 @@ namespace poac::util::cfg {
         std::string what_;
     };
 
+    struct operator_error : public cfg::exception {
+    public:
+        explicit operator_error(const std::string& what_) : what_(what_) {}
+        explicit operator_error(const char* what_)        : what_(what_) {}
+        virtual ~operator_error() noexcept override = default;
+        virtual const char* what() const noexcept override { return what_.c_str(); }
+
+    protected:
+        std::string what_;
+    };
+
+    struct expr_error : public cfg::exception {
+    public:
+        explicit expr_error(const std::string& what_) : what_(what_) {}
+        explicit expr_error(const char* what_)        : what_(what_) {}
+        virtual ~expr_error() noexcept override = default;
+        virtual const char* what() const noexcept override { return what_.c_str(); }
+
+    protected:
+        std::string what_;
+    };
+
     struct syntax_error : public cfg::exception {
     public:
         explicit syntax_error(const std::string& what_) : what_(what_) {}
@@ -74,12 +96,12 @@ namespace poac::util::cfg {
             Equals,
             /// `>`
             Gt,
+            /// `>=`
+            GtEq,
             /// `<`
             Lt,
             /// `<=`
             LtEq,
-            /// `>=`
-            GtEq,
             String,
             Ident,
         };
@@ -154,11 +176,6 @@ namespace poac::util::cfg {
         }
     }
 
-    std::ostream& operator<<(std::ostream& os, Token::ident ident) {
-        os << to_string(ident);
-        return os;
-    }
-
     std::ostream& operator<<(std::ostream& os, const Token& token) {
         switch (token.kind) {
             case Token::LeftParen:
@@ -191,7 +208,7 @@ namespace poac::util::cfg {
                 break;
             case Token::Ident:
                 os << "ident: ";
-                os << token.id;
+                os << to_string(token.id);
                 break;
         }
         return os;
@@ -464,10 +481,7 @@ namespace poac::util::cfg {
         std::string value;
 
         Cfg(Token::ident key, Op op, const std::string& value)
-            : key(from_token_ident(key))
-            , op(op != Op::Equals && this->key != Ident::os_version
-                 ? throw cfg::syntax_error("You can not specify operators other than os_version except '='") : op)
-            , value(value)
+            : key(from_token_ident(key)), op(op), value(value)
         {}
 
         Cfg() = delete;
@@ -673,34 +687,41 @@ namespace poac::util::cfg {
 
         CfgExpr expr() {
             if (const auto token = lexer.peek(); !token.has_value()) {
-                throw cfg::syntax_error("expected start of a cfg expression, found nothing");
+                throw cfg::expr_error("expected start of a cfg expression");
             } else if (token->kind == Token::Ident) {
-                if (token->id == Token::ident::all || token->id == Token::ident::any) {
+                if (token->id == Token::ident::all
+                 || token->id == Token::ident::any) {
                     this->lexer.next();
                     this->eat_left_paren(token->id);
-
                     std::vector<CfgExpr> e;
-                    while (!r_try(Token::RightParen)) {
+                    do { // `all` and `any` need at least one expression.
                         e.emplace_back(this->expr());
                         if (!this->r_try(Token::Comma)) {
                             this->eat_right_paren();
                             break;
                         }
-                    }
+                    } while (!r_try(Token::RightParen));
                     if (token->id == Token::ident::all) {
                         return CfgExpr{ CfgExpr::all, e };
                     } else {
                         return CfgExpr{ CfgExpr::any, e };
                     }
-                } else if (token->id == Token::ident::not_ || token->id == Token::ident::cfg) {
+                } else if (token->id == Token::ident::not_
+                        || token->id == Token::ident::cfg) {
                     this->lexer.next();
                     this->eat_left_paren(token->id);
                     CfgExpr&& e = this->expr();
                     this->eat_right_paren();
                     if (token->id == Token::ident::not_) {
-                        return CfgExpr{ CfgExpr::not_, std::make_shared<CfgExpr>(std::move(e)) };
+                        return CfgExpr{
+                            CfgExpr::not_,
+                            std::make_shared<CfgExpr>(std::move(e))
+                        };
                     } else {
-                        return CfgExpr{ CfgExpr::cfg, std::make_shared<CfgExpr>(std::move(e)) };
+                        return CfgExpr{
+                            CfgExpr::cfg,
+                            std::make_shared<CfgExpr>(std::move(e))
+                        };
                     }
 
                 }
@@ -709,34 +730,68 @@ namespace poac::util::cfg {
         }
 
         Cfg cfg() {
+            const std::size_t index = lexer.index;
             if (const auto token = lexer.next(); !token.has_value()) {
-                throw cfg::syntax_error("expected identifier, found nothing");
+                std::string msg = std::string(index + 1, ' ');
+                msg += "^ expected identifier";
+                throw cfg::syntax_error(lexer.str + "\n" + msg);
             } else if (token->kind == Token::Ident) {
                 if (this->r_try(Token::Equals)) {
                     return this->cfg_str(token->id, Cfg::Op::Equals);
                 } else if (this->r_try(Token::Gt)) {
-                    return this->cfg_str(token->id, Cfg::Op::Gt);
+                    return this->cfg_str(lexer.index, token->id, Cfg::Op::Gt);
                 } else if (this->r_try(Token::GtEq)) {
-                    return this->cfg_str(token->id, Cfg::Op::GtEq);
+                    return this->cfg_str(lexer.index, token->id, Cfg::Op::GtEq);
                 } else if (this->r_try(Token::Lt)) {
-                    return this->cfg_str(token->id, Cfg::Op::Lt);
+                    return this->cfg_str(lexer.index, token->id, Cfg::Op::Lt);
                 } else if (this->r_try(Token::LtEq)) {
-                    return this->cfg_str(token->id, Cfg::Op::LtEq);
+                    return this->cfg_str(lexer.index, token->id, Cfg::Op::LtEq);
                 }
             }
-            throw cfg::syntax_error("expected identifier, found {}");
+            std::string msg = std::string(index + 1, ' ');
+            msg += "^ expected identifier";
+            throw cfg::syntax_error(lexer.str + "\n" + msg);
         }
 
     private:
+        [[noreturn]] inline void
+        throw_operator_error(const std::size_t index, Cfg::Op op) const {
+            std::string msg;
+            if (op == Cfg::Op::Gt || op == Cfg::Op::Lt) {
+                msg += std::string(index - 1, ' ');
+                msg += "^";
+            } else if (op == Cfg::Op::GtEq || op == Cfg::Op::LtEq) {
+                msg += std::string(index - 2, ' ');
+                msg += "^-";
+            }
+            msg += " cannot be specified except os_version";
+            throw cfg::operator_error(lexer.str + "\n" + msg);
+        }
+
+        Cfg cfg_str(const std::size_t index, Token::ident ident, Cfg::Op op) {
+            const Cfg c = this->cfg_str(ident, op);
+            if (ident != Token::ident::os_version) {
+                this->throw_operator_error(index, op);
+            }
+            return c;
+        }
+
         Cfg cfg_str(Token::ident ident, Cfg::Op op) {
+            const std::size_t index = lexer.index;
             if (const auto t = lexer.next()) {
                 if (t->kind == Token::String) {
                     return { ident, op, t->str };
                 } else {
-                    throw cfg::syntax_error("expected a string, found {}");
+                    std::string msg = std::string(index + 1, ' ');
+                    msg += "^";
+                    msg += std::string(lexer.index - index - 2, '-');
+                    msg += " expected a string";
+                    throw cfg::syntax_error(lexer.str + "\n" + msg);
                 }
             } else {
-                throw cfg::syntax_error("expected a string, found nothing");
+                std::string msg = std::string(index, ' ');
+                msg += "^ expected a string, but cfg expression ended";
+                throw cfg::syntax_error(lexer.str + "\n" + msg);
             }
         }
 
@@ -751,21 +806,33 @@ namespace poac::util::cfg {
         }
 
         void eat_left_paren(Token::ident prev) {
+            const std::size_t index = lexer.index;
             if (const auto token = lexer.next()) {
                 if (token->kind != Token::LeftParen) {
-                    throw cfg::syntax_error("excepted '(' after `" + to_string(prev) + "`");
+                    std::string msg = std::string(index, ' ');
+                    msg += "^ excepted '(' after `" + to_string(prev) + "`";
+                    throw cfg::syntax_error(lexer.str + "\n" + msg);
                 }
             } else {
-                throw cfg::syntax_error("expected '(', but cfg expr ended");
+                std::string msg = std::string(index, ' ');
+                msg += "^ expected '(', but cfg expression ended";
+                throw cfg::syntax_error(lexer.str + "\n" + msg);
             }
         }
         void eat_right_paren() {
+            const std::size_t index = lexer.index;
             if (const auto token = lexer.next()) {
                 if (token->kind != Token::RightParen) {
-                    throw cfg::syntax_error("excepted ')' to match this '('");
+                    std::string msg = std::string(index, ' ');
+                    msg += "^";
+                    msg += std::string(lexer.index - index - 1, '-');
+                    msg += " excepted ')'";
+                    throw cfg::syntax_error(lexer.str + "\n" + msg);
                 }
             } else {
-                throw cfg::syntax_error("expected ')', but cfg expr ended");
+                std::string msg = std::string(index, ' ');
+                msg += "^ expected ')', but cfg expression ended";
+                throw cfg::syntax_error(lexer.str + "\n" + msg);
             }
         }
     };

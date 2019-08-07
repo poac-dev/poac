@@ -42,17 +42,29 @@ namespace poac::io::config {
 
             msg += std::string(line.size(), ' ');
             msg +=  "|" + std::string(index - line.size() - 1, ' ') + result[1];
-            throw util::cfg::string_error(msg);
+            throw Exception(msg);
         }
 
         [[noreturn]] inline void
         rethrow_cfg_exception(const util::cfg::string_error& e, const toml::value& v) {
             rethrow_cfg_exception(e, v, "missing terminating '\"' character");
         }
-
         [[noreturn]] inline void
         rethrow_cfg_exception(const util::cfg::ident_error& e, const toml::value& v) {
             rethrow_cfg_exception(e, v, "cfg expected parens, a comma, an identifier, or a string");
+        }
+        [[noreturn]] inline void
+        rethrow_cfg_exception(const util::cfg::operator_error& e, const toml::value& v) {
+            rethrow_cfg_exception(e, v, "cfg operator error");
+        }
+        [[noreturn]] inline void
+        rethrow_cfg_exception(const util::cfg::expr_error& e, const toml::value& v) {
+            throw util::cfg::expr_error(toml::format_error(
+                    "cfg expression error", v, e.what()));
+        }
+        [[noreturn]] inline void
+        rethrow_cfg_exception(const util::cfg::syntax_error& e, const toml::value& v) {
+            rethrow_cfg_exception(e, v, "cfg syntax error");
         }
 
         //
@@ -574,10 +586,22 @@ namespace poac::io::config {
             const auto target = toml::find<toml::table>(v, "target");
             for (const auto& [key, value] : target) {
                 try {
-                    util::cfg::parse(key);
+                    std::cout << "util::cfg::parse will parse " << key << std::endl;
+                    if (util::cfg::parse(key).match()) {
+                        std::cout << "match!" << std::endl;
+                    } else {
+                        std::cout << "unmatch..." << std::endl;
+                    }
+                    std::cout << std::endl;
                 } catch (const util::cfg::string_error& e) {
                     detail::rethrow_cfg_exception(e, target.at(key));
                 } catch (const util::cfg::ident_error& e) {
+                    detail::rethrow_cfg_exception(e, target.at(key));
+                } catch (const util::cfg::operator_error& e) {
+                    detail::rethrow_cfg_exception(e, target.at(key));
+                } catch (const util::cfg::expr_error& e) {
+                    detail::rethrow_cfg_exception(e, target.at(key));
+                } catch (const util::cfg::syntax_error& e) {
                     detail::rethrow_cfg_exception(e, target.at(key));
                 }
 
