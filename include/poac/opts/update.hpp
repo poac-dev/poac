@@ -51,12 +51,12 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    all_update(std::future<std::optional<io::config::Config>>&& config, update::Options&& opts) {
+    all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
         namespace fs = boost::filesystem;
         namespace resolve = core::resolver::resolve;
         using io::path::path_literals::operator""_path;
 
-        const auto deps = install::resolve_packages(config.get()->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
+        const auto deps = install::resolve_packages(config->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
         resolve::ResolvedDeps resolved_deps = resolve::resolve(deps);
         resolve::NoDuplicateDeps update_deps;
 
@@ -132,7 +132,7 @@ namespace poac::opts::update {
                 "Please execute install command before executing update command."
             };
         } else if (opts.all) {
-            return all_update(std::move(config), std::move(opts));
+            return all_update(config.get(), std::move(opts));
         } else {
             return individually_update();
         }
