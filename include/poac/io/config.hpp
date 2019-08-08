@@ -15,6 +15,7 @@
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/cfg.hpp>
+#include <poac/util/types.hpp>
 
 namespace poac::io::config {
     namespace detail {
@@ -25,7 +26,7 @@ namespace poac::io::config {
                     what.substr(what.rfind(' ', what.find('\n'))));
         }
 
-        [[noreturn]] inline void
+        [[noreturn]] void
         rethrow_cfg_exception(const util::cfg::exception& e, const toml::value& v) {
             const std::string what = e.what();
             std::vector<std::string> result;
@@ -335,6 +336,87 @@ namespace poac::io::config {
             return find_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
         }
 
+        template <typename Field>
+        inline void
+        field_from_toml(Field& f, const toml::value& v, const toml::key& k) {
+            f = detail::find_force<Field>(v, k);
+        }
+        template <typename Field>
+        inline void
+        field_from_toml(std::optional<Field>& f, const toml::value& v, const toml::key& k) {
+            f = detail::find_force_opt<Field>(v, k);
+        }
+        template <typename Field, typename Default>
+        inline void
+        field_from_toml(Field& f, const toml::value& v, const toml::key& k, Default&& d) {
+            f = detail::find_force_opt<Field>(v, k).value_or(d);
+        }
+
+        template <typename Field>
+        inline void
+        field_into_toml(toml::table& t, const toml::key& k, const Field& f) {
+            t.emplace(k, f);
+        }
+        template <typename Field>
+        inline void
+        field_into_toml(toml::table& t, const toml::key& k, const std::optional<Field>& f) {
+            if (f.has_value()) {
+                t.emplace(k, f.value());
+            }
+        }
+
+        template <typename Field,
+            std::enable_if_t<
+                std::is_same_v<
+                    Field,
+                    std::vector<
+                        typename Field::value_type,
+                        typename Field::allocator_type
+                    >
+                >,
+                std::nullptr_t
+            > = nullptr>
+        inline void
+        merge(Field& f, const Field& f2) {
+            f.insert(f.end(), f2.cbegin(), f2.cend());
+        }
+        template <typename Field,
+            std::enable_if_t<
+                std::is_same_v<
+                    Field,
+                    std::unordered_map<
+                        typename Field::key_type,
+                        typename Field::mapped_type
+                    >
+                >,
+                std::nullptr_t
+            > = nullptr>
+        inline void
+        merge(Field& f, const Field& f2) {
+            f.insert(f2.cbegin(), f2.cend());
+        }
+        template <typename Field>
+        inline auto
+        merge(Field& f, const Field& f2) -> decltype(f.merge(f2), void()) {
+            f.merge(f2);
+        }
+        template <typename Field>
+        inline void
+        merge(std::optional<Field>& f, const std::optional<Field>& f2) {
+            if (f2.has_value()) {
+                if (f.has_value()) {
+                    merge(f.value(), f2.value());
+                } else {
+                    f = f2;
+                }
+            }
+        }
+        template <typename Field>
+        inline void
+        merge(std::optional<Field>& f, const toml::value& v, const toml::key& k) {
+            merge(f, detail::find_force_opt<Field>(v, k));
+        }
+
         inline boost::system::error_code ec{};
 
         std::optional<std::string>
@@ -370,168 +452,172 @@ namespace poac::io::config {
         std::optional<std::string> default_run; // optional
 
         void from_toml(const toml::value& v) {
-            name = detail::find_force<decltype(name)>(v, "name");
-            version = detail::find_force<decltype(version)>(v, "version");
-            authors = detail::find_force_opt<decltype(authors)::value_type>(v, "authors");
-            cpp = detail::find_enum_opt<decltype(cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
-            build = detail::find_force_opt<decltype(build)::value_type>(v, "build");
-            links = detail::find_force_opt<decltype(links)::value_type>(v, "links");
-            exclude = detail::find_force_opt<decltype(exclude)::value_type>(v, "exclude");
-            include = detail::find_force_opt<decltype(include)::value_type>(v, "include");
-            publish = detail::find_opt<decltype(publish)::value_type>(v, "publish");
-            workspace = detail::find_force_opt<decltype(workspace)::value_type>(v, "workspace");
-            description = detail::find_force_opt<decltype(description)::value_type>(v, "description");
-            documentation = detail::find_force_opt<decltype(documentation)::value_type>(v, "documentation");
-            homepage = detail::find_force_opt<decltype(homepage)::value_type>(v, "homepage");
-            repository = detail::find_force_opt<decltype(repository)::value_type>(v, "repository");
-            readme = detail::find_force_opt<decltype(readme)::value_type>(v, "readme");
-            license = detail::find_force_opt<decltype(license)::value_type>(v, "license");
-            license_file = detail::find_force_opt<decltype(license_file)::value_type>(v, "license-file");
-            default_run = detail::find_force_opt<decltype(default_run)::value_type>(v, "default-run");
+            detail::field_from_toml(this->name, v, "name");
+            detail::field_from_toml(this->version, v, "version");
+            detail::field_from_toml(this->authors, v, "authors");
+            this->cpp = detail::find_enum_opt<decltype(this->cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
+            detail::field_from_toml(this->build, v, "build");
+            detail::field_from_toml(this->links, v, "links");
+            detail::field_from_toml(this->exclude, v, "exclude");
+            detail::field_from_toml(this->include, v, "include");
+            this->publish = detail::find_opt<decltype(this->publish)::value_type>(v, "publish");
+            detail::field_from_toml(this->workspace, v, "workspace");
+            detail::field_from_toml(this->description, v, "description");
+            detail::field_from_toml(this->documentation, v, "documentation");
+            detail::field_from_toml(this->homepage, v, "homepage");
+            detail::field_from_toml(this->repository, v, "repository");
+            detail::field_from_toml(this->readme, v, "readme");
+            detail::field_from_toml(this->license, v, "license");
+            detail::field_from_toml(this->license_file, v, "license-file");
+            detail::field_from_toml(this->default_run, v, "default-run");
         }
         toml::table into_toml() const {
             toml::table t{};
-            t.emplace("name", name);
-            t.emplace("version", version);
-            if (authors.has_value()) {
-                t.emplace("authors", authors.value());
-            }
-            t.emplace("cpp", cpp);
-            if (build.has_value()) {
-                t.emplace("build", build.value());
-            }
-            if (links.has_value()) {
-                t.emplace("links", links.value());
-            }
-            if (exclude.has_value()) {
-                t.emplace("exclude", exclude.value());
-            }
-            if (include.has_value()) {
-                t.emplace("include", include.value());
-            }
-            if (publish.has_value()) {
-                t.emplace("publish", publish.value());
-            }
-            if (workspace.has_value()) {
-                t.emplace("workspace", workspace.value());
-            }
-            if (description.has_value()) {
-                t.emplace("description", description.value());
-            }
-            if (documentation.has_value()) {
-                t.emplace("documentation", documentation.value());
-            }
-            if (homepage.has_value()) {
-                t.emplace("homepage", homepage.value());
-            }
-            if (repository.has_value()) {
-                t.emplace("repository", repository.value());
-            }
-            if (readme.has_value()) {
-                t.emplace("readme", readme.value());
-            }
-            if (license.has_value()) {
-                t.emplace("license", license.value());
-            }
-            if (license_file.has_value()) {
-                t.emplace("license-file", license_file.value());
-            }
-            if (default_run.has_value()) {
-                t.emplace("default-run", default_run.value());
-            }
+            detail::field_into_toml(t, "name", this->name);
+            detail::field_into_toml(t, "version", this->version);
+            detail::field_into_toml(t, "authors", this->authors);
+            detail::field_into_toml(t, "cpp", this->cpp);
+            detail::field_into_toml(t, "build", this->build);
+            detail::field_into_toml(t, "links", this->links);
+            detail::field_into_toml(t, "exclude", this->exclude);
+            detail::field_into_toml(t, "include", this->include);
+            detail::field_into_toml(t, "publish", this->publish);
+            detail::field_into_toml(t, "workspace", this->workspace);
+            detail::field_into_toml(t, "description", this->description);
+            detail::field_into_toml(t, "documentation", this->documentation);
+            detail::field_into_toml(t, "homepage", this->homepage);
+            detail::field_into_toml(t, "repository", this->repository);
+            detail::field_into_toml(t, "readme", this->readme);
+            detail::field_into_toml(t, "license", this->license);
+            detail::field_into_toml(t, "license-file", this->license_file);
+            detail::field_into_toml(t, "default-run", this->default_run);
             return t;
         }
     };
 
     // https://doc.poac.pm/en/reference/manifest.html#the-profile-sections
     struct ProfileUnder {
-        std::string opt_level; // optional with default
-        bool debug; // optional with default
-        bool lto; // optional with default
-        bool incremental; // optional with default
+        virtual ~ProfileUnder() noexcept = default;
 
+        std::optional<std::vector<std::string>> definitions; // optional (merge)
+        std::optional<std::vector<std::string>> options; // optional (merge)
+        std::optional<std::vector<std::string>> libraries; // optional (merge)
+        std::optional<std::vector<std::string>> include_directories; // optional (merge)
+        std::optional<std::vector<std::string>> link_directories; // optional (merge)
+        std::optional<std::string> compiler; // optional (overwrite)
+        std::string opt_level; // optional with default (overwrite)
+        bool debug; // optional with default (overwrite)
+        bool lto; // optional with default (overwrite)
+        bool incremental; // optional with default (overwrite)
+
+        virtual void from_toml(const toml::value& v) {
+            detail::field_from_toml(this->definitions, v, "definitions");
+            detail::field_from_toml(this->options, v, "options");
+            detail::field_from_toml(this->libraries, v, "libraries");
+            detail::field_from_toml(this->include_directories, v, "include-directories");
+            detail::field_from_toml(this->link_directories, v, "link-directories");
+            detail::field_from_toml(this->compiler, v, "compiler");
+        }
         toml::table into_toml() const {
-            return {
-                { "opt-level", opt_level },
-                { "debug", debug },
-                { "lto", lto },
-                { "incremental", incremental }
-            };
+            toml::table t{};
+            detail::field_into_toml(t, "definitions", this->definitions);
+            detail::field_into_toml(t, "options", this->options);
+            detail::field_into_toml(t, "libraries", this->libraries);
+            detail::field_into_toml(t, "include-directories", this->include_directories);
+            detail::field_into_toml(t, "link-directories", this->link_directories);
+            detail::field_into_toml(t, "compiler", this->compiler);
+            detail::field_into_toml(t, "opt-level", this->opt_level);
+            detail::field_into_toml(t, "debug", this->debug);
+            detail::field_into_toml(t, "lto", this->lto);
+            detail::field_into_toml(t, "incremental", this->incremental);
+            return t;
+        }
+
+        void merge(const ProfileUnder& profile) {
+            detail::merge(this->definitions, profile.definitions);
+            detail::merge(this->options, profile.options);
+            detail::merge(this->libraries, profile.libraries);
+            detail::merge(this->include_directories, profile.include_directories);
+            detail::merge(this->link_directories, profile.link_directories);
+            if (profile.compiler.has_value()) {
+                this->compiler = profile.compiler.value();
+            }
+            this->opt_level = profile.opt_level;
+            this->debug = profile.debug;
+            this->lto = profile.lto;
+            this->incremental = profile.incremental;
         }
     };
-    struct ProfileDev : ProfileUnder {
-        void from_toml(const toml::value& v) {
-            opt_level = detail::find_force_opt<decltype(opt_level)>(v, "opt-level").value_or("0");
-            debug = detail::find_force_opt<decltype(debug)>(v, "debug").value_or(true);
-            lto = detail::find_force_opt<decltype(lto)>(v, "lto").value_or(false);
-            incremental = detail::find_force_opt<decltype(incremental)>(v, "incremental").value_or(true);
+    struct ProfileDev : public ProfileUnder {
+        void from_toml(const toml::value& v) override {
+            ProfileUnder::from_toml(v);
+            detail::field_from_toml(this->opt_level, v, "opt-level", "0");
+            detail::field_from_toml(this->debug, v, "debug", true);
+            detail::field_from_toml(this->lto, v, "lto", false);
+            detail::field_from_toml(this->incremental, v, "incremental", true);
         }
     };
-    struct ProfileRelease : ProfileUnder {
-        void from_toml(const toml::value& v) {
-            opt_level = detail::find_force_opt<decltype(opt_level)>(v, "opt-level").value_or("3");
-            debug = detail::find_force_opt<decltype(debug)>(v, "debug").value_or(false);
-            lto = detail::find_force_opt<decltype(lto)>(v, "lto").value_or(false);
-            incremental = detail::find_force_opt<decltype(incremental)>(v, "incremental").value_or(false);
+    struct ProfileRelease : public ProfileUnder {
+        void from_toml(const toml::value& v) override {
+            ProfileUnder::from_toml(v);
+            detail::field_from_toml(this->opt_level, v, "opt-level", "3");
+            detail::field_from_toml(this->debug, v, "debug", false);
+            detail::field_from_toml(this->lto, v, "lto", false);
+            detail::field_from_toml(this->incremental, v, "incremental", false);
         }
     };
     struct Profile {
-        std::optional<std::vector<std::string>> definitions; // optional
-        std::optional<std::vector<std::string>> options; // optional
-        std::optional<std::vector<std::string>> libraries; // optional
-        std::optional<std::vector<std::string>> include_directories; // optional
-        std::optional<std::vector<std::string>> link_directories; // optional
-        std::optional<std::string> compiler; // optional
+        std::optional<std::vector<std::string>> definitions; // optional (merge)
+        std::optional<std::vector<std::string>> options; // optional (merge)
+        std::optional<std::vector<std::string>> libraries; // optional (merge)
+        std::optional<std::vector<std::string>> include_directories; // optional (merge)
+        std::optional<std::vector<std::string>> link_directories; // optional (merge)
+        std::optional<std::string> compiler; // optional (overwrite) (If this is specified in dev etc., it will take precedence.)
         std::optional<ProfileDev> dev; // optional
         std::optional<ProfileRelease> release; // optional
         std::optional<ProfileDev> test; // optional
         std::optional<ProfileRelease> bench; // optional
 
         void from_toml(const toml::value& v) {
-            definitions = detail::find_force_opt<decltype(definitions)::value_type>(v, "definitions");
-            options = detail::find_force_opt<decltype(options)::value_type>(v, "options");
-            libraries = detail::find_force_opt<decltype(libraries)::value_type>(v, "libraries");
-            include_directories = detail::find_force_opt<decltype(include_directories)::value_type>(v, "include-directories");
-            link_directories = detail::find_force_opt<decltype(link_directories)::value_type>(v, "link-directories");
-            compiler = detail::find_force_opt<decltype(compiler)::value_type>(v, "compiler");
-            dev = detail::find_force_opt<decltype(dev)::value_type>(v, "dev");
-            release = detail::find_force_opt<decltype(release)::value_type>(v, "release");
-            test = detail::find_force_opt<decltype(test)::value_type>(v, "test");
-            bench = detail::find_force_opt<decltype(bench)::value_type>(v, "bench");
+            detail::field_from_toml(this->definitions, v, "definitions");
+            detail::field_from_toml(this->options, v, "options");
+            detail::field_from_toml(this->libraries, v, "libraries");
+            detail::field_from_toml(this->include_directories, v, "include-directories");
+            detail::field_from_toml(this->link_directories, v, "link-directories");
+            detail::field_from_toml(this->compiler, v, "compiler");
+            detail::field_from_toml(this->dev, v, "dev");
+            detail::field_from_toml(this->release, v, "release");
+            detail::field_from_toml(this->test, v, "test");
+            detail::field_from_toml(this->bench, v, "bench");
         }
         toml::table into_toml() const {
             toml::table t{};
-            if (definitions.has_value()) {
-                t.emplace("definitions", definitions.value());
-            }
-            if (options.has_value()) {
-                t.emplace("options", options.value());
-            }
-            if (libraries.has_value()) {
-                t.emplace("libraries", libraries.value());
-            }
-            if (include_directories.has_value()) {
-                t.emplace("include-directories", include_directories.value());
-            }
-            if (link_directories.has_value()) {
-                t.emplace("link-directories", link_directories.value());
-            }
-            if (compiler.has_value()) {
-                t.emplace("compiler", compiler.value());
-            }
-            if (dev.has_value()) {
-                t.emplace("dev", dev.value());
-            }
-            if (release.has_value()) {
-                t.emplace("release", release.value());
-            }
-            if (test.has_value()) {
-                t.emplace("test", test.value());
-            }
-            if (bench.has_value()) {
-                t.emplace("bench", bench.value());
-            }
+            detail::field_into_toml(t, "definitions", this->definitions);
+            detail::field_into_toml(t, "options", this->options);
+            detail::field_into_toml(t, "libraries", this->libraries);
+            detail::field_into_toml(t, "include-directories", this->include_directories);
+            detail::field_into_toml(t, "link-directories", this->link_directories);
+            detail::field_into_toml(t, "compiler", this->compiler);
+            detail::field_into_toml(t, "dev", this->dev);
+            detail::field_into_toml(t, "release", this->release);
+            detail::field_into_toml(t, "test", this->test);
+            detail::field_into_toml(t, "bench", this->bench);
             return t;
+        }
+
+        void merge(const Profile& profile) {
+            detail::merge(this->definitions, profile.definitions);
+            detail::merge(this->options, profile.options);
+            detail::merge(this->libraries, profile.libraries);
+            detail::merge(this->include_directories, profile.include_directories);
+            detail::merge(this->link_directories, profile.link_directories);
+            if (profile.compiler.has_value()) {
+                this->compiler = profile.compiler.value();
+            }
+            detail::merge(this->dev, profile.dev);
+            detail::merge(this->release, profile.release);
+            detail::merge(this->test, profile.test);
+            detail::merge(this->bench, profile.bench);
         }
     };
 
@@ -541,76 +627,62 @@ namespace poac::io::config {
         std::string path; // required
 
         void from_toml(const toml::value& v) {
-            name = detail::find_force<decltype(name)>(v, "name");
-            path = detail::find_force<decltype(path)>(v, "path");
+            detail::field_from_toml(this->name, v, "name");
+            detail::field_from_toml(this->path, v, "path");
         }
         toml::table into_toml() const {
             return {
-                { "name", name },
-                { "path", path }
+                { "name", this->name },
+                { "path", this->path }
             };
         }
     };
 
     struct Config {
-        Package package;
-        std::optional<std::unordered_map<std::string, std::string>> dependencies;
-        std::optional<std::unordered_map<std::string, std::string>> dev_dependencies;
-        std::optional<std::unordered_map<std::string, std::string>> build_dependencies;
-        std::optional<Profile> profile;
-        std::optional<std::vector<Bin>> bin;
+    private:
+        using dependencies_type = std::unordered_map<std::string, std::string>;
+
+    public:
+        Package package; // required
+        std::optional<dependencies_type> dependencies; // optional and platform-specific field (merge)
+        std::optional<dependencies_type> dev_dependencies; // optional and platform-specific field (merge)
+        std::optional<dependencies_type> build_dependencies; // optional and platform-specific field (merge)
+        std::optional<Profile> profile; // optional and platform-specific field (merge)
+        std::optional<std::vector<Bin>> bin; // optional
 
         void from_toml(const toml::value& v) {
-            package = toml::find<decltype(package)>(v, "package");
-            dependencies = detail::find_force_opt<decltype(dependencies)::value_type>(v, "dependencies");
-            dev_dependencies = detail::find_force_opt<decltype(dev_dependencies)::value_type>(v, "dev-dependencies");
-            build_dependencies = detail::find_force_opt<decltype(build_dependencies)::value_type>(v, "build-dependencies");
-            profile = detail::find_force_opt<decltype(profile)::value_type>(v, "profile");
-            bin = detail::find_force_opt<decltype(bin)::value_type>(v, "bin");
-
+            detail::field_from_toml(this->package, v, "package");
+            detail::field_from_toml(this->dependencies, v, "dependencies");
+            detail::field_from_toml(this->dev_dependencies, v, "dev-dependencies");
+            detail::field_from_toml(this->build_dependencies, v, "build-dependencies");
+            detail::field_from_toml(this->profile, v, "profile");
+            detail::field_from_toml(this->bin, v, "bin");
             const auto target = toml::find<toml::table>(v, "target");
             for (const auto& [key, value] : target) {
                 try {
-                    std::cout << "util::cfg::parse will parse " << key << std::endl;
                     if (util::cfg::parse(key).match()) {
-                        std::cout << "match!" << std::endl;
-                    } else {
-                        std::cout << "unmatch..." << std::endl;
+                        detail::merge(this->dependencies, value, "dependencies");
+                        detail::merge(this->dev_dependencies, value, "dev-dependencies");
+                        detail::merge(this->build_dependencies, value, "build-dependencies");
+                        detail::merge(this->profile, value, "profile");
                     }
-                    std::cout << std::endl;
                 } catch (const util::cfg::expression_error& e) {
                     detail::rethrow_cfg_expr_error(e, target.at(key));
                 } catch (const util::cfg::exception& e) {
                     detail::rethrow_cfg_exception(e, target.at(key));
                 }
-
-//                if (util::cfg::parse(key)) {
-//                    const auto dependencies2 = detail::find_force_opt<decltype(profile)::value_type>(value, "profile");
-//                    dependencies.value().insert(profile.value().end(), profile2.begin(), profile2.end());
-//                    const auto profile2 = detail::find_force_opt<decltype(profile)::value_type>(value, "profile");
-//                    profile.value().insert(profile.value().end(), profile2.begin(), profile2.end());
-//                }
             }
         }
         toml::table into_toml() const {
             toml::table t{};
-            t.emplace("package", package);
-            if (dependencies.has_value()) {
-                t.emplace("dependencies", dependencies.value());
-            }
-            if (dev_dependencies.has_value()) {
-                t.emplace("dev-dependencies", dev_dependencies.value());
-            }
-            if (build_dependencies.has_value()) {
-                t.emplace("build-dependencies", build_dependencies.value());
-            }
-            if (profile.has_value()) {
-                t.emplace("properties", profile.value());
-            }
-            if (bin.has_value()) {
-                t.emplace("bin", bin.value());
-            }
+            detail::field_into_toml(t, "package", this->package);
+            detail::field_into_toml(t, "dependencies", this->dependencies);
+            detail::field_into_toml(t, "dev-dependencies", this->dev_dependencies);
+            detail::field_into_toml(t, "build-dependencies", this->build_dependencies);
+            detail::field_into_toml(t, "profile", this->profile);
+            detail::field_into_toml(t, "bin", this->bin);
             return t;
+            // FIXME: target is not restored
         }
     };
 
