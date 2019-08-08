@@ -9,6 +9,7 @@
 namespace clap {
     class app {
         std::string m_name;
+        std::string m_version;
         std::string m_about;
         std::vector<clap::arg> m_args;
         std::vector<clap::subcommand> m_subcmds;
@@ -22,6 +23,8 @@ namespace clap {
         app& operator=(const app&) = default;
         app(app&&) = default;
         app& operator=(app&&) = default;
+
+        app& version(const std::string&);
 
         app& about(const std::string&);
 
@@ -46,6 +49,12 @@ namespace clap {
     app&
     app::arg(clap::arg&& arg) {
         this->m_args.emplace_back(std::move(arg));
+        return *this;
+    }
+
+    app&
+    app::version(const std::string& version) {
+        this->m_version = version;
         return *this;
     }
 

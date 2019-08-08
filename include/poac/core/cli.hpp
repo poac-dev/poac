@@ -39,6 +39,7 @@ namespace poac::core::cli {
 
     const clap::app cli =
             clap::app("poac")
+                .version(POAC_VERSION)
                 .arg(clap::opt("version", "Print version info and exit").short_("V"))
                 .arg(clap::opt("list", "List installed commands"))
                 .arg(
