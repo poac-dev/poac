@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_UPDATE_HPP
 #define POAC_OPTS_UPDATE_HPP
 
+#include <future>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -50,12 +51,12 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
+    all_update(std::future<std::optional<io::config::Config>>&& config, update::Options&& opts) {
         namespace fs = boost::filesystem;
         namespace resolve = core::resolver::resolve;
         using io::path::path_literals::operator""_path;
 
-        const auto deps = install::resolve_packages(config->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
+        const auto deps = install::resolve_packages(config.get()->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
         resolve::ResolvedDeps resolved_deps = resolve::resolve(deps);
         resolve::NoDuplicateDeps update_deps;
 
@@ -124,7 +125,7 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    update(std::optional<io::config::Config>&& config, update::Options&& opts) {
+    update(std::future<std::optional<io::config::Config>>&& config, update::Options&& opts) {
         if (!io::path::validate_dir("deps")) {
             return core::except::Error::General{
                 "Could not find deps directory.\n"
@@ -138,7 +139,7 @@ namespace poac::opts::update {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         update::Options opts{};
         opts.yes = util::argparse::use(args, "-y", "--yes");
         opts.all = util::argparse::use(args, "-a", "--all");

@@ -2,6 +2,7 @@
 #define POAC_OPTS_RUN_HPP
 
 #include <algorithm>
+#include <future>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -62,7 +63,7 @@ namespace poac::opts::run {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         run::Options opts{};
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         // poac run -v -- -h build

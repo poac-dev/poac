@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_UNINSTALL_HPP
 #define POAC_OPTS_UNINSTALL_HPP
 
+#include <future>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -224,16 +225,16 @@ namespace poac::opts::uninstall {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    uninstall(std::optional<io::config::Config>&& config, uninstall::Options&& opts) {
+    uninstall(std::future<std::optional<io::config::Config>>&& config, uninstall::Options&& opts) {
         if (opts.all) {
             return all(std::move(opts));
         } else {
-            return individual(std::move(config), std::move(opts));
+            return individual(config.get(), std::move(opts));
         }
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         if (args.empty()) {
             return core::except::Error::InvalidSecondArg::Uninstall;
         }

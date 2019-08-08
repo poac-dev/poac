@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_TEST_HPP
 #define POAC_OPTS_TEST_HPP
 
+#include <future>
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -66,7 +67,7 @@ namespace poac::opts::test {
 //    }
 
     [[nodiscard]] std::optional<core::except::Error>
-    test(std::optional<io::config::Config>&&, test::Options&&) {
+    test(std::future<std::optional<io::config::Config>>&&, test::Options&&) {
         namespace fs = boost::filesystem;
         using namespace termcolor2::color_literals;
 
@@ -152,7 +153,7 @@ namespace poac::opts::test {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         test::Options opts{};
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         opts.report = util::argparse::use(args, "--report");

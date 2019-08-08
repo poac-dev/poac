@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_CACHE_HPP
 #define POAC_OPTS_CACHE_HPP
 
+#include <future>
 #include <iostream>
 #include <string>
 #include <regex>
@@ -98,7 +99,7 @@ namespace poac::opts::cache {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         if (args.empty()) {
             return core::except::Error::InvalidSecondArg::Cache;
         }

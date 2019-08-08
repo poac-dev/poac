@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_NEW_HPP
 #define POAC_OPTS_NEW_HPP
 
+#include <future>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -185,7 +186,7 @@ namespace poac::opts::_new {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         _new::Options opts{};
         const bool bin = util::argparse::use_rm(args, "-b", "--bin");
         const bool lib = util::argparse::use_rm(args, "-l", "--lib");

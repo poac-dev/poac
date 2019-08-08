@@ -1,12 +1,14 @@
 #ifndef POAC_CORE_CLI_HPP
 #define POAC_CORE_CLI_HPP
 
+#include <functional>
+#include <future>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
+#include <thread>
 #include <unordered_map>
-#include <functional>
-#include <optional>
+#include <vector>
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
@@ -53,7 +55,7 @@ namespace poac::core::cli {
 //                .fooks(cli::builtin_exec())
             ;
 
-    using arg1_type = std::optional<io::config::Config>;
+    using arg1_type = std::future<std::optional<io::config::Config>>;
     using arg2_type = std::vector<std::string>;
     using ret_type = std::optional<except::Error>;
     using fn_type = std::function<ret_type(arg1_type, arg2_type)>;
@@ -77,7 +79,7 @@ namespace poac::core::cli {
         { "test",      opts::test::exec },
         { "uninstall", opts::uninstall::exec },
         { "update",    opts::update::exec },
-        { "version",   opts::version::exec },
+        { "version",   opts::version::exec }, //
         { "--version", opts::version::exec }, //
         { "-v",        opts::version::exec }, //
     };
@@ -89,7 +91,9 @@ namespace poac::core::cli {
         } catch(std::out_of_range&) {
             return except::Error::InvalidFirstArg;
         }
-        return opts_map.at(cmd)(io::config::load(), std::move(args));
+        return opts_map.at(cmd)(
+                std::async(std::launch::async, io::config::load, io::path::current),
+                std::move(args));
     }
 }
 #endif // !POAC_CORE_CLI_HPP

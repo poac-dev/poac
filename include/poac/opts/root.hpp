@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_ROOT_HPP
 #define POAC_OPTS_ROOT_HPP
 
+#include <future>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -19,7 +20,7 @@ namespace poac::opts::root {
 
     // Reference: https://www.boost.org/doc/libs/1_65_1/doc/html/boost/dll/program_location.html
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&&) {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&&) {
         boost::system::error_code ec;
         const auto loc = boost::dll::program_location(ec);
         if (ec) {

@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_HELP_HPP
 #define POAC_OPTS_HELP_HPP
 
+#include <future>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -117,7 +118,7 @@ namespace poac::opts::help {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         help::Options opts{};
         if (args.size() == 0) {
             opts.type = help::Options::Type::Summary;

@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_VERSION_HPP
 #define POAC_OPTS_VERSION_HPP
 
+#include <future>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -16,7 +17,7 @@ namespace poac::opts::version {
             ;
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&&) noexcept {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&&) noexcept {
         std::cout << POAC_VERSION << std::endl;
         return std::nullopt;
     }

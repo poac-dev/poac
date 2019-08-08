@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_SEARCH_HPP
 #define POAC_OPTS_SEARCH_HPP
 
+#include <future>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -125,7 +126,7 @@ namespace poac::opts::search {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&&, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         if (args.size() != 1) {
             return core::except::Error::InvalidSecondArg::Search;
         }

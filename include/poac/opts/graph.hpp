@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_GRAPH_HPP
 #define POAC_OPTS_GRAPH_HPP
 
+#include <future>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -63,10 +64,10 @@ namespace poac::opts::graph {
     }
 
     std::pair<Graph, std::vector<std::string>>
-    create_graph(std::optional<io::config::Config>&& config) {
+    create_graph(std::future<std::optional<io::config::Config>>&& config) {
         const auto lockfile = io::lockfile::load();
 
-        const auto resolved_deps = create_resolved_deps(std::move(config));
+        const auto resolved_deps = create_resolved_deps(config.get());
         Graph g;
 
         // Add vertex
@@ -97,7 +98,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    dot_file_output(std::optional<io::config::Config>&& config, graph::Options&& opts) {
+    dot_file_output(std::future<std::optional<io::config::Config>>&& config, graph::Options&& opts) {
         const auto [g, names] = create_graph(std::move(config));
         std::ofstream file(opts.output_file->string());
         boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
@@ -106,7 +107,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    png_file_output(std::optional<io::config::Config>&& config, graph::Options&& opts) {
+    png_file_output(std::future<std::optional<io::config::Config>>&& config, graph::Options&& opts) {
         if (util::_shell::has_command("dot")) {
             const auto [g, names] = create_graph(std::move(config));
 
@@ -127,7 +128,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    file_output(std::optional<io::config::Config>&& config, graph::Options&& opts) {
+    file_output(std::future<std::optional<io::config::Config>>&& config, graph::Options&& opts) {
         if (opts.output_file->extension() == ".png") {
             return png_file_output(std::move(config), std::move(opts));
         } else if (opts.output_file->extension() == ".dot") {
@@ -140,7 +141,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    console_output(std::optional<io::config::Config>&& config) {
+    console_output(std::future<std::optional<io::config::Config>>&& config) {
         const auto [g, names] = create_graph(std::move(config));
         (void)names; // error: unused variable
         boost::graph_traits<Graph>::edge_iterator itr, end;
@@ -152,7 +153,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    graph(std::optional<io::config::Config>&& config, graph::Options&& opts) {
+    graph(std::future<std::optional<io::config::Config>>&& config, graph::Options&& opts) {
         if (opts.output_file) {
             return file_output(std::move(config), std::move(opts));
         } else {
@@ -161,7 +162,7 @@ namespace poac::opts::graph {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         graph::Options opts{};
         opts.output_file = util::argparse::use_get(args, "-o", "--output");
         return graph::graph(std::move(config), std::move(opts));

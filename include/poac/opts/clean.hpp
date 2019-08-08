@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_CLEAN_HPP
 #define POAC_OPTS_CLEAN_HPP
 
+#include <future>
 #include <iostream>
 #include <string>
 #include <optional>
@@ -23,13 +24,13 @@ namespace poac::opts::clean {
             ;
 
     [[nodiscard]] std::optional<core::except::Error>
-    clean(std::optional<io::config::Config>&& config) {
+    clean(std::future<std::optional<io::config::Config>>&& config) {
         // create resolved deps
         core::resolver::resolve::ResolvedDeps resolved_deps{};
 //        if (const auto locked_deps = core::resolver::lock::load()) {
 //            resolved_deps = locked_deps.value();
 //        } else { // poac.lock does not exist
-            const auto dependencies = config->dependencies.value(); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
+            const auto dependencies = config.get()->dependencies.value(); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
             const core::resolver::resolve::NoDuplicateDeps deps = install::resolve_packages(dependencies);
             resolved_deps = core::resolver::resolve::resolve(deps);
 //        }
@@ -58,7 +59,7 @@ namespace poac::opts::clean {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         if (!args.empty()) {
             return core::except::Error::InvalidSecondArg::Cleanup;
         }

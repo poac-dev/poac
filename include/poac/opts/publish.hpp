@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <future>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -289,7 +290,7 @@ namespace poac::opts::publish {
     }
 
     PackageInfo
-    gather_package_info(const std::optional<io::config::Config>& config) {
+    gather_package_info(std::optional<io::config::Config>&& config) {
         const auto [owner, repo] = core::project::name();
         const semver::Version version = core::project::version();
 
@@ -306,14 +307,14 @@ namespace poac::opts::publish {
     }
 
     PackageInfo
-    report_publish_start(const std::optional<io::config::Config>& config) {
+    report_publish_start(std::future<std::optional<io::config::Config>>&& config) {
         std::cout << "Verifying your package ...\n" << std::endl;
-        return gather_package_info(config);
+        return gather_package_info(config.get());
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    publish(std::optional<io::config::Config>&& config, publish::Options&& opts) {
-        const auto package_info = report_publish_start(config);
+    publish(std::future<std::optional<io::config::Config>>&& config, publish::Options&& opts) {
+        const auto package_info = report_publish_start(std::move(config));
         if (const auto error = verify_package(package_info)) {
             return error;
         }
@@ -332,7 +333,7 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         publish::Options opts{};
         opts.yes = util::argparse::use(args, "-y", "--yes");
         return publish::publish(std::move(config), std::move(opts));

@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_INSTALL_HPP
 #define POAC_OPTS_INSTALL_HPP
 
+#include <future>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -206,7 +207,7 @@ namespace poac::opts::install {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    install(std::optional<io::config::Config>&& config, install::Options&& opts) {
+    install(std::future<std::optional<io::config::Config>>&& config, install::Options&& opts) {
         std::string timestamp = io::config::get_timestamp();
         const auto lockfile = load_lockfile(opts, timestamp);
 
@@ -216,7 +217,7 @@ namespace poac::opts::install {
             deps.emplace(parse_arg_package(v));
         }
         if (!lockfile.has_value()) {
-            if (const auto dependencies = config->dependencies) {
+            if (const auto dependencies = config.get()->dependencies) {
                 const auto resolved_packages = resolve_packages(dependencies.value());
                 deps.insert(resolved_packages.begin(), resolved_packages.end());
             }
@@ -275,7 +276,7 @@ namespace poac::opts::install {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         install::Options opts{};
         opts.quiet = util::argparse::use_rm(args, "-q", "--quite");
         opts.verbose = util::argparse::use_rm(args, "-v", "--verbose") && !opts.quiet;

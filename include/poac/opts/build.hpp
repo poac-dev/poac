@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_BUILD_HPP
 #define POAC_OPTS_BUILD_HPP
 
+#include <future>
 #include <string>
 #include <vector>
 #include <optional>
@@ -27,11 +28,11 @@ namespace poac::opts::build {
     };
 
     [[nodiscard]] std::optional<core::except::Error>
-    build(std::optional<io::config::Config>&& config, build::Options&& opts) {
+    build(std::future<std::optional<io::config::Config>>&& config, build::Options&& opts) {
         // if (const auto error = core::resolver::install_deps()) {
         //    return error;
         // }
-        core::Builder bs(config, opts.mode, opts.verbose);
+        core::Builder bs(config.get(), opts.mode, opts.verbose);
         if (const auto error = bs.build()) {
             return error;
         }
@@ -39,7 +40,7 @@ namespace poac::opts::build {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::optional<io::config::Config>&& config, std::vector<std::string>&& args) {
+    exec(std::future<std::optional<io::config::Config>>&& config, std::vector<std::string>&& args) {
         if (args.size() > 1) {
             return core::except::Error::InvalidSecondArg::Build;
         }
