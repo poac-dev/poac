@@ -475,7 +475,7 @@ namespace poac::util::cfg {
         };
 
         using null_type = std::monostate;
-        using expr_type = std::shared_ptr<CfgExpr>;
+        using expr_type = std::unique_ptr<CfgExpr>;
         using expr_list_type = std::vector<CfgExpr>;
         using variant_type = std::variant<null_type, expr_type, expr_list_type, Cfg>;
 
@@ -487,10 +487,10 @@ namespace poac::util::cfg {
                    : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
             , expr(std::move(expr))
         {}
-        CfgExpr(Kind kind, const expr_list_type& expr)
+        CfgExpr(Kind kind, expr_list_type&& expr)
             : kind(kind == Kind::all || kind == Kind::any ? kind
                    : throw std::invalid_argument("poac::util::cfg::CfgExpr"))
-            , expr(expr)
+            , expr(std::move(expr))
         {}
         CfgExpr(Kind kind, const Cfg& c)
             : kind(kind == Kind::value ? kind
@@ -499,8 +499,8 @@ namespace poac::util::cfg {
         {}
 
         CfgExpr() = delete;
-        CfgExpr(const CfgExpr&) = default;
-        CfgExpr& operator=(const CfgExpr&) = default;
+        CfgExpr(const CfgExpr&) = delete;
+        CfgExpr& operator=(const CfgExpr&) = delete;
         CfgExpr(CfgExpr&&) noexcept = default;
         CfgExpr& operator=(CfgExpr&&) noexcept = default;
         ~CfgExpr() = default;
@@ -657,9 +657,9 @@ namespace poac::util::cfg {
                         }
                     } while (!r_try(Token::RightParen));
                     if (token->id == Token::ident::all) {
-                        return CfgExpr{ CfgExpr::all, e };
+                        return CfgExpr{ CfgExpr::all, std::move(e) };
                     } else {
-                        return CfgExpr{ CfgExpr::any, e };
+                        return CfgExpr{ CfgExpr::any, std::move(e) };
                     }
                 } else if (token->id == Token::ident::not_
                         || token->id == Token::ident::cfg) {
@@ -670,12 +670,12 @@ namespace poac::util::cfg {
                     if (token->id == Token::ident::not_) {
                         return CfgExpr{
                             CfgExpr::not_,
-                            std::make_shared<CfgExpr>(std::move(e))
+                            std::make_unique<CfgExpr>(std::move(e))
                         };
                     } else {
                         return CfgExpr{
                             CfgExpr::cfg,
-                            std::make_shared<CfgExpr>(std::move(e))
+                            std::make_unique<CfgExpr>(std::move(e))
                         };
                     }
                 }
@@ -701,7 +701,6 @@ namespace poac::util::cfg {
                 } else if (this->r_try(Token::LtEq)) {
                     return this->cfg_str(lexer.index, token->id, Cfg::Op::LtEq);
                 }
-                std::cout << "expected operator" << std::endl;
             }
             std::string msg = std::string(lexer.index + 1, ' ');
             msg += "^ expected operator";
