@@ -207,7 +207,7 @@ namespace poac::opts::install {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    install(std::future<std::optional<io::config::Config>>&& config, install::Options&& opts) {
+    install(std::optional<io::config::Config>&& config, install::Options&& opts) {
         std::string timestamp = io::config::get_timestamp();
         const auto lockfile = load_lockfile(opts, timestamp);
 
@@ -217,7 +217,7 @@ namespace poac::opts::install {
             deps.emplace(parse_arg_package(v));
         }
         if (!lockfile.has_value()) {
-            if (const auto dependencies = config.get()->dependencies) {
+            if (const auto dependencies = config->dependencies) {
                 const auto resolved_packages = resolve_packages(dependencies.value());
                 deps.insert(resolved_packages.begin(), resolved_packages.end());
             }
@@ -282,7 +282,7 @@ namespace poac::opts::install {
         opts.verbose = util::argparse::use_rm(args, "-v", "--verbose") && !opts.quiet;
         args.shrink_to_fit();
         opts.package_list = args;
-        return install::install(std::move(config), std::move(opts));
+        return install::install(config.get(), std::move(opts));
     }
 } // end namespace
 #endif // !POAC_OPTS_INSTALL_HPP
