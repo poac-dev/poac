@@ -24,7 +24,6 @@ namespace poac::util::types {
     template <bool B, auto T, auto F>
     static constexpr auto non_type_conditional_v = non_type_conditional_t<B, T, F>::value;
 
-
     template <class SinglePassRange, class T>
     std::optional<std::size_t>
     index_of(const SinglePassRange& rng, const T& t) {
@@ -60,7 +59,6 @@ namespace poac::util::types {
         }
         return false;
     }
-
 
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}
     //  -> std::vector<T> : ["array", "...", ...]
