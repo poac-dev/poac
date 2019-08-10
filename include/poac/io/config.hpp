@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string.hpp>
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
