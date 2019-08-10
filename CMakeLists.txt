@@ -8,7 +8,7 @@ FATAL: In-source builds are not allowed.
 endif ()
 
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(poac VERSION 0.2.1 LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
