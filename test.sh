@@ -22,7 +22,7 @@ main() {
       execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -o resolve-test resolve.cpp && { ./resolve-test; rm -f ./resolve-test; }
       execute g++ ${BASE_OPT} -o sat-test sat.cpp && { ./sat-test; rm -f ./sat-test; }
     popd
-    execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -o cli-test cli.cpp && { ./cli-test; rm -f ./cli-test; }
+    execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o cli-test cli.cpp && { ./cli-test; rm -f ./cli-test; }
     execute g++ ${BASE_OPT} -o exception-test except.cpp && { ./exception-test; rm -f ./exception-test; }
     execute g++ ${BASE_OPT} -lboost_filesystem -o name-test name.cpp && { ./name-test; rm -f ./name-test; }
   popd
@@ -32,7 +32,7 @@ main() {
     execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
   popd
   pushd ./opts
-    execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
+    execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
   popd
   pushd ./util
     execute g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -f ./argparse-test; }
