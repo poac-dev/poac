@@ -11,8 +11,13 @@ namespace git2 {
         git_config* raw;
 
     public:
-        config();
-        ~config();
+        config() {
+            git2::init();
+            git2_throw(git_config_new(&this->raw));
+        }
+        ~config() {
+            git_config_free(this->raw);
+        }
 
         explicit config(git_config* raw) : raw(raw) {}
 
@@ -21,26 +26,13 @@ namespace git2 {
         config(config&&) = default;
         config& operator=(config&&) = default;
 
-        std::string get_string(const std::string& name);
+        /// Get the value of a string config variable as an owned string.
+        std::string get_string(const std::string& name) {
+            git_buf ret = { nullptr, 0, 0 };
+            git2_throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
+            return std::string(ret.ptr, ret.size);
+        }
     };
-
-    config::config() {
-        git2::init();
-        git2_throw(git_config_new(&this->raw));
-    }
-
-    config::~config() {
-        git_config_free(this->raw);
-    }
-
-    /// Get the value of a string config variable as an owned string.
-    std::string
-    config::get_string(const std::string& name) {
-        git_buf ret = { nullptr, 0, 0 };
-        git2_throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
-        return std::string(ret.ptr, ret.size);
-    }
-
 } // end namespace git2
 
 #endif	// !GIT2_CONFIG_HPP
