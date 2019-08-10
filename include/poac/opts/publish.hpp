@@ -244,7 +244,7 @@ namespace poac::opts::publish {
 
     io::lockfile::PackageType
     get_package_type(const std::optional<io::config::Config>&) {
-        return io::lockfile::PackageType::HeaderOnlyLib;
+        return io::lockfile::PackageType::HeaderOnlyLib; // FIXME
 //        if (config->build.has_value()) {
 //            if (config->build->bins.has_value()) {
 //                return io::lockfile::PackageType::Application;
