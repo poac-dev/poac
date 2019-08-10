@@ -52,11 +52,12 @@ script:
   - make install
   - poac help
   - cd ../
+  - mv /usr/local/include/toml.hpp /usr/local/include/toml/
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
+      mv /usr/local/include/toml/toml.hpp /usr/local/include/;
       bash ./test.sh --coverage;
     fi
-  - mv /usr/local/include/toml.hpp /usr/local/include/toml/
 
 notifications:
   email: false
