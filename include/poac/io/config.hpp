@@ -504,7 +504,7 @@ namespace poac::io::config {
             detail::merge(this->include_directories, profile.include_directories);
             detail::merge(this->link_directories, profile.link_directories);
             if (profile.compiler.has_value()) {
-                this->compiler = profile.compiler.value();
+                this->compiler = profile.compiler;
             }
             this->opt_level = profile.opt_level;
             this->debug = profile.debug;
@@ -531,39 +531,50 @@ namespace poac::io::config {
         }
     };
     struct Profile {
-        std::optional<std::vector<std::string>> definitions; // optional (merge)
-        std::optional<std::vector<std::string>> options; // optional (merge)
-        std::optional<std::vector<std::string>> libraries; // optional (merge)
-        std::optional<std::vector<std::string>> include_directories; // optional (merge)
-        std::optional<std::vector<std::string>> link_directories; // optional (merge)
-        std::optional<std::string> compiler; // optional (overwrite) (If this is specified in dev etc., it will take precedence.)
         std::optional<ProfileDev> dev; // optional
         std::optional<ProfileRelease> release; // optional
         std::optional<ProfileDev> test; // optional
         std::optional<ProfileRelease> bench; // optional
 
         void from_toml(const toml::value& v) {
-            detail::field_from_toml(this->definitions, v, "definitions");
-            detail::field_from_toml(this->options, v, "options");
-            detail::field_from_toml(this->libraries, v, "libraries");
-            detail::field_from_toml(this->include_directories, v, "include-directories");
-            detail::field_from_toml(this->link_directories, v, "link-directories");
-            detail::field_from_toml(this->compiler, v, "compiler");
-            detail::field_from_toml(this->dev, v, "dev");
-            detail::field_from_toml(this->release, v, "release");
-            detail::field_from_toml(this->test, v, "test");
-            detail::field_from_toml(this->bench, v, "bench");
+            this->dev = ProfileDev{};
+            detail::field_from_toml(this->dev->definitions, v, "definitions");
+            detail::field_from_toml(this->dev->options, v, "options");
+            detail::field_from_toml(this->dev->libraries, v, "libraries");
+            detail::field_from_toml(this->dev->include_directories, v, "include-directories");
+            detail::field_from_toml(this->dev->link_directories, v, "link-directories");
+            detail::field_from_toml(this->dev->compiler, v, "compiler");
+            detail::merge(this->dev, v, "dev");
+
+            this->release = ProfileRelease{};
+            detail::field_from_toml(this->release->definitions, v, "definitions");
+            detail::field_from_toml(this->release->options, v, "options");
+            detail::field_from_toml(this->release->libraries, v, "libraries");
+            detail::field_from_toml(this->release->include_directories, v, "include-directories");
+            detail::field_from_toml(this->release->link_directories, v, "link-directories");
+            detail::field_from_toml(this->release->compiler, v, "compiler");
+            detail::merge(this->release, v, "release");
+
+            this->test = ProfileDev{};
+            detail::field_from_toml(this->test->definitions, v, "definitions");
+            detail::field_from_toml(this->test->options, v, "options");
+            detail::field_from_toml(this->test->libraries, v, "libraries");
+            detail::field_from_toml(this->test->include_directories, v, "include-directories");
+            detail::field_from_toml(this->test->link_directories, v, "link-directories");
+            detail::field_from_toml(this->test->compiler, v, "compiler");
+            detail::merge(this->test, v, "test");
+
+            this->bench = ProfileRelease{};
+            detail::field_from_toml(this->bench->definitions, v, "definitions");
+            detail::field_from_toml(this->bench->options, v, "options");
+            detail::field_from_toml(this->bench->libraries, v, "libraries");
+            detail::field_from_toml(this->bench->include_directories, v, "include-directories");
+            detail::field_from_toml(this->bench->link_directories, v, "link-directories");
+            detail::field_from_toml(this->bench->compiler, v, "compiler");
+            detail::merge(this->bench, v, "bench");
         }
 
         void merge(const Profile& profile) {
-            detail::merge(this->definitions, profile.definitions);
-            detail::merge(this->options, profile.options);
-            detail::merge(this->libraries, profile.libraries);
-            detail::merge(this->include_directories, profile.include_directories);
-            detail::merge(this->link_directories, profile.link_directories);
-            if (profile.compiler.has_value()) {
-                this->compiler = profile.compiler.value();
-            }
             detail::merge(this->dev, profile.dev);
             detail::merge(this->release, profile.release);
             detail::merge(this->test, profile.test);
