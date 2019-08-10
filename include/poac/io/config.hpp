@@ -352,19 +352,6 @@ namespace poac::io::config {
             f = detail::find_force_opt<Field>(v, k).value_or(d);
         }
 
-        template <typename Field>
-        inline void
-        field_into_toml(toml::table& t, const toml::key& k, const Field& f) {
-            t.emplace(k, f);
-        }
-        template <typename Field>
-        inline void
-        field_into_toml(toml::table& t, const toml::key& k, const std::optional<Field>& f) {
-            if (f.has_value()) {
-                t.emplace(k, f.value());
-            }
-        }
-
         template <typename Field,
             std::enable_if_t<
                 std::is_same_v<
