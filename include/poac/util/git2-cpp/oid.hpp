@@ -11,14 +11,16 @@ namespace git2 {
     struct oid {
         git_oid raw;
 
+        explicit oid(const git_oid& raw) : raw(raw) {}
+
         /// Parse a hex-formatted object id into an oid structure.
-        oid(const std::string& str) {
+        explicit oid(const std::string& str) {
             git2::init();
             git2_throw(git_oid_fromstrn(&this->raw, str.c_str(), str.size()));
         }
 
         /// Parse a hex-formatted object id into an oid structure.
-        oid(const std::unique_ptr<unsigned char>& bytes) {
+        explicit oid(const std::unique_ptr<unsigned char>& bytes) {
             git2::init();
             git_oid_fromraw(&this->raw, bytes.get());
         }
