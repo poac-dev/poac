@@ -6,6 +6,8 @@ before_cache:
 cache:
   directories:
     - $HOME/Library/Caches/Homebrew
+    - /usr/local/lib/cmake/toml11
+    - /usr/local/include/toml
 
 matrix:
   include:
@@ -31,14 +33,18 @@ install:
       pip install cpp-coveralls;
     fi
   - brew install libgit2
-  - git clone -q https://github.com/ToruNiina/toml11.git
-  - cd toml11
-  - mkdir build
-  - cd build
-  - cmake -Dtoml11_BUILD_TEST=OFF ..
-  - make install
-  - cd ../../
-  - rm -rf toml11
+  - if [[ ! -e /usr/local/include/toml ]]; then
+      git clone -q https://github.com/ToruNiina/toml11.git;
+      cd toml11;
+      mkdir build;
+      cd build;
+      cmake -Dtoml11_BUILD_TEST=OFF ..;
+      make install;
+      cd ../../;
+      rm -rf toml11;
+    else
+      mv /usr/local/include/toml/toml.hpp /usr/local/include/;
+    fi
 script:
   - mkdir build
   - cd build
@@ -50,6 +56,7 @@ after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
       bash ./test.sh --coverage;
     fi
+  - mv /usr/local/include/toml.hpp /usr/local/include/toml/
 
 notifications:
   email: false
