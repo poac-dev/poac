@@ -32,7 +32,7 @@ endif ()
 # Find boost libraries.
 #set(Boost_DEBUG on)
 set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost REQUIRED COMPONENTS system filesystem)
+find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem)
 if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Could not find boost.")
 endif ()
