@@ -8,6 +8,7 @@ REQUIRE_POAC_VARIABLES="-DPOAC_VERSION=\"0.2.1\""
 execute() {
   echo "Executing: $@"
   "$@"
+  echo
 }
 
 main() {
