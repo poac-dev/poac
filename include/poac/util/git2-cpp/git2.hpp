@@ -5,6 +5,7 @@
 #include <poac/util/git2-cpp/describe.hpp>
 #include <poac/util/git2-cpp/exception.hpp>
 #include <poac/util/git2-cpp/global.hpp>
+#include <poac/util/git2-cpp/oid.hpp>
 #include <poac/util/git2-cpp/repository.hpp>
 
 #endif	// !GIT2_CPP_HPP
