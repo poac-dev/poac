@@ -148,7 +148,7 @@ namespace git2 {
 
     describe&
     describe::workdir(const repository& repo, describe_options& opts) {
-        git2_throw(git_describe_workdir(&result, repo.repo, &opts.opts));
+        git2_throw(git_describe_workdir(&result, repo.raw, &opts.opts));
         return *this;
     }
 

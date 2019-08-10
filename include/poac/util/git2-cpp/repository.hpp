@@ -8,7 +8,7 @@
 
 namespace git2 {
     struct repository {
-        git_repository* repo = nullptr;
+        git_repository* raw = nullptr;
 
         repository() = default;
         ~repository();
@@ -28,7 +28,7 @@ namespace git2 {
     };
 
     repository::~repository() {
-        git_repository_free(this->repo);
+        git_repository_free(this->raw);
     }
 
     /// Attempt to open an already-existing repository at `path`.
@@ -37,7 +37,7 @@ namespace git2 {
     repository&
     repository::open(const std::string& path) {
         git2::init();
-        git2_throw(git_repository_open(&this->repo, path.c_str()));
+        git2_throw(git_repository_open(&this->raw, path.c_str()));
         return *this;
     }
 
@@ -47,7 +47,7 @@ namespace git2 {
     repository&
     repository::open_bare(const std::string& path) {
         git2::init();
-        git2_throw(git_repository_open_bare(&this->repo, path.c_str()));
+        git2_throw(git_repository_open_bare(&this->raw, path.c_str()));
         return *this;
     }
 
@@ -59,7 +59,7 @@ namespace git2 {
     repository&
     repository::init(const std::string& path) {
         git2::init();
-        git2_throw(git_repository_init(&this->repo, path.c_str(), false));
+        git2_throw(git_repository_init(&this->raw, path.c_str(), false));
         return *this;
     }
 
@@ -69,7 +69,7 @@ namespace git2 {
     repository&
     repository::init_bare(const std::string& path) {
         git2::init();
-        git2_throw(git_repository_init(&this->repo, path.c_str(), true));
+        git2_throw(git_repository_init(&this->raw, path.c_str(), true));
         return *this;
     }
 
@@ -81,7 +81,7 @@ namespace git2 {
     git2::config
     repository::config() { // git2::config
         git_config* cfg = nullptr;
-        git2_throw(git_repository_config(&cfg, this->repo));
+        git2_throw(git_repository_config(&cfg, this->raw));
         return git2::config(cfg);
     }
 } // end namespace git2
