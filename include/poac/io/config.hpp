@@ -471,28 +471,6 @@ namespace poac::io::config {
             detail::field_from_toml(this->license_file, v, "license-file");
             detail::field_from_toml(this->default_run, v, "default-run");
         }
-        toml::table into_toml() const {
-            toml::table t{};
-            detail::field_into_toml(t, "name", this->name);
-            detail::field_into_toml(t, "version", this->version);
-            detail::field_into_toml(t, "authors", this->authors);
-            detail::field_into_toml(t, "cpp", this->cpp);
-            detail::field_into_toml(t, "build", this->build);
-            detail::field_into_toml(t, "links", this->links);
-            detail::field_into_toml(t, "exclude", this->exclude);
-            detail::field_into_toml(t, "include", this->include);
-            detail::field_into_toml(t, "publish", this->publish);
-            detail::field_into_toml(t, "workspace", this->workspace);
-            detail::field_into_toml(t, "description", this->description);
-            detail::field_into_toml(t, "documentation", this->documentation);
-            detail::field_into_toml(t, "homepage", this->homepage);
-            detail::field_into_toml(t, "repository", this->repository);
-            detail::field_into_toml(t, "readme", this->readme);
-            detail::field_into_toml(t, "license", this->license);
-            detail::field_into_toml(t, "license-file", this->license_file);
-            detail::field_into_toml(t, "default-run", this->default_run);
-            return t;
-        }
     };
 
     // https://doc.poac.pm/en/reference/manifest.html#the-profile-sections
@@ -517,20 +495,6 @@ namespace poac::io::config {
             detail::field_from_toml(this->include_directories, v, "include-directories");
             detail::field_from_toml(this->link_directories, v, "link-directories");
             detail::field_from_toml(this->compiler, v, "compiler");
-        }
-        toml::table into_toml() const {
-            toml::table t{};
-            detail::field_into_toml(t, "definitions", this->definitions);
-            detail::field_into_toml(t, "options", this->options);
-            detail::field_into_toml(t, "libraries", this->libraries);
-            detail::field_into_toml(t, "include-directories", this->include_directories);
-            detail::field_into_toml(t, "link-directories", this->link_directories);
-            detail::field_into_toml(t, "compiler", this->compiler);
-            detail::field_into_toml(t, "opt-level", this->opt_level);
-            detail::field_into_toml(t, "debug", this->debug);
-            detail::field_into_toml(t, "lto", this->lto);
-            detail::field_into_toml(t, "incremental", this->incremental);
-            return t;
         }
 
         void merge(const ProfileUnder& profile) {
@@ -590,20 +554,6 @@ namespace poac::io::config {
             detail::field_from_toml(this->test, v, "test");
             detail::field_from_toml(this->bench, v, "bench");
         }
-        toml::table into_toml() const {
-            toml::table t{};
-            detail::field_into_toml(t, "definitions", this->definitions);
-            detail::field_into_toml(t, "options", this->options);
-            detail::field_into_toml(t, "libraries", this->libraries);
-            detail::field_into_toml(t, "include-directories", this->include_directories);
-            detail::field_into_toml(t, "link-directories", this->link_directories);
-            detail::field_into_toml(t, "compiler", this->compiler);
-            detail::field_into_toml(t, "dev", this->dev);
-            detail::field_into_toml(t, "release", this->release);
-            detail::field_into_toml(t, "test", this->test);
-            detail::field_into_toml(t, "bench", this->bench);
-            return t;
-        }
 
         void merge(const Profile& profile) {
             detail::merge(this->definitions, profile.definitions);
@@ -629,12 +579,6 @@ namespace poac::io::config {
         void from_toml(const toml::value& v) {
             detail::field_from_toml(this->name, v, "name");
             detail::field_from_toml(this->path, v, "path");
-        }
-        toml::table into_toml() const {
-            return {
-                { "name", this->name },
-                { "path", this->path }
-            };
         }
     };
 
@@ -672,17 +616,6 @@ namespace poac::io::config {
                     detail::rethrow_cfg_exception(e, target.at(key));
                 }
             }
-        }
-        toml::table into_toml() const {
-            toml::table t{};
-            detail::field_into_toml(t, "package", this->package);
-            detail::field_into_toml(t, "dependencies", this->dependencies);
-            detail::field_into_toml(t, "dev-dependencies", this->dev_dependencies);
-            detail::field_into_toml(t, "build-dependencies", this->build_dependencies);
-            detail::field_into_toml(t, "profile", this->profile);
-            detail::field_into_toml(t, "bin", this->bin);
-            return t;
-            // FIXME: target is not restored
         }
     };
 
