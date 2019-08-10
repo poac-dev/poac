@@ -17,11 +17,13 @@
 
 #include <poac/core/except.hpp>
 #include <poac/core/project.hpp>
+#include <poac/io/config.hpp>
+#include <poac/io/lockfile.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
-#include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
+#include <poac/util/clap/clap.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
