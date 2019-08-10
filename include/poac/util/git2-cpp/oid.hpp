@@ -1,5 +1,5 @@
-#ifndef GIT2_REV_LIST_HPP
-#define GIT2_REV_LIST_HPP
+#ifndef GIT2_OID_HPP
+#define GIT2_OID_HPP
 
 #include <memory>
 #include <string>
@@ -48,4 +48,4 @@ namespace git2 {
     }
 } // end namespace git2
 
-#endif	// !GIT2_REV_LIST_HPP
+#endif	// !GIT2_OID_HPP
