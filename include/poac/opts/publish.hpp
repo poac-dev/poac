@@ -24,6 +24,7 @@
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/clap/clap.hpp>
+#include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
@@ -91,7 +92,7 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    verify_no_changes(const PackageInfo& package_info) {
+    verify_no_changes(const PackageInfo& package_info) { // TODO:
         // https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommited-changes
         const std::string cmd = "git diff-index --quiet " + package_info.version.get_full() + " --";
         if (!util::shell(cmd).exec_ignore()) {
@@ -230,7 +231,7 @@ namespace poac::opts::publish {
     }
 
     std::string
-    get_local_commit_sha(const std::string& version) {
+    get_local_commit_sha(const std::string& version) { // TODO:
         // https://stackoverflow.com/questions/1862423/how-to-tell-which-commit-a-tag-points-to-in-git
         const std::string cmd = "git rev-list -n 1 " + version;
         if (const auto local_commit_sha = util::shell(cmd).exec()) {
