@@ -8,7 +8,7 @@
 
 #include <poac/poac.hpp>
 
-int handle(std::string_view cmd, std::vector<std::string>&& args) {
+int handle(std::string_view cmd, std::vector<std::string>&& args) noexcept {
     try {
         const auto error = poac::core::cli::exec(std::move(cmd), std::move(args));
         if (!error) {
@@ -27,13 +27,10 @@ int handle(std::string_view cmd, std::vector<std::string>&& args) {
     } catch (const std::exception& e) {
         std::cerr << poac::io::term::error << e.what() << std::endl;
         return EXIT_FAILURE;
-    } catch (...) {
-        std::cerr << poac::io::term::error << "Unexpected error" << std::endl;
-        return EXIT_FAILURE;
     }
 }
 
-int main(int argc, const char** argv) {
+int main(int argc, const char** argv) noexcept {
     // TODO:
 //    try {
 //        const auto args = poac::core::cli::cli.parse(std::vector<std::string>(argv, argv + argc));
