@@ -3,7 +3,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <poac/core/name.hpp>
-#include <poac/core/except.hpp>
 
 // std::string to_cache(std::string name, const std::string& version)
 BOOST_AUTO_TEST_CASE( poac_core_name_to_cache_test )
@@ -12,7 +11,7 @@ BOOST_AUTO_TEST_CASE( poac_core_name_to_cache_test )
 
     BOOST_CHECK( to_cache("boost/optional", "1.66.0") == "boost-optional-1.66.0" );
     BOOST_CHECK( to_cache("opencv/opencv", "3.4.2") == "opencv-opencv-3.4.2" );
-    BOOST_CHECK( to_cache("matken11235/logger_slack_backend", "v0.1.0") == "matken11235-logger_slack_backend-0.1.0" );
+    BOOST_CHECK( to_cache("matken11235/logger_slack_backend", "0.1.0") == "matken11235-logger_slack_backend-0.1.0" );
     BOOST_CHECK( to_cache("curl/curl", "curl-7_61_0") == "curl-curl-curl-7_61_0" );
 }
 
