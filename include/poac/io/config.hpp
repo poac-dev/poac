@@ -475,7 +475,12 @@ namespace poac::io::config {
 
     // https://doc.poac.pm/en/reference/manifest.html#the-profile-sections
     struct ProfileUnder {
-        virtual ~ProfileUnder() noexcept = default;
+        ProfileUnder() = default;
+        virtual ~ProfileUnder() = default;
+        ProfileUnder(const ProfileUnder&) = default;
+        ProfileUnder& operator=(const ProfileUnder&) = default;
+        ProfileUnder(ProfileUnder&&) noexcept = default;
+        ProfileUnder& operator=(ProfileUnder&&) noexcept = default;
 
         std::optional<std::vector<std::string>> definitions; // optional (merge)
         std::optional<std::vector<std::string>> options; // optional (merge)
