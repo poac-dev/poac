@@ -8,13 +8,13 @@
 
 namespace git2 {
     class config {
-        git_config* cfg;
+        git_config* raw;
 
     public:
         config();
         ~config();
 
-        explicit config(git_config* cfg) : cfg(cfg) {}
+        explicit config(git_config* raw) : raw(raw) {}
 
         config(const config&) = delete;
         config& operator=(const config&) = delete;
@@ -26,18 +26,18 @@ namespace git2 {
 
     config::config() {
         git2::init();
-        git2_throw(git_config_new(&this->cfg));
+        git2_throw(git_config_new(&this->raw));
     }
 
     config::~config() {
-        git_config_free(this->cfg);
+        git_config_free(this->raw);
     }
 
     /// Get the value of a string config variable as an owned string.
     std::string
     config::get_string(const std::string& name) {
         git_buf ret = { nullptr, 0, 0 };
-        git2_throw(git_config_get_string_buf(&ret, this->cfg, name.c_str()));
+        git2_throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
         return std::string(ret.ptr, ret.size);
     }
 
