@@ -10,7 +10,7 @@
 
 namespace git2 {
     struct describe_options {
-        git_describe_options opts;
+        git_describe_options raw;
 
         describe_options();
         ~describe_options() noexcept = default;
@@ -29,12 +29,12 @@ namespace git2 {
     };
 
     describe_options::describe_options() {
-        git2_throw(git_describe_init_options(&opts, GIT_DESCRIBE_OPTIONS_VERSION));
+        git2_throw(git_describe_init_options(&this->raw, GIT_DESCRIBE_OPTIONS_VERSION));
     }
 
     describe_options&
     describe_options::max_candidates_tags(const unsigned int max) {
-        opts.max_candidates_tags = max;
+        this->raw.max_candidates_tags = max;
         return *this;
     }
 
@@ -43,7 +43,7 @@ namespace git2 {
     /// This behaves like the `--tags` option to git-describe.
     describe_options&
     describe_options::describe_tags() {
-        opts.describe_strategy = GIT_DESCRIBE_TAGS;
+        this->raw.describe_strategy = GIT_DESCRIBE_TAGS;
         return *this;
     }
 
@@ -52,7 +52,7 @@ namespace git2 {
     /// This behaves like the `--all` option to git-describe.
     describe_options&
     describe_options::describe_all() {
-        opts.describe_strategy = GIT_DESCRIBE_ALL;
+        this->raw.describe_strategy = GIT_DESCRIBE_ALL;
         return *this;
     }
 
@@ -60,7 +60,7 @@ namespace git2 {
     /// reference whether to only walk down the first-parent ancestry.
     describe_options&
     describe_options::only_follow_first_parent(const bool follow) {
-        opts.only_follow_first_parent = follow;
+        this->raw.only_follow_first_parent = follow;
         return *this;
     }
 
@@ -69,19 +69,19 @@ namespace git2 {
     /// back to showing the full id of the commit.
     describe_options&
     describe_options::show_commit_oid_as_fallback(const bool show) {
-        opts.show_commit_oid_as_fallback = show;
+        this->raw.show_commit_oid_as_fallback = show;
         return *this;
     }
 
     describe_options&
     describe_options::pattern(const std::string& pattern) {
-        opts.pattern = pattern.c_str();
+        this->raw.pattern = pattern.c_str();
         return *this;
     }
 
 
     struct describe_format_options {
-        git_describe_format_options opts;
+        git_describe_format_options raw;
 
         describe_format_options();
         ~describe_format_options() = default;
@@ -97,7 +97,7 @@ namespace git2 {
     };
 
     describe_format_options::describe_format_options() {
-        git2_throw(git_describe_init_format_options(&opts, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION));
+        git2_throw(git_describe_init_format_options(&this->raw, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION));
     }
 
     /// Sets the size of the abbreviated commit id to use.
@@ -106,7 +106,7 @@ namespace git2 {
     /// and the default is 7.
     describe_format_options&
     describe_format_options::abbreviated_size(const unsigned int size) {
-        opts.abbreviated_size = size;
+        this->raw.abbreviated_size = size;
         return *this;
     }
 
@@ -114,7 +114,7 @@ namespace git2 {
     /// could be used.
     describe_format_options&
     describe_format_options::always_use_long_format(const bool long_f) {
-        opts.always_use_long_format = long_f;
+        this->raw.always_use_long_format = long_f;
         return *this;
     }
 
@@ -122,13 +122,13 @@ namespace git2 {
     /// the description string.
     describe_format_options&
     describe_format_options::dirty_suffix(const std::string& suffix) {
-        opts.dirty_suffix = suffix.c_str();
+        this->raw.dirty_suffix = suffix.c_str();
         return *this;
     }
 
 
     struct describe {
-        git_describe_result* result = nullptr;
+        git_describe_result* raw = nullptr;
 
         describe() = default;
         ~describe();
@@ -143,19 +143,19 @@ namespace git2 {
     };
 
     describe::~describe() {
-        git_describe_result_free(result);
+        git_describe_result_free(this->raw);
     }
 
     describe&
     describe::workdir(const repository& repo, describe_options& opts) {
-        git2_throw(git_describe_workdir(&result, repo.raw, &opts.opts));
+        git2_throw(git_describe_workdir(&this->raw, repo.raw, &opts.raw));
         return *this;
     }
 
     std::string
     describe::format(const describe_format_options& opts) {
         git_buf ret = { nullptr, 0, 0 };
-        git2_throw(git_describe_format(&ret, result, &opts.opts));
+        git2_throw(git_describe_format(&ret, this->raw, &opts.raw));
         return std::string(ret.ptr, ret.size);
     }
 } // end namespace git2::describe
