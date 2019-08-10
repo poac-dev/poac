@@ -54,11 +54,23 @@ namespace git2 {
     };
 #endif
 
-    struct exception : std::exception {
-        exception();
-        virtual ~exception() noexcept override = default;
-        virtual const char* what() const noexcept override;
-        git_error_t category() const noexcept;
+    struct exception final : public std::exception {
+        exception() : m_category(GIT_ERROR_NONE) {
+            const git_error* error = git_error_last();
+            if (error != nullptr) {
+                this->m_message += error->message;
+                this->m_category = static_cast<git_error_t>(error->klass);
+                git_error_clear();
+            }
+        }
+        ~exception() noexcept override = default;
+
+        const char* what() const noexcept override {
+            return this->m_message.c_str();
+        }
+        git_error_t category() const noexcept {
+            return this->m_category;
+        }
 
         exception(const exception&) = default;
         exception& operator=(const exception&) = delete;
@@ -69,23 +81,6 @@ namespace git2 {
         std::string m_message = "git2-cpp: ";
         git_error_t m_category;
     };
-
-    exception::exception() : m_category(GIT_ERROR_NONE) {
-        const git_error* error = git_error_last();
-        if (error != nullptr) {
-            this->m_message += error->message;
-            this->m_category = static_cast<git_error_t>(error->klass);
-            git_error_clear();
-        }
-    }
-
-    const char* exception::what() const noexcept {
-        return this->m_message.c_str();
-    }
-
-    git_error_t exception::category() const noexcept {
-        return this->m_category;
-    }
 
     inline int git2_throw(const int ret) {
         if (ret < 0) {
