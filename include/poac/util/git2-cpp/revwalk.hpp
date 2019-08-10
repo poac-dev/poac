@@ -13,7 +13,7 @@ namespace git2 {
         git_revwalk* raw = nullptr;
 
         revwalk() = delete;
-        revwalk(const repository& repo) {
+        explicit revwalk(const repository& repo) {
             git2_throw(git_revwalk_new(&this->raw, repo.raw));
         }
         ~revwalk() noexcept {
@@ -35,7 +35,7 @@ namespace git2 {
         }
 
         /// Set the order in which commits are visited.
-        revwalk& set_sorting(git_sort_t sort_mode) {
+        revwalk& set_sorting(unsigned int sort_mode) {
             git_revwalk_sorting(this->raw, sort_mode);
             return *this;
         }
@@ -141,7 +141,7 @@ namespace git2 {
         /// Get the next commit from the revision walk.
         oid next() {
             git_oid oid_;
-            git2_throw(git_revwalk_next(&oid_, this->raw));
+            git2_throw(git_revwalk_next(&oid_, this->raw)); // FIXME
             return oid(oid_);
         }
     };
