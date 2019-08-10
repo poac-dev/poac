@@ -25,6 +25,7 @@ main() {
     execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o cli-test cli.cpp && { ./cli-test; rm -f ./cli-test; }
     execute g++ ${BASE_OPT} -o exception-test except.cpp && { ./exception-test; rm -f ./exception-test; }
     execute g++ ${BASE_OPT} -lboost_filesystem -o name-test name.cpp && { ./name-test; rm -f ./name-test; }
+    execute g++ ${BASE_OPT} -lgit2 -o project-test project.cpp && { ./project-test; rm -f ./project-test; }
   popd
   pushd ./io
     execute g++ ${BASE_OPT} -lboost_filesystem -o config-test config.cpp && { ./config-test; rm -f ./config-test; }
