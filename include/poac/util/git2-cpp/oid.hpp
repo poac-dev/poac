@@ -28,8 +28,8 @@ namespace git2 {
         oid() = delete;
         ~oid() = default;
 
-        oid(const oid&) = delete;
-        oid& operator=(const oid&) = delete;
+        oid(const oid&) = default;
+        oid& operator=(const oid&) = default;
         oid(oid&&) = default;
         oid& operator=(oid&&) = default;
 
@@ -39,8 +39,7 @@ namespace git2 {
         }
 
         friend std::ostream& operator<<(std::ostream& os, const oid& o) {
-            std::unique_ptr<char> s(git_oid_tostr_s(&o.raw));
-            os << *s;
+            os << git_oid_tostr_s(&o.raw);
             return os;
         }
     };
