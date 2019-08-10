@@ -56,8 +56,7 @@ namespace git2 {
 
     struct exception final : public std::exception {
         exception() : m_category(GIT_ERROR_NONE) {
-            const git_error* error = git_error_last();
-            if (error != nullptr) {
+            if (const git_error* error = git_error_last(); error != nullptr) {
                 this->m_message += error->message;
                 this->m_category = static_cast<git_error_t>(error->klass);
                 git_error_clear();
