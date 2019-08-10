@@ -20,12 +20,12 @@ namespace git2 {
         describe_options(describe_options&&) = default;
         describe_options& operator=(describe_options&&) = default;
 
-        describe_options& max_candidates_tags(const unsigned int max);
+        describe_options& max_candidates_tags(const unsigned int);
         describe_options& describe_tags();
         describe_options& describe_all();
-        describe_options& only_follow_first_parent(const bool follow);
-        describe_options& show_commit_oid_as_fallback(const bool show);
-        describe_options& pattern(const std::string& pattern);
+        describe_options& only_follow_first_parent(const bool);
+        describe_options& show_commit_oid_as_fallback(const bool);
+        describe_options& pattern(const std::string&);
     };
 
     describe_options::describe_options() {
@@ -91,9 +91,9 @@ namespace git2 {
         describe_format_options(describe_format_options&&) = default;
         describe_format_options& operator=(describe_format_options&&) = default;
 
-        describe_format_options& abbreviated_size(const unsigned int size);
-        describe_format_options& always_use_long_format(const bool long_f);
-        describe_format_options& dirty_suffix(const std::string& suffix);
+        describe_format_options& abbreviated_size(const unsigned int);
+        describe_format_options& always_use_long_format(const bool);
+        describe_format_options& dirty_suffix(const std::string&);
     };
 
     describe_format_options::describe_format_options() {
@@ -138,8 +138,8 @@ namespace git2 {
         describe(describe&&) = default;
         describe& operator=(describe&&) = default;
 
-        describe& workdir(const repository& repo, describe_options& opts);
-        std::string format(const describe_format_options& opts);
+        describe& workdir(const repository&, describe_options&);
+        std::string format(const describe_format_options&);
     };
 
     describe::~describe() {
