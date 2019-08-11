@@ -7,6 +7,7 @@
 #include <poac/util/git2-cpp/global.hpp>
 #include <poac/util/git2-cpp/oid.hpp>
 #include <poac/util/git2-cpp/repository.hpp>
+#include <poac/util/git2-cpp/revparse.hpp>
 #include <poac/util/git2-cpp/revwalk.hpp>
 
 #endif	// !GIT2_CPP_HPP
