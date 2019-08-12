@@ -15,6 +15,7 @@
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/cfg.hpp>
+#include <poac/util/semver/semver.hpp>
 #include <poac/util/types.hpp>
 
 namespace poac::io::config {
@@ -440,7 +441,7 @@ namespace poac::io::config {
 
         void from_toml(const toml::value& v) {
             detail::field_from_toml(this->name, v, "name");
-            detail::field_from_toml(this->version, v, "version");
+            this->version = semver::Version(detail::find_force<std::string>(v, "version")).get_full();
             detail::field_from_toml(this->authors, v, "authors");
             this->cpp = detail::find_enum_opt<decltype(this->cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
             detail::field_from_toml(this->build, v, "build");
