@@ -53,6 +53,12 @@ namespace poac::io::term {
         }
     }
 
+    inline std::ostream&
+    status_opt(std::ostream& os) {
+        constexpr int indent_size = 12 + termcolor2::green<>.size() + termcolor2::reset<>.size();
+        return (os << std::right << std::setw(indent_size));
+    }
+
     const std::vector<std::string> spinners{
         "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
     };
