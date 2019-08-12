@@ -49,6 +49,7 @@ namespace poac::opts::build {
                         : core::builder::Mode::Debug;
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         if (util::argparse::use(args, "-q", "--quite")) {
+            // Ref: https://stackoverflow.com/a/30185095
             std::cout.setstate(std::ios_base::failbit);
         }
         return build::build(std::move(config), std::move(opts));
