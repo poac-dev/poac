@@ -6,7 +6,6 @@
 #include <sstream>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <poac/core/except.hpp>
@@ -43,8 +42,8 @@ namespace poac::core::builder::detect {
 //        return std::nullopt;
 //    }
 
-    bool is_cpp_file(const boost::filesystem::path& p) {
-        namespace fs = boost::filesystem;
+    bool is_cpp_file(const std::filesystem::path& p) {
+        namespace fs = std::filesystem;
         return !fs::is_directory(p)
                && (p.extension().string() == ".cpp"
                    || p.extension().string() == ".cxx"
@@ -53,8 +52,8 @@ namespace poac::core::builder::detect {
     }
 
     std::vector<std::string>
-    search_cpp_file(const boost::filesystem::path& base_dir) {
-        namespace fs = boost::filesystem;
+    search_cpp_file(const std::filesystem::path& base_dir) {
+        namespace fs = std::filesystem;
         namespace path = io::path;
 
         std::vector<std::string> source_files;

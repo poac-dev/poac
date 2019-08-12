@@ -7,7 +7,6 @@
 #include <regex>
 #include <optional>
 
-#include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
 #include <poac/core/except.hpp>
@@ -39,7 +38,7 @@ namespace poac::opts::cache {
 
     [[nodiscard]] std::optional<core::except::Error>
     clean(cache::Options&& opts) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         if (opts.all) {
             fs::remove_all(io::path::poac_cache_dir);
         } else if (!opts.files.empty()) {
@@ -61,7 +60,7 @@ namespace poac::opts::cache {
 
     [[nodiscard]] std::optional<core::except::Error>
     list(cache::Options&& opts) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         if (opts.pattern) {
             for (const auto& e : boost::make_iterator_range(
                     fs::directory_iterator(io::path::poac_cache_dir), {})

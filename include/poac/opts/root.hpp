@@ -11,6 +11,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
+#include <poac/io/path.hpp>
 
 namespace poac::opts::root {
     const clap::subcommand cli =
@@ -29,7 +30,7 @@ namespace poac::opts::root {
             };
         }
 
-        const auto ln = boost::filesystem::read_symlink(loc, ec);
+        const auto ln = std::filesystem::read_symlink(loc, ec);
         if (!ec) {
             std::cout << ln.parent_path().string() << std::endl;
         } else {

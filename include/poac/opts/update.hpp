@@ -8,7 +8,6 @@
 #include <optional>
 #include <cstdlib>
 
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -52,7 +51,7 @@ namespace poac::opts::update {
 
     [[nodiscard]] std::optional<core::except::Error>
     all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         namespace resolve = core::resolver::resolve;
         using io::path::path_literals::operator""_path;
 

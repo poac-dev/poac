@@ -10,8 +10,6 @@
 #include <algorithm>
 #include <cstdlib>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/opts/install.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
@@ -108,7 +106,7 @@ namespace poac::opts::uninstall {
 
     [[nodiscard]] std::optional<core::except::Error>
     individual(std::optional<io::config::Config>&& config, uninstall::Options&& opts) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         namespace resolve = core::resolver::resolve;
         using termcolor2::color_literals::operator""_red;
 
@@ -220,7 +218,7 @@ namespace poac::opts::uninstall {
                 return error;
             }
         }
-        boost::filesystem::remove_all(io::path::current_deps_dir);
+        std::filesystem::remove_all(io::path::current_deps_dir);
         return std::nullopt;
     }
 

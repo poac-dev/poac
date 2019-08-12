@@ -6,8 +6,6 @@
 #include <vector>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/core/builder/compiler.hpp>
 #include <poac/core/builder/detect.hpp>
 #include <poac/core/builder/standard.hpp>
@@ -46,44 +44,50 @@ namespace poac::core {
         std::optional<io::config::Config> config;
         builder::Mode mode;
         bool verbose;
-        boost::filesystem::path base_directory;
+        std::filesystem::path base_dir;
         std::string compiler;
 
         [[nodiscard]] std::optional<core::except::Error>
         build() {
-            const auto [repo, name] = core::project::name();
-            const int base_size = 12;
-            std::cout << std::right << std::setw(base_size + termcolor2::green<>.size() + termcolor2::reset<>.size())
-                      << termcolor2::to_green("Compiling ") << name << " v" << core::project::version() << std::endl;
+            using namespace io::path::path_literals;
+
+            io::term::echo_compiling(config, this->base_dir);
 
             builder::options::compile compile_conf;
             compile_conf.system = compiler;
             compile_conf.std_version = builder::standard::convert(config->package.cpp, compiler, false);
-            compile_conf.source_file = "src/main.cpp";
+            compile_conf.source_file = ("src"_path / "main.cpp").string();
             compile_conf.include_search_path.emplace_back("include");
-            compile_conf.base_dir = this->base_directory;
-            compile_conf.output_root = "target/debug/build"; // TODO: incremental?
-
-//            boost::filesystem::create_directories("target/debug/build")
+            compile_conf.base_dir = this->base_dir;
+            compile_conf.output_root = "target";
+            switch (this->mode) {
+                case builder::Mode::Debug:
+                    compile_conf.output_root /= "debug";
+                    break;
+                case builder::Mode::Release:
+                    compile_conf.output_root /= "release";
+                    break;
+            }
+            compile_conf.output_root /= "build";
 
             if (const auto result = builder::compiler::compile(compile_conf, this->verbose)) {
 
             }
 
+            std::cout << io::term::finished << std::endl;
             return std::nullopt;
         }
 
-        explicit Builder(
-                const std::optional<io::config::Config>& config,
-                builder::Mode mode,
-                const bool verbose,
-                const boost::filesystem::path& base_dir = io::path::current)
-        : config(config)
-        , mode(mode)
-        , verbose(verbose)
-        , base_directory(base_dir)
-        , compiler(builder::standard::detect_command())
-        {}
+        Builder(std::optional<io::config::Config>&& config,
+                builder::Mode mode, const bool verbose,
+                const std::filesystem::path& base_dir = io::path::current)
+            : config(std::move(config)), mode(mode), verbose(verbose), base_dir(base_dir)
+            , compiler(builder::standard::detect_command())
+        {
+            if (!config.has_value()) {
+                // TODO: error
+            }
+        }
     };
 } // end namespace
 #endif // POAC_CORE_BUILDER_BUILDER_HPP

@@ -8,9 +8,8 @@
 #include <string_view>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/opts/new.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
@@ -26,8 +25,7 @@ namespace poac::opts::init {
             ;
 
     struct Options {
-        bool lib;
-        bool bin;
+        _new::ProjectType type;
     };
 
     [[nodiscard]] std::optional<core::except::Error>
@@ -48,13 +46,13 @@ namespace poac::opts::init {
 
     [[nodiscard]] std::optional<core::except::Error>
     validate() {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         if (const auto config_path = io::config::detail::validate_config()) {
             if (const auto error = overwrite(config_path.value())) {
                 return error;
             }
         }
-        if (const auto error = core::name::validate_package_name(fs::basename(fs::current_path()))) {
+        if (const auto error = core::name::validate_package_name(fs::current_path().stem().string())) {
             return error;
         }
         return std::nullopt;
@@ -62,7 +60,7 @@ namespace poac::opts::init {
 
     [[nodiscard]] std::optional<core::except::Error>
     init(init::Options&& opts) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         using termcolor2::color_literals::operator""_green;
 
         if (const auto error = validate()) {
@@ -71,15 +69,15 @@ namespace poac::opts::init {
 
         std::cout << "Created: "_green;
         std::ofstream ofs_config("poac.toml");
-        if (opts.bin) {
-            ofs_config << _new::files::bin::poac_toml(fs::basename(fs::current_path()));
-            std::cout << "application ";
-        } else {
-            ofs_config << _new::files::lib::poac_toml;
-            std::cout << "library ";
+        switch (opts.type) {
+            case _new::ProjectType::Bin:
+                ofs_config << _new::files::bin::poac_toml(fs::current_path().stem().string());
+                break;
+            case _new::ProjectType::Lib:
+                ofs_config << _new::files::lib::poac_toml;
+                break;
         }
-        std::cout << "package" << std::endl;
-
+        std::cout << opts.type << " package";
         return std::nullopt;
     }
 
@@ -90,8 +88,17 @@ namespace poac::opts::init {
         }
 
         init::Options opts{};
-        opts.lib = util::argparse::use(args, "-l", "--lib");
-        opts.bin = !opts.lib || util::argparse::use(args, "-b", "--bin");
+        const bool bin = util::argparse::use_rm(args, "-b", "--bin");
+        const bool lib = util::argparse::use_rm(args, "-l", "--lib");
+        if (bin && lib) {
+            return core::except::Error::General{
+                    "You cannot specify both lib and binary outputs."
+            };
+        } else if (!bin && lib) {
+            opts.type = _new::ProjectType::Lib;
+        } else {
+            opts.type = _new::ProjectType::Bin;
+        }
         return init::init(std::move(opts));
     }
 } // end namespace

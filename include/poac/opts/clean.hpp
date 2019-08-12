@@ -6,16 +6,16 @@
 #include <string>
 #include <optional>
 
-#include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include <poac/opts/install.hpp>
-#include <poac/opts/uninstall.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
-#include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
+#include <poac/io/path.hpp>
+#include <poac/io/term.hpp>
+#include <poac/opts/install.hpp>
+#include <poac/opts/uninstall.hpp>
 
 namespace poac::opts::clean {
     const clap::subcommand cli =
@@ -44,10 +44,10 @@ namespace poac::opts::clean {
         // iterate directory
         auto first = package_names.cbegin();
         auto last = package_names.cend();
-        for (const auto& e : boost::make_iterator_range( boost::filesystem::directory_iterator("deps"), {} )) {
+        for (const auto& e : boost::make_iterator_range( std::filesystem::directory_iterator("deps"), {} )) {
             const auto found = std::find(first, last, e.path().filename().string());
             if (found == last) { // not found
-                boost::filesystem::remove_all(e.path());
+                std::filesystem::remove_all(e.path());
                 const auto info_state = "Remove unused package " + e.path().filename().string();
                 std::cout << io::term::info << info_state << std::endl;
             }

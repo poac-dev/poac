@@ -11,7 +11,6 @@
 #include <regex>
 #include <optional>
 
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -84,7 +83,7 @@ namespace poac::opts::install {
     bool copy_to_current(const std::string& from, const std::string& to) {
         const auto from_path = io::path::poac_cache_dir / from;
         const auto to_path = io::path::current_deps_dir / to;
-        return io::path::recursive_copy(from_path, to_path);
+        return io::path::copy(from_path, to_path);
     }
 
     void echo_install_status(const bool res, const std::string& name, const std::string& version) {
@@ -144,8 +143,8 @@ namespace poac::opts::install {
             std::cout << io::term::status << "Fetching..." << std::endl;
             std::cout << std::endl;
         }
-        boost::filesystem::create_directories(io::path::poac_cache_dir);
-        boost::filesystem::create_directories(io::path::current_deps_dir);
+        std::filesystem::create_directories(io::path::poac_cache_dir);
+        std::filesystem::create_directories(io::path::current_deps_dir);
         fetch(deps, opts);
 
         if (!opts.quiet) {

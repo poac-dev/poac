@@ -6,14 +6,13 @@
 #include <vector>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/core/builder/absorb.hpp>
 #include <poac/core/builder/options.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::compiler {
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
 
     std::optional<std::string>
     compile(const options::compile& opts, const bool verbose) {

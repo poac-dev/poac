@@ -8,7 +8,6 @@
 #include <optional>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <toml.hpp>
 
@@ -405,12 +404,10 @@ namespace poac::io::config {
             merge(f, detail::find_force_opt<Field>(v, k));
         }
 
-        inline boost::system::error_code ec{};
-
         std::optional<std::string>
-        validate_config(const boost::filesystem::path& base = path::current) noexcept {
+        validate_config(const std::filesystem::path& base = path::current) {
             const auto config_path = base / "poac.toml";
-            if (boost::filesystem::exists(config_path, ec)) {
+            if (std::filesystem::exists(config_path)) {
                 return config_path.string();
             } else {
                 return std::nullopt;
@@ -625,8 +622,8 @@ namespace poac::io::config {
 
     template <typename C>
     std::optional<C>
-    load_toml(const boost::filesystem::path& base, const std::string& fname) {
-        if (boost::filesystem::exists(base / fname, detail::ec)) {
+    load_toml(const std::filesystem::path& base, const std::string& fname) {
+        if (std::filesystem::exists(base / fname)) {
             const auto config_toml = toml::parse<toml::preserve_comments>(fname);
             const auto config = toml::get<C>(config_toml);
             return config;
@@ -636,14 +633,14 @@ namespace poac::io::config {
     }
 
     std::optional<Config>
-    load(const boost::filesystem::path& base = path::current) {
+    load(const std::filesystem::path& base = path::current) {
          return load_toml<Config>(base, "poac.toml");
     }
 
     std::string
     get_timestamp() {
         if (const auto filename = config::detail::validate_config()) {
-            return std::to_string(boost::filesystem::last_write_time(filename.value(), config::detail::ec));
+            return std::to_string(std::filesystem::last_write_time(filename.value()));
         } else {
             throw core::except::error(
                     core::except::msg::does_not_exist("poac.toml"), "\n",

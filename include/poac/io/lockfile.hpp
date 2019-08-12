@@ -7,7 +7,6 @@
 #include <optional>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
@@ -106,7 +105,7 @@ namespace poac::io::lockfile {
     }
 
     std::optional<Lockfile>
-    load(const boost::filesystem::path& base = path::current) {
+    load(const std::filesystem::path& base = path::current) {
         return config::load_toml<Lockfile>(base, "poac.lock");
     }
 } // end namespace

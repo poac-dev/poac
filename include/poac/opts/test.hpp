@@ -6,7 +6,6 @@
 #include <string>
 #include <cstdlib>
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 #include <poac/core/except.hpp>
@@ -39,7 +38,7 @@ namespace poac::opts::test {
 
 //    [[nodiscard]] std::optional<core::except::Error>
 //    execute_test_binary(const test::Options& opts, const std::string& bin_name, const std::string& bin_path) {
-//        namespace fs = boost::filesystem;
+//        namespace fs = std::filesystem;
 //        using termcolor2::color_literals::operator""_green;
 //
 //        util::shell cmd(fs::relative(bin_path).string());
@@ -68,7 +67,7 @@ namespace poac::opts::test {
 
     [[nodiscard]] std::optional<core::except::Error>
     test(std::future<std::optional<io::config::Config>>&&, test::Options&&) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         using namespace termcolor2::color_literals;
 
 //        const bool usemain = false;

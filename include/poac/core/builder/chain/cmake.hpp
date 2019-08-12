@@ -4,19 +4,17 @@
 #include <iostream>
 #include <string>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::chain {
     struct cmake {
-        boost::filesystem::path base_path;
+        std::filesystem::path base_path;
 
         bool build() { // TODO: builderと同じinterfaceであるべき
             util::shell cmd("cd " + base_path.string());
-            if (!boost::filesystem::exists(base_path / "_build")) {
+            if (!std::filesystem::exists(base_path / "_build")) {
                 cmd &= "mkdir _build";
             }
             cmd &= "cd _build";
@@ -30,8 +28,8 @@ namespace poac::core::builder::chain {
             return cmd.exec_ignore();
         }
 
-        explicit cmake(const boost::filesystem::path& base_path = io::path::current) {
-            if (!boost::filesystem::exists(base_path / "CMakeLists.txt")) {
+        explicit cmake(const std::filesystem::path& base_path = io::path::current) {
+            if (!std::filesystem::exists(base_path / "CMakeLists.txt")) {
                 throw except::error(
                         except::msg::does_not_exist((base_path / "CMakeLists.txt").string()));
             }

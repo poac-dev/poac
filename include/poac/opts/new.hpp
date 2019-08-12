@@ -11,12 +11,10 @@
 #include <vector>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/term.hpp>
 #include <poac/io/path.hpp>
+#include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/clap/clap.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
@@ -81,40 +79,40 @@ namespace poac::opts::_new {
         }
     }
 
-    enum class NewProjectKind {
+    enum class ProjectType {
         Bin,
         Lib,
     };
 
     std::ostream&
-    operator<<(std::ostream& os, NewProjectKind kind) {
+    operator<<(std::ostream& os, ProjectType kind) {
         switch (kind) {
-            case NewProjectKind::Bin:
+            case ProjectType::Bin:
                 return (os << "binary (application)");
-            case NewProjectKind::Lib:
+            case ProjectType::Lib:
                 return (os << "library");
         }
     }
 
     struct Options {
-        NewProjectKind kind;
+        ProjectType type;
         std::string project_name;
     };
 
-    std::map<boost::filesystem::path, std::string>
+    std::map<std::filesystem::path, std::string>
     create_template_files(const _new::Options& opts) {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         using io::path::path_literals::operator""_path;
 
-        switch (opts.kind) {
-            case NewProjectKind::Bin:
+        switch (opts.type) {
+            case ProjectType::Bin:
                 fs::create_directories(opts.project_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
                     { "poac.toml", files::bin::poac_toml(opts.project_name) },
                     { "src"_path / "main.cpp", files::bin::main_cpp }
                 };
-            case NewProjectKind::Lib:
+            case ProjectType::Lib:
                 fs::create_directories(opts.project_name / "include"_path / opts.project_name);
                 return {
                     { ".gitignore", "/target\npoac.lock" },
@@ -178,7 +176,7 @@ namespace poac::opts::_new {
             io::path::write_to_file(ofs, (opts.project_name / name).string(), text);
         }
         git2::repository().init(opts.project_name);
-        std::cout << "Created: "_green << opts.kind
+        std::cout << "Created: "_green << opts.type
                   << " `" << opts.project_name << "` " << "package" << std::endl;
         return std::nullopt;
     }
@@ -193,9 +191,9 @@ namespace poac::opts::_new {
                 "You cannot specify both lib and binary outputs."
             };
         } else if (!bin && lib) {
-            opts.kind = NewProjectKind::Lib;
+            opts.type = ProjectType::Lib;
         } else {
-            opts.kind = NewProjectKind::Bin;
+            opts.type = ProjectType::Bin;
         }
 
         if (args.size() != 1) {

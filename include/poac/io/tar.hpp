@@ -7,12 +7,11 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
-
+#include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::io::tar {
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
 
     bool extract(const fs::path& filename, const std::string& options = "") {
         const std::string cmd = "tar xf " + filename.string() + " " + options;
@@ -21,8 +20,7 @@ namespace poac::io::tar {
 
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
     bool extract_spec(const fs::path& input, const fs::path& output) {
-        boost::system::error_code error;
-        fs::create_directories(output, error);
+        fs::create_directories(output);
         return extract(input, "-C " + output.string() + " --strip-components 1");
     }
 

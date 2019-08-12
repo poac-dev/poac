@@ -7,8 +7,6 @@
 #include <map>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/core/builder/depends.hpp>
 #include <poac/core/builder/options.hpp>
 #include <poac/io/path.hpp>
@@ -17,7 +15,7 @@
 namespace poac::core::builder::cache {
     std::string to_cache_hash_path(const std::string& s)
     {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         namespace path = io::path;
 
         const auto hash_path = path::current_build_cache_ts_dir / fs::relative(s);
@@ -27,7 +25,7 @@ namespace poac::core::builder::cache {
     std::optional<std::map<std::string, std::string>>
     load_timestamps(const std::string& src_cpp_hash)
     {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         namespace misc = util::misc;
 
         if (!fs::exists(src_cpp_hash)) {
@@ -51,10 +49,9 @@ namespace poac::core::builder::cache {
             const std::string& filename,
             std::map<std::string, std::string>& timestamp)
     {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
 
-        boost::system::error_code error;
-        const std::time_t last_time = fs::last_write_time(filename, error);
+        const std::time_t last_time = fs::last_write_time(filename);
         timestamp.emplace(filename, std::to_string(last_time));
     }
 

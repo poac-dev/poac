@@ -13,7 +13,6 @@
 #include <variant>
 #include <optional>
 
-#include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
@@ -80,7 +79,7 @@ namespace poac::io::net {
 
     public:
         using file_name_type = std::string;
-        using file_path_type = boost::filesystem::path;
+        using file_path_type = std::filesystem::path;
         using header_type = std::map<http::field, std::string>;
         using self_reference = MultiPartForm&;
         using const_self_reference = const MultiPartForm&;
@@ -127,7 +126,7 @@ namespace poac::io::net {
         std::uintmax_t content_length() const {
             return std::accumulate(m_file_param.begin(), m_file_param.end(), m_header.size() + m_footer.size(),
                 [](std::uintmax_t acc, const auto& f) {
-                    return acc + boost::filesystem::file_size(std::get<1>(f));
+                    return acc + std::filesystem::file_size(std::get<1>(f));
                 }
             );
         }
@@ -138,7 +137,7 @@ namespace poac::io::net {
         };
         std::vector<FileInfo>
         get_files() const {
-            namespace fs = boost::filesystem;
+            namespace fs = std::filesystem;
 
             std::vector<FileInfo> file_info;
             for (const auto& f : m_file_param) {

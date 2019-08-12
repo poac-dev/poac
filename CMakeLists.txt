@@ -45,9 +45,22 @@ if (${Boost_VERSION} GREATER 106900)
     if (${CMAKE_VERSION} VERSION_LESS 3.12)
         message(FATAL_ERROR "If cmake version less than 3.12, doesn't use Boost::system style.")
     endif ()
-    set(BOOST_LINK_LIBS Boost::system Boost::filesystem)
+    if (APPLE)
+        set(FILESYSTEM_LIBS Boost::system Boost::filesystem)
+    elseif (LINUX)
+        set(FILESYSTEM_LIBS Boost::system stdc++fs)
+    else ()
+        set(FILESYSTEM_LIBS Boost::system)
+    endif()
 else ()
-    set(BOOST_LINK_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+    set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+    if (APPLE)
+        set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+    elseif (LINUX)
+        set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY} stdc++fs)
+    else ()
+        set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY})
+    endif()
 endif ()
 
 # toml11
@@ -72,6 +85,11 @@ endif ()
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
 message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
+if (UNIX)
+    set(SSL_RELATED_LIBS dl)
+elseif (WIN32)
+    set(SSL_RELATED_LIBS bcrypt ws2_32)
+endif ()
 
 # Build configures.
 if (APPLE)
@@ -125,17 +143,12 @@ else ()
     endif ()
 endif ()
 
-if (UNIX)
-    set(SSL_RELATED_LIBS dl)
-elseif (WIN32)
-    set(SSL_RELATED_LIBS bcrypt ws2_32)
-endif ()
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
         ${OPENSSL_LIBRARIES}
         ${SSL_RELATED_LIBS}
-        ${BOOST_LINK_LIBS}
         git2
+        ${FILESYSTEM_LIBS}
 )
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

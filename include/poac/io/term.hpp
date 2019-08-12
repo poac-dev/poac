@@ -10,6 +10,7 @@
 #include <optional>
 
 #include <poac/core/except.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
@@ -23,7 +24,7 @@ namespace poac::io::term {
     // Clear the line at the cursor position
     constexpr auto clr_line = termcolor2::make_string("\x1b[2K");
 
-    inline void set_left(int&& n) {
+    inline void set_left(const int n) {
         std::cout << std::setw(n) << std::left;
     }
 
@@ -78,11 +79,11 @@ namespace poac::io::term {
                   << std::endl;
     }
     inline void
-    echo_compiling(const std::optional<io::config::Config>& config, const boost::filesystem::path& path) {
+    echo_compiling(const std::optional<io::config::Config>& config, const std::filesystem::path& path) {
         std::cout << compiling
                   << config->package.name
                   << " v" << config->package.version
-                  << " (" << boost::filesystem::absolute(path).string() << ")"
+                  << " (" << std::filesystem::absolute(path).string() << ")"
                   << std::endl;
     }
 
