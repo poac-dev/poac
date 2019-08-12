@@ -53,10 +53,42 @@ namespace poac::io::term {
         }
     }
 
-    inline std::ostream&
-    status_opt(std::ostream& os) {
-        constexpr int indent_size = 12 + termcolor2::green<>.size() + termcolor2::reset<>.size();
+    template <typename CharT>
+    inline std::basic_ostream<CharT>&
+    status_opt(std::basic_ostream<CharT>& os) {
+        int indent_size = 9;
+        indent_size += termcolor2::bold<CharT>.size();
+        indent_size += termcolor2::green<CharT>.size();
+        indent_size += termcolor2::reset<CharT>.size();
         return (os << std::right << std::setw(indent_size));
+    }
+
+    template <typename CharT = char>
+    constexpr auto bold_green = termcolor2::bold<CharT> + termcolor2::green<CharT>;
+
+    inline std::ostream&
+    compiling(std::ostream& os) {
+        return (os << status_opt << bold_green<> + "Compiling " << termcolor2::reset<>);
+    }
+    inline void
+    echo_compiling(const std::optional<io::config::Config>& config) {
+        std::cout << compiling
+                  << config->package.name
+                  << " v" << config->package.version
+                  << std::endl;
+    }
+    inline void
+    echo_compiling(const std::optional<io::config::Config>& config, const boost::filesystem::path& path) {
+        std::cout << compiling
+                  << config->package.name
+                  << " v" << config->package.version
+                  << " (" << boost::filesystem::absolute(path).string() << ")"
+                  << std::endl;
+    }
+
+    inline std::ostream&
+    finished(std::ostream& os) {
+        return (os << status_opt << bold_green<> + "Finished " << termcolor2::reset<>);
     }
 
     const std::vector<std::string> spinners{
