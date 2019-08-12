@@ -73,8 +73,8 @@ namespace git2 {
         /// The OIDs pointed to by the references that match the given glob pattern
         /// will be pushed to the revision walker.
         ///
-        /// A leading 'refs/' is implied if not present as well as a trailing `/ \
-        /// *` if the glob lacks '?', ' \ *' or '['.
+        /// A leading 'refs/' is implied if not present as well as a trailing `/ \ *`
+        /// if the glob lacks '?', ' \ *' or '['.
         ///
         /// Any references matching this glob which do not point to a committish
         /// will be ignored.
@@ -120,8 +120,8 @@ namespace git2 {
         /// The OIDs pointed to by the references that match the given glob pattern
         /// and their ancestors will be hidden from the output on the revision walk.
         ///
-        /// A leading 'refs/' is implied if not present as well as a trailing `/ \
-        /// *` if the glob lacks '?', ' \ *' or '['.
+        /// A leading 'refs/' is implied if not present as well as a trailing `/ \ *`
+        /// if the glob lacks '?', ' \ *' or '['.
         ///
         /// Any references matching this glob which do not point to a committish
         /// will be ignored.
