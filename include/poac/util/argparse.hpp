@@ -11,7 +11,7 @@
 #include <poac/util/types.hpp>
 
 namespace poac::util::argparse {
-    template <class SinglePassRange, class... T>
+    template <typename SinglePassRange, typename... T>
     bool use(SinglePassRange& rng, T... args) {
         const auto first = std::cbegin(rng);
         const auto last = std::cend(rng);
@@ -19,7 +19,7 @@ namespace poac::util::argparse {
     }
 
     // { arg1, arg2 }, arg2 -> { arg1 }
-    template <class SinglePassRange, class... T>
+    template <typename SinglePassRange, typename... T>
     bool use_rm(SinglePassRange& rng, T... args) {
         const auto first = std::begin(rng);
         auto last = std::end(rng);
@@ -35,7 +35,7 @@ namespace poac::util::argparse {
     }
 
     // -o filename -> return filename
-    template <class SinglePassRange, class T>
+    template <typename SinglePassRange, typename T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg) {
         const auto first = std::cbegin(rng);
@@ -48,7 +48,7 @@ namespace poac::util::argparse {
         }
     }
     // -o filename OR --output filename -> return filename
-    template <class SinglePassRange, class T>
+    template <typename SinglePassRange, typename T>
     std::optional<std::string>
     use_get(SinglePassRange& rng, T arg1, T arg2) {
         const auto first = std::cbegin(rng);
