@@ -30,10 +30,10 @@ namespace poac::opts::root {
             };
         }
 
-        const auto ln = std::filesystem::read_symlink(loc, ec);
-        if (!ec) {
+        try {
+            const auto ln = std::filesystem::read_symlink(loc);
             std::cout << ln.parent_path().string() << std::endl;
-        } else {
+        } catch (...) {
             std::cout << loc.parent_path().string() << std::endl;
         }
         return std::nullopt;
