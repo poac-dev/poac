@@ -86,16 +86,14 @@ namespace poac::opts::_new {
         Lib,
     };
 
-    std::ostream& operator<<(std::ostream& os, NewProjectKind kind) {
+    std::ostream&
+    operator<<(std::ostream& os, NewProjectKind kind) {
         switch (kind) {
             case NewProjectKind::Bin:
-                os << "binary (application)";
-                break;
+                return (os << "binary (application)");
             case NewProjectKind::Lib:
-                os << "library";
-                break;
+                return (os << "library");
         }
-        return os;
     }
 
     struct Options {
