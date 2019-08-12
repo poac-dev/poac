@@ -6,8 +6,6 @@
 #include <vector>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-
 #include <poac/core/builder.hpp>
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
@@ -45,7 +43,9 @@ namespace poac::opts::build {
             return core::except::Error::InvalidSecondArg::Build;
         }
         build::Options opts{};
-        opts.mode = util::argparse::use(args, "--release") ? core::builder::Mode::Release : core::builder::Mode::Debug;
+        opts.mode = util::argparse::use(args, "--release")
+                        ? core::builder::Mode::Release
+                        : core::builder::Mode::Debug;
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         return build::build(std::move(config), std::move(opts));
     }
