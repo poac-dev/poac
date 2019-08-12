@@ -11,17 +11,22 @@
 #include <boost/algorithm/string.hpp>
 
 #include <poac/core/builder/absorb.hpp>
-#include <poac/core/except.hpp>
-#include <poac/core/name.hpp>
-#include <poac/io/path.hpp>
-#include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::options {
+    template <typename SinglePassRange, typename T>
+    T accumulate(const SinglePassRange& rng, T init) {
+        return std::accumulate(std::cbegin(rng), std::cend(rng), init);
+    }
+    template <typename SinglePassRange, typename T, typename BinaryOp>
+    T accumulate(const SinglePassRange& rng, T init, BinaryOp binary_op) {
+        return std::accumulate(std::cbegin(rng), std::cend(rng), init, binary_op);
+    }
+
     struct compile {
-        std::string system; // TODO: systemだけ別の管理にして，compiler.hppに，system, std::string optsとして渡したい．
+        std::string system;
         std::string std_version;
         std::vector<std::string> source_files;
         std::string source_file;
@@ -32,22 +37,19 @@ namespace poac::core::builder::options {
         boost::filesystem::path output_root;
     };
     std::string to_string(const compile& c) {
-        namespace fs = boost::filesystem;
-        using command = util::shell;
-
-        command opts;
+        util::shell opts;
         opts += c.std_version;
         opts += "-c";
-        opts += accumulate(begin(c.source_files), end(c.source_files), command());
-        opts += accumulate(begin(c.include_search_path), end(c.include_search_path), command(),
-                [](command acc, auto s) { return acc + ("-I" + s); });
-        opts += accumulate(begin(c.other_args), end(c.other_args), command());
-        opts += accumulate(begin(c.macro_defns), end(c.macro_defns), command());
+        opts += accumulate(c.source_files, util::shell());
+        opts += accumulate(c.include_search_path, util::shell(),
+                [](util::shell acc, auto s) { return acc + ("-I" + s); });
+        opts += accumulate(c.other_args, util::shell());
+        opts += accumulate(c.macro_defns, util::shell());
         opts += "-o";
         for (const auto& s : c.source_files) {
-            auto obj_path = c.output_root / fs::relative(s);
+            auto obj_path = c.output_root / boost::filesystem::relative(s);
             obj_path.replace_extension("o");
-            fs::create_directories(obj_path.parent_path());
+            boost::filesystem::create_directories(obj_path.parent_path());
             opts += obj_path.string();
         }
         return opts.string();
@@ -64,16 +66,14 @@ namespace poac::core::builder::options {
         std::vector<std::string> other_args;
     };
     std::string to_string(const link& l) {
-        using command = util::shell;
-
-        command opts;
-        opts += accumulate(begin(l.obj_files_path), end(l.obj_files_path), command());
-        opts += accumulate(begin(l.library_search_path), end(l.library_search_path), command(),
-                           [](command acc, auto s) { return acc + ("-L" + s); });
-        opts += accumulate(begin(l.static_link_libs), end(l.static_link_libs), command(),
-                           [](command acc, auto s) { return acc + ("-l" + s); });
-        opts += accumulate(begin(l.library_path), end(l.library_path), command());
-        opts += accumulate(begin(l.other_args), end(l.other_args), command());
+        util::shell opts;
+        opts += accumulate(l.obj_files_path, util::shell());
+        opts += accumulate(l.library_search_path, util::shell(),
+                [](util::shell acc, auto s) { return acc + ("-L" + s); });
+        opts += accumulate(l.static_link_libs, util::shell(),
+                [](util::shell acc, auto s) { return acc + ("-l" + s); });
+        opts += accumulate(l.library_path, util::shell());
+        opts += accumulate(l.other_args, util::shell());
         opts += "-o " + (l.output_root / l.project_name).string();
         return opts.string();
     }
@@ -84,11 +84,9 @@ namespace poac::core::builder::options {
         std::vector<std::string> obj_files_path;
     };
     std::string to_string(const static_lib& s) {
-        using command = util::shell;
-
-        command opts;
+        util::shell opts;
         opts += (s.output_root / s.project_name).string() + ".a";
-        opts += accumulate(begin(s.obj_files_path), end(s.obj_files_path), command());
+        opts += accumulate(s.obj_files_path, util::shell());
         return opts.string();
     }
 
@@ -99,14 +97,11 @@ namespace poac::core::builder::options {
         std::vector<std::string> obj_files_path;
     };
     std::string to_string(const dynamic_lib& d) {
-        using command = util::shell;
-
-        command opts;
+        util::shell opts;
         opts += absorb::dynamic_lib_option;
-        const std::string extension = absorb::dynamic_lib_extension;
-        opts += accumulate(begin(d.obj_files_path), end(d.obj_files_path), command());
+        opts += accumulate(d.obj_files_path, util::shell());
         opts += "-o";
-        opts += (d.output_root / d.project_name).string() + extension;
+        opts += (d.output_root / d.project_name).string() + absorb::dynamic_lib_extension;
         return opts.string();
     }
 
@@ -132,7 +127,6 @@ namespace poac::core::builder::options {
 
         std::vector<std::string> macro_defns;
         // poac automatically define the absolute path of the project's root directory.
-        // TODO: これ，依存関係もこれ使ってたら，それも，ルートのにならへん？header-only libの時
         macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", fs::current_path().string()));
 //        const auto version = semver::Version(config->version); // TODO: versionが無い
 //        macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
