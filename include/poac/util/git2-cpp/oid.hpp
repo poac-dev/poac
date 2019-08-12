@@ -38,9 +38,9 @@ namespace git2 {
             return git_oid_iszero(&raw) == 1;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const oid& o) {
-            os << git_oid_tostr_s(&o.raw);
-            return os;
+        friend std::ostream&
+        operator<<(std::ostream& os, const oid& o) {
+            return (os << git_oid_tostr_s(&o.raw));
         }
     };
 
