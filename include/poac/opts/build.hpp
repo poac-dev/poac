@@ -18,6 +18,7 @@ namespace poac::opts::build {
                 .about("Compile a project and all sources that depend on its")
                 .arg(clap::opt("release", "Build artifacts in release mode, with optimizations"))
                 .arg(clap::arg("verbose").long_("verbose").short_("v"))
+                .arg(clap::arg("quite").long_("quite").short_("q"))
             ;
 
     struct Options {
@@ -47,6 +48,9 @@ namespace poac::opts::build {
                         ? core::builder::Mode::Release
                         : core::builder::Mode::Debug;
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
+        if (util::argparse::use(args, "-q", "--quite")) {
+            std::cout.setstate(std::ios_base::failbit);
+        }
         return build::build(std::move(config), std::move(opts));
     }
 } // end namespace
