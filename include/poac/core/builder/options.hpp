@@ -32,7 +32,7 @@ namespace poac::core::builder::options {
         std::string source_file;
         std::vector<std::string> include_search_path;
         std::vector<std::string> other_args;
-        std::vector<std::string> macro_defns;
+        std::vector<std::string> definitions;
         boost::filesystem::path base_dir;
         boost::filesystem::path output_root;
     };
@@ -44,7 +44,7 @@ namespace poac::core::builder::options {
         opts += accumulate(c.include_search_path, util::shell(),
                 [](util::shell acc, auto s) { return acc + ("-I" + s); });
         opts += accumulate(c.other_args, util::shell());
-        opts += accumulate(c.macro_defns, util::shell());
+        opts += accumulate(c.definitions, util::shell());
         opts += "-o";
         for (const auto& s : c.source_files) {
             auto obj_path = c.output_root / boost::filesystem::relative(s);

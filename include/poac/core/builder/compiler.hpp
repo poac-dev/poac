@@ -28,7 +28,7 @@ namespace poac::core::builder::compiler {
         for (const auto& oa : opts.other_args) {
             cmd += oa;
         }
-        for (const auto& md : opts.macro_defns) {
+        for (const auto& md : opts.definitions) {
             cmd += md;
         }
 
