@@ -197,39 +197,26 @@ namespace poac::util::cfg {
     std::ostream& operator<<(std::ostream& os, const Token& token) {
         switch (token.kind) {
             case Token::LeftParen:
-                os << "left_paren: (";
-                break;
+                return (os << "left_paren: (");
             case Token::RightParen:
-                os << "right_paren: )";
-                break;
+                return (os << "right_paren: )");
             case Token::Comma:
-                os << "comma: ,";
-                break;
+                return (os << "comma: ,");
             case Token::Equals:
-                os << "equals: =";
-                break;
+                return (os << "equals: =");
             case Token::Gt:
-                os << "gt: >";
-                break;
+                return (os << "gt: >");
             case Token::GtEq:
-                os << "gteq: >=";
-                break;
+                return (os << "gteq: >=");
             case Token::Lt:
-                os << "lt: <";
-                break;
+                return (os << "lt: <");
             case Token::LtEq:
-                os << "lteq: <=";
-                break;
+                return (os << "lteq: <=");
             case Token::String:
-                os << "string: ";
-                os << token.str;
-                break;
+                return (os << "string: " << token.str);
             case Token::Ident:
-                os << "ident: ";
-                os << to_string(token.id);
-                break;
+                return (os << "ident: " << to_string(token.id));
         }
-        return os;
     }
 
     struct Lexer {
