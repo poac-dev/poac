@@ -109,8 +109,7 @@ namespace poac::opts::update {
         // Delete current version
         for (const auto& [name, dep] : update_deps) {
             const std::string current_name = core::name::to_current(name);
-            boost::system::error_code error;
-            fs::remove_all("deps"_path / current_name, error);
+            fs::remove_all("deps"_path / current_name);
         }
 
         // Install new version
