@@ -75,9 +75,9 @@ namespace poac::util {
             return !static_cast<bool>(std::system(cmd.c_str()));
         }
 
-        friend std::ostream& operator<<(std::ostream& stream, const shell& c) {
-            stream << c.cmd;
-            return stream;
+        friend std::ostream&
+        operator<<(std::ostream& os, const shell& c) {
+            return (os << c.cmd);
         }
 
         bool operator==(const shell& rhs) const {
