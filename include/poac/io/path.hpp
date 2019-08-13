@@ -12,8 +12,17 @@
 
 #include <poac/core/except.hpp>
 
-#if !BOOST_OS_MACOS
-#  include <filesystem>
+#if BOOST_OS_LINUX
+#  if __has_include(<filesystem>)
+#    include <filesystem>
+#  elif __has_include(<experimental/filesystem>)
+#    include <experimental/filesystem>
+namespace std::filesystem {
+    using namespace std::experimental::filesystem::v1;
+}
+#  else
+#    error "Could not find a filesystem header"
+#  endif
 #  include <system_error>
 #else
 #  include <boost/filesystem.hpp>
