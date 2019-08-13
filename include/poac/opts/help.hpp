@@ -17,7 +17,6 @@
 #include <poac/opts/install.hpp>
 #include <poac/opts/new.hpp>
 #include <poac/opts/publish.hpp>
-#include <poac/opts/root.hpp>
 #include <poac/opts/run.hpp>
 #include <poac/opts/search.hpp>
 #include <poac/opts/test.hpp>
@@ -53,7 +52,6 @@ namespace poac::opts::help {
         { "install",   opts::install::cli },
         { "new",       opts::_new::cli },
         { "publish",   opts::publish::cli },
-        { "root",      opts::root::cli },
         { "run",       opts::run::cli },
         { "search",    opts::search::cli },
         { "test",      opts::test::cli },

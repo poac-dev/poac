@@ -10,7 +10,6 @@
 #include <poac/opts/install.hpp>
 #include <poac/opts/new.hpp>
 #include <poac/opts/publish.hpp>
-#include <poac/opts/root.hpp>
 #include <poac/opts/run.hpp>
 #include <poac/opts/search.hpp>
 #include <poac/opts/test.hpp>
