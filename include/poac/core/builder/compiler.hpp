@@ -32,7 +32,7 @@ namespace poac::core::builder::compiler {
         }
 
         cmd += "-o";
-        auto obj_path = opts.output_root / fs::relative(opts.source_file);
+        auto obj_path = opts.output_root / fs::path(opts.source_file).relative_path();
         obj_path.replace_extension("o");
         fs::create_directories(obj_path.parent_path());
         const std::string obj_files_path = obj_path.string();

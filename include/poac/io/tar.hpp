@@ -36,7 +36,7 @@ namespace poac::io::tar {
         for (const auto& v : opts) {
             exclude += "--exclude " + v + " ";
         }
-        const std::string filepath = fs::relative(input.parent_path()).string();
+        const std::string filepath = input.parent_path().relative_path().string();
         const std::string filename = input.filename().string();
         const std::string cmd = "cd " + filepath + " && " + "tar zcf " + output.string() + " " + exclude + filename;
         return util::shell(cmd).exec_ignore();

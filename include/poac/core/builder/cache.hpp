@@ -18,7 +18,7 @@ namespace poac::core::builder::cache {
         namespace fs = std::filesystem;
         namespace path = io::path;
 
-        const auto hash_path = path::current_build_cache_ts_dir / fs::relative(s);
+        const auto hash_path = path::current_build_cache_ts_dir / fs::path(s).relative_path();
         return hash_path.string() + ".hash";
     }
 

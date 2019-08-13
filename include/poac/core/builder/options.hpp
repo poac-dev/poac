@@ -45,7 +45,7 @@ namespace poac::core::builder::options {
         opts += accumulate(c.definitions, util::shell());
         opts += "-o";
         for (const auto& s : c.source_files) {
-            auto obj_path = c.output_root / std::filesystem::relative(s);
+            auto obj_path = c.output_root / std::filesystem::path(s).relative_path();
             obj_path.replace_extension("o");
             std::filesystem::create_directories(obj_path.parent_path());
             opts += obj_path.string();
