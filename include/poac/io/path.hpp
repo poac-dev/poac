@@ -17,65 +17,67 @@
 #  include <boost/filesystem.hpp>
 #  include <boost/system/system_error.hpp>
 namespace std::filesystem {
+    using namespace boost::filesystem;
+// error: target of using declaration conflicts with declaration already in scope
 // path
-using boost::filesystem::path;
-using boost::filesystem::filesystem_error;
-using boost::filesystem::directory_entry;
-using boost::filesystem::directory_iterator;
-using boost::filesystem::recursive_directory_iterator;
+//using boost::filesystem::path;
+//using boost::filesystem::filesystem_error;
+//using boost::filesystem::directory_entry;
+//using boost::filesystem::directory_iterator;
+//using boost::filesystem::recursive_directory_iterator;
 
 // information
-using boost::filesystem::file_status;
-using boost::filesystem::space_info;
-using boost::filesystem::file_type;
-using boost::filesystem::perms;
-//using perm_options = boost::filesystem::perm_options;
-//using copy_options = boost::filesystem::copy_options;
-//using directory_options = boost::filesystem::directory_options;
-//using file_time_type = boost::filesystem::file_time_type;
+//using boost::filesystem::file_status;
+//using boost::filesystem::space_info;
+//using boost::filesystem::file_type;
+//using boost::filesystem::perms;
+//using boost::filesystem::perm_options;
+//using boost::filesystem::copy_options;
+//using boost::filesystem::directory_options;
+//using boost::filesystem::file_time_type;
 
 // manipulation
-using boost::filesystem::current_path;
-using boost::filesystem::temp_directory_path;
-using boost::filesystem::absolute;
-using boost::filesystem::canonical;
-using boost::filesystem::weakly_canonical;
-using boost::filesystem::read_symlink;
-using boost::filesystem::relative;
-//    using boost::filesystem::proximate;
+//using boost::filesystem::current_path;
+//using boost::filesystem::temp_directory_path;
+//using boost::filesystem::absolute;
+//using boost::filesystem::canonical;
+//using boost::filesystem::weakly_canonical;
+//using boost::filesystem::read_symlink;
+//using boost::filesystem::relative;
+//using boost::filesystem::proximate;
 
-using boost::filesystem::copy;
-using boost::filesystem::copy_file;
-using boost::filesystem::copy_symlink;
-using boost::filesystem::create_directory;
-using boost::filesystem::create_directories;
-using boost::filesystem::create_directory_symlink;
-using boost::filesystem::create_hard_link;
-using boost::filesystem::create_symlink;
-using boost::filesystem::permissions;
-using boost::filesystem::remove;
-using boost::filesystem::remove_all;
-using boost::filesystem::rename;
-using boost::filesystem::resize_file;
+//using boost::filesystem::copy;
+//using boost::filesystem::copy_file;
+//using boost::filesystem::copy_symlink;
+//using boost::filesystem::create_directory;
+//using boost::filesystem::create_directories;
+//using boost::filesystem::create_directory_symlink;
+//using boost::filesystem::create_hard_link;
+//using boost::filesystem::create_symlink;
+//using boost::filesystem::permissions;
+//using boost::filesystem::remove;
+//using boost::filesystem::remove_all;
+//using boost::filesystem::rename;
+//using boost::filesystem::resize_file;
 
-using boost::filesystem::exists;
-using boost::filesystem::equivalent;
-using boost::filesystem::file_size;
-using boost::filesystem::hard_link_count;
-using boost::filesystem::is_regular_file;
-using boost::filesystem::is_directory;
-using boost::filesystem::is_symlink;
+//using boost::filesystem::exists;
+//using boost::filesystem::equivalent;
+//using boost::filesystem::file_size;
+//using boost::filesystem::hard_link_count;
+//using boost::filesystem::is_regular_file;
+//using boost::filesystem::is_directory;
+//using boost::filesystem::is_symlink;
 //using boost::filesystem::is_block_file;
 //using boost::filesystem::is_character_file;
 //using boost::filesystem::is_fifo;
 //using boost::filesystem::is_socket;
-using boost::filesystem::is_other;
-using boost::filesystem::is_empty;
-using boost::filesystem::last_write_time;
-using boost::filesystem::space;
-using boost::filesystem::status;
-using boost::filesystem::symlink_status;
-using boost::filesystem::status_known;
+//using boost::filesystem::is_other;
+//using boost::filesystem::is_empty;
+//using boost::filesystem::last_write_time;
+//using boost::filesystem::space;
+//using boost::filesystem::status;
+//using boost::filesystem::symlink_status;
+//using boost::filesystem::status_known;
 }
 #endif
 
