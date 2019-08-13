@@ -2,6 +2,8 @@
 #define POAC_IO_PATH_HPP
 
 #include <cstdlib>
+#include <ctime>
+#include <chrono>
 #include <fstream>
 #include <string>
 #include <optional>
@@ -190,6 +192,15 @@ namespace poac::io::path {
         return true;
     }
 #endif
+
+    std::string
+    time_to_string(const std::time_t time) {
+        return std::to_string(time);
+    }
+    std::string
+    time_to_string(const std::chrono::system_clock::time_point time) {
+        return time_to_string(std::chrono::system_clock::to_time_t(time));
+    }
 
     void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
         ofs.open(fname);

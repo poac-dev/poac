@@ -640,7 +640,8 @@ namespace poac::io::config {
     std::string
     get_timestamp() {
         if (const auto filename = config::detail::validate_config()) {
-            return std::to_string(std::filesystem::last_write_time(filename.value()));
+            const auto last_time = std::filesystem::last_write_time(filename.value());
+            return io::path::time_to_string(last_time);
         } else {
             throw core::except::error(
                     core::except::msg::does_not_exist("poac.toml"), "\n",

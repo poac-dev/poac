@@ -49,10 +49,8 @@ namespace poac::core::builder::cache {
             const std::string& filename,
             std::map<std::string, std::string>& timestamp)
     {
-        namespace fs = std::filesystem;
-
-        const std::time_t last_time = fs::last_write_time(filename);
-        timestamp.emplace(filename, std::to_string(last_time));
+        const auto last_time = std::filesystem::last_write_time(filename);
+        timestamp.emplace(filename, io::path::time_to_string(last_time));
     }
 
     // *.cpp -> hash
