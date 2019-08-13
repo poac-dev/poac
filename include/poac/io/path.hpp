@@ -194,11 +194,11 @@ namespace poac::io::path {
 #endif
 
     std::string
-    time_to_string(const std::time_t time) {
+    time_to_string(const std::time_t& time) {
         return std::to_string(time);
     }
     std::string
-    time_to_string(const std::chrono::system_clock::time_point time) {
+    time_to_string(const std::chrono::system_clock::time_point& time) {
         return time_to_string(std::chrono::system_clock::to_time_t(time));
     }
 
