@@ -13,22 +13,15 @@
 #include <poac/util/misc.hpp>
 
 namespace poac::core::builder::cache {
-    std::string to_cache_hash_path(const std::string& s)
-    {
-        namespace fs = std::filesystem;
-        namespace path = io::path;
-
-        const auto hash_path = path::current_build_cache_ts_dir / fs::path(s).relative_path();
+    std::string to_cache_hash_path(const std::string& s) {
+        auto hash_path = io::path::current_build_cache_ts_dir;
+        hash_path /= std::filesystem::path(s).relative_path();
         return hash_path.string() + ".hash";
     }
 
     std::optional<std::map<std::string, std::string>>
-    load_timestamps(const std::string& src_cpp_hash)
-    {
-        namespace fs = std::filesystem;
-        namespace misc = util::misc;
-
-        if (!fs::exists(src_cpp_hash)) {
+    load_timestamps(const std::string& src_cpp_hash) {
+        if (!std::filesystem::exists(src_cpp_hash)) {
             return std::nullopt;
         }
         std::ifstream ifs(src_cpp_hash);
@@ -39,7 +32,7 @@ namespace poac::core::builder::cache {
         std::string buff;
         std::map<std::string, std::string> hash;
         while (std::getline(ifs, buff)) {
-            const auto list_string = misc::split(buff, ": \n");
+            const auto list_string = util::misc::split(buff, ": \n");
             hash[list_string[0]] = list_string[1];
         }
         return hash;
