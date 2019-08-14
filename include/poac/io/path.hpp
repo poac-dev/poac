@@ -148,9 +148,9 @@ namespace poac::io::path {
     template <typename Clock, typename Duration>
     std::string
     time_to_string(const std::chrono::time_point<Clock, Duration>& time) {
-        // FIXME: https://developercommunity.visualstudio.com/content/problem/251213/stdfilesystemfile-time-type-does-not-allow-easy-co.html
-        const auto sys_time = std::chrono::time_point_cast<std::chrono::system_clock>(time);
-        return time_to_string(std::chrono::system_clock::to_time_t(sys_time));
+        const auto sec = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch());
+        const std::time_t t = sec.count();
+        return time_to_string(t);
     }
 } // end namespace
 #endif // !POAC_IO_PATH_HPP
