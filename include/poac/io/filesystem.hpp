@@ -111,9 +111,9 @@ namespace poac::io::filesystem {
     }
 
 #if BOOST_OS_LINUX
-    bool copy_recursive(const io::path::path& from, const io::path::path& dest) noexcept {
+    bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) noexcept {
         try {
-            io::path::copy(from, dest, fs::copy_options::recursive);
+            io::filesystem::copy(from, dest, io::filesystem::copy_options::recursive);
         } catch (...) {
             return false;
         }
