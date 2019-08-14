@@ -15,13 +15,13 @@
 namespace poac::core::builder::cache {
     std::string to_cache_hash_path(const std::string& s) {
         auto hash_path = io::path::current_build_cache_ts_dir;
-        hash_path /= std::filesystem::path(s).relative_path();
+        hash_path /= io::path::path(s).relative_path();
         return hash_path.string() + ".hash";
     }
 
     std::optional<std::map<std::string, std::string>>
     load_timestamps(const std::string& src_cpp_hash) {
-        if (!std::filesystem::exists(src_cpp_hash)) {
+        if (!io::path::exists(src_cpp_hash)) {
             return std::nullopt;
         }
         std::ifstream ifs(src_cpp_hash);
@@ -42,7 +42,7 @@ namespace poac::core::builder::cache {
             const std::string& filename,
             std::map<std::string, std::string>& timestamp)
     {
-        const auto last_time = std::filesystem::last_write_time(filename);
+        const auto last_time = io::path::last_write_time(filename);
         timestamp.emplace(filename, io::path::time_to_string(last_time));
     }
 

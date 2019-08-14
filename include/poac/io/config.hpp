@@ -405,9 +405,9 @@ namespace poac::io::config {
         }
 
         std::optional<std::string>
-        validate_config(const std::filesystem::path& base = path::current) {
+        validate_config(const io::path::path& base = path::current) {
             const auto config_path = base / "poac.toml";
-            if (std::filesystem::exists(config_path)) {
+            if (io::path::exists(config_path)) {
                 return config_path.string();
             } else {
                 return std::nullopt;
@@ -622,8 +622,8 @@ namespace poac::io::config {
 
     template <typename C>
     std::optional<C>
-    load_toml(const std::filesystem::path& base, const std::string& fname) {
-        if (std::filesystem::exists(base / fname)) {
+    load_toml(const io::path::path& base, const std::string& fname) {
+        if (io::path::exists(base / fname)) {
             const auto config_toml = toml::parse<toml::preserve_comments>(fname);
             const auto config = toml::get<C>(config_toml);
             return config;
@@ -633,14 +633,14 @@ namespace poac::io::config {
     }
 
     std::optional<Config>
-    load(const std::filesystem::path& base = path::current) {
+    load(const io::path::path& base = path::current) {
          return load_toml<Config>(base, "poac.toml");
     }
 
     std::string
     get_timestamp() {
         if (const auto filename = config::detail::validate_config()) {
-            const auto last_time = std::filesystem::last_write_time(filename.value());
+            const auto last_time = io::path::last_write_time(filename.value());
             return io::path::time_to_string(last_time);
         } else {
             throw core::except::error(

@@ -10,11 +10,11 @@
 
 namespace poac::core::builder::chain {
     struct cmake {
-        std::filesystem::path base_path;
+        io::path::path base_path;
 
         bool build() { // TODO: builderと同じinterfaceであるべき
             util::shell cmd("cd " + base_path.string());
-            if (!std::filesystem::exists(base_path / "_build")) {
+            if (!io::path::exists(base_path / "_build")) {
                 cmd &= "mkdir _build";
             }
             cmd &= "cd _build";
@@ -28,8 +28,8 @@ namespace poac::core::builder::chain {
             return cmd.exec_ignore();
         }
 
-        explicit cmake(const std::filesystem::path& base_path = io::path::current) {
-            if (!std::filesystem::exists(base_path / "CMakeLists.txt")) {
+        explicit cmake(const io::path::path& base_path = io::path::current) {
+            if (!io::path::exists(base_path / "CMakeLists.txt")) {
                 throw except::error(
                         except::msg::does_not_exist((base_path / "CMakeLists.txt").string()));
             }

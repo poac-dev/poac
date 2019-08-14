@@ -44,10 +44,10 @@ namespace poac::opts::clean {
         // iterate directory
         auto first = package_names.cbegin();
         auto last = package_names.cend();
-        for (const auto& e : boost::make_iterator_range( std::filesystem::directory_iterator("deps"), {} )) {
+        for (const auto& e : boost::make_iterator_range( io::path::directory_iterator("deps"), {} )) {
             const auto found = std::find(first, last, e.path().filename().string());
             if (found == last) { // not found
-                std::filesystem::remove_all(e.path());
+                io::path::remove_all(e.path());
                 const auto info_state = "Remove unused package " + e.path().filename().string();
                 std::cout << io::term::info << info_state << std::endl;
             }

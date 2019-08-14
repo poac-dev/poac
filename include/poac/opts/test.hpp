@@ -38,7 +38,6 @@ namespace poac::opts::test {
 
 //    [[nodiscard]] std::optional<core::except::Error>
 //    execute_test_binary(const test::Options& opts, const std::string& bin_name, const std::string& bin_path) {
-//        namespace fs = std::filesystem;
 //        using termcolor2::color_literals::operator""_green;
 //
 //        util::shell cmd(fs::relative(bin_path).string());
@@ -67,7 +66,6 @@ namespace poac::opts::test {
 
     [[nodiscard]] std::optional<core::except::Error>
     test(std::future<std::optional<io::config::Config>>&&, test::Options&&) {
-        namespace fs = std::filesystem;
         using namespace termcolor2::color_literals;
 
 //        const bool usemain = false;
@@ -84,7 +82,7 @@ namespace poac::opts::test {
 //
 //        /// TODO: これは重要！忘れない！！！！！！！！！！！！！！！！
 //        // You can use #include<> in test code. // TODO: これは，builder.hpp: 255で書いたように，build.hppでもできるようにすべき．
-//        bs.compile_conf.include_search_path.push_back((fs::current_path() / "include").string());
+//        bs.compile_conf.include_search_path.push_back((io::path::current / "include").string());
 //
 //        // TODO: buildsystemで，testモード実行なら，以下の内容が付与される．
 //        // TODO: つまり，bs.build(), bs.test()
@@ -104,7 +102,7 @@ namespace poac::opts::test {
 //            };
 //        }
 //
-//        for (const fs::path& p : fs::recursive_directory_iterator(fs::current_path() / "test")) {
+//        for (const fs::path& p : fs::recursive_directory_iterator(io::path::current / "test")) {
 //            if (!fs::is_directory(p) && p.extension().string() == ".cpp") {
 //                const std::string cpp_relative = fs::relative(p).string();
 //                const std::string bin_name = fs::path(

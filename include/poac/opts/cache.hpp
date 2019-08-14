@@ -38,14 +38,13 @@ namespace poac::opts::cache {
 
     [[nodiscard]] std::optional<core::except::Error>
     clean(cache::Options&& opts) {
-        namespace fs = std::filesystem;
         if (opts.all) {
-            fs::remove_all(io::path::poac_cache_dir);
+            io::path::remove_all(io::path::poac_cache_dir);
         } else if (!opts.files.empty()) {
             for (const auto& f : opts.files) {
-                const fs::path cache_package = io::path::poac_cache_dir / f;
+                const io::path::path cache_package = io::path::poac_cache_dir / f;
                 if (io::path::validate_dir(cache_package)) {
-                    fs::remove_all(cache_package);
+                    io::path::remove_all(cache_package);
                     std::cout << cache_package << " is deleted" << std::endl;
                 } else {
                     std::cout << termcolor2::red<> << cache_package << " not found"
@@ -60,10 +59,9 @@ namespace poac::opts::cache {
 
     [[nodiscard]] std::optional<core::except::Error>
     list(cache::Options&& opts) {
-        namespace fs = std::filesystem;
         if (opts.pattern) {
             for (const auto& e : boost::make_iterator_range(
-                    fs::directory_iterator(io::path::poac_cache_dir), {})
+                    io::path::directory_iterator(io::path::poac_cache_dir), {})
             ) {
                 const std::string cache_file = e.path().filename().string();
                 if (std::regex_match(cache_file, opts.pattern.value()))
@@ -71,7 +69,7 @@ namespace poac::opts::cache {
             }
         } else {
             for (const auto& e : boost::make_iterator_range(
-                    fs::directory_iterator(io::path::poac_cache_dir), {})
+                    io::path::directory_iterator(io::path::poac_cache_dir), {})
             ) {
                 std::cout << e.path().filename().string() << std::endl;
             }

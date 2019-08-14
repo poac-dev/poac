@@ -42,9 +42,8 @@ namespace poac::core::builder::detect {
 //        return std::nullopt;
 //    }
 
-    bool is_cpp_file(const std::filesystem::path& p) {
-        namespace fs = std::filesystem;
-        return !fs::is_directory(p)
+    bool is_cpp_file(const io::path::path& p) {
+        return !io::path::is_directory(p)
                && (p.extension().string() == ".cpp"
                    || p.extension().string() == ".cxx"
                    || p.extension().string() == ".cc"
@@ -52,14 +51,11 @@ namespace poac::core::builder::detect {
     }
 
     std::vector<std::string>
-    search_cpp_file(const std::filesystem::path& base_dir) {
-        namespace fs = std::filesystem;
-        namespace path = io::path;
-
+    search_cpp_file(const io::path::path& base_dir) {
         std::vector<std::string> source_files;
         const auto source_dir = base_dir / "src";
-        if (path::validate_dir(source_dir)) {
-            for (const fs::path& p : fs::recursive_directory_iterator(source_dir)) {
+        if (io::path::validate_dir(source_dir)) {
+            for (const io::path::path& p : io::path::recursive_directory_iterator(source_dir)) {
                 if (is_cpp_file(p)) {
                     source_files.push_back(p.string());
                 }

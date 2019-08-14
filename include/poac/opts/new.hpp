@@ -108,21 +108,20 @@ namespace poac::opts::_new {
         ofs.clear();
     }
 
-    std::map<std::filesystem::path, std::string>
+    std::map<io::path::path, std::string>
     create_template_files(const _new::Options& opts) {
-        namespace fs = std::filesystem;
         using io::path::path_literals::operator""_path;
 
         switch (opts.type) {
             case ProjectType::Bin:
-                fs::create_directories(opts.project_name / "src"_path);
+                io::path::create_directories(opts.project_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
                     { "poac.toml", files::bin::poac_toml(opts.project_name) },
                     { "src"_path / "main.cpp", files::bin::main_cpp }
                 };
             case ProjectType::Lib:
-                fs::create_directories(opts.project_name / "include"_path / opts.project_name);
+                io::path::create_directories(opts.project_name / "include"_path / opts.project_name);
                 return {
                     { ".gitignore", "/target\npoac.lock" },
                     { "poac.toml", files::lib::poac_toml },

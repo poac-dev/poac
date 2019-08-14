@@ -51,7 +51,6 @@ namespace poac::opts::update {
 
     [[nodiscard]] std::optional<core::except::Error>
     all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
-        namespace fs = std::filesystem;
         namespace resolve = core::resolver::resolve;
         using io::path::path_literals::operator""_path;
 
@@ -109,7 +108,7 @@ namespace poac::opts::update {
         // Delete current version
         for (const auto& [name, dep] : update_deps) {
             const std::string current_name = core::name::to_current(name);
-            fs::remove_all("deps"_path / current_name);
+            io::path::remove_all("deps"_path / current_name);
         }
 
         // Install new version

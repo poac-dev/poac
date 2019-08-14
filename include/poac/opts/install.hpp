@@ -143,8 +143,8 @@ namespace poac::opts::install {
             std::cout << io::term::status << "Fetching..." << std::endl;
             std::cout << std::endl;
         }
-        std::filesystem::create_directories(io::path::poac_cache_dir);
-        std::filesystem::create_directories(io::path::current_deps_dir);
+        io::path::create_directories(io::path::poac_cache_dir);
+        io::path::create_directories(io::path::current_deps_dir);
         fetch(deps, opts);
 
         if (!opts.quiet) {

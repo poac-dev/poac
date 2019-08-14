@@ -14,9 +14,12 @@
 #if BOOST_OS_LINUX
 #  if __has_include(<filesystem>)
 #    include <filesystem>
+namespace poac::io::path {
+    using namespace std::filesystem;
+}
 #  elif __has_include(<experimental/filesystem>)
 #    include <experimental/filesystem>
-namespace std::filesystem { // poac::io::path
+namespace poac::io::path {
     using namespace std::experimental::filesystem;
 }
 #  else
@@ -26,10 +29,18 @@ namespace std::filesystem { // poac::io::path
 #else
 #  include <boost/filesystem.hpp>
 #  include <boost/system/system_error.hpp>
-namespace std::filesystem { // poac::io::path
+namespace poac::io::path {
     using namespace boost::filesystem;
 }
 #endif
+// In macOS 10.14 or earlier, when std::filesystem is used,
+//   it is diverted to an unimplemented filesystem header so
+//   do not expand std::filesystem namespace to boost::filesystem,
+//   expand to poac::io::path namespace.
+// error: 'path' is unavailable: introduced in macOS 10.15
+// /Applications/Xcode-11.0.app/Contents/Developer/Toolchains/
+// XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/filesystem:739:24:
+// note: 'path' has been explicitly marked unavailable here
 
 namespace poac::io::path {
     std::optional<std::string>
@@ -72,57 +83,55 @@ namespace poac::io::path {
     }
 
     inline namespace path_literals {
-        inline std::filesystem::path
+        inline io::path::path
         operator "" _path(const char* str, std::size_t) noexcept {
-            return std::filesystem::path(str);
+            return io::path::path(str);
         }
     }
 
-    inline const std::filesystem::path poac_dir(expand_user() / ".poac"_path);
-    inline const std::filesystem::path poac_cache_dir(poac_dir / "cache");
-    inline const std::filesystem::path poac_log_dir(poac_dir / "logs");
+    inline const io::path::path poac_dir(expand_user() / ".poac"_path);
+    inline const io::path::path poac_cache_dir(poac_dir / "cache");
+    inline const io::path::path poac_log_dir(poac_dir / "logs");
 
-    inline const std::filesystem::path current(std::filesystem::current_path());
-    inline const std::filesystem::path current_deps_dir(current / "deps");
-    inline const std::filesystem::path current_build_dir(current / "_build");
-    inline const std::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
-    inline const std::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
-    inline const std::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
-    inline const std::filesystem::path current_build_bin_dir(current_build_dir / "bin");
-    inline const std::filesystem::path current_build_lib_dir(current_build_dir / "lib");
-    inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
-    inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
-    inline const std::filesystem::path current_build_test_report_dir(current_build_test_dir / "report");
+    inline const io::path::path current(io::path::current_path());
+    inline const io::path::path current_deps_dir(current / "deps");
+    inline const io::path::path current_build_dir(current / "_build");
+    inline const io::path::path current_build_cache_dir(current_build_dir / "_cache");
+    inline const io::path::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
+    inline const io::path::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
+    inline const io::path::path current_build_bin_dir(current_build_dir / "bin");
+    inline const io::path::path current_build_lib_dir(current_build_dir / "lib");
+    inline const io::path::path current_build_test_dir(current_build_dir / "test");
+    inline const io::path::path current_build_test_bin_dir(current_build_test_dir / "bin");
+    inline const io::path::path current_build_test_report_dir(current_build_test_dir / "report");
 
-    bool validate_dir(const std::filesystem::path& path) {
-        namespace fs = std::filesystem;
+    bool validate_dir(const io::path::path& path) {
+        namespace fs = io::path;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
 #if BOOST_OS_LINUX
-    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
+    bool copy_recursive(const io::path::path& from, const io::path::path& dest) noexcept {
         try {
-            std::filesystem::copy(from, dest, fs::copy_options::recursive);
+            io::path::copy(from, dest, fs::copy_options::recursive);
         } catch (...) {
             return false;
         }
     }
 #else
-    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) {
-        namespace fs = std::filesystem;
-
+    bool copy_recursive(const io::path::path& from, const io::path::path& dest) {
         // Does the copy source exist?
-        if (!fs::exists(from) || !fs::is_directory(from)) {
+        if (!io::path::exists(from) || !io::path::is_directory(from)) {
             return false;
         }
         // Does the copy destination exist?
-        if (!validate_dir(dest) && !fs::create_directories(dest)) {
+        if (!validate_dir(dest) && !io::path::create_directories(dest)) {
             return false; // Unable to create destination directory
         }
         // Iterate through the source directory
-        for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
-            const fs::path cur(file->path());
-            if (fs::is_directory(cur)) {
+        for (io::path::directory_iterator file(from); file != io::path::directory_iterator(); ++file) {
+            const io::path::path cur(file->path());
+            if (io::path::is_directory(cur)) {
                 // Found directory: Recursion
                 if (path::copy_recursive(cur, dest / cur.filename())) {
                     return false;
@@ -130,7 +139,7 @@ namespace poac::io::path {
             } else {
                 // Found file: Copy
                 try {
-                    fs::copy_file(cur, dest / cur.filename());
+                    io::path::copy_file(cur, dest / cur.filename());
                 } catch (...) {
                     return false;
                 }

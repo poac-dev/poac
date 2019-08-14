@@ -106,7 +106,6 @@ namespace poac::opts::uninstall {
 
     [[nodiscard]] std::optional<core::except::Error>
     individual(std::optional<io::config::Config>&& config, uninstall::Options&& opts) {
-        namespace fs = std::filesystem;
         namespace resolve = core::resolver::resolve;
         using termcolor2::color_literals::operator""_red;
 
@@ -156,7 +155,7 @@ namespace poac::opts::uninstall {
             const auto package_name = core::name::to_current(dep.first);
             const auto package_path = io::path::current_deps_dir / package_name;
             if (io::path::validate_dir(package_path)) {
-                fs::remove_all(package_path);
+                io::path::remove_all(package_path);
                 std::cout << dep.first << " is deleted" << std::endl;
             }
             else {
@@ -218,7 +217,7 @@ namespace poac::opts::uninstall {
                 return error;
             }
         }
-        std::filesystem::remove_all(io::path::current_deps_dir);
+        io::path::remove_all(io::path::current_deps_dir);
         return std::nullopt;
     }
 

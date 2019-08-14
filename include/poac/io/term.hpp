@@ -79,11 +79,11 @@ namespace poac::io::term {
                   << std::endl;
     }
     inline void
-    echo_compiling(const std::optional<io::config::Config>& config, const std::filesystem::path& path) {
+    echo_compiling(const std::optional<io::config::Config>& config, const path::path& path) {
         std::cout << compiling
                   << config->package.name
                   << " v" << config->package.version
-                  << " (" << std::filesystem::absolute(path).string() << ")"
+                  << " (" << path::absolute(path).string() << ")"
                   << std::endl;
     }
 

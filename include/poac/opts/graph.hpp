@@ -33,7 +33,7 @@ namespace poac::opts::graph {
             ;
 
     struct Options {
-        std::optional<std::filesystem::path> output_file;
+        std::optional<io::path::path> output_file;
     };
 
     struct Vertex {
@@ -116,7 +116,7 @@ namespace poac::opts::graph {
             boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
 
             util::shell("dot -Tpng " + file_dot + " -o " + opts.output_file->string()).exec();
-            std::filesystem::remove(file_dot);
+            io::path::remove(file_dot);
             io::term::status_done();
             return std::nullopt;
         } else {
