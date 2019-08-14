@@ -51,7 +51,7 @@ namespace poac::opts::init {
                 return error;
             }
         }
-        if (const auto error = core::name::validate_package_name(io::path::current.stem().string())) {
+        if (const auto error = core::name::validate_package_name(io::filesystem::current.stem().string())) {
             return error;
         }
         return std::nullopt;
@@ -69,7 +69,7 @@ namespace poac::opts::init {
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
-                ofs_config << _new::files::bin::poac_toml(io::path::current.stem().string());
+                ofs_config << _new::files::bin::poac_toml(io::filesystem::current.stem().string());
                 break;
             case _new::ProjectType::Lib:
                 ofs_config << _new::files::lib::poac_toml;

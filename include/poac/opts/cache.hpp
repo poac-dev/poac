@@ -39,12 +39,12 @@ namespace poac::opts::cache {
     [[nodiscard]] std::optional<core::except::Error>
     clean(cache::Options&& opts) {
         if (opts.all) {
-            io::path::remove_all(io::path::poac_cache_dir);
+            io::filesystem::remove_all(io::filesystem::poac_cache_dir);
         } else if (!opts.files.empty()) {
             for (const auto& f : opts.files) {
-                const io::path::path cache_package = io::path::poac_cache_dir / f;
-                if (io::path::validate_dir(cache_package)) {
-                    io::path::remove_all(cache_package);
+                const io::filesystem::path cache_package = io::filesystem::poac_cache_dir / f;
+                if (io::filesystem::validate_dir(cache_package)) {
+                    io::filesystem::remove_all(cache_package);
                     std::cout << cache_package << " is deleted" << std::endl;
                 } else {
                     std::cout << termcolor2::red<> << cache_package << " not found"
@@ -61,7 +61,7 @@ namespace poac::opts::cache {
     list(cache::Options&& opts) {
         if (opts.pattern) {
             for (const auto& e : boost::make_iterator_range(
-                    io::path::directory_iterator(io::path::poac_cache_dir), {})
+                    io::filesystem::directory_iterator(io::filesystem::poac_cache_dir), {})
             ) {
                 const std::string cache_file = e.path().filename().string();
                 if (std::regex_match(cache_file, opts.pattern.value()))
@@ -69,7 +69,7 @@ namespace poac::opts::cache {
             }
         } else {
             for (const auto& e : boost::make_iterator_range(
-                    io::path::directory_iterator(io::path::poac_cache_dir), {})
+                    io::filesystem::directory_iterator(io::filesystem::poac_cache_dir), {})
             ) {
                 std::cout << e.path().filename().string() << std::endl;
             }
@@ -79,7 +79,7 @@ namespace poac::opts::cache {
 
     [[nodiscard]] std::optional<core::except::Error>
     root() {
-        std::cout << io::path::poac_cache_dir.string() << std::endl;
+        std::cout << io::filesystem::poac_cache_dir.string() << std::endl;
         return std::nullopt;
     }
 

@@ -52,7 +52,7 @@ namespace poac::opts::update {
     [[nodiscard]] std::optional<core::except::Error>
     all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
         namespace resolve = core::resolver::resolve;
-        using io::path::path_literals::operator""_path;
+        using io::filesystem::path_literals::operator""_path;
 
         const auto deps = install::resolve_packages(config->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
         resolve::ResolvedDeps resolved_deps = resolve::resolve(deps);
@@ -108,7 +108,7 @@ namespace poac::opts::update {
         // Delete current version
         for (const auto& [name, dep] : update_deps) {
             const std::string current_name = core::name::to_current(name);
-            io::path::remove_all("deps"_path / current_name);
+            io::filesystem::remove_all("deps"_path / current_name);
         }
 
         // Install new version
@@ -123,7 +123,7 @@ namespace poac::opts::update {
 
     [[nodiscard]] std::optional<core::except::Error>
     update(std::future<std::optional<io::config::Config>>&& config, update::Options&& opts) {
-        if (!io::path::validate_dir("deps")) {
+        if (!io::filesystem::validate_dir("deps")) {
             return core::except::Error::General{
                 "Could not find deps directory.\n"
                 "Please execute install command before executing update command."

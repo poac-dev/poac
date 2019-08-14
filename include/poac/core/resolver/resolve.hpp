@@ -33,14 +33,14 @@
 namespace poac::core::resolver::resolve {
     namespace cache {
         bool resolve(const std::string& package_name) {
-            const auto package_path = io::path::poac_cache_dir / package_name;
-            return io::path::validate_dir(package_path);
+            const auto package_path = io::filesystem::poac_cache_dir / package_name;
+            return io::filesystem::validate_dir(package_path);
         }
     }
     namespace current {
         bool resolve(const std::string& current_package_name) {
-            const auto package_path = io::path::current_deps_dir / current_package_name;
-            return io::path::validate_dir(package_path);
+            const auto package_path = io::filesystem::current_deps_dir / current_package_name;
+            return io::filesystem::validate_dir(package_path);
         }
     }
     namespace github {

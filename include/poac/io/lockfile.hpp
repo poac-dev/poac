@@ -105,7 +105,7 @@ namespace poac::io::lockfile {
     }
 
     std::optional<Lockfile>
-    load(const path::path& base = path::current) {
+    load(const filesystem::path& base = filesystem::current) {
         return config::load_toml<Lockfile>(base, "poac.lock");
     }
 } // end namespace

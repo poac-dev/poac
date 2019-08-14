@@ -44,12 +44,12 @@ namespace poac::core {
         std::optional<io::config::Config> config;
         builder::Mode mode;
         bool verbose;
-        io::path::path base_dir;
+        io::filesystem::path base_dir;
         std::string compiler;
 
         [[nodiscard]] std::optional<core::except::Error>
         build() {
-            using namespace io::path::path_literals;
+            using namespace io::filesystem::path_literals;
 
             io::term::echo_compiling(config, this->base_dir);
 
@@ -80,7 +80,7 @@ namespace poac::core {
 
         Builder(std::optional<io::config::Config>&& config,
                 builder::Mode mode, const bool verbose,
-                const io::path::path& base_dir = io::path::current)
+                const io::filesystem::path& base_dir = io::filesystem::current)
             : config(std::move(config)), mode(mode), verbose(verbose), base_dir(base_dir)
             , compiler(builder::standard::detect_command())
         {

@@ -223,7 +223,7 @@ namespace poac::core::builder::standard {
     }
 
     std::string detect_command() {
-        if (const auto cxx = io::path::dupenv("CXX")) {
+        if (const auto cxx = io::filesystem::dupenv("CXX")) {
             return *cxx;
         } else if (util::_shell::has_command("icpc")) {
             return "icpc";

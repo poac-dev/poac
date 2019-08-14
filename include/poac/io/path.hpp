@@ -14,12 +14,12 @@
 #if BOOST_OS_LINUX
 #  if __has_include(<filesystem>)
 #    include <filesystem>
-namespace poac::io::path {
+namespace poac::io::filesystem {
     using namespace std::filesystem;
 }
 #  elif __has_include(<experimental/filesystem>)
 #    include <experimental/filesystem>
-namespace poac::io::path {
+namespace poac::io::filesystem {
     using namespace std::experimental::filesystem;
 }
 #  else
@@ -29,7 +29,7 @@ namespace poac::io::path {
 #else
 #  include <boost/filesystem.hpp>
 #  include <boost/system/system_error.hpp>
-namespace poac::io::path {
+namespace poac::io::filesystem {
     using namespace boost::filesystem;
 }
 #endif
@@ -42,7 +42,7 @@ namespace poac::io::path {
 // XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/filesystem:739:24:
 // note: 'path' has been explicitly marked unavailable here
 
-namespace poac::io::path {
+namespace poac::io::filesystem {
     std::optional<std::string>
     dupenv(const std::string& name) {
 #if BOOST_COMP_MSVC
@@ -83,30 +83,30 @@ namespace poac::io::path {
     }
 
     inline namespace path_literals {
-        inline io::path::path
+        inline io::filesystem::path
         operator "" _path(const char* str, std::size_t) noexcept {
-            return io::path::path(str);
+            return io::filesystem::path(str);
         }
     }
 
-    inline const io::path::path poac_dir(expand_user() / ".poac"_path);
-    inline const io::path::path poac_cache_dir(poac_dir / "cache");
-    inline const io::path::path poac_log_dir(poac_dir / "logs");
+    inline const io::filesystem::path poac_dir(expand_user() / ".poac"_path);
+    inline const io::filesystem::path poac_cache_dir(poac_dir / "cache");
+    inline const io::filesystem::path poac_log_dir(poac_dir / "logs");
 
-    inline const io::path::path current(io::path::current_path());
-    inline const io::path::path current_deps_dir(current / "deps");
-    inline const io::path::path current_build_dir(current / "_build");
-    inline const io::path::path current_build_cache_dir(current_build_dir / "_cache");
-    inline const io::path::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
-    inline const io::path::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
-    inline const io::path::path current_build_bin_dir(current_build_dir / "bin");
-    inline const io::path::path current_build_lib_dir(current_build_dir / "lib");
-    inline const io::path::path current_build_test_dir(current_build_dir / "test");
-    inline const io::path::path current_build_test_bin_dir(current_build_test_dir / "bin");
-    inline const io::path::path current_build_test_report_dir(current_build_test_dir / "report");
+    inline const io::filesystem::path current(io::filesystem::current_path());
+    inline const io::filesystem::path current_deps_dir(current / "deps");
+    inline const io::filesystem::path current_build_dir(current / "_build");
+    inline const io::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
+    inline const io::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
+    inline const io::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
+    inline const io::filesystem::path current_build_bin_dir(current_build_dir / "bin");
+    inline const io::filesystem::path current_build_lib_dir(current_build_dir / "lib");
+    inline const io::filesystem::path current_build_test_dir(current_build_dir / "test");
+    inline const io::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
+    inline const io::filesystem::path current_build_test_report_dir(current_build_test_dir / "report");
 
-    bool validate_dir(const io::path::path& path) {
-        namespace fs = io::path;
+    bool validate_dir(const io::filesystem::path& path) {
+        namespace fs = io::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
@@ -119,27 +119,27 @@ namespace poac::io::path {
         }
     }
 #else
-    bool copy_recursive(const io::path::path& from, const io::path::path& dest) {
+    bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) {
         // Does the copy source exist?
-        if (!io::path::exists(from) || !io::path::is_directory(from)) {
+        if (!io::filesystem::exists(from) || !io::filesystem::is_directory(from)) {
             return false;
         }
         // Does the copy destination exist?
-        if (!validate_dir(dest) && !io::path::create_directories(dest)) {
+        if (!validate_dir(dest) && !io::filesystem::create_directories(dest)) {
             return false; // Unable to create destination directory
         }
         // Iterate through the source directory
-        for (io::path::directory_iterator file(from); file != io::path::directory_iterator(); ++file) {
-            const io::path::path cur(file->path());
-            if (io::path::is_directory(cur)) {
+        for (io::filesystem::directory_iterator file(from); file != io::filesystem::directory_iterator(); ++file) {
+            const io::filesystem::path cur(file->path());
+            if (io::filesystem::is_directory(cur)) {
                 // Found directory: Recursion
-                if (path::copy_recursive(cur, dest / cur.filename())) {
+                if (filesystem::copy_recursive(cur, dest / cur.filename())) {
                     return false;
                 }
             } else {
                 // Found file: Copy
                 try {
-                    io::path::copy_file(cur, dest / cur.filename());
+                    io::filesystem::copy_file(cur, dest / cur.filename());
                 } catch (...) {
                     return false;
                 }

@@ -30,9 +30,9 @@ namespace poac::core::builder::compiler {
         }
 
         cmd += "-o";
-        auto obj_path = opts.output_root / io::path::path(opts.source_file).relative_path();
+        auto obj_path = opts.output_root / io::filesystem::path(opts.source_file).relative_path();
         obj_path.replace_extension("o");
-        io::path::create_directories(obj_path.parent_path());
+        io::filesystem::create_directories(obj_path.parent_path());
         const std::string obj_files_path = obj_path.string();
         cmd += obj_files_path;
 
@@ -74,7 +74,7 @@ namespace poac::core::builder::compiler {
             std::cout << cmd << std::endl;
         }
 
-        io::path::create_directories(opts.output_root);
+        io::filesystem::create_directories(opts.output_root);
         if (cmd.exec()) {
             return bin_path;
         } else {
@@ -96,7 +96,7 @@ namespace poac::core::builder::compiler {
             std::cout << cmd << std::endl;
         }
 
-        io::path::create_directories(opts.output_root);
+        io::filesystem::create_directories(opts.output_root);
         if (cmd.exec()) {
             return lib_path;
         } else {
@@ -120,7 +120,7 @@ namespace poac::core::builder::compiler {
             std::cout << cmd << std::endl;
         }
 
-        io::path::create_directories(opts.output_root);
+        io::filesystem::create_directories(opts.output_root);
         if (cmd.exec()) {
             return lib_path;
         } else {

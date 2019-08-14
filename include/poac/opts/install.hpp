@@ -81,9 +81,9 @@ namespace poac::opts::install {
 
     // Copy package to ./deps
     bool copy_to_current(const std::string& from, const std::string& to) {
-        const auto from_path = io::path::poac_cache_dir / from;
-        const auto to_path = io::path::current_deps_dir / to;
-        return io::path::copy_recursive(from_path, to_path);
+        const auto from_path = io::filesystem::poac_cache_dir / from;
+        const auto to_path = io::filesystem::current_deps_dir / to;
+        return io::filesystem::copy_recursive(from_path, to_path);
     }
 
     void echo_install_status(const bool res, const std::string& name, const std::string& version) {
@@ -121,7 +121,7 @@ namespace poac::opts::install {
             }
             else {
                 util::shell clone_cmd(core::resolver::resolve::github::clone_command(name, package.version));
-                clone_cmd += (io::path::poac_cache_dir / cache_name).string();
+                clone_cmd += (io::filesystem::poac_cache_dir / cache_name).string();
                 clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
 
                 bool result = clone_cmd.exec().has_value(); // true == error
@@ -143,8 +143,8 @@ namespace poac::opts::install {
             std::cout << io::term::status << "Fetching..." << std::endl;
             std::cout << std::endl;
         }
-        io::path::create_directories(io::path::poac_cache_dir);
-        io::path::create_directories(io::path::current_deps_dir);
+        io::filesystem::create_directories(io::filesystem::poac_cache_dir);
+        io::filesystem::create_directories(io::filesystem::current_deps_dir);
         fetch(deps, opts);
 
         if (!opts.quiet) {

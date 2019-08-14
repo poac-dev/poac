@@ -153,9 +153,9 @@ namespace poac::opts::uninstall {
         std::cout << std::endl;
         for (const auto& dep : uninstall_list) {
             const auto package_name = core::name::to_current(dep.first);
-            const auto package_path = io::path::current_deps_dir / package_name;
-            if (io::path::validate_dir(package_path)) {
-                io::path::remove_all(package_path);
+            const auto package_path = io::filesystem::current_deps_dir / package_name;
+            if (io::filesystem::validate_dir(package_path)) {
+                io::filesystem::remove_all(package_path);
                 std::cout << dep.first << " is deleted" << std::endl;
             }
             else {
@@ -217,7 +217,7 @@ namespace poac::opts::uninstall {
                 return error;
             }
         }
-        io::path::remove_all(io::path::current_deps_dir);
+        io::filesystem::remove_all(io::filesystem::current_deps_dir);
         return std::nullopt;
     }
 

@@ -31,8 +31,8 @@ namespace poac::core::builder::options {
         std::vector<std::string> include_search_path;
         std::vector<std::string> other_args;
         std::vector<std::string> definitions;
-        io::path::path base_dir;
-        io::path::path output_root;
+        io::filesystem::path base_dir;
+        io::filesystem::path output_root;
     };
     std::string to_string(const compile& c) {
         util::shell opts;
@@ -45,9 +45,9 @@ namespace poac::core::builder::options {
         opts += accumulate(c.definitions, util::shell());
         opts += "-o";
         for (const auto& s : c.source_files) {
-            auto obj_path = c.output_root / io::path::path(s).relative_path();
+            auto obj_path = c.output_root / io::filesystem::path(s).relative_path();
             obj_path.replace_extension("o");
-            io::path::create_directories(obj_path.parent_path());
+            io::filesystem::create_directories(obj_path.parent_path());
             opts += obj_path.string();
         }
         return opts.string();
@@ -56,7 +56,7 @@ namespace poac::core::builder::options {
     struct link {
         std::string system;
         std::string project_name;
-        io::path::path output_root;
+        io::filesystem::path output_root;
         std::vector<std::string> obj_files_path;
         std::vector<std::string> library_search_path;
         std::vector<std::string> static_link_libs;
@@ -78,7 +78,7 @@ namespace poac::core::builder::options {
 
     struct static_lib {
         std::string project_name;
-        io::path::path output_root;
+        io::filesystem::path output_root;
         std::vector<std::string> obj_files_path;
     };
     std::string to_string(const static_lib& s) {
@@ -91,7 +91,7 @@ namespace poac::core::builder::options {
     struct dynamic_lib {
         std::string system;
         std::string project_name;
-        io::path::path output_root;
+        io::filesystem::path output_root;
         std::vector<std::string> obj_files_path;
     };
     std::string to_string(const dynamic_lib& d) {
@@ -123,7 +123,7 @@ namespace poac::core::builder::options {
     make_macro_defns(const io::config::Config&) {
         std::vector<std::string> macro_defns;
         // poac automatically define the absolute path of the project's root directory.
-        macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", io::path::current.string()));
+        macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", io::filesystem::current.string()));
 //        const auto version = semver::Version(config->version); // TODO: versionが無い
 //        macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
 //        macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));

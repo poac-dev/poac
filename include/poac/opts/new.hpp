@@ -108,20 +108,20 @@ namespace poac::opts::_new {
         ofs.clear();
     }
 
-    std::map<io::path::path, std::string>
+    std::map<io::filesystem::path, std::string>
     create_template_files(const _new::Options& opts) {
-        using io::path::path_literals::operator""_path;
+        using io::filesystem::path_literals::operator""_path;
 
         switch (opts.type) {
             case ProjectType::Bin:
-                io::path::create_directories(opts.project_name / "src"_path);
+                io::filesystem::create_directories(opts.project_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
                     { "poac.toml", files::bin::poac_toml(opts.project_name) },
                     { "src"_path / "main.cpp", files::bin::main_cpp }
                 };
             case ProjectType::Lib:
-                io::path::create_directories(opts.project_name / "include"_path / opts.project_name);
+                io::filesystem::create_directories(opts.project_name / "include"_path / opts.project_name);
                 return {
                     { ".gitignore", "/target\npoac.lock" },
                     { "poac.toml", files::lib::poac_toml },
@@ -161,7 +161,7 @@ namespace poac::opts::_new {
         if (const auto error = core::name::validate_package_name(opts.project_name)) {
             return error;
         }
-        if (io::path::validate_dir(opts.project_name)) {
+        if (io::filesystem::validate_dir(opts.project_name)) {
             return core::except::Error::General{
                 core::except::msg::already_exist("The `" + opts.project_name + "` directory")
             };
