@@ -83,7 +83,7 @@ namespace poac::opts::install {
     bool copy_to_current(const std::string& from, const std::string& to) {
         const auto from_path = io::path::poac_cache_dir / from;
         const auto to_path = io::path::current_deps_dir / to;
-        return io::path::copy(from_path, to_path);
+        return io::path::copy_recursive(from_path, to_path);
     }
 
     void echo_install_status(const bool res, const std::string& name, const std::string& version) {

@@ -99,17 +99,16 @@ namespace poac::io::path {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool copy(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
-        namespace fs = std::filesystem;
 #if BOOST_OS_LINUX
+    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
         try {
-            fs::copy(from, dest, fs::copy_options::recursive);
+            std::filesystem::copy(from, dest, fs::copy_options::recursive);
         } catch (...) {
             return false;
         }
     }
 #else
-    bool copy(const std::filesystem::path& from, const std::filesystem::path& dest) {
+    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) {
         namespace fs = std::filesystem;
 
         // Does the copy source exist?
@@ -125,7 +124,7 @@ namespace poac::io::path {
             const fs::path cur(file->path());
             if (fs::is_directory(cur)) {
                 // Found directory: Recursion
-                if (path::copy(cur, dest / cur.filename())) {
+                if (path::copy_recursive(cur, dest / cur.filename())) {
                     return false;
                 }
             } else {
