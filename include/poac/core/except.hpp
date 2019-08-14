@@ -94,7 +94,8 @@ namespace poac::core::except {
 
     private:
         template <typename T>
-        std::string what(const T& s) const {
+        std::string
+        what(const T& s) const {
             return s.what();
         }
         std::string
@@ -150,8 +151,9 @@ namespace poac::core::except {
         template <typename T>
         Error(T err) : state(err) {}
 
-        std::string what() const {
-            return std::visit([this](auto&& err) { return what(err); }, state);
+        std::string
+        what() const {
+            return std::visit([this](auto& err) { return what(err); }, state);
         }
     };
 
