@@ -54,7 +54,7 @@ namespace poac::io::net {
         req.set(http::field::host, host);
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         for (const auto& [field, string_param] : headers) {
-            std::visit([&, s=string_param](auto f) { req.set(f, s); }, field);
+            std::visit([&, s=string_param](auto& f) { req.set(f, s); }, field);
         }
         return req;
     }
