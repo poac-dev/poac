@@ -149,7 +149,9 @@ namespace poac::io::path {
     template <typename Clock, typename Duration>
     std::string
     time_to_string(const std::chrono::time_point<Clock, Duration>& time) {
-        return time_to_string(std::chrono::system_clock::to_time_t(time));
+        // FIXME: https://developercommunity.visualstudio.com/content/problem/251213/stdfilesystemfile-time-type-does-not-allow-easy-co.html
+        const auto sys_time = std::chrono::time_point_cast<std::chrono::system_clock>(time);
+        return time_to_string(std::chrono::system_clock::to_time_t(sys_time));
     }
 
     void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
