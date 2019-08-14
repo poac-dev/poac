@@ -99,6 +99,15 @@ namespace poac::opts::_new {
         std::string project_name;
     };
 
+    void write_to_file(std::ofstream& ofs, const std::string& fname, std::string_view text) {
+        ofs.open(fname);
+        if (ofs.is_open()) {
+            ofs << text;
+        }
+        ofs.close();
+        ofs.clear();
+    }
+
     std::map<std::filesystem::path, std::string>
     create_template_files(const _new::Options& opts) {
         namespace fs = std::filesystem;
@@ -173,7 +182,7 @@ namespace poac::opts::_new {
         }
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
-            io::path::write_to_file(ofs, (opts.project_name / name).string(), text);
+            write_to_file(ofs, (opts.project_name / name).string(), text);
         }
         git2::repository().init(opts.project_name);
         std::cout << "Created: "_green << opts.type

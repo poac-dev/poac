@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-#include <fstream>
 #include <string>
 #include <optional>
 
@@ -152,15 +151,6 @@ namespace poac::io::path {
         // FIXME: https://developercommunity.visualstudio.com/content/problem/251213/stdfilesystemfile-time-type-does-not-allow-easy-co.html
         const auto sys_time = std::chrono::time_point_cast<std::chrono::system_clock>(time);
         return time_to_string(std::chrono::system_clock::to_time_t(sys_time));
-    }
-
-    void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
-        ofs.open(fname);
-        if (ofs.is_open()) {
-            ofs << text;
-        }
-        ofs.close();
-        ofs.clear();
     }
 } // end namespace
 #endif // !POAC_IO_PATH_HPP
