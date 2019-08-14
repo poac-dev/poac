@@ -16,14 +16,15 @@ description = "Poac is a package manager for C++"
 #"matken11235/url-cpp" = ">=0.1.0 and <1.0.0"
 "poac-community/boost-predef" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-property_tree" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-filesystem" = { version = ">=1.64.0 and <2.0.0", link = "static" }
 #"poac-community/boost-range" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-algorithm" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-foreach" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-dynamic_bitset" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-dll" = ">=1.64.0 and <2.0.0"
 #"poac-community/boost-beast" = ">=1.64.0 and <2.0.0"
 #"ToruNiina/toml11" = ">=3.0.0 and <4.0.0"
+
+#[target.'cfg(any(os = "linux", compiler = "msvc"))'.dependencies]
+#"poac-community/boost-filesystem" = { version = ">=1.64.0 and <2.0.0", link = "static" }
 
 #[dev-dependencies]
 #"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
