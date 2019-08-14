@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <variant>
 
 #include <poac/poac.hpp>
 
@@ -14,7 +13,7 @@ int handle(std::string_view cmd, std::vector<std::string>&& args) noexcept {
         if (!error) {
             return EXIT_SUCCESS;
         }
-        if (std::holds_alternative<poac::core::except::Error::InvalidSecondArg>(error->state)) {
+        if (error->state.which() == 1) { // InvalidSecondArg
             handle("help", std::vector<std::string>{error->what()});
         } else {
             std::cerr << poac::io::term::error << error->what() << std::endl;

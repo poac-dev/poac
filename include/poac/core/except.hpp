@@ -3,8 +3,9 @@
 
 #include <string>
 #include <string_view>
-#include <variant>
 #include <stdexcept>
+
+#include <boost/variant.hpp>
 
 namespace poac::core::except {
     namespace detail {
@@ -94,12 +95,12 @@ namespace poac::core::except {
 
     private:
         template <typename T>
-        std::string
-        what(const T& s) const {
+        static std::string
+        what(const T& s) {
             return s.what();
         }
-        std::string
-        what(NoStates err) const noexcept {
+        static std::string
+        what(NoStates err) noexcept {
             switch (err) {
                 case NoStates::InterruptedByUser:
                     return "Interrupted by user";
@@ -107,8 +108,8 @@ namespace poac::core::except {
                     return "Invalid arguments";
             }
         }
-        std::string
-        what(InvalidSecondArg err) const noexcept {
+        static std::string
+        what(InvalidSecondArg err) noexcept {
             switch (err) {
                 case InvalidSecondArg::Build:
                     return "build";
@@ -132,7 +133,7 @@ namespace poac::core::except {
         }
 
     public:
-        using state_type = std::variant<
+        using state_type = boost::variant<
                 NoStates,
                 InvalidSecondArg,
                 General,
@@ -151,9 +152,17 @@ namespace poac::core::except {
         template <typename T>
         Error(T err) : state(err) {}
 
+        struct call_what : public boost::static_visitor<std::string> {
+            template <typename E>
+            std::string
+            operator()(E& err) const {
+                return what(err);
+            }
+        };
+
         std::string
         what() const {
-            return std::visit([this](auto& err) { return what(err); }, state);
+            return boost::apply_visitor(call_what{}, state);
         }
     };
 
