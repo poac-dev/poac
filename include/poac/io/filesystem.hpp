@@ -11,7 +11,7 @@
 
 #include <poac/core/except.hpp>
 
-#if BOOST_OS_LINUX
+#if BOOST_OS_LINUX || BOOST_COMP_MSVC
 #  if __has_include(<filesystem>)
 #    include <filesystem>
 namespace poac::io::filesystem {
@@ -110,7 +110,7 @@ namespace poac::io::filesystem {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-#if BOOST_OS_LINUX
+#if BOOST_OS_LINUX || BOOST_COMP_MSVC
     bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) noexcept {
         try {
             io::filesystem::copy(from, dest, io::filesystem::copy_options::recursive);
