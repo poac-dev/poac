@@ -8,7 +8,7 @@
 
 #include <poac/core/builder/absorb.hpp>
 #include <poac/core/builder/options.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::compiler {

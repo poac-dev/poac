@@ -14,7 +14,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/project.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/semver/semver.hpp>
 

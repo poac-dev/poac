@@ -11,7 +11,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 
 namespace poac::io::lockfile {
     enum class PackageType {

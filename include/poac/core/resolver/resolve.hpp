@@ -25,7 +25,7 @@
 #include <poac/io/lockfile.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/types.hpp>
 #include <poac/config.hpp>

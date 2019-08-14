@@ -9,7 +9,7 @@
 
 #include <poac/core/builder/absorb.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
 

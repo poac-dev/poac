@@ -13,7 +13,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/clap/clap.hpp>

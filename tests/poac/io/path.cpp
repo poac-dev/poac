@@ -5,7 +5,7 @@
 
 #include <fstream>
 
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 
 // bool validate_dir(const boost::filesystem::path& path)
 BOOST_AUTO_TEST_CASE( poac_io_path_validate_dir_test )

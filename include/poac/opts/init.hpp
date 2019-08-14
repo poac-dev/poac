@@ -9,7 +9,7 @@
 #include <optional>
 
 #include <poac/opts/new.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/core/except.hpp>

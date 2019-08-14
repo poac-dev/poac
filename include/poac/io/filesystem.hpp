@@ -1,5 +1,5 @@
-#ifndef POAC_IO_PATH_HPP
-#define POAC_IO_PATH_HPP
+#ifndef POAC_IO_FILESYSTEM_HPP
+#define POAC_IO_FILESYSTEM_HPP
 
 #include <cstdlib>
 #include <ctime>
@@ -161,4 +161,4 @@ namespace poac::io::filesystem {
         return time_to_string(t);
     }
 } // end namespace
-#endif // !POAC_IO_PATH_HPP
+#endif // !POAC_IO_FILESYSTEM_HPP

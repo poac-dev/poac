@@ -29,7 +29,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>

@@ -10,7 +10,7 @@
 #include <boost/range/iterator_range.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/path.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/util/argparse.hpp>
