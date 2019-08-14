@@ -138,25 +138,24 @@ namespace poac::util::cfg {
         };
 
         Kind kind;
-        std::string_view str;
-        ident id;
+        using string_type = std::string_view;
+        std::variant<std::monostate, string_type, ident> value;
 
         explicit
         Token(Kind k)
             : kind(k != Kind::String && k != Kind::Ident ? k
                    : throw std::invalid_argument("poac::util::cfg::Token"))
+            , value()
         {}
-
-        Token(Kind k, std::string_view s)
+        Token(Kind k, string_type s)
             : kind(k == Kind::String ? k
                    : throw std::invalid_argument("poac::util::cfg::Token"))
-            , str(s)
+            , value(s)
         {}
-
         Token(Kind k, ident i)
             : kind(k == Kind::Ident ? k
                    : throw std::invalid_argument("poac::util::cfg::Token"))
-            , id(i)
+            , value(i)
         {}
 
         Token() = delete;
@@ -166,7 +165,17 @@ namespace poac::util::cfg {
         Token& operator=(Token&&) noexcept = default;
         ~Token() = default;
 
-        friend std::ostream& operator<<(std::ostream& os, const Token& token);
+        string_type
+        get_str() const {
+            return std::get<string_type>(this->value);
+        }
+        ident
+        get_ident() const {
+            return std::get<ident>(this->value);
+        }
+
+        friend std::ostream&
+        operator<<(std::ostream& os, const Token& token);
     };
 
     std::string to_string(Token::ident ident) noexcept {
@@ -213,9 +222,9 @@ namespace poac::util::cfg {
             case Token::LtEq:
                 return (os << "lteq: <=");
             case Token::String:
-                return (os << "string: " << token.str);
+                return (os << "string: " << token.get_str());
             case Token::Ident:
-                return (os << "ident: " << to_string(token.id));
+                return (os << "ident: " << to_string(token.get_ident()));
         }
     }
 
@@ -631,10 +640,10 @@ namespace poac::util::cfg {
             if (const auto token = lexer.peek(); !token.has_value()) {
                 throw cfg::expression_error("expected start of a cfg expression");
             } else if (token->kind == Token::Ident) {
-                if (token->id == Token::ident::all
-                 || token->id == Token::ident::any) {
+                if (token->get_ident() == Token::ident::all
+                 || token->get_ident() == Token::ident::any) {
                     this->lexer.next();
-                    this->eat_left_paren(token->id);
+                    this->eat_left_paren(token->get_ident());
                     std::vector<CfgExpr> e;
                     do { // `all` and `any` need at least one expression.
                         e.emplace_back(this->expr());
@@ -643,18 +652,18 @@ namespace poac::util::cfg {
                             break;
                         }
                     } while (!r_try(Token::RightParen));
-                    if (token->id == Token::ident::all) {
+                    if (token->get_ident() == Token::ident::all) {
                         return CfgExpr{ CfgExpr::all, std::move(e) };
                     } else {
                         return CfgExpr{ CfgExpr::any, std::move(e) };
                     }
-                } else if (token->id == Token::ident::not_
-                        || token->id == Token::ident::cfg) {
+                } else if (token->get_ident() == Token::ident::not_
+                        || token->get_ident() == Token::ident::cfg) {
                     this->lexer.next();
-                    this->eat_left_paren(token->id);
+                    this->eat_left_paren(token->get_ident());
                     CfgExpr&& e = this->expr();
                     this->eat_right_paren();
-                    if (token->id == Token::ident::not_) {
+                    if (token->get_ident() == Token::ident::not_) {
                         return CfgExpr{
                             CfgExpr::not_,
                             std::make_unique<CfgExpr>(std::move(e))
@@ -678,15 +687,15 @@ namespace poac::util::cfg {
                 throw cfg::syntax_error(std::string(lexer.str) + "\n" + msg);
             } else if (token->kind == Token::Ident) {
                 if (this->r_try(Token::Equals)) {
-                    return this->cfg_str(token->id, Cfg::Op::Equals);
+                    return this->cfg_str(token->get_ident(), Cfg::Op::Equals);
                 } else if (this->r_try(Token::Gt)) {
-                    return this->cfg_str(lexer.index, token->id, Cfg::Op::Gt);
+                    return this->cfg_str(lexer.index, token->get_ident(), Cfg::Op::Gt);
                 } else if (this->r_try(Token::GtEq)) {
-                    return this->cfg_str(lexer.index, token->id, Cfg::Op::GtEq);
+                    return this->cfg_str(lexer.index, token->get_ident(), Cfg::Op::GtEq);
                 } else if (this->r_try(Token::Lt)) {
-                    return this->cfg_str(lexer.index, token->id, Cfg::Op::Lt);
+                    return this->cfg_str(lexer.index, token->get_ident(), Cfg::Op::Lt);
                 } else if (this->r_try(Token::LtEq)) {
-                    return this->cfg_str(lexer.index, token->id, Cfg::Op::LtEq);
+                    return this->cfg_str(lexer.index, token->get_ident(), Cfg::Op::LtEq);
                 }
             }
             std::string msg = std::string(lexer.index + 1, ' ');
@@ -721,7 +730,7 @@ namespace poac::util::cfg {
             const std::size_t index = lexer.index;
             if (const auto t = lexer.next()) {
                 if (t->kind == Token::String) {
-                    return { ident, op, t->str };
+                    return { ident, op, t->get_str() };
                 } else {
                     std::string msg = std::string(index + 1, ' ');
                     msg += "^";
