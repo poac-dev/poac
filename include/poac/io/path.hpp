@@ -99,9 +99,9 @@ namespace poac::io::path {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-#if !BOOST_OS_MACOS
     bool copy(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
         namespace fs = std::filesystem;
+#if BOOST_OS_LINUX
         try {
             fs::copy(from, dest, fs::copy_options::recursive);
         } catch (...) {
