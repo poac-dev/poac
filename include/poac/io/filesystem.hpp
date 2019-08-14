@@ -117,6 +117,7 @@ namespace poac::io::filesystem {
         } catch (...) {
             return false;
         }
+        return true;
     }
 #else
     bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) {
