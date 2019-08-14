@@ -11,21 +11,12 @@
 
 #include <poac/core/except.hpp>
 
-#if BOOST_OS_LINUX || BOOST_COMP_MSVC
-#  if __has_include(<filesystem>)
-#    include <filesystem>
+#if (BOOST_OS_LINUX || BOOST_COMP_MSVC) && __has_include(<filesystem>)
+#  include <filesystem>
+#  include <system_error>
 namespace poac::io::filesystem {
     using namespace std::filesystem;
 }
-#  elif __has_include(<experimental/filesystem>)
-#    include <experimental/filesystem>
-namespace poac::io::filesystem {
-    using namespace std::experimental::filesystem;
-}
-#  else
-#    error "Could not find a filesystem header"
-#  endif
-#  include <system_error>
 #else
 #  include <boost/filesystem.hpp>
 #  include <boost/system/system_error.hpp>
@@ -110,7 +101,7 @@ namespace poac::io::filesystem {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-#if BOOST_OS_LINUX || BOOST_COMP_MSVC
+#if (BOOST_OS_LINUX || BOOST_COMP_MSVC) && __has_include(<filesystem>)
     bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) noexcept {
         try {
             io::filesystem::copy(from, dest, io::filesystem::copy_options::recursive);

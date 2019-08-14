@@ -141,8 +141,8 @@ workflows:
             compiler: gcc
             version: 7
           build-type: "Debug"
-          after-build:
-            - run: ./build/poac help
+#          after-build:
+#            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -152,8 +152,8 @@ workflows:
             compiler: gcc
             version: 8
           build-type: "Debug"
-          after-build:
-            - run: ./build/poac help
+#          after-build:
+#            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -163,8 +163,8 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
-          after-build:
-            - run: ./build/poac help
+#          after-build:
+#            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -174,8 +174,8 @@ workflows:
             compiler: clang
             version: 6
           build-type: "Debug"
-          after-build:
-            - run: ./build/poac help
+#          after-build:
+#            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -185,8 +185,8 @@ workflows:
             compiler: clang
             version: 7
           build-type: "Debug"
-          after-build:
-            - run: ./build/poac help
+#          after-build:
+#            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -196,8 +196,8 @@ workflows:
             compiler: clang
             version: 8
           build-type: "Debug"
-          after-build:
-            - run: ./build/poac help
+#          after-build:
+#            - run: ./build/poac help
           requires:
             - checkout_code
 
