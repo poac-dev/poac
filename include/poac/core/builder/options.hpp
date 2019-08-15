@@ -26,6 +26,7 @@ namespace poac::core::builder::options {
     struct compile {
         std::string system;
         std::string std_version;
+        std::string opt_level;
         std::vector<std::string> source_files;
         std::string source_file;
         std::vector<std::string> include_search_path;
@@ -127,16 +128,5 @@ namespace poac::core::builder::options {
 //        macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
         return macro_defns;
     }
-
-//    std::vector<std::string>
-//    make_compile_other_args(const std::map<std::string, YAML::Node>& node) {
-//        namespace yaml = io::yaml;
-//        if (const auto compile_args = io::yaml::get<std::vector<std::string>>(node.at("build"), "compile_args")) {
-//            return *compile_args;
-//        }
-//        else {
-//            return {};
-//        }
-//    }
 } // end namespace
 #endif // POAC_CORE_BUILDER_OPTIONS_HPP

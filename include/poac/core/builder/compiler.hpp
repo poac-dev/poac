@@ -17,6 +17,7 @@ namespace poac::core::builder::compiler {
         util::shell cmd("cd " + opts.base_dir.string());
         cmd &= opts.system;
         cmd += opts.std_version;
+        cmd += "-O" + opts.opt_level;
         cmd += "-c";
         cmd += opts.source_file;
         for (const auto& isp : opts.include_search_path) {
