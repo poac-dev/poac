@@ -92,6 +92,11 @@ namespace poac::io::term {
         return (os << status_opt << bold_green<> + "Finished " << termcolor2::reset<>);
     }
 
+    inline std::ostream&
+    running(std::ostream& os) {
+        return (os << status_opt << bold_green<> + "Running " << termcolor2::reset<>);
+    }
+
     const std::vector<std::string> spinners{
         "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
     };
