@@ -17,7 +17,7 @@ namespace poac::core::builder::depends {
         util::shell cmd(opts.system);
         cmd += opts.std_version;
         for (const auto& isp : opts.include_search_path) {
-            cmd += "-I" + isp;
+            cmd += "-I" + isp.string();
         }
         for (const auto& cta : opts.other_args) {// TODO: other_argとして，include search pathを指定する可能性がある．
             cmd += cta;

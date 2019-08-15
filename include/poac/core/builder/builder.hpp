@@ -103,9 +103,9 @@ namespace poac::core::builder {
             compile_conf.std_version = standard::convert(config->package.cpp, compiler, false);
             compile_conf.opt_level = profile.opt_level;
 
-            compile_conf.source_file = ("src"_path / "main.cpp").string();
+            compile_conf.source_file = "src"_path / "main.cpp";
 
-            compile_conf.include_search_path.emplace_back((this->base_dir / "include").string());
+            compile_conf.include_search_path.emplace_back("include");
 
 
 
