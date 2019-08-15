@@ -102,19 +102,6 @@ namespace poac::io::term {
         return echo_status(os, "Running ");
     }
 
-    const std::vector<std::string> spinners{
-        "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
-    };
-    std::string to_spinner(const size_t& index) {
-        return spinners[index % spinners.size()];
-    }
-    const std::vector<std::string> pointers{ ".  ", ".. ", "..." };
-    std::string to_pointer(const size_t& index) {
-        if      (index <= 2) return pointers[0];
-        else if (index <= 5) return pointers[1];
-        else                 return pointers[2];
-    }
-
     // Create progress bar, [====>   ]
     std::string to_progress(const int& max_count, int now_count) {
         if (now_count > max_count) {
