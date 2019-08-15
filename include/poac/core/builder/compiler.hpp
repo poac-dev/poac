@@ -5,13 +5,105 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <numeric>
 
 #include <poac/core/builder/absorb.hpp>
-#include <poac/core/builder/options.hpp>
 #include <poac/io/filesystem.hpp>
 #include <poac/util/shell.hpp>
 
-namespace poac::core::builder::compiler {
+namespace poac::core::builder {
+    namespace options {
+        template <typename SinglePassRange, typename T>
+        T accumulate(const SinglePassRange& rng, T init) {
+            return std::accumulate(std::cbegin(rng), std::cend(rng), init);
+        }
+        template <typename SinglePassRange, typename T, typename BinaryOp>
+        T accumulate(const SinglePassRange& rng, T init, BinaryOp binary_op) {
+            return std::accumulate(std::cbegin(rng), std::cend(rng), init, binary_op);
+        }
+
+        struct compile {
+            std::string system;
+            std::string std_version;
+            std::string opt_level;
+            std::vector<std::string> source_files;
+            std::string source_file;
+            std::vector<std::string> include_search_path;
+            std::vector<std::string> other_args;
+            std::vector<std::string> definitions;
+            io::filesystem::path base_dir;
+            io::filesystem::path output_root;
+        };
+        std::string to_string(const compile& c) {
+            util::shell opts;
+            opts += c.std_version;
+            opts += "-c";
+            opts += accumulate(c.source_files, util::shell());
+            opts += accumulate(c.include_search_path, util::shell(),
+                               [](util::shell acc, auto s) { return acc + ("-I" + s); });
+            opts += accumulate(c.other_args, util::shell());
+            opts += accumulate(c.definitions, util::shell());
+            opts += "-o";
+            for (const auto& s : c.source_files) {
+                auto obj_path = c.output_root / io::filesystem::path(s).relative_path();
+                obj_path.replace_extension("o");
+                io::filesystem::create_directories(obj_path.parent_path());
+                opts += obj_path.string();
+            }
+            return opts.string();
+        }
+
+        struct link {
+            std::string system;
+            std::string project_name;
+            io::filesystem::path output_root;
+            std::vector<std::string> obj_files_path;
+            std::vector<std::string> library_search_path;
+            std::vector<std::string> static_link_libs;
+            std::vector<std::string> library_path;
+            std::vector<std::string> other_args;
+        };
+        std::string to_string(const link& l) {
+            util::shell opts;
+            opts += accumulate(l.obj_files_path, util::shell());
+            opts += accumulate(l.library_search_path, util::shell(),
+                               [](util::shell acc, auto s) { return acc + ("-L" + s); });
+            opts += accumulate(l.static_link_libs, util::shell(),
+                               [](util::shell acc, auto s) { return acc + ("-l" + s); });
+            opts += accumulate(l.library_path, util::shell());
+            opts += accumulate(l.other_args, util::shell());
+            opts += "-o " + (l.output_root / l.project_name).string();
+            return opts.string();
+        }
+
+        struct static_lib {
+            std::string project_name;
+            io::filesystem::path output_root;
+            std::vector<std::string> obj_files_path;
+        };
+        std::string to_string(const static_lib& s) {
+            util::shell opts;
+            opts += (s.output_root / s.project_name).string() + ".a";
+            opts += accumulate(s.obj_files_path, util::shell());
+            return opts.string();
+        }
+
+        struct dynamic_lib {
+            std::string system;
+            std::string project_name;
+            io::filesystem::path output_root;
+            std::vector<std::string> obj_files_path;
+        };
+        std::string to_string(const dynamic_lib& d) {
+            util::shell opts;
+            opts += absorb::dynamic_lib_option;
+            opts += accumulate(d.obj_files_path, util::shell());
+            opts += "-o";
+            opts += (d.output_root / d.project_name).string() + absorb::dynamic_lib_extension;
+            return opts.string();
+        }
+    }
+
     std::optional<std::string>
     compile(const options::compile& opts, const bool verbose) {
         util::shell cmd("cd " + opts.base_dir.string());
