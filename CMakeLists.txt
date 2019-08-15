@@ -125,7 +125,7 @@ if ((MSVC OR MINGW) AND ENABLE_STATIC)
     set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
 # -DCMAKE_BUILD_TYPE=Debug
 elseif (${CMAKE_BUILD_TYPE} MATCHES Debug)
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -Og -fsanitize=address")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address")
 # -DCMAKE_BUILD_TYPE=Release
 elseif (${CMAKE_BUILD_TYPE} MATCHES Release)
     set(STATIC_LINK_FLAG "-static")
