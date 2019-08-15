@@ -7,6 +7,8 @@
 
 #include <boost/variant.hpp>
 
+#include <poac/util/variant_helper.hpp>
+
 namespace poac::core::except {
     namespace detail {
         template<typename Arg>
@@ -82,6 +84,11 @@ namespace poac::core::except {
             virtual std::string what() const override {
                 return "`" + General::what() + "` does not exist";
             }
+
+            DoesNotExist(const DoesNotExist&) = default;
+            DoesNotExist& operator=(const DoesNotExist&) = delete;
+            DoesNotExist(DoesNotExist&&) = default;
+            DoesNotExist& operator=(DoesNotExist&&) = delete;
         };
 
         struct KeyDoesNotExist final : DoesNotExist {
@@ -91,16 +98,21 @@ namespace poac::core::except {
             std::string what() const override {
                 return "Required key " + DoesNotExist::what() + " in poac.toml";
             }
+
+            KeyDoesNotExist(const KeyDoesNotExist&) = default;
+            KeyDoesNotExist& operator=(const KeyDoesNotExist&) = delete;
+            KeyDoesNotExist(KeyDoesNotExist&&) = default;
+            KeyDoesNotExist& operator=(KeyDoesNotExist&&) = delete;
         };
 
     private:
         template <typename T>
-        static std::string
-        what(const T& s) {
+        std::string
+        what(const T& s) const {
             return s.what();
         }
-        static std::string
-        what(NoStates err) noexcept {
+        std::string
+        what(NoStates err) const noexcept {
             switch (err) {
                 case NoStates::InterruptedByUser:
                     return "Interrupted by user";
@@ -108,8 +120,8 @@ namespace poac::core::except {
                     return "Invalid arguments";
             }
         }
-        static std::string
-        what(InvalidSecondArg err) noexcept {
+        std::string
+        what(InvalidSecondArg err) const noexcept {
             switch (err) {
                 case InvalidSecondArg::Build:
                     return "build";
@@ -152,17 +164,9 @@ namespace poac::core::except {
         template <typename T>
         Error(T err) : state(err) {}
 
-        struct call_what : public boost::static_visitor<std::string> {
-            template <typename E>
-            std::string
-            operator()(E& err) const {
-                return what(err);
-            }
-        };
-
         std::string
         what() const {
-            return boost::apply_visitor(call_what{}, state);
+            return util::visit([this](auto& err) { return what(err); }, state);
         }
     };
 

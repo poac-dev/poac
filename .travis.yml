@@ -25,10 +25,7 @@ install:
   - if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
-      brew install llvm@7;
       brew upgrade cmake;
-    else
-      pip install cpp-coveralls;
     fi
   - brew install libgit2 matken11235/toml11/toml11
 script:
@@ -40,6 +37,7 @@ script:
   - cd ../
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
+      pip install cpp-coveralls;
       bash ./test.sh --coverage;
     fi
 
