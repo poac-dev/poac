@@ -459,13 +459,13 @@ namespace poac::io::config {
     };
 
     // https://doc.poac.pm/en/reference/manifest.html#the-profile-sections
-    struct ProfileUnder {
-        ProfileUnder() = default;
-        virtual ~ProfileUnder() = default;
-        ProfileUnder(const ProfileUnder&) = default;
-        ProfileUnder& operator=(const ProfileUnder&) = default;
-        ProfileUnder(ProfileUnder&&) noexcept = default;
-        ProfileUnder& operator=(ProfileUnder&&) noexcept = default;
+    struct ProfileBase {
+        ProfileBase() = default;
+        virtual ~ProfileBase() = default;
+        ProfileBase(const ProfileBase&) = default;
+        ProfileBase& operator=(const ProfileBase&) = default;
+        ProfileBase(ProfileBase&&) noexcept = default;
+        ProfileBase& operator=(ProfileBase&&) noexcept = default;
 
         std::optional<std::vector<std::string>> definitions; // optional (merge)
         std::optional<std::vector<std::string>> options; // optional (merge)
@@ -487,7 +487,7 @@ namespace poac::io::config {
             detail::field_from_toml(this->compiler, v, "compiler");
         }
 
-        void merge(const ProfileUnder& profile) {
+        void merge(const ProfileBase& profile) {
             detail::merge(this->definitions, profile.definitions);
             detail::merge(this->options, profile.options);
             detail::merge(this->libraries, profile.libraries);
@@ -502,18 +502,18 @@ namespace poac::io::config {
             this->incremental = profile.incremental;
         }
     };
-    struct ProfileDev : public ProfileUnder {
+    struct ProfileDev : public ProfileBase {
         void from_toml(const toml::value& v) override {
-            ProfileUnder::from_toml(v);
+            ProfileBase::from_toml(v);
             detail::field_from_toml(this->opt_level, v, "opt-level", "0");
             detail::field_from_toml(this->debug, v, "debug", true);
             detail::field_from_toml(this->lto, v, "lto", false);
             detail::field_from_toml(this->incremental, v, "incremental", true);
         }
     };
-    struct ProfileRelease : public ProfileUnder {
+    struct ProfileRelease : public ProfileBase {
         void from_toml(const toml::value& v) override {
-            ProfileUnder::from_toml(v);
+            ProfileBase::from_toml(v);
             detail::field_from_toml(this->opt_level, v, "opt-level", "3");
             detail::field_from_toml(this->debug, v, "debug", false);
             detail::field_from_toml(this->lto, v, "lto", false);
