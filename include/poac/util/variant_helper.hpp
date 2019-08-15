@@ -2,7 +2,6 @@
 #define POAC_UTIL_VARIANT_HELPER_HPP
 
 #include <utility>
-#include <variant>
 
 #include <boost/variant/variant.hpp>
 #include <boost/variant/static_visitor.hpp>
