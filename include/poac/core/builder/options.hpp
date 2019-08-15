@@ -104,26 +104,22 @@ namespace poac::core::builder::options {
     }
 
 
-    template <typename T>
-    std::string make_macro_defn(const std::string& first, const T& second) {
-        return make_macro_defn(first, std::to_string(second));
-    }
-    template <>
-    std::string make_macro_defn<std::string>(const std::string& first, const std::string& second) {
+    std::string
+    make_definitions(const std::string& first, const std::string& second) {
         return "-D" + first + "=" + R"(\")" + second + R"(\")";
     }
-    template <>
-    std::string make_macro_defn<std::uint64_t>(const std::string& first, const std::uint64_t& second) {
+    std::string
+    make_definitions(const std::string& first, const std::uint64_t& second) {
         std::ostringstream oss;
         oss << second;
-        return make_macro_defn(first, oss.str());
+        return make_definitions(first, oss.str());
     }
 
     std::vector<std::string>
     make_macro_defns(const io::config::Config&) {
         std::vector<std::string> macro_defns;
         // poac automatically define the absolute path of the project's root directory.
-        macro_defns.emplace_back(make_macro_defn("POAC_PROJECT_ROOT", io::filesystem::current.string()));
+        macro_defns.emplace_back(make_definitions("POAC_PROJECT_ROOT", io::filesystem::current.string()));
 //        const auto version = semver::Version(config->version); // TODO: versionが無い
 //        macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
 //        macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
