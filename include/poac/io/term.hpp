@@ -88,13 +88,18 @@ namespace poac::io::term {
     }
 
     inline std::ostream&
+    echo_status(std::ostream& os, const std::string& msg) {
+        return (os << status_opt << bold_green<>.to_string() + msg << termcolor2::reset<>);
+    }
+
+    inline std::ostream&
     finished(std::ostream& os) {
-        return (os << status_opt << bold_green<> + "Finished " << termcolor2::reset<>);
+        return echo_status(os, "Finished ");
     }
 
     inline std::ostream&
     running(std::ostream& os) {
-        return (os << status_opt << bold_green<> + "Running " << termcolor2::reset<>);
+        return echo_status(os, "Running ");
     }
 
     const std::vector<std::string> spinners{
