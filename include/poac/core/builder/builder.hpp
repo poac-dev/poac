@@ -8,7 +8,6 @@
 #include <optional>
 
 #include <poac/core/builder/compiler.hpp>
-#include <poac/core/builder/detect.hpp>
 #include <poac/core/builder/standard.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>

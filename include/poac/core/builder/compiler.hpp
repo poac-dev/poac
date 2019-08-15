@@ -64,7 +64,9 @@ namespace poac::core::builder {
         cmd += "-c";
         cmd += io::filesystem::absolute(opts.source_file).string();
         cmd += accumulate(opts.include_search_path, util::shell(),
-                [](util::shell& acc, auto& s){ return acc + ("-I" + io::filesystem::absolute(s).string()); });
+                [](util::shell& acc, auto& s){
+                    return acc + ("-I" + io::filesystem::absolute(s).string());
+                });
         cmd += accumulate(opts.other_args, util::shell());
         cmd += accumulate(opts.definitions, util::shell());
 

@@ -7,7 +7,6 @@
 #include <poac/core/builder/chain.hpp>
 #include <poac/core/builder/compiler.hpp>
 #include <poac/core/builder/depends.hpp>
-#include <poac/core/builder/detect.hpp>
 #include <poac/core/builder/standard.hpp>
 
 #endif // POAC_CORE_BUILDER_HPP
