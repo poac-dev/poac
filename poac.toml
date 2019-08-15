@@ -64,8 +64,5 @@ link-directories = ["/usr/local/opt/llvm@7/lib"]
 [profile]
 libraries = ["boost_sysytem", "boost_filesystem", "git2"]
 
-[profile.dev]
-opt-level = "g"
-
 [profile.release]
 lto = true
