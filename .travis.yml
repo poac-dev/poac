@@ -25,7 +25,7 @@ install:
   - if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
-      brew install llvm;
+      brew install llvm@7;
       brew upgrade cmake;
     fi
   - brew install libgit2 matken11235/toml11/toml11
