@@ -510,13 +510,13 @@ namespace poac::io::config {
             if (this->opt_level == "0" && profile.opt_level != "0") {
                 this->opt_level = profile.opt_level;
             }
-            if (this->debug == true && profile.debug != true) {
+            if (this->debug && !profile.debug) {
                 this->debug = profile.debug;
             }
-            if (this->lto == false && profile.lto != false) {
+            if (!this->lto && profile.lto) {
                 this->lto = profile.lto;
             }
-            if (this->incremental == true && profile.incremental != true) {
+            if (this->incremental && !profile.incremental) {
                 this->incremental = profile.incremental;
             }
         }
@@ -534,13 +534,13 @@ namespace poac::io::config {
             if (this->opt_level == "3" && profile.opt_level != "3") {
                 this->opt_level = profile.opt_level;
             }
-            if (this->debug == false && profile.debug != false) {
+            if (!this->debug && profile.debug) {
                 this->debug = profile.debug;
             }
-            if (this->lto == false && profile.lto != false) {
+            if (!this->lto && profile.lto) {
                 this->lto = profile.lto;
             }
-            if (this->incremental == false && profile.incremental != false) {
+            if (!this->incremental && profile.incremental) {
                 this->incremental = profile.incremental;
             }
         }
