@@ -499,8 +499,8 @@ namespace poac::io::config {
     };
     struct ProfileDev : public ProfileBase {
         void from_toml(const toml::value& v) override {
-//            ProfileBase::from_toml(v);
-            detail::field_from_toml(this->opt_level, v, "opt-level", "0");
+            ProfileBase::from_toml(v);
+            detail::field_from_toml(this->opt_level, v, "opt-level", "0"); // TODO: 0, 1, 2, 3, g, s => enum
             detail::field_from_toml(this->debug, v, "debug", true);
             detail::field_from_toml(this->lto, v, "lto", false);
             detail::field_from_toml(this->incremental, v, "incremental", true);
@@ -510,20 +510,20 @@ namespace poac::io::config {
             if (this->opt_level == "0" && profile.opt_level != "0") {
                 this->opt_level = profile.opt_level;
             }
-            if (this->debug == true && this->debug != true) {
+            if (this->debug == true && profile.debug != true) {
                 this->debug = profile.debug;
             }
-            if (this->lto == false && this->lto != false) {
+            if (this->lto == false && profile.lto != false) {
                 this->lto = profile.lto;
             }
-            if (this->incremental == true && this->incremental != true) {
+            if (this->incremental == true && profile.incremental != true) {
                 this->incremental = profile.incremental;
             }
         }
     };
     struct ProfileRelease : public ProfileBase {
         void from_toml(const toml::value& v) override {
-//            ProfileBase::from_toml(v);
+            ProfileBase::from_toml(v);
             detail::field_from_toml(this->opt_level, v, "opt-level", "3");
             detail::field_from_toml(this->debug, v, "debug", false);
             detail::field_from_toml(this->lto, v, "lto", false);
@@ -534,13 +534,13 @@ namespace poac::io::config {
             if (this->opt_level == "3" && profile.opt_level != "3") {
                 this->opt_level = profile.opt_level;
             }
-            if (this->debug == false && this->debug != false) {
+            if (this->debug == false && profile.debug != false) {
                 this->debug = profile.debug;
             }
-            if (this->lto == false && this->lto != false) {
+            if (this->lto == false && profile.lto != false) {
                 this->lto = profile.lto;
             }
-            if (this->incremental == false && this->incremental != false) {
+            if (this->incremental == false && profile.incremental != false) {
                 this->incremental = profile.incremental;
             }
         }
