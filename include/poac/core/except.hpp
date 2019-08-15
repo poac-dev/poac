@@ -5,10 +5,6 @@
 #include <string_view>
 #include <stdexcept>
 
-#include <boost/variant.hpp>
-
-#include <poac/util/variant_helper.hpp>
-
 namespace poac::core::except {
     namespace detail {
         template<typename Arg>
@@ -145,7 +141,7 @@ namespace poac::core::except {
         }
 
     public:
-        using state_type = boost::variant<
+        using state_type = std::variant<
                 NoStates,
                 InvalidSecondArg,
                 General,
@@ -166,7 +162,7 @@ namespace poac::core::except {
 
         std::string
         what() const {
-            return util::visit([this](auto& err) { return what(err); }, state);
+            return std::visit([this](auto& err) { return what(err); }, state);
         }
     };
 

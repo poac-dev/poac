@@ -27,7 +27,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/variant.hpp>
 
 #include <poac/core/except.hpp>
 #include <poac/io/filesystem.hpp>
@@ -35,13 +34,12 @@
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/types.hpp>
-#include <poac/util/variant_helper.hpp>
 #include <poac/config.hpp>
 
 namespace poac::io::net {
     namespace http = boost::beast::http;
     namespace ssl = boost::asio::ssl;
-    using Headers = std::map<boost::variant<http::field, std::string>, std::string>;
+    using Headers = std::map<std::variant<http::field, std::string>, std::string>;
 
     template <typename RequestBody>
     http::request<RequestBody>
@@ -56,7 +54,7 @@ namespace poac::io::net {
         req.set(http::field::host, host);
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         for (const auto& [field, string_param] : headers) {
-            util::visit([&, s=string_param](auto& f) { req.set(f, s); }, field);
+            std::visit([&, s=string_param](auto& f) { req.set(f, s); }, field);
         }
         return req;
     }
