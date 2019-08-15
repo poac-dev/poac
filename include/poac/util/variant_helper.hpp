@@ -25,7 +25,6 @@ namespace poac::util {
                     Visitor, decltype(std::declval<Visitor>()(std::declval<const Head&>()))
                 >{std::forward<Visitor>(visitor)}, std::move(v));
     }
-
     template <typename Visitor, typename Head, typename... Tail>
     inline auto
     visit(Visitor&& visitor, const boost::variant<Head, Tail...>& v) {
@@ -33,12 +32,11 @@ namespace poac::util {
                     Visitor, decltype(std::declval<Visitor>()(std::declval<const Head&>()))
                 >{std::forward<Visitor>(visitor)}, v);
     }
-
     template <typename Visitor, typename Head, typename... Tail>
     inline auto
     visit(Visitor&& visitor, boost::variant<Head, Tail...>& v) {
         return boost::apply_visitor(detail::visitor<
-                    Visitor, decltype(std::declval<Visitor>()(std::declval<Head &>()))
+                    Visitor, decltype(std::declval<Visitor>()(std::declval<Head&>()))
                 >{std::forward<Visitor>(visitor)}, v);
     }
 
@@ -51,7 +49,6 @@ namespace poac::util {
                             std::declval<const Head2&>()))
                 >{std::forward<Visitor>(visitor)}, v, v2);
     }
-
     template <typename Visitor, typename Head, typename... Tail, typename Head2, typename... Tail2>
     inline auto
     visit(Visitor&& visitor, const boost::variant<Head, Tail...>& v, boost::variant<Head2, Tail2...>& v2) {
