@@ -486,8 +486,7 @@ namespace poac::io::config {
             detail::field_from_toml(this->link_directories, v, "link-directories");
             detail::field_from_toml(this->compiler, v, "compiler");
         }
-
-        void merge(const ProfileBase& profile) {
+        virtual void merge(const ProfileBase& profile) {
             detail::merge(this->definitions, profile.definitions);
             detail::merge(this->options, profile.options);
             detail::merge(this->libraries, profile.libraries);
@@ -496,28 +495,54 @@ namespace poac::io::config {
             if (profile.compiler.has_value()) {
                 this->compiler = profile.compiler;
             }
-            this->opt_level = profile.opt_level;
-            this->debug = profile.debug;
-            this->lto = profile.lto;
-            this->incremental = profile.incremental;
         }
     };
     struct ProfileDev : public ProfileBase {
         void from_toml(const toml::value& v) override {
-            ProfileBase::from_toml(v);
+//            ProfileBase::from_toml(v);
             detail::field_from_toml(this->opt_level, v, "opt-level", "0");
             detail::field_from_toml(this->debug, v, "debug", true);
             detail::field_from_toml(this->lto, v, "lto", false);
             detail::field_from_toml(this->incremental, v, "incremental", true);
         }
+        void merge(const ProfileBase& profile) override {
+            ProfileBase::merge(profile);
+            if (this->opt_level == "0" && profile.opt_level != "0") {
+                this->opt_level = profile.opt_level;
+            }
+            if (this->debug == true && this->debug != true) {
+                this->debug = profile.debug;
+            }
+            if (this->lto == false && this->lto != false) {
+                this->lto = profile.lto;
+            }
+            if (this->incremental == true && this->incremental != true) {
+                this->incremental = profile.incremental;
+            }
+        }
     };
     struct ProfileRelease : public ProfileBase {
         void from_toml(const toml::value& v) override {
-            ProfileBase::from_toml(v);
+//            ProfileBase::from_toml(v);
             detail::field_from_toml(this->opt_level, v, "opt-level", "3");
             detail::field_from_toml(this->debug, v, "debug", false);
             detail::field_from_toml(this->lto, v, "lto", false);
             detail::field_from_toml(this->incremental, v, "incremental", false);
+        }
+        void merge(const ProfileBase& profile) override {
+            ProfileBase::merge(profile);
+            if (this->opt_level == "3" && profile.opt_level != "3") {
+                this->opt_level = profile.opt_level;
+            }
+            if (this->debug == false && this->debug != false) {
+                this->debug = profile.debug;
+            }
+            if (this->lto == false && this->lto != false) {
+                this->lto = profile.lto;
+            }
+            if (this->incremental == false && this->incremental != false) {
+                this->incremental = profile.incremental;
+            }
         }
     };
     struct Profile {
@@ -534,7 +559,7 @@ namespace poac::io::config {
             detail::field_from_toml(this->dev->include_directories, v, "include-directories");
             detail::field_from_toml(this->dev->link_directories, v, "link-directories");
             detail::field_from_toml(this->dev->compiler, v, "compiler");
-            detail::merge(this->dev, v, "dev");
+            detail::field_from_toml(this->dev, v, "dev");
 
             this->release = ProfileRelease{};
             detail::field_from_toml(this->release->definitions, v, "definitions");
@@ -543,7 +568,7 @@ namespace poac::io::config {
             detail::field_from_toml(this->release->include_directories, v, "include-directories");
             detail::field_from_toml(this->release->link_directories, v, "link-directories");
             detail::field_from_toml(this->release->compiler, v, "compiler");
-            detail::merge(this->release, v, "release");
+            detail::field_from_toml(this->release, v, "release");
 
             this->test = ProfileDev{};
             detail::field_from_toml(this->test->definitions, v, "definitions");
@@ -552,7 +577,7 @@ namespace poac::io::config {
             detail::field_from_toml(this->test->include_directories, v, "include-directories");
             detail::field_from_toml(this->test->link_directories, v, "link-directories");
             detail::field_from_toml(this->test->compiler, v, "compiler");
-            detail::merge(this->test, v, "test");
+            detail::field_from_toml(this->test, v, "test");
 
             this->bench = ProfileRelease{};
             detail::field_from_toml(this->bench->definitions, v, "definitions");
@@ -561,7 +586,7 @@ namespace poac::io::config {
             detail::field_from_toml(this->bench->include_directories, v, "include-directories");
             detail::field_from_toml(this->bench->link_directories, v, "link-directories");
             detail::field_from_toml(this->bench->compiler, v, "compiler");
-            detail::merge(this->bench, v, "bench");
+            detail::field_from_toml(this->bench, v, "bench");
         }
 
         void merge(const Profile& profile) {
