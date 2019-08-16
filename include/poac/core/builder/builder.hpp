@@ -49,7 +49,7 @@ namespace poac::core::builder {
     make_definitions(const io::config::Config&) {
         std::vector<std::string> definitions;
         // poac automatically define the absolute path of the project's root directory.
-        definitions.emplace_back(make_definitions("POAC_PROJECT_ROOT", io::filesystem::current.string()));
+        definitions.emplace_back(make_definition("POAC_PROJECT_ROOT", io::filesystem::current.string()));
 //    const auto version = semver::Version(config->version); // TODO: versionが無い
 //    macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
 //    macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
