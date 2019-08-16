@@ -34,12 +34,15 @@ script:
   - cd build
   - cmake ..
   - make install
+  - ctest --output-on-failure
   - poac help
   - cd ../
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
       pip3 install cpp-coveralls;
-      bash ./test.sh --coverage;
+      bash ./test.sh;
+      coveralls --exclude build --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
+      bash <(curl -s https://codecov.io/bash);
     fi
 
 notifications:

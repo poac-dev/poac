@@ -54,26 +54,6 @@ main() {
   pushd ./tests
   execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
   popd
-
-  parse_args $@
 }
 
-parse_args() {
-    for arg in "$@"; do
-        case "$arg" in
-            --coverage)
-                coverage
-                ;;
-            *)
-                ;;
-        esac
-    done
-}
-
-coverage() {
-  # Run gcov and upload report to coveralls
-  coveralls --exclude build --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
-  bash <(curl -s https://codecov.io/bash)
-}
-
-main "$@"
+main
