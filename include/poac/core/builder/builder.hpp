@@ -35,27 +35,27 @@ namespace poac::core::builder {
     }
 
     std::string
-    make_definitions(const std::string& first, const std::string& second) {
+    make_definition(const std::string& first, const std::string& second) {
         return "-D" + first + "=" + R"(\")" + second + R"(\")";
     }
     std::string
-    make_definitions(const std::string& first, const std::uint64_t& second) {
+    make_definition(const std::string& first, const std::uint64_t& second) {
         std::ostringstream oss;
         oss << second;
         return make_definitions(first, oss.str());
     }
 
     std::vector<std::string>
-    make_macro_defns(const io::config::Config&) {
-        std::vector<std::string> macro_defns;
+    make_definitions(const io::config::Config&) {
+        std::vector<std::string> definitions;
         // poac automatically define the absolute path of the project's root directory.
-        macro_defns.emplace_back(make_definitions("POAC_PROJECT_ROOT", io::filesystem::current.string()));
+        definitions.emplace_back(make_definitions("POAC_PROJECT_ROOT", io::filesystem::current.string()));
 //    const auto version = semver::Version(config->version); // TODO: versionが無い
 //    macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
 //    macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
 //    macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));
 //    macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
-        return macro_defns;
+        return definitions;
     }
 
     struct Builder {
@@ -130,7 +130,7 @@ namespace poac::core::builder {
             compile_conf.output_root /= "build";
 
             // TODO: 修正, POAC_POAC_VERSION_MINOR
-            compile_conf.definitions.emplace_back(make_definitions("POAC_VERSION", "0.3.0"));
+            compile_conf.definitions.emplace_back(make_definition("POAC_VERSION", "0.3.0"));
             if (profile.definitions.has_value()) {
                 compile_conf.definitions.insert(
                         compile_conf.definitions.end(),
