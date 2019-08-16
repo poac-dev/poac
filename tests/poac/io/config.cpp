@@ -2,6 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
+#include <stdexcept>
 #include <string>
 
 #include <poac/io/config.hpp>
@@ -23,4 +24,15 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )
             " 2 | name = []\n"
             "   |        ~~ the actual type is array" );
     }
+}
+
+// find_force(const toml::basic_value<C, M, V>& v, const toml::key& key)
+BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_force_test )
+{
+    using toml::toml_literals::operator""_toml;
+    using poac::io::config::detail::find_force;
+
+    BOOST_CHECK( find_force<std::string>("name = \"poac\""_toml, "name") == "poac" );
+    BOOST_CHECK_THROW( find_force<int>("name = \"poac\""_toml, "name"), toml::type_error );
+    BOOST_CHECK_THROW( find_force<std::string>("name = \"poac\""_toml, "unknown"), std::out_of_range );
 }
