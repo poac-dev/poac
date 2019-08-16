@@ -33,7 +33,6 @@ main() {
     execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
   popd
   pushd ./util
-    execute g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -f ./misc-test; }
     execute g++ ${BASE_OPT} -o pretty-test pretty.cpp && { ./pretty-test; rm -f ./pretty-test; }
     pushd ./semver
       pushd ./parser
@@ -52,6 +51,7 @@ main() {
 
   pushd ./tests
   execute g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -f ./argparse-test; }
+  execute g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -f ./misc-test; }
   execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
   popd
 }

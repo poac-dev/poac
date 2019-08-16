@@ -1,5 +1,6 @@
 set(TEST_NAMES
         argparse
+        misc
         publish
 )
 
