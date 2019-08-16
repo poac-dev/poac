@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <stdexcept>
+#include <variant>
 
 namespace poac::core::except {
     namespace detail {
