@@ -13,7 +13,6 @@ execute() {
 
 main() {
   pushd ./tests/poac
-
   pushd ./core
     pushd ./builder
       execute g++ ${BASE_OPT} -lboost_filesystem -o standard-test standard.cpp && { ./standard-test; rm -f ./standard-test; }
@@ -32,27 +31,24 @@ main() {
     execute g++ ${BASE_OPT} -lboost_filesystem -o path-test path.cpp && { ./path-test; rm -f ./path-test; }
     execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
   popd
-  pushd ./util
-    execute g++ ${BASE_OPT} -o pretty-test pretty.cpp && { ./pretty-test; rm -f ./pretty-test; }
-    pushd ./semver
-      pushd ./parser
-        execute g++ ${BASE_OPT} -o lexer-test lexer.cpp && { ./lexer-test; rm -f ./lexer-test; }
-        execute g++ ${BASE_OPT} -o parser-test parser.cpp && { ./parser-test; rm -f ./parser-test; }
-        execute g++ ${BASE_OPT} -o token-test token.cpp && { ./token-test; rm -f ./token-test; }
-      popd
-      execute g++ ${BASE_OPT} -o interval-test interval.cpp && { ./interval-test; rm -f ./interval-test; }
-      execute g++ ${BASE_OPT} -o version-test version.cpp && { ./version-test; rm -f ./version-test; }
-    popd
-    execute g++ ${BASE_OPT} -o shell-test shell.cpp && { ./shell-test; rm -f ./shell-test; }
-    execute g++ ${BASE_OPT} -o types-test types.cpp && { ./types-test; rm -f ./types-test; }
-  popd
-
   popd
 
   pushd ./tests
+  pushd ./semver
+    pushd ./parser
+      execute g++ ${BASE_OPT} -o lexer-test lexer.cpp && { ./lexer-test; rm -f ./lexer-test; }
+      execute g++ ${BASE_OPT} -o parser-test parser.cpp && { ./parser-test; rm -f ./parser-test; }
+      execute g++ ${BASE_OPT} -o token-test token.cpp && { ./token-test; rm -f ./token-test; }
+    popd
+    execute g++ ${BASE_OPT} -o interval-test interval.cpp && { ./interval-test; rm -f ./interval-test; }
+    execute g++ ${BASE_OPT} -o version-test version.cpp && { ./version-test; rm -f ./version-test; }
+  popd
   execute g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -f ./argparse-test; }
   execute g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -f ./misc-test; }
+  execute g++ ${BASE_OPT} -o pretty-test pretty.cpp && { ./pretty-test; rm -f ./pretty-test; }
   execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
+  execute g++ ${BASE_OPT} -o shell-test shell.cpp && { ./shell-test; rm -f ./shell-test; }
+  execute g++ ${BASE_OPT} -o types-test types.cpp && { ./types-test; rm -f ./types-test; }
   popd
 }
 

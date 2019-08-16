@@ -1,7 +1,10 @@
 set(TEST_NAMES
         argparse
         misc
+        pretty
         publish
+        shell
+        types
 )
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
