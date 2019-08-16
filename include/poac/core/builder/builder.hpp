@@ -45,19 +45,6 @@ namespace poac::core::builder {
         return make_definition(first, oss.str());
     }
 
-    std::vector<std::string>
-    make_definitions(const io::config::Config&) {
-        std::vector<std::string> definitions;
-        // poac automatically define the absolute path of the project's root directory.
-        definitions.emplace_back(make_definition("POAC_PROJECT_ROOT", io::filesystem::current.string()));
-//    const auto version = semver::Version(config->version); // TODO: versionが無い
-//    macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
-//    macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
-//    macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));
-//    macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
-        return definitions;
-    }
-
     struct Builder {
         // Prohibit copy.
         Builder(const Builder&) = delete;
@@ -137,6 +124,13 @@ namespace poac::core::builder {
                         profile.definitions->cbegin(),
                         profile.definitions->cend());
             }
+            // poac automatically define the absolute path of the project's root directory.
+//        definitions.emplace_back(make_definition("POAC_PROJECT_ROOT", io::filesystem::current.string()));
+//    const auto version = semver::Version(config->version);
+//    macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
+//    macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
+//    macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));
+//    macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
 
             if (const auto result = compile(compile_conf, this->verbose)) {
 
