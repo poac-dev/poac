@@ -42,7 +42,7 @@ namespace poac::core::builder {
     make_definition(const std::string& first, const std::uint64_t& second) {
         std::ostringstream oss;
         oss << second;
-        return make_definitions(first, oss.str());
+        return make_definition(first, oss.str());
     }
 
     std::vector<std::string>
