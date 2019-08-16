@@ -1,4 +1,7 @@
-set(TEST_NAMES publish)
+set(TEST_NAMES
+        argparse
+        publish
+)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
