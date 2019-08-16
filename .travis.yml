@@ -38,7 +38,7 @@ script:
   - cd ../
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
-      pip install cpp-coveralls;
+      pip3 install cpp-coveralls;
       bash ./test.sh --coverage;
     fi
 
