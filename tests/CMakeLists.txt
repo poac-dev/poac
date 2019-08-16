@@ -1,5 +1,6 @@
 set(TEST_NAMES
         argparse
+        config
         misc
         pretty
         publish
