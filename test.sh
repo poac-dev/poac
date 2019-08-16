@@ -32,9 +32,6 @@ main() {
     execute g++ ${BASE_OPT} -lboost_filesystem -o path-test path.cpp && { ./path-test; rm -f ./path-test; }
     execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
   popd
-  pushd ./opts
-    execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
-  popd
   pushd ./util
     execute g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -f ./argparse-test; }
     execute g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -f ./misc-test; }
@@ -52,6 +49,10 @@ main() {
     execute g++ ${BASE_OPT} -o types-test types.cpp && { ./types-test; rm -f ./types-test; }
   popd
 
+  popd
+
+  pushd ./tests
+  execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
   popd
 
   parse_args $@
