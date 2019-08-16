@@ -7,7 +7,6 @@
 
 #include <poac/util/argparse.hpp>
 
-
 // bool use(SinglePassRange& rng, T... args)
 BOOST_AUTO_TEST_CASE( poac_util_argparse_use_test )
 {
