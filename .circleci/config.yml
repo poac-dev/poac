@@ -46,10 +46,19 @@ commands:
         description: "CMAKE_BUILD_TYPE"
         type: enum
         enum: ["Debug", "Release", ""]
+      build-test:
+        description: "poac_BUILD_TEST"
+        type: boolean
+        default: ON
     steps:
       - run: uname -sm
       - run: mkdir build
-      - run: cd build && cmake -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
+      - run: >
+          cd build &&
+          cmake ..
+              -Dpoac_BUILD_TEST=<< parameters.build-test >>
+              -DCMAKE_BUILD_TYPE=<< parameters.build-type >> &&
+          make
       - run: file ./build/poac
 
   default-test:
@@ -62,10 +71,6 @@ commands:
                 --report_level=no
       - store_test_results:
           path: _build/test/report
-
-  test-script:
-    steps:
-      - run: bash ./test.sh
 
 
 jobs:
@@ -85,6 +90,8 @@ jobs:
         type: executor
       build-type:
         type: string
+      build-test:
+        type: boolean
       after-build:
         type: steps
         default: []
@@ -94,8 +101,13 @@ jobs:
           at: .
       - default-build:
           build-type: << parameters.build-type >>
+          build-test: << parameters.build-test >>
+      - when:
+          condition: << parameters.build-test >>
+          steps:
+            - run: ctest --output-on-failure
+            - run: bash ./test.sh
       - steps: << parameters.after-build >>
-      - test-script
 #      - default-test
 
   artifact_build:
@@ -141,6 +153,7 @@ workflows:
             compiler: gcc
             version: 7
           build-type: "Debug"
+          build-test: ON
 #          after-build:
 #            - run: ./build/poac help
           requires:
@@ -152,6 +165,7 @@ workflows:
             compiler: gcc
             version: 8
           build-type: "Debug"
+          build-test: ON
 #          after-build:
 #            - run: ./build/poac help
           requires:
@@ -163,6 +177,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: ON
 #          after-build:
 #            - run: ./build/poac help
           requires:
@@ -174,6 +189,7 @@ workflows:
             compiler: clang
             version: 6
           build-type: "Debug"
+          build-test: ON
 #          after-build:
 #            - run: ./build/poac help
           requires:
@@ -185,6 +201,7 @@ workflows:
             compiler: clang
             version: 7
           build-type: "Debug"
+          build-test: ON
 #          after-build:
 #            - run: ./build/poac help
           requires:
@@ -196,6 +213,7 @@ workflows:
             compiler: clang
             version: 8
           build-type: "Debug"
+          build-test: ON
 #          after-build:
 #            - run: ./build/poac help
           requires:
@@ -208,6 +226,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "" # libasan is not provided at mips architecture
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -217,6 +236,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
 
@@ -227,6 +247,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -236,6 +257,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
 
@@ -246,6 +268,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -255,6 +278,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
 
@@ -265,6 +289,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -274,6 +299,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
   release:
