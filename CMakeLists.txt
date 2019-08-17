@@ -10,7 +10,7 @@ endif ()
 
 cmake_minimum_required(VERSION 3.11)
 project(poac VERSION 0.2.1 LANGUAGES CXX)
-option(poac_BUILD_TEST "Build poac tests" ON)
+option(poac_BUILD_TEST "Build poac tests" OFF)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

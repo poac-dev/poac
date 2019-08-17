@@ -56,7 +56,7 @@ commands:
       - run: >
           cd build &&
           cmake ..
-              -Dpoac_BUILD_TEST=<< parameters.build-test >>
+              <<# parameters.build-test >>-Dpoac_BUILD_TEST=ON<</ parameters.build-test >>
               -DCMAKE_BUILD_TYPE=<< parameters.build-type >> &&
           make
       - run: file ./build/poac
