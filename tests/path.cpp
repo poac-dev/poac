@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE( poac_io_filesystem_validate_dir_test )
     poac::io::filesystem::remove_all(test_dir);
 }
 
-// bool recursive_copy(const boost::filesystem::path& from, const boost::filesystem::path& dest)
+// bool copy_recursive(const boost::filesystem::path& from, const boost::filesystem::path& dest)
 BOOST_AUTO_TEST_CASE( poac_io_filesystem_copy_recursive_test )
 {
     using poac::io::filesystem::copy_recursive;
