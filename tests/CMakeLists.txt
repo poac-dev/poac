@@ -1,11 +1,18 @@
 set(TEST_NAMES
         argparse
+        cli
         config
+        except
         misc
+        name
         path
         pretty
+        project
         publish
+#        resolve
+        sat
         shell
+        standard
         term
         types
 )
