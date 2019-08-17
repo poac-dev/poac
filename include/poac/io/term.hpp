@@ -10,6 +10,7 @@
 #include <optional>
 
 #include <poac/core/except.hpp>
+#include <poac/io/config.hpp>
 #include <poac/io/filesystem.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
