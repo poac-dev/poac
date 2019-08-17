@@ -128,8 +128,9 @@ build_script:
       %CYG_ROOT%\bin\bash -lc
         "cd $APPVEYOR_BUILD_FOLDER &&
         mkdir build && cd build &&
-        cmake .. &&
+        cmake -Dpoac_BUILD_TEST=ON .. &&
         make install &&
+        ctest --output-on-failure &&
         poac help"
     ) else (
       mkdir build &&
