@@ -106,8 +106,7 @@ jobs:
           steps:
             - run:
                 working_directory: build
-                command: ctest --output-on-failure
-            - run: bash ./test.sh
+                command: ctest --output-on-failure --verbose
       - steps: << parameters.after-build >>
 #      - default-test
 
