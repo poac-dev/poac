@@ -130,7 +130,7 @@ build_script:
         mkdir build && cd build &&
         cmake -Dpoac_BUILD_TEST=ON .. &&
         make install &&
-        ctest --output-on-failure &&
+#        ctest --output-on-failure &&
         poac help"
     ) else (
       mkdir build &&
