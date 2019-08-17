@@ -16,7 +16,6 @@ executors:
     docker:
       - image: poacpm/<< parameters.arch >>:<< parameters.compiler >>-<< parameters.version >>
 
-
 commands:
   poac-install:
     steps:
@@ -71,7 +70,6 @@ commands:
                 --report_level=no
       - store_test_results:
           path: _build/test/report
-
 
 jobs:
   checkout_code:
@@ -139,7 +137,6 @@ jobs:
       - run: cp -r ./poac/.git ./
       - deploy: ghr -t $GITHUB_TOKEN $CIRCLE_TAG out
 #      - run: poac publish
-
 
 workflows:
   version: 2
