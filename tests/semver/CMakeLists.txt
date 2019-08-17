@@ -6,7 +6,6 @@ set(TEST_NAMES
         version
 )
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
 get_property(poac_COMPILE_DEFINITIONS TARGET poac PROPERTY COMPILE_DEFINITIONS)
 get_property(poac_COMPILE_OPTIONS TARGET poac PROPERTY COMPILE_OPTIONS)
