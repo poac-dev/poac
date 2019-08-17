@@ -37,6 +37,17 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_force_test )
     BOOST_CHECK_THROW( find_force<std::string>("name = \"poac\""_toml, "unknown"), std::out_of_range );
 }
 
+// find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key)
+BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_force_opt_test )
+{
+    using toml::toml_literals::operator""_toml;
+    using poac::io::config::detail::find_force_opt;
+
+    BOOST_CHECK( find_force_opt<std::string>("name = \"poac\""_toml, "name") == "poac" );
+    BOOST_CHECK_THROW( find_force_opt<int>("name = \"poac\""_toml, "name"), toml::type_error );
+    BOOST_CHECK( !find_force_opt<std::string>("name = \"poac\""_toml, "unknown").has_value() );
+}
+
 // find_enum(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_enum_test )
 {
