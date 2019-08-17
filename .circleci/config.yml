@@ -49,7 +49,7 @@ commands:
     steps:
       - run: uname -sm
       - run: mkdir build
-      - run: cd build && cmake -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
+      - run: cd build && cmake -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
       - run: file ./build/poac
 
   default-test:
