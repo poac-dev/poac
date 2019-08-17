@@ -32,7 +32,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -Dpoac_BUILD_TEST=ON ..
   - make install
   - ctest --output-on-failure
   - poac help
