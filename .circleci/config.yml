@@ -45,7 +45,7 @@ commands:
       build-type:
         description: "CMAKE_BUILD_TYPE"
         type: enum
-        enum: ["Debug", "Release", ""]
+        enum: ["Debug", "Release"]
       build-test:
         description: "poac_BUILD_TEST"
         type: boolean
@@ -56,8 +56,8 @@ commands:
       - run: >
           cd build &&
           cmake ..
-              <<# parameters.build-test >>-Dpoac_BUILD_TEST=ON<</ parameters.build-test >>
-              -DCMAKE_BUILD_TYPE=<< parameters.build-type >> &&
+          <<# parameters.build-test >>-Dpoac_BUILD_TEST=ON<</ parameters.build-test >>
+          -DCMAKE_BUILD_TYPE=<< parameters.build-type >> &&
           make
       - run: file ./build/poac
 
@@ -219,16 +219,17 @@ workflows:
           requires:
             - checkout_code
 
-      - build:
-          exec:
-            name: cpp
-            arch: mips-unknown-linux-gnu
-            compiler: gcc
-            version: 9
-          build-type: "" # libasan is not provided at mips architecture
-          build-test: OFF
-          requires:
-            - checkout_code
+      # libasan is not provided at mips architecture
+#      - build:
+#          exec:
+#            name: cpp
+#            arch: mips-unknown-linux-gnu
+#            compiler: gcc
+#            version: 9
+#          build-type: "Debug"
+#          build-test: OFF
+#          requires:
+#            - checkout_code
       - build:
           exec:
             name: cpp
