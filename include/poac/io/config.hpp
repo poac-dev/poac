@@ -115,45 +115,69 @@ namespace poac::io::config {
         // If value cannot convert to T, or if value does not exist, throw exception.
         //
         template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >
         find_enum(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
             const T value = find_force<T>(v, key);
             if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
                 return value;
             } else {
-                std::vector<std::string> pvs(pv.size());
-                std::transform(pv.cbegin(), pv.cend(), pvs.begin(), [](T x){ return std::to_string(x); });
-                const auto f = "[error] value should be any of [" + boost::algorithm::join(pvs, ", ") + "]";
+                std::string f = "[error] value should be any of [";
+                if constexpr (std::is_same_v<T, std::string>) {
+                    f += boost::algorithm::join(pv, ", ") + "]";
+                } else {
+                    std::vector<std::string> pvs(pv.size());
+                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
+                            [](T x){ return std::to_string(x); });
+                    f += boost::algorithm::join(pvs, ", ") + "]";
+                }
                 throw toml::type_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
             }
         }
         template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >
         find_enum(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
             const T value = find_force<T>(v, key);
             if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
                 return value;
             } else {
-                std::vector<std::string> pvs(pv.size());
-                std::transform(pv.cbegin(), pv.cend(), pvs.begin(), [](T x){ return std::to_string(x); });
-                const auto f = "[error] value should be any of [" + boost::algorithm::join(pvs, ", ") + "]";
+                std::string f = "[error] value should be any of [";
+                if constexpr (std::is_same_v<T, std::string>) {
+                    f += boost::algorithm::join(pv, ", ") + "]";
+                } else {
+                    std::vector<std::string> pvs(pv.size());
+                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
+                                   [](T x){ return std::to_string(x); });
+                    f += boost::algorithm::join(pvs, ", ") + "]";
+                }
                 throw toml::type_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
             }
         }
         template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >
         find_enum(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
             const T value = find_force<T>(std::move(v), key);
             if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
                 return value;
             } else {
-                std::vector<std::string> pvs(pv.size());
-                std::transform(pv.cbegin(), pv.cend(), pvs.begin(), [](T x){ return std::to_string(x); });
-                const auto f = "[error] value should be any of [" + boost::algorithm::join(pvs, ", ") + "]";
+                std::string f = "[error] value should be any of [";
+                if constexpr (std::is_same_v<T, std::string>) {
+                    f += boost::algorithm::join(pv, ", ") + "]";
+                } else {
+                    std::vector<std::string> pvs(pv.size());
+                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
+                                   [](T x){ return std::to_string(x); });
+                    f += boost::algorithm::join(pvs, ", ") + "]";
+                }
                 throw toml::type_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
