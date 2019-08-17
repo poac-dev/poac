@@ -111,124 +111,6 @@ namespace poac::io::config {
         }
 
         //
-        // find and check possible values
-        // If value cannot convert to T, or if value does not exist, throw exception.
-        //
-        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
-        >
-        find_enum(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
-            const T value = find_force<T>(v, key);
-            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
-                return value;
-            } else {
-                std::string f = "[error] value should be any of [";
-                if constexpr (std::is_same_v<T, std::string>) {
-                    f += boost::algorithm::join(pv, ", ") + "]";
-                } else {
-                    std::vector<std::string> pvs(pv.size());
-                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
-                            [](T x){ return std::to_string(x); });
-                    f += boost::algorithm::join(pvs, ", ") + "]";
-                }
-                throw toml::type_error(toml::format_error(
-                        f, toml::get<toml::table>(v).at(key),
-                        "one of the above listed is required"));
-            }
-        }
-        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
-        >
-        find_enum(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
-            const T value = find_force<T>(v, key);
-            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
-                return value;
-            } else {
-                std::string f = "[error] value should be any of [";
-                if constexpr (std::is_same_v<T, std::string>) {
-                    f += boost::algorithm::join(pv, ", ") + "]";
-                } else {
-                    std::vector<std::string> pvs(pv.size());
-                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
-                                   [](T x){ return std::to_string(x); });
-                    f += boost::algorithm::join(pvs, ", ") + "]";
-                }
-                throw toml::type_error(toml::format_error(
-                        f, toml::get<toml::table>(v).at(key),
-                        "one of the above listed is required"));
-            }
-        }
-        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
-        >
-        find_enum(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
-            const T value = find_force<T>(std::move(v), key);
-            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
-                return value;
-            } else {
-                std::string f = "[error] value should be any of [";
-                if constexpr (std::is_same_v<T, std::string>) {
-                    f += boost::algorithm::join(pv, ", ") + "]";
-                } else {
-                    std::vector<std::string> pvs(pv.size());
-                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
-                                   [](T x){ return std::to_string(x); });
-                    f += boost::algorithm::join(pvs, ", ") + "]";
-                }
-                throw toml::type_error(toml::format_error(
-                        f, toml::get<toml::table>(v).at(key),
-                        "one of the above listed is required"));
-            }
-        }
-
-        //
-        // find and check possible values
-        // If it cannot converted to T, throw exception, and if the value does not exist, return std::nullopt.
-        //
-        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        std::optional<std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
-        >>
-        find_enum_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
-            try {
-                return find_enum<T>(v, key, std::move(pv));
-            } catch (const toml::type_error& e) {
-                throw e;
-            } catch (...) {
-                return std::nullopt;
-            }
-        }
-        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        std::optional<std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
-        >>
-        find_enum_opt(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
-            try {
-                return find_enum<T>(v, key, std::move(pv));
-            } catch (const toml::type_error& e) {
-                throw e;
-            } catch (...) {
-                return std::nullopt;
-            }
-        }
-        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
-        std::optional<std::remove_reference_t<
-            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
-        >>
-        find_enum_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
-            try {
-                return find_enum<T>(std::move(v), key, std::move(pv));
-            } catch (const toml::type_error& e) {
-                throw e;
-            } catch (...) {
-                return std::nullopt;
-            }
-        }
-
-        //
         // find and force T type
         // If it cannot converted to T, throw exception, and if the value does not exist, return std::nullopt.
         //
@@ -358,6 +240,124 @@ namespace poac::io::config {
         >>
         find_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, Ts&&... keys) noexcept {
             return find_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
+        }
+
+        //
+        // find and check possible values
+        // If value cannot convert to T, or if value does not exist, throw exception.
+        //
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >
+        find_enum(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            const T value = find_force<T>(v, key);
+            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
+                return value;
+            } else {
+                std::string f = "[error] value should be any of [";
+                if constexpr (std::is_same_v<T, std::string>) {
+                    f += boost::algorithm::join(pv, ", ") + "]";
+                } else {
+                    std::vector<std::string> pvs(pv.size());
+                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
+                            [](T x){ return std::to_string(x); });
+                    f += boost::algorithm::join(pvs, ", ") + "]";
+                }
+                throw toml::type_error(toml::format_error(
+                        f, toml::get<toml::table>(v).at(key),
+                        "one of the above listed is required"));
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >
+        find_enum(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            const T value = find_force<T>(v, key);
+            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
+                return value;
+            } else {
+                std::string f = "[error] value should be any of [";
+                if constexpr (std::is_same_v<T, std::string>) {
+                    f += boost::algorithm::join(pv, ", ") + "]";
+                } else {
+                    std::vector<std::string> pvs(pv.size());
+                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
+                                   [](T x){ return std::to_string(x); });
+                    f += boost::algorithm::join(pvs, ", ") + "]";
+                }
+                throw toml::type_error(toml::format_error(
+                        f, toml::get<toml::table>(v).at(key),
+                        "one of the above listed is required"));
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >
+        find_enum(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
+            const T value = find_force<T>(std::move(v), key);
+            if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
+                return value;
+            } else {
+                std::string f = "[error] value should be any of [";
+                if constexpr (std::is_same_v<T, std::string>) {
+                    f += boost::algorithm::join(pv, ", ") + "]";
+                } else {
+                    std::vector<std::string> pvs(pv.size());
+                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
+                                   [](T x){ return std::to_string(x); });
+                    f += boost::algorithm::join(pvs, ", ") + "]";
+                }
+                throw toml::type_error(toml::format_error(
+                        f, toml::get<toml::table>(v).at(key),
+                        "one of the above listed is required"));
+            }
+        }
+
+        //
+        // find and check possible values
+        // If it cannot converted to T, throw exception, and if the value does not exist, return std::nullopt.
+        //
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<const toml::basic_value<C, M, V>&>()))
+        >>
+        find_enum_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            try {
+                return find_enum<T>(v, key, std::move(pv));
+            } catch (const toml::type_error& e) {
+                throw e;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&>()))
+        >>
+        find_enum_opt(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
+            try {
+                return find_enum<T>(v, key, std::move(pv));
+            } catch (const toml::type_error& e) {
+                throw e;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+        template <typename T, typename C, template <typename...> class M, template <typename...> class V>
+        std::optional<std::remove_reference_t<
+            decltype(toml::get<T>(std::declval<toml::basic_value<C, M, V>&&>()))
+        >>
+        find_enum_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
+            try {
+                return find_enum<T>(std::move(v), key, std::move(pv));
+            } catch (const toml::type_error& e) {
+                throw e;
+            } catch (...) {
+                return std::nullopt;
+            }
         }
 
         template <typename Field>
