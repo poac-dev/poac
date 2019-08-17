@@ -2,9 +2,11 @@ set(TEST_NAMES
         argparse
         config
         misc
+        path
         pretty
         publish
         shell
+        term
         types
 )
 

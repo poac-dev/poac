@@ -9,40 +9,6 @@
 
 #include <poac/io/term.hpp>
 
-// std::string to_spinner(const size_t& index)
-BOOST_AUTO_TEST_CASE( poac_io_term_to_spinner_test )
-{
-    using poac::io::term::to_spinner;
-    using poac::io::term::spinners;
-
-    for (int i = 0; i < 100; ++i) {
-        for (int j = 0; j < spinners.size(); ++j) {
-            BOOST_CHECK( spinners[j] == to_spinner(j + (i * spinners.size())) );
-        }
-    }
-}
-
-// std::string to_pointer(const size_t& index)
-BOOST_AUTO_TEST_CASE( poac_io_term_to_pointer_test )
-{
-    using poac::io::term::to_pointer;
-    using poac::io::term::pointers;
-
-    constexpr std::size_t num = 10;
-    std::vector<std::string> result(num);
-    for (int i = 0; i < num; ++i) {
-        result[i] = to_pointer(i);
-    }
-
-    std::vector<std::string> answer = {
-            pointers[0], pointers[0], pointers[0],
-            pointers[1], pointers[1], pointers[1],
-            pointers[2], pointers[2], pointers[2], pointers[2]
-    };
-
-    BOOST_CHECK( result == answer );
-}
-
 // std::string to_progress(const int& max_count, int now_count)
 BOOST_AUTO_TEST_CASE( poac_io_term_to_progress_test )
 {

@@ -26,10 +26,6 @@ main() {
     execute g++ ${BASE_OPT} -lboost_filesystem -o name-test name.cpp && { ./name-test; rm -f ./name-test; }
     execute g++ ${BASE_OPT} -lgit2 -o project-test project.cpp && { ./project-test; rm -f ./project-test; }
   popd
-  pushd ./io
-    execute g++ ${BASE_OPT} -lboost_filesystem -o path-test path.cpp && { ./path-test; rm -f ./path-test; }
-    execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
-  popd
   popd
 
   pushd ./tests
@@ -45,9 +41,11 @@ main() {
   execute g++ ${BASE_OPT} -o argparse-test argparse.cpp && { ./argparse-test; rm -f ./argparse-test; }
   execute g++ ${BASE_OPT} -lboost_filesystem -o config-test config.cpp && { ./config-test; rm -f ./config-test; }
   execute g++ ${BASE_OPT} -o misc-test misc.cpp && { ./misc-test; rm -f ./misc-test; }
+  execute g++ ${BASE_OPT} -lboost_filesystem -o path-test path.cpp && { ./path-test; rm -f ./path-test; }
   execute g++ ${BASE_OPT} -o pretty-test pretty.cpp && { ./pretty-test; rm -f ./pretty-test; }
   execute g++ ${BASE_OPT} ${REQUIRE_OPENSSL} ${REQUIRE_POAC_VARIABLES} -lboost_filesystem -lgit2 -o publish-test publish.cpp && { ./publish-test; rm -f ./publish-test; }
   execute g++ ${BASE_OPT} -o shell-test shell.cpp && { ./shell-test; rm -f ./shell-test; }
+  execute g++ ${BASE_OPT} -o term-test term.cpp && { ./term-test; rm -f ./term-test; }
   execute g++ ${BASE_OPT} -o types-test types.cpp && { ./types-test; rm -f ./types-test; }
   popd
 }
