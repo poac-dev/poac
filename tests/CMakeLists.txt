@@ -9,7 +9,7 @@ set(TEST_NAMES
         pretty
         project
         publish
-#        resolve
+        resolve
         sat
         shell
         standard
