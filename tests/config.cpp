@@ -99,8 +99,22 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_force_test )
     using poac::io::config::detail::find_force;
 
     BOOST_CHECK( find_force<std::string>("name = \"poac\""_toml, "name") == "poac" );
-    BOOST_CHECK_THROW( find_force<int>("name = \"poac\""_toml, "name"), toml::type_error );
-    BOOST_CHECK_THROW( find_force<std::string>("name = \"poac\""_toml, "unknown"), std::out_of_range );
+    BOOST_CHECK_THROW_MSG(
+        find_force<int>("name = \"poac\""_toml, "name"),
+        toml::type_error,
+        "[error] value type should be integer\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   |        ~~~~~~ the actual type is string"
+    );
+    BOOST_CHECK_THROW_MSG(
+        find_force<std::string>("name = \"poac\""_toml, "foo"),
+        std::out_of_range,
+        "[error] key \"foo\" not found\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   | ~~~~~~~~~~~~~ in this table"
+    );
 }
 
 // find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key)
@@ -110,7 +124,14 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_force_opt_test )
     using poac::io::config::detail::find_force_opt;
 
     BOOST_CHECK( find_force_opt<std::string>("name = \"poac\""_toml, "name") == "poac" );
-    BOOST_CHECK_THROW( find_force_opt<int>("name = \"poac\""_toml, "name"), toml::type_error );
+    BOOST_CHECK_THROW_MSG(
+        find_force_opt<int>("name = \"poac\""_toml, "name"),
+        toml::type_error,
+        "[error] value type should be integer\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   |        ~~~~~~ the actual type is string"
+    );
     BOOST_CHECK( !find_force_opt<std::string>("name = \"poac\""_toml, "unknown").has_value() );
 }
 
@@ -149,9 +170,30 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_enum_test )
     using poac::io::config::detail::find_enum;
 
     BOOST_CHECK( find_enum<std::string>("name = \"poac\""_toml, "name", {"poac"}) == "poac" );
-    BOOST_CHECK_THROW( find_enum<std::string>("name = \"poac\""_toml, "name", {"foo"}), toml::type_error );
-    BOOST_CHECK_THROW( find_enum<int>("name = \"poac\""_toml, "name", {2}), toml::type_error );
-    BOOST_CHECK_THROW( find_enum<std::string>("name = \"poac\""_toml, "unknown", {"poac"}), std::out_of_range );
+    BOOST_CHECK_THROW_MSG(
+        find_enum<std::string>("name = \"poac\""_toml, "name", {"foo"}),
+        toml::type_error,
+        "[error] value should be any of [\"foo\"]\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   |        ~~~~~~ one of the above listed is required"
+    );
+    BOOST_CHECK_THROW_MSG(
+        find_enum<int>("name = \"poac\""_toml, "name", {2}),
+        toml::type_error,
+        "[error] value type should be integer\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   |        ~~~~~~ the actual type is string"
+    );
+    BOOST_CHECK_THROW_MSG(
+        find_enum<std::string>("name = \"poac\""_toml, "foo", {"poac"}),
+        std::out_of_range,
+        "[error] key \"foo\" not found\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   | ~~~~~~~~~~~~~ in this table"
+    );
 }
 
 // find_enum_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv)
@@ -161,8 +203,22 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_enum_opt_test )
     using poac::io::config::detail::find_enum_opt;
 
     BOOST_CHECK( find_enum_opt<std::string>("name = \"poac\""_toml, "name", {"poac"}) == "poac" );
-    BOOST_CHECK_THROW( find_enum_opt<std::string>("name = \"poac\""_toml, "name", {"foo"}), toml::type_error );
-    BOOST_CHECK_THROW( find_enum_opt<int>("name = \"poac\""_toml, "name", {2}), toml::type_error );
+    BOOST_CHECK_THROW_MSG(
+        find_enum_opt<std::string>("name = \"poac\""_toml, "name", {"foo"}),
+        toml::type_error,
+        "[error] value should be any of [\"foo\"]\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   |        ~~~~~~ one of the above listed is required"
+    );
+    BOOST_CHECK_THROW_MSG(
+        find_enum_opt<int>("name = \"poac\""_toml, "name", {2}),
+        toml::type_error,
+        "[error] value type should be integer\n"
+        " --> TOML literal encoded in a C++ code\n"
+        " 1 | name = \"poac\"\n"
+        "   |        ~~~~~~ the actual type is string"
+    );
     BOOST_CHECK( !find_enum_opt<std::string>("name = \"poac\""_toml, "unknown", {"poac"}).has_value() );
 }
 
