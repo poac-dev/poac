@@ -4,7 +4,7 @@
 #include <boost/predef.h>
 #include <poac/util/semver/parser/token.hpp>
 
-#if BOOST_COMP_CLANG
+#if BOOST_OS_LINUX && BOOST_COMP_CLANG
 #  define STATIC_ASSERT BOOST_CHECK
 #else
 #  define STATIC_ASSERT static_assert
