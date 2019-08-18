@@ -289,20 +289,24 @@ namespace poac::io::config {
         to_toml_array_string(std::vector<T>&& v) {
             if constexpr (std::is_same_v<T, std::string>) {
                 return "[" +
-                        boost::algorithm::join(std::move(v)
-                        | boost::adaptors::transformed(
-                            [](T x){
-                                std::stringstream ss;
-                                ss << std::quoted(x);
-                                return ss.str();
-                            })
-                        , ", ") + "]";
+                        boost::algorithm::join(
+                            std::move(v)
+                            | boost::adaptors::transformed(
+                                [](T x){
+                                    std::stringstream ss;
+                                    ss << std::quoted(x);
+                                    return ss.str();
+                                })
+                            , ", "
+                        ) + "]";
             } else {
                 return "[" +
-                        boost::algorithm::join(std::move(v)
-                        | boost::adaptors::transformed(
-                            [](T x){ return std::to_string(x); })
-                        , ", ") + "]";
+                        boost::algorithm::join(
+                            std::move(v)
+                            | boost::adaptors::transformed(
+                                [](T x){ return std::to_string(x); })
+                            , ", "
+                        ) + "]";
             }
         }
 
