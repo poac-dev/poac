@@ -675,7 +675,7 @@ namespace poac::io::config {
     std::optional<C>
     load_toml(const io::filesystem::path& base, const std::string& fname) {
         if (io::filesystem::exists(base / fname)) {
-            const auto config_toml = toml::parse<toml::preserve_comments>(fname);
+            const auto config_toml = toml::parse<toml::preserve_comments>((base / fname).string());
             const auto config = toml::get<C>(config_toml);
             return config;
         } else {
