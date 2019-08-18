@@ -20,6 +20,10 @@ int handle(std::string_view cmd, std::vector<std::string>&& args) noexcept {
             std::cerr << poac::io::term::error << error->what() << std::endl;
         }
         return EXIT_FAILURE;
+    } catch (const poac::io::config::exception& e) {
+        // Remove [error] of top
+        std::cerr << poac::io::term::error << std::string(e.what()).substr(8) << std::endl;
+        return EXIT_FAILURE;
     } catch (const toml::exception& e) {
         // Remove [error] of top
         std::cerr << poac::io::term::error << std::string(e.what()).substr(8) << std::endl;

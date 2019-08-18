@@ -20,10 +20,36 @@
 #include <poac/util/types.hpp>
 
 namespace poac::io::config {
+    struct exception : public std::exception {
+        explicit exception(const std::string& what_) : what_(what_) {}
+        explicit exception(const char* what_)        : what_(what_) {}
+        virtual ~exception() noexcept override = default;
+        virtual const char* what() const noexcept override { return what_.c_str(); }
+
+        exception(const exception&) = default;
+        exception& operator=(const exception&) = default;
+        exception(exception&&) noexcept = default;
+        exception& operator=(exception&&) noexcept = default;
+
+    protected:
+        std::string what_;
+    };
+
+    struct general_error : public config::exception {
+        explicit general_error(const std::string& what_) : exception(what_) {}
+        explicit general_error(const char* what_) : general_error(std::string(what_)) {}
+        virtual ~general_error() noexcept override = default;
+
+        general_error(const general_error&) = default;
+        general_error& operator=(const general_error&) = default;
+        general_error(general_error&&) noexcept = default;
+        general_error& operator=(general_error&&) noexcept = default;
+    };
+
     namespace detail {
         [[noreturn]] inline void
         rethrow_bad_cast(const std::string& what) {
-            throw toml::type_error(
+            throw general_error(
                     "[error] value type should be" +
                     what.substr(what.rfind(' ', what.find('\n'))));
         }
@@ -46,12 +72,12 @@ namespace poac::io::config {
             msg +=  "|";
             msg += std::string(line_str.find(result[1]) - line.size() - 1, ' ');
             msg += result[2];
-            throw util::cfg::exception(msg);
+            throw general_error(msg);
         }
 
         [[noreturn]] inline void
         rethrow_cfg_expr_error(const util::cfg::expression_error& e, const toml::value& v) {
-            throw util::cfg::expression_error(toml::format_error(
+            throw general_error(toml::format_error(
                     "cfg expression error", v, e.what()));
         }
 
@@ -66,6 +92,8 @@ namespace poac::io::config {
         find_force(const toml::basic_value<C, M, V>& v, const toml::key& key) {
             try {
                 return toml::find<T>(v, key);
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 rethrow_bad_cast(e.what());
             }
@@ -77,6 +105,8 @@ namespace poac::io::config {
         find_force(toml::basic_value<C, M, V>& v, const toml::key& key) {
             try {
                 return toml::find<T>(v, key);
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 rethrow_bad_cast(e.what());
             }
@@ -88,6 +118,8 @@ namespace poac::io::config {
         find_force(toml::basic_value<C, M, V>&& v, const toml::key& key) {
             try {
                 return toml::find<T>(std::move(v), key);
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 rethrow_bad_cast(e.what());
             }
@@ -123,6 +155,8 @@ namespace poac::io::config {
         find_force_opt(const toml::basic_value<C, M, V>& v, const toml::key& key) {
             try {
                 return find_force<T>(v, key);
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 throw e;
             } catch (...) {
@@ -136,6 +170,8 @@ namespace poac::io::config {
         find_force_opt(toml::basic_value<C, M, V>& v, const toml::key& key) {
             try {
                 return find_force<T>(v, key);
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 throw e;
             } catch (...) {
@@ -149,6 +185,8 @@ namespace poac::io::config {
         find_force_opt(toml::basic_value<C, M, V>&& v, const toml::key& key) {
             try {
                 return find_force<T>(std::move(v), key);
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 throw e;
             } catch (...) {
@@ -282,7 +320,7 @@ namespace poac::io::config {
                 return value;
             } else {
                 const auto f = "[error] value should be any of " + to_toml_array_string(std::move(pv));
-                throw toml::type_error(toml::format_error(
+                throw general_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
             }
@@ -297,7 +335,7 @@ namespace poac::io::config {
                 return value;
             } else {
                 const auto f = "[error] value should be any of " + to_toml_array_string(std::move(pv));
-                throw toml::type_error(toml::format_error(
+                throw general_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
             }
@@ -312,7 +350,7 @@ namespace poac::io::config {
                 return value;
             } else {
                 const auto f = "[error] value should be any of " + to_toml_array_string(std::move(pv));
-                throw toml::type_error(toml::format_error(
+                throw general_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
             }
@@ -329,6 +367,8 @@ namespace poac::io::config {
         find_enum_opt(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
             try {
                 return find_enum<T>(v, key, std::move(pv));
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 throw e;
             } catch (...) {
@@ -342,6 +382,8 @@ namespace poac::io::config {
         find_enum_opt(toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv) {
             try {
                 return find_enum<T>(v, key, std::move(pv));
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 throw e;
             } catch (...) {
@@ -355,6 +397,8 @@ namespace poac::io::config {
         find_enum_opt(toml::basic_value<C, M, V>&& v, const toml::key& key, std::vector<T>&& pv) {
             try {
                 return find_enum<T>(std::move(v), key, std::move(pv));
+            } catch (const general_error& e) {
+                throw e;
             } catch (const toml::type_error& e) {
                 throw e;
             } catch (...) {
@@ -466,7 +510,8 @@ namespace poac::io::config {
             detail::field_from_toml(this->name, v, "name");
             this->version = semver::Version(detail::find_force<std::string>(v, "version")).get_full();
             detail::field_from_toml(this->authors, v, "authors");
-            this->cpp = detail::find_enum_opt<decltype(this->cpp)>(v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
+            this->cpp = detail::find_enum_opt<decltype(this->cpp)>
+                    (v, "cpp", {98, 3, 11, 14, 17, 20}).value_or(17);
             detail::field_from_toml(this->build, v, "build");
             detail::field_from_toml(this->links, v, "links");
             detail::field_from_toml(this->exclude, v, "exclude");
@@ -526,7 +571,8 @@ namespace poac::io::config {
     struct ProfileDev : public ProfileBase {
         void from_toml(const toml::value& v) override {
             ProfileBase::from_toml(v);
-            detail::field_from_toml(this->opt_level, v, "opt-level", "0"); // TODO: 0, 1, 2, 3, g, s => enum
+            this->opt_level = detail::find_enum_opt<decltype(this->opt_level)>
+                    (v, "opt-level", {"0", "1", "2", "3", "g", "s"}).value_or("0");
             detail::field_from_toml(this->debug, v, "debug", true);
             detail::field_from_toml(this->lto, v, "lto", false);
             detail::field_from_toml(this->incremental, v, "incremental", true);
