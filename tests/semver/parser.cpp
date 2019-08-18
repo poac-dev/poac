@@ -4,17 +4,17 @@
 
 #include <poac/util/semver/parser/parser.hpp>
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_empty_test )
-{
-    using semver::parser::Parser;
-
-    Parser parser("");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // empty string incorrectly considered a valid parse
-}
+//BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_empty_test )
+//{
+//    using semver::parser::Parser;
+//
+//    Parser parser("");
+//    BOOST_CHECK_THROW(
+//            parser.version(),
+//            std::bad_optional_access
+//    );
+//    // empty string incorrectly considered a valid parse
+//}
 
 BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_blank_test )
 {
