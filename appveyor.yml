@@ -2,7 +2,7 @@ version: "#{build}"
 
 cache:
   - C:\Libraries\boost-1.69.0
-  - C:\Libraries\toml11-3.0.0
+  - C:\Libraries\toml11-3.0.1
   - C:\Libraries\libgit2-0.28.2
 
 configuration:
@@ -65,7 +65,7 @@ install:
         --local-package-dir "%CYG_ROOT%\var\cache\setup" ^
         --packages %CYG_PACKAGES% &&
       %CYG_ROOT%\bin\bash -lc
-        "git clone -q https://github.com/ToruNiina/toml11.git &&
+        "git clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
         cd toml11 &&
         mkdir build &&
         cd build &&
@@ -75,15 +75,15 @@ install:
     )
 
   # Build toml11
-  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\toml11-3.0.0 (
-      "C:\Program Files\Git\cmd\git.exe" clone -q -b v3.0.0 https://github.com/ToruNiina/toml11.git &&
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\toml11-3.0.1 (
+      "C:\Program Files\Git\cmd\git.exe" clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
       cd toml11 &&
       mkdir build &&
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -Dtoml11_BUILD_TEST=OFF ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11-3.0.0 &&
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11-3.0.1 &&
       cmake --build . --target install --config %Configuration% &&
       cd ..\..
     )
@@ -141,7 +141,7 @@ build_script:
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -DTOML11_DIR=C:\Libraries\toml11-3.0.0 ^
+        -DTOML11_DIR=C:\Libraries\toml11-3.0.1 ^
         -DGIT2_DIR=C:\Libraries\libgit2-0.28.2 &&
       cmake --build . --target install --config %Configuration%
     )
