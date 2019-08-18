@@ -171,3 +171,32 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_validate_config_test )
     }
     poac::io::filesystem::remove("test");
 }
+
+// std::optional<C> load_toml(const io::filesystem::path& base, const std::string& fname)
+BOOST_AUTO_TEST_CASE( poac_io_config_load_toml_test )
+{
+    using poac::io::config::load_toml;
+    using poac::io::config::Config;
+    using poac::io::filesystem::operator""_path;
+
+    BOOST_CHECK( !load_toml<Config>(poac::io::filesystem::current, "poac.toml").has_value() );
+    {
+        support::test_ofstream ofs("poac.toml");
+        ofs << "[package]\n"
+               "name = \"foo\"\n"
+               "version = \"1.0.0\"\n";
+        ofs.close();
+        BOOST_CHECK( load_toml<Config>(poac::io::filesystem::current, "poac.toml").has_value() );
+    }
+    BOOST_CHECK( !load_toml<Config>("test", "poac.toml").has_value() );
+    {
+        poac::io::filesystem::create_directory("test");
+        support::test_ofstream ofs("test" / "poac.toml"_path);
+        ofs << "[package]\n"
+               "name = \"foo\"\n"
+               "version = \"1.0.0\"\n";
+        ofs.close();
+        BOOST_CHECK( load_toml<Config>("test", "poac.toml").has_value() );
+    }
+    poac::io::filesystem::remove("test");
+}
