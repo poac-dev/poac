@@ -56,7 +56,7 @@ namespace poac::io::config {
 
         [[noreturn]] void
         rethrow_cfg_exception(const util::cfg::exception& e, const toml::value& v) {
-            const std::string what = e.what();
+            const std::string what = "[error] " + std::string(e.what());
             std::vector<std::string> result;
             boost::algorithm::split(result, what, boost::is_any_of("\n"));
 
@@ -78,7 +78,7 @@ namespace poac::io::config {
         [[noreturn]] inline void
         rethrow_cfg_expr_error(const util::cfg::expression_error& e, const toml::value& v) {
             throw general_error(toml::format_error(
-                    "cfg expression error", v, e.what()));
+                    "[error] cfg expression error", v, e.what()));
         }
 
         //

@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_exception_test )
             BOOST_CHECK_THROW_MSG(
                 rethrow_cfg_exception(e, target.at(key)),
                 general_error,
-                "cfg syntax error\n"
+                "[error] cfg syntax error\n"
                 " --> poac.toml\n"
                 "1 | [target.'cfg(os = \"linux\"'.profile]\n"
                 "  |                          ^ expected ')', but cfg expression ended"
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_expr_error_test )
             BOOST_CHECK_THROW_MSG(
                 rethrow_cfg_expr_error(e, target.at(key)),
                 general_error,
-                "cfg expression error\n"
+                "[error] cfg expression error\n"
                 " --> poac.toml\n"
                 " 1 | [target.'   '.profile]\n"
                 "   | ~~~~~~~~~~~~~~~~~~~~~~ expected start of a cfg expression"
