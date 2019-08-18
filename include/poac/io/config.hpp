@@ -37,7 +37,7 @@ namespace poac::io::config {
 
     struct general_error : public config::exception {
         explicit general_error(const std::string& what_) : exception(what_) {}
-        explicit general_error(const char* what_) : general_error(std::string(what_)) {}
+        explicit general_error(const char* what_) : exception(what_) {}
         virtual ~general_error() noexcept override = default;
 
         general_error(const general_error&) = default;
