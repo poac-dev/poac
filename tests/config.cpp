@@ -12,21 +12,8 @@
 #include <poac/io/filesystem.hpp>
 #include <poac/core/except.hpp>
 
+#include "support/macros.hpp"
 #include "support/test_ofstream.hpp"
-
-// In macros below following argument abbreviations are used:
-// M - message
-// S - statement
-// E - exception
-#define BOOST_CHECK_THROW_MSG( S, E, M )              \
-do {                                                  \
-    BOOST_CHECK_THROW( S, E );                        \
-    try {                                             \
-        S;                                            \
-    } catch(const E& e) {                             \
-        BOOST_CHECK( std::string(e.what()) == M);     \
-    }                                                 \
-} while( boost::test_tools::tt_detail::dummy_cond() ) \
 
 // [[noreturn]] inline void rethrow_bad_cast(const std::string& what)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )

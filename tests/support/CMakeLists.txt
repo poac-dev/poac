@@ -1,4 +1,5 @@
 set(TEST_NAMES
+        macros
         test_ofstream
 )
 
