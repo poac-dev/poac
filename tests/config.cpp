@@ -37,29 +37,58 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_exception_test )
 {
     using poac::io::config::detail::rethrow_cfg_exception;
     using toml::toml_literals::operator""_toml;
-    try {
-        support::test_ofstream ofs("poac.toml");
-        ofs << "[target.'cfg(os = \"linux\"'.profile]";
-        ofs.close();
 
-        const auto target = toml::find<toml::table>(toml::parse("poac.toml"), "target");
-        for (const auto& [key, value] : target) {
+    support::test_ofstream ofs("poac.toml");
+    ofs << "[target.'cfg(os = \"linux\"'.profile]";
+    ofs.close();
+
+    const auto target = toml::find<toml::table>(toml::parse("poac.toml"), "target");
+    for (const auto& [key, value] : target) {
+        try {
+            poac::util::cfg::parse(key);
+        } catch (const poac::util::cfg::exception& e) {
+            BOOST_CHECK( std::string(e.what()) ==
+                "cfg syntax error\n"
+                "cfg(os = \"linux\"\n"
+                "                ^ expected ')', but cfg expression ended" );
             try {
-                poac::util::cfg::parse(key);
+                rethrow_cfg_exception(e, target.at(key));
             } catch (const poac::util::cfg::exception& e) {
                 BOOST_CHECK( std::string(e.what()) ==
-                             "cfg syntax error\n"
-                             "cfg(os = \"linux\"\n"
-                             "                ^ expected ')', but cfg expression ended" );
-                rethrow_cfg_exception(e, target.at(key));
+                    "cfg syntax error\n"
+                    " --> poac.toml\n"
+                    "1 | [target.'cfg(os = \"linux\"'.profile]\n"
+                    "  |                          ^ expected ')', but cfg expression ended" );
             }
         }
-    } catch (const poac::util::cfg::exception& e) {
-        BOOST_CHECK( std::string(e.what()) ==
-            "cfg syntax error\n"
-            " --> poac.toml\n"
-            "1 | [target.'cfg(os = \"linux\"'.profile]\n"
-            "  |                          ^ expected ')', but cfg expression ended" );
+    }
+}
+
+// [[noreturn]] inline void rethrow_cfg_expr_error(const util::cfg::expression_error& e, const toml::value& v)
+BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_expr_error_test )
+{
+    using poac::io::config::detail::rethrow_cfg_expr_error;
+
+    support::test_ofstream ofs("poac.toml");
+    ofs << "[target.'   '.profile]";
+    ofs.close();
+
+    const auto target = toml::find<toml::table>(toml::parse("poac.toml"), "target");
+    for (const auto& [key, value] : target) {
+        try {
+            poac::util::cfg::parse(key);
+        } catch (const poac::util::cfg::expression_error& e) {
+            BOOST_CHECK( std::string(e.what()) == "expected start of a cfg expression" );
+            try {
+                rethrow_cfg_expr_error(e, target.at(key));
+            } catch (const poac::util::cfg::expression_error& e) {
+                BOOST_CHECK( std::string(e.what()) ==
+                    "cfg expression error\n"
+                    " --> poac.toml\n"
+                    " 1 | [target.'   '.profile]\n"
+                    "   | ~~~~~~~~~~~~~~~~~~~~~~ expected start of a cfg expression" );
+            }
+        }
     }
 }
 
