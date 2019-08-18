@@ -228,3 +228,13 @@ BOOST_AUTO_TEST_CASE( poac_io_config_load_test )
     }
     poac::io::filesystem::remove("test");
 }
+
+// std::string get_timestamp()
+BOOST_AUTO_TEST_CASE( poac_io_config_get_timestamp_test )
+{
+    using poac::io::config::get_timestamp;
+
+    BOOST_CHECK_THROW( get_timestamp(), poac::core::except::error );
+    support::test_ofstream ofs("poac.toml");
+    BOOST_CHECK( !get_timestamp().empty() );
+}
