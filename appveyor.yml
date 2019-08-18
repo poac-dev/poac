@@ -136,9 +136,9 @@ build_script:
       cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
+        -DENABLE_STATIC=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
-        -DENABLE_STATIC=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -DTOML11_DIR=C:\Libraries\toml11-3.0.0 ^
