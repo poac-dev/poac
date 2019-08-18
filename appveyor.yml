@@ -98,29 +98,29 @@ install:
 
   # Build libgit2
   - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\libgit2-0.28.2 (
-      "C:\Program Files\Git\cmd\git.exe" clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git &&
-      cd libgit2 &&
-      mkdir build &&
-      cd build &&
+      "C:\Program Files\Git\cmd\git.exe" ^
+        clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git &&
+      mkdir libgit2\build &&
+      pushd libgit2\build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\libgit2-0.28.2 &&
       cmake --build . --target install --config %Configuration% &&
-      cd ..\..
+      popd
     )
 
   # Build toml11
   - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\toml11-3.0.1 (
-      "C:\Program Files\Git\cmd\git.exe" clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
-      cd toml11 &&
-      mkdir build &&
-      cd build &&
+      "C:\Program Files\Git\cmd\git.exe" ^
+        clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
+      mkdir toml11\build &&
+      pushd toml11\build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -Dtoml11_BUILD_TEST=OFF ^
         -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11-3.0.1 &&
       cmake --build . --target install --config %Configuration% &&
-      cd ..\..
+      popd
     )
 
 build_script:
@@ -132,8 +132,7 @@ build_script:
         make install &&
         poac help"
     ) else (
-      mkdir build &&
-      cd build &&
+      mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -DENABLE_STATIC=ON ^
