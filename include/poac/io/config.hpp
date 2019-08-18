@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <string>
 #include <string_view>
+#include <sstream>
 #include <unordered_map>
 #include <optional>
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
@@ -242,6 +244,30 @@ namespace poac::io::config {
             return find_opt<T>(find_opt(std::move(v), key), std::forward<Ts>(keys)...);
         }
 
+        // std::vector<T>{"one", "two"} -> std::string["one", "two"]
+        // std::vector<T>{1, 2, 3} -> std::string[1, 2, 3]
+        template <typename T>
+        inline std::string
+        to_toml_array_string(std::vector<T>&& v) {
+            if constexpr (std::is_same_v<T, std::string>) {
+                return "[" +
+                        boost::algorithm::join(std::move(v)
+                        | boost::adaptors::transformed(
+                            [](T x){
+                                std::stringstream ss;
+                                ss << std::quoted(x);
+                                return ss.str();
+                            })
+                        , ", ") + "]";
+            } else {
+                return "[" +
+                        boost::algorithm::join(std::move(v)
+                        | boost::adaptors::transformed(
+                            [](T x){ return std::to_string(x); })
+                        , ", ") + "]";
+            }
+        }
+
         //
         // find and check possible values
         // If value cannot convert to T, or if value does not exist, throw exception.
@@ -255,15 +281,7 @@ namespace poac::io::config {
             if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
                 return value;
             } else {
-                std::string f = "[error] value should be any of [";
-                if constexpr (std::is_same_v<T, std::string>) {
-                    f += boost::algorithm::join(pv, ", ") + "]";
-                } else {
-                    std::vector<std::string> pvs(pv.size());
-                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
-                            [](T x){ return std::to_string(x); });
-                    f += boost::algorithm::join(pvs, ", ") + "]";
-                }
+                const auto f = "[error] value should be any of " + to_toml_array_string(std::move(pv));
                 throw toml::type_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
@@ -278,15 +296,7 @@ namespace poac::io::config {
             if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
                 return value;
             } else {
-                std::string f = "[error] value should be any of [";
-                if constexpr (std::is_same_v<T, std::string>) {
-                    f += boost::algorithm::join(pv, ", ") + "]";
-                } else {
-                    std::vector<std::string> pvs(pv.size());
-                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
-                                   [](T x){ return std::to_string(x); });
-                    f += boost::algorithm::join(pvs, ", ") + "]";
-                }
+                const auto f = "[error] value should be any of " + to_toml_array_string(std::move(pv));
                 throw toml::type_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));
@@ -301,15 +311,7 @@ namespace poac::io::config {
             if (std::any_of(pv.cbegin(), pv.cend(), [&](T x){ return x == value; })) {
                 return value;
             } else {
-                std::string f = "[error] value should be any of [";
-                if constexpr (std::is_same_v<T, std::string>) {
-                    f += boost::algorithm::join(pv, ", ") + "]";
-                } else {
-                    std::vector<std::string> pvs(pv.size());
-                    std::transform(pv.cbegin(), pv.cend(), pvs.begin(),
-                                   [](T x){ return std::to_string(x); });
-                    f += boost::algorithm::join(pvs, ", ") + "]";
-                }
+                const auto f = "[error] value should be any of " + to_toml_array_string(std::move(pv));
                 throw toml::type_error(toml::format_error(
                         f, toml::get<toml::table>(v).at(key),
                         "one of the above listed is required"));

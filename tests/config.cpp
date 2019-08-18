@@ -125,6 +125,23 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_opt_test )
     BOOST_CHECK( !find_opt<std::string>("name = \"poac\""_toml, "unknown").has_value() );
 }
 
+// inline std::string to_toml_array_string(std::vector<T>&& v)
+BOOST_AUTO_TEST_CASE( poac_io_config_detail_to_toml_array_string_test )
+{
+    using poac::io::config::detail::to_toml_array_string;
+
+    {
+        std::vector<std::string> s{"one", "two", "three"};
+        std::string expect = "[\"one\", \"two\", \"three\"]";
+        BOOST_CHECK( to_toml_array_string(std::move(s)) == expect );
+    }
+    {
+        std::vector<int> i{1, 2, 3};
+        std::string expect = "[1, 2, 3]";
+        BOOST_CHECK( to_toml_array_string(std::move(i)) == expect );
+    }
+}
+
 // find_enum(const toml::basic_value<C, M, V>& v, const toml::key& key, std::vector<T>&& pv)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_enum_test )
 {
