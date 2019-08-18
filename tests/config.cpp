@@ -4,6 +4,9 @@
 
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include <unordered_map>
+#include <optional>
 
 #include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
@@ -81,4 +84,67 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_find_enum_opt_test )
     BOOST_CHECK_THROW( find_enum_opt<std::string>("name = \"poac\""_toml, "name", {"foo"}), toml::type_error );
     BOOST_CHECK_THROW( find_enum_opt<int>("name = \"poac\""_toml, "name", {2}), toml::type_error );
     BOOST_CHECK( !find_enum_opt<std::string>("name = \"poac\""_toml, "unknown", {"poac"}).has_value() );
+}
+
+// merge(Field& f, const Field& f2)
+BOOST_AUTO_TEST_CASE( poac_io_config_detail_merge_test )
+{
+    using toml::toml_literals::operator""_toml;
+    namespace detail = poac::io::config::detail;
+
+    {
+        std::vector<int> f{ 1, 2, 3 };
+        const std::vector<int> f2{ 4, 5 };
+        detail::merge(f, f2);
+        const std::vector<int> expect{ 1, 2, 3, 4, 5 };
+        BOOST_CHECK( f == expect );
+    }
+    {
+        std::unordered_map<int, int> f{{1, 2}, {2, 3}, {3, 4}};
+        const std::unordered_map<int, int> f2{{4, 5}, {5, 6}};
+        detail::merge(f, f2);
+        const std::unordered_map<int, int> expect{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}};
+        BOOST_CHECK( f == expect );
+    }
+    {
+        struct foo {
+            std::vector<int> value;
+            inline void merge(const foo& f2) {
+                detail::merge(value, f2.value);
+            }
+        };
+        foo f{{ 1, 2, 3 }};
+        const foo f2{{ 4, 5 }};
+        detail::merge(f, f2);
+        const foo expect{{ 1, 2, 3, 4, 5 }};
+        BOOST_CHECK( f.value == expect.value );
+    }
+    {
+        std::optional<std::vector<int>> f = std::nullopt;
+        const std::optional<std::vector<int>> f2 = std::nullopt;
+        detail::merge(f, f2);
+        BOOST_CHECK( !f.has_value() );
+    }
+    {
+        std::optional<std::vector<int>> f = std::nullopt;
+        const std::optional<std::vector<int>> f2 = std::vector<int>{ 4, 5 };
+        detail::merge(f, f2);
+        BOOST_CHECK( f.has_value() );
+        const std::vector<int> expect{ 4, 5 };
+        BOOST_CHECK( f == expect );
+    }
+    {
+        std::optional<std::vector<int>> f = std::vector<int>{ 1, 2, 3 };
+        const std::optional<std::vector<int>> f2 = std::vector<int>{ 4, 5 };
+        detail::merge(f, f2);
+        BOOST_CHECK( f.has_value() );
+        const std::vector<int> expect{ 1, 2, 3, 4, 5 };
+        BOOST_CHECK( f == expect );
+    }
+    {
+        std::optional<std::vector<int>> f = std::vector<int>{ 1, 2, 3 };
+        detail::merge(f, "list = [4, 5]"_toml, "list");
+        const std::vector<int> expect{ 1, 2, 3, 4, 5 };
+        BOOST_CHECK( f == expect );
+    }
 }
