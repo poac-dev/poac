@@ -9,7 +9,10 @@
 #include <optional>
 
 #include <poac/io/config.hpp>
+#include <poac/io/filesystem.hpp>
 #include <poac/core/except.hpp>
+
+#include "support/test_ofstream.hpp"
 
 // [[noreturn]] inline void rethrow_bad_cast(const std::string& what)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )
@@ -147,4 +150,24 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_merge_test )
         const std::vector<int> expect{ 1, 2, 3, 4, 5 };
         BOOST_CHECK( f == expect );
     }
+}
+
+// std::optional<std::string> validate_config(const io::filesystem::path& base = filesystem::current)
+BOOST_AUTO_TEST_CASE( poac_io_config_detail_validate_config_test )
+{
+    using poac::io::config::detail::validate_config;
+    using poac::io::filesystem::operator""_path;
+
+    BOOST_CHECK( !validate_config().has_value() );
+    {
+        support::test_ofstream ofs("poac.toml");
+        BOOST_CHECK( validate_config().has_value() );
+    }
+    BOOST_CHECK( !validate_config("test").has_value() );
+    {
+        poac::io::filesystem::create_directory("test");
+        support::test_ofstream ofs("test" / "poac.toml"_path);
+        BOOST_CHECK( validate_config("test").has_value() );
+    }
+    poac::io::filesystem::remove("test");
 }
