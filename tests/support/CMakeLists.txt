@@ -1,24 +1,7 @@
 set(TEST_NAMES
-        argparse
-        cfg
-        cli
-        config
-        except
-        misc
-        name
-        path
-        pretty
-        project
-        publish
-        resolve
-        sat
-        shell
-        standard
-        term
-        types
+        test_ofstream
 )
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
 get_property(poac_COMPILE_DEFINITIONS TARGET poac PROPERTY COMPILE_DEFINITIONS)
 get_property(poac_COMPILE_OPTIONS TARGET poac PROPERTY COMPILE_OPTIONS)
@@ -40,6 +23,3 @@ foreach (TEST_NAME ${TEST_NAMES})
     target_link_libraries(${TEST_NAME} ${poac_LINK_LIBRARIES} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endforeach ()
-
-add_subdirectory(semver)
-add_subdirectory(support)
