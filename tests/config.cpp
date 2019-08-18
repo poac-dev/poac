@@ -14,22 +14,34 @@
 
 #include "support/test_ofstream.hpp"
 
+// In macros below following argument abbreviations are used:
+// M - message
+// S - statement
+// E - exception
+#define BOOST_CHECK_THROW_MSG( S, E, M )              \
+do {                                                  \
+    BOOST_CHECK_THROW( S, E );                        \
+    try {                                             \
+        S;                                            \
+    } catch(const E& e) {                             \
+        BOOST_CHECK( std::string(e.what()) == M);     \
+    }                                                 \
+} while( boost::test_tools::tt_detail::dummy_cond() ) \
+
 // [[noreturn]] inline void rethrow_bad_cast(const std::string& what)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )
 {
     using poac::io::config::detail::rethrow_bad_cast;
-    try {
+    BOOST_CHECK_THROW_MSG(
         rethrow_bad_cast("[error] toml::value bad_cast to string\n"
-                         " --> poac.toml\n"
-                         " 2 | name = []\n"
-                         "   |        ~~ the actual type is array");
-    } catch (const toml::type_error& e) {
-        BOOST_CHECK( std::string(e.what()) ==
-            "[error] value type should be string\n"
             " --> poac.toml\n"
             " 2 | name = []\n"
-            "   |        ~~ the actual type is array" );
-    }
+            "   |        ~~ the actual type is array"),
+        toml::type_error,
+        "[error] value type should be string\n"
+        " --> poac.toml\n"
+        " 2 | name = []\n"
+        "   |        ~~ the actual type is array");
 }
 
 // [[noreturn]] void rethrow_cfg_exception(const util::cfg::exception& e, const toml::value& v)
