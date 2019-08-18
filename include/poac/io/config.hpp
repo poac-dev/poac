@@ -651,19 +651,21 @@ namespace poac::io::config {
             detail::field_from_toml(this->build_dependencies, v, "build-dependencies");
             detail::field_from_toml(this->profile, v, "profile");
             detail::field_from_toml(this->bin, v, "bin");
-            const auto target = toml::find<toml::table>(v, "target");
-            for (const auto& [key, value] : target) {
-                try {
-                    if (util::cfg::parse(key).match()) {
-                        detail::merge(this->dependencies, value, "dependencies");
-                        detail::merge(this->dev_dependencies, value, "dev-dependencies");
-                        detail::merge(this->build_dependencies, value, "build-dependencies");
-                        detail::merge(this->profile, value, "profile");
+            const auto target = detail::find_opt<toml::table>(v, "target");
+            if (target.has_value()) {
+                for (const auto& [key, value] : target.value()) {
+                    try {
+                        if (util::cfg::parse(key).match()) {
+                            detail::merge(this->dependencies, value, "dependencies");
+                            detail::merge(this->dev_dependencies, value, "dev-dependencies");
+                            detail::merge(this->build_dependencies, value, "build-dependencies");
+                            detail::merge(this->profile, value, "profile");
+                        }
+                    } catch (const util::cfg::expression_error& e) {
+                        detail::rethrow_cfg_expr_error(e, target->at(key));
+                    } catch (const util::cfg::exception& e) {
+                        detail::rethrow_cfg_exception(e, target->at(key));
                     }
-                } catch (const util::cfg::expression_error& e) {
-                    detail::rethrow_cfg_expr_error(e, target.at(key));
-                } catch (const util::cfg::exception& e) {
-                    detail::rethrow_cfg_exception(e, target.at(key));
                 }
             }
         }
