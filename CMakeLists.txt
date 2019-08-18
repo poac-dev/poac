@@ -58,13 +58,13 @@ else ()
     endif ()
 endif ()
 
-if (DEFINED TOML11_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${TOML11_DIR}/include)
-endif ()
-
 if (DEFINED GIT2_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${GIT2_DIR}/include)
     target_link_directories(${PROJECT_NAME} PRIVATE ${GIT2_DIR}/lib)
+endif ()
+
+if (DEFINED TOML11_DIR)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${TOML11_DIR}/include)
 endif ()
 
 if (APPLE)
