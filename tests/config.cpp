@@ -20,7 +20,8 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )
 {
     using poac::io::config::detail::rethrow_bad_cast;
     BOOST_CHECK_THROW_MSG(
-        rethrow_bad_cast("[error] toml::value bad_cast to string\n"
+        rethrow_bad_cast(
+            "[error] toml::value bad_cast to string\n"
             " --> poac.toml\n"
             " 2 | name = []\n"
             "   |        ~~ the actual type is array"),
@@ -28,7 +29,8 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )
         "[error] value type should be string\n"
         " --> poac.toml\n"
         " 2 | name = []\n"
-        "   |        ~~ the actual type is array");
+        "   |        ~~ the actual type is array"
+    );
 }
 
 // [[noreturn]] void rethrow_cfg_exception(const util::cfg::exception& e, const toml::value& v)
@@ -49,16 +51,16 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_exception_test )
             BOOST_CHECK( std::string(e.what()) ==
                 "cfg syntax error\n"
                 "cfg(os = \"linux\"\n"
-                "                ^ expected ')', but cfg expression ended" );
-            try {
-                rethrow_cfg_exception(e, target.at(key));
-            } catch (const poac::util::cfg::exception& e) {
-                BOOST_CHECK( std::string(e.what()) ==
-                    "cfg syntax error\n"
-                    " --> poac.toml\n"
-                    "1 | [target.'cfg(os = \"linux\"'.profile]\n"
-                    "  |                          ^ expected ')', but cfg expression ended" );
-            }
+                "                ^ expected ')', but cfg expression ended"
+            );
+            BOOST_CHECK_THROW_MSG(
+                rethrow_cfg_exception(e, target.at(key)),
+                poac::util::cfg::exception,
+                "cfg syntax error\n"
+                " --> poac.toml\n"
+                "1 | [target.'cfg(os = \"linux\"'.profile]\n"
+                "  |                          ^ expected ')', but cfg expression ended"
+            );
         }
     }
 }
@@ -78,15 +80,14 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_expr_error_test )
             poac::util::cfg::parse(key);
         } catch (const poac::util::cfg::expression_error& e) {
             BOOST_CHECK( std::string(e.what()) == "expected start of a cfg expression" );
-            try {
-                rethrow_cfg_expr_error(e, target.at(key));
-            } catch (const poac::util::cfg::expression_error& e) {
-                BOOST_CHECK( std::string(e.what()) ==
-                    "cfg expression error\n"
-                    " --> poac.toml\n"
-                    " 1 | [target.'   '.profile]\n"
-                    "   | ~~~~~~~~~~~~~~~~~~~~~~ expected start of a cfg expression" );
-            }
+            BOOST_CHECK_THROW_MSG(
+                rethrow_cfg_expr_error(e, target.at(key)),
+                poac::util::cfg::expression_error,
+                "cfg expression error\n"
+                " --> poac.toml\n"
+                " 1 | [target.'   '.profile]\n"
+                "   | ~~~~~~~~~~~~~~~~~~~~~~ expected start of a cfg expression"
+            );
         }
     }
 }
