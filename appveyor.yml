@@ -2,8 +2,8 @@ version: "#{build}"
 
 cache:
   - C:\Libraries\boost-1.69.0
-  - C:\Libraries\toml11-3.0.1
   - C:\Libraries\libgit2-0.28.2
+  - C:\Libraries\toml11-3.0.1
 
 configuration:
   - Debug
@@ -74,33 +74,6 @@ install:
         make install"
     )
 
-  # Build toml11
-  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\toml11-3.0.1 (
-      "C:\Program Files\Git\cmd\git.exe" clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
-      cd toml11 &&
-      mkdir build &&
-      cd build &&
-      cmake .. -G "%GENERATOR%" ^
-        %TARGET_PLATFORM% ^
-        -Dtoml11_BUILD_TEST=OFF ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11-3.0.1 &&
-      cmake --build . --target install --config %Configuration% &&
-      cd ..\..
-    )
-
-  # Build libgit2
-  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\libgit2-0.28.2 (
-      "C:\Program Files\Git\cmd\git.exe" clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git &&
-      cd libgit2 &&
-      mkdir build &&
-      cd build &&
-      cmake .. -G "%GENERATOR%" ^
-        %TARGET_PLATFORM% ^
-        -DCMAKE_INSTALL_PREFIX=C:\Libraries\libgit2-0.28.2 &&
-      cmake --build . --target install --config %Configuration% &&
-      cd ..\..
-    )
-
   # Build boost
   - ps: $env:ConfigLower = $env:Configuration.ToLower()
   - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\boost-1.69.0 (
@@ -123,6 +96,33 @@ install:
         Get-ChildItem C:\Libraries\boost-1.69.0\lib
       }
 
+  # Build libgit2
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\libgit2-0.28.2 (
+      "C:\Program Files\Git\cmd\git.exe" clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git &&
+      cd libgit2 &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        %TARGET_PLATFORM% ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\libgit2-0.28.2 &&
+      cmake --build . --target install --config %Configuration% &&
+      cd ..\..
+    )
+
+  # Build toml11
+  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\toml11-3.0.1 (
+      "C:\Program Files\Git\cmd\git.exe" clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
+      cd toml11 &&
+      mkdir build &&
+      cd build &&
+      cmake .. -G "%GENERATOR%" ^
+        %TARGET_PLATFORM% ^
+        -Dtoml11_BUILD_TEST=OFF ^
+        -DCMAKE_INSTALL_PREFIX=C:\Libraries\toml11-3.0.1 &&
+      cmake --build . --target install --config %Configuration% &&
+      cd ..\..
+    )
+
 build_script:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\bin\bash -lc
@@ -141,8 +141,8 @@ build_script:
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -DTOML11_DIR=C:\Libraries\toml11-3.0.1 ^
-        -DGIT2_DIR=C:\Libraries\libgit2-0.28.2 &&
+        -DGIT2_DIR=C:\Libraries\libgit2-0.28.2 ^
+        -DTOML11_DIR=C:\Libraries\toml11-3.0.1 &&
       cmake --build . --target install --config %Configuration%
     )
 
