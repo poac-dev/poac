@@ -47,8 +47,8 @@ namespace poac::opts::cache {
                     io::filesystem::remove_all(cache_package);
                     std::cout << cache_package << " is deleted" << std::endl;
                 } else {
-                    std::cout << termcolor2::red<> << cache_package << " not found"
-                              << termcolor2::reset<> << std::endl;
+                    std::cout << termcolor2::red << cache_package << " not found"
+                              << termcolor2::reset << std::endl;
                 }
             }
         } else {

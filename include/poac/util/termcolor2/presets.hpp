@@ -8,263 +8,286 @@ namespace termcolor2 {
     // Foreground manipulators
     //
     template <typename CharT = char>
-    constexpr auto gray = make_string("\x1b[30m");
+    inline constexpr auto gray_v = make_string("\x1b[30m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto gray<wchar_t> = make_string(L"\x1b[30m");
+    inline constexpr auto gray_v<wchar_t> = make_string(L"\x1b[30m");
     template <>
-    constexpr auto gray<char16_t> = make_string(u"\x1b[30m");
+    inline constexpr auto gray_v<char16_t> = make_string(u"\x1b[30m");
     template <>
-    constexpr auto gray<char32_t> = make_string(U"\x1b[30m");
+    inline constexpr auto gray_v<char32_t> = make_string(U"\x1b[30m");
 #endif
+    inline constexpr auto gray = gray_v<char>;
 
     template <typename CharT = char>
-    constexpr auto red = make_string("\x1b[31m");
+    inline constexpr auto red_v = make_string("\x1b[31m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto red<wchar_t> = make_string(L"\x1b[31m");
+    inline constexpr auto red_v<wchar_t> = make_string(L"\x1b[31m");
     template <>
-    constexpr auto red<char16_t> = make_string(u"\x1b[31m");
+    inline constexpr auto red_v<char16_t> = make_string(u"\x1b[31m");
     template <>
-    constexpr auto red<char32_t> = make_string(U"\x1b[31m");
+    inline constexpr auto red_v<char32_t> = make_string(U"\x1b[31m");
 #endif
+    inline constexpr auto red = red_v<char>;
 
     template <typename CharT = char>
-    constexpr auto green = make_string("\x1b[32m");
+    inline constexpr auto green_v = make_string("\x1b[32m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto green<wchar_t> = make_string(L"\x1b[32m");
+    inline constexpr auto green_v<wchar_t> = make_string(L"\x1b[32m");
     template <>
-    constexpr auto green<char16_t> = make_string(u"\x1b[32m");
+    inline constexpr auto green_v<char16_t> = make_string(u"\x1b[32m");
     template <>
-    constexpr auto green<char32_t> = make_string(U"\x1b[32m");
+    inline constexpr auto green_v<char32_t> = make_string(U"\x1b[32m");
 #endif
+    inline constexpr auto green = green_v<char>;
 
     template <typename CharT = char>
-    constexpr auto yellow = make_string("\x1b[33m");
+    inline constexpr auto yellow_v = make_string("\x1b[33m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto yellow<wchar_t> = make_string(L"\x1b[33m");
+    inline constexpr auto yellow_v<wchar_t> = make_string(L"\x1b[33m");
     template <>
-    constexpr auto yellow<char16_t> = make_string(u"\x1b[33m");
+    inline constexpr auto yellow_v<char16_t> = make_string(u"\x1b[33m");
     template <>
-    constexpr auto yellow<char32_t> = make_string(U"\x1b[33m");
+    inline constexpr auto yellow_v<char32_t> = make_string(U"\x1b[33m");
 #endif
+    inline constexpr auto yellow = yellow_v<char>;
 
     template <typename CharT = char>
-    constexpr auto blue = make_string("\x1b[34m");
+    inline constexpr auto blue_v = make_string("\x1b[34m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto blue<wchar_t> = make_string(L"\x1b[34m");
+    inline constexpr auto blue_v<wchar_t> = make_string(L"\x1b[34m");
     template <>
-    constexpr auto blue<char16_t> = make_string(u"\x1b[34m");
+    inline constexpr auto blue_v<char16_t> = make_string(u"\x1b[34m");
     template <>
-    constexpr auto blue<char32_t> = make_string(U"\x1b[34m");
+    inline constexpr auto blue_v<char32_t> = make_string(U"\x1b[34m");
 #endif
+    inline constexpr auto blue = blue_v<char>;
 
     template <typename CharT = char>
-    constexpr auto magenta = make_string("\x1b[35m");
+    inline constexpr auto magenta_v = make_string("\x1b[35m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto magenta<wchar_t> = make_string(L"\x1b[35m");
+    inline constexpr auto magenta_v<wchar_t> = make_string(L"\x1b[35m");
     template <>
-    constexpr auto magenta<char16_t> = make_string(u"\x1b[35m");
+    inline constexpr auto magenta_v<char16_t> = make_string(u"\x1b[35m");
     template <>
-    constexpr auto magenta<char32_t> = make_string(U"\x1b[35m");
+    inline constexpr auto magenta_v<char32_t> = make_string(U"\x1b[35m");
 #endif
+    inline constexpr auto magenta = magenta_v<char>;
 
     template <typename CharT = char>
-    constexpr auto cyan = make_string("\x1b[36m");
+    inline constexpr auto cyan_v = make_string("\x1b[36m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto cyan<wchar_t> = make_string(L"\x1b[36m");
+    inline constexpr auto cyan_v<wchar_t> = make_string(L"\x1b[36m");
     template <>
-    constexpr auto cyan<char16_t> = make_string(u"\x1b[36m");
+    inline constexpr auto cyan_v<char16_t> = make_string(u"\x1b[36m");
     template <>
-    constexpr auto cyan<char32_t> = make_string(U"\x1b[36m");
+    inline constexpr auto cyan_v<char32_t> = make_string(U"\x1b[36m");
 #endif
+    inline constexpr auto cyan = cyan_v<char>;
 
     template <typename CharT = char>
-    constexpr auto white = make_string("\x1b[37m");
+    inline constexpr auto white_v = make_string("\x1b[37m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto white<wchar_t> = make_string(L"\x1b[37m");
+    inline constexpr auto white_v<wchar_t> = make_string(L"\x1b[37m");
     template <>
-    constexpr auto white<char16_t> = make_string(u"\x1b[37m");
+    inline constexpr auto white_v<char16_t> = make_string(u"\x1b[37m");
     template <>
-    constexpr auto white<char32_t> = make_string(U"\x1b[37m");
+    inline constexpr auto white_v<char32_t> = make_string(U"\x1b[37m");
 #endif
+    inline constexpr auto white = white_v<char>;
 
     //
     // Background manipulators
     //
     template <typename CharT = char>
-    constexpr auto on_gray = make_string("\x1b[40m");
+    inline constexpr auto on_gray_v = make_string("\x1b[40m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_gray<wchar_t> = make_string(L"\x1b[40m");
+    inline constexpr auto on_gray_v<wchar_t> = make_string(L"\x1b[40m");
     template <>
-    constexpr auto on_gray<char16_t> = make_string(u"\x1b[40m");
+    inline constexpr auto on_gray_v<char16_t> = make_string(u"\x1b[40m");
     template <>
-    constexpr auto on_gray<char32_t> = make_string(U"\x1b[40m");
+    inline constexpr auto on_gray_v<char32_t> = make_string(U"\x1b[40m");
 #endif
+    inline constexpr auto on_gray = on_gray_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_red = make_string("\x1b[41m");
+    inline constexpr auto on_red_v = make_string("\x1b[41m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_red<wchar_t> = make_string(L"\x1b[41m");
+    inline constexpr auto on_red_v<wchar_t> = make_string(L"\x1b[41m");
     template <>
-    constexpr auto on_red<char16_t> = make_string(u"\x1b[41m");
+    inline constexpr auto on_red_v<char16_t> = make_string(u"\x1b[41m");
     template <>
-    constexpr auto on_red<char32_t> = make_string(U"\x1b[41m");
+    inline constexpr auto on_red_v<char32_t> = make_string(U"\x1b[41m");
 #endif
+    inline constexpr auto on_red = on_red_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_green = make_string("\x1b[42m");
+    inline constexpr auto on_green_v = make_string("\x1b[42m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_green<wchar_t> = make_string(L"\x1b[42m");
+    inline constexpr auto on_green_v<wchar_t> = make_string(L"\x1b[42m");
     template <>
-    constexpr auto on_green<char16_t> = make_string(u"\x1b[42m");
+    inline constexpr auto on_green_v<char16_t> = make_string(u"\x1b[42m");
     template <>
-    constexpr auto on_green<char32_t> = make_string(U"\x1b[42m");
+    inline constexpr auto on_green_v<char32_t> = make_string(U"\x1b[42m");
 #endif
+    inline constexpr auto on_green = on_green_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_yellow = make_string("\x1b[43m");
+    inline constexpr auto on_yellow_v = make_string("\x1b[43m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_yellow<wchar_t> = make_string(L"\x1b[43m");
+    inline constexpr auto on_yellow_v<wchar_t> = make_string(L"\x1b[43m");
     template <>
-    constexpr auto on_yellow<char16_t> = make_string(u"\x1b[43m");
+    inline constexpr auto on_yellow_v<char16_t> = make_string(u"\x1b[43m");
     template <>
-    constexpr auto on_yellow<char32_t> = make_string(U"\x1b[43m");
+    inline constexpr auto on_yellow_v<char32_t> = make_string(U"\x1b[43m");
 #endif
+    inline constexpr auto on_yellow = on_yellow_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_blue = make_string("\x1b[44m");
+    inline constexpr auto on_blue_v = make_string("\x1b[44m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_blue<wchar_t> = make_string(L"\x1b[44m");
+    inline constexpr auto on_blue_v<wchar_t> = make_string(L"\x1b[44m");
     template <>
-    constexpr auto on_blue<char16_t> = make_string(u"\x1b[44m");
+    inline constexpr auto on_blue_v<char16_t> = make_string(u"\x1b[44m");
     template <>
-    constexpr auto on_blue<char32_t> = make_string(U"\x1b[44m");
+    inline constexpr auto on_blue_v<char32_t> = make_string(U"\x1b[44m");
 #endif
+    inline constexpr auto on_blue = on_blue_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_magenta = make_string("\x1b[45m");
+    inline constexpr auto on_magenta_v = make_string("\x1b[45m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_magenta<wchar_t> = make_string(L"\x1b[45m");
+    inline constexpr auto on_magenta_v<wchar_t> = make_string(L"\x1b[45m");
     template <>
-    constexpr auto on_magenta<char16_t> = make_string(u"\x1b[45m");
+    inline constexpr auto on_magenta_v<char16_t> = make_string(u"\x1b[45m");
     template <>
-    constexpr auto on_magenta<char32_t> = make_string(U"\x1b[45m");
+    inline constexpr auto on_magenta_v<char32_t> = make_string(U"\x1b[45m");
 #endif
+    inline constexpr auto on_magenta = on_magenta_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_cyan = make_string("\x1b[46m");
+    inline constexpr auto on_cyan_v = make_string("\x1b[46m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_cyan<wchar_t> = make_string(L"\x1b[46m");
+    inline constexpr auto on_cyan_v<wchar_t> = make_string(L"\x1b[46m");
     template <>
-    constexpr auto on_cyan<char16_t> = make_string(u"\x1b[46m");
+    inline constexpr auto on_cyan_v<char16_t> = make_string(u"\x1b[46m");
     template <>
-    constexpr auto on_cyan<char32_t> = make_string(U"\x1b[46m");
+    inline constexpr auto on_cyan_v<char32_t> = make_string(U"\x1b[46m");
 #endif
+    inline constexpr auto on_cyan = on_cyan_v<char>;
 
     template <typename CharT = char>
-    constexpr auto on_white = make_string("\x1b[47m");
+    inline constexpr auto on_white_v = make_string("\x1b[47m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto on_white<wchar_t> = make_string(L"\x1b[47m");
+    inline constexpr auto on_white_v<wchar_t> = make_string(L"\x1b[47m");
     template <>
-    constexpr auto on_white<char16_t> = make_string(u"\x1b[47m");
+    inline constexpr auto on_white_v<char16_t> = make_string(u"\x1b[47m");
     template <>
-    constexpr auto on_white<char32_t> = make_string(U"\x1b[47m");
+    inline constexpr auto on_white_v<char32_t> = make_string(U"\x1b[47m");
 #endif
+    inline constexpr auto on_white = on_white_v<char>;
 
     //
     // Attribute manipulators
     //
     template <typename CharT = char>
-    constexpr auto bold = make_string("\x1b[1m");
+    inline constexpr auto bold_v = make_string("\x1b[1m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto bold<wchar_t> = make_string(L"\x1b[1m");
+    inline constexpr auto bold_v<wchar_t> = make_string(L"\x1b[1m");
     template <>
-    constexpr auto bold<char16_t> = make_string(u"\x1b[1m");
+    inline constexpr auto bold_v<char16_t> = make_string(u"\x1b[1m");
     template <>
-    constexpr auto bold<char32_t> = make_string(U"\x1b[1m");
+    inline constexpr auto bold_v<char32_t> = make_string(U"\x1b[1m");
 #endif
+    inline constexpr auto bold = bold_v<char>;
 
     template <typename CharT = char>
-    constexpr auto dark = make_string("\x1b[2m");
+    inline constexpr auto dark_v = make_string("\x1b[2m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto dark<wchar_t> = make_string(L"\x1b[2m");
+    inline constexpr auto dark_v<wchar_t> = make_string(L"\x1b[2m");
     template <>
-    constexpr auto dark<char16_t> = make_string(u"\x1b[2m");
+    inline constexpr auto dark_v<char16_t> = make_string(u"\x1b[2m");
     template <>
-    constexpr auto dark<char32_t> = make_string(U"\x1b[2m");
+    inline constexpr auto dark_v<char32_t> = make_string(U"\x1b[2m");
 #endif
+    inline constexpr auto dark = dark_v<char>;
 
     template <typename CharT = char>
-    constexpr auto underline = make_string("\x1b[4m");
+    inline constexpr auto underline_v = make_string("\x1b[4m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto underline<wchar_t> = make_string(L"\x1b[4m");
+    inline constexpr auto underline_v<wchar_t> = make_string(L"\x1b[4m");
     template <>
-    constexpr auto underline<char16_t> = make_string(u"\x1b[4m");
+    inline constexpr auto underline_v<char16_t> = make_string(u"\x1b[4m");
     template <>
-    constexpr auto underline<char32_t> = make_string(U"\x1b[4m");
+    inline constexpr auto underline_v<char32_t> = make_string(U"\x1b[4m");
 #endif
+    inline constexpr auto underline = underline_v<char>;
 
     template <typename CharT = char>
-    constexpr auto blink = make_string("\x1b[5m");
+    inline constexpr auto blink_v = make_string("\x1b[5m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto blink<wchar_t> = make_string(L"\x1b[5m");
+    inline constexpr auto blink_v<wchar_t> = make_string(L"\x1b[5m");
     template <>
-    constexpr auto blink<char16_t> = make_string(u"\x1b[5m");
+    inline constexpr auto blink_v<char16_t> = make_string(u"\x1b[5m");
     template <>
-    constexpr auto blink<char32_t> = make_string(U"\x1b[5m");
+    inline constexpr auto blink_v<char32_t> = make_string(U"\x1b[5m");
 #endif
+    inline constexpr auto blink = blink_v<char>;
 
     template <typename CharT = char>
-    constexpr auto reverse = make_string("\x1b[7m");
+    inline constexpr auto reverse_v = make_string("\x1b[7m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto reverse<wchar_t> = make_string(L"\x1b[7m");
+    inline constexpr auto reverse_v<wchar_t> = make_string(L"\x1b[7m");
     template <>
-    constexpr auto reverse<char16_t> = make_string(u"\x1b[7m");
+    inline constexpr auto reverse_v<char16_t> = make_string(u"\x1b[7m");
     template <>
-    constexpr auto reverse<char32_t> = make_string(U"\x1b[7m");
+    inline constexpr auto reverse_v<char32_t> = make_string(U"\x1b[7m");
 #endif
+    inline constexpr auto reverse = reverse_v<char>;
 
     template <typename CharT = char>
-    constexpr auto concealed = make_string("\x1b[8m");
+    inline constexpr auto concealed_v = make_string("\x1b[8m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto concealed<wchar_t> = make_string(L"\x1b[8m");
+    inline constexpr auto concealed_v<wchar_t> = make_string(L"\x1b[8m");
     template <>
-    constexpr auto concealed<char16_t> = make_string(u"\x1b[8m");
+    inline constexpr auto concealed_v<char16_t> = make_string(u"\x1b[8m");
     template <>
-    constexpr auto concealed<char32_t> = make_string(U"\x1b[8m");
+    inline constexpr auto concealed_v<char32_t> = make_string(U"\x1b[8m");
 #endif
+    inline constexpr auto concealed = concealed_v<char>;
 
     template <typename CharT = char>
-    constexpr auto reset = make_string("\x1b[0m");
+    inline constexpr auto reset_v = make_string("\x1b[0m");
 #ifndef _MSC_VER
     template <>
-    constexpr auto reset<wchar_t> = make_string(L"\x1b[0m");
+    inline constexpr auto reset_v<wchar_t> = make_string(L"\x1b[0m");
     template <>
-    constexpr auto reset<char16_t> = make_string(u"\x1b[0m");
+    inline constexpr auto reset_v<char16_t> = make_string(u"\x1b[0m");
     template <>
-    constexpr auto reset<char32_t> = make_string(U"\x1b[0m");
+    inline constexpr auto reset_v<char32_t> = make_string(U"\x1b[0m");
 #endif
+    inline constexpr auto reset = reset_v<char>;
 } // end namespace termcolor2
 
 #endif	// !TERMCOLOR2_PRESETS_HPP

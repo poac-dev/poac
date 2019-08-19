@@ -29,7 +29,7 @@ namespace poac::io::term {
         std::cout << std::setw(n) << std::left;
     }
 
-    constexpr auto status = termcolor2::bold<> + termcolor2::green<> + "==> " + termcolor2::reset<>;
+    constexpr auto status = termcolor2::bold + termcolor2::green + "==> " + termcolor2::reset;
     constexpr auto fetched = termcolor2::to_green("  ●  ");
     constexpr auto fetch_failed = termcolor2::to_red("  ●  ");
 
@@ -59,18 +59,18 @@ namespace poac::io::term {
     inline std::basic_ostream<CharT>&
     status_opt(std::basic_ostream<CharT>& os) {
         int indent_size = 9;
-        indent_size += termcolor2::bold<CharT>.size();
-        indent_size += termcolor2::green<CharT>.size();
-        indent_size += termcolor2::reset<CharT>.size();
+        indent_size += termcolor2::bold_v<CharT>.size();
+        indent_size += termcolor2::green_v<CharT>.size();
+        indent_size += termcolor2::reset_v<CharT>.size();
         return (os << std::right << std::setw(indent_size));
     }
 
     template <typename CharT = char>
-    constexpr auto bold_green = termcolor2::bold<CharT> + termcolor2::green<CharT>;
+    constexpr auto bold_green = termcolor2::bold_v<CharT> + termcolor2::green_v<CharT>;
 
     inline std::ostream&
     compiling(std::ostream& os) {
-        return (os << status_opt << bold_green<> + "Compiling " << termcolor2::reset<>);
+        return (os << status_opt << bold_green<> + "Compiling " << termcolor2::reset);
     }
     inline void
     echo_compiling(const std::optional<io::config::Config>& config) {
@@ -90,7 +90,7 @@ namespace poac::io::term {
 
     inline std::ostream&
     echo_status(std::ostream& os, const std::string& msg) {
-        return (os << status_opt << bold_green<>.to_string() + msg << termcolor2::reset<>);
+        return (os << status_opt << bold_green<>.to_string() + msg << termcolor2::reset);
     }
 
     inline std::ostream&

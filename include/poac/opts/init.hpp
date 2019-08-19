@@ -30,14 +30,14 @@ namespace poac::opts::init {
 
     [[nodiscard]] std::optional<core::except::Error>
     overwrite(std::string_view config_path) {
-        std::cout << termcolor2::bold<> << termcolor2::red<>
+        std::cout << termcolor2::bold << termcolor2::red
                   << config_path << " is already exists." << std::endl
                   << std::endl
                   << "See `poac init --help`" << std::endl
                   << std::endl
                   << "Use `poac install <pkg>` afterwards to install a package and" << std::endl
                   << "save it as a dependency in the poac.yml file." << std::endl
-                  << termcolor2::reset<> << std::endl;
+                  << termcolor2::reset << std::endl;
         if (const auto error = io::term::yes_or_no("Do you want overwrite?")) {
             return error;
         }

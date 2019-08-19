@@ -92,10 +92,10 @@ namespace poac::opts::update {
             const auto current_version = resolved_deps.no_duplicate_deps[name].version;
             std::cout << name << " (Current: " << current_version << " -> Update: ";
             if (semver::Version(current_version) < package.version) {
-                std::cout << termcolor2::green<> << package.version << termcolor2::reset<> << ")" << std::endl;
+                std::cout << termcolor2::green << package.version << termcolor2::reset << ")" << std::endl;
             }
             else {
-                std::cout << termcolor2::yellow<> << package.version << termcolor2::reset<> << ")" << std::endl;
+                std::cout << termcolor2::yellow << package.version << termcolor2::reset << ")" << std::endl;
             }
         }
 

@@ -46,7 +46,7 @@ namespace poac::opts::search {
     }
 
     void echo_title_line() {
-        std::cout << termcolor2::underline<>;
+        std::cout << termcolor2::underline;
         io::term::set_left(27);
         std::cout << "Package";
         io::term::set_left(50);
@@ -54,7 +54,7 @@ namespace poac::opts::search {
         io::term::set_left(10);
         std::cout << "| Version"
                   << "| C++ "
-                  << termcolor2::reset<>
+                  << termcolor2::reset
                   << std::endl;
     }
 
@@ -102,12 +102,12 @@ namespace poac::opts::search {
             const boost::property_tree::ptree& hits = child.second;
 
             std::string owner = hits.get<std::string>("_highlightResult.owner.value");
-            auto owner_count = replace(owner, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
-            owner_count += replace(owner, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
+            auto owner_count = replace(owner, "<em>", termcolor2::red.to_string()) * termcolor2::red.size();
+            owner_count += replace(owner, "</em>", termcolor2::reset.to_string()) * termcolor2::reset.size();
 
             std::string repo = hits.get<std::string>("_highlightResult.repo.value");
-            auto repo_count = replace(repo, "<em>", termcolor2::red<>.to_string()) * termcolor2::red<>.size();
-            repo_count += replace(repo, "</em>", termcolor2::reset<>.to_string()) * termcolor2::reset<>.size();
+            auto repo_count = replace(repo, "<em>", termcolor2::red.to_string()) * termcolor2::red.size();
+            repo_count += replace(repo, "</em>", termcolor2::reset.to_string()) * termcolor2::reset.size();
 
             io::term::set_left(27 + owner_count + repo_count);
             std::cout << util::pretty::clip_string(owner + "/" + repo, 23 + owner_count + repo_count);
