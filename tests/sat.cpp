@@ -1,8 +1,6 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <poac/core/resolver/sat.hpp>
-
 
 BOOST_AUTO_TEST_CASE( poac_core_sat_test1 )
 {

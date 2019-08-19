@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -425,4 +424,57 @@ BOOST_AUTO_TEST_CASE( poac_io_config_manifest_enum_test )
             "opt-level = \"g\""_toml
         )
     );
+}
+
+BOOST_AUTO_TEST_CASE( poac_io_config_manifest_overwrite_test )
+{
+    using poac::io::config::load;
+    using toml::toml_literals::operator""_toml;
+
+    {
+        support::test_ofstream ofs("poac.toml");
+        ofs << "[package]\n"
+               "name = \"foo\"\n"
+               "version = \"1.0.0\"\n";
+        ofs.close();
+        BOOST_CHECK( !load()->profile.has_value() );
+    }
+//    {
+//        support::test_ofstream ofs("poac.toml");
+//        ofs << "[package]\n"
+//               "name = \"foo\"\n"
+//               "version = \"1.0.0\"\n"
+//               "[profile]\n"
+//               "libraries = [\"bar\"]";
+//        ofs.close();
+//        BOOST_CHECK( load()->profile.has_value() );
+//        BOOST_CHECK( load()->profile->dev.has_value() );
+//        BOOST_CHECK( load()->profile->dev->opt_level == "0" );
+//    }
+    {
+        support::test_ofstream ofs("poac.toml");
+        ofs << "[package]\n"
+               "name = \"foo\"\n"
+               "version = \"1.0.0\"\n"
+               "[profile.dev]\n"
+               "opt-level = \"g\"";
+        ofs.close();
+        BOOST_CHECK( load()->profile.has_value() );
+        BOOST_CHECK( load()->profile->dev.has_value() );
+        BOOST_CHECK( load()->profile->dev->opt_level == "g" );
+    }
+//    {
+//        support::test_ofstream ofs("poac.toml");
+//        ofs << "[package]\n"
+//               "name = \"foo\"\n"
+//               "version = \"1.0.0\"\n"
+//               "[profile.dev]\n"
+//               "opt-level = \"g\"\n"
+//               "[target.'cfg(os = \"unix\")'.profile.dev]\n"
+//               "opt-level = \"0\"";
+//        ofs.close();
+//        BOOST_CHECK( load()->profile.has_value() );
+//        BOOST_CHECK( load()->profile->dev.has_value() );
+//        BOOST_CHECK( load()->profile->dev->opt_level == "0" );
+//    }
 }

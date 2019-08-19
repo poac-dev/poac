@@ -1,12 +1,10 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
 
 #include <cstdlib>
 
 #include <poac/util/shell.hpp>
-
 
 // 1. shell::shell()
 // 2. shell::shell(const std::string& c)

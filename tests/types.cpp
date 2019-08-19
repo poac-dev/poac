@@ -1,16 +1,13 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <array>
 #include <string>
 #include <vector>
 #include <tuple>
 
-#include <boost/property_tree/ptree.hpp>
-
 #include <poac/util/types.hpp>
-
 
 // 1. std::optional<std::size_t> index_of(const SinglePassRange& rng, const T& t)
 // 2. inline auto index_of(InputIterator first, InputIterator last, const T& value)

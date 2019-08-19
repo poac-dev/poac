@@ -1,10 +1,7 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-
+#include <boost/test/included/unit_test.hpp>
 #include <vector>
 #include <string>
-
 #include <poac/core/cli.hpp>
 #include <poac/core/except.hpp>
 

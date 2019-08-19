@@ -1,13 +1,9 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-
+#include <boost/test/included/unit_test.hpp>
 #include <exception>
 #include <string>
 #include <utility>
-
 #include <poac/util/pretty.hpp>
-
 
 // std::string to_time(const std::string& s)
 BOOST_AUTO_TEST_CASE( poac_util_pretty_to_time_test1 )

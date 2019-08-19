@@ -18,7 +18,6 @@ set(TEST_NAMES
         types
 )
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
 get_property(poac_COMPILE_DEFINITIONS TARGET poac PROPERTY COMPILE_DEFINITIONS)
 get_property(poac_COMPILE_OPTIONS TARGET poac PROPERTY COMPILE_OPTIONS)
@@ -35,9 +34,9 @@ foreach (TEST_NAME ${TEST_NAMES})
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     endif()
     target_include_directories(${TEST_NAME} PRIVATE
-            ${PROJECT_SOURCE_DIR}/include ${poac_INCLUDE_DIRECTORIES} ${Boost_INCLUDE_DIRS})
+            ${PROJECT_SOURCE_DIR}/include ${poac_INCLUDE_DIRECTORIES})
     target_link_directories(${TEST_NAME} PRIVATE ${poac_LINK_DIRECTORIES})
-    target_link_libraries(${TEST_NAME} ${poac_LINK_LIBRARIES} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    target_link_libraries(${TEST_NAME} ${poac_LINK_LIBRARIES})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endforeach ()
 
