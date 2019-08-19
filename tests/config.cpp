@@ -383,7 +383,6 @@ BOOST_AUTO_TEST_CASE( poac_io_config_get_timestamp_test )
 
 BOOST_AUTO_TEST_CASE( poac_io_config_manifest_enum_test )
 {
-    using poac::io::config::load;
     using poac::io::config::Config;
     using poac::io::config::general_error;
     using toml::toml_literals::operator""_toml;
