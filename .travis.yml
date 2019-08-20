@@ -10,6 +10,7 @@ cache:
 addons:
   apt:
     packages:
+      - cmake
       - libboost-all-dev
       - libssl-dev
       - libgit2-dev
