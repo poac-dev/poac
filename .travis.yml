@@ -39,7 +39,7 @@ script:
 after_success:
   - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
       pip3 install cpp-coveralls;
-      coveralls --exclude build --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
+      coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
       bash <(curl -s https://codecov.io/bash);
     fi
 
