@@ -6,28 +6,29 @@ cache:
   directories:
     - $HOME/Library/Caches/Homebrew
 
+addons:
+  apt:
+    update: true
+    packages:
+      - cmake
+      - libboost-all-dev
+      - libssl-dev
+      - libgit2-dev
+      - g++-8
+  coverity_scan:
+    project:
+      name: poacpm/poac
+      description: Package manager for C++
+    build_command_prepend: mkdir build && cd build
+    build_command: cmake .. && make
+    branch_pattern: coverity_scan
+
 matrix:
   include:
     - os: linux
       dist: bionic
       compiler: gcc
       if: branch = coverity_scan
-      addons:
-        apt:
-          update: true
-          packages:
-            - cmake
-            - libboost-all-dev
-            - libssl-dev
-            - libgit2-dev
-            - g++-8
-        coverity_scan:
-          project:
-            name: poacpm/poac
-            description: Package manager for C++
-          build_command_prepend: mkdir build && cd build
-          build_command: cmake .. && make
-          branch_pattern: coverity_scan
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
@@ -46,13 +47,15 @@ before_install:
       brew update;
     fi
 install:
-  - if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
-      brew unlink boost;
-      brew install --ignore-dependencies boost;
-      brew install llvm@7;
-      brew upgrade cmake;
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
+        brew unlink boost;
+        brew install --ignore-dependencies boost;
+        brew install llvm@7;
+        brew upgrade cmake;
+      fi
+      brew install libgit2 matken11235/toml11/toml11
     fi
-  - brew install libgit2 matken11235/toml11/toml11
 script:
   - mkdir build
   - cd build
