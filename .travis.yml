@@ -47,6 +47,7 @@ matrix:
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      sudo apt-get purge cmake;
       sudo add-apt-repository ppa:andrew-fuller/cmake -y;
       sudo add-apt-repository ppa:mhier/libboost-latest -y;
       sudo apt-get update -q;
