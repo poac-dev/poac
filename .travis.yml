@@ -9,8 +9,7 @@ cache:
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
+    update: true
     packages:
       - cmake
       - libboost-all-dev
