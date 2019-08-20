@@ -50,7 +50,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       sudo add-apt-repository ppa:mhier/libboost-latest -y;
       sudo apt-get update -q;
-      sudo apt-get install libboost1.70;
+      sudo apt-get install libboost1.70-dev;
     elif [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_OSX_IMAGE" != "xcode11" ]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
