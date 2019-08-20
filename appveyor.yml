@@ -123,7 +123,6 @@ build_script:
       mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
-        -Dpoac_BUILD_TEST=ON ^
         -DENABLE_STATIC=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
