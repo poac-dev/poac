@@ -48,7 +48,7 @@ matrix:
       if: branch != coverity_scan
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" -a "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
+  - if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_OSX_IMAGE" != "xcode11" ]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
       brew install llvm@7;
