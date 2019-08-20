@@ -124,6 +124,7 @@ build_script:
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
         -DENABLE_STATIC=ON ^
+        -Dpoac_BUILD_TEST=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
         -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
