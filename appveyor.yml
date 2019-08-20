@@ -98,8 +98,8 @@ install:
 
   # Install libgit2 and toml11
   - ps: |
-      @(@{owner="libgit2"  ; repo="libgit2"; version="0.28.2"},
-        @{owner="ToruNiina"; repo="toml11" ; version="3.0.1"}
+      @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2" },
+        @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1"  }
       ) | foreach {
         $LibraryPath = C:\Libraries\$($_.repo)-$($_.version)
         if ($env:COMPILER -ne "cygwin-gcc" -and !(Test-Path $LibraryPath)) {
