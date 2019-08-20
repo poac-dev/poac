@@ -7,7 +7,7 @@ FATAL: In-source builds are not allowed.
 ")
 endif ()
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.13)
 project(poac VERSION 0.2.1 LANGUAGES CXX)
 option(poac_BUILD_TEST "Build poac tests" OFF)
 
