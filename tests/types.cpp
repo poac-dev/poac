@@ -16,13 +16,31 @@ BOOST_AUTO_TEST_CASE( poac_util_types_index_of_test )
     using poac::util::types::index_of;
 
     std::vector<std::string> test_case{"0", "1", "2"};
-    auto res = index_of(test_case, "1"); // 1
-    BOOST_CHECK( res.has_value() );
-    BOOST_CHECK( res.value() == 1 );
+    {
+        const auto res = index_of(test_case, "1"); // 1
+        BOOST_CHECK( res.has_value() );
+        BOOST_CHECK( res.value() == 1 );
+    }
+    {
+        const auto res = index_of(test_case, "10"); // 1
+        BOOST_CHECK( !res.has_value() );
+    }
+    BOOST_CHECK( index_of(test_case.cbegin(), test_case.cend(), "0") == 0 ); // 2
+}
 
-    res = index_of(test_case.cbegin(), test_case.cend(), "0"); // 2
-    BOOST_CHECK( res.has_value() );
-    BOOST_CHECK( res.value() == 0 );
+// inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred)
+BOOST_AUTO_TEST_CASE( poac_util_types_index_of_if_test )
+{
+    using poac::util::types::index_of_if;
+
+    std::vector<std::string> test_case{"0", "1", "2"};
+    BOOST_CHECK(
+        index_of_if(
+            test_case.cbegin(),
+            test_case.cend(),
+            [](auto& x){ return x == "0"; }
+        ) == 0
+    );
 }
 
 // bool duplicate(const SinglePassRange& rng)
