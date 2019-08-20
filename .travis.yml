@@ -59,6 +59,7 @@ before_install:
       brew upgrade cmake;
     fi
 script:
+  - rm -rf build
   - mkdir build
   - cd build
   - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
@@ -67,9 +68,9 @@ script:
   - poac help
   - cd ../
 after_success:
-  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
+  - if [ "$TRAVIS_OSX_IMAGE" == "xcode11" ]; then
       pip3 install cpp-coveralls;
-      coveralls --exclude build --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
+      coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
       bash <(curl -s https://codecov.io/bash);
     fi
 
