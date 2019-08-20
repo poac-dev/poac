@@ -8,10 +8,12 @@ cache:
 
 addons:
   apt:
+    sources:
+      - ppa:mhier/libboost-latest
     update: true
     packages:
       - cmake
-      - libboost-all-dev
+      - libboost1.70
       - libssl-dev
       - libgit2-dev
       - g++-8
