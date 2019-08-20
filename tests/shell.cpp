@@ -1,9 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
-
 #include <cstdlib>
-
 #include <poac/util/shell.hpp>
 
 // 1. shell::shell()
