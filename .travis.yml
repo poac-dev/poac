@@ -1,5 +1,4 @@
 language: cpp
-rvm: system
 
 before_cache:
   - brew cleanup
