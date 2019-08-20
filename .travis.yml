@@ -10,9 +10,10 @@ cache:
 addons:
   apt:
     packages:
-      - libyaml-cpp-dev
       - libboost-all-dev
       - libssl-dev
+      - libgit2-dev
+      - g++-9
   coverity_scan:
     project:
       name: poacpm/poac
@@ -24,7 +25,7 @@ addons:
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: bionic
       compiler: gcc
       if: branch = coverity_scan
     # macOS Sierra
@@ -38,6 +39,7 @@ matrix:
     # macOS Mojave
     - os: osx
       osx_image: xcode11
+      if: branch != coverity_scan
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
