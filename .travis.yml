@@ -22,6 +22,11 @@ addons:
     build_command_prepend: mkdir build && cd build
     build_command: cmake .. && make
     branch_pattern: coverity_scan
+  homebrew:
+    update: true
+    packages:
+      - libgit2
+      - matken11235/toml11/toml11
 
 matrix:
   include:
@@ -43,18 +48,11 @@ matrix:
       if: branch != coverity_scan
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update;
-    fi
-install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
-        brew unlink boost;
-        brew install --ignore-dependencies boost;
-        brew install llvm@7;
-        brew upgrade cmake;
-      fi
-      brew install libgit2 matken11235/toml11/toml11;
+  - if [[ "$TRAVIS_OS_NAME" == "osx" -a "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
+      brew unlink boost;
+      brew install --ignore-dependencies boost;
+      brew install llvm@7;
+      brew upgrade cmake;
     fi
 script:
   - mkdir build
