@@ -8,12 +8,9 @@ cache:
 
 addons:
   apt:
-    sources:
-      - ppa:mhier/libboost-latest
     update: true
     packages:
       - cmake
-      - libboost1.70
       - libssl-dev
       - libgit2-dev
       - g++-8
@@ -50,7 +47,11 @@ matrix:
       if: branch != coverity_scan
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_OSX_IMAGE" != "xcode11" ]; then
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      sudo add-apt-repository ppa:mhier/libboost-latest -y;
+      sudo apt-get update -q;
+      sudo apt-get install libboost1.70;
+    elif [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_OSX_IMAGE" != "xcode11" ]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
       brew install llvm@7;
