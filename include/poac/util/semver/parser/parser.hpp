@@ -28,9 +28,9 @@ namespace semver::parser {
         /// Pop one token.
         inline Token
         pop() {
-            Token c1 = this->c1;
+            Token c1_ = this->c1;
             this->c1 = lexer.next();
-            return c1;
+            return c1_;
         }
 
         /// Peek one token.
