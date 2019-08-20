@@ -6,7 +6,6 @@
 #include <vector>
 #include <stack>
 
-
 namespace poac::util::types {
     // If the type T is a reference type, provides the member typedef type
     //  which is the type referred to by T with its topmost cv-qualifiers removed.
@@ -25,7 +24,6 @@ namespace poac::util::types {
     template <bool B, auto T, auto F>
     static constexpr auto non_type_conditional_v = non_type_conditional_t<B, T, F>::value;
 
-
     template <class SinglePassRange, class T>
     std::optional<std::size_t>
     index_of(const SinglePassRange& rng, const T& t) {
@@ -43,6 +41,10 @@ namespace poac::util::types {
     inline auto index_of(InputIterator first, InputIterator last, const T& value) {
         return std::distance(first, std::find(first, last, value));
     }
+    template <typename InputIterator, typename Predicate>
+    inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred) {
+        return std::distance(first, std::find_if(first, last, pred));
+    }
 
     // Check if it has duplicate elements.
     template <class SinglePassRange>
@@ -57,7 +59,6 @@ namespace poac::util::types {
         }
         return false;
     }
-
 
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}
     //  -> std::vector<T> : ["array", "...", ...]

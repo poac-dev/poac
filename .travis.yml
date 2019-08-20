@@ -37,34 +37,31 @@ matrix:
       if: branch != coverity_scan
     # macOS Mojave
     - os: osx
-      osx_image: xcode10.2
-      if: branch != coverity_scan
+      osx_image: xcode11
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
 install:
-  - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      if [[ "$TRAVIS_OSX_IMAGE" != "xcode10.2" ]]; then
-        brew unlink boost
-        brew install --ignore-dependencies boost
-        brew install llvm@7
-      else
-        pip install cpp-coveralls
-      fi
-      brew install yaml-cpp
+  - if [[ "$TRAVIS_OSX_IMAGE" != "xcode11" ]]; then
+      brew unlink boost;
+      brew install --ignore-dependencies boost;
+      brew install llvm@7;
+      brew upgrade cmake;
     fi
+  - brew install libgit2 matken11235/toml11/toml11
 script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
   - make install
-  - poac -h
+  - ctest --output-on-failure --verbose
+  - poac help
   - cd ../
 after_success:
-  - |
-    if [[ "$TRAVIS_OSX_IMAGE" == "xcode10.2" ]]; then
-      bash ./test.sh
+  - if [[ "$TRAVIS_OSX_IMAGE" == "xcode11" ]]; then
+      pip3 install cpp-coveralls;
+      coveralls --exclude build --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
+      bash <(curl -s https://codecov.io/bash);
     fi
 
 notifications:

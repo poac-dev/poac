@@ -16,7 +16,6 @@ executors:
     docker:
       - image: poacpm/<< parameters.arch >>:<< parameters.compiler >>-<< parameters.version >>
 
-
 commands:
   poac-install:
     steps:
@@ -45,10 +44,21 @@ commands:
       build-type:
         description: "CMAKE_BUILD_TYPE"
         type: enum
-        enum: ["Debug", "Release", ""]
+        enum: ["Debug", "Release"]
+      build-test:
+        description: "poac_BUILD_TEST"
+        type: boolean
+        default: ON
     steps:
       - run: uname -sm
-      - run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=<< parameters.build-type >> .. && make
+      - run: mkdir build
+      - run:
+          working_directory: build
+          command: >
+            cmake ..
+            <<# parameters.build-test >>-Dpoac_BUILD_TEST=ON<</ parameters.build-test >>
+            -DCMAKE_BUILD_TYPE=<< parameters.build-type >> &&
+            make
       - run: file ./build/poac
 
   default-test:
@@ -56,17 +66,16 @@ commands:
       - run:
           command: >
             ./build/poac test --report --
-            --output_format=XML
-            --log_level=all
-            --report_level=no
+                --output_format=XML
+                --log_level=all
+                --report_level=no
       - store_test_results:
           path: _build/test/report
-
 
 jobs:
   checkout_code:
     docker:
-      - image: poacpm/poac
+      - image: circleci/buildpack-deps:disco
     steps:
       - checkout
 #      - poac-install
@@ -80,6 +89,8 @@ jobs:
         type: executor
       build-type:
         type: string
+      build-test:
+        type: boolean
       after-build:
         type: steps
         default: []
@@ -89,10 +100,17 @@ jobs:
           at: .
       - default-build:
           build-type: << parameters.build-type >>
+          build-test: << parameters.build-test >>
+      - when:
+          condition: << parameters.build-test >>
+          steps:
+            - run:
+                working_directory: build
+                command: ctest --output-on-failure --verbose
       - steps: << parameters.after-build >>
 #      - default-test
 
-  release_build:
+  artifact_build:
     parameters:
       exec:
         type: executor
@@ -122,7 +140,6 @@ jobs:
       - deploy: ghr -t $GITHUB_TOKEN $CIRCLE_TAG out
 #      - run: poac publish
 
-
 workflows:
   version: 2
   builds:
@@ -135,8 +152,9 @@ workflows:
             compiler: gcc
             version: 7
           build-type: "Debug"
+          build-test: ON
           after-build:
-            - run: ./build/poac -h
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -146,8 +164,9 @@ workflows:
             compiler: gcc
             version: 8
           build-type: "Debug"
+          build-test: ON
           after-build:
-            - run: ./build/poac -h
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -157,8 +176,9 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: ON
           after-build:
-            - run: ./build/poac -h
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -168,8 +188,9 @@ workflows:
             compiler: clang
             version: 6
           build-type: "Debug"
+          build-test: ON
           after-build:
-            - run: ./build/poac -h
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -179,8 +200,9 @@ workflows:
             compiler: clang
             version: 7
           build-type: "Debug"
+          build-test: ON
           after-build:
-            - run: ./build/poac -h
+            - run: ./build/poac help
           requires:
             - checkout_code
       - build:
@@ -190,20 +212,23 @@ workflows:
             compiler: clang
             version: 8
           build-type: "Debug"
+          build-test: ON
           after-build:
-            - run: ./build/poac -h
+            - run: ./build/poac help
           requires:
             - checkout_code
 
-      - build:
-          exec:
-            name: cpp
-            arch: mips-unknown-linux-gnu
-            compiler: gcc
-            version: 9
-          build-type: "" # libasan is not provided at mips architecture
-          requires:
-            - checkout_code
+      # libasan is not provided at mips architecture
+#      - build:
+#          exec:
+#            name: cpp
+#            arch: mips-unknown-linux-gnu
+#            compiler: gcc
+#            version: 9
+#          build-type: "Debug"
+#          build-test: OFF
+#          requires:
+#            - checkout_code
       - build:
           exec:
             name: cpp
@@ -211,6 +236,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
 
@@ -221,6 +247,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -230,6 +257,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
 
@@ -240,6 +268,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -249,6 +278,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
 
@@ -259,6 +289,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Debug"
+          build-test: OFF
           requires:
             - checkout_code
       - build:
@@ -268,6 +299,7 @@ workflows:
             compiler: gcc
             version: 9
           build-type: "Release"
+          build-test: OFF
           requires:
             - checkout_code
   release:
@@ -278,7 +310,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /^[0-9]+(\.[0-9]+){2}.*$/
-      - release_build:
+      - artifact_build:
           exec:
             name: cpp
             arch: x86_64-unknown-linux-gnu
@@ -294,7 +326,7 @@ workflows:
               only: /^[0-9]+(\.[0-9]+){2}.*$/
       - publish:
           requires:
-            - release_build
+            - artifact_build
           filters:
             branches:
               ignore: /.*/
