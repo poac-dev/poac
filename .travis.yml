@@ -10,7 +10,6 @@ addons:
   apt:
     update: true
     packages:
-      - cmake
       - libssl-dev
       - libgit2-dev
       - g++-8
@@ -49,8 +48,10 @@ matrix:
 before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       sudo add-apt-repository ppa:mhier/libboost-latest -y;
+      sudo add-apt-repository ppa:andrew-fuller/cmake -y;
+      sudo add-apt-repository ppa:mhier/libboost-latest -y;
       sudo apt-get update -q;
-      sudo apt-get install libboost1.70-dev;
+      sudo apt-get install cmake libboost1.70-dev;
     elif [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_OSX_IMAGE" != "xcode11" ]; then
       brew unlink boost;
       brew install --ignore-dependencies boost;
