@@ -48,7 +48,8 @@ BOOST_AUTO_TEST_CASE( poac_util_argparse_use_get_test )
 
     std::vector<std::string> temp{ "-o", "output.o", "--flag" };
 
-    auto res = use_get(temp, "-o"); // 1
+    // 1
+    auto res = use_get(temp, "-o");
     BOOST_CHECK( res.has_value() );
     BOOST_CHECK( res.value() == "output.o" );
 
@@ -56,8 +57,14 @@ BOOST_AUTO_TEST_CASE( poac_util_argparse_use_get_test )
     res = use_get(temp, "-o");
     BOOST_CHECK( !res.has_value() );
 
+    // 2
     temp = { "--output", "output.o", "--flag" };
-    res = use_get(temp, "-o", "--output"); // 2
+    res = use_get(temp, "-o", "--output");
+    BOOST_CHECK( res.has_value() );
+    BOOST_CHECK( res.value() == "output.o" );
+
+    temp = { "--output", "output.o", "--flag" };
+    res = use_get(temp, "--output", "-o");
     BOOST_CHECK( res.has_value() );
     BOOST_CHECK( res.value() == "output.o" );
 
