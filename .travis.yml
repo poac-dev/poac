@@ -32,7 +32,18 @@ matrix:
       dist: bionic
       compiler: gcc
       if: branch = coverity_scan
-      script: echo
+      before_install:
+        - sudo add-apt-repository ppa:andrew-fuller/cmake -y
+        - sudo add-apt-repository ppa:mhier/libboost-latest -y
+        - sudo apt-get update -q
+        - sudo apt-get install cmake libboost1.70-dev
+        - git clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git
+        - mkdir toml11/build && pushd toml11/build
+        - cmake -Dtoml11_BUILD_TEST=OFF ..
+        - sudo make install
+        - popd && rm -rf toml11
+      script: skip
+      before_cache: ignore
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
@@ -45,25 +56,17 @@ matrix:
     - os: osx
       osx_image: xcode11
       if: branch != coverity_scan
+      before_install: skip
+      after_success:
+        - pip3 install cpp-coveralls
+        - coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
+        - bash <(curl -s https://codecov.io/bash)
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      sudo apt-get purge cmake;
-      sudo add-apt-repository ppa:andrew-fuller/cmake -y;
-      sudo add-apt-repository ppa:mhier/libboost-latest -y;
-      sudo apt-get update -q;
-      sudo apt-get install cmake libboost1.70-dev;
-      git clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git;
-      mkdir toml11/build; pushd toml11/build;
-      cmake -Dtoml11_BUILD_TEST=OFF ..;
-      sudo make install;
-      popd; rm -rf toml11;
-    elif [ "$TRAVIS_OSX_IMAGE" != "xcode11" ]; then
-      brew unlink boost;
-      brew install --ignore-dependencies boost;
-      brew install llvm@7;
-      brew upgrade cmake;
-    fi
+  - brew unlink boost
+  - brew install --ignore-dependencies boost
+  - brew install llvm@7
+  - brew upgrade cmake
 script:
   - mkdir build
   - cd build
@@ -72,12 +75,6 @@ script:
   - ctest --output-on-failure --verbose
   - poac help
   - cd ../
-after_success:
-  - if [ "$TRAVIS_OSX_IMAGE" == "xcode11" ]; then
-      pip3 install cpp-coveralls;
-      coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN};
-      bash <(curl -s https://codecov.io/bash);
-    fi
 
 notifications:
   email: false
