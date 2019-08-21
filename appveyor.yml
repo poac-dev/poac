@@ -104,7 +104,7 @@ install:
           git clone -q -b "v$($_.version)" "https://github.com/$($_.owner)/$($_.repo).git"
           mkdir "$($_.repo)\build"; pushd "$($_.repo)\build"
           cmake .. -G $env:GENERATOR $env:TARGET_PLATFORM `
-            -Dtoml11_BUILD_TEST -DCMAKE_INSTALL_PREFIX="$LibraryPath"
+            -Dtoml11_BUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$LibraryPath"
           cmake --build . --target install --config $env:Configuration
           popd
         }
