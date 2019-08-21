@@ -32,6 +32,8 @@ matrix:
       dist: bionic
       compiler: gcc
       if: branch = coverity_scan
+      before_cache: ignore
+      cache: false
       before_install:
         - sudo add-apt-repository ppa:andrew-fuller/cmake -y
         - sudo add-apt-repository ppa:mhier/libboost-latest -y
@@ -42,8 +44,7 @@ matrix:
         - cmake -Dtoml11_BUILD_TEST=OFF ..
         - sudo make install
         - popd && rm -rf toml11
-      script: skip
-      before_cache: ignore
+      script: echo
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
