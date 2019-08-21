@@ -28,6 +28,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+// https://stackoverflow.com/questions/9750344/boostasio-winsock-and-winsock-2-compatibility-issue
 #if BOOST_OS_WINDOWS
 #  include <windows.h>
 #endif
