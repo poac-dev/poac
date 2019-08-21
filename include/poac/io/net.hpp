@@ -13,6 +13,7 @@
 #include <variant>
 #include <optional>
 
+#include <boost/predef.h>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
@@ -27,6 +28,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#if BOOST_OS_WINDOWS
+#  include <windows.h>
+#endif
 
 #include <poac/core/except.hpp>
 #include <poac/io/filesystem.hpp>
