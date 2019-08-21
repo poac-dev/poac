@@ -331,6 +331,7 @@ namespace poac::core::resolver::resolve {
         for (const auto& [name, package] : deps) {
             // Check if root package is resolved dependency (by interval)
             for (const auto& [n, i, versions] : interval_cache) {
+                (void)versions;
                 if (name == n && package.version == i) {
                     continue;
                 }
