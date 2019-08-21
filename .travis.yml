@@ -35,10 +35,9 @@ matrix:
       before_cache: ignore
       cache: false
       before_install:
-        - sudo add-apt-repository ppa:andrew-fuller/cmake -y
         - sudo add-apt-repository ppa:mhier/libboost-latest -y
         - sudo apt-get update -q
-        - sudo apt-get install cmake libboost1.70-dev
+        - sudo apt-get install libboost1.70-dev
         - git clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git
         - mkdir toml11/build && pushd toml11/build
         - cmake -Dtoml11_BUILD_TEST=OFF ..
