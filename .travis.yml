@@ -17,7 +17,10 @@ addons:
     project:
       name: poacpm/poac
       description: Package manager for C++
-    build_command_prepend: mkdir build && cd build && cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+    build_command_prepend: >
+      mkdir build &&
+      cd build &&
+      cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
     build_command: make
     branch_pattern: coverity_scan
   homebrew:
