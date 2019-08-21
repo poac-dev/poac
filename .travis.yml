@@ -67,7 +67,7 @@ script:
   - mkdir build
   - cd build
   - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
-  - make install
+  - sudo make install
   - ctest --output-on-failure --verbose
   - poac help
   - cd ../
