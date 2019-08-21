@@ -101,10 +101,10 @@ install:
       ) | foreach {
         $LibraryPath = "C:\Libraries\$($_.repo)-$($_.version)"
         if ($env:COMPILER -ne "cygwin-gcc" -and !(Test-Path $LibraryPath)) {
-          git clone -q -b v$($_.version) https://github.com/$($_.owner)/$($_.repo).git
-          mkdir $($_.repo)\build; pushd $($_.repo)\build
-          cmake .. -G "%GENERATOR%" %TARGET_PLATFORM% -DCMAKE_INSTALL_PREFIX=$LibraryPath
-          cmake --build . --target install --config %Configuration%
+          git clone -q -b "v$($_.version)" "https://github.com/$($_.owner)/$($_.repo).git"
+          mkdir "$($_.repo)\build"; pushd "$($_.repo)\build"
+          cmake .. -G $env:GENERATOR $env:TARGET_PLATFORM -DCMAKE_INSTALL_PREFIX=$LibraryPath
+          cmake --build . --target install --config $env:Configuration
           popd
         }
       }
