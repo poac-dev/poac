@@ -95,15 +95,16 @@ install:
 
   # Install libgit2 and toml11
   - ps: |
-      @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2" },
-        @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1"  }
+      $env:GIT_REDIRECT_STDERR = '2>&1'
+      @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2"; opts="" },
+        @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1" ; opts="-Dtoml11_BUILD_TEST=OFF" }
       ) | foreach {
         $LibraryPath = "C:\Libraries\$($_.repo)-$($_.version)"
         if ("$env:COMPILER" -ne "cygwin-gcc" -and !(Test-Path "$LibraryPath")) {
           git clone -q -b "v$($_.version)" "https://github.com/$($_.owner)/$($_.repo).git"
           mkdir "$($_.repo)\build"; pushd "$($_.repo)\build"
-          cmake .. -G "$env:GENERATOR" "$env:TARGET_PLATFORM" `
-            -Dtoml11_BUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$LibraryPath"
+          cmake .. -G "$env:GENERATOR $env:TARGET_PLATFORM" `
+            -DCMAKE_INSTALL_PREFIX="$LibraryPath" "$($_.opts)"
           cmake --build . --target install --config "$env:Configuration"
           popd
         }
