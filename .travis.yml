@@ -13,16 +13,16 @@ addons:
       - libssl-dev
       - libgit2-dev
       - g++-8
-#  coverity_scan:
-#    project:
-#      name: poacpm/poac
-#      description: Package manager for C++
-#    build_command_prepend: >
-#      mkdir build &&
-#      cd build &&
-#      cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
-#    build_command: make
-#    branch_pattern: coverity_scan
+  coverity_scan:
+    project:
+      name: poacpm/poac
+      description: Package manager for C++
+    build_command_prepend: >
+      mkdir build &&
+      cd build &&
+      cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+    build_command: make
+    branch_pattern: coverity_scan
   homebrew:
     update: true
     packages:
@@ -50,23 +50,22 @@ matrix:
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
-#      if: branch != coverity_scan
+      if: branch != coverity_scan
+      install: brew install llvm@7
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
-#      if: branch != coverity_scan
+      if: branch != coverity_scan
+      install: brew install llvm@7
     # macOS Mojave
     - os: osx
       osx_image: xcode11
-#      if: branch != coverity_scan
-      install: skip
+      if: branch != coverity_scan
       after_success:
         - pip3 install cpp-coveralls
         - coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
         - bash <(curl -s https://codecov.io/bash)
 
-install:
-  - brew install llvm@7
 script:
   - mkdir build
   - cd build
