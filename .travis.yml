@@ -13,16 +13,16 @@ addons:
       - libssl-dev
       - libgit2-dev
       - g++-8
-  coverity_scan:
-    project:
-      name: poacpm/poac
-      description: Package manager for C++
-    build_command_prepend: >
-      mkdir build &&
-      cd build &&
-      cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
-    build_command: make
-    branch_pattern: coverity_scan
+#  coverity_scan:
+#    project:
+#      name: poacpm/poac
+#      description: Package manager for C++
+#    build_command_prepend: >
+#      mkdir build &&
+#      cd build &&
+#      cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+#    build_command: make
+#    branch_pattern: coverity_scan
   homebrew:
     update: true
     packages:
@@ -50,15 +50,12 @@ matrix:
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
-      if: branch != coverity_scan
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
-      if: branch != coverity_scan
     # macOS Mojave
     - os: osx
       osx_image: xcode11
-      if: branch != coverity_scan
       before_install: skip
       after_success:
         - pip3 install cpp-coveralls
