@@ -15,18 +15,13 @@ inline namespace foreground_literals {
     {
         return to_gray<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _gray(const char* str, std::size_t len) noexcept
-    {
-        return to_gray(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _gray(const char* str, std::size_t len) noexcept
     {
         return to_gray(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _gray(const wchar_t* str, std::size_t len) noexcept
     {
@@ -42,6 +37,7 @@ inline namespace foreground_literals {
     {
         return to_gray(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -50,18 +46,13 @@ inline namespace foreground_literals {
     {
         return to_red<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _red(const char* str, std::size_t len) noexcept
-    {
-        return to_red(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _red(const char* str, std::size_t len) noexcept
     {
         return to_red(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _red(const wchar_t* str, std::size_t len) noexcept
     {
@@ -77,6 +68,7 @@ inline namespace foreground_literals {
     {
         return to_red(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -85,18 +77,13 @@ inline namespace foreground_literals {
     {
         return to_green<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _green(const char* str, std::size_t len) noexcept
-    {
-        return to_green(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _green(const char* str, std::size_t len) noexcept
     {
         return to_green(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _green(const wchar_t* str, std::size_t len) noexcept
     {
@@ -112,6 +99,7 @@ inline namespace foreground_literals {
     {
         return to_green(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -120,18 +108,13 @@ inline namespace foreground_literals {
     {
         return to_yellow<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _yellow(const char* str, std::size_t len) noexcept
-    {
-        return to_yellow(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _yellow(const char* str, std::size_t len) noexcept
     {
         return to_yellow(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _yellow(const wchar_t* str, std::size_t len) noexcept
     {
@@ -147,6 +130,7 @@ inline namespace foreground_literals {
     {
         return to_yellow(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -155,18 +139,13 @@ inline namespace foreground_literals {
     {
         return to_blue<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _blue(const char* str, std::size_t len) noexcept
-    {
-        return to_blue(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _blue(const char* str, std::size_t len) noexcept
     {
         return to_blue(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _blue(const wchar_t* str, std::size_t len) noexcept
     {
@@ -182,6 +161,7 @@ inline namespace foreground_literals {
     {
         return to_blue(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -190,18 +170,13 @@ inline namespace foreground_literals {
     {
         return to_magenta<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _magenta(const char* str, std::size_t len) noexcept
-    {
-        return to_magenta(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _magenta(const char* str, std::size_t len) noexcept
     {
         return to_magenta(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _magenta(const wchar_t* str, std::size_t len) noexcept
     {
@@ -217,6 +192,7 @@ inline namespace foreground_literals {
     {
         return to_magenta(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -225,18 +201,13 @@ inline namespace foreground_literals {
     {
         return to_cyan<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _cyan(const char* str, std::size_t len) noexcept
-    {
-        return to_cyan(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _cyan(const char* str, std::size_t len) noexcept
     {
         return to_cyan(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _cyan(const wchar_t* str, std::size_t len) noexcept
     {
@@ -252,6 +223,7 @@ inline namespace foreground_literals {
     {
         return to_cyan(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -260,18 +232,13 @@ inline namespace foreground_literals {
     {
         return to_white<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _white(const char* str, std::size_t len) noexcept
-    {
-        return to_white(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _white(const char* str, std::size_t len) noexcept
     {
         return to_white(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _white(const wchar_t* str, std::size_t len) noexcept
     {
@@ -287,6 +254,7 @@ inline namespace foreground_literals {
     {
         return to_white(str, len);
     }
+#  endif
 #endif
 } // end namespace foreground
 
@@ -298,18 +266,13 @@ inline namespace background_literals {
     {
         return to_on_gray<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_gray(const char* str, std::size_t len) noexcept
-    {
-        return to_on_gray(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_gray(const char* str, std::size_t len) noexcept
     {
         return to_on_gray(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_gray(const wchar_t* str, std::size_t len) noexcept
     {
@@ -325,6 +288,7 @@ inline namespace background_literals {
     {
         return to_on_gray(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -333,18 +297,13 @@ inline namespace background_literals {
     {
         return to_on_red<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_red(const char* str, std::size_t len) noexcept
-    {
-        return to_on_red(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_red(const char* str, std::size_t len) noexcept
     {
         return to_on_red(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_red(const wchar_t* str, std::size_t len) noexcept
     {
@@ -360,6 +319,7 @@ inline namespace background_literals {
     {
         return to_on_red(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -368,18 +328,13 @@ inline namespace background_literals {
     {
         return to_on_green<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_green(const char* str, std::size_t len) noexcept
-    {
-        return to_on_green(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_green(const char* str, std::size_t len) noexcept
     {
         return to_on_green(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_green(const wchar_t* str, std::size_t len) noexcept
     {
@@ -395,6 +350,7 @@ inline namespace background_literals {
     {
         return to_on_green(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -403,18 +359,13 @@ inline namespace background_literals {
     {
         return to_on_yellow<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_yellow(const char* str, std::size_t len) noexcept
-    {
-        return to_on_yellow(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_yellow(const char* str, std::size_t len) noexcept
     {
         return to_on_yellow(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_yellow(const wchar_t* str, std::size_t len) noexcept
     {
@@ -430,6 +381,7 @@ inline namespace background_literals {
     {
         return to_on_yellow(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -438,18 +390,13 @@ inline namespace background_literals {
     {
         return to_on_blue<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_blue(const char* str, std::size_t len) noexcept
-    {
-        return to_on_blue(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_blue(const char* str, std::size_t len) noexcept
     {
         return to_on_blue(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_blue(const wchar_t* str, std::size_t len) noexcept
     {
@@ -465,6 +412,7 @@ inline namespace background_literals {
     {
         return to_on_blue(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -473,18 +421,13 @@ inline namespace background_literals {
     {
         return to_on_magenta<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_magenta(const char* str, std::size_t len) noexcept
-    {
-        return to_on_magenta(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_magenta(const char* str, std::size_t len) noexcept
     {
         return to_on_magenta(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_magenta(const wchar_t* str, std::size_t len) noexcept
     {
@@ -500,6 +443,7 @@ inline namespace background_literals {
     {
         return to_on_magenta(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -508,18 +452,13 @@ inline namespace background_literals {
     {
         return to_on_cyan<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_cyan(const char* str, std::size_t len) noexcept
-    {
-        return to_on_cyan(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_cyan(const char* str, std::size_t len) noexcept
     {
         return to_on_cyan(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_cyan(const wchar_t* str, std::size_t len) noexcept
     {
@@ -535,6 +474,7 @@ inline namespace background_literals {
     {
         return to_on_cyan(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -543,18 +483,13 @@ inline namespace background_literals {
     {
         return to_on_white<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _on_white(const char* str, std::size_t len) noexcept
-    {
-        return to_on_white(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _on_white(const char* str, std::size_t len) noexcept
     {
         return to_on_white(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_white(const wchar_t* str, std::size_t len) noexcept
     {
@@ -570,6 +505,7 @@ inline namespace background_literals {
     {
         return to_on_white(str, len);
     }
+#  endif
 #endif
 } // end namespace background_literals
 
@@ -581,18 +517,13 @@ inline namespace attribute_literals {
     {
         return to_bold<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _bold(const char* str, std::size_t len) noexcept
-    {
-        return to_bold(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _bold(const char* str, std::size_t len) noexcept
     {
         return to_bold(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _bold(const wchar_t* str, std::size_t len) noexcept
     {
@@ -608,6 +539,7 @@ inline namespace attribute_literals {
     {
         return to_bold(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -616,18 +548,13 @@ inline namespace attribute_literals {
     {
         return to_dark<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _dark(const char* str, std::size_t len) noexcept
-    {
-        return to_dark(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _dark(const char* str, std::size_t len) noexcept
     {
         return to_dark(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _dark(const wchar_t* str, std::size_t len) noexcept
     {
@@ -643,6 +570,7 @@ inline namespace attribute_literals {
     {
         return to_dark(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -651,18 +579,13 @@ inline namespace attribute_literals {
     {
         return to_underline<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _underline(const char* str, std::size_t len) noexcept
-    {
-        return to_underline(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _underline(const char* str, std::size_t len) noexcept
     {
         return to_underline(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _underline(const wchar_t* str, std::size_t len) noexcept
     {
@@ -678,6 +601,7 @@ inline namespace attribute_literals {
     {
         return to_underline(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -686,18 +610,13 @@ inline namespace attribute_literals {
     {
         return to_blink<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _blink(const char* str, std::size_t len) noexcept
-    {
-        return to_blink(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _blink(const char* str, std::size_t len) noexcept
     {
         return to_blink(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _blink(const wchar_t* str, std::size_t len) noexcept
     {
@@ -713,6 +632,7 @@ inline namespace attribute_literals {
     {
         return to_blink(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -721,18 +641,13 @@ inline namespace attribute_literals {
     {
         return to_reverse<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _reverse(const char* str, std::size_t len) noexcept
-    {
-        return to_reverse(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _reverse(const char* str, std::size_t len) noexcept
     {
         return to_reverse(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _reverse(const wchar_t* str, std::size_t len) noexcept
     {
@@ -748,6 +663,7 @@ inline namespace attribute_literals {
     {
         return to_reverse(str, len);
     }
+#  endif
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -756,18 +672,13 @@ inline namespace attribute_literals {
     {
         return to_concealed<CharT, sizeof...(Str), Str...>();
     }
-#elif defined(_MSC_VER)
-    inline std::basic_string<char>
-    operator "" _concealed(const char* str, std::size_t len) noexcept
-    {
-        return to_concealed(str, len);
-    }
 #else
     inline std::basic_string<char>
     operator "" _concealed(const char* str, std::size_t len) noexcept
     {
         return to_concealed(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _concealed(const wchar_t* str, std::size_t len) noexcept
     {
@@ -783,6 +694,7 @@ inline namespace attribute_literals {
     {
         return to_concealed(str, len);
     }
+#  endif
 #endif
 } // end namespace attribute_literals
 

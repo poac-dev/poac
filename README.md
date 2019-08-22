@@ -50,7 +50,7 @@ curl -fsSL https://sh.poac.pm | bash
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
-* [`cmake`](https://github.com/Kitware/CMake): `3.11` or later
+* [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
 * [`boost`](https://github.com/boostorg): `1.66.0` or later
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later

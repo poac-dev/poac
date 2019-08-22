@@ -101,7 +101,7 @@ install:
       @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2" },
         @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1"  }
       ) | foreach {
-        $LibraryPath = C:\Libraries\$($_.repo)-$($_.version)
+        $LibraryPath = "C:\Libraries\$($_.repo)-$($_.version)"
         if ($env:COMPILER -ne "cygwin-gcc" -and !(Test-Path $LibraryPath)) {
           git clone -q -b v$($_.version) https://github.com/$($_.owner)/$($_.repo).git
           mkdir $($_.repo)\build; pushd $($_.repo)\build
@@ -123,7 +123,6 @@ build_script:
       mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" ^
         %TARGET_PLATFORM% ^
-        -Dpoac_BUILD_TEST=ON ^
         -DENABLE_STATIC=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
