@@ -50,12 +50,15 @@ matrix:
     # macOS Sierra
     - os: osx
       osx_image: xcode9.2
+#      if: branch != coverity_scan
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
+#      if: branch != coverity_scan
     # macOS Mojave
     - os: osx
       osx_image: xcode11
+#      if: branch != coverity_scan
       install: skip
       after_success:
         - pip3 install cpp-coveralls
@@ -63,8 +66,6 @@ matrix:
         - bash <(curl -s https://codecov.io/bash)
 
 install:
-  - brew unlink boost
-  - brew install --ignore-dependencies boost
   - brew install llvm@7
 script:
   - mkdir build
