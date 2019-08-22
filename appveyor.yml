@@ -2,8 +2,8 @@ version: "#{build}"
 
 cache:
   - C:\Libraries\boost-1.69.0
-  - C:\Libraries\libgit2-0.28.2
-  - C:\Libraries\toml11-3.0.1
+#  - C:\Libraries\libgit2-0.28.2
+#  - C:\Libraries\toml11-3.0.1
 
 configuration:
   - Debug
@@ -99,12 +99,12 @@ install:
         @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1"  }
       ) | foreach {
         $LibraryPath = "C:\Libraries\$($_.repo)-$($_.version)"
-        if ($env:COMPILER -ne "cygwin-gcc" -and !(Test-Path "$LibraryPath")) {
+        if ("$env:COMPILER" -ne "cygwin-gcc" -and !(Test-Path "$LibraryPath")) {
           git clone -q -b "v$($_.version)" "https://github.com/$($_.owner)/$($_.repo).git"
           mkdir "$($_.repo)\build"; pushd "$($_.repo)\build"
-          cmake .. -G $env:GENERATOR $env:TARGET_PLATFORM `
+          cmake .. -G "$env:GENERATOR" "$env:TARGET_PLATFORM" `
             -Dtoml11_BUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$LibraryPath"
-          cmake --build . --target install --config $env:Configuration
+          cmake --build . --target install --config "$env:Configuration"
           popd
         }
       }
