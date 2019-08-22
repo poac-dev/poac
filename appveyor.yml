@@ -2,8 +2,8 @@ version: "#{build}"
 
 cache:
   - C:\Libraries\boost-1.69.0
-#  - C:\Libraries\libgit2-0.28.2
-#  - C:\Libraries\toml11-3.0.1
+  - C:\Libraries\libgit2-0.28.2
+  - C:\Libraries\toml11-3.0.1
 
 configuration:
   - Debug
