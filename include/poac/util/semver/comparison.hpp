@@ -6,6 +6,10 @@
 
 #include <poac/util/semver/version.hpp>
 
+// https://yohhoy.hatenadiary.jp/entry/20120115/p1
+#undef min
+#undef max
+
 namespace semver {
     namespace detail {
         constexpr bool
