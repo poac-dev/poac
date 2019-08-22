@@ -37,7 +37,7 @@ matrix:
       if: branch = coverity_scan
       before_cache: ignore
       cache: false
-      before_install:
+      install:
         - sudo add-apt-repository ppa:mhier/libboost-latest -y
         - sudo apt-get update -q
         - sudo apt-get install libboost1.70-dev
@@ -56,13 +56,13 @@ matrix:
     # macOS Mojave
     - os: osx
       osx_image: xcode11
-      before_install: skip
+      install: skip
       after_success:
         - pip3 install cpp-coveralls
         - coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
         - bash <(curl -s https://codecov.io/bash)
 
-before_install:
+install:
   - brew unlink boost
   - brew install --ignore-dependencies boost
   - brew install llvm@7
