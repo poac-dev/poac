@@ -47,9 +47,9 @@ install:
   - ps: |
       if ($env:compiler -eq "msvc") {
         if ($env:platform -eq "x86") {
-          $env:target_platform = "-A Win32"
+          $env:CMAKE_GENERATOR_PLATFORM = 'Win32'
         } else {
-          $env:target_platform = "-A x64"
+          $env:CMAKE_GENERATOR_PLATFORM = 'x64'
         }
       }
       if ($env:generator -eq "MinGW Makefiles") {
@@ -103,8 +103,7 @@ install:
         if ("$env:compiler" -ne "cygwin-gcc" -and !(Test-Path "$library_path")) {
           git clone -q -b "v$($_.version)" "https://github.com/$($_.owner)/$($_.repo).git"
           mkdir "$($_.repo)\build"; pushd "$($_.repo)\build"
-          cmake .. -G "$env:generator" "$env:target_platform" `
-            -DCMAKE_INSTALL_PREFIX="$library_path" "$($_.opts)"
+          cmake .. -G "$env:generator" -DCMAKE_INSTALL_PREFIX="$library_path" "$($_.opts)"
           cmake --build . --target install --config "$env:configuration"
           popd
         }
@@ -121,7 +120,6 @@ build_script:
     ) else (
       mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" ^
-        %TARGET_PLATFORM% ^
         -DENABLE_STATIC=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
