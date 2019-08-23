@@ -2,8 +2,8 @@ version: "#{build}"
 
 cache:
   - C:\Libraries\boost-1.69.0
-  - C:\Libraries\libgit2-0.28.2
-  - C:\Libraries\toml11-3.0.1
+#  - C:\Libraries\libgit2-0.28.2
+#  - C:\Libraries\toml11-3.0.1
 
 configuration:
   - Debug
@@ -36,26 +36,26 @@ environment:
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: x86
+      PLATFORM: x86
 
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: x64
+      PLATFORM: x64
 
 install:
   - ps: |
-      if ($env:COMPILER -eq "msvc") {
+      if ($env:compiler -eq "msvc") {
         if ($env:platform -eq "x86") {
-          $env:TARGET_PLATFORM = "-A Win32"
+          $env:CMAKE_GENERATOR_PLATFORM = 'Win32'
         } else {
-          $env:TARGET_PLATFORM = "-A x64"
+          $env:CMAKE_GENERATOR_PLATFORM = 'x64'
         }
       }
-      if ($env:GENERATOR -eq "MinGW Makefiles") {
+      if ($env:generator -eq "MinGW Makefiles") {
         $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
-        if ($env:CXX_PATH -ne "") {
-          $env:path += ";$env:CXX_PATH"
+        if ($env:cxx_path -ne "") {
+          $env:path += ";$env:cxx_path"
         }
       }
 
@@ -66,23 +66,20 @@ install:
         --packages %CYG_PACKAGES% &&
       %CYG_ROOT%\bin\bash -lc
         "git clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
-        cd toml11 &&
-        mkdir build &&
-        cd build &&
+        mkdir toml11/build && cd toml11/build &&
         cmake .. -Dtoml11_BUILD_TEST=OFF &&
-        make &&
         make install"
     )
 
   # Build boost
-  - ps: $env:ConfigLower = $env:Configuration.ToLower()
+  - ps: $env:config_lower = $env:configuration.ToLower()
   - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\boost-1.69.0 (
       pushd C:\Libraries\boost_1_69_0 &&
       mkdir C:\Libraries\boost-1.69.0 &&
       bootstrap.bat &&
       b2.exe install ^
         toolset=%COMPILER% ^
-        variant=%ConfigLower% ^
+        variant=%CONFIG_LOWER% ^
         runtime-link=static ^
         -j2 --prefix=C:\Libraries\boost-1.69.0 &&
       popd &&
@@ -90,7 +87,7 @@ install:
       dir C:\Libraries\boost-1.69.0\lib
     )
   - ps: |
-      if ($env:GENERATOR -eq "MinGW Makefiles") {
+      if ($env:generator -eq "MinGW Makefiles") {
         Get-ChildItem C:\Libraries\boost-1.69.0\lib |
           Rename-Item -NewName { $_.name -replace '-x64','' }
         Get-ChildItem C:\Libraries\boost-1.69.0\lib
@@ -98,15 +95,16 @@ install:
 
   # Install libgit2 and toml11
   - ps: |
-      @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2" },
-        @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1"  }
+      $env:GIT_REDIRECT_STDERR = '2>&1'
+      @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2"; opts="" },
+        @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1" ; opts="-Dtoml11_BUILD_TEST=OFF" }
       ) | foreach {
-        $LibraryPath = "C:\Libraries\$($_.repo)-$($_.version)"
-        if ($env:COMPILER -ne "cygwin-gcc" -and !(Test-Path $LibraryPath)) {
-          git clone -q -b v$($_.version) https://github.com/$($_.owner)/$($_.repo).git
-          mkdir $($_.repo)\build; pushd $($_.repo)\build
-          cmake .. -G "%GENERATOR%" %TARGET_PLATFORM% -DCMAKE_INSTALL_PREFIX=$LibraryPath
-          cmake --build . --target install --config %Configuration%
+        $library_path = "C:\Libraries\$($_.repo)-$($_.version)"
+        if ("$env:compiler" -ne "cygwin-gcc" -and !(Test-Path "$library_path")) {
+          git clone -q -b "v$($_.version)" "https://github.com/$($_.owner)/$($_.repo).git"
+          mkdir "$($_.repo)\build"; pushd "$($_.repo)\build"
+          cmake .. -G "$env:generator" -DCMAKE_INSTALL_PREFIX="$library_path" "$($_.opts)"
+          cmake --build . --target install --config "$env:configuration"
           popd
         }
       }
@@ -122,7 +120,6 @@ build_script:
     ) else (
       mkdir build && cd build &&
       cmake .. -G "%GENERATOR%" ^
-        %TARGET_PLATFORM% ^
         -DENABLE_STATIC=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
@@ -130,7 +127,7 @@ build_script:
         -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
         -DGIT2_DIR=C:\Libraries\libgit2-0.28.2 ^
         -DTOML11_DIR=C:\Libraries\toml11-3.0.1 &&
-      cmake --build . --target install --config %Configuration%
+      cmake --build . --target install --config %CONFIGURATION%
     )
 
 artifacts:
