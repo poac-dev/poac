@@ -15,6 +15,14 @@
 
 #include <boost/predef.h>
 #include <boost/asio.hpp>
+
+// https://stackoverflow.com/questions/9750344/boostasio-winsock-and-winsock-2-compatibility-issue
+// https://blog.csdn.net/qq1987924/article/details/9091307
+#if BOOST_OS_WINDOWS
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#endif
+
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -28,12 +36,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-// https://stackoverflow.com/questions/9750344/boostasio-winsock-and-winsock-2-compatibility-issue
-// https://blog.csdn.net/qq1987924/article/details/9091307
-#if BOOST_OS_WINDOWS
-#  define WIN32_LEAN_AND_MEAN
-#  include <windows.h>
-#endif
 
 #include <poac/core/except.hpp>
 #include <poac/io/filesystem.hpp>
