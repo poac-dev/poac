@@ -21,6 +21,7 @@ inline namespace foreground_literals {
     {
         return to_gray(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _gray(const char16_t* str, std::size_t len) noexcept
     {
@@ -31,7 +32,6 @@ inline namespace foreground_literals {
     {
         return to_gray(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _gray(const wchar_t* str, std::size_t len) noexcept
     {
@@ -52,6 +52,7 @@ inline namespace foreground_literals {
     {
         return to_red(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _red(const char16_t* str, std::size_t len) noexcept
     {
@@ -62,7 +63,6 @@ inline namespace foreground_literals {
     {
         return to_red(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _red(const wchar_t* str, std::size_t len) noexcept
     {
@@ -83,6 +83,7 @@ inline namespace foreground_literals {
     {
         return to_green(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _green(const char16_t* str, std::size_t len) noexcept
     {
@@ -93,7 +94,6 @@ inline namespace foreground_literals {
     {
         return to_green(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _green(const wchar_t* str, std::size_t len) noexcept
     {
@@ -114,6 +114,7 @@ inline namespace foreground_literals {
     {
         return to_yellow(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _yellow(const char16_t* str, std::size_t len) noexcept
     {
@@ -124,7 +125,6 @@ inline namespace foreground_literals {
     {
         return to_yellow(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _yellow(const wchar_t* str, std::size_t len) noexcept
     {
@@ -145,6 +145,7 @@ inline namespace foreground_literals {
     {
         return to_blue(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _blue(const char16_t* str, std::size_t len) noexcept
     {
@@ -155,7 +156,6 @@ inline namespace foreground_literals {
     {
         return to_blue(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _blue(const wchar_t* str, std::size_t len) noexcept
     {
@@ -176,6 +176,7 @@ inline namespace foreground_literals {
     {
         return to_magenta(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _magenta(const char16_t* str, std::size_t len) noexcept
     {
@@ -186,7 +187,6 @@ inline namespace foreground_literals {
     {
         return to_magenta(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _magenta(const wchar_t* str, std::size_t len) noexcept
     {
@@ -207,6 +207,7 @@ inline namespace foreground_literals {
     {
         return to_cyan(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _cyan(const char16_t* str, std::size_t len) noexcept
     {
@@ -217,7 +218,6 @@ inline namespace foreground_literals {
     {
         return to_cyan(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _cyan(const wchar_t* str, std::size_t len) noexcept
     {
@@ -238,6 +238,7 @@ inline namespace foreground_literals {
     {
         return to_white(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _white(const char16_t* str, std::size_t len) noexcept
     {
@@ -248,7 +249,6 @@ inline namespace foreground_literals {
     {
         return to_white(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _white(const wchar_t* str, std::size_t len) noexcept
     {
@@ -272,6 +272,7 @@ inline namespace background_literals {
     {
         return to_on_gray(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_gray(const char16_t* str, std::size_t len) noexcept
     {
@@ -282,7 +283,6 @@ inline namespace background_literals {
     {
         return to_on_gray(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_gray(const wchar_t* str, std::size_t len) noexcept
     {
@@ -303,6 +303,7 @@ inline namespace background_literals {
     {
         return to_on_red(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_red(const char16_t* str, std::size_t len) noexcept
     {
@@ -313,7 +314,6 @@ inline namespace background_literals {
     {
         return to_on_red(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_red(const wchar_t* str, std::size_t len) noexcept
     {
@@ -334,6 +334,7 @@ inline namespace background_literals {
     {
         return to_on_green(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_green(const char16_t* str, std::size_t len) noexcept
     {
@@ -344,7 +345,6 @@ inline namespace background_literals {
     {
         return to_on_green(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_green(const wchar_t* str, std::size_t len) noexcept
     {
@@ -365,6 +365,7 @@ inline namespace background_literals {
     {
         return to_on_yellow(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_yellow(const char16_t* str, std::size_t len) noexcept
     {
@@ -375,7 +376,6 @@ inline namespace background_literals {
     {
         return to_on_yellow(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_yellow(const wchar_t* str, std::size_t len) noexcept
     {
@@ -396,6 +396,7 @@ inline namespace background_literals {
     {
         return to_on_blue(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_blue(const char16_t* str, std::size_t len) noexcept
     {
@@ -406,7 +407,6 @@ inline namespace background_literals {
     {
         return to_on_blue(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_blue(const wchar_t* str, std::size_t len) noexcept
     {
@@ -427,6 +427,7 @@ inline namespace background_literals {
     {
         return to_on_magenta(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_magenta(const char16_t* str, std::size_t len) noexcept
     {
@@ -437,7 +438,6 @@ inline namespace background_literals {
     {
         return to_on_magenta(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_magenta(const wchar_t* str, std::size_t len) noexcept
     {
@@ -458,6 +458,7 @@ inline namespace background_literals {
     {
         return to_on_cyan(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_cyan(const char16_t* str, std::size_t len) noexcept
     {
@@ -468,7 +469,6 @@ inline namespace background_literals {
     {
         return to_on_cyan(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_cyan(const wchar_t* str, std::size_t len) noexcept
     {
@@ -489,6 +489,7 @@ inline namespace background_literals {
     {
         return to_on_white(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _on_white(const char16_t* str, std::size_t len) noexcept
     {
@@ -499,7 +500,6 @@ inline namespace background_literals {
     {
         return to_on_white(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _on_white(const wchar_t* str, std::size_t len) noexcept
     {
@@ -523,6 +523,7 @@ inline namespace attribute_literals {
     {
         return to_bold(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _bold(const char16_t* str, std::size_t len) noexcept
     {
@@ -533,7 +534,6 @@ inline namespace attribute_literals {
     {
         return to_bold(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _bold(const wchar_t* str, std::size_t len) noexcept
     {
@@ -554,6 +554,7 @@ inline namespace attribute_literals {
     {
         return to_dark(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _dark(const char16_t* str, std::size_t len) noexcept
     {
@@ -564,7 +565,6 @@ inline namespace attribute_literals {
     {
         return to_dark(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _dark(const wchar_t* str, std::size_t len) noexcept
     {
@@ -585,6 +585,7 @@ inline namespace attribute_literals {
     {
         return to_underline(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _underline(const char16_t* str, std::size_t len) noexcept
     {
@@ -595,7 +596,6 @@ inline namespace attribute_literals {
     {
         return to_underline(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _underline(const wchar_t* str, std::size_t len) noexcept
     {
@@ -616,6 +616,7 @@ inline namespace attribute_literals {
     {
         return to_blink(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _blink(const char16_t* str, std::size_t len) noexcept
     {
@@ -626,7 +627,6 @@ inline namespace attribute_literals {
     {
         return to_blink(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _blink(const wchar_t* str, std::size_t len) noexcept
     {
@@ -647,6 +647,7 @@ inline namespace attribute_literals {
     {
         return to_reverse(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _reverse(const char16_t* str, std::size_t len) noexcept
     {
@@ -657,7 +658,6 @@ inline namespace attribute_literals {
     {
         return to_reverse(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _reverse(const wchar_t* str, std::size_t len) noexcept
     {
@@ -678,6 +678,7 @@ inline namespace attribute_literals {
     {
         return to_concealed(str, len);
     }
+#  ifndef _MSC_VER
     inline std::basic_string<char16_t>
     operator "" _concealed(const char16_t* str, std::size_t len) noexcept
     {
@@ -688,7 +689,6 @@ inline namespace attribute_literals {
     {
         return to_concealed(str, len);
     }
-#  ifndef _MSC_VER
     inline std::basic_string<wchar_t>
     operator "" _concealed(const wchar_t* str, std::size_t len) noexcept
     {
