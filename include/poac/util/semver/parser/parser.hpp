@@ -72,7 +72,7 @@ namespace semver::parser {
         /// Parse a single component.
         ///
         /// Returns `None` if the component is a wildcard.
-        std::optional<std::uint64_t>
+        std::optional<std::uint_fast64_t>
         component() {
             if (const Token token = this->pop(); token.kind == Token::Numeric) {
                 return std::get<Token::numeric_type>(token.component);
@@ -84,7 +84,7 @@ namespace semver::parser {
         }
 
         /// Parse a single numeric.
-        std::optional<std::uint64_t>
+        std::optional<std::uint_fast64_t>
         numeric() {
             if (const Token token = this->pop(); token.kind == Token::Numeric) {
                 return std::get<Token::numeric_type>(token.component);
@@ -100,7 +100,7 @@ namespace semver::parser {
         /// If a dot is not encountered, `(None, false)` is returned.
         ///
         /// If a wildcard is encountered, `(None, true)` is returned.
-        std::optional<std::uint64_t>
+        std::optional<std::uint_fast64_t>
         dot_component() {
             if (this->peek() != Token::Dot) {
                 return std::nullopt;
@@ -111,7 +111,7 @@ namespace semver::parser {
         }
 
         /// Parse a dot, then a numeric.
-        std::optional<std::uint64_t>
+        std::optional<std::uint_fast64_t>
         dot_numeric() {
             if (pop() != Token::Dot) {
                 return std::nullopt;
@@ -216,7 +216,7 @@ namespace semver::parser {
 
             Op op = this->op();
 
-            std::uint64_t major;
+            std::uint_fast64_t major;
             if (const auto m = this->component()) {
                 major = m.value();
             } else {
@@ -279,9 +279,9 @@ namespace semver::parser {
         version() {
             this->skip_whitespace();
 
-            const std::uint64_t major = this->numeric().value();
-            const std::uint64_t minor = this->dot_numeric().value();
-            const std::uint64_t patch = this->dot_numeric().value();
+            const std::uint_fast64_t major = this->numeric().value();
+            const std::uint_fast64_t minor = this->dot_numeric().value();
+            const std::uint_fast64_t patch = this->dot_numeric().value();
             const std::vector<Identifier> pre = this->pre();
             const std::vector<Identifier> build = this->plus_build_metadata();
 

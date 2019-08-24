@@ -32,7 +32,7 @@ namespace poac::core::builder::standard {
         throw except::error("Could not get ", compiler, " version");
     }
 
-    std::string apple_llvm_convert(const std::uint8_t& cpp_version, const bool& enable_gnu) {
+    std::string apple_llvm_convert(const std::uint_fast8_t& cpp_version, const bool& enable_gnu) {
         // Apple LLVMは，コンパイラバージョンによる差異がないものとする．(半ば強制的にupdateされるため)
         if (cpp_version == 98) {
             return version_prefix(enable_gnu) + "98";
@@ -51,7 +51,11 @@ namespace poac::core::builder::standard {
         }
     }
 
-    std::string gcc_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu) {
+    std::string gcc_convert(
+        const std::uint_fast8_t& cpp_version,
+        const std::string& compiler_version,
+        const bool& enable_gnu
+    ) {
         const semver::Version cv(compiler_version);
 
         if (cpp_version == 98) {
@@ -89,7 +93,11 @@ namespace poac::core::builder::standard {
         }
     }
 
-    std::string clang_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu) {
+    std::string clang_convert(
+        const std::uint_fast8_t& cpp_version,
+        const std::string& compiler_version,
+        const bool& enable_gnu
+    ) {
         const semver::Version cv(compiler_version);
 
         if (cpp_version == 98) {
@@ -123,7 +131,7 @@ namespace poac::core::builder::standard {
         }
     }
 
-    std::string icc_convert(const std::uint8_t& cpp_version) {
+    std::string icc_convert(const std::uint_fast8_t& cpp_version) {
         if (cpp_version == 98) {
             return ""; // unneeded version prefix
         } else if (cpp_version == 3 || cpp_version == 11) {
@@ -153,7 +161,7 @@ namespace poac::core::builder::standard {
         }
     }
 
-    std::string msvc_convert(const std::uint8_t& cpp_version) {
+    std::string msvc_convert(const std::uint_fast8_t& cpp_version) {
         if (cpp_version == 98 || cpp_version == 3 || cpp_version == 11) {
             return ""; // unneeded version prefix
         } else if (cpp_version == 14) {
@@ -201,7 +209,7 @@ namespace poac::core::builder::standard {
         throw except::error("Unknown compiler command: ", cmd);
     }
 
-    std::string convert(const std::uint8_t& cpp_version, const std::string& command, const bool& enable_gnu) {
+    std::string convert(const std::uint_fast8_t& cpp_version, const std::string& command, const bool& enable_gnu) {
         // Match a poac binary architecture and an architecture available to each compiler.
         switch (command_to_name(command)) {
             // Support OS: macos, linux, mingw, cygwin, _WIN32

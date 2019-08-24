@@ -1,6 +1,7 @@
 #ifndef POAC_UTIL_PRETTY_HPP
 #define POAC_UTIL_PRETTY_HPP
 
+#include <cstdint>
 #include <string>
 #include <utility>
 
@@ -10,19 +11,20 @@ namespace poac::util::pretty {
         if (total_seconds > 1.0) {
             std::string res;
 
-            int days = static_cast<int>(total_seconds / 60 / 60 / 24);
+            const auto total_secs = static_cast<std::uint_fast64_t>(total_seconds);
+            const auto days = static_cast<std::uint_fast8_t>(total_secs / 60 / 60 / 24);
             if (days > 0) {
                 res += std::to_string(days) + "d ";
             }
-            int hours = static_cast<int>(total_seconds / 60 / 60) % 24;
+            const auto hours = static_cast<std::uint_fast8_t>((total_secs / 60 / 60) % 24);
             if (hours > 0) {
                 res += std::to_string(hours) + "h ";
             }
-            int minutes = static_cast<int>(total_seconds / 60) % 60;
+            const auto minutes = static_cast<std::uint_fast8_t>((total_secs / 60) % 60);
             if (minutes > 0) {
                 res += std::to_string(minutes) + "m ";
             }
-            int seconds = static_cast<int>(total_seconds) % 60;
+            const auto seconds = static_cast<std::uint_fast8_t>(total_secs % 60);
             res += std::to_string(seconds) + "s";
 
             return res;
@@ -56,7 +58,7 @@ namespace poac::util::pretty {
 
     // If string size is over specified number of characters and it can be clipped,
     //  display an ellipsis (...).
-    std::string clip_string(const std::string& s, const unsigned long& n) {
+    std::string clip_string(const std::string& s, const std::size_t& n) {
         if (s.size() <= n) {
             return s;
         } else {

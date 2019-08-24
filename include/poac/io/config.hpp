@@ -1,6 +1,7 @@
 #ifndef POAC_IO_CONFIG_HPP
 #define POAC_IO_CONFIG_HPP
 
+#include <cstdint>
 #include <algorithm>
 #include <string>
 #include <string_view>
@@ -494,7 +495,7 @@ namespace poac::io::config {
         std::string name; // required
         std::string version; // required
         std::optional<std::vector<std::string>> authors; // optional
-        std::uint16_t cpp; // optional with default(17)
+        std::uint_fast16_t cpp; // optional with default(17)
         std::optional<std::string> build; // optional
         std::optional<std::string> links; // optional
         std::optional<std::vector<std::string>> exclude; // optional

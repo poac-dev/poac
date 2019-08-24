@@ -68,11 +68,11 @@ namespace semver::parser {
         /// Operation code for this predicate, like "greater than" or "exact match".
         Op op;
         /// Major version.
-        std::uint64_t major;
+        std::uint_fast64_t major;
         /// Optional minor version.
-        std::optional<std::uint64_t> minor;
+        std::optional<std::uint_fast64_t> minor;
         /// Optional patch version.
-        std::optional<std::uint64_t> patch;
+        std::optional<std::uint_fast64_t> patch;
         /// Collection of `Identifier`s of version, like `"alpha1"` in `"1.2.3-alpha1"`.
         std::vector<Identifier> pre;
     };

@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_BUILDER_BUILDER_HPP
 #define POAC_CORE_BUILDER_BUILDER_HPP
 
+#include <cstdint>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -39,7 +40,7 @@ namespace poac::core::builder {
         return "-D" + first + "=" + R"(\")" + second + R"(\")";
     }
     std::string
-    make_definition(const std::string& first, const std::uint64_t& second) {
+    make_definition(const std::string& first, const std::uint_fast64_t& second) {
         std::ostringstream oss;
         oss << second;
         return make_definition(first, oss.str());
