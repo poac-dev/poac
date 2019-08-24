@@ -1,21 +1,5 @@
 set(TEST_NAMES
-        argparse
-        cfg
-        cli
-        config
-        except
-        misc
-        name
-        path
-        pretty
-        project
-        publish
-        resolve
-        sat
-        shell
-        standard
-        term
-        types
+        char_traits
 )
 
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
@@ -42,7 +26,3 @@ foreach (TEST_NAME ${TEST_NAMES})
     target_link_libraries(${TEST_NAME} ${poac_LINK_LIBRARIES})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endforeach ()
-
-add_subdirectory(semver)
-add_subdirectory(support)
-add_subdirectory(termcolor2)

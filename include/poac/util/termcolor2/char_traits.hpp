@@ -14,16 +14,10 @@ namespace termcolor2 {
         using pos_type = typename std_traits_type::pos_type;
         using state_type = typename std_traits_type::state_type;
 
-#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX17
         static constexpr void
         assign(char_type& c1, const char_type& c2) noexcept {
-            std_traits_type::assign(c1, c2);
+            c1 = c2;
         }
-        static constexpr char_type*
-        assign(char_type* s, std::size_t n, char_type a) {
-            return std_traits_type::assign(c1, c2);
-        }
-#else
         static constexpr char_type*
         assign(char_type* s, std::size_t n, char_type a) { // TODO: Support C++11
             char_type* _r = s;
@@ -32,29 +26,7 @@ namespace termcolor2 {
             }
             return _r;
         }
-#  if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
-        static constexpr void
-        assign(char_type& c1, const char_type& c2) noexcept {
-            std_traits_type::assign(c1, c2);
-        }
-#  else
-        static constexpr void
-        assign(char_type& c1, const char_type& c2) noexcept {
-            c1 = c2;
-        }
-#  endif
-#endif
 
-#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX11
-        static constexpr bool
-        eq(char_type c1, char_type c2) noexcept {
-            return std_traits_type::eq(c1, c2);
-        }
-        static constexpr bool
-        lt(char_type c1, char_type c2) noexcept {
-            return std_traits_type::lt(c1, c2);
-        }
-#else
         static constexpr bool
         eq(char_type c1, char_type c2) noexcept {
 			return c1 == c2;
@@ -63,13 +35,31 @@ namespace termcolor2 {
 		lt(char_type c1, char_type c2) noexcept {
 			return c1 < c2;
 		}
-#endif
 
-#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
         static constexpr int
         compare(const char_type* s1, const char_type* s2, std::size_t n) {
-            return std_traits_type::compare(s1, s2, n);
+            return n == 0
+                   ? 0
+                   : lt(*s1, *s2)
+                     ? -1
+                     : lt(*s2, *s1)
+                       ? 1
+                       : compare_impl(++s1, ++s2, --n)
+                    ;
         }
+        static constexpr int
+        compare_impl(const char_type* s1, const char_type* s2, std::size_t n) {
+            return n == 0
+                   ? 0
+                   : lt(*s1, *s2)
+                     ? -1
+                     : lt(*s2, *s1)
+                       ? 1
+                       : compare_impl(++s1, ++s2, --n)
+                    ;
+        }
+
+#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
         static constexpr std::size_t
         length(const char_type* s) {
 #  if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
@@ -89,18 +79,6 @@ namespace termcolor2 {
             return std_traits_type::find(s, n, a);
         }
 #else
-        static constexpr int
-        compare(const char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
-            for (; n; --n, ++s1, ++s2) {
-                if (lt(*s1, *s2)) {
-                    return -1;
-                }
-                if (lt(*s2, *s1)) {
-                    return 1;
-                }
-            }
-            return 0;
-        }
         static constexpr std::size_t
         length(const char_type* s) { // TODO: Support C++11
             size_t _len = 0;
@@ -119,16 +97,6 @@ namespace termcolor2 {
         }
 #endif
 
-#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX17
-        static constexpr char_type*
-        move(char_type* s1, const char_type* s2, std::size_t n) {
-            return std_traits_type::move(s1, s2, n);
-        }
-        static constexpr char_type*
-        copy(char_type* s1, const char_type* s2, std::size_t n) {
-            return std_traits_type::copy(s1, s2, n);
-        }
-#else
         static constexpr char_type*
         move(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
             char_type* _r = s1;
@@ -155,7 +123,6 @@ namespace termcolor2 {
             }
             return _r;
         }
-#endif
 
         static constexpr int_type
         not_eof(int_type c) noexcept {
