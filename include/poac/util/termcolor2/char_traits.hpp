@@ -2,7 +2,6 @@
 #define TERMCOLOR2_CHAR_TRAITS_HPP
 
 #include <string> // std::char_traits
-
 #include <poac/util/termcolor2/config.hpp>
 
 namespace termcolor2 {
@@ -26,7 +25,7 @@ namespace termcolor2 {
         }
 #else
         static constexpr char_type*
-        assign(char_type* s, std::size_t n, char_type a) {
+        assign(char_type* s, std::size_t n, char_type a) { // TODO: Support C++11
             char_type* _r = s;
             for (; n; --n, ++s) {
                 assign(*s, a);
@@ -73,7 +72,17 @@ namespace termcolor2 {
         }
         static constexpr std::size_t
         length(const char_type* s) {
+#if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
+            // Clang(does not contain Apple Clang):
+            //   non-constexpr function 'wcslen' cannot be used in a constant expression
+            if constexpr (std::is_same<value_type, wchar_t>::value) {
+                size_type _len = 0;
+                for (; !traits_type::eq(*str, value_type(0)); ++str, ++_len);
+                return _len;
+            }
+#else
             return std_traits_type::length(s);
+#endif
         }
         static constexpr const char_type*
         find(const char_type* s, std::size_t n, const char_type& a) {
@@ -81,7 +90,7 @@ namespace termcolor2 {
         }
 #else
         static constexpr int
-        compare(const char_type* s1, const char_type* s2, std::size_t n) {
+        compare(const char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
             for (; n; --n, ++s1, ++s2) {
                 if (lt(*s1, *s2)) {
                     return -1;
@@ -93,13 +102,13 @@ namespace termcolor2 {
             return 0;
         }
         static constexpr std::size_t
-        length(const char_type* s) {
+        length(const char_type* s) { // TODO: Support C++11
             size_t _len = 0;
             for (; !eq(*s, char_type(0)); ++s, ++_len);
             return _len;
         }
         static constexpr const char_type*
-        find(const char_type* s, std::size_t n, const char_type& a) {
+        find(const char_type* s, std::size_t n, const char_type& a) { // TODO: Support C++11
             for (; n; --n) {
                 if (eq(*s, a)) {
                     return s;
@@ -121,7 +130,7 @@ namespace termcolor2 {
         }
 #else
         static constexpr char_type*
-        move(char_type* s1, const char_type* s2, std::size_t n) {
+        move(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
             char_type* _r = s1;
             if (s1 < s2) {
                 for (; n; --n, ++s1, ++s2) {
@@ -138,7 +147,7 @@ namespace termcolor2 {
             return _r;
         }
         static constexpr char_type*
-        copy(char_type* s1, const char_type* s2, std::size_t n) {
+        copy(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
             static_assert(s2 < s1 || s2 >= s1 + n, "termcolor2::char_traits::copy overlapped range");
             char_type* _r = s1;
             for (; n; --n, ++s1, ++s2) {

@@ -172,15 +172,6 @@ namespace termcolor2 {
 
         constexpr size_type
         length(const value_type* str) const noexcept {
-#if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
-            // Clang(does not contain Apple Clang):
-            //   non-constexpr function 'wcslen' cannot be used in a constant expression
-            if constexpr (std::is_same<value_type, wchar_t>::value) {
-                size_type _len = 0;
-                for (; !traits_type::eq(*str, value_type(0)); ++str, ++_len);
-                return _len;
-            }
-#endif
             return traits_type::length(str);
         }
 
