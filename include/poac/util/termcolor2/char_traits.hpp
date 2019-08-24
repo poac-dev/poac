@@ -67,7 +67,7 @@ namespace termcolor2 {
             //   non-constexpr function 'wcslen' cannot be used in a constant expression
             if constexpr (std::is_same<char_type, wchar_t>::value) {
                 std::size_t _len = 0;
-                for (; !eq(*str, char_type(0)); ++str, ++_len);
+                for (; !eq(*s, char_type(0)); ++s, ++_len);
                 return _len;
             }
 #  else
