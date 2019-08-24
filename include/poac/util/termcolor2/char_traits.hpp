@@ -44,39 +44,32 @@ namespace termcolor2 {
                      ? -1
                      : lt(*s2, *s1)
                        ? 1
-                       : compare_impl(++s1, ++s2, --n)
-                    ;
-        }
-    private:
-        static constexpr int
-        compare_impl(const char_type* s1, const char_type* s2, std::size_t n) {
-            return n == 0
-                   ? 0
-                   : lt(*s1, *s2)
-                     ? -1
-                     : lt(*s2, *s1)
-                       ? 1
-                       : compare_impl(++s1, ++s2, --n)
+                       : compare(++s1, ++s2, --n)
                     ;
         }
 
     public:
         static constexpr std::size_t
-        length(const char_type* s) { // TODO: Support C++11
-            std::size_t _len = 0;
-            for (; !eq(*s, char_type(0)); ++s, ++_len);
-            return _len;
+        length(const char_type* s) {
+            return length_impl(s, 0);
+        }
+    private:
+        static constexpr std::size_t
+        length_impl(const char_type* s, std::size_t len) {
+            return !eq(*s, char_type(0))
+                   ? length_impl(++s, ++len)
+                   : len;
         }
 
+    public:
         static constexpr const char_type*
-        find(const char_type* s, std::size_t n, const char_type& a) { // TODO: Support C++11
-            for (; n; --n) {
-                if (eq(*s, a)) {
-                    return s;
-                }
-                ++s;
-            }
-            return 0;
+        find(const char_type* s, std::size_t n, const char_type& a) {
+            return n == 0
+                   ? 0
+                   : eq(*s, a)
+                     ? s
+                     : find(++s, --n, a)
+                    ;
         }
 
         static constexpr char_type*
@@ -96,6 +89,7 @@ namespace termcolor2 {
             }
             return _r;
         }
+
         static constexpr char_type*
         copy(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
             static_assert(s2 < s1 || s2 >= s1 + n, "termcolor2::char_traits::copy overlapped range");
