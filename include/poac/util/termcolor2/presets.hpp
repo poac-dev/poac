@@ -10,12 +10,10 @@ namespace termcolor2 {
     //
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -32,12 +30,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -54,12 +50,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -76,12 +70,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -98,12 +90,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -120,12 +110,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -142,12 +130,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -164,12 +150,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -189,12 +173,10 @@ namespace termcolor2 {
     //
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -211,12 +193,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -233,12 +213,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -255,12 +233,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -277,12 +253,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -299,12 +273,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -321,12 +293,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -343,12 +313,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -368,12 +336,10 @@ namespace termcolor2 {
     //
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -390,12 +356,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -412,12 +376,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -434,12 +396,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -456,12 +416,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -478,12 +436,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
@@ -500,12 +456,10 @@ namespace termcolor2 {
 
     template <typename CharT = char,
         std::enable_if_t<
-            std::disjunction_v<
-                std::is_same<CharT, char>,
-                std::is_same<CharT, char16_t>,
-                std::is_same<CharT, char32_t>,
-                std::is_same<CharT, wchar_t>
-            >
+            std::is_same<CharT, char>::value     ||
+            std::is_same<CharT, char16_t>::value ||
+            std::is_same<CharT, char32_t>::value ||
+            std::is_same<CharT, wchar_t>::value
             , std::nullptr_t
         > = nullptr
     >
