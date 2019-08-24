@@ -72,7 +72,7 @@ namespace termcolor2 {
         }
         static constexpr std::size_t
         length(const char_type* s) {
-#if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
+#  if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
             // Clang(does not contain Apple Clang):
             //   non-constexpr function 'wcslen' cannot be used in a constant expression
             if constexpr (std::is_same<char_type, wchar_t>::value) {
@@ -80,9 +80,9 @@ namespace termcolor2 {
                 for (; !eq(*str, char_type(0)); ++str, ++_len);
                 return _len;
             }
-#else
+#  else
             return std_traits_type::length(s);
-#endif
+#  endif
         }
         static constexpr const char_type*
         find(const char_type* s, std::size_t n, const char_type& a) {
