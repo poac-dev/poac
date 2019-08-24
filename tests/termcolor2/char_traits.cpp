@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <poac/util/termcolor2/char_traits.hpp>
 
+#if TERMCOLOR2_STD_VER > 11
 constexpr char assign() {
     char c1 = 'a';
     termcolor2::char_traits<char>::assign(c1, 'b');
@@ -12,6 +13,7 @@ BOOST_AUTO_TEST_CASE( termcolor2_char_traits_assign_test )
 {
     static_assert( assign() == 'b', "" );
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( termcolor2_char_traits_eq_test )
 {

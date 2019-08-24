@@ -72,15 +72,14 @@ namespace termcolor2 {
                     ;
         }
 
-        static constexpr char_type*
-        move(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
+        static TERMCOLOR2_CXX14_CONSTEXPR char_type*
+        move(char_type* s1, const char_type* s2, std::size_t n) {
             char_type* _r = s1;
             if (s1 < s2) {
                 for (; n; --n, ++s1, ++s2) {
                     assign(*s1, *s2);
                 }
-            }
-            else if (s2 < s1) {
+            } else if (s2 < s1) {
                 s1 += n;
                 s2 += n;
                 for (; n; --n) {
@@ -90,8 +89,8 @@ namespace termcolor2 {
             return _r;
         }
 
-        static constexpr char_type*
-        copy(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
+        static TERMCOLOR2_CXX14_CONSTEXPR char_type*
+        copy(char_type* s1, const char_type* s2, std::size_t n) {
             static_assert(s2 < s1 || s2 >= s1 + n, "termcolor2::char_traits::copy overlapped range");
             char_type* _r = s1;
             for (; n; --n, ++s1, ++s2) {
