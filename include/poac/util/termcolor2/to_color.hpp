@@ -3,7 +3,6 @@
 
 #include <cstddef> // std::size_t
 #include <string> // std::basic_string
-
 #include <poac/util/termcolor2/presets.hpp>
 #include <poac/util/termcolor2/string.hpp>
 
