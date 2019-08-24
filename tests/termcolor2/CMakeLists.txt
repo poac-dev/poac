@@ -1,5 +1,12 @@
 set(TEST_NAMES
         char_traits
+        comparison
+#        concat
+#        io
+#        literals
+#        presets
+#        string
+#        to_color
 )
 
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
