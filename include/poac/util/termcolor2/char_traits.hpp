@@ -75,9 +75,9 @@ namespace termcolor2 {
 #if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
             // Clang(does not contain Apple Clang):
             //   non-constexpr function 'wcslen' cannot be used in a constant expression
-            if constexpr (std::is_same<value_type, wchar_t>::value) {
-                size_type _len = 0;
-                for (; !traits_type::eq(*str, value_type(0)); ++str, ++_len);
+            if constexpr (std::is_same<char_type, wchar_t>::value) {
+                std::size_t _len = 0;
+                for (; !eq(*str, char_type(0)); ++str, ++_len);
                 return _len;
             }
 #else
