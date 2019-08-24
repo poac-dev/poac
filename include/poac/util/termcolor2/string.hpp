@@ -6,7 +6,6 @@
 #include <stdexcept> // std::length_error, std::out_of_range
 #include <iterator> // std::reverse_iterator
 #include <utility> // std::index_sequence, std::make_index_sequence, std::forward
-
 #include <poac/util/termcolor2/char_traits.hpp>
 
 namespace termcolor2 {
@@ -173,10 +172,10 @@ namespace termcolor2 {
 
         constexpr size_type
         length(const value_type* str) const noexcept {
-#if defined(__clang__) && !defined(__APPLE__)
+#if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
             // Clang(does not contain Apple Clang):
             //   non-constexpr function 'wcslen' cannot be used in a constant expression
-            if constexpr (std::is_same_v<value_type, wchar_t>) {
+            if constexpr (std::is_same<value_type, wchar_t>::value) {
                 size_type _len = 0;
                 for (; !traits_type::eq(*str, value_type(0)); ++str, ++_len);
                 return _len;
@@ -186,8 +185,7 @@ namespace termcolor2 {
         }
 
         [[nodiscard]] constexpr bool
-        empty() const noexcept
-        {
+        empty() const noexcept {
             return size() == 0;
         }
 
@@ -202,22 +200,28 @@ namespace termcolor2 {
         }
         constexpr int
         compare(size_type pos1, size_type n1, const value_type* s, size_type n2) const {
-            if (size() < pos1) {
-                throw std::out_of_range("termcolor2::basic_string");
-            }
-            constexpr size_type rlen = std::min(n1, size() - pos1);
-            constexpr int r = traits_type::compare(data() + pos1, s, std::min(rlen, n2));
-            if (r == 0) {
-                if (rlen < n2) {
-                    return -1;
-                }
-                else if (rlen > n2) {
-                    return 1;
-                }
-            }
-            return r;
+            return size() < pos1
+                   ? throw std::out_of_range("termcolor2::basic_string")
+                   : compare_impl(pos1, std::min(n1, size() - pos1), s, n2);
         }
 
+    private:
+        constexpr int
+        compare_impl(size_type pos1, const size_type rlen, const value_type* s, size_type n2) const {
+            return compare_impl(traits_type::compare(data() + pos1, s, std::min(rlen, n2)), rlen, n2);
+        }
+        constexpr int
+        compare_impl(const int r, const size_type rlen, size_type n2) const {
+            return r == 0
+                   ? rlen < n2
+                     ? -1
+                     : rlen > n2
+                       ? 1
+                       : r
+                   : r;
+        }
+
+    public:
         constexpr reference
         operator[](size_type i) {
             return elems[i];
