@@ -2,17 +2,21 @@
 #define TERMCOLOR2_CONFIG_HPP
 
 #ifdef __cplusplus
-#ifndef TERMCOLOR2_STD_VER
-#  if __cplusplus <= 201103L
-#    define TERMCOLOR2_STD_VER 11
-#  elif __cplusplus <= 201402L
-#    define TERMCOLOR2_STD_VER 14
-#  elif __cplusplus <= 201703L
-#    define TERMCOLOR2_STD_VER 17
-#  else
-#    define TERMCOLOR2_STD_VER 18  // current year, or date of c++2a ratification
-#  endif
-#endif  // !TERMCOLOR2_STD_VER
+#  ifndef TERMCOLOR2_STD_VER
+#    if __cplusplus < 201103L
+#      error "termcolor2 requires C++11 or later."
+#    elif __cplusplus == 201103L
+#      define TERMCOLOR2_STD_VER 11
+#    elif __cplusplus <= 201402L
+#      define TERMCOLOR2_STD_VER 14
+#    elif __cplusplus <= 201703L
+#      define TERMCOLOR2_STD_VER 17
+#    else
+#      define TERMCOLOR2_STD_VER 19 // current year, or date of c++2a ratification
+#    endif
+#  endif // !TERMCOLOR2_STD_VER
+#else
+#  error "__cplusplus is not defined"
 #endif // !__cplusplus
 
 #if TERMCOLOR2_STD_VER > 11
