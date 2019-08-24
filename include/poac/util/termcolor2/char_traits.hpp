@@ -14,12 +14,12 @@ namespace termcolor2 {
         using pos_type = typename std_traits_type::pos_type;
         using state_type = typename std_traits_type::state_type;
 
-        static constexpr void
+        static TERMCOLOR2_CXX14_CONSTEXPR void
         assign(char_type& c1, const char_type& c2) noexcept {
             c1 = c2;
         }
-        static constexpr char_type*
-        assign(char_type* s, std::size_t n, char_type a) { // TODO: Support C++11
+        static TERMCOLOR2_CXX14_CONSTEXPR char_type*
+        assign(char_type* s, std::size_t n, char_type a) {
             char_type* _r = s;
             for (; n; --n, ++s) {
                 assign(*s, a);
