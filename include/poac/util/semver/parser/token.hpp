@@ -49,7 +49,7 @@ namespace semver::parser {
 
         using null_type = std::monostate;
         using whitespace_type = std::pair<std::size_t, std::size_t>;
-        using numeric_type = std::uint64_t;
+        using numeric_type = std::uint_fast64_t;
         using alphanumeric_type = std::string_view;
         using variant_type =
             std::variant<null_type, whitespace_type, numeric_type, alphanumeric_type>;
@@ -154,7 +154,7 @@ namespace semver::parser {
             AlphaNumeric
         };
 
-        using numeric_type = std::uint64_t;
+        using numeric_type = std::uint_fast64_t;
         using alphanumeric_type = std::string_view;
         using variant_type = std::variant<numeric_type, alphanumeric_type>;
 
@@ -197,11 +197,11 @@ namespace semver::parser {
 
     struct Version {
         /// Major version as number (`0` in `"0.1.2"`).
-        std::uint64_t major;
+        std::uint_fast64_t major;
         /// Minor version as number (`1` in `"0.1.2"`).
-        std::uint64_t minor;
+        std::uint_fast64_t minor;
         /// Patch version as number (`2` in `"0.1.2"`).
-        std::uint64_t patch;
+        std::uint_fast64_t patch;
         /// Pre-release metadata as a vector of `Identifier` (`"alpha1"` in `"0.1.2-alpha1"`
         /// or `7` (numeric) in `"0.1.2-7"`, `"pre"` and `0` (numeric) in `"0.1.2-pre.0"`).
         std::vector<Identifier> pre;

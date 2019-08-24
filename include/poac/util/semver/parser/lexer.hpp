@@ -44,10 +44,10 @@ namespace semver::parser {
         return is_digit(c) || is_alphabet(c);
     }
 
-    constexpr std::optional<std::uint64_t>
+    constexpr std::optional<std::uint_fast64_t>
     str_to_uint(std::string_view s) noexcept {
-        std::uint64_t i = 0;
-        std::uint64_t digit = 1;
+        std::uint_fast64_t i = 0;
+        std::uint_fast64_t digit = 1;
         for (int size = s.size() - 1; size >= 0; --size) {
             char c = s[size];
             if (is_digit(c)) {
@@ -203,7 +203,7 @@ namespace semver::parser {
             if (str[start] != '0' && !is_alphabet(this->one())) {
                 // e.g. 3425
                 std::string_view sub = str.substr(start, this->c1_index - start);
-                std::uint64_t value = str_to_uint(sub).value();
+                std::uint_fast64_t value = str_to_uint(sub).value();
                 return Token{ Token::Numeric, static_cast<std::size_t>(value) };
             }
 
