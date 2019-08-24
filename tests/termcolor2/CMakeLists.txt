@@ -3,7 +3,7 @@ set(TEST_NAMES
         comparison
         concat
         io
-#        literals
+        literals
 #        presets
 #        string
 #        to_color
