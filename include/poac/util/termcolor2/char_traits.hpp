@@ -47,6 +47,7 @@ namespace termcolor2 {
                        : compare_impl(++s1, ++s2, --n)
                     ;
         }
+    private:
         static constexpr int
         compare_impl(const char_type* s1, const char_type* s2, std::size_t n) {
             return n == 0
@@ -59,32 +60,14 @@ namespace termcolor2 {
                     ;
         }
 
-#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
-        static constexpr std::size_t
-        length(const char_type* s) {
-#  if defined(__clang__) && !defined(__APPLE__) // TODO: Support C++11
-            // Clang(does not contain Apple Clang):
-            //   non-constexpr function 'wcslen' cannot be used in a constant expression
-            if constexpr (std::is_same<char_type, wchar_t>::value) {
-                std::size_t _len = 0;
-                for (; !eq(*s, char_type(0)); ++s, ++_len);
-                return _len;
-            }
-#  else
-            return std_traits_type::length(s);
-#  endif
-        }
-        static constexpr const char_type*
-        find(const char_type* s, std::size_t n, const char_type& a) {
-            return std_traits_type::find(s, n, a);
-        }
-#else
+    public:
         static constexpr std::size_t
         length(const char_type* s) { // TODO: Support C++11
-            size_t _len = 0;
+            std::size_t _len = 0;
             for (; !eq(*s, char_type(0)); ++s, ++_len);
             return _len;
         }
+
         static constexpr const char_type*
         find(const char_type* s, std::size_t n, const char_type& a) { // TODO: Support C++11
             for (; n; --n) {
@@ -95,7 +78,6 @@ namespace termcolor2 {
             }
             return 0;
         }
-#endif
 
         static constexpr char_type*
         move(char_type* s1, const char_type* s2, std::size_t n) { // TODO: Support C++11
