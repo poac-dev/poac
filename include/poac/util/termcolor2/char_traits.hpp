@@ -24,32 +24,26 @@ namespace termcolor2 {
         assign(char_type* s, std::size_t n, char_type a) {
             return std_traits_type::assign(c1, c2);
         }
-#elif TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
+#else
+        static constexpr char_type*
+        assign(char_type* s, std::size_t n, char_type a) {
+            char_type* _r = s;
+            for (; n; --n, ++s) {
+                assign(*s, a);
+            }
+            return _r;
+        }
+#  if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
         static constexpr void
         assign(char_type& c1, const char_type& c2) noexcept {
             std_traits_type::assign(c1, c2);
         }
-        static constexpr char_type*
-        assign(char_type* s, std::size_t n, char_type a) {
-            char_type* _r = s;
-            for (; n; --n, ++s) {
-                assign(*s, a);
-            }
-            return _r;
-        }
-#else
+#  else
         static constexpr void
         assign(char_type& c1, const char_type& c2) noexcept {
             c1 = c2;
         }
-        static constexpr char_type*
-        assign(char_type* s, std::size_t n, char_type a) {
-            char_type* _r = s;
-            for (; n; --n, ++s) {
-                assign(*s, a);
-            }
-            return _r;
-        }
+#  endif
 #endif
 
 #if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX11
