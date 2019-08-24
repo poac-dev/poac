@@ -15,7 +15,7 @@ namespace termcolor2 {
         using pos_type = typename std_traits_type::pos_type;
         using state_type = typename std_traits_type::state_type;
 
-#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX17
+#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX17
         static constexpr void
         assign(char_type& c1, const char_type& c2) noexcept {
             std_traits_type::assign(c1, c2);
@@ -24,7 +24,7 @@ namespace termcolor2 {
         assign(char_type* s, std::size_t n, char_type a) {
             return std_traits_type::assign(c1, c2);
         }
-#elif defined(TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14)
+#elif TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
         static constexpr void
         assign(char_type& c1, const char_type& c2) noexcept {
             std_traits_type::assign(c1, c2);
@@ -52,7 +52,7 @@ namespace termcolor2 {
         }
 #endif
 
-#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX11
+#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX11
         static constexpr bool
         eq(char_type c1, char_type c2) noexcept {
             return std_traits_type::eq(c1, c2);
@@ -72,7 +72,7 @@ namespace termcolor2 {
 		}
 #endif
 
-#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
+#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
         static constexpr int
         compare(const char_type* s1, const char_type* s2, std::size_t n) {
             return std_traits_type::compare(s1, s2, n);
@@ -116,7 +116,7 @@ namespace termcolor2 {
         }
 #endif
 
-#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX17
+#if TERMCOLOR2_CHAR_TRAITS_AFTER_CXX17
         static constexpr char_type*
         move(char_type* s1, const char_type* s2, std::size_t n) {
             return std_traits_type::move(s1, s2, n);
