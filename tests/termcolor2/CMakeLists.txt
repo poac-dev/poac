@@ -5,7 +5,7 @@ set(TEST_NAMES
         io
         literals
 #        string
-#        to_color
+        to_color
 )
 
 get_property(poac_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
