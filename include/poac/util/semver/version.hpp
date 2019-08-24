@@ -99,13 +99,13 @@ namespace semver {
 
     struct Version {
         // The major version, to be incremented on incompatible changes.
-        std::uint64_t major = 0;
+        std::uint_fast64_t major = 0;
         // The minor version, to be incremented when functionality is added in a
         // backwards-compatible manner.
-        std::uint64_t minor = 0;
+        std::uint_fast64_t minor = 0;
         // The patch version, to be incremented when backwards-compatible bug
         // fixes are made.
-        std::uint64_t patch = 0;
+        std::uint_fast64_t patch = 0;
         // The pre-release version identifier, if one exists.
         std::vector<std::string> pre = {};
         // The build metadata, ignored when determining version precedence.

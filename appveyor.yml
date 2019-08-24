@@ -44,21 +44,6 @@ environment:
       PLATFORM: x64
 
 install:
-  - ps: |
-      if ($env:compiler -eq "msvc") {
-        if ($env:platform -eq "x86") {
-          $env:CMAKE_GENERATOR_PLATFORM = 'Win32'
-        } else {
-          $env:CMAKE_GENERATOR_PLATFORM = 'x64'
-        }
-      }
-      if ($env:generator -eq "MinGW Makefiles") {
-        $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
-        if ($env:cxx_path -ne "") {
-          $env:path += ";$env:cxx_path"
-        }
-      }
-
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\%CYG_SETUP% --quiet-mode ^
         --no-shortcuts --upgrade-also ^
@@ -91,6 +76,21 @@ install:
         Get-ChildItem C:\Libraries\boost-1.69.0\lib |
           Rename-Item -NewName { $_.name -replace '-x64','' }
         Get-ChildItem C:\Libraries\boost-1.69.0\lib
+      }
+
+  - ps: |
+      if ($env:compiler -eq "msvc") {
+        if ($env:platform -eq "x86") {
+          $env:CMAKE_GENERATOR_PLATFORM = 'Win32'
+        } else {
+          $env:CMAKE_GENERATOR_PLATFORM = 'x64'
+        }
+      }
+      if ($env:generator -eq "MinGW Makefiles") {
+        $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
+        if ($env:cxx_path -ne "") {
+          $env:path += ";$env:cxx_path"
+        }
       }
 
   # Install libgit2 and toml11

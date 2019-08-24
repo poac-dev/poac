@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_version_prefix_test )
     BOOST_CHECK( version_prefix(true) == "-std=gnu++" );
 }
 
-// std::string apple_llvm_convert(const std::uint8_t& cpp_version, const bool& enable_gnu)
+// std::string apple_llvm_convert(const std::uint_fast8_t& cpp_version, const bool& enable_gnu)
 BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_apple_llvm_convert_test )
 {
     using poac::core::builder::standard::apple_llvm_convert;
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_apple_llvm_convert_test )
     BOOST_CHECK_THROW( apple_llvm_convert(6, true), error );
 }
 
-// std::string gcc_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu)
+// std::string gcc_convert(const std::uint_fast8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu)
 BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_gcc_convert_test )
 {
     using poac::core::builder::standard::gcc_convert;
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_gcc_convert_test )
     BOOST_CHECK_THROW( gcc_convert(9, "1.0.0", false), error );
 }
 
-// std::string clang_convert(const std::uint8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu)
+// std::string clang_convert(const std::uint_fast8_t& cpp_version, const std::string& compiler_version, const bool& enable_gnu)
 BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_clang_convert_test )
 {
     using poac::core::builder::standard::clang_convert;
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_clang_convert_test )
     BOOST_CHECK_THROW( clang_convert(12, "1.0.0", false), error );
 }
 
-// std::string icc_convert(const std::uint8_t& cpp_version)
+// std::string icc_convert(const std::uint_fast8_t& cpp_version)
 BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_icc_convert_test )
 {
     using poac::core::builder::standard::icc_convert;
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_icc_convert_test )
     BOOST_CHECK_THROW( icc_convert(15), error );
 }
 
-// std::string msvc_convert(const std::uint8_t& cpp_version)
+// std::string msvc_convert(const std::uint_fast8_t& cpp_version)
 BOOST_AUTO_TEST_CASE( poac_core_builder_field_standard_msvc_convert_test )
 {
     using poac::core::builder::standard::msvc_convert;
