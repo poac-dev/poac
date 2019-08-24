@@ -4,7 +4,7 @@
 
 // operator==
 // operator!=
-BOOST_AUTO_TEST_CASE( termcolor2_char_traits_eq_test )
+BOOST_AUTO_TEST_CASE( termcolor2_oparator_eq_neq_test )
 {
     static_assert(termcolor2::make_string("foo") == termcolor2::make_string("foo"), "");
     static_assert(termcolor2::make_string("foo") == "foo", "");
