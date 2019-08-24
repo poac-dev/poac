@@ -3,7 +3,12 @@
 #include <poac/util/termcolor2/char_traits.hpp>
 
 #if TERMCOLOR2_STD_VER > 11
-constexpr char assign() {
+#  define TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11( X ) static_assert( X, #X )
+#else
+#  define TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11( X ) BOOST_CHECK( X )
+#endif
+
+TERMCOLOR2_CXX14_CONSTEXPR char assign() {
     char c1 = 'a';
     termcolor2::char_traits<char>::assign(c1, 'b');
     return c1;
@@ -11,9 +16,8 @@ constexpr char assign() {
 
 BOOST_AUTO_TEST_CASE( termcolor2_char_traits_assign_test )
 {
-    static_assert( assign() == 'b', "" );
+    TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11( assign() == 'b' );
 }
-#endif
 
 BOOST_AUTO_TEST_CASE( termcolor2_char_traits_eq_test )
 {
