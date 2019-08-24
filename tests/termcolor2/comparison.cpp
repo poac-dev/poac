@@ -2,8 +2,8 @@
 #include <boost/test/included/unit_test.hpp>
 #include <poac/util/termcolor2/comparison.hpp>
 
-// constexpr bool operator==(const basic_string<CharT, N1, Traits>& lhs, const basic_string<CharT, N2, Traits>& rhs)
-// constexpr bool operator!=(const basic_string<CharT, N1, Traits>& lhs, const basic_string<CharT, N2, Traits>& rhs)
+// operator==
+// operator!=
 BOOST_AUTO_TEST_CASE( termcolor2_char_traits_eq_test )
 {
     static_assert(termcolor2::make_string("foo") == termcolor2::make_string("foo"), "");
