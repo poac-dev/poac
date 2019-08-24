@@ -1,7 +1,7 @@
 set(TEST_NAMES
         char_traits
         comparison
-#        concat
+        concat
 #        io
 #        literals
 #        presets
