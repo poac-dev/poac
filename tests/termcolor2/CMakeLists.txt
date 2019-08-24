@@ -4,7 +4,7 @@ set(TEST_NAMES
         concat
         io
         literals
-#        string
+        string
         to_color
 )
 
