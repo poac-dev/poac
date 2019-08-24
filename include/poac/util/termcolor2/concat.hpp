@@ -4,7 +4,6 @@
 #include <cstddef> // std::size_t
 #include <string> // std::char_traits
 #include <utility> // std::forward, std::index_sequence, std::make_index_sequence
-
 #include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
