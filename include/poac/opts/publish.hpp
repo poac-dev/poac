@@ -47,7 +47,7 @@ namespace poac::opts::publish {
         std::string repo;
         semver::Version version;
         std::optional<std::string> description;
-        std::uint16_t cpp_version;
+        std::uint_fast16_t cpp_version;
         std::optional<std::string> license;
         io::lockfile::PackageType package_type;
         std::string local_commit_sha;
@@ -165,7 +165,7 @@ namespace poac::opts::publish {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    verify_cpp_version(const std::uint16_t& cpp_version) {
+    verify_cpp_version(const std::uint_fast16_t& cpp_version) {
         switch (cpp_version) {
             case 98:
                 [[fallthrough]];
@@ -274,7 +274,7 @@ namespace poac::opts::publish {
         }
     }
 
-    std::uint16_t
+    std::uint_fast16_t
     get_cpp_version(const std::optional<io::config::Config>& config) noexcept {
         return config->package.cpp;
     }

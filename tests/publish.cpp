@@ -11,7 +11,7 @@
 #include <poac/opts/publish.hpp>
 #include <poac/config.hpp>
 
-// std::optional<core::except::Error> verify_cpp_version(const std::uint16_t& cpp_version)
+// std::optional<core::except::Error> verify_cpp_version(const std::uint_fast16_t& cpp_version)
 BOOST_AUTO_TEST_CASE( poac_opts_publish_verify_cpp_version_test )
 {
     using poac::opts::publish::verify_cpp_version;
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( poac_opts_publish_get_license_test )
     BOOST_CHECK( get_license("poacpm/api.poac.pm", "master").value() == "MIT License" );
 }
 
-// std::uint16_t get_cpp_version()
+// std::uint_fast16_t get_cpp_version()
 BOOST_AUTO_TEST_CASE( poac_opts_publish_get_cpp_version_test )
 {
     namespace fs = boost::filesystem;
