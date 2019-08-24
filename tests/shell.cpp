@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
     using poac::util::shell;
     {
         shell cmd("echo test");
-        BOOST_CHECK(cmd.exec().value() == "test\n");
+        BOOST_CHECK( cmd.exec().value() == "test\n" );
     }
     {
         shell cmd("nocmd");
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test1 )
     boost::test_tools::output_test_stream output;
     output << cmd;
 
-    BOOST_CHECK( !output.is_empty( false ) );
-    BOOST_CHECK( output.is_equal( "mkdir test && cd test" ) );
+    BOOST_CHECK( !output.is_empty(false) );
+    BOOST_CHECK( output.is_equal("mkdir test && cd test") );
 }
 
 // bool operator==(const shell& rhs)
