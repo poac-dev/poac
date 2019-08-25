@@ -4,6 +4,12 @@
 #include <poac/util/termcolor2/alias.hpp>
 #include <poac/util/termcolor2/comparison.hpp>
 
+#if TERMCOLOR2_STD_VER > 11
+#  define TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11( X ) static_assert( X, #X )
+#else
+#  define TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11( X ) BOOST_CHECK( X )
+#endif
+
 BOOST_AUTO_TEST_CASE( termcolor2_string_test )
 {
     {
@@ -13,9 +19,13 @@ BOOST_AUTO_TEST_CASE( termcolor2_string_test )
         static_assert(str == s, "");
     }
     {
+#if TERMCOLOR2_STD_VER > 11
         constexpr termcolor2::string<3> str({'f', 'o', 'o'});
-        static_assert(str.size() == 3, "");
-        static_assert(str == "foo", "");
+#else
+        const termcolor2::string<3> str({'f', 'o', 'o'});
+#endif
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str.size() == 3);
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str == "foo");
     }
     {
         constexpr termcolor2::string<3> str(3, 'f', 'o', 'o');
@@ -32,9 +42,13 @@ BOOST_AUTO_TEST_CASE( termcolor2_wstring_test )
         static_assert(str == s, "");
     }
     {
+#if TERMCOLOR2_STD_VER > 11
         constexpr termcolor2::wstring<3> str({L'f', L'o', L'o'});
-        static_assert(str.size() == 3, "");
-        static_assert(str == L"foo", "");
+#else
+        const termcolor2::wstring<3> str({L'f', L'o', L'o'});
+#endif
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str.size() == 3);
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str == L"foo");
     }
     {
         constexpr termcolor2::wstring<3> str(3, L'f', L'o', L'o');
@@ -51,9 +65,13 @@ BOOST_AUTO_TEST_CASE( termcolor2_u16string_test )
         static_assert(str == s, "");
     }
     {
+#if TERMCOLOR2_STD_VER > 11
         constexpr termcolor2::u16string<3> str({u'f', u'o', u'o'});
-        static_assert(str.size() == 3, "");
-        static_assert(str == u"foo", "");
+#else
+        const termcolor2::u16string<3> str({u'f', u'o', u'o'});
+#endif
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str.size() == 3);
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str == u"foo");
     }
     {
         constexpr termcolor2::u16string<3> str(3, u'f', u'o', u'o');
@@ -70,9 +88,13 @@ BOOST_AUTO_TEST_CASE( termcolor2_u32string_test )
         static_assert(str == s, "");
     }
     {
+#if TERMCOLOR2_STD_VER > 11
         constexpr termcolor2::u32string<3> str({U'f', U'o', U'o'});
-        static_assert(str.size() == 3, "");
-        static_assert(str == U"foo", "");
+#else
+        const termcolor2::u32string<3> str({U'f', U'o', U'o'});
+#endif
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str.size() == 3);
+        TERMCOLOR2_STATIC_ASSERT_AFTER_CXX11(str == U"foo");
     }
     {
         constexpr termcolor2::u32string<3> str(3, U'f', U'o', U'o');

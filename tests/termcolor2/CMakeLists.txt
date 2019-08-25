@@ -14,7 +14,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 foreach (TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
-    target_compile_features(${TEST_NAME} PRIVATE cxx_std_14)
+    target_compile_features(${TEST_NAME} PRIVATE cxx_std_11)
     target_compile_options(${TEST_NAME} PRIVATE -O0 -Wno-gnu-string-literal-operator-template)
     if (CMAKE_BUILD_TYPE STREQUAL Coverage)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")

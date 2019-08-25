@@ -76,7 +76,7 @@ namespace termcolor2 {
               ) // delegation
         {}
 
-        explicit constexpr basic_string(std::initializer_list<value_type> il)
+        explicit TERMCOLOR2_CXX14_CONSTEXPR basic_string(std::initializer_list<value_type> il)
             : basic_string(
                   termcolor2::make_index_sequence<N>{},
                   il.begin(), 0, il.size()

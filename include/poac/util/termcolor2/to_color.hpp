@@ -3,6 +3,7 @@
 
 #include <cstddef> // std::size_t
 #include <string> // std::basic_string
+#include <utility> // std::forward
 #include <poac/util/termcolor2/presets.hpp>
 #include <poac/util/termcolor2/string.hpp>
 
@@ -14,7 +15,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, gray_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_gray() noexcept
     {
-        return gray_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return gray_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, gray_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -39,7 +40,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, red_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_red() noexcept
     {
-        return red_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return red_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, red_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -64,7 +65,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, green_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_green() noexcept
     {
-        return green_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return green_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, green_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -89,7 +90,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, yellow_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_yellow() noexcept
     {
-        return yellow_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return yellow_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, yellow_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -114,7 +115,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, blue_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_blue() noexcept
     {
-        return blue_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return blue_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, blue_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -139,7 +140,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, magenta_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_magenta() noexcept
     {
-        return magenta_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return magenta_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, magenta_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -164,7 +165,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, cyan_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_cyan() noexcept
     {
-        return cyan_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return cyan_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, cyan_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -189,7 +190,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, white_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_white() noexcept
     {
-        return white_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return white_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, white_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -217,7 +218,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_gray_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_gray() noexcept
     {
-        return on_gray_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_gray_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_gray_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -242,7 +243,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_red_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_red() noexcept
     {
-        return on_red_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_red_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_red_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -267,7 +268,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_green_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_green() noexcept
     {
-        return on_green_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_green_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_green_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -292,7 +293,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_yellow_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_yellow() noexcept
     {
-        return on_yellow_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_yellow_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_yellow_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -317,7 +318,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_blue_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_blue() noexcept
     {
-        return on_blue_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_blue_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_blue_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -342,7 +343,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_magenta_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_magenta() noexcept
     {
-        return on_magenta_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_magenta_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_magenta_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -367,7 +368,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_cyan_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_cyan() noexcept
     {
-        return on_cyan_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_cyan_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_cyan_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -392,7 +393,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, on_white_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_on_white() noexcept
     {
-        return on_white_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return on_white_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, on_white_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -420,7 +421,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, bold_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_bold() noexcept
     {
-        return bold_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return bold_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, bold_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -445,7 +446,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, dark_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_dark() noexcept
     {
-        return dark_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return dark_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, dark_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -470,7 +471,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, underline_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_underline() noexcept
     {
-        return underline_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return underline_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, underline_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -495,7 +496,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, blink_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_blink() noexcept
     {
-        return blink_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return blink_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, blink_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -520,7 +521,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, reverse_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_reverse() noexcept
     {
-        return reverse_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return reverse_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, reverse_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
@@ -545,7 +546,7 @@ namespace termcolor2 {
     constexpr basic_string<CharT, concealed_v<CharT>().size() + N + reset_v<CharT>().size()>
     to_concealed() noexcept
     {
-        return concealed_v<CharT>() + basic_string<CharT, N>({Str...}) + reset_v<CharT>();
+        return concealed_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
     }
     template <typename CharT, std::size_t N>
     constexpr basic_string<CharT, concealed_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
