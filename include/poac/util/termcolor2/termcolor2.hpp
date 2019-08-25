@@ -7,6 +7,7 @@
 #include <poac/util/termcolor2/char_traits.hpp>
 #include <poac/util/termcolor2/comparison.hpp>
 #include <poac/util/termcolor2/concat.hpp>
+#include <poac/util/termcolor2/index_sequence.hpp>
 #include <poac/util/termcolor2/io.hpp>
 #include <poac/util/termcolor2/literals.hpp>
 #include <poac/util/termcolor2/presets.hpp>

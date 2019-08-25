@@ -5,8 +5,9 @@
 #include <algorithm> // std::min
 #include <stdexcept> // std::length_error, std::out_of_range
 #include <iterator> // std::reverse_iterator
-#include <utility> // std::index_sequence, std::make_index_sequence, std::forward
+#include <utility> // std::forward
 #include <poac/util/termcolor2/char_traits.hpp>
+#include <poac/util/termcolor2/index_sequence.hpp>
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N, typename Traits = termcolor2::char_traits<CharT>>
@@ -41,8 +42,8 @@ namespace termcolor2 {
 
         template <typename Str, std::size_t... Indexes>
         constexpr basic_string(
-                std::index_sequence<Indexes...>,
-                const Str& str, size_type pos, size_type n
+            termcolor2::index_sequence<Indexes...>,
+            const Str& str, size_type pos, size_type n
         ) : elems{(
                 Indexes < n
                     ? static_cast<value_type>(str[Indexes + pos])
@@ -57,8 +58,8 @@ namespace termcolor2 {
 
         template <typename... Args, std::size_t... Indexes>
         constexpr basic_string(
-                std::index_sequence<Indexes...>,
-                size_type n, Args&&... args
+            termcolor2::index_sequence<Indexes...>,
+            size_type n, Args&&... args
         ) : elems{(
                 Indexes < n
                     ? static_cast<value_type>(std::forward<Args>(args))
@@ -69,14 +70,14 @@ namespace termcolor2 {
 
         explicit constexpr basic_string(const value_type* s)
             : basic_string(
-                  std::make_index_sequence<N>{},
+                  termcolor2::make_index_sequence<N>{},
                   s, 0, length(s)
               ) // delegation
         {}
 
         explicit constexpr basic_string(std::initializer_list<value_type> il)
             : basic_string(
-                  std::make_index_sequence<N>{},
+                  termcolor2::make_index_sequence<N>{},
                   il.begin(), 0, il.size()
               ) // delegation
         {}
@@ -84,7 +85,7 @@ namespace termcolor2 {
         template <typename... Args, typename = typename std::enable_if<(sizeof...(Args) <= N)>::type>
         explicit constexpr basic_string(size_type n, Args&&... args)
             : basic_string(
-                  std::make_index_sequence<sizeof...(Args)>{},
+                  termcolor2::make_index_sequence<sizeof...(Args)>{},
                   n, std::forward<Args>(args)...
               ) // delegation
         {}
