@@ -10,6 +10,7 @@
 #include <poac/util/termcolor2/index_sequence.hpp>
 #include <poac/util/termcolor2/io.hpp>
 #include <poac/util/termcolor2/literals.hpp>
+#include <poac/util/termcolor2/min.hpp>
 #include <poac/util/termcolor2/presets.hpp>
 #include <poac/util/termcolor2/string.hpp>
 #include <poac/util/termcolor2/to_color.hpp>

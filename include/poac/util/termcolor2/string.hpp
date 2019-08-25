@@ -7,6 +7,7 @@
 #include <iterator> // std::reverse_iterator
 #include <utility> // std::forward
 #include <poac/util/termcolor2/char_traits.hpp>
+#include <poac/util/termcolor2/min.hpp>
 #include <poac/util/termcolor2/index_sequence.hpp>
 
 namespace termcolor2 {
@@ -192,12 +193,12 @@ namespace termcolor2 {
         compare(size_type pos1, size_type n1, const value_type* s, size_type n2) const {
             return size() < pos1
                    ? throw std::out_of_range("termcolor2::basic_string")
-                   : compare_impl(pos1, std::min(n1, size() - pos1), s, n2);
+                   : compare_impl(pos1, termcolor2::min(n1, size() - pos1), s, n2);
         }
     private:
         constexpr int
         compare_impl(size_type pos1, const size_type rlen, const value_type* s, size_type n2) const {
-            return compare_impl(traits_type::compare(data() + pos1, s, std::min(rlen, n2)), rlen, n2);
+            return compare_impl(traits_type::compare(data() + pos1, s, termcolor2::min(rlen, n2)), rlen, n2);
         }
         constexpr int
         compare_impl(const int r, const size_type rlen, size_type n2) const {
