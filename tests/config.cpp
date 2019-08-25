@@ -48,6 +48,7 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_exception_test )
 
     const auto target = toml::find<toml::table>(toml::parse("poac.toml"), "target");
     for (const auto& [key, value] : target) {
+        static_cast<void>(value);
         try {
             poac::util::cfg::parse(key);
         } catch (const poac::util::cfg::exception& e) {
@@ -80,6 +81,7 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_cfg_expr_error_test )
 
     const auto target = toml::find<toml::table>(toml::parse("poac.toml"), "target");
     for (const auto& [key, value] : target) {
+        static_cast<void>(value);
         try {
             poac::util::cfg::parse(key);
         } catch (const poac::util::cfg::expression_error& e) {

@@ -249,6 +249,7 @@ namespace poac::util::cfg {
         std::optional<Token>
         peek() const {
             const auto [diff, token] = tokenize(this->index);
+            static_cast<void>(diff);
             return token;
         }
 

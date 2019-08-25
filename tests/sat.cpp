@@ -50,6 +50,7 @@ BOOST_AUTO_TEST_CASE( poac_core_sat_test3 )
             { 6 }
     };
     const auto [sat_result, vec_result] = sat::solve(clauses, 6);
+    static_cast<void>(vec_result);
 
     BOOST_CHECK( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::completed) );
     BOOST_CHECK( vec_result == std::vector<int>({ 1, 2, 3, -4, 5, 6 }) );
