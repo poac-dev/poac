@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
-#ifndef _MSC_VER
+#ifdef __clang__
 
 #define TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
 #define TERMCOLOR2_NO_WARNING
