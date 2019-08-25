@@ -22,7 +22,7 @@ namespace termcolor2 {
         string_concat(
             const basic_string<T, N, Traits>& lhs, const std::size_t lsize,
             const T& rhs,
-            std::index_sequence<Indexes...>
+            termcolor2::index_sequence<Indexes...>
         ) {
             using access_type = detail::string_construct_access<T, N + 1, Traits>;
             return access_type::raw_construct(
@@ -40,7 +40,7 @@ namespace termcolor2 {
         string_concat(
             const T& lhs,
             const basic_string<T, N, Traits>& rhs, const std::size_t rsize,
-            std::index_sequence<Indexes...>
+            termcolor2::index_sequence<Indexes...>
         ) {
             using access_type = detail::string_construct_access<T, 1 + N, Traits>;
             return access_type::raw_construct(
@@ -58,7 +58,7 @@ namespace termcolor2 {
         string_concat(
             const basic_string<T, N, Traits>& lhs, const std::size_t lsize,
             const T(&rhs)[M], const std::size_t rsize,
-            std::index_sequence<Indexes...>
+            termcolor2::index_sequence<Indexes...>
         ) {
             using access_type = detail::string_construct_access<T, N + (M - 1), Traits>;
             return access_type::raw_construct(
@@ -76,7 +76,7 @@ namespace termcolor2 {
         string_concat(
             const T(&lhs)[M], const std::size_t lsize,
             const basic_string<T, N, Traits>& rhs, const std::size_t rsize,
-            std::index_sequence<Indexes...>
+            termcolor2::index_sequence<Indexes...>
         ) {
             using access_type = detail::string_construct_access<T, (M - 1) + N, Traits>;
             return access_type::raw_construct(
@@ -94,7 +94,7 @@ namespace termcolor2 {
         string_concat(
             const basic_string<T, N1, Traits>& lhs, const std::size_t lsize,
             const basic_string<T, N2, Traits>& rhs, const std::size_t rsize,
-            std::index_sequence<Indexes...>
+            termcolor2::index_sequence<Indexes...>
         ) {
             using access_type = detail::string_construct_access<T, N1 + N2, Traits>;
             return access_type::raw_construct(
@@ -115,7 +115,7 @@ namespace termcolor2 {
         return detail::string_concat(
             lhs, lhs.size(),
             rhs,
-            std::make_index_sequence<N + 1>{}
+            termcolor2::make_index_sequence<N + 1>{}
         );
     }
     template <typename T, std::size_t N, typename Traits>
@@ -124,7 +124,7 @@ namespace termcolor2 {
         return detail::string_concat(
             lhs,
             rhs, rhs.size(),
-            std::make_index_sequence<1 + N>{}
+            termcolor2::make_index_sequence<1 + N>{}
         );
     }
     template <typename T, std::size_t N, typename Traits, std::size_t M>
@@ -133,7 +133,7 @@ namespace termcolor2 {
         return detail::string_concat(
             lhs, lhs.size(),
             rhs, M - 1,
-            std::make_index_sequence<N + (M - 1)>{}
+            termcolor2::make_index_sequence<N + (M - 1)>{}
         );
     }
     template <typename T, std::size_t N, typename Traits, std::size_t M>
@@ -142,7 +142,7 @@ namespace termcolor2 {
         return detail::string_concat(
             lhs, M - 1,
             rhs, rhs.size(),
-            std::make_index_sequence<(M - 1) + N>{}
+            termcolor2::make_index_sequence<(M - 1) + N>{}
         );
     }
     template <typename T, std::size_t N1, std::size_t N2, typename Traits>
@@ -151,7 +151,7 @@ namespace termcolor2 {
         return detail::string_concat(
             lhs, lhs.size(),
             rhs, rhs.size(),
-            std::make_index_sequence<N1 + N2>{}
+            termcolor2::make_index_sequence<N1 + N2>{}
         );
     }
 } // end namespace termcolor2
