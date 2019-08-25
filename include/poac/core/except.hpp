@@ -12,16 +12,13 @@ namespace poac::core::except {
         std::string to_string(const Arg& str) {
             return std::to_string(str);
         }
-
         template<>
         std::string to_string(const std::string& str) {
             return str;
         }
-
         std::string to_string(std::string_view str) {
             return std::string(str);
         }
-
         template<typename CharT, std::size_t N>
         std::string to_string(const CharT(&str)[N]) {
             return str;
@@ -115,6 +112,10 @@ namespace poac::core::except {
                     return "Interrupted by user";
                 case NoStates::InvalidFirstArg:
                     return "Invalid arguments";
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
         std::string
@@ -138,6 +139,10 @@ namespace poac::core::except {
                     return "search";
                 case InvalidSecondArg::Uninstall:
                     return "uninstall";
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
 

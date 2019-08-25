@@ -3,6 +3,7 @@
 
 #include <future>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <regex>
 #include <optional>
@@ -92,6 +93,10 @@ namespace poac::opts::cache {
                 return list(std::move(opts));
             case cache::Options::SubCmd::Clean:
                 return clean(std::move(opts));
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 

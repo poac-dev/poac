@@ -85,6 +85,10 @@ namespace semver {
                     return satisfies_closed_unbounded_interval(version);
                 case IntervalMode::Bounded:
                     return satisfies_bounded_interval(version);
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
 

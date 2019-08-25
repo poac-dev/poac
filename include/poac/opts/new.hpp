@@ -91,6 +91,10 @@ namespace poac::opts::_new {
                 return (os << "binary (application)");
             case ProjectType::Lib:
                 return (os << "library");
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -129,6 +133,10 @@ namespace poac::opts::_new {
                         files::lib::include_hpp(opts.project_name)
                     },
                 };
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
