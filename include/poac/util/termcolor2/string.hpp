@@ -220,10 +220,10 @@ namespace termcolor2 {
         }
     };
 
-    template <typename T, std::size_t N>
-    constexpr basic_string<T, N - 1>
-    make_string(const T(&arr)[N]) {
-        return basic_string<T, N - 1>(arr);
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, N - 1>
+    make_string(const CharT(&arr)[N]) {
+        return basic_string<CharT, N - 1>{arr};
     }
 } // end namespace termcolor2
 
