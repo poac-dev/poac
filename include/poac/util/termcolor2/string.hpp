@@ -98,7 +98,7 @@ namespace termcolor2 {
         c_str() const noexcept {
             return data();
         }
-        constexpr pointer
+        TERMCOLOR2_CXX14_CONSTEXPR pointer
         data() noexcept {
             return elems;
         }
@@ -107,7 +107,7 @@ namespace termcolor2 {
             return elems;
         }
 
-        constexpr iterator
+        TERMCOLOR2_CXX14_CONSTEXPR iterator
         begin() noexcept {
             return data();
         }
@@ -115,7 +115,7 @@ namespace termcolor2 {
         begin() const noexcept {
             return data();
         }
-        constexpr iterator
+        TERMCOLOR2_CXX14_CONSTEXPR iterator
         end() noexcept {
             return data() + size();
         }
@@ -133,33 +133,31 @@ namespace termcolor2 {
             return data() + size();
         }
 
-#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
-        constexpr reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR reverse_iterator
         rbegin() noexcept {
             return const_reverse_iterator(end());
         }
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         rbegin() const noexcept {
             return const_reverse_iterator(end());
         }
-        constexpr reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR reverse_iterator
         rend() noexcept {
             return const_reverse_iterator(begin());
         }
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         rend() const noexcept {
             return const_reverse_iterator(begin());
         }
 
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         crbegin() const noexcept {
             return const_reverse_iterator(end());
         }
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         crend() const noexcept {
             return const_reverse_iterator(begin());
         }
-#endif
 
         constexpr size_type
         size() const noexcept {
@@ -195,7 +193,6 @@ namespace termcolor2 {
                    ? throw std::out_of_range("termcolor2::basic_string")
                    : compare_impl(pos1, std::min(n1, size() - pos1), s, n2);
         }
-
     private:
         constexpr int
         compare_impl(size_type pos1, const size_type rlen, const value_type* s, size_type n2) const {
@@ -213,7 +210,7 @@ namespace termcolor2 {
         }
 
     public:
-        constexpr reference
+        TERMCOLOR2_CXX14_CONSTEXPR reference
         operator[](size_type i) {
             return elems[i];
         }
