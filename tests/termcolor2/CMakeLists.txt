@@ -5,6 +5,7 @@ set(TEST_NAMES
         gnu_literals
         io
         literals
+        min
         string
         to_color
 )
