@@ -44,7 +44,7 @@ namespace termcolor2 {
                      ? -1
                      : lt(*s2, *s1)
                        ? 1
-                       : compare(++s1, ++s2, --n)
+                       : compare(s1 + 1, s2 + 1, n - 1)
                     ;
         }
 
@@ -57,7 +57,7 @@ namespace termcolor2 {
         static constexpr std::size_t
         length_impl(const char_type* s, std::size_t len) {
             return !eq(*s, char_type(0))
-                   ? length_impl(++s, ++len)
+                   ? length_impl(s + 1, len + 1)
                    : len;
         }
 
@@ -68,7 +68,7 @@ namespace termcolor2 {
                    ? 0
                    : eq(*s, a)
                      ? s
-                     : find(++s, --n, a)
+                     : find(s + 1, n - 1, a)
                     ;
         }
 
