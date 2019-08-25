@@ -81,7 +81,7 @@ namespace termcolor2 {
               ) // delegation
         {}
 
-        template <typename... Args, typename = typename std::enable_if_t<(sizeof...(Args) <= N)>>
+        template <typename... Args, typename = typename std::enable_if<(sizeof...(Args) <= N)>::type>
         explicit constexpr basic_string(size_type n, Args&&... args)
             : basic_string(
                   std::make_index_sequence<sizeof...(Args)>{},
