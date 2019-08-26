@@ -16,27 +16,26 @@
 #include <poac/util/clap/clap.hpp>
 
 namespace poac::core::cli {
-    std::vector<clap::subcommand> builtin() {
-        return {
-            opts::build::cli,
-            opts::cache::cli,
-            opts::clean::cli,
-            opts::graph::cli,
-            opts::help::cli,
-            opts::init::cli,
-            opts::install::cli,
-            opts::_new::cli,
-            opts::publish::cli,
-            opts::run::cli,
-            opts::search::cli,
-            opts::test::cli,
-            opts::uninstall::cli,
-            opts::update::cli,
-            opts::version::cli,
-        };
-    }
+    inline std::vector<clap::subcommand>
+    builtin{
+        opts::build::cli,
+        opts::cache::cli,
+        opts::clean::cli,
+        opts::graph::cli,
+        opts::help::cli,
+        opts::init::cli,
+        opts::install::cli,
+        opts::_new::cli,
+        opts::publish::cli,
+        opts::run::cli,
+        opts::search::cli,
+        opts::test::cli,
+        opts::uninstall::cli,
+        opts::update::cli,
+        opts::version::cli,
+    };
 
-    const clap::app cli =
+    inline const clap::app cli =
             clap::app("poac")
                 .version(POAC_VERSION)
                 .arg(clap::opt("version", "Print version info and exit").short_("V"))
@@ -51,7 +50,7 @@ namespace poac::core::cli {
                     .global(true)
                 )
                 .arg(clap::opt("quiet", "No output printed to stdout").short_("q"))
-                .subcommands(cli::builtin())
+                .subcommands(cli::builtin)
 //                .fooks(cli::builtin_exec())
             ;
 
@@ -60,7 +59,7 @@ namespace poac::core::cli {
     using ret_type = std::optional<except::Error>;
     using fn_type = std::function<ret_type(arg1_type, arg2_type)>;
 
-    const std::unordered_map<std::string_view, fn_type>
+    inline const std::unordered_map<std::string_view, fn_type>
     opts_map{
         { "build",     opts::build::exec },
         { "cache",     opts::cache::exec },
