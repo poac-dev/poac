@@ -203,8 +203,8 @@ namespace semver::parser {
             if (str[start] != '0' && !is_alphabet(this->one())) {
                 // e.g. 3425
                 std::string_view sub = str.substr(start, this->c1_index - start);
-                std::uint_fast64_t value = str_to_uint(sub).value();
-                return Token{ Token::Numeric, static_cast<std::size_t>(value) };
+                const std::uint_fast64_t value = str_to_uint(sub).value();
+                return Token{ Token::Numeric, value };
             }
 
             // e.g. 3425dec

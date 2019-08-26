@@ -45,3 +45,4 @@ endforeach ()
 
 add_subdirectory(semver)
 add_subdirectory(support)
+add_subdirectory(termcolor2)
