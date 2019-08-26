@@ -20,11 +20,12 @@
 #if BOOST_OS_WINDOWS
 #  define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
 #endif
-#include <boost/asio.hpp>
-#if BOOST_OS_WINDOWS
-#  include <windows.h>
-#endif
 
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/beast/http.hpp>
@@ -34,6 +35,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+
+#if BOOST_OS_WINDOWS
+#  include <windows.h>
+#endif
 
 #include <poac/core/except.hpp>
 #include <poac/io/filesystem.hpp>
