@@ -37,19 +37,19 @@ namespace poac::util::pretty {
     std::pair<float, std::string>
     to_byte(const float b) {
         // 1024
-        const float kb = b / 1000;
+        const float kb = b / 1000.0f;
         if (kb < 1) {
             return { b, "B" };
         }
-        const float mb = kb / 1000;
+        const float mb = kb / 1000.0f;
         if (mb < 1) {
             return { kb, "KB" };
         }
-        const float gb = mb / 1000;
+        const float gb = mb / 1000.0f;
         if (gb < 1) {
             return { mb, "MB" };
         }
-        const float tb = gb / 1000;
+        const float tb = gb / 1000.0f;
         if (tb < 1) {
             return { gb, "GB" };
         }
