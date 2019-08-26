@@ -178,7 +178,7 @@ namespace poac::util::cfg {
         operator<<(std::ostream& os, const Token& token);
     };
 
-    std::string to_string(Token::ident ident) noexcept {
+    std::string to_string(Token::ident ident) {
         switch (ident) {
             case Token::ident::cfg:
                 return "cfg";

@@ -176,6 +176,7 @@ BOOST_AUTO_TEST_CASE( poac_core_unsat_test1 )
             { 3 }
     };
     const auto [sat_result, vec_result] = sat::solve(clauses, 5);
+    static_cast<void>(vec_result);
 
     BOOST_CHECK( static_cast<int>(sat_result) == static_cast<int>(sat::Sat::normal) );
 }

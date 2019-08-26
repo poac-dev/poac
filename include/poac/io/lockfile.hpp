@@ -22,7 +22,7 @@ namespace poac::io::lockfile {
     };
 
     std::string
-    to_string(PackageType package_type) noexcept {
+    to_string(PackageType package_type) {
         switch (package_type) {
             case PackageType::HeaderOnlyLib:
                 return "header-only library";

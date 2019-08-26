@@ -46,7 +46,6 @@ namespace poac::core::except {
                       (... + detail::to_string(s))
                   ) // delegation
             {}
-
             virtual ~General() noexcept = default;
 
             virtual std::string what() const {
@@ -106,7 +105,7 @@ namespace poac::core::except {
             return s.what();
         }
         std::string
-        what(NoStates err) const noexcept {
+        what(NoStates err) const {
             switch (err) {
                 case NoStates::InterruptedByUser:
                     return "Interrupted by user";
@@ -119,7 +118,7 @@ namespace poac::core::except {
             }
         }
         std::string
-        what(InvalidSecondArg err) const noexcept {
+        what(InvalidSecondArg err) const {
             switch (err) {
                 case InvalidSecondArg::Build:
                     return "build";
