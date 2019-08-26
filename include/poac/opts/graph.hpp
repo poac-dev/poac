@@ -143,6 +143,7 @@ namespace poac::opts::graph {
     [[nodiscard]] std::optional<core::except::Error>
     console_output(std::future<std::optional<io::config::Config>>&& config) {
         const auto [g, names] = create_graph(std::move(config));
+        static_cast<void>(names); // error: unused variable
         for (auto [itr, end] = edges(g); itr != end; ++itr) {
             std::cout << boost::get(&Vertex::name, g)[source(*itr, g)] << " -> "
                       << boost::get(&Vertex::name, g)[target(*itr, g)] << '\n';

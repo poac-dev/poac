@@ -5,9 +5,10 @@
 #include <algorithm> // std::min
 #include <stdexcept> // std::length_error, std::out_of_range
 #include <iterator> // std::reverse_iterator
-#include <utility> // std::index_sequence, std::make_index_sequence, std::forward
-
+#include <utility> // std::forward
 #include <poac/util/termcolor2/char_traits.hpp>
+#include <poac/util/termcolor2/min.hpp>
+#include <poac/util/termcolor2/index_sequence.hpp>
 
 namespace termcolor2 {
     template <typename CharT, std::size_t N, typename Traits = termcolor2::char_traits<CharT>>
@@ -42,8 +43,8 @@ namespace termcolor2 {
 
         template <typename Str, std::size_t... Indexes>
         constexpr basic_string(
-                std::index_sequence<Indexes...>,
-                const Str& str, size_type pos, size_type n
+            termcolor2::index_sequence<Indexes...>,
+            const Str& str, size_type pos, size_type n
         ) : elems{(
                 Indexes < n
                     ? static_cast<value_type>(str[Indexes + pos])
@@ -58,8 +59,8 @@ namespace termcolor2 {
 
         template <typename... Args, std::size_t... Indexes>
         constexpr basic_string(
-                std::index_sequence<Indexes...>,
-                size_type n, Args&&... args
+            termcolor2::index_sequence<Indexes...>,
+            size_type n, Args&&... args
         ) : elems{(
                 Indexes < n
                     ? static_cast<value_type>(std::forward<Args>(args))
@@ -70,22 +71,22 @@ namespace termcolor2 {
 
         explicit constexpr basic_string(const value_type* s)
             : basic_string(
-                  std::make_index_sequence<N>{},
+                  termcolor2::make_index_sequence<N>{},
                   s, 0, length(s)
               ) // delegation
         {}
 
-        explicit constexpr basic_string(std::initializer_list<value_type> il)
+        explicit TERMCOLOR2_CXX14_CONSTEXPR basic_string(std::initializer_list<value_type> il)
             : basic_string(
-                  std::make_index_sequence<N>{},
+                  termcolor2::make_index_sequence<N>{},
                   il.begin(), 0, il.size()
               ) // delegation
         {}
 
-        template <typename... Args, typename = typename std::enable_if_t<(sizeof...(Args) <= N)>>
+        template <typename... Args, typename = typename std::enable_if<(sizeof...(Args) <= N)>::type>
         explicit constexpr basic_string(size_type n, Args&&... args)
             : basic_string(
-                  std::make_index_sequence<sizeof...(Args)>{},
+                  termcolor2::make_index_sequence<sizeof...(Args)>{},
                   n, std::forward<Args>(args)...
               ) // delegation
         {}
@@ -99,7 +100,7 @@ namespace termcolor2 {
         c_str() const noexcept {
             return data();
         }
-        constexpr pointer
+        TERMCOLOR2_CXX14_CONSTEXPR pointer
         data() noexcept {
             return elems;
         }
@@ -108,7 +109,7 @@ namespace termcolor2 {
             return elems;
         }
 
-        constexpr iterator
+        TERMCOLOR2_CXX14_CONSTEXPR iterator
         begin() noexcept {
             return data();
         }
@@ -116,7 +117,7 @@ namespace termcolor2 {
         begin() const noexcept {
             return data();
         }
-        constexpr iterator
+        TERMCOLOR2_CXX14_CONSTEXPR iterator
         end() noexcept {
             return data() + size();
         }
@@ -134,33 +135,31 @@ namespace termcolor2 {
             return data() + size();
         }
 
-#ifdef TERMCOLOR2_CHAR_TRAITS_AFTER_CXX14
-        constexpr reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR reverse_iterator
         rbegin() noexcept {
             return const_reverse_iterator(end());
         }
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         rbegin() const noexcept {
             return const_reverse_iterator(end());
         }
-        constexpr reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR reverse_iterator
         rend() noexcept {
             return const_reverse_iterator(begin());
         }
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         rend() const noexcept {
             return const_reverse_iterator(begin());
         }
 
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         crbegin() const noexcept {
             return const_reverse_iterator(end());
         }
-        constexpr const_reverse_iterator
+        TERMCOLOR2_CXX14_CONSTEXPR const_reverse_iterator
         crend() const noexcept {
             return const_reverse_iterator(begin());
         }
-#endif
 
         constexpr size_type
         size() const noexcept {
@@ -173,21 +172,11 @@ namespace termcolor2 {
 
         constexpr size_type
         length(const value_type* str) const noexcept {
-#if defined(__clang__) && !defined(__APPLE__)
-            // Clang(does not contain Apple Clang):
-            //   non-constexpr function 'wcslen' cannot be used in a constant expression
-            if constexpr (std::is_same_v<value_type, wchar_t>) {
-                size_type _len = 0;
-                for (; !traits_type::eq(*str, value_type(0)); ++str, ++_len);
-                return _len;
-            }
-#endif
             return traits_type::length(str);
         }
 
         [[nodiscard]] constexpr bool
-        empty() const noexcept
-        {
+        empty() const noexcept {
             return size() == 0;
         }
 
@@ -202,23 +191,28 @@ namespace termcolor2 {
         }
         constexpr int
         compare(size_type pos1, size_type n1, const value_type* s, size_type n2) const {
-            if (size() < pos1) {
-                throw std::out_of_range("termcolor2::basic_string");
-            }
-            constexpr size_type rlen = std::min(n1, size() - pos1);
-            constexpr int r = traits_type::compare(data() + pos1, s, std::min(rlen, n2));
-            if (r == 0) {
-                if (rlen < n2) {
-                    return -1;
-                }
-                else if (rlen > n2) {
-                    return 1;
-                }
-            }
-            return r;
+            return size() < pos1
+                   ? throw std::out_of_range("termcolor2::basic_string")
+                   : compare_impl(pos1, termcolor2::min(n1, size() - pos1), s, n2);
+        }
+    private:
+        constexpr int
+        compare_impl(size_type pos1, const size_type rlen, const value_type* s, size_type n2) const {
+            return compare_impl(traits_type::compare(data() + pos1, s, termcolor2::min(rlen, n2)), rlen, n2);
+        }
+        constexpr int
+        compare_impl(const int r, const size_type rlen, size_type n2) const {
+            return r == 0
+                   ? rlen < n2
+                     ? -1
+                     : rlen > n2
+                       ? 1
+                       : r
+                   : r;
         }
 
-        constexpr reference
+    public:
+        TERMCOLOR2_CXX14_CONSTEXPR reference
         operator[](size_type i) {
             return elems[i];
         }
@@ -228,10 +222,10 @@ namespace termcolor2 {
         }
     };
 
-    template <typename T, std::size_t N>
-    constexpr basic_string<T, N - 1>
-    make_string(const T(&arr)[N]) {
-        return basic_string<T, N - 1>(arr);
+    template <typename CharT, std::size_t N>
+    constexpr basic_string<CharT, N - 1>
+    make_string(const CharT(&arr)[N]) {
+        return basic_string<CharT, N - 1>{arr};
     }
 } // end namespace termcolor2
 
