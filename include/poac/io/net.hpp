@@ -17,16 +17,14 @@
 #include <boost/asio.hpp>
 
 // https://stackoverflow.com/questions/9750344/boostasio-winsock-and-winsock-2-compatibility-issue
-// https://blog.csdn.net/qq1987924/article/details/9091307
 #if BOOST_OS_WINDOWS
-#  define WIN32_LEAN_AND_MEAN
+#  define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
+#endif
+#include <boost/asio.hpp>
+#if BOOST_OS_WINDOWS
 #  include <windows.h>
 #endif
 
-#include <boost/asio/ssl.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/beast/http.hpp>
