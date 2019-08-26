@@ -24,7 +24,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::update {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("update")
                 .about("Update a package")
                 .arg(clap::opt("outside", "Update a outside package"))

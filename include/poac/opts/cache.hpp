@@ -18,7 +18,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::cache {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("cache")
                 .about("Manipulate cache files")
                 .arg(clap::opt("all", "Manipulate all caches").short_("a"))

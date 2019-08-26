@@ -19,7 +19,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::search {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("search")
                 .about("Search for packages in poac.pm")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))

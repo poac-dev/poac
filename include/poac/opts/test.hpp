@@ -22,7 +22,7 @@
 //    - "--log_level=test_suite" -> testのオプションとして引き受ける
 
 namespace poac::opts::test {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("test")
                 .about("Run the tests")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))

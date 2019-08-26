@@ -18,7 +18,7 @@
 #include <poac/opts/uninstall.hpp>
 
 namespace poac::opts::clean {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("clean")
                 .about("Delete unnecessary things")
             ;

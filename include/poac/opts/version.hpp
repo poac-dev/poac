@@ -11,7 +11,7 @@
 #include <poac/io/config.hpp>
 
 namespace poac::opts::version {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("update")
                 .about("Show the current poac version")
             ;
