@@ -6,6 +6,7 @@ cache:
   - C:\Libraries\toml11-3.0.1
   - '%CYG_ROOT%\var\cache\setup'
 
+
 configuration:
   - Debug
   - Release
