@@ -13,7 +13,7 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 namespace poac::core::resolver::sat {
-    enum class Sat : int {
+    enum class Sat {
         satisfied, // found a satisfying assignment
         unsatisfied, // found no satisfying assignment
         normal, // 正常終了・未解決
@@ -27,8 +27,7 @@ namespace poac::core::resolver::sat {
             const int literal = l.index() + 1;
             if (l.value() != -1) {
                 assignments.emplace_back((l.value() % 2 == 0 ? 1 : -1) * literal);
-            }
-            else { // for literals that can take either value, arbitrarily assign them to be true
+            } else { // for literals that can take either value, arbitrarily assign them to be true
                 assignments.emplace_back(literal);
             }
         }
@@ -37,9 +36,9 @@ namespace poac::core::resolver::sat {
 
     // the difference in number of occurrences
     template <
-            template <class T, class=std::allocator<T>> typename TwoDim,
-            template <class T, class=std::allocator<T>> typename OneDim,
-            typename T, typename U
+        template <class T, class=std::allocator<T>> typename TwoDim,
+        template <class T, class=std::allocator<T>> typename OneDim,
+        typename T, typename U
     >
     T calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) {
         T acc = 0;
