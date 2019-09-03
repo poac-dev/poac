@@ -8,7 +8,7 @@
 #include <regex>
 #include <algorithm>
 
-#include <poac/core/except.hpp>
+#include <poac/util/semver/exception.hpp>
 
 namespace semver {
     // The following Regular Expressions can be used for tokenizing,
@@ -120,7 +120,7 @@ namespace semver {
                 apply_version(match);
             }
             else {
-                throw poac::core::except::error("Invalid version");
+                throw version_error("Invalid version");
             }
         }
 
