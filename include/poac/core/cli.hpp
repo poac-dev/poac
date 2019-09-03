@@ -86,7 +86,7 @@ namespace poac::core::cli {
     exec(std::string_view cmd, std::vector<std::string>&& args) {
         try {
             opts_map.at(cmd);
-        } catch(std::out_of_range&) {
+        } catch (std::out_of_range&) {
             return except::Error::InvalidFirstArg;
         }
         return opts_map.at(cmd)(
