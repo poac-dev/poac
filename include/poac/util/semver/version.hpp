@@ -117,8 +117,9 @@ namespace semver {
                 apply_version(match);
             } else if (std::regex_match(version, match, std::regex(COERCE))) {
                 apply_version(match);
+            } else {
+                throw version_error("Invalid version");
             }
-            throw version_error("Invalid version");
         }
 
         std::string get_version() const {
