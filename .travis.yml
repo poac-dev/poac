@@ -59,7 +59,7 @@ matrix:
       install: brew install llvm@7
     # macOS Mojave
     - os: osx
-      osx_image: xcode11
+      osx_image: xcode11.2
       if: branch != coverity_scan
       after_success:
         - pip3 install cpp-coveralls
