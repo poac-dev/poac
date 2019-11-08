@@ -30,7 +30,7 @@ addons:
     update: true
     packages:
       - libgit2
-      - matken11235/toml11/toml11
+#      - matken11235/toml11/toml11
 
 matrix:
   include:
@@ -67,6 +67,7 @@ matrix:
         - bash <(curl -s https://codecov.io/bash)
 
 script:
+  - travis_wait 30 brew install matken11235/toml11/toml11
   - mkdir build
   - cd build
   - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
