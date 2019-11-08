@@ -51,7 +51,7 @@ matrix:
     - os: osx
       osx_image: xcode9.2
       if: branch != coverity_scan
-      install: brew install llvm@7
+      install: travis_wait 30 brew install llvm@7
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
@@ -61,6 +61,7 @@ matrix:
     - os: osx
       osx_image: xcode11.2
       if: branch != coverity_scan
+      install: brew install openssl
       after_success:
         - pip3 install cpp-coveralls
         - coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
