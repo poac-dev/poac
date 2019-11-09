@@ -51,7 +51,7 @@ matrix:
     - os: osx
       osx_image: xcode9.2
       if: branch != coverity_scan
-      install: travis_wait 60 brew install llvm@7
+      install: brew install --ignore-dependencies llvm@7
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
