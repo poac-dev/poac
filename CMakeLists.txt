@@ -35,6 +35,8 @@ if (APPLE)
         COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
         OUTPUT_VARIABLE MACOS_VERSION
     )
+else ()
+    set(MACOS_VERSION 0)
 endif ()
 
 #set(Boost_DEBUG on)
@@ -45,8 +47,9 @@ if (MSVC OR (APPLE AND (NOT (${MACOS_VERSION} LESS 14))))
 else ()
     set(BOOST_SEARCH_COMPONENTS system filesystem)
 endif ()
-
 find_package(Boost 1.66.0 REQUIRED COMPONENTS ${BOOST_SEARCH_COMPONENTS})
+unset(BOOST_SEARCH_COMPONENTS)
+
 if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Could not find boost.")
 endif ()
