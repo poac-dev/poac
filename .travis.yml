@@ -29,8 +29,9 @@ addons:
   homebrew:
     update: true
     packages:
+      - openssl
       - libgit2
-#      - matken11235/toml11/toml11
+      - matken11235/toml11/toml11
 
 matrix:
   include:
@@ -47,11 +48,6 @@ matrix:
         - sudo make install
         - popd && rm -rf toml11
       script: echo
-    # macOS Sierra
-    - os: osx
-      osx_image: xcode9.2
-      if: branch != coverity_scan
-      install: brew install --ignore-dependencies llvm@7
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
@@ -61,14 +57,12 @@ matrix:
     - os: osx
       osx_image: xcode11.2
       if: branch != coverity_scan
-      install: brew install openssl
       after_success:
         - pip3 install cpp-coveralls
         - coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
         - bash <(curl -s https://codecov.io/bash)
 
 script:
-  - travis_wait 30 brew install matken11235/toml11/toml11
   - mkdir build
   - cd build
   - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
