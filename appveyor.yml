@@ -17,7 +17,7 @@ environment:
   global:
     CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,libboost-devel,libgit2-devel
     LIBGIT2_VERSION: 0.28.2
-    TOML11_VERSION: 3.0.1
+    TOML11_VERSION: 3.1.0
 
   matrix:
     - COMPILER: cygwin-gcc
