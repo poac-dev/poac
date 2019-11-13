@@ -24,6 +24,7 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 ## Code Status
 
 * GitHub:
+[![GitHub Actions](https://github.com/poacpm/poac/workflows/C%2FC%2B%2B%20CI/badge.svg)](https://github.com/poacpm/poac/actions?query=workflow%3A%22C%2FC%2B%2B+CI%22)
 [![GitHub Release Version](https://img.shields.io/github/release/poacpm/poac.svg?style=flat)](https://github.com/poacpm/poac/releases)
 [![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)](https://github.com/poacpm/poac/releases)
 [![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
