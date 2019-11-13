@@ -1,0 +1,21 @@
+name: C/C++ CI
+
+on: [push, pull_request]
+
+jobs:
+  macOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install libgit2
+        run: brew install libgit2
+      - name: Install toml11
+        run: brew install matken11235/toml11/toml11
+      - name: Build and Test
+        run: |
+          mkdir build
+          cd build
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          make install
+          ctest --output-on-failure --verbose
+          poac help
