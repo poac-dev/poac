@@ -511,7 +511,7 @@ namespace poac::io::net {
                                 "GitHub ", pt.get<std::string>("message"), "\n"
                                 "Please create a personal access token:\n"
                                 "    https://github.com/settings/tokens/new?scopes=&description=Poac\n"
-                                "and then set the token:\n"
+                                "and then check public_repo, set the token:\n"
                                 "    export POAC_GITHUB_API_TOKEN=$YOUR_TOKEN");
                     }
                     throw error;
