@@ -19,3 +19,5 @@ jobs:
           make install
           ctest --output-on-failure --verbose
           poac help
+        env:
+          POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
