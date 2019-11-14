@@ -24,7 +24,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::update {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("update")
                 .about("Update a package")
                 .arg(clap::opt("outside", "Update a outside package"))
@@ -107,6 +107,7 @@ namespace poac::opts::update {
 
         // Delete current version
         for (const auto& [name, dep] : update_deps) {
+            static_cast<void>(dep);
             const std::string current_name = core::name::to_current(name);
             io::filesystem::remove_all("deps"_path / current_name);
         }

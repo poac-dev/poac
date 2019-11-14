@@ -17,26 +17,26 @@
 
 namespace poac::io::term {
     // Clear screen
-    constexpr auto clr_screen = termcolor2::make_string("\x1b[2J");
+    inline constexpr auto clr_screen = termcolor2::make_string("\x1b[2J");
     // Clear from the cursor position to the right end
-    constexpr auto clr_right = termcolor2::make_string("\x1b[0K");
+    inline constexpr auto clr_right = termcolor2::make_string("\x1b[0K");
     // Clear from the cursor position to the left end
-    constexpr auto clr_left = termcolor2::make_string("\x1b[1K");
+    inline constexpr auto clr_left = termcolor2::make_string("\x1b[1K");
     // Clear the line at the cursor position
-    constexpr auto clr_line = termcolor2::make_string("\x1b[2K");
+    inline constexpr auto clr_line = termcolor2::make_string("\x1b[2K");
 
     inline void set_left(const int n) {
         std::cout << std::setw(n) << std::left;
     }
 
-    constexpr auto status = termcolor2::bold + termcolor2::green + "==> " + termcolor2::reset;
-    constexpr auto fetched = termcolor2::to_green("  ●  ");
-    constexpr auto fetch_failed = termcolor2::to_red("  ●  ");
+    inline constexpr auto status = termcolor2::bold + termcolor2::green + "==> " + termcolor2::reset;
+    inline constexpr auto fetched = termcolor2::to_green("  ●  ");
+    inline constexpr auto fetch_failed = termcolor2::to_red("  ●  ");
 
-    constexpr auto warning = termcolor2::to_yellow("WARN: ");
-    constexpr auto error = termcolor2::to_red("ERROR: ");
-    constexpr auto info = termcolor2::to_blue("info: ");
-    constexpr auto debug_m = termcolor2::to_gray("[debug] ");
+    inline constexpr auto warning = termcolor2::to_yellow("WARN: ");
+    inline constexpr auto error = termcolor2::to_red("ERROR: ");
+    inline constexpr auto info = termcolor2::to_blue("info: ");
+    inline constexpr auto debug_m = termcolor2::to_gray("[debug] ");
 
     inline void status_done() {
         std::cout << status << "Done." << std::endl;
@@ -66,7 +66,7 @@ namespace poac::io::term {
     }
 
     template <typename CharT = char>
-    constexpr auto bold_green = termcolor2::bold_v<CharT>() + termcolor2::green_v<CharT>();
+    inline constexpr auto bold_green = termcolor2::bold_v<CharT>() + termcolor2::green_v<CharT>();
 
     inline std::ostream&
     compiling(std::ostream& os) {
