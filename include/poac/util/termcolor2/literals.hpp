@@ -677,7 +677,6 @@ inline namespace attribute_literals {
 
 
 inline namespace control_literals {
-
 } // end namespace control_literals
 } // end namespace color_literals
 } // end namespace termcolor2
