@@ -115,11 +115,9 @@ namespace semver {
             std::smatch match;
             if (std::regex_match(version, match, std::regex(FULL))) {
                 apply_version(match);
-            }
-            else if (std::regex_match(version, match, std::regex(COERCE))) {
+            } else if (std::regex_match(version, match, std::regex(COERCE))) {
                 apply_version(match);
-            }
-            else {
+            } else {
                 throw version_error("Invalid version");
             }
         }
