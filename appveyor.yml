@@ -116,7 +116,6 @@ build_script:
         mkdir build && cd build &&
         cmake -Dpoac_BUILD_TEST=ON .. &&
         make install &&
-        ctest --output-on-failure --verbose &&
         poac help"
     ) else (
       mkdir build && cd build &&
