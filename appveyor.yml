@@ -1,9 +1,9 @@
 version: "#{build}"
 
 cache:
-  - C:\Libraries\boost-1.69.0
-  - C:\Libraries\libgit2-0.28.2
-  - C:\Libraries\toml11-3.0.1
+  - '%BOOST_BUILT_PATH%'
+  - 'C:\Libraries\libgit2-%LIBGIT2_VERSION%'
+  - 'C:\Libraries\toml11-%TOML11_VERSION%'
   - '%CYG_ROOT%\var\cache\setup'
 
 configuration:
@@ -16,12 +16,13 @@ build:
 environment:
   global:
     CYG_PACKAGES: gcc-g++,git,make,cmake,libssl-devel,libboost-devel,libgit2-devel
+    LIBGIT2_VERSION: 0.28.2
+    TOML11_VERSION: 3.1.0
 
   matrix:
     - COMPILER: cygwin-gcc
       CYG_ROOT: 'C:\cygwin'
       CYG_SETUP: setup-x86.exe
-
     - COMPILER: cygwin-gcc
       CYG_ROOT: 'C:\cygwin64'
       CYG_SETUP: setup-x86_64.exe
@@ -29,20 +30,39 @@ environment:
     - COMPILER: gcc  # gcc-7.3.0-posix
       GENERATOR: "MinGW Makefiles"
       CXX_PATH: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
-
+      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
     - COMPILER: gcc  # gcc-8.1.0-posix
       GENERATOR: "MinGW Makefiles"
       CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
+      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
 
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       PLATFORM: x86
-
+      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       PLATFORM: x64
+      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
+
+    - COMPILER: msvc
+      GENERATOR: "Visual Studio 16 2019"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PLATFORM: x86
+      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_71_0'
+      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.71.0'
+    - COMPILER: msvc
+      GENERATOR: "Visual Studio 16 2019"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PLATFORM: x64
+      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_71_0'
+      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.71.0'
 
 install:
   - if %COMPILER% == cygwin-gcc (
@@ -51,7 +71,7 @@ install:
         --local-package-dir "%CYG_ROOT%\var\cache\setup" ^
         --packages %CYG_PACKAGES% &&
       %CYG_ROOT%\bin\bash -lc
-        "git clone -q -b v3.0.1 https://github.com/ToruNiina/toml11.git &&
+        "git clone -q -b v%TOML11_VERSION% https://github.com/ToruNiina/toml11.git &&
         mkdir toml11/build && cd toml11/build &&
         cmake .. -Dtoml11_BUILD_TEST=OFF &&
         make install"
@@ -66,24 +86,22 @@ install:
           $env:path += ";$env:cxx_path"
         }
       }
-  - if not %COMPILER% == cygwin-gcc if not exist C:\Libraries\boost-1.69.0 (
-      pushd C:\Libraries\boost_1_69_0 &&
-      mkdir C:\Libraries\boost-1.69.0 &&
-      bootstrap.bat &&
-      b2.exe install ^
+  - if not %COMPILER% == cygwin-gcc if not exist %BOOST_BUILT_PATH% (
+      pushd %BOOST_DEFAULT_PATH% && mkdir %BOOST_BUILT_PATH% &&
+      bootstrap.bat && b2.exe install ^
         toolset=%COMPILER% ^
         variant=%CONFIG_LOWER% ^
         runtime-link=static ^
-        -j2 --prefix=C:\Libraries\boost-1.69.0 &&
+        -j2 --prefix=%BOOST_BUILT_PATH% &&
       popd &&
-      dir C:\Libraries\boost-1.69.0\include &&
-      dir C:\Libraries\boost-1.69.0\lib
+      dir %BOOST_BUILT_PATH%\include &&
+      dir %BOOST_BUILT_PATH%\lib
     )
   - ps: |
       if ($env:generator -eq "MinGW Makefiles") {
-        Get-ChildItem C:\Libraries\boost-1.69.0\lib |
+        Get-ChildItem "$($env:BOOST_BUILT_PATH)\lib" |
           Rename-Item -NewName { $_.name -replace '-x64','' }
-        Get-ChildItem C:\Libraries\boost-1.69.0\lib
+        Get-ChildItem "$($env:BOOST_BUILT_PATH)\lib"
       }
 
   # Install libgit2 and toml11
@@ -96,8 +114,8 @@ install:
         }
       }
       $env:GIT_REDIRECT_STDERR = '2>&1'
-      @(@{ owner="libgit2"  ; repo="libgit2"; version="0.28.2"; opts="" },
-        @{ owner="ToruNiina"; repo="toml11" ; version="3.0.1" ; opts="-Dtoml11_BUILD_TEST=OFF" }
+      @(@{ owner="libgit2"; repo="libgit2"; version="$env:LIBGIT2_VERSION"; opts="" },
+        @{ owner="ToruNiina"; repo="toml11"; version="$env:TOML11_VERSION"; opts="-Dtoml11_BUILD_TEST=OFF" }
       ) | foreach {
         $library_path = "C:\Libraries\$($_.repo)-$($_.version)"
         if ("$env:compiler" -ne "cygwin-gcc" -and !(Test-Path "$library_path")) {
@@ -123,10 +141,10 @@ build_script:
         -DENABLE_STATIC=ON ^
         -DBoost_USE_STATIC_LIBS=ON ^
         -DBoost_USE_STATIC_RUNTIME=ON ^
-        -DBOOST_ROOT=C:\Libraries\boost-1.69.0 ^
-        -DBOOST_LIBRARYDIR=C:\Libraries\boost-1.69.0\lib ^
-        -DGIT2_DIR=C:\Libraries\libgit2-0.28.2 ^
-        -DTOML11_DIR=C:\Libraries\toml11-3.0.1 &&
+        -DBOOST_ROOT=%BOOST_BUILT_PATH% ^
+        -DBOOST_LIBRARYDIR=%BOOST_BUILT_PATH%\lib ^
+        -DGIT2_DIR=C:\Libraries\libgit2-%LIBGIT2_VERSION% ^
+        -DTOML11_DIR=C:\Libraries\toml11-%TOML11_VERSION% &&
       cmake --build . --target install --config %CONFIGURATION%
     )
 

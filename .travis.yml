@@ -29,6 +29,7 @@ addons:
   homebrew:
     update: true
     packages:
+      - openssl
       - libgit2
       - matken11235/toml11/toml11
 
@@ -47,11 +48,6 @@ matrix:
         - sudo make install
         - popd && rm -rf toml11
       script: echo
-    # macOS Sierra
-    - os: osx
-      osx_image: xcode9.2
-      if: branch != coverity_scan
-      install: brew install llvm@7
     # macOS High Sierra
     - os: osx
       osx_image: xcode10.1
@@ -59,7 +55,7 @@ matrix:
       install: brew install llvm@7
     # macOS Mojave
     - os: osx
-      osx_image: xcode11
+      osx_image: xcode11.2
       if: branch != coverity_scan
       after_success:
         - pip3 install cpp-coveralls
