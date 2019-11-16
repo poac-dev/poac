@@ -9,7 +9,24 @@ endif ()
 
 cmake_minimum_required(VERSION 3.11)
 project(poac VERSION 0.2.1 LANGUAGES CXX)
-option(poac_BUILD_TEST "Build poac tests" OFF)
+option(poac_BUILD_TEST "Build poac tests" OFF) # -Dpoac_BUILD_TEST=ON
+
+# Check requiring version
+if (APPLE)
+    execute_process(
+            COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
+            OUTPUT_VARIABLE OSX_VERSION
+    )
+    if (${OSX_VERSION} LESS 15)
+        message(FATAL_ERROR "Poac requires macOS Catalina (15.0) or later.")
+    endif()
+elseif (MSVC)
+    # https://cmake.org/cmake/help/latest/variable/MSVC_TOOLSET_VERSION.html
+    if (${MSVC_TOOLSET_VERSION} LESS 141)
+        message(FATAL_ERROR "Poac requires Visual Studio 2017 or later.")
+    endif()
+else ()
+endif()
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
