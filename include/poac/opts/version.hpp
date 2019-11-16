@@ -18,7 +18,7 @@ namespace poac::opts::version {
 
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&&) noexcept {
-        std::cout << POAC_VERSION << std::endl;
+        std::cout << "poac " << POAC_VERSION << std::endl;
         return std::nullopt;
     }
 } // end namespace

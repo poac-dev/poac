@@ -13,11 +13,11 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 namespace poac::core::resolver::sat {
-    enum class Sat : int {
+    enum class Sat {
         satisfied, // found a satisfying assignment
         unsatisfied, // found no satisfying assignment
-        normal, // 正常終了・未解決
-        completed // 全ての割り当てを決定した
+        normal, // Successful completion OR unsolved
+        completed // Determined all assignments
     };
 
     std::vector<int>
@@ -27,8 +27,7 @@ namespace poac::core::resolver::sat {
             const int literal = l.index() + 1;
             if (l.value() != -1) {
                 assignments.emplace_back((l.value() % 2 == 0 ? 1 : -1) * literal);
-            }
-            else { // for literals that can take either value, arbitrarily assign them to be true
+            } else { // for literals that can take either value, arbitrarily assign them to be true
                 assignments.emplace_back(literal);
             }
         }
@@ -37,9 +36,9 @@ namespace poac::core::resolver::sat {
 
     // the difference in number of occurrences
     template <
-            template <class T, class=std::allocator<T>> typename TwoDim,
-            template <class T, class=std::allocator<T>> typename OneDim,
-            typename T, typename U
+        template <class T, class=std::allocator<T>> typename TwoDim,
+        template <class T, class=std::allocator<T>> typename OneDim,
+        typename T, typename U
     >
     T calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) {
         T acc = 0;
@@ -88,8 +87,7 @@ namespace poac::core::resolver::sat {
                         return Sat::satisfied;
                     }
                     break; // to the next clause
-                }
-                else if (index == literal_to_index(*itr2)) { // the literal with opposite polarity
+                } else if (index == literal_to_index(*itr2)) { // the literal with opposite polarity
                     itr1->erase(itr2); // remove the literal from the clause
                     --itr2; // reset iterator
                     if (itr1->empty()) {
@@ -123,8 +121,7 @@ namespace poac::core::resolver::sat {
                     }
                     // 今回のdeleteで，別のunit caluseができているかもしれないので，もう一度先頭からループし直す
                     break;
-                }
-                else if (itr->empty()) {
+                } else if (itr->empty()) {
                     // the formula is unsatisfiable in this branch
                     return Sat::unsatisfied;
                 }
@@ -138,11 +135,9 @@ namespace poac::core::resolver::sat {
     dpll(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
         if (clauses.empty()) {
             return { Sat::completed, to_assignments(literals) };
-        }
-        else if (Sat result = unit_propagate(clauses, literals); result == Sat::satisfied) {
+        } else if (Sat result = unit_propagate(clauses, literals); result == Sat::satisfied) {
             return { Sat::completed, to_assignments(literals) };
-        }
-        else if (result == Sat::unsatisfied) {
+        } else if (result == Sat::unsatisfied) {
             return { Sat::normal, {} };
         }
 
@@ -156,16 +151,14 @@ namespace poac::core::resolver::sat {
             // if the number of literals with positive polarity are greater
             if (calc_literal_polarity(clauses, i + 1) > 0) {
                 new_literals[i] = j; // positive
-            }
-            else {
+            } else {
                 new_literals[i] = (j + 1) % 2; // negative
             }
 
             // apply the change to all the clauses
             if (Sat result = delete_set_literal(clauses, i, new_literals[i]); result == Sat::satisfied) {
                 return { Sat::completed, to_assignments(new_literals) };
-            }
-            else if (result == Sat::unsatisfied) {
+            } else if (result == Sat::unsatisfied) {
                 // in this branch, return normally
                 continue;
             }
