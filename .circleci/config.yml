@@ -50,7 +50,6 @@ commands:
         type: boolean
         default: ON
     steps:
-      - run: uname -sm
       - run: mkdir build
       - run:
           working_directory: build
