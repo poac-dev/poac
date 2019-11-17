@@ -26,8 +26,9 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 * GitHub:
 [![GitHub Actions](https://github.com/poacpm/poac/workflows/C%2FC%2B%2B%20CI/badge.svg)](https://github.com/poacpm/poac/actions?query=workflow%3A%22C%2FC%2B%2B+CI%22)
 [![GitHub Release Version](https://img.shields.io/github/release/poacpm/poac.svg?style=flat)](https://github.com/poacpm/poac/releases)
-[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
 [![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)](https://github.com/poacpm/poac/releases)
+[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_shield)
 
 * Code Coverage:
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
@@ -90,6 +91,9 @@ You can also find the useful [architecture documentation](https://doc.poac.pm/en
 Poac is licensed under the terms of the Apache License version 2.0.
 
 Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
 ### Third party software
 
