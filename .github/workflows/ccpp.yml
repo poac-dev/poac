@@ -3,7 +3,8 @@ name: C/C++ CI
 on: [push, pull_request]
 
 jobs:
-  macOS:
+  macos:
+    name: macOS Catalina (10.15)
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v1
