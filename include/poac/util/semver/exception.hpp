@@ -30,9 +30,6 @@ namespace semver {
         version_error& operator=(const version_error&) = default;
         version_error(version_error&&) noexcept = default;
         version_error& operator=(version_error&&) noexcept = default;
-
-    protected:
-        std::string what_;
     };
 } // end namespace semver
 
