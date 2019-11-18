@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         compiler: [clang-6, clang-7, clang-8, gcc-7, gcc-8, gcc-9]
-        build_type: [Debug] # Release
+        build_type: [Debug, Release]
     steps:
       - uses: actions/checkout@v1
       - uses: azure/docker-login@v1
