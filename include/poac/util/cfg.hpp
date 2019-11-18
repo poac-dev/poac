@@ -178,7 +178,8 @@ namespace poac::util::cfg {
         operator<<(std::ostream& os, const Token& token);
     };
 
-    Token::Kind to_kind(std::string_view kind) {
+    constexpr Token::Kind
+    to_kind(std::string_view kind) {
         if (kind == "(") {
             return Token::LeftParen;
         } else if (kind == ")") {

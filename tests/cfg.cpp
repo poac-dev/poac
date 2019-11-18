@@ -1,12 +1,11 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/output_test_stream.hpp>
+#include <boost/test/tools/output_test_stream.hpp>
 #include <boost/predef.h>
 #include <string>
 #include <memory>
 #include <vector>
 #include <poac/util/cfg.hpp>
-#include <poac/core/except.hpp>
 #include "support/macros.hpp"
 
 BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_good_test )
@@ -543,5 +542,130 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_cfgexpr_match_test )
                    "))").match()
     );
 #endif
+
+    using poac::util::cfg::CfgExpr;
+    using poac::util::cfg::Cfg;
+    using poac::util::cfg::Token;
+    {
+        CfgExpr test_case{
+            CfgExpr::value,
+            Cfg{
+                Token::ident::compiler,
+                Cfg::Op::Equals,
+                "foo"
+            }
+        };
+        test_case.kind = static_cast<CfgExpr::Kind>(99);
+        BOOST_CHECK_THROW(test_case.match(), std::logic_error);
+    }
 }
 #endif
+
+// Token::Kind to_kind(std::string_view kind)
+BOOST_AUTO_TEST_CASE( poac_util_cfg_to_kind_test )
+{
+    using poac::util::cfg::Token;
+    using poac::util::cfg::to_kind;
+
+    static_assert( to_kind("(") == Token::LeftParen );
+    static_assert( to_kind(")") == Token::RightParen );
+    static_assert( to_kind(",") == Token::Comma );
+    static_assert( to_kind("=") == Token::Equals );
+    static_assert( to_kind(">") == Token::Gt );
+    static_assert( to_kind(">=") == Token::GtEq );
+    static_assert( to_kind("<") == Token::Lt );
+    static_assert( to_kind("<=") == Token::LtEq );
+    BOOST_CHECK_THROW( to_kind("unknown"), poac::util::cfg::exception );
+}
+
+// std::string to_string(Token::ident ident)
+BOOST_AUTO_TEST_CASE( poac_util_cfg_to_string_test )
+{
+    using poac::util::cfg::Token;
+    using poac::util::cfg::to_string;
+
+    BOOST_CHECK( to_string(Token::ident::cfg) == "cfg" );
+    BOOST_CHECK( to_string(Token::ident::not_) == "not" );
+    BOOST_CHECK( to_string(Token::ident::all) == "all" );
+    BOOST_CHECK( to_string(Token::ident::any) == "any" );
+    BOOST_CHECK( to_string(Token::ident::compiler) == "compiler" );
+    BOOST_CHECK( to_string(Token::ident::arch) == "arch" );
+    BOOST_CHECK( to_string(Token::ident::feature) == "feature" );
+    BOOST_CHECK( to_string(Token::ident::os) == "os" );
+    BOOST_CHECK( to_string(Token::ident::os_version) == "os_version" );
+    BOOST_CHECK( to_string(Token::ident::platform) == "platform" );
+    BOOST_CHECK_THROW( to_string(static_cast<Token::ident>(99)), std::logic_error );
+}
+
+// std::ostream& operator<<(std::ostream& os, const Token& token)
+BOOST_AUTO_TEST_CASE( poac_util_cfg_operator_out_test )
+{
+    using poac::util::cfg::Token;
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::LeftParen};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("left_paren: ("));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::RightParen};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("right_paren: )"));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::Comma};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("comma: ,"));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::Equals};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("equals: ="));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::Gt};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("gt: >"));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::GtEq};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("gteq: >="));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::Lt};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("lt: <"));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::LtEq};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("lteq: <="));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::String, "test_string"};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("string: test_string"));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        output << Token{Token::Ident, Token::ident::cfg};
+        BOOST_CHECK(!output.is_empty(false));
+        BOOST_CHECK(output.is_equal("ident: cfg"));
+    }
+    {
+        boost::test_tools::output_test_stream output;
+        BOOST_CHECK_THROW(
+            poac::util::cfg::operator<<(output, Token{static_cast<Token::Kind>(99)}),
+            std::logic_error
+        );
+    }
+}
