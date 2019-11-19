@@ -26,7 +26,7 @@
 #include <poac/util/clap/clap.hpp>
 
 namespace poac::opts::help {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("help")
                 .about("Prints this message or the help of the given subcommand(s)")
                 .arg(clap::arg("subcommand").multiple(true))
@@ -41,7 +41,7 @@ namespace poac::opts::help {
         std::string cmd;
     };
 
-    const std::unordered_map<std::string_view, clap::subcommand>
+    inline const std::unordered_map<std::string_view, clap::subcommand>
     subcommands{
         { "build",     opts::build::cli },
         { "cache",     opts::cache::cli },

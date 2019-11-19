@@ -11,7 +11,7 @@
 #include <poac/util/argparse.hpp>
 
 namespace poac::opts::run {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("run")
                 .about("Build project and exec it")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))

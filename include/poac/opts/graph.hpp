@@ -26,7 +26,7 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::graph {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("graph")
                 .about("Create a dependency graph")
                 .arg(clap::opt("output", "Output file name").short_("o").value_name("NAME"))

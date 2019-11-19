@@ -21,7 +21,7 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::install {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("install")
                 .about("Install a C++ binary. Default location is $HOME/.poac/bin")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))
