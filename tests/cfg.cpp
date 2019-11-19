@@ -546,18 +546,16 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_cfgexpr_match_test )
     using poac::util::cfg::CfgExpr;
     using poac::util::cfg::Cfg;
     using poac::util::cfg::Token;
-    {
-        CfgExpr test_case{
-            CfgExpr::value,
-            Cfg{
-                Token::ident::compiler,
-                Cfg::Op::Equals,
-                "foo"
-            }
-        };
-        test_case.kind = static_cast<CfgExpr::Kind>(99);
-        BOOST_CHECK_THROW(test_case.match(), std::logic_error);
-    }
+    CfgExpr test_case{
+        CfgExpr::value,
+        Cfg{
+            Token::ident::compiler,
+            Cfg::Op::Equals,
+            "foo"
+        }
+    };
+    test_case.kind = static_cast<CfgExpr::Kind>(99);
+    BOOST_CHECK_THROW(test_case.match(), std::logic_error);
 }
 #endif
 
