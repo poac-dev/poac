@@ -1,10 +1,10 @@
-name: C/C++ CI
+name: macOS
 
 on: [push, pull_request]
 
 jobs:
-  macos:
-    name: macOS Catalina (10.15)
+  catalina:
+    name: Catalina (10.15)
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v1
