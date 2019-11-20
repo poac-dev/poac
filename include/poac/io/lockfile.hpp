@@ -1,6 +1,7 @@
 #ifndef POAC_IO_LOCKFILE_HPP
 #define POAC_IO_LOCKFILE_HPP
 
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -21,7 +22,7 @@ namespace poac::io::lockfile {
     };
 
     std::string
-    to_string(PackageType package_type) noexcept {
+    to_string(PackageType package_type) {
         switch (package_type) {
             case PackageType::HeaderOnlyLib:
                 return "header-only library";
@@ -29,6 +30,10 @@ namespace poac::io::lockfile {
                 return "build-required library";
             case PackageType::Application:
                 return "application";
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 

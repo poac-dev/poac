@@ -95,7 +95,7 @@ namespace poac::io::filesystem {
     inline const io::filesystem::path current_build_test_dir(current_build_dir / "test");
     inline const io::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
 
-    bool validate_dir(const io::filesystem::path& path) {
+    inline bool validate_dir(const io::filesystem::path& path) {
         namespace fs = io::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
@@ -140,7 +140,7 @@ namespace poac::io::filesystem {
     }
 #endif
 
-    std::string
+    inline std::string
     time_to_string(const std::time_t& time) {
         return std::to_string(time);
     }

@@ -21,7 +21,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::uninstall {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("uninstall")
                 .about("Remove a C++ binary")
                 .arg(clap::opt("verbose", "Use verbose output").short_("v"))

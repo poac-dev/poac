@@ -32,7 +32,7 @@
 #include <poac/config.hpp>
 
 namespace poac::opts::publish {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("publish")
                 .about("Upload a package to the registry")
                 .arg(clap::opt("yes", "Pass confirmation").short_("y"))
@@ -53,12 +53,12 @@ namespace poac::opts::publish {
         std::string local_commit_sha;
     };
 
-    std::string
+    inline std::string
     create_full_name(const std::string& owner, const std::string& repo) {
         return owner + "/" + repo;
     }
 
-    std::string
+    inline std::string
     get_full_name(const PackageInfo& package_info) {
         return create_full_name(package_info.owner, package_info.repo);
     }
@@ -274,7 +274,7 @@ namespace poac::opts::publish {
         }
     }
 
-    std::uint_fast16_t
+    inline std::uint_fast16_t
     get_cpp_version(const std::optional<io::config::Config>& config) noexcept {
         return config->package.cpp;
     }
