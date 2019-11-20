@@ -13,7 +13,7 @@
 #include <poac/util/clap/clap.hpp>
 
 namespace poac::opts::build {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("build")
                 .about("Compile a project and all sources that depend on its")
                 .arg(clap::opt("release", "Build artifacts in release mode, with optimizations"))

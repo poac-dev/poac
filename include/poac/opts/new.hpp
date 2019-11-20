@@ -4,6 +4,7 @@
 #include <future>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <map>
@@ -21,7 +22,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::_new {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("new")
                 .about("Create a new poac package at <path>")
                 .arg(clap::opt("quiet", "No output printed to stdout").short_("q"))
@@ -56,10 +57,11 @@ namespace poac::opts::_new {
 
     namespace files {
         namespace bin {
-            std::string poac_toml(const std::string&) {
+            inline std::string
+            poac_toml(const std::string&) {
                 return "cpp = 17";
             }
-            const std::string main_cpp(
+            inline const std::string main_cpp(
                     "#include <iostream>\n\n"
                     "int main(int argc, char** argv) {\n"
                     "    std::cout << \"Hello, world!\" << std::endl;\n"
@@ -67,10 +69,10 @@ namespace poac::opts::_new {
             );
         }
         namespace lib {
-            const std::string poac_toml(
+            inline const std::string poac_toml(
                     "cpp = 17"
             );
-            std::string include_hpp(std::string project_name) {
+            inline std::string include_hpp(std::string project_name) {
                 std::transform(project_name.cbegin(), project_name.cend(), project_name.begin(), ::toupper);
                 return "#ifndef " + project_name + "_HPP\n"
                        "#define " + project_name + "_HPP\n\n"
@@ -91,6 +93,10 @@ namespace poac::opts::_new {
                 return (os << "binary (application)");
             case ProjectType::Lib:
                 return (os << "library");
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -129,6 +135,10 @@ namespace poac::opts::_new {
                         files::lib::include_hpp(opts.project_name)
                     },
                 };
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 

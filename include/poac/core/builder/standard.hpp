@@ -2,6 +2,7 @@
 #define POAC_CORE_BUILDER_STANDARD_HPP
 
 #include <cstdint>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <regex>
@@ -227,6 +228,10 @@ namespace poac::core::builder::standard {
             // Support OS: Only macos
             case util::cfg::compiler::apple_clang:
                 return apple_llvm_convert(cpp_version, enable_gnu);
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
