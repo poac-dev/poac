@@ -76,6 +76,7 @@ endif ()
 
 if (APPLE)
     set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+    set(OPENSSL_LIBRARIES /usr/local/opt/openssl/lib)
 endif ()
 find_package(OpenSSL REQUIRED)
 if (NOT ${OPENSSL_FOUND})
