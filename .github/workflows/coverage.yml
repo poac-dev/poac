@@ -19,13 +19,11 @@ jobs:
           ctest --output-on-failure --verbose
         env:
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
-      - name: Upload coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
         if: success()
-        run: |
-          pip3 install cpp-coveralls
-          coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   codecov:
     runs-on: macOS-latest
