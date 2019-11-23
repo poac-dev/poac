@@ -15,14 +15,12 @@ jobs:
         run: brew install libgit2
       - name: Install toml11
         run: brew install matken11235/toml11/toml11
-      - name: Create bulding directory
-        run: mkdir build
-      - name: Run CMake build
-        run: cd build && cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-      - name: Build
-        run: cd build && make install
-      - name: Test
-        run: cd build && ctest --output-on-failure --verbose
+      - name: Build and Test
+        run: |
+          mkdir build && cd build
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          make install
+          ctest --output-on-failure --verbose
         env:
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
       - name: Print help
