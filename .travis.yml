@@ -57,15 +57,11 @@ matrix:
     - os: osx
       osx_image: xcode11.2
       if: branch != coverity_scan
-      after_success:
-        - pip3 install cpp-coveralls
-        - coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
-        - bash <(curl -s https://codecov.io/bash)
 
 script:
   - mkdir build
   - cd build
-  - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+  - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Debug ..
   - make install
   - ctest --output-on-failure --verbose
   - poac help
