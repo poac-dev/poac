@@ -6,6 +6,9 @@ jobs:
   catalina:
     name: Catalina (10.15)
     runs-on: macOS-latest
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
     steps:
       - uses: actions/checkout@v1
       - name: Install libgit2
@@ -15,7 +18,7 @@ jobs:
       - name: Create bulding directory
         run: mkdir build
       - name: Run CMake build
-        run: cd build && cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+        run: cd build && cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
       - name: Build
         run: cd build && make install
       - name: Test
