@@ -1,11 +1,5 @@
 language: cpp
 
-before_cache:
-  - brew cleanup
-cache:
-  directories:
-    - $HOME/Library/Caches/Homebrew
-
 addons:
   apt:
     update: true
@@ -26,12 +20,6 @@ addons:
       cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
     build_command: make
     branch_pattern: coverity_scan
-  homebrew:
-    update: true
-    packages:
-      - openssl
-      - libgit2
-      - matken11235/toml11/toml11
 
 matrix:
   include:
@@ -43,24 +31,6 @@ matrix:
       cache: false
       install: brew install matken11235/toml11/toml11
       script: echo
-    # macOS High Sierra
-    - os: osx
-      osx_image: xcode10.1
-      if: branch != coverity_scan
-      install: brew install llvm@7
-    # macOS Mojave
-    - os: osx
-      osx_image: xcode11.2
-      if: branch != coverity_scan
-
-script:
-  - mkdir build
-  - cd build
-  - cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Debug ..
-  - make install
-  - ctest --output-on-failure --verbose
-  - poac help
-  - cd ../
 
 notifications:
   email: false
