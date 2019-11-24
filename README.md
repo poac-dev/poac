@@ -91,7 +91,6 @@ Poac is licensed under the terms of the Apache License version 2.0.
 
 Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
 
-
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
 ### Third party software
