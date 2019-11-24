@@ -7,9 +7,9 @@ Please note we have a [code of conduct](CODE_OF_CONDUCT.md), please follow it in
 
 ## Pull Request Process
 
-1. Fork this repository ([https://github.com/poacpm/poac/fork](https://github.com/poacpm/poac/fork))
+1. Fork this repository ([https://github.com/poacpm/poac/fork](https://github.com/poacpm/poac/fork)),
    and create your feature branch (git checkout -b my-new-feature).
-2. Update the README.md with details of changes to the interface, this includes new dependencies,
+2. Update the README.md with details of changes to the interface; this includes new dependencies,
    build or runtime requirements, command usages.
 3. Increase the version numbers in any examples files and the README.md to the new version that this
    Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
