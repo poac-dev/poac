@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Test
-        uses: docker://docker.pkg.github.com/poacpm/dockerfiles/x86_64-unknown-linux-gnu:${{ matrix.compiler }}
+        uses: "docker://docker.pkg.github.com/poacpm/dockerfiles/x86_64-unknown-linux-gnu:${{ matrix.compiler }}"
         with:
           args: >
             /bin/sh -c 'mkdir build && cd build
