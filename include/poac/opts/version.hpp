@@ -11,14 +11,14 @@
 #include <poac/io/config.hpp>
 
 namespace poac::opts::version {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("update")
                 .about("Show the current poac version")
             ;
 
     [[nodiscard]] std::optional<core::except::Error>
     exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&&) noexcept {
-        std::cout << POAC_VERSION << std::endl;
+        std::cout << "poac " << POAC_VERSION << std::endl;
         return std::nullopt;
     }
 } // end namespace

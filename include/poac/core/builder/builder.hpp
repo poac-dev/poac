@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <chrono>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <optional>
@@ -32,6 +33,10 @@ namespace poac::core::builder {
                 return (os << "dev");
             case Mode::Release:
                 return (os << "release");
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 

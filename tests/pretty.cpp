@@ -46,6 +46,7 @@ BOOST_AUTO_TEST_CASE( poac_util_pretty_to_byte_test1 )
     temp = to_byte(12'000'000'000);
     BOOST_CHECK( std::to_string(temp.first) + temp.second == "12GB" );
     temp = to_byte(1'000'000'000'000);
+    std::cout << temp.second << std::endl;
     BOOST_CHECK( std::to_string(temp.first) + temp.second == "1TB" );
     temp = to_byte(12'000'000'000'000);
     BOOST_CHECK( std::to_string(temp.first) + temp.second == "12TB" );

@@ -17,7 +17,7 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::init {
-    const clap::subcommand cli =
+    inline const clap::subcommand cli =
             clap::subcommand("init")
                 .about("Create a new poac package in an existing directory")
                 .arg(clap::opt("bin", "Use a binary (application) template [default]"))

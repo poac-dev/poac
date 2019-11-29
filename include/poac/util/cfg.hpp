@@ -178,7 +178,30 @@ namespace poac::util::cfg {
         operator<<(std::ostream& os, const Token& token);
     };
 
-    std::string to_string(Token::ident ident) noexcept {
+    constexpr Token::Kind
+    to_kind(std::string_view kind) {
+        if (kind == "(") {
+            return Token::LeftParen;
+        } else if (kind == ")") {
+            return Token::RightParen;
+        } else if (kind == ",") {
+            return Token::Comma;
+        } else if (kind == "=") {
+            return Token::Equals;
+        } else if (kind == ">") {
+            return Token::Gt;
+        } else if (kind == ">=") {
+            return Token::GtEq;
+        } else if (kind == "<") {
+            return Token::Lt;
+        } else if (kind == "<=") {
+            return Token::LtEq;
+        } else {
+            throw exception("Unexpected to_kind error");
+        }
+    }
+
+    std::string to_string(Token::ident ident) {
         switch (ident) {
             case Token::ident::cfg:
                 return "cfg";
@@ -200,6 +223,10 @@ namespace poac::util::cfg {
                 return "os_version";
             case Token::ident::platform:
                 return "platform";
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -225,6 +252,10 @@ namespace poac::util::cfg {
                 return (os << "string: " << token.get_str());
             case Token::Ident:
                 return (os << "ident: " << to_string(token.get_ident()));
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -249,49 +280,52 @@ namespace poac::util::cfg {
         std::optional<Token>
         peek() const {
             const auto [diff, token] = tokenize(this->index);
+            static_cast<void>(diff);
             return token;
         }
 
     private:
         std::pair<size_type, std::optional<Token>>
+        generate_token(size_type index_, const std::optional<Token>& token) const {
+            return { this->diff_step(index_), token };
+        }
+        std::pair<size_type, std::optional<Token>>
+        generate_token(size_type index_, std::string_view kind) const {
+            return generate_token(index_, Token{ to_kind(kind) });
+        }
+
+        std::pair<size_type, std::optional<Token>>
+        analyze_two_phrase(size_type index_, const char kind) const {
+            if (this->one(index_) == '=') {
+                this->step(index_);
+                return generate_token(index_, std::string{kind} + '=');
+            } else {
+                return generate_token(index_, std::string{kind});
+            }
+        }
+
+        std::pair<size_type, std::optional<Token>>
         tokenize(size_type index_) const {
             if (index_ >= this->str.size()) {
-                return { this->diff_step(index_), std::nullopt };
+                return generate_token(index_, std::nullopt);
             }
-            switch (this->one(index_)) {
+            const char one = this->one(index_);
+            switch (one) {
                 case ' ':
                     do {
                         this->step(index_);
                     } while (this->one(index_) == ' ');
                     return tokenize(index_);
-                case '(':
-                    this->step(index_);
-                    return { this->diff_step(index_), Token{Token::LeftParen} };
-                case ')':
-                    this->step(index_);
-                    return { this->diff_step(index_), Token{Token::RightParen} };
-                case ',':
-                    this->step(index_);
-                    return { this->diff_step(index_), Token{Token::Comma} };
+                case '(': [[fallthrough]];
+                case ')': [[fallthrough]];
+                case ',': [[fallthrough]];
                 case '=':
                     this->step(index_);
-                    return { this->diff_step(index_), Token{Token::Equals} };
-                case '>':
-                    this->step(index_);
-                    if (this->one(index_) == '=') {
-                        this->step(index_);
-                        return { this->diff_step(index_), Token{Token::GtEq} };
-                    } else {
-                        return { this->diff_step(index_), Token{Token::Gt} };
-                    }
+                    return generate_token(index_, std::string{one});
+                case '>': [[fallthrough]];
                 case '<':
                     this->step(index_);
-                    if (this->one(index_) == '=') {
-                        this->step(index_);
-                        return { this->diff_step(index_), Token{Token::LtEq} };
-                    } else {
-                        return { this->diff_step(index_), Token{Token::Lt} };
-                    }
+                    return analyze_two_phrase(index_, one);
                 case '"':
                     return string(index_);
                 default:
@@ -523,6 +557,10 @@ namespace poac::util::cfg {
                 }
                 case Kind::value:
                     return this->match(std::get<Cfg>(this->expr));
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
 
@@ -625,6 +663,10 @@ namespace poac::util::cfg {
 #endif
                 case Cfg::Ident::os_version:
                     return false;
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
     };
