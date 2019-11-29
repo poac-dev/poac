@@ -14,10 +14,9 @@ option(poac_BUILD_TEST "Build poac tests" OFF) # -Dpoac_BUILD_TEST=ON
 # Check requiring version
 if (APPLE)
     execute_process(
-            COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
-            OUTPUT_VARIABLE OSX_VERSION
-    )
-    if (${OSX_VERSION} LESS 15)
+        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
+        OUTPUT_VARIABLE MACOS_VERSION)
+    if (${MACOS_VERSION} LESS 15)
         message(FATAL_ERROR "Poac requires macOS Catalina (15.0) or later.")
     endif()
 elseif (MSVC)
@@ -48,49 +47,8 @@ endif ()
 
 #set(Boost_DEBUG on)
 set(Boost_NO_BOOST_CMAKE ON)
-if (APPLE)
-    execute_process(
-        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
-        OUTPUT_VARIABLE MACOS_VERSION
-    )
-    # If macOS version is mojave or later, we don't need to use boost::filesystem.
-    if (NOT (${MACOS_VERSION} LESS 14))
-        find_package(Boost 1.66.0 REQUIRED COMPONENTS system)
-        if (NOT ${Boost_FOUND})
-            message(FATAL_ERROR "Could not find boost.")
-        endif ()
-        target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-        message(STATUS "Boost include directory is ... ${Boost_INCLUDE_DIRS}")
-        if (${CMAKE_VERSION} VERSION_LESS 3.13)
-            link_directories(${Boost_LIBRARY_DIRS})
-        else ()
-            target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
-        endif()
-        message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
-        # If boost version greater than 1.69.0 and cmake version less then 3.12, occur error.
-        if (${Boost_VERSION} GREATER 106900)
-            if (${CMAKE_VERSION} VERSION_LESS 3.12)
-                message(FATAL_ERROR "If cmake version less than 3.12, CMake can't use Boost::libname style.")
-            endif ()
-            set(FILESYSTEM_LIBS Boost::system)
-        else ()
-            set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY})
-        endif ()
-    # If macOS version less than mojave, set compiler to homebrew llvm@7.
-    else ()
-        set(HOMEBREW_LLVM_PATH /usr/local/opt/llvm@7)
-        if (NOT EXISTS ${HOMEBREW_LLVM_PATH})
-            message(FATAL_ERROR "You need llvm@7 to build. Please execute `brew install llvm@7` to install it.")
-        endif ()
-        message(STATUS "Set compiler to homebrew llvm@7.")
-        set(CMAKE_CXX_COMPILER "${HOMEBREW_LLVM_PATH}/bin/clang++")
-        target_include_directories(${PROJECT_NAME} PRIVATE ${HOMEBREW_LLVM_PATH}/include)
-        target_link_directories(${PROJECT_NAME} PRIVATE ${HOMEBREW_LLVM_PATH}/lib)
-        unset(HOMEBREW_LLVM_PATH)
-    endif ()
-    unset(MACOS_VERSION)
-elseif (MSVC)
-    # If we are using MSVC, we don't need to use boost::filesystem.
+if (APPLE OR MSVC)
+    # If we are using macOS Mojave or later or MSVC, we don't need to use boost::filesystem.
     find_package(Boost 1.66.0 REQUIRED COMPONENTS system)
     if (NOT ${Boost_FOUND})
         message(FATAL_ERROR "Could not find boost.")
@@ -108,9 +66,9 @@ elseif (MSVC)
         if (${CMAKE_VERSION} VERSION_LESS 3.12)
             message(FATAL_ERROR "If cmake version less than 3.12, CMake can't use Boost::libname style.")
         endif ()
-        set(FILESYSTEM_LIBS Boost::system)
+        set(BOOST_LIBS Boost::system)
     else ()
-        set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY})
+        set(BOOST_LIBS ${Boost_SYSTEM_LIBRARY})
     endif ()
 else ()
     find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem)
@@ -130,9 +88,9 @@ else ()
         if (${CMAKE_VERSION} VERSION_LESS 3.12)
             message(FATAL_ERROR "If cmake version less than 3.12, CMake can't use Boost::libname style.")
         endif ()
-        set(FILESYSTEM_LIBS Boost::system Boost::filesystem)
+        set(BOOST_LIBS Boost::system Boost::filesystem)
     else ()
-        set(FILESYSTEM_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+        set(BOOST_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
     endif ()
 endif ()
 
@@ -202,7 +160,7 @@ target_link_libraries(
         ${OPENSSL_LIBRARIES}
         ${SSL_RELATED_LIBS}
         git2
-        ${FILESYSTEM_LIBS}
+        ${BOOST_LIBS}
 )
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
