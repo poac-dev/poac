@@ -1,0 +1,53 @@
+name: Covertity
+
+on:
+  push:
+    branches:
+      - add/coverity
+#    tags:
+#      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
+
+jobs:
+  scan:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install libgit2 & toml11
+        run: brew install libgit2 matken11235/toml11/toml11
+
+      - name: Download Coverity Build Tool
+        run: |
+          wget https://scan.coverity.com/download/cxx/macOSX \
+            --post-data "token=$COVERITY_SCAN_TOKEN&project=poacpm%2Fpoac" \
+            -O coverity_tool.tgz
+          mkdir coverity_tool
+          tar xzf coverity_tool.tar.gz --strip 1 -C coverity_tool
+        env:
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+
+      - name: Create a building directory and Run CMake
+        run: |
+          mkdir build
+          cd build
+          make -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+
+      - name: Build with cov-build
+        run: |
+          export PATH=$PWD/coverity_tool/bin:$PATH
+          cd build
+          cov-build --dir cov-int make
+
+      - name: Submit the result to Coverity Scan
+        run: |
+          tar czvf poac.tgz ./build/cov-int
+          curl \
+            --form project='poacpm/poac' \
+            --form token=${COVERITY_SCAN_TOKEN} \
+            --form email=${COVERITY_SCAN_NOTIFICATION_EMAIL} \
+            --form file=@poac.tgz \
+            --form version='0.2.1' \
+            --form description='Package manager for C++' \
+            https://scan.coverity.com/builds?project=poacpm%2Fpoac
+        env:
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          COVERITY_SCAN_NOTIFICATION_EMAIL: ${{ secrets.COVERITY_SCAN_NOTIFICATION_EMAIL }}
