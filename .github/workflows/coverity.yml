@@ -15,9 +15,9 @@ jobs:
 
       - name: Install packages
         run: |
-          apt-get -qq update
-          add-apt-repository ppa:mhier/libboost-latest
-          apt-get -qq -y install \
+          sudo apt-get -qq update
+          sudo add-apt-repository ppa:mhier/libboost-latest
+          sudo apt-get -qq -y install \
             libssl-dev \
             libgit2-dev \
             libboost1.70-dev
