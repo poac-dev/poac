@@ -2,10 +2,8 @@ name: Covertity
 
 on:
   push:
-    branches:
-      - add/coverity
-#    tags:
-#      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
+    tags:
+      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
 
 jobs:
   scan:
