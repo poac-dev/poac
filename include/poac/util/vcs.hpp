@@ -15,19 +15,16 @@ namespace poac::util::vcs {
 
     namespace hg_repo {
         void init() {
-
         }
     }
 
     namespace pijul_repo {
         void init() {
-
         }
     }
 
     namespace fossil_repo {
         void init() {
-
         }
     }
 } // end namespace
