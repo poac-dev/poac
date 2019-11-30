@@ -17,11 +17,11 @@ jobs:
 
       - name: Download Coverity Build Tool
         run: |
-          wget https://scan.coverity.com/download/cxx/macOSX \
+          wget -q https://scan.coverity.com/download/cxx/macOSX \
             --post-data "token=$COVERITY_SCAN_TOKEN&project=poacpm%2Fpoac" \
             -O coverity_tool.tgz
           mkdir coverity_tool
-          tar xzf coverity_tool.tar.gz --strip 1 -C coverity_tool
+          tar xzf coverity_tool.tgz --strip 1 -C coverity_tool
         env:
           COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
 
