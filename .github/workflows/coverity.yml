@@ -9,15 +9,22 @@ on:
 
 jobs:
   scan:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Install libgit2 & toml11
-        run: brew install libgit2 matken11235/toml11/toml11
+
+      - name: Install packages
+        run: |
+          apt-get -qq update
+          add-apt-repository ppa:mhier/libboost-latest
+          apt-get -qq -y install \
+            libssl-dev \
+            libgit2-dev \
+            libboost1.70-dev
 
       - name: Download Coverity Build Tool
         run: |
-          wget -q https://scan.coverity.com/download/cxx/macOSX \
+          wget -q https://scan.coverity.com/download/cxx/linux64 \
             --post-data "token=$COVERITY_SCAN_TOKEN&project=poacpm%2Fpoac" \
             -O coverity_tool.tgz
           mkdir coverity_tool
@@ -29,6 +36,7 @@ jobs:
         run: |
           mkdir build
           cd build
+          export CXX=g++-7
           cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
 
       - name: Build with cov-build
