@@ -13,5 +13,5 @@ runs:
   args:
     - ${{ inputs.test }}
     - ${{ inputs.build-type }}
-  env:
-    POAC_GITHUB_API_TOKEN: ${{ env.POAC_GITHUB_API_TOKEN }}
+#  env:
+#    POAC_GITHUB_API_TOKEN: ${{ env.POAC_GITHUB_API_TOKEN }}
