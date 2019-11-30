@@ -1,12 +1,13 @@
 name: 'mips-unknown-linux-gnu:gcc-9'
 description: 'mips-unknown-linux-gnu cross compile'
 inputs:
-  test:
-    description: 'Test (true or false)'
-    required: true
   build-type:
     description: 'Build type (Debug or Release)'
     required: true
+  test:
+    description: 'Test (true or false)'
+    required: false
+    default: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
