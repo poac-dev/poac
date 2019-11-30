@@ -2,10 +2,8 @@ name: Covertity
 
 on:
   push:
-    branches:
-      - add/coverity
-#    tags:
-#      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
+    tags:
+      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
 
 jobs:
   scan:
@@ -16,7 +14,8 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get -qq update
-          sudo apt-get -qq -y install libssl-dev libgit2-dev
+          sudo add-apt-repository ppa:mhier/libboost-latest
+          sudo apt-get -qq -y install libssl-dev libgit2-dev libboost1.70-dev
 
       - name: Install toml11
         run: |
