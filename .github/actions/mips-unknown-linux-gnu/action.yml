@@ -1,0 +1,17 @@
+name: 'mips-unknown-linux-gnu:gcc-9'
+description: 'mips-unknown-linux-gnu cross compile'
+inputs:
+  test:
+    description: 'Test (true or false)'
+    required: true
+  build-type:
+    description: 'Build type (Debug or Release)'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.test }}
+    - ${{ inputs.build-type }}
+  env:
+    POAC_GITHUB_API_TOKEN: ${{ env.POAC_GITHUB_API_TOKEN }}
