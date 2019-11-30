@@ -29,7 +29,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          make -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
 
       - name: Build with cov-build
         run: |
