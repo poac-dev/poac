@@ -38,6 +38,7 @@ jobs:
         build_type: [Release] # Debug (libasan is not provided at mips architecture)
     steps:
       - uses: actions/checkout@v1
+      - uses: ./ # Uses an action in the root directory
       - uses: actions/mips-unknown-linux-gnu@v1
         with:
           test: false
