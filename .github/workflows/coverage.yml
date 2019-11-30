@@ -1,14 +1,11 @@
-name: macOS
+name: Coverage
 
 on: [push, pull_request]
 
 jobs:
-  catalina:
-    name: Catalina (10.15)
+  coverage:
+    name: Coveralls and Codecov
     runs-on: macOS-latest
-    strategy:
-      matrix:
-        build_type: [Debug] # TODO: Release
     steps:
       - uses: actions/checkout@v1
       - name: Install libgit2
@@ -23,5 +20,15 @@ jobs:
           ctest --output-on-failure --verbose
         env:
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
-      - name: Print help
-        run: poac help
+      - name: Upload coverage to Coveralls
+        if: success()
+        run: |
+          pip3 install cpp-coveralls
+          coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        if: success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
