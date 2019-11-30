@@ -43,10 +43,17 @@ jobs:
           login-server: docker.pkg.github.com
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: ./.github/actions/mips-unknown-linux-gnu
-        with:
-          build-type: ${{ matrix.build_type }}
+      - name: Build and Test
+        run: |
+          docker pull $DOCKER_IMAGE_NAME
+          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run --rm $DOCKER_IMAGE_NAME \
+            bash -c '
+              cd /home/run && mkdir build && cd build &&
+              cmake .. -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
+              make &&
+              cd ../ && file ./build/poac'
         env:
+          DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/mips-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
 
   powerpc-unknown-linux-gnu:
