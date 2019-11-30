@@ -22,6 +22,18 @@ jobs:
             libgit2-dev \
             libboost1.70-dev
 
+      - name: Install toml11
+        run: |
+          git clone -q -b v3.1.0 https://github.com/ToruNiina/toml11.git
+          cd toml11
+          mkdir build
+          cd build
+          cmake -Dtoml11_BUILD_TEST=OFF ..
+          make
+          make install
+          cd ../../
+          rm -rf toml11
+
       - name: Download Coverity Build Tool
         run: |
           wget -q https://scan.coverity.com/download/cxx/linux64 \
