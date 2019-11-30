@@ -30,7 +30,7 @@ jobs:
           cd build
           cmake -Dtoml11_BUILD_TEST=OFF ..
           make
-          make install
+          sudo make install
           cd ../../
           rm -rf toml11
 
