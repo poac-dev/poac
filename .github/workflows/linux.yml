@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         compiler: [clang-6, clang-7, clang-8, gcc-7, gcc-8, gcc-9] # TODO: clang-9
-        build_type: [Debug, Release] # TODO:
+        build_type: [Debug] # TODO: Release
     steps:
       - uses: actions/checkout@v1
       - uses: azure/docker-login@v1
@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         compiler: [gcc-9]
-        build_type: [Release] # TODO: Debug (libasan is not provided at mips architecture)
+        build_type: [Debug, Release] # TODO:  (libasan is not provided at mips architecture)
     steps:
       - uses: actions/checkout@v1
       - uses: azure/docker-login@v1
