@@ -56,6 +56,12 @@ jobs:
           export PATH=$PWD/coverity_tool/bin:$PATH
           cd build
           cov-build --dir cov-int make
+# TODO:
+# [WARNING] No files were emitted. This may be due to a problem with your configuration
+# or because no files were actually compiled by your build command.
+# Please make sure you have configured the compilers actually used in the compilation.
+#  For more details, please look at:
+#     /home/runner/work/poac/poac/build/cov-int/build-log.txt
 
       - name: Submit the result to Coverity Scan
         run: |
