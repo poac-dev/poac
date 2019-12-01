@@ -195,6 +195,7 @@ namespace termcolor2 {
                    ? throw std::out_of_range("termcolor2::basic_string")
                    : compare_impl(pos1, termcolor2::min(n1, size() - pos1), s, n2);
         }
+
     private:
         constexpr int
         compare_impl(size_type pos1, const size_type rlen, const value_type* s, size_type n2) const {
