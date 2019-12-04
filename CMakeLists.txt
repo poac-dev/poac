@@ -78,6 +78,9 @@ if (APPLE)
     set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
     set(OPENSSL_LIBRARIES /usr/local/opt/openssl/lib)
 endif ()
+if (CMAKE_BUILD_TYPE STREQUAL Release)
+    set(OPENSSL_USE_STATIC_LIBS TRUE)
+endif ()
 find_package(OpenSSL REQUIRED)
 if (NOT ${OPENSSL_FOUND})
     message(FATAL_ERROR "Could not find openssl.")
@@ -142,12 +145,12 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
 endif ()
 
 target_link_libraries(
-        ${PROJECT_NAME}
-        ${STATIC_LINK_FLAG}
-        ${OPENSSL_LIBRARIES}
-        ${SSL_RELATED_LIBS}
-        git2
-        ${FILESYSTEM_LIBS}
+    ${PROJECT_NAME}
+    ${STATIC_LINK_FLAG}
+    ${OPENSSL_LIBRARIES}
+    ${SSL_RELATED_LIBS}
+    git2
+    ${FILESYSTEM_LIBS}
 )
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
