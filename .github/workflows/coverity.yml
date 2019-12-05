@@ -1,0 +1,65 @@
+name: Covertity
+
+on:
+  push:
+    tags:
+      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install packages
+        run: |
+          sudo apt-get -qq update
+          sudo add-apt-repository ppa:mhier/libboost-latest
+          sudo apt-get -qq -y install libssl-dev libgit2-dev libboost1.70-dev
+
+      - name: Install toml11
+        run: |
+          git clone -q -b v3.1.0 https://github.com/ToruNiina/toml11.git
+          mkdir toml11/build && cd $_
+          cmake -Dtoml11_BUILD_TEST=OFF ..
+          sudo make install
+          cd ../../
+          rm -rf toml11
+
+      - name: Download Coverity Build Tool
+        run: |
+          wget -q https://scan.coverity.com/download/cxx/linux64 \
+            --post-data "token=$COVERITY_SCAN_TOKEN&project=poacpm%2Fpoac" \
+            -O coverity_tool.tgz
+          mkdir coverity_tool
+          tar xzf coverity_tool.tgz --strip 1 -C coverity_tool
+        env:
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+
+      - name: Create a building directory and Run CMake
+        run: |
+          mkdir build && cd $_
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+        env:
+          CXX: g++-7
+
+      - name: Build with cov-build
+        run: |
+          export PATH=$PWD/coverity_tool/bin:$PATH
+          cov-configure --comptype gcc --compiler g++-7 --template
+          cov-build --dir cov-int make --directory ./build
+
+      - name: Submit the result to Coverity Scan
+        run: |
+          tar czvf poac.tgz cov-int
+          curl \
+            --form project='poacpm/poac' \
+            --form token=${COVERITY_SCAN_TOKEN} \
+            --form email=${COVERITY_SCAN_NOTIFICATION_EMAIL} \
+            --form file=@poac.tgz \
+            --form version='0.2.1' \
+            --form description='Package manager for C++' \
+            https://scan.coverity.com/builds?project=poacpm%2Fpoac
+        env:
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          COVERITY_SCAN_NOTIFICATION_EMAIL: ${{ secrets.COVERITY_SCAN_NOTIFICATION_EMAIL }}

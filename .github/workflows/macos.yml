@@ -11,10 +11,8 @@ jobs:
         build_type: [Debug] # TODO: Release
     steps:
       - uses: actions/checkout@v1
-      - name: Install libgit2
-        run: brew install libgit2
-      - name: Install toml11
-        run: brew install matken11235/toml11/toml11
+      - name: Install libgit2 & toml11
+        run: brew install libgit2 matken11235/toml11/toml11
       - name: Build and Test
         run: |
           mkdir build && cd build
