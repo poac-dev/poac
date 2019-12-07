@@ -53,6 +53,7 @@ namespace termcolor2 {
         length(const char_type* s) {
             return length_impl(s, 0);
         }
+
     private:
         static constexpr std::size_t
         length_impl(const char_type* s, std::size_t len) {

@@ -11,7 +11,7 @@
 
 #include <poac/core/except.hpp>
 
-#if BOOST_COMP_MSVC && __has_include(<filesystem>)
+#if (BOOST_OS_MACOS || BOOST_COMP_MSVC) && __has_include(<filesystem>)
 #  include <filesystem>
 #  include <system_error>
 namespace poac::io::filesystem {
@@ -24,7 +24,7 @@ namespace poac::io::filesystem {
     using namespace boost::filesystem;
 }
 #endif
-// In macOS 10.14 or earlier, when std::filesystem is used,
+// In macOS 10.14 or later, when std::filesystem is used,
 //   it is diverted to an unimplemented filesystem header so
 //   do not expand std::filesystem namespace to boost::filesystem,
 //   expand to poac::io::path namespace.
@@ -95,7 +95,7 @@ namespace poac::io::filesystem {
     inline const io::filesystem::path current_build_test_dir(current_build_dir / "test");
     inline const io::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
 
-    bool validate_dir(const io::filesystem::path& path) {
+    inline bool validate_dir(const io::filesystem::path& path) {
         namespace fs = io::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
@@ -140,7 +140,7 @@ namespace poac::io::filesystem {
     }
 #endif
 
-    std::string
+    inline std::string
     time_to_string(const std::time_t& time) {
         return std::to_string(time);
     }

@@ -178,7 +178,8 @@ namespace poac::util::cfg {
         operator<<(std::ostream& os, const Token& token);
     };
 
-    Token::Kind to_kind(std::string_view kind) {
+    constexpr Token::Kind
+    to_kind(std::string_view kind) {
         if (kind == "(") {
             return Token::LeftParen;
         } else if (kind == ")") {
@@ -200,7 +201,7 @@ namespace poac::util::cfg {
         }
     }
 
-    std::string to_string(Token::ident ident) noexcept {
+    std::string to_string(Token::ident ident) {
         switch (ident) {
             case Token::ident::cfg:
                 return "cfg";
@@ -222,6 +223,10 @@ namespace poac::util::cfg {
                 return "os_version";
             case Token::ident::platform:
                 return "platform";
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -247,6 +252,10 @@ namespace poac::util::cfg {
                 return (os << "string: " << token.get_str());
             case Token::Ident:
                 return (os << "ident: " << to_string(token.get_ident()));
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -271,7 +280,7 @@ namespace poac::util::cfg {
         std::optional<Token>
         peek() const {
             const auto [diff, token] = tokenize(this->index);
-            (void)diff;
+            static_cast<void>(diff);
             return token;
         }
 
@@ -548,6 +557,10 @@ namespace poac::util::cfg {
                 }
                 case Kind::value:
                     return this->match(std::get<Cfg>(this->expr));
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
 
@@ -650,6 +663,10 @@ namespace poac::util::cfg {
 #endif
                 case Cfg::Ident::os_version:
                     return false;
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
     };

@@ -17,7 +17,7 @@ By using poac, you can create a C++ project, build sources and execute an applic
 
 | Linux | macOS | Windows |
 |:---:|:---:|:---:|
-|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22) [![Travis CI](https://travis-ci.com/poacpm/poac.svg?branch=master)](https://travis-ci.com/poacpm/poac)|[![Build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/master?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/master)|
+|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22)|[![Appveyor build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/master?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/master)|
 
 Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-started/installation.html#supported-operating-systems) for more information about supported OS.
 
@@ -78,7 +78,7 @@ $ poac build
 I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.
 It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
 
-By developing a package manager and build system that has an intuitive and easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and users can develop applications and libraries without being aware of [CMake](https://cmake.org), you can focus on learning C++ without being stumble.
+By developing a package manager and a build system that has an intuitive and easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and users can develop applications and libraries without being aware of [CMake](https://cmake.org), you can focus on learning C++ without stumbling.
 I also plan to implement integration with many other build systems and package managers, so you should be able to switch seamlessly.
 
 ## Contributing
@@ -90,7 +90,6 @@ You can also find the useful [architecture documentation](https://doc.poac.pm/en
 Poac is licensed under the terms of the Apache License version 2.0.
 
 Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
-
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
