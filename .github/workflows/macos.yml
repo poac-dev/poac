@@ -29,7 +29,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: '*${{ github.workflow }} Catalina (10.15) (${{ matrix.build_type }})*'
+          job_name: '*${{ github.workflow }} Catalina (10.15) (${{ matrix.build_type }}) (${{ github.event_name }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           commit: true
           token: ${{ secrets.GITHUB_TOKEN }}
