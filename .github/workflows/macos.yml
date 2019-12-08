@@ -28,8 +28,6 @@ jobs:
         uses: homoluctus/slatify@master
         if: always()
         with:
-          icon_emoji: octocat
-          username: 'GitHub Action'
           type: ${{ job.status }}
           job_name: '*${{ github.workflow }} / ${{ job.name }} (${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
