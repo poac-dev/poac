@@ -30,10 +30,11 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/x86_64-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
-          name: poac
+          name: x86_64-unknown-linux-gnu
           path: poac
 
       - name: Slack Notification
@@ -76,10 +77,11 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/mips-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
-          name: poac
+          name: mips-unknown-linux-gnu
           path: poac
 
       - name: Slack Notification
@@ -122,10 +124,11 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
-          name: poac
+          name: powerpc-unknown-linux-gnu
           path: poac
 
       - name: Slack Notification
@@ -168,10 +171,11 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc64-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
-          name: poac
+          name: powerpc64-unknown-linux-gnu
           path: poac
 
       - name: Slack Notification
@@ -214,10 +218,11 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc64le-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
-          name: poac
+          name: powerpc64le-unknown-linux-gnu
           path: poac
 
       - name: Slack Notification
