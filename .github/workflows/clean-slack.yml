@@ -16,10 +16,10 @@ jobs:
           before: "$(date -v -1m '+%Y%m%d')"
           perform: true
 
-      - name: Slack notification
-        uses: Ilshidur/action-slack@master
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: 'GitHub Notification'
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
         with:
-          args: ':white_check_mark: Cleaned slack messages.'
+          type: ${{ job.status }}
+          job_name: '*${{ github.workflow }} / clean*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
