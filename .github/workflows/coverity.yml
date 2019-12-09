@@ -69,7 +69,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: '*${{ github.workflow }} / scan (${{ matrix.build_type }})*'
+          job_name: '*${{ github.workflow }} / scan*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           commit: true
           token: ${{ secrets.GITHUB_TOKEN }}
