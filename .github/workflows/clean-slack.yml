@@ -20,6 +20,7 @@ jobs:
         uses: homoluctus/slatify@master
         if: always()
         with:
+          username: 'GitHub Notification'
           type: ${{ job.status }}
           job_name: '*${{ github.workflow }} / clean*'
           url: ${{ secrets.SLACK_WEBHOOK }}
