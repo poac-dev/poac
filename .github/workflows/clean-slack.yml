@@ -13,7 +13,7 @@ jobs:
           message: true
           channel: 'notifications'
           user: '*'
-          before: "\"$(date '+%C%y%m%d' -d '-1 month')\""
+          before: "$(date -v -1m '+%Y%m%d')"
           perform: true
 
       - name: Slack notification
