@@ -6,7 +6,7 @@ jobs:
   clean:
     runs-on: ubuntu-latest
     steps:
-      - uses: matken11235/slack-cleaner@v1
+      - uses: matken11235/slack-cleaner@master
         with:
           token: ${{ secrets.SLACK_LEGACY_TOKEN }}
           rate: '1'
