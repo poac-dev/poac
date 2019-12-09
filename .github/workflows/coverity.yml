@@ -69,7 +69,8 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: '*${{ github.workflow }} / scan*'
+          job_name: '*scan*'
           url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
           commit: true
           token: ${{ secrets.GITHUB_TOKEN }}
