@@ -42,7 +42,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: 'x86_64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          job_name: '*x86_64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
@@ -86,7 +86,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: 'mips-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          job_name: '*mips-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
@@ -130,7 +130,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: 'powerpc-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          job_name: '*powerpc-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
@@ -174,7 +174,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: 'powerpc64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          job_name: '*powerpc64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
@@ -218,7 +218,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: 'powerpc64le-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          job_name: '*powerpc64le-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
