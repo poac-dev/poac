@@ -13,13 +13,13 @@ jobs:
           message: true
           channel: 'notifications'
           user: '*'
-          before: '20191201'
+          before: "date '+%C%y%m%d' -d '-1 month'"
           perform: true
 
       - name: Slack notification
         uses: Ilshidur/action-slack@master
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: 'GitHub notification'
+          SLACK_USERNAME: 'GitHub Notification'
         with:
           args: ':white_check_mark: Cleaned slack messages.'
