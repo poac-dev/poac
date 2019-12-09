@@ -1,0 +1,25 @@
+name: Clean Slack (Monthly)
+
+on: [push]
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: matken11235/slack-cleaner@v1
+        with:
+          token: ${{ secrets.SLACK_LEGACY_TOKEN }}
+          rate: '1'
+          message: true
+          channel: 'notifications'
+          user: '*'
+          before: '20191201'
+          perform: true
+
+      - name: Slack notification
+        uses: Ilshidur/action-slack@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: 'GitHub notification'
+        with:
+          args: ':white_check_mark: Cleaned slack messages.'
