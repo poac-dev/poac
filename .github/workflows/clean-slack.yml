@@ -1,4 +1,4 @@
-name: Clean Slack (Monthly)
+name: Slack Cleaner (Monthly)
 
 on:
   schedule:
