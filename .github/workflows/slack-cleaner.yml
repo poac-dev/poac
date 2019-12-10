@@ -1,8 +1,8 @@
 name: Slack Cleaner (Monthly)
 
-on: push
-#  schedule:
-#    - cron:  '0 0 1 * *'
+on:
+  schedule:
+    - cron:  '0 0 1 * *'
 
 jobs:
   clean:
