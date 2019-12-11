@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: 2019
+    name: Visual Studio 2019
     runs-on: windows-latest
     strategy:
       matrix:
@@ -33,14 +33,14 @@ jobs:
           mkdir build
           cd build
           cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-          cmake --build . --target install --config %CONFIGURATION%
+          cmake --build . --target install --config ${{ matrix.build_type }}
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: '*${{ github.workflow }} 2019 (${{ matrix.build_type }})*'
+          job_name: '*${{ github.workflow }} Visual Studio 2019 (${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
