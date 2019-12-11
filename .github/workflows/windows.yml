@@ -1,0 +1,30 @@
+name: Windows
+
+on: [push, pull_request]
+
+jobs:
+  2019:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        build_type: [Debug] # TODO: Release
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install libgit2
+        run: |
+          git clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git
+          mkdir libgit2/build
+          pushd libgit2/build
+          cmake .. -G "Visual Studio 16 2019"
+          cmake --build . --target install --config ${{ matrix.build_type }}
+          popd
+#      - name: Build and Test
+#        run: |
+#          mkdir build && cd build
+#          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+#          make install
+#          ctest --output-on-failure --verbose
+#        env:
+#          POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+#      - name: Print help
+#        run: poac help
