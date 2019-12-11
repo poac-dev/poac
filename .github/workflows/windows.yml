@@ -38,6 +38,9 @@ jobs:
             -DTOML11_DIR="C:/Program Files (x86)/toml11/"
           cmake --build . --target install --config ${{ matrix.build_type }}
 
+      - name: Execution test
+        run: poac --help
+
       - name: Slack Notification
         uses: homoluctus/slatify@master
         if: always()
@@ -48,13 +51,3 @@ jobs:
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
           token: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build and Test
-#        run: |
-#          mkdir build && cd build
-#          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
-#          make install
-#          ctest --output-on-failure --verbose
-#        env:
-#          POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
-#      - name: Print help
-#        run: poac help
