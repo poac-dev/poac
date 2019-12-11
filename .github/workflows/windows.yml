@@ -26,14 +26,7 @@ jobs:
           cmake .. -G "Visual Studio 16 2019"
           cmake --build . --target install --config ${{ matrix.build_type }}
       - name: Install libssl
-        run: |
-          git clone -q -b OpenSSL_1_1_1b https://github.com/openssl/openssl.git
-          cd openssl
-          ./config shared
-          make
-          make install
-          cd ../
-          rm -rf openssl
+        run: choco install openssl
 
       - name: Build
         run: |
