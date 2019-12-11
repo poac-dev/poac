@@ -27,7 +27,8 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
       - name: Build
         run: |
-          mkdir build && cd build
+          mkdir build
+          cd build
           cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
           cmake --build . --target install --config %CONFIGURATION%
 
