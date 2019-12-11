@@ -11,20 +11,35 @@ jobs:
         build_type: [Debug] # TODO: Release
     steps:
       - uses: actions/checkout@v1
-      - name: Install libgit2  # TODO: cacheする
+
+      - uses: actions/cache@v1
+        id: libgit2-cache
+        with:
+          path: 'C:/Program Files (x86)/libgit2'
+          key: ${{ runner.os }}-libgit2-0.28.2
+      - name: Install libgit2
+        if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
           git clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git
           mkdir libgit2/build
           cd libgit2/build
           cmake .. -G "Visual Studio 16 2019"
           cmake --build . --target install --config ${{ matrix.build_type }}
+
+      - uses: actions/cache@v1
+        id: toml11-cache
+        with:
+          path: 'C:/Program Files (x86)/toml11'
+          key: ${{ runner.os }}-toml11-3.1.0
       - name: Install toml11
+        if: steps.toml11-cache.outputs.cache-hit != 'true'
         run: |
           git clone -q -b v3.1.0 https://github.com/ToruNiina/toml11.git
           mkdir toml11/build
           cd toml11/build
           cmake .. -G "Visual Studio 16 2019"
           cmake --build . --target install --config ${{ matrix.build_type }}
+
       - name: Install libssl
         run: choco install openssl
 
@@ -39,7 +54,7 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
 
       - name: Execution test
-        run: poac --help
+        run: poac.exe --help
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
