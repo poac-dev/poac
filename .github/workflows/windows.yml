@@ -3,7 +3,8 @@ name: Windows
 on: [push, pull_request]
 
 jobs:
-  2019:
+  build:
+    name: 2019
     runs-on: windows-latest
     strategy:
       matrix:
