@@ -51,19 +51,6 @@ environment:
       BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
       BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
 
-    - COMPILER: msvc
-      GENERATOR: "Visual Studio 16 2019"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PLATFORM: x86
-      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_71_0'
-      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.71.0'
-    - COMPILER: msvc
-      GENERATOR: "Visual Studio 16 2019"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PLATFORM: x64
-      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_71_0'
-      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.71.0'
-
 install:
   - if %COMPILER% == cygwin-gcc (
       %CYG_ROOT%\%CYG_SETUP% --quiet-mode ^
