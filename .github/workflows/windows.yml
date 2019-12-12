@@ -56,7 +56,8 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
 
       - name: Execution test
-        run: 'C:/Program Files (x86)/poac/bin/poac.exe' --help
+        run: |
+          "C:/Program Files (x86)/poac/bin/poac.exe" --help
 
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
