@@ -12,7 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - uses: actions/cache@v1
+      - name: libgit2 cache
+        uses: actions/cache@v1
         id: libgit2-cache
         with:
           path: 'C:/Program Files (x86)/libgit2'
@@ -26,7 +27,8 @@ jobs:
           cmake .. -G "Visual Studio 16 2019"
           cmake --build . --target install --config ${{ matrix.build_type }}
 
-      - uses: actions/cache@v1
+      - name: toml11 cache
+        uses: actions/cache@v1
         id: toml11-cache
         with:
           path: 'C:/Program Files (x86)/toml11'
@@ -54,7 +56,13 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
 
       - name: Execution test
-        run: poac.exe --help
+        run: 'C:/Program Files (x86)/poac/bin/poac.exe' --help
+
+      - uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: windows
+          path: 'C:/Program Files (x86)/poac/bin/poac.exe'
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
