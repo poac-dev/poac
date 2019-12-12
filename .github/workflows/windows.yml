@@ -19,7 +19,7 @@ jobs:
         id: libgit2-cache
         with:
           path: 'C:/Program Files (x86)/libgit2'
-          key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libgit2-0.28.2
+          key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libgit2-0.28.4
       - name: Install libgit2
         if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
@@ -94,7 +94,7 @@ jobs:
         id: libgit2-cache
         with:
           path: 'C:/Program Files (x86)/libgit2'
-          key: ${{ runner.os }}-mingw-8-${{ matrix.build_type }}-libgit2-0.28.2
+          key: ${{ runner.os }}-mingw-8-${{ matrix.build_type }}-libgit2-0.28.4
       - name: Install libgit2
         if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
@@ -136,7 +136,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
-          name: windows
+          name: mingw
           path: 'C:/Program Files (x86)/poac/bin/poac.exe'
 
       - name: Slack Notification
