@@ -12,7 +12,7 @@
 
 namespace poac::opts::version {
     inline const clap::subcommand cli =
-            clap::subcommand("update")
+            clap::subcommand("version")
                 .about("Show the current poac version")
             ;
 
