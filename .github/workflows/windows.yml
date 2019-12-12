@@ -28,6 +28,7 @@ jobs:
           cd libgit2/build
           cmake .. -G "$env:generator"
           cmake --build . --target install --config ${{ matrix.build_type }}
+        working-directory: ${{ runner.temp }}
 
       - name: toml11 cache
         uses: actions/cache@v1
@@ -43,6 +44,7 @@ jobs:
           cd toml11/build
           cmake .. -G "$env:generator"
           cmake --build . --target install --config ${{ matrix.build_type }}
+        working-directory: ${{ runner.temp }}
 
       - name: Install libssl
         run: choco install openssl
@@ -101,6 +103,7 @@ jobs:
           cd libgit2/build
           cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
           cmake --build . --target install --config ${{ matrix.build_type }}
+        working-directory: ${{ runner.temp }}
 
       - name: toml11 cache
         uses: actions/cache@v1
@@ -116,6 +119,7 @@ jobs:
           cd toml11/build
           cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
           cmake --build . --target install --config ${{ matrix.build_type }}
+        working-directory: ${{ runner.temp }}
 
       - name: Build
         run: |
@@ -140,7 +144,7 @@ jobs:
         if: always()
         with:
           type: ${{ job.status }}
-          job_name: '*${{ github.workflow }} Visual Studio 2019 (${{ matrix.build_type }})*'
+          job_name: '*${{ github.workflow }} MinGW 8.1.0 (${{ matrix.build_type }})*'
           url: ${{ secrets.SLACK_WEBHOOK }}
           username: 'GitHub Action (${{ github.workflow }})'
           commit: true
