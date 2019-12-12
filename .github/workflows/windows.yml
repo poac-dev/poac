@@ -3,7 +3,7 @@ name: Windows
 on: [push, pull_request]
 
 jobs:
-  vs2019:
+  win32-vs2019:
     name: Visual Studio 2019
     runs-on: windows-latest
     strategy:
@@ -75,7 +75,8 @@ jobs:
           commit: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  mingw-8:
+  # See also: https://github.com/actions/virtual-environments/issues/111
+  win32-mingw-8:
     name: MinGW 8.1.0
     runs-on: windows-latest
     strategy:
@@ -85,13 +86,6 @@ jobs:
       GENERATOR: 'MinGW Makefiles'
     steps:
       - uses: actions/checkout@v1
-
-      - name: Remove git sh.exe for MinGW
-        run: |
-          $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
-          if ($env:cxx_path -ne "") {
-            $env:path += ";$env:cxx_path"
-          }
 
       - name: libgit2 cache
         uses: actions/cache@v1
@@ -105,7 +99,7 @@ jobs:
           git clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git
           mkdir libgit2/build
           cd libgit2/build
-          cmake .. -G "$env:generator"
+          cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
           cmake --build . --target install --config ${{ matrix.build_type }}
 
       - name: toml11 cache
@@ -120,7 +114,7 @@ jobs:
           git clone -q -b v3.1.0 https://github.com/ToruNiina/toml11.git
           mkdir toml11/build
           cd toml11/build
-          cmake .. -G "$env:generator"
+          cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
           cmake --build . --target install --config ${{ matrix.build_type }}
 
       - name: Build
@@ -128,6 +122,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -G "$env:generator" `
+            -DCMAKE_SH=CMAKE_SH-NOTFOUND `
             -Dpoac_BUILD_TEST=OFF `
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
             -DGIT2_DIR="C:/Program Files (x86)/libgit2" `
