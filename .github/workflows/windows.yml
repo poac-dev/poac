@@ -19,7 +19,7 @@ jobs:
         id: libgit2-cache
         with:
           path: 'C:/Program Files (x86)/libgit2'
-          key: ${{ runner.os }}-${{ matrix.build_type }}-libgit2-0.28.2
+          key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libgit2-0.28.2
       - name: Install libgit2
         if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
@@ -34,7 +34,7 @@ jobs:
         id: toml11-cache
         with:
           path: 'C:/Program Files (x86)/toml11'
-          key: ${{ runner.os }}-${{ matrix.build_type }}-toml11-3.1.0
+          key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-toml11-3.1.0
       - name: Install toml11
         if: steps.toml11-cache.outputs.cache-hit != 'true'
         run: |
@@ -86,12 +86,19 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - name: Remove git sh.exe for MinGW
+        run: |
+          $env:path = $env:path.replace("C:\Program Files\Git\usr\bin;", "")
+          if ($env:cxx_path -ne "") {
+            $env:path += ";$env:cxx_path"
+          }
+
       - name: libgit2 cache
         uses: actions/cache@v1
         id: libgit2-cache
         with:
           path: 'C:/Program Files (x86)/libgit2'
-          key: ${{ runner.os }}-${{ matrix.build_type }}-libgit2-0.28.2
+          key: ${{ runner.os }}-mingw-8-${{ matrix.build_type }}-libgit2-0.28.2
       - name: Install libgit2
         if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
@@ -106,7 +113,7 @@ jobs:
         id: toml11-cache
         with:
           path: 'C:/Program Files (x86)/toml11'
-          key: ${{ runner.os }}-${{ matrix.build_type }}-toml11-3.1.0
+          key: ${{ runner.os }}-mingw-8-${{ matrix.build_type }}-toml11-3.1.0
       - name: Install toml11
         if: steps.toml11-cache.outputs.cache-hit != 'true'
         run: |
