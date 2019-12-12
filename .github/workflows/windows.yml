@@ -17,7 +17,7 @@ jobs:
         id: libgit2-cache
         with:
           path: 'C:/Program Files (x86)/libgit2'
-          key: ${{ runner.os }}-libgit2-0.28.2
+          key: ${{ runner.os }}-${{ matrix.build_type }}-libgit2-0.28.2
       - name: Install libgit2
         if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
@@ -32,7 +32,7 @@ jobs:
         id: toml11-cache
         with:
           path: 'C:/Program Files (x86)/toml11'
-          key: ${{ runner.os }}-toml11-3.1.0
+          key: ${{ runner.os }}-${{ matrix.build_type }}-toml11-3.1.0
       - name: Install toml11
         if: steps.toml11-cache.outputs.cache-hit != 'true'
         run: |
