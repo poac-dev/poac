@@ -101,7 +101,7 @@ jobs:
           git clone -q -b v0.28.2 https://github.com/libgit2/libgit2.git
           mkdir libgit2/build
           cd libgit2/build
-          cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
+          cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND -w
           cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: ${{ runner.temp }}
 
