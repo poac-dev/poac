@@ -92,21 +92,21 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: libgit2 cache
-        uses: actions/cache@v1
-        id: libgit2-cache
-        with:
-          path: 'C:/Program Files (x86)/libgit2'
-          key: ${{ runner.os }}-mingw-8-${{ matrix.build_type }}-libgit2-${{ env.LIBGIT2_VERSION }}
-      - name: Install libgit2
-        if: steps.libgit2-cache.outputs.cache-hit != 'true'
-        run: |
-          git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
-          mkdir libgit2/build
-          cd libgit2/build
-          cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
-          cmake --build . --target install --config ${{ matrix.build_type }}
-        working-directory: ${{ runner.temp }}
+#      - name: libgit2 cache
+#        uses: actions/cache@v1
+#        id: libgit2-cache
+#        with:
+#          path: 'C:/Program Files (x86)/libgit2'
+#          key: ${{ runner.os }}-mingw-8-${{ matrix.build_type }}-libgit2-${{ env.LIBGIT2_VERSION }}
+#      - name: Install libgit2
+#        if: steps.libgit2-cache.outputs.cache-hit != 'true'
+#        run: |
+#          git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
+#          mkdir libgit2/build
+#          cd libgit2/build
+#          cmake .. -G "$env:generator" -DCMAKE_SH=CMAKE_SH-NOTFOUND
+#          cmake --build . --target install --config ${{ matrix.build_type }}
+#        working-directory: ${{ runner.temp }}
 
       - name: toml11 cache
         uses: actions/cache@v1
