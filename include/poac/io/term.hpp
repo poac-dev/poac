@@ -29,14 +29,16 @@ namespace poac::io::term {
         std::cout << std::setw(n) << std::left;
     }
 
-    inline constexpr auto status = termcolor2::bold + termcolor2::green + "==> " + termcolor2::reset;
-    inline constexpr auto fetched = termcolor2::to_green("  ●  ");
-    inline constexpr auto fetch_failed = termcolor2::to_red("  ●  ");
+    inline constexpr auto bold_green = termcolor2::bold + termcolor2::green;
 
-    inline constexpr auto warning = termcolor2::to_yellow("WARN: ");
-    inline constexpr auto error = termcolor2::to_red("ERROR: ");
-    inline constexpr auto info = termcolor2::to_blue("info: ");
-    inline constexpr auto debug_m = termcolor2::to_gray("[debug] ");
+    inline constexpr auto status = bold_green + "==> " + termcolor2::reset;
+    inline constexpr auto fetched = termcolor2::green + "  ●  " + termcolor2::reset;
+    inline constexpr auto fetch_failed = termcolor2::red + "  ●  " + termcolor2::reset;
+
+    inline constexpr auto warning = termcolor2::yellow + "WARN: " + termcolor2::reset;
+    inline constexpr auto error = termcolor2::bold + termcolor2::red + "error: " + termcolor2::reset;
+    inline constexpr auto info = termcolor2::blue + "info: " + termcolor2::reset;
+    inline constexpr auto debug_m = termcolor2::gray + "[debug] " + termcolor2::reset;
 
     inline void status_done() {
         std::cout << status << "Done." << std::endl;
@@ -65,12 +67,9 @@ namespace poac::io::term {
         return (os << std::right << std::setw(indent_size));
     }
 
-    template <typename CharT = char>
-    inline constexpr auto bold_green = termcolor2::bold_v<CharT>() + termcolor2::green_v<CharT>();
-
     inline std::ostream&
     compiling(std::ostream& os) {
-        return (os << status_opt << bold_green<> + "Compiling " << termcolor2::reset);
+        return (os << status_opt << bold_green + "Compiling " << termcolor2::reset);
     }
     inline void
     echo_compiling(const std::optional<io::config::Config>& config) {
@@ -90,7 +89,7 @@ namespace poac::io::term {
 
     inline std::ostream&
     echo_status(std::ostream& os, const std::string& msg) {
-        return (os << status_opt << bold_green<>.to_string() + msg << termcolor2::reset);
+        return (os << status_opt << bold_green.to_string() + msg << termcolor2::reset);
     }
 
     inline std::ostream&
