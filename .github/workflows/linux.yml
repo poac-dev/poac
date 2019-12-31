@@ -19,16 +19,34 @@ jobs:
       - name: Build and Test
         run: |
           docker pull $DOCKER_IMAGE_NAME
-          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run --rm $DOCKER_IMAGE_NAME \
+          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run $DOCKER_IMAGE_NAME \
             bash -c '
               cd /home/run && mkdir build && cd build &&
               cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
               make && ctest --output-on-failure --verbose &&
               cd ../ && file ./build/poac &&
               ./build/poac help'
+          docker cp builder:/home/run/build/poac ./poac
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/x86_64-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
+      - uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: x86_64-unknown-linux-gnu
+          path: poac
+
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          job_name: '*x86_64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   mips-unknown-linux-gnu:
     runs-on: ubuntu-latest
@@ -46,15 +64,33 @@ jobs:
       - name: Build and Test
         run: |
           docker pull $DOCKER_IMAGE_NAME
-          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run --rm $DOCKER_IMAGE_NAME \
+          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run $DOCKER_IMAGE_NAME \
             bash -c '
               cd /home/run && mkdir build && cd build &&
               cmake .. -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
               make &&
               cd ../ && file ./build/poac'
+          docker cp builder:/home/run/build/poac ./poac
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/mips-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
+      - uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: mips-unknown-linux-gnu
+          path: poac
+
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          job_name: '*mips-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   powerpc-unknown-linux-gnu:
     runs-on: ubuntu-latest
@@ -72,15 +108,33 @@ jobs:
       - name: Build and Test
         run: |
           docker pull $DOCKER_IMAGE_NAME
-          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run --rm $DOCKER_IMAGE_NAME \
+          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run $DOCKER_IMAGE_NAME \
             bash -c '
               cd /home/run && mkdir build && cd build &&
               cmake .. -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
               make &&
               cd ../ && file ./build/poac'
+          docker cp builder:/home/run/build/poac ./poac
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
+      - uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: powerpc-unknown-linux-gnu
+          path: poac
+
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          job_name: '*powerpc-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   powerpc64-unknown-linux-gnu:
     runs-on: ubuntu-latest
@@ -98,15 +152,33 @@ jobs:
       - name: Build and Test
         run: |
           docker pull $DOCKER_IMAGE_NAME
-          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run --rm $DOCKER_IMAGE_NAME \
+          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run $DOCKER_IMAGE_NAME \
             bash -c '
               cd /home/run && mkdir build && cd build &&
               cmake .. -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
               make &&
               cd ../ && file ./build/poac'
+          docker cp builder:/home/run/build/poac ./poac
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc64-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
+      - uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: powerpc64-unknown-linux-gnu
+          path: poac
+
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          job_name: '*powerpc64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   powerpc64le-unknown-linux-gnu:
     runs-on: ubuntu-latest
@@ -124,15 +196,33 @@ jobs:
       - name: Build and Test
         run: |
           docker pull $DOCKER_IMAGE_NAME
-          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run --rm $DOCKER_IMAGE_NAME \
+          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run $DOCKER_IMAGE_NAME \
             bash -c '
               cd /home/run && mkdir build && cd build &&
               cmake .. -Dpoac_BUILD_TEST=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
               make &&
               cd ../ && file ./build/poac'
+          docker cp builder:/home/run/build/poac ./poac
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc64le-unknown-linux-gnu:${{ matrix.compiler }}
           POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
+
+      - uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: powerpc64le-unknown-linux-gnu
+          path: poac
+
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          job_name: '*powerpc64le-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   # TODO: publish build when tag is pushed (/^[0-9]+(\.[0-9]+){2}.*$/)
   # filters:
