@@ -11,27 +11,11 @@
 
 #include <poac/core/except.hpp>
 
-#if (BOOST_OS_MACOS || BOOST_COMP_MSVC) && __has_include(<filesystem>)
-#  include <filesystem>
-#  include <system_error>
+#include <filesystem>
+#include <system_error>
 namespace poac::io::filesystem {
     using namespace std::filesystem;
 }
-#else
-#  include <boost/filesystem.hpp>
-#  include <boost/system/system_error.hpp>
-namespace poac::io::filesystem {
-    using namespace boost::filesystem;
-}
-#endif
-// In macOS 10.14 or later, when std::filesystem is used,
-//   it is diverted to an unimplemented filesystem header so
-//   do not expand std::filesystem namespace to boost::filesystem,
-//   expand to poac::io::path namespace.
-// error: 'path' is unavailable: introduced in macOS 10.15
-// /Applications/Xcode-11.0.app/Contents/Developer/Toolchains/
-// XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/filesystem:739:24:
-// note: 'path' has been explicitly marked unavailable here
 
 namespace poac::io::filesystem {
     std::optional<std::string>
@@ -100,7 +84,6 @@ namespace poac::io::filesystem {
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-#if BOOST_COMP_MSVC && __has_include(<filesystem>)
     bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) noexcept {
         try {
             io::filesystem::copy(from, dest, io::filesystem::copy_options::recursive);
@@ -109,36 +92,6 @@ namespace poac::io::filesystem {
         }
         return true;
     }
-#else
-    bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) {
-        // Does the copy source exist?
-        if (!io::filesystem::exists(from) || !io::filesystem::is_directory(from)) {
-            return false;
-        }
-        // Does the copy destination exist?
-        if (!validate_dir(dest) && !io::filesystem::create_directories(dest)) {
-            return false; // Unable to create destination directory
-        }
-        // Iterate through the source directory
-        for (io::filesystem::directory_iterator file(from); file != io::filesystem::directory_iterator(); ++file) {
-            const io::filesystem::path cur(file->path());
-            if (io::filesystem::is_directory(cur)) {
-                // Found directory: Recursion
-                if (filesystem::copy_recursive(cur, dest / cur.filename())) {
-                    return false;
-                }
-            } else {
-                // Found file: Copy
-                try {
-                    io::filesystem::copy_file(cur, dest / cur.filename());
-                } catch (...) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-#endif
 
     inline std::string
     time_to_string(const std::time_t& time) {
