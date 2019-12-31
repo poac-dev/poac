@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_INIT_HPP
 #define POAC_OPTS_INIT_HPP
 
+// Std
 #include <future>
 #include <iostream>
 #include <fstream>
@@ -8,12 +9,14 @@
 #include <string_view>
 #include <optional>
 
+// Internal
 #include <poac/opts/new.hpp>
 #include <poac/io/filesystem.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
+#include <poac/util/clap/clap.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::opts::init {
@@ -29,39 +32,10 @@ namespace poac::opts::init {
     };
 
     [[nodiscard]] std::optional<core::except::Error>
-    overwrite(std::string_view config_path) {
-        std::cout << termcolor2::bold << termcolor2::red
-                  << config_path << " is already exists." << std::endl
-                  << std::endl
-                  << "See `poac init --help`" << std::endl
-                  << std::endl
-                  << "Use `poac install <pkg>` afterwards to install a package and" << std::endl
-                  << "save it as a dependency in the poac.yml file." << std::endl
-                  << termcolor2::reset << std::endl;
-        if (const auto error = io::term::yes_or_no("Do you want overwrite?")) {
-            return error;
-        }
-        return std::nullopt;
-    }
-
-    [[nodiscard]] std::optional<core::except::Error>
-    validate() {
-        if (const auto config_path = io::config::detail::validate_config()) {
-            if (const auto error = overwrite(config_path.value())) {
-                return error;
-            }
-        }
-        if (const auto error = core::name::validate_package_name(io::filesystem::current.stem().string())) {
-            return error;
-        }
-        return std::nullopt;
-    }
-
-    [[nodiscard]] std::optional<core::except::Error>
     init(init::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        if (const auto error = validate()) {
+        if (const auto error = core::name::validate_package_name(io::filesystem::current.stem().string())) {
             return error;
         }
 
@@ -75,7 +49,7 @@ namespace poac::opts::init {
                 ofs_config << _new::files::lib::poac_toml;
                 break;
         }
-        std::cout << opts.type << " package";
+        std::cout << opts.type << " package" << std::endl;
         return std::nullopt;
     }
 
@@ -83,6 +57,10 @@ namespace poac::opts::init {
     exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         if (args.size() > 1) {
             return core::except::Error::InvalidSecondArg::Init;
+        } else if (io::config::detail::validate_config()) {
+            return core::except::Error::General{
+                "`poac init` cannot be run on existing poac packages"
+            };
         }
 
         init::Options opts{};
@@ -90,7 +68,7 @@ namespace poac::opts::init {
         const bool lib = util::argparse::use_rm(args, "-l", "--lib");
         if (bin && lib) {
             return core::except::Error::General{
-                    "You cannot specify both lib and binary outputs."
+                "You cannot specify both lib and binary outputs."
             };
         } else if (!bin && lib) {
             opts.type = _new::ProjectType::Lib;
