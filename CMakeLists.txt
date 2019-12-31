@@ -25,8 +25,14 @@ elseif (MSVC)
         message(FATAL_ERROR "Poac requires Visual Studio 2017 or later.")
     endif()
 else ()
-    # TODO: Linux
-endif()
+    # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
+            message(FATAL_ERROR "Poac requires GCC 8 or later.")
+        endif ()
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    endif ()
+endif ()
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
