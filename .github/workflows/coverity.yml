@@ -3,7 +3,7 @@ name: Covertity
 on:
   push:
     tags:
-      - '^v?[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'
+      - '^v?[0-9]+\.[0-9]+\.[0-9]+$'
 
 jobs:
   scan:
