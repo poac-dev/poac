@@ -4,6 +4,7 @@ on: [push, pull_request]
 env:
   LIBGIT2_VERSION: 0.28.4
   TOML11_VERSION: 3.1.0
+  LIBSSL_VERSION: 1.1.1.4
 
 jobs:
   win32-vs2019:
@@ -49,10 +50,15 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: ${{ runner.temp }}
 
+      - name: libssl cache
+        uses: actions/cache@v1
+        id: libssl-cache
+        with:
+          path: 'C:/Program Files/OpenSSL-Win64'
+          key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libssl-${{ env.LIBSSL_VERSION }}
       - name: Install libssl
-        run: |
-          choco install openssl
-          choco config get --name cacheLocation
+        if: steps.libssl-cache.outputs.cache-hit != 'true'
+        run: choco install openssl --version v${{ env.LIBSSL_VERSION }}
 
       - name: Build
         run: |
