@@ -58,7 +58,7 @@ jobs:
           key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libssl-${{ env.LIBSSL_VERSION }}
       - name: Install libssl
         if: steps.libssl-cache.outputs.cache-hit != 'true'
-        run: choco install openssl --version v${{ env.LIBSSL_VERSION }}
+        run: choco install openssl --version ${{ env.LIBSSL_VERSION }}
 
       - name: Build
         run: |
