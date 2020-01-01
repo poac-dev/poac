@@ -50,8 +50,9 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Install libssl
-        run: choco install openssl
-      - run: choco config get cacheLocation
+        run: |
+          choco install openssl
+          choco config get --name cacheLocation
 
       - name: Build
         run: |
