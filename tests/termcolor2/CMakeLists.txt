@@ -6,7 +6,7 @@ set(TEST_NAMES
         io
         literals
         min
-        string
+#        string
 #        to_color
 )
 
