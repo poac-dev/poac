@@ -3,35 +3,35 @@
 
 //#include <libtar.h>
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include <poac/io/filesystem.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::io::tar {
-    bool extract(const io::filesystem::path& filename, const std::string& options = "") {
+    bool extract(const std::filesystem::path& filename, const std::string& options = "") {
         const std::string cmd = "tar xf " + filename.string() + " " + options;
         return util::shell(cmd).exec_ignore();
     }
 
     // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-    bool extract_spec(const io::filesystem::path& input, const io::filesystem::path& output) {
-        io::filesystem::create_directories(output);
+    bool extract_spec(const std::filesystem::path& input, const std::filesystem::path& output) {
+        std::filesystem::create_directories(output);
         return extract(input, "-C " + output.string() + " --strip-components 1");
     }
 
     // It is almost the same behavior as --remove-files,
     //  but deleted in fs::remove because there is a possibility
     //   that it is not compatible with --remove-files.
-    bool extract_spec_rm(const io::filesystem::path& input, const io::filesystem::path& output) {
-        return extract_spec(input, output) && io::filesystem::remove(input);
+    bool extract_spec_rm(const std::filesystem::path& input, const std::filesystem::path& output) {
+        return extract_spec(input, output) && std::filesystem::remove(input);
     }
 
     bool compress_spec_exclude(
-            const io::filesystem::path& input,
-            const io::filesystem::path& output,
+            const std::filesystem::path& input,
+            const std::filesystem::path& output,
             const std::vector<std::string> opts
     ) {
         std::string exclude;

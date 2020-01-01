@@ -1,6 +1,7 @@
 #ifndef POAC_IO_LOCKFILE_HPP
 #define POAC_IO_LOCKFILE_HPP
 
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -12,7 +13,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 
 namespace poac::io::lockfile {
     enum class PackageType {
@@ -110,7 +111,7 @@ namespace poac::io::lockfile {
     }
 
     std::optional<Lockfile>
-    load(const filesystem::path& base = filesystem::current) {
+    load(const std::filesystem::path& base = path::current) {
         return config::load_toml<Lockfile>(base, "poac.lock");
     }
 } // end namespace

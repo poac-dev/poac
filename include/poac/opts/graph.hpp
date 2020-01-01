@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_GRAPH_HPP
 #define POAC_OPTS_GRAPH_HPP
 
+#include <filesystem>
 #include <future>
 #include <iostream>
 #include <fstream>
@@ -20,7 +21,7 @@
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
@@ -33,7 +34,7 @@ namespace poac::opts::graph {
             ;
 
     struct Options {
-        std::optional<io::filesystem::path> output_file;
+        std::optional<std::filesystem::path> output_file;
     };
 
     struct Vertex {
@@ -116,7 +117,7 @@ namespace poac::opts::graph {
             boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
 
             util::shell("dot -Tpng " + file_dot + " -o " + opts.output_file->string()).exec();
-            io::filesystem::remove(file_dot);
+            std::filesystem::remove(file_dot);
             io::term::status_done();
             return std::nullopt;
         } else {

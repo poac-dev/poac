@@ -2,13 +2,14 @@
 #define POAC_CORE_BUILDER_STANDARD_HPP
 
 #include <cstdint>
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <regex>
 
 #include <poac/core/except.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
 #include <poac/util/cfg.hpp>
@@ -236,7 +237,7 @@ namespace poac::core::builder::standard {
     }
 
     std::string detect_command() {
-        if (const auto cxx = io::filesystem::dupenv("CXX")) {
+        if (const auto cxx = io::path::dupenv("CXX")) {
             return *cxx;
         } else if (util::_shell::has_command("icpc")) {
             return "icpc";

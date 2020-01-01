@@ -2,6 +2,7 @@
 #define POAC_IO_NET_HPP
 
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -29,7 +30,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
@@ -79,7 +80,7 @@ namespace poac::io::net {
 
     public:
         using file_name_type = std::string;
-        using file_path_type = filesystem::path;
+        using file_path_type = std::filesystem::path;
         using header_type = std::map<http::field, std::string>;
         using self_reference = MultiPartForm&;
         using const_self_reference = const MultiPartForm&;
@@ -126,7 +127,7 @@ namespace poac::io::net {
         std::uintmax_t content_length() const {
             return std::accumulate(m_file_param.begin(), m_file_param.end(), m_header.size() + m_footer.size(),
                 [](std::uintmax_t acc, const auto& f) {
-                    return acc + filesystem::file_size(std::get<1>(f));
+                    return acc + std::filesystem::file_size(std::get<1>(f));
                 }
             );
         }
@@ -139,8 +140,8 @@ namespace poac::io::net {
         get_files() const {
             std::vector<FileInfo> file_info;
             for (const auto& f : m_file_param) {
-                const filesystem::path file_path = std::get<1>(f);
-                file_info.push_back({file_path.string(), filesystem::file_size(file_path)});
+                const std::filesystem::path file_path = std::get<1>(f);
+                file_info.push_back({file_path.string(), std::filesystem::file_size(file_path)});
             }
             return file_info;
         }
@@ -490,7 +491,7 @@ namespace poac::io::net {
             const requests req{ GITHUB_API_HOST };
             http::string_body::value_type res;
 
-            if (const auto github_token = filesystem::dupenv("POAC_GITHUB_API_TOKEN")) {
+            if (const auto github_token = path::dupenv("POAC_GITHUB_API_TOKEN")) {
                 Headers headers;
                 headers.emplace(http::field::authorization, "token " + github_token.value());
                 res = req.get(GITHUB_REPOS_API + target, headers);

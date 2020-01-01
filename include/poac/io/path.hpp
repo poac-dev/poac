@@ -1,9 +1,10 @@
-#ifndef POAC_IO_FILESYSTEM_HPP
-#define POAC_IO_FILESYSTEM_HPP
+#ifndef POAC_IO_PATH_HPP
+#define POAC_IO_PATH_HPP
 
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
+#include <filesystem>
 #include <string>
 #include <optional>
 
@@ -11,13 +12,16 @@
 
 #include <poac/core/except.hpp>
 
-#include <filesystem>
-#include <system_error>
-namespace poac::io::filesystem {
-    using namespace std::filesystem;
+namespace std::filesystem {
+    inline namespace path_literals {
+        inline std::filesystem::path
+        operator "" _path(const char* str, std::size_t) noexcept {
+            return std::filesystem::path(str);
+        }
+    }
 }
 
-namespace poac::io::filesystem {
+namespace poac::io::path {
     std::optional<std::string>
     dupenv(const std::string& name) {
 #if BOOST_COMP_MSVC
@@ -57,36 +61,29 @@ namespace poac::io::filesystem {
         }
     }
 
-    inline namespace path_literals {
-        inline io::filesystem::path
-        operator "" _path(const char* str, std::size_t) noexcept {
-            return io::filesystem::path(str);
-        }
-    }
+    inline const std::filesystem::path poac_dir(expand_user() / std::filesystem::operator""_path(".poac", 5));
+    inline const std::filesystem::path poac_cache_dir(poac_dir / "cache");
+    inline const std::filesystem::path poac_log_dir(poac_dir / "logs");
 
-    inline const io::filesystem::path poac_dir(expand_user() / ".poac"_path);
-    inline const io::filesystem::path poac_cache_dir(poac_dir / "cache");
-    inline const io::filesystem::path poac_log_dir(poac_dir / "logs");
+    inline const std::filesystem::path current(std::filesystem::current_path());
+    inline const std::filesystem::path current_deps_dir(current / "deps");
+    inline const std::filesystem::path current_build_dir(current / "_build");
+    inline const std::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
+    inline const std::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
+    inline const std::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
+    inline const std::filesystem::path current_build_bin_dir(current_build_dir / "bin");
+    inline const std::filesystem::path current_build_lib_dir(current_build_dir / "lib");
+    inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
+    inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
 
-    inline const io::filesystem::path current(io::filesystem::current_path());
-    inline const io::filesystem::path current_deps_dir(current / "deps");
-    inline const io::filesystem::path current_build_dir(current / "_build");
-    inline const io::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
-    inline const io::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
-    inline const io::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
-    inline const io::filesystem::path current_build_bin_dir(current_build_dir / "bin");
-    inline const io::filesystem::path current_build_lib_dir(current_build_dir / "lib");
-    inline const io::filesystem::path current_build_test_dir(current_build_dir / "test");
-    inline const io::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
-
-    inline bool validate_dir(const io::filesystem::path& path) {
-        namespace fs = io::filesystem;
+    inline bool validate_dir(const std::filesystem::path& path) {
+        namespace fs = std::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool copy_recursive(const io::filesystem::path& from, const io::filesystem::path& dest) noexcept {
+    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
         try {
-            io::filesystem::copy(from, dest, io::filesystem::copy_options::recursive);
+            std::filesystem::copy(from, dest, std::filesystem::copy_options::recursive);
         } catch (...) {
             return false;
         }
@@ -105,4 +102,4 @@ namespace poac::io::filesystem {
         return time_to_string(t);
     }
 } // end namespace
-#endif // !POAC_IO_FILESYSTEM_HPP
+#endif // !POAC_IO_PATH_HPP

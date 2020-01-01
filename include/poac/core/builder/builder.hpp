@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -15,7 +16,7 @@
 #include <poac/core/name.hpp>
 #include <poac/core/project.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/semver/semver.hpp>
@@ -69,12 +70,12 @@ namespace poac::core::builder {
         std::optional<io::config::Config> config;
         Mode mode;
         bool verbose;
-        io::filesystem::path base_dir;
+        std::filesystem::path base_dir;
         std::string compiler;
 
         [[nodiscard]] std::optional<core::except::Error>
         build() {
-            using namespace io::filesystem::path_literals;
+            using namespace std::filesystem::path_literals;
 
             const auto start = std::chrono::system_clock::now();
 
@@ -131,7 +132,7 @@ namespace poac::core::builder {
                         profile.definitions->cend());
             }
             // poac automatically define the absolute path of the project's root directory.
-//        definitions.emplace_back(make_definition("POAC_PROJECT_ROOT", io::filesystem::current.string()));
+//        definitions.emplace_back(make_definition("POAC_PROJECT_ROOT", std::filesystem::current.string()));
 //    const auto version = semver::Version(config->version);
 //    macro_defns.emplace_back(make_macro_defn("POAC_VERSION", version.get_full()));
 //    macro_defns.emplace_back(make_macro_defn("POAC_MAJOR_VERSION", version.major));
@@ -172,7 +173,7 @@ namespace poac::core::builder {
 
         Builder(std::optional<io::config::Config>&& config,
                 Mode mode, const bool verbose,
-                const io::filesystem::path& base_dir = io::filesystem::current)
+                const std::filesystem::path& base_dir = io::path::current)
                 : config(std::move(config)), mode(mode), verbose(verbose), base_dir(base_dir)
                 , compiler(standard::detect_command())
         {

@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_NEW_HPP
 #define POAC_OPTS_NEW_HPP
 
+#include <filesystem>
 #include <future>
 #include <iostream>
 #include <fstream>
@@ -14,7 +15,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/clap/clap.hpp>
@@ -114,20 +115,20 @@ namespace poac::opts::_new {
         ofs.clear();
     }
 
-    std::map<io::filesystem::path, std::string>
+    std::map<std::filesystem::path, std::string>
     create_template_files(const _new::Options& opts) {
-        using io::filesystem::path_literals::operator""_path;
+        using std::filesystem::path_literals::operator""_path;
 
         switch (opts.type) {
             case ProjectType::Bin:
-                io::filesystem::create_directories(opts.project_name / "src"_path);
+                std::filesystem::create_directories(opts.project_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
                     { "poac.toml", files::bin::poac_toml(opts.project_name) },
                     { "src"_path / "main.cpp", files::bin::main_cpp }
                 };
             case ProjectType::Lib:
-                io::filesystem::create_directories(opts.project_name / "include"_path / opts.project_name);
+                std::filesystem::create_directories(opts.project_name / "include"_path / opts.project_name);
                 return {
                     { ".gitignore", "/target\npoac.lock" },
                     { "poac.toml", files::lib::poac_toml },
@@ -171,7 +172,7 @@ namespace poac::opts::_new {
         if (const auto error = core::name::validate_package_name(opts.project_name)) {
             return error;
         }
-        if (io::filesystem::validate_dir(opts.project_name)) {
+        if (io::path::validate_dir(opts.project_name)) {
             return core::except::Error::General{
                 core::except::msg::already_exist("The `" + opts.project_name + "` directory")
             };

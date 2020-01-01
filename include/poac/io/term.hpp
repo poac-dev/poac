@@ -2,6 +2,7 @@
 #define POAC_IO_TERM_HPP
 
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -11,7 +12,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
@@ -79,11 +80,11 @@ namespace poac::io::term {
                   << std::endl;
     }
     inline void
-    echo_compiling(const std::optional<io::config::Config>& config, const filesystem::path& path) {
+    echo_compiling(const std::optional<io::config::Config>& config, const std::filesystem::path& path) {
         std::cout << compiling
                   << config->package.name
                   << " v" << config->package.version
-                  << " (" << filesystem::absolute(path).string() << ")"
+                  << " (" << std::filesystem::absolute(path).string() << ")"
                   << std::endl;
     }
 
