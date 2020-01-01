@@ -1,11 +1,11 @@
 set(TEST_NAMES
-        char_traits
+#        char_traits
 #        comparison
 #        concat FIXME
 #        gnu_literals
-        io
-        literals
-        min
+#        io
+#        literals
+#        min
 #        string
 #        to_color
 )
