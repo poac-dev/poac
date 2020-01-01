@@ -1,10 +1,11 @@
 #ifndef POAC_UTIL_TYPES_HPP
 #define POAC_UTIL_TYPES_HPP
 
+#include <optional>
+#include <stack>
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <stack>
 
 namespace poac::util::types {
     // If the type T is a reference type, provides the member typedef type
