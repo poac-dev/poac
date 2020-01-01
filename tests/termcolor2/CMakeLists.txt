@@ -1,6 +1,6 @@
 set(TEST_NAMES
         char_traits
-        comparison
+#        comparison
 #        concat FIXME
         gnu_literals
         io
