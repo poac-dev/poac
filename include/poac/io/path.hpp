@@ -48,13 +48,12 @@ namespace poac::io::path {
     std::string expand_user() {
         auto home = dupenv("HOME");
         if (home || (home = dupenv("USERPROFILE"))) {
-            return *home;
-        }
-        else {
-            const auto hdrive = dupenv("HOMEDRIVE");
-            const auto hpath = dupenv("HOMEPATH");
-            if (hdrive && hpath) {
-                return hdrive.value() + hpath.value();
+            return home.value();
+        } else {
+            const auto home_drive = dupenv("HOMEDRIVE");
+            const auto home_path = dupenv("HOMEPATH");
+            if (home_drive && home_path) {
+                return home_drive.value() + home_path.value();
             }
             throw core::except::error(
                     core::except::msg::could_not_read("environment variable"));
