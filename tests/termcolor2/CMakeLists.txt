@@ -2,7 +2,7 @@ set(TEST_NAMES
         char_traits
 #        comparison
 #        concat FIXME
-        gnu_literals
+#        gnu_literals
         io
         literals
         min
