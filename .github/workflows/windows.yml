@@ -49,9 +49,6 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: ${{ runner.temp }}
 
-      - name: Install libssl
-        run: choco install openssl
-
       - name: Build
         run: |
           mkdir build
