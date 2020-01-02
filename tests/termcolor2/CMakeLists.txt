@@ -1,13 +1,13 @@
 set(TEST_NAMES
-#        char_traits
-#        comparison
-#        concat FIXME
-#        gnu_literals
-#        io
-#        literals
-#        min
-#        string
-#        to_color
+        char_traits
+        comparison
+        concat
+        gnu_literals
+        io
+        literals
+        min
+        string
+        to_color
 )
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
