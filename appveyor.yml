@@ -6,6 +6,10 @@ cache:
   - 'C:\Libraries\toml11-%TOML11_VERSION%'
   - '%CYG_ROOT%\var\cache\setup'
 
+branches:
+  only:
+    - master
+
 configuration:
   - Debug
   - Release
@@ -19,7 +23,7 @@ environment:
     LIBGIT2_VERSION: 0.28.2
     TOML11_VERSION: 3.1.0
 
-  matrix: # FIXME: Temporarily unsupported cygwin and mingw because of std::filesystem
+#  matrix: # FIXME: Temporarily unsupported cygwin and mingw because of std::filesystem
 #    - COMPILER: cygwin-gcc
 #      CYG_ROOT: 'C:\cygwin'
 #      CYG_SETUP: setup-x86.exe
@@ -38,18 +42,18 @@ environment:
 #      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
 #      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
 
-    - COMPILER: msvc
-      GENERATOR: "Visual Studio 15 2017"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PLATFORM: x86
-      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
-      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
-    - COMPILER: msvc
-      GENERATOR: "Visual Studio 15 2017"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PLATFORM: x64
-      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
-      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
+#    - COMPILER: msvc
+#      GENERATOR: "Visual Studio 15 2017"
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#      PLATFORM: x86
+#      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+#      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
+#    - COMPILER: msvc
+#      GENERATOR: "Visual Studio 15 2017"
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#      PLATFORM: x64
+#      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+#      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
 
 install:
   - if %COMPILER% == cygwin-gcc (
