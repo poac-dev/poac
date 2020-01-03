@@ -15,7 +15,7 @@
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/cfg.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/types.hpp>
@@ -480,9 +480,9 @@ namespace poac::io::config {
         }
 
         std::optional<std::string>
-        validate_config(const io::filesystem::path& base = filesystem::current) {
+        validate_config(const std::filesystem::path& base = path::current) {
             const auto config_path = base / "poac.toml";
-            if (io::filesystem::exists(config_path)) {
+            if (std::filesystem::exists(config_path)) {
                 return config_path.string();
             } else {
                 return std::nullopt;
@@ -726,8 +726,8 @@ namespace poac::io::config {
 
     template <typename C, typename Comment = toml::discard_comments>
     std::optional<C>
-    load_toml(const io::filesystem::path& base, const std::string& fname) {
-        if (io::filesystem::exists(base / fname)) {
+    load_toml(const std::filesystem::path& base, const std::string& fname) {
+        if (std::filesystem::exists(base / fname)) {
             const auto config_toml = toml::parse<Comment>((base / fname).string());
             const auto config = toml::get<C>(config_toml);
             return config;
@@ -737,15 +737,15 @@ namespace poac::io::config {
     }
 
     std::optional<Config>
-    load(const io::filesystem::path& base = filesystem::current) {
+    load(const std::filesystem::path& base = path::current) {
          return load_toml<Config>(base, "poac.toml");
     }
 
     std::string
     get_timestamp() {
         if (const auto filename = config::detail::validate_config()) {
-            const auto last_time = io::filesystem::last_write_time(filename.value());
-            return io::filesystem::time_to_string(last_time);
+            const auto last_time = std::filesystem::last_write_time(filename.value());
+            return path::time_to_string(last_time);
         } else {
             throw core::except::error(
                     core::except::msg::does_not_exist("poac.toml"), "\n",

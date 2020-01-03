@@ -3,7 +3,7 @@
 
 #include <fstream>
 #include <string>
-#include <poac/io/filesystem.hpp>
+#include <filesystem>
 
 namespace support {
     // A RAII wrapper for basic_ofstream
@@ -25,12 +25,12 @@ namespace support {
             : std::basic_ofstream<char_type, traits_type>(s, mode), filepath(s)
         {}
         explicit
-        basic_test_ofstream(const poac::io::filesystem::path& s, std::ios_base::openmode mode = std::ios_base::out)
+        basic_test_ofstream(const std::filesystem::path& s, std::ios_base::openmode mode = std::ios_base::out)
             : std::basic_ofstream<char_type, traits_type>(s.string(), mode), filepath(s)
         {}
 
         ~basic_test_ofstream() {
-            poac::io::filesystem::remove(this->filepath);
+            std::filesystem::remove(this->filepath);
         }
 
         basic_test_ofstream(const basic_test_ofstream&) = delete;
@@ -49,7 +49,7 @@ namespace support {
         }
 
     private:
-        poac::io::filesystem::path filepath;
+        std::filesystem::path filepath;
     };
 
     // Aliasies

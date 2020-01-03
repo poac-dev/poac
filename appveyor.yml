@@ -19,24 +19,24 @@ environment:
     LIBGIT2_VERSION: 0.28.2
     TOML11_VERSION: 3.1.0
 
-  matrix:
-    - COMPILER: cygwin-gcc
-      CYG_ROOT: 'C:\cygwin'
-      CYG_SETUP: setup-x86.exe
-    - COMPILER: cygwin-gcc
-      CYG_ROOT: 'C:\cygwin64'
-      CYG_SETUP: setup-x86_64.exe
-
-    - COMPILER: gcc  # gcc-7.3.0-posix
-      GENERATOR: "MinGW Makefiles"
-      CXX_PATH: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
-      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
-      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
-    - COMPILER: gcc  # gcc-8.1.0-posix
-      GENERATOR: "MinGW Makefiles"
-      CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
-      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
-      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
+  matrix: # FIXME: Temporarily unsupported cygwin and mingw because of std::filesystem
+#    - COMPILER: cygwin-gcc
+#      CYG_ROOT: 'C:\cygwin'
+#      CYG_SETUP: setup-x86.exe
+#    - COMPILER: cygwin-gcc
+#      CYG_ROOT: 'C:\cygwin64'
+#      CYG_SETUP: setup-x86_64.exe
+#
+#    - COMPILER: gcc  # gcc-7.3.0-posix
+#      GENERATOR: "MinGW Makefiles"
+#      CXX_PATH: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
+#      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+#      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
+#    - COMPILER: gcc  # gcc-8.1.0-posix
+#      GENERATOR: "MinGW Makefiles"
+#      CXX_PATH: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
+#      BOOST_DEFAULT_PATH: 'C:\Libraries\boost_1_69_0'
+#      BOOST_BUILT_PATH: 'C:\Libraries\boost-1.69.0'
 
     - COMPILER: msvc
       GENERATOR: "Visual Studio 15 2017"

@@ -12,6 +12,7 @@
 
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
+#include <poac/io/path.hpp>
 #include <poac/opts.hpp>
 #include <poac/util/clap/clap.hpp>
 
@@ -90,7 +91,7 @@ namespace poac::core::cli {
             return except::Error::InvalidFirstArg;
         }
         return opts_map.at(cmd)(
-                std::async(std::launch::async, io::config::load, io::filesystem::current),
+                std::async(std::launch::async, io::config::load, io::path::current),
                 std::move(args));
     }
 }

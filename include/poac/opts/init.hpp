@@ -11,7 +11,7 @@
 
 // Internal
 #include <poac/opts/new.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
@@ -35,7 +35,7 @@ namespace poac::opts::init {
     init(init::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        if (const auto error = core::name::validate_package_name(io::filesystem::current.stem().string())) {
+        if (const auto error = core::name::validate_package_name(io::path::current.stem().string())) {
             return error;
         }
 
@@ -43,7 +43,7 @@ namespace poac::opts::init {
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
-                ofs_config << _new::files::bin::poac_toml(io::filesystem::current.stem().string());
+                ofs_config << _new::files::bin::poac_toml(io::path::current.stem().string());
                 break;
             case _new::ProjectType::Lib:
                 ofs_config << _new::files::lib::poac_toml;

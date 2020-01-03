@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_GRAPH_HPP
 #define POAC_OPTS_GRAPH_HPP
 
+#include <filesystem>
 #include <future>
 #include <iostream>
 #include <fstream>
@@ -20,7 +21,7 @@
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
@@ -33,7 +34,7 @@ namespace poac::opts::graph {
             ;
 
     struct Options {
-        std::optional<io::filesystem::path> output_file;
+        std::optional<std::filesystem::path> output_file;
     };
 
     struct Vertex {
@@ -81,7 +82,12 @@ namespace poac::opts::graph {
         for (const auto& dep : resolved_deps.duplicate_deps | boost::adaptors::indexed()) {
             if (!dep.value().second.dependencies.has_value()) {
                 for (const auto& [name, version] : dep.value().second.dependencies.value()) {
-                    const auto result = std::find_if(resolved_deps.duplicate_deps.begin(), resolved_deps.duplicate_deps.end(), [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; });
+                    const auto result = std::find_if(
+                            resolved_deps.duplicate_deps.begin(),
+                            resolved_deps.duplicate_deps.end(),
+                            [&n=name, &v=version](auto d){
+                                return d.first == n && d.second.version == v;
+                            });
                     if (result != resolved_deps.duplicate_deps.end()) {
                         const auto index = std::distance(resolved_deps.duplicate_deps.begin(), result);
                         boost::add_edge(desc[dep.index()], desc[index], g);
@@ -116,7 +122,7 @@ namespace poac::opts::graph {
             boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
 
             util::shell("dot -Tpng " + file_dot + " -o " + opts.output_file->string()).exec();
-            io::filesystem::remove(file_dot);
+            std::filesystem::remove(file_dot);
             io::term::status_done();
             return std::nullopt;
         } else {
@@ -144,8 +150,7 @@ namespace poac::opts::graph {
     console_output(std::future<std::optional<io::config::Config>>&& config) {
         const auto [g, names] = create_graph(std::move(config));
         static_cast<void>(names); // error: unused variable
-        boost::graph_traits<Graph>::edge_iterator itr, end;
-        for (tie(itr, end) = edges(g); itr != end; ++itr) {
+        for (auto [itr, end] = edges(g); itr != end; ++itr) {
             std::cout << boost::get(&Vertex::name, g)[source(*itr, g)] << " -> "
                       << boost::get(&Vertex::name, g)[target(*itr, g)] << '\n';
         }

@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_STROITE_COMPILER_HPP
 #define POAC_CORE_STROITE_COMPILER_HPP
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,7 +9,7 @@
 #include <numeric>
 
 #include <poac/core/builder/absorb.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder {
@@ -17,17 +18,17 @@ namespace poac::core::builder {
             std::string system;
             std::string std_version;
             std::string opt_level;
-            io::filesystem::path source_file;
-            std::vector<io::filesystem::path> include_search_path;
+            std::filesystem::path source_file;
+            std::vector<std::filesystem::path> include_search_path;
             std::vector<std::string> other_args;
             std::vector<std::string> definitions;
-            io::filesystem::path base_dir;
-            io::filesystem::path output_root;
+            std::filesystem::path base_dir;
+            std::filesystem::path output_root;
         };
         struct link {
             std::string system;
             std::string project_name;
-            io::filesystem::path output_root;
+            std::filesystem::path output_root;
             std::vector<std::string> obj_files_path;
             std::vector<std::string> library_search_path;
             std::vector<std::string> static_link_libs;
@@ -36,13 +37,13 @@ namespace poac::core::builder {
         };
         struct static_lib {
             std::string project_name;
-            io::filesystem::path output_root;
+            std::filesystem::path output_root;
             std::vector<std::string> obj_files_path;
         };
         struct dynamic_lib {
             std::string system;
             std::string project_name;
-            io::filesystem::path output_root;
+            std::filesystem::path output_root;
             std::vector<std::string> obj_files_path;
         };
     }
@@ -62,18 +63,18 @@ namespace poac::core::builder {
         cmd += opts.std_version;
         cmd += "-O" + opts.opt_level;
         cmd += "-c";
-        cmd += io::filesystem::absolute(opts.source_file).string();
+        cmd += std::filesystem::absolute(opts.source_file).string();
         cmd += accumulate(opts.include_search_path, util::shell(),
                 [](util::shell& acc, auto& s){
-                    return acc + ("-I" + io::filesystem::absolute(s).string());
+                    return acc + ("-I" + std::filesystem::absolute(s).string());
                 });
         cmd += accumulate(opts.other_args, util::shell());
         cmd += accumulate(opts.definitions, util::shell());
 
         cmd += "-o";
-        const io::filesystem::path obj_path = io::filesystem::absolute(
-                opts.output_root / io::filesystem::path(opts.source_file).filename().replace_extension("o"));
-        io::filesystem::create_directories(obj_path.parent_path());
+        const std::filesystem::path obj_path = std::filesystem::absolute(
+                opts.output_root / std::filesystem::path(opts.source_file).filename().replace_extension("o"));
+        std::filesystem::create_directories(obj_path.parent_path());
         cmd += obj_path.string();
 
         if (verbose) {
@@ -105,7 +106,7 @@ namespace poac::core::builder {
             std::cout << cmd << std::endl;
         }
 
-        io::filesystem::create_directories(opts.output_root);
+        std::filesystem::create_directories(opts.output_root);
         if (cmd.exec()) {
             return bin_path;
         } else {
@@ -125,7 +126,7 @@ namespace poac::core::builder {
             std::cout << cmd << std::endl;
         }
 
-        io::filesystem::create_directories(opts.output_root);
+        std::filesystem::create_directories(opts.output_root);
         if (cmd.exec()) {
             return lib_path;
         } else {
@@ -147,7 +148,7 @@ namespace poac::core::builder {
             std::cout << cmd << std::endl;
         }
 
-        io::filesystem::create_directories(opts.output_root);
+        std::filesystem::create_directories(opts.output_root);
         if (cmd.exec()) {
             return lib_path;
         } else {

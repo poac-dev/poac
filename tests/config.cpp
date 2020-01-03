@@ -8,7 +8,7 @@
 #include <optional>
 
 #include <poac/io/config.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/core/except.hpp>
 
 #include "support/macros.hpp"
@@ -310,11 +310,11 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_merge_test )
     }
 }
 
-// std::optional<std::string> validate_config(const io::filesystem::path& base = filesystem::current)
+// std::optional<std::string> validate_config(const std::filesystem::path& base = filesystem::current)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_validate_config_test )
 {
     using poac::io::config::detail::validate_config;
-    using poac::io::filesystem::operator""_path;
+    using std::filesystem::operator""_path;
 
     BOOST_CHECK( !validate_config().has_value() );
     {
@@ -323,32 +323,32 @@ BOOST_AUTO_TEST_CASE( poac_io_config_detail_validate_config_test )
     }
     BOOST_CHECK( !validate_config("test").has_value() );
     {
-        poac::io::filesystem::create_directory("test");
+        std::filesystem::create_directory("test");
         support::test_ofstream ofs("test" / "poac.toml"_path);
         BOOST_CHECK( validate_config("test").has_value() );
     }
-    poac::io::filesystem::remove("test");
+    std::filesystem::remove("test");
 }
 
-// std::optional<C> load_toml(const io::filesystem::path& base, const std::string& fname)
+// std::optional<C> load_toml(const std::filesystem::path& base, const std::string& fname)
 BOOST_AUTO_TEST_CASE( poac_io_config_load_toml_test )
 {
     using poac::io::config::load_toml;
     using poac::io::config::Config;
-    using poac::io::filesystem::operator""_path;
+    using std::filesystem::operator""_path;
 
-    BOOST_CHECK( !load_toml<Config>(poac::io::filesystem::current, "poac.toml").has_value() );
+    BOOST_CHECK( !load_toml<Config>(poac::io::path::current, "poac.toml").has_value() );
     {
         support::test_ofstream ofs("poac.toml");
         ofs << "[package]\n"
                "name = \"foo\"\n"
                "version = \"1.0.0\"\n";
         ofs.close();
-        BOOST_CHECK( load_toml<Config>(poac::io::filesystem::current, "poac.toml").has_value() );
+        BOOST_CHECK( load_toml<Config>(poac::io::path::current, "poac.toml").has_value() );
     }
     BOOST_CHECK( !load_toml<Config>("test", "poac.toml").has_value() );
     {
-        poac::io::filesystem::create_directory("test");
+        std::filesystem::create_directory("test");
         support::test_ofstream ofs("test" / "poac.toml"_path);
         ofs << "[package]\n"
                "name = \"foo\"\n"
@@ -356,14 +356,14 @@ BOOST_AUTO_TEST_CASE( poac_io_config_load_toml_test )
         ofs.close();
         BOOST_CHECK( load_toml<Config>("test", "poac.toml").has_value() );
     }
-    poac::io::filesystem::remove("test");
+    std::filesystem::remove("test");
 }
 
-// std::optional<Config> load(const io::filesystem::path& base = filesystem::current)
+// std::optional<Config> load(const std::filesystem::path& base = filesystem::current)
 BOOST_AUTO_TEST_CASE( poac_io_config_load_test )
 {
     using poac::io::config::load;
-    using poac::io::filesystem::operator""_path;
+    using std::filesystem::operator""_path;
 
     BOOST_CHECK( !load().has_value() );
     {
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE( poac_io_config_load_test )
     }
     BOOST_CHECK( !load("test").has_value() );
     {
-        poac::io::filesystem::create_directory("test");
+        std::filesystem::create_directory("test");
         support::test_ofstream ofs("test" / "poac.toml"_path);
         ofs << "[package]\n"
                "name = \"foo\"\n"
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( poac_io_config_load_test )
         ofs.close();
         BOOST_CHECK( load("test").has_value() );
     }
-    poac::io::filesystem::remove("test");
+    std::filesystem::remove("test");
 }
 
 // std::string get_timestamp()

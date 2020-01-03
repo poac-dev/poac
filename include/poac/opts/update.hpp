@@ -1,6 +1,7 @@
 #ifndef POAC_OPTS_UPDATE_HPP
 #define POAC_OPTS_UPDATE_HPP
 
+#include <filesystem>
 #include <future>
 #include <iostream>
 #include <string>
@@ -15,7 +16,7 @@
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/core/resolver/resolve.hpp>
-#include <poac/io/filesystem.hpp>
+#include <poac/io/path.hpp>
 #include <poac/io/config.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
@@ -52,7 +53,7 @@ namespace poac::opts::update {
     [[nodiscard]] std::optional<core::except::Error>
     all_update(std::optional<io::config::Config>&& config, update::Options&& opts) {
         namespace resolve = core::resolver::resolve;
-        using io::filesystem::path_literals::operator""_path;
+        using std::filesystem::path_literals::operator""_path;
 
         const auto deps = install::resolve_packages(config->dependencies.value()); // yaml::load_config("deps").as<std::map<std::string, YAML::Node>>();
         resolve::ResolvedDeps resolved_deps = resolve::resolve(deps);
@@ -109,7 +110,7 @@ namespace poac::opts::update {
         for (const auto& [name, dep] : update_deps) {
             static_cast<void>(dep);
             const std::string current_name = core::name::to_current(name);
-            io::filesystem::remove_all("deps"_path / current_name);
+            std::filesystem::remove_all("deps"_path / current_name);
         }
 
         // Install new version
@@ -124,7 +125,7 @@ namespace poac::opts::update {
 
     [[nodiscard]] std::optional<core::except::Error>
     update(std::future<std::optional<io::config::Config>>&& config, update::Options&& opts) {
-        if (!io::filesystem::validate_dir("deps")) {
+        if (!io::path::validate_dir("deps")) {
             return core::except::Error::General{
                 "Could not find deps directory.\n"
                 "Please execute install command before executing update command."
