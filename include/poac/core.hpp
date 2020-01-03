@@ -3,6 +3,7 @@
 
 #include <poac/core/builder.hpp>
 #include <poac/core/cli.hpp>
+#include <poac/core/compiler.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/core/project.hpp>
