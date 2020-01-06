@@ -7,6 +7,8 @@ Poac is a package manager for C++ users.
 Poac can download project's dependencies and compile project.
 Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [The Poac Book](https://doc.poac.pm) for more details.
 
+:warning: Caution! Currently in development and cannot be used.
+
 ## Demo
 
 By using poac, you can create a C++ project, build sources and execute an application:
@@ -46,7 +48,8 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 ```bash
 curl -fsSL https://sh.poac.pm | bash
 ```
-*When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
+
+*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), [poac-git](https://aur.archlinux.org/packages/poac-git)*
 
 ### Manual install (Build)
 
