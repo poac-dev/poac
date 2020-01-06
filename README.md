@@ -43,6 +43,8 @@ curl -fsSL https://sh.poac.pm | bash
 ```
 *When your OS is macOS, use [Homebrew](https://github.com/Homebrew/brew)*
 
+*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), [poac-git](https://aur.archlinux.org/packages/poac-git)*
+
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
