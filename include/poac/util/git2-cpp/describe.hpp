@@ -13,7 +13,11 @@ namespace git2 {
         git_describe_options raw;
 
         describe_options() {
+#if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
             git2_throw(git_describe_init_options(&this->raw, GIT_DESCRIBE_OPTIONS_VERSION));
+#else
+            git2_throw(git_describe_options_init(&this->raw, GIT_DESCRIBE_OPTIONS_VERSION));
+#endif
         }
         ~describe_options() noexcept = default;
 
@@ -68,7 +72,11 @@ namespace git2 {
         git_describe_format_options raw;
 
         describe_format_options() {
+#if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
             git2_throw(git_describe_init_format_options(&this->raw, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION));
+#else
+            git2_throw(git_describe_format_options_init(&this->raw, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION));
+#endif
         }
         ~describe_format_options() = default;
 
