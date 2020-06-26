@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -10,7 +9,7 @@
 
 int handle(std::string_view cmd, std::vector<std::string>&& args) noexcept {
     try {
-        const auto error = poac::core::cli::exec(std::move(cmd), std::move(args));
+        const auto error = bin::poac::exec(std::move(cmd), std::move(args));
         if (!error) {
             return EXIT_SUCCESS;
         }

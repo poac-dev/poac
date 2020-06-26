@@ -13,9 +13,9 @@
 #include <poac/opts/cache.hpp>
 #include <poac/opts/clean.hpp>
 #include <poac/opts/graph.hpp>
-#include <poac/opts/init.hpp>
+#include <bin/poac/commands/init.hpp> // FIXME
 #include <poac/opts/install.hpp>
-#include <poac/opts/new.hpp>
+#include <bin/poac/commands/new.hpp> // FIXME
 #include <poac/opts/publish.hpp>
 #include <poac/opts/run.hpp>
 #include <poac/opts/search.hpp>
@@ -48,9 +48,9 @@ namespace poac::opts::help {
         { "clean",     opts::clean::cli },
         { "graph",     opts::graph::cli },
         { "help",      opts::help::cli },
-        { "init",      opts::init::cli },
+        { "init",      bin::poac::commands::init::cli },
         { "install",   opts::install::cli },
-        { "new",       opts::_new::cli },
+        { "new",       bin::poac::commands::_new::cli },
         { "publish",   opts::publish::cli },
         { "run",       opts::run::cli },
         { "search",    opts::search::cli },

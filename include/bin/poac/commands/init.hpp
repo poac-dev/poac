@@ -10,7 +10,7 @@
 #include <optional>
 
 // Internal
-#include <poac/opts/new.hpp>
+#include <bin/poac/commands/new.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
@@ -19,7 +19,7 @@
 #include <poac/util/clap/clap.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
-namespace poac::opts::init {
+namespace bin::poac::commands::init {
     inline const clap::subcommand cli =
             clap::subcommand("init")
                 .about("Create a new poac package in an existing directory")
@@ -31,11 +31,11 @@ namespace poac::opts::init {
         _new::ProjectType type;
     };
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] std::optional<::poac::core::except::Error>
     init(init::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        if (const auto error = core::name::validate_package_name(io::path::current.stem().string())) {
+        if (const auto error = ::poac::core::name::validate_package_name(::poac::io::path::current.stem().string())) {
             return error;
         }
 
@@ -43,7 +43,7 @@ namespace poac::opts::init {
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
-                ofs_config << _new::files::bin::poac_toml(io::path::current.stem().string());
+                ofs_config << _new::files::bin::poac_toml(::poac::io::path::current.stem().string());
                 break;
             case _new::ProjectType::Lib:
                 ofs_config << _new::files::lib::poac_toml;
@@ -53,21 +53,21 @@ namespace poac::opts::init {
         return std::nullopt;
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
-    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
+    [[nodiscard]] std::optional<::poac::core::except::Error>
+    exec(std::future<std::optional<::poac::io::config::Config>>&&, std::vector<std::string>&& args) {
         if (args.size() > 1) {
-            return core::except::Error::InvalidSecondArg::Init;
-        } else if (io::config::detail::validate_config()) {
-            return core::except::Error::General{
+            return ::poac::core::except::Error::InvalidSecondArg::Init;
+        } else if (::poac::io::config::detail::validate_config()) {
+            return ::poac::core::except::Error::General{
                 "`poac init` cannot be run on existing poac packages"
             };
         }
 
         init::Options opts{};
-        const bool bin = util::argparse::use_rm(args, "-b", "--bin");
-        const bool lib = util::argparse::use_rm(args, "-l", "--lib");
+        const bool bin = ::poac::util::argparse::use_rm(args, "-b", "--bin");
+        const bool lib = ::poac::util::argparse::use_rm(args, "-l", "--lib");
         if (bin && lib) {
-            return core::except::Error::General{
+            return ::poac::core::except::Error::General{
                 "You cannot specify both lib and binary outputs."
             };
         } else if (!bin && lib) {
