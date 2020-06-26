@@ -8,18 +8,18 @@
 
 namespace poac::core::except {
     namespace detail {
-        template<typename Arg>
+        template <typename Arg>
         std::string to_string(const Arg& str) {
             return std::to_string(str);
         }
-        template<>
+        template <>
         std::string to_string(const std::string& str) {
             return str;
         }
         std::string to_string(std::string_view str) {
             return std::string(str);
         }
-        template<typename CharT, std::size_t N>
+        template <typename CharT, std::size_t N>
         std::string to_string(const CharT(&str)[N]) {
             return str;
         }
