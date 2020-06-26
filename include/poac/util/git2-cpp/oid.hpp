@@ -35,7 +35,11 @@ namespace git2 {
 
         /// Test if this OID is all zeros.
         bool is_zero() const {
+#if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
             return git_oid_iszero(&raw) == 1;
+#else
+            return git_oid_is_zero(&raw) == 1;
+#endif
         }
 
         friend std::ostream&
