@@ -7,7 +7,7 @@
 #include <git2/version.h>
 
 namespace git2 {
-#if LIBGIT2_VER_MINOR < 28
+#if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 28)
     inline const git_error* git_error_last() {
         return giterr_last();
     }
