@@ -16,7 +16,6 @@
 #include <bin/poac/commands/init.hpp> // FIXME
 #include <poac/opts/install.hpp>
 #include <bin/poac/commands/new.hpp> // FIXME
-#include <poac/opts/publish.hpp>
 #include <poac/opts/run.hpp>
 #include <poac/opts/search.hpp>
 #include <poac/opts/test.hpp>
@@ -51,7 +50,6 @@ namespace poac::opts::help {
         { "init",      bin::poac::commands::init::cli },
         { "install",   opts::install::cli },
         { "new",       bin::poac::commands::_new::cli },
-        { "publish",   opts::publish::cli },
         { "run",       opts::run::cli },
         { "search",    opts::search::cli },
         { "test",      opts::test::cli },

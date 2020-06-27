@@ -9,7 +9,6 @@ set(TEST_NAMES
         path
         pretty
         project
-        publish
         resolve
         sat
         shell
