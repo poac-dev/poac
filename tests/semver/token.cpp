@@ -20,17 +20,17 @@ BOOST_AUTO_TEST_CASE( semver_parser_token_token_test )
     {
         constexpr Token token{ Token::Whitespace, 0, 2 };
         STATIC_ASSERT( token.kind == Token::Whitespace );
-        STATIC_ASSERT( token.component == Token::variant_type(std::make_pair(0, 2)) );
+        STATIC_ASSERT( token.component == Token::variant_type{std::make_pair(0, 2)} );
     }
     {
         constexpr Token token{ Token::Numeric, 0 };
         STATIC_ASSERT( token.kind == Token::Numeric );
-        STATIC_ASSERT( token.component == Token::variant_type(0) );
+        STATIC_ASSERT( token.component == Token::variant_type{std::uint_fast64_t{0}} );
     }
     {
         constexpr Token token{ Token::AlphaNumeric, "beta.2" };
         STATIC_ASSERT( token.kind == Token::AlphaNumeric );
-        STATIC_ASSERT( token.component == Token::variant_type("beta.2") );
+        STATIC_ASSERT( token.component == Token::variant_type{"beta.2"} );
     }
     {
         BOOST_CHECK_THROW(

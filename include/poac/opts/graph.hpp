@@ -73,13 +73,13 @@ namespace poac::opts::graph {
 
         // Add vertex
         std::vector<Graph::vertex_descriptor> desc;
-        for (const auto& dep : lockfile->dependencies | boost::adaptors::indexed()) {
+        for (const boost::range::index_value<const std::pair<const std::string, poac::io::lockfile::Lockfile::Package>&, long> dep : lockfile->dependencies | boost::adaptors::indexed()) {
             desc.push_back(boost::add_vertex(g));
             g[dep.index()].name = dep.value().first;
             g[dep.index()].version = dep.value().second.version;
         }
         // Add edge
-        for (const auto& dep : resolved_deps.duplicate_deps | boost::adaptors::indexed()) {
+        for (const boost::range::index_value<const std::pair<std::string, poac::io::lockfile::Lockfile::Package> &, long> dep : resolved_deps.duplicate_deps | boost::adaptors::indexed()) {
             if (!dep.value().second.dependencies.has_value()) {
                 for (const auto& [name, version] : dep.value().second.dependencies.value()) {
                     const auto result = std::find_if(

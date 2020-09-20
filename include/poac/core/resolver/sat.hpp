@@ -23,7 +23,7 @@ namespace poac::core::resolver::sat {
     std::vector<int>
     to_assignments(const std::vector<int>& literals) {
         std::vector<int> assignments;
-        for (const auto& l : literals | boost::adaptors::indexed()) {
+        for (const boost::range::index_value<const int&, long> l : literals | boost::adaptors::indexed()) {
             const int literal = l.index() + 1;
             if (l.value() != -1) {
                 assignments.emplace_back((l.value() % 2 == 0 ? 1 : -1) * literal);

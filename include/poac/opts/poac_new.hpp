@@ -177,7 +177,7 @@ detect_source_paths_and_types(
         },
     };
 
-    for (const auto i : tests) {
+    for (const auto& i : tests) {
         const std::string pp = i.proposed_path;
 
         // path/pp does not exist or is not a file
@@ -217,7 +217,7 @@ detect_source_paths_and_types(
     std::optional<std::string> previous_lib_relpath = std::nullopt;
     std::unordered_map<std::string, SourceFileInformation> duplicates_checker{};
 
-    for (const auto i : detected_files) {
+    for (const auto& i : detected_files) {
         if (i.bin) {
             if (const auto x = duplicates_checker.find(i.target_name); x != duplicates_checker.end()) {
                 throw core::except::error(
