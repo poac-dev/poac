@@ -3,7 +3,7 @@ Standard: Auto
 AccessModifierOffset: -4
 AlwaysBreakAfterReturnType: All
 AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: MultiLine
+AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Attach
 FixNamespaceComments: true
@@ -15,3 +15,4 @@ NamespaceIndentation: Inner
 PointerAlignment: Left
 SortIncludes: true
 SortUsingDeclarations: true
+SpaceAfterTemplateKeyword: true
