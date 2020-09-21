@@ -192,12 +192,14 @@ detect_source_paths_and_types(
                     .target_name = package_name,
                     .bin = true,
                 });
+                break;
             case H::Lib:
                 detected_files.push_back(SourceFileInformation {
                     .relative_path = pp,
                     .target_name = package_name,
                     .bin = false,
                 });
+                break;
             case H::Detect:
                 std::ifstream f(package_path / pp);
                 const std::string content(
@@ -209,6 +211,7 @@ detect_source_paths_and_types(
                     .target_name = package_name,
                     .bin = isbin,
                 });
+                break;
         }
     }
 
