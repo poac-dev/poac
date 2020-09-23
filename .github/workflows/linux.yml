@@ -53,10 +53,10 @@ jobs:
           make
       - run: file ../build/poac
       - uses: actions/upload-artifact@v1
-          if: matrix.build_type == 'Release'
-          with:
-            name: x86_64-unknown-linux-gnu
-            path: poac
+        if: matrix.build_type == 'Release'
+        with:
+          name: x86_64-unknown-linux-gnu
+          path: poac
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
