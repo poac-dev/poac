@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         gcc_version: [ 8, 9, 10 ]
-        build_type: [ Debug, Release ]
+        build_type: [ Debug ] # TODO: Release
     env:
       CC: gcc-${{ matrix.gcc_version }}
       CXX: g++-${{ matrix.gcc_version }}
