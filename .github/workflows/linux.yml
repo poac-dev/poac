@@ -32,9 +32,7 @@ jobs:
           cd toml11
           mkdir build
           cd build
-          cmake .. `
-            -DCMAKE_BUILD_TYPE=Release `
-            -Dtoml11_BUILD_TEST=OFF
+          cmake .. -DCMAKE_BUILD_TYPE=Release -Dtoml11_BUILD_TEST=OFF
           sudo make install
           cd ../../
           rm -rf toml11
@@ -42,9 +40,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. `
-            -Dpoac_BUILD_TEST=ON `
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           make
       - name: Test Poac
         run: ctest --output-on-failure --verbose
@@ -93,9 +89,7 @@ jobs:
           cd toml11
           mkdir build
           cd build
-          cmake .. `
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
-            -Dtoml11_BUILD_TEST=OFF
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -Dtoml11_BUILD_TEST=OFF
           sudo make install
         working-directory: ${{ runner.temp }}
       - name: Install libgit2 (static,shared)
@@ -104,10 +98,7 @@ jobs:
           cd libgit2
           mkdir build
           cd build
-          cmake .. `
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
-            -DBUILD_SHARED_LIBS=ON `
-            -DBUILD_CLAR=OFF
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_SHARED_LIBS=ON -DBUILD_CLAR=OFF
           make
           sudo make install
         working-directory: ${{ runner.temp }}
@@ -115,9 +106,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. `
-            -Dpoac_BUILD_TEST=ON `
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           make
       - name: Test Poac
         run: ctest --output-on-failure --verbose
