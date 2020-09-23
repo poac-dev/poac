@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         clang_version: [ 7, 8, 9, 10 ]
-        build_type: [ Debug ] # TODO: Release
+        build_type: [ Debug, Release ]
     env:
       CC: clang-${{ matrix.clang_version }}
       CXX: clang++-${{ matrix.clang_version }}
@@ -44,24 +44,15 @@ jobs:
           make
       - name: Test Poac
         run: ctest --output-on-failure --verbose
-      - name: Running test
-        run: ./build/poac help
+#      TODO:
+#        - name: Running test
+#        run: ./build/poac help
       - run: file ./build/poac
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
           name: x86_64-unknown-linux-gnu
           path: poac
-      - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: always()
-        with:
-          type: ${{ job.status }}
-          job_name: '*x86_64-unknown-linux-gnu-clang (${{ matrix.clang_version }}, ${{ matrix.build_type }})*'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          username: 'GitHub Action (${{ github.workflow }})'
-          commit: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
   x86_64-unknown-linux-gnu:
     runs-on: ubuntu-latest
