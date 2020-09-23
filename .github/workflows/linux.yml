@@ -76,13 +76,22 @@ jobs:
           make
           sudo make install
         working-directory: ${{ runner.temp }}
+
+      - name: Cache boost
+        uses: actions/cache@v1
+        id: boost-cache
+        with:
+          path: ${{ runner.temp }}/libs/boost
+          key: ${{ runner.os }}-x86_64-unknown-linux-gnu-boost-gcc${{ matrix.gcc_version }}
       - name: Install boost (static)
         run: |
           git clone -q -b boost-1.73.0 --recursive https://github.com/boostorg/boost.git
           cd boost
           ./bootstrap.sh
-          sudo ./b2 link=static install -j2 || exit 0
+          mkdir -p ${{ runner.temp }}/libs/boost
+          sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
+
       - name: Install ToruNiina/toml11 v3.4.0 (header-only)
         run: |
           git clone -q -b v3.4.0 https://github.com/ToruNiina/toml11.git
@@ -106,7 +115,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBOOST_ROOT=${{ runner.temp }}/libs/boost -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib
           make
       - name: Test Poac
         run: ctest --output-on-failure --verbose
