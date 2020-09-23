@@ -141,14 +141,3 @@ jobs:
 #        with:
 #          name: mingw
 #          path: 'C:/Program Files (x86)/poac/bin/poac.exe'
-#
-#      - name: Slack Notification
-#        uses: homoluctus/slatify@master
-#        if: always()
-#        with:
-#          type: ${{ job.status }}
-#          job_name: '*${{ github.workflow }} MinGW 8.1.0 (${{ matrix.build_type }})*'
-#          url: ${{ secrets.SLACK_WEBHOOK }}
-#          username: 'GitHub Action (${{ github.workflow }})'
-#          commit: true
-#          token: ${{ secrets.GITHUB_TOKEN }}
