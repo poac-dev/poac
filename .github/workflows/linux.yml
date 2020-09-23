@@ -43,7 +43,7 @@ jobs:
           cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           make
       - name: Test Poac
-        run: ctest --output-on-failure --verbose
+        run: cd build && ctest --output-on-failure --verbose
 #      TODO:
 #        - name: Running test
 #        run: ./build/poac help
@@ -118,7 +118,7 @@ jobs:
           cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBOOST_ROOT=${{ runner.temp }}/libs/boost -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib
           make
       - name: Test Poac
-        run: ctest --output-on-failure --verbose
+        run: cd build && ctest --output-on-failure --verbose
       #      TODO:
       #        - name: Running test
       #        run: ./build/poac help
@@ -219,7 +219,8 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/powerpc64le-unknown-linux-gnu:${{ matrix.compiler }}
 
-      - uses: actions/upload-artifact@v1
+      - name: Upload pre-built binary
+        uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
           name: powerpc64le-unknown-linux-gnu
