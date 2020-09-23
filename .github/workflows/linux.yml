@@ -3,6 +3,72 @@ name: Linux
 on: [push, pull_request]
 
 jobs:
+  x86_64-unknown-linux-gnu_clang:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        clang_version: [ 7, 8, 9, 10 ]
+        build_type: [ Debug ] # TODO: Release
+    env:
+      CC: clang-${{ matrix.clang_version }}
+      CXX: clang++-${{ matrix.clang_version }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: sudo apt-get -qq update
+      - name: Install required packages
+        run: >
+          sudo apt-get install -y -qq
+            file
+            pkg-config
+            git
+            cmake
+            libboost-all-dev
+            libssl-dev
+            libgit2-dev
+            clang-${{ matrix.clang_version }}
+      - uses: actions/cache@v2
+        id: cache-toml11
+        with:
+          path: |
+            /usr/local/lib/cmake/toml11
+            /usr/local/include/toml.hpp
+            /usr/local/include/toml
+        key: ${{ runner.os }}-v3.4.0
+      - name : Install ToruNiina/toml11 v3.4.0
+        if: steps.cache-toml11.outputs.cache-hit != 'true'
+        run: |
+          git clone -q -b v3.4.0 https://github.com/ToruNiina/toml11.git
+          cd toml11
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -Dtoml11_BUILD_TEST=OFF ..
+          make install
+          cd ../../
+          rm -rf toml11
+      - name: Build Poac
+        run: |
+          mkdir build
+          cd build
+          cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          make
+      - run: file ../build/poac
+      - uses: actions/upload-artifact@v1
+          if: matrix.build_type == 'Release'
+          with:
+            name: x86_64-unknown-linux-gnu
+            path: poac
+
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          job_name: '*x86_64-unknown-linux-gnu-clang (${{ matrix.clang_version }}, ${{ matrix.build_type }})*'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          username: 'GitHub Action (${{ github.workflow }})'
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   x86_64-unknown-linux-gnu:
     runs-on: ubuntu-latest
     strategy:
