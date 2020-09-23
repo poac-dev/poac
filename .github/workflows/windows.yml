@@ -24,7 +24,7 @@ jobs:
         with:
           path: 'C:/Program Files (x86)/libgit2'
           key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libgit2-${{ env.LIBGIT2_VERSION }}
-      - name: Install libgit2
+      - name: Install libgit2 (${{ env.LIBGIT2_VERSION }})
         if: steps.libgit2-cache.outputs.cache-hit != 'true'
         run: |
           git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
@@ -40,7 +40,7 @@ jobs:
         with:
           path: 'C:/Program Files (x86)/toml11'
           key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-toml11-${{ env.TOML11_VERSION }}
-      - name: Install toml11
+      - name: Install toml11 (${{ env.TOML11_VERSION }})
         if: steps.toml11-cache.outputs.cache-hit != 'true'
         run: |
           git clone -q -b v${{ env.TOML11_VERSION }} https://github.com/ToruNiina/toml11.git
@@ -56,7 +56,7 @@ jobs:
         with:
           path: 'C:/Program Files/OpenSSL-Win64'
           key: ${{ runner.os }}-vs2019-${{ matrix.build_type }}-libssl-${{ env.LIBSSL_VERSION }}
-      - name: Install libssl
+      - name: Install libssl (${{ env.LIBSSL_VERSION }})
         if: steps.libssl-cache.outputs.cache-hit != 'true'
         run: choco install openssl --version ${{ env.LIBSSL_VERSION }}
 
