@@ -484,47 +484,5 @@ namespace poac::io::net {
             return ss.str() == "true";
         }
     }
-
-    namespace api::github {
-        boost::property_tree::ptree
-        repos(const std::string& target) {
-            const requests req{ GITHUB_API_HOST };
-            http::string_body::value_type res;
-
-            if (const auto github_token = path::dupenv("POAC_GITHUB_API_TOKEN")) {
-                Headers headers;
-                headers.emplace(http::field::authorization, "token " + github_token.value());
-                res = req.get(GITHUB_REPOS_API + target, headers);
-            } else {
-                try {
-                    res = req.get(GITHUB_REPOS_API + target);
-                } catch (const core::except::error& error) {
-                    std::string_view err = error.what();
-                    auto found = err.find('\n');
-                    if (err.substr(found - 3, 3) == "403") {
-                        boost::property_tree::ptree pt;
-                        {
-                            std::stringstream ss;
-                            ss << err.substr(found + 1);
-                            boost::property_tree::json_parser::read_json(ss, pt);
-                        }
-                        throw core::except::error(
-                                "GitHub ", pt.get<std::string>("message"), "\n"
-                                "Please create a personal access token:\n"
-                                "    https://github.com/settings/tokens/new?scopes=&description=Poac\n"
-                                "and then check public_repo, set the token:\n"
-                                "    export POAC_GITHUB_API_TOKEN=$YOUR_TOKEN");
-                    }
-                    throw error;
-                }
-            }
-            std::stringstream ss;
-            ss << res.data();
-
-            boost::property_tree::ptree pt;
-            boost::property_tree::json_parser::read_json(ss, pt);
-            return pt;
-        }
-    }
 } // end namespace
 #endif // !POAC_IO_NET_HPP
