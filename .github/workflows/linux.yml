@@ -26,16 +26,7 @@ jobs:
           libssl-dev
           libgit2-dev
           clang-${{ matrix.clang_version }}
-      - uses: actions/cache@v2
-        id: cache-toml11
-        with:
-          path: |
-            /usr/local/lib/cmake/toml11
-            /usr/local/include/toml.hpp
-            /usr/local/include/toml
-          key: ${{ runner.os }}-v3.4.0
       - name : Install ToruNiina/toml11 v3.4.0
-        if: steps.cache-toml11.outputs.cache-hit != 'true'
         run: |
           git clone -q -b v3.4.0 https://github.com/ToruNiina/toml11.git
           cd toml11
