@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   catalina:
     name: Catalina (10.15)
-    runs-on: macOS-latest
+    runs-on: macOS-10.15
     strategy:
       matrix:
         build_type: [Debug] # TODO: Release
