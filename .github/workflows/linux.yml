@@ -74,14 +74,14 @@ jobs:
           cd openssl
           ./config shared
           make
-          make install
+          sudo make install
         working-directory: ${{ runner.temp }}
       - name: Install boost (static)
         run: |
           git clone -q -b boost-1.73.0 --recursive https://github.com/boostorg/boost.git
           cd boost
           ./bootstrap.sh
-          ./b2 link=static install -j2 || exit 0
+          sudo ./b2 link=static install -j2 || exit 0
         working-directory: ${{ runner.temp }}
       - name: Install ToruNiina/toml11 v3.4.0 (header-only)
         run: |
@@ -100,7 +100,7 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_SHARED_LIBS=ON -DBUILD_CLAR=OFF ..
           make
-          make install
+          sudo make install
         working-directory: ${{ runner.temp }}
       - name: Build Poac
         run: |
