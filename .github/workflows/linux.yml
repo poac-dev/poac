@@ -18,14 +18,14 @@ jobs:
       - name: Install required packages
         run: >
           sudo apt-get install -y -qq
-            file
-            pkg-config
-            git
-            cmake
-            libboost-all-dev
-            libssl-dev
-            libgit2-dev
-            clang-${{ matrix.clang_version }}
+          file
+          pkg-config
+          git
+          cmake
+          libboost-all-dev
+          libssl-dev
+          libgit2-dev
+          clang-${{ matrix.clang_version }}
       - uses: actions/cache@v2
         id: cache-toml11
         with:
