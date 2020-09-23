@@ -68,7 +68,8 @@ jobs:
             -Dpoac_BUILD_TEST=OFF `
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
             -DGIT2_DIR="C:/Program Files (x86)/libgit2" `
-            -DTOML11_DIR="C:/Program Files (x86)/toml11/"
+            -DTOML11_DIR="C:/Program Files (x86)/toml11/" `
+            -DBOOST_ROOT=$BOOST_ROOT_1_69_0
           cmake --build . --target install --config ${{ matrix.build_type }}
 
       - uses: actions/upload-artifact@v1
