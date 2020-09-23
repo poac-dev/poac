@@ -42,7 +42,7 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -Dtoml11_BUILD_TEST=OFF ..
-          make install
+          sudo make install
           cd ../../
           rm -rf toml11
       - name: Build Poac
