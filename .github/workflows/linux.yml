@@ -33,7 +33,7 @@ jobs:
             /usr/local/lib/cmake/toml11
             /usr/local/include/toml.hpp
             /usr/local/include/toml
-        key: ${{ runner.os }}-v3.4.0
+          key: ${{ runner.os }}-v3.4.0
       - name : Install ToruNiina/toml11 v3.4.0
         if: steps.cache-toml11.outputs.cache-hit != 'true'
         run: |
