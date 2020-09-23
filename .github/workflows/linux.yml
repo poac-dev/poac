@@ -54,52 +54,71 @@ jobs:
           name: x86_64-unknown-linux-gnu
           path: poac
 
-  x86_64-unknown-linux-gnu:
-    runs-on: ubuntu-latest
+  x86_64-unknown-linux-gnu_gcc:
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        compiler: [clang-7, clang-8, clang-9, gcc-8, gcc-9]
-        build_type: [Debug] # TODO: Release
+        gcc_version: [ 7, 8, 9, 10 ]
+        build_type: [ Debug, Release ]
+    env:
+      CC: gcc-${{ matrix.gcc_version }}
+      CXX: g++-${{ matrix.gcc_version }}
     steps:
       - uses: actions/checkout@v1
-      - uses: azure/docker-login@v1
-        with:
-          login-server: docker.pkg.github.com
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Test
+      - run: sudo apt-get -qq update
+      - name: Install required packages
+        run: sudo apt-get install -y -qq file pkg-config git cmake g++-${{ matrix.gcc_version }}
+      - name: Install openssl (static,shared)
         run: |
-          docker pull $DOCKER_IMAGE_NAME
-          docker run --name builder --env POAC_GITHUB_API_TOKEN -v $PWD:/home/run $DOCKER_IMAGE_NAME \
-            bash -c '
-              cd /home/run && mkdir build && cd build &&
-              cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} &&
-              make &&
-              cd ../ && file ./build/poac'
-          docker cp builder:/home/run/build/poac ./poac
-        env:
-          DOCKER_IMAGE_NAME: docker.pkg.github.com/poacpm/dockerfiles/x86_64-unknown-linux-gnu:${{ matrix.compiler }}
-          POAC_GITHUB_API_TOKEN: ${{ secrets.POAC_GITHUB_API_TOKEN }}
-          # FXIME:
-          #   make && ctest --output-on-failure --verbose
-          #   ./build/poac help
-
+          git clone -q -b OpenSSL_1_1_1b https://github.com/openssl/openssl.git
+          cd openssl
+          ./config shared
+          make
+          make install
+        working-directory: ${{ runner.temp }}
+      - name: Install boost (static)
+        run: |
+          git clone -q -b boost-1.73.0 --recursive https://github.com/boostorg/boost.git
+          cd boost
+          ./bootstrap.sh
+          ./b2 link=static install -j2 || exit 0
+        working-directory: ${{ runner.temp }}
+      - name: Install ToruNiina/toml11 v3.4.0 (header-only)
+        run: |
+          git clone -q -b v3.4.0 https://github.com/ToruNiina/toml11.git
+          cd toml11
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -Dtoml11_BUILD_TEST=OFF ..
+          sudo make install
+        working-directory: ${{ runner.temp }}
+      - name: Install libgit2 (static,shared)
+        run: |
+          git clone -q -b v1.0.1 https://github.com/libgit2/libgit2.git
+          cd libgit2
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_SHARED_LIBS=ON -DBUILD_CLAR=OFF ..
+          make
+          make install
+        working-directory: ${{ runner.temp }}
+      - name: Build Poac
+        run: |
+          mkdir build
+          cd build
+          cmake .. -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          make
+      - name: Test Poac
+        run: ctest --output-on-failure --verbose
+      #      TODO:
+      #        - name: Running test
+      #        run: ./build/poac help
+      - run: file ./build/poac
       - uses: actions/upload-artifact@v1
         if: matrix.build_type == 'Release'
         with:
           name: x86_64-unknown-linux-gnu
           path: poac
-
-      - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: always()
-        with:
-          type: ${{ job.status }}
-          job_name: '*x86_64-unknown-linux-gnu (${{ matrix.compiler }}, ${{ matrix.build_type }})*'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          username: 'GitHub Action (${{ github.workflow }})'
-          commit: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
   powerpc-unknown-linux-gnu:
     runs-on: ubuntu-latest
