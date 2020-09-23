@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Cache libgit2
+      - name: Cache & Restore libgit2
         uses: actions/cache@v1
         id: libgit2-cache
         with:
@@ -34,7 +34,7 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: ${{ runner.temp }}
 
-      - name: Cache toml11
+      - name: Cache & Restore toml11
         uses: actions/cache@v1
         id: toml11-cache
         with:
@@ -50,7 +50,7 @@ jobs:
           cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: ${{ runner.temp }}
 
-      - name: Cache libssl
+      - name: Cache & Restore libssl
         uses: actions/cache@v1
         id: libssl-cache
         with:
