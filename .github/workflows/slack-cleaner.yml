@@ -17,12 +17,3 @@ jobs:
           user: '*'
           before: "$(date -v -1m '+%Y%m%d')"
           perform: true
-
-      - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: always()
-        with:
-          type: ${{ job.status }}
-          job_name: '*${{ github.workflow }} / clean*'
-          url: ${{ secrets.SLACK_WEBHOOK }}
-          username: 'GitHub Notification'
