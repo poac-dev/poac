@@ -64,7 +64,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -G "${{ env.GENERATOR }}"`
+          cmake .. -G "${{ env.GENERATOR }}" `
             -Dpoac_BUILD_TEST=OFF `
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
             -DGIT2_DIR="C:/Program Files (x86)/libgit2" `
