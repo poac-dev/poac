@@ -9,10 +9,10 @@ env:
 jobs:
   win32-vs2019:
     name: Visual Studio 2019
-    runs-on: windows-latest
+    runs-on: windows-2019
     strategy:
       matrix:
-        build_type: [Debug, Release]
+        build_type: [ Debug, Release ]
     env:
       GENERATOR: 'Visual Studio 16 2019'
     steps:
@@ -83,7 +83,7 @@ jobs:
   # See also: https://github.com/actions/virtual-environments/issues/111
 #  win32-mingw-8:
 #    name: MinGW 8.1.0
-#    runs-on: windows-latest
+#    runs-on: windows-2019
 #    strategy:
 #      matrix:
 #        build_type: [Debug, Release]
