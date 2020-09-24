@@ -43,5 +43,5 @@ foreach (TEST_NAME ${TEST_NAMES})
 endforeach ()
 
 add_subdirectory(semver)
-add_subdirectory(support)
 add_subdirectory(termcolor2)
+add_subdirectory(util)

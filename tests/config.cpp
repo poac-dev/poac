@@ -11,8 +11,8 @@
 #include <poac/io/path.hpp>
 #include <poac/core/except.hpp>
 
-#include "support/macros.hpp"
-#include "support/test_ofstream.hpp"
+#include "util/macros.hpp"
+#include "util/test_ofstream.hpp"
 
 // [[noreturn]] inline void rethrow_bad_cast(const std::string& what)
 BOOST_AUTO_TEST_CASE( poac_io_config_detail_rethrow_bad_cast_test )

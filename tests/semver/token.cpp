@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
-#include <boost/test/included/unit_test.hpp>
 #include <boost/predef.h>
+#include <boost/test/included/unit_test.hpp>
 #include <poac/util/semver/parser/token.hpp>
 
 #if BOOST_OS_LINUX && BOOST_COMP_CLANG

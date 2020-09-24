@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 #include <poac/util/cfg.hpp>
-#include "support/macros.hpp"
+#include "util/macros.hpp"
 
 BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_good_test )
 {
