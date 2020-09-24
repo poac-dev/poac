@@ -3,7 +3,7 @@ name = "poac"
 version = "0.3.0"
 cpp = 17
 authors = ["Ken Matsui <26405363+matken11235@users.noreply.github.com>"]
-license = "GPL-3.0"
+license = "Apache-2.0"
 homepage = "https://poac.pm"
 repository = "https://github.com/poacpm/poac"
 description = "Poac is a package manager for C++"
@@ -14,20 +14,21 @@ description = "Poac is a package manager for C++"
 #"matken11235/git2-cpp" = ">=0.1.0 and <1.0.0"
 #"matken11235/tar-cpp" = ">=0.1.0 and <1.0.0"
 #"matken11235/url-cpp" = ">=0.1.0 and <1.0.0"
-"poac-community/boost-predef" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-property_tree" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-range" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-algorithm" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-foreach" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-dynamic_bitset" = ">=1.64.0 and <2.0.0"
-#"poac-community/boost-beast" = ">=1.64.0 and <2.0.0"
+"boost/predef" = ">=1.64.0 and <2.0.0"
+#"boost/property_tree" = ">=1.64.0 and <2.0.0"
+#"boost/range" = ">=1.64.0 and <2.0.0"
+#"boost/algorithm" = ">=1.64.0 and <2.0.0"
+#"boost/foreach" = ">=1.64.0 and <2.0.0"
+#"boost/dynamic_bitset" = ">=1.64.0 and <2.0.0"
+#"boost/beast" = ">=1.64.0 and <2.0.0"
 #"ToruNiina/toml11" = ">=3.0.0 and <4.0.0"
+#libgit2 = ">=0.27 and <2.0.0"
 
 #[target.'cfg(any(os = "linux", compiler = "msvc"))'.dependencies]
-#"poac-community/boost-filesystem" = { version = ">=1.64.0 and <2.0.0", link = "static" }
+#"boost/filesystem" = { version = ">=1.64.0 and <2.0.0", link = "static" }
 
 #[dev-dependencies]
-#"poac-community/boost-test" = ">=1.64.0 and <2.0.0"
+#"boost/test" = ">=1.64.0 and <2.0.0"
 
 [target.'cfg(os = "linux")'.profile]
 definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
