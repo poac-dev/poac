@@ -14,10 +14,10 @@ option(poac_BUILD_TEST "Build poac tests" OFF) # -Dpoac_BUILD_TEST=ON
 # Check requiring version
 if (APPLE)
     execute_process(
-        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
+        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2"
         OUTPUT_VARIABLE MACOS_VERSION)
-    if (${MACOS_VERSION} LESS 15)
-        message(FATAL_ERROR "Poac requires macOS Catalina (15.0) or later.")
+    if (${MACOS_VERSION} VERSION_LESS 10.15)
+        message(FATAL_ERROR "Poac requires macOS Catalina (10.15) or later.")
     endif()
 elseif (MSVC)
     # https://cmake.org/cmake/help/latest/variable/MSVC_TOOLSET_VERSION.html
