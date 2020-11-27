@@ -304,7 +304,6 @@ private:
 
     /// Return the correctly formatted content of the ignore file for the given
     /// version control system as `String`.
-    
 };
 
 } // namespace poac::opts
