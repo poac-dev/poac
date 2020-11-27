@@ -139,9 +139,8 @@ namespace poac::core::builder {
 //    macro_defns.emplace_back(make_macro_defn("POAC_MINOR_VERSION", version.minor));
 //    macro_defns.emplace_back(make_macro_defn("POAC_PATCH_VERSION", version.patch));
 
-            if (const auto result = compile(compile_conf, this->verbose)) {
-
-            }
+//            if (const auto result = compile(compile_conf, this->verbose)) {
+//            }
 
             std::cout << io::term::finished << this->mode;
             std::cout << " [";
