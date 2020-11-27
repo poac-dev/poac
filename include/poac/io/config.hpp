@@ -24,8 +24,8 @@ namespace poac::io::config {
     struct exception : public std::exception {
         explicit exception(const std::string& what_) : what_(what_) {}
         explicit exception(const char* what_)        : what_(what_) {}
-        virtual ~exception() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
+        ~exception() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
 
         exception(const exception&) = default;
         exception& operator=(const exception&) = default;
@@ -39,7 +39,7 @@ namespace poac::io::config {
     struct general_error : public config::exception {
         explicit general_error(const std::string& what_) : exception(what_) {}
         explicit general_error(const char* what_) : exception(what_) {}
-        virtual ~general_error() noexcept override = default;
+        ~general_error() noexcept override = default;
 
         general_error(const general_error&) = default;
         general_error& operator=(const general_error&) = default;
