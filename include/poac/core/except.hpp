@@ -73,8 +73,8 @@ namespace poac::core::except {
         struct DoesNotExist : General {
             // Inheriting constructors
             using General::General;
-            virtual ~DoesNotExist() noexcept override = default;
-            virtual std::string what() const override {
+            ~DoesNotExist() noexcept override = default;
+            std::string what() const override {
                 return "`" + General::what() + "` does not exist";
             }
 
@@ -220,7 +220,7 @@ namespace poac::core::except {
               )
         {}
 
-        virtual ~error() noexcept override = default;
+        ~error() noexcept override = default;
     };
 } // end namespace
 #endif // !POAC_CORE_EXCEPT_HPP
