@@ -382,7 +382,7 @@ namespace poac::io::net {
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
         redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
-            const std::string new_location = res.base()["Location"].to_string();
+            const std::string new_location = std::string(res.base()["Location"]);
             const auto [new_host, new_target] = parse_url(new_location);
             term::debugln("Redirect to ", new_location, "\n");
 
