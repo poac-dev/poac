@@ -8,8 +8,8 @@ namespace semver {
     struct exception : public std::exception {
         explicit exception(const std::string& what_) : what_(what_) {}
         explicit exception(const char* what_)        : what_(what_) {}
-        virtual ~exception() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
+        ~exception() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
 
         exception(const exception&) = default;
         exception& operator=(const exception&) = default;
@@ -23,8 +23,8 @@ namespace semver {
     struct version_error : public semver::exception {
         explicit version_error(const std::string& what_) : exception(what_) {}
         explicit version_error(const char* what_)        : exception(what_) {}
-        virtual ~version_error() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
+        ~version_error() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
 
         version_error(const version_error&) = default;
         version_error& operator=(const version_error&) = default;
