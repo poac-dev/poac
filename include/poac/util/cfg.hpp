@@ -17,8 +17,8 @@ namespace poac::util::cfg {
     struct exception : public std::exception {
         explicit exception(const std::string& what_) : what_(what_) {}
         explicit exception(const char* what_)        : what_(what_) {}
-        virtual ~exception() noexcept override = default;
-        virtual const char* what() const noexcept override { return what_.c_str(); }
+        ~exception() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
 
         exception(const exception&) = default;
         exception& operator=(const exception&) = default;
@@ -33,7 +33,7 @@ namespace poac::util::cfg {
         explicit string_error(const std::string& what_)
             : exception("missing terminating '\"' character\n" + what_) {}
         explicit string_error(const char* what_) : string_error(std::string(what_)) {}
-        virtual ~string_error() noexcept override = default;
+        ~string_error() noexcept override = default;
 
         string_error(const string_error&) = default;
         string_error& operator=(const string_error&) = default;
@@ -46,7 +46,7 @@ namespace poac::util::cfg {
         explicit ident_error(const std::string& what_)
             : exception("cfg expected parens, a comma, an identifier, or a string\n" + what_) {}
         explicit ident_error(const char* what_) : ident_error(std::string(what_)) {}
-        virtual ~ident_error() noexcept override = default;
+        ~ident_error() noexcept override = default;
 
         ident_error(const ident_error&) = default;
         ident_error& operator=(const ident_error&) = default;
@@ -59,7 +59,7 @@ namespace poac::util::cfg {
         explicit operator_error(const std::string& what_)
             : exception("cfg operator error\n" + what_) {}
         explicit operator_error(const char* what_) : operator_error(std::string(what_)) {}
-        virtual ~operator_error() noexcept override = default;
+        ~operator_error() noexcept override = default;
 
         operator_error(const operator_error&) = default;
         operator_error& operator=(const operator_error&) = default;
@@ -71,7 +71,7 @@ namespace poac::util::cfg {
     public:
         explicit expression_error(const std::string& what_) : exception(what_) {}
         explicit expression_error(const char* what_)        : exception(what_) {}
-        virtual ~expression_error() noexcept override = default;
+        ~expression_error() noexcept override = default;
 
         expression_error(const expression_error&) = default;
         expression_error& operator=(const expression_error&) = default;
@@ -84,7 +84,7 @@ namespace poac::util::cfg {
         explicit syntax_error(const std::string& what_)
             : exception("cfg syntax error\n" + what_) {}
         explicit syntax_error(const char* what_) : syntax_error(std::string(what_)) {}
-        virtual ~syntax_error() noexcept override = default;
+        ~syntax_error() noexcept override = default;
 
         syntax_error(const syntax_error&) = default;
         syntax_error& operator=(const syntax_error&) = default;
