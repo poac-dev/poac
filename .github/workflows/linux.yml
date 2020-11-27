@@ -110,9 +110,8 @@ jobs:
           cmake ..                                                 \
             -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
             -DCMAKE_BUILD_TYPE=Release                             \
-            -DBUILD_SHARED_LIBS=ON                                 \
-            -DBUILD_CLAR=OFF                                       \
-            -DCMAKE_C_FLAGS=-fPIC
+            -DBUILD_SHARED_LIBS=OFF                                \
+            -DBUILD_CLAR=OFF
           make
           sudo make install
         working-directory: ${{ runner.temp }}
