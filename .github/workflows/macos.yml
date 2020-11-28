@@ -3,11 +3,11 @@ name: macOS
 on: [push, pull_request]
 
 jobs:
-  catalina:
-    name: Catalina (10.15)
-    runs-on: macOS-10.15
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ macOS-10.15, macos-11.0 ]
         build_type: [ Debug ] # TODO: Release
     steps:
       - uses: actions/checkout@v1
