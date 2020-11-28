@@ -57,7 +57,7 @@ options = ["-fsanitize=address"]
 [target.'cfg(os = "macos")'.profile.release]
 options = ["-mtune=native", "-march=native"]
 
-[target.'cfg(all(os = "macos", os_version < "14"))'.profile]
+[target.'cfg(all(os = "macos", os_version < "10.15"))'.profile]
 compiler = "/usr/local/opt/llvm@7/bin/clang++"
 include-directories = ["/usr/local/opt/llvm@7/include"]
 link-directories = ["/usr/local/opt/llvm@7/lib"]
