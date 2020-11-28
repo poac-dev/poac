@@ -1,0 +1,19 @@
+name: Slack Cleaner (Monthly)
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: matken11235/slack-cleaner@v1
+        with:
+          token: ${{ secrets.SLACK_LEGACY_TOKEN }}
+          rate: '1'
+          message: true
+          channel: 'notifications'
+          user: '*'
+          before: "$(date -v -1m '+%Y%m%d')"
+          perform: true

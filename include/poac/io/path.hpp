@@ -2,187 +2,103 @@
 #define POAC_IO_PATH_HPP
 
 #include <cstdlib>
-#include <iostream>
-#include <fstream>
+#include <ctime>
+#include <chrono>
+#include <filesystem>
 #include <string>
 #include <optional>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <boost/predef.h>
 
-#include "../core/except.hpp"
-#include "../util/shell.hpp"
+#include <poac/core/except.hpp>
 
+namespace std::filesystem {
+    inline namespace path_literals {
+        inline std::filesystem::path
+        operator "" _path(const char* str, std::size_t) noexcept {
+            return std::filesystem::path(str);
+        }
+    }
+}
 
 namespace poac::io::path {
-    // Inspired by https://stackoverflow.com/q/4891006
-    std::string expand_user(std::string path) {
-        namespace except = core::except;
-
-        if (!path.empty() && path[0] == '~') {
-            assert(path.size() == 1 || path[1] == '/');
-            const char* home = std::getenv("HOME");
-            if (home || ((home = std::getenv("USERPROFILE")))) {
-                path.replace(0, 1, home);
-            }
-            else {
-                if (const char* hdrive = std::getenv("HOMEDRIVE")) {
-                    if (const char* hpath = std::getenv("HOMEPATH")) {
-                        path.replace(0, 1, std::string(hdrive) + hpath);
-                    }
-                    else {
-                        throw except::error(
-                                except::msg::could_not_read("environment variable HOMEPATH"));
-                    }
-                }
-                else {
-                    throw except::error(
-                            except::msg::could_not_read("environment variable HOMEDRIVE"));
-                }
-            }
+    std::optional<std::string>
+    dupenv(const std::string& name) {
+#if BOOST_COMP_MSVC
+        char* env;
+        std::size_t len;
+        if (_dupenv_s(&env, &len, name.c_str())) {
+            return std::nullopt;
+        } else {
+            std::string env_s(env);
+            std::free(env);
+            return env_s;
         }
-        return path;
+#else
+        if (const char* env = std::getenv(name.c_str())) {
+            return env;
+        } else {
+            return std::nullopt;
+        }
+#endif
     }
 
-    const boost::filesystem::path poac_state_dir(
-            boost::filesystem::path(expand_user("~")) / ".poac"
-    );
-    const boost::filesystem::path poac_cache_dir(
-            poac_state_dir / "cache"
-    );
-    const boost::filesystem::path poac_log_dir(
-            poac_state_dir / "logs"
-    );
-    const boost::filesystem::path poac_token_dir(
-            poac_state_dir / "token"
-    );
-    const boost::filesystem::path current_deps_dir(
-            boost::filesystem::current_path() / "deps"
-    );
-    const boost::filesystem::path current_build_dir(
-            boost::filesystem::current_path() / "_build"
-    );
-    const boost::filesystem::path current_build_cache_dir(
-            current_build_dir / "_cache"
-    );
-    const boost::filesystem::path current_build_cache_obj_dir(
-            current_build_cache_dir / "obj"
-    );
-    const boost::filesystem::path current_build_cache_hash_dir( // FIXME: hashでなく，timestamp
-            current_build_cache_dir / "_hash"
-    );
-    const boost::filesystem::path current_build_bin_dir(
-            current_build_dir / "bin"
-    );
-    const boost::filesystem::path current_build_lib_dir(
-            current_build_dir / "lib"
-    );
-    const boost::filesystem::path current_build_test_dir(
-            current_build_dir / "test"
-    );
-    const boost::filesystem::path current_build_test_bin_dir(
-            current_build_test_dir / "bin"
-    );
-    const boost::filesystem::path current_build_test_report_dir(
-            current_build_test_dir / "report"
-    );
+    // Inspired by https://stackoverflow.com/q/4891006
+    // Expand ~ to user home directory.
+    std::string expand_user() {
+        auto home = dupenv("HOME");
+        if (home || (home = dupenv("USERPROFILE"))) {
+            return home.value();
+        } else {
+            const auto home_drive = dupenv("HOMEDRIVE");
+            const auto home_path = dupenv("HOMEPATH");
+            if (home_drive && home_path) {
+                return home_drive.value() + home_path.value();
+            }
+            throw core::except::error(
+                    core::except::msg::could_not_read("environment variable"));
+        }
+    }
 
-    bool validate_dir(const boost::filesystem::path& path) {
-        namespace fs = boost::filesystem;
+    inline const std::filesystem::path poac_dir(expand_user() / std::filesystem::operator""_path(".poac", 5));
+    inline const std::filesystem::path poac_cache_dir(poac_dir / "cache");
+    inline const std::filesystem::path poac_log_dir(poac_dir / "logs");
+
+    inline const std::filesystem::path current(std::filesystem::current_path());
+    inline const std::filesystem::path current_deps_dir(current / "deps");
+    inline const std::filesystem::path current_build_dir(current / "_build");
+    inline const std::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
+    inline const std::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
+    inline const std::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
+    inline const std::filesystem::path current_build_bin_dir(current_build_dir / "bin");
+    inline const std::filesystem::path current_build_lib_dir(current_build_dir / "lib");
+    inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
+    inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
+
+    inline bool validate_dir(const std::filesystem::path& path) {
+        namespace fs = std::filesystem;
         return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
     }
 
-    bool recursive_copy(
-        const boost::filesystem::path &from,
-        const boost::filesystem::path &dest )
-    {
-        namespace fs = boost::filesystem;
-
-        // Does the copy source exist?
-        if (!fs::exists(from) || !fs::is_directory(from)) {
-//            std::cerr << "Could not validate `from` dir" << std::endl;
-            return EXIT_FAILURE;
+    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
+        try {
+            std::filesystem::copy(from, dest, std::filesystem::copy_options::recursive);
+        } catch (...) {
+            return false;
         }
-        // Does the copy destination exist?
-        if (!validate_dir(dest) && !fs::create_directories(dest)) {
-//            std::cerr << "Could not validate `dest` dir" << std::endl;
-            return EXIT_FAILURE; // Unable to create destination directory
-        }
-
-        // Iterate through the source directory
-        for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file) {
-            fs::path current(file->path());
-            if (fs::is_directory(current)) {
-                // Found directory: Recursion
-                if (recursive_copy(current, dest / current.filename()))
-                    return EXIT_FAILURE;
-            }
-            else {
-                // Found file: Copy
-                boost::system::error_code error;
-                fs::copy_file(current, dest / current.filename(), error);
-                if (error) {
-//                    std::cerr << err.message() << std::endl;
-                    return EXIT_FAILURE;
-                }
-            }
-        }
-        return EXIT_SUCCESS;
+        return true;
     }
 
-    std::optional<std::string> read_file(const boost::filesystem::path& path) {
-        if (!boost::filesystem::exists(path)) {
-            return std::nullopt;
-        }
-        else if (std::ifstream ifs(path.string()); !ifs.fail()) {
-            std::istreambuf_iterator<char> it(ifs);
-            std::istreambuf_iterator<char> last;
-            return std::string(it, last);
-        }
-        else {
-            return std::nullopt;
-        }
+    inline std::string
+    time_to_string(const std::time_t& time) {
+        return std::to_string(time);
     }
-
-    void write_to_file(std::ofstream& ofs, const std::string& fname, const std::string& text) {
-        ofs.open(fname);
-        if (ofs.is_open()) ofs << text;
-        ofs.close();
-        ofs.clear();
-    }
-
-    std::vector<std::string>
-    split(const std::string& raw, const std::string& delim) {
-        using boost::algorithm::token_compress_on;
-        using boost::is_any_of;
-
-        std::vector<std::string> ret;
-        boost::split(ret, raw, is_any_of(delim), token_compress_on);
-        return ret;
-    }
-
-    boost::filesystem::path create_temp() {
-        const std::string temp = *(util::shell("mktemp -d").exec());
-        const std::string temp_path(temp, 0, temp.size()-1); // delete \n
-        return temp_path;
-    }
-
-    void remove_matched_files(const boost::filesystem::path& p, std::regex r) {
-        namespace fs = boost::filesystem;
-
-        fs::directory_iterator end_itr; // Default ctor yields past-the-end
-        for (fs::directory_iterator i(p); i != end_itr; ++i) {
-            // Skip if not a file
-            if (!fs::is_regular_file(i->status())) {
-                continue;
-            }
-            // Skip if no match
-            if (!std::regex_match(i->path().filename().string(), r)) {
-                continue;
-            }
-            // File matches, delete it
-            fs::remove_all(i->path());
-        }
+    template <typename Clock, typename Duration>
+    std::string
+    time_to_string(const std::chrono::time_point<Clock, Duration>& time) {
+        const auto sec = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch());
+        const std::time_t t = sec.count();
+        return time_to_string(t);
     }
 } // end namespace
 #endif // !POAC_IO_PATH_HPP

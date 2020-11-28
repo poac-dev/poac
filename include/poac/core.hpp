@@ -1,10 +1,11 @@
 #ifndef POAC_CORE_HPP
 #define POAC_CORE_HPP
 
-#include "core/deper.hpp"
-#include "core/except.hpp"
-#include "core/infer.hpp"
-#include "core/name.hpp"
-#include "core/stroite.hpp"
+#include <poac/core/builder.hpp>
+#include <poac/core/compiler.hpp>
+#include <poac/core/except.hpp>
+#include <poac/core/name.hpp>
+#include <poac/core/project.hpp>
+#include <poac/core/resolver.hpp>
 
 #endif // !POAC_CORE_HPP

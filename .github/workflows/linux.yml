@@ -1,0 +1,283 @@
+name: Linux
+
+on: [ push, pull_request ]
+env:
+  OPENSSL_VERSION: 'OpenSSL_1_1_1h'
+  BOOST_VERSION: 1.73.0
+  TOML11_VERSION: 3.4.0
+  LIBGIT2_VERSION: 1.1.0
+
+jobs:
+  x86_64-unknown-linux-gnu:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        compiler: [ clang, gcc ]
+        compiler_version: [ 7, 8, 9, 10 ]
+        build_type: [ Debug ] # TODO: Release
+        exclude:
+          - compiler: gcc
+            compiler_version: 7
+        include:
+          - compiler: clang
+            cc_prefix: clang-
+            cxx_prefix: clang++-
+            package_prefix: clang-
+          - compiler: gcc
+            cc_prefix: gcc-
+            cxx_prefix: g++-
+            package_prefix: g++-
+    env:
+      CC: ${{ matrix.cc_prefix }}${{ matrix.compiler_version }}
+      CXX: ${{ matrix.cxx_prefix }}${{ matrix.compiler_version }}
+      CACHE_KEY_PREFIX: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}-${{ matrix.build_type }}
+    steps:
+      - uses: actions/checkout@v1
+
+      - run: sudo apt-get -qq update
+      - name: Install ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+        run: sudo apt-get install -y -qq pkg-config cmake ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+
+      - name: Install openssl
+        if: matrix.compiler == 'clang'
+        run: sudo apt-get install -y -qq libssl-dev
+
+      - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
+        if: matrix.compiler == 'gcc'
+        uses: actions/cache@v1
+        id: openssl-cache
+        with:
+          path: ${{ runner.temp }}/libs/openssl
+          key: ${{ env.CACHE_KEY_PREFIX }}-openssl-${{ env.OPENSSL_VERSION }}
+      - name: Install openssl (${{ env.OPENSSL_VERSION }}) as static
+        if: matrix.compiler == 'gcc' && steps.openssl-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/openssl
+          git clone -q -b ${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
+          cd openssl
+          ./config --static -static --prefix=${{ runner.temp }}/libs/openssl
+          make
+          sudo make install
+          echo "OPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl" >> $GITHUB_ENV
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
+        uses: actions/cache@v1
+        id: boost-cache
+        with:
+          path: ${{ runner.temp }}/libs/boost
+          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}
+      - name: Install boost (${{ env.BOOST_VERSION }}) as static
+        if: steps.boost-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/boost
+          git clone -q -b boost-${{ env.BOOST_VERSION }} --recursive https://github.com/boostorg/boost.git
+          cd boost
+          ./bootstrap.sh
+          sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache toml11 (${{ env.TOML11_VERSION }})
+        uses: actions/cache@v1
+        id: toml11-cache
+        with:
+          path: ${{ runner.temp }}/libs/toml11
+          key: ${{ env.CACHE_KEY_PREFIX }}-toml11-${{ env.TOML11_VERSION }}
+      - name: Install ToruNiina/toml11 (${{ env.TOML11_VERSION }}) (header-only)
+        if: steps.toml11-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/toml11
+          git clone -q -b v${{ env.TOML11_VERSION }} https://github.com/ToruNiina/toml11.git
+          mkdir toml11/build && cd toml11/build
+          cmake ..                                                \
+            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/toml11 \
+            -Dtoml11_BUILD_TEST=OFF
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache libgit2 (${{ env.LIBGIT2_VERSION }})
+        uses: actions/cache@v1
+        id: libgit2-cache
+        with:
+          path: ${{ runner.temp }}/libs/libgit2
+          key: ${{ env.CACHE_KEY_PREFIX }}-libgit2-${{ env.LIBGIT2_VERSION }}
+      - name: Install libgit2 (${{ env.LIBGIT2_VERSION }}) as shared
+        if: steps.libgit2-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/libgit2
+          git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
+          mkdir libgit2/build && cd libgit2/build
+          cmake ..                                                 \
+            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
+            -DCMAKE_BUILD_TYPE=Release                             \
+            -DBUILD_SHARED_LIBS=OFF                                \
+            -DBUILD_CLAR=OFF
+          make
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Build Poac
+        run: |
+          mkdir build && cd build
+          cmake ..                                               \
+            -Dpoac_BUILD_TEST=ON                                 \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
+            -DBOOST_ROOT=${{ runner.temp }}/libs/boost           \
+            -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib \
+            -DTOML11_DIR=${{ runner.temp }}/libs/toml11          \
+            -DGIT2_DIR=${{ runner.temp }}/libs/libgit2
+          make
+
+#      TODO:
+#      - name: Test Poac
+#        run: cd build && ctest --output-on-failure --verbose
+
+#      TODO:
+#        - name: Running test
+#        run: ./build/poac help
+
+      - run: file ./build/poac
+
+      - name: Upload pre-built binary
+        uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+          path: poac
+
+  powerpc-unknown-linux-gnu:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        target_platform: [ powerpc64, powerpc64le ] # TODO: powerpc
+        gcc_version: [ 9, 10 ]
+        build_type: [ Debug ] # TODO: Release
+        include:
+#          - target_platform: powerpc
+#            platform_flag: linux-ppc
+          - target_platform: powerpc64
+            platform_flag: linux-ppc64
+          - target_platform: powerpc64le
+            platform_flag: linux-ppc64le
+    env:
+      CACHE_KEY_PREFIX: ${{ github.job }}${{ matrix.gcc_version }}-${{ matrix.target_platform }}-${{ matrix.build_type }}
+    steps:
+      - uses: actions/checkout@v1
+
+      - run: sudo apt-get -qq update
+      - name: Install g++-${{ matrix.gcc_version }}-${{ matrix.target_platform }}-linux-gnu
+        run: sudo apt-get install -y -qq pkg-config cmake g++-${{ matrix.gcc_version }}-${{ matrix.target_platform }}-linux-gnu
+
+      - name: Link the installed compiler
+        run: |
+          sudo ln -sf                                                                      \
+            /usr/bin/${{ matrix.target_platform }}-linux-gnu-gcc-${{ matrix.gcc_version }} \
+            /usr/bin/${{ matrix.target_platform }}-linux-gnu-gcc
+
+      - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
+        uses: actions/cache@v1
+        id: openssl-cache
+        with:
+          path: ${{ runner.temp }}/libs/openssl
+          key: ${{ env.CACHE_KEY_PREFIX }}-openssl-${{ env.OPENSSL_VERSION }}
+      - name: Install openssl (${{ env.OPENSSL_VERSION }}) as static
+        if: steps.openssl-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/openssl
+          git clone -q -b ${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
+          cd openssl
+          ./Configure                                                       \
+            ${{ matrix.platform_flag }}                                     \
+            -static                                                         \
+            --cross-compile-prefix=${{ matrix.target_platform }}-linux-gnu- \
+            --prefix=${{ runner.temp }}/libs/openssl
+          make
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
+        uses: actions/cache@v1
+        id: boost-cache
+        with:
+          path: ${{ runner.temp }}/libs/boost
+          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}
+      - name: Install boost (${{ env.BOOST_VERSION }}) as static
+        if: steps.boost-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone -q -b boost-1.73.0 --recursive https://github.com/boostorg/boost.git
+          cd boost
+          sudo apt-get update
+          sudo apt-get install -y g++-${{ matrix.gcc_version }}
+          sudo ln -sf /usr/bin/g++-${{ matrix.gcc_version }} /usr/bin/g++
+          ./bootstrap.sh
+          sudo rm -rf /usr/bin/g++
+          sudo ln -sf /usr/bin/${{ matrix.target_platform }}-linux-gnu-g++-${{ matrix.gcc_version }} /usr/bin/g++
+          sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
+        working-directory: ${{ runner.temp }}
+
+      - name: Define compiler variables
+        run: |
+          echo "CC=${{ matrix.target_platform }}-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CXX=${{ matrix.target_platform }}-linux-gnu-g++-${{ matrix.gcc_version }}" >> $GITHUB_ENV
+
+      - name: Restore & Cache toml11 (${{ env.TOML11_VERSION }})
+        uses: actions/cache@v1
+        id: toml11-cache
+        with:
+          path: ${{ runner.temp }}/libs/toml11
+          key: ${{ env.CACHE_KEY_PREFIX }}-toml11-${{ env.TOML11_VERSION }}
+      - name: Install ToruNiina/toml11 (${{ env.TOML11_VERSION }}) (header-only)
+        if: steps.toml11-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/toml11
+          git clone -q -b v${{ env.TOML11_VERSION }} https://github.com/ToruNiina/toml11.git
+          mkdir toml11/build && cd toml11/build
+          cmake ..                                                \
+            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/toml11 \
+            -Dtoml11_BUILD_TEST=OFF
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache libgit2 (${{ env.LIBGIT2_VERSION }})
+        uses: actions/cache@v1
+        id: libgit2-cache
+        with:
+          path: ${{ runner.temp }}/libs/libgit2
+          key: ${{ env.CACHE_KEY_PREFIX }}-libgit2-${{ env.LIBGIT2_VERSION }}
+      - name: Install libgit2 (${{ env.LIBGIT2_VERSION }}) as shared
+        if: steps.libgit2-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/libgit2
+          git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
+          mkdir libgit2/build && cd libgit2/build
+          cmake ..                                                 \
+            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
+            -DCMAKE_BUILD_TYPE=Release                             \
+            -DBUILD_SHARED_LIBS=ON                                 \
+            -DBUILD_CLAR=OFF                                       \
+            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
+          make
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Build Poac
+        run: |
+          mkdir build && cd build
+          cmake ..                                               \
+            -Dpoac_BUILD_TEST=ON                                 \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
+            -DBOOST_ROOT=${{ runner.temp }}/libs/boost           \
+            -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib \
+            -DTOML11_DIR=${{ runner.temp }}/libs/toml11          \
+            -DGIT2_DIR=${{ runner.temp }}/libs/libgit2           \
+            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
+          make
+
+      - run: file ./build/poac
+
+      - name: Upload pre-built binary
+        uses: actions/upload-artifact@v1
+        if: matrix.build_type == 'Release'
+        with:
+          name: ${{ matrix.target_platform }}-unknown-linux-gnu
+          path: poac

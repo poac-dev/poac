@@ -1,0 +1,32 @@
+name: Coverage
+
+on: [push, pull_request]
+
+jobs:
+  coverage:
+    name: Coveralls and Codecov
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install libgit2 & toml11
+        run: brew install libgit2 matken11235/toml11/toml11
+      - name: Build Poac
+        run: |
+          mkdir build
+          cd build
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          make install
+      - name: Test Poac
+        run: cd build && ctest --output-on-failure --verbose
+      - name: Upload coverage to Coveralls
+        if: success()
+        run: |
+          pip3 install cpp-coveralls
+          coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        if: success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
