@@ -2,7 +2,7 @@
 name = "poac"
 version = "0.3.0"
 cpp = 17
-authors = ["Ken Matsui <26405363+matken11235@users.noreply.github.com>"]
+authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
 license = "Apache-2.0"
 homepage = "https://poac.pm"
 repository = "https://github.com/poacpm/poac"
