@@ -4,7 +4,7 @@ on: [ push, pull_request ]
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
   BOOST_VERSION: 1.73.0
-  TOML11_VERSION: 3.4.0
+  TOML11_VERSION: 3.6.0
   LIBGIT2_VERSION: 1.1.0
 
 jobs:
