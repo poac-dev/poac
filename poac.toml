@@ -2,18 +2,18 @@
 name = "poac"
 version = "0.3.0"
 cpp = 17
-authors = ["Ken Matsui <26405363+matken11235@users.noreply.github.com>"]
+authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
 license = "Apache-2.0"
 homepage = "https://poac.pm"
 repository = "https://github.com/poacpm/poac"
 description = "Poac is a package manager for C++"
 
 [dependencies]
-"matken11235/termcolor2" = ">=0.1.0 and <1.0.0"
-#"matken11235/semver" = ">=0.1.0 and <1.0.0"
-#"matken11235/git2-cpp" = ">=0.1.0 and <1.0.0"
-#"matken11235/tar-cpp" = ">=0.1.0 and <1.0.0"
-#"matken11235/url-cpp" = ">=0.1.0 and <1.0.0"
+"ken-matsui/termcolor2" = ">=0.1.0 and <1.0.0"
+#"ken-matsui/semver" = ">=0.1.0 and <1.0.0"
+#"ken-matsui/git2-cpp" = ">=0.1.0 and <1.0.0"
+#"ken-matsui/tar-cpp" = ">=0.1.0 and <1.0.0"
+#"ken-matsui/url-cpp" = ">=0.1.0 and <1.0.0"
 "boost/predef" = ">=1.64.0 and <2.0.0"
 #"boost/property_tree" = ">=1.64.0 and <2.0.0"
 #"boost/range" = ">=1.64.0 and <2.0.0"
@@ -57,7 +57,7 @@ options = ["-fsanitize=address"]
 [target.'cfg(os = "macos")'.profile.release]
 options = ["-mtune=native", "-march=native"]
 
-[target.'cfg(all(os = "macos", os_version < "14"))'.profile]
+[target.'cfg(all(os = "macos", os_version < "10.15"))'.profile]
 compiler = "/usr/local/opt/llvm@7/bin/clang++"
 include-directories = ["/usr/local/opt/llvm@7/include"]
 link-directories = ["/usr/local/opt/llvm@7/lib"]
