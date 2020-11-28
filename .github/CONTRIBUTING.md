@@ -15,5 +15,5 @@ Please note we have a [code of conduct](CODE_OF_CONDUCT.md), please follow it in
    Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
 4. If you could check the items in 2 and 3, commit your changes (git commit -am 'Add some feature'),
    push to the branch (git push origin my-new-feature), and create new Pull Request.
-5. You may merge the Pull Request in once you have the sign-off of [@matken11235](https://github.com/matken11235),
-   or if you do not have permission to do that, you may request a review to [@matken11235](https://github.com/matken11235) to merge it for you.
+5. You may merge the Pull Request in once you have the sign-off of [@ken-matsui](https://github.com/ken-matsui),
+   or if you do not have permission to do that, you may request a review to [@ken-matsui](https://github.com/ken-matsui) to merge it for you.
