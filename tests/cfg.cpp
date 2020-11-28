@@ -525,7 +525,7 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_cfgexpr_match_test )
 #  endif
 #endif
 
-#if defined(__SSE__)
+#ifdef __SSE__
     BOOST_CHECK( parse("cfg(feature = \"sse\")").match() );
 #endif
 
@@ -533,7 +533,8 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_cfgexpr_match_test )
     BOOST_CHECK( parse("cfg(not(platform = \"mingw\"))").match() );
 #endif
 
-#if BOOST_ARCH_X86_64 && defined(__SSE__) && !BOOST_PLAT_MINGW
+#ifdef __SSE__
+#  if BOOST_ARCH_X86_64 && !BOOST_PLAT_MINGW
     BOOST_CHECK(
         parse("cfg(all(os = \"unix\", "
                       "arch = \"x86_64\", "
@@ -541,6 +542,7 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_cfgexpr_match_test )
                       "not(platform = \"mingw\")"
                    "))").match()
     );
+#  endif
 #endif
 
     using poac::util::cfg::CfgExpr;
