@@ -23,7 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
 
     strategy:
       fail-fast: false
@@ -48,16 +48,7 @@ jobs:
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
     - name: Install required packages
-      run: |
-        sudo apt-get -qq update
-        sudo add-apt-repository ppa:mhier/libboost-latest
-        sudo apt-get -qq -y install pkg-config clang-10 libssl-dev libgit2-dev libboost1.70-dev
-        git clone -q -b v3.1.0 https://github.com/ToruNiina/toml11.git
-        mkdir toml11/build && cd $_
-        cmake -Dtoml11_BUILD_TEST=OFF ..
-        sudo make install
-        cd ../../
-        rm -rf toml11
+      run: brew install libgit2 poacpm/tap/toml11
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
