@@ -612,18 +612,12 @@ namespace poac::util::cfg {
 //        rdrand,
 //        rdseed,
 //        sha,
-#elif defined(__SSE__)
-                    return c.value == "sse";
-#elif defined(__SSE2__)
-                    return c.value == "sse2";
-#elif defined(__SSE3__)
-                    return c.value == "sse3";
-#elif defined(__SSE4_1__)
-                    return c.value == "sse4.1";
-#elif defined(__SSE4_2__)
-                    return c.value == "sse4.2";
-#elif defined(__SSSE3__)
-                    return c.value == "ssse3";
+//        sse,
+//        sse2,
+//        sse3,
+//        sse4.1,
+//        sse4.2,
+//        ssse3,
 //        xsave,
 //        xsavec,
 //        xsaveopt,
