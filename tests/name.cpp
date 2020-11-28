@@ -9,7 +9,7 @@ BOOST_AUTO_TEST_CASE( poac_core_name_to_cache_test )
 
     BOOST_CHECK( to_cache("boost/optional", "1.66.0") == "boost-optional-1.66.0" );
     BOOST_CHECK( to_cache("opencv/opencv", "3.4.2") == "opencv-opencv-3.4.2" );
-    BOOST_CHECK( to_cache("matken11235/logger_slack_backend", "0.1.0") == "matken11235-logger_slack_backend-0.1.0" );
+    BOOST_CHECK( to_cache("ken-matsui/logger_slack_backend", "0.1.0") == "ken-matsui-logger_slack_backend-0.1.0" );
     BOOST_CHECK( to_cache("curl/curl", "curl-7_61_0") == "curl-curl-curl-7_61_0" );
 }
 
@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE( poac_core_name_to_current_test )
 
     BOOST_CHECK( to_current("owner/repo") == "owner-repo" );
     BOOST_CHECK( to_current("opencv/opencv") == "opencv-opencv" );
-    BOOST_CHECK( to_current("matken11235/logger_slack_backend") == "matken11235-logger_slack_backend" );
+    BOOST_CHECK( to_current("ken-matsui/logger_slack_backend") == "ken-matsui-logger_slack_backend" );
     BOOST_CHECK( to_current("curl/curl") == "curl-curl" );
 }
 
