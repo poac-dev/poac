@@ -23,7 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: macOS-latest
+    runs-on: macos-latest
 
     strategy:
       fail-fast: false
