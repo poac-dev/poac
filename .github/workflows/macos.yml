@@ -19,7 +19,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
           make
 
       - name: Test Poac
