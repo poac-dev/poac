@@ -8,7 +8,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-
 namespace poac::util::misc {
     std::vector<std::string>
     split(const std::string& raw, const std::string& delim) {

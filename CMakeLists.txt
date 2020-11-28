@@ -1,142 +1,162 @@
 # Reference: https://github.com/opencv/opencv/blob/e329c84d5e7cfa5965b5dbbe7aa94d377ede23cf/CMakeLists.txt#L9-L15
 # Disable in-source builds to prevent source tree corruption.
-if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+if (" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "
 FATAL: In-source builds are not allowed.
        You should create a separate directory for build files.
 ")
-endif()
+endif ()
 
+cmake_minimum_required(VERSION 3.11)
+project(poac VERSION 0.2.1 LANGUAGES CXX)
+option(poac_BUILD_TEST "Build poac tests" OFF) # -Dpoac_BUILD_TEST=ON
 
-cmake_minimum_required(VERSION 3.0)
-project(poac)
-
-# Preprocessor definitions
-add_definitions(-DPOAC_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
-add_definitions(-DPOAC_VERSION="0.2.1")
-if(CYGWIN OR MINGW)
-    add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW -Wa,-mbig-obj)
-elseif(UNIX)
-    add_definitions("-fdiagnostics-color -Wall -Wextra") # -Werror
-    if(NOT APPLE)
-        add_definitions(-D_GNU_SOURCE -DBOOST_ASIO_HAS_STD_STRING_VIEW)
+# Check requiring version
+if (APPLE)
+    execute_process(
+        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2"
+        OUTPUT_VARIABLE MACOS_VERSION)
+    if (${MACOS_VERSION} VERSION_LESS 10.15)
+        message(FATAL_ERROR "Poac requires macOS Catalina (10.15) or later.")
     endif()
-elseif(WIN32)
-    if(MSVC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj")
+elseif (MSVC)
+    # https://cmake.org/cmake/help/latest/variable/MSVC_TOOLSET_VERSION.html
+    if (${MSVC_TOOLSET_VERSION} LESS 141)
+        message(FATAL_ERROR "Poac requires Visual Studio 2017 or later.")
     endif()
-endif()
+else ()
+    # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
+            message(FATAL_ERROR "Poac requires GCC 8 or later.")
+        endif ()
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    endif ()
+endif ()
 
+### TODO: valgrindのときは、sanitizerをOFFにする必要がある。
 
-# Check of c++17
-if(WIN32 AND MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-else()
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
-    if(COMPILER_SUPPORTS_CXX17)
-        message(STATUS "CXX_FLAG: -std=c++17")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
-    elseif(COMPILER_SUPPORTS_CXX1z)
-        message(STATUS "CXX_FLAG: -std=c++1z")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -pthread")
-    else()
-        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
-    endif()
-endif()
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_definitions(${PROJECT_NAME} PRIVATE POAC_VERSION="${PROJECT_VERSION}")
 
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
+else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+    target_compile_options(${PROJECT_NAME} PRIVATE -fdiagnostics-color -Wall -Wextra) # -Werror
+    if (APPLE)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE BOOST_BEAST_USE_STD_STRING_VIEW)
+    else ()
+        target_compile_definitions(${PROJECT_NAME} PRIVATE _GNU_SOURCE BOOST_ASIO_HAS_STD_STRING_VIEW)
+    endif ()
+    if (CYGWIN OR MINGW)
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -Wa,-mbig-obj)
+    endif ()
+endif ()
 
-# Add dependency information
-include_directories( "/usr/local/include" )
-link_directories( "/usr/local/lib" )
+if ((MSVC OR MINGW) AND ENABLE_STATIC)
+    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL})
+    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}")
+    set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+
+    string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+    set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+    string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}")
+    set(CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
+    string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
+    string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
+    # -DCMAKE_BUILD_TYPE=Debug
+elseif (CMAKE_BUILD_TYPE STREQUAL Debug)
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address")
+    # -DCMAKE_BUILD_TYPE=Release
+elseif (CMAKE_BUILD_TYPE STREQUAL Release)
+    set(STATIC_LINK_FLAG "-static")
+    if (APPLE)
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native -march=native")
+    else ()
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto") # -mtune=powerpc64le -mcpu=powerpc64le
+    endif ()
+endif ()
 
 #set(Boost_DEBUG on)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-
-if(APPLE)
-    include_directories( "/usr/local/opt/openssl/include" )
-    link_directories( "/usr/local/opt/openssl/lib" )
-    execute_process(
-            COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2 | cut -f 2 -d \".\""
-            OUTPUT_VARIABLE OSX_VERSION
-    )
-    if(NOT ${OSX_VERSION} EQUAL 14)
-        message(STATUS "Set homebrew's llvm")
-        set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm@7/bin/clang++")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm@7/include")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/opt/llvm@7/lib")
-    endif()
-
-    # -DCMAKE_BUILD_TYPE=Debug
-    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
-    # -DCMAKE_BUILD_TYPE=Release
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native")
-else()
-    if((WIN32 AND MSVC) OR MINGW)
-        link_directories(${BOOST_LIBRARYDIR})
-
-        find_package(yaml-cpp REQUIRED)
-        include_directories(${YAML_CPP_INCLUDE_DIR})
-
-        find_package(OpenSSL REQUIRED)
-        include_directories(${OPENSSL_INCLUDE_DIR})
-
-        if(ENABLE_STATIC)
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-            set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}")
-            set(CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL})
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}")
-            set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-            set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
-
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-            set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}")
-            set(CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-            set(CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-            set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
-        endif()
-    elseif(${CMAKE_BUILD_TYPE} MATCHES Debug) # -DCMAKE_BUILD_TYPE=Debug
-        set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
-    elseif(${CMAKE_BUILD_TYPE} MATCHES Release) # -DCMAKE_BUILD_TYPE=Release
-        set(STATIC_LINK_FLAG "-static")
-        set(CMAKE_CXX_FLAGS_RELEASE "-O3") # -mtune=powerpc64le -mcpu=powerpc64le
-    endif()
+set(Boost_NO_BOOST_CMAKE ON)
+find_package(Boost 1.66.0 REQUIRED COMPONENTS system)
+if (NOT ${Boost_FOUND})
+    message(FATAL_ERROR "Could not find boost.")
+endif ()
+target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
+message(STATUS "Boost include directory is ... ${Boost_INCLUDE_DIRS}")
+if (${CMAKE_VERSION} VERSION_LESS 3.13)
+    link_directories(${Boost_LIBRARY_DIRS})
+else ()
+    target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
 endif()
+message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
+# If boost version greater than 1.69.0 and cmake version less then 3.12, occur error.
+if (${Boost_VERSION} GREATER 106900)
+    if (${CMAKE_VERSION} VERSION_LESS 3.12)
+        message(FATAL_ERROR "If cmake version less than 3.12, CMake can't use Boost::libname style.")
+    endif ()
+    set(BOOST_LIBS Boost::system)
+else ()
+    set(BOOST_LIBS ${Boost_SYSTEM_LIBRARY})
+endif ()
 
+if (DEFINED GIT2_DIR)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${GIT2_DIR}/include)
+    if (${CMAKE_VERSION} VERSION_LESS 3.13)
+        link_directories(${GIT2_DIR}/lib)
+    else ()
+        target_link_directories(${PROJECT_NAME} PRIVATE ${GIT2_DIR}/lib)
+    endif()
+endif ()
 
-add_executable(${PROJECT_NAME} main.cpp)
-if(UNIX)
-    target_link_libraries(
-            ${PROJECT_NAME}
-            "${STATIC_LINK_FLAG}"
-            ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
-            "ssl"
-            "crypto"
-            "dl"
-#            "tar"
-            "yaml-cpp"
-    )
-elseif(WIN32)
-    target_link_libraries(
-            ${PROJECT_NAME}
-            "${STATIC_LINK_FLAG}"
-            ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
-            ${OPENSSL_LIBRARIES}
-            "bcrypt"
-            "ws2_32"
-#            "tar"
-            "yaml-cpp"
-    )
-endif()
+if (DEFINED TOML11_DIR)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${TOML11_DIR}/include)
+endif ()
 
-install(TARGETS poac DESTINATION bin)
+if (APPLE)
+    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+    set(OPENSSL_LIBRARIES /usr/local/opt/openssl/lib)
+elseif(DEFINED OPENSSL_ROOT_DIR)
+    set(OPENSSL_LIBRARIES ${OPENSSL_ROOT_DIR}/lib)
+endif ()
+find_package(OpenSSL REQUIRED)
+if (NOT ${OPENSSL_FOUND})
+    message(FATAL_ERROR "Could not find openssl.")
+endif ()
+target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
+message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
+
+if (LINUX)
+    set(SSL_RELATED_LIBS ssl crypto dl)
+elseif (APPLE)
+    set(SSL_RELATED_LIBS dl)
+elseif (WIN32)
+    set(SSL_RELATED_LIBS bcrypt ws2_32)
+endif ()
+
+target_link_libraries(
+        ${PROJECT_NAME}
+        ${STATIC_LINK_FLAG}
+        ${OPENSSL_LIBRARIES}
+        ${SSL_RELATED_LIBS}
+        git2
+        ${BOOST_LIBS}
+)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+
+if (poac_BUILD_TEST)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()

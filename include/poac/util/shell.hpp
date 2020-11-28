@@ -3,11 +3,11 @@
 
 #include <iostream>
 #include <string>
+#include <array>
 #include <vector>
 #include <optional>
 #include <cstdio>
 #include <cstdlib>
-
 
 namespace poac::util {
     class shell {
@@ -17,21 +17,33 @@ namespace poac::util {
         }
 
         shell() : cmd() {}
-        shell(const std::string& c) : cmd(c) {}
+        explicit shell(const std::string& c) : cmd(c) {}
 
-        shell env(const std::string& name, const std::string& val) {
-            return cmd.insert(0, name + "=" + val + " ");
+        shell& env(const std::string& name, const std::string& value) {
+            cmd.insert(0, name + "=" + value + " ");
+            return *this;
         }
-        shell stderr_to_stdout() {
-            return cmd + " 2>&1";
+        shell& stderr_to_stdout() {
+            cmd += " 2>&1";
+            return *this;
         }
-        shell to_dev_null() {
-            return cmd + " >/dev/null";
+        shell& to_dev_null() {
+            cmd += " >/dev/null";
+            return *this;
+        }
+        shell& dump_stdout() {
+            cmd += " 1>/dev/null";
+            return *this;
+        }
+        shell& dump_stderr() {
+            cmd += " 2>/dev/null";
+            return *this;
         }
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
-        std::optional<std::string> exec() const {
+        std::optional<std::string>
+        exec() const {
             std::array<char, 128> buffer{};
             std::string result;
 
@@ -57,13 +69,15 @@ namespace poac::util {
             return result;
         }
 
-        bool exec_incontinent() const {
-            return static_cast<bool>(std::system(cmd.c_str()));
+        bool exec_ignore() const {
+            // EXIT_SUCCESS -> 0 -> false -> true
+            // EXIT_FAILURE -> 1 -> true -> false
+            return !static_cast<bool>(std::system(cmd.c_str()));
         }
 
-        friend std::ostream& operator<<(std::ostream& stream, const shell& c) {
-            stream << c.cmd;
-            return stream;
+        friend std::ostream&
+        operator<<(std::ostream& os, const shell& c) {
+            return (os << c.cmd);
         }
 
         bool operator==(const shell& rhs) const {
@@ -80,11 +94,13 @@ namespace poac::util {
             return shell(this->cmd + " && " + rhs);
         }
 
-        shell operator&=(const shell& rhs) {
-            return this->cmd += (" && " + rhs.cmd);
+        shell& operator&=(const shell& rhs) {
+            this->cmd += " && " + rhs.cmd;
+            return *this;
         }
-        shell operator&=(const std::string& rhs) {
-            return this->cmd += (" && " + rhs);
+        shell& operator&=(const std::string& rhs) {
+            this->cmd += " && " + rhs;
+            return *this;
         }
 
         shell operator||(const shell& rhs) const {
@@ -94,11 +110,13 @@ namespace poac::util {
             return shell(this->cmd + " || " + rhs);
         }
 
-        shell operator|=(const shell& rhs) {
-            return this->cmd += (" || " + rhs.cmd);
+        shell& operator|=(const shell& rhs) {
+            this->cmd += " || " + rhs.cmd;
+            return *this;
         }
-        shell operator|=(const std::string& rhs) {
-            return this->cmd += (" || " + rhs);
+        shell& operator|=(const std::string& rhs) {
+            this->cmd += " || " + rhs;
+            return *this;
         }
 
         shell operator+(const shell& rhs) const { // TODO: "; "でなくても良いのか
@@ -108,11 +126,13 @@ namespace poac::util {
             return shell(this->cmd + " " + rhs);
         }
 
-        shell operator+=(const shell& rhs) {
-            return this->cmd += " " + rhs.cmd;
+        shell& operator+=(const shell& rhs) {
+            this->cmd += " " + rhs.cmd;
+            return *this;
         }
-        shell operator+=(const std::string& rhs) {
-            return this->cmd += " " + rhs;
+        shell& operator+=(const std::string& rhs) {
+            this->cmd += " " + rhs;
+            return *this;
         }
 
     private:
@@ -121,7 +141,7 @@ namespace poac::util {
 
     namespace _shell {
         bool has_command(const std::string& c) {
-            return static_cast<bool>(shell("type " + c + " >/dev/null 2>&1").exec());
+            return shell("type " + c + " >/dev/null 2>&1").exec().has_value();
         }
     }
 } // end namespace

@@ -1,0 +1,25 @@
+name: macOS
+
+on: [push, pull_request]
+
+jobs:
+  catalina:
+    name: Catalina (10.15)
+    runs-on: macOS-10.15
+    strategy:
+      matrix:
+        build_type: [ Debug ] # TODO: Release
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install libgit2 & toml11
+        run: brew install libgit2 matken11235/toml11/toml11
+      - name: Build Poac
+        run: |
+          mkdir build
+          cd build
+          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          make
+      - name: Test Poac
+        run: cd build && ctest --output-on-failure --verbose
+#      - name: Print help # TODO
+#        run: poac help
