@@ -3,7 +3,7 @@
 #include <fmt/core.h>
 #include <fmt/os.h>
 #include <iostream>
-#include <poac/opts.hpp>
+#include <poac/cmd.hpp>
 #include <poac/core/except.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <string>
@@ -49,7 +49,7 @@ exec(const subcommand& subcmd, const clipp::group& cli) {
             std::cout << clipp::make_man_page(cli, "poac");
             return std::nullopt;
         case subcommand::version:
-            return poac::opts::version::exec();
+            return poac::cmd::version::exec();
         case subcommand::nothing:
             return std::nullopt;
     }
