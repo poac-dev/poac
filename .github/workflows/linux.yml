@@ -42,6 +42,9 @@ jobs:
       - name: Install ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
         run: sudo apt-get install -y -qq pkg-config cmake ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
 
+      - name: Install fmt library
+        run: sudo apt-get install -y -qq libfmt-dev
+
       - name: Install openssl
         if: matrix.compiler == 'clang'
         run: sudo apt-get install -y -qq libssl-dev
