@@ -13,7 +13,7 @@ Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.p
 
 By using poac, you can create a C++ project, build sources and execute an application:
 
-![Poac Demo](https://github.com/poacpm/designs/raw/master/images/gif/demo.gif)
+![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
 
 ## Supported Operating Systems
 
