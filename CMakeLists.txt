@@ -9,7 +9,7 @@ endif ()
 
 cmake_minimum_required(VERSION 3.11)
 project(poac VERSION 0.2.1 LANGUAGES CXX)
-option(poac_BUILD_TEST "Build poac tests" OFF) # -Dpoac_BUILD_TEST=ON
+option(poac_BUILD_TEST "Do not build tests by default" OFF) # -Dpoac_BUILD_TEST=ON
 
 # Check requiring version
 if (APPLE)
