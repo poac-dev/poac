@@ -1,86 +1,95 @@
+#include <clipp.h>
 #include <cstdlib>
+#include <fmt/core.h>
+#include <fmt/os.h>
 #include <iostream>
-#include <poac/poac.hpp>
+#include <poac/opts.hpp>
+#include <poac/core/except.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
 #include <string>
-#include <string_view>
-#include <variant>
-#include <vector>
+#include <optional>
 
+enum class subcommand {
+    nothing,
+    help,
+    version,
+};
+
+enum class option {
+    nothing,
+    verbose,
+    quiet,
+};
+
+[[nodiscard]] int
+no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
+    std::cerr
+        << fmt::format(
+            "{}: no such command: `{}`",
+            termcolor2::to_red(termcolor2::to_bold(std::string("error"))),
+            fmt::join(argv + 1, argv + argc," ")
+        )
+        << std::endl
+        << std::endl
+        << clipp::usage_lines(cli, "poac")
+        << std::endl;
+    return EXIT_FAILURE;
+}
+
+template <typename T>
 int
-handle(std::string_view cmd, std::vector<std::string>&& args) noexcept {
-    try {
-        const auto error = bin::poac::exec(std::move(cmd), std::move(args));
-        if (!error) {
-            return EXIT_SUCCESS;
-        }
-        if (std::holds_alternative<poac::core::except::Error::InvalidSecondArg>(
-                error->state)) {
-            handle("help", std::vector<std::string>{error->what()});
-        } else {
-            std::cerr << poac::io::term::error << error->what() << std::endl;
-        }
-        return EXIT_FAILURE;
-    } catch (const poac::io::config::exception& e) {
-        // Remove [error] of top
-        std::cerr << poac::io::term::error << std::string(e.what()).substr(8)
-                  << std::endl;
-        return EXIT_FAILURE;
-    } catch (const toml::exception& e) {
-        // Remove [error] of top
-        std::cerr << poac::io::term::error << std::string(e.what()).substr(8)
-                  << std::endl;
-        return EXIT_FAILURE;
-    } catch (const std::exception& e) {
-        std::cerr << poac::io::term::error << e.what() << std::endl;
-        return EXIT_FAILURE;
+optional_to_int(const std::optional<T>& opt) noexcept {
+    return opt.has_value() ? EXIT_FAILURE : EXIT_SUCCESS;
+}
+
+[[nodiscard]] std::optional<poac::core::except::Error>
+exec(const subcommand& subcmd, const clipp::group& cli) {
+    switch (subcmd) {
+        case subcommand::help:
+            std::cout << clipp::make_man_page(cli, "poac");
+            return std::nullopt;
+        case subcommand::version:
+            return poac::opts::version::exec();
+        case subcommand::nothing:
+            return std::nullopt;
     }
 }
 
 int
-main(int argc, const char** argv) noexcept {
-    // TODO:
-    //    try {
-    //        const auto args =
-    //        poac::core::cli::cli.parse(std::vector<std::string>(argv, argv +
-    //        argc)); const auto error = poac::core::cli::exec(args[0],
-    //        std::move(args[1..])); if (!error) {
-    //            return EXIT_SUCCESS;
-    //        }
-    //        if
-    //        (std::holds_alternative<poac::core::except::Error::InvalidSecondArg>(error->state))
-    //        {
-    //            handle("help", std::vector<std::string>{error->what()});
-    //        } else {
-    //            std::cerr << poac::io::term::error << error->what() <<
-    //            std::endl;
-    //        }
-    //        return EXIT_FAILURE;
-    //    } catch (const std::exception& e) {
-    //        std::cerr << poac::io::term::error << e.what() << std::endl;
-    //        return EXIT_FAILURE;
-    //    } catch (...) {
-    //        std::cerr << poac::io::term::error << "Unexpected error" <<
-    //        std::endl; return EXIT_FAILURE;
-    //    }
+main(const int argc, char* argv[]) {
+    subcommand subcmd = subcommand::nothing;
+    option opt = option::nothing;
 
-    using namespace std::string_literals;
-    // argv[0]: poac, argv[1]: install, argv[2]: 1, ...
+    const clipp::group cli = (
+        clipp::with_prefixes_short_long(
+            "-",
+            "--",
+            clipp::option("V", "version")
+                .set(subcmd, subcommand::version)
+                .doc("Print version info"),
+            clipp::option("v", "verbose")
+                .set(opt, option::verbose)
+                .doc("Use verbose output"),
+            clipp::option("q", "quiet")
+                .set(opt, option::quiet)
+                .doc("No output printed to stdout")
+        ) |
+        (
+            clipp::command("help").set(subcmd, subcommand::help) |
+            clipp::command("version").set(subcmd, subcommand::version)
+        )
+    );
 
-    //$ poac install --help => exec("--help", ["install"])
-    if (argc == 3 && ((argv[2] == "-h"s) || (argv[2] == "--help"s))) {
-        return handle(argv[2], std::vector<std::string>{argv[1]});
-    }
-    //$ poac install 1 2 3 => exec("install", ["1", "2", "3"])
-    else if (argc >= 3) {
-        return handle(argv[1], std::vector<std::string>(argv + 2, argv + argc));
-    }
-    //$ poac install => exec("install", [])
-    else if (argc >= 2) {
-        return handle(argv[1], std::vector<std::string>{});
-    }
-    //$ poac => exec("--help", [])
-    else {
-        handle("help", std::vector<std::string>{});
-        return EXIT_FAILURE;
+    if (argc == 1) {
+        std::cout << clipp::usage_lines(cli, "poac") << std::endl;
+        return EXIT_SUCCESS;
+    } else if (clipp::parse(argc, argv, cli)) {
+        if (subcmd == subcommand::nothing) {
+            return no_such_command(argc, argv, cli);
+        } else {
+            return optional_to_int(exec(subcmd, cli));
+        }
+    } else {
+        return no_such_command(argc, argv, cli);
     }
 }

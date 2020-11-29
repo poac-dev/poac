@@ -55,7 +55,6 @@ namespace poac::opts::help {
         { "test",      opts::test::cli },
         { "uninstall", opts::uninstall::cli },
         { "update",    opts::update::cli },
-        { "version",   opts::version::cli },
     };
 
 //    void item(const int n, std::string_view name, std::string_view key) {
