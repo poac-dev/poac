@@ -26,9 +26,10 @@ if test "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = master; then
     cat <<\EOF
 Error: Attempt to commit to master branch.
 
-If you want to commit new changes, you can create a new branch and then checkout using:
+If you want to commit new changes, you can create a new branch, checkout, and commit using:
 
   git checkout -b new_branch
+  git commit -m 'What did you change?'
 EOF
     exit 1
 fi
