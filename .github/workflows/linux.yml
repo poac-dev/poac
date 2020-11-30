@@ -133,7 +133,7 @@ jobs:
         if: steps.clipp-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/clipp
-          git clone -q -b v${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
+          git clone -q -b ${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
           mkdir clipp/build && cd clipp/build
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/clipp
           sudo make install
@@ -311,7 +311,7 @@ jobs:
         if: steps.clipp-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/clipp
-          git clone -q -b v${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
+          git clone -q -b ${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
           mkdir clipp/build && cd clipp/build
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/clipp
           sudo make install
