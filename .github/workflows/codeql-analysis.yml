@@ -48,7 +48,7 @@ jobs:
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
     - name: Install required packages
-      run: brew install libgit2 poacpm/tap/toml11
+      run: brew install libgit2 poacpm/tap/toml11 poacpm/tap/clipp fmt
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
