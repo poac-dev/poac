@@ -17,7 +17,9 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Install required libraries
-        run: brew install libgit2 poacpm/tap/toml11 poacpm/tap/clipp fmt
+        run: |
+          brew install libgit2 poacpm/tap/toml11 fmt
+          brew install --HEAD poacpm/tap/clipp
 
       - name: Build Poac
         run: |
