@@ -22,7 +22,7 @@ allownonascii=$(git config --bool hooks.allownonascii)
 exec 1>&2
 
 # Prevent committing to master branch
-if test "`git symbolic-ref HEAD | sed -e 's:^refs/heads/::'`" = master; then
+if test "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = master; then
     cat <<\EOF
 Error: Attempt to commit to master branch.
 
