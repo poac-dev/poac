@@ -9,7 +9,7 @@ endif ()
 
 cmake_minimum_required(VERSION 3.11)
 project(poac VERSION 0.2.1 LANGUAGES CXX)
-option(poac_BUILD_TEST "Build poac tests" OFF) # -Dpoac_BUILD_TEST=ON
+option(poac_BUILD_TEST "Do not build tests by default" OFF) # -Dpoac_BUILD_TEST=ON
 
 # Check requiring version
 if (APPLE)
@@ -124,6 +124,19 @@ if (DEFINED TOML11_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${TOML11_DIR}/include)
 endif ()
 
+if (DEFINED CLIPP_DIR)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CLIPP_DIR}/include)
+endif ()
+
+if (DEFINED FMT_DIR)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/include)
+    if (${CMAKE_VERSION} VERSION_LESS 3.13)
+        link_directories(${FMT_DIR}/lib)
+    else ()
+        target_link_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/lib)
+    endif()
+endif ()
+
 if (APPLE)
     set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
     set(OPENSSL_LIBRARIES /usr/local/opt/openssl/lib)
@@ -152,6 +165,7 @@ target_link_libraries(
         ${OPENSSL_LIBRARIES}
         ${SSL_RELATED_LIBS}
         git2
+        fmt
         ${BOOST_LIBS}
 )
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

@@ -1,7 +1,6 @@
 set(TEST_NAMES
         argparse
         cfg
-        cli
         config
         except
         misc
