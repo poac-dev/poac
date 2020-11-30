@@ -52,7 +52,7 @@ namespace poac::cmd::init {
                 "`poac init` cannot run on existing poac packages"
             };
         }
-        return init(std::forward<Options>(opts));
+        return init(std::move(opts));
     }
 } // end namespace
 
