@@ -121,9 +121,10 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
+      - run: mkdir build
+
       - name: Build Poac
         run: |
-          mkdir build && cd build
           cmake ..                                               \
             -Dpoac_BUILD_TEST=ON                                 \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
@@ -132,16 +133,19 @@ jobs:
             -DTOML11_DIR=${{ runner.temp }}/libs/toml11          \
             -DGIT2_DIR=${{ runner.temp }}/libs/libgit2
           make
+        working-directory: build
 
-#      TODO:
-#      - name: Test Poac
-#        run: cd build && ctest --output-on-failure --verbose
+      - name: Test Poac
+        run: ctest --output-on-failure --verbose
+        working-directory: build
 
-#      TODO:
-#        - name: Running test
-#        run: ./build/poac help
+      - name: Running test
+        run: ./poac help
+        working-directory: build
 
-      - run: file ./build/poac
+      - name: Print info of the executable file
+        run: file ./poac
+        working-directory: build
 
       - name: Upload pre-built binary
         uses: actions/upload-artifact@v1
@@ -265,9 +269,10 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
+      - run: mkdir build
+
       - name: Build Poac
         run: |
-          mkdir build && cd build
           cmake ..                                               \
             -Dpoac_BUILD_TEST=ON                                 \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
@@ -277,8 +282,11 @@ jobs:
             -DGIT2_DIR=${{ runner.temp }}/libs/libgit2           \
             -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
           make
+        working-directory: build
 
-      - run: file ./build/poac
+      - name: Print info of the executable file
+        run: file ./poac
+        working-directory: build
 
       - name: Upload pre-built binary
         uses: actions/upload-artifact@v1
