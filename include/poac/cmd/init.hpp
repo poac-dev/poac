@@ -1,8 +1,7 @@
-#ifndef POAC_OPTS_INIT_HPP
-#define POAC_OPTS_INIT_HPP
+#ifndef POAC_CMD_INIT_HPP
+#define POAC_CMD_INIT_HPP
 
 // Std
-#include <future>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -20,13 +19,6 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::cmd::init {
-    inline const clap::subcommand cli =
-            clap::subcommand("init")
-                .about("Create a new poac package in an existing directory")
-                .arg(clap::opt("bin", "Use a binary (application) template [default]"))
-                .arg(clap::opt("lib", "Use a library template"))
-            ;
-
     struct Options {
         _new::ProjectType type;
     };
@@ -54,29 +46,14 @@ namespace poac::cmd::init {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
-        if (args.size() > 1) {
-            return core::except::Error::InvalidSecondArg::Init;
-        } else if (io::config::detail::validate_config()) {
+    exec(Options&& opts) {
+        if (io::config::detail::validate_config()) {
             return core::except::Error::General{
-                "`poac init` cannot be run on existing poac packages"
+                "`poac init` cannot run on existing poac packages"
             };
         }
-
-        init::Options opts{};
-        const bool bin = util::argparse::use_rm(args, "-b", "--bin");
-        const bool lib = util::argparse::use_rm(args, "-l", "--lib");
-        if (bin && lib) {
-            return core::except::Error::General{
-                "You cannot specify both lib and binary outputs."
-            };
-        } else if (!bin && lib) {
-            opts.type = _new::ProjectType::Lib;
-        } else {
-            opts.type = _new::ProjectType::Bin;
-        }
-        return init::init(std::move(opts));
+        return init(std::forward<Options>(opts));
     }
 } // end namespace
 
-#endif // !POAC_OPTS_INIT_HPP
+#endif // !POAC_CMD_INIT_HPP
