@@ -16,15 +16,15 @@ jobs:
       - name: Install libgit2 & toml11
         run: brew install libgit2 poacpm/tap/toml11 poacpm/tap/clipp fmt
 
+      - run: mkdir build
+
       - name: Build Poac
-        run: |
-          mkdir build
-          cd build
-          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
-          make install
+        run: cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage .. && make install
+        working-directory: build
 
       - name: Test Poac
-        run: cd build && ctest --output-on-failure --verbose
+        run: ctest --output-on-failure --verbose
+        working-directory: build
 
       - name: Upload coverage to Coveralls
         if: success()
