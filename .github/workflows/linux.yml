@@ -10,6 +10,8 @@ env:
   BOOST_VERSION: 1.73.0
   TOML11_VERSION: 3.6.0
   LIBGIT2_VERSION: 1.1.0
+  CLIPP_VERSION: master
+  FMT_VERSION: 7.1.3
 
 jobs:
   x86_64-unknown-linux-gnu:
@@ -121,6 +123,38 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
+      - name: Restore & Cache clipp (${{ env.CLIPP_VERSION }})
+        uses: actions/cache@v1
+        id: clipp-cache
+        with:
+          path: ${{ runner.temp }}/libs/clipp
+          key: ${{ env.CACHE_KEY_PREFIX }}-clipp-${{ env.CLIPP_VERSION }}
+      - name: Install muellan/clipp (${{ env.CLIPP_VERSION }}) (header-only)
+        if: steps.clipp-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/clipp
+          git clone -q -b ${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
+          mkdir clipp/build && cd clipp/build
+          cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/clipp
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache fmt (${{ env.FMT_VERSION }})
+        uses: actions/cache@v1
+        id: fmt-cache
+        with:
+          path: ${{ runner.temp }}/libs/fmt
+          key: ${{ env.CACHE_KEY_PREFIX }}-fmt-${{ env.FMT_VERSION }}
+      - name: Install fmtlib/fmt (${{ env.FMT_VERSION }}) (header-only)
+        if: steps.fmt-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/fmt
+          git clone -q -b ${{ env.FMT_VERSION }} https://github.com/fmtlib/fmt.git
+          mkdir fmt/build && cd fmt/build
+          cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/fmt
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
       - run: mkdir build
 
       - name: Build Poac
@@ -131,7 +165,9 @@ jobs:
             -DBOOST_ROOT=${{ runner.temp }}/libs/boost           \
             -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib \
             -DTOML11_DIR=${{ runner.temp }}/libs/toml11          \
-            -DGIT2_DIR=${{ runner.temp }}/libs/libgit2
+            -DGIT2_DIR=${{ runner.temp }}/libs/libgit2           \
+            -DCLIPP_DIR=${{ runner.temp }}/libs/clipp            \
+            -DFMT_DIR=${{ runner.temp }}/libs/fmt
           make
         working-directory: build
 
@@ -269,6 +305,38 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
+      - name: Restore & Cache clipp (${{ env.CLIPP_VERSION }})
+        uses: actions/cache@v1
+        id: clipp-cache
+        with:
+          path: ${{ runner.temp }}/libs/clipp
+          key: ${{ env.CACHE_KEY_PREFIX }}-clipp-${{ env.CLIPP_VERSION }}
+      - name: Install muellan/clipp (${{ env.CLIPP_VERSION }}) (header-only)
+        if: steps.clipp-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/clipp
+          git clone -q -b ${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
+          mkdir clipp/build && cd clipp/build
+          cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/clipp
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
+      - name: Restore & Cache fmt (${{ env.FMT_VERSION }})
+        uses: actions/cache@v1
+        id: fmt-cache
+        with:
+          path: ${{ runner.temp }}/libs/fmt
+          key: ${{ env.CACHE_KEY_PREFIX }}-fmt-${{ env.FMT_VERSION }}
+      - name: Install fmtlib/fmt (${{ env.FMT_VERSION }}) (header-only)
+        if: steps.fmt-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/libs/fmt
+          git clone -q -b ${{ env.FMT_VERSION }} https://github.com/fmtlib/fmt.git
+          mkdir fmt/build && cd fmt/build
+          cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/fmt
+          sudo make install
+        working-directory: ${{ runner.temp }}
+
       - run: mkdir build
 
       - name: Build Poac
@@ -280,7 +348,9 @@ jobs:
             -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib \
             -DTOML11_DIR=${{ runner.temp }}/libs/toml11          \
             -DGIT2_DIR=${{ runner.temp }}/libs/libgit2           \
-            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
+            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl   \
+            -DCLIPP_DIR=${{ runner.temp }}/libs/clipp            \
+            -DFMT_DIR=${{ runner.temp }}/libs/fmt
           make
         working-directory: build
 
