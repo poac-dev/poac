@@ -11,6 +11,7 @@
 
 enum class subcommand {
     nothing,
+    init,
     help,
     version,
 };
@@ -26,7 +27,7 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
     std::cerr
         << fmt::format(
             "{}: no such command: `{}`",
-            termcolor2::to_red(termcolor2::to_bold(std::string("error"))),
+            termcolor2::to_red(termcolor2::to_bold(std::string("Error"))),
             fmt::join(argv + 1, argv + argc," ")
         )
         << std::endl
@@ -39,20 +40,9 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
 template <typename T>
 int
 optional_to_int(const std::optional<T>& opt) noexcept {
-    return opt.has_value() ? EXIT_FAILURE : EXIT_SUCCESS;
-}
-
-[[nodiscard]] std::optional<poac::core::except::Error>
-exec(const subcommand& subcmd, const clipp::group& cli) {
-    switch (subcmd) {
-        case subcommand::help:
-            std::cout << clipp::make_man_page(cli, "poac");
-            return std::nullopt;
-        case subcommand::version:
-            return poac::cmd::version::exec();
-        case subcommand::nothing:
-            return std::nullopt;
-    }
+    return opt.has_value()
+               ? (std::cerr << opt->what() << std::endl, EXIT_FAILURE)
+               : EXIT_SUCCESS;
 }
 
 int
@@ -60,23 +50,48 @@ main(const int argc, char* argv[]) {
     subcommand subcmd = subcommand::nothing;
     option opt = option::nothing;
 
+    auto init_opts = poac::cmd::init::Options {
+        poac::cmd::_new::ProjectType::Bin
+    };
+    const clipp::group init_cmd =
+        ( clipp::command("init")
+             .set(subcmd, subcommand::init)
+             .doc("Create a new poac package in an existing directory")
+        , ( clipp::option("--bin", "-b")
+                .doc("Use a binary (application) template [default]")
+          | clipp::option("--lib", "-l")
+                .set(init_opts.type, poac::cmd::_new::ProjectType::Lib)
+                .doc("Use a library template")
+          )
+        );
+
+    const clipp::parameter help_cmd =
+        clipp::command("help")
+            .set(subcmd, subcommand::help)
+            .doc("Print this message");
+
+    const clipp::parameter version_cmd =
+        clipp::command("version")
+            .set(subcmd, subcommand::version)
+            .doc("Show the current poac version");
+
     const clipp::group cli = (
-        clipp::with_prefixes_short_long(
-            "-",
-            "--",
-            clipp::option("V", "version")
-                .set(subcmd, subcommand::version)
-                .doc("Print version info"),
-            clipp::option("v", "verbose")
-                .set(opt, option::verbose)
-                .doc("Use verbose output"),
-            clipp::option("q", "quiet")
-                .set(opt, option::quiet)
-                .doc("No output printed to stdout")
+        ( clipp::option("--help", "-h")
+            .set(subcmd, subcommand::help)
+            .doc("Print this message or the help of the given subcommand(s)")
+        , clipp::option("--version", "-V")
+            .set(subcmd, subcommand::version)
+            .doc("Show the current poac version")
+        , clipp::option("--verbose", "-v")
+            .set(opt, option::verbose)
+            .doc("Use verbose output")
+        , clipp::option("--quiet", "-q")
+             .set(opt, option::quiet)
+             .doc("No output printed to stdout")
         ) |
-        (
-            clipp::command("help").set(subcmd, subcommand::help) |
-            clipp::command("version").set(subcmd, subcommand::version)
+        ( init_cmd
+        | help_cmd
+        | version_cmd
         )
     );
 
@@ -84,10 +99,16 @@ main(const int argc, char* argv[]) {
         std::cout << clipp::usage_lines(cli, "poac") << std::endl;
         return EXIT_SUCCESS;
     } else if (clipp::parse(argc, argv, cli)) {
-        if (subcmd == subcommand::nothing) {
-            return no_such_command(argc, argv, cli);
-        } else {
-            return optional_to_int(exec(subcmd, cli));
+        switch (subcmd) {
+            case subcommand::nothing:
+                return no_such_command(argc, argv, cli);
+            case subcommand::init:
+                return optional_to_int(poac::cmd::init::exec(std::move(init_opts)));
+            case subcommand::help:
+                std::cout << clipp::make_man_page(cli, "poac");
+                return EXIT_SUCCESS;
+            case subcommand::version:
+                return optional_to_int(poac::cmd::version::exec());
         }
     } else {
         return no_such_command(argc, argv, cli);
