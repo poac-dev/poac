@@ -21,14 +21,16 @@ jobs:
           brew install libgit2 poacpm/tap/toml11 fmt
           brew install --HEAD poacpm/tap/clipp
 
+      - run: mkdir build
+
       - name: Build Poac
-        run: |
-          mkdir build
-          cd build
-          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-          make
+        run: cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. && make
+        working-directory: build
 
       - name: Test Poac
-        run: cd build && ctest --output-on-failure --verbose
-#      - name: Print help # TODO
-#        run: poac help
+        run: ctest --output-on-failure --verbose
+        working-directory: build
+
+      - name: Print help
+        run: ./poac help
+        working-directory: build
