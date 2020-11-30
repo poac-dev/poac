@@ -13,8 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Install libgit2 & toml11
-        run: brew install libgit2 poacpm/tap/toml11
+      - name: Install required libraries
+        run: |
+          brew install libgit2 poacpm/tap/toml11 fmt
+          brew install --HEAD poacpm/tap/clipp
 
       - run: mkdir build
 

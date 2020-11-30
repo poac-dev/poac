@@ -22,7 +22,7 @@
 #include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
-namespace bin::poac::commands::_new {
+namespace poac::cmd::_new {
     inline const clap::subcommand cli =
             clap::subcommand("new")
                 .about("Create a new poac package at <path>")
@@ -143,7 +143,7 @@ namespace bin::poac::commands::_new {
         }
     }
 
-    [[nodiscard]] std::optional<::poac::core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     check_name(std::string_view name) {
         // Ban keywords
         // https://en.cppreference.com/w/cpp/keyword
@@ -160,21 +160,21 @@ namespace bin::poac::commands::_new {
             "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
         };
         if (std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end()) {
-            return ::poac::core::except::Error::General{
+            return core::except::Error::General{
                 "`", name, "` is a keyword, so it cannot be used as a package name."
             };
         }
         return std::nullopt;
     }
 
-    [[nodiscard]] std::optional<::poac::core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     validate(const _new::Options& opts) {
-        if (const auto error = ::poac::core::name::validate_package_name(opts.project_name)) {
+        if (const auto error = core::name::validate_package_name(opts.project_name)) {
             return error;
         }
-        if (::poac::io::path::validate_dir(opts.project_name)) {
-            return ::poac::core::except::Error::General{
-                ::poac::core::except::msg::already_exist("The `" + opts.project_name + "` directory")
+        if (io::path::validate_dir(opts.project_name)) {
+            return core::except::Error::General{
+                core::except::msg::already_exist("The `" + opts.project_name + "` directory")
             };
         }
         if (const auto error = check_name(opts.project_name)) {
@@ -183,7 +183,7 @@ namespace bin::poac::commands::_new {
         return std::nullopt;
     }
 
-    [[nodiscard]] std::optional<::poac::core::except::Error>
+    [[nodiscard]] std::optional<core::except::Error>
     _new(_new::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
@@ -200,13 +200,13 @@ namespace bin::poac::commands::_new {
         return std::nullopt;
     }
 
-    [[nodiscard]] std::optional<::poac::core::except::Error>
-    exec(std::future<std::optional<::poac::io::config::Config>>&&, std::vector<std::string>&& args) {
+    [[nodiscard]] std::optional<core::except::Error>
+    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
         _new::Options opts{};
-        const bool bin = ::poac::util::argparse::use_rm(args, "-b", "--bin");
-        const bool lib = ::poac::util::argparse::use_rm(args, "-l", "--lib");
+        const bool bin = util::argparse::use_rm(args, "-b", "--bin");
+        const bool lib = util::argparse::use_rm(args, "-l", "--lib");
         if (bin && lib) {
-            return ::poac::core::except::Error::General{
+            return core::except::Error::General{
                 "You cannot specify both lib and binary outputs."
             };
         } else if (!bin && lib) {
@@ -216,10 +216,11 @@ namespace bin::poac::commands::_new {
         }
 
         if (args.size() != 1) {
-            return ::poac::core::except::Error::InvalidSecondArg::New;
+            return core::except::Error::InvalidSecondArg::New;
         }
         opts.project_name = args[0];
         return _new::_new(std::move(opts));
     }
 } // end namespace
+
 #endif // !POAC_OPTS_NEW_HPP
