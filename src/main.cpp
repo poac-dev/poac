@@ -13,6 +13,7 @@ enum class subcommand {
     nothing,
     init,
     _new,
+    search,
     help,
     version,
 };
@@ -87,6 +88,21 @@ main(const int argc, char* argv[]) {
           )
         );
 
+    auto search_opts = poac::cmd::search::Options {
+        false,
+        ""
+    };
+    const clipp::group search_cmd =
+        ( clipp::command("search")
+            .set(subcmd, subcommand::search)
+            .doc("Search for packages in poac.pm")
+        , clipp::word("pkg-name", search_opts.package_name)
+        , ( clipp::option("--verbose", "-v")
+              .set(search_opts.verbose)
+              .doc("Use verbose output")
+          )
+        );
+
     const clipp::parameter help_cmd =
         clipp::command("help")
             .set(subcmd, subcommand::help)
@@ -113,6 +129,7 @@ main(const int argc, char* argv[]) {
         ) |
         ( init_cmd
         | new_cmd
+        | search_cmd
         | help_cmd
         | version_cmd
         )
@@ -129,6 +146,8 @@ main(const int argc, char* argv[]) {
                 return optional_to_int(poac::cmd::init::exec(std::move(init_opts)));
             case subcommand::_new:
                 return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
+            case subcommand::search:
+                return optional_to_int(poac::cmd::search::exec(std::move(search_opts)));
             case subcommand::help:
                 std::cout << clipp::make_man_page(cli, "poac");
                 return EXIT_SUCCESS;

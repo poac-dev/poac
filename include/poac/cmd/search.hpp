@@ -1,7 +1,6 @@
-#ifndef POAC_OPTS_SEARCH_HPP
-#define POAC_OPTS_SEARCH_HPP
+#ifndef POAC_CMD_SEARCH_HPP
+#define POAC_CMD_SEARCH_HPP
 
-#include <future>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -18,14 +17,7 @@
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
-namespace poac::opts::search {
-    inline const clap::subcommand cli =
-            clap::subcommand("search")
-                .about("Search for packages in poac.pm")
-                .arg(clap::opt("verbose", "Use verbose output").short_("v"))
-                .arg(clap::arg("<pkg-name>"))
-            ;
-
+namespace poac::cmd::search {
     struct Options {
         bool verbose;
         std::string package_name;
@@ -89,7 +81,7 @@ namespace poac::opts::search {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    search(search::Options&& opts) {
+    search(Options&& opts) {
         const auto pt = get_search_api(opts.package_name);
         if (opts.verbose) {
             std::stringstream ss;
@@ -126,14 +118,9 @@ namespace poac::opts::search {
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
-        if (args.size() != 1) {
-            return core::except::Error::InvalidSecondArg::Search;
-        }
-        search::Options opts{};
-        opts.verbose = util::argparse::use_rm(args, "-v", "--verbose");
-        opts.package_name = args[0];
-        return search::search(std::move(opts));
+    exec(Options&& opts) {
+        return search(std::move(opts));
     }
 } // end namespace
-#endif // !POAC_OPTS_SEARCH_HPP
+
+#endif // !POAC_CMD_SEARCH_HPP
