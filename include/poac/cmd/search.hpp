@@ -62,7 +62,8 @@ namespace poac::cmd::search {
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
                 throw core::except::error(
-                        core::except::msg::not_found(query));
+                        fmt::format("{} not found", query)
+                );
             }
         }
         return pt;
