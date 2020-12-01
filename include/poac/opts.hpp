@@ -11,6 +11,5 @@
 #include <poac/opts/test.hpp>
 #include <poac/opts/uninstall.hpp>
 #include <poac/opts/update.hpp>
-#include <poac/opts/version.hpp>
 
 #endif // !POAC_OPTS_HPP
