@@ -35,10 +35,10 @@ namespace poac::cmd::init {
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
-                ofs_config << _new::files::bin::poac_toml(io::path::current.stem().string());
+                ofs_config << _new::files::poac_toml(io::path::current.stem().string());
                 break;
             case _new::ProjectType::Lib:
-                ofs_config << _new::files::lib::poac_toml;
+                ofs_config << _new::files::poac_toml(io::path::current.stem().string());
                 break;
         }
         std::cout << opts.type << " package" << std::endl;

@@ -1,8 +1,8 @@
-#ifndef POAC_OPTS_NEW_HPP
-#define POAC_OPTS_NEW_HPP
+#ifndef POAC_CMD_NEW_HPP
+#define POAC_CMD_NEW_HPP
 
+// Std
 #include <filesystem>
-#include <future>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -13,6 +13,10 @@
 #include <vector>
 #include <optional>
 
+// External
+#include <fmt/core.h>
+
+// Internal
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/io/path.hpp>
@@ -23,62 +27,43 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::cmd::_new {
-    inline const clap::subcommand cli =
-            clap::subcommand("new")
-                .about("Create a new poac package at <path>")
-                .arg(clap::opt("quiet", "No output printed to stdout").short_("q"))
-                .arg(clap::arg("path").required(true))
-                .arg(clap::opt("registry", "Registry to use").value_name("REGISTRY"))
-                .arg(
-                    clap::opt(
-                        "vcs",
-                        "Initialize a new repository for the given version "
-                        "control system (git, hg, pijul, or fossil) or do not "
-                        "initialize any version control at all (none), overriding "
-                        "a global configuration."
-                    )
-                    .value_name("VCS")
-                    .possible_values({"git", "none"})
-                )
-                .arg(clap::opt("bin", "Use a binary (application) template [default]"))
-                .arg(clap::opt("lib", "Use a library template"))
-                .arg(
-                    clap::opt("cpp", "Edition to set for the package generated")
-                    .possible_values({"98", "3", "11", "14", "17", "20"})
-                    .value_name("VERSION")
-                )
-                .arg(
-                    clap::opt(
-                        "name",
-                        "Set the resulting package name, defaults to the directory name"
-                    )
-                    .value_name("NAME")
-                )
-            ;
-
     namespace files {
-        namespace bin {
-            inline std::string
-            poac_toml(const std::string&) {
-                return "cpp = 17";
-            }
-            inline const std::string main_cpp(
-                    "#include <iostream>\n\n"
-                    "int main(int argc, char** argv) {\n"
-                    "    std::cout << \"Hello, world!\" << std::endl;\n"
-                    "}"
+        inline std::string
+        poac_toml(const std::string& project_name) {
+            return fmt::format(
+                "[package]\n"
+                "name = {}\n"
+                "version = \"0.1.0\"\n"
+                "authors = []\n"
+                "cpp = 17",
+                project_name
             );
         }
-        namespace lib {
-            inline const std::string poac_toml(
-                    "cpp = 17"
+
+        inline const std::string main_cpp(
+            "#include <iostream>\n\n"
+            "int main(int argc, char** argv) {\n"
+            "    std::cout << \"Hello, world!\" << std::endl;\n"
+            "}"
+        );
+
+        inline std::string include_hpp(const std::string& project_name) {
+            std::string project_name_upper_cased{};
+            std::transform(
+                project_name.cbegin(),
+                project_name.cend(),
+                std::back_inserter(project_name_upper_cased),
+                ::toupper
             );
-            inline std::string include_hpp(std::string project_name) {
-                std::transform(project_name.cbegin(), project_name.cend(), project_name.begin(), ::toupper);
-                return "#ifndef " + project_name + "_HPP\n"
-                       "#define " + project_name + "_HPP\n\n"
-                       "#endif // !" + project_name + "_HPP";
-            }
+
+            return fmt::format(
+                "#ifndef {0}_HPP\n"
+                "#define {0}_HPP\n\n"
+                "namespace {1} {{\n}}\n\n"
+                "#endif // !{0}_HPP\n",
+                project_name_upper_cased,
+                project_name
+            );
         }
     }
 
@@ -124,16 +109,16 @@ namespace poac::cmd::_new {
                 std::filesystem::create_directories(opts.project_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
-                    { "poac.toml", files::bin::poac_toml(opts.project_name) },
-                    { "src"_path / "main.cpp", files::bin::main_cpp }
+                    { "poac.toml", files::poac_toml(opts.project_name) },
+                    { "src"_path / "main.cpp", files::main_cpp }
                 };
             case ProjectType::Lib:
                 std::filesystem::create_directories(opts.project_name / "include"_path / opts.project_name);
                 return {
                     { ".gitignore", "/target\npoac.lock" },
-                    { "poac.toml", files::lib::poac_toml },
+                    { "poac.toml", files::poac_toml(opts.project_name) },
                     { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
-                        files::lib::include_hpp(opts.project_name)
+                        files::include_hpp(opts.project_name)
                     },
                 };
             default:
@@ -161,7 +146,7 @@ namespace poac::cmd::_new {
         };
         if (std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end()) {
             return core::except::Error::General{
-                "`", name, "` is a keyword, so it cannot be used as a package name."
+                fmt::format("`{}` is a keyword, so it cannot be used as a package name", name)
             };
         }
         return std::nullopt;
@@ -174,7 +159,7 @@ namespace poac::cmd::_new {
         }
         if (io::path::validate_dir(opts.project_name)) {
             return core::except::Error::General{
-                core::except::msg::already_exist("The `" + opts.project_name + "` directory")
+                fmt::format("The `{}` directory already exists", opts.project_name)
             };
         }
         if (const auto error = check_name(opts.project_name)) {
@@ -195,32 +180,19 @@ namespace poac::cmd::_new {
             write_to_file(ofs, (opts.project_name / name).string(), text);
         }
         git2::repository().init(opts.project_name);
-        std::cout << "Created: "_green << opts.type
-                  << " `" << opts.project_name << "` " << "package" << std::endl;
+        fmt::print(
+            "{}{} `{}` package\n",
+            "Created: "_green,
+            opts.type,
+            opts.project_name
+        );
         return std::nullopt;
     }
 
     [[nodiscard]] std::optional<core::except::Error>
-    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
-        _new::Options opts{};
-        const bool bin = util::argparse::use_rm(args, "-b", "--bin");
-        const bool lib = util::argparse::use_rm(args, "-l", "--lib");
-        if (bin && lib) {
-            return core::except::Error::General{
-                "You cannot specify both lib and binary outputs."
-            };
-        } else if (!bin && lib) {
-            opts.type = ProjectType::Lib;
-        } else {
-            opts.type = ProjectType::Bin;
-        }
-
-        if (args.size() != 1) {
-            return core::except::Error::InvalidSecondArg::New;
-        }
-        opts.project_name = args[0];
-        return _new::_new(std::move(opts));
+    exec(Options&& opts) {
+        return _new(std::move(opts));
     }
 } // end namespace
 
-#endif // !POAC_OPTS_NEW_HPP
+#endif // !POAC_CMD_NEW_HPP
