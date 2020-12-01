@@ -9,7 +9,6 @@
 #include <poac/opts/run.hpp>
 #include <poac/opts/search.hpp>
 #include <poac/opts/uninstall.hpp>
-#include <poac/opts/update.hpp>
 #include <poac/opts/version.hpp>
 
 #endif // !POAC_OPTS_HPP
