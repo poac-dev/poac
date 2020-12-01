@@ -126,7 +126,8 @@ namespace poac::cmd::_new {
             default:
                 throw std::logic_error(
                         "To access out of range of the "
-                        "enumeration values is undefined behavior.");
+                        "enumeration values is undefined behavior."
+                );
         }
     }
 
