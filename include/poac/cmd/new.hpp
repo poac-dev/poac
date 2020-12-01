@@ -82,7 +82,8 @@ namespace poac::cmd::_new {
             default:
                 throw std::logic_error(
                         "To access out of range of the "
-                        "enumeration values is undefined behavior.");
+                        "enumeration values is undefined behavior."
+                );
         }
     }
 
@@ -149,7 +150,10 @@ namespace poac::cmd::_new {
         };
         if (std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end()) {
             return core::except::Error::General{
-                fmt::format("`{}` is a keyword, so it cannot be used as a package name", name)
+                fmt::format(
+                    "`{}` is a keyword, so it cannot be used as a package name",
+                    name
+                    )
             };
         }
         return std::nullopt;
@@ -162,7 +166,9 @@ namespace poac::cmd::_new {
         }
         if (io::path::validate_dir(opts.package_name)) {
             return core::except::Error::General{
-                fmt::format("The `{}` directory already exists", opts.package_name)
+                fmt::format(
+                    "The `{}` directory already exists", opts.package_name
+                    )
             };
         }
         if (const auto error = check_name(opts.package_name)) {
@@ -187,7 +193,8 @@ namespace poac::cmd::_new {
             "{}{} `{}` package\n",
             "Created: "_green,
             opts.type,
-            opts.package_name);
+            opts.package_name
+        );
         return std::nullopt;
     }
 
