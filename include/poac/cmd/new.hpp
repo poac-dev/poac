@@ -113,12 +113,13 @@ namespace poac::cmd::_new {
                     { "src"_path / "main.cpp", files::main_cpp }
                 };
             case ProjectType::Lib:
-                std::filesystem::create_directories(opts.package_name / "include"_path / opts.package_name);
+                std::filesystem::create_directories(
+                    opts.package_name / "include"_path / opts.package_name
+                );
                 return {
                     { ".gitignore", "/target\npoac.lock" },
                     { "poac.toml", files::poac_toml(opts.package_name) },
-                    { "include"_path / opts.package_name
-                         / (opts.package_name + ".hpp"),
+                    { "include"_path / opts.package_name / (opts.package_name + ".hpp"),
                         files::include_hpp(opts.package_name)
                     },
                 };
