@@ -1,7 +1,6 @@
 #ifndef POAC_UTIL_HPP
 #define POAC_UTIL_HPP
 
-#include <poac/util/argparse.hpp>
 #include <poac/util/cfg.hpp>
 #include <poac/util/clap/clap.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
