@@ -184,7 +184,7 @@ namespace poac::core::except {
         }
 
         std::string already_exist(const std::string& str) {
-            return str + " already exist";
+            return str + " already exists";
         }
 
         std::string could_not(const std::string& str) {
