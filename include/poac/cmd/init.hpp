@@ -15,7 +15,6 @@
 #include <poac/io/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/util/clap/clap.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::cmd::init {

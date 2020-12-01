@@ -9,7 +9,6 @@
 #include <poac/core/builder.hpp>
 #include <poac/core/except.hpp>
 #include <poac/io/config.hpp>
-#include <poac/util/argparse.hpp>
 #include <poac/util/clap/clap.hpp>
 
 namespace poac::opts::build {
