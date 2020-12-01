@@ -74,16 +74,17 @@ if ((MSVC OR MINGW) AND ENABLE_STATIC)
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
     string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
     set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
-    # -DCMAKE_BUILD_TYPE=Debug
-elseif (CMAKE_BUILD_TYPE STREQUAL Debug)
+elseif (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
     set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address")
-    # -DCMAKE_BUILD_TYPE=Release
-elseif (CMAKE_BUILD_TYPE STREQUAL Release)
+elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
     if (APPLE)
         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native -march=native")
     else ()
         set(STATIC_LINK_FLAG "-static") # ref: https://stackoverflow.com/a/3801032
         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto") # -mtune=powerpc64le -mcpu=powerpc64le
+    endif ()
+    if (LINUX)
+        set(Boost_USE_STATIC_LIBS ON)
     endif ()
 endif ()
 
