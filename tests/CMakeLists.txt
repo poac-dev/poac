@@ -1,5 +1,4 @@
 set(TEST_NAMES
-        argparse
         cfg
         config
         except
