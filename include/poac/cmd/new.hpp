@@ -88,7 +88,7 @@ namespace poac::cmd::_new {
 
     struct Options {
         ProjectType type;
-        std::string project_name;
+        std::string package_name;
     };
 
     void write_to_file(std::ofstream& ofs, const std::string& fname, std::string_view text) {
@@ -106,19 +106,20 @@ namespace poac::cmd::_new {
 
         switch (opts.type) {
             case ProjectType::Bin:
-                std::filesystem::create_directories(opts.project_name / "src"_path);
+                std::filesystem::create_directories(opts.package_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
-                    { "poac.toml", files::poac_toml(opts.project_name) },
+                    { "poac.toml", files::poac_toml(opts.package_name) },
                     { "src"_path / "main.cpp", files::main_cpp }
                 };
             case ProjectType::Lib:
-                std::filesystem::create_directories(opts.project_name / "include"_path / opts.project_name);
+                std::filesystem::create_directories(opts.package_name / "include"_path / opts.package_name);
                 return {
                     { ".gitignore", "/target\npoac.lock" },
-                    { "poac.toml", files::poac_toml(opts.project_name) },
-                    { "include"_path / opts.project_name / (opts.project_name + ".hpp"),
-                        files::include_hpp(opts.project_name)
+                    { "poac.toml", files::poac_toml(opts.package_name) },
+                    { "include"_path / opts.package_name
+                         / (opts.package_name + ".hpp"),
+                        files::include_hpp(opts.package_name)
                     },
                 };
             default:
@@ -154,15 +155,15 @@ namespace poac::cmd::_new {
 
     [[nodiscard]] std::optional<core::except::Error>
     validate(const _new::Options& opts) {
-        if (const auto error = core::name::validate_package_name(opts.project_name)) {
+        if (const auto error = core::name::validate_package_name(opts.package_name)) {
             return error;
         }
-        if (io::path::validate_dir(opts.project_name)) {
+        if (io::path::validate_dir(opts.package_name)) {
             return core::except::Error::General{
-                fmt::format("The `{}` directory already exists", opts.project_name)
+                fmt::format("The `{}` directory already exists", opts.package_name)
             };
         }
-        if (const auto error = check_name(opts.project_name)) {
+        if (const auto error = check_name(opts.package_name)) {
             return error;
         }
         return std::nullopt;
@@ -177,15 +178,14 @@ namespace poac::cmd::_new {
         }
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
-            write_to_file(ofs, (opts.project_name / name).string(), text);
+            write_to_file(ofs, (opts.package_name / name).string(), text);
         }
-        git2::repository().init(opts.project_name);
+        git2::repository().init(opts.package_name);
         fmt::print(
             "{}{} `{}` package\n",
             "Created: "_green,
             opts.type,
-            opts.project_name
-        );
+            opts.package_name);
         return std::nullopt;
     }
 

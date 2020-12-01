@@ -78,7 +78,7 @@ main(const int argc, char* argv[]) {
         ( clipp::command("new")
             .set(subcmd, subcommand::_new)
             .doc("Create a new poac package at <path>")
-        , clipp::word("path", new_opts.project_name)
+        , clipp::word("path", new_opts.package_name)
         , ( clipp::option("--bin", "-b")
                 .doc("Use a binary (application) template [default]")
           | clipp::option("--lib", "-l")
