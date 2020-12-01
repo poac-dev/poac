@@ -27,21 +27,26 @@ namespace poac::cmd::init {
     init(init::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        if (const auto error = core::name::validate_package_name(io::path::current.stem().string())) {
+        const std::string package_name = io::path::current.stem().string();
+        if (const auto error = core::name::validate_package_name(package_name)) {
             return error;
         }
 
-        std::cout << "Created: "_green;
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
-                ofs_config << _new::files::bin::poac_toml(io::path::current.stem().string());
+                ofs_config << _new::files::poac_toml(package_name);
                 break;
             case _new::ProjectType::Lib:
-                ofs_config << _new::files::lib::poac_toml;
+                ofs_config << _new::files::poac_toml(package_name);
                 break;
         }
-        std::cout << opts.type << " package" << std::endl;
+        fmt::print(
+            "{}{} `{}` package\n",
+            "Created: "_green,
+            opts.type,
+            package_name
+        );
         return std::nullopt;
     }
 
@@ -52,7 +57,7 @@ namespace poac::cmd::init {
                 "`poac init` cannot run on existing poac packages"
             };
         }
-        return init(std::forward<Options>(opts));
+        return init(std::move(opts));
     }
 } // end namespace
 
