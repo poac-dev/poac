@@ -37,7 +37,7 @@ namespace poac::io::term {
     inline constexpr auto fetch_failed = termcolor2::red + "  ●  " + termcolor2::reset;
 
     inline constexpr auto warning = termcolor2::yellow + "WARN: " + termcolor2::reset;
-    inline constexpr auto error = termcolor2::bold + termcolor2::red + "error: " + termcolor2::reset;
+    inline constexpr auto error = termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset;
     inline constexpr auto info = termcolor2::blue + "info: " + termcolor2::reset;
     inline constexpr auto debug_m = termcolor2::gray + "[debug] " + termcolor2::reset;
 
