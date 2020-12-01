@@ -9,6 +9,8 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <fmt/core.h>
+#include <fmt/ostream.h>
 
 #include <poac/core/except.hpp>
 #include <poac/io/term.hpp>
@@ -35,19 +37,6 @@ namespace poac::cmd::search {
             ++count;
         }
         return count;
-    }
-
-    void echo_title_line() {
-        std::cout << termcolor2::underline;
-        io::term::set_left(27);
-        std::cout << "Package";
-        io::term::set_left(50);
-        std::cout << "| Description";
-        io::term::set_left(10);
-        std::cout << "| Version"
-                  << "| C++ "
-                  << termcolor2::reset
-                  << std::endl;
     }
 
     boost::property_tree::ptree
@@ -89,30 +78,21 @@ namespace poac::cmd::search {
             std::cout << ss.str() << std::endl;
         }
 
-        echo_title_line();
         for (const boost::property_tree::ptree::value_type& child : pt.get_child("hits")) {
             const boost::property_tree::ptree& hits = child.second;
 
-            std::string owner = hits.get<std::string>("_highlightResult.owner.value");
-            auto owner_count = replace(owner, "<em>", termcolor2::red.to_string()) * termcolor2::red.size();
-            owner_count += replace(owner, "</em>", termcolor2::reset.to_string()) * termcolor2::reset.size();
+            std::string name = hits.get<std::string>("_highlightResult.package.name.value");
+            replace(name, "<em>", termcolor2::green.to_string());
+            replace(name, "</em>", termcolor2::reset.to_string());
+            const std::string version = hits.get<std::string>("package.version");
+            const auto package = fmt::format("{} = \"{}\"", name, version);
 
-            std::string repo = hits.get<std::string>("_highlightResult.repo.value");
-            auto repo_count = replace(repo, "<em>", termcolor2::red.to_string()) * termcolor2::red.size();
-            repo_count += replace(repo, "</em>", termcolor2::reset.to_string()) * termcolor2::reset.size();
+            std::string description = hits.get<std::string>("package.description");
+            description = util::pretty::clip_string(description, 100);
+            // If util::pretty::clip_string clips last \n, \n should add at last
+            description.find('\n') == std::string::npos ? description += '\n' : "";
 
-            io::term::set_left(27 + owner_count + repo_count);
-            std::cout << util::pretty::clip_string(owner + "/" + repo, 23 + owner_count + repo_count);
-
-            io::term::set_left(50);
-            std::cout << "| " + util::pretty::clip_string(hits.get<std::string>("description"), 45);
-
-            io::term::set_left(10);
-            std::cout << "|  " + hits.get<std::string>("version");
-
-            const auto cpp_version = hits.get<std::string>("cpp_version"); // TODO: cpp-version
-            std::cout << "| " << (cpp_version == "3" ? "03" : cpp_version)
-                      << std::endl;
+            fmt::print("{:<40}# {}", package, description);
         }
         return std::nullopt;
     }

@@ -18,12 +18,6 @@ enum class subcommand {
     version,
 };
 
-enum class option {
-    nothing,
-    verbose,
-    quiet,
-};
-
 [[nodiscard]] int
 no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
     fmt::print(
@@ -54,7 +48,6 @@ optional_to_int(const std::optional<T>& opt) {
 int
 main(const int argc, char* argv[]) {
     subcommand subcmd = subcommand::nothing;
-    option opt = option::nothing;
 
     auto init_opts = poac::cmd::init::Options {
         poac::cmd::_new::ProjectType::Bin
@@ -120,12 +113,6 @@ main(const int argc, char* argv[]) {
         , clipp::option("--version", "-V")
             .set(subcmd, subcommand::version)
             .doc("Show the current poac version")
-        , clipp::option("--verbose", "-v")
-            .set(opt, option::verbose)
-            .doc("Use verbose output")
-        , clipp::option("--quiet", "-q")
-             .set(opt, option::quiet)
-             .doc("No output printed to stdout")
         ) |
         ( init_cmd
         | new_cmd
