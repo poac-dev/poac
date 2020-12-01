@@ -32,7 +32,7 @@ namespace poac::cmd::_new {
         poac_toml(const std::string& project_name) {
             return fmt::format(
                 "[package]\n"
-                "name = {}\n"
+                "name = \"{}\"\n"
                 "version = \"0.1.0\"\n"
                 "authors = []\n"
                 "cpp = 17",
