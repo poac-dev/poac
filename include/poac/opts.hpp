@@ -2,7 +2,6 @@
 #define POAC_OPTS_HPP
 
 #include <poac/opts/build.hpp>
-#include <poac/opts/cache.hpp>
 #include <poac/opts/clean.hpp>
 #include <poac/opts/graph.hpp>
 #include <poac/opts/install.hpp>
