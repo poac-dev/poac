@@ -17,6 +17,7 @@
 #include <poac/io/net.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/config.hpp>
 
 namespace poac::cmd::search {
     struct Options {
@@ -38,27 +39,27 @@ namespace poac::cmd::search {
         return count;
     }
 
+    std::string
+    request_body(const std::string& query) {
+        boost::property_tree::ptree pt;
+        pt.put("params", "query=" + query + "&hitsPerPage=20");
+        std::stringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        return body.str();
+    }
+
     boost::property_tree::ptree
     get_search_api(const std::string& query) {
-        std::string params;
-        {
-            boost::property_tree::ptree pt;
-            pt.put("params", "query=" + query + "&hitsPerPage=20");
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, pt);
-            params = ss.str();
-        }
-
-        std::stringstream ss;
+        const io::net::requests request{ ALGOLIA_SEARCH_INDEX_API_HOST };
         io::net::Headers headers;
         headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
         headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
-        const io::net::requests req{ ALGOLIA_SEARCH_INDEX_API_HOST };
-        const auto res = req.post(ALGOLIA_SEARCH_INDEX_API, params, headers);
-        ss << res.data();
+        const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, request_body(query), headers);
+        std::stringstream response_body;
+        response_body << response.data();
 
         boost::property_tree::ptree pt;
-        boost::property_tree::json_parser::read_json(ss, pt);
+        boost::property_tree::json_parser::read_json(response_body, pt);
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
                 throw core::except::error(
