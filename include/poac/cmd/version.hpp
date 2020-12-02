@@ -1,9 +1,11 @@
 #ifndef POAC_CMD_VERSION_HPP
 #define POAC_CMD_VERSION_HPP
 
+// std
 #include <iostream>
 #include <optional>
 
+// internal
 #include <poac/core/except.hpp>
 
 namespace poac::cmd::version {

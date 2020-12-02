@@ -1,7 +1,7 @@
 #ifndef POAC_CMD_NEW_HPP
 #define POAC_CMD_NEW_HPP
 
-// Std
+// std
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -13,10 +13,10 @@
 #include <vector>
 #include <optional>
 
-// External
+// external
 #include <fmt/core.h>
 
-// Internal
+// internal
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/io/path.hpp>

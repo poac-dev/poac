@@ -1,14 +1,14 @@
 #ifndef POAC_CMD_INIT_HPP
 #define POAC_CMD_INIT_HPP
 
-// Std
+// std
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <string_view>
 #include <optional>
 
-// Internal
+// internal
 #include <poac/cmd/new.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
