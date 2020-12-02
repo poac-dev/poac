@@ -748,8 +748,9 @@ namespace poac::io::config {
             return path::time_to_string(last_time);
         } else {
             throw core::except::error(
-                    core::except::msg::does_not_exist("poac.toml"), "\n",
-                    core::except::msg::please_exec("`poac init` or `poac new $PROJNAME`"));
+                "poac.toml does not exist\n"
+                "please execute `poac init` or `poac new $PROJNAME`"
+            );
         }
     }
 } // end namespace

@@ -171,44 +171,6 @@ namespace poac::core::except {
         }
     };
 
-    namespace msg {
-        std::string not_found(const std::string& str) {
-            return str + " not found";
-        }
-
-        std::string does_not_exist(const std::string& str) {
-            return str + " does not exist";
-        }
-        std::string key_does_not_exist(const std::string& str) {
-            return "Required key `" + str + "` does not exist in poac.toml";
-        }
-
-        std::string already_exist(const std::string& str) {
-            return str + " already exists";
-        }
-
-        std::string could_not(const std::string& str) {
-            return "Could not " + str;
-        }
-        std::string could_not_load(const std::string& str) {
-            return could_not("load " + str);
-        }
-        std::string could_not_read(const std::string& str) {
-            return could_not("read " + str);
-        }
-
-        std::string please(const std::string& str) {
-            return "Please " + str;
-        }
-        std::string please_refer_docs(const std::string& str) {
-            // str <- /en/getting_started.html
-            return please("refer to https://doc.poac.pm" + str);
-        }
-        std::string please_exec(const std::string& str) {
-            return please("execute " + str);
-        }
-    }
-
     class error : public std::invalid_argument {
     public:
         explicit error(const std::string& __s) : invalid_argument(__s) {}

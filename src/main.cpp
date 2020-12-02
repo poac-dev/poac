@@ -1,13 +1,18 @@
-#include <clipp.h>
+// std
 #include <cstdlib>
+#include <iostream>
+#include <string>
+#include <optional>
+
+// external
+#include <clipp.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <iostream>
+
+// internal
 #include <poac/cmd.hpp>
 #include <poac/core/except.hpp>
 #include <poac/io/term.hpp>
-#include <string>
-#include <optional>
 
 enum class subcommand {
     nothing,

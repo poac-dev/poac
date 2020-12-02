@@ -56,7 +56,8 @@ namespace poac::io::path {
                 return home_drive.value() + home_path.value();
             }
             throw core::except::error(
-                    core::except::msg::could_not_read("environment variable"));
+                "could not read environment variable"
+            );
         }
     }
 
