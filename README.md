@@ -78,7 +78,7 @@ $ poac build
 ```
 -->
 
-## Why poac?
+## Why Poac?
 
 I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.
 It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
@@ -101,6 +101,8 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for det
 ### Third party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
-* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE>
+* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
+* clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
+* {fmt} - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
