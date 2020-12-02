@@ -18,14 +18,9 @@ enum class subcommand {
     nothing,
     init,
     _new,
+    search,
     help,
     version,
-};
-
-enum class option {
-    nothing,
-    verbose,
-    quiet,
 };
 
 [[nodiscard]] int
@@ -58,7 +53,6 @@ optional_to_int(const std::optional<T>& opt) {
 int
 main(const int argc, char* argv[]) {
     subcommand subcmd = subcommand::nothing;
-    option opt = option::nothing;
 
     auto init_opts = poac::cmd::init::Options {
         poac::cmd::_new::ProjectType::Bin
@@ -92,6 +86,21 @@ main(const int argc, char* argv[]) {
           )
         );
 
+    auto search_opts = poac::cmd::search::Options {
+        false,
+        ""
+    };
+    const clipp::group search_cmd =
+        ( clipp::command("search")
+            .set(subcmd, subcommand::search)
+            .doc("Search for packages in poac.pm")
+        , clipp::word("pkg-name", search_opts.package_name)
+        , ( clipp::option("--verbose", "-v")
+              .set(search_opts.verbose)
+              .doc("Use verbose output")
+          )
+        );
+
     const clipp::parameter help_cmd =
         clipp::command("help")
             .set(subcmd, subcommand::help)
@@ -109,15 +118,10 @@ main(const int argc, char* argv[]) {
         , clipp::option("--version", "-V")
             .set(subcmd, subcommand::version)
             .doc("Show the current poac version")
-        , clipp::option("--verbose", "-v")
-            .set(opt, option::verbose)
-            .doc("Use verbose output")
-        , clipp::option("--quiet", "-q")
-             .set(opt, option::quiet)
-             .doc("No output printed to stdout")
         ) |
         ( init_cmd
         | new_cmd
+        | search_cmd
         | help_cmd
         | version_cmd
         )
@@ -134,6 +138,8 @@ main(const int argc, char* argv[]) {
                 return optional_to_int(poac::cmd::init::exec(std::move(init_opts)));
             case subcommand::_new:
                 return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
+            case subcommand::search:
+                return optional_to_int(poac::cmd::search::exec(std::move(search_opts)));
             case subcommand::help:
                 std::cout << clipp::make_man_page(cli, "poac");
                 return EXIT_SUCCESS;
