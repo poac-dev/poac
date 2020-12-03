@@ -159,7 +159,7 @@ jobs:
         run: |
           mkdir build && cd build
           cmake ..                                               \
-            -Dpoac_BUILD_TEST=ON                                 \
+            -DBUILD_TESTING=ON                                 \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
             -DBOOST_ROOT=${{ runner.temp }}/libs/boost           \
             -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib \
@@ -337,7 +337,7 @@ jobs:
         run: |
           mkdir build && cd build
           cmake ..                                               \
-            -Dpoac_BUILD_TEST=ON                                 \
+            -DBUILD_TESTING=ON                                 \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
             -DBOOST_ROOT=${{ runner.temp }}/libs/boost           \
             -DBOOST_LIBRARYDIR=${{ runner.temp }}/libs/boost/lib \
