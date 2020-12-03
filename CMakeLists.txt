@@ -13,9 +13,12 @@ project(poac
         LANGUAGES CXX
 )
 
-set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
+include(GNUInstallDirs)
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
 set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
+set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
+
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 # Check required version
 if (APPLE)
@@ -40,11 +43,14 @@ else ()
     endif ()
 endif ()
 
-### TODO: need sanitizer OFF when using valgrind
+# TODO: need sanitizer OFF when using valgrind
 
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_compile_definitions(${PROJECT_NAME} PRIVATE POAC_VERSION="${PROJECT_VERSION}")
 
 if (MSVC)
@@ -160,43 +166,29 @@ target_link_libraries(
         ${BOOST_LIBS}
 )
 
-option(BINARY_PROJECT "Project type to install Poac" ON)
-message(${BINARY_PROJECT})
-if (BINARY_PROJECT)
-    install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-else ()
-#    include(GNUInstallDirs)
-#
-#    message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-#    add_library(${PROJECT_NAME} INTERFACE)
-#    add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-#    target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
-#    target_include_directories(${PROJECT_NAME} INTERFACE
-#            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-#            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#    )
-#
-#    set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake)
-#    include(CMakePackageConfigHelpers)
-#    write_basic_package_version_file(
-#            ${CONFIG_VERSION_FILE} COMPATIBILITY AnyNewerVersion
-#    )
-#
-#    install(DIRECTORY include/
-#            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-#            FILES_MATCHING PATTERN "*.hpp"
-#    )
-#    install(TARGETS ${PROJECT_NAME}
-#            EXPORT ${PROJECT_NAME}-config
-#    )
-#    install(EXPORT ${PROJECT_NAME}-config
-#            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
-#            NAMESPACE ${PROJECT_NAME}::
-#    )
-#    install(FILES ${CONFIG_VERSION_FILE}
-#            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
-#    )
-endif ()
+set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        ${CONFIG_VERSION_FILE} COMPATIBILITY AnyNewerVersion
+)
+
+install(DIRECTORY include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING PATTERN "*.hpp"
+)
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}-config
+)
+install(EXPORT ${PROJECT_NAME}-config
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
+        NAMESPACE ${PROJECT_NAME}::
+)
+install(FILES ${CONFIG_VERSION_FILE}
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
+)
+install(TARGETS ${PROJECT_NAME}
+        DESTINATION bin
+)
 
 option(BUILD_TESTING "Do not build tests by default" OFF) # -DBUILD_TESTING=ON
 include(CTest)
