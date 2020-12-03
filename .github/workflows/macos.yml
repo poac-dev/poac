@@ -24,7 +24,7 @@ jobs:
       - run: mkdir build
 
       - name: Build Poac
-        run: cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. && make
+        run: cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. && make
         working-directory: build
 
       - name: Test Poac
