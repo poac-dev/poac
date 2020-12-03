@@ -50,7 +50,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE POAC_VERSION="${PROJECT_VERSI
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
 else ()
-    target_compile_options(${PROJECT_NAME} PRIVATE -pthread -fdiagnostics-color -Wall -Wextra) # -Werror
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") # undefined reference to symbol 'pthread_condattr_setclock@@GLIBC_2.3.3'
+    target_compile_options(${PROJECT_NAME} PRIVATE -fdiagnostics-color -Wall -Wextra) # -Werror
     if (APPLE)
         target_compile_definitions(${PROJECT_NAME} PRIVATE BOOST_BEAST_USE_STD_STRING_VIEW)
     else ()
