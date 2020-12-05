@@ -15,9 +15,9 @@
 
 // external
 #include <fmt/core.h>
+#include <mitama/result/result.hpp>
 
 // internal
-#include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
@@ -130,7 +130,7 @@ namespace poac::cmd::_new {
         }
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     check_name(std::string_view name) {
         // Ban keywords
         // https://en.cppreference.com/w/cpp/keyword
@@ -147,41 +147,35 @@ namespace poac::cmd::_new {
             "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
         };
         if (std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end()) {
-            return core::except::Error::General{
+            return mitama::failure(
                 fmt::format(
                     "`{}` is a keyword, so it cannot be used as a package name",
                     name
                     )
-            };
+            );
         }
-        return std::nullopt;
+        return mitama::success();
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     validate(const _new::Options& opts) {
-        if (const auto error = core::name::validate_package_name(opts.package_name)) {
-            return error;
-        }
+        MITAMA_TRY(core::name::validate_package_name(opts.package_name));
         if (io::path::validate_dir(opts.package_name)) {
-            return core::except::Error::General{
+            return mitama::failure(
                 fmt::format(
                     "The `{}` directory already exists", opts.package_name
                     )
-            };
+            );
         }
-        if (const auto error = check_name(opts.package_name)) {
-            return error;
-        }
-        return std::nullopt;
+        MITAMA_TRY(check_name(opts.package_name));
+        return mitama::success();
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     _new(_new::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        if (const auto error = validate(opts)) {
-            return error;
-        }
+        MITAMA_TRY(validate(opts));
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
             write_to_file(ofs, (opts.package_name / name).string(), text);
@@ -193,10 +187,10 @@ namespace poac::cmd::_new {
             opts.type,
             opts.package_name
         );
-        return std::nullopt;
+        return mitama::success();
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
         return _new(std::move(opts));
     }

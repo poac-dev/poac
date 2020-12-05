@@ -2,16 +2,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <optional>
 
 // external
 #include <clipp.h>
-#include <fmt/core.h>
 #include <fmt/ostream.h>
 
 // internal
 #include <poac/cmd.hpp>
-#include <poac/core/except.hpp>
 #include <poac/io/term.hpp>
 
 enum class subcommand {
@@ -35,19 +32,14 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
     return EXIT_FAILURE;
 }
 
-template <typename T>
-int
-optional_to_int(const std::optional<T>& opt) {
-    if (opt.has_value()) {
-        fmt::print(
-            std::cerr,
-            "{}: {}\n",
-            poac::io::term::error, opt->what()
-        );
-        return EXIT_FAILURE;
-    } else {
-        return EXIT_SUCCESS;
-    }
+void
+print_err(std::string_view e) {
+    fmt::print(
+        std::cerr,
+        "{}: {}\n",
+        poac::io::term::error,
+        e
+    );
 }
 
 int
@@ -135,16 +127,24 @@ main(const int argc, char* argv[]) {
             case subcommand::nothing:
                 return no_such_command(argc, argv, cli);
             case subcommand::init:
-                return optional_to_int(poac::cmd::init::exec(std::move(init_opts)));
+                return poac::cmd::init::exec(std::move(init_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::_new:
-                return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
+                return poac::cmd::_new::exec(std::move(new_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::search:
-                return optional_to_int(poac::cmd::search::exec(std::move(search_opts)));
+                return poac::cmd::search::exec(std::move(search_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::help:
                 std::cout << clipp::make_man_page(cli, "poac");
                 return EXIT_SUCCESS;
             case subcommand::version:
-                return optional_to_int(poac::cmd::version::exec());
+                return poac::cmd::version::exec()
+                    .map_err(print_err)
+                    .is_err();
         }
     } else {
         return no_such_command(argc, argv, cli);

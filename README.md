@@ -106,3 +106,4 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for det
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
 * {fmt} - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
+* mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
