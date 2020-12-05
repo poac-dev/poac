@@ -6,7 +6,6 @@
 #include <string>
 #include <string_view>
 #include <sstream>
-#include <optional>
 
 // external
 #include <boost/property_tree/ptree.hpp>
