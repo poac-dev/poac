@@ -145,7 +145,9 @@ main(const int argc, char* argv[]) {
             case subcommand::nothing:
                 return no_such_command(argc, argv, cli);
             case subcommand::init:
-                return optional_to_int(poac::cmd::init::exec(std::move(init_opts)));
+                return poac::cmd::init::exec(std::move(init_opts))
+                    .map_err(parse_err)
+                    .is_err();
             case subcommand::_new:
                 return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
             case subcommand::search:
