@@ -156,14 +156,14 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
-      - name: Restore & Cache mitama-result (${{ env.MITAMA_RESULT_VERSION }})
-        uses: actions/cache@v1
-        id: mitama-result-cache
-        with:
-          path: ${{ runner.temp }}/libs/mitama-result
-          key: ${{ env.CACHE_KEY_PREFIX }}-mitama-result-${{ env.MITAMA_RESULT_VERSION }}
-      - name: Install LoliGothick/mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }}) (header-only)
-        if: steps.mitama-result-cache.outputs.cache-hit != 'true'
+#      - name: Restore & Cache mitama-result (${{ env.MITAMA_RESULT_VERSION }})
+#        uses: actions/cache@v1
+#        id: mitama-result-cache
+#        with:
+#          path: ${{ runner.temp }}/libs/mitama-result
+#          key: ${{ env.CACHE_KEY_PREFIX }}-mitama-result-${{ env.MITAMA_RESULT_VERSION }}
+      - name: Install LoliGothick/mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }}) (header-only) (always up-to-date)
+#        if: steps.mitama-result-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/mitama-result
           git clone -q -b ${{ env.MITAMA_RESULT_VERSION }} https://github.com/LoliGothick/mitama-cpp-result.git
@@ -351,14 +351,14 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
-      - name: Restore & Cache mitama-result (${{ env.MITAMA_RESULT_VERSION }})
-        uses: actions/cache@v1
-        id: mitama-result-cache
-        with:
-          path: ${{ runner.temp }}/libs/mitama-result
-          key: ${{ env.CACHE_KEY_PREFIX }}-mitama-result-${{ env.MITAMA_RESULT_VERSION }}
-      - name: Install LoliGothick/mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }}) (header-only)
-        if: steps.mitama-result-cache.outputs.cache-hit != 'true'
+#      - name: Restore & Cache mitama-result (${{ env.MITAMA_RESULT_VERSION }})
+#        uses: actions/cache@v1
+#        id: mitama-result-cache
+#        with:
+#          path: ${{ runner.temp }}/libs/mitama-result
+#          key: ${{ env.CACHE_KEY_PREFIX }}-mitama-result-${{ env.MITAMA_RESULT_VERSION }}
+      - name: Install LoliGothick/mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }}) (header-only) (always up-to-date)
+#        if: steps.mitama-result-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/mitama-result
           git clone -q -b ${{ env.MITAMA_RESULT_VERSION }} https://github.com/LoliGothick/mitama-cpp-result.git
