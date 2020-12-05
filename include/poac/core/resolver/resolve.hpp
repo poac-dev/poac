@@ -17,6 +17,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/dynamic_bitset.hpp>
+#include <fmt/core.h>
 
 #include <poac/core/resolver/sat.hpp>
 #include <poac/core/except.hpp>
@@ -258,7 +259,9 @@ namespace poac::core::resolver::resolve {
                 copy_if(versions->begin(), versions->end(), back_inserter(res),
                         [&](std::string s) { return i.satisfies(s); });
                 if (res.empty()) {
-                    throw except::error(except::msg::not_found("`" + name + ": " + interval + "`"));
+                    throw except::error(
+                        fmt::format("`{}: {}` not found", name, interval)
+                    );
                 }
                 else {
                     return res;
@@ -266,7 +269,9 @@ namespace poac::core::resolver::resolve {
             }
         }
         else {
-            throw except::error(except::msg::not_found("`" + name + ": " + interval + "`"));
+            throw except::error(
+                fmt::format("`{}: {}` not found", name, interval)
+            );
         }
     }
 

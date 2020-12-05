@@ -18,7 +18,6 @@
 #include <poac/io.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
-#include <poac/util/argparse.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::opts::install {
