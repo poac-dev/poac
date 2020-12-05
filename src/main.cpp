@@ -51,7 +51,7 @@ optional_to_int(const std::optional<T>& opt) {
 }
 
 void
-parse_err(std::string_view e) {
+print_err(std::string_view e) {
     fmt::print(
         std::cerr,
         "{}: {}\n",
@@ -146,13 +146,13 @@ main(const int argc, char* argv[]) {
                 return no_such_command(argc, argv, cli);
             case subcommand::init:
                 return poac::cmd::init::exec(std::move(init_opts))
-                    .map_err(parse_err)
+                    .map_err(print_err)
                     .is_err();
             case subcommand::_new:
                 return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
             case subcommand::search:
                 return poac::cmd::search::exec(std::move(search_opts))
-                    .map_err(parse_err)
+                    .map_err(print_err)
                     .is_err();
             case subcommand::help:
                 std::cout << clipp::make_man_page(cli, "poac");
