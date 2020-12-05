@@ -158,7 +158,9 @@ main(const int argc, char* argv[]) {
                 std::cout << clipp::make_man_page(cli, "poac");
                 return EXIT_SUCCESS;
             case subcommand::version:
-                return optional_to_int(poac::cmd::version::exec());
+                return poac::cmd::version::exec()
+                    .map_err(print_err)
+                    .is_err();
         }
     } else {
         return no_such_command(argc, argv, cli);
