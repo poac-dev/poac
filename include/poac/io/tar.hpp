@@ -5,10 +5,9 @@
 
 #include <filesystem>
 #include <iostream>
+#include <poac/util/shell.hpp>
 #include <string>
 #include <vector>
-
-#include <poac/util/shell.hpp>
 
 namespace poac::io::tar {
     bool extract(const std::filesystem::path& filename, const std::string& options = "") {

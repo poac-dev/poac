@@ -2,12 +2,11 @@
 #define POAC_CORE_BUILDER_DEPENDS_HPP
 
 #include <iostream>
+#include <optional>
+#include <poac/util/misc.hpp>
+#include <poac/util/shell.hpp>
 #include <string>
 #include <vector>
-#include <optional>
-
-#include <poac/util/shell.hpp>
-#include <poac/util/misc.hpp>
 
 namespace poac::core::builder::depends {
     template <typename Opts>
