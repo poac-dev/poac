@@ -16,7 +16,6 @@
 #include <mitama/result/result.hpp>
 
 // internal
-#include <poac/core/except.hpp>
 #include <poac/io/term.hpp>
 #include <poac/io/net.hpp>
 #include <poac/util/pretty.hpp>
