@@ -2,16 +2,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <optional>
 
 // external
 #include <clipp.h>
-#include <fmt/core.h>
 #include <fmt/ostream.h>
 
 // internal
 #include <poac/cmd.hpp>
-#include <poac/core/except.hpp>
 #include <poac/io/term.hpp>
 
 enum class subcommand {
@@ -33,21 +30,6 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
         clipp::usage_lines(cli, "poac")
     );
     return EXIT_FAILURE;
-}
-
-template <typename T>
-int
-optional_to_int(const std::optional<T>& opt) {
-    if (opt.has_value()) {
-        fmt::print(
-            std::cerr,
-            "{}: {}\n",
-            poac::io::term::error, opt->what()
-        );
-        return EXIT_FAILURE;
-    } else {
-        return EXIT_SUCCESS;
-    }
 }
 
 void
@@ -149,7 +131,9 @@ main(const int argc, char* argv[]) {
                     .map_err(print_err)
                     .is_err();
             case subcommand::_new:
-                return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
+                return poac::cmd::_new::exec(std::move(new_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::search:
                 return poac::cmd::search::exec(std::move(search_opts))
                     .map_err(print_err)
