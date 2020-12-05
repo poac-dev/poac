@@ -3,14 +3,13 @@
 
 #include <filesystem>
 #include <iostream>
-#include <string>
-#include <vector>
-#include <optional>
 #include <numeric>
-
+#include <optional>
 #include <poac/core/builder/absorb.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
+#include <string>
+#include <vector>
 
 namespace poac::core::builder {
     namespace options {

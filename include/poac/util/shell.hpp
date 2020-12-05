@@ -9,34 +9,34 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace poac::util {
-    class shell {
+namespace poac::util::shell {
+    class cmd {
     public:
         std::string string() const {
-            return cmd;
+            return cmd_;
         }
 
-        shell() : cmd() {}
-        explicit shell(const std::string& c) : cmd(c) {}
+        cmd() : cmd_() {}
+        explicit cmd(const std::string& c) : cmd_(c) {}
 
-        shell& env(const std::string& name, const std::string& value) {
-            cmd.insert(0, name + "=" + value + " ");
+        cmd& env(const std::string& name, const std::string& value) {
+            cmd_.insert(0, name + "=" + value + " ");
             return *this;
         }
-        shell& stderr_to_stdout() {
-            cmd += " 2>&1";
+        cmd& stderr_to_stdout() {
+            cmd_ += " 2>&1";
             return *this;
         }
-        shell& to_dev_null() {
-            cmd += " >/dev/null";
+        cmd& to_dev_null() {
+            cmd_ += " >/dev/null";
             return *this;
         }
-        shell& dump_stdout() {
-            cmd += " 1>/dev/null";
+        cmd& dump_stdout() {
+            cmd_ += " 1>/dev/null";
             return *this;
         }
-        shell& dump_stderr() {
-            cmd += " 2>/dev/null";
+        cmd& dump_stderr() {
+            cmd_ += " 2>/dev/null";
             return *this;
         }
 
@@ -50,7 +50,7 @@ namespace poac::util {
 #ifdef _WIN32
             if (FILE* pipe = _popen(cmd.c_str(), "r")) {
 #else
-            if (FILE* pipe = popen(cmd.c_str(), "r")) {
+            if (FILE* pipe = popen(cmd_.c_str(), "r")) {
 #endif
                 while (std::fgets(buffer.data(), 128, pipe) != nullptr)
                     result += buffer.data();
@@ -72,77 +72,81 @@ namespace poac::util {
         bool exec_ignore() const {
             // EXIT_SUCCESS -> 0 -> false -> true
             // EXIT_FAILURE -> 1 -> true -> false
-            return !static_cast<bool>(std::system(cmd.c_str()));
+            return !static_cast<bool>(std::system(cmd_.c_str()));
         }
 
         friend std::ostream&
-        operator<<(std::ostream& os, const shell& c) {
-            return (os << c.cmd);
+        operator<<(std::ostream& os, const cmd& c) {
+            return (os << c.cmd_);
         }
 
-        bool operator==(const shell& rhs) const {
-            return this->cmd == rhs.cmd;
+        bool operator==(const cmd& rhs) const {
+            return this->cmd_ == rhs.cmd_;
         }
         bool operator==(const std::string& rhs) const {
-            return this->cmd == rhs;
+            return this->cmd_ == rhs;
         }
 
-        shell operator&&(const shell& rhs) const {
-            return shell(this->cmd + " && " + rhs.cmd);
+        cmd
+        operator&&(const cmd& rhs) const {
+            return cmd(this->cmd_ + " && " + rhs.cmd_);
         }
-        shell operator&&(const std::string& rhs) const {
-            return shell(this->cmd + " && " + rhs);
+        cmd
+        operator&&(const std::string& rhs) const {
+            return cmd(this->cmd_ + " && " + rhs);
         }
 
-        shell& operator&=(const shell& rhs) {
-            this->cmd += " && " + rhs.cmd;
+        cmd& operator&=(const cmd& rhs) {
+            this->cmd_ += " && " + rhs.cmd_;
             return *this;
         }
-        shell& operator&=(const std::string& rhs) {
-            this->cmd += " && " + rhs;
-            return *this;
-        }
-
-        shell operator||(const shell& rhs) const {
-            return shell(this->cmd + " || " + rhs.cmd);
-        }
-        shell operator||(const std::string& rhs) const {
-            return shell(this->cmd + " || " + rhs);
-        }
-
-        shell& operator|=(const shell& rhs) {
-            this->cmd += " || " + rhs.cmd;
-            return *this;
-        }
-        shell& operator|=(const std::string& rhs) {
-            this->cmd += " || " + rhs;
+        cmd& operator&=(const std::string& rhs) {
+            this->cmd_ += " && " + rhs;
             return *this;
         }
 
-        shell operator+(const shell& rhs) const { // TODO: "; "でなくても良いのか
-            return shell(this->cmd + " " + rhs.cmd);
+        cmd
+        operator||(const cmd& rhs) const {
+            return cmd(this->cmd_ + " || " + rhs.cmd_);
         }
-        shell operator+(const std::string& rhs) const {
-            return shell(this->cmd + " " + rhs);
+        cmd
+        operator||(const std::string& rhs) const {
+            return cmd(this->cmd_ + " || " + rhs);
         }
 
-        shell& operator+=(const shell& rhs) {
-            this->cmd += " " + rhs.cmd;
+        cmd& operator|=(const cmd& rhs) {
+            this->cmd_ += " || " + rhs.cmd_;
             return *this;
         }
-        shell& operator+=(const std::string& rhs) {
-            this->cmd += " " + rhs;
+        cmd& operator|=(const std::string& rhs) {
+            this->cmd_ += " || " + rhs;
+            return *this;
+        }
+
+        cmd
+        operator+(const cmd& rhs) const { // TODO: "; "でなくても良いのか
+            return cmd(this->cmd_ + " " + rhs.cmd_);
+        }
+        cmd
+        operator+(const std::string& rhs) const {
+            return cmd(this->cmd_ + " " + rhs);
+        }
+
+        cmd& operator+=(const cmd& rhs) {
+            this->cmd_ += " " + rhs.cmd_;
+            return *this;
+        }
+        cmd& operator+=(const std::string& rhs) {
+            this->cmd_ += " " + rhs;
             return *this;
         }
 
     private:
-        std::string cmd;
+        std::string cmd_;
     };
 
-    namespace _shell {
-        bool has_command(const std::string& c) {
-            return shell("type " + c + " >/dev/null 2>&1").exec().has_value();
-        }
+    bool has_command(const std::string& c) {
+        return cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
     }
 } // end namespace
 #endif // !POAC_UTIL_SHELL_HPP

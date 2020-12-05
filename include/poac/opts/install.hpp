@@ -1,24 +1,22 @@
 #ifndef POAC_OPTS_INSTALL_HPP
 #define POAC_OPTS_INSTALL_HPP
 
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <filesystem>
+#include <fstream>
 #include <future>
 #include <iostream>
-#include <vector>
-#include <string>
-#include <string_view>
-#include <fstream>
 #include <map>
-#include <regex>
 #include <optional>
-
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-
-#include <poac/io.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
+#include <poac/io.hpp>
 #include <poac/util/shell.hpp>
+#include <regex>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace poac::opts::install {
     inline const clap::subcommand cli =

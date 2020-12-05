@@ -1,10 +1,9 @@
 #ifndef POAC_UTIL_VCS_HPP
 #define POAC_UTIL_VCS_HPP
 
-#include <string>
-
-#include <poac/util/shell.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
+#include <poac/util/shell.hpp>
+#include <string>
 
 namespace poac::util::vcs {
     namespace git_repo {
