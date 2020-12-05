@@ -21,8 +21,8 @@ namespace poac::core::builder::standard {
     const std::string ANY = R"([\s\S]*)";
 
     std::string get_compiler_version(const std::string& compiler) {
-        if (util::_shell::has_command(compiler)) {
-            if (const auto res = util::cmd(compiler + " --version").stderr_to_stdout().exec()) {
+        if (util::shell::has_command(compiler)) {
+            if (const auto res = util::shell::cmd(compiler + " --version").stderr_to_stdout().exec()) {
                 const std::regex SEARCH_VERSION("^" + ANY + "(" + semver::MAIN_VERSION + ")" + ANY + "$");
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH_VERSION)) {
@@ -188,7 +188,7 @@ namespace poac::core::builder::standard {
         else if (cmd == "g++" || cmd == "clang++") {
 #  ifdef __APPLE__
             const std::string compiler(cmd);
-            if (const auto res = util::cmd(compiler + " --version").stderr_to_stdout().exec()) {
+            if (const auto res = util::shell::cmd(compiler + " --version").stderr_to_stdout().exec()) {
                 const std::regex SEARCH("^" + ANY + "(Apple LLVM)" + ANY + "$");
                 std::smatch match;
                 if (std::regex_match(*res, match, SEARCH)) {
@@ -238,13 +238,13 @@ namespace poac::core::builder::standard {
     std::string detect_command() {
         if (const auto cxx = io::path::dupenv("CXX")) {
             return *cxx;
-        } else if (util::_shell::has_command("icpc")) {
+        } else if (util::shell::has_command("icpc")) {
             return "icpc";
         }
 #ifndef _WIN32
-        else if (util::_shell::has_command("g++")) {
+        else if (util::shell::has_command("g++")) {
             return "g++";
-        } else if (util::_shell::has_command("clang++")) {
+        } else if (util::shell::has_command("clang++")) {
             return "clang++";
         }
 #else

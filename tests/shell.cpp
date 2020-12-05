@@ -7,7 +7,7 @@
 // 2. shell::shell(const std::string& c)
 BOOST_AUTO_TEST_CASE( poac_util_shell_shell_test )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
     BOOST_CHECK(cmd().string() == "" ); // 1
     BOOST_CHECK(cmd("cd").string() == "cd" ); // 2
     BOOST_CHECK(cmd("cd").string() == "cd" ); // 3
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_shell_test )
 // shell env(const std::string& name, const std::string& val)
 BOOST_AUTO_TEST_CASE( poac_util_shell_env_test )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("cmake ..");
     c = c.env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/");
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_env_test )
 // shell stderr_to_stdout()
 BOOST_AUTO_TEST_CASE( poac_util_shell_stderr_to_stdout_test )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("cmake ..");
     c = c.stderr_to_stdout();
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_stderr_to_stdout_test )
 // shell to_dev_null()
 BOOST_AUTO_TEST_CASE( poac_util_shell_to_dev_null_test )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("cmake ..");
     c = c.to_dev_null();
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_to_dev_null_test )
 // boost::optional<std::string> exec()
 BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
     {
         cmd c("echo test");
         BOOST_CHECK( c.exec().value() == "test\n" );
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
 // bool exec_incontinent()
 BOOST_AUTO_TEST_CASE( poac_util_shell_exec_ignore_test )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
     cmd c("cd");
     BOOST_CHECK( c.exec_ignore() );
 }
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_exec_ignore_test )
 // friend std::ostream& operator<<(std::ostream& stream, const shell& c)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test1 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c &= "cd test";
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test1 )
 // bool operator==(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test2 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c &= "cd test";
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test2 )
 // bool operator==(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test3 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c &= "cd test";
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test3 )
 // shell operator&&(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test4 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     cmd c2 = (c && cmd("cd test"));
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test4 )
 // shell operator&&(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test5 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     const cmd c("mkdir test");
     const cmd c2 = (c && "cd test");
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test5 )
 // shell operator&=(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test6 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c &= cmd("cd test");
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test6 )
 // shell operator&=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test7 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c &= "cd test";
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test7 )
 // shell operator||(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test8 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     cmd c2 = (c || cmd("cd test"));
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test8 )
 // shell operator||(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test9 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     const cmd c("mkdir test");
     const cmd c2 = (c || "cd test");
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test9 )
 // shell operator|=(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test10 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c |= cmd("cd test");
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test10 )
 // shell operator|=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test11 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c |= "cd test";
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test11 )
 // shell operator+(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test12 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     cmd c2 = (c + cmd("cd test"));
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test12 )
 // shell operator+(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test13 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     const cmd c("mkdir test");
     const cmd c2 = (c + "cd test");
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test13 )
 // shell operator+=(const shell& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test14 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c += cmd("cd test");
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test14 )
 // shell operator+=(const std::string& rhs)
 BOOST_AUTO_TEST_CASE( poac_util_shell_op_test15 )
 {
-    using poac::util::cmd;
+    using poac::util::shell::cmd;
 
     cmd c("mkdir test");
     c += "cd test";
@@ -232,6 +232,6 @@ BOOST_AUTO_TEST_CASE( poac_util_shell_op_test15 )
 // bool has_shell(const std::string& c)
 BOOST_AUTO_TEST_CASE( poac_util_shell_has_command_test )
 {
-    using poac::util::_shell::has_command;
+    using poac::util::shell::has_command;
     BOOST_CHECK( has_command("cd") );
 }

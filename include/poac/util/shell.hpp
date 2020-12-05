@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace poac::util {
+namespace poac::util::shell {
     class cmd {
     public:
         std::string string() const {
@@ -145,10 +145,8 @@ namespace poac::util {
         std::string cmd_;
     };
 
-    namespace _shell {
-        bool has_command(const std::string& c) {
-            return cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
-        }
+    bool has_command(const std::string& c) {
+        return cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
     }
 } // end namespace
 #endif // !POAC_UTIL_SHELL_HPP
