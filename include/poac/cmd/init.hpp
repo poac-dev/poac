@@ -28,9 +28,7 @@ namespace poac::cmd::init {
         using termcolor2::color_literals::operator""_green;
 
         const std::string package_name = io::path::current.stem().string();
-        if (const auto error = core::name::validate_package_name(package_name)) {
-            return mitama::failure(error->what());
-        }
+        MITAMA_TRY(core::name::validate_package_name(package_name));
 
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {

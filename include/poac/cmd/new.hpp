@@ -159,9 +159,7 @@ namespace poac::cmd::_new {
 
     [[nodiscard]] mitama::result<void, std::string>
     validate(const _new::Options& opts) {
-        if (const auto error = core::name::validate_package_name(opts.package_name)) {
-            return mitama::failure(error->what());
-        }
+        MITAMA_TRY(core::name::validate_package_name(opts.package_name));
         if (io::path::validate_dir(opts.package_name)) {
             return mitama::failure(
                 fmt::format(
