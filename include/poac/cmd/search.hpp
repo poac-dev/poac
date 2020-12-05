@@ -13,6 +13,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <mitama/result/result.hpp>
 
 // internal
 #include <poac/core/except.hpp>
@@ -51,7 +52,7 @@ namespace poac::cmd::search {
         return body.str();
     }
 
-    boost::property_tree::ptree
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
     get_search_api(const std::string& query) {
         const io::net::requests request{ ALGOLIA_SEARCH_INDEX_API_HOST };
         io::net::Headers headers;
@@ -65,17 +66,17 @@ namespace poac::cmd::search {
         boost::property_tree::json_parser::read_json(response_body, pt);
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
-                throw core::except::error(
-                        fmt::format("{} not found", query)
+                return mitama::failure(
+                    fmt::format("{} package not found", query)
                 );
             }
         }
-        return pt;
+        return mitama::success(pt);
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     search(Options&& opts) {
-        const auto pt = get_search_api(opts.package_name);
+        const boost::property_tree::ptree pt = MITAMA_TRY(get_search_api(opts.package_name));
         if (opts.verbose) {
             std::stringstream ss;
             boost::property_tree::json_parser::write_json(ss, pt);
@@ -98,10 +99,10 @@ namespace poac::cmd::search {
 
             fmt::print("{:<40}# {}", package, description);
         }
-        return std::nullopt;
+        return mitama::success();
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
         return search(std::move(opts));
     }
