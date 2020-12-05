@@ -134,6 +134,10 @@ if (DEFINED FMT_DIR)
     target_link_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/lib)
 endif ()
 
+if (DEFINED MITAMA_RESULT_DIR)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${MITAMA_RESULT_DIR}/include)
+endif ()
+
 if (APPLE)
     set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
     set(OPENSSL_LIBRARIES /usr/local/opt/openssl/lib)

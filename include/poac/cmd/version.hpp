@@ -3,16 +3,15 @@
 
 // std
 #include <iostream>
-#include <optional>
 
-// internal
-#include <poac/core/except.hpp>
+// external
+#include <mitama/result/result.hpp>
 
 namespace poac::cmd::version {
-    [[nodiscard]] std::optional<core::except::Error>
-    exec() noexcept {
+    [[nodiscard]] mitama::result<void, std::string>
+    exec() {
         std::cout << "poac " << POAC_VERSION << std::endl;
-        return std::nullopt;
+        return mitama::success();
     }
 } // end namespace
 
