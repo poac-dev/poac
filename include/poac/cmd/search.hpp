@@ -11,8 +11,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
-#include <fmt/ostream.h>
 #include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
 #include <poac/io/term.hpp>
@@ -23,7 +23,6 @@
 
 namespace poac::cmd::search {
     struct Options {
-        bool verbose;
         std::string package_name;
     };
 
@@ -75,10 +74,10 @@ namespace poac::cmd::search {
     [[nodiscard]] mitama::result<void, std::string>
     search(Options&& opts) {
         const boost::property_tree::ptree pt = MITAMA_TRY(get_search_api(opts.package_name));
-        if (opts.verbose) {
+        IF_PLOG(plog::verbose) {
             std::stringstream ss;
             boost::property_tree::json_parser::write_json(ss, pt);
-            std::cout << ss.str() << std::endl;
+            PLOG_VERBOSE << ss.str();
         }
 
         for (const boost::property_tree::ptree::value_type& child : pt.get_child("hits")) {
@@ -92,10 +91,10 @@ namespace poac::cmd::search {
 
             std::string description = hits.get<std::string>("package.description");
             description = util::pretty::clip_string(description, 100);
-            // If util::pretty::clip_string clips last \n, \n should add at last
-            description.find('\n') == std::string::npos ? description += '\n' : "";
+            // If util::pretty::clip_string clips last \n, \n should be removed
+            description.erase(std::remove(description.begin(), description.end(), '\n'), description.end());
 
-            fmt::print("{:<40}# {}", package, description);
+            PLOG_INFO << fmt::format("{:<40}# {}", package, description);
         }
         return mitama::success();
     }
