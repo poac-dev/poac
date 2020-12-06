@@ -49,7 +49,7 @@ jobs:
 
     - name: Install required libraries
       run: |
-        brew install libgit2 fmt poacpm/tap/toml11
+        brew install libgit2 fmt poacpm/tap/toml11 poacpm/tap/plog
         brew install --HEAD poacpm/tap/clipp poacpm/tap/mitama-cpp-result
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
