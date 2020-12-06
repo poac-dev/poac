@@ -6,6 +6,9 @@
 // external
 #include <clipp.h>
 #include <fmt/ostream.h>
+#include <plog/Log.h>
+#include <plog/Formatters/MessageOnlyFormatter.h>
+#include <plog/Appenders/ConsoleAppender.h>
 
 // internal
 #include <poac/cmd.hpp>
@@ -44,6 +47,11 @@ print_err(std::string_view e) {
 
 int
 main(const int argc, char* argv[]) {
+    static plog::ConsoleAppender<plog::MessageOnlyFormatter> consoleAppender;
+    plog::init(plog::info, &consoleAppender);
+    const auto set_verbose = []{ plog::get()->setMaxSeverity(plog::verbose); };
+    const auto set_quiet = []{ plog::get()->setMaxSeverity(plog::none); };
+
     subcommand subcmd = subcommand::nothing;
 
     auto init_opts = poac::cmd::init::Options {
@@ -78,18 +86,18 @@ main(const int argc, char* argv[]) {
           )
         );
 
-    auto search_opts = poac::cmd::search::Options {
-        false,
-        ""
-    };
+    auto search_opts = poac::cmd::search::Options { "" };
     const clipp::group search_cmd =
         ( clipp::command("search")
             .set(subcmd, subcommand::search)
             .doc("Search for packages in poac.pm")
         , clipp::word("pkg-name", search_opts.package_name)
         , ( clipp::option("--verbose", "-v")
-              .set(search_opts.verbose)
+              .call(set_verbose)
               .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+              .call(set_quiet)
+              .doc("No output printed to stdout")
           )
         );
 
