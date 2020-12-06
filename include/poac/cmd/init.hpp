@@ -5,15 +5,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <string_view>
 
 // external
+#include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
 #include <poac/cmd/new.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/term.hpp>
 #include <poac/io/config.hpp>
 #include <poac/core/name.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
@@ -28,8 +28,10 @@ namespace poac::cmd::init {
         using termcolor2::color_literals::operator""_green;
 
         const std::string package_name = io::path::current.stem().string();
+        PLOG_VERBOSE << fmt::format("Validating the package name `{}`", package_name);
         MITAMA_TRY(core::name::validate_package_name(package_name));
 
+        PLOG_VERBOSE << "Creating ./poac.toml";
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
@@ -39,7 +41,7 @@ namespace poac::cmd::init {
                 ofs_config << _new::files::poac_toml(package_name);
                 break;
         }
-        fmt::print(
+        PLOG_INFO << fmt::format(
             "{}{} `{}` package\n",
             "Created: "_green,
             opts.type,
