@@ -62,10 +62,18 @@ main(const int argc, char* argv[]) {
              .set(subcmd, subcommand::init)
              .doc("Create a new poac package in an existing directory")
         , ( clipp::option("--bin", "-b")
+                .set(init_opts.type, poac::cmd::_new::ProjectType::Bin)
                 .doc("Use a binary (application) template [default]")
           | clipp::option("--lib", "-l")
                 .set(init_opts.type, poac::cmd::_new::ProjectType::Lib)
                 .doc("Use a library template")
+          )
+        , ( clipp::option("--verbose", "-v")
+                .call(set_verbose)
+                .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+                .call(set_quiet)
+                .doc("No output printed to stdout")
           )
         );
 
