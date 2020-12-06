@@ -16,6 +16,7 @@
 // external
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
 #include <poac/core/name.hpp>
@@ -159,7 +160,10 @@ namespace poac::cmd::_new {
 
     [[nodiscard]] mitama::result<void, std::string>
     validate(const _new::Options& opts) {
-        MITAMA_TRY(core::name::validate_package_name(opts.package_name));
+        PLOG_VERBOSE << fmt::format(
+            "Validating the `{}` directory exists",
+            opts.package_name
+        );
         if (io::path::validate_dir(opts.package_name)) {
             return mitama::failure(
                 fmt::format(
@@ -167,6 +171,12 @@ namespace poac::cmd::_new {
                     )
             );
         }
+
+        PLOG_VERBOSE << fmt::format(
+            "Validating the package name `{}`",
+            opts.package_name
+        );
+        MITAMA_TRY(core::name::validate_package_name(opts.package_name));
         MITAMA_TRY(check_name(opts.package_name));
         return mitama::success();
     }
@@ -178,10 +188,13 @@ namespace poac::cmd::_new {
         MITAMA_TRY(validate(opts));
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
-            write_to_file(ofs, (opts.package_name / name).string(), text);
+            const std::string& file_path = (opts.package_name / name).string();
+            PLOG_VERBOSE << fmt::format("Creating {}", file_path);
+            write_to_file(ofs, file_path, text);
         }
+        PLOG_VERBOSE << fmt::format("Initializing git repository at {}", opts.package_name);
         git2::repository().init(opts.package_name);
-        fmt::print(
+        PLOG_INFO << fmt::format(
             "{}{} `{}` package\n",
             "Created: "_green,
             opts.type,
