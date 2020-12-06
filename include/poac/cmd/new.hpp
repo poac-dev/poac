@@ -164,13 +164,7 @@ namespace poac::cmd::_new {
             "Validating the `{}` directory exists",
             opts.package_name
         );
-        if (io::path::validate_dir(opts.package_name)) {
-            return mitama::failure(
-                fmt::format(
-                    "The `{}` directory already exists", opts.package_name
-                    )
-            );
-        }
+        MITAMA_TRY(io::path::validate_dir(opts.package_name));
 
         PLOG_VERBOSE << fmt::format(
             "Validating the package name `{}`",
