@@ -9,6 +9,5 @@
 #include <poac/util/shell.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/types.hpp>
-#include <poac/util/vcs.hpp>
 
 #endif // !POAC_UTIL_HPP
