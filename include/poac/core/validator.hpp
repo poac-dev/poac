@@ -3,6 +3,9 @@
 
 // std
 #include <filesystem>
+#include <string>
+#include <string_view>
+#include <vector>
 
 // external
 #include <fmt/core.h>
