@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_RESOLVER_RESOLVE_HPP
 #define POAC_CORE_RESOLVER_RESOLVE_HPP
 
+// std
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -14,11 +15,14 @@
 #include <algorithm>
 #include <iterator>
 
+// external
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <fmt/core.h>
+#include <mitama/result/result.hpp>
 
+// internal
 #include <poac/core/resolver/sat.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
@@ -33,13 +37,15 @@
 
 namespace poac::core::resolver::resolve {
     namespace cache {
-        bool resolve(const std::string& package_name) {
+        mitama::result<void, std::string>
+        resolve(const std::string& package_name) noexcept {
             const auto package_path = io::path::poac_cache_dir / package_name;
             return io::path::validate_dir(package_path);
         }
     }
     namespace current {
-        bool resolve(const std::string& current_package_name) {
+        mitama::result<void, std::string>
+        resolve(const std::string& current_package_name) noexcept {
             const auto package_path = io::path::current_deps_dir / current_package_name;
             return io::path::validate_dir(package_path);
         }
