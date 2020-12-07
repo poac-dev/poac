@@ -16,6 +16,7 @@
 
 enum class subcommand {
     nothing,
+    build,
     init,
     _new,
     search,
@@ -54,8 +55,31 @@ main(const int argc, char* argv[]) {
 
     subcommand subcmd = subcommand::nothing;
 
+    auto build_opts = poac::cmd::build::Options {
+        poac::core::builder::Mode::Debug,
+    };
+    const clipp::group build_cmd =
+        ( clipp::command("build")
+            .set(subcmd, subcommand::build)
+            .doc("Compile a project and all sources that depend on its")
+        , ( clipp::option("--debug", "-d")
+                .set(build_opts.mode, poac::core::builder::Mode::Debug)
+                .doc("Build artifacts in debug mode [default]")
+          | clipp::option("--release", "-r")
+                .set(build_opts.mode, poac::core::builder::Mode::Release)
+                .doc("Build artifacts in release mode, with optimizations")
+          )
+        , ( clipp::option("--verbose", "-v")
+                .call(set_verbose)
+                .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+                .call(set_quiet)
+                .doc("No output printed to stdout")
+          )
+        );
+
     auto init_opts = poac::cmd::init::Options {
-        poac::cmd::_new::ProjectType::Bin
+        poac::cmd::_new::ProjectType::Bin,
     };
     const clipp::group init_cmd =
         ( clipp::command("init")
@@ -135,7 +159,8 @@ main(const int argc, char* argv[]) {
             .set(subcmd, subcommand::version)
             .doc("Show the current poac version")
         ) |
-        ( init_cmd
+        ( build_cmd
+        | init_cmd
         | new_cmd
         | search_cmd
         | help_cmd
@@ -150,6 +175,10 @@ main(const int argc, char* argv[]) {
         switch (subcmd) {
             case subcommand::nothing:
                 return no_such_command(argc, argv, cli);
+            case subcommand::build:
+                return poac::cmd::build::exec(std::move(build_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::init:
                 return poac::cmd::init::exec(std::move(init_opts))
                     .map_err(print_err)
