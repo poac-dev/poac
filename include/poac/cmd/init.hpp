@@ -4,6 +4,7 @@
 // std
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 
 // external
@@ -13,9 +14,7 @@
 
 // internal
 #include <poac/cmd/new.hpp>
-#include <poac/io/path.hpp>
-#include <poac/io/config.hpp>
-#include <poac/core/name.hpp>
+#include <poac/core/validator.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::cmd::init {
@@ -27,9 +26,9 @@ namespace poac::cmd::init {
     init(init::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        const std::string package_name = io::path::current.stem().string();
+        const std::string package_name = std::filesystem::current_path().stem().string();
         PLOG_VERBOSE << fmt::format("Validating the package name `{}`", package_name);
-        MITAMA_TRY(core::name::validate_package_name(package_name));
+        MITAMA_TRY(core::validator::valid_package_name(package_name));
 
         PLOG_VERBOSE << "Creating ./poac.toml";
         std::ofstream ofs_config("poac.toml");
@@ -52,7 +51,7 @@ namespace poac::cmd::init {
 
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
-        if (io::config::detail::validate_config()) {
+        if (core::validator::require_config_exists().is_ok()) {
             return mitama::failure(
                 "`poac init` cannot run on existing poac packages"
             );
