@@ -19,8 +19,8 @@ jobs:
   x86_64-unknown-linux-gnu:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: false
         compiler: [ clang, gcc ]
         compiler_version: [ 7, 8, 9, 10 ]
         build_type: [ Debug ] # TODO: Release
