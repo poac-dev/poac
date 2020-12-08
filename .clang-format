@@ -1,9 +1,13 @@
 BasedOnStyle: LLVM
 Standard: Auto
-AccessModifierOffset: -4
+AlignEscapedNewlines: Left
+AlignOperands: AlignAfterOperator
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
 AlwaysBreakAfterReturnType: All
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
+AccessModifierOffset: -4
 BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Attach
 FixNamespaceComments: true
@@ -11,8 +15,9 @@ IncludeBlocks: Regroup
 IndentWidth: 4
 IndentCaseLabels: true
 MaxEmptyLinesToKeep: 2
-NamespaceIndentation: Inner
+NamespaceIndentation: All
 PointerAlignment: Left
 SortIncludes: true
 SortUsingDeclarations: true
+SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
