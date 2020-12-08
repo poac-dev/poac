@@ -472,17 +472,6 @@ namespace poac::io::net {
                 return pt;
             }
         }
-
-        bool
-        exists(const std::string& name, const std::string& version) {
-            std::stringstream ss;
-            {
-                const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_EXISTS_API + ("/" + name) + "/" + version);
-                ss << res.data();
-            }
-            return ss.str() == "true";
-        }
     }
 } // end namespace
 #endif // !POAC_IO_NET_HPP
