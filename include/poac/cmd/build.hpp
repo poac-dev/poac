@@ -10,6 +10,7 @@
 
 // internal
 #include <poac/core/builder.hpp>
+#include <poac/core/resolver.hpp>
 #include <poac/core/validator.hpp>
 
 namespace poac::cmd::build {
@@ -18,8 +19,8 @@ namespace poac::cmd::build {
     };
 
     [[nodiscard]] mitama::result<void, std::string>
-    build(toml::value&& config, Options&& opts) {
-//        MITAMA_TRY(core::resolver::install_deps(config);
+    build(toml::value&& config, [[maybe_unused]] Options&& opts) {
+        MITAMA_TRY(core::resolver::install_deps(config));
 //        core::Builder bs(config.get(), opts.mode, opts.verbose);
 //        MITAMA_TRY(bs.build());
         return mitama::success();

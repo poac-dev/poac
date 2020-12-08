@@ -253,7 +253,7 @@ namespace poac::core::resolver::resolve {
 //        io::cli::echo("[versions] ", name, ": ", interval);
 
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        if (const auto versions = io::net::api::versions(name)) {
+        if (const auto versions = io::net::api::versions(name)) { // TODO:
             if (interval == "latest") {
                 const auto latest = std::max_element((*versions).begin(), (*versions).end(),
                         [](auto a, auto b) { return semver::Version(a) > b; });
@@ -360,17 +360,22 @@ namespace poac::core::resolver::resolve {
     }
 
     // Builds the list of all packages required to build the first argument.
-    ResolvedDeps resolve(const NoDuplicateDeps& deps) {
-        const ResolvedDeps activated_deps = activate_deps_loop(deps);
-        ResolvedDeps resolved_deps;
-        // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
-        if (duplicate_loose(activated_deps.duplicate_deps)) {
-            resolved_deps = backtrack_loop(activated_deps.duplicate_deps);
+    [[nodiscard]] mitama::result<ResolvedDeps, std::string>
+    resolve(const NoDuplicateDeps& deps) noexcept {
+        try {
+            const ResolvedDeps activated_deps = activate_deps_loop(deps);
+            ResolvedDeps resolved_deps;
+            // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
+            if (duplicate_loose(activated_deps.duplicate_deps)) {
+                resolved_deps = backtrack_loop(activated_deps.duplicate_deps);
+            }
+            else {
+                resolved_deps = activated_to_backtracked(activated_deps);
+            }
+            return mitama::success(resolved_deps);
+        } catch (...) {
+            return mitama::failure("resolving packages failed");
         }
-        else {
-            resolved_deps = activated_to_backtracked(activated_deps);
-        }
-        return resolved_deps;
     }
 } // end namespace
 #endif // !POAC_CORE_RESOLVER_RESOLVE_HPP
