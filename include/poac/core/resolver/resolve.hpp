@@ -21,6 +21,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
 #include <poac/core/resolver/sat.hpp>
@@ -177,16 +178,16 @@ namespace poac::core::resolver::resolve {
         // deps.activated.size() == variables
         const auto [result, assignments] = sat::solve(clauses, activated.size());
         if (result == sat::Sat::completed) {
-            io::term::debugln("SAT");
+            PLOG_DEBUG << "SAT";
             for (const auto& a : assignments) {
-                io::term::debug(a, " ");
+                PLOG_DEBUG << a << " ";
                 if (a > 0) {
                     const auto dep = activated[a - 1];
                     resolved_deps.duplicate_deps.push_back(dep);
                     resolved_deps.no_duplicate_deps[dep.first] = dep.second;
                 }
             }
-            io::term::debugln(0);
+            PLOG_DEBUG << 0;
         }
         else {
             throw except::error("Could not solve in this dependencies.");
@@ -206,9 +207,9 @@ namespace poac::core::resolver::resolve {
                     index = (l * -1) - 1;
                 }
                 const auto [name, package] = activated[index];
-                io::term::debug(name, "-", package.version, ": ", l, ", ");
+                PLOG_DEBUG << fmt::format("{}-{}: {}, ", name, package.version, l);
             }
-            io::term::debugln();
+            PLOG_DEBUG << "";
         }
         return solve_sat(activated, clauses);
     }
