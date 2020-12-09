@@ -55,8 +55,8 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    using DuplicateDeps = std::vector<std::pair<std::string, io::lockfile::Lockfile::Package>>;
-    using NoDuplicateDeps = io::lockfile::Lockfile::dependencies_type;
+    using DuplicateDeps = std::vector<std::pair<std::string, io::lockfile::Package>>;
+    using NoDuplicateDeps = io::lockfile::dependencies_type;
 
     struct ResolvedDeps {
         // Dependency information after activate.
@@ -311,14 +311,14 @@ namespace poac::core::resolver::resolve {
                         [&n=dep_name, &i=dep_interval](auto d) { return std::get<name_index>(d) == n && std::get<interval_index>(d) == i; });
                 if (itr != last) {
                     for (const auto& dep_version : std::get<versions_index>(*itr)) {
-                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Lockfile::Package{ dep_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
+                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Package{ dep_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
                     }
                 } else {
                     const auto dep_versions = decide_versions(dep_name, dep_interval);
                     // Cache interval and versions pair
                     interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
                     for (const auto& dep_version : dep_versions) {
-                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Lockfile::Package{ dep_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
+                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Package{ dep_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
                     }
                 }
             }
@@ -329,7 +329,7 @@ namespace poac::core::resolver::resolve {
             }
         }
         else {
-            new_deps.emplace_back(name, io::lockfile::Lockfile::Package{ version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
+            new_deps.emplace_back(name, io::lockfile::Package{ version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
         }
     }
 
