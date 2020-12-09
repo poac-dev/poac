@@ -1,6 +1,7 @@
 #ifndef POAC_IO_NET_HPP
 #define POAC_IO_NET_HPP
 
+// std
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -14,6 +15,7 @@
 #include <variant>
 #include <optional>
 
+// external
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
@@ -28,16 +30,69 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <fmt/core.h>
+#include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
+// internal
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/term.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/types.hpp>
 #include <poac/config.hpp>
 
 namespace poac::io::net {
+    // Create progress bar, [====>   ]
+    std::string to_progress(const int& max_count, int now_count) {
+        if (now_count > max_count) {
+            now_count = max_count;
+        }
+
+        const int bar_size = 50;
+        const int percent = (now_count * 100) / max_count;
+        const int bar_pos = percent / 2;
+
+        std::string bar = "[";
+        if (now_count == max_count) {
+            for (int i = 0; i < (bar_size - 1); ++i) {
+                bar += "=";
+            }
+            bar += ">]";
+        } else if ((bar_pos - 1) > 0) {
+            for (int i = 0; i < (bar_pos - 1); ++i) {
+                bar += "=";
+            }
+            bar += ">";
+            for (int i = 0; i < (bar_size - bar_pos); ++i) {
+                bar += " ";
+            }
+            bar += "]";
+        } else if (bar_pos == 1) {
+            bar += ">";
+            for (int i = 0; i < (bar_size - 1); ++i) {
+                bar += " ";
+            }
+            bar += "]";
+        } else {
+            for (int i = 0; i < bar_size; ++i) {
+                bar += " ";
+            }
+            bar += "]";
+        }
+        return bar;
+    }
+
+    // Print byte progress bar, [====>   ] 10.21B/21.28KB
+    void echo_byte_progress(const int& max_count, const int& now_count) {
+        const auto [ parsed_max_byte, max_byte_unit ] = util::pretty::to_byte(max_count);
+        const auto [ parsed_now_byte, now_byte_unit ] = util::pretty::to_byte(now_count);
+        std::cout << to_progress(max_count, now_count) << " ";
+        std::cout << std::fixed;
+        std::cout << std::setprecision(2) << parsed_now_byte << now_byte_unit << "/";
+        std::cout << std::setprecision(2) << parsed_max_byte << max_byte_unit << std::flush;
+    }
+
     namespace http = boost::beast::http;
     namespace ssl = boost::asio::ssl;
     using Headers = std::map<std::variant<http::field, std::string>, std::string>;
@@ -215,7 +270,7 @@ namespace poac::io::net {
         typename ResponseBody::value_type
         get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
-            term::debugln(req);
+            PLOG_DEBUG << req;
             return request<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
         }
 
@@ -266,14 +321,14 @@ namespace poac::io::net {
 
         template <typename Request>
         void simple_write(const Request& req) const {
-            term::debugln("Write type: string");
+            PLOG_DEBUG << "Write type: string";
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
 
         template <typename Request>
         void progress_write(const Request& req) const {
-            term::debugln("Write type: multipart/form-data");
+            PLOG_DEBUG << "Write type: multipart/form-data";
 
             // Send the HTTP request to the remote host
             stream->write_some(boost::asio::buffer(req.get_header()));
@@ -299,7 +354,7 @@ namespace poac::io::net {
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.get_footer()));
-            term::debugln("Waiting for server response...");
+            PLOG_DEBUG << "Waiting for server response...";
         }
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
@@ -352,10 +407,10 @@ namespace poac::io::net {
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
             if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
-                term::debugln("Read type: string");
+                PLOG_DEBUG << "Read type: string";
                 return res.body();
             } else {
-                term::debugln("Read type: file with progress");
+                PLOG_DEBUG << "Read type: file with progress";
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
@@ -368,9 +423,9 @@ namespace poac::io::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            std::cout << '\r' << term::info << "Downloading ";
-                            term::echo_byte_progress(content_length, acc);
-                            std::cout << "  ";
+                            PLOG_INFO << '\r' << "Downloading ";
+                            echo_byte_progress(content_length, acc);
+                            PLOG_INFO << "  ";
                         }
                     }
                 }
@@ -384,7 +439,7 @@ namespace poac::io::net {
         redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             const std::string new_location = std::string(res.base()["Location"]);
             const auto [new_host, new_target] = parse_url(new_location);
-            term::debugln("Redirect to ", new_location, "\n");
+            PLOG_DEBUG << fmt::format("Redirect to {}\n", new_location);
 
             // FIXME: header information is gone.
             const requests req(new_host);
@@ -420,7 +475,7 @@ namespace poac::io::net {
                 boost::system::error_code error{
                         static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
                 };
-                term::debugln(error.message());
+                PLOG_DEBUG << error.message();
                 throw boost::system::system_error{ error };
             }
         }
@@ -442,12 +497,10 @@ namespace poac::io::net {
             boost::property_tree::ptree pt;
             {
                 std::stringstream ss;
-                {
-                    const requests req{ POAC_API_HOST };
-                    const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
-                    ss << res.data();
-                }
-                term::debugln(name, ": ", ss.str());
+                const requests req{ POAC_API_HOST };
+                const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
+                ss << res.data();
+                PLOG_DEBUG << fmt::format("{}: {}", name, ss.str());
                 if (ss.str() == "null") {
                     return std::nullopt;
                 }
@@ -459,11 +512,9 @@ namespace poac::io::net {
         std::optional<boost::property_tree::ptree>
         deps(const std::string& name, const std::string& version) {
             std::stringstream ss;
-            {
-                const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_DEPS_API + ("/" + name) + "/" + version);
-                ss << res.data();
-            }
+            const requests req{ POAC_API_HOST };
+            const auto res = req.get(POAC_DEPS_API + ("/" + name) + "/" + version);
+            ss << res.data();
             if (ss.str() == "null") {
                 return std::nullopt;
             } else {
