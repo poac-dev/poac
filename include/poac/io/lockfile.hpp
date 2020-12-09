@@ -12,7 +12,6 @@
 #include <toml.hpp>
 
 #include <poac/core/except.hpp>
-#include <poac/io/config.hpp>
 #include <poac/io/path.hpp>
 
 namespace poac::io::lockfile {
@@ -85,9 +84,6 @@ namespace poac::io::lockfile {
             Package& operator=(const Package&) = default;
             Package(Package&&) noexcept = default;
             Package& operator=(Package&&) noexcept = default;
-
-            template <typename C, template <typename ...> class M, template <typename ...> class V>
-            void from_toml(const toml::basic_value<C, M, V>& v);
         };
         using dependencies_type = std::unordered_map<std::string, Package>;
         std::string timestamp;
@@ -101,13 +97,6 @@ namespace poac::io::lockfile {
     void Lockfile::from_toml(const toml::basic_value<C, M, V>& v) {
         timestamp = toml::find<std::string>(v, "timestamp");
         dependencies = toml::find<Lockfile::dependencies_type>(v, "dependencies");
-    }
-
-    template <typename C, template <typename ...> class M, template <typename ...> class V>
-    void Lockfile::Package::from_toml(const toml::basic_value<C, M, V>& v) {
-        version = toml::find<std::string>(v, "version");
-        package_type = to_package_type(toml::find<std::string>(v, "package-type")).value();
-        dependencies = config::detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
     }
 } // end namespace
 #endif // !POAC_IO_LOCKFILE_HPP
