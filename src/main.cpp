@@ -12,7 +12,6 @@
 
 // internal
 #include <poac/cmd.hpp>
-#include <poac/io/term.hpp>
 
 enum class subcommand {
     nothing,
@@ -24,12 +23,14 @@ enum class subcommand {
     version,
 };
 
+inline const auto error = termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset;
+
 [[nodiscard]] int
 no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
     fmt::print(
         std::cerr,
         "{}: no such command: `{}`\n\n{}\n",
-        poac::io::term::error,
+        error,
         fmt::join(argv + 1, argv + argc," "),
         clipp::usage_lines(cli, "poac")
     );
@@ -38,12 +39,7 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
 
 void
 print_err(std::string_view e) {
-    fmt::print(
-        std::cerr,
-        "{}: {}\n",
-        poac::io::term::error,
-        e
-    );
+    fmt::print(std::cerr, "{}: {}\n", error, e);
 }
 
 int
