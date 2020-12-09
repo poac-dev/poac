@@ -57,7 +57,7 @@ namespace poac::core::resolver {
         try {
             resolve::NoDuplicateDeps resolvable_deps{};
             for (const std::pair<std::string, toml::value> dep : toml::get<toml::table>(deps)) {
-                const io::lockfile::Package package(
+                const resolve::Package package(
                     toml::get<std::string>(dep.second)
                 );
                 resolvable_deps.emplace(dep.first, package);

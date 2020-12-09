@@ -11,6 +11,7 @@
 #include <regex>
 #include <utility>
 #include <map>
+#include <unordered_map>
 #include <optional>
 #include <algorithm>
 #include <iterator>
@@ -27,7 +28,6 @@
 #include <poac/core/resolver/sat.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/lockfile.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/semver/semver.hpp>
@@ -35,28 +35,38 @@
 #include <poac/config.hpp>
 
 namespace poac::core::resolver::resolve {
-    namespace cache {
-        mitama::result<void, std::string>
-        resolve(const std::string& package_name) noexcept {
-            const auto package_path = io::path::poac_cache_dir / package_name;
-            return io::path::validate_dir(package_path);
-        }
-    }
-    namespace current {
-        mitama::result<void, std::string>
-        resolve(const std::string& current_package_name) noexcept {
-            const auto package_path = io::path::current_deps_dir / current_package_name;
-            return io::path::validate_dir(package_path);
-        }
-    }
-    namespace github {
-        std::string clone_command(const std::string& name, const std::string& tag) {
-            return "git clone -q https://github.com/" + name + ".git -b " + tag;
-        }
-    }
+    struct Package {
+        std::string version; // TODO: semver::Version
+        std::optional<std::unordered_map<std::string, std::string>> dependencies;
 
-    using DuplicateDeps = std::vector<std::pair<std::string, io::lockfile::Package>>;
-    using NoDuplicateDeps = io::lockfile::dependencies_type;
+        // std::unordered_map::operator[] needs default constructor.
+        Package()
+            : version("")
+            , dependencies(std::nullopt)
+        {}
+
+        Package(
+            const std::string& version,
+            std::optional<std::unordered_map<std::string, std::string>> dependencies
+        )
+            : version(version)
+            , dependencies(dependencies)
+        {}
+
+        explicit Package(const std::string& version)
+            : version(version)
+            , dependencies(std::nullopt)
+        {}
+
+        ~Package() = default;
+        Package(const Package&) = default;
+        Package& operator=(const Package&) = default;
+        Package(Package&&) noexcept = default;
+        Package& operator=(Package&&) noexcept = default;
+    };
+
+    using DuplicateDeps = std::vector<std::pair<std::string, Package>>;
+    using NoDuplicateDeps = std::unordered_map<std::string, Package>;
 
     struct ResolvedDeps {
         // Dependency information after activate.
@@ -311,14 +321,14 @@ namespace poac::core::resolver::resolve {
                         [&n=dep_name, &i=dep_interval](auto d) { return std::get<name_index>(d) == n && std::get<interval_index>(d) == i; });
                 if (itr != last) {
                     for (const auto& dep_version : std::get<versions_index>(*itr)) {
-                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Package{ dep_version, std::nullopt });
+                        cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
                     }
                 } else {
                     const auto dep_versions = decide_versions(dep_name, dep_interval);
                     // Cache interval and versions pair
                     interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
                     for (const auto& dep_version : dep_versions) {
-                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Package{ dep_version, std::nullopt });
+                        cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
                     }
                 }
             }
@@ -329,7 +339,7 @@ namespace poac::core::resolver::resolve {
             }
         }
         else {
-            new_deps.emplace_back(name, io::lockfile::Package{ version, std::nullopt });
+            new_deps.emplace_back(name, Package{ version, std::nullopt });
         }
     }
 
