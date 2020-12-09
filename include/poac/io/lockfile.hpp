@@ -109,10 +109,5 @@ namespace poac::io::lockfile {
         package_type = to_package_type(toml::find<std::string>(v, "package-type")).value();
         dependencies = config::detail::find_opt<std::unordered_map<std::string, std::string>>(v, "dependencies");
     }
-
-    std::optional<Lockfile>
-    load(const std::filesystem::path& base = path::current) {
-        return config::load_toml<Lockfile>(base, "poac.lock");
-    }
 } // end namespace
 #endif // !POAC_IO_LOCKFILE_HPP
