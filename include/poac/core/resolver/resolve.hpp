@@ -78,11 +78,6 @@ namespace poac::core::resolver::resolve {
         NoDuplicateDeps no_duplicate_deps;
     };
 
-//    Resolved
-//    lockfile_to_resolved(const io::yaml::Lockfile& lockfile) {
-//
-//    }
-
     template <typename T>
     std::string
     to_bin_str(T n, const std::size_t& digit_num) {
