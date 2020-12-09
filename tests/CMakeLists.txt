@@ -4,6 +4,7 @@ set(TEST_NAMES
         except
         misc
         name
+        net
         path
         pretty
         project
@@ -11,7 +12,6 @@ set(TEST_NAMES
         sat
         shell
         standard
-        term
         types
 )
 
