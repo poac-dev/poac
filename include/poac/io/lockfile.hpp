@@ -1,18 +1,9 @@
 #ifndef POAC_IO_LOCKFILE_HPP
 #define POAC_IO_LOCKFILE_HPP
 
-#include <filesystem>
-#include <stdexcept>
 #include <string>
-#include <string_view>
 #include <unordered_map>
 #include <optional>
-#include <vector>
-
-#include <toml.hpp>
-
-#include <poac/core/except.hpp>
-#include <poac/io/path.hpp>
 
 namespace poac::io::lockfile {
     struct Package {
