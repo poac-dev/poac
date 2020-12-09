@@ -5,6 +5,5 @@
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
 #include <poac/io/tar.hpp>
-#include <poac/io/term.hpp>
 
 #endif // !POAC_IO_HPP
