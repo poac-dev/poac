@@ -27,7 +27,6 @@
 #include <poac/core/resolver/sat.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/config.hpp>
 #include <poac/io/lockfile.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
