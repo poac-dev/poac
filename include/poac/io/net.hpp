@@ -532,6 +532,16 @@ namespace poac::io::net {
             return search_impl(body.str());
         }
 
+        [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+        all_indices() noexcept {
+            // ref: https://www.algolia.com/doc/
+            //   guides/sending-and-managing-data/manage-your-indices/
+            //   how-to/export-an-algolia-index/#exporting-the-index
+            // You can use an empty query to indicate
+            //   that you want to retrieve all records.
+            return search("");
+        }
+
         std::optional<std::vector<std::string>>
         versions(const std::string& name) {
             const requests req{ POAC_API_HOST };
