@@ -48,31 +48,20 @@ namespace poac::cmd::search {
         return body.str();
     }
 
-    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-    get_search_api(const std::string& query) {
-        const io::net::requests request{ ALGOLIA_SEARCH_INDEX_API_HOST };
-        io::net::Headers headers;
-        headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
-        headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
-        const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, request_body(query), headers);
-        std::stringstream response_body;
-        response_body << response.data();
-
-        boost::property_tree::ptree pt;
-        boost::property_tree::json_parser::read_json(response_body, pt);
+    [[nodiscard]] mitama::result<void, std::string>
+    search(Options&& opts) {
+        const boost::property_tree::ptree pt
+            = MITAMA_TRY(io::net::api::search(request_body(opts.package_name)));
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
                 return mitama::failure(
-                    fmt::format("{} package not found", query)
+                    fmt::format(
+                        "{} package not found", opts.package_name
+                    )
                 );
             }
         }
-        return mitama::success(pt);
-    }
 
-    [[nodiscard]] mitama::result<void, std::string>
-    search(Options&& opts) {
-        const boost::property_tree::ptree pt = MITAMA_TRY(get_search_api(opts.package_name));
         IF_PLOG(plog::verbose) {
             std::stringstream ss;
             boost::property_tree::json_parser::write_json(ss, pt);

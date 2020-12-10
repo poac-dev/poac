@@ -286,7 +286,7 @@ namespace poac::io::net {
             auto req = create_request<RequestBody>(http::verb::post, target, host, headers);
             if constexpr (!std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>) {
                 req.set(http::field::content_type, "application/json");
-                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
+//                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
                 req.prepare_payload();
                 return request<http::verb::post, ResponseBody>(
@@ -492,36 +492,57 @@ namespace poac::io::net {
     };
 
     namespace api {
+        [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+        search(std::string_view body) noexcept {
+            try {
+                const requests request{ALGOLIA_SEARCH_INDEX_API_HOST};
+                Headers headers;
+                headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
+                headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
+
+                const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, body, headers);
+                std::stringstream response_body;
+                response_body << response.data();
+
+                boost::property_tree::ptree pt;
+                boost::property_tree::json_parser::read_json(response_body, pt);
+                return mitama::success(pt);
+            } catch (const core::except::error& e) {
+                return mitama::failure(e.what());
+            } catch (...) {
+                return mitama::failure("unknown error caused when calling search api");
+            }
+        }
+
         std::optional<std::vector<std::string>>
         versions(const std::string& name) {
-            boost::property_tree::ptree pt;
-            {
-                std::stringstream ss;
-                const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
-                ss << res.data();
-                PLOG_DEBUG << fmt::format("{}: {}", name, ss.str());
-                if (ss.str() == "null") {
-                    return std::nullopt;
-                }
-                boost::property_tree::json_parser::read_json(ss, pt);
+            const requests req{ POAC_API_HOST };
+            const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
+            std::stringstream ss;
+            ss << res.data();
+            PLOG_DEBUG << fmt::format("{}: {}", name, ss.str());
+
+            if (ss.str() == "null") {
+                return std::nullopt;
             }
+            boost::property_tree::ptree pt;
+            boost::property_tree::json_parser::read_json(ss, pt);
             return util::types::ptree_to_vector<std::string>(pt);
         }
 
         std::optional<boost::property_tree::ptree>
         deps(const std::string& name, const std::string& version) {
-            std::stringstream ss;
             const requests req{ POAC_API_HOST };
             const auto res = req.get(POAC_DEPS_API + ("/" + name) + "/" + version);
+            std::stringstream ss;
             ss << res.data();
+
             if (ss.str() == "null") {
                 return std::nullopt;
-            } else {
-                boost::property_tree::ptree pt;
-                boost::property_tree::json_parser::read_json(ss, pt);
-                return pt;
             }
+            boost::property_tree::ptree pt;
+            boost::property_tree::json_parser::read_json(ss, pt);
+            return pt;
         }
     }
 } // end namespace
