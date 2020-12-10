@@ -39,19 +39,10 @@ namespace poac::cmd::search {
         return count;
     }
 
-    std::string
-    request_body(const std::string& query) {
-        boost::property_tree::ptree pt;
-        pt.put("params", "query=" + query + "&hitsPerPage=20");
-        std::stringstream body;
-        boost::property_tree::json_parser::write_json(body, pt);
-        return body.str();
-    }
-
     [[nodiscard]] mitama::result<void, std::string>
     search(Options&& opts) {
-        const boost::property_tree::ptree pt
-            = MITAMA_TRY(io::net::api::search(request_body(opts.package_name)));
+        const boost::property_tree::ptree pt =
+            MITAMA_TRY(io::net::api::search(opts.package_name, 20));
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
                 return mitama::failure(

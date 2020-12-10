@@ -499,7 +499,7 @@ namespace poac::io::net {
 
     namespace api {
         [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-        search(std::string_view body) noexcept {
+        search_impl(std::string_view body) noexcept {
             try {
                 const requests request{ALGOLIA_SEARCH_INDEX_API_HOST};
                 Headers headers;
@@ -518,6 +518,18 @@ namespace poac::io::net {
             } catch (...) {
                 return mitama::failure("unknown error caused when calling search api");
             }
+        }
+
+        [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+        search(std::string_view query, const std::uint64_t& count = 0) noexcept {
+            boost::property_tree::ptree pt;
+            const std::string hits_per_page =
+                count != 0 ? fmt::format("&hitsPerPage={}", count) : "";
+            const std::string params = fmt::format("query={}{}", query, hits_per_page);
+            pt.put("params", params);
+            std::stringstream body;
+            boost::property_tree::json_parser::write_json(body, pt);
+            return search_impl(body.str());
         }
 
         std::optional<std::vector<std::string>>
