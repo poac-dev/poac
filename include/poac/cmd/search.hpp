@@ -52,7 +52,6 @@ namespace poac::cmd::search {
                 );
             }
         }
-
         IF_PLOG(plog::verbose) {
             boost::property_tree::json_parser::write_json(std::cout, pt);
         }
