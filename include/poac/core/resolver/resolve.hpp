@@ -25,14 +25,14 @@
 #include <plog/Log.h>
 
 // internal
-#include <poac/core/resolver/sat.hpp>
+#include <poac/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
+#include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
+#include <poac/util/meta.hpp>
 #include <poac/util/semver/semver.hpp>
-#include <poac/util/types.hpp>
-#include <poac/config.hpp>
 
 namespace poac::core::resolver::resolve {
     struct Package {
@@ -145,7 +145,7 @@ namespace poac::core::resolver::resolve {
                     clause[0] *= -1;
                     for (const auto& [name, version] : activated[i].second.dependencies.value()) {
                         // 必ず存在することが保証されている
-                        clause.emplace_back(util::types::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
+                        clause.emplace_back(util::meta::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
                     }
                     clauses.emplace_back(clause);
                 }
@@ -164,7 +164,7 @@ namespace poac::core::resolver::resolve {
                         new_clause.emplace_back(index);
                         for (const auto& [name, version] : found->second.dependencies.value()) {
                             // 必ず存在することが保証されている
-                            new_clause.emplace_back(util::types::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
+                            new_clause.emplace_back(util::meta::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
                         }
                         clauses.emplace_back(new_clause);
                     }

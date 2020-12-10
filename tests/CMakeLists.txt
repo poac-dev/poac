@@ -1,6 +1,7 @@
 set(TEST_NAMES
         cfg
         except
+        meta
         misc
         name
         net
@@ -11,7 +12,6 @@ set(TEST_NAMES
         sat
         shell
         standard
-        types
 )
 
 get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)

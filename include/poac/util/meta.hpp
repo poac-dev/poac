@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_TYPES_HPP
-#define POAC_UTIL_TYPES_HPP
+#ifndef POAC_UTIL_META_HPP
+#define POAC_UTIL_META_HPP
 
 #include <optional>
 #include <stack>
@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace poac::util::types {
+namespace poac::util::meta {
     // If the type T is a reference type, provides the member typedef type
     //  which is the type referred to by T with its topmost cv-qualifiers removed.
     // Otherwise type is T with its topmost cv-qualifiers removed.
@@ -112,4 +112,4 @@ namespace poac::util::types {
                 std::make_index_sequence<std::tuple_size_v<remove_cvref_t<Tuple>>>());
     }
 } // end namespace
-#endif // !POAC_UTIL_TYPES_HPP
+#endif // !POAC_UTIL_MATA_HPP

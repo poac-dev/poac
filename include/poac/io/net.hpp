@@ -37,12 +37,12 @@
 #include <plog/Log.h>
 
 // internal
+#include <poac/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
+#include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
-#include <poac/util/types.hpp>
-#include <poac/config.hpp>
 
 namespace poac::io::net {
     // Create progress bar, [====>   ]
@@ -271,7 +271,7 @@ namespace poac::io::net {
 
         template <typename RequestBody=http::empty_body, typename Ofstream=std::nullptr_t,
                 typename ResponseBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>,
+                        std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>,
                         http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
         get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
@@ -282,15 +282,15 @@ namespace poac::io::net {
 
         template <typename BodyType, typename Ofstream=std::nullptr_t,
                 typename RequestBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>,
+                        std::is_same_v<util::meta::remove_cvref_t<BodyType>, MultiPartForm>,
                         http::empty_body, http::string_body>,
                 typename ResponseBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>,
+                        std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>,
                         http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
         post(std::string_view target, BodyType&& body, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             auto req = create_request<RequestBody>(http::verb::post, target, host, headers);
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>) {
+            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<BodyType>, MultiPartForm>) {
                 req.set(http::field::content_type, "application/json");
 //                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
@@ -318,7 +318,7 @@ namespace poac::io::net {
 
         template <typename Request>
         void write_request(const Request& req) const {
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<Request>, MultiPartForm>) {
+            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Request>, MultiPartForm>) {
                 simple_write(req);
             } else {
                 progress_write(req);
@@ -396,7 +396,7 @@ namespace poac::io::net {
                             std::forward<Response>(res),
                             std::forward<Ofstream>(ofs));
                 default:
-                    if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
+                    if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
                         throw core::except::error(
                                 "io::net received a bad response code: ", res.base().result_int(), "\n",
                                 res.body()
@@ -413,7 +413,7 @@ namespace poac::io::net {
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
+            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
                 PLOG_DEBUG << "Read type: string";
                 return res.body();
             } else {
@@ -556,7 +556,7 @@ namespace poac::io::net {
             }
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);
-            return util::types::ptree_to_vector<std::string>(pt);
+            return util::meta::ptree_to_vector<std::string>(pt);
         }
 
         [[nodiscard]] auto
@@ -576,7 +576,7 @@ namespace poac::io::net {
                     continue;
 
                 return mitama::success(
-                    util::types::ptree_to_unordered_map<std::string>(
+                    util::meta::ptree_to_unordered_map<std::string>(
                         hits, "dependencies"
                     )
                 );

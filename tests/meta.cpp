@@ -1,19 +1,17 @@
 #define BOOST_TEST_MAIN
-#include <boost/test/included/unit_test.hpp>
-#include <boost/property_tree/ptree.hpp>
-
 #include <array>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <poac/util/meta.hpp>
 #include <string>
-#include <vector>
 #include <tuple>
-
-#include <poac/util/types.hpp>
+#include <vector>
 
 // 1. std::optional<std::size_t> index_of(const SinglePassRange& rng, const T& t)
 // 2. inline auto index_of(InputIterator first, InputIterator last, const T& value)
 BOOST_AUTO_TEST_CASE( poac_util_types_index_of_test )
 {
-    using poac::util::types::index_of;
+    using poac::util::meta::index_of;
 
     std::vector<std::string> test_case{"0", "1", "2"};
     {
@@ -31,7 +29,7 @@ BOOST_AUTO_TEST_CASE( poac_util_types_index_of_test )
 // inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred)
 BOOST_AUTO_TEST_CASE( poac_util_types_index_of_if_test )
 {
-    using poac::util::types::index_of_if;
+    using poac::util::meta::index_of_if;
 
     std::vector<std::string> test_case{"0", "1", "2"};
     BOOST_CHECK(
@@ -46,7 +44,7 @@ BOOST_AUTO_TEST_CASE( poac_util_types_index_of_if_test )
 // bool duplicate(const SinglePassRange& rng)
 BOOST_AUTO_TEST_CASE( poac_util_types_duplicate_test )
 {
-    using poac::util::types::duplicate;
+    using poac::util::meta::duplicate;
 
     std::vector<std::string> test_case{"0", "0", "2"};
     BOOST_CHECK( duplicate(test_case) );
@@ -59,7 +57,7 @@ BOOST_AUTO_TEST_CASE( poac_util_types_duplicate_test )
 // 2. std::vector<T> ptree_to_vector(const U &pt)
 BOOST_AUTO_TEST_CASE( poac_util_types_ptree_to_vector_test )
 {
-    using poac::util::types::ptree_to_vector;
+    using poac::util::meta::ptree_to_vector;
 
     boost::property_tree::ptree pt;
     std::vector<std::string> test_case{ "0", "1", "2" };
@@ -89,7 +87,7 @@ BOOST_AUTO_TEST_CASE( poac_util_types_ptree_to_vector_test )
 // auto tuple_to_array(Tuple&& tuple)
 BOOST_AUTO_TEST_CASE( poac_util_types_tuple_to_array_test )
 {
-    using poac::util::types::tuple_to_array;
+    using poac::util::meta::tuple_to_array;
     using namespace std::literals::string_literals;
 
     std::array<std::string, 3> test_case{ "0", "1", "2" };
