@@ -56,7 +56,7 @@ namespace poac::cmd::search {
             if (nb_hits.value() <= 0) {
                 return mitama::failure(
                     fmt::format(
-                        "{} package not found", opts.package_name
+                        "{} package is not found", opts.package_name
                     )
                 );
             }
