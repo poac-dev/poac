@@ -31,18 +31,19 @@ namespace poac::util::meta {
     index_of(const SinglePassRange& rng, const T& t) {
         auto first = std::cbegin(rng);
         auto last = std::cend(rng);
-        const auto result = std::find(first, last, t);
+        auto result = std::find(first, last, t);
         if (result == last) {
             return std::nullopt;
-        }
-        else {
+        } else {
             return std::distance(first, result);
         }
     }
+
     template <typename InputIterator, typename T>
     inline auto index_of(InputIterator first, InputIterator last, const T& value) {
         return std::distance(first, std::find(first, last, value));
     }
+
     template <typename InputIterator, typename Predicate>
     inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred) {
         return std::distance(first, std::find_if(first, last, pred));
@@ -53,31 +54,43 @@ namespace poac::util::meta {
     bool duplicate(const SinglePassRange& rng) {
         auto first = std::cbegin(rng);
         auto last = std::cend(rng);
-        for (const auto& r : rng) {
-            int c = std::count(first, last, r);
-            if (c > 1) {
-                return true;
-            }
-        }
-        return false;
+        auto result = std::find_if(first, last, [&](const auto& v){
+            return std::count(first, last, v) > 1;
+        });
+        return result != last;
     }
 
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}
     //  -> std::vector<T> : ["array", "...", ...]
     template <typename T, typename U, typename K=typename U::key_type>
-    std::vector<T> ptree_to_vector(const U& pt, const K& key) { // ptree_to_vector(pt, "key")
+    auto to_vector(const U& value, const K& key)
+        -> std::enable_if_t<
+               std::is_same_v<
+                   remove_cvref_t<U>,
+                   boost::property_tree::ptree
+               >,
+               std::vector<T>>
+    {
         std::vector<T> r;
-        for (const auto& item : pt.get_child(key)) {
+        for (const auto& item : value.get_child(key)) {
             r.push_back(item.second.template get_value<T>());
         }
         return r;
     }
+
     // boost::property_tree::ptree : ["array", "...", ...]
     //  -> std::vector<T> : ["array", "...", ...]
     template <typename T, typename U>
-    std::vector<T> ptree_to_vector(const U &pt) {
+    auto to_vector(const U& value)
+        -> std::enable_if_t<
+            std::is_same_v<
+                remove_cvref_t<U>,
+                boost::property_tree::ptree
+            >,
+            std::vector<T>>
+    {
         std::vector<T> r;
-        for (const auto& item : pt) {
+        for (const auto& item : value) {
             r.push_back(item.second.template get_value<T>());
         }
         return r;
@@ -87,29 +100,78 @@ namespace poac::util::meta {
     //   {"key1": "value1",
     //    "key2": "value2", ...}
     // -> std::unordered_map<std::string, T>
-    template <typename T>
-    std::unordered_map<std::string, T>
-    ptree_to_unordered_map(const boost::property_tree::ptree& pt, const std::string& key) {
+    template <typename T, typename U>
+    auto to_unordered_map(const U& value, const std::string& key)
+        -> std::enable_if_t<
+               std::is_same_v<
+                   remove_cvref_t<U>,
+                   boost::property_tree::ptree
+               >,std::unordered_map<std::string, T>>
+    {
         std::unordered_map<std::string, T> m{};
-        for (const auto& [k, v] : pt.get_child(key)) {
+        for (const auto& [k, v] : value.get_child(key)) {
             m.emplace(k, v.template get_value<T>());
         }
         return m;
     }
 
-    template<typename Tuple, typename I, I... Indices>
-    std::array<
-        std::tuple_element_t<0, remove_cvref_t<Tuple>>,
-        std::tuple_size_v<remove_cvref_t<Tuple>>
-    >
-    tuple_to_array(Tuple&& tuple, std::integer_sequence<I, Indices...>) {
-        return { std::get<Indices>(std::forward<Tuple>(tuple))... };
+    template <typename T, typename... Ts>
+    struct are_all_same : std::conjunction<std::is_same<T, Ts>...> {};
+
+    template <typename T, typename... Ts>
+    inline constexpr bool are_all_same_v = are_all_same<T, Ts...>::value;
+
+    template <typename T, template <typename...> class Container>
+    struct is_specialization : std::false_type {};
+
+    template <template<typename...> class Container, typename... Args>
+    struct is_specialization<Container<Args...>, Container>: std::true_type {};
+
+    template <typename T>
+    struct is_tuple : is_specialization<T, std::tuple> {};
+
+    template <typename T>
+    inline constexpr bool is_tuple_v = is_tuple<T>::value;
+
+    template <typename T, std::size_t... Indices>
+    constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
+        noexcept(
+            std::is_nothrow_constructible_v<
+                std::array<
+                    std::tuple_element_t<0, remove_cvref_t<T>>,
+                    std::tuple_size_v<remove_cvref_t<T>>
+                >,
+                std::tuple_element_t<Indices, remove_cvref_t<T>>...>
+        )
+        -> std::enable_if_t<
+             std::conjunction_v<
+                 is_tuple<remove_cvref_t<T>>,
+                 are_all_same<
+                     std::tuple_element_t<Indices, remove_cvref_t<T>>...
+                 >
+             >,
+             std::array<
+                 std::tuple_element_t<0, remove_cvref_t<T>>,
+                 std::tuple_size_v<remove_cvref_t<T>>
+             >>
+    {
+        return { std::get<Indices>(std::forward<T>(tuple))... };
     }
-    template<typename Tuple>
-    auto tuple_to_array(Tuple&& tuple) {
-        return tuple_to_array(
-                std::forward<Tuple>(tuple),
-                std::make_index_sequence<std::tuple_size_v<remove_cvref_t<Tuple>>>());
+
+    template <
+        typename T,
+        std::enable_if_t<
+            is_tuple_v<remove_cvref_t<T>>,
+            std::nullptr_t
+        > = nullptr>
+    constexpr auto to_array(T&& tuple)
+    {
+        return to_array(
+            std::forward<T>(tuple),
+            std::make_index_sequence<
+                std::tuple_size_v<remove_cvref_t<T>>
+            >{}
+        );
     }
 } // end namespace
 #endif // !POAC_UTIL_MATA_HPP

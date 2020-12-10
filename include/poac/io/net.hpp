@@ -556,7 +556,7 @@ namespace poac::io::net {
             }
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(ss, pt);
-            return util::meta::ptree_to_vector<std::string>(pt);
+            return util::meta::to_vector<std::string>(pt);
         }
 
         [[nodiscard]] auto
@@ -576,9 +576,8 @@ namespace poac::io::net {
                     continue;
 
                 return mitama::success(
-                    util::meta::ptree_to_unordered_map<std::string>(
-                        hits, "dependencies"
-                    )
+                    util::meta::to_unordered_map<std::string>(hits,
+                                                              "dependencies")
                 );
             }
             return mitama::failure(

@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( poac_util_types_duplicate_test )
 // 2. std::vector<T> ptree_to_vector(const U &pt)
 BOOST_AUTO_TEST_CASE( poac_util_types_ptree_to_vector_test )
 {
-    using poac::util::meta::ptree_to_vector;
+    using poac::util::meta::to_vector;
 
     boost::property_tree::ptree pt;
     std::vector<std::string> test_case{ "0", "1", "2" };
@@ -80,17 +80,50 @@ BOOST_AUTO_TEST_CASE( poac_util_types_ptree_to_vector_test )
     }
     pt.add_child("data", children);
 
-    BOOST_CHECK( ptree_to_vector<std::string>(pt, "data") == test_case ); // 1
-    BOOST_CHECK( ptree_to_vector<std::string>(children) == test_case ); // 2
+    BOOST_CHECK(to_vector<std::string>(pt, "data") == test_case ); // 1
+    BOOST_CHECK(to_vector<std::string>(children) == test_case ); // 2
 }
 
-// auto tuple_to_array(Tuple&& tuple)
-BOOST_AUTO_TEST_CASE( poac_util_types_tuple_to_array_test )
+BOOST_AUTO_TEST_CASE( poac_util_meta_are_all_same_test )
 {
-    using poac::util::meta::tuple_to_array;
-    using namespace std::literals::string_literals;
+    using poac::util::meta::are_all_same;
+    using poac::util::meta::are_all_same_v;
 
-    std::array<std::string, 3> test_case{ "0", "1", "2" };
-    const auto res = tuple_to_array(std::make_tuple("0"s, "1"s, "2"s));
+    static_assert(are_all_same<int, int, int>::value);
+    static_assert(are_all_same_v<int, int, int>);
+    static_assert(std::negation_v<are_all_same<int, std::string, int>>);
+    static_assert(std::negation_v<are_all_same<std::string, int, int>>);
+    static_assert(std::negation_v<are_all_same<int, int, std::string>>);
+}
+
+BOOST_AUTO_TEST_CASE( poac_util_meta_is_specialization_test )
+{
+    using poac::util::meta::is_specialization;
+
+    static_assert(is_specialization<std::vector<int>, std::vector>::value);
+    static_assert(is_specialization<std::map<int, int>, std::map>::value);
+    static_assert(is_specialization<std::map<int, std::vector<int>>, std::map>::value);
+    static_assert(std::negation_v<is_specialization<std::map<int, std::vector<int>>, std::vector>>);
+}
+
+BOOST_AUTO_TEST_CASE( poac_util_meta_is_tuple_test )
+{
+    using poac::util::meta::is_tuple;
+    using poac::util::meta::is_tuple_v;
+
+    static_assert(is_tuple_v<std::tuple<int>>);
+    static_assert(is_tuple_v<std::tuple<int, std::string>>);
+    static_assert(std::negation_v<is_tuple<std::vector<int>>>);
+}
+
+BOOST_AUTO_TEST_CASE( poac_util_meta_to_array_test )
+{
+    using poac::util::meta::to_array;
+
+    constexpr std::array<int, 3> test_case{
+        0, 1, 2
+    };
+    constexpr std::tuple<int, int, int> res1 = std::make_tuple(0, 1, 2);
+    constexpr std::array<int, 3> res = to_array(res1);
     BOOST_CHECK( res == test_case );
 }
