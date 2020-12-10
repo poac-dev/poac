@@ -5,6 +5,7 @@
 #include <stack>
 #include <type_traits>
 #include <utility>
+#include <unordered_map>
 #include <vector>
 
 namespace poac::util::types {
@@ -80,6 +81,20 @@ namespace poac::util::types {
             r.push_back(item.second.template get_value<T>());
         }
         return r;
+    }
+
+    // boost::property_tree::ptree :
+    //   {"key1": "value1",
+    //    "key2": "value2", ...}
+    // -> std::unordered_map<std::string, T>
+    template <typename T>
+    std::unordered_map<std::string, T>
+    ptree_to_unordered_map(const boost::property_tree::ptree& pt, const std::string& key) {
+        std::unordered_map<std::string, T> m{};
+        for (const auto& [k, v] : pt.get_child(key)) {
+            m.emplace(k, v.get_value<T>());
+        }
+        return m;
     }
 
     template<typename Tuple, typename I, I... Indices>

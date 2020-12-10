@@ -11,6 +11,7 @@
 #include <sstream>
 #include <numeric>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <variant>
 #include <optional>
@@ -558,19 +559,31 @@ namespace poac::io::net {
             return util::types::ptree_to_vector<std::string>(pt);
         }
 
-        std::optional<boost::property_tree::ptree>
-        deps(const std::string& name, const std::string& version) {
-            const requests req{ POAC_API_HOST };
-            const auto res = req.get(POAC_DEPS_API + ("/" + name) + "/" + version);
-            std::stringstream ss;
-            ss << res.data();
+        [[nodiscard]] auto
+        deps(std::string_view name, std::string_view version)
+          noexcept
+          -> mitama::result<
+               std::unordered_map<std::string, std::string>,
+               std::string>
+        {
+            const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+            for (const auto& child : res.get_child("hits")) {
+                const boost::property_tree::ptree& hits = child.second;
 
-            if (ss.str() == "null") {
-                return std::nullopt;
+                if (hits.get<std::string>("package.name") != name)
+                    continue;
+                if (hits.get<std::string>("package.version") != version)
+                    continue;
+
+                return mitama::success(
+                    util::types::ptree_to_unordered_map<std::string>(
+                        hits, "dependencies"
+                    )
+                );
             }
-            boost::property_tree::ptree pt;
-            boost::property_tree::json_parser::read_json(ss, pt);
-            return pt;
+            return mitama::failure(
+                fmt::format("no such package `{}: {}`", name, version)
+            );
         }
     }
 } // end namespace

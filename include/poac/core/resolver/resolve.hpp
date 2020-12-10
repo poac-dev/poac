@@ -303,38 +303,43 @@ namespace poac::core::resolver::resolve {
             return;
         }
 
-        // Get dependency of dependency
-        if (const auto current_deps = io::net::api::deps(name, version)) {
-            DuplicateDeps cur_deps_deps;
+        // Get dependencies of dependencies
+        const auto deps_api_res = io::net::api::deps(name, version).unwrap();
+        if (deps_api_res.empty()) {
+            new_deps.emplace_back(name, Package{ version, std::nullopt });
+            return;
+        }
 
-            for (const auto& current_dep : *current_deps) {
-                const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
-
-                // Check if node package is resolved dependency (by interval)
-                auto last = interval_cache.cend();
-                const auto itr = std::find_if(interval_cache.cbegin(), last,
-                        [&n=dep_name, &i=dep_interval](auto d) { return std::get<name_index>(d) == n && std::get<interval_index>(d) == i; });
-                if (itr != last) {
-                    for (const auto& dep_version : std::get<versions_index>(*itr)) {
-                        cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
+        DuplicateDeps cur_deps_deps;
+        for (const auto& [dep_name, dep_interval] : deps_api_res) {
+            // Check if node package is resolved dependency (by interval)
+            auto last = interval_cache.cend();
+            const auto itr =
+                std::find_if(
+                    interval_cache.cbegin(),
+                    last,
+                    [&n=dep_name, &i=dep_interval](auto d) {
+                        return std::get<name_index>(d) == n &&
+                               std::get<interval_index>(d) == i;
                     }
-                } else {
-                    const auto dep_versions = decide_versions(dep_name, dep_interval);
-                    // Cache interval and versions pair
-                    interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
-                    for (const auto& dep_version : dep_versions) {
-                        cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
-                    }
+                );
+            if (itr != last) {
+                for (const auto& dep_version : std::get<versions_index>(*itr)) {
+                    cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
+                }
+            } else {
+                const auto dep_versions = decide_versions(dep_name, dep_interval);
+                // Cache interval and versions pair
+                interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
+                for (const auto& dep_version : dep_versions) {
+                    cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
                 }
             }
-            // FIXME
-//            new_deps.emplace_back(name, io::yaml::Lockfile::Package{ version, io::yaml::PackageType::HeaderOnlyLib, cur_deps_deps });
-            for (const auto& [name, package] : cur_deps_deps) {
-                activate(name, package.version, new_deps, interval_cache);
-            }
         }
-        else {
-            new_deps.emplace_back(name, Package{ version, std::nullopt });
+        // FIXME
+//            new_deps.emplace_back(name, io::yaml::Lockfile::Package{ version, io::yaml::PackageType::HeaderOnlyLib, cur_deps_deps });
+        for (const auto& [name, package] : cur_deps_deps) {
+            activate(name, package.version, new_deps, interval_cache);
         }
     }
 
