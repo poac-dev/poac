@@ -497,94 +497,94 @@ namespace poac::io::net {
             stream->handshake(ssl::stream_base::client);
         }
     };
+} // end namespace
 
-    namespace api {
-        [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-        search_impl(std::string_view body) noexcept {
-            try {
-                const requests request{ALGOLIA_SEARCH_INDEX_API_HOST};
-                Headers headers;
-                headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
-                headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
+namespace poac::io::net::api {
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+    search_impl(std::string_view body) noexcept {
+        try {
+            const requests request{ALGOLIA_SEARCH_INDEX_API_HOST};
+            Headers headers;
+            headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
+            headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
 
-                const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, body, headers);
-                std::stringstream response_body;
-                response_body << response.data();
+            const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, body, headers);
+            std::stringstream response_body;
+            response_body << response.data();
 
-                boost::property_tree::ptree pt;
-                boost::property_tree::json_parser::read_json(response_body, pt);
-                return mitama::success(pt);
-            } catch (const core::except::error& e) {
-                return mitama::failure(e.what());
-            } catch (...) {
-                return mitama::failure("unknown error caused when calling search api");
-            }
-        }
-
-        [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-        search(std::string_view query, const std::uint64_t& count = 0) noexcept {
             boost::property_tree::ptree pt;
-            const std::string hits_per_page =
-                count != 0 ? fmt::format("&hitsPerPage={}", count) : "";
-            const std::string params = fmt::format("query={}{}", query, hits_per_page);
-            pt.put("params", params);
-            std::stringstream body;
-            boost::property_tree::json_parser::write_json(body, pt);
-            return search_impl(body.str());
+            boost::property_tree::json_parser::read_json(response_body, pt);
+            return mitama::success(pt);
+        } catch (const core::except::error& e) {
+            return mitama::failure(e.what());
+        } catch (...) {
+            return mitama::failure("unknown error caused when calling search api");
         }
+    }
 
-        [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-        all_indices() noexcept {
-            // ref: https://www.algolia.com/doc/
-            //   guides/sending-and-managing-data/manage-your-indices/
-            //   how-to/export-an-algolia-index/#exporting-the-index
-            // You can use an empty query to indicate
-            //   that you want to retrieve all records.
-            return search("");
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+    search(std::string_view query, const std::uint64_t& count = 0) noexcept {
+        boost::property_tree::ptree pt;
+        const std::string hits_per_page =
+            count != 0 ? fmt::format("&hitsPerPage={}", count) : "";
+        const std::string params = fmt::format("query={}{}", query, hits_per_page);
+        pt.put("params", params);
+        std::stringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        return search_impl(body.str());
+    }
+
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+    all_indices() noexcept {
+        // ref: https://www.algolia.com/doc/
+        //   guides/sending-and-managing-data/manage-your-indices/
+        //   how-to/export-an-algolia-index/#exporting-the-index
+        // You can use an empty query to indicate
+        //   that you want to retrieve all records.
+        return search("");
+    }
+
+    std::optional<std::vector<std::string>>
+    versions(const std::string& name) {
+        const requests req{ POAC_API_HOST };
+        const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
+        std::stringstream ss;
+        ss << res.data();
+        PLOG_DEBUG << fmt::format("{}: {}", name, ss.str());
+
+        if (ss.str() == "null") {
+            return std::nullopt;
         }
+        boost::property_tree::ptree pt;
+        boost::property_tree::json_parser::read_json(ss, pt);
+        return util::meta::to_vector<std::string>(pt);
+    }
 
-        std::optional<std::vector<std::string>>
-        versions(const std::string& name) {
-            const requests req{ POAC_API_HOST };
-            const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
-            std::stringstream ss;
-            ss << res.data();
-            PLOG_DEBUG << fmt::format("{}: {}", name, ss.str());
+    [[nodiscard]] auto
+    deps(std::string_view name, std::string_view version)
+      noexcept
+      -> mitama::result<
+           std::unordered_map<std::string, std::string>,
+           std::string>
+    {
+        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        for (const auto& child : res.get_child("hits")) {
+            const boost::property_tree::ptree& hits = child.second;
 
-            if (ss.str() == "null") {
-                return std::nullopt;
-            }
-            boost::property_tree::ptree pt;
-            boost::property_tree::json_parser::read_json(ss, pt);
-            return util::meta::to_vector<std::string>(pt);
-        }
-
-        [[nodiscard]] auto
-        deps(std::string_view name, std::string_view version)
-          noexcept
-          -> mitama::result<
-               std::unordered_map<std::string, std::string>,
-               std::string>
-        {
-            const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-            for (const auto& child : res.get_child("hits")) {
-                const boost::property_tree::ptree& hits = child.second;
-
-                if (hits.get<std::string>("package.name") != name)
-                    continue;
-                if (hits.get<std::string>("package.version") != version)
-                    continue;
-
+            if (hits.get<std::string>("package.name") == name &&
+                hits.get<std::string>("package.version") == version)
+            {
                 return mitama::success(
                     util::meta::to_unordered_map<std::string>(
-                        hits,"dependencies"
+                        hits, "dependencies"
                     )
                 );
             }
-            return mitama::failure(
-                fmt::format("no such package `{}: {}`", name, version)
-            );
         }
+        return mitama::failure(
+            fmt::format("no such package `{}: {}`", name, version)
+        );
     }
 } // end namespace
+
 #endif // !POAC_IO_NET_HPP
