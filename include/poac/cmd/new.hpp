@@ -145,7 +145,7 @@ namespace poac::cmd::_new {
         git2::repository().init(opts.package_name);
 
         PLOG_INFO << fmt::format(
-            "{}{} `{}` package\n",
+            "{}{} `{}` package",
             "Created: "_green,
             opts.type,
             opts.package_name
