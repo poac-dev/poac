@@ -576,8 +576,9 @@ namespace poac::io::net {
                     continue;
 
                 return mitama::success(
-                    util::meta::to_unordered_map<std::string>(hits,
-                                                              "dependencies")
+                    util::meta::to_unordered_map<std::string>(
+                        hits,"dependencies"
+                    )
                 );
             }
             return mitama::failure(
