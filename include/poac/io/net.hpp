@@ -31,6 +31,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <mitama/result/result.hpp>
 #include <plog/Log.h>
 
@@ -146,7 +147,7 @@ namespace poac::io::net {
     public:
         MultiPartForm()
             : m_boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
-            , m_footer(m_crlf + "--" + m_boundary + "--" + m_crlf)
+            , m_footer(fmt::format("{}--{}--{}", m_crlf, m_boundary, m_crlf))
         {}
 
         std::string
@@ -159,9 +160,17 @@ namespace poac::io::net {
         }
 
         void set(const file_name_type& name, const std::string& value) {
+            using namespace fmt::literals;
             m_form_param.emplace_back(
-                    "--" + m_boundary + m_crlf + m_content_disposition +
-                    "name=\"" + name + "\"" + m_crlf + m_crlf + value);
+                fmt::format(
+                    "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
+                    "boundary"_a=m_boundary,
+                    "crlf"_a=m_crlf,
+                    "cd"_a=m_content_disposition,
+                    "name"_a=name,
+                    "value"_a=value
+                )
+            );
             generate_header(); // re-generate
         }
         void set(const file_name_type& name, const file_path_type& value, const header_type& h) {
@@ -177,7 +186,7 @@ namespace poac::io::net {
         }
 
         std::string content_type() const {
-            return "multipart/form-data; boundary=" + m_boundary;
+            return fmt::format("multipart/form-data; boundary={}", m_boundary);
         }
         std::uintmax_t content_length() const {
             return std::accumulate(m_file_param.begin(), m_file_param.end(), m_header.size() + m_footer.size(),
@@ -217,22 +226,18 @@ namespace poac::io::net {
 
     private:
         void generate_header() {
-            m_header = "";
-            for (std::size_t i = 0; i < m_form_param.size(); ++i) {
-                if (i != 0) {
-                    m_header += m_crlf;
-                }
-                m_header += m_form_param[i];
-            }
+            m_header = fmt::format("{}{}", m_crlf, fmt::join(m_form_param, ""));
             for (const auto& [name, filename, header] : m_file_param) {
-                std::string h =
-                        "--" + m_boundary + m_crlf + m_content_disposition +
-                        "name=\"" + name + "\"; filename=\"" + filename.filename().string() + "\"";
-                if (!header.empty()) {
-                    for (const auto& [field, content] : header) {
-                        h += m_crlf;
-                        h += std::string(http::to_string(field)) + ": " + content;
-                    }
+                std::string h = fmt::format(
+                    "--{}{}{}name=\"{}\"; filename=\"{}\"",
+                    m_boundary,
+                    m_crlf,
+                    m_content_disposition,
+                    name,
+                    filename.filename().string()
+                );
+                for (const auto& [field, content] : header) {
+                    h += fmt::format("{}{}: {}", m_crlf, field, content);
                 }
                 m_header += m_crlf + h;
             }
@@ -376,7 +381,8 @@ namespace poac::io::net {
         template <http::verb method, typename Request, typename Response, typename Ofstream,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
-        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
+        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const
+        {
             close_stream();
             switch (res.base().result_int() / 100) {
                 case 2:
