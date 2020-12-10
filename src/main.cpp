@@ -13,6 +13,25 @@
 // internal
 #include <poac/cmd.hpp>
 
+inline const std::string error =
+    (termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset).to_string();
+
+[[nodiscard]] int
+no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
+    PLOG_ERROR << fmt::format(
+        "{}: no such command: `{}`\n\n{}",
+        error,
+        fmt::join(argv + 1, argv + argc," "),
+        clipp::usage_lines(cli, "poac")
+    );
+    return EXIT_FAILURE;
+}
+
+void
+print_err(std::string_view e) {
+    PLOG_ERROR << fmt::format("{}: {}", error, e);
+}
+
 enum class subcommand {
     nothing,
     build,
@@ -23,30 +42,10 @@ enum class subcommand {
     version,
 };
 
-inline const std::string error =
-    (termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset).to_string();
-
-[[nodiscard]] int
-no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
-    fmt::print(
-        std::cerr,
-        "{}: no such command: `{}`\n\n{}\n",
-        error,
-        fmt::join(argv + 1, argv + argc," "),
-        clipp::usage_lines(cli, "poac")
-    );
-    return EXIT_FAILURE;
-}
-
-void
-print_err(std::string_view e) {
-    fmt::print(std::cerr, "{}: {}\n", error, e);
-}
-
 int
 main(const int argc, char* argv[]) {
-    static plog::ConsoleAppender<plog::MessageOnlyFormatter> consoleAppender;
-    plog::init(plog::info, &consoleAppender);
+    static plog::ConsoleAppender<plog::MessageOnlyFormatter> console_appender;
+    plog::init(plog::info, &console_appender);
     const auto set_verbose = []{ plog::get()->setMaxSeverity(plog::verbose); };
     const auto set_quiet = []{ plog::get()->setMaxSeverity(plog::none); };
 
