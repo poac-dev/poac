@@ -63,8 +63,11 @@ namespace poac::cmd::search {
             std::string name = hits.get<std::string>("_highlightResult.package.name.value");
             replace(name, "<em>", termcolor2::green.to_string());
             replace(name, "</em>", termcolor2::reset.to_string());
-            const std::string version = hits.get<std::string>("package.version");
-            const auto package = fmt::format("{} = \"{}\"", name, version);
+            const auto package = fmt::format(
+                "{} = \"{}\"",
+                name,
+                hits.get<std::string>("package.version")
+            );
 
             std::string description = hits.get<std::string>("package.description");
             description = util::pretty::clip_string(description, 100);
