@@ -109,8 +109,11 @@ namespace poac::util::meta {
                >,std::unordered_map<std::string, T>>
     {
         std::unordered_map<std::string, T> m{};
-        for (const auto& [k, v] : value.get_child(key)) {
-            m.emplace(k, v.template get_value<T>());
+        const auto child = value.get_child_optional(key);
+        if (child.has_value()) {
+            for (const auto& [k, v] : child.value()) {
+                m.emplace(k, v.template get_value<T>());
+            }
         }
         return m;
     }
