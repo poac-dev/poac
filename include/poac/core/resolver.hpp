@@ -72,7 +72,7 @@ namespace poac::core::resolver {
     install_deps(const toml::value& config) noexcept {
         try {
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-            const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(std::move(deps)));
+            const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
             const auto resolved_deps = MITAMA_TRY(resolve::resolve(resolvable_deps));
             return download_deps(resolved_deps.no_duplicate_deps);
 
