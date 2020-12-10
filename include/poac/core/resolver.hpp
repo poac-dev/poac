@@ -23,7 +23,7 @@ namespace poac::core::resolver {
     [[nodiscard]] mitama::result<void, std::string>
     fetch(const core::resolver::resolve::NoDuplicateDeps& deps) {
         for (const auto& [name, package] : deps) {
-            const std::string cache_name = core::name::to_cache(name, package.version);
+//            const std::string cache_name = core::name::to_cache(name, package.version);
 
 //            util::shell clone_cmd(core::resolver::resolve::github::clone_command(name, package.version));
 //            clone_cmd += (io::path::poac_cache_dir / cache_name).string();
@@ -34,7 +34,7 @@ namespace poac::core::resolver {
 
             using termcolor2::color_literals::operator""_green;
             PLOG_INFO << fmt::format(
-                "{} {} {}", "Downloaded"_green, name, package.version
+                "{:>21} {} v{}", "Downloaded"_green, name, package.version
             );
         }
         return mitama::success();
@@ -42,8 +42,8 @@ namespace poac::core::resolver {
 
     [[nodiscard]] mitama::result<void, std::string>
     download_deps(const resolve::NoDuplicateDeps& unique_deps) noexcept {
-        PLOG_INFO << "Downloading packages ...";
-
+        using termcolor2::color_literals::operator""_green;
+        PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
         try {
             std::filesystem::create_directories(io::path::poac_cache_dir);
         } catch (...) {
@@ -56,7 +56,7 @@ namespace poac::core::resolver {
     to_resolvable_deps(const toml::value& deps) noexcept {
         try {
             resolve::NoDuplicateDeps resolvable_deps{};
-            for (const std::pair<std::string, toml::value> dep : toml::get<toml::table>(deps)) {
+            for (const auto& dep : toml::get<toml::table>(deps)) {
                 const resolve::Package package(
                     toml::get<std::string>(dep.second)
                 );
