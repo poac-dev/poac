@@ -92,7 +92,7 @@ namespace poac::util::meta {
     ptree_to_unordered_map(const boost::property_tree::ptree& pt, const std::string& key) {
         std::unordered_map<std::string, T> m{};
         for (const auto& [k, v] : pt.get_child(key)) {
-            m.emplace(k, v.get_value<T>());
+            m.emplace(k, v.template get_value<T>());
         }
         return m;
     }
