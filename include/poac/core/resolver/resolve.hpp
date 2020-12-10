@@ -242,46 +242,44 @@ namespace poac::core::resolver::resolve {
         return false;
     }
 
-    std::pair<std::string, std::string>
-    get_from_dep(const boost::property_tree::ptree& dep) {
-        return { dep.get<std::string>("name"), dep.get<std::string>("version") };
-    }
-
-
     // Interval to multiple versions
-    // `>=0.1.2 and <3.4.0` -> 2.5.0
-    // `latest` -> 2.5.0
+    // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
+    // `latest` -> { 2.5.0 }
     // name is boost/config, no boost-config
     std::vector<std::string>
-    decide_versions(const std::string& name, const std::string& interval) {
-//        io::cli::echo("[versions] ", name, ": ", interval);
-
+    get_versions_satisfy_interval(const std::string& name, const std::string& interval) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        if (const auto versions = io::net::api::versions(name)) { // TODO:
-            if (interval == "latest") {
-                const auto latest = std::max_element((*versions).begin(), (*versions).end(),
-                        [](auto a, auto b) { return semver::Version(a) > b; });
-                return { *latest };
-            }
-            else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
-                std::vector<std::string> res;
-                semver::Interval i(name, interval);
-                copy_if(versions->begin(), versions->end(), back_inserter(res),
-                        [&](std::string s) { return i.satisfies(s); });
-                if (res.empty()) {
-                    throw except::error(
-                        fmt::format("`{}: {}` not found", name, interval)
-                    );
-                }
-                else {
-                    return res;
-                }
-            }
-        }
-        else {
-            throw except::error(
-                fmt::format("`{}: {}` not found", name, interval)
+        const std::vector<std::string> versions =
+            io::net::api::versions(name).unwrap();
+        if (interval == "latest") {
+            return {
+                *std::max_element(
+                    versions.cbegin(),
+                    versions.cend(),
+                    [](auto a, auto b){
+                        return semver::Version(a) > b;
+                    }
+                )
+            };
+        } else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
+            std::vector<std::string> res;
+            semver::Interval i(name, interval);
+            std::copy_if(
+                versions.cbegin(),
+                versions.cend(),
+                back_inserter(res),
+                [&](std::string s) { return i.satisfies(s); }
             );
+            if (res.empty()) {
+                throw except::error(
+                    fmt::format(
+                        "`{}: {}` not found. seem dependencies are broken",
+                        name, interval
+                    )
+                );
+            } else {
+                return res;
+            }
         }
     }
 
@@ -298,8 +296,15 @@ namespace poac::core::resolver::resolve {
             IntervalCache& interval_cache)
     {
         // Check if root package resolved dependency (by version), and Check circulating
-        if (auto last = new_deps.cend(); std::find_if(new_deps.cbegin(), last,
-                [&](auto d) { return d.first == name && d.second.version == version; }) != last) {
+        if (std::find_if(
+                new_deps.cbegin(),
+                new_deps.cend(),
+                [&](auto d) {
+                    return d.first == name &&
+                           d.second.version == version;
+                }
+            ) != new_deps.cend())
+        {
             return;
         }
 
@@ -313,22 +318,20 @@ namespace poac::core::resolver::resolve {
         DuplicateDeps cur_deps_deps;
         for (const auto& [dep_name, dep_interval] : deps_api_res) {
             // Check if node package is resolved dependency (by interval)
-            auto last = interval_cache.cend();
             const auto itr =
                 std::find_if(
-                    interval_cache.cbegin(),
-                    last,
+                    interval_cache.cbegin(), interval_cache.cend(),
                     [&n=dep_name, &i=dep_interval](auto d) {
                         return std::get<name_index>(d) == n &&
                                std::get<interval_index>(d) == i;
                     }
                 );
-            if (itr != last) {
+            if (itr != interval_cache.cend()) {
                 for (const auto& dep_version : std::get<versions_index>(*itr)) {
                     cur_deps_deps.emplace_back(dep_name, Package{ dep_version, std::nullopt });
                 }
             } else {
-                const auto dep_versions = decide_versions(dep_name, dep_interval);
+                const auto dep_versions = get_versions_satisfy_interval(dep_name, dep_interval);
                 // Cache interval and versions pair
                 interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
                 for (const auto& dep_version : dep_versions) {
@@ -336,8 +339,6 @@ namespace poac::core::resolver::resolve {
                 }
             }
         }
-        // FIXME
-//            new_deps.emplace_back(name, io::yaml::Lockfile::Package{ version, io::yaml::PackageType::HeaderOnlyLib, cur_deps_deps });
         for (const auto& [name, package] : cur_deps_deps) {
             activate(name, package.version, new_deps, interval_cache);
         }
@@ -358,7 +359,7 @@ namespace poac::core::resolver::resolve {
             }
 
             // Get versions using interval
-            const auto versions = decide_versions(name, package.version);
+            const auto versions = get_versions_satisfy_interval(name, package.version);
             // Cache interval and versions pair
             interval_cache.push_back({ {name}, {package.version}, {versions} });
             for (const auto& version : versions) {
@@ -373,15 +374,19 @@ namespace poac::core::resolver::resolve {
     resolve(const NoDuplicateDeps& deps) noexcept {
         try {
             const ResolvedDeps activated_deps = activate_deps_loop(deps);
-            ResolvedDeps resolved_deps;
-            // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
+            // When all dependencies are one package and one version,
+            //   backtrack is not needed.
             if (duplicate_loose(activated_deps.duplicate_deps)) {
-                resolved_deps = backtrack_loop(activated_deps.duplicate_deps);
+                return mitama::success(
+                    backtrack_loop(activated_deps.duplicate_deps)
+                );
+            } else {
+                return mitama::success(
+                    activated_to_backtracked(activated_deps)
+                );
             }
-            else {
-                resolved_deps = activated_to_backtracked(activated_deps);
-            }
-            return mitama::success(resolved_deps);
+        } catch (const core::except::error& e) {
+            return mitama::failure(e.what());
         } catch (...) {
             return mitama::failure("resolving packages failed");
         }

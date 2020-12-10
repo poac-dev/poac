@@ -327,14 +327,14 @@ namespace poac::io::net {
 
         template <typename Request>
         void simple_write(const Request& req) const {
-            PLOG_DEBUG << "Write type: string";
+            PLOG_DEBUG << "[io::net::requests] write type: string";
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
 
         template <typename Request>
         void progress_write(const Request& req) const {
-            PLOG_DEBUG << "Write type: multipart/form-data";
+            PLOG_DEBUG << "[io::net::requests] write type: multipart/form-data";
 
             // Send the HTTP request to the remote host
             stream->write_some(boost::asio::buffer(req.get_header()));
@@ -360,7 +360,7 @@ namespace poac::io::net {
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.get_footer()));
-            PLOG_DEBUG << "Waiting for server response...";
+            PLOG_DEBUG << "[io::net::requests] waiting for server response...";
         }
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
@@ -414,10 +414,10 @@ namespace poac::io::net {
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
             if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
-                PLOG_DEBUG << "Read type: string";
+                PLOG_DEBUG << "[io::net::requests] read type: string";
                 return res.body();
             } else {
-                PLOG_DEBUG << "Read type: file with progress";
+                PLOG_DEBUG << "[io::net::requests] read type: file with progress";
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
@@ -544,22 +544,6 @@ namespace poac::io::net::api {
         return search("");
     }
 
-    std::optional<std::vector<std::string>>
-    versions(const std::string& name) {
-        const requests req{ POAC_API_HOST };
-        const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
-        std::stringstream ss;
-        ss << res.data();
-        PLOG_DEBUG << fmt::format("{}: {}", name, ss.str());
-
-        if (ss.str() == "null") {
-            return std::nullopt;
-        }
-        boost::property_tree::ptree pt;
-        boost::property_tree::json_parser::read_json(ss, pt);
-        return util::meta::to_vector<std::string>(pt);
-    }
-
     [[nodiscard]] auto
     deps(std::string_view name, std::string_view version)
       noexcept
@@ -568,6 +552,9 @@ namespace poac::io::net::api {
            std::string>
     {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        IF_PLOG(plog::debug) {
+            boost::property_tree::json_parser::write_json(std::cout, res);
+        }
         for (const auto& child : res.get_child("hits")) {
             const boost::property_tree::ptree& hits = child.second;
 
@@ -584,6 +571,28 @@ namespace poac::io::net::api {
         return mitama::failure(
             fmt::format("no such package `{}: {}`", name, version)
         );
+    }
+
+    [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
+    versions(std::string_view name) {
+        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        IF_PLOG(plog::debug) {
+            boost::property_tree::json_parser::write_json(std::cout, res);
+        }
+
+        std::vector<std::string> results;
+        for (const auto& child : res.get_child("hits")) {
+            const boost::property_tree::ptree& hits = child.second;
+            if (hits.get<std::string>("package.name") == name) {
+                results.emplace_back(hits.get<std::string>("package.version"));
+            }
+        }
+        PLOG_DEBUG <<
+            fmt::format(
+                "[io::net::api::versions] versions of {} are [{}]",
+                name, fmt::join(results, ", ")
+            );
+        return mitama::success(results);
     }
 } // end namespace
 
