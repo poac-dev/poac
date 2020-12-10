@@ -54,9 +54,7 @@ namespace poac::cmd::search {
         }
 
         IF_PLOG(plog::verbose) {
-            std::stringstream ss;
-            boost::property_tree::json_parser::write_json(ss, pt);
-            PLOG_VERBOSE << ss.str();
+            boost::property_tree::json_parser::write_json(std::cout, pt);
         }
 
         for (const boost::property_tree::ptree::value_type& child : pt.get_child("hits")) {
