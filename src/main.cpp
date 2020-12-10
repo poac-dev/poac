@@ -23,7 +23,8 @@ enum class subcommand {
     version,
 };
 
-inline const auto error = termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset;
+inline const std::string error =
+    (termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset).to_string();
 
 [[nodiscard]] int
 no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
