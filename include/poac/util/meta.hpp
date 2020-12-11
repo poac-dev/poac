@@ -13,7 +13,7 @@ namespace poac::util::meta {
     //  which is the type referred to by T with its topmost cv-qualifiers removed.
     // Otherwise type is T with its topmost cv-qualifiers removed.
     // C++20, std::remove_cvref_t<T>
-    template<typename T>
+    template <class T>
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
     // std::conditional for non-type template
@@ -33,18 +33,18 @@ namespace poac::util::meta {
         auto last = std::cend(rng);
         auto result = std::find(first, last, t);
         if (result == last) {
-            return std::nullopt;
+            return std::nullopt; // TODO: これはなぜ？
         } else {
             return std::distance(first, result);
         }
     }
 
-    template <typename InputIterator, typename T>
+    template <class InputIterator, class T>
     inline auto index_of(InputIterator first, InputIterator last, const T& value) {
         return std::distance(first, std::find(first, last, value));
     }
 
-    template <typename InputIterator, typename Predicate>
+    template <class InputIterator, class Predicate>
     inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred) {
         return std::distance(first, std::find_if(first, last, pred));
     }
@@ -60,9 +60,17 @@ namespace poac::util::meta {
         return result != last;
     }
 
+    // found: true
+    template <class SinglePassRange, class Predicate>
+    bool find_if(const SinglePassRange& rng, Predicate pred) {
+        auto first = std::cbegin(rng);
+        auto last = std::cend(rng);
+        return std::find_if(first, last, pred) != last;
+    }
+
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}
     //  -> std::vector<T> : ["array", "...", ...]
-    template <typename T, typename U, typename K=typename U::key_type>
+    template <class T, class U, class K=typename U::key_type>
     auto to_vector(const U& value, const K& key)
         -> std::enable_if_t<
                std::is_same_v<
@@ -80,7 +88,7 @@ namespace poac::util::meta {
 
     // boost::property_tree::ptree : ["array", "...", ...]
     //  -> std::vector<T> : ["array", "...", ...]
-    template <typename T, typename U>
+    template <class T, class U>
     auto to_vector(const U& value)
         -> std::enable_if_t<
             std::is_same_v<
@@ -100,7 +108,7 @@ namespace poac::util::meta {
     //   {"key1": "value1",
     //    "key2": "value2", ...}
     // -> std::unordered_map<std::string, T>
-    template <typename T, typename U>
+    template <class T, class U>
     auto to_unordered_map(const U& value, const std::string& key)
         -> std::enable_if_t<
                std::is_same_v<
@@ -118,25 +126,25 @@ namespace poac::util::meta {
         return m;
     }
 
-    template <typename T, typename... Ts>
+    template <class T, class... Ts>
     struct are_all_same : std::conjunction<std::is_same<T, Ts>...> {};
 
-    template <typename T, typename... Ts>
+    template <class T, class... Ts>
     inline constexpr bool are_all_same_v = are_all_same<T, Ts...>::value;
 
-    template <typename T, template <typename...> class Container>
+    template <class T, template <class...> class Container>
     struct is_specialization : std::false_type {};
 
-    template <template<typename...> class Container, typename... Args>
+    template <template<class...> class Container, class... Args>
     struct is_specialization<Container<Args...>, Container>: std::true_type {};
 
-    template <typename T>
+    template <class T>
     struct is_tuple : is_specialization<T, std::tuple> {};
 
-    template <typename T>
+    template <class T>
     inline constexpr bool is_tuple_v = is_tuple<T>::value;
 
-    template <typename T, std::size_t... Indices>
+    template <class T, std::size_t... Indices>
     constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
         noexcept(
             std::is_nothrow_constructible_v<
@@ -162,7 +170,7 @@ namespace poac::util::meta {
     }
 
     template <
-        typename T,
+        class T,
         std::enable_if_t<
             is_tuple_v<remove_cvref_t<T>>,
             std::nullptr_t
