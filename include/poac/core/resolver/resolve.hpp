@@ -69,7 +69,7 @@ namespace poac::core::resolver::resolve {
     using unique_deps_t = std::unordered_map<std::string, Package>;
 
     std::string to_binary_numbers(const int& x, const std::size_t& digit) {
-        return fmt::format("{0:0{1}b}", x, digit);
+        return fmt::format(FMT_STRING("{:0{}b}"), x, digit);
     }
 
     // A ∨ B ∨ C
