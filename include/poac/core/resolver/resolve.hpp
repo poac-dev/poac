@@ -36,16 +36,33 @@
 #include <poac/util/semver/semver.hpp>
 
 namespace poac::core::resolver::resolve {
+    struct Package; // forward declaration
+
+    struct with_deps : std::true_type {};
+    struct without_deps : std::false_type {};
+
+    template <bool Cond>
+    using deps_or_version_t = std::conditional_t<Cond, Package, std::string>;
+
+    template <class WithDeps>
+    using duplicate_deps_t =
+        std::vector<std::pair<std::string, deps_or_version_t<WithDeps::value>>>;
+
+    template <class WithDeps>
+    using unique_deps_t =
+        std::unordered_map<std::string, deps_or_version_t<WithDeps::value>>;
+
     struct Package {
+    private:
         // A package depends packages have many different versions of one name,
         //   so this should not be std::unordered_map.
         // Also, package information does not need
         //   package's dependency's dependencies,
         //   so second value of std::pair is not Package (this type)
         //   just needs std::string indicated specific version.
-        using package_deps_t =
-            std::optional<std::vector<std::pair<std::string, std::string>>>;
+        using package_deps_t = std::optional<duplicate_deps_t<without_deps>>;
 
+    public:
         std::string version; // TODO: semver::Version
         package_deps_t dependencies;
 
@@ -64,9 +81,6 @@ namespace poac::core::resolver::resolve {
         Package(Package&&) noexcept = default;
         Package& operator=(Package&&) noexcept = default;
     };
-
-    using duplicate_deps_t = std::vector<std::pair<std::string, Package>>;
-    using unique_deps_t = std::unordered_map<std::string, Package>;
 
     std::string to_binary_numbers(const int& x, const std::size_t& digit) {
         return fmt::format(FMT_STRING("{:0{}b}"), x, digit);
@@ -99,7 +113,7 @@ namespace poac::core::resolver::resolve {
     }
 
     std::vector<std::vector<int>>
-    create_cnf(const duplicate_deps_t& activated) {
+    create_cnf(const duplicate_deps_t<with_deps>& activated) {
         std::vector<std::vector<int>> clauses;
         std::vector<int> already_added;
 
@@ -153,9 +167,9 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    unique_deps_t
-    solve_sat(const duplicate_deps_t& activated, const std::vector<std::vector<int>>& clauses) {
-        unique_deps_t resolved_deps{};
+    unique_deps_t<with_deps>
+    solve_sat(const duplicate_deps_t<with_deps>& activated, const std::vector<std::vector<int>>& clauses) {
+        unique_deps_t<with_deps> resolved_deps{};
         // deps.activated.size() == variables
         const auto [result, assignments] = sat::solve(clauses, activated.size());
         if (result == sat::Sat::completed) {
@@ -174,8 +188,8 @@ namespace poac::core::resolver::resolve {
         return resolved_deps;
     }
 
-    unique_deps_t
-    backtrack_loop(const duplicate_deps_t& activated) {
+    unique_deps_t<with_deps>
+    backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
         const auto clauses = create_cnf(activated);
         IF_PLOG(plog::debug) {
             for (const auto& c : clauses) {
@@ -194,9 +208,9 @@ namespace poac::core::resolver::resolve {
         return solve_sat(activated, clauses);
     }
 
-    unique_deps_t
-    activated_to_backtracked(const duplicate_deps_t& activated_deps) {
-        unique_deps_t resolved_deps;
+    unique_deps_t<with_deps>
+    activated_to_backtracked(const duplicate_deps_t<with_deps>& activated_deps) {
+        unique_deps_t<with_deps> resolved_deps;
         for (const auto& [name, package] : activated_deps) {
             resolved_deps[name] = package;
         }
@@ -263,12 +277,12 @@ namespace poac::core::resolver::resolve {
                 std::vector<std::string> // versions in the interval
             >>;
 
-    Package::package_deps_t::value_type
+    duplicate_deps_t<without_deps>
     gather_deps_of_deps(
-        const std::unordered_map<std::string, std::string>& deps_api_res,
+        const unique_deps_t<without_deps>& deps_api_res,
         interval_cache_t& interval_cache)
     {
-        Package::package_deps_t::value_type cur_deps_deps;
+        duplicate_deps_t<without_deps> cur_deps_deps;
         for (const auto& [dep_name, dep_interval] : deps_api_res) {
             // Check if node package is resolved dependency (by interval)
             const auto itr =
@@ -299,7 +313,7 @@ namespace poac::core::resolver::resolve {
     void gather_deps(
         const std::string& name,
         const std::string& version,
-        duplicate_deps_t& new_deps,
+        duplicate_deps_t<with_deps>& new_deps,
         interval_cache_t& interval_cache)
     {
         // Check if root package resolved dependency
@@ -328,9 +342,9 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    [[nodiscard]] mitama::result<duplicate_deps_t, std::string>
-    gather_all_deps(const unique_deps_t& deps) {
-        duplicate_deps_t duplicate_deps{};
+    [[nodiscard]] mitama::result<duplicate_deps_t<with_deps>, std::string>
+    gather_all_deps(const unique_deps_t<with_deps>& deps) {
+        duplicate_deps_t<with_deps> duplicate_deps{};
         interval_cache_t interval_cache{};
 
         // Activate the root of dependencies

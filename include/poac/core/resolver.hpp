@@ -21,7 +21,7 @@
 
 namespace poac::core::resolver {
     [[nodiscard]] mitama::result<void, std::string>
-    fetch(const resolve::unique_deps_t& deps) {
+    fetch(const resolve::unique_deps_t<resolve::with_deps>& deps) {
         for (const auto& [name, package] : deps) {
 //            const std::string cache_name = core::name::to_cache(name, package.version);
 
@@ -41,7 +41,7 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] mitama::result<void, std::string>
-    download_deps(const resolve::unique_deps_t& deps) noexcept {
+    download_deps(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
         using termcolor2::color_literals::operator""_green;
         PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
         try {
@@ -52,8 +52,8 @@ namespace poac::core::resolver {
         return fetch(deps);
     }
 
-    [[nodiscard]] mitama::result<resolve::unique_deps_t, std::string>
-    do_resolve(const resolve::unique_deps_t& deps) noexcept {
+    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
+    do_resolve(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
         try {
             const auto duplicate_deps = MITAMA_TRY(gather_all_deps(deps));
             if (!duplicate_loose(duplicate_deps)) {
@@ -70,10 +70,10 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] mitama::result<resolve::unique_deps_t, std::string>
+    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
     to_resolvable_deps(const toml::value& deps) noexcept {
         try {
-            resolve::unique_deps_t resolvable_deps{};
+            resolve::unique_deps_t<resolve::with_deps> resolvable_deps{};
             for (const auto& dep : toml::get<toml::table>(deps)) {
                 const resolve::Package package(
                     toml::get<std::string>(dep.second)
