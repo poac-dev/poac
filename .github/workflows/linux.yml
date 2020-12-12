@@ -41,7 +41,7 @@ jobs:
       CXX: ${{ matrix.cxx_prefix }}${{ matrix.compiler_version }}
       CACHE_KEY_PREFIX: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}-${{ matrix.build_type }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2.3.4
 
       - run: sudo apt-get -qq update
       - name: Install ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
@@ -53,7 +53,7 @@ jobs:
 
       - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
         if: matrix.compiler == 'gcc'
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: openssl-cache
         with:
           path: ${{ runner.temp }}/libs/openssl
@@ -71,7 +71,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
@@ -87,7 +87,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache toml11 (${{ env.TOML11_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: toml11-cache
         with:
           path: ${{ runner.temp }}/libs/toml11
@@ -105,7 +105,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache libgit2 (${{ env.LIBGIT2_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: libgit2-cache
         with:
           path: ${{ runner.temp }}/libs/libgit2
@@ -127,7 +127,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache clipp (${{ env.CLIPP_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: clipp-cache
         with:
           path: ${{ runner.temp }}/libs/clipp
@@ -143,7 +143,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache fmt (${{ env.FMT_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: fmt-cache
         with:
           path: ${{ runner.temp }}/libs/fmt
@@ -159,7 +159,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
 #      - name: Restore & Cache mitama-result (${{ env.MITAMA_RESULT_VERSION }})
-#        uses: actions/cache@v1
+#        uses: actions/cache@v2.1.3
 #        id: mitama-result-cache
 #        with:
 #          path: ${{ runner.temp }}/libs/mitama-result
@@ -175,7 +175,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache plog (${{ env.PLOG_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: plog-cache
         with:
           path: ${{ runner.temp }}/libs/plog
@@ -240,7 +240,7 @@ jobs:
     env:
       CACHE_KEY_PREFIX: ${{ github.job }}${{ matrix.gcc_version }}-${{ matrix.target_platform }}-${{ matrix.build_type }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2.3.4
 
       - run: sudo apt-get -qq update
       - name: Install g++-${{ matrix.gcc_version }}-${{ matrix.target_platform }}-linux-gnu
@@ -253,7 +253,7 @@ jobs:
             /usr/bin/${{ matrix.target_platform }}-linux-gnu-gcc
 
       - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: openssl-cache
         with:
           path: ${{ runner.temp }}/libs/openssl
@@ -274,7 +274,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
@@ -299,7 +299,7 @@ jobs:
           echo "CXX=${{ matrix.target_platform }}-linux-gnu-g++-${{ matrix.gcc_version }}" >> $GITHUB_ENV
 
       - name: Restore & Cache toml11 (${{ env.TOML11_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: toml11-cache
         with:
           path: ${{ runner.temp }}/libs/toml11
@@ -317,7 +317,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache libgit2 (${{ env.LIBGIT2_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: libgit2-cache
         with:
           path: ${{ runner.temp }}/libs/libgit2
@@ -339,7 +339,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache clipp (${{ env.CLIPP_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: clipp-cache
         with:
           path: ${{ runner.temp }}/libs/clipp
@@ -355,7 +355,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache fmt (${{ env.FMT_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: fmt-cache
         with:
           path: ${{ runner.temp }}/libs/fmt
@@ -371,7 +371,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
 #      - name: Restore & Cache mitama-result (${{ env.MITAMA_RESULT_VERSION }})
-#        uses: actions/cache@v1
+#        uses: actions/cache@v2.1.3
 #        id: mitama-result-cache
 #        with:
 #          path: ${{ runner.temp }}/libs/mitama-result
@@ -387,7 +387,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache plog (${{ env.PLOG_VERSION }})
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.3
         id: plog-cache
         with:
           path: ${{ runner.temp }}/libs/plog
