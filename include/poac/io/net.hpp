@@ -46,53 +46,37 @@
 
 namespace poac::io::net {
     // Create progress bar, [====>   ]
-    std::string to_progress(const int& max_count, int now_count) {
+    std::string to_progress(const int& max_count, int now_count, const int& bar_size = 50) {
         if (now_count > max_count) {
             now_count = max_count;
         }
-
-        const int bar_size = 50;
         const int percent = (now_count * 100) / max_count;
         const int bar_pos = percent / 2;
 
-        std::string bar = "[";
         if (now_count == max_count) {
-            for (int i = 0; i < (bar_size - 1); ++i) {
-                bar += "=";
-            }
-            bar += ">]";
+            return fmt::format(FMT_STRING("[{:=>{}}"), ">]", bar_size + 1);
         } else if ((bar_pos - 1) > 0) {
-            for (int i = 0; i < (bar_pos - 1); ++i) {
-                bar += "=";
-            }
-            bar += ">";
-            for (int i = 0; i < (bar_size - bar_pos); ++i) {
-                bar += " ";
-            }
-            bar += "]";
+            return fmt::format(FMT_STRING("[{:=>{}}{: >{}}"), ">", bar_pos, "]", bar_size - bar_pos + 1);
         } else if (bar_pos == 1) {
-            bar += ">";
-            for (int i = 0; i < (bar_size - 1); ++i) {
-                bar += " ";
-            }
-            bar += "]";
+            return fmt::format(FMT_STRING("[>{: >{}}"), "]", bar_size);
         } else {
-            for (int i = 0; i < bar_size; ++i) {
-                bar += " ";
-            }
-            bar += "]";
+            return fmt::format(FMT_STRING("[{: >{}}"), "]", bar_size + 1);
         }
-        return bar;
     }
 
-    // Print byte progress bar, [====>   ] 10.21B/21.28KB
-    void echo_byte_progress(const int& max_count, const int& now_count) {
+    // Create byte progress bar, [====>   ] 10.21B/21.28KB
+    std::string to_byte_progress(const int& max_count, int now_count) {
+        if (now_count > max_count) {
+            now_count = max_count;
+        }
         const auto [ parsed_max_byte, max_byte_unit ] = util::pretty::to_byte(max_count);
         const auto [ parsed_now_byte, now_byte_unit ] = util::pretty::to_byte(now_count);
-        std::cout << to_progress(max_count, now_count) << " ";
-        std::cout << std::fixed;
-        std::cout << std::setprecision(2) << parsed_now_byte << now_byte_unit << "/";
-        std::cout << std::setprecision(2) << parsed_max_byte << max_byte_unit << std::flush;
+        return fmt::format(
+            FMT_STRING("{} {:.2f}{}/{:.2f}{}"),
+            to_progress(max_count, now_count),
+            parsed_now_byte, now_byte_unit,
+            parsed_max_byte, max_byte_unit
+        );
     }
 
     namespace http = boost::beast::http;
@@ -430,9 +414,9 @@ namespace poac::io::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            PLOG_INFO << '\r' << "Downloading ";
-                            echo_byte_progress(content_length, acc);
-                            PLOG_INFO << "  ";
+                            PLOG_INFO << '\r' << "Downloading "
+                                      << to_byte_progress(content_length, acc)
+                                      << "  ";
                         }
                     }
                 }
