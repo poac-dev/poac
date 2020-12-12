@@ -61,6 +61,14 @@ namespace poac::util::meta {
     }
 
     // found: true
+    template <class SinglePassRange, class T>
+    bool find(const SinglePassRange& rng, const T& value) {
+        auto first = std::cbegin(rng);
+        auto last = std::cend(rng);
+        return std::find(first, last, value) != last;
+    }
+
+    // found: true
     template <class SinglePassRange, class Predicate>
     bool find_if(const SinglePassRange& rng, Predicate pred) {
         auto first = std::cbegin(rng);

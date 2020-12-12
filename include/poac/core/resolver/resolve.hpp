@@ -107,11 +107,6 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    bool check_already_added(const std::vector<int>& already_added, const int i) {
-        auto last = already_added.cend();
-        return std::find(already_added.cbegin(), last, i + 1) != last;
-    }
-
     std::vector<std::vector<int>>
     create_cnf(const duplicate_deps_t<with_deps>& activated) {
         std::vector<std::vector<int>> clauses;
@@ -120,7 +115,7 @@ namespace poac::core::resolver::resolve {
         auto first = std::cbegin(activated);
         auto last = std::cend(activated);
         for (int i = 0; i < static_cast<int>(activated.size()); ++i) {
-            if (check_already_added(already_added, i)) {
+            if (util::meta::find(already_added, i)) {
                 continue;
             }
 
