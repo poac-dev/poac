@@ -22,7 +22,7 @@
 namespace poac::core::resolver {
     [[nodiscard]] mitama::result<void, std::string>
     fetch(const resolve::unique_deps_t<resolve::with_deps>& deps) {
-        for (const auto& [name, package] : deps) {
+        for (const auto& [package, deps] : deps) {
 //            const std::string cache_name = core::name::to_cache(name, package.version);
 
 //            util::shell clone_cmd(core::resolver::resolve::github::clone_command(name, package.version));
@@ -34,7 +34,7 @@ namespace poac::core::resolver {
 
             using termcolor2::color_literals::operator""_green;
             PLOG_INFO << fmt::format(
-                "{:>21} {} v{}", "Downloaded"_green, name, package.version
+                "{:>21} {} v{}", "Downloaded"_green, package.first, package.second
             );
         }
         return mitama::success();
@@ -53,15 +53,15 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
-    do_resolve(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
+    do_resolve(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
         try {
-            const auto duplicate_deps = MITAMA_TRY(gather_all_deps(deps));
-            if (!duplicate_loose(duplicate_deps)) {
+            const auto duplicate_deps = MITAMA_TRY(resolve::gather_all_deps(deps));
+            if (!resolve::duplicate_loose(duplicate_deps)) {
                 // When all dependencies are one package and one version,
                 //   backtrack is not needed.
-                return mitama::success(activated_to_backtracked(duplicate_deps));
+                return mitama::success(resolve::activated_to_backtracked(duplicate_deps));
             } else {
-                return mitama::success(backtrack_loop(duplicate_deps));
+                return mitama::success(resolve::backtrack_loop(duplicate_deps));
             }
         } catch (const core::except::error& e) {
             return mitama::failure(e.what());
@@ -70,15 +70,13 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
+    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::without_deps>, std::string>
     to_resolvable_deps(const toml::value& deps) noexcept {
         try {
-            resolve::unique_deps_t<resolve::with_deps> resolvable_deps{};
+            resolve::unique_deps_t<resolve::without_deps> resolvable_deps{};
             for (const auto& dep : toml::get<toml::table>(deps)) {
-                const resolve::Package package(
-                    toml::get<std::string>(dep.second)
-                );
-                resolvable_deps.emplace(dep.first, package);
+                const std::string version = toml::get<std::string>(dep.second);
+                resolvable_deps.emplace(dep.first, version);
             }
             return mitama::success(resolvable_deps);
         } catch (...) {
@@ -90,8 +88,10 @@ namespace poac::core::resolver {
     install_deps(const toml::value& config) noexcept {
         try {
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-            const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
-            const auto resolved_deps = MITAMA_TRY(do_resolve(resolvable_deps));
+            const resolve::unique_deps_t<resolve::without_deps> resolvable_deps =
+                MITAMA_TRY(to_resolvable_deps(deps));
+            const resolve::unique_deps_t<resolve::with_deps> resolved_deps =
+                MITAMA_TRY(do_resolve(resolvable_deps));
             return download_deps(resolved_deps);
         } catch (const std::out_of_range&) {
             return mitama::failure(
