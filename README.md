@@ -13,7 +13,7 @@ Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.p
 
 By using poac, you can create a C++ project, build sources and execute an application:
 
-![Poac Demo](https://github.com/poacpm/designs/raw/master/images/gif/demo.gif)
+![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
 
 ## Supported Operating Systems
 
@@ -56,7 +56,7 @@ curl -fsSL https://sh.poac.pm | bash
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
-* [`cmake`](https://github.com/Kitware/CMake): `3.11` or later
+* [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
 * [`boost`](https://github.com/boostorg): `1.66.0` or later
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
@@ -78,7 +78,7 @@ $ poac build
 ```
 -->
 
-## Why poac?
+## Why Poac?
 
 I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.
 It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
@@ -101,6 +101,9 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for det
 ### Third party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
-* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE>
+* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
+* clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
+* {fmt} - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
+* mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>

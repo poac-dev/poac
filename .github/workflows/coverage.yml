@@ -1,23 +1,33 @@
 name: Coverage
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   coverage:
     name: Coveralls and Codecov
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Install libgit2 & toml11
-        run: brew install libgit2 poacpm/tap/toml11
-      - name: Build Poac
+      - uses: actions/checkout@v2.3.4
+
+      - name: Install required libraries
         run: |
-          mkdir build
-          cd build
-          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
-          make install
+          brew install libgit2 fmt poacpm/tap/toml11 poacpm/tap/plog
+          brew install --HEAD poacpm/tap/clipp poacpm/tap/mitama-cpp-result
+
+      - run: mkdir build
+
+      - name: Build Poac
+        run: cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Coverage .. && make install
+        working-directory: build
+
       - name: Test Poac
-        run: cd build && ctest --output-on-failure --verbose
+        run: ctest --output-on-failure --verbose
+        working-directory: build
+
       - name: Upload coverage to Coveralls
         if: success()
         run: |
@@ -25,6 +35,7 @@ jobs:
           coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         if: success()

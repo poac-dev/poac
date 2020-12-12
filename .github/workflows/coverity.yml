@@ -9,7 +9,7 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2.3.4
 
       - name: Install packages
         run: |
@@ -39,7 +39,7 @@ jobs:
       - name: Create a building directory and Run CMake
         run: |
           mkdir build && cd $_
-          cmake -Dpoac_BUILD_TEST=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Coverage ..
         env:
           CXX: g++-7
 
