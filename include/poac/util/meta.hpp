@@ -26,19 +26,6 @@ namespace poac::util::meta {
     template <bool B, auto T, auto F>
     static constexpr auto non_type_conditional_v = non_type_conditional_t<B, T, F>::value;
 
-    template <class SinglePassRange, class T>
-    std::optional<std::size_t>
-    index_of(const SinglePassRange& rng, const T& t) {
-        auto first = std::cbegin(rng);
-        auto last = std::cend(rng);
-        auto result = std::find(first, last, t);
-        if (result == last) {
-            return std::nullopt; // TODO: これはなぜ？
-        } else {
-            return std::distance(first, result);
-        }
-    }
-
     template <class InputIterator, class T>
     inline auto index_of(InputIterator first, InputIterator last, const T& value) {
         return std::distance(first, std::find(first, last, value));
