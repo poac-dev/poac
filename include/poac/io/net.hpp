@@ -56,11 +56,11 @@ namespace poac::io::net {
         if (now_count == max_count) {
             return fmt::format(FMT_STRING("[{:=>{}}"), ">]", bar_size + 1);
         } else if ((bar_pos - 1) > 0) {
-            return fmt::format(FMT_STRING("[{:=>{}}{: >{}}"), ">", bar_pos, "]", bar_size - bar_pos + 1);
+            return fmt::format(FMT_STRING("[{:=>{}}{:>{}}"), ">", bar_pos, "]", bar_size - bar_pos + 1);
         } else if (bar_pos == 1) {
-            return fmt::format(FMT_STRING("[>{: >{}}"), "]", bar_size);
+            return fmt::format(FMT_STRING("[>{:>{}}"), "]", bar_size);
         } else {
-            return fmt::format(FMT_STRING("[{: >{}}"), "]", bar_size + 1);
+            return fmt::format(FMT_STRING("[{:>{}}"), "]", bar_size + 1);
         }
     }
 
