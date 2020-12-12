@@ -11,80 +11,104 @@
 #include <regex>
 #include <utility>
 #include <map>
+#include <unordered_map>
 #include <optional>
 #include <algorithm>
 #include <iterator>
 
 // external
+#include <boost/dynamic_bitset.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/dynamic_bitset.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
-#include <poac/core/resolver/sat.hpp>
+#include <poac/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/name.hpp>
-#include <poac/io/config.hpp>
-#include <poac/io/lockfile.hpp>
-#include <poac/io/term.hpp>
+#include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
+#include <poac/util/meta.hpp>
 #include <poac/util/semver/semver.hpp>
-#include <poac/util/types.hpp>
-#include <poac/config.hpp>
 
 namespace poac::core::resolver::resolve {
-    namespace cache {
-        mitama::result<void, std::string>
-        resolve(const std::string& package_name) noexcept {
-            const auto package_path = io::path::poac_cache_dir / package_name;
-            return io::path::validate_dir(package_path);
-        }
-    }
-    namespace current {
-        mitama::result<void, std::string>
-        resolve(const std::string& current_package_name) noexcept {
-            const auto package_path = io::path::current_deps_dir / current_package_name;
-            return io::path::validate_dir(package_path);
-        }
-    }
-    namespace github {
-        std::string clone_command(const std::string& name, const std::string& tag) {
-            return "git clone -q https://github.com/" + name + ".git -b " + tag;
-        }
-    }
+    struct with_deps : std::true_type {};
+    struct without_deps : std::false_type {};
 
-    using DuplicateDeps = std::vector<std::pair<std::string, io::lockfile::Lockfile::Package>>;
-    using NoDuplicateDeps = io::lockfile::Lockfile::dependencies_type;
+    // Duplicate dependencies mean not resolved,
+    //   so a package has version not interval generally.
+    // A package depends packages have many different versions of one name,
+    //   so this should not be std::unordered_map.
+    // Also, package information does not need
+    //   package's dependency's dependencies,
+    //   so second value of std::pair is not Package (this type)
+    //   just needs std::string indicated specific version.
+    template <class WithDeps>
+    struct duplicate_deps {};
 
-    struct ResolvedDeps {
-        // Dependency information after activate.
-        // Use for lock file and it is a state including another version of the same package.
-        DuplicateDeps duplicate_deps;
-        // Dependency information after backtrack.
-        // Use for fetch packages.
-        // Exclude them because you can not install different versions of packages with the same name.
-        NoDuplicateDeps no_duplicate_deps;
+    template <class WithDeps>
+    using duplicate_deps_t = typename duplicate_deps<WithDeps>::type;
+
+    template <>
+    struct duplicate_deps<without_deps> {
+        using type = std::vector<std::pair<std::string, std::string>>;
     };
 
-//    Resolved
-//    lockfile_to_resolved(const io::yaml::Lockfile& lockfile) {
-//
-//    }
+    using package_t = std::pair<
+        std::string, // name
+        std::string // version or interval
+    >;
 
-    template <typename T>
-    std::string
-    to_bin_str(T n, const std::size_t& digit_num) {
-        std::string str;
-        while (n > 0) {
-            str.push_back('0' + (n & 1));
-            n >>= 1;
+    package_t::first_type&
+    get_name(package_t& package) noexcept {
+        return package.first;
+    }
+
+    const package_t::first_type&
+    get_name(const package_t& package) noexcept {
+        return package.first;
+    }
+
+    package_t::first_type&
+    get_version(package_t& package) noexcept {
+        return package.second;
+    }
+
+    const package_t::first_type&
+    get_version(const package_t& package) noexcept {
+        return package.second;
+    }
+
+    using deps_t = std::optional<duplicate_deps_t<without_deps>>;
+
+    template <>
+    struct duplicate_deps<with_deps> {
+        using type = std::vector<std::pair<package_t, deps_t>>;
+    };
+
+    struct hash_pair {
+        template <class T, class U>
+        std::size_t operator()(const std::pair<T, U>& p) const {
+            return std::hash<T>()(p.first) ^ std::hash<U>()(p.second);
         }
-        str.resize(digit_num, '0');
-        std::reverse(str.begin(), str.end());
-        return str;
+    };
+
+    template <class WithDeps>
+    using unique_deps_t =
+        std::conditional_t<
+            WithDeps::value,
+            std::unordered_map<package_t, deps_t, hash_pair>,
+            std::unordered_map<
+                std::string, // name
+                std::string  // version or interval
+            >>;
+
+    std::string to_binary_numbers(const int& x, const std::size_t& digit) {
+        return fmt::format(FMT_STRING("{:0{}b}"), x, digit);
     }
 
     // A ∨ B ∨ C
@@ -95,41 +119,34 @@ namespace poac::core::resolver::resolve {
     void multiple_versions_cnf(const std::vector<int>& clause, std::vector<std::vector<int>>& clauses) {
         const int combinations = 1 << clause.size();
         for (int i = 0; i < combinations; ++i) { // index sequence
-            boost::dynamic_bitset<> bs(to_bin_str(i, clause.size()));
+            boost::dynamic_bitset<> bs(to_binary_numbers(i, clause.size()));
             if (bs.count() == 1) {
                 continue;
             }
 
             std::vector<int> new_clause;
             for (std::size_t j = 0; j < bs.size(); ++j) {
-                if (bs[j]) {
-                    new_clause.emplace_back(clause[j] * -1);
-                } else {
-                    new_clause.emplace_back(clause[j]);
-                }
+                new_clause.emplace_back(bs[j] ? clause[j] * -1 : clause[j]);
             }
             clauses.emplace_back(new_clause);
         }
     }
 
-    bool check_already_added(const std::vector<int>& already_added, const int i) {
-        auto last = already_added.cend();
-        return std::find(already_added.cbegin(), last, i + 1) != last;
-    }
-
     std::vector<std::vector<int>>
-    create_cnf(const DuplicateDeps& activated) {
+    create_cnf(const duplicate_deps_t<with_deps>& activated) {
         std::vector<std::vector<int>> clauses;
         std::vector<int> already_added;
 
         auto first = std::cbegin(activated);
         auto last = std::cend(activated);
         for (int i = 0; i < static_cast<int>(activated.size()); ++i) {
-            if (check_already_added(already_added, i)) {
+            if (util::meta::find(already_added, i)) {
                 continue;
             }
 
-            const auto name_lambda = [&](const auto& x){ return x.first == activated[i].first; };
+            const auto name_lambda = [&](const auto& x){
+                return x.first == activated[i].first;
+            };
             // 現在指すパッケージと同名の他のパッケージは存在しない
             if (const auto count = std::count_if(first, last, name_lambda); count == 1) {
                 std::vector<int> clause;
@@ -137,11 +154,17 @@ namespace poac::core::resolver::resolve {
                 clauses.emplace_back(clause);
 
                 // index ⇒ deps
-                if (!activated[i].second.dependencies.has_value()) {
+                if (!activated[i].second.has_value()) {
                     clause[0] *= -1;
-                    for (const auto& [name, version] : activated[i].second.dependencies.value()) {
+                    for (const auto& [name, version] : activated[i].second.value()) {
                         // 必ず存在することが保証されている
-                        clause.emplace_back(util::types::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
+                        clause.emplace_back(
+                            util::meta::index_of_if(
+                                first, last,
+                                [&n=name, &v=version](const auto& d){
+                                    return d.first.first == n &&
+                                           d.first.second == v;
+                                }) + 1);
                     }
                     clauses.emplace_back(clause);
                 }
@@ -155,12 +178,20 @@ namespace poac::core::resolver::resolve {
                     already_added.emplace_back(index + 1);
 
                     // index ⇒ deps
-                    if (!found->second.dependencies.has_value()) {
+                    if (!found->second.has_value()) {
                         std::vector<int> new_clause;
                         new_clause.emplace_back(index);
-                        for (const auto& [name, version] : found->second.dependencies.value()) {
+                        for (const auto& package : found->second.value()) {
                             // 必ず存在することが保証されている
-                            new_clause.emplace_back(util::types::index_of_if(first, last, [&n=name, &v=version](auto d){ return d.first == n && d.second.version == v; }) + 1);
+                            new_clause.emplace_back(
+                                util::meta::index_of_if(
+                                    first, last,
+                                    [&package=package](const auto& p){
+                                        return p.first.first == package.first &&
+                                               p.first.second == package.second;
+                                    }
+                                ) + 1
+                            );
                         }
                         clauses.emplace_back(new_clause);
                     }
@@ -172,205 +203,226 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    ResolvedDeps solve_sat(const DuplicateDeps& activated, const std::vector<std::vector<int>>& clauses) {
-        ResolvedDeps resolved_deps{};
+    unique_deps_t<with_deps>
+    solve_sat(const duplicate_deps_t<with_deps>& activated, const std::vector<std::vector<int>>& clauses) {
+        unique_deps_t<with_deps> resolved_deps{};
         // deps.activated.size() == variables
         const auto [result, assignments] = sat::solve(clauses, activated.size());
         if (result == sat::Sat::completed) {
-            io::term::debugln("SAT");
+            PLOG_DEBUG << "SAT";
             for (const auto& a : assignments) {
-                io::term::debug(a, " ");
+                PLOG_DEBUG << a << " ";
                 if (a > 0) {
-                    const auto dep = activated[a - 1];
-                    resolved_deps.duplicate_deps.push_back(dep);
-                    resolved_deps.no_duplicate_deps[dep.first] = dep.second;
+                    const auto& [package, deps] = activated[a - 1];
+                    resolved_deps.emplace(package, deps);
                 }
             }
-            io::term::debugln(0);
-        }
-        else {
+            PLOG_DEBUG << 0;
+        } else {
             throw except::error("Could not solve in this dependencies.");
         }
         return resolved_deps;
     }
 
-    ResolvedDeps backtrack_loop(const DuplicateDeps& activated) {
+    unique_deps_t<with_deps>
+    backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
         const auto clauses = create_cnf(activated);
-        // debug
-        for (const auto& c : clauses) {
-            for (const auto& l : c) {
-                int index;
-                if (l > 0) {
-                    index = l - 1;
-                } else {
-                    index = (l * -1) - 1;
+        IF_PLOG(plog::debug) {
+            for (const auto& c : clauses) {
+                for (const auto& l : c) {
+                    const auto& [package, deps] =
+                        activated[l > 0 ? l - 1 : (l * -1) - 1];
+                    PLOG_DEBUG <<
+                        fmt::format(
+                            "{}-{}: {}, ",
+                            package.first, package.second, l
+                        );
                 }
-                const auto [name, package] = activated[index];
-                io::term::debug(name, "-", package.version, ": ", l, ", ");
+                PLOG_DEBUG << "";
             }
-            io::term::debugln();
         }
         return solve_sat(activated, clauses);
     }
 
-
-    ResolvedDeps activated_to_backtracked(const ResolvedDeps& activated_deps) {
-        ResolvedDeps resolved_deps;
-        resolved_deps.duplicate_deps = activated_deps.duplicate_deps;
-        for (const auto& [name, package] : activated_deps.duplicate_deps) {
-            resolved_deps.no_duplicate_deps[name] = package;
+    unique_deps_t<with_deps>
+    activated_to_backtracked(const duplicate_deps_t<with_deps>& activated_deps) {
+        unique_deps_t<with_deps> resolved_deps;
+        for (const auto& [package, deps] : activated_deps) {
+            resolved_deps.emplace(package, deps);
         }
         return resolved_deps;
     }
 
-
     template <class SinglePassRange>
-    bool duplicate_loose(const SinglePassRange& rng) { // If the same name
+    bool duplicate_loose(const SinglePassRange& rng) {
         const auto first = std::begin(rng);
         const auto last = std::end(rng);
-        for (const auto& r : rng) {
-            if (std::count_if(first, last, [&](const auto& x) {
-                return x.first == r.first;
-            }) > 1) {
-                return true;
-            }
-        }
-        return false;
+        return std::find_if(first, last, [&](const auto& x){
+            return std::count_if(first, last, [&](const auto& y) {
+              return x.first == y.first;
+            }) > 1;
+        }) != last;
     }
-
-    std::pair<std::string, std::string>
-    get_from_dep(const boost::property_tree::ptree& dep) {
-        return { dep.get<std::string>("name"), dep.get<std::string>("version") };
-    }
-
 
     // Interval to multiple versions
-    // `>=0.1.2 and <3.4.0` -> 2.5.0
-    // `latest` -> 2.5.0
+    // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
+    // `latest` -> { 2.5.0 }
     // name is boost/config, no boost-config
     std::vector<std::string>
-    decide_versions(const std::string& name, const std::string& interval) {
-//        io::cli::echo("[versions] ", name, ": ", interval);
-
+    get_versions_satisfy_interval(const std::string& name, const std::string& interval) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        if (const auto versions = io::net::api::versions(name)) {
-            if (interval == "latest") {
-                const auto latest = std::max_element((*versions).begin(), (*versions).end(),
-                        [](auto a, auto b) { return semver::Version(a) > b; });
-                return { *latest };
-            }
-            else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
-                std::vector<std::string> res;
-                semver::Interval i(name, interval);
-                copy_if(versions->begin(), versions->end(), back_inserter(res),
-                        [&](std::string s) { return i.satisfies(s); });
-                if (res.empty()) {
-                    throw except::error(
-                        fmt::format("`{}: {}` not found", name, interval)
-                    );
-                }
-                else {
-                    return res;
-                }
-            }
-        }
-        else {
-            throw except::error(
-                fmt::format("`{}: {}` not found", name, interval)
+        const std::vector<std::string> versions =
+            io::net::api::versions(name).unwrap();
+        if (interval == "latest") {
+            return {
+                *std::max_element(
+                    versions.cbegin(),
+                    versions.cend(),
+                    [](auto a, auto b){
+                        return semver::Version(a) > b;
+                    }
+                )
+            };
+        } else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
+            std::vector<std::string> res;
+            semver::Interval i(name, interval);
+            std::copy_if(
+                versions.cbegin(),
+                versions.cend(),
+                back_inserter(res),
+                [&](std::string s) { return i.satisfies(s); }
             );
+            if (res.empty()) {
+                throw except::error(
+                    fmt::format(
+                        "`{}: {}` not found. seem dependencies are broken",
+                        name, interval
+                    )
+                );
+            } else {
+                return res;
+            }
         }
     }
 
-    using IntervalCache = std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>;
-    constexpr std::size_t name_index = 0;
-    constexpr std::size_t interval_index = 1;
-    constexpr std::size_t versions_index = 2;
+    using interval_cache_t =
+        std::vector<
+            std::tuple<
+                std::string, // name
+                std::string, // interval
+                std::vector<std::string> // versions in the interval
+            >>;
 
-    // BFS activator
-    void activate(
-            const std::string& name,
-            const std::string& version,
-            DuplicateDeps& new_deps,
-            IntervalCache& interval_cache)
+    duplicate_deps_t<without_deps>
+    gather_deps_of_deps(
+        const unique_deps_t<without_deps>& deps_api_res,
+        interval_cache_t& interval_cache)
     {
-        // Check if root package resolved dependency (by version), and Check circulating
-        if (auto last = new_deps.cend(); std::find_if(new_deps.cbegin(), last,
-                [&](auto d) { return d.first == name && d.second.version == version; }) != last) {
+        duplicate_deps_t<without_deps> cur_deps_deps;
+        for (const auto& [name, interval] : deps_api_res) {
+            // Check if node package is resolved dependency (by interval)
+            const auto itr =
+                boost::range::find_if(
+                    interval_cache,
+                    [&name=name, &interval=interval](const auto& d) {
+                      return std::get<0>(d) == name &&
+                             std::get<1>(d) == interval;
+                    }
+                );
+            if (itr != interval_cache.cend()) { // cache found
+                for (const auto& dep_version : std::get<2>(*itr)) {
+                    cur_deps_deps.emplace_back(name, dep_version);
+                }
+            } else {
+                const auto dep_versions =
+                    get_versions_satisfy_interval(name, interval);
+                // Cache interval and versions pair
+                interval_cache.emplace_back(name, interval, dep_versions);
+                for (const auto& dep_version : dep_versions) {
+                    cur_deps_deps.emplace_back(name, dep_version);
+                }
+            }
+        }
+        return cur_deps_deps;
+    }
+
+    void gather_deps(
+        const std::string& name,
+        const std::string& version,
+        duplicate_deps_t<with_deps>& new_deps,
+        interval_cache_t& interval_cache)
+    {
+        // Check if root package resolved dependency
+        //   (whether the specific version is the same),
+        //   and check circulating
+        if (util::meta::find_if(new_deps, [&](const auto& d) {
+                return d.first.first == name && d.first.second == version;
+        })) {
             return;
         }
 
-        // Get dependency of dependency
-        if (const auto current_deps = io::net::api::deps(name, version)) {
-            DuplicateDeps cur_deps_deps;
+        // Get dependencies of dependencies
+        const unique_deps_t<without_deps> deps_api_res =
+            io::net::api::deps(name, version).unwrap();
+        if (deps_api_res.empty()) {
+            new_deps.emplace_back(std::make_pair(name, version), std::nullopt);
+        } else {
+            const auto deps_of_deps = gather_deps_of_deps(deps_api_res, interval_cache);
 
-            for (const auto& current_dep : *current_deps) {
-                const auto [dep_name, dep_interval] = get_from_dep(current_dep.second);
+            // Store dependency and the dependency's dependencies.
+            new_deps.emplace_back(std::make_pair(name, version), deps_of_deps);
 
-                // Check if node package is resolved dependency (by interval)
-                auto last = interval_cache.cend();
-                const auto itr = std::find_if(interval_cache.cbegin(), last,
-                        [&n=dep_name, &i=dep_interval](auto d) { return std::get<name_index>(d) == n && std::get<interval_index>(d) == i; });
-                if (itr != last) {
-                    for (const auto& dep_version : std::get<versions_index>(*itr)) {
-                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Lockfile::Package{ dep_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
-                    }
-                } else {
-                    const auto dep_versions = decide_versions(dep_name, dep_interval);
-                    // Cache interval and versions pair
-                    interval_cache.emplace_back(dep_name, dep_interval, dep_versions);
-                    for (const auto& dep_version : dep_versions) {
-                        cur_deps_deps.emplace_back(dep_name, io::lockfile::Lockfile::Package{ dep_version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
-                    }
-                }
+            // Gather dependencies of dependencies of dependencies. lol
+            for (const auto& [name, version] : deps_of_deps) {
+                gather_deps(name, version, new_deps, interval_cache);
             }
-            // FIXME
-//            new_deps.emplace_back(name, io::yaml::Lockfile::Package{ version, io::yaml::PackageType::HeaderOnlyLib, cur_deps_deps });
-            for (const auto& [name, package] : cur_deps_deps) {
-                activate(name, package.version, new_deps, interval_cache);
-            }
-        }
-        else {
-            new_deps.emplace_back(name, io::lockfile::Lockfile::Package{ version, io::lockfile::PackageType::HeaderOnlyLib, std::nullopt });
         }
     }
 
-    ResolvedDeps activate_deps_loop(const NoDuplicateDeps& deps) {
-        ResolvedDeps new_deps{};
-        IntervalCache interval_cache;
+    [[nodiscard]] mitama::result<duplicate_deps_t<with_deps>, std::string>
+    gather_all_deps(const unique_deps_t<without_deps>& deps) {
+        duplicate_deps_t<with_deps> duplicate_deps{};
+        interval_cache_t interval_cache{};
 
         // Activate the root of dependencies
-        for (const auto& [name, package] : deps) {
-            // Check if root package is resolved dependency (by interval)
-            for (const auto& [n, i, versions] : interval_cache) {
-                static_cast<void>(versions);
-                if (name == n && package.version == i) {
-                    continue;
-                }
+        for (const auto& package : deps) {
+            // Check whether the packages specified in poac.toml
+            //   are already resolved which includes
+            //   that package's dependencies and package's versions
+            //   by checking whether package's interval is the same.
+            if (util::meta::find_if(
+                    interval_cache,
+                    [&package=package](const auto& cache){
+                        return get_name(package) == std::get<0>(cache) &&
+                              get_version(package) == std::get<1>(cache);
+                    }
+                )) {
+                continue;
             }
 
             // Get versions using interval
-            const auto versions = decide_versions(name, package.version);
+            // FIXME: versions API and deps API are received the almost same responses
+            const auto versions =
+                get_versions_satisfy_interval(
+                    get_name(package),
+                    get_version(package)
+                );
             // Cache interval and versions pair
-            interval_cache.push_back({ {name}, {package.version}, {versions} });
+            interval_cache.emplace_back(
+                get_name(package),
+                get_version(package),
+                versions
+            );
             for (const auto& version : versions) {
-                activate(name, version, new_deps.duplicate_deps, interval_cache);
+                gather_deps(
+                    get_name(package),
+                    version,
+                    duplicate_deps,
+                    interval_cache
+                );
             }
         }
-        return new_deps;
-    }
-
-    // Builds the list of all packages required to build the first argument.
-    ResolvedDeps resolve(const NoDuplicateDeps& deps) {
-        const ResolvedDeps activated_deps = activate_deps_loop(deps);
-        ResolvedDeps resolved_deps;
-        // 全ての依存関係が一つのパッケージ，一つのバージョンに依存する時はbacktrackが不要
-        if (duplicate_loose(activated_deps.duplicate_deps)) {
-            resolved_deps = backtrack_loop(activated_deps.duplicate_deps);
-        }
-        else {
-            resolved_deps = activated_to_backtracked(activated_deps);
-        }
-        return resolved_deps;
+        return mitama::success(duplicate_deps);
     }
 } // end namespace
 #endif // !POAC_CORE_RESOLVER_RESOLVE_HPP

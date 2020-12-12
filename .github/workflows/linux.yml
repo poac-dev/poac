@@ -226,6 +226,7 @@ jobs:
   powerpc-unknown-linux-gnu:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         target_platform: [ powerpc64, powerpc64le ] # TODO: powerpc
         gcc_version: [ 9, 10 ]

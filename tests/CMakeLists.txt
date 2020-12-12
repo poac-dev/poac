@@ -1,9 +1,10 @@
 set(TEST_NAMES
         cfg
-        config
         except
+        meta
         misc
         name
+        net
         path
         pretty
         project
@@ -11,8 +12,6 @@ set(TEST_NAMES
         sat
         shell
         standard
-        term
-        types
 )
 
 get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
