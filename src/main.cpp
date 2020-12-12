@@ -2,20 +2,39 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <optional>
 
 // external
 #include <clipp.h>
-#include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <plog/Log.h>
+#include <plog/Formatters/MessageOnlyFormatter.h>
+#include <plog/Appenders/ConsoleAppender.h>
 
 // internal
 #include <poac/cmd.hpp>
-#include <poac/core/except.hpp>
-#include <poac/io/term.hpp>
+
+inline const std::string error =
+    (termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset).to_string();
+
+[[nodiscard]] int
+no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
+    PLOG_ERROR << fmt::format(
+        "{}: no such command: `{}`\n\n{}",
+        error,
+        fmt::join(argv + 1, argv + argc," "),
+        clipp::usage_lines(cli, "poac")
+    );
+    return EXIT_FAILURE;
+}
+
+void
+print_err(std::string_view e) {
+    PLOG_ERROR << fmt::format("{}: {}", error, e);
+}
 
 enum class subcommand {
     nothing,
+    build,
     init,
     _new,
     search,
@@ -23,49 +42,58 @@ enum class subcommand {
     version,
 };
 
-[[nodiscard]] int
-no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
-    fmt::print(
-        std::cerr,
-        "{}: no such command: `{}`\n\n{}\n",
-        poac::io::term::error,
-        fmt::join(argv + 1, argv + argc," "),
-        clipp::usage_lines(cli, "poac")
-    );
-    return EXIT_FAILURE;
-}
-
-template <typename T>
-int
-optional_to_int(const std::optional<T>& opt) {
-    if (opt.has_value()) {
-        fmt::print(
-            std::cerr,
-            "{}: {}\n",
-            poac::io::term::error, opt->what()
-        );
-        return EXIT_FAILURE;
-    } else {
-        return EXIT_SUCCESS;
-    }
-}
-
 int
 main(const int argc, char* argv[]) {
+    static plog::ConsoleAppender<plog::MessageOnlyFormatter> console_appender;
+    plog::init(plog::info, &console_appender);
+    const auto set_verbose = []{ plog::get()->setMaxSeverity(plog::verbose); };
+    const auto set_quiet = []{ plog::get()->setMaxSeverity(plog::none); };
+
     subcommand subcmd = subcommand::nothing;
 
+    auto build_opts = poac::cmd::build::Options {
+        poac::core::builder::Mode::Debug,
+    };
+    const clipp::group build_cmd =
+        ( clipp::command("build")
+            .set(subcmd, subcommand::build)
+            .doc("Compile a project and all sources that depend on its")
+        , ( clipp::option("--debug", "-d")
+                .set(build_opts.mode, poac::core::builder::Mode::Debug)
+                .doc("Build artifacts in debug mode [default]")
+          | clipp::option("--release", "-r")
+                .set(build_opts.mode, poac::core::builder::Mode::Release)
+                .doc("Build artifacts in release mode, with optimizations")
+          )
+        , ( clipp::option("--verbose", "-v")
+                .call(set_verbose)
+                .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+                .call(set_quiet)
+                .doc("No output printed to stdout")
+          )
+        );
+
     auto init_opts = poac::cmd::init::Options {
-        poac::cmd::_new::ProjectType::Bin
+        poac::cmd::_new::ProjectType::Bin,
     };
     const clipp::group init_cmd =
         ( clipp::command("init")
              .set(subcmd, subcommand::init)
              .doc("Create a new poac package in an existing directory")
         , ( clipp::option("--bin", "-b")
+                .set(init_opts.type, poac::cmd::_new::ProjectType::Bin)
                 .doc("Use a binary (application) template [default]")
           | clipp::option("--lib", "-l")
                 .set(init_opts.type, poac::cmd::_new::ProjectType::Lib)
                 .doc("Use a library template")
+          )
+        , ( clipp::option("--verbose", "-v")
+                .call(set_verbose)
+                .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+                .call(set_quiet)
+                .doc("No output printed to stdout")
           )
         );
 
@@ -79,25 +107,33 @@ main(const int argc, char* argv[]) {
             .doc("Create a new poac package at <path>")
         , clipp::word("path", new_opts.package_name)
         , ( clipp::option("--bin", "-b")
+                .set(new_opts.type, poac::cmd::_new::ProjectType::Bin)
                 .doc("Use a binary (application) template [default]")
           | clipp::option("--lib", "-l")
-              .set(new_opts.type, poac::cmd::_new::ProjectType::Lib)
-              .doc("Use a library template")
+                .set(new_opts.type, poac::cmd::_new::ProjectType::Lib)
+                .doc("Use a library template")
+          )
+        , ( clipp::option("--verbose", "-v")
+                .call(set_verbose)
+                .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+                .call(set_quiet)
+                .doc("No output printed to stdout")
           )
         );
 
-    auto search_opts = poac::cmd::search::Options {
-        false,
-        ""
-    };
+    auto search_opts = poac::cmd::search::Options { "" };
     const clipp::group search_cmd =
         ( clipp::command("search")
             .set(subcmd, subcommand::search)
             .doc("Search for packages in poac.pm")
         , clipp::word("pkg-name", search_opts.package_name)
         , ( clipp::option("--verbose", "-v")
-              .set(search_opts.verbose)
+              .call(set_verbose)
               .doc("Use verbose output")
+          | clipp::option("--quiet", "-q")
+              .call(set_quiet)
+              .doc("No output printed to stdout")
           )
         );
 
@@ -119,7 +155,8 @@ main(const int argc, char* argv[]) {
             .set(subcmd, subcommand::version)
             .doc("Show the current poac version")
         ) |
-        ( init_cmd
+        ( build_cmd
+        | init_cmd
         | new_cmd
         | search_cmd
         | help_cmd
@@ -134,17 +171,29 @@ main(const int argc, char* argv[]) {
         switch (subcmd) {
             case subcommand::nothing:
                 return no_such_command(argc, argv, cli);
+            case subcommand::build:
+                return poac::cmd::build::exec(std::move(build_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::init:
-                return optional_to_int(poac::cmd::init::exec(std::move(init_opts)));
+                return poac::cmd::init::exec(std::move(init_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::_new:
-                return optional_to_int(poac::cmd::_new::exec(std::move(new_opts)));
+                return poac::cmd::_new::exec(std::move(new_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::search:
-                return optional_to_int(poac::cmd::search::exec(std::move(search_opts)));
+                return poac::cmd::search::exec(std::move(search_opts))
+                    .map_err(print_err)
+                    .is_err();
             case subcommand::help:
                 std::cout << clipp::make_man_page(cli, "poac");
                 return EXIT_SUCCESS;
             case subcommand::version:
-                return optional_to_int(poac::cmd::version::exec());
+                return poac::cmd::version::exec()
+                    .map_err(print_err)
+                    .is_err();
         }
     } else {
         return no_such_command(argc, argv, cli);

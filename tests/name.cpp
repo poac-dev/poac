@@ -29,11 +29,11 @@ BOOST_AUTO_TEST_CASE( poac_core_name_validate_package_name_test )
 {
     using poac::core::name::validate_package_name;
 
-    BOOST_CHECK( validate_package_name("na$me").has_value() );
-    BOOST_CHECK( validate_package_name("nam()e").has_value() );
-    BOOST_CHECK( validate_package_name("namße").has_value() );
+    BOOST_CHECK( validate_package_name("na$me").is_err() );
+    BOOST_CHECK( validate_package_name("nam()e").is_err() );
+    BOOST_CHECK( validate_package_name("namße").is_err() );
 
-    BOOST_CHECK( !validate_package_name("poacpm/poac-api").has_value() );
-    BOOST_CHECK( !validate_package_name("poacpm/poac_api").has_value() );
-    BOOST_CHECK( !validate_package_name("poacpm/poac").has_value() );
+    BOOST_CHECK( !validate_package_name("poacpm/poac-api").is_err() );
+    BOOST_CHECK( !validate_package_name("poacpm/poac_api").is_err() );
+    BOOST_CHECK( !validate_package_name("poacpm/poac").is_err() );
 }

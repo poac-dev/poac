@@ -1,11 +1,13 @@
 #ifndef POAC_CORE_NAME_HPP
 #define POAC_CORE_NAME_HPP
 
+// std
 #include <algorithm>
 #include <string>
 #include <string_view>
 
-#include <poac/core/except.hpp>
+// external
+#include <mitama/result/result.hpp>
 
 namespace poac::core::name {
     // Config name: poacpm/poac
@@ -42,19 +44,19 @@ namespace poac::core::name {
         return is_digit(c) || is_alphabet(c);
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     validate_package_name(std::string_view s) {
         for (const auto& c : s) {
             if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
-                return except::Error::General{
+                return mitama::failure(
                         "Invalid name.\n"
                         "It is prohibited to use a character string\n"
                         " that does not match ^([a-z|\\d|_|\\-|\\/]*)$\n"
                         " in the project name."
-                };
+                );
             }
         }
-        return std::nullopt;
+        return mitama::success();
     }
 } // end namespace
 #endif // !POAC_CORE_NAME_HPP

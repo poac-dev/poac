@@ -10,16 +10,17 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ macos-10.15 ]
         build_type: [ Debug, Release ]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2.3.4
 
       - name: Install required libraries
         run: |
-          brew install libgit2 poacpm/tap/toml11 fmt
-          brew install --HEAD poacpm/tap/clipp
+          brew install libgit2 fmt poacpm/tap/toml11 poacpm/tap/plog
+          brew install --HEAD poacpm/tap/clipp poacpm/tap/mitama-cpp-result
 
       - run: mkdir build
 

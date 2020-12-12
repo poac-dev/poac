@@ -7,5 +7,6 @@
 #include <poac/core/name.hpp>
 #include <poac/core/project.hpp>
 #include <poac/core/resolver.hpp>
+#include <poac/core/validator.hpp>
 
 #endif // !POAC_CORE_HPP

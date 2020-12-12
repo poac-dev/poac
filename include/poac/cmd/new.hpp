@@ -10,24 +10,22 @@
 #include <string_view>
 #include <map>
 #include <algorithm>
-#include <vector>
-#include <optional>
 
 // external
 #include <fmt/core.h>
+#include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
-#include <poac/core/except.hpp>
-#include <poac/core/name.hpp>
+#include <poac/core/validator.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/term.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::cmd::_new {
     namespace files {
         inline std::string
-        poac_toml(const std::string& project_name) {
+        poac_toml(std::string_view project_name) {
             return fmt::format(
                 "[package]\n"
                 "name = \"{}\"\n"
@@ -45,7 +43,7 @@ namespace poac::cmd::_new {
             "}"
         );
 
-        inline std::string include_hpp(const std::string& project_name) {
+        inline std::string include_hpp(std::string_view project_name) {
             std::string project_name_upper_cased{};
             std::transform(
                 project_name.cbegin(),
@@ -130,74 +128,45 @@ namespace poac::cmd::_new {
         }
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
-    check_name(std::string_view name) {
-        // Ban keywords
-        // https://en.cppreference.com/w/cpp/keyword
-        std::vector<std::string_view> blacklist{
-            "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept",
-            "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t",
-            "class", "compl", "concept", "const", "consteval", "constexpr", "const_cast", "continue", "co_await",
-            "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum",
-            "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long",
-            "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private",
-            "protected", "public", "reflexpr", "register", "reinterpret_cast", "requires", "return", "short", "signed",
-            "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "synchronized", "template", "this",
-            "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
-            "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
-        };
-        if (std::find(blacklist.begin(), blacklist.end(), name) != blacklist.end()) {
-            return core::except::Error::General{
-                fmt::format(
-                    "`{}` is a keyword, so it cannot be used as a package name",
-                    name
-                    )
-            };
-        }
-        return std::nullopt;
-    }
-
-    [[nodiscard]] std::optional<core::except::Error>
-    validate(const _new::Options& opts) {
-        if (const auto error = core::name::validate_package_name(opts.package_name)) {
-            return error;
-        }
-        if (io::path::validate_dir(opts.package_name)) {
-            return core::except::Error::General{
-                fmt::format(
-                    "The `{}` directory already exists", opts.package_name
-                    )
-            };
-        }
-        if (const auto error = check_name(opts.package_name)) {
-            return error;
-        }
-        return std::nullopt;
-    }
-
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     _new(_new::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        if (const auto error = validate(opts)) {
-            return error;
-        }
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
-            write_to_file(ofs, (opts.package_name / name).string(), text);
+            const std::string& file_path = (opts.package_name / name).string();
+            PLOG_VERBOSE << fmt::format("Creating {}", file_path);
+            write_to_file(ofs, file_path, text);
         }
+
+        PLOG_VERBOSE << fmt::format(
+            "Initializing git repository at {}", opts.package_name
+        );
         git2::repository().init(opts.package_name);
-        fmt::print(
-            "{}{} `{}` package\n",
+
+        PLOG_INFO << fmt::format(
+            "{}{} `{}` package",
             "Created: "_green,
             opts.type,
             opts.package_name
         );
-        return std::nullopt;
+        return mitama::success();
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
+        PLOG_VERBOSE << fmt::format(
+                "Validating the `{}` directory exists",
+                opts.package_name
+            );
+        MITAMA_TRY(io::path::validate_dir(opts.package_name));
+
+        PLOG_VERBOSE << fmt::format(
+                "Validating the package name `{}`",
+                opts.package_name
+            );
+        MITAMA_TRY(core::validator::valid_package_name(opts.package_name));
+
         return _new(std::move(opts));
     }
 } // end namespace

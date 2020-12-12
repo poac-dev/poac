@@ -1,6 +1,7 @@
 #ifndef POAC_IO_NET_HPP
 #define POAC_IO_NET_HPP
 
+// std
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -10,10 +11,12 @@
 #include <sstream>
 #include <numeric>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <variant>
 #include <optional>
 
+// external
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
@@ -28,16 +31,54 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+#include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
+// internal
+#include <poac/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
-#include <poac/io/term.hpp>
+#include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
-#include <poac/util/types.hpp>
-#include <poac/config.hpp>
 
 namespace poac::io::net {
+    // Create progress bar, [====>   ]
+    std::string to_progress(const int& max_count, int now_count, const int& bar_size = 50) {
+        if (now_count > max_count) {
+            now_count = max_count;
+        }
+        const int percent = (now_count * 100) / max_count;
+        const int bar_pos = percent / 2;
+
+        if (now_count == max_count) {
+            return fmt::format(FMT_STRING("[{:=>{}}"), ">]", bar_size + 1);
+        } else if ((bar_pos - 1) > 0) {
+            return fmt::format(FMT_STRING("[{:=>{}}{:>{}}"), ">", bar_pos, "]", bar_size - bar_pos + 1);
+        } else if (bar_pos == 1) {
+            return fmt::format(FMT_STRING("[>{:>{}}"), "]", bar_size);
+        } else {
+            return fmt::format(FMT_STRING("[{:>{}}"), "]", bar_size + 1);
+        }
+    }
+
+    // Create byte progress bar, [====>   ] 10.21B/21.28KB
+    std::string to_byte_progress(const int& max_count, int now_count) {
+        if (now_count > max_count) {
+            now_count = max_count;
+        }
+        const auto [ parsed_max_byte, max_byte_unit ] = util::pretty::to_byte(max_count);
+        const auto [ parsed_now_byte, now_byte_unit ] = util::pretty::to_byte(now_count);
+        return fmt::format(
+            FMT_STRING("{} {:.2f}{}/{:.2f}{}"),
+            to_progress(max_count, now_count),
+            parsed_now_byte, now_byte_unit,
+            parsed_max_byte, max_byte_unit
+        );
+    }
+
     namespace http = boost::beast::http;
     namespace ssl = boost::asio::ssl;
     using Headers = std::map<std::variant<http::field, std::string>, std::string>;
@@ -91,7 +132,7 @@ namespace poac::io::net {
     public:
         MultiPartForm()
             : m_boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
-            , m_footer(m_crlf + "--" + m_boundary + "--" + m_crlf)
+            , m_footer(fmt::format("{}--{}--{}", m_crlf, m_boundary, m_crlf))
         {}
 
         std::string
@@ -104,9 +145,17 @@ namespace poac::io::net {
         }
 
         void set(const file_name_type& name, const std::string& value) {
+            using namespace fmt::literals;
             m_form_param.emplace_back(
-                    "--" + m_boundary + m_crlf + m_content_disposition +
-                    "name=\"" + name + "\"" + m_crlf + m_crlf + value);
+                fmt::format(
+                    "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
+                    "boundary"_a=m_boundary,
+                    "crlf"_a=m_crlf,
+                    "cd"_a=m_content_disposition,
+                    "name"_a=name,
+                    "value"_a=value
+                )
+            );
             generate_header(); // re-generate
         }
         void set(const file_name_type& name, const file_path_type& value, const header_type& h) {
@@ -122,7 +171,7 @@ namespace poac::io::net {
         }
 
         std::string content_type() const {
-            return "multipart/form-data; boundary=" + m_boundary;
+            return fmt::format("multipart/form-data; boundary={}", m_boundary);
         }
         std::uintmax_t content_length() const {
             return std::accumulate(m_file_param.begin(), m_file_param.end(), m_header.size() + m_footer.size(),
@@ -162,22 +211,18 @@ namespace poac::io::net {
 
     private:
         void generate_header() {
-            m_header = "";
-            for (std::size_t i = 0; i < m_form_param.size(); ++i) {
-                if (i != 0) {
-                    m_header += m_crlf;
-                }
-                m_header += m_form_param[i];
-            }
+            m_header = fmt::format("{}{}", m_crlf, fmt::join(m_form_param, ""));
             for (const auto& [name, filename, header] : m_file_param) {
-                std::string h =
-                        "--" + m_boundary + m_crlf + m_content_disposition +
-                        "name=\"" + name + "\"; filename=\"" + filename.filename().string() + "\"";
-                if (!header.empty()) {
-                    for (const auto& [field, content] : header) {
-                        h += m_crlf;
-                        h += std::string(http::to_string(field)) + ": " + content;
-                    }
+                std::string h = fmt::format(
+                    "--{}{}{}name=\"{}\"; filename=\"{}\"",
+                    m_boundary,
+                    m_crlf,
+                    m_content_disposition,
+                    name,
+                    filename.filename().string()
+                );
+                for (const auto& [field, content] : header) {
+                    h += fmt::format("{}{}: {}", m_crlf, field, content);
                 }
                 m_header += m_crlf + h;
             }
@@ -210,28 +255,28 @@ namespace poac::io::net {
 
         template <typename RequestBody=http::empty_body, typename Ofstream=std::nullptr_t,
                 typename ResponseBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>,
+                        std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>,
                         http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
         get(std::string_view target, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
-            term::debugln(req);
+            PLOG_DEBUG << req;
             return request<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
         }
 
         template <typename BodyType, typename Ofstream=std::nullptr_t,
                 typename RequestBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>,
+                        std::is_same_v<util::meta::remove_cvref_t<BodyType>, MultiPartForm>,
                         http::empty_body, http::string_body>,
                 typename ResponseBody=std::conditional_t<
-                        std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>,
+                        std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>,
                         http::vector_body<unsigned char>, http::string_body>>
         typename ResponseBody::value_type
         post(std::string_view target, BodyType&& body, const Headers& headers={}, Ofstream&& ofs=nullptr) const {
             auto req = create_request<RequestBody>(http::verb::post, target, host, headers);
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<BodyType>, MultiPartForm>) {
+            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<BodyType>, MultiPartForm>) {
                 req.set(http::field::content_type, "application/json");
-                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
+//                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
                 req.prepare_payload();
                 return request<http::verb::post, ResponseBody>(
@@ -257,7 +302,7 @@ namespace poac::io::net {
 
         template <typename Request>
         void write_request(const Request& req) const {
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<Request>, MultiPartForm>) {
+            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Request>, MultiPartForm>) {
                 simple_write(req);
             } else {
                 progress_write(req);
@@ -266,14 +311,14 @@ namespace poac::io::net {
 
         template <typename Request>
         void simple_write(const Request& req) const {
-            term::debugln("Write type: string");
+            PLOG_DEBUG << "[io::net::requests] write type: string";
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
 
         template <typename Request>
         void progress_write(const Request& req) const {
-            term::debugln("Write type: multipart/form-data");
+            PLOG_DEBUG << "[io::net::requests] write type: multipart/form-data";
 
             // Send the HTTP request to the remote host
             stream->write_some(boost::asio::buffer(req.get_header()));
@@ -299,7 +344,7 @@ namespace poac::io::net {
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.get_footer()));
-            term::debugln("Waiting for server response...");
+            PLOG_DEBUG << "[io::net::requests] waiting for server response...";
         }
 
         template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
@@ -321,7 +366,8 @@ namespace poac::io::net {
         template <http::verb method, typename Request, typename Response, typename Ofstream,
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
-        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
+        handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const
+        {
             close_stream();
             switch (res.base().result_int() / 100) {
                 case 2:
@@ -334,7 +380,7 @@ namespace poac::io::net {
                             std::forward<Response>(res),
                             std::forward<Ofstream>(ofs));
                 default:
-                    if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
+                    if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
                         throw core::except::error(
                                 "io::net received a bad response code: ", res.base().result_int(), "\n",
                                 res.body()
@@ -351,11 +397,11 @@ namespace poac::io::net {
                 typename ResponseBody=typename Response::body_type>
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
-            if constexpr (!std::is_same_v<util::types::remove_cvref_t<Ofstream>, std::ofstream>) {
-                term::debugln("Read type: string");
+            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
+                PLOG_DEBUG << "[io::net::requests] read type: string";
                 return res.body();
             } else {
-                term::debugln("Read type: file with progress");
+                PLOG_DEBUG << "[io::net::requests] read type: file with progress";
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
@@ -368,9 +414,9 @@ namespace poac::io::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            std::cout << '\r' << term::info << "Downloading ";
-                            term::echo_byte_progress(content_length, acc);
-                            std::cout << "  ";
+                            PLOG_INFO << '\r' << "Downloading "
+                                      << to_byte_progress(content_length, acc)
+                                      << "  ";
                         }
                     }
                 }
@@ -384,7 +430,7 @@ namespace poac::io::net {
         redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             const std::string new_location = std::string(res.base()["Location"]);
             const auto [new_host, new_target] = parse_url(new_location);
-            term::debugln("Redirect to ", new_location, "\n");
+            PLOG_DEBUG << fmt::format("Redirect to {}\n", new_location);
 
             // FIXME: header information is gone.
             const requests req(new_host);
@@ -420,7 +466,7 @@ namespace poac::io::net {
                 boost::system::error_code error{
                         static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
                 };
-                term::debugln(error.message());
+                PLOG_DEBUG << error.message();
                 throw boost::system::system_error{ error };
             }
         }
@@ -435,54 +481,103 @@ namespace poac::io::net {
             stream->handshake(ssl::stream_base::client);
         }
     };
+} // end namespace
 
-    namespace api {
-        std::optional<std::vector<std::string>>
-        versions(const std::string& name) {
+namespace poac::io::net::api {
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+    search_impl(std::string_view body) noexcept {
+        try {
+            const requests request{ALGOLIA_SEARCH_INDEX_API_HOST};
+            Headers headers;
+            headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
+            headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
+
+            const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, body, headers);
+            std::stringstream response_body;
+            response_body << response.data();
+
             boost::property_tree::ptree pt;
-            {
-                std::stringstream ss;
-                {
-                    const requests req{ POAC_API_HOST };
-                    const auto res = req.get(POAC_VERSIONS_API + ("/" + name));
-                    ss << res.data();
-                }
-                term::debugln(name, ": ", ss.str());
-                if (ss.str() == "null") {
-                    return std::nullopt;
-                }
-                boost::property_tree::json_parser::read_json(ss, pt);
-            }
-            return util::types::ptree_to_vector<std::string>(pt);
-        }
-
-        std::optional<boost::property_tree::ptree>
-        deps(const std::string& name, const std::string& version) {
-            std::stringstream ss;
-            {
-                const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_DEPS_API + ("/" + name) + "/" + version);
-                ss << res.data();
-            }
-            if (ss.str() == "null") {
-                return std::nullopt;
-            } else {
-                boost::property_tree::ptree pt;
-                boost::property_tree::json_parser::read_json(ss, pt);
-                return pt;
-            }
-        }
-
-        bool
-        exists(const std::string& name, const std::string& version) {
-            std::stringstream ss;
-            {
-                const requests req{ POAC_API_HOST };
-                const auto res = req.get(POAC_EXISTS_API + ("/" + name) + "/" + version);
-                ss << res.data();
-            }
-            return ss.str() == "true";
+            boost::property_tree::json_parser::read_json(response_body, pt);
+            return mitama::success(pt);
+        } catch (const core::except::error& e) {
+            return mitama::failure(e.what());
+        } catch (...) {
+            return mitama::failure("unknown error caused when calling search api");
         }
     }
+
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+    search(std::string_view query, const std::uint64_t& count = 0) noexcept {
+        boost::property_tree::ptree pt;
+        const std::string hits_per_page =
+            count != 0 ? fmt::format("&hitsPerPage={}", count) : "";
+        const std::string params = fmt::format("query={}{}", query, hits_per_page);
+        pt.put("params", params);
+        std::stringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        return search_impl(body.str());
+    }
+
+    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
+    all_indices() noexcept {
+        // ref: https://www.algolia.com/doc/
+        //   guides/sending-and-managing-data/manage-your-indices/
+        //   how-to/export-an-algolia-index/#exporting-the-index
+        // You can use an empty query to indicate
+        //   that you want to retrieve all records.
+        return search("");
+    }
+
+    [[nodiscard]] auto
+    deps(std::string_view name, std::string_view version)
+      noexcept
+      -> mitama::result<
+           std::unordered_map<std::string, std::string>,
+           std::string>
+    {
+        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        IF_PLOG(plog::debug) {
+            boost::property_tree::json_parser::write_json(std::cout, res);
+        }
+        for (const auto& child : res.get_child("hits")) {
+            const boost::property_tree::ptree& hits = child.second;
+
+            if (hits.get<std::string>("package.name") == name &&
+                hits.get<std::string>("package.version") == version)
+            {
+                return mitama::success(
+                    util::meta::to_unordered_map<std::string>(
+                        hits, "dependencies"
+                    )
+                );
+            }
+        }
+        return mitama::failure(
+            fmt::format("no such package `{}: {}`", name, version)
+        );
+    }
+
+    [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
+    versions(std::string_view name) {
+        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        IF_PLOG(plog::debug) {
+            boost::property_tree::json_parser::write_json(std::cout, res);
+        }
+
+        std::vector<std::string> results;
+        for (const auto& child : res.get_child("hits")) {
+            const boost::property_tree::ptree& hits = child.second;
+            if (hits.get<std::string>("package.name") == name) {
+                results.emplace_back(hits.get<std::string>("package.version"));
+            }
+        }
+        PLOG_DEBUG <<
+            fmt::format(
+                "[io::net::api::versions] versions of {} are [{}]",
+                name, fmt::join(results, ", ")
+            );
+        return mitama::success(results);
+    }
 } // end namespace
+
 #endif // !POAC_IO_NET_HPP

@@ -1,6 +1,7 @@
 #ifndef POAC_IO_PATH_HPP
 #define POAC_IO_PATH_HPP
 
+// std
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
@@ -8,8 +9,12 @@
 #include <string>
 #include <optional>
 
+// external
+#include <fmt/core.h>
 #include <boost/predef.h>
+#include <mitama/result/result.hpp>
 
+// internal
 #include <poac/core/except.hpp>
 
 namespace std::filesystem {
@@ -76,9 +81,28 @@ namespace poac::io::path {
     inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
     inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
 
-    inline bool validate_dir(const std::filesystem::path& path) {
+    mitama::result<void, std::string>
+    validate_dir(const std::filesystem::path& path) noexcept {
         namespace fs = std::filesystem;
-        return fs::exists(path) && fs::is_directory(path) && !fs::is_empty(path);
+        std::error_code ec{}; // This is to use for noexcept optimization
+
+        const bool exists = fs::exists(path, ec);
+        if (exists && !fs::is_directory(path, ec)) {
+            return mitama::failure(
+                fmt::format(
+                    "The `{}` directory could not be created because the same name file exists",
+                    path.string()
+                )
+            );
+        } else if (exists && !fs::is_empty(path, ec)) {
+            return mitama::failure(
+                fmt::format(
+                    "The `{}` directory already exists and is not empty",
+                    path.string()
+                )
+            );
+        }
+        return mitama::success();
     }
 
     bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {

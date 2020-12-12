@@ -4,17 +4,17 @@
 // std
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
-#include <string_view>
-#include <optional>
+
+// external
+#include <fmt/core.h>
+#include <mitama/result/result.hpp>
+#include <plog/Log.h>
 
 // internal
 #include <poac/cmd/new.hpp>
-#include <poac/io/path.hpp>
-#include <poac/io/term.hpp>
-#include <poac/io/config.hpp>
-#include <poac/core/except.hpp>
-#include <poac/core/name.hpp>
+#include <poac/core/validator.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
 namespace poac::cmd::init {
@@ -22,15 +22,11 @@ namespace poac::cmd::init {
         _new::ProjectType type;
     };
 
-    [[nodiscard]] std::optional<core::except::Error>
-    init(init::Options&& opts) {
+    [[nodiscard]] mitama::result<void, std::string>
+    init(std::string_view package_name, init::Options&& opts) {
         using termcolor2::color_literals::operator""_green;
 
-        const std::string package_name = io::path::current.stem().string();
-        if (const auto error = core::name::validate_package_name(package_name)) {
-            return error;
-        }
-
+        PLOG_VERBOSE << "Creating ./poac.toml";
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
@@ -40,23 +36,30 @@ namespace poac::cmd::init {
                 ofs_config << _new::files::poac_toml(package_name);
                 break;
         }
-        fmt::print(
-            "{}{} `{}` package\n",
+        PLOG_INFO << fmt::format(
+            "{}{} `{}` package",
             "Created: "_green,
             opts.type,
             package_name
         );
-        return std::nullopt;
+        return mitama::success();
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
-        if (io::config::detail::validate_config()) {
-            return core::except::Error::General{
+        if (core::validator::require_config_exists().is_ok()) {
+            return mitama::failure(
                 "`poac init` cannot run on existing poac packages"
-            };
+            );
         }
-        return init(std::move(opts));
+
+        const std::string package_name = std::filesystem::current_path().stem().string();
+        PLOG_VERBOSE << fmt::format(
+            "Validating the package name `{}`", package_name
+        );
+        MITAMA_TRY(core::validator::valid_package_name(package_name));
+
+        return init(package_name, std::move(opts));
     }
 } // end namespace
 
