@@ -217,7 +217,7 @@ jobs:
       - run: file ./build/poac
 
       - name: Upload pre-built binary
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2.2.1
         if: matrix.build_type == 'Release'
         with:
           name: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}
@@ -422,7 +422,7 @@ jobs:
       - run: file ./build/poac
 
       - name: Upload pre-built binary
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2.2.1
         if: matrix.build_type == 'Release'
         with:
           name: ${{ matrix.target_platform }}-unknown-linux-gnu
