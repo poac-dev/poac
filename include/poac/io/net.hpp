@@ -300,24 +300,36 @@ namespace poac::io::net {
         std::unique_ptr<boost::asio::ip::tcp::resolver> resolver;
         std::unique_ptr<ssl::stream<boost::asio::ip::tcp::socket>> stream;
 
-        template <typename Request>
+        template <
+            typename Request,
+            std::enable_if_t<
+                std::negation_v<
+                    std::is_same<
+                        util::meta::remove_cvref_t<
+                            Request
+                        >,
+                        MultiPartForm
+                    >>,
+                std::nullptr_t
+            > = nullptr>
         void write_request(const Request& req) const {
-            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Request>, MultiPartForm>) {
-                simple_write(req);
-            } else {
-                progress_write(req);
-            }
-        }
-
-        template <typename Request>
-        void simple_write(const Request& req) const {
             PLOG_DEBUG << "[io::net::requests] write type: string";
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
 
-        template <typename Request>
-        void progress_write(const Request& req) const {
+        template <
+            typename Request,
+            std::enable_if_t<
+                std::is_same_v<
+                    util::meta::remove_cvref_t<
+                        Request
+                    >,
+                    MultiPartForm
+                >,
+                std::nullptr_t
+            > = nullptr>
+        void write_request(const Request& req) const {
             PLOG_DEBUG << "[io::net::requests] write type: multipart/form-data";
 
             // Send the HTTP request to the remote host
