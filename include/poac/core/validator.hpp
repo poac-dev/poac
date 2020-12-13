@@ -25,7 +25,7 @@ namespace poac::core::validator {
         return mitama::failure(
             fmt::format(
                 "required config file `{}` does not exist",
-                config_path
+                config_path.string()
             )
         );
     }
