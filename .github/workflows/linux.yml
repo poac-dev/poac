@@ -214,6 +214,7 @@ jobs:
         working-directory: build
 
       - name: Running test
+        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
         run: ./poac help
         working-directory: build
 
