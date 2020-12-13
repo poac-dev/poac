@@ -8,7 +8,7 @@
 #include <vector>
 
 // external
-#include <fmt/core.h>
+#include <fmt/ostream.h>
 #include <mitama/result/result.hpp>
 
 namespace poac::core::validator {
@@ -80,7 +80,8 @@ namespace poac::core::validator {
         if (std::find(blacklist.begin(), blacklist.end(), s) != blacklist.end()) {
             return mitama::failure(
                 fmt::format(
-                    "`{}` is a keyword, so it cannot be used as a package name", s
+                    FMT_STRING("`{}` is a keyword, so it cannot be used as a package name"),
+                    std::string(s)
                 )
             );
         }
