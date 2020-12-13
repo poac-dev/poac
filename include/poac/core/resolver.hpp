@@ -59,7 +59,7 @@ namespace poac::core::resolver {
         try {
             const auto duplicate_deps = MITAMA_TRY(resolve::gather_all_deps(deps));
             if (!resolve::duplicate_loose(duplicate_deps)) {
-                // When all dependencies are one package and one version,
+                // When all dependencies are composed of one package and one version,
                 // a backtrack is not needed. Therefore, the duplicate_loose
                 // function just needs to check whether the gathered dependencies
                 // have multiple packages with the same name. If found multiple
