@@ -1,11 +1,14 @@
 #ifndef SEMVER_INTERVAL_HPP
 #define SEMVER_INTERVAL_HPP
 
+// std
 #include <string>
+#include <string_view>
 #include <regex>
 #include <stdexcept>
 #include <optional>
 
+// internal
 #include <poac/util/semver/version.hpp>
 #include <poac/util/semver/comparison.hpp>
 
@@ -18,7 +21,6 @@ namespace semver {
 
     class Interval {
     public:
-        const std::string name;
         const std::string interval;
 
         std::string comp_op;
@@ -31,7 +33,7 @@ namespace semver {
 
         IntervalMode mode;
 
-        explicit Interval(const std::string& n, const std::string& i) : name(n), interval(i) {
+        explicit Interval(std::string_view i) : interval(i) {
             std::smatch match;
             if (std::regex_match(interval, match, std::regex(CLOSED_UNBOUNDED_INTERVAL))) {
                 comp_op = match[2].str();
@@ -40,12 +42,10 @@ namespace semver {
                 // Check
                 if (comp_op.empty()) { // equal
                     mode = IntervalMode::Equal;
-                }
-                else {
+                } else {
                     mode = IntervalMode::ClosedUnbounded;
                 }
-            }
-            else if (std::regex_match(interval, match, std::regex(BOUNDED_INTERVAL))) {
+            } else if (std::regex_match(interval, match, std::regex(BOUNDED_INTERVAL))) {
                 first_comp_op = match[2].str();
                 second_comp_op = match[9].str();
 
@@ -65,10 +65,9 @@ namespace semver {
                     throw std::range_error(error.value());
                 }
                 mode = IntervalMode::Bounded;
-            }
-            else {
+            } else {
                 throw std::invalid_argument(
-                        "`" + name + ": " + interval + "` is invalid expression.\n"
+                        "`" + interval + "` is invalid expression.\n"
                         "Comparison operators:\n"
                         "  >, >=, <, <=\n"
                         "Logical operator:\n"
@@ -78,7 +77,7 @@ namespace semver {
             }
         }
 
-        bool satisfies(const std::string& version) const {
+        bool satisfies(std::string_view version) const {
             switch (mode) {
                 case IntervalMode::Equal:
                     return version == interval;
@@ -95,17 +94,14 @@ namespace semver {
 
     private:
         // >2.3.0, 1.0.0, <=1.2.3-alpha, ...
-        bool satisfies_closed_unbounded_interval(const std::string& v) const {
+        bool satisfies_closed_unbounded_interval(std::string_view v) const {
             if (comp_op == ">") {
                 return Version(v) > version_str;
-            }
-            else if (comp_op == ">=") {
+            } else if (comp_op == ">=") {
                 return Version(v) >= version_str;
-            }
-            else if (comp_op == "<") {
+            } else if (comp_op == "<") {
                 return Version(v) < version_str;
-            }
-            else if (comp_op == "<=") {
+            } else if (comp_op == "<=") {
                 return Version(v) <= version_str;
             }
             return false;
@@ -118,23 +114,20 @@ namespace semver {
                 && (second_comp_op == "<" || second_comp_op == "<="))
             {
                 if (Version(first_version) > second_version) { // Prioritize the larger version
-                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                    return "`" + interval + "` is invalid expression.\n"
                            "Did you mean " + first_comp_op + first_version + " ?";
-                }
-                else {
-                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                } else {
+                    return "`" + interval + "` is invalid expression.\n"
                            "Did you mean " + second_comp_op + second_version + " ?";
                 }
-            }
-            else if ((first_comp_op == ">" || first_comp_op == ">=")
+            } else if ((first_comp_op == ">" || first_comp_op == ">=")
                      && (second_comp_op == ">" || second_comp_op == ">="))
             {
                 if (Version(first_version) < second_version) { // Prioritize the smaller version
-                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                    return "`" + interval + "` is invalid expression.\n"
                            "Did you mean " + first_comp_op + first_version + " ?";
-                }
-                else {
-                    return "`" + name + ": " + interval + "` is invalid expression.\n"
+                } else {
+                    return "`" + interval + "` is invalid expression.\n"
                            "Did you mean " + second_comp_op + second_version + " ?";
                 }
             }
@@ -154,19 +147,18 @@ namespace semver {
                 if ((first_comp_op == "<" || first_comp_op == "<=")
                     && (second_comp_op == ">" || second_comp_op == ">="))
                 {
-                    return "`" + name + ": " + interval + "` is strange.\n"
+                    return "`" + interval + "` is strange.\n"
                            "In this case of interval specification using `and` +\n"
                            " it is necessary to be a bounded interval.\n"
                            "Please specify as in the following example:\n"
                            "e.g. `" + second_comp_op + first_version + " and " +
                            first_comp_op + second_version + "`";
                 }
-            }
-            else if (Version(first_version) > second_version) {
+            } else if (Version(first_version) > second_version) {
                 if ((first_comp_op == ">" || first_comp_op == ">=")
                     && (second_comp_op == "<" || second_comp_op == "<="))
                 {
-                    return "`" + name + ": " + interval + "` is strange.\n"
+                    return "`" + interval + "` is strange.\n"
                            "In this case of interval specification using `and` +\n"
                            " it is necessary to be a bounded interval.\n"
                            "Please specify as in the following example:\n"
@@ -177,36 +169,29 @@ namespace semver {
             return std::nullopt;
         }
 
-        bool satisfies_bounded_interval(const std::string& v) const {
+        bool satisfies_bounded_interval(std::string_view v) const {
             if (first_comp_op == ">") {
                 if (second_comp_op == "<") {
                     return (Version(v) > first_version) && (Version(v) < second_version);
-                }
-                else if (second_comp_op == "<=") {
+                } else if (second_comp_op == "<=") {
                     return (Version(v) > first_version) && (Version(v) <= second_version);
                 }
-            }
-            else if (first_comp_op == ">=") {
+            } else if (first_comp_op == ">=") {
                 if (second_comp_op == "<") {
                     return (Version(v) >= first_version) && (Version(v) < second_version);
-                }
-                else if (second_comp_op == "<=") {
+                } else if (second_comp_op == "<=") {
                     return (Version(v) >= first_version) && (Version(v) <= second_version);
                 }
-            }
-            else if (first_comp_op == "<") {
+            } else if (first_comp_op == "<") {
                 if (second_comp_op == ">") {
                     return (Version(v) < first_version) && (Version(v) > second_version);
-                }
-                else if (second_comp_op == ">=") {
+                } else if (second_comp_op == ">=") {
                     return (Version(v) < first_version) && (Version(v) >= second_version);
                 }
-            }
-            else if (first_comp_op == "<=") {
+            } else if (first_comp_op == "<=") {
                 if (second_comp_op == ">") {
                     return (Version(v) <= first_version) && (Version(v) > second_version);
-                }
-                else if (second_comp_op == ">=") {
+                } else if (second_comp_op == ">=") {
                     return (Version(v) <= first_version) && (Version(v) >= second_version);
                 }
             }
