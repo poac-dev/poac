@@ -209,6 +209,7 @@ jobs:
         working-directory: build
 
       - name: Test Poac
+        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
         run: ctest --output-on-failure --verbose
         working-directory: build
 
