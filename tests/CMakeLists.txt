@@ -6,7 +6,6 @@ set(TEST_NAMES
         net
         path
         pretty
-        project
         resolve
         sat
         shell
