@@ -190,9 +190,10 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
+      - run: mkdir build
+
       - name: Build Poac
         run: |
-          mkdir build && cd build
           cmake ..                                               \
             -DBUILD_TESTING=ON                                   \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
@@ -205,16 +206,21 @@ jobs:
             -DPLOG_DIR=${{ runner.temp }}/libs/plog              \
             -DMITAMA_RESULT_DIR=${{ runner.temp }}/libs/mitama-result
           make
+        working-directory: build
 
-#      TODO:
-#      - name: Test Poac
-#        run: cd build && ctest --output-on-failure --verbose
+      - name: Test Poac
+        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
+        run: ctest --output-on-failure --verbose
+        working-directory: build
 
-#      TODO:
-#        - name: Running test
-#        run: ./build/poac help
+      - name: Running test
+        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
+        run: ./poac help
+        working-directory: build
 
-      - run: file ./build/poac
+      - name: Print info of the executable file
+        run: file ./poac
+        working-directory: build
 
       - name: Upload pre-built binary
         uses: actions/upload-artifact@v2.2.1
@@ -403,9 +409,10 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
+      - run: mkdir build
+
       - name: Build Poac
         run: |
-          mkdir build && cd build
           cmake ..                                               \
             -DBUILD_TESTING=ON                                   \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}          \
@@ -419,8 +426,11 @@ jobs:
             -DPLOG_DIR=${{ runner.temp }}/libs/plog              \
             -DMITAMA_RESULT_DIR=${{ runner.temp }}/libs/mitama-result
           make
+        working-directory: build
 
-      - run: file ./build/poac
+      - name: Print info of the executable file
+        run: file ./poac
+        working-directory: build
 
       - name: Upload pre-built binary
         uses: actions/upload-artifact@v2.2.1
