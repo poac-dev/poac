@@ -28,7 +28,6 @@
 // internal
 #include <poac/config.hpp>
 #include <poac/core/except.hpp>
-#include <poac/core/name.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>

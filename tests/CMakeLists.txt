@@ -3,7 +3,6 @@ set(TEST_NAMES
         except
         meta
         misc
-        name
         net
         path
         pretty
@@ -12,6 +11,7 @@ set(TEST_NAMES
         sat
         shell
         standard
+        validator
 )
 
 get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
