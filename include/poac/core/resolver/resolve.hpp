@@ -63,24 +63,34 @@ namespace poac::core::resolver::resolve {
         std::string // version or interval
     >;
 
-    package_t::first_type&
+    inline package_t::first_type&
     get_name(package_t& package) noexcept {
         return package.first;
     }
 
-    const package_t::first_type&
+    inline const package_t::first_type&
     get_name(const package_t& package) noexcept {
         return package.first;
     }
 
-    package_t::first_type&
+    inline package_t::second_type&
     get_version(package_t& package) noexcept {
         return package.second;
     }
 
-    const package_t::first_type&
+    inline const package_t::second_type&
     get_version(const package_t& package) noexcept {
         return package.second;
+    }
+
+    inline package_t::second_type&
+    get_interval(package_t& package) noexcept {
+        return get_version(package);
+    }
+
+    inline const package_t::second_type&
+    get_interval(const package_t& package) noexcept {
+        return get_version(package);
     }
 
     using deps_t = std::optional<duplicate_deps_t<without_deps>>;
@@ -106,6 +116,11 @@ namespace poac::core::resolver::resolve {
                 std::string, // name
                 std::string  // version or interval
             >>;
+
+    inline const package_t&
+    get_package(const unique_deps_t<with_deps>::value_type& deps) noexcept {
+        return deps.first;
+    }
 
     std::string to_binary_numbers(const int& x, const std::size_t& digit) {
         return fmt::format(FMT_STRING("{:0{}b}"), x, digit);
@@ -235,7 +250,7 @@ namespace poac::core::resolver::resolve {
                     PLOG_DEBUG <<
                         fmt::format(
                             "{}-{}: {}, ",
-                            package.first, package.second, l
+                            get_name(package), get_version(package), l
                         );
                 }
                 PLOG_DEBUG << "";
@@ -259,7 +274,7 @@ namespace poac::core::resolver::resolve {
         const auto last = std::end(rng);
         return std::find_if(first, last, [&](const auto& x){
             return std::count_if(first, last, [&](const auto& y) {
-              return x.first == y.first;
+                return get_name(get_package(x)) == get_name(get_package(y));
             }) > 1;
         }) != last;
     }
@@ -269,11 +284,11 @@ namespace poac::core::resolver::resolve {
     // `latest` -> { 2.5.0 }
     // name is boost/config, no boost-config
     std::vector<std::string>
-    get_versions_satisfy_interval(const std::string& name, const std::string& interval) {
+    get_versions_satisfy_interval(const package_t& package) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         const std::vector<std::string> versions =
-            io::net::api::versions(name).unwrap();
-        if (interval == "latest") {
+            io::net::api::versions(get_name(package)).unwrap();
+        if (get_interval(package) == "latest") {
             return {
                 *std::max_element(
                     versions.cbegin(),
@@ -285,7 +300,7 @@ namespace poac::core::resolver::resolve {
             };
         } else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
             std::vector<std::string> res;
-            semver::Interval i(name, interval);
+            semver::Interval i(get_name(package), get_interval(package));
             std::copy_if(
                 versions.cbegin(),
                 versions.cend(),
@@ -296,7 +311,7 @@ namespace poac::core::resolver::resolve {
                 throw except::error(
                     fmt::format(
                         "`{}: {}` not found. seem dependencies are broken",
-                        name, interval
+                        get_name(package), get_interval(package)
                     )
                 );
             } else {
@@ -308,10 +323,19 @@ namespace poac::core::resolver::resolve {
     using interval_cache_t =
         std::vector<
             std::tuple<
-                std::string, // name
-                std::string, // interval
+                package_t,
                 std::vector<std::string> // versions in the interval
             >>;
+
+    inline const package_t&
+    get_package(const interval_cache_t::value_type& cache) noexcept {
+        return std::get<0>(cache);
+    }
+
+    inline const std::vector<std::string>&
+    get_versions(const interval_cache_t::value_type& cache) noexcept {
+        return std::get<1>(cache);
+    }
 
     duplicate_deps_t<without_deps>
     gather_deps_of_deps(
@@ -319,27 +343,26 @@ namespace poac::core::resolver::resolve {
         interval_cache_t& interval_cache)
     {
         duplicate_deps_t<without_deps> cur_deps_deps;
-        for (const auto& [name, interval] : deps_api_res) {
+        for (const auto& package : deps_api_res) {
             // Check if node package is resolved dependency (by interval)
             const auto itr =
                 boost::range::find_if(
                     interval_cache,
-                    [&name=name, &interval=interval](const auto& d) {
-                      return std::get<0>(d) == name &&
-                             std::get<1>(d) == interval;
+                    [&package](const auto& cache) {
+                        return get_name(get_package(cache)) == get_name(package) &&
+                               get_interval(get_package(cache)) == get_interval(package);
                     }
                 );
             if (itr != interval_cache.cend()) { // cache found
-                for (const auto& dep_version : std::get<2>(*itr)) {
-                    cur_deps_deps.emplace_back(name, dep_version);
+                for (const auto& dep_version : get_versions(*itr)) {
+                    cur_deps_deps.emplace_back(get_name(package), dep_version);
                 }
             } else {
-                const auto dep_versions =
-                    get_versions_satisfy_interval(name, interval);
+                const auto dep_versions = get_versions_satisfy_interval(package);
                 // Cache interval and versions pair
-                interval_cache.emplace_back(name, interval, dep_versions);
+                interval_cache.emplace_back(package, dep_versions);
                 for (const auto& dep_version : dep_versions) {
-                    cur_deps_deps.emplace_back(name, dep_version);
+                    cur_deps_deps.emplace_back(get_name(package), dep_version);
                 }
             }
         }
@@ -347,8 +370,7 @@ namespace poac::core::resolver::resolve {
     }
 
     void gather_deps(
-        const std::string& name,
-        const std::string& version,
+        const package_t& package,
         duplicate_deps_t<with_deps>& new_deps,
         interval_cache_t& interval_cache)
     {
@@ -356,33 +378,34 @@ namespace poac::core::resolver::resolve {
         //   (whether the specific version is the same),
         //   and check circulating
         if (util::meta::find_if(new_deps, [&](const auto& d) {
-                return d.first.first == name && d.first.second == version;
+                return get_name(get_package(d)) == get_name(package) &&
+                       get_version(get_package(d)) == get_version(package);
         })) {
             return;
         }
 
         // Get dependencies of dependencies
         const unique_deps_t<without_deps> deps_api_res =
-            io::net::api::deps(name, version).unwrap();
+            io::net::api::deps(get_name(package), get_version(package)).unwrap();
         if (deps_api_res.empty()) {
-            new_deps.emplace_back(std::make_pair(name, version), std::nullopt);
+            new_deps.emplace_back(package, std::nullopt);
         } else {
             const auto deps_of_deps = gather_deps_of_deps(deps_api_res, interval_cache);
 
             // Store dependency and the dependency's dependencies.
-            new_deps.emplace_back(std::make_pair(name, version), deps_of_deps);
+            new_deps.emplace_back(package, deps_of_deps);
 
             // Gather dependencies of dependencies of dependencies. lol
-            for (const auto& [name, version] : deps_of_deps) {
-                gather_deps(name, version, new_deps, interval_cache);
+            for (const auto& dep_package : deps_of_deps) {
+                gather_deps(dep_package, new_deps, interval_cache);
             }
         }
     }
 
     [[nodiscard]] mitama::result<duplicate_deps_t<with_deps>, std::string>
     gather_all_deps(const unique_deps_t<without_deps>& deps) {
-        duplicate_deps_t<with_deps> duplicate_deps{};
-        interval_cache_t interval_cache{};
+        duplicate_deps_t<with_deps> duplicate_deps;
+        interval_cache_t interval_cache;
 
         // Activate the root of dependencies
         for (const auto& package : deps) {
@@ -392,9 +415,9 @@ namespace poac::core::resolver::resolve {
             //   by checking whether package's interval is the same.
             if (util::meta::find_if(
                     interval_cache,
-                    [&package=package](const auto& cache){
-                        return get_name(package) == std::get<0>(cache) &&
-                              get_version(package) == std::get<1>(cache);
+                    [&package](const auto& cache){
+                        return get_name(package) == get_name(get_package(cache)) &&
+                            get_interval(package) == get_interval(get_package(cache));
                     }
                 )) {
                 continue;
@@ -402,21 +425,12 @@ namespace poac::core::resolver::resolve {
 
             // Get versions using interval
             // FIXME: versions API and deps API are received the almost same responses
-            const auto versions =
-                get_versions_satisfy_interval(
-                    get_name(package),
-                    get_version(package)
-                );
+            const auto versions = get_versions_satisfy_interval(package);
             // Cache interval and versions pair
-            interval_cache.emplace_back(
-                get_name(package),
-                get_version(package),
-                versions
-            );
+            interval_cache.emplace_back(package, versions);
             for (const auto& version : versions) {
                 gather_deps(
-                    get_name(package),
-                    version,
+                    std::make_pair(get_name(package), version),
                     duplicate_deps,
                     interval_cache
                 );
