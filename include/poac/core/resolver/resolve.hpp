@@ -28,7 +28,6 @@
 // internal
 #include <poac/config.hpp>
 #include <poac/core/except.hpp>
-#include <poac/core/name.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
 #include <poac/io/path.hpp>
@@ -300,7 +299,7 @@ namespace poac::core::resolver::resolve {
             };
         } else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
             std::vector<std::string> res;
-            semver::Interval i(get_name(package), get_interval(package));
+            semver::Interval i(get_interval(package));
             std::copy_if(
                 versions.cbegin(),
                 versions.cend(),

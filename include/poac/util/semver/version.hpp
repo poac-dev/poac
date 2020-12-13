@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <vector>
 #include <regex>
@@ -111,7 +112,8 @@ namespace semver {
         // The build metadata, ignored when determining version precedence.
         std::vector<std::string> build = {};
 
-        explicit Version(const std::string& version) {
+        explicit Version(std::string_view _version) {
+            const std::string version(_version);
             std::smatch match;
             if (std::regex_match(version, match, std::regex(FULL))) {
                 apply_version(match);
