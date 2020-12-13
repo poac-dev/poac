@@ -88,24 +88,23 @@ namespace poac::core::resolver {
             }
             return mitama::success(resolvable_deps);
         } catch (...) {
-            return mitama::failure("parsing poac.toml failed");
+            return mitama::failure(
+                "parsing the `dependencies` key in poac.toml failed"
+            );
         }
     }
 
     [[nodiscard]] mitama::result<void, std::string>
     install_deps(const toml::value& config) noexcept {
-        try {
-            const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-            const resolve::unique_deps_t<resolve::without_deps> resolvable_deps =
-                MITAMA_TRY(to_resolvable_deps(deps));
-            const resolve::unique_deps_t<resolve::with_deps> resolved_deps =
-                MITAMA_TRY(do_resolve(resolvable_deps));
-            return download_deps(resolved_deps);
-        } catch (const std::out_of_range&) {
-            return mitama::failure(
-                "required key `dependencies` is not found in poac.toml"
-            );
+        if (!config.contains("dependencies")) {
+            return mitama::success();
         }
+        const toml::value deps = toml::get<toml::table>(config).at("dependencies");
+        const resolve::unique_deps_t<resolve::without_deps> resolvable_deps =
+            MITAMA_TRY(to_resolvable_deps(deps));
+        const resolve::unique_deps_t<resolve::with_deps> resolved_deps =
+            MITAMA_TRY(do_resolve(resolvable_deps));
+        return download_deps(resolved_deps);
     }
 }
 
