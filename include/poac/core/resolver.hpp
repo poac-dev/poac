@@ -34,7 +34,9 @@ namespace poac::core::resolver {
 
             using termcolor2::color_literals::operator""_green;
             PLOG_INFO << fmt::format(
-                "{:>21} {} v{}", "Downloaded"_green, package.first, package.second
+                "{:>21} {} v{}", "Downloaded"_green,
+                resolve::get_name(package),
+                resolve::get_version(package)
             );
         }
         return mitama::success();
@@ -58,7 +60,13 @@ namespace poac::core::resolver {
             const auto duplicate_deps = MITAMA_TRY(resolve::gather_all_deps(deps));
             if (!resolve::duplicate_loose(duplicate_deps)) {
                 // When all dependencies are one package and one version,
-                //   backtrack is not needed.
+                // a backtrack is not needed. Therefore, the duplicate_loose
+                // function just needs to check whether the gathered dependencies
+                // have multiple packages with the same name. If found multiple
+                // packages with the same name, then it means this package trying
+                // building depends on multiple versions of the same package.
+                // At the condition (the else clause), gathered dependencies
+                // should be in the backtrack loop.
                 return mitama::success(resolve::activated_to_backtracked(duplicate_deps));
             } else {
                 return mitama::success(resolve::backtrack_loop(duplicate_deps));
