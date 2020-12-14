@@ -13,7 +13,6 @@
 //#include <poac/core/builder/compiler.hpp>
 //#include <poac/core/builder/standard.hpp>
 //#include <poac/core/except.hpp>
-//#include <poac/core/project.hpp>
 //#include <poac/io/config.hpp>
 //#include <poac/io/path.hpp>
 //#include <poac/io/term.hpp>
