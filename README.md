@@ -58,6 +58,16 @@ curl -fsSL https://sh.poac.pm | bash
 Poac requires the following tools and packages to build:
 * [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
 * [`boost`](https://github.com/boostorg): `1.66.0` or later
+  * predef
+  * graph
+  * range
+  * property_tree
+  * dynamic_bitset
+  * uuid
+  * lexical_cast
+  * asio
+  * beast
+  * test (dev)
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
