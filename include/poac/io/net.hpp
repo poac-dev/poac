@@ -91,7 +91,7 @@ namespace poac::io::net {
     create_request(
             http::verb method,
             const std::string_view target,
-            const std::string_view host=POAC_API_HOST,
+            const std::string_view host,
             const headers_t& headers={}
     ) {
         // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
