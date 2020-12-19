@@ -266,7 +266,11 @@ namespace poac::io::net {
               )
         {}
 
-        template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
+        template <
+            http::verb method,
+            typename ResponseBody,
+            typename Request,
+            typename Ofstream>
         typename ResponseBody::value_type
         request(Request&& req, Ofstream&& ofs) const {
             ssl_prepare();
@@ -277,30 +281,61 @@ namespace poac::io::net {
             );
         }
 
-        template <typename RequestBody=http::empty_body, typename Ofstream=std::nullptr_t,
-                typename ResponseBody=std::conditional_t<
-                        std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>,
-                        http::vector_body<unsigned char>, http::string_body>>
+        template <
+            typename RequestBody = http::empty_body,
+            typename Ofstream = std::nullptr_t,
+            typename ResponseBody =
+                std::conditional_t<
+                    std::is_same_v<
+                        util::meta::remove_cvref_t<Ofstream>,
+                        std::ofstream
+                    >,
+                    http::vector_body<unsigned char>,
+                    http::string_body>>
         typename ResponseBody::value_type
-        get(std::string_view target, const headers_t& headers={}, Ofstream&& ofs=nullptr) const {
+        get(
+            const std::string_view target,
+            const headers_t& headers={},
+            Ofstream&& ofs=nullptr
+        ) const {
             const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
             PLOG_DEBUG << req;
             return request<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
         }
 
-        template <typename BodyType, typename Ofstream=std::nullptr_t,
-                typename RequestBody=std::conditional_t<
-                        std::is_same_v<util::meta::remove_cvref_t<BodyType>,
-                                     multi_part_form_t>,
-                        http::empty_body, http::string_body>,
-                typename ResponseBody=std::conditional_t<
-                        std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>,
-                        http::vector_body<unsigned char>, http::string_body>>
+        template <
+            typename BodyType,
+            typename Ofstream = std::nullptr_t,
+            typename RequestBody =
+                std::conditional_t<
+                    std::is_same_v<
+                        util::meta::remove_cvref_t<BodyType>,
+                        multi_part_form_t
+                    >,
+                    http::empty_body,
+                    http::string_body
+                >,
+            typename ResponseBody =
+                std::conditional_t<
+                    std::is_same_v<
+                        util::meta::remove_cvref_t<Ofstream>,
+                        std::ofstream
+                    >,
+                    http::vector_body<unsigned char>,
+                    http::string_body>>
         typename ResponseBody::value_type
-        post(std::string_view target, BodyType&& body, const headers_t& headers={}, Ofstream&& ofs=nullptr) const {
+        post(
+            const std::string_view target,
+            BodyType&& body,
+            const headers_t& headers={},
+            Ofstream&& ofs=nullptr
+        ) const {
             auto req = create_request<RequestBody>(http::verb::post, target, host, headers);
-            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<BodyType>,
-                                          multi_part_form_t>) {
+            if constexpr (
+                !std::is_same_v<
+                    util::meta::remove_cvref_t<BodyType>,
+                    multi_part_form_t>
+            ) {
                 req.set(http::field::content_type, "application/json");
 //                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
