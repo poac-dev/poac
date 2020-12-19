@@ -28,7 +28,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
@@ -140,7 +139,7 @@ namespace poac::io::net {
 
     public:
         multi_part_form_t()
-            : m_boundary(boost::lexical_cast<std::string>(boost::uuids::random_generator{}()))
+            : m_boundary(boost::uuids::to_string(boost::uuids::random_generator{}()))
             , m_footer(fmt::format("{}--{}--{}", m_crlf, m_boundary, m_crlf))
         {}
 

@@ -64,7 +64,6 @@ Poac requires the following tools and packages to build:
   * property_tree
   * dynamic_bitset
   * uuid
-  * lexical_cast
   * asio
   * beast
   * test (dev)
