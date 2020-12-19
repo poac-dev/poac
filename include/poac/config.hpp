@@ -6,13 +6,6 @@
 #endif
 
 namespace poac {
-    constexpr char const* POAC_API_HOST =
-            "api.poac.pm";
-    constexpr char const* POAC_DEPS_API =
-            "/packages/deps";
-    constexpr char const* POAC_VERSIONS_API =
-            "/packages/versions";
-
     constexpr char const* ALGOLIA_APPLICATION_ID =
             "IOCVK5FECM";
     constexpr char const* ALGOLIA_SEARCH_ONLY_KEY =
