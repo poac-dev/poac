@@ -250,7 +250,7 @@ namespace poac::io::net {
         requests(requests&&) = default;
         requests& operator=(requests&&) = default;
 
-        explicit requests(std::string_view host)
+        explicit requests(const std::string_view host)
             : host(host)
             , ioc(std::make_unique<boost::asio::io_context>())
             , ctx(std::make_unique<boost::asio::ssl::context>(
