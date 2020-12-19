@@ -286,8 +286,7 @@ namespace poac::io::net {
                 std::conditional_t<
                     std::is_same_v<
                         util::meta::remove_cvref_t<Ofstream>,
-                        std::ofstream
-                    >,
+                        std::ofstream>,
                     http::vector_body<unsigned char>,
                     http::string_body>>
         typename ResponseBody::value_type
@@ -296,9 +295,13 @@ namespace poac::io::net {
             const headers_t& headers={},
             Ofstream&& ofs=nullptr
         ) const {
-            const auto req = create_request<RequestBody>(http::verb::get, target, host, headers);
+            const auto req = create_request<RequestBody>(
+                http::verb::get, target, host, headers
+            );
             PLOG_DEBUG << req;
-            return request<http::verb::get, ResponseBody>(std::move(req), std::forward<Ofstream>(ofs));
+            return request<http::verb::get, ResponseBody>(
+                std::move(req), std::forward<Ofstream>(ofs)
+            );
         }
 
         template <
@@ -308,17 +311,14 @@ namespace poac::io::net {
                 std::conditional_t<
                     std::is_same_v<
                         util::meta::remove_cvref_t<BodyType>,
-                        multi_part_form_t
-                    >,
+                        multi_part_form_t>,
                     http::empty_body,
-                    http::string_body
-                >,
+                    http::string_body>,
             typename ResponseBody =
                 std::conditional_t<
                     std::is_same_v<
                         util::meta::remove_cvref_t<Ofstream>,
-                        std::ofstream
-                    >,
+                        std::ofstream>,
                     http::vector_body<unsigned char>,
                     http::string_body>>
         typename ResponseBody::value_type
@@ -328,25 +328,30 @@ namespace poac::io::net {
             const headers_t& headers={},
             Ofstream&& ofs=nullptr
         ) const {
-            auto req = create_request<RequestBody>(http::verb::post, target, host, headers);
+            auto req = create_request<RequestBody>(
+                http::verb::post, target, host, headers
+            );
             if constexpr (
                 !std::is_same_v<
                     util::meta::remove_cvref_t<BodyType>,
                     multi_part_form_t>
             ) {
                 req.set(http::field::content_type, "application/json");
-//                body.erase(std::remove(body.begin(), body.end(), '\n'), body.end());
                 req.body() = body;
                 req.prepare_payload();
                 return request<http::verb::post, ResponseBody>(
-                        std::forward<decltype(req)>(req), std::forward<Ofstream>(ofs));
+                        std::forward<decltype(req)>(req),
+                        std::forward<Ofstream>(ofs)
+                );
             } else {
                 req.set(http::field::accept, "*/*");
                 req.set(http::field::content_type, body.content_type());
                 req.set(http::field::content_length, body.content_length());
                 body.set_req(req);
                 return request<http::verb::post, ResponseBody>(
-                        std::forward<BodyType>(body), std::forward<Ofstream>(ofs));
+                        std::forward<BodyType>(body),
+                        std::forward<Ofstream>(ofs)
+                );
             }
         }
 
@@ -420,7 +425,11 @@ namespace poac::io::net {
             PLOG_DEBUG << "[io::net::requests] waiting for server response...";
         }
 
-        template <http::verb method, typename ResponseBody, typename Request, typename Ofstream>
+        template <
+            http::verb method,
+            typename ResponseBody,
+            typename Request,
+            typename Ofstream>
         typename ResponseBody::value_type
         read_response(Request&& old_req, Ofstream&& ofs) const {
             // This buffer is used for reading and must be persisted
@@ -436,8 +445,12 @@ namespace poac::io::net {
                     std::forward<Ofstream>(ofs));
         }
 
-        template <http::verb method, typename Request, typename Response, typename Ofstream,
-                typename ResponseBody=typename Response::body_type>
+        template <
+            http::verb method,
+            typename Request,
+            typename Response,
+            typename Ofstream,
+            typename ResponseBody = typename Response::body_type>
         typename ResponseBody::value_type
         handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const
         {
@@ -466,8 +479,10 @@ namespace poac::io::net {
             }
         }
 
-        template <typename Response, typename Ofstream,
-                typename ResponseBody=typename Response::body_type>
+        template <
+            typename Response,
+            typename Ofstream,
+            typename ResponseBody = typename Response::body_type>
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
             if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
@@ -497,11 +512,15 @@ namespace poac::io::net {
             }
         }
 
-        template <http::verb method, typename Request, typename Response, typename Ofstream,
-                typename ResponseBody=typename Response::body_type>
+        template <
+            http::verb method,
+            typename Request,
+            typename Response,
+            typename Ofstream,
+            typename ResponseBody = typename Response::body_type>
         typename ResponseBody::value_type
         redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
-            const std::string new_location = std::string(res.base()["Location"]);
+            const std::string new_location(res.base()["Location"]);
             const auto [new_host, new_target] = parse_url(new_location);
             PLOG_DEBUG << fmt::format("Redirect to {}\n", new_location);
 
@@ -532,6 +551,7 @@ namespace poac::io::net {
             lookup();
             ssl_handshake();
         }
+
         void ssl_set_tlsext() const {
             // Set SNI Hostname (many hosts need this to handshake successfully)
             if(!SSL_set_tlsext_host_name(stream->native_handle(), std::string(host).c_str()))
@@ -543,12 +563,14 @@ namespace poac::io::net {
                 throw boost::system::system_error{ error };
             }
         }
+
         void lookup() const {
             // Look up the domain name
             const auto results = resolver->resolve(host, port);
             // Make the connection on the IP address we get from a lookup
             boost::asio::connect(stream->next_layer(), results.begin(), results.end());
         }
+
         void ssl_handshake() const {
             // Perform the SSL handshake
             stream->handshake(boost::asio::ssl::stream_base::client);
