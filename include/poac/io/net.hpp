@@ -96,7 +96,6 @@ namespace poac::io::net {
     ) {
         // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
         http::request<RequestBody> req{ method, std::string(target), 11 };
-        http::request<http::empty_body> req2;
         req.set(http::field::host, host);
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         for (const auto& [field, value] : headers) {
