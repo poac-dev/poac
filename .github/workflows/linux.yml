@@ -285,11 +285,11 @@ jobs:
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
-          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}
+          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}-v2
       - name: Install boost (${{ env.BOOST_VERSION }}) as static
         if: steps.boost-cache.outputs.cache-hit != 'true'
         run: |
-          git clone -q -b boost-1.73.0 --recursive https://github.com/boostorg/boost.git
+          git clone -q -b boost-${{ env.BOOST_VERSION }} --recursive https://github.com/boostorg/boost.git
           cd boost
           sudo apt-get update
           sudo apt-get install -y g++-${{ matrix.gcc_version }}
