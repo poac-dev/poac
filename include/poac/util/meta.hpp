@@ -1,12 +1,16 @@
 #ifndef POAC_UTIL_META_HPP
 #define POAC_UTIL_META_HPP
 
+// std
 #include <optional>
 #include <stack>
 #include <type_traits>
 #include <utility>
 #include <unordered_map>
 #include <vector>
+
+// external
+#include <boost/property_tree/ptree.hpp>
 
 namespace poac::util::meta {
     // If the type T is a reference type, provides the member typedef type
