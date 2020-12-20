@@ -285,7 +285,7 @@ jobs:
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
-          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}
+          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}-v2
       - name: Install boost (${{ env.BOOST_VERSION }}) as static
         if: steps.boost-cache.outputs.cache-hit != 'true'
         run: |
