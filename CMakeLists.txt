@@ -101,8 +101,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
 endif ()
 
 set(Boost_DEBUG ${VERBOSE})
-set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost 1.66.0 REQUIRED COMPONENTS system)
+find_package(Boost 1.75.0 REQUIRED COMPONENTS system)
 if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Could not find boost.")
 endif ()
@@ -110,11 +109,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 message(STATUS "Boost include directory is ... ${Boost_INCLUDE_DIRS}")
 target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
 message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
-if (${Boost_VERSION} GREATER 106900)
-    set(BOOST_LIBS Boost::system)
-else ()
-    set(BOOST_LIBS ${Boost_SYSTEM_LIBRARY})
-endif ()
+message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
 
 if (DEFINED GIT2_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${GIT2_DIR}/include)
@@ -171,7 +166,7 @@ target_link_libraries(
         ${SSL_RELATED_LIBS}
         git2
         fmt
-        ${BOOST_LIBS}
+        ${Boost_LIBRARIES}
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake)
