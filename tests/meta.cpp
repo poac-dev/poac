@@ -1,11 +1,14 @@
 #define BOOST_TEST_MAIN
-#include <array>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <poac/util/meta.hpp>
+
+// std
+#include <array>
 #include <string>
 #include <tuple>
 #include <vector>
+
+// internal
+#include <poac/util/meta.hpp>
 
 // 1. std::optional<std::size_t> index_of(const SinglePassRange& rng, const T& t)
 // 2. inline auto index_of(InputIterator first, InputIterator last, const T& value)
