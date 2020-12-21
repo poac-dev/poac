@@ -2,6 +2,7 @@
 #define POAC_CORE_VALIDATOR_HPP
 
 // std
+#include <algorithm>
 #include <filesystem>
 #include <string>
 #include <string_view>
@@ -47,7 +48,45 @@ namespace poac::core::validator {
     }
 
     [[nodiscard]] mitama::result<void, std::string>
-    use_valid_characters(std::string_view s) noexcept {
+    two_or_more_symbols(std::string_view s) noexcept {
+        const std::size_t slashes = std::count(s.begin(), s.end(), '/');
+        if (slashes > 1) {
+            return mitama::failure(
+                "Invalid package name.\n"
+                "It is prohibited to use a character string\n"
+                " that is two or more `/`."
+            );
+        }
+        return mitama::success();
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    start_with_symbol(std::string_view s) noexcept {
+        if (s[0] == '_' || s[0] == '-' || s[0] == '/') {
+            return mitama::failure(
+                "Invalid package name.\n"
+                "It is prohibited to use a character string\n"
+                " that starts with `_`, `-`, and `/`."
+            );
+        }
+        return mitama::success();
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    end_with_symbol(std::string_view s) noexcept {
+        const char last = s[s.size() - 1];
+        if (last == '_' || last == '-' || last == '/') {
+            return mitama::failure(
+                "Invalid package name.\n"
+                "It is prohibited to use a character string\n"
+                " that ends with `_`, `-`, and `/`."
+            );
+        }
+        return mitama::success();
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    invalid_characters_impl(std::string_view s) noexcept {
         for (const auto& c : s) {
             if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
                 return mitama::failure(
@@ -61,7 +100,16 @@ namespace poac::core::validator {
     }
 
     [[nodiscard]] mitama::result<void, std::string>
-    not_using_keywords(std::string_view s) {
+    invalid_characters(std::string_view s) noexcept {
+        MITAMA_TRY(invalid_characters_impl(s));
+        MITAMA_TRY(start_with_symbol(s));
+        MITAMA_TRY(end_with_symbol(s));
+        MITAMA_TRY(two_or_more_symbols(s));
+        return mitama::success();
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    using_keywords(std::string_view s) {
         // Ban keywords
         // https://en.cppreference.com/w/cpp/keyword
         std::vector<std::string_view> blacklist{
@@ -95,8 +143,8 @@ namespace poac::core::validator {
 
     [[nodiscard]] mitama::result<void, std::string>
     valid_package_name(std::string_view s) {
-        MITAMA_TRY(use_valid_characters(s));
-        MITAMA_TRY(not_using_keywords(s));
+        MITAMA_TRY(invalid_characters(s));
+        MITAMA_TRY(using_keywords(s));
         return mitama::success();
     }
 } // end namespace
