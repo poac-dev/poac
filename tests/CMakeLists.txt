@@ -4,7 +4,6 @@ set(TEST_NAMES
         meta
         misc
         net
-        path
         pretty
         resolve
         sat

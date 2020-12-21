@@ -81,15 +81,6 @@ namespace poac::io::path {
     inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
     inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
 
-    bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
-        try {
-            std::filesystem::copy(from, dest, std::filesystem::copy_options::recursive);
-        } catch (...) {
-            return false;
-        }
-        return true;
-    }
-
     inline std::string
     time_to_string(const std::time_t& time) {
         return std::to_string(time);
