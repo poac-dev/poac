@@ -1,12 +1,12 @@
 [package]
-name = "poac"
-version = "0.3.0"
-cpp = 17
-authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
+name = "poac" # required
+version = "0.3.0" # required
+cpp = 17 # required
+authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"] # required
 license = "Apache-2.0"
 homepage = "https://poac.pm"
-repository = "https://github.com/poacpm/poac"
-description = "Poac is a package manager for C++"
+repository = "https://github.com/poacpm/poac" # required
+description = "Poac is a package manager for C++" # required
 
 [dependencies]
 "ken-matsui/termcolor2" = ">=0.1.0 and <1.0.0"
