@@ -468,12 +468,17 @@ namespace poac::io::net {
                 default:
                     if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
                         throw core::except::error(
-                                "io::net received a bad response code: ", res.base().result_int(), "\n",
-                                res.body()
+                            fmt::format(
+                                "io::net received a bad response code: {}\n{}",
+                                res.base().result_int(), res.body()
+                            )
                         );
                     } else {
                         throw core::except::error(
-                                "io::net received a bad response code: ", res.base().result_int()
+                            fmt::format(
+                                "io::net received a bad response code: {}",
+                                res.base().result_int()
+                            )
                         );
                     }
             }
