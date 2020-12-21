@@ -1,17 +1,23 @@
 #ifndef POAC_CORE_BUILDER_STANDARD_HPP
 #define POAC_CORE_BUILDER_STANDARD_HPP
 
+// std
 #include <cstdint>
 #include <filesystem>
+#include <regex>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+
+// external
+#include <fmt/core.h>
+
+// internal
 #include <poac/core/except.hpp>
 #include <poac/io/path.hpp>
 #include <poac/util/cfg.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
-#include <regex>
-#include <stdexcept>
-#include <string>
-#include <string_view>
 
 namespace poac::core::builder::standard {
     inline std::string version_prefix(const bool& enable_gnu) noexcept {
@@ -30,7 +36,9 @@ namespace poac::core::builder::standard {
                 }
             }
         }
-        throw except::error("Could not get ", compiler, " version");
+        throw except::error(
+            fmt::format("Could not get {} version", compiler)
+        );
     }
 
     std::string apple_llvm_convert(const std::uint_fast8_t& cpp_version, const bool& enable_gnu) {
@@ -48,7 +56,9 @@ namespace poac::core::builder::standard {
                                 "If this error is displayed in spite of C++20 is supported,\n"
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
         } else {
-            throw except::error("Unknown C++ version: ", cpp_version);
+            throw except::error(
+                fmt::format("Unknown C++ version: {}", cpp_version)
+            );
         }
     }
 
@@ -90,7 +100,9 @@ namespace poac::core::builder::standard {
                 return version_prefix(enable_gnu) + "2a";
             }
         } else {
-            throw except::error("Unknown C++ version: ", cpp_version);
+            throw except::error(
+                fmt::format("Unknown C++ version: {}", cpp_version)
+            );
         }
     }
 
@@ -128,7 +140,9 @@ namespace poac::core::builder::standard {
                 return version_prefix(enable_gnu) + "2a";
             }
         } else {
-            throw except::error("Unknown C++ version: ", cpp_version);
+            throw except::error(
+                fmt::format("Unknown C++ version: {}", cpp_version)
+            );
         }
     }
 
@@ -158,7 +172,9 @@ namespace poac::core::builder::standard {
                                 "If this error is displayed in spite of C++20 is supported,\n"
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
         } else {
-            throw except::error("Unknown C++ version: ", cpp_version);
+            throw except::error(
+                fmt::format("Unknown C++ version: {}", cpp_version)
+            );
         }
     }
 
@@ -174,7 +190,9 @@ namespace poac::core::builder::standard {
                                 "If this error is displayed in spite of C++20 is supported,\n"
                                 " please report the issue to https://github.com/poacpm/poac/issues.");
         } else {
-            throw except::error("Unknown C++ version: ", cpp_version);
+            throw except::error(
+                fmt::format("Unknown C++ version: {}", cpp_version)
+            );
         }
         // TODO: latestを活用
     }
@@ -207,7 +225,9 @@ namespace poac::core::builder::standard {
             return util::cfg::compiler::msvc;
         }
 #endif
-        throw except::error("Unknown compiler command: ", cmd);
+        throw except::error(
+            fmt::format("Unknown compiler command: {}", cmd)
+        );
     }
 
     std::string convert(const std::uint_fast8_t& cpp_version, const std::string& command, const bool& enable_gnu) {
