@@ -3,6 +3,22 @@
 
 #include <poac/core/validator.hpp>
 
+BOOST_AUTO_TEST_CASE( poac_core_validator_check_directory_can_be_created_test )
+{
+    using poac::core::validator::can_crate_directory;
+    const std::filesystem::path test_dir = "test_dir";
+
+    BOOST_CHECK( can_crate_directory(test_dir).is_ok() );
+
+    std::filesystem::create_directory(test_dir);
+    BOOST_CHECK( can_crate_directory(test_dir).is_ok() );
+
+    std::ofstream((test_dir / "test_file").string());
+    BOOST_CHECK( can_crate_directory(test_dir).is_err() );
+
+    std::filesystem::remove_all(test_dir);
+}
+
 BOOST_AUTO_TEST_CASE( poac_core_validator_use_valid_characters_test )
 {
     using poac::core::validator::invalid_characters;

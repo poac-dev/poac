@@ -81,30 +81,6 @@ namespace poac::io::path {
     inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
     inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
 
-    mitama::result<void, std::string>
-    validate_dir(const std::filesystem::path& path) noexcept {
-        namespace fs = std::filesystem;
-        std::error_code ec{}; // This is to use for noexcept optimization
-
-        const bool exists = fs::exists(path, ec);
-        if (exists && !fs::is_directory(path, ec)) {
-            return mitama::failure(
-                fmt::format(
-                    "The `{}` directory could not be created because the same name file exists",
-                    path.string()
-                )
-            );
-        } else if (exists && !fs::is_empty(path, ec)) {
-            return mitama::failure(
-                fmt::format(
-                    "The `{}` directory already exists and is not empty",
-                    path.string()
-                )
-            );
-        }
-        return mitama::success();
-    }
-
     bool copy_recursive(const std::filesystem::path& from, const std::filesystem::path& dest) noexcept {
         try {
             std::filesystem::copy(from, dest, std::filesystem::copy_options::recursive);
