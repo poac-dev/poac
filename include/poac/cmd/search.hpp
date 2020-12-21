@@ -8,6 +8,7 @@
 #include <sstream>
 
 // external
+#include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
@@ -16,7 +17,6 @@
 
 // internal
 #include <poac/io/net.hpp>
-#include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/config.hpp>
@@ -47,8 +47,8 @@ namespace poac::cmd::search {
             const boost::property_tree::ptree& hits = child.second;
 
             std::string name = hits.get<std::string>("_highlightResult.package.name.value");
-            util::misc::replace(name, "<em>", termcolor2::green.to_string());
-            util::misc::replace(name, "</em>", termcolor2::reset.to_string());
+            boost::replace_all(name, "<em>", termcolor2::green.to_string());
+            boost::replace_all(name, "</em>", termcolor2::reset.to_string());
             const auto package = fmt::format(
                 "{} = \"{}\"",
                 name,
