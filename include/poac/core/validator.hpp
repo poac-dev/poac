@@ -31,6 +31,31 @@ namespace poac::core::validator {
         );
     }
 
+    [[nodiscard]] mitama::result<void, std::string>
+    can_crate_directory(const std::filesystem::path& p) {
+        namespace fs = std::filesystem;
+        std::error_code ec{}; // This is to use for noexcept optimization
+
+        const bool exists = fs::exists(p, ec);
+        if (exists && !fs::is_directory(p, ec)) {
+            return mitama::failure(
+                fmt::format(
+                    "The `{}` directory could not be created "
+                    "because the same name file exists",
+                    p.string()
+                )
+            );
+        } else if (exists && !fs::is_empty(p, ec)) {
+            return mitama::failure(
+                fmt::format(
+                    "The `{}` directory already exists and is not empty",
+                    p.string()
+                )
+            );
+        }
+        return mitama::success();
+    }
+
     constexpr bool
     is_digit(const char& c) noexcept {
         return '0' <= c && c <= '9';

@@ -18,7 +18,6 @@
 
 // internal
 #include <poac/core/validator.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 
@@ -155,13 +154,15 @@ namespace poac::cmd::_new {
 
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
-        PLOG_VERBOSE << fmt::format(
+        PLOG_VERBOSE <<
+            fmt::format(
                 "Validating the `{}` directory exists",
                 opts.package_name
             );
-        MITAMA_TRY(io::path::validate_dir(opts.package_name));
+        MITAMA_TRY(core::validator::can_crate_directory(opts.package_name));
 
-        PLOG_VERBOSE << fmt::format(
+        PLOG_VERBOSE <<
+            fmt::format(
                 "Validating the package name `{}`",
                 opts.package_name
             );
