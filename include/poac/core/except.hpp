@@ -26,8 +26,8 @@ namespace poac::core::except {
 
     class error : public std::invalid_argument {
     public:
-        explicit error(const std::string& __s) : invalid_argument(__s) {}
-        explicit error(const char* __s) : invalid_argument(__s) {}
+        explicit error(const std::string_view __s)
+            : invalid_argument(std::string(__s)) {}
         template <typename... Args>
         explicit error(const Args&... __s)
             : invalid_argument(
