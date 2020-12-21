@@ -51,10 +51,9 @@ namespace poac::core::validator {
         for (const auto& c : s) {
             if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
                 return mitama::failure(
-                    "Invalid name.\n"
+                    "Invalid package name.\n"
                     "It is prohibited to use a character string\n"
-                    " that does not match ^([a-z|\\d|_|\\-|\\/]*)$\n"
-                    " in the project name."
+                    " that does not match ^([a-z|\\d|_|\\-|\\/]*)$."
                 );
             }
         }
@@ -66,16 +65,22 @@ namespace poac::core::validator {
         // Ban keywords
         // https://en.cppreference.com/w/cpp/keyword
         std::vector<std::string_view> blacklist{
-            "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept",
-            "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t",
-            "class", "compl", "concept", "const", "consteval", "constexpr", "const_cast", "continue", "co_await",
-            "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum",
-            "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long",
-            "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private",
-            "protected", "public", "reflexpr", "register", "reinterpret_cast", "requires", "return", "short", "signed",
-            "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "synchronized", "template", "this",
-            "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
-            "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq",
+            "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel",
+            "atomic_commit", "atomic_noexcept", "auto", "bitand", "bitor",
+            "bool", "break", "case", "catch", "char", "char8_t", "char16_t",
+            "char32_t", "class", "compl", "concept", "const", "consteval",
+            "constexpr", "const_cast", "continue", "co_await", "co_return",
+            "co_yield", "decltype", "default", "delete", "do", "double",
+            "dynamic_cast", "else", "enum", "explicit", "export", "extern",
+            "false", "float", "for", "friend", "goto", "if", "inline", "int",
+            "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq",
+            "nullptr", "operator", "or", "or_eq", "private", "protected",
+            "public", "reflexpr", "register", "reinterpret_cast", "requires",
+            "return", "short", "signed", "sizeof", "static", "static_assert",
+            "static_cast", "struct", "switch", "synchronized", "template",
+            "this", "thread_local", "throw", "true", "try", "typedef", "typeid",
+            "typename", "union", "unsigned", "using", "virtual", "void",
+            "volatile", "wchar_t", "while", "xor", "xor_eq",
         };
         if (std::find(blacklist.begin(), blacklist.end(), s) != blacklist.end()) {
             return mitama::failure(
