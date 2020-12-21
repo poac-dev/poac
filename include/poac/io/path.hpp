@@ -66,9 +66,9 @@ namespace poac::io::path {
         }
     }
 
-    inline const std::filesystem::path poac_dir(expand_user() / std::filesystem::operator""_path(".poac", 5));
-    inline const std::filesystem::path poac_cache_dir(poac_dir / "cache");
-    inline const std::filesystem::path poac_log_dir(poac_dir / "logs");
+    inline const std::filesystem::path root(expand_user() / std::filesystem::path(".poac"));
+    inline const std::filesystem::path cache_dir(root / "cache");
+    inline const std::filesystem::path archive_dir(cache_dir / "archive");
 
     inline const std::filesystem::path current(std::filesystem::current_path());
     inline const std::filesystem::path current_deps_dir(current / "deps");

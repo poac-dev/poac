@@ -47,7 +47,7 @@ namespace poac::core::resolver {
         using termcolor2::color_literals::operator""_green;
         PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
         try {
-            std::filesystem::create_directories(io::path::poac_cache_dir);
+            std::filesystem::create_directories(io::path::cache_dir);
         } catch (...) {
             return mitama::failure("creating directories failed");
         }
