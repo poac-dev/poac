@@ -502,9 +502,11 @@ namespace poac::io::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            PLOG_INFO << '\r' << "Downloading "
-                                      << to_byte_progress(content_length, acc)
-                                      << "  ";
+                            IF_PLOG(plog::verbose) {
+                                std::cout << '\r' << "Downloading "
+                                          << to_byte_progress(content_length, acc)
+                                          << "  ";
+                            }
                         }
                     }
                 }
@@ -672,6 +674,28 @@ namespace poac::io::net::api {
                 name, fmt::join(results, ", ")
             );
         return mitama::success(results);
+    }
+
+    [[nodiscard]] mitama::result<std::string, std::string>
+    package_repository(std::string_view name, std::string_view version) {
+        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        IF_PLOG(plog::debug) {
+            boost::property_tree::json_parser::write_json(std::cout, res);
+        }
+        for (const auto& child : res.get_child("hits")) {
+            const boost::property_tree::ptree& hits = child.second;
+
+            if (hits.get<std::string>("package.name") == name &&
+                hits.get<std::string>("package.version") == version)
+            {
+                return mitama::success(
+                    hits.get<std::string>("package.repository")
+                );
+            }
+        }
+        return mitama::failure(
+            fmt::format("no such package `{}: {}`", name, version)
+        );
     }
 } // end namespace
 
