@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <stdexcept>
-#include <variant>
 
 namespace poac::core::except {
     namespace detail {
@@ -25,156 +24,10 @@ namespace poac::core::except {
         }
     }
 
-    class Error {
-    public:
-        struct General {
-        private:
-            std::string impl;
-
-        public:
-            General() = delete;
-            General(const General&) = default;
-            General& operator=(const General&) = delete;
-            General(General&&) = default;
-            General& operator=(General&&) = delete;
-
-            explicit General(const std::string& s) : impl(s) {}
-            explicit General(const char* s) : impl(s) {}
-            template <typename... Args>
-            explicit General(const Args&... s)
-                : General(
-                      (... + detail::to_string(s))
-                  ) // delegation
-            {}
-            virtual ~General() noexcept = default;
-
-            virtual std::string what() const {
-                return impl;
-            }
-        };
-
-        enum NoStates {
-            InterruptedByUser,
-            InvalidFirstArg
-        };
-
-        enum class InvalidSecondArg {
-            Build,
-            Cache,
-            Cleanup,
-            Help,
-            Init,
-            New,
-            Publish,
-            Search,
-            Uninstall
-        };
-
-        struct DoesNotExist : General {
-            // Inheriting constructors
-            using General::General;
-            ~DoesNotExist() noexcept override = default;
-            std::string what() const override {
-                return "`" + General::what() + "` does not exist";
-            }
-
-            DoesNotExist(const DoesNotExist&) = default;
-            DoesNotExist& operator=(const DoesNotExist&) = delete;
-            DoesNotExist(DoesNotExist&&) = default;
-            DoesNotExist& operator=(DoesNotExist&&) = delete;
-        };
-
-        struct KeyDoesNotExist final : DoesNotExist {
-            // Inheriting constructors
-            using DoesNotExist::DoesNotExist;
-            ~KeyDoesNotExist() noexcept override = default;
-            std::string what() const override {
-                return "Required key " + DoesNotExist::what() + " in poac.toml";
-            }
-
-            KeyDoesNotExist(const KeyDoesNotExist&) = default;
-            KeyDoesNotExist& operator=(const KeyDoesNotExist&) = delete;
-            KeyDoesNotExist(KeyDoesNotExist&&) = default;
-            KeyDoesNotExist& operator=(KeyDoesNotExist&&) = delete;
-        };
-
-    private:
-        template <typename T>
-        std::string
-        what(const T& s) const {
-            return s.what();
-        }
-        std::string
-        what(NoStates err) const {
-            switch (err) {
-                case NoStates::InterruptedByUser:
-                    return "Interrupted by user";
-                case NoStates::InvalidFirstArg:
-                    return "Invalid arguments";
-                default:
-                    throw std::logic_error(
-                            "To access out of range of the "
-                            "enumeration values is undefined behavior.");
-            }
-        }
-        std::string
-        what(InvalidSecondArg err) const {
-            switch (err) {
-                case InvalidSecondArg::Build:
-                    return "build";
-                case InvalidSecondArg::Cache:
-                    return "cache";
-                case InvalidSecondArg::Cleanup:
-                    return "cleanup";
-                case InvalidSecondArg::Help:
-                    return "help";
-                case InvalidSecondArg::Init:
-                    return "init";
-                case InvalidSecondArg::New:
-                    return "new";
-                case InvalidSecondArg::Publish:
-                    return "publish";
-                case InvalidSecondArg::Search:
-                    return "search";
-                case InvalidSecondArg::Uninstall:
-                    return "uninstall";
-                default:
-                    throw std::logic_error(
-                            "To access out of range of the "
-                            "enumeration values is undefined behavior.");
-            }
-        }
-
-    public:
-        using state_type = std::variant<
-                NoStates,
-                InvalidSecondArg,
-                General,
-                DoesNotExist,
-                KeyDoesNotExist
-        >;
-        state_type state;
-
-        Error() = delete;
-        Error(const Error&) = default;
-        Error& operator=(const Error&) = delete;
-        Error(Error&&) = default;
-        Error& operator=(Error&&) = delete;
-        ~Error() = default;
-
-        template <typename T>
-        Error(T err) : state(err) {}
-
-        std::string
-        what() const {
-            return std::visit([this](auto& err) { return what(err); }, state);
-        }
-    };
-
     class error : public std::invalid_argument {
     public:
-        explicit error(const std::string& __s) : invalid_argument(__s) {}
-        explicit error(const char* __s) : invalid_argument(__s) {}
+        explicit error(const std::string_view __s)
+            : invalid_argument(std::string(__s)) {}
         template <typename... Args>
         explicit error(const Args&... __s)
             : invalid_argument(
@@ -182,6 +35,11 @@ namespace poac::core::except {
               )
         {}
 
+        error() = delete;
+        error(const error&) = default;
+        error& operator=(const error&) = default;
+        error(error&&) = default;
+        error& operator=(error&&) = default;
         ~error() noexcept override = default;
     };
 } // end namespace
