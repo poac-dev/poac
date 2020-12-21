@@ -2,6 +2,7 @@
 #define POAC_CORE_RESOLVER_HPP
 
 // std
+#include <fstream>
 #include <string>
 #include <stdexcept>
 #include <utility>
@@ -9,6 +10,7 @@
 #include <vector>
 
 // external
+#include <boost/algorithm/string.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
 #include <plog/Log.h>
@@ -17,19 +19,64 @@
 // internal
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
+#include <poac/io/net.hpp>
+#include <poac/io/path.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/misc.hpp>
 
 namespace poac::core::resolver {
+    std::filesystem::path
+    get_install_path(const resolve::package_t& package) {
+        std::filesystem::create_directories(io::path::archive_dir);
+        const std::string install_name =
+            boost::replace_first_copy(
+                resolve::get_name(package), "/", "-"
+            ) + "-" + resolve::get_version(package) + ".tar.gz";
+        return io::path::archive_dir / install_name;
+    }
+
+    std::string
+    convert_to_download_link(std::string repository) {
+        // repository is like =>
+        //   https://github.com/boostorg/winapi/tree/boost-1.66.0
+        // convert repository to like =>
+        //   https://github.com/boostorg/winapi/archive/boost-1.66.0.tar.gz
+        boost::replace_all(repository, "tree", "archive");
+        return repository + ".tar.gz";
+    }
+
+    [[nodiscard]] mitama::result<std::string, std::string>
+    get_download_link(const resolve::package_t& package) {
+        const std::string repository =
+            MITAMA_TRY(io::net::api::package_repository(
+                resolve::get_name(package), resolve::get_version(package)
+            ));
+        return mitama::success(convert_to_download_link(repository));
+    }
+
+    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
+    fetch_impl(const resolve::package_t& package) noexcept {
+        try {
+            const std::string download_link = MITAMA_TRY(get_download_link(package));
+            PLOG_DEBUG << fmt::format("downloading from `{}`", download_link);
+            const std::filesystem::path install_path = get_install_path(package);
+            PLOG_DEBUG << fmt::format("writing to `{}`", install_path);
+
+            std::ofstream archive(install_path);
+            const auto [host, target] = io::net::parse_url(download_link);
+            const io::net::requests requests{ host };
+            requests.get(target, {}, std::move(archive));
+
+            return mitama::success(install_path);
+        } catch (...) {
+            return mitama::failure("fetching packages failed");
+        }
+    }
+
     [[nodiscard]] mitama::result<void, std::string>
-    fetch(const resolve::unique_deps_t<resolve::with_deps>& deps) {
+    fetch(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
         for (const auto& [package, deps] : deps) {
-//            const std::string cache_name = core::name::to_cache(name, package.version);
-
-//            util::shell clone_cmd(core::resolver::resolve::github::clone_command(name, package.version));
-//            clone_cmd += (io::path::poac_cache_dir / cache_name).string();
-//            clone_cmd = clone_cmd.to_dev_null().stderr_to_stdout();
-
-//            bool result = clone_cmd.exec().has_value(); // true == error
+            const std::filesystem::path installed_path = MITAMA_TRY(fetch_impl(package));
 //            result = !result && copy_to_current(cache_name, current_name);
 
             using termcolor2::color_literals::operator""_green;
