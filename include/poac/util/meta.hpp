@@ -113,7 +113,8 @@ namespace poac::util::meta {
                std::is_same_v<
                    remove_cvref_t<U>,
                    boost::property_tree::ptree
-               >,std::unordered_map<std::string, T>>
+               >,
+               std::unordered_map<std::string, T>>
     {
         std::unordered_map<std::string, T> m{};
         const auto child = value.get_child_optional(key);
