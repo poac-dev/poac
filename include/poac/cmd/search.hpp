@@ -16,6 +16,7 @@
 
 // internal
 #include <poac/io/net.hpp>
+#include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/config.hpp>
@@ -24,20 +25,6 @@ namespace poac::cmd::search {
     struct Options {
         std::string package_name;
     };
-
-    unsigned int
-    replace(std::string& s, std::string_view from, std::string_view target) {
-        const auto from_length = from.size();
-        const auto target_length = target.size();
-        std::size_t pos = 0;
-        unsigned int count = 0;
-        while ((pos = s.find(from, pos)) != std::string::npos) {
-            s.replace(pos, from_length, target);
-            pos += target_length;
-            ++count;
-        }
-        return count;
-    }
 
     [[nodiscard]] mitama::result<void, std::string>
     search(Options&& opts) {
@@ -60,8 +47,8 @@ namespace poac::cmd::search {
             const boost::property_tree::ptree& hits = child.second;
 
             std::string name = hits.get<std::string>("_highlightResult.package.name.value");
-            replace(name, "<em>", termcolor2::green.to_string());
-            replace(name, "</em>", termcolor2::reset.to_string());
+            util::misc::replace(name, "<em>", termcolor2::green.to_string());
+            util::misc::replace(name, "</em>", termcolor2::reset.to_string());
             const auto package = fmt::format(
                 "{} = \"{}\"",
                 name,

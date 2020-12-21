@@ -18,5 +18,15 @@ namespace poac::util::misc {
         boost::split(ret, raw, is_any_of(delim), token_compress_on);
         return ret;
     }
+
+    void replace(std::string& s, std::string_view from, std::string_view to) {
+        const auto from_size = from.size();
+        const auto target_size = to.size();
+        std::size_t pos = 0;
+        while ((pos = s.find(from, pos)) != std::string::npos) {
+            s.replace(pos, from_size, to);
+            pos += target_size;
+        }
+    }
 } // end namespace
 #endif // POAC_UTIL_MISC_HPP
