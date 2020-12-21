@@ -21,13 +21,3 @@ BOOST_AUTO_TEST_CASE( poac_util_misc_split_test )
     excepted = { "Lorem ", "psum dolor s", "t amet, consectetur ad", "p", "sc", "ng el", "t, sed do e", "usmod ..." };
     BOOST_CHECK( split(test_case, "i") == excepted );
 }
-
-BOOST_AUTO_TEST_CASE( poac_util_misc_replace_test )
-{
-    using poac::util::misc::replace;
-
-    std::string test_case = "Hello world!";
-    const std::string excepted("Hello Poac!");
-    replace(test_case, "world", "Poac");
-    BOOST_CHECK( test_case == excepted );
-}
