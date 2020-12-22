@@ -56,24 +56,24 @@ curl -fsSL https://sh.poac.pm | bash
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
-* [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
 * [`boost`](https://github.com/boostorg): `1.75.0` or later
   * algorithm
-  * predef
-  * graph
-  * range
-  * property_tree
-  * dynamic_bitset
-  * uuid
   * asio
   * beast
+  * dynamic_bitset
+  * graph
+  * predef
+  * property_tree
+  * range
   * test (dev)
-* [`openssl`](https://github.com/openssl/openssl): as new as possible
-* [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
-* [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
+  * uuid
 * [`clipp`](https://github.com/muellan/clipp): `master` branch
+* [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
 * [`fmtlib`](https://github.com/fmtlib/fmt): `7.1.3` or later
+* [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
+* [`openssl`](https://github.com/openssl/openssl): as new as possible
+* [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
@@ -114,9 +114,9 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for det
 ### Third party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
-* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
-* libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
-* toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
 * fmtlib - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
+* libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
+* openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
+* toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
