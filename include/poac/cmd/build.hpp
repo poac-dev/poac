@@ -19,7 +19,7 @@ namespace poac::cmd::build {
     };
 
     [[nodiscard]] mitama::result<void, std::string>
-    build(toml::value&& config, [[maybe_unused]] Options&& opts) {
+    build([[maybe_unused]] Options&& opts, const toml::value& config) {
         MITAMA_TRY(core::resolver::install_deps(config));
 //        core::Builder bs(config.get(), opts.mode, opts.verbose);
 //        MITAMA_TRY(bs.build());
@@ -29,8 +29,8 @@ namespace poac::cmd::build {
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
         MITAMA_TRY(core::validator::require_config_exists());
-        toml::value&& config = toml::parse("poac.toml");
-        return build(std::move(config), std::move(opts));
+        const toml::value config = toml::parse("poac.toml");
+        return build(std::move(opts), config);
     }
 } // end namespace
 
