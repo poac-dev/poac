@@ -71,6 +71,7 @@ Poac requires the following tools and packages to build:
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
