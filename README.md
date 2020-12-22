@@ -73,6 +73,7 @@ Poac requires the following tools and packages to build:
 * [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
 * [`clipp`](https://github.com/muellan/clipp): `master` branch
 * [`fmtlib`](https://github.com/fmtlib/fmt): `7.1.3` or later
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
