@@ -56,7 +56,7 @@ curl -fsSL https://sh.poac.pm | bash
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
-* [`boost`](https://github.com/boostorg): `1.75.0` or later
+* [`boost`](https://github.com/boostorg): `1.70.0` or later
   * algorithm
   * asio
   * beast

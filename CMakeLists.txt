@@ -105,7 +105,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
 endif ()
 
 set(Boost_DEBUG ${VERBOSE})
-find_package(Boost 1.75.0 REQUIRED COMPONENTS system)
+find_package(Boost 1.70.0 REQUIRED COMPONENTS system)
 if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Could not find boost.")
 endif ()
