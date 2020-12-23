@@ -136,7 +136,7 @@ namespace poac::core::resolver {
             return mitama::success(resolvable_deps);
         } catch (...) {
             return mitama::failure(
-                "parsing the `dependencies` key in poac.toml failed"
+                "parsing the value of the `dependencies` key in poac.toml failed"
             );
         }
     }
