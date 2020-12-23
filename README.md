@@ -56,7 +56,7 @@ curl -fsSL https://sh.poac.pm | bash
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
-* [`boost`](https://github.com/boostorg): `1.75.0` or later
+* [`boost`](https://github.com/boostorg): `1.70.0` or later
   * algorithm
   * asio
   * beast
@@ -88,7 +88,7 @@ $ make install
 
 ## Why Poac?
 
-I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.
+I often see that C++ was said to be a difficult language, and I saw many people shunned it just because of C++.
 It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
 
 By developing a package manager and a build system that has an intuitive and easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and users can develop applications and libraries without being aware of [CMake](https://cmake.org), you can focus on learning C++ without stumbling.
