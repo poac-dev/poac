@@ -84,13 +84,6 @@ $ make
 $ make install
 ```
 
-<!--
-If poac is already installed, you can build using poac:
-```bash
-$ poac build
-```
--->
-
 ## Why Poac?
 
 I often see that C++ was said to be a difficult language, and I saw many people who shun it just because of C++.
