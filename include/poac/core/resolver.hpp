@@ -116,7 +116,7 @@ namespace poac::core::resolver {
                 // should be in the backtrack loop.
                 return mitama::success(resolve::activated_to_backtracked(duplicate_deps));
             } else {
-                return mitama::success(resolve::backtrack_loop(duplicate_deps));
+                return resolve::backtrack_loop(duplicate_deps);
             }
         } catch (const core::except::error& e) {
             return mitama::failure(e.what());

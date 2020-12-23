@@ -217,28 +217,24 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    unique_deps_t<with_deps>
+    [[nodiscard]] mitama::result<unique_deps_t<with_deps>, std::string>
     solve_sat(const duplicate_deps_t<with_deps>& activated, const std::vector<std::vector<int>>& clauses) {
-        unique_deps_t<with_deps> resolved_deps{};
         // deps.activated.size() == variables
-        const auto [result, assignments] = sat::solve(clauses, activated.size());
-        if (result == sat::Sat::completed) {
-            PLOG_DEBUG << "SAT";
-            for (const auto& a : assignments) {
-                PLOG_DEBUG << a << " ";
-                if (a > 0) {
-                    const auto& [package, deps] = activated[a - 1];
-                    resolved_deps.emplace(package, deps);
-                }
+        const std::vector<int> assignments = MITAMA_TRY(sat::solve(clauses, activated.size()));
+        unique_deps_t<with_deps> resolved_deps{};
+        PLOG_DEBUG << "SAT";
+        for (const auto& a : assignments) {
+            PLOG_DEBUG << a << " ";
+            if (a > 0) {
+                const auto& [package, deps] = activated[a - 1];
+                resolved_deps.emplace(package, deps);
             }
-            PLOG_DEBUG << 0;
-        } else {
-            throw except::error("Could not solve in this dependencies.");
         }
-        return resolved_deps;
+        PLOG_DEBUG << 0;
+        return mitama::success(resolved_deps);
     }
 
-    unique_deps_t<with_deps>
+    [[nodiscard]] mitama::result<unique_deps_t<with_deps>, std::string>
     backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
         const auto clauses = create_cnf(activated);
         IF_PLOG(plog::debug) {

@@ -1,6 +1,7 @@
 #ifndef POAC_CORE_RESOLVER_SAT_HPP
 #define POAC_CORE_RESOLVER_SAT_HPP
 
+// std
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -10,14 +11,16 @@
 #include <map>
 #include <cmath>
 
+// external
 #include <boost/range/adaptor/indexed.hpp>
+#include <mitama/result/result.hpp>
 
 namespace poac::core::resolver::sat {
     enum class Sat {
         satisfied, // found a satisfying assignment
         unsatisfied, // found no satisfying assignment
         normal, // Successful completion OR unsolved
-        completed // Determined all assignments
+        completed // Determined all assignments -> このとき、mitama::success
     };
 
     std::vector<int>
@@ -74,7 +77,8 @@ namespace poac::core::resolver::sat {
     }
 
     // 変数割り当てが決定された変数をcluasesから削除する
-    Sat delete_set_literal(std::vector<std::vector<int>>& clauses, const int& index, const int& set_val) {
+    Sat
+    delete_set_literal(std::vector<std::vector<int>>& clauses, const int& index, const int& set_val) {
         for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
             for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
                 // set_val -> unassigned(-1) -> always false
@@ -131,14 +135,17 @@ namespace poac::core::resolver::sat {
     }
 
     // recursive DPLL algorithm
-    std::pair<Sat, std::vector<int>>
+    [[nodiscard]] mitama::result<std::vector<int>, std::string>
     dpll(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
         if (clauses.empty()) {
-            return { Sat::completed, to_assignments(literals) };
+            return mitama::success(to_assignments(literals));
         } else if (Sat result = unit_propagate(clauses, literals); result == Sat::satisfied) {
-            return { Sat::completed, to_assignments(literals) };
+            return mitama::success(to_assignments(literals));
         } else if (result == Sat::unsatisfied) {
-            return { Sat::normal, {} };
+            return mitama::failure(
+                "could not solve dependencies.\n"
+                "detail: given SAT problem was unsatisfied."
+            );
         }
 
         // 最大の頻度を持つ変数が、次に割り当てられる値になります。
@@ -157,21 +164,24 @@ namespace poac::core::resolver::sat {
 
             // apply the change to all the clauses
             if (Sat result = delete_set_literal(clauses, i, new_literals[i]); result == Sat::satisfied) {
-                return { Sat::completed, to_assignments(new_literals) };
+                return mitama::success(to_assignments(new_literals));
             } else if (result == Sat::unsatisfied) {
                 // in this branch, return normally
                 continue;
             }
 
-            const auto [result, assignments] = dpll(clauses, new_literals);
-            if (result == Sat::completed) {
-                return { result, assignments };
+            const auto result = dpll(clauses, new_literals);
+            if (result.is_ok()) {
+                return result;
             }
         }
-        return { Sat::normal, {} };
+        return mitama::failure(
+            "could not solve dependencies.\n"
+            "detail: given SAT problem was unsatisfied."
+        );
     }
 
-    std::pair<Sat, std::vector<int>>
+    [[nodiscard]] mitama::result<std::vector<int>, std::string>
     solve(std::vector<std::vector<int>> clauses, const unsigned long& variables) {
         // indexに対応するリテラル値の割り当て状態を表現する
         // a vector that stores the value assigned to each variable, where
