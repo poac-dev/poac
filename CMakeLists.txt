@@ -142,6 +142,17 @@ if (DEFINED MITAMA_RESULT_DIR)
 endif ()
 
 if (APPLE)
+    set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+endif()
+find_package(LibArchive)
+if (NOT ${LibArchive_FOUND})
+    message(FATAL_ERROR "Could not find boost.")
+endif ()
+message(STATUS "LibArchive include directory is ... ${LibArchive_INCLUDE_DIR}")
+target_include_directories(${PROJECT_NAME} PRIVATE ${LibArchive_INCLUDE_DIR})
+message(STATUS "LibArchive library is ... ${LibArchive_LIBRARIES}")
+
+if (APPLE)
     set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
     set(OPENSSL_LIBRARIES /usr/local/opt/openssl/lib)
 elseif(DEFINED OPENSSL_ROOT_DIR)
@@ -171,6 +182,7 @@ target_link_libraries(
         git2
         fmt
         ${Boost_LIBRARIES}
+        ${LibArchive_LIBRARIES}
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake)
