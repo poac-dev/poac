@@ -119,7 +119,7 @@ namespace poac::core::resolver {
                         duplicate_deps.cbegin(), duplicate_deps.cend()
                     ));
             } else {
-                return mitama::success(resolve::backtrack_loop(duplicate_deps));
+                return resolve::backtrack_loop(duplicate_deps);
             }
         } catch (const core::except::error& e) {
             return mitama::failure(e.what());
