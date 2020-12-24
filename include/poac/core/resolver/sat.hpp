@@ -20,7 +20,6 @@ namespace poac::core::resolver::sat {
         satisfied, // found a satisfying assignment
         unsatisfied, // found no satisfying assignment
         normal, // Successful completion OR unsolved
-        completed // Determined all assignments -> このとき、mitama::success
     };
 
     std::vector<int>
