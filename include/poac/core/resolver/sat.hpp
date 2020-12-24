@@ -16,7 +16,7 @@
 #include <mitama/result/result.hpp>
 
 namespace poac::core::resolver::sat {
-    enum class Sat {
+    enum class Status {
         satisfied, // found a satisfying assignment
         unsatisfied, // found no satisfying assignment
         normal, // Successful completion OR unsolved
@@ -25,7 +25,7 @@ namespace poac::core::resolver::sat {
     std::vector<int>
     to_assignments(const std::vector<int>& literals) {
         std::vector<int> assignments;
-        for (const boost::range::index_value<const int&, long> l : literals | boost::adaptors::indexed()) {
+        for (auto&& l : literals | boost::adaptors::indexed()) {
             const int literal = l.index() + 1;
             if (l.value() != -1) {
                 assignments.emplace_back((l.value() % 2 == 0 ? 1 : -1) * literal);
@@ -64,19 +64,24 @@ namespace poac::core::resolver::sat {
         std::map<int, int> frequency;
         for (const auto& clause : clauses) {
             for (const auto& literal : clause) {
-                auto result = frequency.insert({ literal_to_index(literal), 1 });
+                auto result = frequency.insert(
+                    { literal_to_index(literal), 1 }
+                );
                 if (!result.second) {
                     result.first->second++;
                 }
             }
         }
-        auto x = std::max_element(frequency.begin(), frequency.end(),
-                [](const auto& p1, const auto& p2) { return p1.second > p2.second; });
+        auto x = std::max_element(
+            frequency.begin(), frequency.end(),
+            [](const auto& p1, const auto& p2){
+                return p1.second > p2.second;
+            });
         return x->first;
     }
 
     // 変数割り当てが決定された変数をcluasesから削除する
-    Sat
+    Status
     delete_set_literal(std::vector<std::vector<int>>& clauses, const int& index, const int& set_val) {
         for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
             for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
@@ -87,7 +92,7 @@ namespace poac::core::resolver::sat {
                     clauses.erase(itr1);
                     --itr1; // reset iterator
                     if (clauses.empty()) {
-                        return Sat::satisfied;
+                        return Status::satisfied;
                     }
                     break; // to the next clause
                 } else if (index == literal_to_index(*itr2)) { // the literal with opposite polarity
@@ -95,17 +100,18 @@ namespace poac::core::resolver::sat {
                     --itr2; // reset iterator
                     if (itr1->empty()) {
                         // unsatisfiable currently
-                        return Sat::unsatisfied;
+                        return Status::unsatisfied;
                     }
                     break; // to the next clause
                 }
             }
         }
-        return Sat::normal;
+        return Status::normal;
     }
 
     // unit resolution
-    Sat unit_propagate(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
+    Status
+    unit_propagate(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
         bool unit_clause_found = true;
         while (unit_clause_found) {
             unit_clause_found = false;
@@ -118,19 +124,19 @@ namespace poac::core::resolver::sat {
                     literals[literal_to_index(*itr->begin())] = *itr->begin() < 0;
 
                     const int index = literal_to_index(*itr->begin());
-                    Sat result = delete_set_literal(clauses, index, literals[index]);
-                    if (result == Sat::satisfied || result == Sat::unsatisfied) {
+                    Status result = delete_set_literal(clauses, index, literals[index]);
+                    if (result == Status::satisfied || result == Status::unsatisfied) {
                         return result;
                     }
                     // 今回のdeleteで，別のunit caluseができているかもしれないので，もう一度先頭からループし直す
                     break;
                 } else if (itr->empty()) {
                     // the formula is unsatisfiable in this branch
-                    return Sat::unsatisfied;
+                    return Status::unsatisfied;
                 }
             }
         }
-        return Sat::normal;
+        return Status::normal;
     }
 
     // recursive DPLL algorithm
@@ -138,9 +144,12 @@ namespace poac::core::resolver::sat {
     dpll(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
         if (clauses.empty()) {
             return mitama::success(to_assignments(literals));
-        } else if (Sat result = unit_propagate(clauses, literals); result == Sat::satisfied) {
+        } else if (
+            Status result = unit_propagate(clauses, literals);
+            result == Status::satisfied
+        ) {
             return mitama::success(to_assignments(literals));
-        } else if (result == Sat::unsatisfied) {
+        } else if (result == Status::unsatisfied) {
             return mitama::failure(
                 "could not solve dependencies.\n"
                 "detail: given SAT problem was unsatisfied."
@@ -150,7 +159,7 @@ namespace poac::core::resolver::sat {
         // 最大の頻度を持つ変数が、次に割り当てられる値になります。
         const int i = maximum_literal_number_index(clauses);
         // need to apply twice, once true, the other false
-        for (int j = 0; j < 2; j++) {
+        for (int j = 0; j < 2; ++j) {
             // copy the formula before recursing
             std::vector<int> new_literals = literals;
 
@@ -162,9 +171,12 @@ namespace poac::core::resolver::sat {
             }
 
             // apply the change to all the clauses
-            if (Sat result = delete_set_literal(clauses, i, new_literals[i]); result == Sat::satisfied) {
+            if (
+                Status result = delete_set_literal(clauses, i, new_literals[i]);
+                result == Status::satisfied
+            ) {
                 return mitama::success(to_assignments(new_literals));
-            } else if (result == Sat::unsatisfied) {
+            } else if (result == Status::unsatisfied) {
                 // in this branch, return normally
                 continue;
             }
