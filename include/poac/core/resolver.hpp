@@ -114,7 +114,10 @@ namespace poac::core::resolver {
                 // building depends on multiple versions of the same package.
                 // At the condition (the else clause), gathered dependencies
                 // should be in the backtrack loop.
-                return mitama::success(resolve::activated_to_backtracked(duplicate_deps));
+                return mitama::success(
+                    resolve::unique_deps_t<resolve::with_deps>(
+                        duplicate_deps.cbegin(), duplicate_deps.cend()
+                    ));
             } else {
                 return mitama::success(resolve::backtrack_loop(duplicate_deps));
             }

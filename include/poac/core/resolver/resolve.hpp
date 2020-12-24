@@ -258,15 +258,6 @@ namespace poac::core::resolver::resolve {
         return solve_sat(activated, clauses);
     }
 
-    unique_deps_t<with_deps>
-    activated_to_backtracked(const duplicate_deps_t<with_deps>& activated_deps) {
-        unique_deps_t<with_deps> resolved_deps;
-        for (const auto& [package, deps] : activated_deps) {
-            resolved_deps.emplace(package, deps);
-        }
-        return resolved_deps;
-    }
-
     template <class SinglePassRange>
     bool duplicate_loose(const SinglePassRange& rng) {
         const auto first = std::begin(rng);
