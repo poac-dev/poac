@@ -65,11 +65,13 @@ Poac requires the following tools and packages to build:
   * predef
   * property_tree
   * range
+  * scope_exit
   * test (dev)
   * uuid
 * [`clipp`](https://github.com/muellan/clipp): `master` branch
 * [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
 * [`fmtlib`](https://github.com/fmtlib/fmt): `7.1.3` or later
+* [`libarchive`](https://github.com/libarchive/libarchive): `3.5.0` or later
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
@@ -110,6 +112,7 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for det
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
 * fmtlib - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
+* libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
 * openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
