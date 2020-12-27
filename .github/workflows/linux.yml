@@ -11,9 +11,9 @@ env:
   TOML11_VERSION: 3.6.0
   LIBARCHIVE_VERSION: 3.5.0
   LIBGIT2_VERSION: 1.1.0
-  CLIPP_VERSION: master
+  CLIPP_VERSION: 2c32b2f1f7cc530b1ec1f62c92f698643bb368db
   FMT_VERSION: 7.1.3
-  MITAMA_RESULT_VERSION: develop
+  MITAMA_RESULT_VERSION: 37e80b09e8dcf10ef4c2925de87a92cc750ecd90
   PLOG_VERSION: 1.1.5
 
 jobs:
@@ -140,8 +140,9 @@ jobs:
         if: steps.clipp-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/clipp
-          git clone -q -b ${{ env.CLIPP_VERSION }} https://github.com/muellan/clipp.git
+          git clone -q https://github.com/muellan/clipp.git
           mkdir clipp/build && cd clipp/build
+          git checkout ${{ env.CLIPP_VERSION }}
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/clipp
           sudo make install
         working-directory: ${{ runner.temp }}
@@ -162,18 +163,19 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
-#      - name: Restore & Cache mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }})
-#        uses: actions/cache@v2.1.3
-#        id: mitama-cpp-result-cache
-#        with:
-#          path: ${{ runner.temp }}/libs/mitama-cpp-result
-#          key: ${{ env.CACHE_KEY_PREFIX }}-mitama-cpp-result-${{ env.MITAMA_RESULT_VERSION }}
+      - name: Restore & Cache mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }})
+        uses: actions/cache@v2.1.3
+        id: mitama-cpp-result-cache
+        with:
+          path: ${{ runner.temp }}/libs/mitama-cpp-result
+          key: ${{ env.CACHE_KEY_PREFIX }}-mitama-cpp-result-${{ env.MITAMA_RESULT_VERSION }}
       - name: Install LoliGothick/mitama-cpp-result (${{ env.MITAMA_RESULT_VERSION }}) (header-only) (always up-to-date)
-#        if: steps.mitama-cpp-result-cache.outputs.cache-hit != 'true'
+        if: steps.mitama-cpp-result-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/mitama-cpp-result
-          git clone -q -b ${{ env.MITAMA_RESULT_VERSION }} https://github.com/LoliGothick/mitama-cpp-result.git
+          git clone -q https://github.com/LoliGothick/mitama-cpp-result.git
           mkdir mitama-cpp-result/build && cd mitama-cpp-result/build
+          git checkout ${{ env.MITAMA_RESULT_VERSION }}
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/mitama-cpp-result
           sudo make install
         working-directory: ${{ runner.temp }}
