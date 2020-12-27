@@ -16,58 +16,54 @@ env:
   PLOG_VERSION: 1.1.5
 
 jobs:
-  x86_64-unknown-linux-gnu:
+  powerpc-unknown-linux-gnu:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ clang, gcc ]
-        compiler_version: [ 7, 8, 9, 10 ]
+        target_platform: [ powerpc64, powerpc64le ] # TODO: powerpc
+        gcc_version: [ 9, 10 ]
         build_type: [ Debug ] # TODO: Release
-        exclude:
-          - compiler: gcc
-            compiler_version: 7
         include:
-          - compiler: clang
-            cc_prefix: clang-
-            cxx_prefix: clang++-
-            package_prefix: clang-
-          - compiler: gcc
-            cc_prefix: gcc-
-            cxx_prefix: g++-
-            package_prefix: g++-
+#          - target_platform: powerpc
+#            platform_flag: linux-ppc
+          - target_platform: powerpc64
+            platform_flag: linux-ppc64
+          - target_platform: powerpc64le
+            platform_flag: linux-ppc64le
     env:
-      CC: ${{ matrix.cc_prefix }}${{ matrix.compiler_version }}
-      CXX: ${{ matrix.cxx_prefix }}${{ matrix.compiler_version }}
-      CACHE_KEY_PREFIX: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: ${{ github.job }}${{ matrix.gcc_version }}-${{ matrix.target_platform }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v2.3.4
 
       - run: sudo apt-get -qq update
-      - name: Install ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
-        run: sudo apt-get install -y -qq pkg-config cmake ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+      - name: Install g++-${{ matrix.gcc_version }}-${{ matrix.target_platform }}-linux-gnu
+        run: sudo apt-get install -y -qq pkg-config cmake g++-${{ matrix.gcc_version }}-${{ matrix.target_platform }}-linux-gnu
 
-      - name: Install openssl
-        if: matrix.compiler == 'clang'
-        run: sudo apt-get install -y -qq libssl-dev
-
+      - name: Link the installed compiler
+        run: |
+          sudo ln -sf                                                                      \
+            /usr/bin/${{ matrix.target_platform }}-linux-gnu-gcc-${{ matrix.gcc_version }} \
+            /usr/bin/${{ matrix.target_platform }}-linux-gnu-gcc
       - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
-        if: matrix.compiler == 'gcc'
         uses: actions/cache@v2.1.3
         id: openssl-cache
         with:
           path: ${{ runner.temp }}/libs/openssl
           key: ${{ env.CACHE_KEY_PREFIX }}-openssl-${{ env.OPENSSL_VERSION }}
       - name: Install openssl (${{ env.OPENSSL_VERSION }}) as static
-        if: matrix.compiler == 'gcc' && steps.openssl-cache.outputs.cache-hit != 'true'
+        if: steps.openssl-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/openssl
           git clone -q -b ${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
           cd openssl
-          ./config --static -static --prefix=${{ runner.temp }}/libs/openssl
+          ./Configure                                                       \
+            ${{ matrix.platform_flag }}                                     \
+            -static                                                         \
+            --cross-compile-prefix=${{ matrix.target_platform }}-linux-gnu- \
+            --prefix=${{ runner.temp }}/libs/openssl
           make
           sudo make install
-          echo "OPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl" >> $GITHUB_ENV
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
@@ -75,17 +71,25 @@ jobs:
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
-          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}
+          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}-v2
       - name: Install boost (${{ env.BOOST_VERSION }}) as static
         if: steps.boost-cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ${{ runner.temp }}/libs/boost
           git clone -q -b boost-${{ env.BOOST_VERSION }} --recursive https://github.com/boostorg/boost.git
           cd boost
+          sudo apt-get update
+          sudo apt-get install -y g++-${{ matrix.gcc_version }}
+          sudo ln -sf /usr/bin/g++-${{ matrix.gcc_version }} /usr/bin/g++
           ./bootstrap.sh
+          sudo rm -rf /usr/bin/g++
+          sudo ln -sf /usr/bin/${{ matrix.target_platform }}-linux-gnu-g++-${{ matrix.gcc_version }} /usr/bin/g++
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
 
+      - name: Define compiler variables
+        run: |
+          echo "CC=${{ matrix.target_platform }}-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CXX=${{ matrix.target_platform }}-linux-gnu-g++-${{ matrix.gcc_version }}" >> $GITHUB_ENV
       - name: Restore & Cache toml11 (${{ env.TOML11_VERSION }})
         uses: actions/cache@v2.1.3
         id: toml11-cache
@@ -121,7 +125,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release                             \
             -DBUILD_SHARED_LIBS=ON                                 \
             -DBUILD_CLAR=OFF                                       \
-            -DCMAKE_C_FLAGS=-fPIC
+            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
           make
           sudo make install
         working-directory: ${{ runner.temp }}
@@ -197,18 +201,9 @@ jobs:
           cmake ..                                      \
             -DBUILD_TESTING=ON                          \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
+            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs     \
+            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
           make
-        working-directory: build
-
-      - name: Test Poac
-        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
-        run: ctest --output-on-failure --verbose
-        working-directory: build
-
-      - name: Running test
-        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
-        run: ./poac help
         working-directory: build
 
       - name: Print info of the executable file
@@ -219,5 +214,5 @@ jobs:
         uses: actions/upload-artifact@v2.2.1
         if: matrix.build_type == 'Release'
         with:
-          name: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+          name: ${{ matrix.target_platform }}-unknown-linux-gnu
           path: poac
