@@ -82,7 +82,7 @@ Poac requires the following tools and packages to build:
 * [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [`libarchive`](https://github.com/libarchive/libarchive): `3.5.0` or later
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
+* [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [_`plog`_](https://github.com/SergiusTheBest/plog): `1.1.5` or later
 * [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later

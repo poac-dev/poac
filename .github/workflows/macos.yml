@@ -17,10 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
 
-      - name: Install required libraries
-        run: |
-          brew install libgit2
-          brew install --HEAD poacpm/tap/mitama-cpp-result
+      - name: Install libgit2
+        run: brew install libgit2
 
       - run: mkdir build
 
