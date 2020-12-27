@@ -20,6 +20,7 @@
 #include <poac/core/validator.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/misc.hpp>
 
 namespace poac::cmd::_new {
     namespace files {
@@ -98,7 +99,7 @@ namespace poac::cmd::_new {
 
     std::map<std::filesystem::path, std::string>
     create_template_files(const _new::Options& opts) {
-        using io::path::path_literals::operator""_path;
+        using util::misc::path_literals::operator""_path;
 
         switch (opts.type) {
             case ProjectType::Bin:
