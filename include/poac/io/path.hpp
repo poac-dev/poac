@@ -17,16 +17,14 @@
 // internal
 #include <poac/core/except.hpp>
 
-namespace std::filesystem {
+namespace poac::io::path {
     inline namespace path_literals {
         inline std::filesystem::path
-        operator "" _path(const char* str, std::size_t) {
+        operator ""_path(const char* str, std::size_t) {
             return std::filesystem::path(str);
         }
     }
-}
 
-namespace poac::io::path {
     std::optional<std::string>
     dupenv(const std::string& name) {
 #if BOOST_COMP_MSVC

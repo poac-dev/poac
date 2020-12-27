@@ -98,7 +98,7 @@ namespace poac::cmd::_new {
 
     std::map<std::filesystem::path, std::string>
     create_template_files(const _new::Options& opts) {
-        using std::filesystem::path_literals::operator""_path;
+        using io::path::path_literals::operator""_path;
 
         switch (opts.type) {
             case ProjectType::Bin:
