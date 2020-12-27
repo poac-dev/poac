@@ -1,0 +1,20 @@
+message(CHECK_START "Finding Boost")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
+
+set(Boost_DEBUG ${VERBOSE})
+if (DEFINED BOOST_ROOT)
+    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
+endif()
+
+find_package(Boost 1.70.0 REQUIRED COMPONENTS system)
+if (Boost_FOUND)
+    message(CHECK_PASS "found")
+    message(STATUS "Boost include directories are ... ${Boost_INCLUDE_DIRS}")
+    message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
+    message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
+else ()
+    message(CHECK_FAIL "not found")
+    list(APPEND missingDependencies boost)
+endif ()
+
+list(POP_BACK CMAKE_MESSAGE_INDENT)
