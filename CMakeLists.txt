@@ -105,7 +105,6 @@ endif ()
 
 if (DEFINED POAC_DEPS_DIR)
     set(BOOST_ROOT "${POAC_DEPS_DIR}/boost")
-    set(CLIPP_DIR "${POAC_DEPS_DIR}/clipp")
     set(FMT_DIR "${POAC_DEPS_DIR}/fmt")
     set(LIBGIT2_DIR "${POAC_DEPS_DIR}/libgit2")
     set(MITAMA_CPP_RESULT_DIR "${POAC_DEPS_DIR}/mitama-cpp-result")
@@ -139,10 +138,15 @@ FetchContent_Declare(
 )
 set(toml11_BUILD_TEST OFF)
 FetchContent_MakeAvailable(toml11)
+list(APPEND POAC_DEPENDENCIES toml11::toml11)
 
-if (DEFINED CLIPP_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CLIPP_DIR}/include)
-endif ()
+FetchContent_Declare(
+    clipp
+    GIT_REPOSITORY https://github.com/muellan/clipp.git
+    GIT_TAG        2c32b2f1f7cc530b1ec1f62c92f698643bb368db
+)
+FetchContent_MakeAvailable(clipp)
+list(APPEND POAC_DEPENDENCIES clipp::clipp)
 
 if (DEFINED FMT_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/include)
@@ -192,6 +196,8 @@ elseif (WIN32)
     set(SSL_RELATED_LIBS bcrypt ws2_32)
 endif ()
 
+message(STATUS "dependencies are ... ${POAC_DEPENDENCIES}")
+
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
@@ -199,7 +205,7 @@ target_link_libraries(
         ${SSL_RELATED_LIBS}
         git2
         fmt
-        toml11::toml11
+        ${POAC_DEPENDENCIES}
         Boost::system
         ${LibArchive_LIBRARIES}
 )
