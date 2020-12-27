@@ -105,7 +105,6 @@ endif ()
 
 if (DEFINED POAC_DEPS_DIR)
     set(BOOST_ROOT "${POAC_DEPS_DIR}/boost")
-    set(FMT_DIR "${POAC_DEPS_DIR}/fmt")
     set(LIBGIT2_DIR "${POAC_DEPS_DIR}/libgit2")
     set(MITAMA_CPP_RESULT_DIR "${POAC_DEPS_DIR}/mitama-cpp-result")
     set(PLOG_DIR "${POAC_DEPS_DIR}/plog")
@@ -148,10 +147,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(clipp)
 list(APPEND POAC_DEPENDENCIES clipp::clipp)
 
-if (DEFINED FMT_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/include)
-    target_link_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/lib)
-endif ()
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG        7.1.3
+)
+FetchContent_MakeAvailable(fmt)
+list(APPEND POAC_DEPENDENCIES fmt::fmt)
 
 if (DEFINED PLOG_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${PLOG_DIR}/include)
