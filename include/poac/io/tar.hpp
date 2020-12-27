@@ -1,99 +1,178 @@
 #ifndef POAC_IO_TAR_HPP
 #define POAC_IO_TAR_HPP
 
-//#include <libtar.h>
-
+// std
 #include <filesystem>
 #include <iostream>
-#include <poac/util/shell.hpp>
 #include <string>
+#include <string_view>
+#include <memory>
 #include <vector>
 
+// external
+#include <archive.h>
+#include <archive_entry.h>
+#include <boost/scope_exit.hpp>
+#include <fmt/core.h>
+#include <mitama/result/result.hpp>
+#include <plog/Log.h>
+
 namespace poac::io::tar {
-    bool extract(const std::filesystem::path& filename, const std::string& options = "") {
-        const std::string cmd = "tar xf " + filename.string() + " " + options;
-        return util::shell(cmd).exec_ignore();
-    }
-
-    // ~/.poac/cache/package.tar.gz -> ~/.poac/cache/username-repository-tag/...
-    bool extract_spec(const std::filesystem::path& input, const std::filesystem::path& output) {
-        std::filesystem::create_directories(output);
-        return extract(input, "-C " + output.string() + " --strip-components 1");
-    }
-
-    // It is almost the same behavior as --remove-files,
-    //  but deleted in fs::remove because there is a possibility
-    //   that it is not compatible with --remove-files.
-    bool extract_spec_rm(const std::filesystem::path& input, const std::filesystem::path& output) {
-        return extract_spec(input, output) && std::filesystem::remove(input);
-    }
-
-    bool compress_spec_exclude(
-            const std::filesystem::path& input,
-            const std::filesystem::path& output,
-            const std::vector<std::string> opts
-    ) {
-        std::string exclude;
-        for (const auto& v : opts) {
-            exclude += "--exclude " + v + " ";
+    struct archive_write_delete {
+        void operator()(archive* w) {
+            archive_write_close(w);
+            archive_write_free(w);
         }
-        const std::string filepath = input.parent_path().relative_path().string();
-        const std::string filename = input.filename().string();
-        const std::string cmd = "cd " + filepath + " && " + "tar zcf " + output.string() + " " + exclude + filename;
-        return util::shell(cmd).exec_ignore();
+    };
+
+    using writer_t = std::unique_ptr<archive, archive_write_delete>;
+
+    [[nodiscard]] mitama::result<void, std::string>
+    archive_write_data_block(
+        const writer_t& writer, const void* buffer,
+        std::size_t size, std::int64_t offset
+    ) noexcept {
+        int res = archive_write_data_block(writer.get(), buffer, size, offset);
+        if (res < ARCHIVE_OK) {
+            return mitama::failure(archive_error_string(writer.get()));
+        }
+        return mitama::success();
     }
 
-    // https://gist.github.com/cat-in-136/5509961
-//    bool archive(std::string source_file, std::string output_file_name) {
-//        TAR* tar;
-//        std::string tarFilename = "file.tar";
-//        std::string srcDir = "hoge";
-//        std::string extractTo = "./hoge";
-//
-//        int result = tar_open(&tar, tarFilename.data(), NULL, O_WRONLY | O_CREAT, 0644, TAR_GNU);
-//        if (result != EXIT_SUCCESS) {
-//            return EXIT_FAILURE;
-//        }
-//
-////        tar_append_file(tar, srcDir.data(), srcDir.data());
-//        result = tar_append_tree(tar, srcDir.data(), extractTo.data());
-//        if (result != EXIT_SUCCESS) {
-//            tar_close(tar);
-//            return EXIT_FAILURE;
-//        }
-//
-////        char* subfile1 = "./sub1/1.txt";
-////        tar_append_file(tar_handle, subfile1,  subfile1);
-////        char* subfile2 = "test1.c";
-////        tar_append_file(tar_handle, subfile2,  subfile2);
-//
-//        result = tar_append_eof(tar);
-//        if (result != EXIT_SUCCESS) {
-//            tar_close(tar);
-//            return EXIT_FAILURE;
-//        }
-//
-//        result = tar_close(tar);
-//        if (result != EXIT_SUCCESS) {
-//            return EXIT_FAILURE;
-//        }
-//
-//        return EXIT_SUCCESS;
-//    }
-//
-//    bool archive_exclude(const fs::path path) {
-//    }
-//
-//    bool extract() {
-////        TAR* tar_handle;
-////        char* tar_fname = "test.tar";
-////
-////        tar_open(&tar_handle, tar_fname, NULL,  O_RDONLY,  0644,  TAR_GNU);
-////        char* savefold = "temp";
-////        tar_extract_all(tar_handle, "temp");
-////        tar_close(tar_handle);
-//
-//        return EXIT_SUCCESS;
-//    }
+    [[nodiscard]] mitama::result<void, std::string>
+    copy_data(archive* reader, const writer_t& writer) noexcept {
+        std::size_t size{};
+        const void* buff = nullptr;
+        std::int64_t offset{};
+
+        while (true) {
+            int res = archive_read_data_block(reader, &buff, &size, &offset);
+            if (res == ARCHIVE_EOF) {
+                return mitama::success();
+            } else if (res < ARCHIVE_OK) {
+                return mitama::failure(archive_error_string(reader));
+            }
+            MITAMA_TRY(archive_write_data_block(writer, buff, size, offset));
+        }
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    archive_write_finish_entry(const writer_t& writer) noexcept {
+        int res = archive_write_finish_entry(writer.get());
+        if (res < ARCHIVE_OK) {
+            return mitama::failure(archive_error_string(writer.get()));
+        } else if (res < ARCHIVE_WARN) {
+            return mitama::failure("Encountered error while finishing entry.");
+        }
+        return mitama::success();
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    archive_write_header(archive* reader, const writer_t& writer, archive_entry* entry) noexcept {
+        if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
+            return mitama::failure(archive_error_string(writer.get()));
+        } else if (archive_entry_size(entry) > 0) {
+            MITAMA_TRY(copy_data(reader, writer));
+        }
+        return mitama::success();
+    }
+
+    std::string
+    set_extract_path(archive_entry* entry, const std::filesystem::path& extract_path) noexcept {
+        const std::string current_file = archive_entry_pathname(entry);
+        const std::filesystem::path full_output_path = extract_path / current_file;
+        PLOG_DEBUG << fmt::format("extracting to `{}`", full_output_path);
+        archive_entry_set_pathname(entry, full_output_path.c_str());
+        return current_file;
+    }
+
+    [[nodiscard]] mitama::result<bool, std::string>
+    archive_read_next_header_(archive* reader, archive_entry** entry)
+        noexcept(!(true == ARCHIVE_EOF))
+    {
+        int res = archive_read_next_header(reader, entry);
+        if (res == ARCHIVE_EOF) {
+            return mitama::success(ARCHIVE_EOF);
+        } else if (res < ARCHIVE_OK) {
+            return mitama::failure(archive_error_string(reader));
+        } else if (res < ARCHIVE_WARN) {
+            return mitama::failure("Encountered error while reading header.");
+        }
+        return mitama::success(false);
+    }
+
+    [[nodiscard]] mitama::result<std::string, std::string>
+    extract_impl(archive* reader, const writer_t& writer, const std::filesystem::path& extract_path) noexcept {
+        archive_entry* entry = nullptr;
+        std::string extracted_directory_name{""};
+        while (MITAMA_TRY(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
+            if (extracted_directory_name.empty()) {
+                extracted_directory_name = set_extract_path(entry, extract_path);
+            } else {
+                set_extract_path(entry, extract_path);
+            }
+            MITAMA_TRY(archive_write_header(reader, writer, entry));
+            MITAMA_TRY(archive_write_finish_entry(writer));
+        }
+        return mitama::success(extracted_directory_name);
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    archive_read_open_filename(
+        archive* reader,
+        const std::filesystem::path& file_path,
+        std::size_t block_size) noexcept
+    {
+        if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
+            return mitama::failure("Cannot archive_read_open_filename");
+        }
+        return mitama::success();
+    }
+
+    int make_flags() noexcept
+    {
+        // Select which attributes we want to restore.
+        // int
+        return ARCHIVE_EXTRACT_TIME
+             | ARCHIVE_EXTRACT_UNLINK
+             | ARCHIVE_EXTRACT_SECURE_NODOTDOT;
+    }
+
+    void read_as_targz(archive* reader) noexcept {
+        archive_read_support_format_tar(reader);
+        archive_read_support_filter_gzip(reader);
+    }
+
+    [[nodiscard]] mitama::result<std::string, std::string>
+    extract(
+        const std::filesystem::path& target_file_path,
+        const std::filesystem::path& extract_path
+    ) noexcept
+    {
+        archive* reader = archive_read_new();
+        if (!reader) {
+            return mitama::failure("Cannot archive_read_new");
+        }
+        BOOST_SCOPE_EXIT_ALL(&reader) {
+            archive_read_free(reader);
+        };
+        read_as_targz(reader);
+
+        writer_t writer(archive_write_disk_new());
+        if (!writer) {
+            return mitama::failure("Cannot archive_write_disk_new");
+        }
+
+        archive_write_disk_set_options(writer.get(), make_flags());
+        archive_write_disk_set_standard_lookup(writer.get());
+
+        MITAMA_TRY(archive_read_open_filename(reader, target_file_path, 10'240));
+        BOOST_SCOPE_EXIT_ALL(&reader) {
+            archive_read_close(reader);
+        };
+
+        return extract_impl(reader, writer, extract_path);
+    }
 } // end namespace
+
 #endif // !POAC_IO_TAR_HPP
