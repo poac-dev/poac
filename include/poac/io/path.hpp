@@ -7,7 +7,6 @@
 #include <chrono>
 #include <filesystem>
 #include <string>
-#include <optional>
 
 // external
 #include <fmt/core.h>
@@ -27,50 +26,6 @@ namespace std::filesystem {
 }
 
 namespace poac::io::path {
-    std::optional<std::string>
-    dupenv(const std::string& name) {
-#if BOOST_COMP_MSVC
-        char* env;
-        std::size_t len;
-        if (_dupenv_s(&env, &len, name.c_str())) {
-            return std::nullopt;
-        } else {
-            std::string env_s(env);
-            std::free(env);
-            return env_s;
-        }
-#else
-        if (const char* env = std::getenv(name.c_str())) {
-            return env;
-        } else {
-            return std::nullopt;
-        }
-#endif
-    }
-
-    // Inspired by https://stackoverflow.com/q/4891006
-    // Expand ~ to user home directory.
-    std::string expand_user() {
-        auto home = dupenv("HOME");
-        if (home || (home = dupenv("USERPROFILE"))) {
-            return home.value();
-        } else {
-            const auto home_drive = dupenv("HOMEDRIVE");
-            const auto home_path = dupenv("HOMEPATH");
-            if (home_drive && home_path) {
-                return home_drive.value() + home_path.value();
-            }
-            throw core::except::error(
-                "could not read environment variable"
-            );
-        }
-    }
-
-    inline const std::filesystem::path root(expand_user() / std::filesystem::path(".poac"));
-    inline const std::filesystem::path cache_dir(root / "cache");
-    inline const std::filesystem::path archive_dir(cache_dir / "archive");
-    inline const std::filesystem::path extract_dir(cache_dir / "extract");
-
     inline std::string
     time_to_string(const std::time_t& time) {
         return std::to_string(time);
