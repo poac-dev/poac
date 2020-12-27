@@ -8,6 +8,7 @@ FATAL: In-source builds are not allowed.
 endif ()
 
 cmake_minimum_required(VERSION 3.14)
+cmake_policy(SET CMP0077 NEW)
 project(poac
         VERSION 0.2.1
         LANGUAGES CXX
@@ -109,7 +110,6 @@ if (DEFINED POAC_DEPS_DIR)
     set(LIBGIT2_DIR "${POAC_DEPS_DIR}/libgit2")
     set(MITAMA_CPP_RESULT_DIR "${POAC_DEPS_DIR}/mitama-cpp-result")
     set(PLOG_DIR "${POAC_DEPS_DIR}/plog")
-    set(TOML11_DIR "${POAC_DEPS_DIR}/toml11")
 endif ()
 
 set(Boost_DEBUG ${VERBOSE})
@@ -131,9 +131,14 @@ if (DEFINED LIBGIT2_DIR)
     target_link_directories(${PROJECT_NAME} PRIVATE ${LIBGIT2_DIR}/lib)
 endif ()
 
-if (DEFINED TOML11_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${TOML11_DIR}/include)
-endif ()
+include(FetchContent)
+FetchContent_Declare(
+    toml11
+    GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+    GIT_TAG        v3.6.0
+)
+set(toml11_BUILD_TEST OFF)
+FetchContent_MakeAvailable(toml11)
 
 if (DEFINED CLIPP_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${CLIPP_DIR}/include)
@@ -194,7 +199,8 @@ target_link_libraries(
         ${SSL_RELATED_LIBS}
         git2
         fmt
-        ${Boost_LIBRARIES}
+        toml11::toml11
+        Boost::system
         ${LibArchive_LIBRARIES}
 )
 
