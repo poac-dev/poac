@@ -105,23 +105,8 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
-      - name: Restore & Cache libarchive (${{ env.LIBARCHIVE_VERSION }})
-        uses: actions/cache@v2.1.3
-        id: libarchive-cache
-        with:
-          path: ${{ runner.temp }}/libs/libarchive
-          key: ${{ env.CACHE_KEY_PREFIX }}-libarchive-${{ env.LIBARCHIVE_VERSION }}
-      - name: Install libarchive (${{ env.LIBARCHIVE_VERSION }}) as shared
-        if: steps.libarchive-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/libarchive
-          git clone -q -b v${{ env.LIBARCHIVE_VERSION }} https://github.com/libarchive/libarchive.git
-          cd libarchive
-          /bin/sh build/autogen.sh
-          ./configure --prefix=${{ runner.temp }}/libs/libarchive
-          make
-          sudo make install
-        working-directory: ${{ runner.temp }}
+      - name: Install libarchive
+        run: sudo apt-get install -y -qq libarchive-dev
 
       - name: Restore & Cache libgit2 (${{ env.LIBGIT2_VERSION }})
         uses: actions/cache@v2.1.3
@@ -216,8 +201,7 @@ jobs:
           cmake ..                                      \
             -DBUILD_TESTING=ON                          \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs     \
-            -DLibArchive_INCLUDE_DIR=${{ runner.temp }}/libs/libarchive/include
+            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
           make
         working-directory: build
 
@@ -348,8 +332,7 @@ jobs:
           mkdir -p ${{ runner.temp }}/libs/libarchive
           git clone -q -b v${{ env.LIBARCHIVE_VERSION }} https://github.com/libarchive/libarchive.git
           cd libarchive
-          /bin/sh build/autogen.sh
-          ./configure --prefix=${{ runner.temp }}/libs/libarchive
+          cmake .
           make
           sudo make install
         working-directory: ${{ runner.temp }}
@@ -444,12 +427,11 @@ jobs:
 
       - name: Build Poac
         run: |
-          cmake ..                                             \
-            -DBUILD_TESTING=ON                                 \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}        \
-            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs            \
-            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl \
-            -DLibArchive_INCLUDE_DIR=${{ runner.temp }}/libs/libarchive/include
+          cmake ..                                      \
+            -DBUILD_TESTING=ON                          \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs     \
+            -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
           make
         working-directory: build
 
