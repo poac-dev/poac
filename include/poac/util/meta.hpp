@@ -184,5 +184,33 @@ namespace poac::util::meta {
             >{}
         );
     }
+
+    // ref: https://qiita.com/rinse_/items/f00bb2a78d14c3c2f9fa
+    template <class Range>
+    class containerizer {
+        Range range;
+
+    public:
+        explicit containerizer(Range&& r) noexcept
+            : range{std::forward<Range>(r)} {}
+
+        template <class To>
+        operator To() const {
+            return To(std::begin(range), std::end(range));
+        }
+    };
+
+    template <class Range>
+    inline containerizer<Range> containerize(Range&& range) {
+        return containerizer<Range>(std::forward<Range>(range));
+    }
+
+    struct containerized_tag {};
+    constexpr containerized_tag containerized;
+
+    template <class Range>
+    inline containerizer<Range> operator|(Range&& range, containerized_tag) {
+        return containerize(std::forward<Range>(range));
+    }
 } // end namespace
 #endif // !POAC_UTIL_MATA_HPP
