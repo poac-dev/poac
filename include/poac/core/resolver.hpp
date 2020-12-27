@@ -114,9 +114,12 @@ namespace poac::core::resolver {
                 // building depends on multiple versions of the same package.
                 // At the condition (the else clause), gathered dependencies
                 // should be in the backtrack loop.
-                return mitama::success(resolve::activated_to_backtracked(duplicate_deps));
+                return mitama::success(
+                    resolve::unique_deps_t<resolve::with_deps>(
+                        duplicate_deps.cbegin(), duplicate_deps.cend()
+                    ));
             } else {
-                return mitama::success(resolve::backtrack_loop(duplicate_deps));
+                return resolve::backtrack_loop(duplicate_deps);
             }
         } catch (const core::except::error& e) {
             return mitama::failure(e.what());
@@ -136,7 +139,7 @@ namespace poac::core::resolver {
             return mitama::success(resolvable_deps);
         } catch (...) {
             return mitama::failure(
-                "parsing the `dependencies` key in poac.toml failed"
+                "parsing the value of the `dependencies` key in poac.toml failed"
             );
         }
     }
@@ -147,10 +150,8 @@ namespace poac::core::resolver {
             return mitama::success();
         }
         const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-        const resolve::unique_deps_t<resolve::without_deps> resolvable_deps =
-            MITAMA_TRY(to_resolvable_deps(deps));
-        const resolve::unique_deps_t<resolve::with_deps> resolved_deps =
-            MITAMA_TRY(do_resolve(resolvable_deps));
+        const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
+        const auto resolved_deps = MITAMA_TRY(do_resolve(resolvable_deps));
         return download_deps(resolved_deps);
     }
 }
