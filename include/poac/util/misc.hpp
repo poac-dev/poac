@@ -4,6 +4,7 @@
 
 // std
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -17,6 +18,13 @@
 #include <poac/core/except.hpp>
 
 namespace poac::util::misc {
+    inline namespace path_literals {
+        inline std::filesystem::path
+        operator ""_path(const char* str, std::size_t) {
+            return std::filesystem::path(str);
+        }
+    }
+
     std::vector<std::string>
     split(const std::string& raw, const std::string& delim) {
         using boost::algorithm::token_compress_on;

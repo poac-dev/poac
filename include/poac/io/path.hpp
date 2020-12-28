@@ -4,17 +4,7 @@
 // std
 #include <ctime>
 #include <chrono>
-#include <filesystem>
 #include <string>
-
-namespace std::filesystem {
-    inline namespace path_literals {
-        inline std::filesystem::path
-        operator "" _path(const char* str, std::size_t) noexcept {
-            return std::filesystem::path(str);
-        }
-    }
-}
 
 namespace poac::io::path {
     template <class Clock, class Duration>
