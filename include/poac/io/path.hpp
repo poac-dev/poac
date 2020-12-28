@@ -60,17 +60,7 @@ namespace poac::io::path {
     inline const std::filesystem::path root(expand_user() / std::filesystem::path(".poac"));
     inline const std::filesystem::path cache_dir(root / "cache");
     inline const std::filesystem::path archive_dir(cache_dir / "archive");
-
-    inline const std::filesystem::path current(std::filesystem::current_path());
-    inline const std::filesystem::path current_deps_dir(current / "deps");
-    inline const std::filesystem::path current_build_dir(current / "_build");
-    inline const std::filesystem::path current_build_cache_dir(current_build_dir / "_cache");
-    inline const std::filesystem::path current_build_cache_obj_dir(current_build_cache_dir / "obj");
-    inline const std::filesystem::path current_build_cache_ts_dir(current_build_cache_dir / "_ts");
-    inline const std::filesystem::path current_build_bin_dir(current_build_dir / "bin");
-    inline const std::filesystem::path current_build_lib_dir(current_build_dir / "lib");
-    inline const std::filesystem::path current_build_test_dir(current_build_dir / "test");
-    inline const std::filesystem::path current_build_test_bin_dir(current_build_test_dir / "bin");
+    inline const std::filesystem::path extract_dir(cache_dir / "extract");
 
     inline std::string
     time_to_string(const std::time_t& time) {
