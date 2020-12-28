@@ -1,5 +1,5 @@
-#ifndef POAC_IO_ARCHIVE_HPP
-#define POAC_IO_ARCHIVE_HPP
+#ifndef POAC_UTIL_ARCHIVE_HPP
+#define POAC_UTIL_ARCHIVE_HPP
 
 // std
 #include <filesystem>
@@ -17,7 +17,7 @@
 #include <mitama/result/result.hpp>
 #include <plog/Log.h>
 
-namespace poac::io::archive {
+namespace poac::util::archive {
     using archive_t = struct archive;
 
     struct archive_write_delete {
@@ -176,4 +176,4 @@ namespace poac::io::archive {
     }
 } // end namespace
 
-#endif // !POAC_IO_ARCHIVE_HPP
+#endif // !POAC_UTIL_ARCHIVE_HPP
