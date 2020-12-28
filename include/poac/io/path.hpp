@@ -16,15 +16,6 @@
 // internal
 #include <poac/core/except.hpp>
 
-namespace std::filesystem {
-    inline namespace path_literals {
-        inline std::filesystem::path
-        operator "" _path(const char* str, std::size_t) noexcept {
-            return std::filesystem::path(str);
-        }
-    }
-}
-
 namespace poac::io::path {
     inline std::string
     time_to_string(const std::time_t& time) {
