@@ -5,6 +5,9 @@
 #   warning "POAC_VERSION is not defined"
 #endif
 
+// std
+#include <filesystem>
+
 // internal
 #include <poac/util/misc.hpp>
 
