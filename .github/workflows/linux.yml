@@ -52,6 +52,12 @@ jobs:
             cc: gcc-10, cxx: g++-10,
             pacakge: g++-10,
           }
+        include:
+          - build_type: Coverage
+            compiler: {
+              cc: gcc-10, cxx: g++-10,
+              pacakge: g++-10,
+            }
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
@@ -240,3 +246,20 @@ jobs:
         with:
           name: ${{ github.job }}-${{ matrix.compiler.pacakge }}
           path: poac
+
+      - uses: actions/setup-python@v1
+        if: success() && matrix.build_type == 'Coverage'
+
+      - name: Upload coverage to Coveralls
+        if: success() && matrix.build_type == 'Coverage'
+        run: |
+          pip install cpp-coveralls
+          coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        if: success() && matrix.build_type == 'Coverage'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
