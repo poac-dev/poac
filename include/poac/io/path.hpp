@@ -20,7 +20,7 @@
 namespace std::filesystem {
     inline namespace path_literals {
         inline std::filesystem::path
-        operator "" _path(const char* str, std::size_t) noexcept {
+        operator "" _path(const char* str, std::size_t) {
             return std::filesystem::path(str);
         }
     }
