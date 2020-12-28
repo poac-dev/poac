@@ -18,6 +18,7 @@
 #include <poac/util/cfg.hpp>
 #include <poac/util/semver/semver.hpp>
 #include <poac/util/shell.hpp>
+#include <poac/util/misc.hpp>
 
 namespace poac::core::builder::standard {
     inline std::string version_prefix(const bool& enable_gnu) noexcept {
@@ -256,7 +257,7 @@ namespace poac::core::builder::standard {
     }
 
     std::string detect_command() {
-        if (const auto cxx = io::path::dupenv("CXX")) {
+        if (const auto cxx = util::misc::dupenv("CXX")) {
             return *cxx;
         } else if (util::shell::has_command("icpc")) {
             return "icpc";
