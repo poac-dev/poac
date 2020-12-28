@@ -1,5 +1,5 @@
-#ifndef POAC_IO_TAR_HPP
-#define POAC_IO_TAR_HPP
+#ifndef POAC_IO_ARCHIVE_HPP
+#define POAC_IO_ARCHIVE_HPP
 
 // std
 #include <filesystem>
@@ -17,15 +17,16 @@
 #include <mitama/result/result.hpp>
 #include <plog/Log.h>
 
-namespace poac::io::tar {
+namespace poac::io::archive {
+    using archive_t = struct archive;
+
     struct archive_write_delete {
-        void operator()(archive* w) {
+        void operator()(archive_t* w) {
             archive_write_close(w);
             archive_write_free(w);
         }
     };
-
-    using writer_t = std::unique_ptr<archive, archive_write_delete>;
+    using writer_t = std::unique_ptr<archive_t, archive_write_delete>;
 
     [[nodiscard]] mitama::result<void, std::string>
     archive_write_data_block(
@@ -40,7 +41,7 @@ namespace poac::io::tar {
     }
 
     [[nodiscard]] mitama::result<void, std::string>
-    copy_data(archive* reader, const writer_t& writer) noexcept {
+    copy_data(archive_t* reader, const writer_t& writer) noexcept {
         std::size_t size{};
         const void* buff = nullptr;
         std::int64_t offset{};
@@ -68,7 +69,7 @@ namespace poac::io::tar {
     }
 
     [[nodiscard]] mitama::result<void, std::string>
-    archive_write_header(archive* reader, const writer_t& writer, archive_entry* entry) noexcept {
+    archive_write_header(archive_t* reader, const writer_t& writer, archive_entry* entry) noexcept {
         if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
             return mitama::failure(archive_error_string(writer.get()));
         } else if (archive_entry_size(entry) > 0) {
@@ -87,7 +88,7 @@ namespace poac::io::tar {
     }
 
     [[nodiscard]] mitama::result<bool, std::string>
-    archive_read_next_header_(archive* reader, archive_entry** entry)
+    archive_read_next_header_(archive_t* reader, archive_entry** entry)
         noexcept(!(true == ARCHIVE_EOF))
     {
         int res = archive_read_next_header(reader, entry);
@@ -102,7 +103,7 @@ namespace poac::io::tar {
     }
 
     [[nodiscard]] mitama::result<std::string, std::string>
-    extract_impl(archive* reader, const writer_t& writer, const std::filesystem::path& extract_path) noexcept {
+    extract_impl(archive_t* reader, const writer_t& writer, const std::filesystem::path& extract_path) noexcept {
         archive_entry* entry = nullptr;
         std::string extracted_directory_name{""};
         while (MITAMA_TRY(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
@@ -119,7 +120,7 @@ namespace poac::io::tar {
 
     [[nodiscard]] mitama::result<void, std::string>
     archive_read_open_filename(
-        archive* reader,
+        archive_t* reader,
         const std::filesystem::path& file_path,
         std::size_t block_size) noexcept
     {
@@ -138,7 +139,7 @@ namespace poac::io::tar {
              | ARCHIVE_EXTRACT_SECURE_NODOTDOT;
     }
 
-    void read_as_targz(archive* reader) noexcept {
+    void read_as_targz(archive_t* reader) noexcept {
         archive_read_support_format_tar(reader);
         archive_read_support_filter_gzip(reader);
     }
@@ -149,7 +150,7 @@ namespace poac::io::tar {
         const std::filesystem::path& extract_path
     ) noexcept
     {
-        archive* reader = archive_read_new();
+        archive_t* reader = archive_read_new();
         if (!reader) {
             return mitama::failure("Cannot archive_read_new");
         }
@@ -175,4 +176,4 @@ namespace poac::io::tar {
     }
 } // end namespace
 
-#endif // !POAC_IO_TAR_HPP
+#endif // !POAC_IO_ARCHIVE_HPP
