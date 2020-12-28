@@ -27,12 +27,12 @@
 namespace poac::core::resolver {
     std::filesystem::path
     get_install_path(const resolve::package_t& package) {
-        std::filesystem::create_directories(io::path::archive_dir);
+        std::filesystem::create_directories(config::path::archive_dir);
         const std::string install_name =
             boost::replace_first_copy(
                 resolve::get_name(package), "/", "-"
             ) + "-" + resolve::get_version(package) + ".tar.gz";
-        return io::path::archive_dir / install_name;
+        return config::path::archive_dir / install_name;
     }
 
     std::string
@@ -94,7 +94,7 @@ namespace poac::core::resolver {
         using termcolor2::color_literals::operator""_green;
         PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
         try {
-            std::filesystem::create_directories(io::path::cache_dir);
+            std::filesystem::create_directories(config::path::cache_dir);
         } catch (...) {
             return mitama::failure("creating directories failed");
         }
