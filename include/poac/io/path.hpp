@@ -69,6 +69,7 @@ namespace poac::io::path {
     inline const std::filesystem::path root(expand_user() / std::filesystem::path(".poac"));
     inline const std::filesystem::path cache_dir(root / "cache");
     inline const std::filesystem::path archive_dir(cache_dir / "archive");
+    inline const std::filesystem::path extract_dir(cache_dir / "extract");
 
     inline const std::filesystem::path current(std::filesystem::current_path());
     inline const std::filesystem::path current_deps_dir(current / "deps");
