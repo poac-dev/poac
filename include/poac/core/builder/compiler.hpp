@@ -6,7 +6,6 @@
 #include <numeric>
 #include <optional>
 #include <poac/core/builder/absorb.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/shell.hpp>
 #include <string>
 #include <vector>

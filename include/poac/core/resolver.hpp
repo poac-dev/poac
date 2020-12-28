@@ -20,7 +20,6 @@
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/misc.hpp>
 
