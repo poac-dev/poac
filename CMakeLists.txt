@@ -161,6 +161,14 @@ else()
     message(CHECK_PASS "all dependencies found")
 endif()
 
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+if(missingDependencies)
+    message(CHECK_FAIL "missing dependencies: ${missingDependencies}")
+    message(FATAL_ERROR "missing dependencies found")
+else()
+    message(CHECK_PASS "all dependencies found")
+endif()
+
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
