@@ -30,7 +30,6 @@
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/semver/semver.hpp>
 
