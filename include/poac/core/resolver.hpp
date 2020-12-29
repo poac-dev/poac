@@ -22,11 +22,11 @@
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/io/net.hpp>
-#include <poac/io/path.hpp>
 #include <poac/io/tar.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
+#include <poac/config.hpp>
 
 namespace poac::core::resolver {
     inline std::string
@@ -38,7 +38,7 @@ namespace poac::core::resolver {
 
     inline std::filesystem::path
     get_extracted_path(const resolve::package_t& package) {
-        return io::path::extract_dir / get_install_name(package);
+        return config::path::extract_dir / get_install_name(package);
     }
 
     /// Rename unknown extracted directory to easily access when building.
@@ -48,7 +48,7 @@ namespace poac::core::resolver {
         std::string_view extracted_directory_name) noexcept
     {
         const std::filesystem::path temporarily_extracted_path =
-            io::path::extract_dir / extracted_directory_name;
+            config::path::extract_dir / extracted_directory_name;
         const std::filesystem::path extracted_path = get_extracted_path(package);
 
         std::error_code ec{};
@@ -61,8 +61,8 @@ namespace poac::core::resolver {
 
     std::filesystem::path
     get_archive_path(const resolve::package_t& package) {
-        std::filesystem::create_directories(io::path::archive_dir);
-        return io::path::archive_dir / (get_install_name(package) + ".tar.gz");
+        std::filesystem::create_directories(config::path::archive_dir);
+        return config::path::archive_dir / (get_install_name(package) + ".tar.gz");
     }
 
     std::string
@@ -108,7 +108,7 @@ namespace poac::core::resolver {
         for (const auto& package : deps) {
             const std::filesystem::path installed_path = MITAMA_TRY(fetch_impl(package));
             const std::string extracted_directory_name =
-                MITAMA_TRY(io::tar::extract(installed_path, io::path::extract_dir));
+                MITAMA_TRY(io::tar::extract(installed_path, config::path::extract_dir));
             MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
 
             using termcolor2::color_literals::operator""_green;
