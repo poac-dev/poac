@@ -18,30 +18,7 @@ option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
 set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
 set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-
-# Check required version
-if (APPLE)
-    execute_process(
-        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2"
-        OUTPUT_VARIABLE MACOS_VERSION)
-    if (${MACOS_VERSION} VERSION_LESS 10.15)
-        message(FATAL_ERROR "Poac requires macOS Catalina (10.15) or later.")
-    endif()
-elseif (MSVC)
-    # https://cmake.org/cmake/help/latest/variable/MSVC_TOOLSET_VERSION.html
-    if (${MSVC_TOOLSET_VERSION} LESS 141)
-        message(FATAL_ERROR "Poac requires Visual Studio 2017 or later.")
-    endif()
-else ()
-    # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
-            message(FATAL_ERROR "Poac requires GCC 8 or later.")
-        endif ()
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    endif ()
-endif ()
+include(cmake/CheckCompilerVersion.cmake)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
