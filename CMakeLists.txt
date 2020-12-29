@@ -1,6 +1,6 @@
 # Reference: https://github.com/opencv/opencv/blob/e329c84d5e7cfa5965b5dbbe7aa94d377ede23cf/CMakeLists.txt#L9-L15
 # Disable in-source builds to prevent source tree corruption.
-if (" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "
 FATAL: In-source builds are not allowed.
        You should create a separate directory for build files.
@@ -168,21 +168,21 @@ if (NOT ${OPENSSL_FOUND})
 endif ()
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
-message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
 if (LINUX)
-    set(SSL_RELATED_LIBS ssl crypto dl)
+    list(APPEND OPENSSL_LIBRARIES ssl crypto dl)
 elseif (APPLE)
-    set(SSL_RELATED_LIBS dl)
+    list(APPEND OPENSSL_LIBRARIES dl)
 elseif (WIN32)
-    set(SSL_RELATED_LIBS bcrypt ws2_32)
+    list(APPEND OPENSSL_LIBRARIES bcrypt ws2_32)
 endif ()
+
+message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
         ${OPENSSL_LIBRARIES}
-        ${SSL_RELATED_LIBS}
         git2
         fmt
         ${Boost_LIBRARIES}
