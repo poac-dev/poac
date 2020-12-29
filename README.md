@@ -97,7 +97,7 @@ I also plan to implement integration with many other build systems and package m
 
 ## Contributing
 Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
-You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture/).
+You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
 
 ## License
 
