@@ -2,8 +2,10 @@
 #define POAC_UTIL_META_HPP
 
 // std
+#include <chrono>
 #include <optional>
 #include <stack>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <unordered_map>
@@ -183,6 +185,44 @@ namespace poac::util::meta {
                 std::tuple_size_v<remove_cvref_t<T>>
             >{}
         );
+    }
+
+    template <class Clock, class Duration = typename Clock::duration>
+    inline std::string
+    time_to_string(const std::chrono::time_point<Clock, Duration>& time) {
+        return std::to_string(
+            std::chrono::duration_cast<std::chrono::seconds>(
+                time.time_since_epoch()
+            ).count()
+        );
+    }
+
+    // ref: https://qiita.com/rinse_/items/f00bb2a78d14c3c2f9fa
+    template <class Range>
+    class containerizer {
+        Range range;
+
+    public:
+        explicit containerizer(Range&& r) noexcept
+            : range{std::forward<Range>(r)} {}
+
+        template <class To>
+        operator To() const {
+            return To(std::begin(range), std::end(range));
+        }
+    };
+
+    template <class Range>
+    inline containerizer<Range> containerize(Range&& range) {
+        return containerizer<Range>(std::forward<Range>(range));
+    }
+
+    struct containerized_tag {};
+    constexpr containerized_tag containerized;
+
+    template <class Range>
+    inline containerizer<Range> operator|(Range&& range, containerized_tag) {
+        return containerize(std::forward<Range>(range));
     }
 } // end namespace
 #endif // !POAC_UTIL_MATA_HPP
