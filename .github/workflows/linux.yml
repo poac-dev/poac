@@ -62,6 +62,12 @@ jobs:
       - name: Install ${{ matrix.compiler.pacakge }}
         run: sudo apt-get install -y -qq pkg-config cmake ${{ matrix.compiler.pacakge }}
 
+      - name: Restore & Cache CMake build results
+        uses: actions/cache@v2.1.3
+        with:
+          path: build
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
+
       - name: Install openssl
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y -qq libssl-dev
