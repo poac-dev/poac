@@ -79,6 +79,10 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
     endif ()
 endif ()
 
+message(CHECK_START "Finding Poac dependencies")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
+unset(missingDependencies)
+
 if (DEFINED POAC_DEPS_DIR)
     if (NOT DEFINED BOOST_ROOT)
         set(BOOST_ROOT "${POAC_DEPS_DIR}/boost")
@@ -103,19 +107,9 @@ if (DEFINED POAC_DEPS_DIR)
     endif ()
 endif ()
 
-set(Boost_DEBUG ${VERBOSE})
-if (DEFINED BOOST_ROOT)
-    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
-endif()
-find_package(Boost 1.70.0 REQUIRED COMPONENTS system)
-if (NOT ${Boost_FOUND})
-    message(FATAL_ERROR "Could not find boost.")
-endif ()
+include(cmake/AddBoost.cmake)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-message(STATUS "Boost include directory is ... ${Boost_INCLUDE_DIRS}")
 target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
-message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
-message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
 
 if (DEFINED LIBGIT2_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${LIBGIT2_DIR}/include)
@@ -178,6 +172,14 @@ elseif (WIN32)
 endif ()
 
 message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
+
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+if(missingDependencies)
+    message(CHECK_FAIL "missing dependencies: ${missingDependencies}")
+    message(FATAL_ERROR "missing dependencies found")
+else()
+    message(CHECK_PASS "all dependencies found")
+endif()
 
 target_link_libraries(
         ${PROJECT_NAME}
