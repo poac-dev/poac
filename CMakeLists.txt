@@ -7,7 +7,7 @@ FATAL: In-source builds are not allowed.
 ")
 endif ()
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 project(poac
         VERSION 0.2.1
         LANGUAGES CXX
