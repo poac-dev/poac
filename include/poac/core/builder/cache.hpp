@@ -9,7 +9,6 @@
 #include <optional>
 
 #include <poac/core/builder/depends.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/misc.hpp>
 
 namespace poac::core::builder::cache {

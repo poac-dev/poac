@@ -1,13 +1,13 @@
 # Reference: https://github.com/opencv/opencv/blob/e329c84d5e7cfa5965b5dbbe7aa94d377ede23cf/CMakeLists.txt#L9-L15
 # Disable in-source builds to prevent source tree corruption.
-if (" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "
 FATAL: In-source builds are not allowed.
        You should create a separate directory for build files.
 ")
 endif ()
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 project(poac
         VERSION 0.2.1
         LANGUAGES CXX
@@ -18,30 +18,7 @@ option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
 set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
 set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-
-# Check required version
-if (APPLE)
-    execute_process(
-        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2"
-        OUTPUT_VARIABLE MACOS_VERSION)
-    if (${MACOS_VERSION} VERSION_LESS 10.15)
-        message(FATAL_ERROR "Poac requires macOS Catalina (10.15) or later.")
-    endif()
-elseif (MSVC)
-    # https://cmake.org/cmake/help/latest/variable/MSVC_TOOLSET_VERSION.html
-    if (${MSVC_TOOLSET_VERSION} LESS 141)
-        message(FATAL_ERROR "Poac requires Visual Studio 2017 or later.")
-    endif()
-else ()
-    # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
-            message(FATAL_ERROR "Poac requires GCC 8 or later.")
-        endif ()
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    endif ()
-endif ()
+include(cmake/CheckCompilerVersion.cmake)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -191,21 +168,21 @@ if (NOT ${OPENSSL_FOUND})
 endif ()
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
-message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
 if (LINUX)
-    set(SSL_RELATED_LIBS ssl crypto dl)
+    list(APPEND OPENSSL_LIBRARIES ssl crypto dl)
 elseif (APPLE)
-    set(SSL_RELATED_LIBS dl)
+    list(APPEND OPENSSL_LIBRARIES dl)
 elseif (WIN32)
-    set(SSL_RELATED_LIBS bcrypt ws2_32)
+    list(APPEND OPENSSL_LIBRARIES bcrypt ws2_32)
 endif ()
+
+message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
         ${OPENSSL_LIBRARIES}
-        ${SSL_RELATED_LIBS}
         git2
         fmt
         ${Boost_LIBRARIES}
