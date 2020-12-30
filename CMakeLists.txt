@@ -88,9 +88,6 @@ if (DEFINED POAC_DEPS_DIR)
     if (NOT DEFINED BOOST_ROOT)
         set(BOOST_ROOT "${POAC_DEPS_DIR}/boost")
     endif ()
-    if (NOT DEFINED CLIPP_DIR)
-        set(CLIPP_DIR "${POAC_DEPS_DIR}/clipp")
-    endif ()
     if (NOT DEFINED FMT_DIR)
         set(FMT_DIR "${POAC_DEPS_DIR}/fmt")
     endif ()
@@ -122,10 +119,15 @@ FetchContent_Declare(
 )
 set(toml11_BUILD_TEST OFF)
 FetchContent_MakeAvailable(toml11)
+list(APPEND POAC_DEPENDENCIES toml11::toml11)
 
-if (DEFINED CLIPP_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CLIPP_DIR}/include)
-endif ()
+FetchContent_Declare(
+    clipp
+    GIT_REPOSITORY https://github.com/muellan/clipp.git
+    GIT_TAG        2c32b2f1f7cc530b1ec1f62c92f698643bb368db
+)
+FetchContent_MakeAvailable(clipp)
+list(APPEND POAC_DEPENDENCIES clipp::clipp)
 
 if (DEFINED FMT_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/include)
@@ -154,13 +156,15 @@ else()
     message(CHECK_PASS "all dependencies found")
 endif()
 
+message(STATUS "dependencies are ... ${POAC_DEPENDENCIES}")
+
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
         ${OPENSSL_LIBRARIES}
         git2
         fmt
-        toml11::toml11
+        ${POAC_DEPENDENCIES}
         Boost::system
         ${LibArchive_LIBRARIES}
 )

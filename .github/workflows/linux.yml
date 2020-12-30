@@ -9,7 +9,6 @@ env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
   BOOST_VERSION: 1.75.0
   LIBGIT2_VERSION: 1.1.0
-  CLIPP_VERSION: 2c32b2f1f7cc530b1ec1f62c92f698643bb368db
   FMT_VERSION: 7.1.3
   MITAMA_RESULT_VERSION: 37e80b09e8dcf10ef4c2925de87a92cc750ecd90
   PLOG_VERSION: 1.1.5
@@ -122,23 +121,6 @@ jobs:
             -DBUILD_CLAR=OFF                                       \
             -DCMAKE_C_FLAGS=-fPIC
           make
-          sudo make install
-        working-directory: ${{ runner.temp }}
-
-      - name: Restore & Cache clipp (${{ env.CLIPP_VERSION }})
-        uses: actions/cache@v2.1.3
-        id: clipp-cache
-        with:
-          path: ${{ runner.temp }}/libs/clipp
-          key: ${{ env.CACHE_KEY_PREFIX }}-clipp-${{ env.CLIPP_VERSION }}
-      - name: Install muellan/clipp (${{ env.CLIPP_VERSION }}) (header-only)
-        if: steps.clipp-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/clipp
-          git clone -q https://github.com/muellan/clipp.git
-          mkdir clipp/build && cd clipp/build
-          git checkout ${{ env.CLIPP_VERSION }}
-          cmake .. -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/clipp
           sudo make install
         working-directory: ${{ runner.temp }}
 
