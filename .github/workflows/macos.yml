@@ -18,9 +18,7 @@ jobs:
       - uses: actions/checkout@v2.3.4
 
       - name: Install required libraries
-        run: |
-          brew install libgit2 boost
-          brew install --HEAD poacpm/tap/mitama-cpp-result
+        run: brew install libgit2 boost
 
       - run: mkdir build
 

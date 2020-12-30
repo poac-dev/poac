@@ -91,9 +91,6 @@ if (DEFINED POAC_DEPS_DIR)
     if (NOT DEFINED LIBGIT2_DIR)
         set(LIBGIT2_DIR "${POAC_DEPS_DIR}/libgit2")
     endif ()
-    if (NOT DEFINED MITAMA_CPP_RESULT_DIR)
-        set(MITAMA_CPP_RESULT_DIR "${POAC_DEPS_DIR}/mitama-cpp-result")
-    endif ()
 endif ()
 
 include(cmake/AddBoost.cmake)
@@ -140,9 +137,13 @@ cmake_policy(SET CMP0048 NEW)
 FetchContent_MakeAvailable(plog)
 list(APPEND POAC_DEPENDENCIES plog::plog)
 
-if (DEFINED MITAMA_CPP_RESULT_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${MITAMA_CPP_RESULT_DIR}/include)
-endif ()
+FetchContent_Declare(
+    mitama-cpp-result
+    GIT_REPOSITORY https://github.com/LoliGothick/mitama-cpp-result.git
+    GIT_TAG        37e80b09e8dcf10ef4c2925de87a92cc750ecd90
+)
+FetchContent_MakeAvailable(mitama-cpp-result)
+list(APPEND POAC_DEPENDENCIES mitama-cpp-result::mitama-cpp-result)
 
 include(cmake/AddLibArchive.cmake)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LibArchive_INCLUDE_DIR})
