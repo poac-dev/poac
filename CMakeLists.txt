@@ -7,8 +7,7 @@ FATAL: In-source builds are not allowed.
 ")
 endif ()
 
-cmake_minimum_required(VERSION 3.14)
-cmake_policy(SET CMP0077 NEW)
+cmake_minimum_required(VERSION 3.17)
 project(poac
         VERSION 0.2.1
         LANGUAGES CXX
@@ -133,7 +132,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/SergiusTheBest/plog.git
     GIT_TAG        1.1.5
 )
-cmake_policy(SET CMP0048 NEW)
+set(CMAKE_PROJECT_plog_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/PlogPoliciesFix.cmake")
 FetchContent_MakeAvailable(plog)
 list(APPEND POAC_DEPENDENCIES plog::plog)
 
