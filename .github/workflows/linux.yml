@@ -8,7 +8,6 @@ on:
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
   BOOST_VERSION: 1.75.0
-  TOML11_VERSION: 3.6.0
   LIBGIT2_VERSION: 1.1.0
   CLIPP_VERSION: 2c32b2f1f7cc530b1ec1f62c92f698643bb368db
   FMT_VERSION: 7.1.3
@@ -99,24 +98,6 @@ jobs:
           cd boost
           ./bootstrap.sh
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
-        working-directory: ${{ runner.temp }}
-
-      - name: Restore & Cache toml11 (${{ env.TOML11_VERSION }})
-        uses: actions/cache@v2.1.3
-        id: toml11-cache
-        with:
-          path: ${{ runner.temp }}/libs/toml11
-          key: ${{ env.CACHE_KEY_PREFIX }}-toml11-${{ env.TOML11_VERSION }}
-      - name: Install ToruNiina/toml11 (${{ env.TOML11_VERSION }}) (header-only)
-        if: steps.toml11-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/toml11
-          git clone -q -b v${{ env.TOML11_VERSION }} https://github.com/ToruNiina/toml11.git
-          mkdir toml11/build && cd toml11/build
-          cmake ..                                                \
-            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/toml11 \
-            -Dtoml11_BUILD_TEST=OFF
-          sudo make install
         working-directory: ${{ runner.temp }}
 
       - name: Install libarchive
