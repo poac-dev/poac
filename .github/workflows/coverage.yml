@@ -15,7 +15,7 @@ jobs:
 
       - name: Install required libraries
         run: |
-          brew install libgit2 poacpm/tap/plog
+          brew install libgit2 poacpm/tap/plog boost
           brew install --HEAD poacpm/tap/mitama-cpp-result
 
       - run: mkdir build
