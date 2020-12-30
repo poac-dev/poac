@@ -8,9 +8,7 @@ on:
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
   BOOST_VERSION: 1.75.0
-  LIBARCHIVE_VERSION: 3.5.0
   LIBGIT2_VERSION: 1.1.0
-  CLIPP_VERSION: master
 
 jobs:
   x86_64-unknown-linux-gnu:
@@ -18,45 +16,60 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ clang, gcc ]
-        compiler_version: [ 7, 8, 9, 10 ]
         build_type: [ Debug ] # TODO: Release
-        exclude:
-          - compiler: gcc
-            compiler_version: 7
-        include:
-          - compiler: clang
-            cc_prefix: clang-
-            cxx_prefix: clang++-
-            package_prefix: clang-
-          - compiler: gcc
-            cc_prefix: gcc-
-            cxx_prefix: g++-
-            package_prefix: g++-
+        compiler:
+          - {
+            cc: clang-7, cxx: clang++-7,
+            pacakge: clang-7,
+          }
+          - {
+            cc: clang-8, cxx: clang++-8,
+            pacakge: clang-8,
+          }
+          - {
+            cc: clang-9, cxx: clang++-9,
+            pacakge: clang-9,
+          }
+          - {
+            cc: clang-10, cxx: clang++-10,
+            pacakge: clang-10,
+          }
+          - {
+            cc: gcc-8, cxx: g++-8,
+            pacakge: g++-8,
+          }
+          - {
+            cc: gcc-9, cxx: g++-9,
+            pacakge: g++-9,
+          }
+          - {
+            cc: gcc-10, cxx: g++-10,
+            pacakge: g++-10,
+          }
     env:
-      CC: ${{ matrix.cc_prefix }}${{ matrix.compiler_version }}
-      CXX: ${{ matrix.cxx_prefix }}${{ matrix.compiler_version }}
-      CACHE_KEY_PREFIX: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}-${{ matrix.build_type }}
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cxx }}
+      CACHE_KEY_PREFIX: ${{ github.job }}-${{ matrix.compiler.pacakge }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v2.3.4
 
       - run: sudo apt-get -qq update
-      - name: Install ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
-        run: sudo apt-get install -y -qq pkg-config cmake ${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+      - name: Install ${{ matrix.compiler.pacakge }}
+        run: sudo apt-get install -y -qq pkg-config cmake ${{ matrix.compiler.pacakge }}
 
       - name: Install openssl
-        if: matrix.compiler == 'clang'
+        if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y -qq libssl-dev
 
       - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
-        if: matrix.compiler == 'gcc'
+        if: startsWith(matrix.compiler.cc, 'gcc')
         uses: actions/cache@v2.1.3
         id: openssl-cache
         with:
           path: ${{ runner.temp }}/libs/openssl
           key: ${{ env.CACHE_KEY_PREFIX }}-openssl-${{ env.OPENSSL_VERSION }}
       - name: Install openssl (${{ env.OPENSSL_VERSION }}) as static
-        if: matrix.compiler == 'gcc' && steps.openssl-cache.outputs.cache-hit != 'true'
+        if: startsWith(matrix.compiler.cc, 'gcc') && steps.openssl-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/openssl
           git clone -q -b ${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
@@ -120,12 +133,12 @@ jobs:
         working-directory: build
 
       - name: Test Poac
-        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
+        if: matrix.compiler.cxx != 'g++-8'
         run: ctest --output-on-failure --verbose
         working-directory: build
 
       - name: Running test
-        if: matrix.compiler == 'clang' || (matrix.compiler == 'gcc' && matrix.compiler_version != 8)
+        if: matrix.compiler.cxx != 'g++-8'
         run: ./poac help
         working-directory: build
 
@@ -137,5 +150,5 @@ jobs:
         uses: actions/upload-artifact@v2.2.1
         if: matrix.build_type == 'Release'
         with:
-          name: ${{ github.job }}-${{ matrix.package_prefix }}${{ matrix.compiler_version }}
+          name: ${{ github.job }}-${{ matrix.compiler.pacakge }}
           path: poac
