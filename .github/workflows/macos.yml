@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
 
-      - name: Install libgit2
-        run: brew install libgit2
+      - name: Install required libraries
+        run: brew install libgit2 boost
 
       - run: mkdir build
 
