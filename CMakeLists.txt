@@ -94,9 +94,6 @@ if (DEFINED POAC_DEPS_DIR)
     if (NOT DEFINED MITAMA_CPP_RESULT_DIR)
         set(MITAMA_CPP_RESULT_DIR "${POAC_DEPS_DIR}/mitama-cpp-result")
     endif ()
-    if (NOT DEFINED PLOG_DIR)
-        set(PLOG_DIR "${POAC_DEPS_DIR}/plog")
-    endif ()
 endif ()
 
 include(cmake/AddBoost.cmake)
@@ -134,9 +131,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 list(APPEND POAC_DEPENDENCIES fmt::fmt)
 
-if (DEFINED PLOG_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${PLOG_DIR}/include)
-endif ()
+FetchContent_Declare(
+    plog
+    GIT_REPOSITORY https://github.com/SergiusTheBest/plog.git
+    GIT_TAG        1.1.5
+)
+cmake_policy(SET CMP0048 NEW)
+FetchContent_MakeAvailable(plog)
+list(APPEND POAC_DEPENDENCIES plog::plog)
 
 if (DEFINED MITAMA_CPP_RESULT_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${MITAMA_CPP_RESULT_DIR}/include)
@@ -163,7 +165,6 @@ target_link_libraries(
         ${STATIC_LINK_FLAG}
         ${OPENSSL_LIBRARIES}
         git2
-        fmt
         ${POAC_DEPENDENCIES}
         Boost::system
         ${LibArchive_LIBRARIES}
