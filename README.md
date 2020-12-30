@@ -1,4 +1,4 @@
-<div align="center"><img alt="poac" width="250" src="https://raw.githubusercontent.com/poacpm/designs/master/images/logo.png"></div>
+<div align="center"><img alt="poac" width="250" src="https://github.com/poacpm/design/raw/master/images/logo.svg"></div>
 
 ## Description
 
@@ -80,7 +80,7 @@ Poac requires the following tools and packages to build:
   * uuid
 * [_`clipp`_](https://github.com/muellan/clipp): `master` branch
 * [`fmtlib`](https://github.com/fmtlib/fmt): `7.1.3` or later
-* [`libarchive`](https://github.com/libarchive/libarchive): `3.5.0` or later
+* [`libarchive`](https://github.com/libarchive/libarchive): `3.4.3` or later
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
@@ -106,7 +106,7 @@ I also plan to implement integration with many other build systems and package m
 
 ## Contributing
 Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
-You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture/).
+You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
 
 ## License
 
