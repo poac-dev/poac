@@ -56,6 +56,16 @@ curl -fsSL https://sh.poac.pm | bash
 ### Manual install (Build)
 
 Poac requires the following tools and packages to build:
+
+#### tools
+
+* [`cmake`](https://github.com/Kitware/CMake): `3.14` or later
+
+#### packages
+
+> The packages with names in italics are not needed installing before the following commands
+> because they will be automatically installed when configuring by CMake.
+
 * [`boost`](https://github.com/boostorg): `1.70.0` or later
   * algorithm
   * asio
@@ -68,15 +78,14 @@ Poac requires the following tools and packages to build:
   * scope_exit
   * test (dev)
   * uuid
-* [`clipp`](https://github.com/muellan/clipp): `master` branch
-* [`cmake`](https://github.com/Kitware/CMake): `3.13` or later
-* [`fmtlib`](https://github.com/fmtlib/fmt): `7.1.3` or later
+* [_`clipp`_](https://github.com/muellan/clipp): `master` branch
+* [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [`libarchive`](https://github.com/libarchive/libarchive): `3.4.3` or later
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
+* [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `develop` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
-* [`plog`](https://github.com/SergiusTheBest/plog): `1.1.5` or later
-* [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
+* [_`plog`_](https://github.com/SergiusTheBest/plog): `1.1.5` or later
+* [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
@@ -111,7 +120,7 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for det
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
-* fmtlib - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
+* fmt - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
 * libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
