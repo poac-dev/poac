@@ -88,9 +88,6 @@ if (DEFINED POAC_DEPS_DIR)
     if (NOT DEFINED BOOST_ROOT)
         set(BOOST_ROOT "${POAC_DEPS_DIR}/boost")
     endif ()
-    if (NOT DEFINED FMT_DIR)
-        set(FMT_DIR "${POAC_DEPS_DIR}/fmt")
-    endif ()
     if (NOT DEFINED LIBGIT2_DIR)
         set(LIBGIT2_DIR "${POAC_DEPS_DIR}/libgit2")
     endif ()
@@ -129,10 +126,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(clipp)
 list(APPEND POAC_DEPENDENCIES clipp::clipp)
 
-if (DEFINED FMT_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/include)
-    target_link_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/lib)
-endif ()
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG        7.1.3
+)
+FetchContent_MakeAvailable(fmt)
+list(APPEND POAC_DEPENDENCIES fmt::fmt)
 
 if (DEFINED PLOG_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${PLOG_DIR}/include)
