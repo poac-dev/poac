@@ -1,7 +1,7 @@
 [package]
 name = "poac" # required
 version = "0.3.0" # required
-cpp = 17 # required
+edition = "2017" # required
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"] # required
 license = "Apache-2.0"
 homepage = "https://poac.pm"
@@ -22,10 +22,6 @@ description = "Poac is a package manager for C++" # required
 #"boost/dynamic_bitset" = ">=1.64.0 and <2.0.0"
 #"boost/beast" = ">=1.64.0 and <2.0.0"
 #"ToruNiina/toml11" = ">=3.0.0 and <4.0.0"
-#libgit2 = ">=0.27 and <2.0.0"
-
-#[target.'cfg(any(os = "linux", compiler = "msvc"))'.dependencies]
-#"boost/filesystem" = { version = ">=1.64.0 and <2.0.0", link = "static" }
 
 #[dev-dependencies]
 #"boost/test" = ">=1.64.0 and <2.0.0"
@@ -63,7 +59,7 @@ include-directories = ["/usr/local/opt/llvm@7/include"]
 link-directories = ["/usr/local/opt/llvm@7/lib"]
 
 [profile]
-libraries = ["boost_sysytem", "boost_filesystem", "git2"]
+libraries = ["boost_sysytem", "git2"]
 
 [profile.release]
 lto = true
