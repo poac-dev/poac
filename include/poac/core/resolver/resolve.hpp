@@ -29,7 +29,6 @@
 #include <poac/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/sat.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/net.hpp>
 #include <poac/util/semver/semver.hpp>
