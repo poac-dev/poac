@@ -21,11 +21,11 @@
 // internal
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
-#include <poac/io/net.hpp>
 #include <poac/io/tar.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
+#include <poac/util/net.hpp>
 #include <poac/config.hpp>
 
 namespace poac::core::resolver {
@@ -78,7 +78,7 @@ namespace poac::core::resolver {
     [[nodiscard]] mitama::result<std::string, std::string>
     get_download_link(const resolve::package_t& package) {
         const std::string repository =
-            MITAMA_TRY(io::net::api::package_repository(
+            MITAMA_TRY(util::net::api::package_repository(
                 resolve::get_name(package), resolve::get_version(package)
             ));
         return mitama::success(convert_to_download_link(repository));
@@ -93,8 +93,8 @@ namespace poac::core::resolver {
             PLOG_DEBUG << fmt::format("writing to `{}`", archive_path);
 
             std::ofstream archive(archive_path);
-            const auto [host, target] = io::net::parse_url(download_link);
-            const io::net::requests requests{ host };
+            const auto [host, target] = util::net::parse_url(download_link);
+            const util::net::requests requests{ host };
             requests.get(target, {}, std::move(archive));
 
             return mitama::success(archive_path);

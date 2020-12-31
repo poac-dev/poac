@@ -29,8 +29,8 @@
 #include <poac/config.hpp>
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/sat.hpp>
-#include <poac/io/net.hpp>
 #include <poac/util/meta.hpp>
+#include <poac/util/net.hpp>
 #include <poac/util/semver/semver.hpp>
 
 namespace poac::core::resolver::resolve {
@@ -272,7 +272,7 @@ namespace poac::core::resolver::resolve {
     get_versions_satisfy_interval(const package_t& package) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         const std::vector<std::string> versions =
-            io::net::api::versions(get_name(package)).unwrap();
+            util::net::api::versions(get_name(package)).unwrap();
         if (get_interval(package) == "latest") {
             return {
                 *std::max_element(
@@ -371,7 +371,7 @@ namespace poac::core::resolver::resolve {
 
         // Get dependencies of dependencies
         const unique_deps_t<without_deps> deps_api_res =
-            io::net::api::deps(get_name(package), get_version(package)).unwrap();
+            util::net::api::deps(get_name(package), get_version(package)).unwrap();
         if (deps_api_res.empty()) {
             new_deps.emplace_back(package, std::nullopt);
         } else {
