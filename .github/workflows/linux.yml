@@ -128,7 +128,7 @@ jobs:
           sudo make install
         working-directory: ${{ runner.temp }}
 
-      - run: mkdir build
+      - run: mkdir -p build
 
       - name: Build Poac
         run: |
