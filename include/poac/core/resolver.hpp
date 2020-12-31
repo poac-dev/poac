@@ -21,7 +21,7 @@
 // internal
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
-#include <poac/io/archive.hpp>
+#include <poac/util/archive.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
@@ -108,7 +108,7 @@ namespace poac::core::resolver {
         for (const auto& package : deps) {
             const std::filesystem::path installed_path = MITAMA_TRY(fetch_impl(package));
             const std::string extracted_directory_name =
-                MITAMA_TRY(io::archive::extract(installed_path, config::path::extract_dir));
+                MITAMA_TRY(util::archive::extract(installed_path, config::path::extract_dir));
             MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
 
             using termcolor2::color_literals::operator""_green;
