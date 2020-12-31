@@ -1,12 +1,12 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
-#include <poac/io/net.hpp>
+#include <poac/util/net.hpp>
 
 // std::string to_progress(const int& max_count, int now_count)
-BOOST_AUTO_TEST_CASE( poac_io_net_to_progress_test )
+BOOST_AUTO_TEST_CASE( poac_util_net_to_progress_test )
 {
-    using poac::io::net::to_progress;
+    using poac::util::net::to_progress;
 
     BOOST_CHECK( to_progress(50, 0) ==   "[                                                  ]" );
     BOOST_CHECK( to_progress(50, 1) ==   "[>                                                 ]" );
@@ -30,9 +30,9 @@ BOOST_AUTO_TEST_CASE( poac_io_net_to_progress_test )
     BOOST_CHECK( to_progress(100, 100) == "[=================================================>]" );
 }
 
-BOOST_AUTO_TEST_CASE( poac_io_net_to_byte_progress_test )
+BOOST_AUTO_TEST_CASE( poac_io_util_to_byte_progress_test )
 {
-    using poac::io::net::to_byte_progress;
+    using poac::util::net::to_byte_progress;
 
     BOOST_CHECK( to_byte_progress(50, 0) ==   "[                                                  ] 0.00B/50.00B" );
     BOOST_CHECK( to_byte_progress(50, 1) ==   "[>                                                 ] 1.00B/50.00B" );

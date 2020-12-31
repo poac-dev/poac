@@ -1,5 +1,5 @@
-#ifndef POAC_IO_NET_HPP
-#define POAC_IO_NET_HPP
+#ifndef POAC_UTIL_NET_HPP
+#define POAC_UTIL_NET_HPP
 
 // std
 #include <cstdint>
@@ -38,12 +38,11 @@
 // internal
 #include <poac/config.hpp>
 #include <poac/core/except.hpp>
-#include <poac/io/path.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
 
-namespace poac::io::net {
+namespace poac::util::net {
     // Create progress bar, [====>   ]
     std::string to_progress(const int& max_count, int now_count, const int& bar_size = 50) {
         if (now_count > max_count) {
@@ -379,7 +378,7 @@ namespace poac::io::net {
                 std::nullptr_t
             > = nullptr>
         void write_request(const Request& req) const {
-            PLOG_DEBUG << "[io::net::requests] write type: string";
+            PLOG_DEBUG << "[util::net::requests] write type: string";
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
@@ -396,7 +395,7 @@ namespace poac::io::net {
                 std::nullptr_t
             > = nullptr>
         void write_request(const Request& req) const {
-            PLOG_DEBUG << "[io::net::requests] write type: multipart/form-data";
+            PLOG_DEBUG << "[util::net::requests] write type: multipart/form-data";
 
             // Send the HTTP request to the remote host
             stream->write_some(boost::asio::buffer(req.get_header()));
@@ -422,7 +421,7 @@ namespace poac::io::net {
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.get_footer()));
-            PLOG_DEBUG << "[io::net::requests] waiting for server response...";
+            PLOG_DEBUG << "[util::net::requests] waiting for server response...";
         }
 
         template <
@@ -469,14 +468,14 @@ namespace poac::io::net {
                     if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
                         throw core::except::error(
                             fmt::format(
-                                "io::net received a bad response code: {}\n{}",
+                                "util::net received a bad response code: {}\n{}",
                                 res.base().result_int(), res.body()
                             )
                         );
                     } else {
                         throw core::except::error(
                             fmt::format(
-                                "io::net received a bad response code: {}",
+                                "util::net received a bad response code: {}",
                                 res.base().result_int()
                             )
                         );
@@ -491,10 +490,10 @@ namespace poac::io::net {
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
             if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
-                PLOG_DEBUG << "[io::net::requests] read type: string";
+                PLOG_DEBUG << "[util::net::requests] read type: string";
                 return res.body();
             } else {
-                PLOG_DEBUG << "[io::net::requests] read type: file with progress";
+                PLOG_DEBUG << "[util::net::requests] read type: file with progress";
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
@@ -585,7 +584,7 @@ namespace poac::io::net {
     };
 } // end namespace
 
-namespace poac::io::net::api {
+namespace poac::util::net::api {
     [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
     search_impl(std::string_view body) noexcept {
         try {
@@ -675,7 +674,7 @@ namespace poac::io::net::api {
         }
         PLOG_DEBUG <<
             fmt::format(
-                "[io::net::api::versions] versions of {} are [{}]",
+                "[util::net::api::versions] versions of {} are [{}]",
                 name, fmt::join(results, ", ")
             );
         return mitama::success(results);
@@ -704,4 +703,4 @@ namespace poac::io::net::api {
     }
 } // end namespace
 
-#endif // !POAC_IO_NET_HPP
+#endif // !POAC_UTIL_NET_HPP

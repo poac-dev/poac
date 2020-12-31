@@ -16,7 +16,6 @@
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/config.hpp>
-#include <poac/io/path.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/shell.hpp>
 #include <string>

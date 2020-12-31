@@ -2,8 +2,10 @@
 #define POAC_UTIL_META_HPP
 
 // std
+#include <chrono>
 #include <optional>
 #include <stack>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <unordered_map>
@@ -182,6 +184,16 @@ namespace poac::util::meta {
             std::make_index_sequence<
                 std::tuple_size_v<remove_cvref_t<T>>
             >{}
+        );
+    }
+
+    template <class Clock, class Duration = typename Clock::duration>
+    inline std::string
+    time_to_string(const std::chrono::time_point<Clock, Duration>& time) {
+        return std::to_string(
+            std::chrono::duration_cast<std::chrono::seconds>(
+                time.time_since_epoch()
+            ).count()
         );
     }
 
