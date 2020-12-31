@@ -108,7 +108,7 @@ namespace poac::core::resolver {
         for (const auto& package : deps) {
             const std::filesystem::path installed_path = MITAMA_TRY(fetch_impl(package));
             const std::string extracted_directory_name =
-                MITAMA_TRY(io::archive::extract(installed_path, io::path::extract_dir));
+                MITAMA_TRY(io::archive::extract(installed_path, config::path::extract_dir));
             MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
 
             using termcolor2::color_literals::operator""_green;
