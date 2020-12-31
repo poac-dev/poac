@@ -4,7 +4,6 @@
 #include <poac/cmd.hpp>
 #include <poac/config.hpp>
 #include <poac/core.hpp>
-#include <poac/io.hpp>
 #include <poac/util.hpp>
 
 #endif // !POAC_HPP
