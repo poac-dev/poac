@@ -21,12 +21,12 @@
 // internal
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
-#include <poac/io/net.hpp>
-#include <poac/io/path.hpp>
 #include <poac/io/archive.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
+#include <poac/util/net.hpp>
+#include <poac/config.hpp>
 
 namespace poac::core::resolver {
     inline std::string
@@ -38,7 +38,7 @@ namespace poac::core::resolver {
 
     inline std::filesystem::path
     get_extracted_path(const resolve::package_t& package) {
-        return io::path::extract_dir / get_install_name(package);
+        return config::path::extract_dir / get_install_name(package);
     }
 
     /// Rename unknown extracted directory to easily access when building.
@@ -48,7 +48,7 @@ namespace poac::core::resolver {
         std::string_view extracted_directory_name) noexcept
     {
         const std::filesystem::path temporarily_extracted_path =
-            io::path::extract_dir / extracted_directory_name;
+            config::path::extract_dir / extracted_directory_name;
         const std::filesystem::path extracted_path = get_extracted_path(package);
 
         std::error_code ec{};
@@ -61,8 +61,8 @@ namespace poac::core::resolver {
 
     std::filesystem::path
     get_archive_path(const resolve::package_t& package) {
-        std::filesystem::create_directories(io::path::archive_dir);
-        return io::path::archive_dir / (get_install_name(package) + ".tar.gz");
+        std::filesystem::create_directories(config::path::archive_dir);
+        return config::path::archive_dir / (get_install_name(package) + ".tar.gz");
     }
 
     std::string
@@ -78,7 +78,7 @@ namespace poac::core::resolver {
     [[nodiscard]] mitama::result<std::string, std::string>
     get_download_link(const resolve::package_t& package) {
         const std::string repository =
-            MITAMA_TRY(io::net::api::package_repository(
+            MITAMA_TRY(util::net::api::package_repository(
                 resolve::get_name(package), resolve::get_version(package)
             ));
         return mitama::success(convert_to_download_link(repository));
@@ -93,8 +93,8 @@ namespace poac::core::resolver {
             PLOG_DEBUG << fmt::format("writing to `{}`", archive_path);
 
             std::ofstream archive(archive_path);
-            const auto [host, target] = io::net::parse_url(download_link);
-            const io::net::requests requests{ host };
+            const auto [host, target] = util::net::parse_url(download_link);
+            const util::net::requests requests{ host };
             requests.get(target, {}, std::move(archive));
 
             return mitama::success(archive_path);
@@ -159,7 +159,7 @@ namespace poac::core::resolver {
         using termcolor2::color_literals::operator""_green;
         PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
         try {
-            std::filesystem::create_directories(io::path::cache_dir);
+            std::filesystem::create_directories(config::path::cache_dir);
         } catch (...) {
             return mitama::failure("creating directories failed");
         }

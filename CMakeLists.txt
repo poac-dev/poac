@@ -1,13 +1,13 @@
 # Reference: https://github.com/opencv/opencv/blob/e329c84d5e7cfa5965b5dbbe7aa94d377ede23cf/CMakeLists.txt#L9-L15
 # Disable in-source builds to prevent source tree corruption.
-if (" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "
 FATAL: In-source builds are not allowed.
        You should create a separate directory for build files.
 ")
 endif ()
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.17)
 project(poac
         VERSION 0.2.1
         LANGUAGES CXX
@@ -18,30 +18,7 @@ option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
 set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
 set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-
-# Check required version
-if (APPLE)
-    execute_process(
-        COMMAND bash -c "sw_vers | head -n 2 | tail -n 1 | cut -f 2"
-        OUTPUT_VARIABLE MACOS_VERSION)
-    if (${MACOS_VERSION} VERSION_LESS 10.15)
-        message(FATAL_ERROR "Poac requires macOS Catalina (10.15) or later.")
-    endif()
-elseif (MSVC)
-    # https://cmake.org/cmake/help/latest/variable/MSVC_TOOLSET_VERSION.html
-    if (${MSVC_TOOLSET_VERSION} LESS 141)
-        message(FATAL_ERROR "Poac requires Visual Studio 2017 or later.")
-    endif()
-else ()
-    # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
-            message(FATAL_ERROR "Poac requires GCC 8 or later.")
-        endif ()
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    endif ()
-endif ()
+include(cmake/CheckCompilerVersion.cmake)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -102,113 +79,94 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
     endif ()
 endif ()
 
+message(CHECK_START "Finding Poac dependencies")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
+unset(missingDependencies)
+
 if (DEFINED POAC_DEPS_DIR)
     if (NOT DEFINED BOOST_ROOT)
         set(BOOST_ROOT "${POAC_DEPS_DIR}/boost")
     endif ()
-    if (NOT DEFINED CLIPP_DIR)
-        set(CLIPP_DIR "${POAC_DEPS_DIR}/clipp")
-    endif ()
-    if (NOT DEFINED FMT_DIR)
-        set(FMT_DIR "${POAC_DEPS_DIR}/fmt")
-    endif ()
     if (NOT DEFINED LIBGIT2_DIR)
         set(LIBGIT2_DIR "${POAC_DEPS_DIR}/libgit2")
     endif ()
-    if (NOT DEFINED MITAMA_CPP_RESULT_DIR)
-        set(MITAMA_CPP_RESULT_DIR "${POAC_DEPS_DIR}/mitama-cpp-result")
-    endif ()
-    if (NOT DEFINED PLOG_DIR)
-        set(PLOG_DIR "${POAC_DEPS_DIR}/plog")
-    endif ()
-    if (NOT DEFINED TOML11_DIR)
-        set(TOML11_DIR "${POAC_DEPS_DIR}/toml11")
-    endif ()
 endif ()
 
-set(Boost_DEBUG ${VERBOSE})
-if (DEFINED BOOST_ROOT)
-    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
-endif()
-find_package(Boost 1.70.0 REQUIRED COMPONENTS system)
-if (NOT ${Boost_FOUND})
-    message(FATAL_ERROR "Could not find boost.")
-endif ()
+include(cmake/AddBoost.cmake)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-message(STATUS "Boost include directory is ... ${Boost_INCLUDE_DIRS}")
 target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
-message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
-message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
 
 if (DEFINED LIBGIT2_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${LIBGIT2_DIR}/include)
     target_link_directories(${PROJECT_NAME} PRIVATE ${LIBGIT2_DIR}/lib)
 endif ()
 
-if (DEFINED TOML11_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${TOML11_DIR}/include)
-endif ()
+include(FetchContent)
+FetchContent_Declare(
+    toml11
+    GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+    GIT_TAG        v3.6.0
+)
+set(toml11_BUILD_TEST OFF)
+FetchContent_MakeAvailable(toml11)
+list(APPEND POAC_DEPENDENCIES toml11::toml11)
 
-if (DEFINED CLIPP_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CLIPP_DIR}/include)
-endif ()
+FetchContent_Declare(
+    clipp
+    GIT_REPOSITORY https://github.com/muellan/clipp.git
+    GIT_TAG        2c32b2f1f7cc530b1ec1f62c92f698643bb368db
+)
+FetchContent_MakeAvailable(clipp)
+list(APPEND POAC_DEPENDENCIES clipp::clipp)
 
-if (DEFINED FMT_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/include)
-    target_link_directories(${PROJECT_NAME} PRIVATE ${FMT_DIR}/lib)
-endif ()
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG        7.1.3
+)
+FetchContent_MakeAvailable(fmt)
+list(APPEND POAC_DEPENDENCIES fmt::fmt)
 
-if (DEFINED PLOG_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${PLOG_DIR}/include)
-endif ()
+FetchContent_Declare(
+    plog
+    GIT_REPOSITORY https://github.com/SergiusTheBest/plog.git
+    GIT_TAG        1.1.5
+)
+set(CMAKE_PROJECT_plog_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/PlogPoliciesFix.cmake")
+FetchContent_MakeAvailable(plog)
+list(APPEND POAC_DEPENDENCIES plog::plog)
 
-if (DEFINED MITAMA_CPP_RESULT_DIR)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${MITAMA_CPP_RESULT_DIR}/include)
-endif ()
+FetchContent_Declare(
+    mitama-cpp-result
+    GIT_REPOSITORY https://github.com/LoliGothick/mitama-cpp-result.git
+    GIT_TAG        37e80b09e8dcf10ef4c2925de87a92cc750ecd90
+)
+FetchContent_MakeAvailable(mitama-cpp-result)
+list(APPEND POAC_DEPENDENCIES mitama-cpp-result::mitama-cpp-result)
 
-if (APPLE)
-    set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
-elseif (DEFINED LIBARCHIVE_DIR)
-    set(LibArchive_INCLUDE_DIR "${LIBARCHIVE_DIR}/include")
-endif()
-find_package(LibArchive)
-if (NOT ${LibArchive_FOUND})
-    message(FATAL_ERROR "Could not find LibArchive.")
-endif ()
-message(STATUS "LibArchive include directory is ... ${LibArchive_INCLUDE_DIR}")
+include(cmake/AddLibArchive.cmake)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LibArchive_INCLUDE_DIR})
-message(STATUS "LibArchive library is ... ${LibArchive_LIBRARIES}")
 
-if (APPLE)
-    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
-endif ()
-if (DEFINED OPENSSL_ROOT_DIR)
-    set(OPENSSL_LIBRARIES ${OPENSSL_ROOT_DIR}/lib)
-endif ()
-find_package(OpenSSL REQUIRED)
-if (NOT ${OPENSSL_FOUND})
-    message(FATAL_ERROR "Could not find openssl.")
-endif ()
+include(cmake/AddOpenSSL.cmake)
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
-message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
-message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
-if (LINUX)
-    set(SSL_RELATED_LIBS ssl crypto dl)
-elseif (APPLE)
-    set(SSL_RELATED_LIBS dl)
-elseif (WIN32)
-    set(SSL_RELATED_LIBS bcrypt ws2_32)
-endif ()
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+if(missingDependencies)
+    message(CHECK_FAIL "missing dependencies: ${missingDependencies}")
+    message(FATAL_ERROR "missing dependencies found")
+else()
+    message(CHECK_PASS "all dependencies found")
+endif()
+
+message(STATUS "dependencies are ... ${POAC_DEPENDENCIES}")
 
 target_link_libraries(
         ${PROJECT_NAME}
         ${STATIC_LINK_FLAG}
         ${OPENSSL_LIBRARIES}
-        ${SSL_RELATED_LIBS}
         git2
-        fmt
-        ${Boost_LIBRARIES}
+        ${POAC_DEPENDENCIES}
+        Boost::system
         ${LibArchive_LIBRARIES}
 )
 
