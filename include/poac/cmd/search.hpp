@@ -16,7 +16,7 @@
 #include <plog/Log.h>
 
 // internal
-#include <poac/io/net.hpp>
+#include <poac/util/net.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/config.hpp>
@@ -29,7 +29,7 @@ namespace poac::cmd::search {
     [[nodiscard]] mitama::result<void, std::string>
     search(Options&& opts) {
         const boost::property_tree::ptree pt =
-            MITAMA_TRY(io::net::api::search(opts.package_name, 20));
+            MITAMA_TRY(util::net::api::search(opts.package_name, 20));
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
                 return mitama::failure(
