@@ -1,3 +1,5 @@
+include_guard(GLOBAL)
+
 # Check required compiler version
 # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
