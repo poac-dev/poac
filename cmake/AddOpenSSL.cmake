@@ -1,4 +1,6 @@
-message(CHECK_START "Finding OpenSSL")
+include_guard(GLOBAL)
+
+message(CHECK_START "Adding OpenSSL")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 if (APPLE)
@@ -10,7 +12,7 @@ endif ()
 
 find_package(OpenSSL REQUIRED)
 if (OPENSSL_FOUND)
-    message(CHECK_PASS "found")
+    message(CHECK_PASS "added")
     if (LINUX)
         list(APPEND OPENSSL_LIBRARIES ssl crypto dl)
     elseif (APPLE)
@@ -20,6 +22,9 @@ if (OPENSSL_FOUND)
     endif ()
     message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
     message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
+
+    target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+    list(APPEND POAC_DEPENDENCIES ${OPENSSL_LIBRARIES})
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies openssl)
