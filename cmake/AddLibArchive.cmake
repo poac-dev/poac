@@ -1,4 +1,6 @@
-message(CHECK_START "Finding LibArchive")
+include_guard(GLOBAL)
+
+message(CHECK_START "Adding LibArchive")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 if (APPLE)
@@ -9,9 +11,12 @@ endif()
 
 find_package(LibArchive)
 if (LibArchive_FOUND)
-    message(CHECK_PASS "found")
+    message(CHECK_PASS "added")
     message(STATUS "LibArchive include directory is ... ${LibArchive_INCLUDE_DIR}")
     message(STATUS "LibArchive library is ... ${LibArchive_LIBRARIES}")
+
+    target_include_directories(${PROJECT_NAME} PRIVATE ${LibArchive_INCLUDE_DIR})
+    list(APPEND POAC_DEPENDENCIES ${LibArchive_LIBRARIES})
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies libarchive)

@@ -1,4 +1,6 @@
-message(CHECK_START "Finding Boost")
+include_guard(GLOBAL)
+
+message(CHECK_START "Adding Boost")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 set(Boost_DEBUG ${VERBOSE})
@@ -8,10 +10,14 @@ endif()
 
 find_package(Boost 1.70.0 REQUIRED COMPONENTS system)
 if (Boost_FOUND)
-    message(CHECK_PASS "found")
+    message(CHECK_PASS "added")
     message(STATUS "Boost include directories are ... ${Boost_INCLUDE_DIRS}")
     message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
     message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
+
+    target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
+    target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
+    list(APPEND POAC_DEPENDENCIES ${Boost_LIBRARIES})
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies boost)
