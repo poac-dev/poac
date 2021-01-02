@@ -8,7 +8,11 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
         GIT_TAG        7.1.3
 )
+
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(fmt)
+unset(BUILD_SHARED_LIBS)
+
 list(APPEND POAC_DEPENDENCIES fmt::fmt)
 message(CHECK_PASS "added")
 

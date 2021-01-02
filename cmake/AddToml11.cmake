@@ -8,8 +8,10 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
         GIT_TAG        v3.6.0
 )
+
 set(toml11_BUILD_TEST OFF)
 FetchContent_MakeAvailable(toml11)
+
 list(APPEND POAC_DEPENDENCIES toml11::toml11)
 message(CHECK_PASS "added")
 
