@@ -166,7 +166,7 @@ jobs:
           name: ${{ github.job }}-${{ matrix.compiler.pacakge }}
           path: poac
 
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2.2.1
         if: success() && matrix.build_type == 'Coverage'
 
       - name: Upload coverage to Coveralls
