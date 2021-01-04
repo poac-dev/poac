@@ -293,11 +293,12 @@ namespace poac::core::resolver::resolve {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
         const semver::Interval i(get_interval(package));
-        const auto satisfied_versions =
+        const std::vector<std::string> satisfied_versions =
             MITAMA_TRY(util::net::api::versions(get_name(package)))
             | boost::adaptors::filtered(
                 [&i](std::string_view s){ return i.satisfies(s); }
-            );
+            )
+            | util::meta::containerized;
 
         if (satisfied_versions.empty()) {
             return mitama::failure(
@@ -307,7 +308,7 @@ namespace poac::core::resolver::resolve {
                 )
             );
         }
-        return mitama::success(satisfied_versions | util::meta::containerized);
+        return mitama::success(satisfied_versions);
     }
 
     using interval_cache_t =
