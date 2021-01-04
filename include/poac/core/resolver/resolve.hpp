@@ -33,7 +33,6 @@
 
 // internal
 #include <poac/config.hpp>
-#include <poac/core/except.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/net.hpp>

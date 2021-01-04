@@ -186,8 +186,6 @@ namespace poac::core::resolver {
             } else {
                 return resolve::backtrack_loop(duplicate_deps);
             }
-        } catch (const core::except::error& e) {
-            return mitama::failure(e.what());
         } catch (...) {
             return mitama::failure("resolving packages failed");
         }
