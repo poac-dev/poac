@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type: [ Debug ] # TODO: Release
+        build_type: [ Debug, Release ]
         compiler:
           - {
             cc: clang-7, cxx: clang++-7,
