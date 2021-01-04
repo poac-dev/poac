@@ -2,6 +2,7 @@
 #define POAC_CORE_RESOLVER_RESOLVE_HPP
 
 // std
+#include <cmath>
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -20,7 +21,12 @@
 #include <boost/dynamic_bitset.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/range/algorithm/find_if.hpp>
+#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm_ext/push_back.hpp>
+#include <boost/range/adaptor/filtered.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/range/join.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
 #include <plog/Log.h>
@@ -129,20 +135,34 @@ namespace poac::core::resolver::resolve {
     // ¬A ∨ B ∨ ¬C
     // ¬A ∨ ¬B ∨ C
     // ¬A ∨ ¬B ∨ ¬C
-    void multiple_versions_cnf(const std::vector<int>& clause, std::vector<std::vector<int>>& clauses) {
-        const int combinations = 1 << clause.size();
-        for (int i = 0; i < combinations; ++i) { // index sequence
-            boost::dynamic_bitset<> bs(to_binary_numbers(i, clause.size()));
-            if (bs.count() == 1) {
-                continue;
-            }
-
-            std::vector<int> new_clause;
-            for (std::size_t j = 0; j < bs.size(); ++j) {
-                new_clause.emplace_back(bs[j] ? clause[j] * -1 : clause[j]);
-            }
-            clauses.emplace_back(new_clause);
-        }
+    std::vector<std::vector<int>>
+    multiple_versions_cnf(const std::vector<int>& clause) {
+        return boost::irange(0, 1 << clause.size()) // number of combinations
+            | boost::adaptors::transformed(
+                  [&clause](const auto& i){
+                      return boost::dynamic_bitset<>(
+                          to_binary_numbers(i, clause.size())
+                      );
+                  }
+              )
+            | boost::adaptors::filtered(
+                  [](const boost::dynamic_bitset<>& bs){
+                      return bs.count() != 1;
+                  }
+              )
+            | boost::adaptors::transformed(
+                  [&clause](const boost::dynamic_bitset<>& bs) -> std::vector<int> {
+                      return
+                          boost::irange(std::size_t{0}, bs.size())
+                          | boost::adaptors::transformed(
+                                [&clause, &bs](const auto& i){
+                                    return bs[i] ? clause[i] * -1 : clause[i];
+                                }
+                            )
+                          | util::meta::containerized;
+                  }
+              )
+            | util::meta::containerized;
     }
 
     std::vector<std::vector<int>>
@@ -181,8 +201,7 @@ namespace poac::core::resolver::resolve {
                     }
                     clauses.emplace_back(clause);
                 }
-            }
-            else if (count > 1) {
+            } else if (count > 1) {
                 std::vector<int> clause;
 
                 for (auto found = first; found != last; found = std::find_if(found, last, name_lambda)) {
@@ -210,7 +229,7 @@ namespace poac::core::resolver::resolve {
                     }
                     ++found;
                 }
-                multiple_versions_cnf(clause, clauses);
+                boost::range::push_back(clauses, multiple_versions_cnf(clause));
             }
         }
         return clauses;
@@ -239,12 +258,13 @@ namespace poac::core::resolver::resolve {
         IF_PLOG(plog::debug) {
             for (const auto& c : clauses) {
                 for (const auto& l : c) {
-                    const auto& [package, deps] =
-                        activated[l > 0 ? l - 1 : (l * -1) - 1];
+                    const auto deps = activated[std::abs(l) - 1];
                     PLOG_DEBUG <<
                         fmt::format(
                             "{}-{}: {}, ",
-                            get_name(package), get_version(package), l
+                            get_name(get_package(deps)),
+                            get_version(get_package(deps)),
+                            l
                         );
                 }
                 PLOG_DEBUG << "";
@@ -266,43 +286,28 @@ namespace poac::core::resolver::resolve {
 
     // Interval to multiple versions
     // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
-    // `latest` -> { 2.5.0 }
+    // `latest` -> { 2.5.0 }: (removed)
     // name is boost/config, no boost-config
-    std::vector<std::string>
+    [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
     get_versions_satisfy_interval(const package_t& package) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-        const std::vector<std::string> versions =
-            util::net::api::versions(get_name(package)).unwrap();
-        if (get_interval(package) == "latest") {
-            return {
-                *std::max_element(
-                    versions.cbegin(),
-                    versions.cend(),
-                    [](auto a, auto b){
-                        return semver::Version(a) > b;
-                    }
-                )
-            };
-        } else { // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
-            std::vector<std::string> res;
-            semver::Interval i(get_interval(package));
-            std::copy_if(
-                versions.cbegin(),
-                versions.cend(),
-                back_inserter(res),
-                [&](std::string s) { return i.satisfies(s); }
+        // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
+        const semver::Interval i(get_interval(package));
+        const auto satisfied_versions =
+            MITAMA_TRY(util::net::api::versions(get_name(package)))
+            | boost::adaptors::filtered(
+                [&i](std::string_view s){ return i.satisfies(s); }
             );
-            if (res.empty()) {
-                throw except::error(
-                    fmt::format(
-                        "`{}: {}` not found. seem dependencies are broken",
-                        get_name(package), get_interval(package)
-                    )
-                );
-            } else {
-                return res;
-            }
+
+        if (satisfied_versions.empty()) {
+            return mitama::failure(
+                fmt::format(
+                    "`{}: {}` not found; seem dependencies are broken",
+                    get_name(package), get_interval(package)
+                )
+            );
         }
+        return mitama::success(satisfied_versions | util::meta::containerized);
     }
 
     using interval_cache_t =
@@ -322,6 +327,23 @@ namespace poac::core::resolver::resolve {
         return std::get<1>(cache);
     }
 
+    inline bool
+    exist_cache_impl(const package_t& a, const package_t& b) noexcept {
+        return get_name(a) == get_name(b) &&
+               get_version(a) == get_version(b);
+    }
+
+    template <class Range>
+    inline bool
+    exist_cache(Range&& cache, const package_t& package) {
+        return util::meta::find_if(
+            std::forward<Range>(cache),
+            [&package](const auto& c) {
+                return exist_cache_impl(package, get_package(c));
+            }
+        );
+    }
+
     duplicate_deps_t<without_deps>
     gather_deps_of_deps(
         const unique_deps_t<without_deps>& deps_api_res,
@@ -330,25 +352,24 @@ namespace poac::core::resolver::resolve {
         duplicate_deps_t<without_deps> cur_deps_deps;
         for (const auto& package : deps_api_res) {
             // Check if node package is resolved dependency (by interval)
-            const auto itr =
+            const auto found_cache =
                 boost::range::find_if(
                     interval_cache,
                     [&package](const auto& cache) {
-                        return get_name(get_package(cache)) == get_name(package) &&
-                               get_interval(get_package(cache)) == get_interval(package);
+                        return exist_cache_impl(package, get_package(cache));
                     }
                 );
-            if (itr != interval_cache.cend()) { // cache found
-                for (const auto& dep_version : get_versions(*itr)) {
-                    cur_deps_deps.emplace_back(get_name(package), dep_version);
-                }
-            } else {
-                const auto dep_versions = get_versions_satisfy_interval(package);
+
+            const auto dep_versions =
+                found_cache != interval_cache.cend()
+                    ? get_versions(*found_cache)
+                    : get_versions_satisfy_interval(package).unwrap();
+            if (found_cache == interval_cache.cend()) {
                 // Cache interval and versions pair
                 interval_cache.emplace_back(package, dep_versions);
-                for (const auto& dep_version : dep_versions) {
-                    cur_deps_deps.emplace_back(get_name(package), dep_version);
-                }
+            }
+            for (const auto& dep_version : dep_versions) {
+                cur_deps_deps.emplace_back(get_name(package), dep_version);
             }
         }
         return cur_deps_deps;
@@ -362,10 +383,7 @@ namespace poac::core::resolver::resolve {
         // Check if root package resolved dependency
         //   (whether the specific version is the same),
         //   and check circulating
-        if (util::meta::find_if(new_deps, [&](const auto& d) {
-                return get_name(get_package(d)) == get_name(package) &&
-                       get_version(get_package(d)) == get_version(package);
-        })) {
+        if (exist_cache(new_deps, package)) {
             return;
         }
 
@@ -380,7 +398,7 @@ namespace poac::core::resolver::resolve {
             // Store dependency and the dependency's dependencies.
             new_deps.emplace_back(package, deps_of_deps);
 
-            // Gather dependencies of dependencies of dependencies. lol
+            // Gather dependencies of dependencies of dependencies.
             for (const auto& dep_package : deps_of_deps) {
                 gather_deps(dep_package, new_deps, interval_cache);
             }
@@ -398,19 +416,14 @@ namespace poac::core::resolver::resolve {
             //   are already resolved which includes
             //   that package's dependencies and package's versions
             //   by checking whether package's interval is the same.
-            if (util::meta::find_if(
-                    interval_cache,
-                    [&package](const auto& cache){
-                        return get_name(package) == get_name(get_package(cache)) &&
-                            get_interval(package) == get_interval(get_package(cache));
-                    }
-                )) {
+            if (exist_cache(interval_cache, package)) {
                 continue;
             }
 
             // Get versions using interval
             // FIXME: versions API and deps API are received the almost same responses
-            const auto versions = get_versions_satisfy_interval(package);
+            const std::vector<std::string> versions =
+                MITAMA_TRY(get_versions_satisfy_interval(package));
             // Cache interval and versions pair
             interval_cache.emplace_back(package, versions);
             for (const auto& version : versions) {
