@@ -2,6 +2,7 @@
 #define POAC_CMD_BUILD_HPP
 
 // std
+#include <filesystem>
 #include <string>
 
 // external
@@ -15,22 +16,22 @@
 
 namespace poac::cmd::build {
     struct Options {
-        core::builder::Mode mode;
+        core::builder::mode_t mode;
     };
 
-    [[nodiscard]] mitama::result<void, std::string>
+    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
     build([[maybe_unused]] Options&& opts, const toml::value& config) {
-        MITAMA_TRY(core::resolver::install_deps(config));
-//        core::Builder bs(config.get(), opts.mode, opts.verbose);
-//        MITAMA_TRY(bs.build());
-        return mitama::success();
+        [[maybe_unused]] const auto resolved_deps = MITAMA_TRY(core::resolver::install_deps(config));
+//        [[maybe_unused]] const auto output_binary = MITAMA_TRY(core::builder::build(config, opts.mode, resolved_deps));
+        return mitama::success("");
     }
 
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
         MITAMA_TRY(core::validator::require_config_exists());
         const toml::value config = toml::parse("poac.toml");
-        return build(std::move(opts), config);
+        MITAMA_TRY(build(std::move(opts), config));
+        return mitama::success();
     }
 } // end namespace
 
