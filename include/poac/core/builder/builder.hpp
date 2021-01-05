@@ -1,52 +1,44 @@
 #ifndef POAC_CORE_BUILDER_BUILDER_HPP
 #define POAC_CORE_BUILDER_BUILDER_HPP
 
+// std
 #include <cstdint>
 #include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <optional>
 
-//#include <poac/core/builder/compiler.hpp>
-//#include <poac/core/builder/standard.hpp>
-//#include <poac/core/except.hpp>
-//#include <poac/io/config.hpp>
-//#include <poac/io/term.hpp>
-//#include <poac/util/pretty.hpp>
-//#include <poac/util/semver/semver.hpp>
+// external
+#include <fmt/core.h>
 
 namespace poac::core::builder {
-    enum class Mode {
-        Debug,
-        Release,
+    enum class mode_t {
+        debug,
+        release,
     };
 
     std::ostream&
-    operator<<(std::ostream& os, Mode mode) {
+    operator<<(std::ostream& os, mode_t mode) {
         switch (mode) {
-            case Mode::Debug:
+            case mode_t::debug:
                 return (os << "dev");
-            case Mode::Release:
+            case mode_t::release:
                 return (os << "release");
             default:
                 throw std::logic_error(
-                        "To access out of range of the "
-                        "enumeration values is undefined behavior.");
+                    "To access out of range of the "
+                    "enumeration values is undefined behavior."
+                );
         }
     }
 
-    std::string
-    make_definition(const std::string& first, const std::string& second) {
-        return "-D" + first + "=" + R"(\")" + second + R"(\")";
-    }
-    std::string
-    make_definition(const std::string& first, const std::uint_fast64_t& second) {
-        std::ostringstream oss;
-        oss << second;
-        return make_definition(first, oss.str());
+    template <class T>
+    std::string make_definition(std::string_view key, T&& value) {
+        return fmt::format("-D{}=\\\"{}\\\"", key, std::forward<T>(value));
     }
 
 //    struct Builder {
@@ -179,8 +171,5 @@ namespace poac::core::builder {
 //        }
 //    };
 } // end namespace
-//namespace poac::core {
-//    using Builder = builder::Builder;
-//}
 
 #endif // POAC_CORE_BUILDER_BUILDER_HPP
