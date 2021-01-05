@@ -209,15 +209,16 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
+    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
     install_deps(const toml::value& config) noexcept {
         if (!config.contains("dependencies")) {
-            return mitama::success();
+            return mitama::success(resolve::unique_deps_t<resolve::with_deps>{});
         }
         const toml::value deps = toml::get<toml::table>(config).at("dependencies");
         const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
         const auto resolved_deps = MITAMA_TRY(do_resolve(resolvable_deps));
-        return download_deps(resolved_deps);
+        MITAMA_TRY(download_deps(resolved_deps));
+        return mitama::success(resolved_deps);
     }
 }
 
