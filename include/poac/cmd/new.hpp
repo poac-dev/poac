@@ -20,6 +20,7 @@
 #include <poac/core/validator.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 #include <poac/util/misc.hpp>
 
 namespace poac::cmd::_new {
@@ -142,10 +143,10 @@ namespace poac::cmd::_new {
         );
         git2::repository().init(opts.package_name);
 
-        using termcolor2::color_literals::operator""_green;
+        using termcolor2::color_literals::operator""_bold_green;
         PLOG_INFO << fmt::format(
-            "{:>21}{} `{}` package",
-            "Created "_green,
+            "{:>30}{} `{}` package",
+            "Created "_bold_green,
             opts.type,
             opts.package_name
         );
