@@ -31,29 +31,17 @@ BOOST_AUTO_TEST_CASE( poac_util_pretty_to_byte_test1 )
     using poac::util::pretty::to_byte;
 
     // Implicit conversion, float to int
-    std::pair<int, std::string> temp = to_byte(12);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "12B" );
-    temp = to_byte(1'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "1KB" );
-    temp = to_byte(12'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "12KB" );
-    temp = to_byte(1'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "1MB" );
-    temp = to_byte(12'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "12MB" );
-    temp = to_byte(1'000'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "1GB" );
-    temp = to_byte(12'000'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "12GB" );
-    temp = to_byte(1'000'000'000'000);
-    std::cout << temp.second << std::endl;
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "1TB" );
-    temp = to_byte(12'000'000'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "12TB" );
-    temp = to_byte(1'000'000'000'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "1000TB" );
-    temp = to_byte(1'000'000'000'000'000'000);
-    BOOST_CHECK( std::to_string(temp.first) + temp.second == "1000000TB" );
+    BOOST_CHECK( to_byte(12) == "12.00B" );
+    BOOST_CHECK( to_byte(1'024) == "1.00KB" );
+    BOOST_CHECK( to_byte(12'000) == "11.72KB" );
+    BOOST_CHECK( to_byte(1'000'000) == "976.56KB" );
+    BOOST_CHECK( to_byte(12'000'000) == "11.44MB" );
+    BOOST_CHECK( to_byte(1'000'000'000) == "953.67MB" );
+    BOOST_CHECK( to_byte(12'000'000'000) == "11.18GB" );
+    BOOST_CHECK( to_byte(1'000'000'000'000) == "931.32GB" );
+    BOOST_CHECK( to_byte(12'000'000'000'000) == "10.91TB" );
+    BOOST_CHECK( to_byte(1'000'000'000'000'000) == "909.49TB" );
+    BOOST_CHECK( to_byte(1'000'000'000'000'000'000) == "888.18PB" );
 }
 
 // std::string clip_string(const std::string& s, const unsigned long& n)

@@ -67,13 +67,11 @@ namespace poac::util::net {
         if (now_count > max_count) {
             now_count = max_count;
         }
-        const auto [ parsed_max_byte, max_byte_unit ] = util::pretty::to_byte(max_count);
-        const auto [ parsed_now_byte, now_byte_unit ] = util::pretty::to_byte(now_count);
         return fmt::format(
-            FMT_STRING("{} {:.2f}{}/{:.2f}{}"),
+            FMT_STRING("{} {}/{}"),
             to_progress(max_count, now_count),
-            parsed_now_byte, now_byte_unit,
-            parsed_max_byte, max_byte_unit
+            util::pretty::to_byte(now_count),
+            util::pretty::to_byte(max_count)
         );
     }
 
