@@ -114,7 +114,7 @@ namespace poac::core::resolver {
 
             using termcolor2::color_literals::operator""_bold_green;
             PLOG_INFO << fmt::format(
-                "{:>30} {} v{}", "Downloaded"_bold_green,
+                "{:>25} {} v{}", "Downloaded"_bold_green,
                 resolve::get_name(package),
                 resolve::get_version(package)
             );
@@ -158,7 +158,7 @@ namespace poac::core::resolver {
         }
 
         using termcolor2::color_literals::operator""_bold_green;
-        PLOG_INFO << fmt::format("{:>30} packages ...", "Downloading"_bold_green);
+        PLOG_INFO << fmt::format("{:>25} packages ...", "Downloading"_bold_green);
         try {
             std::filesystem::create_directories(config::path::cache_dir);
         } catch (...) {

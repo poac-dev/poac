@@ -145,8 +145,8 @@ namespace poac::cmd::_new {
 
         using termcolor2::color_literals::operator""_bold_green;
         PLOG_INFO << fmt::format(
-            "{:>30}{} `{}` package",
-            "Created "_bold_green,
+            "{:>25} {} `{}` package",
+            "Created"_bold_green,
             opts.type,
             opts.package_name
         );
