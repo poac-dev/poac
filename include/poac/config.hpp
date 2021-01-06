@@ -25,7 +25,8 @@ namespace poac {
 } // end namespace
 
 namespace poac::config::path {
-    inline const std::filesystem::path root(util::misc::expand_user() / std::filesystem::path(".poac"));
+    inline const std::filesystem::path user = util::misc::expand_user().unwrap();
+    inline const std::filesystem::path root(user / ".poac");
     inline const std::filesystem::path cache_dir(root / "cache");
     inline const std::filesystem::path archive_dir(cache_dir / "archive");
     inline const std::filesystem::path extract_dir(cache_dir / "extract");
