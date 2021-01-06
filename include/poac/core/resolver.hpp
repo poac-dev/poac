@@ -96,7 +96,7 @@ namespace poac::core::resolver {
             std::ofstream archive(archive_path);
             const auto [host, target] = util::net::parse_url(download_link);
             const util::net::requests requests{ host };
-            requests.get(target, {}, std::move(archive));
+            static_cast<void>(requests.get(target, {}, std::move(archive)));
 
             return mitama::success(archive_path);
         } catch (...) {
