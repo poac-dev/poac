@@ -23,6 +23,7 @@
 #include <poac/core/resolver/sat.hpp>
 #include <poac/util/archive.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/net.hpp>
@@ -113,9 +114,9 @@ namespace poac::core::resolver {
                 MITAMA_TRY(util::archive::extract(installed_path, config::path::extract_dir));
             MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
 
-            using termcolor2::color_literals::operator""_green;
+            using termcolor2::color_literals::operator""_bold_green;
             PLOG_INFO << fmt::format(
-                "{:>21} {} v{}", "Downloaded"_green,
+                "{:>25} {} v{}", "Downloaded"_bold_green,
                 resolve::get_name(package),
                 resolve::get_version(package)
             );
@@ -158,8 +159,8 @@ namespace poac::core::resolver {
             return mitama::success();
         }
 
-        using termcolor2::color_literals::operator""_green;
-        PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
+        using termcolor2::color_literals::operator""_bold_green;
+        PLOG_INFO << fmt::format("{:>25} packages ...", "Downloading"_bold_green);
         try {
             std::filesystem::create_directories(config::path::cache_dir);
         } catch (const std::exception& e) {
