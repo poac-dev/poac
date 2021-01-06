@@ -99,6 +99,8 @@ namespace poac::core::resolver {
             static_cast<void>(requests.get(target, {}, std::move(archive)));
 
             return mitama::success(archive_path);
+        } catch (const std::exception& e) {
+            return mitama::failure(e.what());
         } catch (...) {
             return mitama::failure("fetching packages failed");
         }
@@ -161,8 +163,10 @@ namespace poac::core::resolver {
         PLOG_INFO << fmt::format("{:>25} packages ...", "Downloading"_bold_green);
         try {
             std::filesystem::create_directories(config::path::cache_dir);
-        } catch (...) {
-            return mitama::failure("creating directories failed");
+        } catch (const std::exception& e) {
+            return mitama::failure(fmt::format(
+                "creating directories failed with error:\n{}", e.what()
+            ));
         }
         return fetch(not_installed_deps);
     }
@@ -187,8 +191,12 @@ namespace poac::core::resolver {
             } else {
                 return resolve::backtrack_loop(duplicate_deps);
             }
+        } catch (const std::exception& e) {
+            return mitama::failure(fmt::format(
+                "resolving packages failed with error:\n{}", e.what()
+            ));
         } catch (...) {
-            return mitama::failure("resolving packages failed");
+            return mitama::failure("resolving packages failed with unknown error");
         }
     }
 
