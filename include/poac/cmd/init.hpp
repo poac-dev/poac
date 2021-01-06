@@ -37,8 +37,8 @@ namespace poac::cmd::init {
                 break;
         }
         PLOG_INFO << fmt::format(
-            "{}{} `{}` package",
-            "Created: "_green,
+            "{:>21}{} `{}` package",
+            "Created "_green,
             opts.type,
             package_name
         );
