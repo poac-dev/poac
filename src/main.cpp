@@ -52,17 +52,17 @@ main(const int argc, char* argv[]) {
     subcommand subcmd = subcommand::nothing;
 
     auto build_opts = poac::cmd::build::Options {
-        poac::core::builder::Mode::Debug,
+        poac::core::builder::mode_t::debug,
     };
     const clipp::group build_cmd =
         ( clipp::command("build")
             .set(subcmd, subcommand::build)
             .doc("Compile a project and all sources that depend on its")
         , ( clipp::option("--debug", "-d")
-                .set(build_opts.mode, poac::core::builder::Mode::Debug)
+                .set(build_opts.mode, poac::core::builder::mode_t::debug)
                 .doc("Build artifacts in debug mode [default]")
           | clipp::option("--release", "-r")
-                .set(build_opts.mode, poac::core::builder::Mode::Release)
+                .set(build_opts.mode, poac::core::builder::mode_t::release)
                 .doc("Build artifacts in release mode, with optimizations")
           )
         , ( clipp::option("--verbose", "-v")
