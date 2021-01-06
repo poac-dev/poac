@@ -598,6 +598,8 @@ namespace poac::util::net::api {
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(response_body, pt);
             return mitama::success(pt);
+        } catch (const std::exception& e) {
+            return mitama::failure(e.what());
         } catch (...) {
             return mitama::failure("unknown error caused when calling search api");
         }
