@@ -3,6 +3,7 @@
 
 #include <poac/util/archive.hpp>
 #include <poac/util/cfg.hpp>
+#include <poac/util/execution_time.hpp>
 #include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
