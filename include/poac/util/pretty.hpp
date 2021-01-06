@@ -13,7 +13,7 @@ namespace poac::util::pretty {
     std::string to_time(const std::string& s) {
         double total_seconds = std::stod(s);
         if (total_seconds <= 1.0) {
-            return s + "s";
+            return fmt::format("{:.2f}s", total_seconds);
         }
 
         std::string res;
