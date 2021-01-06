@@ -24,8 +24,6 @@ namespace poac::cmd::init {
 
     [[nodiscard]] mitama::result<void, std::string>
     init(std::string_view package_name, init::Options&& opts) {
-        using termcolor2::color_literals::operator""_green;
-
         PLOG_VERBOSE << "Creating ./poac.toml";
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
@@ -36,6 +34,8 @@ namespace poac::cmd::init {
                 ofs_config << _new::files::poac_toml(package_name);
                 break;
         }
+
+        using termcolor2::color_literals::operator""_green;
         PLOG_INFO << fmt::format(
             "{:>21}{} `{}` package",
             "Created "_green,

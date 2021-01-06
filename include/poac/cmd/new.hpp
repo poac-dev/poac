@@ -130,8 +130,6 @@ namespace poac::cmd::_new {
 
     [[nodiscard]] mitama::result<void, std::string>
     _new(_new::Options&& opts) {
-        using termcolor2::color_literals::operator""_green;
-
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
             const std::string& file_path = (opts.package_name / name).string();
@@ -144,6 +142,7 @@ namespace poac::cmd::_new {
         );
         git2::repository().init(opts.package_name);
 
+        using termcolor2::color_literals::operator""_green;
         PLOG_INFO << fmt::format(
             "{:>21}{} `{}` package",
             "Created "_green,
