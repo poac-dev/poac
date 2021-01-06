@@ -37,7 +37,6 @@
 
 // internal
 #include <poac/config.hpp>
-#include <poac/core/except.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
@@ -266,7 +265,7 @@ namespace poac::util::net {
             typename ResponseBody,
             typename Request,
             typename Ofstream>
-        typename ResponseBody::value_type
+        [[nodiscard]] mitama::result<typename ResponseBody::value_type, std::string>
         request(Request&& req, Ofstream&& ofs) const {
             ssl_prepare();
             write_request(req);
@@ -286,7 +285,7 @@ namespace poac::util::net {
                         std::ofstream>,
                     http::vector_body<unsigned char>,
                     http::string_body>>
-        typename ResponseBody::value_type
+        [[nodiscard]] mitama::result<typename ResponseBody::value_type, std::string>
         get(
             const std::string_view target,
             const headers_t& headers={},
@@ -318,7 +317,7 @@ namespace poac::util::net {
                         std::ofstream>,
                     http::vector_body<unsigned char>,
                     http::string_body>>
-        typename ResponseBody::value_type
+        [[nodiscard]] mitama::result<typename ResponseBody::value_type, std::string>
         post(
             const std::string_view target,
             BodyType&& body,
@@ -427,7 +426,7 @@ namespace poac::util::net {
             typename ResponseBody,
             typename Request,
             typename Ofstream>
-        typename ResponseBody::value_type
+        [[nodiscard]] mitama::result<typename ResponseBody::value_type, std::string>
         read_response(Request&& old_req, Ofstream&& ofs) const {
             // This buffer is used for reading and must be persisted
             boost::beast::flat_buffer buffer;
@@ -437,9 +436,10 @@ namespace poac::util::net {
             http::read(*stream, buffer, res);
             // Handle HTTP status code
             return handle_status<method>(
-                    std::forward<Request>(old_req),
-                    std::move(res),
-                    std::forward<Ofstream>(ofs));
+                std::forward<Request>(old_req),
+                std::move(res),
+                std::forward<Ofstream>(ofs)
+            );
         }
 
         template <
@@ -448,35 +448,33 @@ namespace poac::util::net {
             typename Response,
             typename Ofstream,
             typename ResponseBody = typename Response::body_type>
-        typename ResponseBody::value_type
+        [[nodiscard]] mitama::result<typename ResponseBody::value_type, std::string>
         handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const
         {
             close_stream();
             switch (res.base().result_int() / 100) {
                 case 2:
-                    return parse_response(
-                            std::forward<Response>(res),
-                            std::forward<Ofstream>(ofs));
+                    return mitama::success(parse_response(
+                        std::forward<Response>(res),
+                        std::forward<Ofstream>(ofs)
+                    ));
                 case 3:
                     return redirect<method>(
-                            std::forward<Request>(old_req),
-                            std::forward<Response>(res),
-                            std::forward<Ofstream>(ofs));
+                        std::forward<Request>(old_req),
+                        std::forward<Response>(res),
+                        std::forward<Ofstream>(ofs)
+                    );
                 default:
                     if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
-                        throw core::except::error(
-                            fmt::format(
-                                "util::net received a bad response code: {}\n{}",
-                                res.base().result_int(), res.body()
-                            )
-                        );
+                        return mitama::failure(fmt::format(
+                            "util::net received a bad response code: {}\n{}",
+                            res.base().result_int(), res.body()
+                        ));
                     } else {
-                        throw core::except::error(
-                            fmt::format(
-                                "util::net received a bad response code: {}",
-                                res.base().result_int()
-                            )
-                        );
+                        throw mitama::failure(fmt::format(
+                            "util::net received a bad response code: {}",
+                            res.base().result_int()
+                        ));
                     }
             }
         }
@@ -522,7 +520,7 @@ namespace poac::util::net {
             typename Response,
             typename Ofstream,
             typename ResponseBody = typename Response::body_type>
-        typename ResponseBody::value_type
+        [[nodiscard]] mitama::result<typename ResponseBody::value_type, std::string>
         redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             const std::string new_location(res.base()["Location"]);
             const auto [new_host, new_target] = parse_url(new_location);
@@ -535,7 +533,7 @@ namespace poac::util::net {
             } else if (method == http::verb::post) {
                 return req.post(new_target, old_req.body(), {}, std::forward<Ofstream>(ofs));
             } else { // verb error
-                return {};
+                return mitama::failure("[util::net::requests] unknown verb used");
             }
         }
 
@@ -591,15 +589,13 @@ namespace poac::util::net::api {
             headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
             headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
 
-            const auto response = request.post(ALGOLIA_SEARCH_INDEX_API, body, headers);
+            const auto response = MITAMA_TRY(request.post(ALGOLIA_SEARCH_INDEX_API, body, headers));
             std::stringstream response_body;
             response_body << response.data();
 
             boost::property_tree::ptree pt;
             boost::property_tree::json_parser::read_json(response_body, pt);
             return mitama::success(pt);
-        } catch (const core::except::error& e) {
-            return mitama::failure(e.what());
         } catch (...) {
             return mitama::failure("unknown error caused when calling search api");
         }

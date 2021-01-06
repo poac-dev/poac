@@ -16,6 +16,7 @@
 #include <poac/cmd/new.hpp>
 #include <poac/core/validator.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 
 namespace poac::cmd::init {
     struct Options {
@@ -24,8 +25,6 @@ namespace poac::cmd::init {
 
     [[nodiscard]] mitama::result<void, std::string>
     init(std::string_view package_name, init::Options&& opts) {
-        using termcolor2::color_literals::operator""_green;
-
         PLOG_VERBOSE << "Creating ./poac.toml";
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
@@ -36,9 +35,11 @@ namespace poac::cmd::init {
                 ofs_config << _new::files::poac_toml(package_name);
                 break;
         }
+
+        using termcolor2::color_literals::operator""_bold_green;
         PLOG_INFO << fmt::format(
-            "{}{} `{}` package",
-            "Created: "_green,
+            "{:>25} {} `{}` package",
+            "Created"_bold_green,
             opts.type,
             package_name
         );

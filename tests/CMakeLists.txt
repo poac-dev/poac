@@ -1,6 +1,5 @@
 set(TEST_NAMES
         cfg
-        except
         meta
         misc
         net
