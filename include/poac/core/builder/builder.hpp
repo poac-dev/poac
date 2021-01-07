@@ -14,6 +14,15 @@
 
 // external
 #include <fmt/core.h>
+#include <mitama/result/result.hpp>
+#include <plog/Log.h>
+#include <toml.hpp>
+
+// internal
+#include <poac/core/resolver.hpp>
+#include <poac/util/execution_time.hpp>
+#include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 
 namespace poac::core::builder {
     enum class mode_t {
@@ -39,6 +48,39 @@ namespace poac::core::builder {
     template <class T>
     std::string make_definition(std::string_view key, T&& value) {
         return fmt::format("-D{}=\\\"{}\\\"", key, std::forward<T>(value));
+    }
+
+    using resolved_deps_t =
+        resolver::resolve::unique_deps_t<resolver::resolve::with_deps>;
+
+    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
+    build_impl(const toml::value&, const mode_t&, const resolved_deps_t&) {
+        return mitama::failure("build system is not implemented yet");
+    }
+
+    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
+    build(const toml::value& config, const mode_t& mode, const resolved_deps_t& resolved_deps) {
+        using termcolor2::color_literals::operator""_bold_green;
+        PLOG_INFO << fmt::format(
+            "{:>25} {} v{} ({})",
+            "Compiling"_bold_green,
+            toml::find<std::string>(config, "package", "name"),
+            toml::find<std::string>(config, "package", "version"),
+            std::filesystem::current_path().string()
+        );
+
+        util::execution_time_t execution_time;
+        const std::filesystem::path output_path = MITAMA_TRY(
+            build_impl(config, mode, resolved_deps)
+        );
+
+        PLOG_INFO << fmt::format(
+            "{:>25} {} target(s) in {}",
+            "Finished"_bold_green,
+            mode,
+            util::pretty::to_time(execution_time.measure())
+        );
+        return mitama::success(output_path);
     }
 
 //    struct Builder {
