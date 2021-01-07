@@ -187,14 +187,9 @@ namespace poac::util::meta {
         );
     }
 
-    template <class Clock, class Duration = typename Clock::duration>
     inline std::string
-    time_to_string(const std::chrono::time_point<Clock, Duration>& time) {
-        return std::to_string(
-            std::chrono::duration_cast<std::chrono::seconds>(
-                time.time_since_epoch()
-            ).count()
-        );
+    time_to_string(const std::chrono::seconds& time) {
+        return std::to_string(time.count());
     }
 
     // ref: https://qiita.com/rinse_/items/f00bb2a78d14c3c2f9fa
