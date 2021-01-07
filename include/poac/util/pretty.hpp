@@ -3,6 +3,7 @@
 
 // std
 #include <cstdint>
+#include <chrono>
 #include <string>
 #include <utility>
 
@@ -10,8 +11,7 @@
 #include <fmt/core.h>
 
 namespace poac::util::pretty {
-    std::string to_time(const std::string& s) {
-        double total_seconds = std::stod(s);
+    std::string to_time(const double& total_seconds) {
         if (total_seconds <= 1.0) {
             return fmt::format("{:.2f}s", total_seconds);
         }
@@ -30,6 +30,14 @@ namespace poac::util::pretty {
         const auto seconds = total_secs % 60;
         res += std::to_string(seconds) + "s";
         return res;
+    }
+
+    inline std::string to_time(const std::chrono::seconds& s) {
+        return to_time(s.count());
+    }
+
+    inline std::string to_time(const std::string& s) {
+        return to_time(std::stod(s));
     }
 
     inline const std::vector<std::string> size_suffixes = {

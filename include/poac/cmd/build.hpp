@@ -20,10 +20,12 @@ namespace poac::cmd::build {
     };
 
     [[nodiscard]] mitama::result<std::filesystem::path, std::string>
-    build([[maybe_unused]] Options&& opts, const toml::value& config) {
-        [[maybe_unused]] const auto resolved_deps = MITAMA_TRY(core::resolver::install_deps(config));
-//        [[maybe_unused]] const auto output_binary = MITAMA_TRY(core::builder::build(config, opts.mode, resolved_deps));
-        return mitama::success("");
+    build(Options&& opts, const toml::value& config) {
+        const auto resolved_deps = MITAMA_TRY(core::resolver::install_deps(config));
+        const std::filesystem::path output_path = MITAMA_TRY(
+            core::builder::build(config, opts.mode, resolved_deps)
+        );
+        return mitama::success(output_path);
     }
 
     [[nodiscard]] mitama::result<void, std::string>
