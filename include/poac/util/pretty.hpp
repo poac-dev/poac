@@ -2,6 +2,7 @@
 #define POAC_UTIL_PRETTY_HPP
 
 // std
+#include <cmath>
 #include <cstdint>
 #include <chrono>
 #include <string>
@@ -44,8 +45,7 @@ namespace poac::util::pretty {
         "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"
     };
 
-    std::string
-    to_byte(double bytes) {
+    std::string to_byte(double bytes) {
         int index = 0;
         for (; bytes >= 1000.0; bytes /= 1024.0, ++index);
         return fmt::format("{:.2f}{}", bytes, size_suffixes.at(index));
