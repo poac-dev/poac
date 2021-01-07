@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_CASE( poac_util_pretty_to_time_test1 )
 {
     using poac::util::pretty::to_time;
 
-    BOOST_CHECK( to_time("0.5") == "0.5s" );
+    BOOST_CHECK( to_time("0.5") == "0.50s" );
     BOOST_CHECK( to_time("1.1") == "1s" );
     BOOST_CHECK( to_time("60") == "1m 0s" );
     BOOST_CHECK( to_time("60.1") == "1m 0s" );
