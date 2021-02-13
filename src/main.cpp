@@ -21,7 +21,7 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
     PLOG_ERROR << fmt::format(
         "{}: no such command: `{}`\n\n{}",
         error,
-        fmt::join(argv + 1, argv + argc," "),
+        fmt::join(argv + 1, argv + argc, " "),
         clipp::usage_lines(cli, "poac")
     );
     return EXIT_FAILURE;
