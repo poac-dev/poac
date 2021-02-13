@@ -17,9 +17,15 @@ By using poac, you can create a C++ project, build sources and execute an applic
 
 ## Supported Operating Systems
 
-| Linux | macOS | Windows |
-|:-----:|:-----:|:-------:|
-|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22)|[![GitHub Actions Windows Build](https://github.com/poacpm/poac/workflows/Windows/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Windows%22)|
+| Linux | macOS |
+|:-----:|:-----:|
+|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22)|
+
+<!--
+ Windows |
+:-------:|
+[![GitHub Actions Windows Build](https://github.com/poacpm/poac/workflows/Windows/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Windows%22)|
+-->
 
 <!-- [![Appveyor build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/master?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/master) -->
 
