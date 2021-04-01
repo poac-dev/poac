@@ -1,4 +1,4 @@
-<div align="center"><img alt="poac" width="250" src="https://github.com/poacpm/design/raw/master/images/logo.svg"></div>
+<div align="center"><img alt="poac" width="250" src="https://github.com/poacpm/design/raw/main/images/logo.svg"></div>
 
 ## Description
 
@@ -19,15 +19,15 @@ By using poac, you can create a C++ project, build sources and execute an applic
 
 | Linux | macOS |
 |:-----:|:-----:|
-|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22)|
+|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22)|
 
 <!--
  Windows |
 :-------:|
-[![GitHub Actions Windows Build](https://github.com/poacpm/poac/workflows/Windows/badge.svg?branch=master)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Windows%22)|
+[![GitHub Actions Windows Build](https://github.com/poacpm/poac/workflows/Windows/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Windows%22)|
 -->
 
-<!-- [![Appveyor build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/master?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/master) -->
+<!-- [![Appveyor build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/main?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/main) -->
 
 Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-started/installation.html#supported-operating-systems) for more information about supported OS.
 
@@ -36,13 +36,13 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 * GitHub:
 [![GitHub Release Version](https://img.shields.io/github/release/poacpm/poac.svg?style=flat)](https://github.com/poacpm/poac/releases)
 [![Github All Releases](https://img.shields.io/github/downloads/poacpm/poac/total.svg)](https://github.com/poacpm/poac/releases)
-[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/master/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/main/LICENSE)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_shield)
 
 * Code Coverage:
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
-[![Coverage Status](https://coveralls.io/repos/github/poacpm/poac/badge.svg?branch=master)](https://coveralls.io/github/poacpm/poac?branch=master)
-[![codecov](https://codecov.io/gh/poacpm/poac/branch/master/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
+[![Coverage Status](https://coveralls.io/repos/github/poacpm/poac/badge.svg?branch=main)](https://coveralls.io/github/poacpm/poac?branch=main)
+[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
 
 * Code Quality:
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4179a24c6e514bc0b3344f80bf64a40d)](https://app.codacy.com/app/matken11235/poac?utm_source=github.com&utm_medium=referral&utm_content=poacpm/poac&utm_campaign=Badge_Grade_Settings)
@@ -118,7 +118,7 @@ You can also find the useful [architecture documentation](https://doc.poac.pm/en
 
 Poac is licensed under the terms of the Apache License version 2.0.
 
-Please see [LICENSE](https://github.com/poacpm/poac/blob/master/LICENSE) for details.
+Please see [LICENSE](https://github.com/poacpm/poac/blob/main/LICENSE) for details.
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
