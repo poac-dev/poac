@@ -7,6 +7,6 @@ else ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3") # -mtune=powerpc64le -mcpu=powerpc64le
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 endif ()
-if (LINUX)
+if (UNIX AND NOT APPLE)
     set(Boost_USE_STATIC_LIBS ON)
 endif ()
