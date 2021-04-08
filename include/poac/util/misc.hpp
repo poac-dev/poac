@@ -13,9 +13,7 @@
 // external
 #include <boost/algorithm/string.hpp>
 #include <boost/predef.h>
-
-// internal
-#include <poac/core/except.hpp>
+#include <mitama/result/result.hpp>
 
 namespace poac::util::misc {
     inline namespace path_literals {
@@ -58,19 +56,18 @@ namespace poac::util::misc {
 
     // Inspired by https://stackoverflow.com/q/4891006
     // Expand ~ to user home directory.
-    std::string expand_user() {
+    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
+    expand_user() {
         auto home = dupenv("HOME");
         if (home || (home = dupenv("USERPROFILE"))) {
-            return home.value();
+            return mitama::success(home.value());
         } else {
             const auto home_drive = dupenv("HOMEDRIVE");
             const auto home_path = dupenv("HOMEPATH");
             if (home_drive && home_path) {
-                return home_drive.value() + home_path.value();
+                return mitama::success(home_drive.value() + home_path.value());
             }
-            throw core::except::error(
-                "could not read environment variable"
-            );
+            return mitama::failure("could not get home directory");
         }
     }
 } // end namespace

@@ -160,19 +160,15 @@ namespace poac::core::resolver::sat {
         const int i = maximum_literal_number_index(clauses);
         // need to apply twice, once true, the other false
         for (int j = 0; j < 2; ++j) {
-            // copy the formula before recursing
+            // copy the formula before recursive circulation
             std::vector<int> new_literals = literals;
 
             // if the number of literals with positive polarity are greater
-            if (calc_literal_polarity(clauses, i + 1) > 0) {
-                new_literals[i] = j; // positive
-            } else {
-                new_literals[i] = (j + 1) % 2; // negative
-            }
+            // cond ? positive : negative
+            new_literals[i] = calc_literal_polarity(clauses, i + 1) > 0 ? j : (j + 1) % 2;
 
             // apply the change to all the clauses
-            if (
-                Status result = delete_set_literal(clauses, i, new_literals[i]);
+            if (Status result = delete_set_literal(clauses, i, new_literals[i]);
                 result == Status::satisfied
             ) {
                 return mitama::success(to_assignments(new_literals));
