@@ -61,6 +61,7 @@ jobs:
 
       - name: Install ${{ matrix.compiler.pacakge }}
         run: |
+          sudo apt-get -qq clean
           sudo apt-get -qq update
           sudo apt-get install -y -qq pkg-config cmake ${{ matrix.compiler.pacakge }}
 
