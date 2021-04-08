@@ -11,6 +11,17 @@ endif()
 
 find_package(LibArchive)
 if (LibArchive_FOUND)
+    if (STATIC_LINK_FLAG STREQUAL "-static" AND NOT APPLE AND ${LibArchive_LIBRARIES} MATCHES ".*\.so$")
+        unset(LibArchive_LIBRARIES)
+        unset(LibArchive_LIBRARY CACHE)
+        find_library(LibArchive_LIBRARY
+            NAMES libarchive.a)
+        mark_as_advanced(LibArchive_LIBRARY)
+        set(LibArchive_LIBRARIES ${LibArchive_LIBRARY})
+        set_target_properties(LibArchive::LibArchive PROPERTIES
+            IMPORTED_LOCATION "${LibArchive_LIBRARY}"
+            INTERFACE_INCLUDE_DIRECTORIES "${LibArchive_INCLUDE_DIR}")
+    endif ()
     message(CHECK_PASS "added")
     message(STATUS "LibArchive include directory is ... ${LibArchive_INCLUDE_DIR}")
     message(STATUS "LibArchive library is ... ${LibArchive_LIBRARIES}")
