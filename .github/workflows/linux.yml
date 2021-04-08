@@ -111,6 +111,9 @@ jobs:
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
 
+      - name: Install libacl
+        run: sudo apt-get install -y -qq libacl1-dev
+
       - name: Install libarchive
         run: sudo apt-get install -y -qq libarchive-dev
 
