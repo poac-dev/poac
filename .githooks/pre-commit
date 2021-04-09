@@ -21,10 +21,10 @@ allownonascii=$(git config --bool hooks.allownonascii)
 # Redirect output to stderr.
 exec 1>&2
 
-# Prevent committing to master branch
-if test "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = master; then
+# Prevent committing to main branch
+if test "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = main; then
     cat <<\EOF
-Error: Attempt to commit to master branch.
+Error: Attempt to commit to main branch.
 
 If you want to commit new changes, you can create a new branch, checkout, and commit using:
 

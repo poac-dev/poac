@@ -23,6 +23,7 @@
 #include <poac/core/resolver/sat.hpp>
 #include <poac/util/archive.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/net.hpp>
@@ -95,9 +96,11 @@ namespace poac::core::resolver {
             std::ofstream archive(archive_path);
             const auto [host, target] = util::net::parse_url(download_link);
             const util::net::requests requests{ host };
-            requests.get(target, {}, std::move(archive));
+            static_cast<void>(requests.get(target, {}, std::move(archive)));
 
             return mitama::success(archive_path);
+        } catch (const std::exception& e) {
+            return mitama::failure(e.what());
         } catch (...) {
             return mitama::failure("fetching packages failed");
         }
@@ -111,9 +114,9 @@ namespace poac::core::resolver {
                 MITAMA_TRY(util::archive::extract(installed_path, config::path::extract_dir));
             MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
 
-            using termcolor2::color_literals::operator""_green;
+            using termcolor2::color_literals::operator""_bold_green;
             PLOG_INFO << fmt::format(
-                "{:>21} {} v{}", "Downloaded"_green,
+                "{:>25} {} v{}", "Downloaded"_bold_green,
                 resolve::get_name(package),
                 resolve::get_version(package)
             );
@@ -156,12 +159,14 @@ namespace poac::core::resolver {
             return mitama::success();
         }
 
-        using termcolor2::color_literals::operator""_green;
-        PLOG_INFO << fmt::format("{:>21} packages ...", "Downloading"_green);
+        using termcolor2::color_literals::operator""_bold_green;
+        PLOG_INFO << fmt::format("{:>25} packages ...", "Downloading"_bold_green);
         try {
             std::filesystem::create_directories(config::path::cache_dir);
-        } catch (...) {
-            return mitama::failure("creating directories failed");
+        } catch (const std::exception& e) {
+            return mitama::failure(fmt::format(
+                "creating directories failed with error:\n{}", e.what()
+            ));
         }
         return fetch(not_installed_deps);
     }
@@ -186,10 +191,12 @@ namespace poac::core::resolver {
             } else {
                 return resolve::backtrack_loop(duplicate_deps);
             }
-        } catch (const core::except::error& e) {
-            return mitama::failure(e.what());
+        } catch (const std::exception& e) {
+            return mitama::failure(fmt::format(
+                "resolving packages failed with error:\n{}", e.what()
+            ));
         } catch (...) {
-            return mitama::failure("resolving packages failed");
+            return mitama::failure("resolving packages failed with unknown error");
         }
     }
 
@@ -209,15 +216,16 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
+    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
     install_deps(const toml::value& config) noexcept {
         if (!config.contains("dependencies")) {
-            return mitama::success();
+            return mitama::success(resolve::unique_deps_t<resolve::with_deps>{});
         }
         const toml::value deps = toml::get<toml::table>(config).at("dependencies");
         const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
         const auto resolved_deps = MITAMA_TRY(do_resolve(resolvable_deps));
-        return download_deps(resolved_deps);
+        MITAMA_TRY(download_deps(resolved_deps));
+        return mitama::success(resolved_deps);
     }
 }
 

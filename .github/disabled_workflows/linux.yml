@@ -2,9 +2,9 @@ name: Linux
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
   BOOST_VERSION: 1.75.0
