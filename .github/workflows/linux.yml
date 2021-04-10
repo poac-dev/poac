@@ -202,7 +202,7 @@ jobs:
         if: matrix.build_type == 'Release'
         with:
           name: ${{ github.job }}-${{ matrix.compiler.package }}
-          path: poac
+          path: ./build/poac
 
       - uses: actions/setup-python@v2.2.1
         if: success() && matrix.build_type == 'Coverage'
