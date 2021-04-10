@@ -51,6 +51,8 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 
 ## Installation
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
+
 ### Easy install
 
 ```bash
