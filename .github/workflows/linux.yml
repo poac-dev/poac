@@ -204,19 +204,9 @@ jobs:
           name: ${{ github.job }}-${{ matrix.compiler.package }}
           path: ./build/poac
 
-      - uses: actions/setup-python@v2.2.1
-        if: success() && matrix.build_type == 'Coverage'
-
-      - name: Upload coverage to Coveralls
-        if: success() && matrix.build_type == 'Coverage'
-        run: |
-          pip install cpp-coveralls
-          coveralls --gcov-options '\-lp' -t ${COVERALLS_TOKEN}
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+      - name: Upload build artifact when Coverage
+        uses: actions/upload-artifact@v2.2.2
         if: success() && matrix.build_type == 'Coverage'
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: coverage-build-artifact
+          path: .
