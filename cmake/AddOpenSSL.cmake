@@ -12,7 +12,7 @@ endif ()
 
 find_package(OpenSSL REQUIRED)
 if (OPENSSL_FOUND)
-    if (STATIC_LINK_FLAG MATCHES "(^-static )|( -static )|(^-static$)|( -static$)" AND NOT APPLE)
+    if (STATIC_LINK_FLAG MATCHES "(^| )-static($| )" AND NOT APPLE)
         foreach(x IN LISTS OPENSSL_LIBRARIES)
             string(REGEX REPLACE "[.]so" ".a" x ${x})
             list(APPEND OPENSSL_STATIC_LIBRARIES ${x})

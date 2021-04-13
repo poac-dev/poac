@@ -11,7 +11,7 @@ endif()
 
 find_package(LibArchive)
 if (LibArchive_FOUND)
-    if (STATIC_LINK_FLAG MATCHES "(^-static )|( -static )|(^-static$)|( -static$)" AND NOT APPLE AND ${LibArchive_LIBRARIES} MATCHES ".*\.so$")
+  if (STATIC_LINK_FLAG MATCHES "(^| )-static($| )" AND NOT APPLE AND ${LibArchive_LIBRARIES} MATCHES ".*\.so$")
         unset(LibArchive_LIBRARIES)
         unset(LibArchive_LIBRARY CACHE)
         find_library(LibArchive_LIBRARY
@@ -28,7 +28,7 @@ if (LibArchive_FOUND)
 
     target_include_directories(${PROJECT_NAME} PRIVATE ${LibArchive_INCLUDE_DIR})
     list(APPEND POAC_DEPENDENCIES ${LibArchive_LIBRARIES})
-    if (STATIC_LINK_FLAG MATCHES "(^-static )|( -static )|(^-static$)|( -static$)" AND NOT APPLE)
+    if (STATIC_LINK_FLAG MATCHES "(^| )-static($| )" AND NOT APPLE)
         list(APPEND POAC_DEPENDENCIES acl)
         list(APPEND POAC_DEPENDENCIES z)
     endif ()
