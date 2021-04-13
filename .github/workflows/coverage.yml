@@ -11,9 +11,26 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download coverage build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/github-script@v3.1.0
         with:
-          name: coverage-build-artifact
+          script: |
+            var artifacts = await github.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{github.event.workflow_run.id }},
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "coverage-build-artifact"
+            })[0];
+            var download = await github.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/coverage-build-artifact.zip', Buffer.from(download.data));
+      - run: unzip coverage-build-artifact.zip
 
       - uses: actions/setup-python@v2.2.1
 
