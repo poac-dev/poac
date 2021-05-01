@@ -33,7 +33,7 @@ jobs:
             fs.writeFileSync('${{github.workspace}}/coverage-build-artifact.zip', Buffer.from(download.data));
       - run: unzip coverage-build-artifact.zip
 
-      - uses: actions/setup-python@v2.2.1
+      - uses: actions/setup-python@v2.2.2
 
       - name: Upload coverage to Coveralls
         run: |
