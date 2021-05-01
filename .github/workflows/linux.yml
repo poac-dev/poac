@@ -198,14 +198,14 @@ jobs:
         working-directory: build
 
       - name: Upload pre-built binary
-        uses: actions/upload-artifact@v2.2.2
+        uses: actions/upload-artifact@v2.2.3
         if: matrix.build_type == 'Release'
         with:
           name: ${{ github.job }}-${{ matrix.compiler.package }}
           path: ./build/poac
 
       - name: Upload build artifact for Coveralls
-        uses: actions/upload-artifact@v2.2.2
+        uses: actions/upload-artifact@v2.2.3
         if: >
           success() &&
           github.ref == 'refs/heads/main' &&
