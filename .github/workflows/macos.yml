@@ -23,7 +23,7 @@ jobs:
         run: brew install libgit2 boost libarchive
 
       - name: Restore & Cache CMake build results
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2.1.5
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
