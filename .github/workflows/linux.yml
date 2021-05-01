@@ -39,6 +39,11 @@ jobs:
             subpackage: lld-10,
           }
           - {
+            cc: clang-11, cxx: clang++-11,
+            package: clang-11,
+            subpackage: lld-11,
+          }
+          - {
             cc: gcc-8, cxx: g++-8,
             package: g++-8,
             subpackage: binutils,
