@@ -75,7 +75,7 @@ jobs:
 
       - name: Restore & Cache CMake build results
         if: matrix.build_type != 'Coverage'
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
@@ -86,7 +86,7 @@ jobs:
 
       - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
         if: startsWith(matrix.compiler.cc, 'gcc')
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         id: openssl-cache
         with:
           path: ${{ runner.temp }}/libs/openssl
@@ -104,7 +104,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
@@ -126,7 +126,7 @@ jobs:
         run: sudo apt-get install -y -qq libarchive-dev
 
       - name: Restore & Cache static libgit2 (${{ env.LIBGIT2_VERSION }})
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         if: matrix.build_type == 'Release'
         id: libgit2-static-cache
         with:
@@ -150,7 +150,7 @@ jobs:
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache shared libgit2 (${{ env.LIBGIT2_VERSION }})
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         if: matrix.build_type != 'Release'
         id: libgit2-shared-cache
         with:
