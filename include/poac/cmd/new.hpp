@@ -13,12 +13,12 @@
 
 // external
 #include <fmt/core.h>
+#include <git2-cpp/git2.hpp>
 #include <mitama/result/result.hpp>
 #include <plog/Log.h>
 
 // internal
 #include <poac/core/validator.hpp>
-#include <poac/util/git2-cpp/git2.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 #include <poac/util/misc.hpp>
