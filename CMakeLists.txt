@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 include(cmake/PoacConfig.cmake)
-include(cmake/AddPoacDependencies.cmake)
+include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
