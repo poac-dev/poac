@@ -31,6 +31,12 @@
 #  define TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
 #endif
 
+#if TERMCOLOR2_STD_VER > 17
+#  define TERMCOLOR2_CXX20_CONSTEXPR constexpr
+#else
+#  define TERMCOLOR2_CXX20_CONSTEXPR const
+#endif
+
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
 #  ifdef _MSC_VER
 //   Does not implement constexpr color literals for MSVC.
