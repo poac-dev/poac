@@ -19,16 +19,6 @@ jobs:
         build_type: [ Debug, Release ]
         compiler:
           - {
-            cc: clang-7, cxx: clang++-7,
-            package: clang-7,
-            subpackage: lld-7,
-          }
-          - {
-            cc: clang-8, cxx: clang++-8,
-            package: clang-8,
-            subpackage: lld-8,
-          }
-          - {
             cc: clang-9, cxx: clang++-9,
             package: clang-9,
             subpackage: lld-9,
@@ -39,9 +29,9 @@ jobs:
             subpackage: lld-10,
           }
           - {
-            cc: gcc-8, cxx: g++-8,
-            package: g++-8,
-            subpackage: binutils,
+            cc: clang-11, cxx: clang++-11,
+            package: clang-11,
+            subpackage: lld-11,
           }
           - {
             cc: gcc-9, cxx: g++-9,

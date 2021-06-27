@@ -31,7 +31,7 @@
 #  define TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
 #endif
 
-#if TERMCOLOR2_STD_VER > 17
+#if defined(__cpp_lib_constexpr_dynamic_alloc) && !defined(__clang__) && TERMCOLOR2_STD_VER > 17
 #  define TERMCOLOR2_CXX20_CONSTEXPR constexpr
 #else
 #  define TERMCOLOR2_CXX20_CONSTEXPR const
