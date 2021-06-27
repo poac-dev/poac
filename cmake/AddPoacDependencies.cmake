@@ -14,7 +14,7 @@ if (DEFINED POAC_DEPS_DIR)
 endif ()
 
 include(FetchContent)
-set(DEPENDENCIES Boost Clipp Fmt LibArchive LibGit2 MitamaCppResult OpenSSL Plog Toml11)
+set(DEPENDENCIES Boost Clipp Fmt Git2Cpp LibArchive LibGit2 MitamaCppResult OpenSSL Plog Toml11)
 foreach (DEP IN LISTS DEPENDENCIES)
     include(cmake/Add${DEP}.cmake)
 endforeach()
