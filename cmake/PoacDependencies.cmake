@@ -1,4 +1,5 @@
 include_guard(GLOBAL)
+include(cmake/Helpers.cmake)
 
 message(CHECK_START "Adding Poac dependencies")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
@@ -14,9 +15,10 @@ if (DEFINED POAC_DEPS_DIR)
 endif ()
 
 include(FetchContent)
-set(DEPENDENCIES Boost Clipp Fmt Git2Cpp LibArchive LibGit2 MitamaCppResult OpenSSL Plog Toml11)
+list_dir_items(DEPENDENCIES ${CMAKE_SOURCE_DIR}/cmake)
+list(FILTER DEPENDENCIES INCLUDE REGEX "Add.*cmake")  # Add files that match with the regex
 foreach (DEP IN LISTS DEPENDENCIES)
-    include(cmake/Add${DEP}.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/${DEP})
 endforeach()
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
