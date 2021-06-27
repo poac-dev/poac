@@ -14,7 +14,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     gray_v() {
         return make_string("\x1b[30m");
     }
@@ -24,7 +24,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     gray_v() {
         return make_string(L"\x1b[30m");
     }
@@ -34,7 +34,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     gray_v() {
         return make_string(u"\x1b[30m");
     }
@@ -44,12 +44,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     gray_v() {
         return make_string(U"\x1b[30m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto gray = gray_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto gray = gray_v();
 
 
     template <typename CharT = char,
@@ -58,7 +58,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     red_v() {
         return make_string("\x1b[31m");
     }
@@ -68,7 +68,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     red_v() {
         return make_string(L"\x1b[31m");
     }
@@ -78,7 +78,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     red_v() {
         return make_string(u"\x1b[31m");
     }
@@ -88,12 +88,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     red_v() {
         return make_string(U"\x1b[31m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto red = red_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto red = red_v();
 
 
     template <typename CharT = char,
@@ -102,7 +102,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     green_v() {
         return make_string("\x1b[32m");
     }
@@ -112,7 +112,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     green_v() {
         return make_string(L"\x1b[32m");
     }
@@ -122,7 +122,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     green_v() {
         return make_string(u"\x1b[32m");
     }
@@ -132,12 +132,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     green_v() {
         return make_string(U"\x1b[32m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto green = green_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto green = green_v();
 
 
     template <typename CharT = char,
@@ -146,7 +146,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     yellow_v() {
         return make_string("\x1b[33m");
     }
@@ -156,7 +156,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     yellow_v() {
         return make_string(L"\x1b[33m");
     }
@@ -166,7 +166,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     yellow_v() {
         return make_string(u"\x1b[33m");
     }
@@ -176,12 +176,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     yellow_v() {
         return make_string(U"\x1b[33m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto yellow = yellow_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto yellow = yellow_v();
 
 
     template <typename CharT = char,
@@ -190,7 +190,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     blue_v() {
         return make_string("\x1b[34m");
     }
@@ -200,7 +200,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     blue_v() {
         return make_string(L"\x1b[34m");
     }
@@ -210,7 +210,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     blue_v() {
         return make_string(u"\x1b[34m");
     }
@@ -220,12 +220,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     blue_v() {
         return make_string(U"\x1b[34m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto blue = blue_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto blue = blue_v();
 
 
     template <typename CharT = char,
@@ -234,7 +234,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     magenta_v() {
         return make_string("\x1b[35m");
     }
@@ -244,7 +244,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     magenta_v() {
         return make_string(L"\x1b[35m");
     }
@@ -254,7 +254,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     magenta_v() {
         return make_string(u"\x1b[35m");
     }
@@ -264,12 +264,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     magenta_v() {
         return make_string(U"\x1b[35m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto magenta = magenta_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto magenta = magenta_v();
 
 
     template <typename CharT = char,
@@ -278,7 +278,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     cyan_v() {
         return make_string("\x1b[36m");
     }
@@ -288,7 +288,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     cyan_v() {
         return make_string(L"\x1b[36m");
     }
@@ -298,7 +298,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     cyan_v() {
         return make_string(u"\x1b[36m");
     }
@@ -308,12 +308,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     cyan_v() {
         return make_string(U"\x1b[36m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto cyan = cyan_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto cyan = cyan_v();
 
 
     template <typename CharT = char,
@@ -322,7 +322,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     white_v() {
         return make_string("\x1b[37m");
     }
@@ -332,7 +332,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     white_v() {
         return make_string(L"\x1b[37m");
     }
@@ -342,7 +342,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     white_v() {
         return make_string(u"\x1b[37m");
     }
@@ -352,12 +352,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     white_v() {
         return make_string(U"\x1b[37m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto white = white_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto white = white_v();
 
 
     //
@@ -369,7 +369,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_gray_v() {
         return make_string("\x1b[40m");
     }
@@ -379,7 +379,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_gray_v() {
         return make_string(L"\x1b[40m");
     }
@@ -389,7 +389,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_gray_v() {
         return make_string(u"\x1b[40m");
     }
@@ -399,12 +399,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_gray_v() {
         return make_string(U"\x1b[40m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_gray = on_gray_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_gray = on_gray_v();
 
 
     template <typename CharT = char,
@@ -413,7 +413,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_red_v() {
         return make_string("\x1b[41m");
     }
@@ -423,7 +423,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_red_v() {
         return make_string(L"\x1b[41m");
     }
@@ -433,7 +433,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_red_v() {
         return make_string(u"\x1b[41m");
     }
@@ -443,12 +443,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_red_v() {
         return make_string(U"\x1b[41m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_red = on_red_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_red = on_red_v();
 
 
     template <typename CharT = char,
@@ -457,7 +457,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_green_v() {
         return make_string("\x1b[42m");
     }
@@ -467,7 +467,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_green_v() {
         return make_string(L"\x1b[42m");
     }
@@ -477,7 +477,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_green_v() {
         return make_string(u"\x1b[42m");
     }
@@ -487,12 +487,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_green_v() {
         return make_string(U"\x1b[42m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_green = on_green_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_green = on_green_v();
 
 
     template <typename CharT = char,
@@ -501,7 +501,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_yellow_v() {
         return make_string("\x1b[43m");
     }
@@ -511,7 +511,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_yellow_v() {
         return make_string(L"\x1b[43m");
     }
@@ -521,7 +521,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_yellow_v() {
         return make_string(u"\x1b[43m");
     }
@@ -531,12 +531,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_yellow_v() {
         return make_string(U"\x1b[43m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_yellow = on_yellow_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_yellow = on_yellow_v();
 
 
     template <typename CharT = char,
@@ -545,7 +545,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_blue_v() {
         return make_string("\x1b[44m");
     }
@@ -555,7 +555,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_blue_v() {
         return make_string(L"\x1b[44m");
     }
@@ -565,7 +565,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_blue_v() {
         return make_string(u"\x1b[44m");
     }
@@ -575,12 +575,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_blue_v() {
         return make_string(U"\x1b[44m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_blue = on_blue_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_blue = on_blue_v();
 
 
     template <typename CharT = char,
@@ -589,7 +589,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_magenta_v() {
         return make_string("\x1b[45m");
     }
@@ -599,7 +599,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_magenta_v() {
         return make_string(L"\x1b[45m");
     }
@@ -609,7 +609,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_magenta_v() {
         return make_string(u"\x1b[45m");
     }
@@ -619,12 +619,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_magenta_v() {
         return make_string(U"\x1b[45m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_magenta = on_magenta_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_magenta = on_magenta_v();
 
 
     template <typename CharT = char,
@@ -633,7 +633,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_cyan_v() {
         return make_string("\x1b[46m");
     }
@@ -643,7 +643,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_cyan_v() {
         return make_string(L"\x1b[46m");
     }
@@ -653,7 +653,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_cyan_v() {
         return make_string(u"\x1b[46m");
     }
@@ -663,12 +663,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_cyan_v() {
         return make_string(U"\x1b[46m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_cyan = on_cyan_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_cyan = on_cyan_v();
 
 
     template <typename CharT = char,
@@ -677,7 +677,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_white_v() {
         return make_string("\x1b[47m");
     }
@@ -687,7 +687,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_white_v() {
         return make_string(L"\x1b[47m");
     }
@@ -697,7 +697,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_white_v() {
         return make_string(u"\x1b[47m");
     }
@@ -707,12 +707,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 5>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 5>
     on_white_v() {
         return make_string(U"\x1b[47m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto on_white = on_white_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto on_white = on_white_v();
 
 
     //
@@ -724,7 +724,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     bold_v() {
         return make_string("\x1b[1m");
     }
@@ -734,7 +734,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     bold_v() {
         return make_string(L"\x1b[1m");
     }
@@ -744,7 +744,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     bold_v() {
         return make_string(u"\x1b[1m");
     }
@@ -754,12 +754,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     bold_v() {
         return make_string(U"\x1b[1m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto bold = bold_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto bold = bold_v();
 
 
     template <typename CharT = char,
@@ -768,7 +768,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     dark_v() {
         return make_string("\x1b[2m");
     }
@@ -778,7 +778,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     dark_v() {
         return make_string(L"\x1b[2m");
     }
@@ -788,7 +788,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     dark_v() {
         return make_string(u"\x1b[2m");
     }
@@ -798,12 +798,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     dark_v() {
         return make_string(U"\x1b[2m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto dark = dark_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto dark = dark_v();
 
 
     template <typename CharT = char,
@@ -812,7 +812,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     underline_v() {
         return make_string("\x1b[4m");
     }
@@ -822,7 +822,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     underline_v() {
         return make_string(L"\x1b[4m");
     }
@@ -832,7 +832,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     underline_v() {
         return make_string(u"\x1b[4m");
     }
@@ -842,12 +842,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     underline_v() {
         return make_string(U"\x1b[4m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto underline = underline_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto underline = underline_v();
 
 
     template <typename CharT = char,
@@ -856,7 +856,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     blink_v() {
         return make_string("\x1b[5m");
     }
@@ -866,7 +866,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     blink_v() {
         return make_string(L"\x1b[5m");
     }
@@ -876,7 +876,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     blink_v() {
         return make_string(u"\x1b[5m");
     }
@@ -886,12 +886,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     blink_v() {
         return make_string(U"\x1b[5m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto blink = blink_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto blink = blink_v();
 
 
     template <typename CharT = char,
@@ -900,7 +900,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reverse_v() {
         return make_string("\x1b[7m");
     }
@@ -910,7 +910,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reverse_v() {
         return make_string(L"\x1b[7m");
     }
@@ -920,7 +920,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reverse_v() {
         return make_string(u"\x1b[7m");
     }
@@ -930,12 +930,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reverse_v() {
         return make_string(U"\x1b[7m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto reverse = reverse_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto reverse = reverse_v();
 
 
     template <typename CharT = char,
@@ -944,7 +944,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     concealed_v() {
         return make_string("\x1b[8m");
     }
@@ -954,7 +954,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     concealed_v() {
         return make_string(L"\x1b[8m");
     }
@@ -964,7 +964,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     concealed_v() {
         return make_string(u"\x1b[8m");
     }
@@ -974,12 +974,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     concealed_v() {
         return make_string(U"\x1b[8m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto concealed = concealed_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto concealed = concealed_v();
 
 
     template <typename CharT = char,
@@ -988,7 +988,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reset_v() {
         return make_string("\x1b[0m");
     }
@@ -998,7 +998,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reset_v() {
         return make_string(L"\x1b[0m");
     }
@@ -1008,7 +1008,7 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reset_v() {
         return make_string(u"\x1b[0m");
     }
@@ -1018,12 +1018,12 @@ namespace termcolor2 {
             , std::nullptr_t
         >::type = nullptr
     >
-    constexpr basic_string<CharT, 4>
+    TERMCOLOR2_CXX20_CONSTEXPR basic_string<CharT, 4>
     reset_v() {
         return make_string(U"\x1b[0m");
     }
     TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-    constexpr auto reset = reset_v();
+    TERMCOLOR2_CXX20_CONSTEXPR auto reset = reset_v();
 } // end namespace termcolor2
 
 #endif // !TERMCOLOR2_PRESETS_HPP
