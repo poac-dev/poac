@@ -5,9 +5,7 @@
 #include <string> // std::basic_string
 #include <poac/util/termcolor2/to_color.hpp>
 
-namespace termcolor2 {
-inline namespace color_literals {
-inline namespace foreground_literals {
+namespace termcolor2::inline color_literals::inline foreground_literals {
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr basic_string<CharT, gray_v<CharT>().size() + sizeof...(Str) + reset_v<CharT>().size()>
@@ -247,10 +245,10 @@ inline namespace foreground_literals {
         return to_white(str, len);
     }
 #endif
-} // end namespace foreground
+} // end namespace termcolor2::color_literals::foreground_literals
 
 
-inline namespace background_literals {
+namespace termcolor2::inline color_literals::inline background_literals {
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr basic_string<CharT, on_gray_v<CharT>().size() + sizeof...(Str) + reset_v<CharT>().size()>
@@ -490,10 +488,10 @@ inline namespace background_literals {
         return to_on_white(str, len);
     }
 #endif
-} // end namespace background_literals
+} // end namespace termcolor2::color_literals::background_literals
 
 
-inline namespace attribute_literals {
+namespace termcolor2::inline color_literals::inline attribute_literals {
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
     template <typename CharT, CharT... Str>
     constexpr basic_string<CharT, bold_v<CharT>().size() + sizeof...(Str) + reset_v<CharT>().size()>
@@ -673,12 +671,9 @@ inline namespace attribute_literals {
         return to_concealed(str, len);
     }
 #endif
-} // end namespace attribute_literals
+} // end namespace termcolor2::color_literals::attribute_literals
 
-
-inline namespace control_literals {
-} // end namespace control_literals
-} // end namespace color_literals
-} // end namespace termcolor2
+namespace termcolor2::inline control_literals {
+} // end namespace termcolor2::control_literals
 
 #endif	// !TERMCOLOR2_LITERALS_HPP
