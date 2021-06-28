@@ -15,13 +15,6 @@
 #include <boost/property_tree/ptree.hpp>
 
 namespace poac::util::meta {
-    // If the type T is a reference type, provides the member typedef type
-    //  which is the type referred to by T with its topmost cv-qualifiers removed.
-    // Otherwise type is T with its topmost cv-qualifiers removed.
-    // C++20, std::remove_cvref_t<T>
-    template <class T>
-    using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
-
     // std::conditional for non-type template
     template <auto Value>
     struct value_holder { static constexpr auto value = Value; };
@@ -75,7 +68,7 @@ namespace poac::util::meta {
     auto to_vector(const U& value, const K& key)
         -> std::enable_if_t<
                std::is_same_v<
-                   remove_cvref_t<U>,
+                   std::remove_cvref_t<U>,
                    boost::property_tree::ptree
                >,
                std::vector<T>>
@@ -93,7 +86,7 @@ namespace poac::util::meta {
     auto to_vector(const U& value)
         -> std::enable_if_t<
             std::is_same_v<
-                remove_cvref_t<U>,
+                std::remove_cvref_t<U>,
                 boost::property_tree::ptree
             >,
             std::vector<T>>
@@ -113,7 +106,7 @@ namespace poac::util::meta {
     auto to_unordered_map(const U& value, const std::string& key)
         -> std::enable_if_t<
                std::is_same_v<
-                   remove_cvref_t<U>,
+                   std::remove_cvref_t<U>,
                    boost::property_tree::ptree
                >,
                std::unordered_map<std::string, T>>
@@ -151,21 +144,21 @@ namespace poac::util::meta {
         noexcept(
             std::is_nothrow_constructible_v<
                 std::array<
-                    std::tuple_element_t<0, remove_cvref_t<T>>,
-                    std::tuple_size_v<remove_cvref_t<T>>
+                    std::tuple_element_t<0, std::remove_cvref_t<T>>,
+                    std::tuple_size_v<std::remove_cvref_t<T>>
                 >,
-                std::tuple_element_t<Indices, remove_cvref_t<T>>...>
+                std::tuple_element_t<Indices, std::remove_cvref_t<T>>...>
         )
         -> std::enable_if_t<
              std::conjunction_v<
-                 is_tuple<remove_cvref_t<T>>,
+                 is_tuple<std::remove_cvref_t<T>>,
                  are_all_same<
-                     std::tuple_element_t<Indices, remove_cvref_t<T>>...
+                     std::tuple_element_t<Indices, std::remove_cvref_t<T>>...
                  >
              >,
              std::array<
-                 std::tuple_element_t<0, remove_cvref_t<T>>,
-                 std::tuple_size_v<remove_cvref_t<T>>
+                 std::tuple_element_t<0, std::remove_cvref_t<T>>,
+                 std::tuple_size_v<std::remove_cvref_t<T>>
              >>
     {
         return { std::get<Indices>(std::forward<T>(tuple))... };
@@ -174,7 +167,7 @@ namespace poac::util::meta {
     template <
         class T,
         std::enable_if_t<
-            is_tuple_v<remove_cvref_t<T>>,
+            is_tuple_v<std::remove_cvref_t<T>>,
             std::nullptr_t
         > = nullptr>
     constexpr auto to_array(T&& tuple)
@@ -182,7 +175,7 @@ namespace poac::util::meta {
         return to_array(
             std::forward<T>(tuple),
             std::make_index_sequence<
-                std::tuple_size_v<remove_cvref_t<T>>
+                std::tuple_size_v<std::remove_cvref_t<T>>
             >{}
         );
     }

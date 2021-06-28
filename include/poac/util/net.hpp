@@ -15,6 +15,7 @@
 #include <memory>
 #include <variant>
 #include <optional>
+#include <type_traits>
 
 // external
 #include <boost/asio.hpp>
@@ -281,7 +282,7 @@ namespace poac::util::net {
             typename ResponseBody =
                 std::conditional_t<
                     std::is_same_v<
-                        util::meta::remove_cvref_t<Ofstream>,
+                        std::remove_cvref_t<Ofstream>,
                         std::ofstream>,
                     http::vector_body<unsigned char>,
                     http::string_body>>
@@ -306,14 +307,14 @@ namespace poac::util::net {
             typename RequestBody =
                 std::conditional_t<
                     std::is_same_v<
-                        util::meta::remove_cvref_t<BodyType>,
+                        std::remove_cvref_t<BodyType>,
                         multi_part_form_t>,
                     http::empty_body,
                     http::string_body>,
             typename ResponseBody =
                 std::conditional_t<
                     std::is_same_v<
-                        util::meta::remove_cvref_t<Ofstream>,
+                        std::remove_cvref_t<Ofstream>,
                         std::ofstream>,
                     http::vector_body<unsigned char>,
                     http::string_body>>
@@ -329,7 +330,7 @@ namespace poac::util::net {
             );
             if constexpr (
                 !std::is_same_v<
-                    util::meta::remove_cvref_t<BodyType>,
+                    std::remove_cvref_t<BodyType>,
                     multi_part_form_t>
             ) {
                 req.set(http::field::content_type, "application/json");
@@ -367,7 +368,7 @@ namespace poac::util::net {
             std::enable_if_t<
                 std::negation_v<
                     std::is_same<
-                        util::meta::remove_cvref_t<
+                        std::remove_cvref_t<
                             Request
                         >,
                         multi_part_form_t
@@ -384,7 +385,7 @@ namespace poac::util::net {
             typename Request,
             std::enable_if_t<
                 std::is_same_v<
-                    util::meta::remove_cvref_t<
+                    std::remove_cvref_t<
                         Request
                     >,
                     multi_part_form_t
@@ -465,7 +466,7 @@ namespace poac::util::net {
                         std::forward<Ofstream>(ofs)
                     );
                 default:
-                    if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
+                    if constexpr (!std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>) {
                         return mitama::failure(fmt::format(
                             "util::net received a bad response code: {}\n{}",
                             res.base().result_int(), res.body()
@@ -485,7 +486,7 @@ namespace poac::util::net {
             typename ResponseBody = typename Response::body_type>
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
-            if constexpr (!std::is_same_v<util::meta::remove_cvref_t<Ofstream>, std::ofstream>) {
+            if constexpr (!std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>) {
                 PLOG_DEBUG << "[util::net::requests] read type: string";
                 return res.body();
             } else {
