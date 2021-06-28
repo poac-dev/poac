@@ -115,10 +115,9 @@ namespace poac::core::resolver::resolve {
         std::conditional_t<
             WithDeps::value,
             std::unordered_map<package_t, deps_t, hash_pair>,
-            std::unordered_map<
-                std::string, // name
-                std::string  // version or interval
-            >>;
+            // <name, version or interval>
+            std::unordered_map<std::string, std::string>
+        >;
 
     inline const package_t&
     get_package(const unique_deps_t<with_deps>::value_type& deps) noexcept {
