@@ -63,7 +63,11 @@ curl -fsSL https://sh.poac.pm | bash
 
 ### Manual install (Build)
 
-Poac requires the following tools and packages to build:
+Poac requires the following a compiler, tools, and packages to build:
+
+#### compiler
+
+* A compiler which supports [C++20](https://en.cppreference.com/w/cpp/20)
 
 #### tools
 
