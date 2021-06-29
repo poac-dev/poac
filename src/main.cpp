@@ -13,8 +13,8 @@
 // internal
 #include <poac/cmd.hpp>
 
-inline const std::string error =
-    (termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset).to_string();
+inline TERMCOLOR2_CXX20_CONSTINIT const std::string error =
+    termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset;
 
 [[nodiscard]] int
 no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
