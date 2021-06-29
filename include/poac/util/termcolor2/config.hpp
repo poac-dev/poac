@@ -13,7 +13,8 @@
 #  error "__cplusplus is not defined"
 #endif // !__cplusplus
 
-#if defined(__cpp_lib_constexpr_dynamic_alloc) && !defined(__clang__) && TERMCOLOR2_STD_VER > 17
+//#if defined(__cpp_lib_constexpr_dynamic_alloc) && !defined(__clang__) && TERMCOLOR2_STD_VER > 17
+#if false // needs support of constexpr std::string
 #  define TERMCOLOR2_CXX20_CONSTEVAL consteval
 #  define TERMCOLOR2_CXX20_CONSTINIT constinit
 #else
