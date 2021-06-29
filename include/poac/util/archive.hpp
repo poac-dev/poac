@@ -33,7 +33,7 @@ namespace poac::util::archive {
         const writer_t& writer, const void* buffer,
         std::size_t size, std::int64_t offset
     ) noexcept {
-        int res = archive_write_data_block(writer.get(), buffer, size, offset);
+        const int res = archive_write_data_block(writer.get(), buffer, size, offset);
         if (res < ARCHIVE_OK) {
             return mitama::failure(archive_error_string(writer.get()));
         }
@@ -47,7 +47,7 @@ namespace poac::util::archive {
         std::int64_t offset{};
 
         while (true) {
-            int res = archive_read_data_block(reader, &buff, &size, &offset);
+            const int res = archive_read_data_block(reader, &buff, &size, &offset);
             if (res == ARCHIVE_EOF) {
                 return mitama::success();
             } else if (res < ARCHIVE_OK) {
@@ -59,7 +59,7 @@ namespace poac::util::archive {
 
     [[nodiscard]] mitama::result<void, std::string>
     archive_write_finish_entry(const writer_t& writer) noexcept {
-        int res = archive_write_finish_entry(writer.get());
+        const int res = archive_write_finish_entry(writer.get());
         if (res < ARCHIVE_OK) {
             return mitama::failure(archive_error_string(writer.get()));
         } else if (res < ARCHIVE_WARN) {
@@ -91,7 +91,7 @@ namespace poac::util::archive {
     archive_read_next_header_(archive_t* reader, archive_entry** entry)
         noexcept(!(true == ARCHIVE_EOF))
     {
-        int res = archive_read_next_header(reader, entry);
+        const int res = archive_read_next_header(reader, entry);
         if (res == ARCHIVE_EOF) {
             return mitama::success(ARCHIVE_EOF);
         } else if (res < ARCHIVE_OK) {
