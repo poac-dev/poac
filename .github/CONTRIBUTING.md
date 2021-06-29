@@ -7,8 +7,7 @@ Please note we have a [code of conduct](CODE_OF_CONDUCT.md), please follow it in
 
 ## Pull Request Process
 
-1. Fork this repository ([https://github.com/poacpm/poac/fork](https://github.com/poacpm/poac/fork)),
-   and create your feature branch (git checkout -b my-new-feature).
+1. Fork this repository and create your feature branch (git checkout -b my-new-feature).
 1. Before you start development, please load the githooks by executing the command `git config --local core.hooksPath .githooks`
    on root directory of this repository to ensure smooth development.
 1. Update the README.md with details of changes to the interface; this includes new dependencies,
