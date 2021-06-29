@@ -1,570 +1,570 @@
 #ifndef TERMCOLOR2_TO_COLOR_HPP
 #define TERMCOLOR2_TO_COLOR_HPP
 
-#include <cstddef> // std::size_t
 #include <string> // std::basic_string
-#include <utility> // std::forward
+#include <string_view> // std::basic_string_view
 #include <poac/util/termcolor2/presets.hpp>
-#include <poac/util/termcolor2/string.hpp>
 
 namespace termcolor2 {
     //
     // Foreground manipulators
     //
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, gray_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_gray() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_gray(const CharT* str)
     {
-        return gray_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, gray_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_gray(const CharT(&arr)[N]) noexcept
-    {
-        return gray_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return gray_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_gray(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_gray(const CharT* str, std::size_t len)
     {
-        return gray_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return gray_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_gray(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_gray(const std::basic_string<CharT>& str)
     {
-        return gray_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return gray_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_gray(const std::basic_string_view<CharT> str)
+    {
+        return gray_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, red_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_red() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_red(const CharT* str)
     {
-        return red_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, red_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_red(const CharT(&arr)[N]) noexcept
-    {
-        return red_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return red_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_red(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_red(const CharT* str, std::size_t len)
     {
-        return red_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return red_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_red(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_red(const std::basic_string<CharT>& str)
     {
-        return red_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return red_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_red(const std::basic_string_view<CharT> str)
+    {
+        return red_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, green_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_green() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_green(const CharT* str)
     {
-        return green_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, green_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_green(const CharT(&arr)[N]) noexcept
-    {
-        return green_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return green_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_green(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_green(const CharT* str, std::size_t len)
     {
-        return green_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return green_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_green(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_green(const std::basic_string<CharT>& str)
     {
-        return green_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return green_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_green(const std::basic_string_view<CharT> str)
+    {
+        return green_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, yellow_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_yellow() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_yellow(const CharT* str)
     {
-        return yellow_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, yellow_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_yellow(const CharT(&arr)[N]) noexcept
-    {
-        return yellow_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return yellow_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_yellow(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_yellow(const CharT* str, std::size_t len)
     {
-        return yellow_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return yellow_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_yellow(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_yellow(const std::basic_string<CharT>& str)
     {
-        return yellow_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return yellow_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_yellow(const std::basic_string_view<CharT> str)
+    {
+        return yellow_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, blue_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_blue() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blue(const CharT* str)
     {
-        return blue_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, blue_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_blue(const CharT(&arr)[N]) noexcept
-    {
-        return blue_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return blue_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_blue(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blue(const CharT* str, std::size_t len)
     {
-        return blue_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return blue_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_blue(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blue(const std::basic_string<CharT>& str)
     {
-        return blue_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return blue_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blue(const std::basic_string_view<CharT> str)
+    {
+        return blue_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, magenta_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_magenta() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_magenta(const CharT* str)
     {
-        return magenta_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, magenta_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_magenta(const CharT(&arr)[N]) noexcept
-    {
-        return magenta_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return magenta_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_magenta(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_magenta(const CharT* str, std::size_t len)
     {
-        return magenta_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return magenta_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_magenta(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_magenta(const std::basic_string<CharT>& str)
     {
-        return magenta_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return magenta_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_magenta(const std::basic_string_view<CharT> str)
+    {
+        return magenta_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, cyan_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_cyan() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_cyan(const CharT* str)
     {
-        return cyan_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, cyan_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_cyan(const CharT(&arr)[N]) noexcept
-    {
-        return cyan_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return cyan_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_cyan(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_cyan(const CharT* str, std::size_t len)
     {
-        return cyan_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return cyan_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_cyan(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_cyan(const std::basic_string<CharT>& str)
     {
-        return cyan_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return cyan_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_cyan(const std::basic_string_view<CharT> str)
+    {
+        return cyan_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, white_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_white() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_white(const CharT* str)
     {
-        return white_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, white_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_white(const CharT(&arr)[N]) noexcept
-    {
-        return white_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return white_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_white(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_white(const CharT* str, std::size_t len)
     {
-        return white_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return white_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_white(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_white(const std::basic_string<CharT>& str)
     {
-        return white_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return white_v<CharT>() + str + reset_v<CharT>();
     }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_white(const std::basic_string_view<CharT> str)
+    {
+        return white_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
+    }
+
 
     //
     // Background manipulators
     //
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_gray_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_gray() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_gray(const CharT* str)
     {
-        return on_gray_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_gray_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_gray(const CharT(&arr)[N]) noexcept
-    {
-        return on_gray_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_gray_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_gray(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_gray(const CharT* str, std::size_t len)
     {
-        return on_gray_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_gray_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_gray(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_gray(const std::basic_string<CharT>& str)
     {
-        return on_gray_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_gray_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_gray(const std::basic_string_view<CharT> str)
+    {
+        return on_gray_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_red_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_red() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_red(const CharT* str)
     {
-        return on_red_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_red_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_red(const CharT(&arr)[N]) noexcept
-    {
-        return on_red_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_red_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_red(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_red(const CharT* str, std::size_t len)
     {
-        return on_red_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_red_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_red(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_red(const std::basic_string<CharT>& str)
     {
-        return on_red_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_red_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_red(const std::basic_string_view<CharT> str)
+    {
+        return on_red_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_green_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_green() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_green(const CharT* str)
     {
-        return on_green_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_green_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_green(const CharT(&arr)[N]) noexcept
-    {
-        return on_green_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_green_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_green(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_green(const CharT* str, std::size_t len)
     {
-        return on_green_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_green_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_green(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_green(const std::basic_string<CharT>& str)
     {
-        return on_green_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_green_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_green(const std::basic_string_view<CharT> str)
+    {
+        return on_green_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_yellow_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_yellow() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_yellow(const CharT* str)
     {
-        return on_yellow_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_yellow_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_yellow(const CharT(&arr)[N]) noexcept
-    {
-        return on_yellow_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_yellow_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_yellow(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_yellow(const CharT* str, std::size_t len)
     {
-        return on_yellow_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_yellow_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_yellow(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_yellow(const std::basic_string<CharT>& str)
     {
-        return on_yellow_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_yellow_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_yellow(const std::basic_string_view<CharT> str)
+    {
+        return on_yellow_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_blue_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_blue() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_blue(const CharT* str)
     {
-        return on_blue_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_blue_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_blue(const CharT(&arr)[N]) noexcept
-    {
-        return on_blue_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_blue_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_blue(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_blue(const CharT* str, std::size_t len)
     {
-        return on_blue_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_blue_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_blue(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_blue(const std::basic_string<CharT>& str)
     {
-        return on_blue_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_blue_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_blue(const std::basic_string_view<CharT> str)
+    {
+        return on_blue_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_magenta_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_magenta() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_magenta(const CharT* str)
     {
-        return on_magenta_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_magenta_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_magenta(const CharT(&arr)[N]) noexcept
-    {
-        return on_magenta_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_magenta_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_magenta(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_magenta(const CharT* str, std::size_t len)
     {
-        return on_magenta_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_magenta_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_magenta(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_magenta(const std::basic_string<CharT>& str)
     {
-        return on_magenta_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_magenta_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_magenta(const std::basic_string_view<CharT> str)
+    {
+        return on_magenta_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_cyan_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_cyan() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_cyan(const CharT* str)
     {
-        return on_cyan_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_cyan_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_cyan(const CharT(&arr)[N]) noexcept
-    {
-        return on_cyan_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_cyan_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_cyan(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_cyan(const CharT* str, std::size_t len)
     {
-        return on_cyan_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_cyan_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_cyan(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_cyan(const std::basic_string<CharT>& str)
     {
-        return on_cyan_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_cyan_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_cyan(const std::basic_string_view<CharT> str)
+    {
+        return on_cyan_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, on_white_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_on_white() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_white(const CharT* str)
     {
-        return on_white_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, on_white_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_on_white(const CharT(&arr)[N]) noexcept
-    {
-        return on_white_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return on_white_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_white(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_white(const CharT* str, std::size_t len)
     {
-        return on_white_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return on_white_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_on_white(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_white(const std::basic_string<CharT>& str)
     {
-        return on_white_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return on_white_v<CharT>() + str + reset_v<CharT>();
     }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_on_white(const std::basic_string_view<CharT> str)
+    {
+        return on_white_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
+    }
+
 
     //
     // Attribute manipulators
     //
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, bold_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_bold() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_bold(const CharT* str)
     {
-        return bold_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, bold_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_bold(const CharT(&arr)[N]) noexcept
-    {
-        return bold_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return bold_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_bold(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_bold(const CharT* str, std::size_t len)
     {
-        return bold_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return bold_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_bold(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_bold(const std::basic_string<CharT>& str)
     {
-        return bold_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return bold_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_bold(const std::basic_string_view<CharT> str)
+    {
+        return bold_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, dark_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_dark() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_dark(const CharT* str)
     {
-        return dark_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, dark_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_dark(const CharT(&arr)[N]) noexcept
-    {
-        return dark_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return dark_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_dark(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_dark(const CharT* str, std::size_t len)
     {
-        return dark_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return dark_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_dark(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_dark(const std::basic_string<CharT>& str)
     {
-        return dark_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return dark_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_dark(const std::basic_string_view<CharT> str)
+    {
+        return dark_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, underline_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_underline() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_underline(const CharT* str)
     {
-        return underline_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, underline_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_underline(const CharT(&arr)[N]) noexcept
-    {
-        return underline_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return underline_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_underline(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_underline(const CharT* str, std::size_t len)
     {
-        return underline_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return underline_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_underline(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_underline(const std::basic_string<CharT>& str)
     {
-        return underline_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return underline_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_underline(const std::basic_string_view<CharT> str)
+    {
+        return underline_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, blink_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_blink() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blink(const CharT* str)
     {
-        return blink_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, blink_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_blink(const CharT(&arr)[N]) noexcept
-    {
-        return blink_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return blink_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_blink(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blink(const CharT* str, std::size_t len)
     {
-        return blink_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return blink_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_blink(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blink(const std::basic_string<CharT>& str)
     {
-        return blink_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return blink_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_blink(const std::basic_string_view<CharT> str)
+    {
+        return blink_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, reverse_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_reverse() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_reverse(const CharT* str)
     {
-        return reverse_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, reverse_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_reverse(const CharT(&arr)[N]) noexcept
-    {
-        return reverse_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return reverse_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_reverse(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_reverse(const CharT* str, std::size_t len)
     {
-        return reverse_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return reverse_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_reverse(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_reverse(const std::basic_string<CharT>& str)
     {
-        return reverse_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return reverse_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_reverse(const std::basic_string_view<CharT> str)
+    {
+        return reverse_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 
-    template <typename CharT, std::size_t N, CharT... Str>
-    constexpr basic_string<CharT, concealed_v<CharT>().size() + N + reset_v<CharT>().size()>
-    to_concealed() noexcept
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_concealed(const CharT* str)
     {
-        return concealed_v<CharT>() + basic_string<CharT, N>(N, std::forward<CharT>(Str)...) + reset_v<CharT>();
-    }
-    template <typename CharT, std::size_t N>
-    constexpr basic_string<CharT, concealed_v<CharT>().size() + (N - 1) + reset_v<CharT>().size()>
-    to_concealed(const CharT(&arr)[N]) noexcept
-    {
-        return concealed_v<CharT>() + basic_string<CharT, N - 1>(arr) + reset_v<CharT>();
+        return concealed_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_concealed(const CharT* str, std::size_t len) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_concealed(const CharT* str, std::size_t len)
     {
-        return concealed_v<CharT>().to_string() + std::basic_string<CharT>(str, len) + reset_v<CharT>().to_string();
+        return concealed_v<CharT>() + std::basic_string<CharT>(str, len) + reset_v<CharT>();
     }
     template <typename CharT>
-    inline std::basic_string<CharT>
-    to_concealed(const std::basic_string<CharT>& str) noexcept
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_concealed(const std::basic_string<CharT>& str)
     {
-        return concealed_v<CharT>().to_string() + str + reset_v<CharT>().to_string();
+        return concealed_v<CharT>() + str + reset_v<CharT>();
+    }
+    template <typename CharT>
+    inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+    to_concealed(const std::basic_string_view<CharT> str)
+    {
+        return concealed_v<CharT>() + std::basic_string<CharT>(str) + reset_v<CharT>();
     }
 }
 

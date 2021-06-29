@@ -3,38 +3,22 @@
 
 #ifdef __cplusplus
 #  ifndef TERMCOLOR2_STD_VER
-#    if __cplusplus < 201103L
-#      error "termcolor2 requires C++11 or later."
-#    elif __cplusplus == 201103L
-#      define TERMCOLOR2_STD_VER 11
-#    elif __cplusplus <= 201402L
-#      define TERMCOLOR2_STD_VER 14
-#    elif __cplusplus <= 201703L
-#      define TERMCOLOR2_STD_VER 17
+#    if __cplusplus <= 201703L
+#      error "termcolor2 requires a compiler that (fully) implements C++20 or later."
 #    else
-#      define TERMCOLOR2_STD_VER 19 // current year, or date of c++2a ratification
+#      define TERMCOLOR2_STD_VER 20
 #    endif
 #  endif // !TERMCOLOR2_STD_VER
 #else
 #  error "__cplusplus is not defined"
 #endif // !__cplusplus
 
-#if TERMCOLOR2_STD_VER > 11
-#  define TERMCOLOR2_CXX14_CONSTEXPR constexpr
-#else
-#  define TERMCOLOR2_CXX14_CONSTEXPR
-#endif
-
-#if TERMCOLOR2_STD_VER > 14
-#  define TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14 inline
-#else
-#  define TERMCOLOR2_INLINE_VARIABLES_AFTER_CXX14
-#endif
-
 #if defined(__cpp_lib_constexpr_dynamic_alloc) && !defined(__clang__) && TERMCOLOR2_STD_VER > 17
-#  define TERMCOLOR2_CXX20_CONSTEXPR constexpr
+#  define TERMCOLOR2_CXX20_CONSTEVAL consteval
+#  define TERMCOLOR2_CXX20_CONSTINIT constinit
 #else
-#  define TERMCOLOR2_CXX20_CONSTEXPR const
+#  define TERMCOLOR2_CXX20_CONSTEVAL
+#  define TERMCOLOR2_CXX20_CONSTINIT
 #endif
 
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE

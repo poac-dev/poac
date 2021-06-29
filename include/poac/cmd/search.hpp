@@ -47,8 +47,8 @@ namespace poac::cmd::search {
             const boost::property_tree::ptree& hits = child.second;
 
             std::string name = hits.get<std::string>("_highlightResult.package.name.value");
-            boost::replace_all(name, "<em>", termcolor2::green.to_string());
-            boost::replace_all(name, "</em>", termcolor2::reset.to_string());
+            boost::replace_all(name, "<em>", termcolor2::green);
+            boost::replace_all(name, "</em>", termcolor2::reset);
             const auto package = fmt::format(
                 "{} = \"{}\"",
                 name,

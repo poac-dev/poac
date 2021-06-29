@@ -1,12 +1,6 @@
 set(TEST_NAMES
-        char_traits
-        comparison
-        concat
-        gnu_literals
-        io
+#        gnu_literals
         literals
-        min
-        string
         to_color
 )
 
