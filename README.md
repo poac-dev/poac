@@ -41,7 +41,6 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 
 * Code Coverage:
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
-[![Coverage Status](https://coveralls.io/repos/github/poacpm/poac/badge.svg?branch=main)](https://coveralls.io/github/poacpm/poac?branch=main)
 [![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
 
 * Code Quality:
