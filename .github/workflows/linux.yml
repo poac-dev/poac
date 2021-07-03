@@ -181,16 +181,6 @@ jobs:
           name: ${{ github.job }}-${{ matrix.compiler.package }}
           path: ./build/poac
 
-      - name: Upload build artifact for Coveralls
-        uses: actions/upload-artifact@v2.2.4
-        if: >
-          success() &&
-          github.ref == 'refs/heads/main' &&
-          matrix.build_type == 'Coverage'
-        with:
-          name: coverage-build-artifact
-          path: .
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         if: success() && matrix.build_type == 'Coverage'
