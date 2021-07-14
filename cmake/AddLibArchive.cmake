@@ -4,7 +4,7 @@ message(CHECK_START "Adding LibArchive")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 if (APPLE)
-    set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+    set(LibArchive_INCLUDE_DIR "${POAC_HOMEBREW_ROOT_PATH}/libarchive/include")
 elseif (DEFINED LIBARCHIVE_DIR)
     set(LibArchive_INCLUDE_DIR "${LIBARCHIVE_DIR}/include")
 endif()
