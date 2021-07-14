@@ -4,7 +4,7 @@ message(CHECK_START "Adding OpenSSL")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 if (APPLE)
-    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+    set(OPENSSL_ROOT_DIR "${POAC_HOMEBREW_ROOT_PATH}/openssl")
 endif ()
 if (DEFINED OPENSSL_ROOT_DIR)
     set(OPENSSL_LIBRARIES ${OPENSSL_ROOT_DIR}/lib)
