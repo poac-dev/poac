@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include <poac/util/semver/interval.hpp>
+#include <poac/util/semver/exception.hpp>
 
 BOOST_AUTO_TEST_CASE( semver_satisfies_test )
 {
@@ -33,30 +34,32 @@ BOOST_AUTO_TEST_CASE( semver_satisfies_test2 )
 BOOST_AUTO_TEST_CASE( semver_is_wasteful_comparison_operation_test )
 {
     using semver::Interval;
+    using semver::invalid_interval_error;
 
-    BOOST_CHECK_THROW( Interval("<2.0.0 and <1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval("<=2.0.0 and <=1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval("<2.0.0 and <=1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval("<=2.0.0 and <1.0.0"), std::range_error );
+    BOOST_CHECK_THROW( Interval("<2.0.0 and <1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval("<=2.0.0 and <=1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval("<2.0.0 and <=1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval("<=2.0.0 and <1.0.0"), invalid_interval_error );
 
-    BOOST_CHECK_THROW( Interval("<1.0.0-alpha and <1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval("<1.0.0 and <1.0.0"), std::range_error );
+    BOOST_CHECK_THROW( Interval("<1.0.0-alpha and <1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval("<1.0.0 and <1.0.0"), invalid_interval_error );
 
-    BOOST_CHECK_THROW( Interval(">2.0.0 and >1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval(">=2.0.0 and >=1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval(">2.0.0 and >=1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval(">=2.0.0 and >1.0.0"), std::range_error );
+    BOOST_CHECK_THROW( Interval(">2.0.0 and >1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval(">=2.0.0 and >=1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval(">2.0.0 and >=1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval(">=2.0.0 and >1.0.0"), invalid_interval_error );
 
-    BOOST_CHECK_THROW( Interval(">1.0.0-alpha and >1.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval(">1.0.0 and >1.0.0"), std::range_error );
+    BOOST_CHECK_THROW( Interval(">1.0.0-alpha and >1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW( Interval(">1.0.0 and >1.0.0"), invalid_interval_error );
 }
 
 BOOST_AUTO_TEST_CASE( semver_is_bounded_interval_test )
 {
     using semver::Interval;
+    using semver::strange_interval_error;
 
-    BOOST_CHECK_THROW( Interval("<1.0.0 and >2.0.0"), std::range_error );
-    BOOST_CHECK_THROW( Interval("<1.0.0-alpha and >1.0.0"), std::range_error );
+    BOOST_CHECK_THROW( Interval("<1.0.0 and >2.0.0"), strange_interval_error );
+    BOOST_CHECK_THROW( Interval("<1.0.0-alpha and >1.0.0"), strange_interval_error );
 }
 
 // TODO: regex, Version constructor, get_version(), get_full(), Version exceptions

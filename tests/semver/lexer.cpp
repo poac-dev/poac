@@ -205,10 +205,10 @@ BOOST_AUTO_TEST_CASE( semver_lexer_lexer_components_test )
 BOOST_AUTO_TEST_CASE( semver_lexer_is_wildcard_test )
 {
     using semver::parser::Token;
-    static_assert( Token{Token::Star}.is_whildcard() );
-    static_assert( Token(Token::AlphaNumeric, "x").is_whildcard() );
-    static_assert( Token(Token::AlphaNumeric, "X").is_whildcard() );
-    static_assert( !Token(Token::AlphaNumeric, "other").is_whildcard() );
+    static_assert( Token{Token::Star}.is_wildcard() );
+    static_assert( Token(Token::AlphaNumeric, "x").is_wildcard() );
+    static_assert( Token(Token::AlphaNumeric, "X").is_wildcard() );
+    static_assert( !Token(Token::AlphaNumeric, "other").is_wildcard() );
 }
 
 BOOST_AUTO_TEST_CASE( semver_lexer_str_to_int_test )

@@ -299,12 +299,10 @@ namespace poac::core::resolver::resolve {
             | util::meta::containerized;
 
         if (satisfied_versions.empty()) {
-            return mitama::failure(
-                fmt::format(
-                    "`{}: {}` not found; seem dependencies are broken",
-                    get_name(package), get_interval(package)
-                )
-            );
+            return mitama::failure(fmt::format(
+                "`{}: {}` not found; seem dependencies are broken",
+                get_name(package), get_interval(package)
+            ));
         }
         return mitama::success(satisfied_versions);
     }
@@ -328,8 +326,8 @@ namespace poac::core::resolver::resolve {
 
     inline bool
     exist_cache_impl(const package_t& a, const package_t& b) noexcept {
-        return get_name(a) == get_name(b) &&
-               get_version(a) == get_version(b);
+        return get_name(a) == get_name(b)
+            && get_version(a) == get_version(b);
     }
 
     template <class Range>

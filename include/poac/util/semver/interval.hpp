@@ -7,102 +7,109 @@
 #include <regex>
 #include <stdexcept>
 #include <optional>
+#include <variant>
+
+// external
+#include <fmt/core.h>
 
 // internal
 #include <poac/util/semver/version.hpp>
 #include <poac/util/semver/comparison.hpp>
+#include <poac/util/semver/exception.hpp>
 
 namespace semver {
-    enum class IntervalMode {
-        Equal,
-        ClosedUnbounded,
-        Bounded
+    inline const std::string base_version_format{ "{}.{}.{}" }; // 1.2.3
+    inline const std::string version_format{ base_version_format + "{}{}" }; // 1.2.3-beta+11.22.33
+
+    inline std::string make_pre_or_build(const char& prefix, std::smatch::const_reference match_item) {
+        return match_item.matched ? (prefix + match_item.str()) : "";
+    }
+
+    template <std::size_t Start, std::size_t ... Is>
+    inline constexpr std::index_sequence<(Start + Is)...>
+    add_offset(std::index_sequence<Is...>) {
+        return {};
+    }
+    template <std::size_t Start, std::size_t End>
+    inline constexpr auto make_range() {
+        return add_offset<Start>(std::make_index_sequence<End - Start + 1>{});
+    }
+
+    template <std::size_t Pre, std::size_t Build, std::size_t... Is>
+    std::string make_version_impl(const std::smatch& match, std::index_sequence<Is...>) {
+        if constexpr (Pre == 0 || Build == 0) {
+            return fmt::format(base_version_format, match[Is].str()...);
+        } else {
+            return fmt::format(
+                version_format, match[Is].str()...,
+                make_pre_or_build('-', match[Pre]),
+                make_pre_or_build('+', match[Build])
+            );
+        }
+    }
+
+    template <std::size_t Start, std::size_t End, std::size_t Pre, std::size_t Build>
+    inline std::string make_version(const std::smatch& match) {
+        static_assert(End - Start == 2, "make_version: range diff should be 2");
+        return make_version_impl<Pre, Build>(match, make_range<Start, End>());
+    }
+
+    template <std::size_t Start, std::size_t End>
+    std::string make_version(const std::smatch& match) {
+        if constexpr (End - Start == 2) { // not include pre & build
+            return make_version<Start, End, 0, 0>(match);
+        } else if constexpr (End - Start == 4) {
+            // pop back pre & build
+            return make_version<Start, End - 2, End - 1, End>(match);
+        } else {
+            static_assert([]{ return false; }(), "make_version: range diff should be 2 or 4");
+        }
+    }
+
+    class ExactVersion {
+    private:
+        const std::string version;
+
+    public:
+        explicit ExactVersion(std::string_view version) noexcept : version{ version } {}
+
+        inline bool satisfies(std::string_view interval) const noexcept {
+            return version == interval;
+        }
     };
 
-    class Interval {
-    public:
-        const std::string interval;
-
-        std::string comp_op;
-        std::string version_str;
-
-        std::string first_comp_op;
-        std::string second_comp_op;
-        std::string first_version;
-        std::string second_version;
-
-        IntervalMode mode;
-
-        explicit Interval(std::string_view i) : interval(i) {
-            std::smatch match;
-            if (std::regex_match(interval, match, std::regex(CLOSED_UNBOUNDED_INTERVAL))) {
-                comp_op = match[2].str();
-                version_str = match[3].str() + "." + match[4].str() + "." + match[5].str();
-
-                // Check
-                if (comp_op.empty()) { // equal
-                    mode = IntervalMode::Equal;
-                } else {
-                    mode = IntervalMode::ClosedUnbounded;
-                }
-            } else if (std::regex_match(interval, match, std::regex(BOUNDED_INTERVAL))) {
-                first_comp_op = match[2].str();
-                second_comp_op = match[9].str();
-
-                first_version = match[3].str() + "." + match[4].str() + "." + match[5].str();
-                first_version += match[6].matched ? ("-" + match[6].str()) : "";
-                first_version += match[7].matched ? ("+" + match[7].str()) : "";
-
-                second_version = match[10].str() + "." + match[11].str() + "." + match[12].str();
-                second_version += match[13].matched ? ("-" + match[13].str()) : "";
-                second_version += match[14].matched ? ("+" + match[14].str()) : "";
-
-                // Checks
-                if (const auto error = is_wasteful_comparison_operation()) {
-                    throw std::range_error(error.value());
-                }
-                if (const auto error = is_bounded_interval()) {
-                    throw std::range_error(error.value());
-                }
-                mode = IntervalMode::Bounded;
-            } else {
-                throw std::invalid_argument(
-                        "`" + interval + "` is invalid expression.\n"
-                        "Comparison operators:\n"
-                        "  >, >=, <, <=\n"
-                        "Logical operator:\n"
-                        "  and\n"
-                        "The following example is the meaning for equals:\n"
-                        "  example: \"1.2.0\"");
-            }
-        }
-
-        bool satisfies(std::string_view version) const {
-            switch (mode) {
-                case IntervalMode::Equal:
-                    return version == interval;
-                case IntervalMode::ClosedUnbounded:
-                    return satisfies_closed_unbounded_interval(version);
-                case IntervalMode::Bounded:
-                    return satisfies_bounded_interval(version);
-                default:
-                    throw std::logic_error(
-                            "To access out of range of the "
-                            "enumeration values is undefined behavior.");
-            }
-        }
-
+    class BoundedInterval {
     private:
-        // >2.3.0, 1.0.0, <=1.2.3-alpha, ...
-        bool satisfies_closed_unbounded_interval(std::string_view v) const {
-            if (comp_op == ">") {
-                return Version(v) > version_str;
-            } else if (comp_op == ">=") {
-                return Version(v) >= version_str;
-            } else if (comp_op == "<") {
-                return Version(v) < version_str;
-            } else if (comp_op == "<=") {
-                return Version(v) <= version_str;
+        const std::string left_comp_op;
+        const std::string right_comp_op;
+        const std::string left_version;
+        const std::string right_version;
+
+        bool satisfies_impl(std::string_view v) const {
+            if (left_comp_op == ">") {
+                if (right_comp_op == "<") {
+                    return (Version(v) > left_version) && (Version(v) < right_version);
+                } else if (right_comp_op == "<=") {
+                    return (Version(v) > left_version) && (Version(v) <= right_version);
+                }
+            } else if (left_comp_op == ">=") {
+                if (right_comp_op == "<") {
+                    return (Version(v) >= left_version) && (Version(v) < right_version);
+                } else if (right_comp_op == "<=") {
+                    return (Version(v) >= left_version) && (Version(v) <= right_version);
+                }
+            } else if (left_comp_op == "<") {
+                if (right_comp_op == ">") {
+                    return (Version(v) < left_version) && (Version(v) > right_version);
+                } else if (right_comp_op == ">=") {
+                    return (Version(v) < left_version) && (Version(v) >= right_version);
+                }
+            } else if (left_comp_op == "<=") {
+                if (right_comp_op == ">") {
+                    return (Version(v) <= left_version) && (Version(v) > right_version);
+                } else if (right_comp_op == ">=") {
+                    return (Version(v) <= left_version) && (Version(v) >= right_version);
+                }
             }
             return false;
         }
@@ -110,25 +117,23 @@ namespace semver {
         // e.g. `>0.1.3 and >=0.3.2`, `<0.1.3 and <0.3.2`
         std::optional<std::string>
         is_wasteful_comparison_operation() const { // TODO: noexcept
-            if ((first_comp_op == "<" || first_comp_op == "<=")
-                && (second_comp_op == "<" || second_comp_op == "<="))
+            if ((left_comp_op == "<" || left_comp_op == "<=")
+                && (right_comp_op == "<" || right_comp_op == "<="))
             {
-                if (Version(first_version) > second_version) { // Prioritize the larger version
-                    return "`" + interval + "` is invalid expression.\n"
-                           "Did you mean " + first_comp_op + first_version + " ?";
+                // Prioritize the larger version
+                if (Version(left_version) > right_version) {
+                    return "Did you mean " + left_comp_op + left_version + " ?";
                 } else {
-                    return "`" + interval + "` is invalid expression.\n"
-                           "Did you mean " + second_comp_op + second_version + " ?";
+                    return "Did you mean " + right_comp_op + right_version + " ?";
                 }
-            } else if ((first_comp_op == ">" || first_comp_op == ">=")
-                     && (second_comp_op == ">" || second_comp_op == ">="))
+            } else if ((left_comp_op == ">" || left_comp_op == ">=")
+                       && (right_comp_op == ">" || right_comp_op == ">="))
             {
-                if (Version(first_version) < second_version) { // Prioritize the smaller version
-                    return "`" + interval + "` is invalid expression.\n"
-                           "Did you mean " + first_comp_op + first_version + " ?";
+                // Prioritize the smaller version
+                if (Version(left_version) < right_version) {
+                    return "Did you mean " + left_comp_op + left_version + " ?";
                 } else {
-                    return "`" + interval + "` is invalid expression.\n"
-                           "Did you mean " + second_comp_op + second_version + " ?";
+                    return "Did you mean " + right_comp_op + right_version + " ?";
                 }
             }
             return std::nullopt;
@@ -143,59 +148,128 @@ namespace semver {
         // e.g. <0.1.1 and >=0.3.2
         std::optional<std::string>
         is_bounded_interval() const { // TODO: noexcept
-            if (Version(first_version) < second_version) {
-                if ((first_comp_op == "<" || first_comp_op == "<=")
-                    && (second_comp_op == ">" || second_comp_op == ">="))
+            if (Version(left_version) < right_version) {
+                if ((left_comp_op == "<" || left_comp_op == "<=")
+                    && (right_comp_op == ">" || right_comp_op == ">="))
                 {
-                    return "`" + interval + "` is strange.\n"
-                           "In this case of interval specification using `and` +\n"
+                    return "In this case of interval specification using `and` +\n"
                            " it is necessary to be a bounded interval.\n"
                            "Please specify as in the following example:\n"
-                           "e.g. `" + second_comp_op + first_version + " and " +
-                           first_comp_op + second_version + "`";
+                           "e.g. `" + right_comp_op + left_version + " and " +
+                           left_comp_op + right_version + "`";
                 }
-            } else if (Version(first_version) > second_version) {
-                if ((first_comp_op == ">" || first_comp_op == ">=")
-                    && (second_comp_op == "<" || second_comp_op == "<="))
+            } else if (Version(left_version) > right_version) {
+                if ((left_comp_op == ">" || left_comp_op == ">=")
+                    && (right_comp_op == "<" || right_comp_op == "<="))
                 {
-                    return "`" + interval + "` is strange.\n"
-                           "In this case of interval specification using `and` +\n"
+                    return "In this case of interval specification using `and` +\n"
                            " it is necessary to be a bounded interval.\n"
                            "Please specify as in the following example:\n"
-                           "e.g. `" + first_comp_op + second_version + " and " +
-                           second_comp_op + first_version + "`";
+                           "e.g. `" + left_comp_op + right_version + " and " +
+                           right_comp_op + left_version + "`";
                 }
             }
             return std::nullopt;
         }
 
-        bool satisfies_bounded_interval(std::string_view v) const {
-            if (first_comp_op == ">") {
-                if (second_comp_op == "<") {
-                    return (Version(v) > first_version) && (Version(v) < second_version);
-                } else if (second_comp_op == "<=") {
-                    return (Version(v) > first_version) && (Version(v) <= second_version);
-                }
-            } else if (first_comp_op == ">=") {
-                if (second_comp_op == "<") {
-                    return (Version(v) >= first_version) && (Version(v) < second_version);
-                } else if (second_comp_op == "<=") {
-                    return (Version(v) >= first_version) && (Version(v) <= second_version);
-                }
-            } else if (first_comp_op == "<") {
-                if (second_comp_op == ">") {
-                    return (Version(v) < first_version) && (Version(v) > second_version);
-                } else if (second_comp_op == ">=") {
-                    return (Version(v) < first_version) && (Version(v) >= second_version);
-                }
-            } else if (first_comp_op == "<=") {
-                if (second_comp_op == ">") {
-                    return (Version(v) <= first_version) && (Version(v) > second_version);
-                } else if (second_comp_op == ">=") {
-                    return (Version(v) <= first_version) && (Version(v) >= second_version);
-                }
+    public:
+        explicit BoundedInterval(const std::smatch& match, std::string_view interval)
+            : left_comp_op{ match[2].str() }
+            , right_comp_op{ match[9].str() }
+            , left_version{ make_version<3, 7>(match) }
+            , right_version{ make_version<10, 14>(match) }
+        {
+            if (const auto error = is_wasteful_comparison_operation()) {
+                throw invalid_interval_error(std::string(interval), error.value());
+            }
+            if (const auto error = is_bounded_interval()) {
+                throw strange_interval_error(std::string(interval), error.value());
+            }
+        }
+
+        bool satisfies(std::string_view version) const {
+            return satisfies_impl(version);
+        }
+    };
+
+    class ClosedUnboundedInterval {
+    private:
+        const std::string comp_op;
+        const std::string version_str;
+
+        // >2.3.0, 1.0.0, <=1.2.3-alpha, ...
+        bool satisfies_impl(std::string_view v) const {
+            if (comp_op == ">") {
+                return Version(v) > version_str;
+            } else if (comp_op == ">=") {
+                return Version(v) >= version_str;
+            } else if (comp_op == "<") {
+                return Version(v) < version_str;
+            } else if (comp_op == "<=") {
+                return Version(v) <= version_str;
             }
             return false;
+        }
+
+    public:
+        explicit ClosedUnboundedInterval(
+            std::string_view comp_op, std::string_view version_str
+        )
+            : comp_op{ comp_op }, version_str{ version_str }
+        {}
+
+        bool satisfies(std::string_view version) const {
+            return satisfies_impl(version);
+        }
+    };
+
+    class Interval {
+    private:
+        using IntervalClass = std::variant<ExactVersion, BoundedInterval, ClosedUnboundedInterval>;
+
+        const std::string interval;
+        const IntervalClass interval_class;
+
+        template <typename T, typename... U>
+        IntervalClass make_interval_class(U&&... args) const {
+            return IntervalClass{ std::in_place_type<T>, std::forward<U>(args)... };
+        }
+
+        bool interval_match(std::smatch& match, const std::string& re) const {
+            return std::regex_match(interval, match, std::regex(re));
+        }
+
+        IntervalClass get_interval_class() const {
+            std::smatch match;
+            if (interval_match(match, CLOSED_UNBOUNDED_INTERVAL)) {
+                const std::string comp_op = match[2].str();
+                const std::string version_str = make_version<3, 5>(match);
+                return comp_op.empty()
+                     ? make_interval_class<ExactVersion>(version_str)
+                     : make_interval_class<ClosedUnboundedInterval>(comp_op, version_str);
+            } else if (interval_match(match, BOUNDED_INTERVAL)) {
+                return BoundedInterval{ match, interval };
+            }
+            throw invalid_interval_error(
+                interval,
+                "Comparison operators:\n"
+                "  >, >=, <, <=\n"
+                "Logical operator:\n"
+                "  and\n"
+                "The following example is the meaning for equals:\n"
+                "  example: \"1.2.0\""
+            );
+        }
+
+    public:
+        explicit Interval(std::string_view i)
+            : interval(i), interval_class{ get_interval_class() }
+        {}
+
+        bool satisfies(std::string_view version) const {
+            return std::visit([version = std::move(version)](const auto& i) {
+                return i.satisfies(version);
+            }, interval_class);
         }
     };
 } // end namespace semver
