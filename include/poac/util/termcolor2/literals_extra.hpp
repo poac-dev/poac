@@ -26,9 +26,9 @@ namespace termcolor2::inline color_literals::inline foreground_literals {
     operator "" _bold_green(const char8_t* str, std::size_t len)
     {
         return bold_v<char8_t>()
-               + green_v<char8_t>()
-               + std::basic_string<char8_t>(str, len)
-               + reset_v<char8_t>();
+             + green_v<char8_t>()
+             + std::basic_string<char8_t>(str, len)
+             + reset_v<char8_t>();
     }
     inline std::basic_string<char16_t>
     operator "" _bold_green(const char16_t* str, std::size_t len)
