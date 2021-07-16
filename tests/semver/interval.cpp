@@ -3,6 +3,8 @@
 #include <poac/util/semver/interval.hpp>
 #include <poac/util/semver/exception.hpp>
 
+#include "../util/macros.hpp"
+
 BOOST_AUTO_TEST_CASE( semver_satisfies_test )
 {
     using semver::Interval;
@@ -34,23 +36,97 @@ BOOST_AUTO_TEST_CASE( semver_satisfies_test2 )
 BOOST_AUTO_TEST_CASE( semver_is_wasteful_comparison_operation_test )
 {
     using semver::Interval;
-    using semver::invalid_interval_error;
+    using semver::redundant_interval_error;
 
-    BOOST_CHECK_THROW( Interval("<2.0.0 and <1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval("<=2.0.0 and <=1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval("<2.0.0 and <=1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval("<=2.0.0 and <1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW_MSG(
+        Interval("<2.0.0 and <1.0.0"),
+        redundant_interval_error,
+        "`<2.0.0 and <1.0.0` is redundant expression.\n"
+        "Did you mean <2.0.0 ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+        Interval("<1.0.0 and <2.0.0"),
+        redundant_interval_error,
+        "`<1.0.0 and <2.0.0` is redundant expression.\n"
+        "Did you mean <2.0.0 ?"
+    );
 
-    BOOST_CHECK_THROW( Interval("<1.0.0-alpha and <1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval("<1.0.0 and <1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW_MSG(
+         Interval("<=2.0.0 and <=1.0.0"),
+        redundant_interval_error,
+        "`<=2.0.0 and <=1.0.0` is redundant expression.\n"
+        "Did you mean <=2.0.0 ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+         Interval("<2.0.0 and <=1.0.0"),
+        redundant_interval_error,
+        "`<2.0.0 and <=1.0.0` is redundant expression.\n"
+        "Did you mean <2.0.0 ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+         Interval("<=2.0.0 and <1.0.0"),
+        redundant_interval_error,
+        "`<=2.0.0 and <1.0.0` is redundant expression.\n"
+        "Did you mean <=2.0.0 ?"
+    );
 
-    BOOST_CHECK_THROW( Interval(">2.0.0 and >1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval(">=2.0.0 and >=1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval(">2.0.0 and >=1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval(">=2.0.0 and >1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW_MSG(
+         Interval("<1.0.0 and <1.0.0-alpha"),
+        redundant_interval_error,
+        "`<1.0.0 and <1.0.0-alpha` is redundant expression.\n"
+        "Did you mean <1.0.0 ?"
+    );
+//    BOOST_CHECK_THROW_MSG(
+//        Interval("<1.0.0-alpha and <1.0.0"),
+//        redundant_interval_error,
+//        "`<1.0.0-alpha and <1.0.0` is redundant expression.\n"
+//        "Did you mean <1.0.0 ?"
+//    ); TODO
 
-    BOOST_CHECK_THROW( Interval(">1.0.0-alpha and >1.0.0"), invalid_interval_error );
-    BOOST_CHECK_THROW( Interval(">1.0.0 and >1.0.0"), invalid_interval_error );
+    BOOST_CHECK_THROW_MSG(
+         Interval("<1.0.0 and <1.0.0"),
+        redundant_interval_error,
+        "`<1.0.0 and <1.0.0` is redundant expression.\n"
+        "Did you mean <1.0.0 ?"
+    );
+
+    BOOST_CHECK_THROW_MSG(
+         Interval(">2.0.0 and >1.0.0"),
+        redundant_interval_error,
+        "`>2.0.0 and >1.0.0` is redundant expression.\n"
+        "Did you mean >1.0.0 ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+         Interval(">=2.0.0 and >=1.0.0"),
+        redundant_interval_error,
+        "`>=2.0.0 and >=1.0.0` is redundant expression.\n"
+        "Did you mean >=1.0.0 ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+         Interval(">2.0.0 and >=1.0.0"),
+        redundant_interval_error,
+        "`>2.0.0 and >=1.0.0` is redundant expression.\n"
+        "Did you mean >=1.0.0 ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+         Interval(">=2.0.0 and >1.0.0"),
+        redundant_interval_error,
+        "`>=2.0.0 and >1.0.0` is redundant expression.\n"
+        "Did you mean >1.0.0 ?"
+    );
+
+    BOOST_CHECK_THROW_MSG(
+         Interval(">1.0.0-alpha and >1.0.0"),
+        redundant_interval_error,
+        "`>1.0.0-alpha and >1.0.0` is redundant expression.\n"
+        "Did you mean >1.0.0-alpha ?"
+    );
+    BOOST_CHECK_THROW_MSG(
+         Interval(">1.0.0 and >1.0.0"),
+        redundant_interval_error,
+        "`>1.0.0 and >1.0.0` is redundant expression.\n"
+        "Did you mean >1.0.0 ?"
+    );
 }
 
 BOOST_AUTO_TEST_CASE( semver_is_bounded_interval_test )
@@ -59,6 +135,7 @@ BOOST_AUTO_TEST_CASE( semver_is_bounded_interval_test )
     using semver::strange_interval_error;
 
     BOOST_CHECK_THROW( Interval("<1.0.0 and >2.0.0"), strange_interval_error );
+    // TODO: BOOST_CHECK_THROW_MSG
     BOOST_CHECK_THROW( Interval("<1.0.0-alpha and >1.0.0"), strange_interval_error );
 }
 
