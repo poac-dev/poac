@@ -44,7 +44,7 @@ namespace poac::util::cfg {
     struct ident_error : public cfg::exception {
     public:
         explicit ident_error(const std::string& what_)
-            : exception("cfg expected parens, a comma, an identifier, or a string\n" + what_) {}
+            : exception("cfg expected parenthesis, comma, identifier, or string\n" + what_) {}
         explicit ident_error(const char* what_) : ident_error(std::string(what_)) {}
         ~ident_error() noexcept override = default;
 
