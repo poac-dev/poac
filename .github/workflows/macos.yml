@@ -15,7 +15,7 @@ jobs:
         os: [ macos-11 ]
         build_type: [ Debug, Release ]
     env:
-      CACHE_KEY_PREFIX: v2-${{ matrix.os }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v2.3.4
 
