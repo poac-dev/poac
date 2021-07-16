@@ -12,19 +12,15 @@ macro (list_dir_items result curdir)
     set(${result} ${items})
 endmacro ()
 
-macro (get_arch)
+macro (get_homebrew_prefix_path)
     execute_process(
-        COMMAND uname -m
-        OUTPUT_VARIABLE POAC_ARCHITECTURE
+        COMMAND brew --prefix
+        OUTPUT_VARIABLE POAC_HOMEBREW_PREFIX_PATH
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 endmacro ()
 
 if (APPLE)
-    get_arch()
-    if (POAC_ARCHITECTURE STREQUAL "arm64")
-        set(POAC_HOMEBREW_ROOT_PATH /opt/homebrew/opt)
-    else ()
-        set(POAC_HOMEBREW_ROOT_PATH /usr/local/opt)
-    endif()
+    get_homebrew_prefix_path()
+    set(POAC_HOMEBREW_ROOT_PATH "${POAC_HOMEBREW_PREFIX_PATH}/opt")
 endif()
