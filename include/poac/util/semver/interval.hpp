@@ -180,7 +180,7 @@ namespace semver {
             , right_version{ make_version<10, 14>(match) }
         {
             if (const auto error = is_wasteful_comparison_operation()) {
-                throw invalid_interval_error(std::string(interval), error.value());
+                throw redundant_interval_error(std::string(interval), error.value());
             }
             if (const auto error = is_bounded_interval()) {
                 throw strange_interval_error(std::string(interval), error.value());

@@ -46,6 +46,19 @@ namespace semver {
         invalid_interval_error& operator=(invalid_interval_error&&) noexcept = default;
     };
 
+    struct redundant_interval_error : public semver::exception {
+        explicit redundant_interval_error(
+            const std::string& interval_, const std::string& what_
+        ) : exception("`" + interval_ + "` is redundant expression.\n" + what_) {}
+        ~redundant_interval_error() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
+
+        redundant_interval_error(const redundant_interval_error&) = default;
+        redundant_interval_error& operator=(const redundant_interval_error&) = default;
+        redundant_interval_error(redundant_interval_error&&) noexcept = default;
+        redundant_interval_error& operator=(redundant_interval_error&&) noexcept = default;
+    };
+
     struct strange_interval_error : public semver::exception {
         explicit strange_interval_error(
             const std::string& interval_, const std::string& what_
