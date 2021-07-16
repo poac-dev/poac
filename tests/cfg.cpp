@@ -17,56 +17,56 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_good_test )
     BOOST_CHECK_THROW_MSG(
         parse("foo"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "foo\n"
         "^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("_bar"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "_bar\n"
         "^--- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse(" foo"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         " foo\n"
         " ^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse(" foo  "),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         " foo  \n"
         " ^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse(" foo  = \"bar\""),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         " foo  = \"bar\"\n"
         " ^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("foo=\"\""),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "foo=\"\"\n"
         "^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse(" foo=\"3\"      "),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         " foo=\"3\"      \n"
         " ^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("foo = \"3 e\""),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "foo = \"3 e\"\n"
         "^-- unknown identify"
     );
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_good_test )
     BOOST_CHECK_THROW_MSG(
         parse("_os"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "_os\n"
         "^-- unknown identify"
     );
@@ -114,35 +114,35 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_good_test )
     BOOST_CHECK_THROW_MSG(
         parse("all(a)"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "all(a)\n"
         "    ^ unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("all(a, b)"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "all(a, b)\n"
         "    ^ unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("all(a, )"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "all(a, )\n"
         "    ^ unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("not(a = \"b\")"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "not(a = \"b\")\n"
         "    ^ unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("not(all(a))"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "not(all(a))\n"
         "        ^ unknown identify"
     );
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_bad_test )
     BOOST_CHECK_THROW_MSG(
         parse("foo(a)"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "foo(a)\n"
         "^-- unknown identify"
     );
@@ -312,14 +312,14 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_bad_test )
     BOOST_CHECK_THROW_MSG(
         parse("and()"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "and()\n"
         "^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("or()"),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "or()\n"
         "^- unknown identify"
     );
@@ -331,14 +331,14 @@ BOOST_AUTO_TEST_CASE( poac_util_cfg_parse_bad_test )
     BOOST_CHECK_THROW_MSG(
         parse("foo = \"bar\""),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "foo = \"bar\"\n"
         "^-- unknown identify"
     );
     BOOST_CHECK_THROW_MSG(
         parse("3compiler = \"bar\""),
         ident_error,
-        "cfg expected parens, a comma, an identifier, or a string\n"
+        "cfg expected parenthesis, comma, identifier, or string\n"
         "3compiler = \"bar\"\n"
         "^ unexpected character"
     );
