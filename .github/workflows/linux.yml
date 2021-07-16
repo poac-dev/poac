@@ -40,7 +40,7 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
-      CACHE_KEY_PREFIX: ${{ github.job }}-${{ matrix.compiler.package }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: v2-${{ github.job }}-${{ matrix.compiler.package }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v2.3.4
 
@@ -48,7 +48,7 @@ jobs:
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y -qq pkg-config cmake ${{ matrix.compiler.package }} ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y -qq pkg-config cmake ninja-build ${{ matrix.compiler.package }} ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
         if: matrix.build_type != 'Coverage'
@@ -116,14 +116,15 @@ jobs:
           git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
           mkdir libgit2/build && cd libgit2/build
           cmake ..                                                 \
+            -G Ninja                                               \
             -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
             -DCMAKE_BUILD_TYPE=Release                             \
             -DBUILD_SHARED_LIBS=OFF                                \
             -DBUILD_CLAR=OFF                                       \
             -DCMAKE_C_FLAGS=-fPIC                                  \
             -DREGEX_BACKEND=builtin
-          make
-          sudo make install
+          ninja
+          sudo ninja install
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache shared libgit2 (${{ env.LIBGIT2_VERSION }})
@@ -140,13 +141,14 @@ jobs:
           git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
           mkdir libgit2/build && cd libgit2/build
           cmake ..                                                 \
+            -G Ninja                                               \
             -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
             -DCMAKE_BUILD_TYPE=Release                             \
             -DBUILD_SHARED_LIBS=ON                                 \
             -DBUILD_CLAR=OFF                                       \
             -DCMAKE_C_FLAGS=-fPIC
-          make
-          sudo make install
+          ninja
+          sudo ninja install
         working-directory: ${{ runner.temp }}
 
       - run: mkdir -p build
@@ -154,10 +156,11 @@ jobs:
       - name: Build Poac
         run: |
           cmake ..                                      \
+            -G Ninja                                    \
             -DBUILD_TESTING=ON                          \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
-          make
+          ninja
         working-directory: build
 
       - name: Test Poac
