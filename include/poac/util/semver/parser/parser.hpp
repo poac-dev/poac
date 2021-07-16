@@ -76,7 +76,7 @@ namespace semver::parser {
         component() {
             if (const Token token = this->pop(); token.kind == Token::Numeric) {
                 return std::get<Token::numeric_type>(token.component);
-            } else if (token.is_whildcard()) {
+            } else if (token.is_wildcard()) {
                 return std::nullopt;
             } else {
                 return std::nullopt; // Err(UnexpectedToken(tok))

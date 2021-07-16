@@ -16,7 +16,8 @@ namespace semver {
         bool is_number(const std::string& s) {
             return !s.empty()
                 && std::find_if(s.begin(), s.end(),
-                       [&](auto& c) { return !is_digit(c); }) == s.end();
+                       [&](auto& c) { return !is_digit(c); }
+                   ) == s.end();
         }
 
         bool gt_pre(const Version& lhs, const Version& rhs) {
@@ -31,28 +32,21 @@ namespace semver {
             for (int i = 0; i <= max_size; ++i) {
                 if (i >= lhs_pre_size && i >= rhs_pre_size) {
                     return false; // eq
-                }
-                else if (i >= lhs_pre_size) {
+                } else if (i >= lhs_pre_size) {
                     return false; // lt
-                }
-                else if (i >= rhs_pre_size) {
+                } else if (i >= rhs_pre_size) {
                     return true; // gt
-                }
-                else if (lhs.pre[i] == rhs.pre[i]) {
+                } else if (lhs.pre[i] == rhs.pre[i]) {
                     continue;
-                }
-                else if (!is_number(lhs.pre[i]) && is_number(rhs.pre[i])) {
+                } else if (!is_number(lhs.pre[i]) && is_number(rhs.pre[i])) {
                     return true;
-                }
-                else if (lhs.pre[i] > rhs.pre[i]) {
+                } else if (lhs.pre[i] > rhs.pre[i]) {
                     return true;
-                }
-                else if (is_number(lhs.pre[i]) && is_number(rhs.pre[i])) {
+                } else if (is_number(lhs.pre[i]) && is_number(rhs.pre[i])) {
                     if (std::stoull(lhs.pre[i]) > std::stoull(rhs.pre[i])) {
                         return true;
                     }
-                }
-                else {
+                } else {
                     return false;
                 }
             }
@@ -69,17 +63,13 @@ namespace semver {
             for (int i = 0; i <= max_size; ++i) {
                 if (i >= lhs_pre_size && i >= rhs_pre_size) {
                     return true; // eq
-                }
-                else if (i >= rhs_pre_size) {
+                } else if (i >= rhs_pre_size) {
                     return false; // gt
-                }
-                else if (i >= lhs_pre_size) {
+                } else if (i >= lhs_pre_size) {
                     return false; // lt
-                }
-                else if (lhs.pre[i] == rhs.pre[i]) {
+                } else if (lhs.pre[i] == rhs.pre[i]) {
                     continue;
-                }
-                else {
+                } else {
                     return false;
                 }
             }
@@ -136,14 +126,11 @@ namespace semver {
     operator>(const Version& lhs, const Version& rhs) { // gt
         if (lhs.major != rhs.major) {
             return lhs.major > rhs.major;
-        }
-        else if (lhs.minor != rhs.minor) {
+        } else if (lhs.minor != rhs.minor) {
             return lhs.minor > rhs.minor;
-        }
-        else if (lhs.patch != rhs.patch) {
+        } else if (lhs.patch != rhs.patch) {
             return lhs.patch > rhs.patch;
-        }
-        else {
+        } else {
             return detail::gt_pre(lhs, rhs);
         }
     }

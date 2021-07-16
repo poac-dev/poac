@@ -107,7 +107,7 @@ namespace semver::parser {
         }
 
         constexpr bool
-        is_whildcard() const noexcept {
+        is_wildcard() const noexcept {
             return kind == Kind::Star
                    || (std::holds_alternative<alphanumeric_type>(component)
                        && (std::get<alphanumeric_type>(component) == "X"

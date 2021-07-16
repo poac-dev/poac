@@ -78,10 +78,10 @@ BOOST_AUTO_TEST_CASE( semver_parser_token_is_simple_token_test )
 BOOST_AUTO_TEST_CASE( semver_parser_token_is_wildcard_test )
 {
     using semver::parser::Token;
-    STATIC_ASSERT( Token( Token::Star ).is_whildcard() );
-    STATIC_ASSERT( Token( Token::AlphaNumeric, "x").is_whildcard() );
-    STATIC_ASSERT( Token( Token::AlphaNumeric, "X").is_whildcard() );
-    STATIC_ASSERT( !Token( Token::AlphaNumeric, "other").is_whildcard() );
+    STATIC_ASSERT( Token( Token::Star ).is_wildcard() );
+    STATIC_ASSERT( Token( Token::AlphaNumeric, "x").is_wildcard() );
+    STATIC_ASSERT( Token( Token::AlphaNumeric, "X").is_wildcard() );
+    STATIC_ASSERT( !Token( Token::AlphaNumeric, "other").is_wildcard() );
 }
 
 BOOST_AUTO_TEST_CASE( semver_parser_token_eq_test )

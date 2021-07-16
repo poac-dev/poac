@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace semver {
     struct exception : public std::exception {
@@ -30,6 +31,32 @@ namespace semver {
         version_error& operator=(const version_error&) = default;
         version_error(version_error&&) noexcept = default;
         version_error& operator=(version_error&&) noexcept = default;
+    };
+
+    struct invalid_interval_error : public semver::exception {
+        explicit invalid_interval_error(
+            const std::string& interval_, const std::string& what_
+        ) : exception("`" + interval_ + "` is invalid expression.\n" + what_) {}
+        ~invalid_interval_error() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
+
+        invalid_interval_error(const invalid_interval_error&) = default;
+        invalid_interval_error& operator=(const invalid_interval_error&) = default;
+        invalid_interval_error(invalid_interval_error&&) noexcept = default;
+        invalid_interval_error& operator=(invalid_interval_error&&) noexcept = default;
+    };
+
+    struct strange_interval_error : public semver::exception {
+        explicit strange_interval_error(
+            const std::string& interval_, const std::string& what_
+        ) : exception("`" + interval_ + "` is strange.\n" + what_) {}
+        ~strange_interval_error() noexcept override = default;
+        const char* what() const noexcept override { return what_.c_str(); }
+
+        strange_interval_error(const strange_interval_error&) = default;
+        strange_interval_error& operator=(const strange_interval_error&) = default;
+        strange_interval_error(strange_interval_error&&) noexcept = default;
+        strange_interval_error& operator=(strange_interval_error&&) noexcept = default;
     };
 } // end namespace semver
 
