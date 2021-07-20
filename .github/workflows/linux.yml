@@ -8,7 +8,7 @@ on:
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
   BOOST_VERSION: 1.75.0
-  LIBGIT2_VERSION: 1.1.0
+  LIBGIT2_VERSION: 1.1.1
 
 jobs:
   x86_64-unknown-linux-gnu:
