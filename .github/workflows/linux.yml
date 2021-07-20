@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  OPENSSL_VERSION: 'OpenSSL_1_1_1h'
+  OPENSSL_VERSION: 'OpenSSL_1_1_1k'
   BOOST_VERSION: 1.75.0
   LIBGIT2_VERSION: 1.1.0
 
