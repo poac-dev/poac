@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         toml11
         GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
-        GIT_TAG        v3.6.0
+        GIT_TAG        v3.7.0
 )
 
 set(toml11_BUILD_TEST OFF)
