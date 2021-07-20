@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1h'
-  BOOST_VERSION: 1.75.0
+  BOOST_VERSION: 1.76.0
   LIBGIT2_VERSION: 1.1.1
 
 jobs:
