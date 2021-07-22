@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  OPENSSL_VERSION: 'OpenSSL_1_1_1i'
+  OPENSSL_VERSION: 'OpenSSL_1_1_1j'
   BOOST_VERSION: 1.76.0
   LIBGIT2_VERSION: 1.1.1
 
@@ -122,6 +122,9 @@ jobs:
             -DBUILD_SHARED_LIBS=OFF                                \
             -DBUILD_CLAR=OFF                                       \
             -DCMAKE_C_FLAGS=-fPIC                                  \
+            -DUSE_SSH=OFF                                          \
+            -DUSE_HTTPS=OFF                                        \
+            -DUSE_NTLMCLIENT=OFF                                   \
             -DREGEX_BACKEND=builtin
           ninja
           sudo ninja install
@@ -146,7 +149,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release                             \
             -DBUILD_SHARED_LIBS=ON                                 \
             -DBUILD_CLAR=OFF                                       \
-            -DCMAKE_C_FLAGS=-fPIC
+            -DCMAKE_C_FLAGS=-fPIC                                  \
+            -DUSE_SSH=OFF                                          \
+            -DUSE_HTTPS=OFF                                        \
+            -DUSE_NTLMCLIENT=OFF
           ninja
           sudo ninja install
         working-directory: ${{ runner.temp }}
