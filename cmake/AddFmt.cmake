@@ -9,12 +9,7 @@ FetchContent_Declare(
         GIT_TAG        7.1.3
 )
 
-if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
-    set(BUILD_SHARED_LIBS OFF)
-endif ()
 FetchContent_MakeAvailable(fmt)
-unset(BUILD_SHARED_LIBS)
-
 list(APPEND POAC_DEPENDENCIES fmt::fmt)
 message(CHECK_PASS "added")
 
