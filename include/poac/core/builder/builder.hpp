@@ -15,12 +15,12 @@
 // external
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/stopwatch.h>
 #include <toml.hpp>
 
 // internal
 #include <poac/core/resolver.hpp>
-#include <poac/util/execution_time.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 
@@ -61,7 +61,7 @@ namespace poac::core::builder {
     [[nodiscard]] mitama::result<std::filesystem::path, std::string>
     build(const toml::value& config, const mode_t& mode, const resolved_deps_t& resolved_deps) {
         using termcolor2::color_literals::operator""_bold_green;
-        PLOG_INFO << fmt::format(
+        spdlog::info(
             "{:>25} {} v{} ({})",
             "Compiling"_bold_green,
             toml::find<std::string>(config, "package", "name"),
@@ -69,16 +69,16 @@ namespace poac::core::builder {
             std::filesystem::current_path().string()
         );
 
-        util::execution_time_t execution_time;
+        spdlog::stopwatch sw;
         const std::filesystem::path output_path = MITAMA_TRY(
             build_impl(config, mode, resolved_deps)
         );
 
-        PLOG_INFO << fmt::format(
+        spdlog::info(
             "{:>25} {} target(s) in {}",
             "Finished"_bold_green,
             mode,
-            util::pretty::to_time(execution_time.measure())
+            util::pretty::to_time(sw.elapsed().count())
         );
         return mitama::success(output_path);
     }

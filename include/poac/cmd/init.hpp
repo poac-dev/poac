@@ -10,7 +10,7 @@
 // external
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
 
 // internal
 #include <poac/cmd/new.hpp>
@@ -25,7 +25,7 @@ namespace poac::cmd::init {
 
     [[nodiscard]] mitama::result<void, std::string>
     init(std::string_view package_name, init::Options&& opts) {
-        PLOG_VERBOSE << "Creating ./poac.toml";
+        spdlog::trace("Creating ./poac.toml");
         std::ofstream ofs_config("poac.toml");
         switch (opts.type) {
             case _new::ProjectType::Bin:
@@ -37,7 +37,7 @@ namespace poac::cmd::init {
         }
 
         using termcolor2::color_literals::operator""_bold_green;
-        PLOG_INFO << fmt::format(
+        spdlog::info(
             "{:>25} {} `{}` package",
             "Created"_bold_green,
             opts.type,
@@ -55,7 +55,7 @@ namespace poac::cmd::init {
         }
 
         const std::string package_name = std::filesystem::current_path().stem().string();
-        PLOG_VERBOSE << fmt::format(
+        spdlog::trace(
             "Validating the package name `{}`", package_name
         );
         MITAMA_TRY(core::validator::valid_package_name(package_name));
