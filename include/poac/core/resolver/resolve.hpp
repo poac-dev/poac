@@ -264,7 +264,7 @@ namespace poac::core::resolver::resolve {
                         l
                     );
                 }
-                spdlog::debug('\n');
+                spdlog::debug("");
             }
         }
         return solve_sat(activated, clauses);
