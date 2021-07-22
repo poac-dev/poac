@@ -8,7 +8,6 @@ on:
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1i'
   BOOST_VERSION: 1.76.0
-  LIBGIT2_VERSION: 1.1.1
 
 jobs:
   x86_64-unknown-linux-gnu:
@@ -101,55 +100,6 @@ jobs:
 
       - name: Install libarchive
         run: sudo apt-get install -y -qq libarchive-dev
-
-      - name: Restore & Cache static libgit2 (${{ env.LIBGIT2_VERSION }})
-        uses: actions/cache@v2.1.6
-        if: matrix.build_type == 'Release'
-        id: libgit2-static-cache
-        with:
-          path: ${{ runner.temp }}/libs/libgit2
-          key: ${{ env.CACHE_KEY_PREFIX }}-libgit2-static-${{ env.LIBGIT2_VERSION }}
-      - name: Install libgit2 (${{ env.LIBGIT2_VERSION }}) as static
-        if: steps.libgit2-cache.outputs.cache-hit != 'true' && matrix.build_type == 'Release'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/libgit2
-          git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
-          mkdir libgit2/build && cd libgit2/build
-          cmake ..                                                 \
-            -G Ninja                                               \
-            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
-            -DCMAKE_BUILD_TYPE=Release                             \
-            -DBUILD_SHARED_LIBS=OFF                                \
-            -DBUILD_CLAR=OFF                                       \
-            -DCMAKE_C_FLAGS=-fPIC                                  \
-            -DREGEX_BACKEND=builtin
-          ninja
-          sudo ninja install
-        working-directory: ${{ runner.temp }}
-
-      - name: Restore & Cache shared libgit2 (${{ env.LIBGIT2_VERSION }})
-        uses: actions/cache@v2.1.6
-        if: matrix.build_type != 'Release'
-        id: libgit2-shared-cache
-        with:
-          path: ${{ runner.temp }}/libs/libgit2
-          key: ${{ env.CACHE_KEY_PREFIX }}-libgit2-shared-${{ env.LIBGIT2_VERSION }}
-      - name: Install libgit2 (${{ env.LIBGIT2_VERSION }}) as shared
-        if: steps.libgit2-cache.outputs.cache-hit != 'true' && matrix.build_type != 'Release'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/libgit2
-          git clone -q -b v${{ env.LIBGIT2_VERSION }} https://github.com/libgit2/libgit2.git
-          mkdir libgit2/build && cd libgit2/build
-          cmake ..                                                 \
-            -G Ninja                                               \
-            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}/libs/libgit2 \
-            -DCMAKE_BUILD_TYPE=Release                             \
-            -DBUILD_SHARED_LIBS=ON                                 \
-            -DBUILD_CLAR=OFF                                       \
-            -DCMAKE_C_FLAGS=-fPIC
-          ninja
-          sudo ninja install
-        working-directory: ${{ runner.temp }}
 
       - run: mkdir -p build
 

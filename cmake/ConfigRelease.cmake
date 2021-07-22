@@ -1,7 +1,7 @@
 include_guard(GLOBAL)
 
 if (APPLE)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native -march=native")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native")
 else ()
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         if (${CMAKE_CXX_COMPILER} MATCHES "-[0-9]+$")
