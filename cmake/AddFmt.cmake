@@ -9,7 +9,9 @@ FetchContent_Declare(
         GIT_TAG        7.1.3
 )
 
-set(BUILD_SHARED_LIBS OFF)
+if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
+    set(BUILD_SHARED_LIBS OFF)
+endif ()
 FetchContent_MakeAvailable(fmt)
 unset(BUILD_SHARED_LIBS)
 
