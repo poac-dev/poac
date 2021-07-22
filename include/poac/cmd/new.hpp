@@ -15,7 +15,7 @@
 #include <fmt/core.h>
 #include <git2-cpp/git2.hpp>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
 
 // internal
 #include <poac/core/validator.hpp>
@@ -134,17 +134,17 @@ namespace poac::cmd::_new {
         std::ofstream ofs;
         for (auto&& [name, text] : create_template_files(opts)) {
             const std::string& file_path = (opts.package_name / name).string();
-            PLOG_VERBOSE << fmt::format("Creating {}", file_path);
+            spdlog::trace("Creating {}", file_path);
             write_to_file(ofs, file_path, text);
         }
 
-        PLOG_VERBOSE << fmt::format(
+        spdlog::trace(
             "Initializing git repository at {}", opts.package_name
         );
         git2::repository().init(opts.package_name);
 
         using termcolor2::color_literals::operator""_bold_green;
-        PLOG_INFO << fmt::format(
+        spdlog::info(
             "{:>25} {} `{}` package",
             "Created"_bold_green,
             opts.type,
@@ -155,18 +155,10 @@ namespace poac::cmd::_new {
 
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
-        PLOG_VERBOSE <<
-            fmt::format(
-                "Validating the `{}` directory exists",
-                opts.package_name
-            );
+        spdlog::trace("Validating the `{}` directory exists", opts.package_name);
         MITAMA_TRY(core::validator::can_crate_directory(opts.package_name));
 
-        PLOG_VERBOSE <<
-            fmt::format(
-                "Validating the package name `{}`",
-                opts.package_name
-            );
+        spdlog::trace("Validating the package name `{}`", opts.package_name);
         MITAMA_TRY(core::validator::valid_package_name(opts.package_name));
 
         return _new(std::move(opts));
