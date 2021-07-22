@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+
 env:
   OPENSSL_VERSION: 'OpenSSL_1_1_1j'
   BOOST_VERSION: 1.76.0
