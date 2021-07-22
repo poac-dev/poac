@@ -14,11 +14,12 @@ set(BUILD_CLAR OFF) # Disable testing
 set(USE_SSH OFF)
 set(USE_HTTPS OFF)
 set(USE_NTLMCLIENT OFF)
+if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
+    set(BUILD_SHARED_LIBS ON)
+elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
+    set(BUILD_SHARED_LIBS OFF)
+endif ()
 FetchContent_MakeAvailable(libgit2)
-unset(BUILD_CLAR)
-unset(USE_SSH)
-unset(USE_HTTPS)
-unset(USE_NTLMCLIENT)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${libgit2_SOURCE_DIR}/include)
 list(APPEND POAC_DEPENDENCIES git2)

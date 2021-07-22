@@ -14,10 +14,6 @@ if (DEFINED POAC_DEPS_DIR)
     endif ()
 endif ()
 
-if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
-    set(BUILD_SHARED_LIBS OFF)
-endif ()
-
 include(FetchContent)
 list_dir_items(DEPENDENCIES ${CMAKE_SOURCE_DIR}/cmake)
 list(FILTER DEPENDENCIES INCLUDE REGEX "Add.*cmake")  # Add files that match with the regex

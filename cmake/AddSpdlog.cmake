@@ -10,6 +10,11 @@ FetchContent_Declare(
 )
 
 set(SPDLOG_FMT_EXTERNAL ON)
+if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
+    set(SPDLOG_BUILD_SHARED ON)
+elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
+    set(SPDLOG_BUILD_SHARED OFF)
+endif ()
 FetchContent_MakeAvailable(spdlog)
 
 list(APPEND POAC_DEPENDENCIES spdlog::spdlog)
