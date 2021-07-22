@@ -18,13 +18,7 @@ FetchContent_MakeAvailable(libgit2)
 unset(BUILD_CLAR)
 unset(BUILD_SHARED_LIBS)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${libgit2_SOURCE_DIR}/include)
-
-if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
-    list(APPEND POAC_DEPENDENCIES ${libgit2_BINARY_DIR}/libgit2${CMAKE_SHARED_LIBRARY_SUFFIX})
-elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
-    list(APPEND POAC_DEPENDENCIES ${libgit2_BINARY_DIR}/libgit2.a)
-endif ()
+list(APPEND POAC_DEPENDENCIES git2)
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
