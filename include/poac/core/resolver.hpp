@@ -15,7 +15,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
 #include <toml.hpp>
 
 // internal
@@ -89,9 +89,9 @@ namespace poac::core::resolver {
     fetch_impl(const resolve::package_t& package) noexcept {
         try {
             const std::string download_link = MITAMA_TRY(get_download_link(package));
-            PLOG_DEBUG << fmt::format("downloading from `{}`", download_link);
+            spdlog::debug("downloading from `{}`", download_link);
             const std::filesystem::path archive_path = get_archive_path(package);
-            PLOG_DEBUG << fmt::format("writing to `{}`", archive_path);
+            spdlog::debug("writing to `{}`", archive_path);
 
             std::ofstream archive(archive_path);
             const auto [host, target] = util::net::parse_url(download_link);
@@ -115,7 +115,7 @@ namespace poac::core::resolver {
             MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
 
             using termcolor2::color_literals::operator""_bold_green;
-            PLOG_INFO << fmt::format(
+            spdlog::info(
                 "{:>25} {} v{}", "Downloaded"_bold_green,
                 resolve::get_name(package),
                 resolve::get_version(package)
@@ -160,7 +160,7 @@ namespace poac::core::resolver {
         }
 
         using termcolor2::color_literals::operator""_bold_green;
-        PLOG_INFO << fmt::format("{:>25} packages ...", "Downloading"_bold_green);
+        spdlog::info("{:>25} packages ...", "Downloading"_bold_green);
         try {
             std::filesystem::create_directories(config::path::cache_dir);
         } catch (const std::exception& e) {

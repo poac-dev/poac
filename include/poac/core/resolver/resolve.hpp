@@ -29,7 +29,7 @@
 #include <boost/range/join.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
 
 // internal
 #include <poac/config.hpp>
@@ -238,34 +238,33 @@ namespace poac::core::resolver::resolve {
         // deps.activated.size() == variables
         const std::vector<int> assignments = MITAMA_TRY(sat::solve(clauses, activated.size()));
         unique_deps_t<with_deps> resolved_deps{};
-        PLOG_DEBUG << "SAT";
+        spdlog::debug("SAT");
         for (const auto& a : assignments) {
-            PLOG_DEBUG << a << " ";
+            spdlog::debug("{} ", a);
             if (a > 0) {
                 const auto& [package, deps] = activated[a - 1];
                 resolved_deps.emplace(package, deps);
             }
         }
-        PLOG_DEBUG << 0;
+        spdlog::debug(0);
         return mitama::success(resolved_deps);
     }
 
     [[nodiscard]] mitama::result<unique_deps_t<with_deps>, std::string>
     backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
         const auto clauses = create_cnf(activated);
-        IF_PLOG(plog::debug) {
+        if (spdlog::should_log(spdlog::level::debug)) {
             for (const auto& c : clauses) {
                 for (const auto& l : c) {
                     const auto deps = activated[std::abs(l) - 1];
-                    PLOG_DEBUG <<
-                        fmt::format(
-                            "{}-{}: {}, ",
-                            get_name(get_package(deps)),
-                            get_version(get_package(deps)),
-                            l
-                        );
+                    spdlog::debug(
+                        "{}-{}: {}, ",
+                        get_name(get_package(deps)),
+                        get_version(get_package(deps)),
+                        l
+                    );
                 }
-                PLOG_DEBUG << "";
+                spdlog::debug("");
             }
         }
         return solve_sat(activated, clauses);
