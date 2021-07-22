@@ -6,9 +6,7 @@
 // external
 #include <clipp.h>
 #include <fmt/ostream.h>
-#include <plog/Log.h>
-#include <plog/Formatters/MessageOnlyFormatter.h>
-#include <plog/Appenders/ConsoleAppender.h>
+#include <spdlog/spdlog.h>
 
 // internal
 #include <poac/cmd.hpp>
@@ -18,7 +16,7 @@ inline TERMCOLOR2_CXX20_CONSTINIT const std::string error =
 
 [[nodiscard]] int
 no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
-    PLOG_ERROR << fmt::format(
+    spdlog::error(
         "{}: no such command: `{}`\n\n{}",
         error,
         fmt::join(argv + 1, argv + argc, " "),
@@ -29,7 +27,7 @@ no_such_command(const int& argc, char* argv[], const clipp::group& cli) {
 
 void
 print_err(std::string_view e) {
-    PLOG_ERROR << fmt::format("{}: {}", error, e);
+    spdlog::error("{}: {}", error, e);
 }
 
 enum class subcommand {
@@ -44,10 +42,9 @@ enum class subcommand {
 
 int
 main(const int argc, char* argv[]) {
-    static plog::ConsoleAppender<plog::MessageOnlyFormatter> console_appender;
-    plog::init(plog::info, &console_appender);
-    const auto set_verbose = []{ plog::get()->setMaxSeverity(plog::verbose); };
-    const auto set_quiet = []{ plog::get()->setMaxSeverity(plog::none); };
+    spdlog::set_pattern("%v");
+    const auto set_verbose = []{ spdlog::set_level(spdlog::level::trace); };
+    const auto set_quiet = []{ spdlog::set_level(spdlog::level::off); };
 
     subcommand subcmd = subcommand::nothing;
 

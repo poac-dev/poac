@@ -34,7 +34,7 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
 
 // internal
 #include <poac/config.hpp>
@@ -295,7 +295,7 @@ namespace poac::util::net {
             const auto req = create_request<RequestBody>(
                 http::verb::get, target, host, headers
             );
-            PLOG_DEBUG << req;
+            spdlog::debug("{}", req);
             return request<http::verb::get, ResponseBody>(
                 std::move(req), std::forward<Ofstream>(ofs)
             );
@@ -376,7 +376,7 @@ namespace poac::util::net {
                 std::nullptr_t
             > = nullptr>
         void write_request(const Request& req) const {
-            PLOG_DEBUG << "[util::net::requests] write type: string";
+            spdlog::debug("[util::net::requests] write type: string");
             // Send the HTTP request to the remote host
             http::write(*stream, req);
         }
@@ -393,7 +393,7 @@ namespace poac::util::net {
                 std::nullptr_t
             > = nullptr>
         void write_request(const Request& req) const {
-            PLOG_DEBUG << "[util::net::requests] write type: multipart/form-data";
+            spdlog::debug("[util::net::requests] write type: multipart/form-data");
 
             // Send the HTTP request to the remote host
             stream->write_some(boost::asio::buffer(req.get_header()));
@@ -419,7 +419,7 @@ namespace poac::util::net {
             }
             // Send footer to stream
             stream->write_some(boost::asio::buffer(req.get_footer()));
-            PLOG_DEBUG << "[util::net::requests] waiting for server response...";
+            spdlog::debug("[util::net::requests] waiting for server response...");
         }
 
         template <
@@ -487,10 +487,10 @@ namespace poac::util::net {
         typename ResponseBody::value_type
         parse_response(Response&& res, Ofstream&& ofs) const {
             if constexpr (!std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>) {
-                PLOG_DEBUG << "[util::net::requests] read type: string";
+                spdlog::debug("[util::net::requests] read type: string");
                 return res.body();
             } else {
-                PLOG_DEBUG << "[util::net::requests] read type: file with progress";
+                spdlog::debug("[util::net::requests] read type: file with progress");
                 const typename ResponseBody::value_type response_body = res.body();
                 const auto content_length = response_body.size();
                 if (content_length < 100'000 /* 100KB */) {
@@ -503,7 +503,7 @@ namespace poac::util::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            IF_PLOG(plog::verbose) {
+                            if (spdlog::should_log(spdlog::level::trace)) {
                                 std::cout << '\r' << "Downloading "
                                           << to_byte_progress(content_length, acc)
                                           << "  ";
@@ -525,7 +525,7 @@ namespace poac::util::net {
         redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
             const std::string new_location(res.base()["Location"]);
             const auto [new_host, new_target] = parse_url(new_location);
-            PLOG_DEBUG << fmt::format("Redirect to {}\n", new_location);
+            spdlog::debug(fmt::format("Redirect to {}\n", new_location));
 
             // FIXME: header information is gone.
             const requests req(new_host);
@@ -562,7 +562,7 @@ namespace poac::util::net {
                 boost::system::error_code error{
                         static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()
                 };
-                PLOG_DEBUG << error.message();
+                spdlog::debug(error.message());
                 throw boost::system::system_error{ error };
             }
         }
@@ -634,7 +634,7 @@ namespace poac::util::net::api {
            std::string>
     {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-        IF_PLOG(plog::debug) {
+        if (spdlog::should_log(spdlog::level::debug)) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
         for (const auto& child : res.get_child("hits")) {
@@ -658,7 +658,7 @@ namespace poac::util::net::api {
     [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
     versions(std::string_view name) {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-        IF_PLOG(plog::debug) {
+        if (spdlog::should_log(spdlog::level::debug)) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
 
@@ -669,18 +669,17 @@ namespace poac::util::net::api {
                 results.emplace_back(hits.get<std::string>("package.version"));
             }
         }
-        PLOG_DEBUG <<
-            fmt::format(
-                "[util::net::api::versions] versions of {} are [{}]",
-                name, fmt::join(results, ", ")
-            );
+        spdlog::debug(
+            "[util::net::api::versions] versions of {} are [{}]",
+            name, fmt::join(results, ", ")
+        );
         return mitama::success(results);
     }
 
     [[nodiscard]] mitama::result<std::string, std::string>
     package_repository(std::string_view name, std::string_view version) {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-        IF_PLOG(plog::debug) {
+        if (spdlog::should_log(spdlog::level::debug)) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
         for (const auto& child : res.get_child("hits")) {

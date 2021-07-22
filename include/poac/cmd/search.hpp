@@ -13,7 +13,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
-#include <plog/Log.h>
+#include <spdlog/spdlog.h>
 
 // internal
 #include <poac/util/net.hpp>
@@ -39,7 +39,7 @@ namespace poac::cmd::search {
                 );
             }
         }
-        IF_PLOG(plog::verbose) {
+        if (spdlog::should_log(spdlog::level::trace)) {
             boost::property_tree::json_parser::write_json(std::cout, pt);
         }
 
@@ -60,7 +60,7 @@ namespace poac::cmd::search {
             // If util::pretty::clip_string clips last \n, \n should be removed
             description.erase(std::remove(description.begin(), description.end(), '\n'), description.end());
 
-            PLOG_INFO << fmt::format("{:<40}# {}", package, description);
+            spdlog::info("{:<40}# {}", package, description);
         }
         return mitama::success();
     }
