@@ -9,10 +9,10 @@ FetchContent_Declare(
         GIT_TAG        7.1.3
 )
 
-if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
-    set(BUILD_SHARED_LIBS ON)
-elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
+if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
     set(BUILD_SHARED_LIBS OFF)
+else ()
+    set(BUILD_SHARED_LIBS ON)
 endif ()
 FetchContent_MakeAvailable(fmt)
 

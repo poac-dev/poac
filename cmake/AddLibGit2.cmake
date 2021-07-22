@@ -14,10 +14,10 @@ set(BUILD_CLAR OFF) # Disable testing
 set(USE_SSH OFF)
 set(USE_HTTPS OFF)
 set(USE_NTLMCLIENT OFF)
-if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
-    set(BUILD_SHARED_LIBS ON)
-elseif (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
+if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
     set(BUILD_SHARED_LIBS OFF)
+else ()
+    set(BUILD_SHARED_LIBS ON)
 endif ()
 FetchContent_MakeAvailable(libgit2)
 
