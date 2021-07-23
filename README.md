@@ -70,7 +70,7 @@ Poac requires the following a compiler, tools, and packages to build:
 
 #### tools
 
-* [`cmake`](https://github.com/Kitware/CMake): `3.14` or later
+* [`cmake`](https://github.com/Kitware/CMake): `3.17` or later
 
 #### packages
 
