@@ -91,11 +91,12 @@ Poac requires the following a compiler, tools, and packages to build:
   * uuid
 * [_`clipp`_](https://github.com/muellan/clipp): `master` branch
 * [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
+* [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `main` branch
 * [`libarchive`](https://github.com/libarchive/libarchive): `3.4.3` or later
 * [_`libgit2`_](https://github.com/libgit2/libgit2): `0.27` or later
 * [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
-* [_`plog`_](https://github.com/SergiusTheBest/plog): `1.1.5` or later
+* [_`spdlog`_](https://github.com/gabime/spdlog): `1.9.0` or later
 * [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later
 
 ```bash
@@ -132,9 +133,10 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/main/LICENSE) for detai
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
 * fmt - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
+* git2-cpp - <https://github.com/ken-matsui/git2-cpp/blob/main/LICENSE>
 * libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
 * openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
-* plog - <https://github.com/SergiusTheBest/plog/blob/master/LICENSE>
+* spdlog - <https://github.com/gabime/spdlog/blob/v1.x/LICENSE>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
