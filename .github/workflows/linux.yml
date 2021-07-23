@@ -98,9 +98,6 @@ jobs:
       - name: Install libarchive and its dependencies
         run: sudo apt-get install -y -qq libacl1-dev libarchive-dev
 
-      - name: Install dependencies for libgit2
-        run: sudo apt-get install -y -qq libpcre3-dev libz-dev
-
       - run: mkdir -p build
 
       - name: Build Poac

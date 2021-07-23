@@ -20,6 +20,7 @@ else ()
     set(BUILD_SHARED_LIBS ON)
 endif ()
 
+set(USE_BUNDLED_ZLIB ON)
 # Override cache string in libgit2/CMakeLists.txt
 # ref: https://github.com/libgit2/libgit2/blob/43b5075df4c543fc8801ed4b829702d7f9f2c0ad/CMakeLists.txt#L57
 # ref2: https://github.com/libgit2/libgit2/blob/43b5075df4c543fc8801ed4b829702d7f9f2c0ad/src/CMakeLists.txt#L163
