@@ -9,7 +9,7 @@ FetchContent_Declare(
         GIT_TAG        v3.7.0
 )
 
-set(CMAKE_PROJECT_toml11_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/Toml11PoliciesFix.cmake")
+set(CMAKE_PROJECT_toml11_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0077PolicyFix.cmake")
 set(toml11_BUILD_TEST OFF)
 FetchContent_MakeAvailable(toml11)
 
