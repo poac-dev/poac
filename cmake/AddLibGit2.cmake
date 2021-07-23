@@ -19,6 +19,13 @@ if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
 else ()
     set(BUILD_SHARED_LIBS ON)
 endif ()
+
+# Override cache string in libgit2/CMakeLists.txt
+# ref: https://github.com/libgit2/libgit2/blob/43b5075df4c543fc8801ed4b829702d7f9f2c0ad/CMakeLists.txt#L57
+# ref2: https://github.com/libgit2/libgit2/blob/43b5075df4c543fc8801ed4b829702d7f9f2c0ad/src/CMakeLists.txt#L163
+# ref for how to do this: https://stackoverflow.com/a/62702897
+set(REGEX_BACKEND "builtin" CACHE INTERNAL "")
+
 FetchContent_MakeAvailable(libgit2)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${libgit2_SOURCE_DIR}/include)
