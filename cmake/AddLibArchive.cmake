@@ -9,7 +9,8 @@ FetchContent_Declare(
         GIT_TAG        3.5.1
 )
 
-set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0048PolicyFix.cmake")
+set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/LibArchivePoliciesFix.cmake")
+set(ENABLE_OPENSSL OFF)
 set(ENABLE_ACL OFF)
 set(ENABLE_ICONV OFF)
 set(ENABLE_TEST OFF)
