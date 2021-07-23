@@ -104,7 +104,7 @@ jobs:
           cmake ..                                      \
             -G Ninja                                    \
             -DBUILD_TESTING=ON                          \
-            -DENABLE_COVERAGE=${{ matrix.coverage }}    \
+            -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}    \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
           ninja
