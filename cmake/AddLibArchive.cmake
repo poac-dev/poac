@@ -3,38 +3,20 @@ include_guard(GLOBAL)
 message(CHECK_START "Adding LibArchive")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
-if (APPLE)
-    set(LibArchive_INCLUDE_DIR "${POAC_HOMEBREW_ROOT_PATH}/libarchive/include")
-elseif (DEFINED LIBARCHIVE_DIR)
-    set(LibArchive_INCLUDE_DIR "${LIBARCHIVE_DIR}/include")
-endif()
+FetchContent_Declare(
+        libarchive
+        GIT_REPOSITORY https://github.com/libarchive/libarchive.git
+        GIT_TAG        3.5.1
+)
 
-find_package(LibArchive)
-if (LibArchive_FOUND)
-  if (STATIC_LINK_FLAG MATCHES "(^| )-static($| )" AND NOT APPLE AND ${LibArchive_LIBRARIES} MATCHES ".*\.so$")
-        unset(LibArchive_LIBRARIES)
-        unset(LibArchive_LIBRARY CACHE)
-        find_library(LibArchive_LIBRARY
-            NAMES libarchive.a)
-        mark_as_advanced(LibArchive_LIBRARY)
-        set(LibArchive_LIBRARIES ${LibArchive_LIBRARY})
-        set_target_properties(LibArchive::LibArchive PROPERTIES
-            IMPORTED_LOCATION "${LibArchive_LIBRARY}"
-            INTERFACE_INCLUDE_DIRECTORIES "${LibArchive_INCLUDE_DIR}")
-    endif ()
-    message(CHECK_PASS "added")
-    message(STATUS "LibArchive include directory is ... ${LibArchive_INCLUDE_DIR}")
-    message(STATUS "LibArchive library is ... ${LibArchive_LIBRARIES}")
+set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0048PolicyFix.cmake")
+set(ENABLE_ACL OFF)
+set(ENABLE_ICONV OFF)
+set(ENABLE_TEST OFF)
+set(ENABLE_INSTALL OFF)
 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${LibArchive_INCLUDE_DIR})
-    list(APPEND POAC_DEPENDENCIES ${LibArchive_LIBRARIES})
-    if (STATIC_LINK_FLAG MATCHES "(^| )-static($| )" AND NOT APPLE)
-        list(APPEND POAC_DEPENDENCIES acl)
-        list(APPEND POAC_DEPENDENCIES z)
-    endif ()
-else ()
-    message(CHECK_FAIL "not found")
-    list(APPEND missingDependencies libarchive)
-endif ()
+FetchContent_MakeAvailable(libarchive)
+list(APPEND POAC_DEPENDENCIES archive)
+message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

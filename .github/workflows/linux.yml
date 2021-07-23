@@ -95,9 +95,6 @@ jobs:
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
 
-      - name: Install libarchive and its dependencies
-        run: sudo apt-get install -y -qq libacl1-dev libarchive-dev
-
       - run: mkdir -p build
 
       - name: Build Poac
