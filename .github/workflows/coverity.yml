@@ -30,7 +30,7 @@ jobs:
       - name: Create a building directory and Run CMake
         run: |
           mkdir build && cd $_
-          cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Coverage ..
+          cmake -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON ..
         env:
           CXX: g++-7
 
