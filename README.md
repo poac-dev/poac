@@ -11,7 +11,7 @@ Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.p
 
 ## Demo
 
-By using poac, you can create a C++ project, build sources and execute an application:
+By using Poac, you can create a C++ project, build sources and execute an application:
 
 ![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
 
@@ -62,11 +62,11 @@ curl -fsSL https://sh.poac.pm | bash
 
 ### Manual install (Build)
 
-Poac requires the following a compiler, tools, and packages to build:
+Poac requires the following compilers, tools, and packages to build:
 
-#### compiler
+#### compilers
 
-* A compiler which supports [C++20](https://en.cppreference.com/w/cpp/20)
+* Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
 
 #### tools
 
@@ -99,12 +99,14 @@ Poac requires the following a compiler, tools, and packages to build:
 * [_`spdlog`_](https://github.com/gabime/spdlog): `1.9.0` or later
 * [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later
 
+After you prepared the requirements, you can build Poac using the following commands:
+
 ```bash
 $ git clone https://github.com/poacpm/poac.git
 $ cd poac
 $ mkdir build && cd $_
-$ cmake ..
-$ make
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
+$ make # or ninja
 $ make install
 ```
 
@@ -117,6 +119,7 @@ By developing a package manager and a build system that has an intuitive and eas
 I also plan to implement integration with many other build systems and package managers, so you should be able to switch seamlessly.
 
 ## Contributing
+
 Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
 
