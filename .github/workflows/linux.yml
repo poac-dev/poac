@@ -101,11 +101,11 @@ jobs:
 
       - name: Build Poac
         run: |
-          cmake ..                                      \
-            -G Ninja                                    \
-            -DBUILD_TESTING=ON                          \
-            -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}    \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          cmake ..                                        \
+            -G Ninja                                      \
+            -DBUILD_TESTING=ON                            \
+            -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
           ninja
         working-directory: build
