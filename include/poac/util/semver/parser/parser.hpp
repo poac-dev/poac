@@ -183,21 +183,29 @@ namespace semver::parser {
             switch (peek().kind) {
                 case Token::Eq:
                     op.kind = Op::Ex;
+                    break;
                 case Token::Gt:
                     op.kind = Op::Gt;
+                    break;
                 case Token::GtEq:
                     op.kind = Op::GtEq;
+                    break;
                 case Token::Lt:
                     op.kind = Op::Lt;
+                    break;
                 case Token::LtEq:
                     op.kind = Op::LtEq;
+                    break;
                 case Token::Tilde:
                     op.kind = Op::Tilde;
+                    break;
                 case Token::Caret:
                     op.kind = Op::Compatible;
+                    break;
                 // default op
                 default:
                     op.kind = Op::Compatible;
+                    break;
             }
             // remove the matched token.
             pop();
