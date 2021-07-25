@@ -120,14 +120,14 @@ I also plan to implement integration with many other build systems and package m
 
 ## Contributing
 
-Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md).
 You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
 
 ## License
 
 Poac is licensed under the terms of the Apache License version 2.0.
 
-Please see [LICENSE](https://github.com/poacpm/poac/blob/main/LICENSE) for details.
+Please see [LICENSE](LICENSE) for details.
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
