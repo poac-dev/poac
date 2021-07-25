@@ -4,16 +4,20 @@ extraction:
   cpp:
     prepare:
       packages:
-        - cmake
-        - ninja-build
         - libboost-all-dev
         - libssl-dev
         - libarchive-dev
+    # ref: https://github.com/qt/qtbase/blob/921ff400bbb84b0a5c51a9a04675dce17dac0cd8/.lgtm.yml#L13-L17
+    after_prepare:
+      - mkdir $HOME/cmake-3.17 \
+          \ && wget -qO- "https://cmake.org/files/v3.17/cmake-3.17.3-Linux-x86_64.tar.gz" \
+            \ | tar -xzf - --strip-components=1 -C $HOME/cmake-3.17
+      - export PATH=$HOME/cmake-3.17/bin:$PATH
     configure:
       command:
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_BUILD_TYPE=Debug
+        - cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Debug
     index:
       build_command:
         - cd build
