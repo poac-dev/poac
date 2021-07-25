@@ -1,0 +1,20 @@
+# ref: https://github.com/taosdata/TDengine/blob/develop/.lgtm.yml
+
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - cmake
+        - ninja-build
+        - libboost-all-dev
+        - libssl-dev
+        - libarchive-dev
+    configure:
+      command:
+        - mkdir build
+        - cd build
+        - cmake .. -DCMAKE_BUILD_TYPE=Debug
+    index:
+      build_command:
+        - cd build
+        - ninja
