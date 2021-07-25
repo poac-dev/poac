@@ -4,14 +4,14 @@
 
 Poac is a package manager for C++ users.
 
-Poac can download project's dependencies and compile project.
-Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [The Poac Book](https://doc.poac.pm) for more details.
+Poac can download project's dependencies and compile a project.
+Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html), and [The Poac Book](https://doc.poac.pm) for more details.
 
 :warning: Caution! Currently in development and cannot be used.
 
 ## Demo
 
-By using Poac, you can create a C++ project, build sources and execute an application:
+By using Poac, you can create a C++ project, build sources, and execute an application:
 
 ![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
 
@@ -58,7 +58,7 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 curl -fsSL https://sh.poac.pm | bash
 ```
 
-*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), [poac-git](https://aur.archlinux.org/packages/poac-git)*
+*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), and [poac-git](https://aur.archlinux.org/packages/poac-git)*
 
 ### Manual install (Build)
 
@@ -112,10 +112,10 @@ $ make install
 
 ## Why Poac?
 
-I often see that C++ was said to be a difficult language, and I saw many people shunned it just because of C++.
-It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
+I often see that C++ was said to be a complex language, and I saw many people shunned it just because of C++.
+It is thought that it is hard to construct a C++ environment, there is no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) are the causes that make us feel hesitant.
 
-By developing a package manager and a build system that has an intuitive and easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and users can develop applications and libraries without being aware of [CMake](https://cmake.org), you can focus on learning C++ without stumbling.
+By developing a package manager and a build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
 I also plan to implement integration with many other build systems and package managers, so you should be able to switch seamlessly.
 
 ## Contributing
@@ -131,7 +131,7 @@ Please see [LICENSE](https://github.com/poacpm/poac/blob/main/LICENSE) for detai
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
-### Third party software
+### Third-party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
