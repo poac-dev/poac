@@ -123,6 +123,12 @@ I also plan to implement integration with many other build systems and package m
 Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md).
 You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
 
+This project exists thanks to all the people who contribute.
+
+<a href="https://github.com/poacpm/poac/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=poacpm/poac" />
+</a>
+
 ## License
 
 Poac is licensed under the terms of the Apache License version 2.0.
