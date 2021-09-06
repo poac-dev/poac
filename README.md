@@ -4,14 +4,14 @@
 
 Poac is a package manager for C++ users.
 
-Poac can download project's dependencies and compile project.
-Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html) and [The Poac Book](https://doc.poac.pm) for more details.
+Poac can download project's dependencies and compile a project.
+Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html), and [The Poac Book](https://doc.poac.pm) for more details.
 
 :warning: Caution! Currently in development and cannot be used.
 
 ## Demo
 
-By using poac, you can create a C++ project, build sources and execute an application:
+By using Poac, you can create a C++ project, build sources, and execute an application:
 
 ![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
 
@@ -44,7 +44,7 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 [![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
 
 * Code Quality:
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4179a24c6e514bc0b3344f80bf64a40d)](https://app.codacy.com/app/matken11235/poac?utm_source=github.com&utm_medium=referral&utm_content=poacpm/poac&utm_campaign=Badge_Grade_Settings)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/poacpm/poac.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/poacpm/poac/context:javascript)
 [![CodeFactor](https://www.codefactor.io/repository/github/poacpm/poac/badge)](https://www.codefactor.io/repository/github/poacpm/poac)
 
@@ -58,15 +58,15 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 curl -fsSL https://sh.poac.pm | bash
 ```
 
-*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), [poac-git](https://aur.archlinux.org/packages/poac-git)*
+*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), and [poac-git](https://aur.archlinux.org/packages/poac-git)*
 
 ### Manual install (Build)
 
-Poac requires the following a compiler, tools, and packages to build:
+Poac requires the following compilers, tools, and packages to build:
 
-#### compiler
+#### compilers
 
-* A compiler which supports [C++20](https://en.cppreference.com/w/cpp/20)
+* Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
 
 #### tools
 
@@ -99,36 +99,45 @@ Poac requires the following a compiler, tools, and packages to build:
 * [_`spdlog`_](https://github.com/gabime/spdlog): `1.9.0` or later
 * [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later
 
+After you prepared the requirements, you can build Poac using the following commands:
+
 ```bash
 $ git clone https://github.com/poacpm/poac.git
 $ cd poac
 $ mkdir build && cd $_
-$ cmake ..
-$ make
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
+$ make # or ninja
 $ make install
 ```
 
 ## Why Poac?
 
-I often see that C++ was said to be a difficult language, and I saw many people shunned it just because of C++.
-It was thought that it is hard to construct an environment, there is no definitive package manager, and the strange syntax of the build system [CMake](https://cmake.org), etc. is the cause that makes us feel hesitant.
+I often see that C++ was said to be a complex language, and I saw many people shunned it just because of C++.
+It is thought that it is hard to construct a C++ environment, there is no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) are the causes that make us feel hesitant.
 
-By developing a package manager and a build system that has an intuitive and easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and users can develop applications and libraries without being aware of [CMake](https://cmake.org), you can focus on learning C++ without stumbling.
+By developing a package manager and a build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
 I also plan to implement integration with many other build systems and package managers, so you should be able to switch seamlessly.
 
 ## Contributing
-Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+
+Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md).
 You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
+
+This project exists thanks to all the people who contribute.
+
+<a href="https://github.com/poacpm/poac/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=poacpm/poac" />
+</a>
 
 ## License
 
 Poac is licensed under the terms of the Apache License version 2.0.
 
-Please see [LICENSE](https://github.com/poacpm/poac/blob/main/LICENSE) for details.
+Please see [LICENSE](LICENSE) for details.
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
 
-### Third party software
+### Third-party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
 * clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
