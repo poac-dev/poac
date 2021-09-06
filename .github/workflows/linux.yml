@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ Debug, Release ]
+        coverage: [ off ]
         compiler:
           - cc: clang-10
             cxx: clang++-10
@@ -30,7 +31,8 @@ jobs:
             package: g++-10
             subpackage: binutils
         include:
-          - build_type: Coverage
+          - build_type: Debug
+            coverage: on
             compiler:
               cc: gcc-10
               cxx: g++-10
@@ -50,7 +52,7 @@ jobs:
           sudo apt-get install -y -qq pkg-config cmake ninja-build ${{ matrix.compiler.package }} ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
-        if: matrix.build_type != 'Coverage'
+        if: matrix.coverage != 'on'
         uses: actions/cache@v2.1.6
         with:
           path: build
@@ -95,17 +97,15 @@ jobs:
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
 
-      - name: Install libarchive and its dependencies
-        run: sudo apt-get install -y -qq libacl1-dev libarchive-dev
-
       - run: mkdir -p build
 
       - name: Build Poac
         run: |
-          cmake ..                                      \
-            -G Ninja                                    \
-            -DBUILD_TESTING=ON                          \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          cmake ..                                        \
+            -G Ninja                                      \
+            -DBUILD_TESTING=ON                            \
+            -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
           ninja
         working-directory: build
@@ -133,4 +133,4 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2.0.3
-        if: success() && matrix.build_type == 'Coverage'
+        if: success() && matrix.coverage == 'on'
