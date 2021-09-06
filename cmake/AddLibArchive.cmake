@@ -33,7 +33,7 @@ else ()
   endif ()
 endif()
 
-list(APPEND POAC_DEPENDENCIES archive)
+target_include_directories(${PROJECT_NAME} PRIVATE ${libarchive_SOURCE_DIR}/libarchive)
 list(APPEND POAC_DEPENDENCIES "${libarchive_BINARY_DIR}/libarchive/${LIBARCHIVE_LIBRARY_NAME}")
 
 message(CHECK_PASS "added")
