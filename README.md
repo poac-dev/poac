@@ -92,7 +92,7 @@ Poac requires the following compilers, tools, and packages to build:
 * [_`clipp`_](https://github.com/muellan/clipp): `master` branch
 * [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `main` branch
-* [`libarchive`](https://github.com/libarchive/libarchive): `3.4.3` or later
+* [_`libarchive`_](https://github.com/libarchive/libarchive): `3.4.3` or later
 * [_`libgit2`_](https://github.com/libgit2/libgit2): `0.27` or later
 * [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
@@ -122,6 +122,12 @@ I also plan to implement integration with many other build systems and package m
 
 Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md).
 You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
+
+This project exists thanks to all the people who contribute.
+
+<a href="https://github.com/poacpm/poac/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=poacpm/poac" />
+</a>
 
 ## License
 
