@@ -24,17 +24,17 @@ set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/LibArchiv
 FetchContent_MakeAvailable(libarchive)
 
 if (APPLE)
-  set(LIBARCHIVE_LIBRARY_NAME libarchive.dylib)
+  list(APPEND POAC_DEPENDENCIES archive)
 else ()
   if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
     set(LIBARCHIVE_LIBRARY_NAME libarchive.a)
   else ()
     set(LIBARCHIVE_LIBRARY_NAME libarchive.so)
   endif ()
-endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${libarchive_SOURCE_DIR}/libarchive)
-list(APPEND POAC_DEPENDENCIES "${libarchive_BINARY_DIR}/libarchive/${LIBARCHIVE_LIBRARY_NAME}")
+  target_include_directories(${PROJECT_NAME} PRIVATE ${libarchive_SOURCE_DIR}/libarchive)
+  list(APPEND POAC_DEPENDENCIES "${libarchive_BINARY_DIR}/libarchive/${LIBARCHIVE_LIBRARY_NAME}")
+endif()
 
 message(CHECK_PASS "added")
 list(POP_BACK CMAKE_MESSAGE_INDENT)
