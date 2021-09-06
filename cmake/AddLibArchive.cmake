@@ -22,7 +22,19 @@ set(ENABLE_INSTALL OFF)
 
 set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/LibArchivePoliciesFix.cmake")
 FetchContent_MakeAvailable(libarchive)
-list(APPEND POAC_DEPENDENCIES archive)
-message(CHECK_PASS "added")
 
+if (APPLE)
+  set(LIBARCHIVE_LIBRARY_NAME libarchive.dylib)
+else ()
+  if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
+    set(LIBARCHIVE_LIBRARY_NAME libarchive.a)
+  else ()
+    set(LIBARCHIVE_LIBRARY_NAME libarchive.so)
+  endif ()
+endif()
+
+list(APPEND POAC_DEPENDENCIES archive)
+list(APPEND POAC_DEPENDENCIES "${libarchive_BINARY_DIR}/libarchive/${LIBARCHIVE_LIBRARY_NAME}")
+
+message(CHECK_PASS "added")
 list(POP_BACK CMAKE_MESSAGE_INDENT)
