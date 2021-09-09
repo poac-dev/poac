@@ -91,7 +91,7 @@ Poac requires the following compilers, tools, and packages to build:
   * uuid
 * [_`clipp`_](https://github.com/muellan/clipp): `master` branch
 * [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
-* [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `main` branch
+* [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
 * [_`libarchive`_](https://github.com/libarchive/libarchive): `3.4.3` or later
 * [_`libgit2`_](https://github.com/libgit2/libgit2): `0.27` or later
 * [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
