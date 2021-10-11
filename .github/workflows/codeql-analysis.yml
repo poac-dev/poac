@@ -42,7 +42,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install required libraries
-      run: brew install boost
+      run: brew install openssl boost
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
