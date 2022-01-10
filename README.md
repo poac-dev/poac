@@ -112,7 +112,7 @@ $ make install
 
 ## Why Poac?
 
-I often see that C++ was said to be a complex language, and I saw many people shunned it just because of C++.
+C++ is often considered to be a complicated language and shunned unconsciously by most people.
 It is thought that it is hard to construct a C++ environment, there is no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) are the causes that make us feel hesitant.
 
 By developing a package manager and a build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
