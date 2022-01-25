@@ -78,7 +78,7 @@ jobs:
           ./config --static -static --prefix=${{ runner.temp }}/libs/openssl
           make
           sudo make install
-          echo "OPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl" >> $GITHUB_ENV
+          echo "OPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl" >> "$GITHUB_ENV"
         working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
