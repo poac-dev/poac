@@ -6,11 +6,11 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         libgit2
         GIT_REPOSITORY https://github.com/libgit2/libgit2.git
-        GIT_TAG        v1.1.1
+        GIT_TAG        v1.4.2
 )
 
 set(CMAKE_PROJECT_libgit2_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0077PolicyFix.cmake")
-set(BUILD_CLAR OFF) # Disable testing
+set(BUILD_TESTS OFF)
 set(USE_SSH OFF)
 set(USE_HTTPS OFF)
 set(USE_NTLMCLIENT OFF)
