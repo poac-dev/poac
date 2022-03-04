@@ -41,7 +41,7 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 
 * Code Coverage:
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
-[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
+[![codecov](https://codecov.io/gh/poacpm/poac/branch/master/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
 
 * Code Quality:
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
