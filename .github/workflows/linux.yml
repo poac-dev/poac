@@ -7,7 +7,7 @@ on:
 
 env:
   OPENSSL_VERSION: 3.0.1
-  BOOST_VERSION: 1.76.0
+  BOOST_VERSION: 1.78.0
 
 jobs:
   x86_64-unknown-linux-gnu:
