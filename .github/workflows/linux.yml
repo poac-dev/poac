@@ -53,7 +53,7 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
-      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.cc }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: v3-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.cc }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v3
 
