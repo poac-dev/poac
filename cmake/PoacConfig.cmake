@@ -12,6 +12,7 @@ if (NOT MSVC)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_poac_definitions(FMT_USE_CONSTEXPR=false) # gcc causes errors with this option
     add_poac_options(-fdiagnostics-color -Wall -Wextra -Werror)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_poac_options(/W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
