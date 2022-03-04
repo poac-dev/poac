@@ -49,7 +49,7 @@ jobs:
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y -qq pkg-config cmake ninja-build ${{ matrix.compiler.package }} ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y -qq ninja-build ${{ matrix.compiler.package }} ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
         if: matrix.coverage != 'on'
@@ -111,12 +111,10 @@ jobs:
         working-directory: build
 
       - name: Test Poac
-        if: matrix.compiler.cxx != 'g++-8'
         run: ctest --output-on-failure --verbose
         working-directory: build
 
       - name: Running test
-        if: matrix.compiler.cxx != 'g++-8'
         run: ./poac help
         working-directory: build
 
