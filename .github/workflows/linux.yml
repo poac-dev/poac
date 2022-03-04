@@ -69,16 +69,11 @@ jobs:
         with:
           version: ${{ matrix.compiler.version }}
 
-      - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          version: 1.10.2
-
-      - name: Install ${{ matrix.compiler.subpackage }}
+      - name: Install Ninja & ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y -qq ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y -qq ninja-build ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
         if: matrix.coverage != 'on'
