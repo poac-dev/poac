@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  OPENSSL_VERSION: openssl-3.0.0
+  OPENSSL_VERSION: 3.0.1
   BOOST_VERSION: 1.76.0
 
 jobs:
@@ -73,7 +73,7 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'gcc') && steps.openssl-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/openssl
-          git clone -q -b ${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
+          git clone -q -b openssl-${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
           cd openssl
           ./config --static -static --prefix=${{ runner.temp }}/libs/openssl
           make
