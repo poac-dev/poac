@@ -16,13 +16,13 @@ jobs:
     env:
       CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
 
       - name: Install required libraries
-        run: brew install ninja boost
+        run: brew install openssl ninja boost
 
       - name: Restore & Cache CMake build results
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}

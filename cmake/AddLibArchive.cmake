@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         libarchive
         GIT_REPOSITORY https://github.com/libarchive/libarchive.git
-        GIT_TAG        3.5.1
+        GIT_TAG        v3.6.0
 )
 
 set(ENABLE_OPENSSL OFF)

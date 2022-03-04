@@ -3,13 +3,13 @@ name: Coverity
 on:
   push:
     tags:
-      - '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+      - 'v?[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
 
       - name: Install packages
         run: |
@@ -29,14 +29,14 @@ jobs:
 
       - name: Create a building directory and Run CMake
         run: |
-          mkdir build && cd $_
+          mkdir build && cd build
           cmake -DBUILD_TESTING=ON -DPOAC_ENABLE_COVERAGE=ON ..
         env:
           CXX: g++-7
 
       - name: Build with cov-build
         run: |
-          export PATH=$PWD/coverity_tool/bin:$PATH
+          export PATH="$PWD/coverity_tool/bin:$PATH"
           cov-configure --comptype gcc --compiler g++-7 --template
           cov-build --dir cov-int make --directory ./build
 
@@ -45,8 +45,8 @@ jobs:
           tar czvf poac.tgz cov-int
           curl \
             --form project='poacpm/poac' \
-            --form token=${COVERITY_SCAN_TOKEN} \
-            --form email=${COVERITY_SCAN_NOTIFICATION_EMAIL} \
+            --form "token=${COVERITY_SCAN_TOKEN}" \
+            --form "email=${COVERITY_SCAN_NOTIFICATION_EMAIL}" \
             --form file=@poac.tgz \
             --form version='0.2.1' \
             --form description='Package manager for C++' \

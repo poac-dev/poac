@@ -41,7 +41,7 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 
 * Code Coverage:
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/17677/badge.svg)](https://scan.coverity.com/projects/poacpm-poac)
-[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg)](https://codecov.io/gh/poacpm/poac)
+[![codecov](https://codecov.io/gh/poacpm/poac/branch/master/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
 
 * Code Quality:
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
@@ -91,7 +91,7 @@ Poac requires the following compilers, tools, and packages to build:
   * uuid
 * [_`clipp`_](https://github.com/muellan/clipp): `master` branch
 * [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
-* [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `main` branch
+* [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
 * [_`libarchive`_](https://github.com/libarchive/libarchive): `3.4.3` or later
 * [_`libgit2`_](https://github.com/libgit2/libgit2): `0.27` or later
 * [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
@@ -112,7 +112,7 @@ $ make install
 
 ## Why Poac?
 
-I often see that C++ was said to be a complex language, and I saw many people shunned it just because of C++.
+C++ is often considered to be a complicated language and shunned unconsciously by most people.
 It is thought that it is hard to construct a C++ environment, there is no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) are the causes that make us feel hesitant.
 
 By developing a package manager and a build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
