@@ -16,7 +16,7 @@ jobs:
     env:
       CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
 
       - name: Install required libraries
         run: brew install openssl ninja boost
