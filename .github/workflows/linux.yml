@@ -128,16 +128,18 @@ jobs:
 
       - run: mkdir -p build
 
-      - name: Build Poac
-        run: |
-          cmake ..                                        \
-            -G Ninja                                      \
+      - name: Build Poac with CMake
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ runner.workspace }}/build
+          cc: ${{ matrix.compiler.cc }}
+          cxx: ${{ matrix.compiler.cxx }}
+          configure-options: |
+            -G Ninja
             -DBUILD_TESTING=ON                            \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
-          ninja
-        working-directory: build
+          build-type: ${{ matrix.build_type }}
 
       - name: Test Poac
         run: ctest --output-on-failure --verbose
