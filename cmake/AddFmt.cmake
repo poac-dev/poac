@@ -14,6 +14,11 @@ if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release
 else ()
     set(BUILD_SHARED_LIBS ON)
 endif ()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(FMT_USE_CONSTEXPR false) # gcc causes errors with this option
+endif()
+
 FetchContent_MakeAvailable(fmt)
 
 list(APPEND POAC_DEPENDENCIES fmt::fmt)
