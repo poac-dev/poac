@@ -38,10 +38,10 @@ jobs:
             cxx: g++-10
             version: 10
             subpackage: binutils
-          - cc: gcc-11
-            cxx: g++-11
-            version: 11
-            subpackage: binutils
+#          - cc: gcc-11
+#            cxx: g++-11
+#            version: 11
+#            subpackage: binutils
         include:
           - build_type: Debug
             coverage: on
