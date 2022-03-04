@@ -6,8 +6,8 @@ on:
   pull_request:
 
 env:
-  OPENSSL_VERSION: openssl-3.0.0
-  BOOST_VERSION: 1.76.0
+  OPENSSL_VERSION: 3.0.1
+  BOOST_VERSION: 1.78.0
 
 jobs:
   x86_64-unknown-linux-gnu:
@@ -20,36 +20,60 @@ jobs:
         compiler:
           - cc: clang-10
             cxx: clang++-10
-            package: clang-10
+            version: 10
             subpackage: lld-10
           - cc: clang-11
             cxx: clang++-11
-            package: clang-11
+            version: 11
             subpackage: lld-11
+#          - cc: clang-12
+#            cxx: clang++-12
+#            version: 12
+#            subpackage: lld-12
+#          - cc: clang-13
+#            cxx: clang++-13
+#            version: 13
+#            subpackage: lld-13
           - cc: gcc-10
             cxx: g++-10
-            package: g++-10
+            version: 10
             subpackage: binutils
+#          - cc: gcc-11
+#            cxx: g++-11
+#            version: 11
+#            subpackage: binutils
         include:
           - build_type: Debug
             coverage: on
             compiler:
-              cc: gcc-10
-              cxx: g++-10
-              package: g++-10
+              cc: gcc-11
+              cxx: g++-11
+              version: 11
               subpackage: binutils
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
-      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.package }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.cc }}-${{ matrix.build_type }}
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
 
-      - name: Install ${{ matrix.compiler.package }} and ${{ matrix.compiler.subpackage }}
+      - name: Setup GCC
+        if: startsWith(matrix.compiler.cc, 'gcc')
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: ${{ matrix.compiler.version }}
+
+      - name: Setup Clang
+        if: startsWith(matrix.compiler.cc, 'clang')
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: ${{ matrix.compiler.version }}
+
+      - name: Install Ninja & ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y -qq pkg-config cmake ninja-build ${{ matrix.compiler.package }} ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y -qq ninja-build ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
         if: matrix.coverage != 'on'
@@ -73,7 +97,7 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'gcc') && steps.openssl-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/libs/openssl
-          git clone -q -b ${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
+          git clone -q -b openssl-${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
           cd openssl
           ./config --static -static --prefix=${{ runner.temp }}/libs/openssl
           make
@@ -111,12 +135,10 @@ jobs:
         working-directory: build
 
       - name: Test Poac
-        if: matrix.compiler.cxx != 'g++-8'
         run: ctest --output-on-failure --verbose
         working-directory: build
 
       - name: Running test
-        if: matrix.compiler.cxx != 'g++-8'
         run: ./poac help
         working-directory: build
 
@@ -128,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v2.3.1
         if: matrix.build_type == 'Release'
         with:
-          name: ${{ github.job }}-${{ matrix.compiler.package }}
+          name: ${{ github.job }}-${{ matrix.compiler.cc }}
           path: ./build/poac
 
       - name: Upload coverage to Codecov
