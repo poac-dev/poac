@@ -22,10 +22,10 @@ jobs:
             cxx: clang++-10
             version: 10
             subpackage: lld-10
-#          - cc: clang-11
-#            cxx: clang++-11
-#            version: 11
-#            subpackage: lld-11
+          - cc: clang-11
+            cxx: clang++-11
+            version: 11
+            subpackage: lld-11
           - cc: clang-12
             cxx: clang++-12
             version: 12
