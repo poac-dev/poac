@@ -139,7 +139,7 @@ jobs:
         working-directory: build
 
       - name: Running test
-        run: ./poac help
+        run: ./poac --help
         working-directory: build
 
       - name: Print info of the executable file
