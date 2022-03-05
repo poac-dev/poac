@@ -43,7 +43,7 @@ exec(const structopt::app& app, Command& args) {
 int
 main(const int argc, char* argv[]) {
     spdlog::set_pattern("%v");
-    auto app = structopt::app("poac", "0.2.1");
+    auto app = structopt::app("poac", POAC_VERSION);
 
     try {
         auto args = app.parse<Command>(argc, argv);

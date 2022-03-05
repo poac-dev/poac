@@ -5,6 +5,5 @@
 #include <poac/cmd/init.hpp>
 #include <poac/cmd/new.hpp>
 #include <poac/cmd/search.hpp>
-#include <poac/cmd/version.hpp>
 
 #endif // !POAC_CMD_HPP

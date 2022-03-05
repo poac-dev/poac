@@ -53,7 +53,7 @@ jobs:
             --form "token=${COVERITY_SCAN_TOKEN}" \
             --form "email=${COVERITY_SCAN_NOTIFICATION_EMAIL}" \
             --form file=@poac.tgz \
-            --form version='0.2.1' \
+            --form version='0.3.0' \
             --form description='Package manager for C++' \
             https://scan.coverity.com/builds?project=poacpm%2Fpoac
         env:
