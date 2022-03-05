@@ -22,10 +22,11 @@ jobs:
             cxx: clang++-10
             version: 10
             subpackage: lld-10
-#          - cc: clang-11
-#            cxx: clang++-11
-#            version: 11
-#            subpackage: lld-11
+          # Disabled due to ICE
+          # - cc: clang-11
+          #   cxx: clang++-11
+          #   version: 11
+          #   subpackage: lld-11
           - cc: clang-12
             cxx: clang++-12
             version: 12
@@ -46,10 +47,10 @@ jobs:
           - build_type: Debug
             coverage: on
             compiler:
-              cc: clang-13
-              cxx: clang++-13
-              version: 13
-              subpackage: lld-13
+              cc: gcc-11
+              cxx: g++-11
+              version: 11
+              subpackage: binutils
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
