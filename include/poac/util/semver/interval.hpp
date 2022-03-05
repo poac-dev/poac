@@ -18,8 +18,8 @@
 #include <poac/util/semver/exception.hpp>
 
 namespace semver {
-    FMT_CONSTEVAL inline const std::string base_version_format{ "{}.{}.{}" }; // 1.2.3
-    FMT_CONSTEVAL inline const std::string version_format{ base_version_format + "{}{}" }; // 1.2.3-beta+11.22.33
+    inline constexpr std::string_view base_version_format{ "{}.{}.{}" }; // 1.2.3
+    inline constexpr std::string_view version_format{ "{}.{}.{}{}{}" }; // 1.2.3-beta+11.22.33
 
     inline std::string make_pre_or_build(const char& prefix, std::smatch::const_reference match_item) {
         return match_item.matched ? (prefix + match_item.str()) : "";
