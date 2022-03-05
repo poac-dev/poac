@@ -5,12 +5,14 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <optional>
 #include <string>
 
 // external
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
 #include <spdlog/spdlog.h>
+#include <structopt/app.hpp>
 
 // internal
 #include <poac/cmd/new.hpp>
@@ -19,28 +21,30 @@
 #include <poac/util/termcolor2/literals_extra.hpp>
 
 namespace poac::cmd::init {
-    struct Options {
-        _new::ProjectType type;
+    struct Options: structopt::sub_command {
+        /// Use a binary (application) template [default]
+        std::optional<bool> bin = false;
+        /// Use a library template
+        std::optional<bool> lib = false;
     };
 
     [[nodiscard]] mitama::result<void, std::string>
     init(std::string_view package_name, init::Options&& opts) {
         spdlog::trace("Creating ./poac.toml");
         std::ofstream ofs_config("poac.toml");
-        switch (opts.type) {
-            case _new::ProjectType::Bin:
-                ofs_config << _new::files::poac_toml(package_name);
-                break;
-            case _new::ProjectType::Lib:
-                ofs_config << _new::files::poac_toml(package_name);
-                break;
+
+        const bool is_bin = !opts.lib.value();
+        if (is_bin) {
+            ofs_config << _new::files::poac_toml(package_name);
+        } else {
+            ofs_config << _new::files::poac_toml(package_name);
         }
 
         using termcolor2::color_literals::operator""_bold_green;
         spdlog::info(
             "{:>25} {} `{}` package",
             "Created"_bold_green,
-            opts.type,
+            is_bin ? "binary (application)" : "library",
             package_name
         );
         return mitama::success();
@@ -48,9 +52,13 @@ namespace poac::cmd::init {
 
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
-        if (core::validator::require_config_exists().is_ok()) {
+        if (opts.bin.value() && opts.lib.value()) {
             return mitama::failure(
-                "`poac init` cannot run on existing poac packages"
+                "cannot specify both lib and binary outputs"
+            );
+        } else if (core::validator::require_config_exists().is_ok()) {
+            return mitama::failure(
+                "cannot run on existing poac packages"
             );
         }
 

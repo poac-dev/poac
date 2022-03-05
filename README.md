@@ -89,7 +89,6 @@ Poac requires the following compilers, tools, and packages to build:
   * scope_exit
   * test (dev)
   * uuid
-* [_`clipp`_](https://github.com/muellan/clipp): `master` branch
 * [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
 * [_`libarchive`_](https://github.com/libarchive/libarchive): `3.4.3` or later
@@ -97,6 +96,7 @@ Poac requires the following compilers, tools, and packages to build:
 * [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 * [_`spdlog`_](https://github.com/gabime/spdlog): `1.9.0` or later
+* [_`structopt`_](https://github.com/p-ranav/structopt): `v0.1.2` or later
 * [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later
 
 After you prepared the requirements, you can build Poac using the following commands:
@@ -140,7 +140,6 @@ Please see [LICENSE](LICENSE) for details.
 ### Third-party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
-* clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
 * fmt - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
 * git2-cpp - <https://github.com/ken-matsui/git2-cpp/blob/main/LICENSE>
 * libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
@@ -148,4 +147,5 @@ Please see [LICENSE](LICENSE) for details.
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
 * openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
 * spdlog - <https://github.com/gabime/spdlog/blob/v1.x/LICENSE>
+* structopt - <https://github.com/p-ranav/structopt/blob/master/LICENSE>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>

@@ -43,5 +43,5 @@ jobs:
         working-directory: build
 
       - name: Print help
-        run: ./poac help
+        run: ./poac --help
         working-directory: build
