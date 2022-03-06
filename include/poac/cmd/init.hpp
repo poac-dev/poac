@@ -56,7 +56,7 @@ namespace poac::cmd::init {
             return mitama::failure(
                 "cannot specify both lib and binary outputs"
             );
-        } else if (core::validator::require_config_exists().is_ok()) {
+        } else if (core::validator::required_config_exists().is_ok()) {
             return mitama::failure(
                 "cannot run on existing poac packages"
             );

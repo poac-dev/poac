@@ -30,7 +30,7 @@ namespace poac::cmd::build {
 
     [[nodiscard]] mitama::result<void, std::string>
     exec(Options&& opts) {
-        MITAMA_TRY(core::validator::require_config_exists());
+        MITAMA_TRY(core::validator::required_config_exists());
         const toml::value config = toml::parse("poac.toml");
         MITAMA_TRY(build(std::move(opts), config));
         return mitama::success();
