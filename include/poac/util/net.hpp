@@ -227,7 +227,7 @@ namespace poac::util::net {
                     filename.filename().string()
                 );
                 for (const auto& [field, content] : header) {
-                    h += fmt::format("{}{}: {}", m_crlf, field, content);
+                    h += fmt::format("{}{}: {}", m_crlf, std::string(to_string(field)), content);
                 }
                 m_header += m_crlf + h;
             }

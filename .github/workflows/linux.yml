@@ -22,26 +22,27 @@ jobs:
             cxx: clang++-10
             version: 10
             subpackage: lld-10
-          - cc: clang-11
-            cxx: clang++-11
-            version: 11
-            subpackage: lld-11
-#          - cc: clang-12
-#            cxx: clang++-12
-#            version: 12
-#            subpackage: lld-12
-#          - cc: clang-13
-#            cxx: clang++-13
-#            version: 13
-#            subpackage: lld-13
+          # Disabled due to ICE
+          # - cc: clang-11
+          #   cxx: clang++-11
+          #   version: 11
+          #   subpackage: lld-11
+          - cc: clang-12
+            cxx: clang++-12
+            version: 12
+            subpackage: lld-12
+          - cc: clang-13
+            cxx: clang++-13
+            version: 13
+            subpackage: lld-13
           - cc: gcc-10
             cxx: g++-10
             version: 10
             subpackage: binutils
-#          - cc: gcc-11
-#            cxx: g++-11
-#            version: 11
-#            subpackage: binutils
+          - cc: gcc-11
+            cxx: g++-11
+            version: 11
+            subpackage: binutils
         include:
           - build_type: Debug
             coverage: on
@@ -53,7 +54,7 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
-      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.cc }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: v3-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.cc }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v3
 
@@ -139,7 +140,7 @@ jobs:
         working-directory: build
 
       - name: Running test
-        run: ./poac help
+        run: ./poac --help
         working-directory: build
 
       - name: Print info of the executable file

@@ -17,17 +17,13 @@ By using Poac, you can create a C++ project, build sources, and execute an appli
 
 ## Supported Operating Systems
 
-| Linux | macOS |
-|:-----:|:-----:|
-|[![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22)|[![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22)|
+|                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22) |
 
 <!--
- Windows |
-:-------:|
 [![GitHub Actions Windows Build](https://github.com/poacpm/poac/workflows/Windows/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Windows%22)|
 -->
-
-<!-- [![Appveyor build status](https://ci.appveyor.com/api/projects/status/6r7d0526he3nsq7l/branch/main?svg=true)](https://ci.appveyor.com/project/matken11235/poac/branch/main) -->
 
 Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-started/installation.html#supported-operating-systems) for more information about supported OS.
 
@@ -67,6 +63,9 @@ Poac requires the following compilers, tools, and packages to build:
 #### compilers
 
 * Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
+  * `gcc`: `10` or later
+  * `clang`: `10` or later (except for `11` which causes an ICE)
+  * `Apple Clang`: provided by `macOS Big Sur` or later
 
 #### tools
 
@@ -74,10 +73,10 @@ Poac requires the following compilers, tools, and packages to build:
 
 #### packages
 
-> The packages with names in italics are not needed installing before the following commands
-> because they will be automatically installed when configuring by CMake.
+> The following packages marked with `*` are needed installing before building
+> because except for them will be automatically installed when configuring by CMake.
 
-* [`boost`](https://github.com/boostorg): `1.70.0` or later
+* [`boost`](https://github.com/boostorg)*: `1.70.0` or later
   * algorithm
   * asio
   * beast
@@ -89,15 +88,15 @@ Poac requires the following compilers, tools, and packages to build:
   * scope_exit
   * test (dev)
   * uuid
-* [_`clipp`_](https://github.com/muellan/clipp): `master` branch
-* [_`fmt`_](https://github.com/fmtlib/fmt): `7.1.3` or later
-* [_`git2-cpp`_](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
-* [_`libarchive`_](https://github.com/libarchive/libarchive): `3.4.3` or later
-* [_`libgit2`_](https://github.com/libgit2/libgit2): `0.27` or later
-* [_`mitama-cpp-result`_](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
-* [`openssl`](https://github.com/openssl/openssl): as new as possible
-* [_`spdlog`_](https://github.com/gabime/spdlog): `1.9.0` or later
-* [_`toml11`_](https://github.com/ToruNiina/toml11): `3.0.0` or later
+* [`fmt`](https://github.com/fmtlib/fmt): `8.1.1` or later
+* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
+* [`libarchive`](https://github.com/libarchive/libarchive): `master` branch (awaiting the next release above `v3.6.0`)
+* [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `master` branch (awaiting the next release above `v9.2.1`)
+* [`openssl`](https://github.com/openssl/openssl)*: as new as possible
+* [`spdlog`](https://github.com/gabime/spdlog): `1.9.0` or later
+* [`structopt`](https://github.com/p-ranav/structopt): `v0.1.2` or later
+* [`toml11`](https://github.com/ToruNiina/toml11): `master` branch (awaiting the next release above `v3.7.0`)
 
 After you prepared the requirements, you can build Poac using the following commands:
 
@@ -113,10 +112,10 @@ $ make install
 ## Why Poac?
 
 C++ is often considered to be a complicated language and shunned unconsciously by most people.
-It is thought that it is hard to construct a C++ environment, there is no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) are the causes that make us feel hesitant.
+It is thought that it is hard to construct a C++ environment, no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) make us feel hesitant.
 
-By developing a package manager and a build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo), and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
-I also plan to implement integration with many other build systems and package managers, so you should be able to switch seamlessly.
+By developing a package manager and build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo) and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
+I also plan to implement integration with many other build systems and package managers so that you can seamlessly switch a development environment.
 
 ## Contributing
 
@@ -140,7 +139,6 @@ Please see [LICENSE](LICENSE) for details.
 ### Third-party software
 
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
-* clipp - <https://github.com/muellan/clipp/blob/master/LICENSE>
 * fmt - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
 * git2-cpp - <https://github.com/ken-matsui/git2-cpp/blob/main/LICENSE>
 * libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
@@ -148,4 +146,5 @@ Please see [LICENSE](LICENSE) for details.
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
 * openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
 * spdlog - <https://github.com/gabime/spdlog/blob/v1.x/LICENSE>
+* structopt - <https://github.com/p-ranav/structopt/blob/master/LICENSE>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
