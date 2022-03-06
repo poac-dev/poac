@@ -11,6 +11,8 @@
 // external
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <mitama/anyhow/anyhow.hpp>
+#include <mitama/thiserror/thiserror.hpp>
 #include <spdlog/spdlog.h>
 #include <structopt/app.hpp>
 
@@ -21,6 +23,9 @@
 #include <poac/util/termcolor2/literals_extra.hpp>
 
 namespace poac::cmd::init {
+    namespace anyhow = mitama::anyhow;
+    namespace thiserror = mitama::thiserror;
+
     struct Options: structopt::sub_command {
         /// Use a binary (application) template [default]
         std::optional<bool> bin = false;
@@ -28,8 +33,19 @@ namespace poac::cmd::init {
         std::optional<bool> lib = false;
     };
 
-    [[nodiscard]] mitama::result<void, std::string>
-    init(std::string_view package_name, init::Options&& opts) {
+    class InitError {
+        template <thiserror::fixed_string S, class ...T>
+        using error = thiserror::error<S, T...>;
+
+    public:
+        using PassingBothBinAndLib =
+            error<"cannot specify both lib and binary outputs">;
+        using AlreadyInitialized =
+            error<"cannot initialize an existing poac package">;
+    };
+
+    [[nodiscard]] anyhow::result<void>
+    init(const Options& opts, std::string_view package_name) {
         spdlog::trace("Creating ./poac.toml");
         std::ofstream ofs_config("poac.toml");
 
@@ -50,25 +66,22 @@ namespace poac::cmd::init {
         return mitama::success();
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
-    exec(Options&& opts) {
+    [[nodiscard]] anyhow::result<void>
+    exec(const Options& opts) {
         if (opts.bin.value() && opts.lib.value()) {
-            return mitama::failure(
-                "cannot specify both lib and binary outputs"
-            );
+            return anyhow::failure<InitError::PassingBothBinAndLib>();
         } else if (core::validator::required_config_exists().is_ok()) {
-            return mitama::failure(
-                "cannot run on existing poac packages"
-            );
+            return anyhow::failure<InitError::AlreadyInitialized>();
         }
 
         const std::string package_name = std::filesystem::current_path().stem().string();
-        spdlog::trace(
-            "Validating the package name `{}`", package_name
+        spdlog::trace("Validating the package name `{}`", package_name);
+        MITAMA_TRY(
+            core::validator::valid_package_name(package_name)
+            .map_err([](const std::string& e){ return anyhow::anyhow(e); })
         );
-        MITAMA_TRY(core::validator::valid_package_name(package_name));
 
-        return init(package_name, std::move(opts));
+        return init(std::move(opts), package_name);
     }
 } // end namespace
 
