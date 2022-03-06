@@ -81,7 +81,7 @@ namespace poac::cmd::init {
             .map_err([](const std::string& e){ return anyhow::anyhow(e); })
         );
 
-        return init(std::move(opts), package_name);
+        return init(opts, package_name);
     }
 } // end namespace
 
