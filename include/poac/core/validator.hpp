@@ -14,7 +14,7 @@
 
 namespace poac::core::validator {
     [[nodiscard]] mitama::result<void, std::string>
-    require_config_exists(
+    required_config_exists(
         const std::filesystem::path& base = std::filesystem::current_path())
     noexcept
     {
