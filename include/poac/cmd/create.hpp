@@ -48,6 +48,33 @@ namespace poac::cmd::create {
             error<"cannot specify both lib and binary outputs">;
     };
 
+    enum class ProjectType {
+        Bin,
+        Lib,
+    };
+
+    std::ostream&
+    operator<<(std::ostream& os, ProjectType kind) {
+        switch (kind) {
+            case ProjectType::Bin:
+                return (os << "binary (application)");
+            case ProjectType::Lib:
+                return (os << "library");
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior."
+                );
+        }
+    }
+
+    template <typename T>
+    ProjectType
+    opts_to_project_type(T&& opts) {
+        opts.bin.value(); // Just check opts has a `.bin` member
+        return opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
+    }
+
     namespace files {
         inline std::string
         poac_toml(std::string_view project_name) {
@@ -85,26 +112,6 @@ namespace poac::cmd::create {
                 project_name_upper_cased,
                 project_name
             );
-        }
-    }
-
-    enum class ProjectType {
-        Bin,
-        Lib,
-    };
-
-    std::ostream&
-    operator<<(std::ostream& os, ProjectType kind) {
-        switch (kind) {
-            case ProjectType::Bin:
-                return (os << "binary (application)");
-            case ProjectType::Lib:
-                return (os << "library");
-            default:
-                throw std::logic_error(
-                        "To access out of range of the "
-                        "enumeration values is undefined behavior."
-                );
         }
     }
 
@@ -150,9 +157,8 @@ namespace poac::cmd::create {
 
     [[nodiscard]] anyhow::result<void>
     create(const Options& opts) {
-        const ProjectType type = opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
-
         std::ofstream ofs;
+        const ProjectType type = opts_to_project_type(opts);
         for (auto&& [name, text] : create_template_files(type, opts.package_name)) {
             const std::string& file_path = (opts.package_name / name).string();
             spdlog::trace("Creating {}", file_path);

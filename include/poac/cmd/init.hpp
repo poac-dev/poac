@@ -49,7 +49,7 @@ namespace poac::cmd::init {
         spdlog::trace("Creating ./poac.toml");
         std::ofstream ofs_config("poac.toml");
 
-        const ProjectType type = opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
+        const ProjectType type = create::opts_to_project_type(opts);
         switch (type) {
             case ProjectType::Bin:
                 ofs_config << create::files::poac_toml(package_name);
