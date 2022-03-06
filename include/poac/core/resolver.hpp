@@ -91,7 +91,7 @@ namespace poac::core::resolver {
             const std::string download_link = MITAMA_TRY(get_download_link(package));
             spdlog::debug("downloading from `{}`", download_link);
             const std::filesystem::path archive_path = get_archive_path(package);
-            spdlog::debug("writing to `{}`", archive_path);
+            spdlog::debug("writing to `{}`", archive_path.string());
 
             std::ofstream archive(archive_path);
             const auto [host, target] = util::net::parse_url(download_link);
