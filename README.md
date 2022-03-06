@@ -63,8 +63,8 @@ Poac requires the following compilers, tools, and packages to build:
 #### compilers
 
 * Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
-  * `gcc`: `10` or later
-  * `clang`: `10` or later (except for `11` which causes an ICE)
+  * `gcc`: `11` or later
+  * `clang`: `12` or later
   * `Apple Clang`: provided by `macOS Big Sur` or later
 
 #### tools
