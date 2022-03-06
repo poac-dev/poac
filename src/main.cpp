@@ -26,10 +26,14 @@ struct Commands {
 
     /// Create a new poac package in an existing directory
     subcmd::init::Options init;
+
+    /// Search a package on poac.pm
+    subcmd::search::Options search;
 };
 STRUCTOPT(subcmd::create::Options, package_name, bin, lib);
 STRUCTOPT(subcmd::init::Options, bin, lib);
-STRUCTOPT(Commands, verbose, quiet, create, init);
+STRUCTOPT(subcmd::search::Options, package_name);
+STRUCTOPT(Commands, verbose, quiet, create, init, search);
 
 std::string
 colorize_error(std::string s) {
@@ -61,6 +65,8 @@ exec(const structopt::app& app, const Commands& args) {
         return subcmd::create::exec(args.create);
     } else if (args.init.has_value()) {
         return subcmd::init::exec(args.init);
+    } else if (args.search.has_value()) {
+        return subcmd::search::exec(args.search);
     } else {
         spdlog::info("{}", colorize_help(app.help()));
         return mitama::success();

@@ -13,7 +13,10 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <mitama/anyhow/anyhow.hpp>
+#include <mitama/thiserror/thiserror.hpp>
 #include <spdlog/spdlog.h>
+#include <structopt/app.hpp>
 
 // internal
 #include <poac/util/net.hpp>
@@ -22,21 +25,33 @@
 #include <poac/config.hpp>
 
 namespace poac::cmd::search {
-    struct Options {
+    namespace anyhow = mitama::anyhow;
+    namespace thiserror = mitama::thiserror;
+
+    struct Options: structopt::sub_command {
+        /// Package name to search
         std::string package_name;
     };
 
-    [[nodiscard]] mitama::result<void, std::string>
-    search(Options&& opts) {
+    class Error {
+        template <thiserror::fixed_string S, class ...T>
+        using error = thiserror::error<S, T...>;
+
+    public:
+        using NotFound =
+            error<"No packages found for `{0}`", std::string>;
+    };
+
+    [[nodiscard]] anyhow::result<void>
+    search(const Options& opts) {
         const boost::property_tree::ptree pt =
-            MITAMA_TRY(util::net::api::search(opts.package_name, 20));
+            MITAMA_TRY(
+                util::net::api::search(opts.package_name, 20)
+                    .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+            );
         if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
             if (nb_hits.value() <= 0) {
-                return mitama::failure(
-                    fmt::format(
-                        "{} package is not found", opts.package_name
-                    )
-                );
+                return anyhow::failure<Error::NotFound>(opts.package_name);
             }
         }
         if (spdlog::should_log(spdlog::level::trace)) {
@@ -65,9 +80,9 @@ namespace poac::cmd::search {
         return mitama::success();
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
-    exec(Options&& opts) {
-        return search(std::move(opts));
+    [[nodiscard]] anyhow::result<void>
+    exec(const Options& opts) {
+        return search(opts);
     }
 } // end namespace
 
