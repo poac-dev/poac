@@ -1,5 +1,5 @@
-#ifndef POAC_CMD_NEW_HPP
-#define POAC_CMD_NEW_HPP
+#ifndef POAC_CMD_CREATE_HPP
+#define POAC_CMD_CREATE_HPP
 
 // std
 #include <filesystem>
@@ -15,7 +15,10 @@
 #include <fmt/core.h>
 #include <git2-cpp/git2.hpp>
 #include <mitama/result/result.hpp>
+#include <mitama/anyhow/anyhow.hpp>
+#include <mitama/thiserror/thiserror.hpp>
 #include <spdlog/spdlog.h>
+#include <structopt/app.hpp>
 
 // internal
 #include <poac/core/validator.hpp>
@@ -23,7 +26,56 @@
 #include <poac/util/termcolor2/literals_extra.hpp>
 #include <poac/util/misc.hpp>
 
-namespace poac::cmd::_new {
+namespace poac::cmd::create {
+    namespace anyhow = mitama::anyhow;
+    namespace thiserror = mitama::thiserror;
+
+    struct Options: structopt::sub_command {
+        /// Package name to create a new poac package
+        std::string package_name;
+
+        /// Use a binary (application) template [default]
+        std::optional<bool> bin = false;
+        /// Use a library template
+        std::optional<bool> lib = false;
+    };
+
+    class Error {
+        template <thiserror::fixed_string S, class ...T>
+        using error = thiserror::error<S, T...>;
+
+    public:
+        using PassingBothBinAndLib =
+            error<"cannot specify both lib and binary outputs">;
+    };
+
+    enum class ProjectType {
+        Bin,
+        Lib,
+    };
+
+    std::ostream&
+    operator<<(std::ostream& os, ProjectType kind) {
+        switch (kind) {
+            case ProjectType::Bin:
+                return (os << "binary (application)");
+            case ProjectType::Lib:
+                return (os << "library");
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior."
+                );
+        }
+    }
+
+    template <typename T>
+    ProjectType
+    opts_to_project_type(T&& opts) {
+        opts.bin.value(); // Just check opts has a `.bin` member
+        return opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
+    }
+
     namespace files {
         inline std::string
         poac_toml(std::string_view project_name) {
@@ -64,31 +116,6 @@ namespace poac::cmd::_new {
         }
     }
 
-    enum class ProjectType {
-        Bin,
-        Lib,
-    };
-
-    std::ostream&
-    operator<<(std::ostream& os, ProjectType kind) {
-        switch (kind) {
-            case ProjectType::Bin:
-                return (os << "binary (application)");
-            case ProjectType::Lib:
-                return (os << "library");
-            default:
-                throw std::logic_error(
-                        "To access out of range of the "
-                        "enumeration values is undefined behavior."
-                );
-        }
-    }
-
-    struct Options {
-        ProjectType type;
-        std::string package_name;
-    };
-
     void write_to_file(std::ofstream& ofs, const std::string& fname, std::string_view text) {
         ofs.open(fname);
         if (ofs.is_open()) {
@@ -99,26 +126,26 @@ namespace poac::cmd::_new {
     }
 
     std::map<std::filesystem::path, std::string>
-    create_template_files(const _new::Options& opts) {
+    create_template_files(const ProjectType& type, const std::string& package_name) {
         using util::misc::path_literals::operator""_path;
 
-        switch (opts.type) {
+        switch (type) {
             case ProjectType::Bin:
-                std::filesystem::create_directories(opts.package_name / "src"_path);
+                std::filesystem::create_directories(package_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
-                    { "poac.toml", files::poac_toml(opts.package_name) },
+                    { "poac.toml", files::poac_toml(package_name) },
                     { "src"_path / "main.cpp", files::main_cpp }
                 };
             case ProjectType::Lib:
                 std::filesystem::create_directories(
-                    opts.package_name / "include"_path / opts.package_name
+                    package_name / "include"_path / package_name
                 );
                 return {
                     { ".gitignore", "/target\npoac.lock" },
-                    { "poac.toml", files::poac_toml(opts.package_name) },
-                    { "include"_path / opts.package_name / (opts.package_name + ".hpp"),
-                        files::include_hpp(opts.package_name)
+                    { "poac.toml", files::poac_toml(package_name) },
+                    { "include"_path / package_name / (package_name + ".hpp"),
+                        files::include_hpp(package_name)
                     },
                 };
             default:
@@ -129,10 +156,11 @@ namespace poac::cmd::_new {
         }
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
-    _new(_new::Options&& opts) {
+    [[nodiscard]] anyhow::result<void>
+    create(const Options& opts) {
         std::ofstream ofs;
-        for (auto&& [name, text] : create_template_files(opts)) {
+        const ProjectType type = opts_to_project_type(opts);
+        for (auto&& [name, text] : create_template_files(type, opts.package_name)) {
             const std::string& file_path = (opts.package_name / name).string();
             spdlog::trace("Creating {}", file_path);
             write_to_file(ofs, file_path, text);
@@ -147,22 +175,32 @@ namespace poac::cmd::_new {
         spdlog::info(
             "{:>25} {} `{}` package",
             "Created"_bold_green,
-            opts.type,
+            type,
             opts.package_name
         );
         return mitama::success();
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
-    exec(Options&& opts) {
+    [[nodiscard]] anyhow::result<void>
+    exec(const Options& opts) {
+        if (opts.bin.value() && opts.lib.value()) {
+            return anyhow::failure<Error::PassingBothBinAndLib>();
+        }
+
         spdlog::trace("Validating the `{}` directory exists", opts.package_name);
-        MITAMA_TRY(core::validator::can_crate_directory(opts.package_name));
+        MITAMA_TRY(
+            core::validator::can_crate_directory(opts.package_name)
+                .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+        );
 
         spdlog::trace("Validating the package name `{}`", opts.package_name);
-        MITAMA_TRY(core::validator::valid_package_name(opts.package_name));
+        MITAMA_TRY(
+            core::validator::valid_package_name(opts.package_name)
+                .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+        );
 
-        return _new(std::move(opts));
+        return create(opts);
     }
 } // end namespace
 
-#endif // !POAC_CMD_NEW_HPP
+#endif // !POAC_CMD_CREATE_HPP
