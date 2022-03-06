@@ -52,13 +52,13 @@ namespace poac::util::net {
         const int bar_pos = percent / 2;
 
         if (now_count == max_count) {
-            return fmt::format(FMT_STRING("[{:=>{}}"), ">]", bar_size + 1);
+            return fmt::format("[{:=>{}}", ">]", bar_size + 1);
         } else if ((bar_pos - 1) > 0) {
-            return fmt::format(FMT_STRING("[{:=>{}}{:>{}}"), ">", bar_pos, "]", bar_size - bar_pos + 1);
+            return fmt::format("[{:=>{}}{:>{}}", ">", bar_pos, "]", bar_size - bar_pos + 1);
         } else if (bar_pos == 1) {
-            return fmt::format(FMT_STRING("[>{:>{}}"), "]", bar_size);
+            return fmt::format("[>{:>{}}", "]", bar_size);
         } else {
-            return fmt::format(FMT_STRING("[{:>{}}"), "]", bar_size + 1);
+            return fmt::format("[{:>{}}", "]", bar_size + 1);
         }
     }
 
@@ -68,7 +68,7 @@ namespace poac::util::net {
             now_count = max_count;
         }
         return fmt::format(
-            FMT_STRING("{} {}/{}"),
+            "{} {}/{}",
             to_progress(max_count, now_count),
             util::pretty::to_byte(now_count),
             util::pretty::to_byte(max_count)

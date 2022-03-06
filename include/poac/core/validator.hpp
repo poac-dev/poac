@@ -158,7 +158,7 @@ namespace poac::core::validator {
         if (std::find(blacklist.begin(), blacklist.end(), s) != blacklist.end()) {
             return mitama::failure(
                 fmt::format(
-                    FMT_STRING("`{}` is a keyword, so it cannot be used as a package name"),
+                    "`{}` is a keyword, so it cannot be used as a package name",
                     std::string(s)
                 )
             );
