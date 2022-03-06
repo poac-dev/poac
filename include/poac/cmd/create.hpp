@@ -10,6 +10,7 @@
 #include <string_view>
 #include <map>
 #include <algorithm>
+#include <optional>
 
 // external
 #include <fmt/core.h>
