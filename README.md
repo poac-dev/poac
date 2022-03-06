@@ -2,7 +2,7 @@
 
 ## Description
 
-Poac is a package manager for C++ users.
+Poac (pronounced as `/pəʊək/`) is a package manager for C++ users.
 
 Poac can download project's dependencies and compile a project.
 Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html), and [The Poac Book](https://doc.poac.pm) for more details.
