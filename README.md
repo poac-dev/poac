@@ -88,7 +88,7 @@ Poac requires the following compilers, tools, and packages to build:
   * scope_exit
   * test (dev)
   * uuid
-* [`fmt`](https://github.com/fmtlib/fmt): `8.1.1` or later
+* [`fmt`](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
 * [`libarchive`](https://github.com/libarchive/libarchive): `master` branch (awaiting the next release above `v3.6.0`)
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later

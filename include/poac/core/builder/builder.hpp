@@ -30,19 +30,24 @@ namespace poac::core::builder {
         release,
     };
 
-    std::ostream&
-    operator<<(std::ostream& os, mode_t mode) {
+    std::string
+    to_string(mode_t mode) {
         switch (mode) {
             case mode_t::debug:
-                return (os << "dev");
+                return "dev";
             case mode_t::release:
-                return (os << "release");
+                return "release";
             default:
                 throw std::logic_error(
                     "To access out of range of the "
                     "enumeration values is undefined behavior."
                 );
         }
+    }
+
+    std::ostream&
+    operator<<(std::ostream& os, mode_t mode) {
+        return (os << to_string(mode));
     }
 
     template <class T>
@@ -77,7 +82,7 @@ namespace poac::core::builder {
         spdlog::info(
             "{:>25} {} target(s) in {}",
             "Finished"_bold_green,
-            mode,
+            to_string(mode),
             util::pretty::to_time(sw.elapsed().count())
         );
         return mitama::success(output_path);
