@@ -9,8 +9,9 @@
 
 // internal
 #include <poac/cmd.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 
-namespace commands = poac::cmd;
+namespace subcmd = poac::cmd;
 namespace anyhow = mitama::anyhow;
 
 struct Commands {
@@ -19,16 +20,22 @@ struct Commands {
     /// Do not print poac log messages
     std::optional<bool> quiet = false;
 
+    /// Create a new poac package at <package_name>
+    subcmd::create::Options create;
+
     /// Create a new poac package in an existing directory
-    commands::init::Options init;
+    subcmd::init::Options init;
 };
-STRUCTOPT(commands::init::Options, bin, lib);
-STRUCTOPT(Commands, verbose, quiet, init);
+STRUCTOPT(subcmd::create::Options, package_name, bin, lib);
+STRUCTOPT(subcmd::init::Options, bin, lib);
+STRUCTOPT(Commands, verbose, quiet, create, init);
 
 [[nodiscard]] anyhow::result<void>
 exec(const structopt::app& app, const Commands& args) {
-    if (args.init.has_value()) {
-        return commands::init::exec(args.init);
+    if (args.create.has_value()) {
+        return subcmd::create::exec(args.create);
+    } else if (args.init.has_value()) {
+        return subcmd::init::exec(args.init);
     } else {
         return mitama::failure(anyhow::anyhow(app.help()));
     }

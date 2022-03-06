@@ -17,7 +17,7 @@
 #include <structopt/app.hpp>
 
 // internal
-#include <poac/cmd/new.hpp>
+#include <poac/cmd/create.hpp>
 #include <poac/core/validator.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
@@ -33,34 +33,37 @@ namespace poac::cmd::init {
         std::optional<bool> lib = false;
     };
 
-    class InitError {
+    class Error {
         template <thiserror::fixed_string S, class ...T>
         using error = thiserror::error<S, T...>;
 
     public:
-        using PassingBothBinAndLib =
-            error<"cannot specify both lib and binary outputs">;
         using AlreadyInitialized =
             error<"cannot initialize an existing poac package">;
     };
 
     [[nodiscard]] anyhow::result<void>
     init(const Options& opts, std::string_view package_name) {
+        using create::ProjectType;
+
         spdlog::trace("Creating ./poac.toml");
         std::ofstream ofs_config("poac.toml");
 
-        const bool is_bin = !opts.lib.value();
-        if (is_bin) {
-            ofs_config << _new::files::poac_toml(package_name);
-        } else {
-            ofs_config << _new::files::poac_toml(package_name);
+        const ProjectType type = opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
+        switch (type) {
+            case ProjectType::Bin:
+                ofs_config << create::files::poac_toml(package_name);
+                break;
+            case ProjectType::Lib:
+                ofs_config << create::files::poac_toml(package_name);
+                break;
         }
 
         using termcolor2::color_literals::operator""_bold_green;
         spdlog::info(
             "{:>25} {} `{}` package",
             "Created"_bold_green,
-            is_bin ? "binary (application)" : "library",
+            type,
             package_name
         );
         return mitama::success();
@@ -69,9 +72,9 @@ namespace poac::cmd::init {
     [[nodiscard]] anyhow::result<void>
     exec(const Options& opts) {
         if (opts.bin.value() && opts.lib.value()) {
-            return anyhow::failure<InitError::PassingBothBinAndLib>();
+            return anyhow::failure<create::Error::PassingBothBinAndLib>();
         } else if (core::validator::required_config_exists().is_ok()) {
-            return anyhow::failure<InitError::AlreadyInitialized>();
+            return anyhow::failure<Error::AlreadyInitialized>();
         }
 
         const std::string package_name = std::filesystem::current_path().stem().string();
