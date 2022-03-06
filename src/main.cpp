@@ -30,9 +30,6 @@ struct Commands {
     /// Search a package on poac.pm
     subcmd::search::Options search;
 };
-STRUCTOPT(subcmd::create::Options, package_name, bin, lib);
-STRUCTOPT(subcmd::init::Options, bin, lib);
-STRUCTOPT(subcmd::search::Options, package_name);
 STRUCTOPT(Commands, verbose, quiet, create, init, search);
 
 std::string
