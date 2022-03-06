@@ -3,6 +3,7 @@
 #include <optional>
 
 // external
+#include <boost/algorithm/string.hpp>
 #include <mitama/anyhow/anyhow.hpp>
 #include <spdlog/spdlog.h>
 #include <structopt/app.hpp>
@@ -30,6 +31,30 @@ STRUCTOPT(subcmd::create::Options, package_name, bin, lib);
 STRUCTOPT(subcmd::init::Options, bin, lib);
 STRUCTOPT(Commands, verbose, quiet, create, init);
 
+std::string
+colorize_error(std::string s) {
+    using termcolor2::color_literals::operator""_bold_red;
+    boost::replace_all(s, "Error:", "Error:"_bold_red);
+    return s;
+}
+
+std::string
+colorize_help(std::string s) {
+    using termcolor2::color_literals::operator""_yellow;
+    boost::replace_all(s, "USAGE:", "USAGE:"_yellow);
+    boost::replace_all(s, "FLAGS:", "FLAGS:"_yellow);
+    boost::replace_all(s, "OPTIONS:", "OPTIONS:"_yellow);
+    boost::replace_all(s, "SUBCOMMANDS:", "SUBCOMMANDS:"_yellow);
+    return s;
+}
+
+std::string
+colorize_anyhow_error(std::string s) {
+    using termcolor2::color_literals::operator""_yellow;
+    boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
+    return s;
+}
+
 [[nodiscard]] anyhow::result<void>
 exec(const structopt::app& app, const Commands& args) {
     if (args.create.has_value()) {
@@ -37,7 +62,8 @@ exec(const structopt::app& app, const Commands& args) {
     } else if (args.init.has_value()) {
         return subcmd::init::exec(args.init);
     } else {
-        return mitama::failure(anyhow::anyhow(app.help()));
+        spdlog::info("{}", colorize_help(app.help()));
+        return mitama::success();
     }
 }
 
@@ -60,11 +86,19 @@ main(const int argc, char* argv[]) {
         using termcolor2::color_literals::operator""_bold_red;
         return exec(app, args)
             .map_err([](const auto& e){
-                spdlog::error("{}: {}", "Error"_bold_red, e);
+                spdlog::error(
+                    "{} {}", "Error:"_bold_red,
+                    colorize_anyhow_error(fmt::format("{}", e))
+                );
             })
             .is_err();
     } catch (structopt::exception& e) {
-        spdlog::error("{}\n{}", e.what(), e.help());
+        using termcolor2::color_literals::operator""_green;
+        spdlog::error(
+            "{}\n\nFor more information, try {}",
+            colorize_error(e.what()),
+            "--help"_green
+        );
         return EXIT_FAILURE;
     }
 }
