@@ -125,7 +125,7 @@ namespace poac::core::resolver::resolve {
     }
 
     std::string to_binary_numbers(const int& x, const std::size_t& digit) {
-        return fmt::format(FMT_STRING("{:0{}b}"), x, digit);
+        return fmt::format("{:0{}b}", x, digit);
     }
 
     // A ∨ B ∨ C
