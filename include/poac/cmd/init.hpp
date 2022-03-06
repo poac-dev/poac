@@ -88,4 +88,6 @@ namespace poac::cmd::init {
     }
 } // end namespace
 
+STRUCTOPT(poac::cmd::init::Options, bin, lib);
+
 #endif // !POAC_CMD_INIT_HPP
