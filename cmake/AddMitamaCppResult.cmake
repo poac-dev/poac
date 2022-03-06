@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         mitama-cpp-result
         GIT_REPOSITORY https://github.com/LoliGothick/mitama-cpp-result.git
-        GIT_TAG        1cfe393e7d02f66cf0303e6df77099e3a4b20d32
+        GIT_TAG        5ce08203c254d24d6644daff7eb95f987a486442
 )
 FetchContent_MakeAvailable(mitama-cpp-result)
 list(APPEND POAC_DEPENDENCIES mitama-cpp-result::mitama-cpp-result)

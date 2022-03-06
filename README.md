@@ -90,13 +90,13 @@ Poac requires the following compilers, tools, and packages to build:
   * uuid
 * [`fmt`](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
-* [`libarchive`](https://github.com/libarchive/libarchive): `3.4.3` or later
+* [`libarchive`](https://github.com/libarchive/libarchive): `master` branch (awaiting the next release above `v3.6.0`)
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `master` branch
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `master` branch (awaiting the next release above `v9.2.1`)
 * [`openssl`](https://github.com/openssl/openssl)*: as new as possible
 * [`spdlog`](https://github.com/gabime/spdlog): `1.9.0` or later
 * [`structopt`](https://github.com/p-ranav/structopt): `v0.1.2` or later
-* [`toml11`](https://github.com/ToruNiina/toml11): `3.0.0` or later
+* [`toml11`](https://github.com/ToruNiina/toml11): `master` branch (awaiting the next release above `v3.7.0`)
 
 After you prepared the requirements, you can build Poac using the following commands:
 
