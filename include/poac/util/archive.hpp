@@ -82,7 +82,7 @@ namespace poac::util::archive {
     set_extract_path(archive_entry* entry, const std::filesystem::path& extract_path) noexcept {
         const std::string current_file = archive_entry_pathname(entry);
         const std::filesystem::path full_output_path = extract_path / current_file;
-        spdlog::debug("extracting to `{}`", full_output_path);
+        spdlog::debug("extracting to `{}`", full_output_path.string());
         archive_entry_set_pathname(entry, full_output_path.c_str());
         return current_file;
     }
