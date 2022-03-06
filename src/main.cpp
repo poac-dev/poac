@@ -1,42 +1,36 @@
 // std
 #include <cstdlib>
-#include <string>
 #include <optional>
 
 // external
-#include <mitama/result/result.hpp>
+#include <mitama/anyhow/anyhow.hpp>
 #include <spdlog/spdlog.h>
 #include <structopt/app.hpp>
 
 // internal
 #include <poac/cmd.hpp>
 
-inline TERMCOLOR2_CXX20_CONSTINIT const std::string error =
-    termcolor2::bold + termcolor2::red + "Error" + termcolor2::reset;
+namespace commands = poac::cmd;
+namespace anyhow = mitama::anyhow;
 
-void
-print_err(std::string_view e) {
-    spdlog::error("{}: {}", error, e);
-}
-
-struct Command {
+struct Commands {
     /// Use verbose output
     std::optional<bool> verbose = false;
     /// Do not print poac log messages
     std::optional<bool> quiet = false;
 
     /// Create a new poac package in an existing directory
-    poac::cmd::init::Options init;
+    commands::init::Options init;
 };
-STRUCTOPT(poac::cmd::init::Options, bin, lib);
-STRUCTOPT(Command, verbose, quiet, init);
+STRUCTOPT(commands::init::Options, bin, lib);
+STRUCTOPT(Commands, verbose, quiet, init);
 
-[[nodiscard]] mitama::result<void, std::string>
-exec(const structopt::app& app, Command& args) {
+[[nodiscard]] anyhow::result<void>
+exec(const structopt::app& app, const Commands& args) {
     if (args.init.has_value()) {
-        return poac::cmd::init::exec(std::move(args.init));
+        return commands::init::exec(args.init);
     } else {
-        return mitama::failure(app.help());
+        return mitama::failure(anyhow::anyhow(app.help()));
     }
 }
 
@@ -46,7 +40,7 @@ main(const int argc, char* argv[]) {
     auto app = structopt::app("poac", POAC_VERSION);
 
     try {
-        auto args = app.parse<Command>(argc, argv);
+        const auto args = app.parse<Commands>(argc, argv);
 
         // Global options
         if (args.verbose.value()) {
@@ -56,7 +50,12 @@ main(const int argc, char* argv[]) {
         }
 
         // Subcommands
-        return exec(app, args).map_err(print_err).is_err();
+        using termcolor2::color_literals::operator""_bold_red;
+        return exec(app, args)
+            .map_err([](const auto& e){
+                spdlog::error("{}: {}", "Error"_bold_red, e);
+            })
+            .is_err();
     } catch (structopt::exception& e) {
         spdlog::error("{}\n{}", e.what(), e.help());
         return EXIT_FAILURE;
