@@ -18,6 +18,7 @@
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/thiserror/thiserror.hpp>
 #include <spdlog/spdlog.h>
+#include <structopt/app.hpp>
 
 // internal
 #include <poac/core/validator.hpp>
