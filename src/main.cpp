@@ -35,27 +35,27 @@ struct Commands {
 };
 STRUCTOPT(Commands, verbose, quiet, build, create, init, search);
 
-std::string
-colorize_error(std::string s) {
+inline std::string
+colorize_structopt_error(std::string s) {
     using termcolor2::color_literals::operator""_bold_red;
     boost::replace_all(s, "Error:", "Error:"_bold_red);
     return s;
 }
 
-std::string
+inline std::string
+colorize_anyhow_error(std::string s) {
+    using termcolor2::color_literals::operator""_yellow;
+    boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
+    return s;
+}
+
+inline std::string
 colorize_help(std::string s) {
     using termcolor2::color_literals::operator""_yellow;
     boost::replace_all(s, "USAGE:", "USAGE:"_yellow);
     boost::replace_all(s, "FLAGS:", "FLAGS:"_yellow);
     boost::replace_all(s, "OPTIONS:", "OPTIONS:"_yellow);
     boost::replace_all(s, "SUBCOMMANDS:", "SUBCOMMANDS:"_yellow);
-    return s;
-}
-
-std::string
-colorize_anyhow_error(std::string s) {
-    using termcolor2::color_literals::operator""_yellow;
-    boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
     return s;
 }
 
@@ -104,8 +104,17 @@ main(const int argc, char* argv[]) {
         using termcolor2::color_literals::operator""_green;
         spdlog::error(
             "{}\n\nFor more information, try {}",
-            colorize_error(e.what()),
+            colorize_structopt_error(e.what()),
             "--help"_green
+        );
+        return EXIT_FAILURE;
+    } catch (...) {
+        using termcolor2::color_literals::operator""_bold_red;
+        spdlog::error(
+            "{} Unknown error occurred\n\n"
+            "Please open an issue with reproducible information at:\n"
+            "https://github.com/poacpm/poac/issues",
+            "Error:"_bold_red
         );
         return EXIT_FAILURE;
     }
