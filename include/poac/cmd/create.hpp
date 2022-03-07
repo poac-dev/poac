@@ -204,4 +204,6 @@ namespace poac::cmd::create {
     }
 } // end namespace
 
+STRUCTOPT(poac::cmd::create::Options, package_name, bin, lib);
+
 #endif // !POAC_CMD_CREATE_HPP

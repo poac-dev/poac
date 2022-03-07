@@ -86,4 +86,6 @@ namespace poac::cmd::search {
     }
 } // end namespace
 
+STRUCTOPT(poac::cmd::search::Options, package_name);
+
 #endif // !POAC_CMD_SEARCH_HPP
