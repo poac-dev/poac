@@ -13,7 +13,7 @@ FetchContent_MakeAvailable(ninja)
 file(COPY ${ninja_SOURCE_DIR}/src DESTINATION ${ninja_BINARY_DIR}/include)
 file(RENAME ${ninja_BINARY_DIR}/include/src ${ninja_BINARY_DIR}/include/ninja RESULT POAC_DEV_NULL)
 target_include_directories(${PROJECT_NAME} PRIVATE ${ninja_BINARY_DIR}/include)
-list(APPEND POAC_DEPENDENCIES libninja)
+list(APPEND POAC_DEPENDENCIES libninja libninja-re2c)
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
