@@ -2,7 +2,7 @@
 #define POAC_CONFIG_HPP
 
 #ifndef POAC_VERSION
-#   warning "POAC_VERSION is not defined"
+#  error "POAC_VERSION is not defined"
 #endif
 
 // std
