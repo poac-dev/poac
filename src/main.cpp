@@ -21,6 +21,9 @@ struct Commands {
     /// Do not print poac log messages
     std::optional<bool> quiet = false;
 
+    /// Compile a local package and all of its dependencies
+    subcmd::build::Options build;
+
     /// Create a new poac package at <package_name>
     subcmd::create::Options create;
 
@@ -30,7 +33,7 @@ struct Commands {
     /// Search a package on poac.pm
     subcmd::search::Options search;
 };
-STRUCTOPT(Commands, verbose, quiet, create, init, search);
+STRUCTOPT(Commands, verbose, quiet, build, create, init, search);
 
 std::string
 colorize_error(std::string s) {
@@ -58,7 +61,9 @@ colorize_anyhow_error(std::string s) {
 
 [[nodiscard]] anyhow::result<void>
 exec(const structopt::app& app, const Commands& args) {
-    if (args.create.has_value()) {
+    if (args.build.has_value()) {
+        return subcmd::build::exec(args.build);
+    } else if (args.create.has_value()) {
         return subcmd::create::exec(args.create);
     } else if (args.init.has_value()) {
         return subcmd::init::exec(args.init);
