@@ -15,6 +15,8 @@
 #include <boost/range/adaptor/map.hpp>
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
+#include <mitama/anyhow/anyhow.hpp>
+#include <mitama/thiserror/thiserror.hpp>
 #include <spdlog/spdlog.h>
 #include <toml.hpp>
 
@@ -30,6 +32,36 @@
 #include <poac/config.hpp>
 
 namespace poac::core::resolver {
+    namespace anyhow = mitama::anyhow;
+    namespace thiserror = mitama::thiserror;
+
+    class Error {
+        template <thiserror::fixed_string S, class ...T>
+        using error = thiserror::error<S, T...>;
+
+    public:
+        using FailedToParseConfig =
+            error<"parsing the value of the `dependencies` key in poac.toml failed">;
+
+        using FailedToResolveDeps =
+            error<"failed to resolve dependencies">;
+
+        using FailedToResolveDepsWithCause =
+            error<"failed to resolve dependencies:\n{0}", std::string>;
+
+        using FailedToCreateDirs =
+            error<"failed to create directories:\n{0}", std::string>;
+
+        using FailedToRename =
+            error<"failed to rename a downloaded package: `{0}: {1}`", std::string, std::string>;
+
+        using FailedToFetch =
+            error<"failed to fetch a package: `{0}: {1}`", std::string, std::string>;
+
+        using Unknown =
+            error<"unknown error occurred: {0}", std::string>;
+    };
+
     inline std::string
     get_install_name(const resolve::package_t& package) {
         return boost::replace_first_copy(
@@ -43,7 +75,7 @@ namespace poac::core::resolver {
     }
 
     /// Rename unknown extracted directory to easily access when building.
-    [[nodiscard]] mitama::result<void, std::string>
+    [[nodiscard]] anyhow::result<void>
     rename_extracted_directory(
         const resolve::package_t& package,
         std::string_view extracted_directory_name) noexcept
@@ -55,7 +87,7 @@ namespace poac::core::resolver {
         std::error_code ec{};
         std::filesystem::rename(temporarily_extracted_path, extracted_path, ec);
         if (ec) {
-            return mitama::failure("renaming a downloaded package failed");
+            return anyhow::failure<Error::FailedToRename>(package.first, package.second);
         }
         return mitama::success();
     }
@@ -85,10 +117,13 @@ namespace poac::core::resolver {
         return mitama::success(convert_to_download_link(repository));
     }
 
-    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
+    [[nodiscard]] anyhow::result<std::filesystem::path>
     fetch_impl(const resolve::package_t& package) noexcept {
         try {
-            const std::string download_link = MITAMA_TRY(get_download_link(package));
+            const std::string download_link = MITAMA_TRY(
+                get_download_link(package)
+                    .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+            );
             spdlog::debug("downloading from `{}`", download_link);
             const std::filesystem::path archive_path = get_archive_path(package);
             spdlog::debug("writing to `{}`", archive_path.string());
@@ -100,19 +135,26 @@ namespace poac::core::resolver {
 
             return mitama::success(archive_path);
         } catch (const std::exception& e) {
-            return mitama::failure(e.what());
+            return anyhow::result<std::filesystem::path>(anyhow::failure<Error::Unknown>(e.what()))
+                .with_context([&name=package.first, &ver=package.second] {
+                    return anyhow::failure<Error::FailedToFetch>(name, ver).get();
+                });
         } catch (...) {
-            return mitama::failure("fetching packages failed");
+            return anyhow::failure<Error::FailedToFetch>(package.first, package.second);
         }
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
+    [[nodiscard]] anyhow::result<void>
     fetch(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
         for (const auto& package : deps) {
             const std::filesystem::path installed_path = MITAMA_TRY(fetch_impl(package));
-            const std::string extracted_directory_name =
-                MITAMA_TRY(util::archive::extract(installed_path, config::path::extract_dir));
-            MITAMA_TRY(rename_extracted_directory(package, extracted_directory_name));
+            const std::string extracted_directory_name = MITAMA_TRY(
+                util::archive::extract(installed_path, config::path::extract_dir)
+                    .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+            );
+            MITAMA_TRY(
+                rename_extracted_directory(package, extracted_directory_name)
+            );
 
             using termcolor2::color_literals::operator""_bold_green;
             spdlog::info(
@@ -151,7 +193,7 @@ namespace poac::core::resolver {
             | util::meta::containerized;
     }
 
-    [[nodiscard]] mitama::result<void, std::string>
+    [[nodiscard]] anyhow::result<void>
     download_deps(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
         const auto not_installed_deps = get_not_installed_deps(deps);
         if (not_installed_deps.empty()) {
@@ -164,17 +206,18 @@ namespace poac::core::resolver {
         try {
             std::filesystem::create_directories(config::path::cache_dir);
         } catch (const std::exception& e) {
-            return mitama::failure(fmt::format(
-                "creating directories failed with error:\n{}", e.what()
-            ));
+            return anyhow::failure<Error::FailedToCreateDirs>(e.what());
         }
         return fetch(not_installed_deps);
     }
 
-    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
+    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
     do_resolve(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
         try {
-            const auto duplicate_deps = MITAMA_TRY(resolve::gather_all_deps(deps));
+            const auto duplicate_deps = MITAMA_TRY(
+                resolve::gather_all_deps(deps)
+                    .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+            );
             if (!resolve::duplicate_loose(duplicate_deps)) {
                 // When all dependencies are composed of one package and one version,
                 // a backtrack is not needed. Therefore, the duplicate_loose
@@ -189,18 +232,17 @@ namespace poac::core::resolver {
                         duplicate_deps.cbegin(), duplicate_deps.cend()
                     ));
             } else {
-                return resolve::backtrack_loop(duplicate_deps);
+                return resolve::backtrack_loop(duplicate_deps)
+                    .map_err([](const std::string& e){ return anyhow::anyhow(e); });
             }
         } catch (const std::exception& e) {
-            return mitama::failure(fmt::format(
-                "resolving packages failed with error:\n{}", e.what()
-            ));
+            return anyhow::failure<Error::FailedToResolveDepsWithCause>(e.what());
         } catch (...) {
-            return mitama::failure("resolving packages failed with unknown error");
+            return anyhow::failure<Error::FailedToResolveDeps>();
         }
     }
 
-    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::without_deps>, std::string>
+    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::without_deps>>
     to_resolvable_deps(const toml::value& deps) noexcept {
         try {
             resolve::unique_deps_t<resolve::without_deps> resolvable_deps{};
@@ -210,13 +252,11 @@ namespace poac::core::resolver {
             }
             return mitama::success(resolvable_deps);
         } catch (...) {
-            return mitama::failure(
-                "parsing the value of the `dependencies` key in poac.toml failed"
-            );
+            return anyhow::failure<Error::FailedToParseConfig>();
         }
     }
 
-    [[nodiscard]] mitama::result<resolve::unique_deps_t<resolve::with_deps>, std::string>
+    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
     install_deps(const toml::value& config) noexcept {
         if (!config.contains("dependencies")) {
             return mitama::success(resolve::unique_deps_t<resolve::with_deps>{});

@@ -27,11 +27,25 @@ namespace poac::cmd::build {
         std::optional<bool> release = false;
     };
 
+    class Error {
+        template <thiserror::fixed_string S, class ...T>
+        using error = thiserror::error<S, T...>;
+
+    public:
+        using FailedToBuild =
+            error<"failed to build">;
+
+        using FailedToInstallDeps =
+            error<"failed to install dependencies">;
+    };
+
     [[nodiscard]] anyhow::result<std::filesystem::path>
     build(const Options& opts, const toml::value& config) {
         const auto resolved_deps = MITAMA_TRY(
             core::resolver::install_deps(config)
-                .map_err([](const std::string& e){ return anyhow::anyhow(e); })
+                .with_context([]{
+                    return anyhow::failure<Error::FailedToInstallDeps>().get();
+                })
         );
 
         using core::builder::mode_t;
@@ -52,7 +66,7 @@ namespace poac::cmd::build {
         const toml::value config = toml::parse("poac.toml");
         MITAMA_TRY(
             build(opts, config).with_context([]{
-                return anyhow::anyhow("Failed to build");
+                return anyhow::failure<Error::FailedToBuild>().get();
             })
         );
         return mitama::success();
