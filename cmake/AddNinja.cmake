@@ -8,6 +8,8 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/ninja-build/ninja
         GIT_TAG        v1.10.2
 )
+
+set(BUILD_TESTING OFF)
 FetchContent_MakeAvailable(ninja)
 
 file(COPY ${ninja_SOURCE_DIR}/src DESTINATION ${ninja_BINARY_DIR}/include)

@@ -16,12 +16,12 @@ project(poac
 include(GNUInstallDirs)
 
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
-option(BUILD_TESTING "Do not build tests by default" OFF)
+option(POAC_BUILD_TESTING "Do not build tests by default" OFF)
 option(POAC_ENABLE_COVERAGE "Enable coverage" OFF)
 
 # Option checks
-if ((NOT BUILD_TESTING) AND POAC_ENABLE_COVERAGE)
-    message(FATAL_ERROR "POAC_ENABLE_COVERAGE cannot be enabled without BUILD_TESTING being on")
+if ((NOT POAC_BUILD_TESTING) AND POAC_ENABLE_COVERAGE)
+    message(FATAL_ERROR "POAC_ENABLE_COVERAGE cannot be enabled without POAC_BUILD_TESTING being on")
 endif ()
 
 set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
@@ -72,7 +72,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 include(CTest)
-if (BUILD_TESTING AND ${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
+if (POAC_BUILD_TESTING AND ${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
     enable_testing()
     add_subdirectory(tests)
 endif ()
