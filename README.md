@@ -69,7 +69,7 @@ Poac requires the following compilers, tools, and packages to build:
 
 #### tools
 
-* [`cmake`](https://github.com/Kitware/CMake): `3.17` or later
+* [`cmake`](https://github.com/Kitware/CMake): `3.21` or later
 
 #### packages
 
@@ -93,6 +93,7 @@ Poac requires the following compilers, tools, and packages to build:
 * [`libarchive`](https://github.com/libarchive/libarchive): `master` branch (awaiting the next release above `v3.6.0`)
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `master` branch (awaiting the next release above `v9.2.1`)
+* [`ninja`](https://github.com/ninja-build/ninja): `v1.10.2` or later
 * [`openssl`](https://github.com/openssl/openssl)*: as new as possible
 * [`spdlog`](https://github.com/gabime/spdlog): `1.9.0` or later
 * [`structopt`](https://github.com/p-ranav/structopt): `v0.1.2` or later
@@ -144,6 +145,7 @@ Please see [LICENSE](LICENSE) for details.
 * libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
+* ninja - <https://github.com/ninja-build/ninja/blob/master/COPYING>
 * openssl - <https://github.com/openssl/openssl/blob/master/LICENSE.txt>
 * spdlog - <https://github.com/gabime/spdlog/blob/v1.x/LICENSE>
 * structopt - <https://github.com/p-ranav/structopt/blob/master/LICENSE>

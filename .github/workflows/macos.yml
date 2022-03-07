@@ -33,7 +33,7 @@ jobs:
         run: |
           cmake ..                                      \
             -G Ninja                                    \
-            -DBUILD_TESTING=ON                          \
+            -DPOAC_BUILD_TESTING=ON                     \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           ninja
         working-directory: build

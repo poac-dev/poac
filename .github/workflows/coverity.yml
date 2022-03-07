@@ -36,7 +36,7 @@ jobs:
       - name: Create a building directory and Run CMake
         run: |
           mkdir build && cd build
-          cmake -DBUILD_TESTING=ON -DPOAC_ENABLE_COVERAGE=ON ..
+          cmake -DPOAC_BUILD_TESTING=ON -DPOAC_ENABLE_COVERAGE=ON ..
         env:
           CXX: g++-11
 

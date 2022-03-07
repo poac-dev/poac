@@ -199,7 +199,7 @@ jobs:
       - name: Build Poac
         run: |
           cmake ..                                      \
-            -DBUILD_TESTING=ON                          \
+            -DPOAC_BUILD_TESTING=ON                     \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs     \
             -DOPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl
