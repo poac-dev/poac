@@ -223,6 +223,10 @@ namespace poac::util::cfg {
                 return "os_version";
             case Token::ident::platform:
                 return "platform";
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -248,6 +252,10 @@ namespace poac::util::cfg {
                 return (os << "string: " << token.get_str());
             case Token::Ident:
                 return (os << "ident: " << to_string(token.get_ident()));
+            default:
+                throw std::logic_error(
+                        "To access out of range of the "
+                        "enumeration values is undefined behavior.");
         }
     }
 
@@ -549,6 +557,10 @@ namespace poac::util::cfg {
                 }
                 case Kind::value:
                     return this->match(std::get<Cfg>(this->expr));
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
 
@@ -645,6 +657,10 @@ namespace poac::util::cfg {
 #endif
                 case Cfg::Ident::os_version:
                     return false;
+                default:
+                    throw std::logic_error(
+                            "To access out of range of the "
+                            "enumeration values is undefined behavior.");
             }
         }
     };
