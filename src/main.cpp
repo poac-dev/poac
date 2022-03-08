@@ -45,7 +45,11 @@ colorize_structopt_error(std::string s) {
 
 inline std::string
 colorize_anyhow_error(std::string s) {
-    boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
+    // `Caused by:` leaves a trailing newline
+    if (s.find("Caused by:") != std::string::npos) {
+        boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
+        boost::replace_last(s, "\n", "");
+    }
     return s;
 }
 
@@ -55,6 +59,7 @@ colorize_help(std::string s) {
     boost::replace_all(s, "FLAGS:", "FLAGS:"_yellow);
     boost::replace_all(s, "OPTIONS:", "OPTIONS:"_yellow);
     boost::replace_all(s, "SUBCOMMANDS:", "SUBCOMMANDS:"_yellow);
+    boost::replace_last(s, "\n", "");
     return s;
 }
 
