@@ -42,6 +42,7 @@ namespace poac::cmd::build {
 
     [[nodiscard]] anyhow::result<std::filesystem::path>
     build(const Options& opts, const toml::value& config) {
+        spdlog::trace("Resolving dependencies ...");
         const auto resolved_deps = MITAMA_TRY(
             core::resolver::install_deps(config)
                 .with_context([]{
@@ -60,11 +61,15 @@ namespace poac::cmd::build {
 
     [[nodiscard]] anyhow::result<void>
     exec(const Options& opts) {
+        spdlog::trace("Checking required config exists ...");
         MITAMA_TRY(
             core::validator::required_config_exists()
                 .map_err([](const std::string& e){ return anyhow::anyhow(e); })
         );
+
+        spdlog::trace("Parsing the manifest file ...");
         const toml::value config = toml::parse(data::manifest::manifest_file_name);
+
         MITAMA_TRY(
             build(opts, config).with_context([]{
                 return anyhow::failure<Error::FailedToBuild>().get();
