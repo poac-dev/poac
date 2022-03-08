@@ -17,6 +17,7 @@
 #include <poac/core/builder.hpp>
 #include <poac/core/resolver.hpp>
 #include <poac/core/validator.hpp>
+#include <poac/data/manifest.hpp>
 
 namespace poac::cmd::build {
     namespace anyhow = mitama::anyhow;
@@ -63,7 +64,7 @@ namespace poac::cmd::build {
             core::validator::required_config_exists()
                 .map_err([](const std::string& e){ return anyhow::anyhow(e); })
         );
-        const toml::value config = toml::parse("poac.toml");
+        const toml::value config = toml::parse(data::manifest::manifest_file_name);
         MITAMA_TRY(
             build(opts, config).with_context([]{
                 return anyhow::failure<Error::FailedToBuild>().get();

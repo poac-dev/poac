@@ -19,6 +19,7 @@
 // internal
 #include <poac/cmd/create.hpp>
 #include <poac/core/validator.hpp>
+#include <poac/data/manifest.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 
@@ -46,8 +47,8 @@ namespace poac::cmd::init {
     init(const Options& opts, std::string_view package_name) {
         using create::ProjectType;
 
-        spdlog::trace("Creating ./poac.toml");
-        std::ofstream ofs_config("poac.toml");
+        spdlog::trace("Creating ./{}", data::manifest::manifest_file_name);
+        std::ofstream ofs_config(data::manifest::manifest_file_name);
 
         const ProjectType type = create::opts_to_project_type(opts);
         switch (type) {
