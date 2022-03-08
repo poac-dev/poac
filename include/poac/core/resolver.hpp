@@ -8,6 +8,7 @@
 #include <utility>
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 // external
 #include <boost/algorithm/string.hpp>
@@ -23,6 +24,7 @@
 // internal
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/core/resolver/sat.hpp>
+#include <poac/data/lockfile.hpp>
 #include <poac/util/archive.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
@@ -256,15 +258,43 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
-    install_deps(const toml::value& config) noexcept {
-        if (!config.contains("dependencies")) {
-            return mitama::success(resolve::unique_deps_t<resolve::with_deps>{});
+    [[nodiscard]] anyhow::result<std::optional<resolve::unique_deps_t<resolve::with_deps>>>
+    try_to_read_lockfile(const toml::value& config) {
+        if (data::lockfile::is_outdated(config::path::current)) {
+            const toml::value deps = toml::get<toml::table>(config).at("dependencies");
+            const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
+            const auto resolved_deps = MITAMA_TRY(do_resolve(resolvable_deps));
+            return mitama::success(resolved_deps);
+        } else {
+            return data::lockfile::read(config::path::current);
         }
-        const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-        const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
-        const auto resolved_deps = MITAMA_TRY(do_resolve(resolvable_deps));
+    }
+
+    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
+    get_resolved_deps(const toml::value& config) {
+        const auto resolved_deps = MITAMA_TRY(try_to_read_lockfile(config));
+        if (resolved_deps.has_value()) {
+            return mitama::success(resolved_deps.value());
+        } else {
+            // Resolve dependencies from manifest file.
+            const toml::value deps = toml::get<toml::table>(config).at("dependencies");
+            const auto resolvable_deps = MITAMA_TRY(to_resolvable_deps(deps));
+            return do_resolve(resolvable_deps);
+        }
+    }
+
+    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
+    install_deps(const toml::value& config) {
+        if (!config.contains("dependencies")) {
+            const auto empty_deps = resolve::unique_deps_t<resolve::with_deps>{};
+            MITAMA_TRY(data::lockfile::generate(empty_deps));
+            return mitama::success(empty_deps);
+        }
+
+        const auto resolved_deps = MITAMA_TRY(get_resolved_deps(config));
         MITAMA_TRY(download_deps(resolved_deps));
+        MITAMA_TRY(data::lockfile::generate(resolved_deps)); // when lockfile is old
+
         return mitama::success(resolved_deps);
     }
 }
