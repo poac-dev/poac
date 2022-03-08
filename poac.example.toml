@@ -1,0 +1,8 @@
+[package]
+name = "build"
+version = "0.1.0"
+authors = []
+cpp = 17
+
+[dependencies]
+"boost/bind" = ">=1.64.0 and <2.0.0"
