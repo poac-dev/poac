@@ -73,7 +73,7 @@ namespace poac::core::builder::ninja_syntax {
 
         /// Returns the number of '$' characters right in front of s[i].
         std::size_t
-        count_dollars_before_index(std::string_view s, std::size_t i) {
+        count_dollars_before_index(std::string_view s, std::size_t i) const {
             std::size_t dollar_count = 0;
             std::size_t dollar_index = i - 1;
             while (dollar_index > 0 && s[dollar_index] == '$') {
@@ -266,6 +266,10 @@ namespace poac::core::builder::ninja_syntax {
         inline void
         close() {
             output.close();
+        }
+
+        friend std::ostream& operator<<(std::ostream &os, const writer<Ostream>& w) {
+            return os << w.output.str();
         }
     };
 } // end namespace
