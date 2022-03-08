@@ -63,11 +63,6 @@ namespace poac::cmd::create {
                 return (os << "binary (application)");
             case ProjectType::Lib:
                 return (os << "library");
-            default:
-                throw std::logic_error(
-                        "To access out of range of the "
-                        "enumeration values is undefined behavior."
-                );
         }
     }
 
@@ -150,11 +145,6 @@ namespace poac::cmd::create {
                         files::include_hpp(package_name)
                     },
                 };
-            default:
-                throw std::logic_error(
-                        "To access out of range of the "
-                        "enumeration values is undefined behavior."
-                );
         }
     }
 

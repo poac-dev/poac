@@ -37,11 +37,6 @@ namespace poac::core::builder {
                 return "dev";
             case mode_t::release:
                 return "release";
-            default:
-                throw std::logic_error(
-                    "To access out of range of the "
-                    "enumeration values is undefined behavior."
-                );
         }
     }
 
