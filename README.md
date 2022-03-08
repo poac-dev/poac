@@ -70,13 +70,11 @@ Poac requires the following compilers, tools, and packages to build:
 #### tools
 
 * [`cmake`](https://github.com/Kitware/CMake): `3.21` or later
+* [`ninja`](https://github.com/ninja-build/ninja): `1.8` or later
 
-#### packages
+#### libraries
 
-> The following packages marked with `*` are needed installing before building
-> because except for them will be automatically installed when configuring by CMake.
-
-* [`boost`](https://github.com/boostorg)*: `1.70.0` or later
+* [`boost`](https://github.com/boostorg): `1.70.0` or later
   * algorithm
   * asio
   * beast
@@ -88,26 +86,31 @@ Poac requires the following compilers, tools, and packages to build:
   * scope_exit
   * test (dev)
   * uuid
+* [`openssl`](https://github.com/openssl/openssl): as new as possible
+
+<details>
+<summary>The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them.</summary>
+
 * [`fmt`](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
 * [`libarchive`](https://github.com/libarchive/libarchive): `master` branch (awaiting the next release above `v3.6.0`)
 * [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `master` branch (awaiting the next release above `v9.2.1`)
 * [`ninja`](https://github.com/ninja-build/ninja): `v1.10.2` or later
-* [`openssl`](https://github.com/openssl/openssl)*: as new as possible
 * [`spdlog`](https://github.com/gabime/spdlog): `1.9.0` or later
 * [`structopt`](https://github.com/p-ranav/structopt): `v0.1.2` or later
 * [`toml11`](https://github.com/ToruNiina/toml11): `master` branch (awaiting the next release above `v3.7.0`)
+</details>
 
-After you prepared the requirements, you can build Poac using the following commands:
+After you prepared these requirements, you can build Poac using the following commands:
 
 ```bash
 $ git clone https://github.com/poacpm/poac.git
 $ cd poac
 $ mkdir build && cd $_
-$ cmake .. -DCMAKE_BUILD_TYPE=Release
-$ make # or ninja
-$ make install
+$ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+$ ninja
+$ ninja install
 ```
 
 ## Why Poac?
