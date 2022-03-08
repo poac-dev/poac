@@ -1,5 +1,6 @@
 // std
 #include <cstdlib>
+#include <exception>
 #include <optional>
 
 // external
@@ -97,12 +98,15 @@ main(const int argc, char* argv[]) {
                 );
             })
             .is_err();
-    } catch (structopt::exception& e) {
+    } catch (const structopt::exception& e) {
         spdlog::error(
             "{}\n\nFor more information, try {}",
             colorize_structopt_error(e.what()),
             "--help"_green
         );
+        return EXIT_FAILURE;
+    } catch (const std::exception& e) {
+        spdlog::error("{} {}", "Error:"_bold_red, e.what());
         return EXIT_FAILURE;
     } catch (...) {
         spdlog::error(
