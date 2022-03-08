@@ -25,11 +25,16 @@ namespace poac {
 } // end namespace
 
 namespace poac::config::path {
-    inline const std::filesystem::path user = util::misc::expand_user().unwrap();
-    inline const std::filesystem::path root(user / ".poac");
-    inline const std::filesystem::path cache_dir(root / "cache");
-    inline const std::filesystem::path archive_dir(cache_dir / "archive");
-    inline const std::filesystem::path extract_dir(cache_dir / "extract");
+    namespace fs = std::filesystem;
+
+    inline const fs::path user = util::misc::expand_user().unwrap();
+    inline const fs::path root(user / ".poac");
+    inline const fs::path cache_dir(root / "cache");
+    inline const fs::path archive_dir(cache_dir / "archive");
+    inline const fs::path extract_dir(cache_dir / "extract");
+
+    inline const fs::path current = fs::current_path();
+    inline const fs::path output_dir(current / "poac_output");
 } // end namespace
 
 #endif // !POAC_CONFIG_HPP
