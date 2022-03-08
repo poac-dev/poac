@@ -33,7 +33,7 @@ namespace poac::cmd::build {
 
     public:
         using FailedToBuild =
-            error<"failed to build">;
+            error<"failed to build this package">;
 
         using FailedToInstallDeps =
             error<"failed to install dependencies">;
