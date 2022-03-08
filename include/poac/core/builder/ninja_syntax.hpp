@@ -67,7 +67,7 @@ namespace poac::core::builder::ninja_syntax {
 
     template <typename Ostream>
     requires util::meta::derived_from<Ostream, std::ostream>
-    class Writer {
+    class writer {
         Ostream output;
         std::size_t width;
 
@@ -120,7 +120,7 @@ namespace poac::core::builder::ninja_syntax {
         }
 
     public:
-        explicit Writer(Ostream&& o, std::size_t w = 78) : output(std::move(o)), width(w) {}
+        explicit writer(Ostream&& o, std::size_t w = 78) : output(std::move(o)), width(w) {}
 
         inline void
         newline() {
