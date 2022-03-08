@@ -37,6 +37,9 @@ namespace poac::core::builder {
                 return "dev";
             case mode_t::release:
                 return "release";
+#if BOOST_COMP_GNUC
+            __builtin_unreachable();
+#endif
         }
     }
 

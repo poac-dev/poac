@@ -13,6 +13,7 @@
 #include <optional>
 
 // external
+#include <boost/predef.h>
 #include <fmt/core.h>
 #include <git2-cpp/git2.hpp>
 #include <mitama/result/result.hpp>
@@ -63,6 +64,9 @@ namespace poac::cmd::create {
                 return (os << "binary (application)");
             case ProjectType::Lib:
                 return (os << "library");
+#if BOOST_COMP_GNUC
+            __builtin_unreachable();
+#endif
         }
     }
 
@@ -145,6 +149,9 @@ namespace poac::cmd::create {
                         files::include_hpp(package_name)
                     },
                 };
+#if BOOST_COMP_GNUC
+            __builtin_unreachable();
+#endif
         }
     }
 
