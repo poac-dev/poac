@@ -23,6 +23,7 @@
 
 // internal
 #include <poac/core/validator.hpp>
+#include <poac/data/manifest.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 #include <poac/util/misc.hpp>
@@ -135,7 +136,7 @@ namespace poac::cmd::create {
                 std::filesystem::create_directories(package_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
-                    { "poac.toml", files::poac_toml(package_name) },
+                    { data::manifest::manifest_file_name, files::poac_toml(package_name) },
                     { "src"_path / "main.cpp", files::main_cpp }
                 };
             case ProjectType::Lib:
@@ -144,7 +145,7 @@ namespace poac::cmd::create {
                 );
                 return {
                     { ".gitignore", "/target\npoac.lock" },
-                    { "poac.toml", files::poac_toml(package_name) },
+                    { data::manifest::manifest_file_name, files::poac_toml(package_name) },
                     { "include"_path / package_name / (package_name + ".hpp"),
                         files::include_hpp(package_name)
                     },

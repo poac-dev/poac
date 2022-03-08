@@ -12,13 +12,16 @@
 #include <fmt/ostream.h>
 #include <mitama/result/result.hpp>
 
+// internal
+#include <poac/data/manifest.hpp>
+
 namespace poac::core::validator {
     [[nodiscard]] mitama::result<void, std::string>
     required_config_exists(
         const std::filesystem::path& base = std::filesystem::current_path())
     noexcept
     {
-        const auto config_path = base / "poac.toml";
+        const auto config_path = base / data::manifest::manifest_file_name;
         std::error_code ec{};
         if (std::filesystem::exists(config_path, ec)) {
             return mitama::success();
