@@ -7,7 +7,6 @@ set(TEST_NAMES
         resolve
         sat
         shell
-        standard
         validator
 )
 
