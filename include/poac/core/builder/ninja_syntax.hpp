@@ -92,8 +92,8 @@ namespace poac::core::builder::ninja_syntax {
                 //
                 // Find the rightmost space that would obey our width constraint and
                 // that's not an escaped space.
-                std::uint32_t available_space = width - leading_space.length() - 2; // " $".length() == 2
-                std::uint32_t space = available_space;
+                std::int32_t available_space = width - leading_space.length() - 2; // " $".length() == 2
+                std::int32_t space = available_space;
                 do {
                     space = text.rfind(' ', space);
                 } while (space < 0 || count_dollars_before_index(text, space) % 2 == 0);
@@ -120,7 +120,7 @@ namespace poac::core::builder::ninja_syntax {
         }
 
     public:
-        Writer(Ostream&& o, std::size_t w = 78) : output(std::move(o)), width(w) {}
+        explicit Writer(Ostream&& o, std::size_t w = 78) : output(std::move(o)), width(w) {}
 
         inline void
         newline() {
