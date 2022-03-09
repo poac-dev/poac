@@ -13,7 +13,7 @@ set(TEST_NAMES
 
 # Erase the compile options of Boost::ut
 # ref: https://github.com/boost-ext/ut/blob/67b136c0267a54248d05fcba63905ff5e6abf0b7/CMakeLists.txt#L83-L115
-set_property(TARGET Boost::ut PROPERTY COMPILE_OPTIONS)
+set_property(TARGET ut PROPERTY COMPILE_OPTIONS)
 
 get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
 get_property(POAC_COMPILE_DEFINITIONS TARGET poac PROPERTY COMPILE_DEFINITIONS)
