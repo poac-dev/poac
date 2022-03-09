@@ -12,7 +12,7 @@ get_property(POAC_LINK_LIBRARIES TARGET poac PROPERTY LINK_LIBRARIES)
 foreach (TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
     target_compile_features(${TEST_NAME} PRIVATE cxx_std_17)
-    target_compile_options(${TEST_NAME} PRIVATE -g -O0 -Wno-switch-enum)
+    set(CXX_COMPILE_FLAGS "-g -O0")  # to erase the INTERFACE of Boost::ut options: https://github.com/boost-ext/ut/blob/67b136c0267a54248d05fcba63905ff5e6abf0b7/CMakeLists.txt#L84
     if (POAC_ENABLE_COVERAGE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     endif ()

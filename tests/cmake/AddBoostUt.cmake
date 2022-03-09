@@ -1,6 +1,6 @@
 include_guard(GLOBAL)
 
-message(CHECK_START "Adding boost.ut")
+message(CHECK_START "Adding Boost::ut")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 FetchContent_Declare(
