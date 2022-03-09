@@ -22,7 +22,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
     target_compile_features(${TEST_NAME} PRIVATE ${POAC_COMPILE_FEATURES})
     target_compile_definitions(${TEST_NAME} PRIVATE ${POAC_COMPILE_DEFINITIONS})
-    set(CXX_COMPILE_FLAGS "${POAC_COMPILE_OPTIONS}")  # to erase the INTERFACE of Boost::ut options: https://github.com/boost-ext/ut/blob/67b136c0267a54248d05fcba63905ff5e6abf0b7/CMakeLists.txt#L84
+    target_compile_options(${TEST_NAME} PRIVATE ${POAC_COMPILE_OPTIONS})
     if (POAC_ENABLE_COVERAGE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     endif ()
