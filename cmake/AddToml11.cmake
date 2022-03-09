@@ -11,6 +11,10 @@ FetchContent_Declare(
 
 set(CMAKE_PROJECT_toml11_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0077PolicyFix.cmake")
 set(toml11_BUILD_TEST OFF)
+# This seems GCC's bug
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-switch-enum)
+endif ()
 FetchContent_MakeAvailable(toml11)
 
 list(APPEND POAC_DEPENDENCIES toml11::toml11)

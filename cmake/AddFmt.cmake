@@ -15,6 +15,11 @@ else ()
     set(BUILD_SHARED_LIBS ON)
 endif ()
 
+# This seems GCC's bug
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-switch-enum)
+endif ()
+
 FetchContent_MakeAvailable(fmt)
 
 list(APPEND POAC_DEPENDENCIES fmt::fmt)
