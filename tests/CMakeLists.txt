@@ -11,7 +11,7 @@ set(TEST_NAMES
         validator
 )
 
-# Erase the compile options of Boost::ut
+# Erase the compile options of Boost::ut because GCC provides many warnings.
 # ref: https://github.com/boost-ext/ut/blob/67b136c0267a54248d05fcba63905ff5e6abf0b7/CMakeLists.txt#L83-L115
 set_property(TARGET ut PROPERTY COMPILE_OPTIONS)
 
