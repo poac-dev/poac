@@ -492,6 +492,7 @@ namespace poac::util::cfg {
                 default:
                     throw std::invalid_argument("poac::util::cfg::Cfg");
             }
+            assert(false);
         }
     };
 
