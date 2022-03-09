@@ -5,6 +5,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <map>
 
 // internal
 #include <poac/util/meta.hpp>
