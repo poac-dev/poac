@@ -6,7 +6,6 @@ set(TEST_NAMES
         version
 )
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 get_property(POAC_LINK_DIRECTORIES TARGET poac PROPERTY LINK_DIRECTORIES)
 get_property(POAC_LINK_LIBRARIES TARGET poac PROPERTY LINK_LIBRARIES)
 
