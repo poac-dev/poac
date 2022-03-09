@@ -38,4 +38,3 @@ endforeach ()
 
 add_subdirectory(semver)
 add_subdirectory(termcolor2)
-add_subdirectory(util)
