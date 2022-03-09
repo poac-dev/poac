@@ -265,7 +265,7 @@ namespace poac::core::builder::ninja_syntax {
 
         inline void
         default_(const std::vector<std::filesystem::path>& paths) {
-            line(fmt::format("default {}", boost::algorithm::join(paths, " ")));
+            line(fmt::format("default {}", boost::algorithm::join(paths, " ").string()));
         }
 
         inline void
