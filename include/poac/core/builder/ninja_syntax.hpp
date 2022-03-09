@@ -147,7 +147,7 @@ namespace poac::core::builder::ninja_syntax {
 
         inline void
         variable(std::string_view key, std::vector<std::string_view> values, std::size_t indent = 0) {
-            std::string_view value = boost::algorithm::join(values, ' ');
+            std::string_view value = boost::algorithm::join(values, " ");
             line(fmt::format("{} = {}", key, value), indent);
         }
 
@@ -265,7 +265,7 @@ namespace poac::core::builder::ninja_syntax {
 
         inline void
         default_(const std::vector<std::filesystem::path>& paths) {
-            line(fmt::format("default {}", boost::algorithm::join(paths, ' ')));
+            line(fmt::format("default {}", boost::algorithm::join(paths, " ")));
         }
 
         inline void
@@ -273,7 +273,8 @@ namespace poac::core::builder::ninja_syntax {
             output.close();
         }
 
-        friend std::ostream& operator<<(std::ostream &os, const writer<Ostream>& w) {
+        friend std::ostream&
+        operator<<(std::ostream &os, const writer<Ostream>& w) {
             return os << w.get_value();
         }
     };
