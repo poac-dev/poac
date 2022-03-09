@@ -1,5 +1,4 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/included/unit_test.hpp>
+#include <boost/ut.hpp>
 
 // std
 #include <array>
@@ -10,116 +9,113 @@
 // internal
 #include <poac/util/meta.hpp>
 
-// 1. std::optional<std::size_t> index_of(const SinglePassRange& rng, const T& t)
-// 2. inline auto index_of(InputIterator first, InputIterator last, const T& value)
-BOOST_AUTO_TEST_CASE( poac_util_types_index_of_test )
-{
-    using poac::util::meta::index_of;
+int main() {
+    using namespace std::literals::string_literals;
+    using namespace boost::ut;
 
-    std::vector<std::string> test_case{"0", "1", "2"};
-    BOOST_CHECK( index_of(test_case.begin(), test_case.end(), "1") == 1 );
-    BOOST_CHECK( index_of(test_case.begin(), test_case.end(), "10") == 3 ); // out of range
-    BOOST_CHECK( index_of(test_case.cbegin(), test_case.cend(), "0") == 0 );
-}
+    // 1. std::optional<std::size_t> index_of(const SinglePassRange& rng, const T& t)
+    // 2. inline auto index_of(InputIterator first, InputIterator last, const T& value)
+    "test index_of"_test = [] {
+        using poac::util::meta::index_of;
 
-// inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred)
-BOOST_AUTO_TEST_CASE( poac_util_types_index_of_if_test )
-{
-    using poac::util::meta::index_of_if;
-
-    std::vector<std::string> test_case{"0", "1", "2"};
-    BOOST_CHECK(
-        index_of_if(
-            test_case.cbegin(),
-            test_case.cend(),
-            [](auto& x){ return x == "0"; }
-        ) == 0
-    );
-}
-
-// bool duplicate(const SinglePassRange& rng)
-BOOST_AUTO_TEST_CASE( poac_util_types_duplicate_test )
-{
-    using poac::util::meta::duplicate;
-
-    std::vector<std::string> test_case{"0", "0", "2"};
-    BOOST_CHECK( duplicate(test_case) );
-
-    test_case = {"0", "1", "2"};
-    BOOST_CHECK( !duplicate(test_case) );
-}
-
-// 1. std::vector<T> ptree_to_vector(const U& pt, const K& key)
-// 2. std::vector<T> ptree_to_vector(const U &pt)
-BOOST_AUTO_TEST_CASE( poac_util_types_ptree_to_vector_test )
-{
-    using poac::util::meta::to_vector;
-
-    boost::property_tree::ptree pt;
-    std::vector<std::string> test_case{ "0", "1", "2" };
-
-    boost::property_tree::ptree children;
-    {
-        boost::property_tree::ptree child;
-        child.put("", "0");
-        children.push_back(std::make_pair("", child));
-    }
-    {
-        boost::property_tree::ptree child;
-        child.put("", "1");
-        children.push_back(std::make_pair("", child));
-    }
-    {
-        boost::property_tree::ptree child;
-        child.put("", "2");
-        children.push_back(std::make_pair("", child));
-    }
-    pt.add_child("data", children);
-
-    BOOST_CHECK(to_vector<std::string>(pt, "data") == test_case ); // 1
-    BOOST_CHECK(to_vector<std::string>(children) == test_case ); // 2
-}
-
-BOOST_AUTO_TEST_CASE( poac_util_meta_are_all_same_test )
-{
-    using poac::util::meta::are_all_same;
-    using poac::util::meta::are_all_same_v;
-
-    static_assert(are_all_same<int, int, int>::value);
-    static_assert(are_all_same_v<int, int, int>);
-    static_assert(std::negation_v<are_all_same<int, std::string, int>>);
-    static_assert(std::negation_v<are_all_same<std::string, int, int>>);
-    static_assert(std::negation_v<are_all_same<int, int, std::string>>);
-}
-
-BOOST_AUTO_TEST_CASE( poac_util_meta_is_specialization_test )
-{
-    using poac::util::meta::is_specialization;
-
-    static_assert(is_specialization<std::vector<int>, std::vector>::value);
-    static_assert(is_specialization<std::map<int, int>, std::map>::value);
-    static_assert(is_specialization<std::map<int, std::vector<int>>, std::map>::value);
-    static_assert(std::negation_v<is_specialization<std::map<int, std::vector<int>>, std::vector>>);
-}
-
-BOOST_AUTO_TEST_CASE( poac_util_meta_is_tuple_test )
-{
-    using poac::util::meta::is_tuple;
-    using poac::util::meta::is_tuple_v;
-
-    static_assert(is_tuple_v<std::tuple<int>>);
-    static_assert(is_tuple_v<std::tuple<int, std::string>>);
-    static_assert(std::negation_v<is_tuple<std::vector<int>>>);
-}
-
-BOOST_AUTO_TEST_CASE( poac_util_meta_to_array_test )
-{
-    using poac::util::meta::to_array;
-
-    constexpr std::array<int, 3> test_case{
-        0, 1, 2
+        std::vector<std::string> test_case{"0", "1", "2"};
+        expect(index_of(test_case.begin(), test_case.end(), "1") == 1_i);
+        expect(index_of(test_case.begin(), test_case.end(), "10") == 3_i); // out of range
+        expect(index_of(test_case.cbegin(), test_case.cend(), "0") == 0_i);
     };
-    constexpr std::tuple<int, int, int> res1 = std::make_tuple(0, 1, 2);
-    constexpr std::array<int, 3> res = to_array(res1);
-    BOOST_CHECK( res == test_case );
+
+    // inline auto index_of_if(InputIterator first, InputIterator last, Predicate pred)
+    "test index_of_if"_test = [] {
+        using poac::util::meta::index_of_if;
+
+        std::vector<std::string> test_case{"0", "1", "2"};
+        expect(
+            index_of_if(
+                test_case.cbegin(),
+                test_case.cend(),
+                [](auto& x){ return x == "0"; }
+                ) == 0_i
+        );
+    };
+
+    // bool duplicate(const SinglePassRange& rng)
+    "test duplicate"_test = [] {
+        using poac::util::meta::duplicate;
+
+        std::vector<std::string> test_case{"0", "0", "2"};
+        expect(duplicate(test_case));
+
+        test_case = {"0", "1", "2"};
+        expect(!duplicate(test_case));
+    };
+
+    // 1. std::vector<T> ptree_to_vector(const U& pt, const K& key)
+    // 2. std::vector<T> ptree_to_vector(const U &pt)
+    "test to_vector"_test = [] {
+        using poac::util::meta::to_vector;
+
+        boost::property_tree::ptree pt;
+        std::vector<std::string> test_case{ "0", "1", "2" };
+
+        boost::property_tree::ptree children;
+        {
+            boost::property_tree::ptree child;
+            child.put("", "0");
+            children.push_back(std::make_pair("", child));
+        }
+        {
+            boost::property_tree::ptree child;
+            child.put("", "1");
+            children.push_back(std::make_pair("", child));
+        }
+        {
+            boost::property_tree::ptree child;
+            child.put("", "2");
+            children.push_back(std::make_pair("", child));
+        }
+        pt.add_child("data", children);
+
+        expect(eq(to_vector<std::string>(pt, "data"), test_case)); // 1
+        expect(eq(to_vector<std::string>(children), test_case)); // 2
+    };
+
+    "test are_all_same"_test = [] {
+        using poac::util::meta::are_all_same;
+        using poac::util::meta::are_all_same_v;
+
+        expect(constant<are_all_same<int, int, int>::value>);
+        expect(constant<are_all_same_v<int, int, int>>);
+        expect(constant<std::negation_v<are_all_same<int, std::string, int>>>);
+        expect(constant<std::negation_v<are_all_same<std::string, int, int>>>);
+        expect(constant<std::negation_v<are_all_same<int, int, std::string>>>);
+    };
+
+    "test is_specialization"_test = [] {
+        using poac::util::meta::is_specialization;
+
+        expect(constant<is_specialization<std::vector<int>, std::vector>::value>);
+        expect(constant<is_specialization<std::map<int, int>, std::map>::value>);
+        expect(constant<is_specialization<std::map<int, std::vector<int>>, std::map>::value>);
+        expect(constant<std::negation_v<is_specialization<std::map<int, std::vector<int>>, std::vector>>>);
+    };
+
+    "test is_tuple"_test = [] {
+        using poac::util::meta::is_tuple;
+        using poac::util::meta::is_tuple_v;
+
+        expect(constant<is_tuple_v<std::tuple<int>>>);
+        expect(constant<is_tuple_v<std::tuple<int, std::string>>>);
+        expect(constant<std::negation_v<is_tuple<std::vector<int>>>>);
+    };
+
+    "test to_array"_test = [] {
+        using poac::util::meta::to_array;
+
+        constexpr std::array<int, 3> test_case{
+            0, 1, 2
+        };
+        constexpr std::tuple<int, int, int> res1 = std::make_tuple(0, 1, 2);
+        constexpr std::array<int, 3> res = to_array(res1);
+        expect(constant<res == test_case>);
+    };
 }

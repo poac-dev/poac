@@ -84,6 +84,7 @@ Poac requires the following compilers, tools, and packages to build:
   * property_tree
   * range
   * scope_exit
+  * test (dev): (partially)
   * uuid
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 

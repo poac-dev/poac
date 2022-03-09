@@ -1,237 +1,161 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/included/unit_test.hpp>
-#include <boost/test/tools/output_test_stream.hpp>
+#include <boost/ut.hpp>
+
+#include <sstream>
+
 #include <poac/util/shell.hpp>
 
-// 1. shell::shell()
-// 2. shell::shell(const std::string& c)
-BOOST_AUTO_TEST_CASE( poac_util_shell_shell_test )
-{
-    using poac::util::shell::cmd;
-    BOOST_CHECK(cmd().string() == "" ); // 1
-    BOOST_CHECK(cmd("cd").string() == "cd" ); // 2
-    BOOST_CHECK(cmd("cd").string() == "cd" ); // 3
-}
-
-// shell env(const std::string& name, const std::string& val)
-BOOST_AUTO_TEST_CASE( poac_util_shell_env_test )
-{
+int main() {
+    using namespace std::literals::string_literals;
+    using namespace boost::ut;
     using poac::util::shell::cmd;
 
-    cmd c("cmake ..");
-    c = c.env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/");
-    c = c.env("MACOSX_RPATH", "1");
+    // 1. shell::shell()
+    // 2. shell::shell(const std::string& c)
+    "test constructor"_test = [] {
+        expect(eq(cmd().string(), ""s)); // 1
+        expect(eq(cmd("cd").string(), "cd"s)); // 2
+        expect(eq(cmd("cd").string(), "cd"s)); // 3
+    };
 
-    BOOST_CHECK( c.string() == "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .." );
-}
+    // shell env(const std::string& name, const std::string& val)
+    "test env"_test = [] {
+        cmd c("cmake ..");
+        c = c.env("OPENSSL_ROOT_DIR", "/usr/local/opt/openssl/");
+        c = c.env("MACOSX_RPATH", "1");
 
-// shell stderr_to_stdout()
-BOOST_AUTO_TEST_CASE( poac_util_shell_stderr_to_stdout_test )
-{
-    using poac::util::shell::cmd;
+        expect(eq(c.string(), "MACOSX_RPATH=1 OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ cmake .."s));
+    };
 
-    cmd c("cmake ..");
-    c = c.stderr_to_stdout();
-    BOOST_CHECK( c.string() == "cmake .. 2>&1" );
-}
+    // shell stderr_to_stdout()
+    "test stderr_to_stdout"_test = [] {
+        cmd c("cmake ..");
+        c = c.stderr_to_stdout();
+        expect(eq(c.string(), "cmake .. 2>&1"s));
+    };
 
-// shell to_dev_null()
-BOOST_AUTO_TEST_CASE( poac_util_shell_to_dev_null_test )
-{
-    using poac::util::shell::cmd;
+    // shell to_dev_null()
+    "test to_dev_null"_test = [] {
+        cmd c("cmake ..");
+        c = c.to_dev_null();
+        expect(eq(c.string(), "cmake .. >/dev/null"s));
+    };
 
-    cmd c("cmake ..");
-    c = c.to_dev_null();
-    BOOST_CHECK( c.string() == "cmake .. >/dev/null" );
-}
+    // boost::optional<std::string> exec()
+    "test exec"_test = [] {
+        expect(eq(cmd("echo test").exec().value(), "test\n"s));
+        expect(!cmd("nocmd").exec().has_value());
+    };
 
-// boost::optional<std::string> exec()
-BOOST_AUTO_TEST_CASE( poac_util_shell_exec_test )
-{
-    using poac::util::shell::cmd;
-    {
-        cmd c("echo test");
-        BOOST_CHECK( c.exec().value() == "test\n" );
-    }
-    {
-        cmd c("nocmd");
-        BOOST_CHECK( !c.exec().has_value() );
-    }
-}
+    // bool exec_ignore()
+    "test exec_ignore"_test = [] {
+        cmd c("cd");
+        expect(c.exec_ignore());
+    };
 
-// bool exec_incontinent()
-BOOST_AUTO_TEST_CASE( poac_util_shell_exec_ignore_test )
-{
-    using poac::util::shell::cmd;
-    cmd c("cd");
-    BOOST_CHECK( c.exec_ignore() );
-}
+    // friend std::ostream& operator<<(std::ostream& stream, const shell& c)
+    "test operator<<"_test = [] {
+        cmd c("mkdir test");
+        c &= "cd test";
 
-// friend std::ostream& operator<<(std::ostream& stream, const shell& c)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test1 )
-{
-    using poac::util::shell::cmd;
+        std::ostringstream output;
+        output << c;
 
-    cmd c("mkdir test");
-    c &= "cd test";
+        expect(eq(output.str(), "mkdir test && cd test"s));
+    };
 
-    boost::test_tools::output_test_stream output;
-    output << c;
+    "test operator==(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c &= "cd test";
 
-    BOOST_CHECK( !output.is_empty(false) );
-    BOOST_CHECK( output.is_equal("mkdir test && cd test") );
-}
+        expect(c == cmd("mkdir test && cd test"));
+    };
+    "test operator==(const std::string& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c &= "cd test";
 
-// bool operator==(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test2 )
-{
-    using poac::util::shell::cmd;
+        expect(c == "mkdir test && cd test");
+    };
 
-    cmd c("mkdir test");
-    c &= "cd test";
+    "test operator&&(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        cmd c2 = (c && cmd("cd test"));
 
-    BOOST_CHECK( c == cmd("mkdir test && cd test") );
-}
-// bool operator==(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test3 )
-{
-    using poac::util::shell::cmd;
+        expect(eq(c2.string(), "mkdir test && cd test"s));
+    };
+    "test operator&&(const std::string& rhs)"_test = [] {
+        const cmd c("mkdir test");
+        const cmd c2 = (c && "cd test");
 
-    cmd c("mkdir test");
-    c &= "cd test";
+        expect(eq(c2.string(), "mkdir test && cd test"s));
+    };
 
-    BOOST_CHECK( c == "mkdir test && cd test" );
-}
+    "test operator&=(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c &= cmd("cd test");
 
-// shell operator&&(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test4 )
-{
-    using poac::util::shell::cmd;
+        expect(eq(c.string(), "mkdir test && cd test"s));
+    };
+    "test operator&=(const std::string& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c &= "cd test";
 
-    cmd c("mkdir test");
-    cmd c2 = (c && cmd("cd test"));
+        expect(eq(c.string(), "mkdir test && cd test"s));
+    };
 
-    BOOST_CHECK( c2.string() == "mkdir test && cd test" );
-}
-// shell operator&&(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test5 )
-{
-    using poac::util::shell::cmd;
+    "test operator||(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        cmd c2 = (c || cmd("cd test"));
 
-    const cmd c("mkdir test");
-    const cmd c2 = (c && "cd test");
+        expect(eq(c2.string(), "mkdir test || cd test"s));
+    };
+    "test operator||(const std::string& rhs)"_test = [] {
+        const cmd c("mkdir test");
+        const cmd c2 = (c || "cd test");
 
-    BOOST_CHECK( c2.string() == "mkdir test && cd test" );
-}
+        expect(eq(c2.string(), "mkdir test || cd test"s));
+    };
 
-// shell operator&=(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test6 )
-{
-    using poac::util::shell::cmd;
+    "test operator|=(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c |= cmd("cd test");
 
-    cmd c("mkdir test");
-    c &= cmd("cd test");
+        expect(eq(c.string(), "mkdir test || cd test"s));
+    };
+    "test operator|=(const std::string& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c |= "cd test";
 
-    BOOST_CHECK( c.string() == "mkdir test && cd test" );
-}
-// shell operator&=(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test7 )
-{
-    using poac::util::shell::cmd;
+        expect(eq(c.string(), "mkdir test || cd test"s));
+    };
 
-    cmd c("mkdir test");
-    c &= "cd test";
+    "test operator+(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        cmd c2 = (c + cmd("cd test"));
 
-    BOOST_CHECK( c.string() == "mkdir test && cd test" );
-}
+        expect(eq(c2.string(), "mkdir test cd test"s));
+    };
+    "test operator+(const std::string& rhs)"_test = [] {
+        const cmd c("mkdir test");
+        const cmd c2 = (c + "cd test");
 
-// shell operator||(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test8 )
-{
-    using poac::util::shell::cmd;
+        expect(eq(c2.string(), "mkdir test cd test"s));
+    };
 
-    cmd c("mkdir test");
-    cmd c2 = (c || cmd("cd test"));
+    "test operator+=(const shell& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c += cmd("cd test");
 
-    BOOST_CHECK( c2.string() == "mkdir test || cd test" );
-}
-// shell operator||(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test9 )
-{
-    using poac::util::shell::cmd;
+        expect(eq(c.string(), "mkdir test cd test"s));
+    };
+    "test operator+=(const std::string& rhs)"_test = [] {
+        cmd c("mkdir test");
+        c += "cd test";
 
-    const cmd c("mkdir test");
-    const cmd c2 = (c || "cd test");
+        expect(eq(c.string(), "mkdir test cd test"s));
+    };
 
-    BOOST_CHECK( c2.string() == "mkdir test || cd test" );
-}
-
-// shell operator|=(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test10 )
-{
-    using poac::util::shell::cmd;
-
-    cmd c("mkdir test");
-    c |= cmd("cd test");
-
-    BOOST_CHECK( c.string() == "mkdir test || cd test" );
-}
-// shell operator|=(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test11 )
-{
-    using poac::util::shell::cmd;
-
-    cmd c("mkdir test");
-    c |= "cd test";
-
-    BOOST_CHECK( c.string() == "mkdir test || cd test" );
-}
-
-// shell operator+(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test12 )
-{
-    using poac::util::shell::cmd;
-
-    cmd c("mkdir test");
-    cmd c2 = (c + cmd("cd test"));
-
-    BOOST_CHECK( c2.string() == "mkdir test cd test" );
-}
-// shell operator+(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test13 )
-{
-    using poac::util::shell::cmd;
-
-    const cmd c("mkdir test");
-    const cmd c2 = (c + "cd test");
-
-    BOOST_CHECK( c2.string() == "mkdir test cd test" );
-}
-
-// shell operator+=(const shell& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test14 )
-{
-    using poac::util::shell::cmd;
-
-    cmd c("mkdir test");
-    c += cmd("cd test");
-
-    BOOST_CHECK( c.string() == "mkdir test cd test" );
-}
-// shell operator+=(const std::string& rhs)
-BOOST_AUTO_TEST_CASE( poac_util_shell_op_test15 )
-{
-    using poac::util::shell::cmd;
-
-    cmd c("mkdir test");
-    c += "cd test";
-
-    BOOST_CHECK( c.string() == "mkdir test cd test" );
-}
-
-// bool has_shell(const std::string& c)
-BOOST_AUTO_TEST_CASE( poac_util_shell_has_command_test )
-{
-    using poac::util::shell::has_command;
-    BOOST_CHECK( has_command("cd") );
+    "test has_command"_test = [] {
+        using poac::util::shell::has_command;
+        expect(has_command("cd"));
+    };
 }

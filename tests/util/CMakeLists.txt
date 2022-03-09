@@ -1,6 +1,5 @@
 set(TEST_NAMES
         macros
-        test_ofstream
 )
 
 get_property(POAC_INCLUDE_DIRECTORIES TARGET poac PROPERTY INCLUDE_DIRECTORIES)
