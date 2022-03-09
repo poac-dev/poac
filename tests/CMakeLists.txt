@@ -3,11 +3,11 @@ set(TEST_NAMES
         meta
         misc
         net
+        ninja_syntax
         pretty
         resolve
         sat
         shell
-        standard
         validator
 )
 
