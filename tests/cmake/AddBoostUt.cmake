@@ -11,7 +11,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(ut)
 
-list(APPEND POAC_DEPENDENCIES ut)
+list(APPEND POAC_TEST_DEPENDENCIES ut)
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
