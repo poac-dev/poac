@@ -122,6 +122,11 @@ namespace poac::core::builder::ninja_syntax {
     public:
         explicit writer(Ostream&& o, std::size_t w = 78) : output(std::move(o)), width(w) {}
 
+        inline std::string
+        get_value() const {
+            return output.str();
+        }
+
         inline void
         newline() {
             output << '\n';
@@ -188,9 +193,9 @@ namespace poac::core::builder::ninja_syntax {
             std::string_view rule,
             const build_set_t& build_set
         ) {
-            std::vector<std::filesystem::path> out_outputs;
+            std::vector<std::string> out_outputs;
             for (const auto& o : outputs) {
-                out_outputs.emplace_back(escape_path(o));
+                out_outputs.emplace_back(escape_path(o).string());
             }
 
             std::vector<std::string> all_inputs;
@@ -221,15 +226,15 @@ namespace poac::core::builder::ninja_syntax {
                 for (const auto& i : build_set.implicit_outputs.value()) {
                     implicit_outputs.emplace_back(escape_path(i).string());
                 }
-                all_inputs.emplace_back("|");
-                boost::push_back(all_inputs, implicit_outputs);
+                out_outputs.emplace_back("|");
+                boost::push_back(out_outputs, implicit_outputs);
             }
 
             line(fmt::format(
                 "build {}: {} {}",
-                boost::algorithm::join(out_outputs, ' '),
+                boost::algorithm::join(out_outputs, " "),
                 rule,
-                boost::algorithm::join(all_inputs, ' ')
+                boost::algorithm::join(all_inputs, " ")
             ));
 
             if (build_set.pool.has_value()) {
@@ -269,7 +274,7 @@ namespace poac::core::builder::ninja_syntax {
         }
 
         friend std::ostream& operator<<(std::ostream &os, const writer<Ostream>& w) {
-            return os << w.output.str();
+            return os << w.get_value();
         }
     };
 } // end namespace
