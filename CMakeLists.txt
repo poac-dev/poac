@@ -30,7 +30,15 @@ set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 include(cmake/CheckCompilerVersion.cmake)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2b")
+    set(CMAKE_CXX23_STANDARD_COMPILE_OPTION "-std=c++2b")
+else ()
+    target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+endif ()
+
+#target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

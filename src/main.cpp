@@ -46,7 +46,7 @@ colorize_structopt_error(std::string s) {
 inline std::string
 colorize_anyhow_error(std::string s) {
     // `Caused by:` leaves a trailing newline
-    if (s.find("Caused by:") != std::string::npos) {
+    if (s.contains("Caused by:")) {
         boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
         boost::replace_last(s, "\n", "");
     }

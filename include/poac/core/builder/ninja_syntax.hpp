@@ -39,7 +39,7 @@ namespace poac::core::builder::ninja_syntax {
     /// further interpretation.
     inline void
     escape(std::string& s) {
-        assert(s.find('\n') == std::string::npos); // Ninja syntax does not allow newlines
+        assert(!s.contains('\n')); // Ninja syntax does not allow newlines
         // We only have one special metacharacter: '$'.
         boost::replace_all(s, "$", "$$");
     }
