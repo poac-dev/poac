@@ -11,15 +11,13 @@ set(TEST_NAMES
         validator
 )
 
-# Erase the compile options of Boost::ut because GCC provides many warnings.
-# ref: https://github.com/boost-ext/ut/blob/67b136c0267a54248d05fcba63905ff5e6abf0b7/CMakeLists.txt#L83-L115
-set_property(TARGET ut PROPERTY COMPILE_OPTIONS)
-
 get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
 get_property(POAC_COMPILE_DEFINITIONS TARGET poac PROPERTY COMPILE_DEFINITIONS)
 get_property(POAC_INCLUDE_DIRECTORIES TARGET poac PROPERTY INCLUDE_DIRECTORIES)
 get_property(POAC_LINK_DIRECTORIES TARGET poac PROPERTY LINK_DIRECTORIES)
 get_property(POAC_LINK_LIBRARIES TARGET poac PROPERTY LINK_LIBRARIES)
+
+set_property(TARGET ut PROPERTY INTERFACE_COMPILE_OPTIONS)
 
 foreach (TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
