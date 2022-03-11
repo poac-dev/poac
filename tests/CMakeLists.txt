@@ -1,3 +1,5 @@
+include(cmake/PoacTestDependencies.cmake)
+
 set(TEST_NAMES
         cfg
         meta
@@ -17,6 +19,14 @@ get_property(POAC_INCLUDE_DIRECTORIES TARGET poac PROPERTY INCLUDE_DIRECTORIES)
 get_property(POAC_LINK_DIRECTORIES TARGET poac PROPERTY LINK_DIRECTORIES)
 get_property(POAC_LINK_LIBRARIES TARGET poac PROPERTY LINK_LIBRARIES)
 
+# Erase the compile options of Boost::ut because GCC provides many warnings.
+# ref: https://github.com/boost-ext/ut/blob/67b136c0267a54248d05fcba63905ff5e6abf0b7/CMakeLists.txt#L83-L115
+# CMake states:
+#   When target dependencies are specified using target_link_libraries(),
+#   CMake will read this property from all target dependencies to determine the build properties of the consumer.
+# So, we need to erase the variable.
+# ref about `INTERFACE_COMPILE_OPTIONS`:
+#   https://cmake.org/cmake/help/latest/prop_tgt/INTERFACE_COMPILE_OPTIONS.html
 set_property(TARGET ut PROPERTY INTERFACE_COMPILE_OPTIONS)
 
 foreach (TEST_NAME ${TEST_NAMES})

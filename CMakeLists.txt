@@ -74,6 +74,5 @@ install(TARGETS ${PROJECT_NAME}
 include(CTest)
 if (POAC_BUILD_TESTING AND ${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
     enable_testing()
-    include(tests/cmake/PoacTestDependencies.cmake)
     add_subdirectory(tests)
 endif ()
