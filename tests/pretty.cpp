@@ -54,4 +54,21 @@ int main() {
         expect(eq(clip_string("Long sentence", 15), "Long sentence"s));
         expect(eq(clip_string("Long sentence", 10), "Long sente..."s));
     };
+
+    // std::vector<std::string> textwrap(const std::string& text, std::size_t width = 70)
+    "test textwrap"_test = [] {
+        using poac::util::pretty::textwrap;
+
+        std::string test_case = "This function does not break long words and break on hyphens.";
+        expect(eq(
+            textwrap(test_case, 15),
+            std::vector{
+                    "This function"s,
+                    "does not break"s,
+                    "long words and"s,
+                    "break on"s,
+                    "hyphens."s
+                }
+        ));
+    };
 }
