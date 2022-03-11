@@ -69,12 +69,12 @@ Poac requires the following compilers, tools, and packages to build:
 
 #### tools
 
-* [`cmake`](https://github.com/Kitware/CMake): `3.21` or later
-* [`ninja`](https://github.com/ninja-build/ninja): `1.8` or later
+* [`cmake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
+* [`ninja`](https://github.com/ninja-build/ninja): [`1.8`](https://github.com/ninja-build/ninja/releases/tag/v1.8.2) or later
 
 #### libraries
 
-* [`boost`](https://github.com/boostorg): `1.70.0` or later
+* [`boost`](https://github.com/boostorg): [`1.70.0`](https://github.com/boostorg/boost/releases/tag/boost-1.70.0) or later
   * algorithm
   * asio
   * beast
@@ -92,19 +92,25 @@ Poac requires the following compilers, tools, and packages to build:
 
 **dependencies**
 
-* [`fmt`](https://github.com/fmtlib/fmt): `7.1.3` or later
-* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
-* [`libarchive`](https://github.com/libarchive/libarchive): `master` branch (awaiting the next release above `v3.6.0`)
-* [`libgit2`](https://github.com/libgit2/libgit2): `0.27` or later
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): `master` branch (awaiting the next release above `v9.2.1`)
-* [`ninja`](https://github.com/ninja-build/ninja): `v1.10.2` or later
-* [`spdlog`](https://github.com/gabime/spdlog): `1.9.0` or later
-* [`structopt`](https://github.com/p-ranav/structopt): `v0.1.2` or later
-* [`toml11`](https://github.com/ToruNiina/toml11): `master` branch (awaiting the next release above `v3.7.0`)
+* [`fmt`](https://github.com/fmtlib/fmt): [`7.1.3`](https://github.com/fmtlib/fmt/releases/tag/7.1.3) or later
+* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`v0.1.0-alpha.0`](https://github.com/ken-matsui/git2-cpp/releases/tag/v0.1.0-alpha.0) or later
+* [`libarchive`](https://github.com/libarchive/libarchive): [`master`](https://github.com/libarchive/libarchive/tree/master) branch
+  * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
+  * awaiting the next release above [`v3.6.0`](https://github.com/libarchive/libarchive/releases/tag/v3.6.0)
+* [`libgit2`](https://github.com/libgit2/libgit2): [`0.27`](https://github.com/libgit2/libgit2/releases/tag/v0.27.7) or later
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`master`](https://github.com/LoliGothick/mitama-cpp-result/tree/master) branch
+  * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/715174c94c48a96221b9d74a8b3489c8eea140e9)
+  * awaiting the next release above [`v9.2.1`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.2.1)
+* [`ninja`](https://github.com/ninja-build/ninja): [`v1.10.2`](https://github.com/ninja-build/ninja/releases/tag/v1.10.2) or later
+* [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
+* [`structopt`](https://github.com/p-ranav/structopt): [`v0.1.2`](https://github.com/p-ranav/structopt/releases/tag/v0.1.2) or later
+* [`toml11`](https://github.com/ToruNiina/toml11): [`master`](https://github.com/ToruNiina/toml11/tree/master) branch
+  * requires [this commit](https://github.com/ToruNiina/toml11/commit/21732fce459911d4da0214baff52af7c8c48cc9f)
+  * awaiting the next release above [`v3.7.0`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.0)
 
 **dev-dependencies**
 
-* [`μt`](https://github.com/boost-ext/ut): `v1.1.9` or later
+* [`μt`](https://github.com/boost-ext/ut): [`v1.1.9`](https://github.com/boost-ext/ut/releases/tag/v1.1.9) or later
 </details>
 
 After you prepared these requirements, you can build Poac using the following commands:
