@@ -24,6 +24,7 @@
 
 // internal
 #include <poac/util/meta.hpp>
+#include <poac/util/pretty.hpp>
 
 namespace poac::core::builder::ninja_syntax {
     inline std::filesystem::path
@@ -42,6 +43,16 @@ namespace poac::core::builder::ninja_syntax {
         assert(s.find('\n') == std::string::npos); // Ninja syntax does not allow newlines
         // We only have one special metacharacter: '$'.
         boost::replace_all(s, "$", "$$");
+    }
+
+    // ref: https://stackoverflow.com/a/46379136
+    std::string operator*(const std::string& s, std::size_t n) {
+        std::string result;
+        result.reserve(s.size() * n);
+        for(std::size_t i = 0; i < n; ++i) {
+            result += s;
+        }
+        return result;
     }
 
     struct rule_set_t {
@@ -83,27 +94,31 @@ namespace poac::core::builder::ninja_syntax {
             return dollar_count;
         }
 
+        // Export this function for testing
+#if __has_include(<boost/ut.hpp>)
+    public:
+#endif
         /// Write 'text' word-wrapped at self.width characters.
-        void line(std::string text, std::size_t indent = 0) {
-            std::string leading_space = std::string(indent * 2, ' '); // `'  ' * indent` in Python
+        void _line(std::string text, std::size_t indent = 0) {
+            std::string leading_space = std::string("  ") * indent;
 
             while (leading_space.length() + text.length() > width) {
                 // The text is too wide; wrap if possible.
-                //
+
                 // Find the rightmost space that would obey our width constraint and
                 // that's not an escaped space.
                 std::int32_t available_space = width - leading_space.length() - 2; // " $".length() == 2
                 std::int32_t space = available_space;
                 do {
                     space = text.rfind(' ', space);
-                } while (space < 0 || count_dollars_before_index(text, space) % 2 == 0);
+                } while (!(space < 0 || count_dollars_before_index(text, space) % 2 == 0));
 
                 if (space < 0) {
                     // No such space; just use the first unescaped space we can find.
                     space = available_space - 1;
                     do {
-                        space = text.rfind(' ', space + 1);
-                    } while (space < 0 || count_dollars_before_index(text, space) % 2 == 0);
+                        space = text.find(' ', space + 1);
+                    } while (!(space < 0 || count_dollars_before_index(text, space) % 2 == 0));
                 }
                 if (space < 0) {
                     // Give up on breaking.
@@ -114,7 +129,7 @@ namespace poac::core::builder::ninja_syntax {
                 text = text.substr(space + 1);
 
                 // Subsequent lines are continuations, so indent them.
-                leading_space = std::string((indent + 2) * 2, ' '); // `'  ' * (indent+2)` in Python
+                leading_space = std::string("  ") * (indent + 2);
             }
             output << leading_space + text + '\n';
         }
@@ -134,7 +149,9 @@ namespace poac::core::builder::ninja_syntax {
 
         inline void
         comment(const std::string& text) {
-            output << "# " + text + '\n';
+            for (const auto& line : util::pretty::textwrap(text, width - 2)) {
+                output << "# " + line + '\n';
+            }
         }
 
         inline void
@@ -142,24 +159,26 @@ namespace poac::core::builder::ninja_syntax {
             if (value.empty()) {
                 return;
             }
-            line(fmt::format("{} = {}", key, value), indent);
+            _line(fmt::format("{} = {}", key, value), indent);
         }
 
         inline void
-        variable(std::string_view key, std::vector<std::string_view> values, std::size_t indent = 0) {
-            std::string_view value = boost::algorithm::join(values, " ");
-            line(fmt::format("{} = {}", key, value), indent);
+        variable(std::string_view key, std::vector<std::string> values, std::size_t indent = 0) {
+            const std::string value = boost::algorithm::join_if(values, " ", [](const auto& s){
+                return !s.empty();
+            });
+            _line(fmt::format("{} = {}", key, value), indent);
         }
 
         inline void
         pool(std::string_view name, std::string_view depth) {
-            line(fmt::format("pool {}", name));
+            _line(fmt::format("pool {}", name));
             variable("depth", depth, 1);
         }
 
         void
         rule(std::string_view name, std::string_view command, const rule_set_t& rule_set) {
-            line(fmt::format("rule {}", name));
+            _line(fmt::format("rule {}", name));
             variable("command", command, 1);
             if (rule_set.description.has_value()) {
                 variable("description", rule_set.description.value(), 1);
@@ -230,7 +249,7 @@ namespace poac::core::builder::ninja_syntax {
                 boost::push_back(out_outputs, implicit_outputs);
             }
 
-            line(fmt::format(
+            _line(fmt::format(
                 "build {}: {} {}",
                 boost::algorithm::join(out_outputs, " "),
                 rule,
@@ -238,10 +257,10 @@ namespace poac::core::builder::ninja_syntax {
             ));
 
             if (build_set.pool.has_value()) {
-                line(fmt::format("  pool = {}", build_set.pool.value()));
+                _line(fmt::format("  pool = {}", build_set.pool.value()));
             }
             if (build_set.dyndep.has_value()) {
-                line(fmt::format("  dyndep = {}", build_set.dyndep.value()));
+                _line(fmt::format("  dyndep = {}", build_set.dyndep.value()));
             }
 
             if (build_set.variables.has_value()) {
@@ -255,17 +274,17 @@ namespace poac::core::builder::ninja_syntax {
 
         inline void
         include(const std::filesystem::path& path) {
-            line(fmt::format("include {}", path.string()));
+            _line(fmt::format("include {}", path.string()));
         }
 
         inline void
         subninja(const std::filesystem::path& path) {
-            line(fmt::format("subninja {}", path.string()));
+            _line(fmt::format("subninja {}", path.string()));
         }
 
         inline void
         default_(const std::vector<std::filesystem::path>& paths) {
-            line(fmt::format("default {}", boost::algorithm::join(paths, " ").string()));
+            _line(fmt::format("default {}", boost::algorithm::join(paths, " ").string()));
         }
 
         inline void
