@@ -7,8 +7,10 @@
 #include <chrono>
 #include <string>
 #include <utility>
+#include <vector>
 
 // external
+#include <boost/algorithm/string.hpp>
 #include <fmt/core.h>
 
 namespace poac::util::pretty {
@@ -56,6 +58,35 @@ namespace poac::util::pretty {
     inline std::string
     clip_string(const std::string& s, const std::size_t& n) {
         return s.size() <= n ? s : s.substr(0, n) + "...";
+    }
+
+    // This function does not break long words and break on hyphens.
+    // This assumes that space size is one (` `), not two (`  `).
+    // textwrap(s, 15) =>
+    // This function
+    // does not break
+    // long words and
+    // break on
+    // hyphens.
+    std::vector<std::string>
+    textwrap(const std::string& text, std::size_t width = 70) {
+        std::vector<std::string> split_texts;
+        boost::split(split_texts, text, boost::is_space());
+
+        std::vector<std::string> wrapped_texts;
+        std::string consuming_text;
+        for (const auto& st : split_texts) {
+            if (consuming_text.size() + st.size() < width) {
+                consuming_text += consuming_text.empty() ? st : " " + st; // assumes space size is one
+            } else {
+                wrapped_texts.emplace_back(consuming_text);
+                consuming_text = st;
+            }
+        }
+        if (!consuming_text.empty()) {
+            wrapped_texts.emplace_back(consuming_text);
+        }
+        return wrapped_texts;
     }
 } // end namespace
 #endif // !POAC_UTIL_PRETTY_HPP
