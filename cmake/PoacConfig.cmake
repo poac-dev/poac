@@ -14,7 +14,7 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_poac_options(-fdiagnostics-color -Wall -Wextra -Werror)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    add_poac_options(/W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj)
+    add_poac_options(/W4 /DBOOST_ASIO_HAS_STD_STRING_VIEW /bigobj /Zc:preprocessor)
 else ()
     add_poac_options(-fdiagnostics-color -Wall -Wextra -pedantic-errors)
     if (CMAKE_BUILD_TYPE STREQUAL Release) # -DCMAKE_BUILD_TYPE=Release

@@ -84,12 +84,13 @@ Poac requires the following compilers, tools, and packages to build:
   * property_tree
   * range
   * scope_exit
-  * test (dev)
   * uuid
 * [`openssl`](https://github.com/openssl/openssl): as new as possible
 
 <details>
 <summary>The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them.</summary>
+
+**dependencies**
 
 * [`fmt`](https://github.com/fmtlib/fmt): `7.1.3` or later
 * [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): `v0.1.0-alpha.0` or later
@@ -100,6 +101,10 @@ Poac requires the following compilers, tools, and packages to build:
 * [`spdlog`](https://github.com/gabime/spdlog): `1.9.0` or later
 * [`structopt`](https://github.com/p-ranav/structopt): `v0.1.2` or later
 * [`toml11`](https://github.com/ToruNiina/toml11): `master` branch (awaiting the next release above `v3.7.0`)
+
+**dev-dependencies**
+
+* [`μt`](https://github.com/boost-ext/ut): `v1.1.9` or later
 </details>
 
 After you prepared these requirements, you can build Poac using the following commands:
@@ -153,3 +158,4 @@ Please see [LICENSE](LICENSE) for details.
 * spdlog - <https://github.com/gabime/spdlog/blob/v1.x/LICENSE>
 * structopt - <https://github.com/p-ranav/structopt/blob/master/LICENSE>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
+* μt - <https://github.com/boost-ext/ut/blob/master/LICENSE.md>

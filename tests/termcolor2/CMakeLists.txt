@@ -4,8 +4,6 @@ set(TEST_NAMES
         to_color
 )
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-
 foreach (TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
     target_compile_features(${TEST_NAME} PRIVATE cxx_std_20)
@@ -13,6 +11,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     if (POAC_ENABLE_COVERAGE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     endif ()
-    target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
+    target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(${TEST_NAME} PRIVATE ${POAC_TEST_DEPENDENCIES})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endforeach ()
