@@ -104,7 +104,9 @@ Poac requires the following compilers, tools, and packages to build:
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`master`](https://github.com/LoliGothick/mitama-cpp-result/tree/master) branch
   * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/715174c94c48a96221b9d74a8b3489c8eea140e9)
   * awaiting the next release above [`v9.2.1`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.2.1)
-* [`ninja`](https://github.com/ninja-build/ninja): [`v1.10.2`](https://github.com/ninja-build/ninja/releases/tag/v1.10.2) or later
+* [`ninja`](https://github.com/ninja-build/ninja): [`master`](https://github.com/ninja-build/ninja/tree/master) branch
+  * requires [`src/status.h`](https://github.com/ninja-build/ninja/blob/ad3d29fb5375c3122b2318ea5efad170b83e74e5/src/status.h)
+  * awaiting the next release above [`v1.10.2`](https://github.com/ninja-build/ninja/releases/tag/v1.10.2)
 * [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
 * [`structopt`](https://github.com/p-ranav/structopt): [`v0.1.2`](https://github.com/p-ranav/structopt/releases/tag/v0.1.2) or later
 * [`toml11`](https://github.com/ToruNiina/toml11): [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1) branch
