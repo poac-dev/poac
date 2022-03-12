@@ -92,7 +92,7 @@ namespace poac::core::builder::ninja_syntax {
 
     struct build_set_t {
         std::optional<std::filesystem::path> inputs = std::nullopt;
-        std::optional<std::filesystem::path> implicit = std::nullopt;
+        std::optional<std::vector<std::filesystem::path>> implicit = std::nullopt;
         std::optional<std::filesystem::path> order_only = std::nullopt;
         std::optional<std::unordered_map<std::string, std::string>> variables = std::nullopt;
         std::optional<std::filesystem::path> implicit_outputs = std::nullopt;
