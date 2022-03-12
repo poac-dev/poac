@@ -12,7 +12,6 @@
 #include <filesystem>
 #include <optional>
 #include <ostream>
-#include <regex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
