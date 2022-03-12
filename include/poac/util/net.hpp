@@ -169,7 +169,7 @@ namespace poac::util::net {
         }
         template <typename Request>
         void set_req(const Request& req) {
-            std::stringstream ss;
+            std::ostringstream ss;
             ss << req;
             m_form_param.insert(m_form_param.begin(), ss.str());
             generate_header(); // re-generate
@@ -611,7 +611,7 @@ namespace poac::util::net::api {
             count != 0 ? fmt::format("&hitsPerPage={}", count) : "";
         const std::string params = fmt::format("query={}{}", query, hits_per_page);
         pt.put("params", params);
-        std::stringstream body;
+        std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
         return search_impl(body.str());
     }
