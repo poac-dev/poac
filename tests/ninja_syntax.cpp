@@ -164,7 +164,7 @@ int main() {
         it("test variables dict") = [] {
             ninja_syntax::writer writer{ std::ostringstream() };
             writer.build(
-                std::vector<std::filesystem::path>{"out"},
+                {"out"},
                 "cc",
                 ninja_syntax::build_set_t{
                     .inputs = "in",
@@ -184,7 +184,7 @@ int main() {
         it("test implicit outputs") = [] {
             ninja_syntax::writer writer{ std::ostringstream() };
             writer.build(
-                std::vector<std::filesystem::path>{"o"},
+                {"o"},
                 "cc",
                 ninja_syntax::build_set_t{
                     .inputs = "i",
