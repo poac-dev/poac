@@ -123,7 +123,7 @@ namespace poac::core::builder::ninja_syntax {
     public:
 #endif
         /// Write 'text' word-wrapped at self.width characters.
-        void _line(std::string text, std::size_t indent = 0) {
+        void _line(std::string text, std::size_t indent=0) {
             std::string leading_space = std::string("  ") * indent;
 
             while (leading_space.length() + text.length() > width) {
@@ -179,7 +179,7 @@ namespace poac::core::builder::ninja_syntax {
         }
 
         inline void
-        variable(std::string_view key, std::string_view value, std::size_t indent = 0) {
+        variable(std::string_view key, std::string_view value, std::size_t indent=0) {
             if (value.empty()) {
                 return;
             }
@@ -187,7 +187,7 @@ namespace poac::core::builder::ninja_syntax {
         }
 
         inline void
-        variable(std::string_view key, std::vector<std::string> values, std::size_t indent = 0) {
+        variable(std::string_view key, std::vector<std::string> values, std::size_t indent=0) {
             const std::string value = boost::algorithm::join_if(values, " ", [](const auto& s){
                 return !s.empty();
             });
@@ -201,7 +201,7 @@ namespace poac::core::builder::ninja_syntax {
         }
 
         void
-        rule(std::string_view name, std::string_view command, const rule_set_t& rule_set) {
+        rule(std::string_view name, std::string_view command, const rule_set_t& rule_set={}) {
             _line(fmt::format("rule {}", name));
             variable("command", command, 1);
             if (rule_set.description.has_value()) {
@@ -230,11 +230,11 @@ namespace poac::core::builder::ninja_syntax {
             }
         }
 
-        std::vector<std::filesystem::path>
+        std::vector<std::string>
         build(
-            const std::vector<std::filesystem::path>& outputs,
+            const std::vector<std::string>& outputs,
             std::string_view rule,
-            const build_set_t& build_set
+            const build_set_t& build_set={}
         ) {
             std::vector<std::string> out_outputs;
             for (const auto& o : outputs) {
@@ -307,8 +307,8 @@ namespace poac::core::builder::ninja_syntax {
         }
 
         inline void
-        default_(const std::vector<std::filesystem::path>& paths) {
-            _line(fmt::format("default {}", boost::algorithm::join(paths, " ").string()));
+        default_(const std::vector<std::string>& paths) {
+            _line(fmt::format("default {}", boost::algorithm::join(paths, " ")));
         }
 
         inline void
