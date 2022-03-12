@@ -111,7 +111,7 @@ int main() {
 
         it("test leading space") = [] {
             ninja_syntax::writer writer{ std::ostringstream(), 14 };
-            writer.variable("foo", {"", "-bar", "-somethinglong"}, 0);
+            writer.variable("foo", vec{"", "-bar", "-somethinglong"}, 0);
             expect(eq(
                 "foo = -bar $\n"
                 "    -somethinglong\n"s,
@@ -121,7 +121,7 @@ int main() {
 
         it("test embedded dollar dollar") = [] {
             ninja_syntax::writer writer{ std::ostringstream(), 15 };
-            writer.variable("foo", {"a$$b", "-somethinglong"}, 0);
+            writer.variable("foo", vec{"a$$b", "-somethinglong"}, 0);
             expect(eq(
                 "foo = a$$b $\n"
                 "    -somethinglong\n"s,
@@ -131,7 +131,7 @@ int main() {
 
         it("test two embedded dollar dollars") = [] {
             ninja_syntax::writer writer{ std::ostringstream(), 17 };
-            writer.variable("foo", {"a$$b", "-somethinglong"}, 0);
+            writer.variable("foo", vec{"a$$b", "-somethinglong"}, 0);
             expect(eq(
                 "foo = a$$b $\n"
                 "    -somethinglong\n"s,
@@ -141,7 +141,7 @@ int main() {
 
         it("test leading dollar dollar") = [] {
             ninja_syntax::writer writer{ std::ostringstream(), 14 };
-            writer.variable("foo", {"$$b", "-somethinglong"}, 0);
+            writer.variable("foo", vec{"$$b", "-somethinglong"}, 0);
             expect(eq(
                 "foo = $$b $\n"
                 "    -somethinglong\n"s,
@@ -151,7 +151,7 @@ int main() {
 
         it("test trailing dollar dollar") = [] {
             ninja_syntax::writer writer{ std::ostringstream(), 14 };
-            writer.variable("foo", {"a$$", "-somethinglong"}, 0);
+            writer.variable("foo", vec{"a$$", "-somethinglong"}, 0);
             expect(eq(
                 "foo = a$$ $\n"
                 "    -somethinglong\n"s,
