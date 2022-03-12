@@ -34,7 +34,7 @@ namespace poac::cmd::build {
 
     public:
         using FailedToBuild =
-            error<"failed to build this package">;
+            error<"failed to build package `{0}`", std::string>;
 
         using FailedToInstallDeps =
             error<"failed to install dependencies">;
@@ -68,11 +68,14 @@ namespace poac::cmd::build {
         );
 
         spdlog::trace("Parsing the manifest file ...");
+        // TODO: parse as a static type, not toml::value
         const toml::value config = toml::parse(data::manifest::manifest_file_name);
 
         MITAMA_TRY(
-            build(opts, config).with_context([]{
-                return anyhow::failure<Error::FailedToBuild>().get();
+            build(opts, config).with_context([&config]{
+                return anyhow::failure<Error::FailedToBuild>(
+                    toml::find<std::string>(config, "package", "name")
+                ).get();
             })
         );
         return mitama::success();
