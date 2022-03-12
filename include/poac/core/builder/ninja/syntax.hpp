@@ -323,4 +323,4 @@ namespace poac::core::builder::ninja::syntax {
     };
 } // end namespace
 
-#endif // POAC_CORE_BUILDER_NINJA_SYNTAX_HPP
+#endif // !POAC_CORE_BUILDER_NINJA_SYNTAX_HPP
