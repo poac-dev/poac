@@ -198,4 +198,37 @@ int main() {
             ));
         };
     };
+
+    describe("test expand") = [] {
+        it("test basic") = [] {
+            const ninja_syntax::variables_t vars{{"x", "X"}};
+            expect(eq("foo"s, ninja_syntax::expand("foo", vars)));
+        };
+
+        it("test var") = [] {
+            const ninja_syntax::variables_t vars{{"xyz", "XYZ"}};
+            expect(eq("fooXYZ"s, ninja_syntax::expand("foo$xyz", vars)));
+        };
+
+        it("test vars") = [] {
+            const ninja_syntax::variables_t vars{{"x", "X"}, {"y", "YYY"}};
+            expect(eq("XYYY"s, ninja_syntax::expand("$x$y", vars)));
+        };
+
+        it("test space") = [] {
+            const ninja_syntax::variables_t vars{};
+            expect(eq("x y z"s, ninja_syntax::expand("x$ y$ z", vars)));
+        };
+
+        it("test locals") = [] {
+            const ninja_syntax::variables_t vars{{"x", "a"}};
+            const ninja_syntax::variables_t local_vars{{"x", "b"}};
+            expect(eq("a"s, ninja_syntax::expand("$x", vars)));
+            expect(eq("b"s, ninja_syntax::expand("$x", vars, local_vars)));
+        };
+
+        it("test double") = [] {
+            expect(eq("a b$c"s, ninja_syntax::expand("a$ b$$c", {})));
+        };
+    };
 }

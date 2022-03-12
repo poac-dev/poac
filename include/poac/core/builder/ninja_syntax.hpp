@@ -9,9 +9,10 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <optional>
 #include <ostream>
-#include <filesystem>
+#include <regex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -20,6 +21,7 @@
 // external
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm_ext/push_back.hpp>
+#include <boost/regex.hpp>
 #include <fmt/core.h>
 
 // internal
@@ -45,11 +47,34 @@ namespace poac::core::builder::ninja_syntax {
         boost::replace_all(s, "$", "$$");
     }
 
-    // ref: https://stackoverflow.com/a/46379136
+    /// Expand a string containing $vars as Ninja would.
+    ///
+    /// Note: doesn't handle the full Ninja variable syntax, but it's enough
+    /// to make configure.py's use of it work.
+    using variables_t = std::unordered_map<std::string, std::string>;
+    std::string
+    expand(const std::string& text, const variables_t& vars, const variables_t& local_vars={}) {
+        const auto exp = [&](const boost::smatch& m) {
+            using namespace std::literals::string_literals;
+
+            const std::string var = m[1].str();
+            if (var == "$") {
+                return "$"s;
+            }
+            return local_vars.contains(var)
+                ? local_vars.at(var)
+                : vars.contains(var)
+                       ? vars.at(var)
+                       : ""s;
+        };
+        return boost::regex_replace(text, boost::regex("\\$(\\$|\\w*)"), exp);
+    }
+
+    /// ref: https://stackoverflow.com/a/46379136
     std::string operator*(const std::string& s, std::size_t n) {
         std::string result;
         result.reserve(s.size() * n);
-        for(std::size_t i = 0; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             result += s;
         }
         return result;
