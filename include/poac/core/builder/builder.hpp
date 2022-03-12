@@ -21,7 +21,7 @@
 
 // internal
 #include <poac/core/resolver.hpp>
-#include <poac/core/builder/ninja_syntax.hpp>
+#include <poac/core/builder/ninja/syntax.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 

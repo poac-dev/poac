@@ -27,7 +27,7 @@
 #include <poac/util/meta.hpp>
 #include <poac/util/pretty.hpp>
 
-namespace poac::core::builder::ninja_syntax {
+namespace poac::core::builder::ninja::syntax {
     inline std::filesystem::path
     escape_path(std::filesystem::path p) {
         std::string s = p.string();
@@ -323,4 +323,4 @@ namespace poac::core::builder::ninja_syntax {
     };
 } // end namespace
 
-#endif // POAC_CORE_BUILDER_NINJA_SYNTAX_HPP
+#endif // !POAC_CORE_BUILDER_NINJA_SYNTAX_HPP
