@@ -91,6 +91,8 @@ Poac requires the following compilers, tools, and packages to build:
 <details>
 <summary>The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them.</summary>
 
+---
+
 **dependencies**
 
 * [`fmt`](https://github.com/fmtlib/fmt): [`7.1.3`](https://github.com/fmtlib/fmt/releases/tag/7.1.3) or later
@@ -111,6 +113,9 @@ Poac requires the following compilers, tools, and packages to build:
 **dev-dependencies**
 
 * [`μt`](https://github.com/boost-ext/ut): [`v1.1.9`](https://github.com/boost-ext/ut/releases/tag/v1.1.9) or later
+
+---
+
 </details>
 
 After you prepared these requirements, you can build Poac using the following commands:
