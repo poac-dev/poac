@@ -91,6 +91,8 @@ Poac requires the following compilers, tools, and packages to build:
 <details>
 <summary>The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them.</summary>
 
+---
+
 **dependencies**
 
 * [`fmt`](https://github.com/fmtlib/fmt): [`7.1.3`](https://github.com/fmtlib/fmt/releases/tag/7.1.3) or later
@@ -105,13 +107,15 @@ Poac requires the following compilers, tools, and packages to build:
 * [`ninja`](https://github.com/ninja-build/ninja): [`v1.10.2`](https://github.com/ninja-build/ninja/releases/tag/v1.10.2) or later
 * [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
 * [`structopt`](https://github.com/p-ranav/structopt): [`v0.1.2`](https://github.com/p-ranav/structopt/releases/tag/v0.1.2) or later
-* [`toml11`](https://github.com/ToruNiina/toml11): [`master`](https://github.com/ToruNiina/toml11/tree/master) branch
+* [`toml11`](https://github.com/ToruNiina/toml11): [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1) branch
   * requires [this commit](https://github.com/ToruNiina/toml11/commit/21732fce459911d4da0214baff52af7c8c48cc9f)
-  * awaiting the next release above [`v3.7.0`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.0)
 
 **dev-dependencies**
 
 * [`μt`](https://github.com/boost-ext/ut): [`v1.1.9`](https://github.com/boost-ext/ut/releases/tag/v1.1.9) or later
+
+---
+
 </details>
 
 After you prepared these requirements, you can build Poac using the following commands:
