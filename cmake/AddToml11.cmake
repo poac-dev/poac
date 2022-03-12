@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         toml11
         GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
-        GIT_TAG        bf2384d8da9cdd91bdc51092452e02cc982af0c7
+        GIT_TAG        v3.7.1
 )
 
 set(CMAKE_PROJECT_toml11_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0077PolicyFix.cmake")
