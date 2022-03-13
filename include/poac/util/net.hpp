@@ -41,6 +41,7 @@
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/pretty.hpp>
+#include <poac/util/verbosity.hpp>
 
 namespace poac::util::net {
     // Create progress bar, [====>   ]
@@ -503,7 +504,7 @@ namespace poac::util::net {
                         ofs << r;
                         if (++acc % 100 == 0) {
                             // To be accurate, not downloading.
-                            if (spdlog::should_log(spdlog::level::trace)) {
+                            if (verbosity::is_verbose()) {
                                 std::cout << '\r' << "Downloading "
                                           << to_byte_progress(content_length, acc)
                                           << "  ";
@@ -634,7 +635,7 @@ namespace poac::util::net::api {
            std::string>
     {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-        if (spdlog::should_log(spdlog::level::debug)) {
+        if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
         for (const auto& child : res.get_child("hits")) {
@@ -658,7 +659,7 @@ namespace poac::util::net::api {
     [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
     versions(std::string_view name) {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-        if (spdlog::should_log(spdlog::level::debug)) {
+        if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
 
@@ -679,7 +680,7 @@ namespace poac::util::net::api {
     [[nodiscard]] mitama::result<std::string, std::string>
     package_repository(std::string_view name, std::string_view version) {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
-        if (spdlog::should_log(spdlog::level::debug)) {
+        if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
         for (const auto& child : res.get_child("hits")) {

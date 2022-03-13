@@ -22,6 +22,7 @@
 #include <poac/util/net.hpp>
 #include <poac/util/pretty.hpp>
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/verbosity.hpp>
 #include <poac/config.hpp>
 
 namespace poac::cmd::search {
@@ -54,7 +55,7 @@ namespace poac::cmd::search {
                 return anyhow::failure<Error::NotFound>(opts.package_name);
             }
         }
-        if (spdlog::should_log(spdlog::level::trace)) {
+        if (util::verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, pt);
         }
 
