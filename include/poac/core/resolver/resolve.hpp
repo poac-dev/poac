@@ -37,6 +37,7 @@
 #include <poac/util/meta.hpp>
 #include <poac/util/net.hpp>
 #include <poac/util/semver/semver.hpp>
+#include <poac/util/verbosity.hpp>
 
 namespace poac::core::resolver::resolve {
     struct with_deps : std::true_type {};
@@ -253,7 +254,7 @@ namespace poac::core::resolver::resolve {
     [[nodiscard]] mitama::result<unique_deps_t<with_deps>, std::string>
     backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
         const auto clauses = create_cnf(activated);
-        if (spdlog::should_log(spdlog::level::debug)) {
+        if (util::verbosity::is_verbose()) {
             for (const auto& c : clauses) {
                 for (const auto& l : c) {
                     const auto deps = activated[std::abs(l) - 1];
