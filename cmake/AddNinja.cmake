@@ -12,8 +12,8 @@ FetchContent_Declare(
 set(BUILD_TESTING OFF)
 FetchContent_MakeAvailable(ninja)
 
-file(COPY ${ninja_SOURCE_DIR}/src DESTINATION ${ninja_BINARY_DIR}/include)
-file(RENAME ${ninja_BINARY_DIR}/include/src ${ninja_BINARY_DIR}/include/ninja RESULT POAC_DEV_NULL)
+file(MAKE_DIRECTORY ${ninja_BINARY_DIR}/include)
+file(CREATE_LINK ${ninja_SOURCE_DIR}/src ${ninja_BINARY_DIR}/include/ninja SYMBOLIC)
 target_include_directories(${PROJECT_NAME} PRIVATE ${ninja_BINARY_DIR}/include)
 list(APPEND POAC_DEPENDENCIES libninja libninja-re2c)
 message(CHECK_PASS "added")
