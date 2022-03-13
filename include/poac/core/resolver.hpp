@@ -37,6 +37,8 @@ namespace poac::core::resolver {
     namespace anyhow = mitama::anyhow;
     namespace thiserror = mitama::thiserror;
 
+    using resolved_deps_t = resolve::unique_deps_t<resolve::with_deps>;
+
     class Error {
         template <thiserror::fixed_string S, class ...T>
         using error = thiserror::error<S, T...>;
@@ -179,7 +181,7 @@ namespace poac::core::resolver {
     }
 
     resolve::unique_deps_t<resolve::without_deps>
-    get_not_installed_deps(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
+    get_not_installed_deps(const resolved_deps_t& deps) noexcept {
         return
             deps
             | boost::adaptors::map_keys
@@ -196,7 +198,7 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] anyhow::result<void>
-    download_deps(const resolve::unique_deps_t<resolve::with_deps>& deps) noexcept {
+    download_deps(const resolved_deps_t& deps) noexcept {
         const auto not_installed_deps = get_not_installed_deps(deps);
         if (not_installed_deps.empty()) {
             // all resolved packages already have been installed
@@ -213,7 +215,7 @@ namespace poac::core::resolver {
         return fetch(not_installed_deps);
     }
 
-    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
+    [[nodiscard]] anyhow::result<resolved_deps_t>
     do_resolve(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
         try {
             const auto duplicate_deps = MITAMA_TRY(
@@ -230,7 +232,7 @@ namespace poac::core::resolver {
                 // At the condition (the else clause), gathered dependencies
                 // should be in the backtrack loop.
                 return mitama::success(
-                    resolve::unique_deps_t<resolve::with_deps>(
+                    resolved_deps_t(
                         duplicate_deps.cbegin(), duplicate_deps.cend()
                     ));
             } else {
@@ -258,7 +260,7 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] anyhow::result<std::optional<resolve::unique_deps_t<resolve::with_deps>>>
+    [[nodiscard]] anyhow::result<std::optional<resolved_deps_t>>
     try_to_read_lockfile(const toml::value& config) {
         if (data::lockfile::is_outdated(config::path::current)) {
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
@@ -270,7 +272,7 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
+    [[nodiscard]] anyhow::result<resolved_deps_t>
     get_resolved_deps(const toml::value& config) {
         const auto resolved_deps = MITAMA_TRY(try_to_read_lockfile(config));
         if (resolved_deps.has_value()) {
@@ -283,10 +285,10 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] anyhow::result<resolve::unique_deps_t<resolve::with_deps>>
+    [[nodiscard]] anyhow::result<resolved_deps_t>
     install_deps(const toml::value& config) {
         if (!config.contains("dependencies")) {
-            const auto empty_deps = resolve::unique_deps_t<resolve::with_deps>{};
+            const auto empty_deps = resolved_deps_t{};
             MITAMA_TRY(data::lockfile::generate(empty_deps));
             return mitama::success(empty_deps);
         }
