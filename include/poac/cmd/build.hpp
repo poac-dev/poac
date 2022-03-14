@@ -49,24 +49,16 @@ namespace poac::cmd::build {
 
     [[nodiscard]] anyhow::result<std::filesystem::path>
     build_impl(const toml::value& config, const mode_t& mode, const resolved_deps_t& resolved_deps) {
-        using termcolor2::color_literals::operator""_bold_green;
-        spdlog::info(
-            "{:>25} {} v{} ({})",
-            "Compiling"_bold_green,
-            toml::find<std::string>(config, "package", "name"),
-            toml::find<std::string>(config, "package", "version"),
-            std::filesystem::current_path().string()
-        );
-
         spdlog::stopwatch sw;
         const std::filesystem::path output_path = MITAMA_TRY(
             core::builder::ninja::build::start(config, mode, resolved_deps)
         );
 
+        using termcolor2::color_literals::operator""_bold_green;
         spdlog::info(
             "{:>25} {} target(s) in {}",
             "Finished"_bold_green,
-            to_string(mode),
+            mode,
             util::pretty::to_time(sw.elapsed().count())
         );
         return mitama::success(output_path);

@@ -45,14 +45,6 @@ namespace poac::core::builder::ninja::build {
                 "internal build system has been stopped with an error:\n{0}",
                 std::string
             >;
-
-        using InternalBuildSystemError =
-            error<
-                "internal build system error occurred after {0} tries\n"
-                "Please open an issue with reproducible information at:\n"
-                "https://github.com/poacpm/poac/issues",
-                int
-            >;
     };
 
     enum class mode_t {
@@ -159,24 +151,21 @@ namespace poac::core::builder::ninja::build {
         setenv("NINJA_STATUS", progress_status_format.c_str(), true);
         StatusPrinter status(config);
 
-        for (int cycle = 1; cycle <= rebuildLimit; ++cycle) {
-            // Loaded state (rules, nodes).
-            State state;
-            // Functions for accessing the disk.
-            RealDiskInterface disk_interface;
+        // Loaded state (rules, nodes).
+        State state;
+        // Functions for accessing the disk.
+        RealDiskInterface disk_interface;
 
-            ManifestParser parser(&state, &disk_interface, ManifestParserOptions{});
-            std::string err;
-            // No Load() function call is needed because of no file IO,
-            // so this has to use the ParserTest method instead of
-            // the Parse method which is marked as private
-            if (!parser.ParseTest(manifest::construct(), &err)) {
-                return anyhow::failure<Error::GeneralError>(err);
-            }
-            MITAMA_TRY(run(state, config, status, disk_interface));
-            return mitama::success(poac::config::path::output_dir / to_string(mode));
+        ManifestParser parser(&state, &disk_interface, ManifestParserOptions{});
+        std::string err;
+        // No Load() function call is needed because of no file IO,
+        // so this has to use the ParserTest method instead of
+        // the Parse method which is marked as private
+        if (!parser.ParseTest(manifest::construct(), &err)) {
+            return anyhow::failure<Error::GeneralError>(err);
         }
-        return anyhow::failure<Error::InternalBuildSystemError>(rebuildLimit);
+        MITAMA_TRY(run(state, config, status, disk_interface));
+        return mitama::success(config::path::output_dir / to_string(mode));
     }
 }
 
