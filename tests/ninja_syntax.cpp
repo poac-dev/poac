@@ -167,7 +167,7 @@ int main() {
                 {"out"},
                 "cc",
                 ninja::syntax::build_set_t{
-                    .inputs = "in",
+                    .inputs = std::vector{"in"s},
                     .variables = std::unordered_map<std::string, std::string>{
                         {"name", "value"}
                     }
@@ -187,7 +187,7 @@ int main() {
                 {"o"},
                 "cc",
                 ninja::syntax::build_set_t{
-                    .inputs = "i",
+                    .inputs = std::vector{"i"s},
                     .implicit_outputs = "io",
                 }
             );
