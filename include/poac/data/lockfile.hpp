@@ -52,7 +52,8 @@ namespace poac::data::lockfile {
         if (!fs::exists(base_dir / lockfile_name)) {
             return true;
         }
-        return poac_lock_last_modified(base_dir) < manifest::poac_toml_last_modified(base_dir);
+        return poac_lock_last_modified(base_dir)
+             < manifest::poac_toml_last_modified(base_dir);
     }
 } // end namespace
 
