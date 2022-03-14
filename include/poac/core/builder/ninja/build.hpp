@@ -15,17 +15,15 @@
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/thiserror/thiserror.hpp>
 #include <ninja/build.h>
-#include <ninja/build_log.h>
-#include <ninja/deps_log.h>
-#include <ninja/disk_interface.h>
 #include <ninja/graph.h>
 #include <ninja/manifest_parser.h>
-#include <ninja/metrics.h>
 #include <ninja/state.h>
 #include <ninja/status.h>
 #include <spdlog/spdlog.h>
 
 // internal
+#include <poac/core/builder/ninja/data.hpp>
+#include <poac/core/builder/ninja/log.hpp>
 #include <poac/core/builder/ninja/manifest.hpp>
 #include <poac/core/resolver.hpp>
 #include <poac/util/verbosity.hpp>
@@ -84,24 +82,22 @@ namespace poac::core::builder::ninja::build {
 
     /// Build the targets listed on the command line.
     [[nodiscard]] anyhow::result<void>
-    run(State& state, const BuildConfig& config, Status& status, RealDiskInterface& disk_interface) {
+    run(data::NinjaMain& ninja_main, Status& status) {
         std::string err;
-        std::vector<Node*> targets = state.DefaultNodes(&err);
+        std::vector<Node*> targets = ninja_main.state.DefaultNodes(&err);
         if (!err.empty()) {
             return anyhow::failure<Error::GeneralError>(err);
         }
-        disk_interface.AllowStatCache(true);
+        ninja_main.disk_interface.AllowStatCache(true);
 
-        BuildLog build_log;
-        DepsLog deps_log;
         Builder builder(
-            &state,
-            config,
-            &build_log,
-            &deps_log,
-            &disk_interface,
+            &ninja_main.state,
+            ninja_main.config,
+            &ninja_main.build_log,
+            &ninja_main.deps_log,
+            &ninja_main.disk_interface,
             &status,
-            GetTimeMillis()
+            ninja_main.start_time_millis
         );
         for (std::size_t i = 0; i < targets.size(); ++i) {
             if (!builder.AddTarget(targets[i], &err)) {
@@ -112,7 +108,7 @@ namespace poac::core::builder::ninja::build {
             }
         }
         // Make sure restat rules do not see stale timestamps.
-        disk_interface.AllowStatCache(false);
+        ninja_main.disk_interface.AllowStatCache(false);
 
         if (builder.AlreadyUpToDate()) {
             spdlog::trace("nothing to do.");
@@ -151,21 +147,42 @@ namespace poac::core::builder::ninja::build {
         setenv("NINJA_STATUS", progress_status_format.c_str(), true);
         StatusPrinter status(config);
 
-        // Loaded state (rules, nodes).
-        State state;
-        // Functions for accessing the disk.
-        RealDiskInterface disk_interface;
+        const std::filesystem::path build_dir = config::path::output_dir / to_string(mode);
+        std::filesystem::create_directories(build_dir);
+        MITAMA_TRY(manifest::create(build_dir));
 
-        ManifestParser parser(&state, &disk_interface, ManifestParserOptions{});
-        std::string err;
-        // No Load() function call is needed because of no file IO,
-        // so this has to use the ParserTest method instead of
-        // the Parse method which is marked as private
-        if (!parser.ParseTest(manifest::construct(), &err)) {
-            return anyhow::failure<Error::GeneralError>(err);
+        for (int cycle = 1; cycle <= rebuildLimit; ++cycle) {
+            data::NinjaMain ninja_main(config, build_dir);
+            ManifestParserOptions parser_opts;
+            parser_opts.dupe_edge_action_ = kDupeEdgeActionError;
+            ManifestParser parser(
+                &ninja_main.state,
+                &ninja_main.disk_interface,
+                parser_opts
+            );
+            std::string err;
+            if (!parser.Load((ninja_main.build_dir / manifest::manifest_file_name).string(), &err)) {
+                return anyhow::failure<Error::GeneralError>(err);
+            }
+
+            MITAMA_TRY(log::load_build_log(ninja_main));
+            MITAMA_TRY(log::load_deps_log(ninja_main));
+
+            // Attempt to rebuild the manifest before building anything else
+            if (manifest::rebuild(ninja_main, status, err)) {
+                // Start the build over with the new manifest.
+                continue;
+            } else if (!err.empty()) {
+                return anyhow::failure<Error::GeneralError>(err);
+            }
+
+            MITAMA_TRY(run(ninja_main, status));
+            return mitama::success(config::path::output_dir / to_string(mode));
         }
-        MITAMA_TRY(run(state, config, status, disk_interface));
-        return mitama::success(config::path::output_dir / to_string(mode));
+        return anyhow::failure<Error::GeneralError>(fmt::format(
+            "internal manifest still dirty after {} tries, perhaps system time is not set",
+            rebuildLimit
+        ));
     }
 }
 
