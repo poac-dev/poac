@@ -48,10 +48,10 @@ namespace poac::cmd::build {
     };
 
     [[nodiscard]] anyhow::result<std::filesystem::path>
-    build_impl(const toml::value& config, const mode_t& mode, const resolved_deps_t& resolved_deps) {
+    build_impl(const toml::value& manifest, const mode_t& mode, const resolved_deps_t& resolved_deps) {
         spdlog::stopwatch sw;
         const std::filesystem::path output_path = MITAMA_TRY(
-            core::builder::ninja::build::start(config, mode, resolved_deps)
+            core::builder::ninja::build::start(manifest, mode, resolved_deps)
         );
 
         using termcolor2::color_literals::operator""_bold_green;
@@ -65,10 +65,10 @@ namespace poac::cmd::build {
     }
 
     [[nodiscard]] anyhow::result<std::filesystem::path>
-    build(const Options& opts, const toml::value& config) {
+    build(const Options& opts, const toml::value& manifest) {
         spdlog::trace("Resolving dependencies ...");
         const auto resolved_deps = MITAMA_TRY(
-            core::resolver::install_deps(config)
+            core::resolver::install_deps(manifest)
                 .with_context([]{
                     return anyhow::failure<Error::FailedToInstallDeps>().get();
                 })
@@ -76,7 +76,7 @@ namespace poac::cmd::build {
 
         const mode_t mode = opts.release.value() ? mode_t::release : mode_t::debug;
         const std::filesystem::path output_path = MITAMA_TRY(
-            build_impl(config, mode, resolved_deps)
+            build_impl(manifest, mode, resolved_deps)
         );
         return mitama::success(output_path);
     }
