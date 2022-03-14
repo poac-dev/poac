@@ -286,14 +286,14 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] anyhow::result<resolved_deps_t>
-    install_deps(const toml::value& config) {
-        if (!config.contains("dependencies")) {
+    install_deps(const toml::value& manifest) {
+        if (!manifest.contains("dependencies")) {
             const auto empty_deps = resolved_deps_t{};
             MITAMA_TRY(data::lockfile::generate(empty_deps));
             return mitama::success(empty_deps);
         }
 
-        const auto resolved_deps = MITAMA_TRY(get_resolved_deps(config));
+        const auto resolved_deps = MITAMA_TRY(get_resolved_deps(manifest));
         MITAMA_TRY(download_deps(resolved_deps));
         MITAMA_TRY(data::lockfile::generate(resolved_deps)); // when lockfile is old
 
