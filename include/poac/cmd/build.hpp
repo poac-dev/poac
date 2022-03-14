@@ -91,12 +91,12 @@ namespace poac::cmd::build {
 
         spdlog::trace("Parsing the manifest file ...");
         // TODO: parse as a static type, not toml::value
-        const toml::value config = toml::parse(data::manifest::manifest_file_name);
+        const toml::value manifest = toml::parse(data::manifest::manifest_file_name);
 
         MITAMA_TRY(
-            build(opts, config).with_context([&config]{
+            build(opts, manifest).with_context([&manifest]{
                 return anyhow::failure<Error::FailedToBuild>(
-                    toml::find<std::string>(config, "package", "name")
+                    toml::find<std::string>(manifest, "package", "name")
                 ).get();
             })
         );
