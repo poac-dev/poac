@@ -46,17 +46,14 @@ namespace poac::data::lockfile {
     poac_lock_last_modified(const fs::path& base_dir) {
         return fs::last_write_time(base_dir / lockfile_name);
     }
-    inline fs::file_time_type
-    poac_toml_last_modified(const fs::path& base_dir) {
-        return fs::last_write_time(base_dir / manifest::manifest_file_name);
-    }
 
     inline bool
     is_outdated(const fs::path& base_dir) {
         if (!fs::exists(base_dir / lockfile_name)) {
             return true;
         }
-        return poac_lock_last_modified(base_dir) < poac_toml_last_modified(base_dir);
+        return poac_lock_last_modified(base_dir)
+             < manifest::poac_toml_last_modified(base_dir);
     }
 } // end namespace
 
