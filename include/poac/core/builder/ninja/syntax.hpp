@@ -28,6 +28,28 @@
 #include <poac/util/pretty.hpp>
 
 namespace poac::core::builder::ninja::syntax {
+    struct rule_set_t {
+        std::optional<std::string> description = std::nullopt;
+        std::optional<std::string> depfile = std::nullopt;
+        bool generator = false;
+        std::optional<std::string> pool = std::nullopt;
+        bool restat = false;
+        std::optional<std::string> rspfile = std::nullopt;
+        std::optional<std::string> rspfile_content = std::nullopt;
+        std::optional<std::string> deps = std::nullopt;
+    };
+
+    using variables_t = std::unordered_map<std::string, std::string>;
+    struct build_set_t {
+        std::optional<std::vector<std::string>> inputs = std::nullopt;
+        std::optional<std::vector<std::filesystem::path>> implicit = std::nullopt;
+        std::optional<std::filesystem::path> order_only = std::nullopt;
+        std::optional<variables_t> variables = std::nullopt;
+        std::optional<std::filesystem::path> implicit_outputs = std::nullopt;
+        std::optional<std::string> pool = std::nullopt;
+        std::optional<std::string> dyndep = std::nullopt;
+    };
+
     inline std::filesystem::path
     escape_path(std::filesystem::path p) {
         std::string s = p.string();
@@ -50,7 +72,6 @@ namespace poac::core::builder::ninja::syntax {
     ///
     /// Note: doesn't handle the full Ninja variable syntax, but it's enough
     /// to make configure.py's use of it work.
-    using variables_t = std::unordered_map<std::string, std::string>;
     std::string
     expand(const std::string& text, const variables_t& vars, const variables_t& local_vars={}) {
         const auto exp = [&](const boost::smatch& m) {
@@ -78,27 +99,6 @@ namespace poac::core::builder::ninja::syntax {
         }
         return result;
     }
-
-    struct rule_set_t {
-        std::optional<std::string> description = std::nullopt;
-        std::optional<std::string> depfile = std::nullopt;
-        bool generator = false;
-        std::optional<std::string> pool = std::nullopt;
-        bool restat = false;
-        std::optional<std::string> rspfile = std::nullopt;
-        std::optional<std::string> rspfile_content = std::nullopt;
-        std::optional<std::string> deps = std::nullopt;
-    };
-
-    struct build_set_t {
-        std::optional<std::vector<std::string>> inputs = std::nullopt;
-        std::optional<std::vector<std::filesystem::path>> implicit = std::nullopt;
-        std::optional<std::filesystem::path> order_only = std::nullopt;
-        std::optional<std::unordered_map<std::string, std::string>> variables = std::nullopt;
-        std::optional<std::filesystem::path> implicit_outputs = std::nullopt;
-        std::optional<std::string> pool = std::nullopt;
-        std::optional<std::string> dyndep = std::nullopt;
-    };
 
     template <typename Ostream>
     requires util::meta::derived_from<Ostream, std::ostream>
