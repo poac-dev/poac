@@ -50,4 +50,11 @@ int main() {
         expect(invalid_characters("endWithHyphen-").is_err());
         expect(invalid_characters("endWithUnderscore_").is_err());
     };
+
+    "test valid_version"_test = [] {
+        using poac::core::validator::valid_version;
+
+        expect(valid_version("v0.1.0").is_err());
+        expect(valid_version("0.1.0").is_ok());
+    };
 }

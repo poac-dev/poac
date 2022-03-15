@@ -14,6 +14,7 @@
 
 // internal
 #include <poac/data/manifest.hpp>
+#include <poac/util/semver/semver.hpp>
 
 namespace poac::core::validator {
     [[nodiscard]] mitama::result<void, std::string>
@@ -173,6 +174,16 @@ namespace poac::core::validator {
     valid_package_name(std::string_view s) {
         MITAMA_TRY(invalid_characters(s));
         MITAMA_TRY(using_keywords(s));
+        return mitama::success();
+    }
+
+    [[nodiscard]] mitama::result<void, std::string>
+    valid_version(std::string_view s) {
+        try {
+            [[maybe_unused]] semver::Version unused(s);
+        } catch (const semver::exception& e) {
+            return mitama::failure(e.what());
+        }
         return mitama::success();
     }
 } // end namespace

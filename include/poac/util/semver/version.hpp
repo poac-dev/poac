@@ -68,7 +68,8 @@ namespace semver {
     // capturing group, because it should not ever be used in version
     // comparison.
     const std::string FULL_PLAIN =
-            "v?" + MAIN_VERSION +
+//            "v?" +
+            MAIN_VERSION +
             PRE_RELEASE + "?" +
             BUILD + "?";
     const std::string FULL =
@@ -78,7 +79,7 @@ namespace semver {
     // Extract anything that could conceivably be a part of a valid semver
     const std::string MAX_SAFE_COMPONENT_LENGTH = "16";
     const std::string COERCE =
-            std::string(R"((?:^|[^\d]))") +
+//            std::string(R"((?:^|[^\d]))") +
             R"((\d{1,)" + MAX_SAFE_COMPONENT_LENGTH + "})" +
             R"((?:\.(\d{1,)" + MAX_SAFE_COMPONENT_LENGTH + "}))?" +
             R"((?:\.(\d{1,)" + MAX_SAFE_COMPONENT_LENGTH + "}))?" +
