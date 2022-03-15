@@ -26,6 +26,7 @@
 #include <poac/core/builder/ninja/data.hpp>
 #include <poac/core/builder/ninja/log.hpp>
 #include <poac/core/builder/ninja/manifest.hpp>
+#include <poac/core/builder/ninja/status_printer.hpp>
 #include <poac/core/resolver.hpp>
 #include <poac/util/verbosity.hpp>
 #include <poac/config.hpp>
@@ -146,11 +147,9 @@ namespace poac::core::builder::ninja::build {
         const resolver::resolved_deps_t& resolved_deps
     ) {
         BuildConfig config;
-        // Prevent setting `set_smart_terminal` as `true` in `StatusPrinter`
-        config.verbosity = BuildConfig::VERBOSE;
-        // Prevent being defined by users
-        setenv("NINJA_STATUS", progress_status_format.c_str(), true);
-        StatusPrinter status(config);
+        // setenv("NINJA_NOT_SMART_TERMINAL", "", true);
+        // setenv("NINJA_STATUS", progress_status_format.c_str(), true);
+        status_printer::status_printer status(config, progress_status_format);
 
         const std::filesystem::path build_dir = config::path::output_dir / to_string(mode);
         std::filesystem::create_directories(build_dir);
