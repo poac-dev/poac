@@ -80,7 +80,7 @@ namespace semver::parser {
         Token
         next() {
             // Check out of range
-            if (c1_index > this->size()) {
+            if (c1_index >= this->size()) { // >=, not > because of this->two()
                 return Token{ Token::Unexpected };
             }
 
