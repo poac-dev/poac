@@ -20,6 +20,7 @@
 #include <ninja/state.h>
 #include <ninja/status.h>
 #include <spdlog/spdlog.h>
+#include <toml.hpp>
 
 // internal
 #include <poac/core/builder/ninja/data.hpp>
@@ -139,7 +140,11 @@ namespace poac::core::builder::ninja::build {
     inline constexpr int rebuildLimit = 100;
 
     [[nodiscard]] anyhow::result<std::filesystem::path>
-    start(const toml::value&, const mode_t& mode, const resolver::resolved_deps_t&) {
+    start(
+        const toml::value& poac_manifest,
+        const mode_t& mode,
+        const resolver::resolved_deps_t& resolved_deps
+    ) {
         BuildConfig config;
         // Prevent setting `set_smart_terminal` as `true` in `StatusPrinter`
         config.verbosity = BuildConfig::VERBOSE;
@@ -149,7 +154,7 @@ namespace poac::core::builder::ninja::build {
 
         const std::filesystem::path build_dir = config::path::output_dir / to_string(mode);
         std::filesystem::create_directories(build_dir);
-        MITAMA_TRY(manifest::create(build_dir));
+        MITAMA_TRY(manifest::create(build_dir, poac_manifest, resolved_deps));
 
         for (int cycle = 1; cycle <= rebuildLimit; ++cycle) {
             data::NinjaMain ninja_main(config, build_dir);
