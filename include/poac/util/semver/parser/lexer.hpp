@@ -16,11 +16,8 @@ namespace semver::parser {
     is_whitespace(const char& c) noexcept {
         switch (c) {
             case ' ':
-                [[fallthrough]];
             case '\t':
-                [[fallthrough]];
             case '\r':
-                [[fallthrough]];
             case '\n':
                 return true;
             default:
