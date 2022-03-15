@@ -185,13 +185,13 @@ namespace poac::core::builder::ninja::status_printer {
 
                             // Overall finished edges per second.
                         case 'o':
-                            SnprintfRate(finished_edges_ / (time_millis_ / 1e3), buf, "%.1f");
+                            SnprintfRate(finished_edges_ / (time_millis / 1e3), buf, "%.1f");
                             out += buf;
                             break;
 
                             // Current rate, average over the last '-j' jobs.
                         case 'c':
-                            current_rate_.UpdateRate(finished_edges_, time_millis_);
+                            current_rate_.UpdateRate(finished_edges_, time_millis);
                             SnprintfRate(current_rate_.rate(), buf, "%.1f");
                             out += buf;
                             break;
@@ -205,7 +205,7 @@ namespace poac::core::builder::ninja::status_printer {
                         }
 
                         case 'e': {
-                            snprintf(buf, sizeof(buf), "%.3f", time_millis_ / 1e3);
+                            snprintf(buf, sizeof(buf), "%.3f", time_millis / 1e3);
                             out += buf;
                             break;
                         }
@@ -278,7 +278,7 @@ namespace poac::core::builder::ninja::status_printer {
         }
 
         struct SlidingRateInfo {
-            SlidingRateInfo(int n) : rate_(-1), N(n), last_update_(-1) {}
+            explicit SlidingRateInfo(int n) : rate_(-1), N(n), last_update_(-1) {}
 
             double rate() { return rate_; }
 
