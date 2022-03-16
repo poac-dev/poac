@@ -1,255 +1,187 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/included/unit_test.hpp>
+#include <boost/ut.hpp>
+
 #include <poac/util/semver/parser/parser.hpp>
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_empty_test )
-{
+int main() {
+    using namespace std::literals::string_literals;
+    using namespace boost::ut;
+
     using semver::parser::Parser;
 
-    Parser parser("");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // empty string incorrectly considered a valid parse
-}
+    "test parse empty"_test = [] {
+        Parser parser("");
+        expect(throws<std::bad_optional_access>([&] {
+            parser.version();
+        })) << "empty string incorrectly considered a valid parse";
+    };
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_blank_test )
-{
-    using semver::parser::Parser;
+    "test parse blank"_test = [] {
+        Parser parser("  ");
+        expect(throws<std::bad_optional_access>([&] {
+            parser.version();
+        })) << "blank string incorrectly considered a valid parse";
+    };
 
-    Parser parser("  ");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // blank string incorrectly considered a valid parse
-}
+    "test parse no minor patch test"_test = [] {
+        Parser parser("1");
+        expect(throws<std::bad_optional_access>([&] {
+            parser.version();
+        })) << "1 incorrectly considered a valid parse";
+    };
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_no_minor_patch_test )
-{
-    using semver::parser::Parser;
+    "test parse no patch test"_test = [] {
+        Parser parser("1.2");
+        expect(throws<std::bad_optional_access>([&] {
+            parser.version();
+        })) << "1.2 incorrectly considered a valid parse";
+    };
 
-    Parser parser("1");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // 1 incorrectly considered a valid parse
-}
+    "test parse empty pre"_test = [] {
+        Parser parser("1.2.3-");
+        expect(throws<std::bad_optional_access>([&] {
+            parser.version();
+        })) << "1.2.3- incorrectly considered a valid parse";
+    };
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_no_patch_test )
-{
-    using semver::parser::Parser;
+    "test parse letters"_test = [] {
+        Parser parser("a.b.c");
+        expect(throws<std::bad_optional_access>([&] {
+            parser.version();
+        })) << "a.b.c incorrectly considered a valid parse";
+    };
 
-    Parser parser("1.2");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // 1.2 incorrectly considered a valid parse
-}
+    "test parse with letters"_test = [] {
+        Parser parser("1.2.3 a.b.c");
+        expect(throws<semver::version_error>([&] {
+            parser.version();
+        })) << "1.2.3 a.b.c incorrectly considered a valid parse";
+    };
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_empty_pre_test )
-{
-    using semver::parser::Parser;
+    "test parse basic version"_test = [] {
+        Parser parser("1.2.3");
+        const auto parsed = parser.version();
+        expect(parsed.major == 1_i);
+        expect(parsed.minor == 2_i);
+        expect(parsed.patch == 3_i);
+    };
 
-    Parser parser("1.2.3-");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // 1.2.3- incorrectly considered a valid parse
-}
+    "test parser trims input"_test = [] {
+        Parser parser("  1.2.3  ");
+        const auto parsed = parser.version();
+        expect(parsed.major == 1_i);
+        expect(parsed.minor == 2_i);
+        expect(parsed.patch == 3_i);
+    };
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_letters_test )
-{
-    using semver::parser::Parser;
-
-    Parser parser("a.b.c");
-    BOOST_CHECK_THROW(
-            parser.version(),
-            std::bad_optional_access
-    );
-    // a.b.c incorrectly considered a valid parse
-}
-
-//BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_with_letters_test )
-//{
-//    using semver::parser::Parser;
-//
-//    Parser parser("1.2.3 a.b.c");
-//    BOOST_CHECK_THROW(
-//            parser.version(),
-//            std::bad_optional_access
-//    );
-//    // 1.2.3 a.b.c incorrectly considered a valid parse
-//}
-
-BOOST_AUTO_TEST_CASE( semver_parser_parser_basic_version_test )
-{
-    using semver::parser::Parser;
-
-    Parser parser("1.2.3");
-    const auto parsed = parser.version();
-    BOOST_CHECK( parsed.major == 1 );
-    BOOST_CHECK( parsed.minor == 2 );
-    BOOST_CHECK( parsed.patch == 3 );
-}
-
-BOOST_AUTO_TEST_CASE( semver_parser_parser_trims_input_test )
-{
-    using semver::parser::Parser;
-
-    Parser parser("  1.2.3  ");
-    const auto parsed = parser.version();
-    BOOST_CHECK( parsed.major == 1 );
-    BOOST_CHECK( parsed.minor == 2 );
-    BOOST_CHECK( parsed.patch == 3 );
-}
-
-BOOST_AUTO_TEST_CASE( semver_parser_parser_basic_prerelease_test )
-{
-    using semver::parser::Parser;
     using semver::parser::Identifier;
 
-    Parser parser("1.2.3-pre");
-    const auto parsed = parser.version();
-    const std::vector<Identifier> expected_pre = {
+    "test parser basic prerelease"_test = [] {
+        Parser parser("1.2.3-pre");
+        const auto parsed = parser.version();
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::AlphaNumeric, "pre")
+        };
+        expect(expected_pre == parsed.pre);
     };
-    BOOST_CHECK( expected_pre == parsed.pre );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_prerelease_alphanumeric_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
-
-    Parser parser("1.2.3-alpha1");
-    const auto parsed = parser.version();
-    const std::vector<Identifier> expected_pre = {
+    "test parser prerelease alphanumeric"_test = [] {
+        Parser parser("1.2.3-alpha1");
+        const auto parsed = parser.version();
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::AlphaNumeric, "alpha1")
+        };
+        expect(expected_pre == parsed.pre);
     };
-    BOOST_CHECK( expected_pre == parsed.pre );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_prerelease_zero_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
-
-    Parser parser("1.2.3-pre.0");
-    const auto parsed = parser.version();
-    const std::vector<Identifier> expected_pre = {
+    "test parser prerelease zero"_test = [] {
+        Parser parser("1.2.3-pre.0");
+        const auto parsed = parser.version();
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::AlphaNumeric, "pre"),
             Identifier(Identifier::Numeric, 0)
+        };
+        expect(expected_pre == parsed.pre);
     };
-    BOOST_CHECK( expected_pre == parsed.pre );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_basic_build_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
-
-    Parser parser("1.2.3+build");
-    const auto parsed = parser.version();
-    const std::vector<Identifier> expected_build = {
+    "test parser basic build"_test = [] {
+        Parser parser("1.2.3+build");
+        const auto parsed = parser.version();
+        const std::vector<Identifier> expected_build = {
             Identifier(Identifier::AlphaNumeric, "build")
+        };
+        expect(expected_build == parsed.build);
     };
-    BOOST_CHECK( expected_build == parsed.build );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_build_alphanumeric_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
-
-    Parser parser("1.2.3+build5");
-    const auto parsed = parser.version();
-    const std::vector<Identifier> expected_build = {
+    "test parser build alphanumeric"_test = [] {
+        Parser parser("1.2.3+build5");
+        const auto parsed = parser.version();
+        const std::vector<Identifier> expected_build = {
             Identifier(Identifier::AlphaNumeric, "build5")
+        };
+        expect(expected_build == parsed.build);
     };
-    BOOST_CHECK( expected_build == parsed.build );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_pre_and_build_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
+    "test parser pre & build"_test = [] {
+        Parser parser("1.2.3-alpha1+build5");
+        const auto parsed = parser.version();
 
-    Parser parser("1.2.3-alpha1+build5");
-    const auto parsed = parser.version();
-
-    const std::vector<Identifier> expected_pre = {
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::AlphaNumeric, "alpha1")
-    };
-    BOOST_CHECK( expected_pre == parsed.pre );
+        };
+        expect(expected_pre == parsed.pre);
 
-    const std::vector<Identifier> expected_build = {
+        const std::vector<Identifier> expected_build = {
             Identifier(Identifier::AlphaNumeric, "build5")
+        };
+        expect(expected_build == parsed.build);
     };
-    BOOST_CHECK( expected_build == parsed.build );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_complex_metadata_01_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
+    "test parser complex metadata 01"_test = [] {
+        Parser parser("1.2.3-1.alpha1.9+build5.7.3aedf  ");
+        const auto parsed = parser.version();
 
-    Parser parser("1.2.3-1.alpha1.9+build5.7.3aedf  ");
-    const auto parsed = parser.version();
-
-    const std::vector<Identifier> expected_pre = {
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::Numeric, 1),
             Identifier(Identifier::AlphaNumeric, "alpha1"),
             Identifier(Identifier::Numeric, 9)
-    };
-    BOOST_CHECK( expected_pre == parsed.pre );
+        };
+        expect(expected_pre == parsed.pre);
 
-    const std::vector<Identifier> expected_build = {
+        const std::vector<Identifier> expected_build = {
             Identifier(Identifier::AlphaNumeric, "build5"),
             Identifier(Identifier::Numeric, 7),
             Identifier(Identifier::AlphaNumeric, "3aedf")
+        };
+        expect(expected_build == parsed.build);
     };
-    BOOST_CHECK( expected_build == parsed.build );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_complex_metadata_02_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
+    "test parser complex metadata 02"_test = [] {
+        Parser parser("0.4.0-beta.1+0851523");
+        const auto parsed = parser.version();
 
-    Parser parser("0.4.0-beta.1+0851523");
-    const auto parsed = parser.version();
-
-    const std::vector<Identifier> expected_pre = {
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::AlphaNumeric, "beta"),
             Identifier(Identifier::Numeric, 1)
-    };
-    BOOST_CHECK( expected_pre == parsed.pre );
+        };
+        expect(expected_pre == parsed.pre);
 
-    const std::vector<Identifier> expected_build = {
+        const std::vector<Identifier> expected_build = {
             Identifier(Identifier::AlphaNumeric, "0851523")
+        };
+        expect(expected_build == parsed.build);
     };
-    BOOST_CHECK( expected_build == parsed.build );
-}
 
-BOOST_AUTO_TEST_CASE( semver_parser_parser_parse_regression_01_test )
-{
-    using semver::parser::Parser;
-    using semver::parser::Identifier;
+    "test parser parse regression 01"_test = [] {
+        Parser parser("0.0.0-WIP");
+        const auto parsed = parser.version();
 
-    Parser parser("0.0.0-WIP");
-    const auto parsed = parser.version();
+        expect(parsed.major == 0_i);
+        expect(parsed.minor == 0_i);
+        expect(parsed.patch == 0_i);
 
-    BOOST_CHECK( parsed.major == 0 );
-    BOOST_CHECK( parsed.minor == 0 );
-    BOOST_CHECK( parsed.patch == 0 );
-
-    const std::vector<Identifier> expected_pre = {
+        const std::vector<Identifier> expected_pre = {
             Identifier(Identifier::AlphaNumeric, "WIP")
+        };
+        expect(expected_pre == parsed.pre);
     };
-    BOOST_CHECK( expected_pre == parsed.pre );
 }
