@@ -16,11 +16,8 @@ namespace semver::parser {
     is_whitespace(const char& c) noexcept {
         switch (c) {
             case ' ':
-                [[fallthrough]];
             case '\t':
-                [[fallthrough]];
             case '\r':
-                [[fallthrough]];
             case '\n':
                 return true;
             default:
@@ -80,7 +77,7 @@ namespace semver::parser {
         Token
         next() {
             // Check out of range
-            if (c1_index > this->size()) {
+            if (c1_index >= this->size()) { // should be `>=`, not `>` because of this->two()
                 return Token{ Token::Unexpected };
             }
 
