@@ -6,8 +6,10 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <utility> // std::make_pair
 
 // external
+#include <boost/algorithm/string.hpp> // boost::algorithm::join
 #include <fmt/core.h>
 #include <mitama/result/result.hpp>
 #include <mitama/anyhow/anyhow.hpp>
@@ -19,7 +21,7 @@
 #include <poac/core/builder/ninja/syntax.hpp>
 #include <poac/core/builder/ninja/data.hpp>
 #include <poac/core/builder/compiler.hpp>
-#include <poac/core/resolver.hpp> // resolved_deps_t
+#include <poac/core/resolver.hpp> // resolved_deps_t, get_extracted_path
 #include <poac/data/manifest.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/config.hpp>
@@ -88,6 +90,20 @@ namespace poac::core::builder::ninja::manifest {
         return true;
     }
 
+    std::vector<std::string>
+    gather_includes(const resolver::resolved_deps_t& resolved_deps) {
+        std::vector<std::string> includes;
+        for (const auto& [package, inner_deps] : resolved_deps) {
+            static_cast<void>(inner_deps);
+
+            const auto include_path = resolver::get_extracted_path(package) / "include";
+            if (fs::exists(include_path) && fs::is_directory(include_path)) {
+                includes.emplace_back(fmt::format("-I{}", include_path.string()));
+            }
+        }
+        return includes;
+    }
+
     [[nodiscard]] anyhow::result<std::string>
     construct(
         const fs::path& build_dir,
@@ -100,21 +116,14 @@ namespace poac::core::builder::ninja::manifest {
         }
         writer.newline();
 
-        // Assuming no dependency package for test
-        if (resolved_deps.empty()) {}
         const auto cpp = toml::find<toml::integer>(poac_manifest, "package", "cpp");
         const std::string command = MITAMA_TRY(compiler::cxx::get_command(cpp, false));
 
         writer.rule(
             "compile",
-            fmt::format("{} $in -o $out", command),
+            fmt::format("{} $INCLUDES $in -o $out", command),
             syntax::rule_set_t{
-                .description = fmt::format(
-                    "{} v{} ({})",
-                    toml::find<std::string>(poac_manifest, "package", "name"),
-                    toml::find<std::string>(poac_manifest, "package", "version"),
-                    config::path::current.string()
-                ),
+                .description = "$PACKAGE_NAME v$PACKAGE_VERSION $PACKAGE_PATH",
             }
         );
         writer.newline();
@@ -122,12 +131,19 @@ namespace poac::core::builder::ninja::manifest {
         using namespace util::misc::path_literals;
         const fs::path source_file = "src"_path / "main.cpp";
         const fs::path output_file = (build_dir / source_file).string() + ".o";
+        const std::string includes = boost::algorithm::join(gather_includes(resolved_deps), " ");
         fs::create_directories(output_file.parent_path());
         writer.build(
             {output_file.string()},
             "compile",
             syntax::build_set_t{
-                .inputs = std::vector{source_file.string()}
+                .inputs = std::vector{source_file.string()},
+                .variables = syntax::variables_t{
+                    {"PACKAGE_NAME", toml::find<std::string>(poac_manifest, "package", "name")},
+                    {"PACKAGE_VERSION", toml::find<std::string>(poac_manifest, "package", "version")},
+                    {"PACKAGE_PATH", fmt::format("({})", config::path::current.string())},
+                    {"INCLUDES", includes},
+                },
             }
         );
         writer.newline();
