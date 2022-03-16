@@ -1,9 +1,11 @@
 #ifndef SEMVER_IO_HPP
 #define SEMVER_IO_HPP
 
+// std
 #include <ostream> // std::ostream
 
-#include <poac/util/semver/version.hpp>
+// internal
+#include <poac/util/semver/parser/token.hpp>
 
 namespace semver {
     std::ostream& operator<<(std::ostream& os, const Version& v) {

@@ -31,7 +31,7 @@ namespace poac::core::builder::compiler::cxx::clang {
                 }
                 version += res->operator[](i);
             }
-            return mitama::success(semver::Version{version});
+            return mitama::success(semver::parse(version));
         }
         return anyhow::failure<error::Error::FailedToGetCompilerVersion>(
             error::to_string(compiler)

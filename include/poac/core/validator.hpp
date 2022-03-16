@@ -180,7 +180,7 @@ namespace poac::core::validator {
     [[nodiscard]] mitama::result<void, std::string>
     valid_version(std::string_view s) {
         try {
-            [[maybe_unused]] semver::Version unused(s);
+            semver::parse(s);
         } catch (const semver::exception& e) {
             return mitama::failure(e.what());
         }

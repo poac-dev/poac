@@ -1,22 +1,21 @@
 #ifndef SEMVER_COMPARISON_HPP
 #define SEMVER_COMPARISON_HPP
 
+// std
 #include <string>
 #include <algorithm>
 
-#include <poac/util/semver/version.hpp>
+// internal
+#include <poac/util/semver/parser/lexer.hpp>
+#include <poac/util/semver/parser/parser.hpp>
+#include <poac/util/semver/parser/token.hpp>
 
 namespace semver {
     namespace detail {
-        constexpr bool
-        is_digit(const char& c) noexcept {
-            return '0' <= c && c <= '9';
-        }
-
         bool is_number(const std::string& s) {
             return !s.empty()
                 && std::find_if(s.begin(), s.end(),
-                       [&](auto& c) { return !is_digit(c); }
+                       [&](auto& c) { return !parser::is_digit(c); }
                    ) == s.end();
         }
 
@@ -38,12 +37,14 @@ namespace semver {
                     return true; // gt
                 } else if (lhs.pre[i] == rhs.pre[i]) {
                     continue;
-                } else if (!is_number(lhs.pre[i]) && is_number(rhs.pre[i])) {
+                } else if (!lhs.pre[i].is_numeric() && rhs.pre[i].is_numeric()) {
                     return true;
-                } else if (lhs.pre[i] > rhs.pre[i]) {
-                    return true;
-                } else if (is_number(lhs.pre[i]) && is_number(rhs.pre[i])) {
-                    if (std::stoull(lhs.pre[i]) > std::stoull(rhs.pre[i])) {
+                } else if (lhs.pre[i].is_alpha_numeric() && rhs.pre[i].is_alpha_numeric()) {
+                    if (lhs.pre[i].get_alpha_numeric() > rhs.pre[i].get_alpha_numeric()) {
+                        return true;
+                    }
+                } else if (lhs.pre[i].is_numeric() && rhs.pre[i].is_numeric()) {
+                    if (lhs.pre[i].get_numeric() > rhs.pre[i].get_numeric()) {
                         return true;
                     }
                 } else {
@@ -86,19 +87,19 @@ namespace semver {
     }
     inline bool
     operator==(const Version& lhs, const std::string& rhs) {
-        return lhs == Version(rhs);
+        return lhs == parse(rhs);
     }
     inline bool
     operator==(const std::string& lhs, const Version& rhs) {
-        return Version(lhs) == rhs;
+        return parse(lhs) == rhs;
     }
     inline bool
     operator==(const Version& lhs, const char* rhs) {
-        return lhs == Version(rhs);
+        return lhs == parse(rhs);
     }
     inline bool
     operator==(const char* lhs, const Version& rhs) {
-        return Version(lhs) == rhs;
+        return parse(lhs) == rhs;
     }
 
     inline bool
@@ -136,19 +137,19 @@ namespace semver {
     }
     inline bool
     operator>(const Version& lhs, const std::string& rhs) {
-        return lhs > Version(rhs);
+        return lhs > parse(rhs);
     }
     inline bool
     operator>(const std::string& lhs, const Version& rhs) {
-        return Version(lhs) > rhs;
+        return parse(lhs) > rhs;
     }
     inline bool
     operator>(const Version& lhs, const char* rhs) {
-        return lhs > Version(rhs);
+        return lhs > parse(rhs);
     }
     inline bool
     operator>(const char* lhs, const Version& rhs) {
-        return Version(lhs) > rhs;
+        return parse(lhs) > rhs;
     }
 
     inline bool
