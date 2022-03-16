@@ -139,6 +139,4 @@ int main() {
             Interval("<1.0.0-alpha and >1.0.0");
         }));
     };
-
-    // TODO: regex, Version constructor, get_version(), get_full(), Version exceptions
 }

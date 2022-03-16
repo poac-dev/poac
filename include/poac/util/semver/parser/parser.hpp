@@ -343,18 +343,24 @@ namespace semver::parser {
             return false;
         }
     };
+} // end namespace semver::parser
 
-//    std::optional<Version>
-//    parse(std::string_view input) {
-//
-//    }
-//
+namespace semver {
+    Version
+    parse(std::string_view input) {
+        try {
+            parser::Parser parser(input);
+            return parser.version();
+        } catch (const std::bad_optional_access& e) {
+            throw semver::version_error(e.what());
+        }
+    }
+
 //    namespace range {
 //        VersionReq
 //        parse(std::string_view input) {
-//
 //        }
 //    } // end namespace range
-} // end namespace semver::parser
+} // end namespace semver
 
 #endif // !SEMVER_PARSER_PARSER_HPP

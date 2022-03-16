@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <variant>
 #include <utility>
@@ -183,6 +184,26 @@ namespace semver::parser {
                       : Kind::AlphaNumeric)
             , component(c)
         {}
+
+        constexpr bool
+        is_numeric() const noexcept {
+            return kind == Kind::Numeric;
+        }
+
+        constexpr bool
+        is_alpha_numeric() const noexcept {
+            return kind == Kind::AlphaNumeric;
+        }
+
+        numeric_type
+        get_numeric() const {
+            return std::get<Identifier::numeric_type>(component);
+        }
+
+        alphanumeric_type
+        get_alpha_numeric() const {
+            return std::get<Identifier::alphanumeric_type>(component);
+        }
     };
 
     constexpr bool
@@ -195,6 +216,22 @@ namespace semver::parser {
         return !(lhs == rhs);
     }
 
+    std::string
+    to_string(const Identifier& id) {
+        if (std::holds_alternative<Identifier::numeric_type>(id.component)) {
+            return std::to_string(id.get_numeric());
+        } else if (std::holds_alternative<Identifier::alphanumeric_type>(id.component)) {
+            return std::string(id.get_alpha_numeric());
+        }
+        return ""; // not reachable
+    }
+
+    std::ostream& operator<<(std::ostream& os, const Identifier& id) {
+        return (os << to_string(id));
+    }
+} // end namespace semver::parser
+
+namespace semver {
     struct Version {
         /// Major version as number (`0` in `"0.1.2"`).
         std::uint_fast64_t major;
@@ -204,11 +241,37 @@ namespace semver::parser {
         std::uint_fast64_t patch;
         /// Pre-release metadata as a vector of `Identifier` (`"alpha1"` in `"0.1.2-alpha1"`
         /// or `7` (numeric) in `"0.1.2-7"`, `"pre"` and `0` (numeric) in `"0.1.2-pre.0"`).
-        std::vector<Identifier> pre;
+        std::vector<parser::Identifier> pre;
         /// Build metadata as a vector of `Identifier` (`"build1"` in `"0.1.2+build1"`
         /// or `7` (numeric) in `"0.1.2+7"`, `"build"` and `0` (numeric) in `"0.1.2+pre.0"`).
-        std::vector<Identifier> build;
+        std::vector<parser::Identifier> build;
+
+        std::string get_version() const {
+            std::string version = std::to_string(major);
+            version += "." + std::to_string(minor);
+            version += "." + std::to_string(patch);
+            if (!pre.empty()) {
+                version += "-";
+                for (const auto& s : pre) {
+                    version += to_string(s) + ".";
+                }
+                version.pop_back();
+            }
+            return version;
+        }
+
+        std::string get_full() const {
+            std::string full = get_version();
+            if (!build.empty()) {
+                full += "+";
+                for (const auto& s : build) {
+                    full += to_string(s) + ".";
+                }
+                full.pop_back();
+            }
+            return full;
+        }
     };
-} // end namespace semver::parser
+} // end namespace semver
 
 #endif // !SEMVER_PARSER_TOKEN_HPP

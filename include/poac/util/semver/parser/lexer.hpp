@@ -204,8 +204,8 @@ namespace semver::parser {
                 return Token{ Token::Numeric, value };
             }
 
-            // e.g. 3425dec
-            while (is_alphabet(this->one())) {
+            // e.g. 3425dec85
+            while (is_alpha_numeric(this->one())) {
                 this->step();
             }
             std::string_view sub = str.substr(start, this->c1_index - start);

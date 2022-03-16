@@ -13,7 +13,8 @@
 #include <fmt/core.h>
 
 // internal
-#include <poac/util/semver/version.hpp>
+#include <poac/util/semver/parser/parser.hpp>
+#include <poac/util/semver/parser/token.hpp>
 #include <poac/util/semver/comparison.hpp>
 #include <poac/util/semver/exception.hpp>
 
@@ -88,27 +89,27 @@ namespace semver {
         bool satisfies_impl(std::string_view v) const {
             if (left_comp_op == ">") {
                 if (right_comp_op == "<") {
-                    return (Version(v) > left_version) && (Version(v) < right_version);
+                    return (parse(v) > left_version) && (parse(v) < right_version);
                 } else if (right_comp_op == "<=") {
-                    return (Version(v) > left_version) && (Version(v) <= right_version);
+                    return (parse(v) > left_version) && (parse(v) <= right_version);
                 }
             } else if (left_comp_op == ">=") {
                 if (right_comp_op == "<") {
-                    return (Version(v) >= left_version) && (Version(v) < right_version);
+                    return (parse(v) >= left_version) && (parse(v) < right_version);
                 } else if (right_comp_op == "<=") {
-                    return (Version(v) >= left_version) && (Version(v) <= right_version);
+                    return (parse(v) >= left_version) && (parse(v) <= right_version);
                 }
             } else if (left_comp_op == "<") {
                 if (right_comp_op == ">") {
-                    return (Version(v) < left_version) && (Version(v) > right_version);
+                    return (parse(v) < left_version) && (parse(v) > right_version);
                 } else if (right_comp_op == ">=") {
-                    return (Version(v) < left_version) && (Version(v) >= right_version);
+                    return (parse(v) < left_version) && (parse(v) >= right_version);
                 }
             } else if (left_comp_op == "<=") {
                 if (right_comp_op == ">") {
-                    return (Version(v) <= left_version) && (Version(v) > right_version);
+                    return (parse(v) <= left_version) && (parse(v) > right_version);
                 } else if (right_comp_op == ">=") {
-                    return (Version(v) <= left_version) && (Version(v) >= right_version);
+                    return (parse(v) <= left_version) && (parse(v) >= right_version);
                 }
             }
             return false;
@@ -121,7 +122,7 @@ namespace semver {
                 && (right_comp_op == "<" || right_comp_op == "<="))
             {
                 // Prioritize the larger version
-                if (Version(left_version) > right_version) {
+                if (parse(left_version) > right_version) {
                     return "Did you mean " + left_comp_op + left_version + " ?";
                 } else {
                     return "Did you mean " + right_comp_op + right_version + " ?";
@@ -130,7 +131,7 @@ namespace semver {
                        && (right_comp_op == ">" || right_comp_op == ">="))
             {
                 // Prioritize the smaller version
-                if (Version(left_version) < right_version) {
+                if (parse(left_version) < right_version) {
                     return "Did you mean " + left_comp_op + left_version + " ?";
                 } else {
                     return "Did you mean " + right_comp_op + right_version + " ?";
@@ -148,7 +149,7 @@ namespace semver {
         // e.g. <0.1.1 and >=0.3.2
         std::optional<std::string>
         is_bounded_interval() const { // TODO: noexcept
-            if (Version(left_version) < right_version) {
+            if (parse(left_version) < right_version) {
                 if ((left_comp_op == "<" || left_comp_op == "<=")
                     && (right_comp_op == ">" || right_comp_op == ">="))
                 {
@@ -158,7 +159,7 @@ namespace semver {
                            "e.g. `" + right_comp_op + left_version + " and " +
                            left_comp_op + right_version + "`";
                 }
-            } else if (Version(left_version) > right_version) {
+            } else if (parse(left_version) > right_version) {
                 if ((left_comp_op == ">" || left_comp_op == ">=")
                     && (right_comp_op == "<" || right_comp_op == "<="))
                 {
@@ -200,13 +201,13 @@ namespace semver {
         // >2.3.0, 1.0.0, <=1.2.3-alpha, ...
         bool satisfies_impl(std::string_view v) const {
             if (comp_op == ">") {
-                return Version(v) > version_str;
+                return parse(v) > version_str;
             } else if (comp_op == ">=") {
-                return Version(v) >= version_str;
+                return parse(v) >= version_str;
             } else if (comp_op == "<") {
-                return Version(v) < version_str;
+                return parse(v) < version_str;
             } else if (comp_op == "<=") {
-                return Version(v) <= version_str;
+                return parse(v) <= version_str;
             }
             return false;
         }
@@ -222,6 +223,74 @@ namespace semver {
             return satisfies_impl(version);
         }
     };
+
+    // TODO: implement parser for interval
+    // The following Regular Expressions can be used for tokenizing,
+    // validating, and parsing SemVer version strings.
+    // A regular expression before binding is https://github.com/semver/semver/issues/232#issue-48635632
+
+    // ## Numeric Identifier
+    // A single `0`, or a non-zero digit followed by zero or more digits.
+    inline const std::string NUMERIC_IDENTIFIER =
+        R"(0|[1-9]\d*)";
+
+    // ## Non-numeric Identifier
+    // Zero or more digits, followed by a letter or hyphen, and then zero or
+    // more letters, digits, or hyphens.
+    inline const std::string NON_NUMERIC_IDENTIFIER =
+        R"(\d*[a-zA-Z-][0-9a-zA-Z-]*)";
+
+    // ## Main Version
+    // Three dot-separated numeric identifiers.
+    inline const std::string MAIN_VERSION =
+        "(" + NUMERIC_IDENTIFIER + R"()\.)" +
+        "(" + NUMERIC_IDENTIFIER + R"()\.)" +
+        "(" + NUMERIC_IDENTIFIER + ")";
+
+    // ## Pre-release Version Identifier
+    // A numeric identifier, or a non-numeric identifier.
+    inline const std::string PRE_RELEASE_IDENTIFIER =
+        "(?:" + NUMERIC_IDENTIFIER +
+        "|" + NON_NUMERIC_IDENTIFIER + ")";
+
+    // ## Pre-release Version
+    // Hyphen, followed by one or more dot-separated pre-release version
+    // identifiers.
+    inline const std::string PRE_RELEASE =
+        "(?:-(" + PRE_RELEASE_IDENTIFIER +
+        R"((?:\.)" + PRE_RELEASE_IDENTIFIER + ")*))";
+
+    // ## Build Metadata Identifier
+    // Any combination of digits, letters, or hyphens.
+    inline const std::string BUILD_IDENTIFIER =
+        "[0-9A-Za-z-]+";
+
+    // ## Build Metadata
+    // Plus sign, followed by one or more period-separated build metadata
+    // identifiers.
+    inline const std::string BUILD =
+        R"((?:\+()" + BUILD_IDENTIFIER +
+        R"((?:\.)" + BUILD_IDENTIFIER + ")*))";
+
+    // Note that the only major, minor, patch, and pre-release sections of
+    // the version string are capturing groups.  The build metadata is not a
+    // capturing group, because it should not ever be used in version
+    // comparison.
+    inline const std::string FULL_PLAIN =
+//            "v?" +
+        MAIN_VERSION +
+        PRE_RELEASE + "?" +
+        BUILD + "?";
+
+    // ## Interval of Version String
+    // Something like ">1.2.0 and <=2.0.0".
+    // A simple gt/lt/eq thing, or just "" to indicate "any version"
+    inline const std::string GT_LT =
+        "((?:<|>)?=?)";
+    inline const std::string CLOSED_UNBOUNDED_INTERVAL =
+        "(^" + GT_LT + "?" + FULL_PLAIN + "$)";
+    inline const std::string BOUNDED_INTERVAL =
+        "(^" + GT_LT + FULL_PLAIN + "( and )" + GT_LT + FULL_PLAIN + "$)";
 
     class Interval {
     private:
