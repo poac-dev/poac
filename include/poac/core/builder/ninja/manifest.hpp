@@ -5,6 +5,7 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <string>
 #include <utility> // std::make_pair
 
@@ -23,6 +24,7 @@
 #include <poac/core/builder/compiler.hpp>
 #include <poac/core/resolver.hpp> // resolved_deps_t, get_extracted_path
 #include <poac/data/manifest.hpp>
+#include <poac/util/cfg.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/config.hpp>
 
@@ -104,6 +106,43 @@ namespace poac::core::builder::ninja::manifest {
         return includes;
     }
 
+    std::vector<toml::table>
+    get_cfg_profile(const toml::value& poac_manifest) {
+        const auto target = toml::find_or<toml::table>(
+            poac_manifest, "target", toml::table{}
+        );
+        std::vector<toml::table> profiles;
+        for (const auto& [key, val] : target) {
+            if (key.find("cfg(") != std::string::npos) {
+                if (util::cfg::parse(key).match()) {
+                    const auto profile = toml::find_or<toml::table>(
+                        val, "profile", toml::table{}
+                    );
+                    profiles.emplace_back(profile);
+                }
+            }
+        }
+        return profiles;
+    }
+
+    std::vector<std::string>
+    gather_flags(
+        const toml::value& poac_manifest,
+        const std::string& name,
+        const std::optional<std::string>& prefix=std::nullopt
+    ) {
+        auto f = toml::find_or<std::vector<std::string>>(
+            poac_manifest, "target", "profile", name, std::vector<std::string>{}
+        );
+        if (prefix.has_value()) {
+            std::transform(
+                f.begin(), f.end(), f.begin(),
+                [p=prefix.value()](const auto& s){ return p + s; }
+            );
+        }
+        return f;
+    }
+
     [[nodiscard]] anyhow::result<std::string>
     construct(
         const fs::path& build_dir,
@@ -121,7 +160,7 @@ namespace poac::core::builder::ninja::manifest {
 
         writer.rule(
             "compile",
-            fmt::format("{} $INCLUDES $in -o $out", command),
+            fmt::format("{} $OPTIONS $DEFINES $INCLUDES $LIBRARIES $in -o $out", command),
             syntax::rule_set_t{
                 .description = "$PACKAGE_NAME v$PACKAGE_VERSION $PACKAGE_PATH",
             }
@@ -131,8 +170,13 @@ namespace poac::core::builder::ninja::manifest {
         using namespace util::misc::path_literals;
         const fs::path source_file = "src"_path / "main.cpp";
         const fs::path output_file = (build_dir / source_file).string() + ".o";
-        const std::string includes = boost::algorithm::join(gather_includes(resolved_deps), " ");
         fs::create_directories(output_file.parent_path());
+        const auto includes = gather_includes(resolved_deps);
+
+        const auto defines = gather_flags(poac_manifest, "definitions", "-D");
+        const auto options = gather_flags(poac_manifest, "options");
+        const auto libraries = gather_flags(poac_manifest, "libraries", "-l");
+
         writer.build(
             {output_file.string()},
             "compile",
@@ -142,7 +186,10 @@ namespace poac::core::builder::ninja::manifest {
                     {"PACKAGE_NAME", toml::find<std::string>(poac_manifest, "package", "name")},
                     {"PACKAGE_VERSION", toml::find<std::string>(poac_manifest, "package", "version")},
                     {"PACKAGE_PATH", fmt::format("({})", config::path::current.string())},
-                    {"INCLUDES", includes},
+                    {"OPTIONS", boost::algorithm::join(options, " ")},
+                    {"DEFINES", boost::algorithm::join(defines, " ")},
+                    {"INCLUDES", boost::algorithm::join(includes, " ")},
+                    {"LIBRARIES", boost::algorithm::join(libraries, " ")},
                 },
             }
         );
