@@ -1,15 +1,18 @@
 #ifndef SEMVER_PARSER_PARSER_HPP
 #define SEMVER_PARSER_PARSER_HPP
 
+// std
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
 #include <vector>
 #include <optional>
 
+// internal
 #include <poac/util/semver/parser/lexer.hpp>
 #include <poac/util/semver/parser/range.hpp>
 #include <poac/util/semver/parser/token.hpp>
+#include <poac/util/semver/exception.hpp>
 
 namespace semver::parser {
     struct Parser {
@@ -139,7 +142,16 @@ namespace semver::parser {
         /// Like, `abcdef.1234`.
         std::vector<Identifier>
         pre() {
-            if (peek() != Token::Hyphen) {
+            if (const auto p = peek(); p.kind == Token::Whitespace) {
+                pop(); // Drop whitespace
+                if (const auto p2 = peek(); p2 != Token::Unexpected && !p2.is_whitespace()) {
+                    // `1.2.3 a.b.c`
+                    throw version_error(
+                        "continuing pre-release identifiers after spaces is not allowed"
+                    );
+                }
+                return {};
+            } else if (p != Token::Hyphen) {
                 return {};
             }
             // pop the peeked hyphen.

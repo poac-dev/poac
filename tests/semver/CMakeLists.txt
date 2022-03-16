@@ -1,7 +1,7 @@
 set(TEST_NAMES
         interval
         lexer
-#        parser
+        parser
         token
         version
 )
