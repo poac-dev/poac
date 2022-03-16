@@ -12,13 +12,6 @@
 
 namespace semver {
     namespace detail {
-        bool is_number(const std::string& s) {
-            return !s.empty()
-                && std::find_if(s.begin(), s.end(),
-                       [&](auto& c) { return !parser::is_digit(c); }
-                   ) == s.end();
-        }
-
         bool gt_pre(const Version& lhs, const Version& rhs) {
             // NOT having a prerelease is > having one
             if (lhs.pre.empty() && !rhs.pre.empty()) { // gt
