@@ -45,35 +45,35 @@ namespace poac::core::builder::compiler::cxx::clang {
         const std::string specifier = use_gnu_extension ? "gnu" : "c";
         switch (cpp) {
             case 98:
-                if (version > "2.1") {
+                if (version > "2.1.0") {
                     return mitama::success(fmt::format("-std={}++98", specifier));
                 }
                 break;
             case 11:
-                if (version > "3.1") {
+                if (version > "3.1.0") {
                     return mitama::success(fmt::format("-std={}++11", specifier));
-                } else if (version > "2.1") {
+                } else if (version > "2.1.0") {
                     return mitama::success(fmt::format("-std={}++0x", specifier));
                 }
                 break;
             case 14:
-                if (version >= "3.5") {
+                if (version >= "3.5.0") {
                     return mitama::success(fmt::format("-std={}++14", specifier));
-                } else if (version >= "3.4") {
+                } else if (version >= "3.4.0") {
                     return mitama::success(fmt::format("-std={}++1y", specifier));
                 }
                 break;
             case 17:
-                if (version >= "5.0") {
+                if (version >= "5.0.0") {
                     return mitama::success(fmt::format("-std={}++17", specifier));
-                } else if (version >= "3.5") {
+                } else if (version >= "3.5.0") {
                     return mitama::success(fmt::format("-std={}++1z", specifier));
                 }
                 break;
             case 20:
-                if (version >= "11.0") {
+                if (version >= "11.0.0") {
                     return mitama::success(fmt::format("-std={}++20", specifier));
-                } else if (version >= "5.0") {
+                } else if (version >= "5.0.0") {
                     return mitama::success(fmt::format("-std={}++2a", specifier));
                 }
                 break;

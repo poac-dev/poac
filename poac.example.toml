@@ -6,3 +6,12 @@ cpp = 17
 
 [dependencies]
 "boost/bind" = ">=1.64.0 and <2.0.0"
+
+[target.profile]
+definitions = ["_GNU_SOURCE"]
+options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
+libraries = ["dl"]
+
+[target.'cfg(os = "macos")'.profile]
+include-directories = ["/opt/homebrew/opt/openssl@3/include"]
+link-directories = ["/opt/homebrew/opt/openssl@3/lib"]
