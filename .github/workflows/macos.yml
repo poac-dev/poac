@@ -22,7 +22,7 @@ jobs:
         run: brew install openssl ninja boost
 
       - name: Restore & Cache CMake build results
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.1
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
