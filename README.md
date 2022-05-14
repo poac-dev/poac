@@ -63,14 +63,14 @@ Poac requires the following compilers, tools, and packages to build:
 #### compilers
 
 * Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
-  * `gcc`: `11` or later
-  * `clang`: `12` or later
+  * `GCC`: `11` or later
+  * `Clang`: `12` or later
   * `Apple Clang`: provided by `macOS Big Sur` or later
 
 #### tools
 
-* [`cmake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
-* [`ninja`](https://github.com/ninja-build/ninja): [`1.8`](https://github.com/ninja-build/ninja/releases/tag/v1.8.2) or later
+* [`CMake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
+* [`Ninja`](https://github.com/ninja-build/ninja): [`1.8`](https://github.com/ninja-build/ninja/releases/tag/v1.8.2) or later
 
 #### libraries
 
