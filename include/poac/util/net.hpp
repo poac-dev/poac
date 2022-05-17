@@ -644,18 +644,16 @@ namespace poac::util::net::api {
 
     [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
     versions(std::string_view name) {
-        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        boost::property_tree::ptree pt;
+        pt.put("name", name);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/versions", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-
-        std::vector<std::string> results;
-        for (const auto& child : res.get_child("hits")) {
-            const boost::property_tree::ptree& hits = child.second;
-            if (hits.get<std::string>("package.name") == name) {
-                results.emplace_back(hits.get<std::string>("package.version"));
-            }
-        }
+        const auto results = util::meta::to_vector<std::string>(res, "data");
         spdlog::debug(
             "[util::net::api::versions] versions of {} are [{}]",
             name, fmt::join(results, ", ")
