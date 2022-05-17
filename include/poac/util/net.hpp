@@ -18,6 +18,7 @@
 #include <type_traits>
 
 // external
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
@@ -663,24 +664,17 @@ namespace poac::util::net::api {
 
     [[nodiscard]] mitama::result<std::string, std::string>
     repository(std::string_view name, std::string_view version) {
-        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        boost::property_tree::ptree pt;
+        pt.put("name", name);
+        pt.put("version", version);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/repository", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-        for (const auto& child : res.get_child("hits")) {
-            const boost::property_tree::ptree& hits = child.second;
-
-            if (hits.get<std::string>("package.name") == name &&
-                hits.get<std::string>("package.version") == version)
-            {
-                return mitama::success(
-                    hits.get<std::string>("package.repository")
-                );
-            }
-        }
-        return mitama::failure(
-            fmt::format("no such package `{}: {}`", name, version)
-        );
+        return mitama::success(res.get<std::string>("data"));
     }
 } // end namespace
 
