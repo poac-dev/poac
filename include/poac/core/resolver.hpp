@@ -115,7 +115,7 @@ namespace poac::core::resolver {
     [[nodiscard]] mitama::result<std::string, std::string>
     get_download_link(const resolve::package_t& package) {
         const std::string repository =
-            MITAMA_TRY(util::net::api::package_repository(
+            MITAMA_TRY(util::net::api::repository(
                 resolve::get_name(package), resolve::get_version(package)
             ));
         return mitama::success(convert_to_download_link(repository));

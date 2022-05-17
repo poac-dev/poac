@@ -664,7 +664,7 @@ namespace poac::util::net::api {
     }
 
     [[nodiscard]] mitama::result<std::string, std::string>
-    package_repository(std::string_view name, std::string_view version) {
+    repository(std::string_view name, std::string_view version) {
         const boost::property_tree::ptree res = MITAMA_TRY(search(name));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
