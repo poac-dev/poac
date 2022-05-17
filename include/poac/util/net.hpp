@@ -639,7 +639,7 @@ namespace poac::util::net::api {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
         return mitama::success(
-            util::meta::to_unordered_map<std::string>(res, "data")
+            util::meta::to_unordered_map<std::string>(res, "data.dependencies")
         );
     }
 
