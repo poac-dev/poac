@@ -584,7 +584,7 @@ namespace poac::util::net {
 
 namespace poac::util::net::api {
     [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-    search_impl(std::string_view body) noexcept {
+    call(std::string_view path, std::string_view body) noexcept {
         try {
             const requests request{
                 fmt::format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)
@@ -595,7 +595,7 @@ namespace poac::util::net::api {
                 fmt::format("Bearer {}", SUPABASE_ANON_KEY)
             );
 
-            const auto response = MITAMA_TRY(request.post("/search", body, headers));
+            const auto response = MITAMA_TRY(request.post(path, body, headers));
             std::stringstream response_body;
             response_body << response.data();
 
@@ -617,17 +617,7 @@ namespace poac::util::net::api {
 
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        return search_impl(body.str());
-    }
-
-    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-    all_indices() noexcept {
-        // ref: https://www.algolia.com/doc/
-        //   guides/sending-and-managing-data/manage-your-indices/
-        //   how-to/export-an-algolia-index/#exporting-the-index
-        // You can use an empty query to indicate
-        //   that you want to retrieve all records.
-        return search("");
+        return call("/search", body.str());
     }
 
     [[nodiscard]] auto
@@ -637,25 +627,18 @@ namespace poac::util::net::api {
            std::unordered_map<std::string, std::string>,
            std::string>
     {
-        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        boost::property_tree::ptree pt;
+        pt.put("name", name);
+        pt.put("version", version);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/deps", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-        for (const auto& child : res.get_child("hits")) {
-            const boost::property_tree::ptree& hits = child.second;
-
-            if (hits.get<std::string>("package.name") == name &&
-                hits.get<std::string>("package.version") == version)
-            {
-                return mitama::success(
-                    util::meta::to_unordered_map<std::string>(
-                        hits, "dependencies"
-                    )
-                );
-            }
-        }
-        return mitama::failure(
-            fmt::format("no such package `{}: {}`", name, version)
+        return mitama::success(
+            util::meta::to_unordered_map<std::string>(res, "data")
         );
     }
 
