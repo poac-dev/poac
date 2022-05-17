@@ -18,6 +18,7 @@
 #include <type_traits>
 
 // external
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
@@ -584,14 +585,18 @@ namespace poac::util::net {
 
 namespace poac::util::net::api {
     [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-    search_impl(std::string_view body) noexcept {
+    call(std::string_view path, std::string_view body) noexcept {
         try {
-            const requests request{ALGOLIA_SEARCH_INDEX_API_HOST};
+            const requests request{
+                fmt::format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)
+            };
             headers_t headers;
-            headers.emplace("X-Algolia-API-Key", ALGOLIA_SEARCH_ONLY_KEY);
-            headers.emplace("X-Algolia-Application-Id", ALGOLIA_APPLICATION_ID);
+            headers.emplace(
+                boost::beast::http::field::authorization,
+                fmt::format("Bearer {}", SUPABASE_ANON_KEY)
+            );
 
-            const auto response = MITAMA_TRY(request.post(ALGOLIA_SEARCH_INDEX_API, body, headers));
+            const auto response = MITAMA_TRY(request.post(path, body, headers));
             std::stringstream response_body;
             response_body << response.data();
 
@@ -608,23 +613,12 @@ namespace poac::util::net::api {
     [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
     search(std::string_view query, const std::uint64_t& count = 0) noexcept {
         boost::property_tree::ptree pt;
-        const std::string hits_per_page =
-            count != 0 ? fmt::format("&hitsPerPage={}", count) : "";
-        const std::string params = fmt::format("query={}{}", query, hits_per_page);
-        pt.put("params", params);
+        pt.put("query", query);
+        pt.put("perPage", count);
+
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        return search_impl(body.str());
-    }
-
-    [[nodiscard]] mitama::result<boost::property_tree::ptree, std::string>
-    all_indices() noexcept {
-        // ref: https://www.algolia.com/doc/
-        //   guides/sending-and-managing-data/manage-your-indices/
-        //   how-to/export-an-algolia-index/#exporting-the-index
-        // You can use an empty query to indicate
-        //   that you want to retrieve all records.
-        return search("");
+        return call("/search", body.str());
     }
 
     [[nodiscard]] auto
@@ -634,42 +628,33 @@ namespace poac::util::net::api {
            std::unordered_map<std::string, std::string>,
            std::string>
     {
-        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        boost::property_tree::ptree pt;
+        pt.put("name", name);
+        pt.put("version", version);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/deps", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-        for (const auto& child : res.get_child("hits")) {
-            const boost::property_tree::ptree& hits = child.second;
-
-            if (hits.get<std::string>("package.name") == name &&
-                hits.get<std::string>("package.version") == version)
-            {
-                return mitama::success(
-                    util::meta::to_unordered_map<std::string>(
-                        hits, "dependencies"
-                    )
-                );
-            }
-        }
-        return mitama::failure(
-            fmt::format("no such package `{}: {}`", name, version)
+        return mitama::success(
+            util::meta::to_unordered_map<std::string>(res, "data.dependencies")
         );
     }
 
     [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
     versions(std::string_view name) {
-        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+        boost::property_tree::ptree pt;
+        pt.put("name", name);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/versions", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-
-        std::vector<std::string> results;
-        for (const auto& child : res.get_child("hits")) {
-            const boost::property_tree::ptree& hits = child.second;
-            if (hits.get<std::string>("package.name") == name) {
-                results.emplace_back(hits.get<std::string>("package.version"));
-            }
-        }
+        const auto results = util::meta::to_vector<std::string>(res, "data");
         spdlog::debug(
             "[util::net::api::versions] versions of {} are [{}]",
             name, fmt::join(results, ", ")
@@ -678,25 +663,18 @@ namespace poac::util::net::api {
     }
 
     [[nodiscard]] mitama::result<std::string, std::string>
-    package_repository(std::string_view name, std::string_view version) {
-        const boost::property_tree::ptree res = MITAMA_TRY(search(name));
+    repository(std::string_view name, std::string_view version) {
+        boost::property_tree::ptree pt;
+        pt.put("name", name);
+        pt.put("version", version);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/repository", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-        for (const auto& child : res.get_child("hits")) {
-            const boost::property_tree::ptree& hits = child.second;
-
-            if (hits.get<std::string>("package.name") == name &&
-                hits.get<std::string>("package.version") == version)
-            {
-                return mitama::success(
-                    hits.get<std::string>("package.repository")
-                );
-            }
-        }
-        return mitama::failure(
-            fmt::format("no such package `{}: {}`", name, version)
-        );
+        return mitama::success(res.get<std::string>("data"));
     }
 } // end namespace
 
