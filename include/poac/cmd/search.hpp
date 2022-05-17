@@ -50,28 +50,23 @@ namespace poac::cmd::search {
                 util::net::api::search(opts.package_name, 20)
                     .map_err([](const std::string& e){ return anyhow::anyhow(e); })
             );
-        if (const auto nb_hits = pt.get_optional<int>("nbHits")) {
-            if (nb_hits.value() <= 0) {
-                return anyhow::failure<Error::NotFound>(opts.package_name);
-            }
-        }
         if (util::verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, pt);
         }
 
-        for (const boost::property_tree::ptree::value_type& child : pt.get_child("hits")) {
+        const auto children = pt.get_child("data");
+        if (children.empty()) {
+            return anyhow::failure<Error::NotFound>(opts.package_name);
+        }
+        for (const boost::property_tree::ptree::value_type& child : children) {
             const boost::property_tree::ptree& hits = child.second;
-
-            std::string name = hits.get<std::string>("_highlightResult.package.name.value");
-            boost::replace_all(name, "<em>", termcolor2::green);
-            boost::replace_all(name, "</em>", termcolor2::reset);
             const auto package = fmt::format(
                 "{} = \"{}\"",
-                name,
-                hits.get<std::string>("package.version")
+                hits.get<std::string>("name"),
+                hits.get<std::string>("version")
             );
 
-            std::string description = hits.get<std::string>("package.description");
+            std::string description = hits.get<std::string>("description");
             description = util::pretty::clip_string(description, 100);
             // If util::pretty::clip_string clips last \n, \n should be removed
             description.erase(std::remove(description.begin(), description.end(), '\n'), description.end());

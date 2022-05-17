@@ -12,16 +12,10 @@
 #include <poac/util/misc.hpp>
 
 namespace poac {
-    constexpr char const* ALGOLIA_APPLICATION_ID =
-            "IOCVK5FECM";
-    constexpr char const* ALGOLIA_SEARCH_ONLY_KEY =
-            "9c0a76bacf692daa9e8eca2aaff4b2ab";
-    constexpr char const* ALGOLIA_INDEX_NAME =
-            "packages";
-    constexpr char const* ALGOLIA_SEARCH_INDEX_API_HOST =
-            "IOCVK5FECM-dsn.algolia.net";
-    constexpr char const* ALGOLIA_SEARCH_INDEX_API =
-            "/1/indexes/packages/query";
+    constexpr char const* SUPABASE_PROJECT_REF =
+            "jbzuxdflqzzgexrcsiwm";
+    constexpr char const* SUPABASE_ANON_KEY =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpienV4ZGZscXp6Z2V4cmNzaXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTI1MjgyNTAsImV4cCI6MTk2ODEwNDI1MH0.QZG-b6ab4iKk_ewlhEO3OtGpJfEFRos_G1fdDqcKrsA";
 } // end namespace
 
 namespace poac::config::path {
