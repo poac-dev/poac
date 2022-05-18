@@ -103,13 +103,30 @@ namespace poac::core::resolver {
     }
 
     std::string
-    convert_to_download_link(std::string repository) {
-        // repository is like =>
+    convert_to_download_link(std::string_view repository) {
+        // repository should be like =>
         //   https://github.com/boostorg/winapi/tree/boost-1.66.0
         // convert it to =>
         //   https://github.com/boostorg/winapi/archive/boost-1.66.0.tar.gz
-        boost::replace_all(repository, "tree", "archive");
-        return repository + ".tar.gz";
+        //
+        // We should prevent being broken with a package name used `tree` here.
+        // Correct:
+        //    https://github.com/tree/tree/tree/tree/v0.1.0
+        // => https://github.com/tree/tree/archive/tree/v0.1.0
+
+        // The first `tree/` is organization name.
+        size_t start = repository.find('/', 19) + 1; // 19: size of `https://github.com/`
+        // The next `tree/` is repository name.
+        start = repository.find('/', start) + 1;
+        // `start` is now pointing `t` after the repository name.
+        // So, find the end of `tree/`.
+        const size_t end = repository.find('/', start);
+        // Retrieve both sides: `https://github.com/tree/tree/`
+        std::string_view left = repository.substr(0, start);
+        // `/tree/v0.1.0`: this side is just a tag.
+        // Mostly, we do not include `tree`, but we can.
+        std::string_view right = repository.substr(end);
+        return fmt::format("{}archive{}.tar.gz", left, right);
     }
 
     [[nodiscard]] mitama::result<std::string, std::string>
