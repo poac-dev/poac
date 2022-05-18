@@ -86,7 +86,8 @@ Poac requires the following compilers, tools, and packages to build:
   * regex
   * scope_exit
   * uuid
-* [`openssl`](https://github.com/openssl/openssl): as new as possible
+* [`openssl`](https://github.com/openssl/openssl): [`3.0.0`](https://github.com/openssl/openssl/releases/tag/openssl-3.0.0) or later
+  * some `SHA256` functions are marked as [deprecated](https://github.com/openssl/openssl/blob/openssl-3.0.0/include/openssl/sha.h#L57-L79) since `3.0.0`
 
 <details>
 <summary>The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them.</summary>
