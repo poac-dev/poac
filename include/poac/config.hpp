@@ -12,9 +12,9 @@
 #include <poac/util/misc.hpp>
 
 namespace poac {
-    constexpr char const* SUPABASE_PROJECT_REF =
+    inline constexpr char const* SUPABASE_PROJECT_REF =
             "jbzuxdflqzzgexrcsiwm";
-    constexpr char const* SUPABASE_ANON_KEY =
+    inline constexpr char const* SUPABASE_ANON_KEY =
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpienV4ZGZscXp6Z2V4cmNzaXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTI1MjgyNTAsImV4cCI6MTk2ODEwNDI1MH0.QZG-b6ab4iKk_ewlhEO3OtGpJfEFRos_G1fdDqcKrsA";
 } // end namespace
 
