@@ -86,7 +86,7 @@ namespace poac::cmd::create {
                 "name = \"{}\"\n"
                 "version = \"0.1.0\"\n"
                 "authors = []\n"
-                "cpp = 20",
+                "edition = 2020",
                 project_name
             );
         }
