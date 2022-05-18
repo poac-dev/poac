@@ -13,6 +13,7 @@
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/thiserror/thiserror.hpp>
 #include <openssl/evp.h>
+#include <openssl/sha.h> // SHA256_DIGEST_LENGTH
 
 namespace poac::util::sha256 {
     namespace anyhow = mitama::anyhow;
@@ -61,16 +62,14 @@ namespace poac::util::sha256 {
         if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
             return anyhow::failure<Error::FailedToCreateSha256Digest>();
         }
-        while (true) {
-            file.read(buffer.data(), buf_size);
-            int bytesRead = file.gcount();
-            if (bytesRead == 0) {
-                break;
-            }
+
+        int bytesRead;
+        while ((bytesRead = file.read(buffer.data(), buf_size).gcount())) {
             if (1 != EVP_DigestUpdate(ctx, buffer.data(), bytesRead)) {
                 return anyhow::failure<Error::FailedToCreateSha256Digest>();
             }
         }
+
         // ref: https://github.com/openssl/openssl/blob/22dbb176deef7d9a80f5c94f57a4b518ea935f50/crypto/evp/digest.c#L691
         // Let me know if this is wrong.
         unsigned int temp = 0;
