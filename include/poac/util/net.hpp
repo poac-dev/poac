@@ -676,6 +676,20 @@ namespace poac::util::net::api {
         }
         return mitama::success(res.get<std::string>("data"));
     }
+
+    [[nodiscard]] mitama::result<bool, std::string>
+    login(std::string_view api_token) {
+        boost::property_tree::ptree pt;
+        pt.put("api_token", api_token);
+
+        std::ostringstream body;
+        boost::property_tree::json_parser::write_json(body, pt);
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/login", body.str()));
+        if (verbosity::is_verbose()) {
+            boost::property_tree::json_parser::write_json(std::cout, res);
+        }
+        return mitama::success(res.get<bool>("data"));
+    }
 } // end namespace
 
 #endif // !POAC_UTIL_NET_HPP

@@ -32,10 +32,13 @@ struct Commands {
     /// Create a new poac package in an existing directory
     subcmd::init::Options init;
 
+    /// Log in to poac.pm
+    subcmd::login::Options login;
+
     /// Search a package on poac.pm
     subcmd::search::Options search;
 };
-STRUCTOPT(Commands, verbose, quiet, build, create, init, search);
+STRUCTOPT(Commands, verbose, quiet, build, create, init, login, search);
 
 inline std::string
 colorize_structopt_error(std::string s) {
@@ -71,6 +74,8 @@ exec(const structopt::app& app, const Commands& args) {
         return subcmd::create::exec(args.create);
     } else if (args.init.has_value()) {
         return subcmd::init::exec(args.init);
+    } else if (args.login.has_value()) {
+        return subcmd::login::exec(args.login);
     } else if (args.search.has_value()) {
         return subcmd::search::exec(args.search);
     } else {

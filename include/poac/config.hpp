@@ -23,6 +23,8 @@ namespace poac::config::path {
 
     inline const fs::path user = util::misc::expand_user().unwrap();
     inline const fs::path root(user / ".poac");
+    inline const fs::path credentials(root / "credentials");
+
     inline const fs::path cache_dir(root / "cache");
     inline const fs::path archive_dir(cache_dir / "archive");
     inline const fs::path extract_dir(cache_dir / "extract");
