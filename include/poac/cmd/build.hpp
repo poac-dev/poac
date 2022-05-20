@@ -95,7 +95,7 @@ namespace poac::cmd::build {
 
     [[nodiscard]] anyhow::result<void>
     exec(const Options& opts) {
-        spdlog::trace("Checking required config exists ...");
+        spdlog::trace("Checking if required config exists ...");
         MITAMA_TRY(
             core::validator::required_config_exists()
                 .map_err([](const std::string& e){ return anyhow::anyhow(e); })
