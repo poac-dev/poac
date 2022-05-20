@@ -15,6 +15,11 @@ set(ENABLE_LZMA OFF)
 set(ENABLE_LIBXML2 OFF)
 set(ENABLE_EXPAT OFF)
 
+# Prevent building unused executables
+set(ENABLE_CAT OFF)
+set(ENABLE_CPIO OFF)
+set(ENABLE_TAR OFF)
+
 set(ENABLE_ACL OFF)
 set(ENABLE_ICONV OFF)
 set(ENABLE_TEST OFF)
