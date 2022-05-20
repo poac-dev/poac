@@ -185,9 +185,11 @@ namespace poac::core::resolver {
     fetch(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
         for (const auto& package : deps) {
             const auto [installed_path, sha256sum] = MITAMA_TRY(fetch_impl(package));
-            // Check if sha256sum is the same with one stored in DB.
-            const std::string actual_sha256sum = MITAMA_TRY(util::sha256::sum(installed_path));
-            if (sha256sum != actual_sha256sum) {
+            // Check if sha256sum of the downloaded package is the same with one
+            // stored in DB.
+            if (const std::string actual_sha256sum =
+                    MITAMA_TRY(util::sha256::sum(installed_path));
+                sha256sum != actual_sha256sum) {
                 std::filesystem::remove(installed_path);
                 return anyhow::failure<Error::IncorrectSha256sum>(
                     sha256sum,
