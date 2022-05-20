@@ -1,3 +1,6 @@
+// settings
+#define TOML11_COLORIZE_ERROR_MESSAGE
+
 // std
 #include <cstdlib>
 #include <exception>
@@ -35,10 +38,13 @@ struct Commands {
     /// Log in to poac.pm
     subcmd::login::Options login;
 
+    /// Publish a package to poac.pm
+    subcmd::publish::Options publish;
+
     /// Search a package on poac.pm
     subcmd::search::Options search;
 };
-STRUCTOPT(Commands, verbose, quiet, build, create, init, login, search);
+STRUCTOPT(Commands, verbose, quiet, build, create, init, login, publish, search);
 
 inline std::string
 colorize_structopt_error(std::string s) {
@@ -76,6 +82,8 @@ exec(const structopt::app& app, const Commands& args) {
         return subcmd::init::exec(args.init);
     } else if (args.login.has_value()) {
         return subcmd::login::exec(args.login);
+    } else if (args.publish.has_value()) {
+        return subcmd::publish::exec(args.publish);
     } else if (args.search.has_value()) {
         return subcmd::search::exec(args.search);
     } else {
@@ -116,7 +124,9 @@ main(const int argc, char* argv[]) {
         );
         return EXIT_FAILURE;
     } catch (const std::exception& e) {
-        spdlog::error("{} {}", "Error:"_bold_red, e.what());
+        std::string err = e.what();
+        boost::replace_first(err, "[error] ", ""); // for toml11
+        spdlog::error("{} {}", "Error:"_bold_red, err);
         return EXIT_FAILURE;
     } catch (...) {
         spdlog::error(

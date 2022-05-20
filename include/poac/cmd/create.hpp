@@ -190,8 +190,7 @@ namespace poac::cmd::create {
         }
 
         spdlog::trace("Validating the `{}` directory exists", opts.package_name);
-        MITAMA_TRY(
-            core::validator::can_crate_directory(opts.package_name)
+        MITAMA_TRY(core::validator::can_create_directory(opts.package_name)
                 .map_err([](const std::string& e){ return anyhow::anyhow(e); })
         );
 
