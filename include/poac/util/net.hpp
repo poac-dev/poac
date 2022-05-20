@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <sstream>
+#include <utility>
 #include <numeric>
 #include <map>
 #include <unordered_map>
@@ -662,19 +663,22 @@ namespace poac::util::net::api {
         return mitama::success(results);
     }
 
-    [[nodiscard]] mitama::result<std::string, std::string>
-    repository(std::string_view name, std::string_view version) {
+    [[nodiscard]] mitama::result<std::pair<std::string, std::string>, std::string>
+    repoinfo(std::string_view name, std::string_view version) {
         boost::property_tree::ptree pt;
         pt.put("name", name);
         pt.put("version", version);
 
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        const boost::property_tree::ptree res = MITAMA_TRY(call("/repository", body.str()));
+        const boost::property_tree::ptree res = MITAMA_TRY(call("/repoinfo", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
-        return mitama::success(res.get<std::string>("data"));
+        return mitama::success(std::make_pair(
+            res.get<std::string>("data.repository"),
+            res.get<std::string>("data.sha256sum")
+        ));
     }
 
     [[nodiscard]] mitama::result<bool, std::string>

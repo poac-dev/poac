@@ -2,6 +2,7 @@
 #define POAC_CORE_RESOLVER_HPP
 
 // std
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <stdexcept>
@@ -31,6 +32,7 @@
 #include <poac/util/meta.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/net.hpp>
+#include <poac/util/sha256.hpp>
 #include <poac/config.hpp>
 
 namespace poac::core::resolver {
@@ -61,6 +63,17 @@ namespace poac::core::resolver {
 
         using FailedToFetch =
             error<"failed to fetch a package: `{0}: {1}`", std::string, std::string>;
+
+        using IncorrectSha256sum =
+            error<
+                "the sha256sum when published did not match one when downloaded.\n"
+                "  published: `{0}` != downloaded: `{1}\n"
+                "Since the downloaded package might contain malicious codes, it "
+                "was removed from this PC. We highly recommend submitting an "
+                "issue on GitHub of the package and stopping using this package:\n"
+                "  {2}: {3}",
+                std::string, std::string, std::string, std::string
+            >;
 
         using Unknown =
             error<"unknown error occurred: {0}", std::string>;
@@ -129,19 +142,21 @@ namespace poac::core::resolver {
         return fmt::format("{}archive{}.tar.gz", left, right);
     }
 
-    [[nodiscard]] mitama::result<std::string, std::string>
+    [[nodiscard]] mitama::result<std::pair<std::string, std::string>, std::string>
     get_download_link(const resolve::package_t& package) {
-        const std::string repository =
-            MITAMA_TRY(util::net::api::repository(
+        const auto [repository, sha256sum] =
+            MITAMA_TRY(util::net::api::repoinfo(
                 resolve::get_name(package), resolve::get_version(package)
             ));
-        return mitama::success(convert_to_download_link(repository));
+        return mitama::success(std::make_pair(
+            convert_to_download_link(repository), sha256sum
+        ));
     }
 
-    [[nodiscard]] anyhow::result<std::filesystem::path>
+    [[nodiscard]] anyhow::result<std::pair<std::filesystem::path, std::string>>
     fetch_impl(const resolve::package_t& package) noexcept {
         try {
-            const std::string download_link = MITAMA_TRY(
+            const auto [download_link, sha256sum] = MITAMA_TRY(
                 get_download_link(package)
                     .map_err([](const std::string& e){ return anyhow::anyhow(e); })
             );
@@ -154,9 +169,10 @@ namespace poac::core::resolver {
             const util::net::requests requests{ host };
             static_cast<void>(requests.get(target, {}, std::move(archive)));
 
-            return mitama::success(archive_path);
+            return mitama::success(std::make_pair(archive_path, sha256sum));
         } catch (const std::exception& e) {
-            return anyhow::result<std::filesystem::path>(anyhow::failure<Error::Unknown>(e.what()))
+            return anyhow::result<std::pair<std::filesystem::path, std::string>>(
+                       anyhow::failure<Error::Unknown>(e.what()))
                 .with_context([&name=package.first, &ver=package.second] {
                     return anyhow::failure<Error::FailedToFetch>(name, ver).get();
                 });
@@ -168,7 +184,19 @@ namespace poac::core::resolver {
     [[nodiscard]] anyhow::result<void>
     fetch(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
         for (const auto& package : deps) {
-            const std::filesystem::path installed_path = MITAMA_TRY(fetch_impl(package));
+            const auto [installed_path, sha256sum] = MITAMA_TRY(fetch_impl(package));
+            // Check if sha256sum is the same with one stored in DB.
+            const std::string actual_sha256sum = MITAMA_TRY(util::sha256::sum(installed_path));
+            if (sha256sum != actual_sha256sum) {
+                std::filesystem::remove(installed_path);
+                return anyhow::failure<Error::IncorrectSha256sum>(
+                    sha256sum,
+                    actual_sha256sum,
+                    resolve::get_name(package),
+                    resolve::get_version(package)
+                );
+            }
+
             const std::string extracted_directory_name = MITAMA_TRY(
                 util::archive::extract(installed_path, config::path::extract_dir)
                     .map_err([](const std::string& e){ return anyhow::anyhow(e); })

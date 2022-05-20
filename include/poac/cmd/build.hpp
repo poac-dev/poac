@@ -22,6 +22,7 @@
 #include <poac/core/validator.hpp>
 #include <poac/data/manifest.hpp>
 #include <poac/util/pretty.hpp>
+#include <poac/config.hpp>
 
 namespace poac::cmd::build {
     namespace anyhow = mitama::anyhow;
@@ -64,7 +65,7 @@ namespace poac::cmd::build {
         return mitama::success(output_path);
     }
 
-    [[nodiscard]] anyhow::result<std::filesystem::path>
+    [[nodiscard]] anyhow::result<std::optional<std::filesystem::path>>
     build(const Options& opts, const toml::value& manifest) {
         spdlog::trace("Resolving dependencies ...");
         const auto resolved_deps = MITAMA_TRY(
@@ -73,6 +74,17 @@ namespace poac::cmd::build {
                     return anyhow::failure<Error::FailedToInstallDeps>().get();
                 })
         );
+
+        // TODO: We have to keep in mind a case of only dependencies require to
+        // be built, but this package does not.
+        if (!std::filesystem::exists(config::path::src_main_file)) {
+            using termcolor2::color_literals::operator""_bold_green;
+            spdlog::info(
+                "{:>25} no build target(s) found",
+                "Finished"_bold_green
+            );
+            return mitama::success(std::nullopt);
+        }
 
         const mode_t mode = opts.release.value() ? mode_t::release : mode_t::debug;
         const std::filesystem::path output_path = MITAMA_TRY(
@@ -90,7 +102,7 @@ namespace poac::cmd::build {
         );
 
         spdlog::trace("Parsing the manifest file ...");
-        // TODO: parse as a static type, not toml::value
+        // TODO: parse as a static type rather than toml::value
         const toml::value manifest = toml::parse(data::manifest::manifest_file_name);
 
         MITAMA_TRY(
