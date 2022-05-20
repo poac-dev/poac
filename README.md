@@ -46,18 +46,27 @@ Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-s
 
 ## Installation
 
+Since all packages through these providers may not be maintained by Poac owners, install them at your own risk.
+
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
-### Easy install
+### macOS
 
 ```bash
-curl -fsSL https://sh.poac.pm | bash
+brew install poacpm/tap/poac
 ```
 
-*For Arch Linux users, there are AUR packages: [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), and [poac-git](https://aur.archlinux.org/packages/poac-git)*
+### Arch Linux
 
-### Manual install (Build)
+> [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), and [poac-git](https://aur.archlinux.org/packages/poac-git)
 
+```bash
+pacman -S poac
+```
+
+### Build from source
+
+Should your environment is not listed on released packages, you will need to build Poac from source.
 Poac requires the following compilers, tools, and packages to build:
 
 #### compilers
