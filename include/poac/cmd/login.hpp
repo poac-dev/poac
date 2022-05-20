@@ -4,6 +4,7 @@
 // std
 #include <fstream>
 #include <string>
+#include <string_view>
 
 // external
 #include <fmt/core.h>
@@ -40,15 +41,21 @@ namespace poac::cmd::login {
     };
 
     [[nodiscard]] anyhow::result<void>
-    exec(const Options& opts) {
+    check_token(std::string_view api_token) {
         spdlog::trace("Checking if api_token has 32 length");
-        if (opts.api_token.size() != 32) {
+        if (api_token.size() != 32) {
             return anyhow::failure<Error::InvalidAPIToken>();
         }
         spdlog::trace("Checking if api_token exists");
-        if (!util::net::api::login(opts.api_token).unwrap_or(false)) {
+        if (!util::net::api::login(api_token).unwrap_or(false)) {
             return anyhow::failure<Error::FailedToLogIn>();
         }
+        return mitama::success();
+    }
+
+    [[nodiscard]] anyhow::result<void>
+    exec(const Options& opts) {
+        MITAMA_TRY(check_token(opts.api_token));
 
         // Write API Token to `~/.poac/credentials` as TOML
         spdlog::trace("Exporting the api_token to `{}`", config::path::credentials);
