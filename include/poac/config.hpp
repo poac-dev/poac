@@ -30,6 +30,8 @@ namespace poac::config::path {
     inline const fs::path extract_dir(cache_dir / "extract");
 
     inline const fs::path current = fs::current_path();
+    inline const fs::path src_dir(current / "src");
+    inline const fs::path src_main_file(src_dir / "main.cpp");
     inline const fs::path output_dir(current / "poac_output");
 } // end namespace
 

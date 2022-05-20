@@ -2,6 +2,7 @@
 #define POAC_UTIL_SHA256_HPP
 
 // std
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <string_view>
@@ -25,7 +26,7 @@ namespace poac::util::sha256 {
 
     public:
         using FailedToReadFile =
-            error<"Failed to read file: `{0}`", std::string_view>;
+            error<"Failed to read file: {0}", std::filesystem::path>;
 
         using FailedToCreateSha256Digest =
             error<"Failed to create a sha256 digest">;
@@ -47,7 +48,7 @@ namespace poac::util::sha256 {
 
     // ref: https://stackoverflow.com/a/34289358
     [[nodiscard]] anyhow::result<std::string>
-    sum(std::string_view path) {
+    sum(const std::filesystem::path& path) {
         std::ifstream file(path, std::ios::binary);
         if (!file) {
             return anyhow::failure<Error::FailedToReadFile>(path);
