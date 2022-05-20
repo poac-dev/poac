@@ -1,9 +1,9 @@
 [package]
 name = "poac" # required
 version = "0.3.0" # required
-edition = "2017" # required
+edition = "2020" # required
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"] # required
-license = "Apache-2.0"
+license = "Apache-2.0" # required
 homepage = "https://poac.pm"
 repository = "https://github.com/poacpm/poac" # required
 description = "Poac is a package manager for C++" # required
