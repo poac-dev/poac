@@ -88,6 +88,9 @@ operator"" _bold_yellow(const char32_t* str, std::size_t len) {
          std::basic_string<char32_t>(str, len) + reset_v<char32_t>();
 }
 
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace termcolor2::inline color_literals::inline foreground_literals
+// clang-format on
 
 #endif // !TERMCOLOR2_LITERALS_EXTRA_HPP

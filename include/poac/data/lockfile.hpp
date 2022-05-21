@@ -56,7 +56,10 @@ struct Lockfile {
   Vec<Package> package;
 };
 
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace poac::data::lockfile::inline v1
+// clang-format on
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
     poac::data::lockfile::v1::Package, name, version, dependencies
@@ -151,6 +154,9 @@ read(const fs::path& base_dir) {
   }
 }
 
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace poac::data::lockfile::inline v1
+// clang-format on
 
 #endif // !POAC_DATA_LOCKFILE_HPP

@@ -249,7 +249,11 @@ operator"" _white(const char32_t* str, std::size_t len) {
   return to_white(str, len);
 }
 #endif
+
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace termcolor2::inline color_literals::inline foreground_literals
+// clang-format on
 
 namespace termcolor2::inline color_literals::inline background_literals {
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -495,7 +499,11 @@ operator"" _on_white(const char32_t* str, std::size_t len) {
   return to_on_white(str, len);
 }
 #endif
+
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace termcolor2::inline color_literals::inline background_literals
+// clang-format on
 
 namespace termcolor2::inline color_literals::inline attribute_literals {
 #ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
@@ -680,9 +688,15 @@ operator"" _concealed(const char32_t* str, std::size_t len) {
 }
 #endif
 
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace termcolor2::inline color_literals::inline attribute_literals
+// clang-format on
 
 namespace termcolor2::inline control_literals {
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace termcolor2::inline control_literals
+// clang-format on
 
 #endif // !TERMCOLOR2_LITERALS_HPP
