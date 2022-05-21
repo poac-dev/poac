@@ -5,6 +5,7 @@
 #include <cstddef> // std::size_t
 #include <cstdint>
 #include <filesystem>
+#include <functional> // std::equal_to
 #include <map>
 #include <optional>
 #include <string>
