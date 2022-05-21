@@ -5,12 +5,13 @@
 #include <cstdint>
 #include <cstddef> // std::size_t
 #include <filesystem>
+#include <map>
+#include <unordered_map>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
-#include <variant> // std::monostate
 #include <vector>
 
 // external
@@ -21,12 +22,15 @@
 
 // internal
 #include <poac/util/termcolor2/termcolor2.hpp>
+#include <poac/util/termcolor2/literals_extra.hpp>
 
 #ifdef NDEBUG
 #  define unreachable() __builtin_unreachable()
 #else
-#  define unreachable() assert(0 && "unreachable")
+#  define unreachable() assert(false && "unreachable")
 #endif
+
+#define tryi( ... ) MITAMA_TRY(__VA_ARGS__)
 
 #define alias_fn(lhs, rhs) \
 template <typename... Args> \
@@ -42,9 +46,16 @@ namespace poac {
     namespace anyhow = mitama::anyhow;
     namespace thiserror = mitama::thiserror;
 
+    //
+    // string literals
+    //
     using namespace std::literals::string_literals;
     using namespace std::literals::string_view_literals;
     using namespace termcolor2::color_literals;
+    inline std::filesystem::path
+    operator ""_path(const char* str, std::size_t) {
+        return std::filesystem::path(str);
+    }
 
     //
     // data types
@@ -69,31 +80,31 @@ namespace poac {
     template <typename T>
     using Vec = std::vector<T>;
 
-    template <typename T, typename E = std::monostate>
+    template <typename T, typename E = void>
     using Result =
         std::conditional_t<
-            std::is_same_v<E, std::monostate>,
+            std::is_void_v<E>,
             anyhow::result<T>,
             mitama::result<T, E>
         >;
     alias_fn(Ok, mitama::success);
-    template <typename E = std::monostate, typename... Args>
-    inline auto Err(Args&&... args)
-        -> std::conditional_t<
-               std::is_same_v<E, std::monostate>,
-               decltype(anyhow::failure<E>(std::forward<Args>(args)...)),
-               decltype(mitama::failure(std::forward<Args>(args)...))
-           > {
-        if constexpr (std::is_same_v<E, std::monostate>) {
-            return anyhow::failure<E>(std::forward<Args>(args)...);
-        } else {
+    template <typename E = void, typename... Args>
+    inline auto Err(Args&&... args) {
+        if constexpr (std::is_void_v<E>) {
             return mitama::failure(std::forward<Args>(args)...);
+        } else {
+            return anyhow::failure<E>(std::forward<Args>(args)...);
         }
     }
 
     template <typename T>
     using Option = std::optional<T>;
     inline constexpr std::nullopt_t None = std::nullopt;
+
+    template <typename K, typename V>
+    using Map = std::map<K, V>;
+    template <typename K, typename V, typename H = std::hash<K>, typename E = std::equal_to<K>>
+    using HashMap = std::unordered_map<K, V, H, E>;
 
     //
     // utilities

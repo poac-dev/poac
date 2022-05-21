@@ -31,7 +31,7 @@ inline const clap::subcommand cli
                    .value_name("NAME"));
 
 struct Options {
-    std::optional<std::filesystem::path> output_file;
+    Option<std::filesystem::path> output_file;
 };
 
 struct Vertex {
@@ -42,7 +42,7 @@ using Graph = boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
                                     Vertex>;
 
 core::resolver::resolve::ResolvedDeps
-create_resolved_deps(std::optional<io::config::Config>&& config) {
+create_resolved_deps(Option<io::config::Config>&& config) {
     namespace resolver = core::resolver::resolve;
 
     if (!config->dependencies) {
@@ -62,15 +62,15 @@ create_resolved_deps(std::optional<io::config::Config>&& config) {
     return resolved_deps;
 }
 
-std::pair<Graph, std::vector<std::string>>
-create_graph(std::future<std::optional<io::config::Config>>&& config) {
+std::pair<Graph, Vec<std::string>>
+create_graph(std::future<Option<io::config::Config>>&& config) {
     const auto lockfile = io::lockfile::load();
 
     const auto resolved_deps = create_resolved_deps(config.get());
     Graph g;
 
     // Add vertex
-    std::vector<Graph::vertex_descriptor> desc;
+    Vec<Graph::vertex_descriptor> desc;
     for (const boost::range::index_value<
              const std::pair<const std::string,
                              poac::io::lockfile::Lockfile::Package>&,
@@ -105,25 +105,25 @@ create_graph(std::future<std::optional<io::config::Config>>&& config) {
     }
 
     // TODO: Such as <algorithm> can do the same thing with the following
-    std::vector<std::string> names;
+    Vec<std::string> names;
     for (const auto& [name, package] : resolved_deps.duplicate_deps) {
         names.push_back(name + ": " + package.version);
     }
     return {g, names};
 }
 
-[[nodiscard]] std::optional<core::except::Error>
-dot_file_output(std::future<std::optional<io::config::Config>>&& config,
+[[nodiscard]] Option<core::except::Error>
+dot_file_output(std::future<Option<io::config::Config>>&& config,
                 graph::Options&& opts) {
     const auto [g, names] = create_graph(std::move(config));
     std::ofstream file(opts.output_file->string());
     boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
     io::term::status_done();
-    return std::nullopt;
+    return None;
 }
 
-[[nodiscard]] std::optional<core::except::Error>
-png_file_output(std::future<std::optional<io::config::Config>>&& config,
+[[nodiscard]] Option<core::except::Error>
+png_file_output(std::future<Option<io::config::Config>>&& config,
                 graph::Options&& opts) {
     if (util::_shell::has_command("dot")) {
         const auto [g, names] = create_graph(std::move(config));
@@ -137,7 +137,7 @@ png_file_output(std::future<std::optional<io::config::Config>>&& config,
             .exec();
         std::filesystem::remove(file_dot);
         io::term::status_done();
-        return std::nullopt;
+        return None;
     } else {
         return core::except::Error::General{
             "To output with .png you need to install the graphviz.\n"
@@ -145,8 +145,8 @@ png_file_output(std::future<std::optional<io::config::Config>>&& config,
     }
 }
 
-[[nodiscard]] std::optional<core::except::Error>
-file_output(std::future<std::optional<io::config::Config>>&& config,
+[[nodiscard]] Option<core::except::Error>
+file_output(std::future<Option<io::config::Config>>&& config,
             graph::Options&& opts) {
     if (opts.output_file->extension() == ".png") {
         return png_file_output(std::move(config), std::move(opts));
@@ -158,19 +158,19 @@ file_output(std::future<std::optional<io::config::Config>>&& config,
     }
 }
 
-[[nodiscard]] std::optional<core::except::Error>
-console_output(std::future<std::optional<io::config::Config>>&& config) {
+[[nodiscard]] Option<core::except::Error>
+console_output(std::future<Option<io::config::Config>>&& config) {
     const auto [g, names] = create_graph(std::move(config));
     static_cast<void>(names); // error: unused variable
     for (auto [itr, end] = edges(g); itr != end; ++itr) {
         std::cout << boost::get(&Vertex::name, g)[source(*itr, g)] << " -> "
                   << boost::get(&Vertex::name, g)[target(*itr, g)] << '\n';
     }
-    return std::nullopt;
+    return None;
 }
 
-[[nodiscard]] std::optional<core::except::Error>
-graph(std::future<std::optional<io::config::Config>>&& config,
+[[nodiscard]] Option<core::except::Error>
+graph(std::future<Option<io::config::Config>>&& config,
       graph::Options&& opts) {
     if (opts.output_file) {
         return file_output(std::move(config), std::move(opts));
@@ -179,9 +179,9 @@ graph(std::future<std::optional<io::config::Config>>&& config,
     }
 }
 
-[[nodiscard]] std::optional<core::except::Error>
-exec(std::future<std::optional<io::config::Config>>&& config,
-     std::vector<std::string>&& args) {
+[[nodiscard]] Option<core::except::Error>
+exec(std::future<Option<io::config::Config>>&& config,
+     Vec<std::string>&& args) {
     graph::Options opts{};
     opts.output_file = util::argparse::use_get(args, "-o", "--output");
     return graph::graph(std::move(config), std::move(opts));

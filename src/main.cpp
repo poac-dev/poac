@@ -104,7 +104,7 @@ main(const int argc, char* argv[]) {
             .map_err([](const auto& e){
                 spdlog::error(
                     "{} {}", "Error:"_bold_red,
-                    colorize_anyhow_error(fmt::format("{}", e))
+                    colorize_anyhow_error(fmt::format("{}", e->what()))
                 );
             })
             .is_err();

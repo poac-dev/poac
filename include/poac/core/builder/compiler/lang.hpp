@@ -1,11 +1,8 @@
 #ifndef POAC_CORE_BUILDER_COMPILER_LANG_HPP
 #define POAC_CORE_BUILDER_COMPILER_LANG_HPP
 
-// std
-#include <string>
-#include <stdexcept> // std::logic_error
-
 // internal
+#include <poac/poac.hpp>
 #include <poac/util/cfg.hpp> // compiler
 
 namespace poac::core::builder::compiler::lang {
@@ -14,7 +11,7 @@ namespace poac::core::builder::compiler::lang {
         cxx,
     };
 
-    std::string
+    String
     to_string(lang_t lang) {
         switch (lang) {
             case lang_t::c:
@@ -22,10 +19,7 @@ namespace poac::core::builder::compiler::lang {
             case lang_t::cxx:
                 return "C++";
             default:
-                throw std::logic_error(
-                    "To access out of range of the "
-                    "enumeration values is undefined behavior."
-                );
+                unreachable();
         }
     }
 

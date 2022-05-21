@@ -1,25 +1,26 @@
 #ifndef POAC_UTIL_SHELL_HPP
 #define POAC_UTIL_SHELL_HPP
 
+// std
 #include <iostream>
-#include <string>
 #include <array>
-#include <vector>
-#include <optional>
 #include <cstdio>
 #include <cstdlib>
+
+// internal
+#include <poac/poac.hpp>
 
 namespace poac::util::shell {
     class cmd {
     public:
-        std::string string() const {
+        String string() const {
             return cmd_;
         }
 
         cmd() : cmd_() {}
-        explicit cmd(const std::string& c) : cmd_(c) {}
+        explicit cmd(const String& c) : cmd_(c) {}
 
-        cmd& env(const std::string& name, const std::string& value) {
+        cmd& env(const String& name, const String& value) {
             cmd_.insert(0, name + "=" + value + " ");
             return *this;
         }
@@ -42,10 +43,10 @@ namespace poac::util::shell {
 
         // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
         // TODO: errorと，その内容を同時に捕捉できない．
-        std::optional<std::string>
+        Option<String>
         exec() const {
             std::array<char, 128> buffer{};
-            std::string result;
+            String result;
 
 #ifdef _WIN32
             if (FILE* pipe = _popen(cmd.c_str(), "r")) {
@@ -60,11 +61,11 @@ namespace poac::util::shell {
                 if (pclose(pipe) != 0) {
 #endif
                     std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
-                    return std::nullopt;
+                    return None;
                 }
             }
             else {
-                return std::nullopt;
+                return None;
             }
             return result;
         }
@@ -83,7 +84,7 @@ namespace poac::util::shell {
         bool operator==(const cmd& rhs) const {
             return this->cmd_ == rhs.cmd_;
         }
-        bool operator==(const std::string& rhs) const {
+        bool operator==(const String& rhs) const {
             return this->cmd_ == rhs;
         }
 
@@ -92,7 +93,7 @@ namespace poac::util::shell {
             return cmd(this->cmd_ + " && " + rhs.cmd_);
         }
         cmd
-        operator&&(const std::string& rhs) const {
+        operator&&(const String& rhs) const {
             return cmd(this->cmd_ + " && " + rhs);
         }
 
@@ -100,7 +101,7 @@ namespace poac::util::shell {
             this->cmd_ += " && " + rhs.cmd_;
             return *this;
         }
-        cmd& operator&=(const std::string& rhs) {
+        cmd& operator&=(const String& rhs) {
             this->cmd_ += " && " + rhs;
             return *this;
         }
@@ -110,7 +111,7 @@ namespace poac::util::shell {
             return cmd(this->cmd_ + " || " + rhs.cmd_);
         }
         cmd
-        operator||(const std::string& rhs) const {
+        operator||(const String& rhs) const {
             return cmd(this->cmd_ + " || " + rhs);
         }
 
@@ -118,7 +119,7 @@ namespace poac::util::shell {
             this->cmd_ += " || " + rhs.cmd_;
             return *this;
         }
-        cmd& operator|=(const std::string& rhs) {
+        cmd& operator|=(const String& rhs) {
             this->cmd_ += " || " + rhs;
             return *this;
         }
@@ -128,7 +129,7 @@ namespace poac::util::shell {
             return cmd(this->cmd_ + " " + rhs.cmd_);
         }
         cmd
-        operator+(const std::string& rhs) const {
+        operator+(const String& rhs) const {
             return cmd(this->cmd_ + " " + rhs);
         }
 
@@ -136,16 +137,16 @@ namespace poac::util::shell {
             this->cmd_ += " " + rhs.cmd_;
             return *this;
         }
-        cmd& operator+=(const std::string& rhs) {
+        cmd& operator+=(const String& rhs) {
             this->cmd_ += " " + rhs;
             return *this;
         }
 
     private:
-        std::string cmd_;
+        String cmd_;
     };
 
-    bool has_command(const std::string& c) {
+    bool has_command(const String& c) {
         return cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
     }
 } // end namespace

@@ -4,34 +4,23 @@
 // std
 #include <iostream>
 #include <fstream>
-#include <filesystem>
-#include <optional>
-#include <string>
 
 // external
-#include <fmt/core.h>
-#include <mitama/result/result.hpp>
-#include <mitama/anyhow/anyhow.hpp>
-#include <mitama/thiserror/thiserror.hpp>
 #include <spdlog/spdlog.h>
 #include <structopt/app.hpp>
 
 // internal
+#include <poac/poac.hpp>
 #include <poac/cmd/create.hpp>
 #include <poac/core/validator.hpp>
 #include <poac/data/manifest.hpp>
-#include <poac/util/termcolor2/termcolor2.hpp>
-#include <poac/util/termcolor2/literals_extra.hpp>
 
 namespace poac::cmd::init {
-    namespace anyhow = mitama::anyhow;
-    namespace thiserror = mitama::thiserror;
-
     struct Options: structopt::sub_command {
         /// Use a binary (application) template [default]
-        std::optional<bool> bin = false;
+        Option<bool> bin = false;
         /// Use a library template
-        std::optional<bool> lib = false;
+        Option<bool> lib = false;
     };
 
     class Error {
@@ -43,8 +32,8 @@ namespace poac::cmd::init {
             error<"cannot initialize an existing poac package">;
     };
 
-    [[nodiscard]] anyhow::result<void>
-    init(const Options& opts, std::string_view package_name) {
+    [[nodiscard]] Result<void>
+    init(const Options& opts, StringRef package_name) {
         using create::ProjectType;
 
         spdlog::trace("Creating ./{}", data::manifest::manifest_file_name);
@@ -58,32 +47,30 @@ namespace poac::cmd::init {
             case ProjectType::Lib:
                 ofs_config << create::files::poac_toml(package_name);
                 break;
+            default:
+                unreachable();
         }
 
-        using termcolor2::color_literals::operator""_bold_green;
         spdlog::info(
             "{:>25} {} `{}` package",
             "Created"_bold_green,
-            type,
+            to_string(type),
             package_name
         );
-        return mitama::success();
+        return Ok();
     }
 
-    [[nodiscard]] anyhow::result<void>
+    [[nodiscard]] Result<void>
     exec(const Options& opts) {
         if (opts.bin.value() && opts.lib.value()) {
-            return anyhow::failure<create::Error::PassingBothBinAndLib>();
+            return Err<create::Error::PassingBothBinAndLib>();
         } else if (core::validator::required_config_exists().is_ok()) {
-            return anyhow::failure<Error::AlreadyInitialized>();
+            return Err<Error::AlreadyInitialized>();
         }
 
-        const std::string package_name = std::filesystem::current_path().stem().string();
+        const String package_name = fs::current_path().stem().string();
         spdlog::trace("Validating the package name `{}`", package_name);
-        MITAMA_TRY(
-            core::validator::valid_package_name(package_name)
-            .map_err([](const std::string& e){ return anyhow::anyhow(e); })
-        );
+        tryi(core::validator::valid_package_name(package_name).map_err(to_anyhow));
 
         return init(opts, package_name);
     }

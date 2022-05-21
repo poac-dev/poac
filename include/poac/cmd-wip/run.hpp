@@ -19,10 +19,10 @@ namespace poac::opts::run {
 
     struct Options {
         bool verbose;
-        std::vector<std::string> program_args;
+        Vec<std::string> program_args;
     };
 
-    [[nodiscard]] std::optional<core::except::Error>
+    [[nodiscard]] Option<core::except::Error>
     run([[maybe_unused]] run::Options&& opts) {
         return core::except::Error::General{
                 "Sorry, you cannot use run command currently."
@@ -33,8 +33,8 @@ namespace poac::opts::run {
         // return bs.build(verbose) && bs.run(verbose);
 
         // -v
-//        build::check_arguments(std::vector<std::string>(args.begin(), result));
-//        if (const auto result = build::exec(std::vector<std::string>{})) {
+//        build::check_arguments(Vec<std::string>(args.begin(), result));
+//        if (const auto result = build::exec(Vec<std::string>{})) {
 //            return result;
 //        }
 
@@ -58,18 +58,18 @@ namespace poac::opts::run {
 //            std::cout << project_name + " returned 1" << std::endl;
 //        }
 //
-//        return std::nullopt;
+//        return None;
     }
 
-    [[nodiscard]] std::optional<core::except::Error>
-    exec(std::future<std::optional<io::config::Config>>&&, std::vector<std::string>&& args) {
+    [[nodiscard]] Option<core::except::Error>
+    exec(std::future<Option<io::config::Config>>&&, Vec<std::string>&& args) {
         run::Options opts{};
         opts.verbose = util::argparse::use(args, "-v", "--verbose");
         // poac run -v -- -h build
         auto found = std::find(args.begin(), args.end(), "--");
         if (found != args.end()) {
             // -h build
-            opts.program_args = std::vector<std::string>(found + 1, args.end());
+            opts.program_args = Vec<std::string>(found + 1, args.end());
         }
         return run::run(std::move(opts));
     }

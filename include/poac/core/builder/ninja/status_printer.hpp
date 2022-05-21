@@ -5,13 +5,10 @@
 
 // std
 #include <cstdio> // snprintf
-#include <cstddef> // std::int64_t
 #include <queue> // std::queue
-#include <string>
-#include <string_view>
-#include <vector>
 
 // external
+#include <poac/poac.hpp>
 #include <ninja/build.h> // BuildConfig
 #include <ninja/debug_flags.h> // g_explaining
 #include <ninja/graph.h> // Edge
@@ -20,7 +17,7 @@
 
 namespace poac::core::builder::ninja::status_printer {
     struct status_printer: Status {
-        status_printer(const BuildConfig& config, std::string_view progress_status_format)
+        status_printer(const BuildConfig& config, StringRef progress_status_format)
             : config_(config),
               started_edges_(0),
               finished_edges_(0),
@@ -37,7 +34,7 @@ namespace poac::core::builder::ninja::status_printer {
             total_edges_ = total;
         }
 
-        void BuildEdgeStarted(const Edge* edge, std::int64_t start_time_millis) {
+        void BuildEdgeStarted(const Edge* edge, i64 start_time_millis) {
             ++started_edges_;
             ++running_edges_;
             time_millis_ = start_time_millis;
@@ -52,9 +49,9 @@ namespace poac::core::builder::ninja::status_printer {
 
         void BuildEdgeFinished(
             Edge* edge,
-            std::int64_t end_time_millis,
+            i64 end_time_millis,
             bool success,
-            const std::string& output
+            const String& output
         ) {
             time_millis_ = end_time_millis;
             ++finished_edges_;
@@ -73,7 +70,7 @@ namespace poac::core::builder::ninja::status_printer {
 
             // Print the command that is spewing before printing its output.
             if (!success) {
-                std::string outputs;
+                String outputs;
                 for (auto o = edge->outputs_.begin(); o != edge->outputs_.end(); ++o) {
                     outputs += (*o)->path() + " ";
                 }
@@ -98,7 +95,7 @@ namespace poac::core::builder::ninja::status_printer {
                 // (Launching subprocesses in pseudo ttys doesn't work because there are
                 // only a few hundred available on some systems, and ninja can launch
                 // thousands of parallel compile commands.)
-                std::string final_output;
+                String final_output;
                 if (!printer_.supports_color()) {
                     final_output = StripAnsiEscapeCodes(output);
                 } else {
@@ -141,8 +138,8 @@ namespace poac::core::builder::ninja::status_printer {
             printer_.PrintOnNewLine("");
         }
 
-        std::string FormatProgressStatus(const char* progress_status_format, int64_t time_millis) const {
-            std::string out;
+        String FormatProgressStatus(const char* progress_status_format, int64_t time_millis) const {
+            String out;
             char buf[32];
             for (const char* s = progress_status_format; *s != '\0'; ++s) {
                 if (*s == '%') {
@@ -242,14 +239,14 @@ namespace poac::core::builder::ninja::status_printer {
         }
 
     private:
-        void PrintStatus(const Edge* edge, std::int64_t time_millis) {
+        void PrintStatus(const Edge* edge, i64 time_millis) {
             if (config_.verbosity == BuildConfig::QUIET
                 || config_.verbosity == BuildConfig::NO_STATUS_UPDATE) {
                 return;
             }
 
             const bool force_full_command = config_.verbosity == BuildConfig::VERBOSE;
-            std::string to_print = edge->GetBinding("description");
+            String to_print = edge->GetBinding("description");
             if (to_print.empty() || force_full_command) {
                 to_print = edge->GetBinding("command");
             }
@@ -260,7 +257,7 @@ namespace poac::core::builder::ninja::status_printer {
         const BuildConfig& config_;
 
         int started_edges_, finished_edges_, total_edges_, running_edges_;
-        std::int64_t time_millis_;
+        i64 time_millis_;
 
         /// Prints progress output.
         LinePrinter printer_;
@@ -268,7 +265,7 @@ namespace poac::core::builder::ninja::status_printer {
         /// The custom progress status format to use.
         const char* progress_status_format_;
 
-        template<size_t S>
+        template<usize S>
         void SnprintfRate(double rate, char(&buf)[S], const char* format) const {
             if (rate == -1) {
                 std::snprintf(buf, S, "?");
@@ -282,7 +279,7 @@ namespace poac::core::builder::ninja::status_printer {
 
             double rate() { return rate_; }
 
-            void UpdateRate(int update_hint, std::int64_t time_millis_) {
+            void UpdateRate(int update_hint, i64 time_millis_) {
                 if (update_hint == last_update_) {
                     return;
                 }
@@ -299,7 +296,7 @@ namespace poac::core::builder::ninja::status_printer {
 
         private:
             double rate_;
-            const size_t N;
+            const usize N;
             std::queue<double> times_;
             int last_update_;
         };

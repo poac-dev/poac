@@ -5,14 +5,14 @@
 #include <chrono>
 #include <optional>
 #include <stack>
-#include <string>
 #include <type_traits>
 #include <utility>
-#include <unordered_map>
-#include <vector>
 
 // external
 #include <boost/property_tree/ptree.hpp>
+
+// internal
+#include <poac/poac.hpp>
 
 namespace poac::util::meta {
     // std::conditional for non-type template
@@ -65,15 +65,15 @@ namespace poac::util::meta {
     // boost::property_tree::ptree : {"key": ["array", "...", ...]}
     //  -> std::vector<T> : ["array", "...", ...]
     template <class T, class U, class K=typename U::key_type>
-    auto to_vector(const U& value, const K& key)
+    auto to_vec(const U& value, const K& key)
         -> std::enable_if_t<
                std::is_same_v<
                    std::remove_cvref_t<U>,
                    boost::property_tree::ptree
                >,
-               std::vector<T>>
+               Vec<T>>
     {
-        std::vector<T> r;
+        Vec<T> r;
         for (const auto& item : value.get_child(key)) {
             r.push_back(item.second.template get_value<T>());
         }
@@ -83,15 +83,15 @@ namespace poac::util::meta {
     // boost::property_tree::ptree : ["array", "...", ...]
     //  -> std::vector<T> : ["array", "...", ...]
     template <class T, class U>
-    auto to_vector(const U& value)
+    auto to_vec(const U& value)
         -> std::enable_if_t<
             std::is_same_v<
                 std::remove_cvref_t<U>,
                 boost::property_tree::ptree
             >,
-            std::vector<T>>
+            Vec<T>>
     {
-        std::vector<T> r;
+        Vec<T> r;
         for (const auto& item : value) {
             r.push_back(item.second.template get_value<T>());
         }
@@ -101,17 +101,17 @@ namespace poac::util::meta {
     // boost::property_tree::ptree :
     //   {"key1": "value1",
     //    "key2": "value2", ...}
-    // -> std::unordered_map<std::string, T>
+    // -> std::unordered_map<String, T>
     template <class T, class U>
-    auto to_unordered_map(const U& value, const std::string& key)
+    auto to_hash_map(const U& value, const String& key)
         -> std::enable_if_t<
                std::is_same_v<
                    std::remove_cvref_t<U>,
                    boost::property_tree::ptree
                >,
-               std::unordered_map<std::string, T>>
+               HashMap<String, T>>
     {
-        std::unordered_map<std::string, T> m{};
+        HashMap<String, T> m{};
         const auto child = value.get_child_optional(key);
         if (child.has_value()) {
             for (const auto& [k, v] : child.value()) {
@@ -139,7 +139,7 @@ namespace poac::util::meta {
     template <class T>
     inline constexpr bool is_tuple_v = is_tuple<T>::value;
 
-    template <class T, std::size_t... Indices>
+    template <class T, usize... Indices>
     constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
         noexcept(
             std::is_nothrow_constructible_v<
@@ -180,7 +180,7 @@ namespace poac::util::meta {
         );
     }
 
-    inline std::string
+    inline String
     time_to_string(const std::chrono::seconds& time) {
         return std::to_string(time.count());
     }

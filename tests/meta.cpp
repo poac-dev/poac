@@ -52,8 +52,8 @@ int main() {
 
     // 1. std::vector<T> ptree_to_vector(const U& pt, const K& key)
     // 2. std::vector<T> ptree_to_vector(const U &pt)
-    "test to_vector"_test = [] {
-        using poac::util::meta::to_vector;
+    "test to_vec"_test = [] {
+        using poac::util::meta::to_vec;
 
         boost::property_tree::ptree pt;
         std::vector<std::string> test_case{ "0", "1", "2" };
@@ -76,8 +76,8 @@ int main() {
         }
         pt.add_child("data", children);
 
-        expect(eq(to_vector<std::string>(pt, "data"), test_case)); // 1
-        expect(eq(to_vector<std::string>(children), test_case)); // 2
+        expect(eq(to_vec<std::string>(pt, "data"), test_case)); // 1
+        expect(eq(to_vec<std::string>(children), test_case)); // 2
     };
 
     "test are_all_same"_test = [] {

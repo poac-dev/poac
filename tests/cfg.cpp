@@ -505,24 +505,6 @@ int main() {
 //                   "))").match()
 //    );
 //#endif
-
-        it("general test") = [] {
-            using poac::util::cfg::CfgExpr;
-            using poac::util::cfg::Cfg;
-            using poac::util::cfg::Token;
-            CfgExpr test_case{
-                CfgExpr::value,
-                Cfg{
-                    Token::ident::compiler,
-                    Cfg::Op::Equals,
-                    "foo"
-                }
-            };
-            test_case.kind = static_cast<CfgExpr::Kind>(99);
-            expect(throws<std::logic_error>([&] {
-                test_case.match();
-            }));
-        };
     };
 
     "test to_kind(std::string_view kind)"_test = [] {
@@ -556,9 +538,6 @@ int main() {
         expect(eq(to_string(Token::ident::os), "os"s));
         expect(eq(to_string(Token::ident::os_version), "os_version"s));
         expect(eq(to_string(Token::ident::platform), "platform"s));
-        expect(throws<std::logic_error>([] {
-            to_string(static_cast<Token::ident>(99));
-        }));
     };
 
     "test operator<<(std::ostream& os, const Token& token)"_test = [] {
@@ -612,12 +591,6 @@ int main() {
             std::ostringstream output;
             output << Token{Token::Ident, Token::ident::cfg};
             expect(eq(output.str(), "ident: cfg"s));
-        }
-        {
-            std::ostringstream output;
-            expect(throws<std::logic_error>([&] {
-                poac::util::cfg::operator<<(output, Token{static_cast<Token::Kind>(99)});
-            }));
         }
     };
 }

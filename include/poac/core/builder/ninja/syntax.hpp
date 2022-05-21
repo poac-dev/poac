@@ -7,52 +7,44 @@
 
 // std
 #include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <filesystem>
-#include <optional>
 #include <ostream>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
 
 // external
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm_ext/push_back.hpp>
 #include <boost/regex.hpp>
-#include <fmt/core.h>
 
 // internal
+#include <poac/poac.hpp>
 #include <poac/util/meta.hpp>
 #include <poac/util/pretty.hpp>
 
 namespace poac::core::builder::ninja::syntax {
     struct rule_set_t {
-        std::optional<std::string> description = std::nullopt;
-        std::optional<std::string> depfile = std::nullopt;
+        Option<String> description = None;
+        Option<String> depfile = None;
         bool generator = false;
-        std::optional<std::string> pool = std::nullopt;
+        Option<String> pool = None;
         bool restat = false;
-        std::optional<std::string> rspfile = std::nullopt;
-        std::optional<std::string> rspfile_content = std::nullopt;
-        std::optional<std::string> deps = std::nullopt;
+        Option<String> rspfile = None;
+        Option<String> rspfile_content = None;
+        Option<String> deps = None;
     };
 
-    using variables_t = std::unordered_map<std::string, std::string>;
+    using variables_t = HashMap<String, String>;
     struct build_set_t {
-        std::optional<std::vector<std::string>> inputs = std::nullopt;
-        std::optional<std::vector<std::filesystem::path>> implicit = std::nullopt;
-        std::optional<std::filesystem::path> order_only = std::nullopt;
-        std::optional<variables_t> variables = std::nullopt;
-        std::optional<std::filesystem::path> implicit_outputs = std::nullopt;
-        std::optional<std::string> pool = std::nullopt;
-        std::optional<std::string> dyndep = std::nullopt;
+        Option<Vec<String>> inputs = None;
+        Option<Vec<fs::path>> implicit = None;
+        Option<fs::path> order_only = None;
+        Option<variables_t> variables = None;
+        Option<fs::path> implicit_outputs = None;
+        Option<String> pool = None;
+        Option<String> dyndep = None;
     };
 
-    inline std::filesystem::path
-    escape_path(std::filesystem::path p) {
-        std::string s = p.string();
+    inline fs::path
+    escape_path(fs::path p) {
+        String s = p.string();
         boost::replace_all(s, "$ ", "$$ ");
         boost::replace_all(s, " ", "$ ");
         boost::replace_all(s, ":", "$:");
@@ -62,8 +54,8 @@ namespace poac::core::builder::ninja::syntax {
     /// Escape a string such that it can be embedded into a Ninja file without
     /// further interpretation.
     inline void
-    escape(std::string& s) {
-        assert(s.find('\n') == std::string::npos); // Ninja syntax does not allow newlines
+    escape(String& s) {
+        assert(s.find('\n') == SNone); // Ninja syntax does not allow newlines
         // We only have one special metacharacter: '$'.
         boost::replace_all(s, "$", "$$");
     }
@@ -72,12 +64,12 @@ namespace poac::core::builder::ninja::syntax {
     ///
     /// Note: doesn't handle the full Ninja variable syntax, but it's enough
     /// to make configure.py's use of it work.
-    std::string
-    expand(const std::string& text, const variables_t& vars, const variables_t& local_vars={}) {
+    String
+    expand(const String& text, const variables_t& vars, const variables_t& local_vars={}) {
         const auto exp = [&](const boost::smatch& m) {
             using namespace std::literals::string_literals;
 
-            const std::string var = m[1].str();
+            const String var = m[1].str();
             if (var == "$") {
                 return "$"s;
             }
@@ -91,10 +83,10 @@ namespace poac::core::builder::ninja::syntax {
     }
 
     /// ref: https://stackoverflow.com/a/46379136
-    std::string operator*(const std::string& s, std::size_t n) {
-        std::string result;
+    String operator*(const String& s, usize n) {
+        String result;
         result.reserve(s.size() * n);
-        for (std::size_t i = 0; i < n; ++i) {
+        for (usize i = 0; i < n; ++i) {
             result += s;
         }
         return result;
@@ -104,13 +96,13 @@ namespace poac::core::builder::ninja::syntax {
     requires util::meta::derived_from<Ostream, std::ostream>
     class writer {
         Ostream output;
-        std::size_t width;
+        usize width;
 
         /// Returns the number of '$' characters right in front of s[i].
-        std::size_t
-        count_dollars_before_index(std::string_view s, std::size_t i) const {
-            std::size_t dollar_count = 0;
-            std::size_t dollar_index = i - 1;
+        usize
+        count_dollars_before_index(StringRef s, usize i) const {
+            usize dollar_count = 0;
+            usize dollar_index = i - 1;
             while (dollar_index > 0 && s[dollar_index] == '$') {
                 dollar_count += 1;
                 dollar_index -= 1;
@@ -123,8 +115,8 @@ namespace poac::core::builder::ninja::syntax {
     public:
 #endif
         /// Write 'text' word-wrapped at self.width characters.
-        void _line(std::string text, std::size_t indent=0) {
-            std::string leading_space = std::string("  ") * indent;
+        void _line(String text, usize indent=0) {
+            String leading_space = String("  ") * indent;
 
             while (leading_space.length() + text.length() > width) {
                 // The text is too wide; wrap if possible.
@@ -153,15 +145,15 @@ namespace poac::core::builder::ninja::syntax {
                 text = text.substr(space + 1);
 
                 // Subsequent lines are continuations, so indent them.
-                leading_space = std::string("  ") * (indent + 2);
+                leading_space = String("  ") * (indent + 2);
             }
             output << leading_space + text + '\n';
         }
 
     public:
-        explicit writer(Ostream&& o, std::size_t w = 78) : output(std::move(o)), width(w) {}
+        explicit writer(Ostream&& o, usize w = 78) : output(std::move(o)), width(w) {}
 
-        inline std::string
+        inline String
         get_value() const {
             return output.str();
         }
@@ -172,37 +164,37 @@ namespace poac::core::builder::ninja::syntax {
         }
 
         inline void
-        comment(const std::string& text) {
+        comment(const String& text) {
             for (const auto& line : util::pretty::textwrap(text, width - 2)) {
                 output << "# " + line + '\n';
             }
         }
 
         inline void
-        variable(std::string_view key, std::string_view value, std::size_t indent=0) {
+        variable(StringRef key, StringRef value, usize indent=0) {
             if (value.empty()) {
                 return;
             }
-            _line(fmt::format("{} = {}", key, value), indent);
+            _line(format("{} = {}", key, value), indent);
         }
 
         inline void
-        variable(std::string_view key, std::vector<std::string> values, std::size_t indent=0) {
-            const std::string value = boost::algorithm::join_if(values, " ", [](const auto& s){
+        variable(StringRef key, Vec<String> values, usize indent=0) {
+            const String value = boost::algorithm::join_if(values, " ", [](const auto& s){
                 return !s.empty();
             });
-            _line(fmt::format("{} = {}", key, value), indent);
+            _line(format("{} = {}", key, value), indent);
         }
 
         inline void
-        pool(std::string_view name, std::string_view depth) {
-            _line(fmt::format("pool {}", name));
+        pool(StringRef name, StringRef depth) {
+            _line(format("pool {}", name));
             variable("depth", depth, 1);
         }
 
         void
-        rule(std::string_view name, std::string_view command, const rule_set_t& rule_set={}) {
-            _line(fmt::format("rule {}", name));
+        rule(StringRef name, StringRef command, const rule_set_t& rule_set={}) {
+            _line(format("rule {}", name));
             variable("command", command, 1);
             if (rule_set.description.has_value()) {
                 variable("description", rule_set.description.value(), 1);
@@ -230,18 +222,18 @@ namespace poac::core::builder::ninja::syntax {
             }
         }
 
-        std::vector<std::string>
+        Vec<String>
         build(
-            const std::vector<std::string>& outputs,
-            std::string_view rule,
+            const Vec<String>& outputs,
+            StringRef rule,
             const build_set_t& build_set={}
         ) {
-            std::vector<std::string> out_outputs;
+            Vec<String> out_outputs;
             for (const auto& o : outputs) {
                 out_outputs.emplace_back(escape_path(o).string());
             }
 
-            std::vector<std::string> all_inputs;
+            Vec<String> all_inputs;
             if (build_set.inputs.has_value()) {
                 for (const auto& i : build_set.inputs.value()) {
                     all_inputs.emplace_back(escape_path(i).string());
@@ -249,7 +241,7 @@ namespace poac::core::builder::ninja::syntax {
             }
 
             if (build_set.implicit.has_value()) {
-                std::vector<std::string> implicit;
+                Vec<String> implicit;
                 for (const auto& i : build_set.implicit.value()) {
                     implicit.emplace_back(escape_path(i).string());
                 }
@@ -257,7 +249,7 @@ namespace poac::core::builder::ninja::syntax {
                 boost::push_back(all_inputs, implicit);
             }
             if (build_set.order_only.has_value()) {
-                std::vector<std::string> order_only;
+                Vec<String> order_only;
                 for (const auto& o : build_set.order_only.value()) {
                     order_only.emplace_back(escape_path(o).string());
                 }
@@ -265,7 +257,7 @@ namespace poac::core::builder::ninja::syntax {
                 boost::push_back(all_inputs, order_only);
             }
             if (build_set.implicit_outputs.has_value()) {
-                std::vector<std::string> implicit_outputs;
+                Vec<String> implicit_outputs;
                 for (const auto& i : build_set.implicit_outputs.value()) {
                     implicit_outputs.emplace_back(escape_path(i).string());
                 }
@@ -273,7 +265,7 @@ namespace poac::core::builder::ninja::syntax {
                 boost::push_back(out_outputs, implicit_outputs);
             }
 
-            _line(fmt::format(
+            _line(format(
                 "build {}: {} {}",
                 boost::algorithm::join(out_outputs, " "),
                 rule,
@@ -281,10 +273,10 @@ namespace poac::core::builder::ninja::syntax {
             ));
 
             if (build_set.pool.has_value()) {
-                _line(fmt::format("  pool = {}", build_set.pool.value()));
+                _line(format("  pool = {}", build_set.pool.value()));
             }
             if (build_set.dyndep.has_value()) {
-                _line(fmt::format("  dyndep = {}", build_set.dyndep.value()));
+                _line(format("  dyndep = {}", build_set.dyndep.value()));
             }
 
             if (build_set.variables.has_value()) {
@@ -297,18 +289,18 @@ namespace poac::core::builder::ninja::syntax {
         }
 
         inline void
-        include(const std::filesystem::path& path) {
-            _line(fmt::format("include {}", path.string()));
+        include(const fs::path& path) {
+            _line(format("include {}", path.string()));
         }
 
         inline void
-        subninja(const std::filesystem::path& path) {
-            _line(fmt::format("subninja {}", path.string()));
+        subninja(const fs::path& path) {
+            _line(format("subninja {}", path.string()));
         }
 
         inline void
-        default_(const std::vector<std::string>& paths) {
-            _line(fmt::format("default {}", boost::algorithm::join(paths, " ")));
+        default_(const Vec<String>& paths) {
+            _line(format("default {}", boost::algorithm::join(paths, " ")));
         }
 
         inline void

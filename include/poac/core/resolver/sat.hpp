@@ -3,15 +3,13 @@
 
 // std
 #include <iostream>
-#include <vector>
 #include <utility>
-#include <string>
 #include <numeric>
 #include <algorithm>
-#include <map>
 #include <cmath>
 
 // external
+#include <poac/poac.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <mitama/result/result.hpp>
 
@@ -22,11 +20,11 @@ namespace poac::core::resolver::sat {
         normal, // Successful completion OR unsolved
     };
 
-    std::vector<int>
-    to_assignments(const std::vector<int>& literals) {
-        std::vector<int> assignments;
+    Vec<i32>
+    to_assignments(const Vec<i32>& literals) {
+        Vec<i32> assignments;
         for (auto&& l : literals | boost::adaptors::indexed()) {
-            const int literal = l.index() + 1;
+            const i32 literal = l.index() + 1;
             if (l.value() != -1) {
                 assignments.emplace_back((l.value() % 2 == 0 ? 1 : -1) * literal);
             } else { // for literals that can take either value, arbitrarily assign them to be true
@@ -54,14 +52,14 @@ namespace poac::core::resolver::sat {
         return acc;
     }
 
-    int literal_to_index(int l) {
+    i32 literal_to_index(i32 l) {
         return std::abs(l) - 1;
     }
 
     // 1もしくは-1の数を clauses 全体から探索
     // 既に割り当て済みの変数は，delete_applyed_literal関数でclausesから削除ずみなので，現状のclausesに内在する変数から一番数が多い変数のindexを返す
-    int maximum_literal_number_index(const std::vector<std::vector<int>>& clauses) {
-        std::map<int, int> frequency;
+    i32 maximum_literal_number_index(const Vec<Vec<i32>>& clauses) {
+        Map<i32, i32> frequency;
         for (const auto& clause : clauses) {
             for (const auto& literal : clause) {
                 auto result = frequency.insert(
@@ -82,7 +80,7 @@ namespace poac::core::resolver::sat {
 
     // 変数割り当てが決定された変数をcluasesから削除する
     Status
-    delete_set_literal(std::vector<std::vector<int>>& clauses, const int& index, const int& set_val) {
+    delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val) {
         for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
             for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
                 // set_val -> unassigned(-1) -> always false
@@ -111,7 +109,7 @@ namespace poac::core::resolver::sat {
 
     // unit resolution
     Status
-    unit_propagate(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
+    unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
         bool unit_clause_found = true;
         while (unit_clause_found) {
             unit_clause_found = false;
@@ -123,7 +121,7 @@ namespace poac::core::resolver::sat {
                     // 0 - if true, 1 - if false, set the literal
                     literals[literal_to_index(*itr->begin())] = *itr->begin() < 0;
 
-                    const int index = literal_to_index(*itr->begin());
+                    const i32 index = literal_to_index(*itr->begin());
                     Status result = delete_set_literal(clauses, index, literals[index]);
                     if (result == Status::satisfied || result == Status::unsatisfied) {
                         return result;
@@ -140,28 +138,28 @@ namespace poac::core::resolver::sat {
     }
 
     // recursive DPLL algorithm
-    [[nodiscard]] mitama::result<std::vector<int>, std::string>
-    dpll(std::vector<std::vector<int>>& clauses, std::vector<int>& literals) {
+    [[nodiscard]] Result<Vec<i32>, String>
+    dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
         if (clauses.empty()) {
-            return mitama::success(to_assignments(literals));
+            return Ok(to_assignments(literals));
         } else if (
             Status result = unit_propagate(clauses, literals);
             result == Status::satisfied
         ) {
-            return mitama::success(to_assignments(literals));
+            return Ok(to_assignments(literals));
         } else if (result == Status::unsatisfied) {
-            return mitama::failure(
+            return Err(
                 "could not solve dependencies.\n"
                 "detail: given SAT problem was unsatisfied."
             );
         }
 
         // 最大の頻度を持つ変数が、次に割り当てられる値になります。
-        const int i = maximum_literal_number_index(clauses);
+        const i32 i = maximum_literal_number_index(clauses);
         // need to apply twice, once true, the other false
-        for (int j = 0; j < 2; ++j) {
+        for (i32 j = 0; j < 2; ++j) {
             // copy the formula before recursive circulation
-            std::vector<int> new_literals = literals;
+            Vec<i32> new_literals = literals;
 
             // if the number of literals with positive polarity are greater
             // cond ? positive : negative
@@ -171,7 +169,7 @@ namespace poac::core::resolver::sat {
             if (Status result = delete_set_literal(clauses, i, new_literals[i]);
                 result == Status::satisfied
             ) {
-                return mitama::success(to_assignments(new_literals));
+                return Ok(to_assignments(new_literals));
             } else if (result == Status::unsatisfied) {
                 // in this branch, return normally
                 continue;
@@ -182,18 +180,18 @@ namespace poac::core::resolver::sat {
                 return result;
             }
         }
-        return mitama::failure(
+        return Err(
             "could not solve dependencies.\n"
             "detail: given SAT problem was unsatisfied."
         );
     }
 
-    [[nodiscard]] mitama::result<std::vector<int>, std::string>
-    solve(std::vector<std::vector<int>> clauses, const unsigned long& variables) {
+    [[nodiscard]] Result<Vec<i32>, String>
+    solve(Vec<Vec<i32>> clauses, const u32& variables) {
         // indexに対応するリテラル値の割り当て状態を表現する
         // a vector that stores the value assigned to each variable, where
         // -1 - unassigned, 0 - true, 1 - false
-        std::vector<int> literals(variables, -1);
+        Vec<i32> literals(variables, -1);
         return dpll(clauses, literals);
     }
 } // end namespace

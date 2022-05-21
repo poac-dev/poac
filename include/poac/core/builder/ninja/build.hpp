@@ -3,17 +3,10 @@
 
 // std
 #include <cstdlib> // setenv
-#include <cstdint>
-#include <filesystem>
 #include <ostream>
 #include <stdexcept>
-#include <string>
 
 // external
-#include <fmt/core.h>
-#include <mitama/result/result.hpp>
-#include <mitama/anyhow/anyhow.hpp>
-#include <mitama/thiserror/thiserror.hpp>
 #include <ninja/build.h>
 #include <ninja/graph.h>
 #include <ninja/manifest_parser.h>
@@ -23,6 +16,7 @@
 #include <toml.hpp>
 
 // internal
+#include <poac/poac.hpp>
 #include <poac/core/builder/ninja/data.hpp>
 #include <poac/core/builder/ninja/log.hpp>
 #include <poac/core/builder/ninja/manifest.hpp>
@@ -32,9 +26,6 @@
 #include <poac/config.hpp>
 
 namespace poac::core::builder::ninja::build {
-    namespace anyhow = mitama::anyhow;
-    namespace thiserror = mitama::thiserror;
-
     class Error {
         template <thiserror::fixed_string S, class ...T>
         using error = thiserror::error<S, T...>;
@@ -43,7 +34,7 @@ namespace poac::core::builder::ninja::build {
         using GeneralError =
             error<
                 "internal build system has been stopped with an error:\n{0}",
-                std::string
+                String
             >;
     };
 
@@ -52,7 +43,7 @@ namespace poac::core::builder::ninja::build {
         release,
     };
 
-    std::string
+    String
     to_string(mode_t mode) {
         switch (mode) {
             case mode_t::debug:
@@ -60,10 +51,7 @@ namespace poac::core::builder::ninja::build {
             case mode_t::release:
                 return "release";
             default:
-                throw std::logic_error(
-                    "To access out of range of the "
-                    "enumeration values is undefined behavior."
-                );
+                unreachable();
         }
     }
 
@@ -75,20 +63,17 @@ namespace poac::core::builder::ninja::build {
             case mode_t::release:
                 return (os << "release");
             default:
-                throw std::logic_error(
-                    "To access out of range of the "
-                    "enumeration values is undefined behavior."
-                );
+                unreachable();
         }
     }
 
     /// Build the targets listed on the command line.
-    [[nodiscard]] anyhow::result<void>
+    [[nodiscard]] Result<void>
     run(data::NinjaMain& ninja_main, Status& status) {
-        std::string err;
-        std::vector<Node*> targets = ninja_main.state.DefaultNodes(&err);
+        String err;
+        Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
         if (!err.empty()) {
-            return anyhow::failure<Error::GeneralError>(err);
+            return Err<Error::GeneralError>(err);
         }
         ninja_main.disk_interface.AllowStatCache(true);
 
@@ -101,10 +86,10 @@ namespace poac::core::builder::ninja::build {
             &status,
             ninja_main.start_time_millis
         );
-        for (std::size_t i = 0; i < targets.size(); ++i) {
+        for (usize i = 0; i < targets.size(); ++i) {
             if (!builder.AddTarget(targets[i], &err)) {
                 if (!err.empty()) {
-                    return anyhow::failure<Error::GeneralError>(err);
+                    return Err<Error::GeneralError>(err);
                 }
                 // Added a target that is already up-to-date; not really an error.
             }
@@ -114,12 +99,12 @@ namespace poac::core::builder::ninja::build {
 
         if (builder.AlreadyUpToDate()) {
             spdlog::trace("nothing to do.");
-            return mitama::success();
+            return Ok();
         }
         if (!builder.Build(&err)) {
-            return anyhow::failure<Error::GeneralError>(err);
+            return Err<Error::GeneralError>(err);
         }
-        return mitama::success();
+        return Ok();
     }
 
     inline BuildConfig::Verbosity
@@ -133,14 +118,13 @@ namespace poac::core::builder::ninja::build {
         }
     }
 
-    using termcolor2::color_literals::operator""_bold_green;
-    inline const std::string progress_status_format =
-        fmt::format("{:>25} %f/%t: ", "Compiling"_bold_green);
+    inline const String progress_status_format =
+        format("{:>25} %f/%t: ", "Compiling"_bold_green);
 
     // Limit number of rebuilds, to prevent infinite loops.
-    inline constexpr int rebuildLimit = 100;
+    inline constexpr i32 rebuildLimit = 100;
 
-    [[nodiscard]] anyhow::result<std::filesystem::path>
+    [[nodiscard]] Result<fs::path>
     start(
         const toml::value& poac_manifest,
         const mode_t& mode,
@@ -151,11 +135,11 @@ namespace poac::core::builder::ninja::build {
         // setenv("NINJA_STATUS", progress_status_format.c_str(), true);
         status_printer::status_printer status(config, progress_status_format);
 
-        const std::filesystem::path build_dir = config::path::output_dir / to_string(mode);
-        std::filesystem::create_directories(build_dir);
-        MITAMA_TRY(manifest::create(build_dir, poac_manifest, resolved_deps));
+        const fs::path build_dir = config::path::output_dir / to_string(mode);
+        fs::create_directories(build_dir);
+        tryi(manifest::create(build_dir, poac_manifest, resolved_deps));
 
-        for (int cycle = 1; cycle <= rebuildLimit; ++cycle) {
+        for (i32 cycle = 1; cycle <= rebuildLimit; ++cycle) {
             data::NinjaMain ninja_main(config, build_dir);
             ManifestParserOptions parser_opts;
             parser_opts.dupe_edge_action_ = kDupeEdgeActionError;
@@ -164,26 +148,26 @@ namespace poac::core::builder::ninja::build {
                 &ninja_main.disk_interface,
                 parser_opts
             );
-            std::string err;
+            String err;
             if (!parser.Load((ninja_main.build_dir / manifest::manifest_file_name).string(), &err)) {
-                return anyhow::failure<Error::GeneralError>(err);
+                return Err<Error::GeneralError>(err);
             }
 
-            MITAMA_TRY(log::load_build_log(ninja_main));
-            MITAMA_TRY(log::load_deps_log(ninja_main));
+            tryi(log::load_build_log(ninja_main));
+            tryi(log::load_deps_log(ninja_main));
 
             // Attempt to rebuild the manifest before building anything else
             if (manifest::rebuild(ninja_main, status, err)) {
                 // Start the build over with the new manifest.
                 continue;
             } else if (!err.empty()) {
-                return anyhow::failure<Error::GeneralError>(err);
+                return Err<Error::GeneralError>(err);
             }
 
-            MITAMA_TRY(run(ninja_main, status));
-            return mitama::success(config::path::output_dir / to_string(mode));
+            tryi(run(ninja_main, status));
+            return Ok(config::path::output_dir / to_string(mode));
         }
-        return anyhow::failure<Error::GeneralError>(fmt::format(
+        return Err<Error::GeneralError>(format(
             "internal manifest still dirty after {} tries, perhaps system time is not set",
             rebuildLimit
         ));

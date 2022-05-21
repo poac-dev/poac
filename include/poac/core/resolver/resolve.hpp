@@ -4,16 +4,10 @@
 // std
 #include <cmath>
 #include <iostream>
-#include <vector>
 #include <stack>
-#include <string>
-#include <string_view>
 #include <sstream>
 #include <regex>
 #include <utility>
-#include <map>
-#include <unordered_map>
-#include <optional>
 #include <algorithm>
 #include <iterator>
 
@@ -27,11 +21,10 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/irange.hpp>
 #include <boost/range/join.hpp>
-#include <fmt/core.h>
-#include <mitama/result/result.hpp>
 #include <spdlog/spdlog.h>
 
 // internal
+#include <poac/poac.hpp>
 #include <poac/config.hpp>
 #include <poac/core/resolver/sat.hpp>
 #include <poac/util/meta.hpp>
@@ -44,11 +37,10 @@ namespace poac::core::resolver::resolve {
     struct without_deps : std::false_type {};
 
     // Duplicate dependencies mean not resolved,
-    //   so a package has version not interval generally.
-    // A package depends packages have many different versions of one name,
+    //   so a package has version rather than interval generally.
+    // A package depends on packages have many different versions of one name,
     //   so this should not be std::unordered_map.
-    // Also, package information does not need
-    //   package's dependency's dependencies,
+    // Package information does not need dependencies' dependencies,
     //   so second value of std::pair is not Package (this type)
     //   just needs std::string indicated specific version.
     template <class WithDeps>
@@ -59,12 +51,12 @@ namespace poac::core::resolver::resolve {
 
     template <>
     struct duplicate_deps<without_deps> {
-        using type = std::vector<std::pair<std::string, std::string>>;
+        using type = Vec<std::pair<String, String>>;
     };
 
     using package_t = std::pair<
-        std::string, // name
-        std::string // version or interval
+        String, // name
+        String // version or interval
     >;
 
     inline package_t::first_type&
@@ -97,16 +89,16 @@ namespace poac::core::resolver::resolve {
         return get_version(package);
     }
 
-    using deps_t = std::optional<duplicate_deps_t<without_deps>>;
+    using deps_t = Option<duplicate_deps_t<without_deps>>;
 
     template <>
     struct duplicate_deps<with_deps> {
-        using type = std::vector<std::pair<package_t, deps_t>>;
+        using type = Vec<std::pair<package_t, deps_t>>;
     };
 
     struct hash_pair {
         template <class T, class U>
-        std::size_t operator()(const std::pair<T, U>& p) const {
+        usize operator()(const std::pair<T, U>& p) const {
             return std::hash<T>()(p.first) ^ std::hash<U>()(p.second);
         }
     };
@@ -115,9 +107,9 @@ namespace poac::core::resolver::resolve {
     using unique_deps_t =
         std::conditional_t<
             WithDeps::value,
-            std::unordered_map<package_t, deps_t, hash_pair>,
+            HashMap<package_t, deps_t, hash_pair>,
             // <name, version or interval>
-            std::unordered_map<std::string, std::string>
+            HashMap<String, String>
         >;
 
     inline const package_t&
@@ -125,8 +117,8 @@ namespace poac::core::resolver::resolve {
         return deps.first;
     }
 
-    std::string to_binary_numbers(const int& x, const std::size_t& digit) {
-        return fmt::format("{:0{}b}", x, digit);
+    String to_binary_numbers(const int& x, const usize& digit) {
+        return format("{:0{}b}", x, digit);
     }
 
     // A ∨ B ∨ C
@@ -134,8 +126,8 @@ namespace poac::core::resolver::resolve {
     // ¬A ∨ B ∨ ¬C
     // ¬A ∨ ¬B ∨ C
     // ¬A ∨ ¬B ∨ ¬C
-    std::vector<std::vector<int>>
-    multiple_versions_cnf(const std::vector<int>& clause) {
+    Vec<Vec<int>>
+    multiple_versions_cnf(const Vec<int>& clause) {
         return boost::irange(0, 1 << clause.size()) // number of combinations
             | boost::adaptors::transformed(
                   [&clause](const auto& i){
@@ -150,9 +142,9 @@ namespace poac::core::resolver::resolve {
                   }
               )
             | boost::adaptors::transformed(
-                  [&clause](const boost::dynamic_bitset<>& bs) -> std::vector<int> {
+                  [&clause](const boost::dynamic_bitset<>& bs) -> Vec<int> {
                       return
-                          boost::irange(std::size_t{0}, bs.size())
+                          boost::irange(usize{0}, bs.size())
                           | boost::adaptors::transformed(
                                 [&clause, &bs](const auto& i){
                                     return bs[i] ? clause[i] * -1 : clause[i];
@@ -164,14 +156,14 @@ namespace poac::core::resolver::resolve {
             | util::meta::containerized;
     }
 
-    std::vector<std::vector<int>>
+    Vec<Vec<i32>>
     create_cnf(const duplicate_deps_t<with_deps>& activated) {
-        std::vector<std::vector<int>> clauses;
-        std::vector<int> already_added;
+        Vec<Vec<i32>> clauses;
+        Vec<i32> already_added;
 
         auto first = std::cbegin(activated);
         auto last = std::cend(activated);
-        for (int i = 0; i < static_cast<int>(activated.size()); ++i) {
+        for (i32 i = 0; i < static_cast<i32>(activated.size()); ++i) {
             if (util::meta::find(already_added, i)) {
                 continue;
             }
@@ -179,9 +171,9 @@ namespace poac::core::resolver::resolve {
             const auto name_lambda = [&](const auto& x){
                 return x.first == activated[i].first;
             };
-            // 現在指すパッケージと同名の他のパッケージは存在しない
+            // No other packages with the same name as the package currently pointed to exist
             if (const auto count = std::count_if(first, last, name_lambda); count == 1) {
-                std::vector<int> clause;
+                Vec<i32> clause;
                 clause.emplace_back(i + 1);
                 clauses.emplace_back(clause);
 
@@ -189,7 +181,7 @@ namespace poac::core::resolver::resolve {
                 if (!activated[i].second.has_value()) {
                     clause[0] *= -1;
                     for (const auto& [name, version] : activated[i].second.value()) {
-                        // 必ず存在することが保証されている
+                        // It is guaranteed to exist
                         clause.emplace_back(
                             util::meta::index_of_if(
                                 first, last,
@@ -201,7 +193,7 @@ namespace poac::core::resolver::resolve {
                     clauses.emplace_back(clause);
                 }
             } else if (count > 1) {
-                std::vector<int> clause;
+                Vec<i32> clause;
 
                 for (auto found = first; found != last; found = std::find_if(found, last, name_lambda)) {
                     const auto index = std::distance(first, found);
@@ -210,10 +202,10 @@ namespace poac::core::resolver::resolve {
 
                     // index ⇒ deps
                     if (!found->second.has_value()) {
-                        std::vector<int> new_clause;
+                        Vec<i32> new_clause;
                         new_clause.emplace_back(index);
                         for (const auto& package : found->second.value()) {
-                            // 必ず存在することが保証されている
+                            // It is guaranteed to exist
                             new_clause.emplace_back(
                                 util::meta::index_of_if(
                                     first, last,
@@ -234,10 +226,10 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    [[nodiscard]] mitama::result<unique_deps_t<with_deps>, std::string>
-    solve_sat(const duplicate_deps_t<with_deps>& activated, const std::vector<std::vector<int>>& clauses) {
+    [[nodiscard]] Result<unique_deps_t<with_deps>, String>
+    solve_sat(const duplicate_deps_t<with_deps>& activated, const Vec<Vec<i32>>& clauses) {
         // deps.activated.size() == variables
-        const std::vector<int> assignments = MITAMA_TRY(sat::solve(clauses, activated.size()));
+        const Vec<i32> assignments = tryi(sat::solve(clauses, activated.size()));
         unique_deps_t<with_deps> resolved_deps{};
         spdlog::debug("SAT");
         for (const auto& a : assignments) {
@@ -248,10 +240,10 @@ namespace poac::core::resolver::resolve {
             }
         }
         spdlog::debug(0);
-        return mitama::success(resolved_deps);
+        return Ok(resolved_deps);
     }
 
-    [[nodiscard]] mitama::result<unique_deps_t<with_deps>, std::string>
+    [[nodiscard]] Result<unique_deps_t<with_deps>, String>
     backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
         const auto clauses = create_cnf(activated);
         if (util::verbosity::is_verbose()) {
@@ -286,32 +278,32 @@ namespace poac::core::resolver::resolve {
     // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
     // `latest` -> { 2.5.0 }: (removed)
     // name is boost/config, no boost-config
-    [[nodiscard]] mitama::result<std::vector<std::string>, std::string>
+    [[nodiscard]] Result<Vec<String>, String>
     get_versions_satisfy_interval(const package_t& package) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
         const semver::Interval i(get_interval(package));
-        const std::vector<std::string> satisfied_versions =
-            MITAMA_TRY(util::net::api::versions(get_name(package)))
+        const Vec<String> satisfied_versions =
+            tryi(util::net::api::versions(get_name(package)))
             | boost::adaptors::filtered(
-                [&i](std::string_view s){ return i.satisfies(s); }
+                [&i](StringRef s){ return i.satisfies(s); }
             )
             | util::meta::containerized;
 
         if (satisfied_versions.empty()) {
-            return mitama::failure(fmt::format(
+            return Err(format(
                 "`{}: {}` not found; seem dependencies are broken",
                 get_name(package), get_interval(package)
             ));
         }
-        return mitama::success(satisfied_versions);
+        return Ok(satisfied_versions);
     }
 
     using interval_cache_t =
-        std::vector<
+        Vec<
             std::tuple<
                 package_t,
-                std::vector<std::string> // versions in the interval
+                Vec<String> // versions in the interval
             >>;
 
     inline const package_t&
@@ -319,7 +311,7 @@ namespace poac::core::resolver::resolve {
         return std::get<0>(cache);
     }
 
-    inline const std::vector<std::string>&
+    inline const Vec<String>&
     get_versions(const interval_cache_t::value_type& cache) noexcept {
         return std::get<1>(cache);
     }
@@ -388,7 +380,7 @@ namespace poac::core::resolver::resolve {
         const unique_deps_t<without_deps> deps_api_res =
             util::net::api::deps(get_name(package), get_version(package)).unwrap();
         if (deps_api_res.empty()) {
-            new_deps.emplace_back(package, std::nullopt);
+            new_deps.emplace_back(package, None);
         } else {
             const auto deps_of_deps = gather_deps_of_deps(deps_api_res, interval_cache);
 
@@ -402,7 +394,7 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    [[nodiscard]] mitama::result<duplicate_deps_t<with_deps>, std::string>
+    [[nodiscard]] Result<duplicate_deps_t<with_deps>, String>
     gather_all_deps(const unique_deps_t<without_deps>& deps) {
         duplicate_deps_t<with_deps> duplicate_deps;
         interval_cache_t interval_cache;
@@ -419,8 +411,8 @@ namespace poac::core::resolver::resolve {
 
             // Get versions using interval
             // FIXME: versions API and deps API are received the almost same responses
-            const std::vector<std::string> versions =
-                MITAMA_TRY(get_versions_satisfy_interval(package));
+            const Vec<String> versions =
+                tryi(get_versions_satisfy_interval(package));
             // Cache interval and versions pair
             interval_cache.emplace_back(package, versions);
             for (const auto& version : versions) {
@@ -431,7 +423,7 @@ namespace poac::core::resolver::resolve {
                 );
             }
         }
-        return mitama::success(duplicate_deps);
+        return Ok(duplicate_deps);
     }
 } // end namespace
 #endif // !POAC_CORE_RESOLVER_RESOLVE_HPP

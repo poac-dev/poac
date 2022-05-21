@@ -6,21 +6,14 @@
 #include <poac/core/builder/compiler/cxx/clang.hpp>
 #include <poac/core/builder/compiler/cxx/gcc.hpp>
 
-// external
-#include <mitama/result/result.hpp>
-#include <mitama/anyhow/anyhow.hpp>
-#include <mitama/thiserror/thiserror.hpp>
-
 // internal
+#include <poac/poac.hpp>
 #include <poac/core/builder/compiler/error.hpp>
 #include <poac/util/cfg.hpp>
 #include <poac/util/misc.hpp>
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::compiler::cxx {
-    namespace anyhow = mitama::anyhow;
-    namespace thiserror = mitama::thiserror;
-
     class Error {
         template <thiserror::fixed_string S, class ...T>
         using error = thiserror::error<S, T...>;
@@ -33,39 +26,39 @@ namespace poac::core::builder::compiler::cxx {
             >;
 
         using UnknownCompilerCommand =
-            error<"unknown compiler command found: {}", std::string>;
+            error<"unknown compiler command found: {}", String>;
 
         using UnsupportedCompiler =
-            error<"unsupported compiler found: {}", std::string>;
+            error<"unsupported compiler found: {}", String>;
     };
 
-    inline const std::string ANY = R"([\s\S]*)";
+    inline const String ANY = R"([\s\S]*)";
 
-    [[nodiscard]] anyhow::result<util::cfg::compiler>
-    get_compiler_ident(const std::string& compiler_command) {
+    [[nodiscard]] Result<util::cfg::compiler>
+    get_compiler_ident(const String& compiler_command) {
         if (compiler_command == "g++" || compiler_command == "clang++") {
 #  ifdef __APPLE__
-            const std::string compiler(compiler_command);
+            const String compiler(compiler_command);
             if (const auto res = util::shell::cmd(compiler + " --version").stderr_to_stdout().exec()) {
-                if (res.value().find("Apple") != std::string::npos) {
-                    return mitama::success(util::cfg::compiler::apple_clang);
+                if (res.value().find("Apple") != String::npos) {
+                    return Ok(util::cfg::compiler::apple_clang);
                 }
             }
 #  endif
             if (compiler_command == "g++") {
-                return mitama::success(util::cfg::compiler::gcc);
+                return Ok(util::cfg::compiler::gcc);
             } else if (compiler_command == "clang++") {
-                return mitama::success(util::cfg::compiler::clang);
+                return Ok(util::cfg::compiler::clang);
             }
         }
-        return anyhow::failure<Error::UnknownCompilerCommand>(compiler_command);
+        return Err<Error::UnknownCompilerCommand>(compiler_command);
     }
 
-    [[nodiscard]] anyhow::result<std::string>
+    [[nodiscard]] Result<String>
     get_std_flag(
         const util::cfg::compiler compiler,
-        const std::string& compiler_command,
-        const std::int64_t& cpp,
+        const String& compiler_command,
+        const i64& cpp,
         const bool use_gnu_extension
     ) {
         switch (compiler) {
@@ -76,29 +69,29 @@ namespace poac::core::builder::compiler::cxx {
             case util::cfg::compiler::apple_clang:
                 return apple_clang::get_std_flag(compiler_command, cpp, use_gnu_extension);
             default:
-                return anyhow::failure<Error::UnsupportedCompiler>(error::to_string(compiler));
+                return Err<Error::UnsupportedCompiler>(error::to_string(compiler));
         }
     }
 
-    [[nodiscard]] anyhow::result<std::string>
+    [[nodiscard]] Result<String>
     get_compiler_command() {
         if (const auto cxx = util::misc::dupenv("POAC_CXX")) {
-            return mitama::success(cxx.value());
+            return Ok(cxx.value());
         } else if (util::shell::has_command("g++")) {
-            return mitama::success("g++");
+            return Ok("g++");
         } else if (util::shell::has_command("clang++")) {
-            return mitama::success("clang++");
+            return Ok("clang++");
         } else {
-            return anyhow::failure<Error::CompilerCommandNotFound>();
+            return Err<Error::CompilerCommandNotFound>();
         }
     }
 
-    [[nodiscard]] anyhow::result<std::string>
-    get_command(const std::int64_t& cpp, const bool use_gnu_extension) {
-        const std::string compiler_command = MITAMA_TRY(get_compiler_command());
-        const util::cfg::compiler compiler = MITAMA_TRY(get_compiler_ident(compiler_command));
-        const std::string std_flag = MITAMA_TRY(get_std_flag(compiler, compiler_command, cpp, use_gnu_extension));
-        return mitama::success(fmt::format("{} {}", compiler_command, std_flag));
+    [[nodiscard]] Result<String>
+    get_command(const i64& cpp, const bool use_gnu_extension) {
+        const String compiler_command = tryi(get_compiler_command());
+        const util::cfg::compiler compiler = tryi(get_compiler_ident(compiler_command));
+        const String std_flag = tryi(get_std_flag(compiler, compiler_command, cpp, use_gnu_extension));
+        return Ok(format("{} {}", compiler_command, std_flag));
     }
 } // end namespace
 

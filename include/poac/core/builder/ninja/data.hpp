@@ -1,11 +1,8 @@
 #ifndef POAC_CORE_BUILDER_NINJA_DATA_HPP
 #define POAC_CORE_BUILDER_NINJA_DATA_HPP
 
-// std
-#include <cstdint> // std::int64_t
-#include <filesystem> // std::filesystem::path
-
 // external
+#include <poac/poac.hpp>
 #include <ninja/build.h> // BuildConfig
 #include <ninja/build_log.h> // BuildLog, BuildLogUser
 #include <ninja/deps_log.h> // DepsLog
@@ -19,7 +16,7 @@
 
 namespace poac::core::builder::ninja::data {
     struct NinjaMain: public BuildLogUser {
-        NinjaMain(const BuildConfig& config, const std::filesystem::path& build_dir)
+        NinjaMain(const BuildConfig& config, const fs::path& build_dir)
             : config(config), build_dir(build_dir) {}
 
         /// Build configuration set from flags (e.g. parallelism).
@@ -32,12 +29,12 @@ namespace poac::core::builder::ninja::data {
         RealDiskInterface disk_interface;
 
         /// The build directory, used for storing the build log etc.
-        std::filesystem::path build_dir;
+        fs::path build_dir;
 
         BuildLog build_log;
         DepsLog deps_log;
 
-        std::int64_t start_time_millis = GetTimeMillis();
+        i64 start_time_millis = GetTimeMillis();
 
         virtual bool IsPathDead(StringPiece s) const {
             Node* n = state.LookupNode(s);
@@ -53,7 +50,7 @@ namespace poac::core::builder::ninja::data {
             // which seems good enough for this corner case.)
             // Do keep entries around for files which still exist on disk, for
             // generators that want to use this information.
-            std::string err;
+            String err;
             TimeStamp mtime = disk_interface.Stat(s.AsString(), &err);
             if (mtime == -1) {
                 spdlog::error(err); // Log and ignore Stat() errors.

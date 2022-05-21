@@ -1,24 +1,13 @@
 #ifndef POAC_CORE_BUILDER_COMPILER_ERROR_HPP
 #define POAC_CORE_BUILDER_COMPILER_ERROR_HPP
 
-// std
-#include <cstdint> // std::int64_t
-#include <string>
-
-// external
-#include <mitama/result/result.hpp>
-#include <mitama/anyhow/anyhow.hpp>
-#include <mitama/thiserror/thiserror.hpp>
-
 // internal
+#include <poac/poac.hpp>
 #include <poac/core/builder/compiler/lang.hpp>
 #include <poac/util/cfg.hpp> // compiler
 
 namespace poac::core::builder::compiler::error {
-    namespace anyhow = mitama::anyhow;
-    namespace thiserror = mitama::thiserror;
-
-    std::string
+    String
     to_string(util::cfg::compiler comp) {
         switch (comp) {
             case util::cfg::compiler::gcc:
@@ -32,10 +21,7 @@ namespace poac::core::builder::compiler::error {
             case util::cfg::compiler::icc:
                 return "Intel C++ Compiler";
             default:
-                throw std::logic_error(
-                    "To access out of range of the "
-                    "enumeration values is undefined behavior."
-                );
+                unreachable();
         }
     }
 
@@ -52,11 +38,11 @@ namespace poac::core::builder::compiler::error {
         using UnsupportedLangVersion =
             error<
                 "`{0}` ({1}) does not support {2} version: `{3}`",
-                std::string, std::string, lang::lang_t, std::int64_t
+                String, String, String, i64
             >;
 
         using FailedToGetCompilerVersion =
-            error<"failed to get version of compiler `{0}`", std::string>;
+            error<"failed to get version of compiler `{0}`", String>;
     };
 } // end namespace
 
