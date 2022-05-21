@@ -1,5 +1,5 @@
-#ifndef SEMVER_COMPARISON_HPP
-#define SEMVER_COMPARISON_HPP
+#ifndef POAC_UTIL_SEMVER_COMPARISON_HPP_
+#define POAC_UTIL_SEMVER_COMPARISON_HPP_
 
 // std
 #include <algorithm>
@@ -212,4 +212,4 @@ operator<=(const char* lhs, const Version& rhs) {
 
 } // end namespace semver
 
-#endif // !SEMVER_COMPARISON_HPP
+#endif // POAC_UTIL_SEMVER_COMPARISON_HPP_

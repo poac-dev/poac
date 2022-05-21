@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_CXX_HPP
-#define POAC_CORE_BUILDER_COMPILER_CXX_HPP
+#ifndef POAC_CORE_BUILDER_COMPILER_CXX_HPP_
+#define POAC_CORE_BUILDER_COMPILER_CXX_HPP_
 
 // mod
 #include <poac/core/builder/compiler/cxx/apple_clang.hpp>
@@ -90,4 +90,4 @@ get_command(const i64& cpp, const bool use_gnu_extension) {
 
 } // namespace poac::core::builder::compiler::cxx
 
-#endif // !POAC_CORE_BUILDER_COMPILER_CXX_HPP
+#endif // POAC_CORE_BUILDER_COMPILER_CXX_HPP_

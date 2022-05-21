@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_VALIDATOR_HPP
-#define POAC_CORE_VALIDATOR_HPP
+#ifndef POAC_CORE_VALIDATOR_HPP_
+#define POAC_CORE_VALIDATOR_HPP_
 
 // std
 #include <algorithm>
@@ -249,4 +249,4 @@ valid_version(StringRef s) {
 
 } // namespace poac::core::validator
 
-#endif // POAC_CORE_VALIDATOR_HPP
+#endif // POAC_CORE_VALIDATOR_HPP_

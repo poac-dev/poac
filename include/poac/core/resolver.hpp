@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_RESOLVER_HPP
-#define POAC_CORE_RESOLVER_HPP
+#ifndef POAC_CORE_RESOLVER_HPP_
+#define POAC_CORE_RESOLVER_HPP_
 
 // std
 #include <fstream>
@@ -12,7 +12,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <toml.hpp>
 
 // internal
@@ -297,4 +297,4 @@ install_deps(const toml::value& manifest) {
 
 } // namespace poac::core::resolver
 
-#endif // POAC_CORE_RESOLVER_HPP
+#endif // POAC_CORE_RESOLVER_HPP_

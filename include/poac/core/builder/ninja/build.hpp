@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_NINJA_BUILD_HPP
-#define POAC_CORE_BUILDER_NINJA_BUILD_HPP
+#ifndef POAC_CORE_BUILDER_NINJA_BUILD_HPP_
+#define POAC_CORE_BUILDER_NINJA_BUILD_HPP_
 
 // std
 #include <cstdlib> // setenv
@@ -8,12 +8,12 @@
 #include <string>
 
 // external
-#include <ninja/build.h>
-#include <ninja/graph.h>
-#include <ninja/manifest_parser.h>
-#include <ninja/state.h>
-#include <ninja/status.h>
-#include <spdlog/spdlog.h>
+#include <ninja/build.h>           // NOLINT(build/include_order)
+#include <ninja/graph.h>           // NOLINT(build/include_order)
+#include <ninja/manifest_parser.h> // NOLINT(build/include_order)
+#include <ninja/state.h>           // NOLINT(build/include_order)
+#include <ninja/status.h>          // NOLINT(build/include_order)
+#include <spdlog/spdlog.h>         // NOLINT(build/include_order)
 #include <toml.hpp>
 
 // internal
@@ -163,4 +163,4 @@ start(
 
 } // namespace poac::core::builder::ninja::build
 
-#endif // !POAC_CORE_BUILDER_NINJA_BUILD_HPP
+#endif // POAC_CORE_BUILDER_NINJA_BUILD_HPP_

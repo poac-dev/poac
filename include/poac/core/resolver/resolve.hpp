@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_RESOLVER_RESOLVE_HPP
-#define POAC_CORE_RESOLVER_RESOLVE_HPP
+#ifndef POAC_CORE_RESOLVER_RESOLVE_HPP_
+#define POAC_CORE_RESOLVER_RESOLVE_HPP_
 
 // std
 #include <algorithm>
@@ -22,7 +22,7 @@
 #include <boost/range/algorithm_ext/push_back.hpp>
 #include <boost/range/irange.hpp>
 #include <boost/range/join.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/config.hpp>
@@ -269,8 +269,8 @@ duplicate_loose(const SinglePassRange& rng) {
 // name is boost/config, no boost-config
 [[nodiscard]] Result<Vec<String>, String>
 get_versions_satisfy_interval(const Package& package) {
-  // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
-  // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
+  // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
+  // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(get_interval(package));
   const Vec<String> satisfied_versions =
       Try(util::net::api::versions(get_name(package))) |
@@ -406,4 +406,4 @@ gather_all_deps(const UniqDeps<WithoutDeps>& deps) {
 
 } // namespace poac::core::resolver::resolve
 
-#endif // !POAC_CORE_RESOLVER_RESOLVE_HPP
+#endif // POAC_CORE_RESOLVER_RESOLVE_HPP_

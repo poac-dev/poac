@@ -1,5 +1,5 @@
-#ifndef SEMVER_PARSER_PARSER_HPP
-#define SEMVER_PARSER_PARSER_HPP
+#ifndef POAC_UTIL_SEMVER_PARSER_PARSER_HPP_
+#define POAC_UTIL_SEMVER_PARSER_PARSER_HPP_
 
 // std
 #include <cstddef>
@@ -252,7 +252,7 @@ struct Parser {
     const auto patch = this->dot_component();
     const auto pre = this->pre();
 
-    // TODO: avoid illegal combinations, like `1.*.0`.
+    // TODO(ken-matsui): avoid illegal combinations, like `1.*.0`.
     if (!minor.has_value()) {
       op = Op(Op::Wildcard, WildcardVersion::Minor);
     }
@@ -373,4 +373,4 @@ parse(std::string_view input) {
 
 } // end namespace semver
 
-#endif // !SEMVER_PARSER_PARSER_HPP
+#endif // POAC_UTIL_SEMVER_PARSER_PARSER_HPP_

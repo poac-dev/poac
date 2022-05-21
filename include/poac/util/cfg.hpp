@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_CFG_HPP
-#define POAC_UTIL_CFG_HPP
+#ifndef POAC_UTIL_CFG_HPP_
+#define POAC_UTIL_CFG_HPP_
 
 // std
 #include <cstddef>
@@ -10,7 +10,7 @@
 #include <variant>
 
 // external
-#include <boost/predef.h>
+#include <boost/predef.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/poac.hpp>
@@ -18,20 +18,20 @@
 namespace poac::util::cfg {
 
 struct exception : public std::exception {
-  explicit exception(const String& what_) : what_(what_) {}
-  explicit exception(const char* what_) : what_(what_) {}
+  explicit exception(const String& what) : what_(what) {}
+  explicit exception(const char* what) : what_(what) {}
   ~exception() noexcept override = default;
   const char*
   what() const noexcept override {
     return what_.c_str();
   }
 
+  // clang-format off
   exception(const exception&) = default;
-  exception&
-  operator=(const exception&) = default;
+  exception& operator=(const exception&) = default;
   exception(exception&&) noexcept = default;
-  exception&
-  operator=(exception&&) noexcept = default;
+  exception& operator=(exception&&) noexcept = default;
+  // clang-format on
 
 protected:
   String what_;
@@ -43,12 +43,12 @@ struct string_error : public cfg::exception {
   explicit string_error(const char* what_) : string_error(String(what_)) {}
   ~string_error() noexcept override = default;
 
+  // clang-format off
   string_error(const string_error&) = default;
-  string_error&
-  operator=(const string_error&) = default;
+  string_error& operator=(const string_error&) = default;
   string_error(string_error&&) noexcept = default;
-  string_error&
-  operator=(string_error&&) noexcept = default;
+  string_error& operator=(string_error&&) noexcept = default;
+  // clang-format on
 };
 
 struct ident_error : public cfg::exception {
@@ -60,12 +60,12 @@ public:
   explicit ident_error(const char* what_) : ident_error(String(what_)) {}
   ~ident_error() noexcept override = default;
 
+  // clang-format off
   ident_error(const ident_error&) = default;
-  ident_error&
-  operator=(const ident_error&) = default;
+  ident_error& operator=(const ident_error&) = default;
   ident_error(ident_error&&) noexcept = default;
-  ident_error&
-  operator=(ident_error&&) noexcept = default;
+  ident_error& operator=(ident_error&&) noexcept = default;
+  // clang-format on
 };
 
 struct operator_error : public cfg::exception {
@@ -75,12 +75,12 @@ public:
   explicit operator_error(const char* what_) : operator_error(String(what_)) {}
   ~operator_error() noexcept override = default;
 
+  // clang-format off
   operator_error(const operator_error&) = default;
-  operator_error&
-  operator=(const operator_error&) = default;
+  operator_error& operator=(const operator_error&) = default;
   operator_error(operator_error&&) noexcept = default;
-  operator_error&
-  operator=(operator_error&&) noexcept = default;
+  operator_error& operator=(operator_error&&) noexcept = default;
+  // clang-format on
 };
 
 struct expression_error : public cfg::exception {
@@ -89,12 +89,12 @@ public:
   explicit expression_error(const char* what_) : exception(what_) {}
   ~expression_error() noexcept override = default;
 
+  // clang-format off
   expression_error(const expression_error&) = default;
-  expression_error&
-  operator=(const expression_error&) = default;
+  expression_error& operator=(const expression_error&) = default;
   expression_error(expression_error&&) noexcept = default;
-  expression_error&
-  operator=(expression_error&&) noexcept = default;
+  expression_error& operator=(expression_error&&) noexcept = default;
+  // clang-format on
 };
 
 struct syntax_error : public cfg::exception {
@@ -104,12 +104,12 @@ public:
   explicit syntax_error(const char* what_) : syntax_error(String(what_)) {}
   ~syntax_error() noexcept override = default;
 
+  // clang-format off
   syntax_error(const syntax_error&) = default;
-  syntax_error&
-  operator=(const syntax_error&) = default;
+  syntax_error& operator=(const syntax_error&) = default;
   syntax_error(syntax_error&&) noexcept = default;
-  syntax_error&
-  operator=(syntax_error&&) noexcept = default;
+  syntax_error& operator=(syntax_error&&) noexcept = default;
+  // clang-format on
 };
 
 constexpr bool
@@ -862,4 +862,4 @@ parse(StringRef s) {
 
 } // end namespace poac::util::cfg
 
-#endif // !POAC_UTIL_CFG_HPP
+#endif // POAC_UTIL_CFG_HPP_

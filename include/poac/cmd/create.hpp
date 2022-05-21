@@ -1,5 +1,5 @@
-#ifndef POAC_CMD_CREATE_HPP
-#define POAC_CMD_CREATE_HPP
+#ifndef POAC_CMD_CREATE_HPP_
+#define POAC_CMD_CREATE_HPP_
 
 // std
 #include <algorithm>
@@ -10,7 +10,7 @@
 
 // external
 #include <git2-cpp/git2.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal
@@ -173,4 +173,4 @@ exec(const Options& opts) {
 
 STRUCTOPT(poac::cmd::create::Options, package_name, bin, lib);
 
-#endif // !POAC_CMD_CREATE_HPP
+#endif // POAC_CMD_CREATE_HPP_

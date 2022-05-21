@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_SHELL_HPP
-#define POAC_UTIL_SHELL_HPP
+#ifndef POAC_UTIL_SHELL_HPP_
+#define POAC_UTIL_SHELL_HPP_
 
 // std
 #include <array>
@@ -49,9 +49,9 @@ public:
     return *this;
   }
 
-  // TODO:
-  // 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
-  // TODO: errorと，その内容を同時に捕捉できない．
+  // TODO(ken-matsui): Do we need to return result that captures all piped
+  //  stderr and stdout? We cannot simultaneously know errors and their
+  //  contents.
   Option<String>
   exec() const {
     std::array<char, 128> buffer{};
@@ -69,9 +69,9 @@ public:
 #else
       if (pclose(pipe) != 0) {
 #endif
-        std::cout
-            << result; // TODO:
-                       // error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
+        std::cout << result;
+        // TODO(ken-matsui): When errored and piped errors to stdout,
+        //  I want to return result stored by them.
         return None;
       }
     } else {
@@ -142,7 +142,7 @@ public:
   }
 
   Cmd
-  operator+(const Cmd& rhs) const { // TODO: "; "でなくても良いのか
+  operator+(const Cmd& rhs) const { // TODO(ken-matsui): should this be "; "?
     return Cmd(this->cmd + " " + rhs.cmd);
   }
   Cmd
@@ -163,7 +163,7 @@ public:
 
 private:
   String cmd;
-};
+}; // NOLINT(readability/braces)
 
 bool
 has_command(const String& c) {
@@ -172,4 +172,4 @@ has_command(const String& c) {
 
 } // namespace poac::util::shell
 
-#endif // !POAC_UTIL_SHELL_HPP
+#endif // POAC_UTIL_SHELL_HPP_

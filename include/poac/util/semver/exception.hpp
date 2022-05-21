@@ -1,5 +1,5 @@
-#ifndef SEMVER_EXCEPTION_HPP
-#define SEMVER_EXCEPTION_HPP
+#ifndef POAC_UTIL_SEMVER_EXCEPTION_HPP_
+#define POAC_UTIL_SEMVER_EXCEPTION_HPP_
 
 // std
 #include <stdexcept>
@@ -9,8 +9,8 @@
 namespace semver {
 
 struct exception : public std::exception {
-  explicit exception(const std::string& what_) : what_(what_) {}
-  explicit exception(const char* what_) : what_(what_) {}
+  explicit exception(const std::string& what) : what_(what) {}
+  explicit exception(const char* what) : what_(what) {}
   ~exception() noexcept override = default;
   const char*
   what() const noexcept override {
@@ -104,4 +104,4 @@ struct strange_interval_error : public semver::exception {
 
 } // end namespace semver
 
-#endif // !SEMVER_EXCEPTION_HPP
+#endif // POAC_UTIL_SEMVER_EXCEPTION_HPP_

@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_META_HPP
-#define POAC_UTIL_META_HPP
+#ifndef POAC_UTIL_META_HPP_
+#define POAC_UTIL_META_HPP_
 
 // std
 #include <chrono>
@@ -218,4 +218,4 @@ concept derived_from = std::is_base_of_v<Base, Derived> &&
 
 } // namespace poac::util::meta
 
-#endif // !POAC_UTIL_META_HPP
+#endif // POAC_UTIL_META_HPP_

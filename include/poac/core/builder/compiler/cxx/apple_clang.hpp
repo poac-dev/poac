@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP
-#define POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP
+#ifndef POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP_
+#define POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP_
 
 // internal
 #include <poac/core/builder/compiler/error.hpp>
@@ -82,4 +82,4 @@ get_std_flag(
 
 } // namespace poac::core::builder::compiler::cxx::apple_clang
 
-#endif // !POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP
+#endif // POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP_

@@ -1,28 +1,34 @@
-#ifndef POAC_OPTS_GRAPH_HPP
-#define POAC_OPTS_GRAPH_HPP
+#ifndef POAC_CMD_WIP_GRAPH_HPP_
+#define POAC_CMD_WIP_GRAPH_HPP_
 
+// std
 #include <algorithm>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graph_utility.hpp>
-#include <boost/graph/graphviz.hpp>
-#include <boost/range/adaptor/indexed.hpp>
-#include <boost/range/iterator_range_core.hpp>
 #include <filesystem>
 #include <fstream>
 #include <future>
 #include <iostream>
 #include <iterator>
 #include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
+// external
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_utility.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/range/adaptor/indexed.hpp>
+#include <boost/range/iterator_range_core.hpp>
+
+// internal
 #include <poac/core/except.hpp>
 #include <poac/core/resolver/resolve.hpp>
 #include <poac/io/config.hpp>
 #include <poac/io/term.hpp>
 #include <poac/util/shell.hpp>
-#include <string>
-#include <utility>
-#include <vector>
 
 namespace poac::opts::graph {
+
 inline const clap::subcommand cli =
     clap::subcommand("graph")
         .about("Create a dependency graph")
@@ -75,7 +81,7 @@ create_graph(std::future<Option<io::config::Config>>&& config) {
   for (const boost::range::index_value<
            const std::pair<
                const std::string, poac::io::lockfile::Lockfile::Package>&,
-           long>
+           i64>
            dep : lockfile->dependencies | boost::adaptors::indexed()) {
     desc.push_back(boost::add_vertex(g));
     g[dep.index()].name = dep.value().first;
@@ -84,7 +90,7 @@ create_graph(std::future<Option<io::config::Config>>&& config) {
   // Add edge
   for (const boost::range::index_value<
            const std::pair<std::string, poac::io::lockfile::Lockfile::Package>&,
-           long>
+           i64>
            dep : resolved_deps.duplicate_deps | boost::adaptors::indexed()) {
     if (!dep.value().second.dependencies.has_value()) {
       for (const auto& [name, version] :
@@ -105,7 +111,8 @@ create_graph(std::future<Option<io::config::Config>>&& config) {
     }
   }
 
-  // TODO: Such as <algorithm> can do the same thing with the following
+  // TODO(ken-matsui): Such as <algorithm> can do the same thing with the
+  // following
   Vec<std::string> names;
   for (const auto& [name, package] : resolved_deps.duplicate_deps) {
     names.push_back(name + ": " + package.version);
@@ -189,5 +196,7 @@ exec(
   opts.output_file = util::argparse::use_get(args, "-o", "--output");
   return graph::graph(std::move(config), std::move(opts));
 }
+
 } // namespace poac::opts::graph
-#endif // !POAC_OPTS_GRAPH_HPP
+
+#endif // POAC_CMD_WIP_GRAPH_HPP_

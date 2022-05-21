@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_VERBOSITY_HPP
-#define POAC_UTIL_VERBOSITY_HPP
+#ifndef POAC_UTIL_VERBOSITY_HPP_
+#define POAC_UTIL_VERBOSITY_HPP_
 
 // external
 #include <spdlog/spdlog.h>
@@ -18,4 +18,4 @@ is_quiet() {
 
 } // namespace poac::util::verbosity
 
-#endif // !POAC_UTIL_VERBOSITY_HPP
+#endif // POAC_UTIL_VERBOSITY_HPP_

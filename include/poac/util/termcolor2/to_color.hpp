@@ -1,5 +1,5 @@
-#ifndef TERMCOLOR2_TO_COLOR_HPP
-#define TERMCOLOR2_TO_COLOR_HPP
+#ifndef POAC_UTIL_TERMCOLOR2_TO_COLOR_HPP_
+#define POAC_UTIL_TERMCOLOR2_TO_COLOR_HPP_
 
 // std
 #include <string>      // std::basic_string
@@ -489,4 +489,4 @@ to_concealed(const std::basic_string_view<CharT> str) {
 
 } // namespace termcolor2
 
-#endif // !TERMCOLOR2_TO_COLOR_HPP
+#endif // POAC_UTIL_TERMCOLOR2_TO_COLOR_HPP_

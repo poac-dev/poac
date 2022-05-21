@@ -1,5 +1,5 @@
-#ifndef POAC_DATA_MANIFEST_HPP
-#define POAC_DATA_MANIFEST_HPP
+#ifndef POAC_DATA_MANIFEST_HPP_
+#define POAC_DATA_MANIFEST_HPP_
 
 // internal
 #include <poac/poac.hpp>
@@ -15,4 +15,4 @@ poac_toml_last_modified(const fs::path& base_dir) {
 
 } // namespace poac::data::manifest
 
-#endif // !POAC_DATA_MANIFEST_HPP
+#endif // POAC_DATA_MANIFEST_HPP_

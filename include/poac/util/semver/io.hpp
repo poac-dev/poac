@@ -1,5 +1,5 @@
-#ifndef SEMVER_IO_HPP
-#define SEMVER_IO_HPP
+#ifndef POAC_UTIL_SEMVER_IO_HPP_
+#define POAC_UTIL_SEMVER_IO_HPP_
 
 // std
 #include <ostream> // std::ostream
@@ -17,4 +17,4 @@ operator<<(std::ostream& os, const Version& v) {
 
 } // end namespace semver
 
-#endif // !SEMVER_IO_HPP
+#endif // POAC_UTIL_SEMVER_IO_HPP_

@@ -1,12 +1,12 @@
-#ifndef POAC_CMD_BUILD_HPP
-#define POAC_CMD_BUILD_HPP
+#ifndef POAC_CMD_BUILD_HPP_
+#define POAC_CMD_BUILD_HPP_
 
 // std
 #include <string>
 
 // external
-#include <spdlog/spdlog.h>
-#include <spdlog/stopwatch.h>
+#include <spdlog/spdlog.h>    // NOLINT(build/include_order)
+#include <spdlog/stopwatch.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 #include <toml.hpp>
 
@@ -56,8 +56,9 @@ build(const Options& opts, const toml::value& manifest) {
         return Err<FailedToInstallDeps>().get();
       }));
 
-  // TODO: We have to keep in mind a case of only dependencies require to
-  // be built, but this package does not.
+  // TODO(ken-matsui): We have to keep in mind a case of only dependencies
+  // require to
+  //   be built, but this package does not.
   if (!fs::exists(config::path::main_cpp_file)) {
     spdlog::info("{:>25} no build target(s) found", "Finished"_bold_green);
     return Ok(None);
@@ -74,7 +75,7 @@ exec(const Options& opts) {
   Try(core::validator::required_config_exists().map_err(to_anyhow));
 
   spdlog::trace("Parsing the manifest file ...");
-  // TODO: parse as a static type rather than toml::value
+  // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest = toml::parse(data::manifest::name);
 
   Try(build(opts, manifest).with_context([&manifest] {
@@ -88,4 +89,4 @@ exec(const Options& opts) {
 
 STRUCTOPT(poac::cmd::build::Options, release);
 
-#endif // !POAC_CMD_BUILD_HPP
+#endif // POAC_CMD_BUILD_HPP_

@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_ARCHIVE_HPP
-#define POAC_UTIL_ARCHIVE_HPP
+#ifndef POAC_UTIL_ARCHIVE_HPP_
+#define POAC_UTIL_ARCHIVE_HPP_
 
 // std
 #include <iostream>
@@ -7,10 +7,10 @@
 #include <string>
 
 // external
-#include <archive.h>
-#include <archive_entry.h>
+#include <archive.h>       // NOLINT(build/include_order)
+#include <archive_entry.h> // NOLINT(build/include_order)
 #include <boost/scope_exit.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/poac.hpp>
@@ -172,4 +172,4 @@ extract(
 
 } // namespace poac::util::archive
 
-#endif // !POAC_UTIL_ARCHIVE_HPP
+#endif // POAC_UTIL_ARCHIVE_HPP_

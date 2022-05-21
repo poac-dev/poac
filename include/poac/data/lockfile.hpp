@@ -1,5 +1,5 @@
-#ifndef POAC_DATA_LOCKFILE_HPP
-#define POAC_DATA_LOCKFILE_HPP
+#ifndef POAC_DATA_LOCKFILE_HPP_
+#define POAC_DATA_LOCKFILE_HPP_
 
 // std
 #include <fstream>
@@ -159,4 +159,4 @@ read(const fs::path& base_dir) {
 } // namespace poac::data::lockfile::inline v1
 // clang-format on
 
-#endif // !POAC_DATA_LOCKFILE_HPP
+#endif // POAC_DATA_LOCKFILE_HPP_

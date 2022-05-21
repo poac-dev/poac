@@ -1,5 +1,5 @@
-#ifndef TERMCOLOR2_LITERALS_HPP
-#define TERMCOLOR2_LITERALS_HPP
+#ifndef POAC_UTIL_TERMCOLOR2_LITERALS_HPP_
+#define POAC_UTIL_TERMCOLOR2_LITERALS_HPP_
 
 // std
 #include <cstddef> // std::size_t
@@ -699,4 +699,4 @@ namespace termcolor2::inline control_literals {
 } // namespace termcolor2::inline control_literals
 // clang-format on
 
-#endif // !TERMCOLOR2_LITERALS_HPP
+#endif // POAC_UTIL_TERMCOLOR2_LITERALS_HPP_

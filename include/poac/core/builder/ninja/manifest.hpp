@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_NINJA_MANIFEST_HPP
-#define POAC_CORE_BUILDER_NINJA_MANIFEST_HPP
+#ifndef POAC_CORE_BUILDER_NINJA_MANIFEST_HPP_
+#define POAC_CORE_BUILDER_NINJA_MANIFEST_HPP_
 
 // std
 #include <array>
@@ -9,8 +9,8 @@
 
 // external
 #include <boost/algorithm/string.hpp> // boost::algorithm::join
-#include <ninja/build.h>              // Builder
-#include <ninja/graph.h>              // Node
+#include <ninja/build.h>              // Builder // NOLINT(build/include_order)
+#include <ninja/graph.h>              // Node // NOLINT(build/include_order)
 #include <toml.hpp>
 
 // internal
@@ -203,4 +203,4 @@ create(
 
 } // namespace poac::core::builder::ninja::manifest
 
-#endif // !POAC_CORE_BUILDER_NINJA_MANIFEST_HPP
+#endif // POAC_CORE_BUILDER_NINJA_MANIFEST_HPP_

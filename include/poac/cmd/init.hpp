@@ -1,5 +1,5 @@
-#ifndef POAC_CMD_INIT_HPP
-#define POAC_CMD_INIT_HPP
+#ifndef POAC_CMD_INIT_HPP_
+#define POAC_CMD_INIT_HPP_
 
 // std
 #include <fstream>
@@ -7,7 +7,7 @@
 #include <string>
 
 // external
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal
@@ -73,4 +73,4 @@ exec(const Options& opts) {
 
 STRUCTOPT(poac::cmd::init::Options, bin, lib);
 
-#endif // !POAC_CMD_INIT_HPP
+#endif // POAC_CMD_INIT_HPP_

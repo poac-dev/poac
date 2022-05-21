@@ -6,7 +6,7 @@
 // external
 #include <boost/algorithm/string.hpp>
 #include <mitama/anyhow/anyhow.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal

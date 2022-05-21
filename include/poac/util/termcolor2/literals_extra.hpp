@@ -1,5 +1,5 @@
-#ifndef TERMCOLOR2_LITERALS_EXTRA_HPP
-#define TERMCOLOR2_LITERALS_EXTRA_HPP
+#ifndef POAC_UTIL_TERMCOLOR2_LITERALS_EXTRA_HPP_
+#define POAC_UTIL_TERMCOLOR2_LITERALS_EXTRA_HPP_
 
 // std
 #include <cstddef> // std::size_t
@@ -93,4 +93,4 @@ operator"" _bold_yellow(const char32_t* str, std::size_t len) {
 } // namespace termcolor2::inline color_literals::inline foreground_literals
 // clang-format on
 
-#endif // !TERMCOLOR2_LITERALS_EXTRA_HPP
+#endif // POAC_UTIL_TERMCOLOR2_LITERALS_EXTRA_HPP_

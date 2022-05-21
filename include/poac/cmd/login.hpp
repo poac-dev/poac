@@ -1,11 +1,11 @@
-#ifndef POAC_CMD_LOGIN_HPP
-#define POAC_CMD_LOGIN_HPP
+#ifndef POAC_CMD_LOGIN_HPP_
+#define POAC_CMD_LOGIN_HPP_
 
 // std
 #include <fstream>
 
 // external
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal
@@ -54,4 +54,4 @@ exec(const Options& opts) {
 
 STRUCTOPT(poac::cmd::login::Options, api_token);
 
-#endif // !POAC_CMD_LOGIN_HPP
+#endif // POAC_CMD_LOGIN_HPP_

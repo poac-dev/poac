@@ -1,10 +1,13 @@
-#ifndef TERMCOLOR2_PRESETS_HPP
-#define TERMCOLOR2_PRESETS_HPP
+#ifndef POAC_UTIL_TERMCOLOR2_PRESETS_HPP_
+#define POAC_UTIL_TERMCOLOR2_PRESETS_HPP_
 
+// std
 #include <concepts>
-#include <poac/util/termcolor2/config.hpp>
 #include <string>
 #include <type_traits>
+
+// internal
+#include <poac/util/termcolor2/config.hpp>
 
 namespace termcolor2 {
 namespace detail {
@@ -211,4 +214,4 @@ inline TERMCOLOR2_CXX20_CONSTINIT const auto reset = reset_v();
 
 } // end namespace termcolor2
 
-#endif // !TERMCOLOR2_PRESETS_HPP
+#endif // POAC_UTIL_TERMCOLOR2_PRESETS_HPP_

@@ -1,15 +1,19 @@
-#ifndef POAC_OPTS_RUN_HPP
-#define POAC_OPTS_RUN_HPP
+#ifndef POAC_CMD_WIP_RUN_HPP_
+#define POAC_CMD_WIP_RUN_HPP_
 
+// std
 #include <algorithm>
 #include <future>
 #include <iostream>
-#include <poac/core/except.hpp>
 #include <string>
 #include <utility> // std::move
 #include <vector>
 
+// internal
+#include <poac/core/except.hpp>
+
 namespace poac::opts::run {
+
 inline const clap::subcommand cli =
     clap::subcommand("run")
         .about("Build project and exec it")
@@ -36,8 +40,9 @@ run([[maybe_unused]] run::Options&& opts) {
   //            return result;
   //        }
 
-  // TODO: このexecutableなパスをもう一度取ってくるのが二度手間感がある．
-  //  TODO: -> build systemに，runも付ける 31行目を参照 ->
+  // TODO(ken-matsui):
+  // このexecutableなパスをもう一度取ってくるのが二度手間感がある．
+  //  TODO(ken-matsui): -> build systemに，runも付ける 31行目を参照 ->
   //  そうすれば，下のログ表示も，二分されないので，便利
   //        const std::string project_name =
   //        io::yaml::load_config("name").as<std::string>(); const std::string
@@ -73,5 +78,7 @@ exec(std::future<Option<io::config::Config>>&&, Vec<std::string>&& args) {
   }
   return run::run(std::move(opts));
 }
+
 } // namespace poac::opts::run
-#endif // !POAC_OPTS_RUN_HPP
+
+#endif // POAC_CMD_WIP_RUN_HPP_

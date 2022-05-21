@@ -1,6 +1,6 @@
 // Miscellaneous utility
-#ifndef POAC_UTIL_MISC_HPP
-#define POAC_UTIL_MISC_HPP
+#ifndef POAC_UTIL_MISC_HPP_
+#define POAC_UTIL_MISC_HPP_
 
 // std
 #include <cstdlib>
@@ -8,7 +8,7 @@
 
 // external
 #include <boost/algorithm/string.hpp>
-#include <boost/predef.h>
+#include <boost/predef.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/poac.hpp>
@@ -65,4 +65,4 @@ expand_user() {
 
 } // namespace poac::util::misc
 
-#endif // POAC_UTIL_MISC_HPP
+#endif // POAC_UTIL_MISC_HPP_

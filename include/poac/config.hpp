@@ -1,5 +1,5 @@
-#ifndef POAC_CONFIG_HPP
-#define POAC_CONFIG_HPP
+#ifndef POAC_CONFIG_HPP_
+#define POAC_CONFIG_HPP_
 
 #ifndef POAC_VERSION
 #  error "POAC_VERSION is not defined"
@@ -39,4 +39,4 @@ inline const fs::path output_dir(cur_dir / "poac_output");
 
 } // namespace poac::config::path
 
-#endif // !POAC_CONFIG_HPP
+#endif // POAC_CONFIG_HPP_

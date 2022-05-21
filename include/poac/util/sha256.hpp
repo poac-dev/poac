@@ -1,13 +1,13 @@
-#ifndef POAC_UTIL_SHA256_HPP
-#define POAC_UTIL_SHA256_HPP
+#ifndef POAC_UTIL_SHA256_HPP_
+#define POAC_UTIL_SHA256_HPP_
 
 // std
 #include <fstream>
 #include <string>
 
 // external
-#include <openssl/evp.h>
-#include <openssl/sha.h> // SHA256_DIGEST_LENGTH
+#include <openssl/evp.h> // NOLINT(build/include_order)
+#include <openssl/sha.h> // SHA256_DIGEST_LENGTH // NOLINT(build/include_order)
 
 // internal
 #include <poac/poac.hpp>
@@ -70,4 +70,4 @@ sum(const fs::path& path) {
 
 } // namespace poac::util::sha256
 
-#endif // !POAC_UTIL_SHA256_HPP
+#endif // POAC_UTIL_SHA256_HPP_

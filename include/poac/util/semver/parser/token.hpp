@@ -1,5 +1,5 @@
-#ifndef SEMVER_PARSER_TOKEN_HPP
-#define SEMVER_PARSER_TOKEN_HPP
+#ifndef POAC_UTIL_SEMVER_PARSER_TOKEN_HPP_
+#define POAC_UTIL_SEMVER_PARSER_TOKEN_HPP_
 
 #include <cstddef>
 #include <cstdint>
@@ -279,4 +279,4 @@ struct Version {
 
 } // end namespace semver
 
-#endif // !SEMVER_PARSER_TOKEN_HPP
+#endif // POAC_UTIL_SEMVER_PARSER_TOKEN_HPP_

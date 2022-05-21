@@ -1,5 +1,5 @@
-#ifndef POAC_CMD_SEARCH_HPP
-#define POAC_CMD_SEARCH_HPP
+#ifndef POAC_CMD_SEARCH_HPP_
+#define POAC_CMD_SEARCH_HPP_
 
 // std
 #include <iostream>
@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal
@@ -69,4 +69,4 @@ exec(const Options& opts) {
 
 STRUCTOPT(poac::cmd::search::Options, package_name);
 
-#endif // !POAC_CMD_SEARCH_HPP
+#endif // POAC_CMD_SEARCH_HPP_

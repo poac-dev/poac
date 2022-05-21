@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_ERROR_HPP
-#define POAC_CORE_BUILDER_COMPILER_ERROR_HPP
+#ifndef POAC_CORE_BUILDER_COMPILER_ERROR_HPP_
+#define POAC_CORE_BUILDER_COMPILER_ERROR_HPP_
 
 // internal
 #include <poac/core/builder/compiler/lang.hpp>
@@ -38,4 +38,4 @@ using FailedToGetCompilerVersion =
 
 } // namespace poac::core::builder::compiler::error
 
-#endif // !POAC_CORE_BUILDER_COMPILER_ERROR_HPP
+#endif // POAC_CORE_BUILDER_COMPILER_ERROR_HPP_

@@ -1,18 +1,18 @@
 // ref: https://github.com/ninja-build/ninja/blob/master/src/status.h
 
-#ifndef POAC_CORE_BUILDER_NINJA_STATUS_PRINTER_HPP
-#define POAC_CORE_BUILDER_NINJA_STATUS_PRINTER_HPP
+#ifndef POAC_CORE_BUILDER_NINJA_STATUS_PRINTER_HPP_
+#define POAC_CORE_BUILDER_NINJA_STATUS_PRINTER_HPP_
 
 // std
 #include <cstdio> // snprintf
 #include <queue>  // std::queue
 
 // external
-#include <ninja/build.h>        // BuildConfig
-#include <ninja/debug_flags.h>  // g_explaining
-#include <ninja/graph.h>        // Edge
-#include <ninja/line_printer.h> // LinePrinter
-#include <ninja/status.h>       // StatusPrinter
+#include <ninja/build.h>        // BuildConfig // NOLINT(build/include_order)
+#include <ninja/debug_flags.h>  // g_explaining // NOLINT(build/include_order)
+#include <ninja/graph.h>        // Edge // NOLINT(build/include_order)
+#include <ninja/line_printer.h> // LinePrinter // NOLINT(build/include_order)
+#include <ninja/status.h>       // StatusPrinter // NOLINT(build/include_order)
 #include <poac/poac.hpp>
 
 namespace poac::core::builder::ninja {
@@ -324,4 +324,4 @@ private:
 
 } // namespace poac::core::builder::ninja
 
-#endif // !POAC_CORE_BUILDER_NINJA_STATUS_PRINTER_HPP
+#endif // POAC_CORE_BUILDER_NINJA_STATUS_PRINTER_HPP_

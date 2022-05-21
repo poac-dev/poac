@@ -1,21 +1,23 @@
-#ifndef POAC_CORE_BUILDER_NINJA_DATA_HPP
-#define POAC_CORE_BUILDER_NINJA_DATA_HPP
+#ifndef POAC_CORE_BUILDER_NINJA_DATA_HPP_
+#define POAC_CORE_BUILDER_NINJA_DATA_HPP_
 
 // std
 #include <string>
 
 // external
-#include <ninja/build.h>          // BuildConfig
-#include <ninja/build_log.h>      // BuildLog, BuildLogUser
-#include <ninja/deps_log.h>       // DepsLog
-#include <ninja/disk_interface.h> // RealDiskInterface
-#include <ninja/graph.h>          // Node
-#include <ninja/metrics.h>        // GetTimeMillis
-#include <ninja/state.h>          // State
-#include <ninja/string_piece.h>   // StringPiece
-#include <ninja/timestamp.h>      // TimeStamp
+#include <ninja/build.h> // BuildConfig // NOLINT(build/include_order)
+#include <ninja/build_log.h> // BuildLog, BuildLogUser // NOLINT(build/include_order)
+#include <ninja/deps_log.h>       // DepsLog // NOLINT(build/include_order)
+#include <ninja/disk_interface.h> // RealDiskInterface // NOLINT(build/include_order)
+#include <ninja/graph.h>          // Node // NOLINT(build/include_order)
+#include <ninja/metrics.h>      // GetTimeMillis // NOLINT(build/include_order)
+#include <ninja/state.h>        // State // NOLINT(build/include_order)
+#include <ninja/string_piece.h> // StringPiece // NOLINT(build/include_order)
+#include <ninja/timestamp.h>    // TimeStamp // NOLINT(build/include_order)
+#include <spdlog/spdlog.h>      // spdlog::error // NOLINT(build/include_order)
+
+// internal
 #include <poac/poac.hpp>
-#include <spdlog/spdlog.h> // spdlog::error
 
 namespace poac::core::builder::ninja::data {
 
@@ -66,4 +68,4 @@ struct NinjaMain : public BuildLogUser {
 
 } // namespace poac::core::builder::ninja::data
 
-#endif // !POAC_CORE_BUILDER_NINJA_DATA_HPP
+#endif // POAC_CORE_BUILDER_NINJA_DATA_HPP_

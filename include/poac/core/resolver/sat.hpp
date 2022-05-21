@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_RESOLVER_SAT_HPP
-#define POAC_CORE_RESOLVER_SAT_HPP
+#ifndef POAC_CORE_RESOLVER_SAT_HPP_
+#define POAC_CORE_RESOLVER_SAT_HPP_
 
 // std
 #include <algorithm>
@@ -205,4 +205,4 @@ solve(Vec<Vec<i32>> clauses, const u32& variables) {
 
 } // namespace poac::core::resolver::sat
 
-#endif // !POAC_CORE_RESOLVER_SAT_HPP
+#endif // POAC_CORE_RESOLVER_SAT_HPP_

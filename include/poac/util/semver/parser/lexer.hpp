@@ -1,5 +1,5 @@
-#ifndef SEMVER_PARSER_LEXER_HPP
-#define SEMVER_PARSER_LEXER_HPP
+#ifndef POAC_UTIL_SEMVER_PARSER_LEXER_HPP_
+#define POAC_UTIL_SEMVER_PARSER_LEXER_HPP_
 
 // std
 #include <cstddef>
@@ -227,4 +227,4 @@ private:
 
 } // end namespace semver::parser
 
-#endif // !SEMVER_PARSER_LEXER_HPP
+#endif // POAC_UTIL_SEMVER_PARSER_LEXER_HPP_

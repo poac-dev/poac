@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_LANG_HPP
-#define POAC_CORE_BUILDER_COMPILER_LANG_HPP
+#ifndef POAC_CORE_BUILDER_COMPILER_LANG_HPP_
+#define POAC_CORE_BUILDER_COMPILER_LANG_HPP_
 
 // internal
 #include <poac/poac.hpp>
@@ -31,4 +31,4 @@ operator<<(std::ostream& os, Lang lang) {
 
 } // namespace poac::core::builder::compiler::lang
 
-#endif // !POAC_CORE_BUILDER_COMPILER_LANG_HPP
+#endif // POAC_CORE_BUILDER_COMPILER_LANG_HPP_

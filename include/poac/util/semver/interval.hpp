@@ -1,5 +1,5 @@
-#ifndef SEMVER_INTERVAL_HPP
-#define SEMVER_INTERVAL_HPP
+#ifndef POAC_UTIL_SEMVER_INTERVAL_HPP_
+#define POAC_UTIL_SEMVER_INTERVAL_HPP_
 
 // std
 #include <optional>
@@ -11,7 +11,7 @@
 #include <variant>
 
 // external
-#include <fmt/core.h>
+#include <fmt/core.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/util/semver/comparison.hpp>
@@ -129,7 +129,7 @@ private:
 
   // e.g. `>0.1.3 and >=0.3.2`, `<0.1.3 and <0.3.2`
   std::optional<std::string>
-  is_wasteful_comparison_operation() const { // TODO: noexcept
+  is_wasteful_comparison_operation() const { // TODO(ken-matsui): noexcept
     if ((left_comp_op == "<" || left_comp_op == "<=") &&
         (right_comp_op == "<" || right_comp_op == "<=")) {
       // Prioritize the larger version
@@ -157,7 +157,7 @@ private:
   // (-∞, ∞) => closed unbounded interval => ERR!
   // e.g. <0.1.1 and >=0.3.2
   std::optional<std::string>
-  is_bounded_interval() const { // TODO: noexcept
+  is_bounded_interval() const { // TODO(ken-matsui): noexcept
     if (parse(left_version) < right_version) {
       if ((left_comp_op == "<" || left_comp_op == "<=") &&
           (right_comp_op == ">" || right_comp_op == ">=")) {
@@ -233,7 +233,7 @@ public:
   }
 };
 
-// TODO: implement parser for interval
+// TODO(ken-matsui): implement a parser for interval
 // The following Regular Expressions can be used for tokenizing,
 // validating, and parsing SemVer version strings.
 // A regular expression before binding is
@@ -354,4 +354,4 @@ public:
 
 } // end namespace semver
 
-#endif // !SEMVER_INTERVAL_HPP
+#endif // POAC_UTIL_SEMVER_INTERVAL_HPP_

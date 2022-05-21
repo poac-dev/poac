@@ -1,12 +1,12 @@
-#ifndef POAC_CORE_BUILDER_NINJA_LOG_HPP
-#define POAC_CORE_BUILDER_NINJA_LOG_HPP
+#ifndef POAC_CORE_BUILDER_NINJA_LOG_HPP_
+#define POAC_CORE_BUILDER_NINJA_LOG_HPP_
 
 // std
 #include <string>
 
 // external
-#include <ninja/load_status.h> // LoadStatus
-#include <spdlog/spdlog.h>
+#include <ninja/load_status.h> // LoadStatus // NOLINT(build/include_order)
+#include <spdlog/spdlog.h>     // NOLINT(build/include_order)
 
 // internal
 #include <poac/core/builder/ninja/data.hpp>
@@ -68,4 +68,4 @@ load_deps_log(data::NinjaMain& ninja_main) {
 
 } // namespace poac::core::builder::ninja::log
 
-#endif // !POAC_CORE_BUILDER_NINJA_LOG_HPP
+#endif // POAC_CORE_BUILDER_NINJA_LOG_HPP_

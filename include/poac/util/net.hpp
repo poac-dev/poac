@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_NET_HPP
-#define POAC_UTIL_NET_HPP
+#ifndef POAC_UTIL_NET_HPP_
+#define POAC_UTIL_NET_HPP_
 
 // std
 #include <cstdint>
@@ -29,7 +29,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/config.hpp>
@@ -229,7 +229,7 @@ private:
   }
 };
 
-// TODO: ioc, ctx,
+// TODO(ken-matsui): ioc, ctx,
 // resolver,...等はget等を呼び出し後，解体し，host等は残すことで，連続で呼び出し可能にする．
 // Only SSL usage
 class Requests {
@@ -359,16 +359,17 @@ private:
     // Send the HTTP request to the remote host
     stream->write_some(boost::asio::buffer(req.get_header()));
     // Read file and write to stream
-    // TODO: 複数のファイル送信を想定していない．
-    //  TODO: -> 複数ファイルだと，req.headerをちょびちょびで送る必要がある．
+    // TODO(ken-matsui): 複数のファイル送信を想定していない．
+    //  TODO(ken-matsui): ->
+    //  複数ファイルだと，req.headerをちょびちょびで送る必要がある．
     for (const auto& file : req.get_files()) {
       std::ifstream ifs(file.path, std::ios::in | std::ios::binary);
-      constexpr usize read_bites = 512;
+      constexpr usize kReadBites = 512;
 
-      char buf[read_bites];
+      char buf[kReadBites];
       //                unsigned long cur_file_size = 0;
       while (!ifs.eof()) {
-        ifs.read(buf, read_bites);
+        ifs.read(buf, kReadBites);
         stream->write_some(boost::asio::buffer(buf, ifs.gcount()));
 
         // Print progress bar TODO:
@@ -645,4 +646,4 @@ login(StringRef api_token) {
 
 } // namespace poac::util::net::api
 
-#endif // !POAC_UTIL_NET_HPP
+#endif // POAC_UTIL_NET_HPP_

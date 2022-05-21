@@ -1,5 +1,5 @@
-#ifndef POAC_HPP
-#define POAC_HPP
+#ifndef POAC_POAC_HPP_
+#define POAC_POAC_HPP_
 
 // std
 #include <cstddef> // std::size_t
@@ -16,9 +16,9 @@
 #include <vector>
 
 // external
-#include <fmt/core.h>
-#include <fmt/format.h>
-#include <fmt/ranges.h> // fmt::join
+#include <fmt/core.h>   // NOLINT(build/include_order)
+#include <fmt/format.h> // NOLINT(build/include_order)
+#include <fmt/ranges.h> // fmt::join // NOLINT(build/include_order)
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/result/result.hpp>
 #include <mitama/thiserror/thiserror.hpp>
@@ -208,4 +208,4 @@ struct formatter<std::vector<T, Alloc>> {
 
 } // namespace fmt
 
-#endif // !POAC_HPP
+#endif // POAC_POAC_HPP_

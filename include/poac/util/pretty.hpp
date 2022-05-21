@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_PRETTY_HPP
-#define POAC_UTIL_PRETTY_HPP
+#ifndef POAC_UTIL_PRETTY_HPP_
+#define POAC_UTIL_PRETTY_HPP_
 
 // std
 #include <array>
@@ -97,4 +97,4 @@ textwrap(const String& text, usize width = 70) {
 }
 
 } // namespace poac::util::pretty
-#endif // !POAC_UTIL_PRETTY_HPP
+#endif // POAC_UTIL_PRETTY_HPP_

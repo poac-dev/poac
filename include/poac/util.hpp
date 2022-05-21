@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_HPP
-#define POAC_UTIL_HPP
+#ifndef POAC_UTIL_HPP_
+#define POAC_UTIL_HPP_
 
 #include <poac/util/archive.hpp>
 #include <poac/util/cfg.hpp>
@@ -13,4 +13,4 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/verbosity.hpp>
 
-#endif // !POAC_UTIL_HPP
+#endif // POAC_UTIL_HPP_

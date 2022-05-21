@@ -1,5 +1,5 @@
-#ifndef SEMVER_PARSER_RANGE_HPP
-#define SEMVER_PARSER_RANGE_HPP
+#ifndef POAC_UTIL_SEMVER_PARSER_RANGE_HPP_
+#define POAC_UTIL_SEMVER_PARSER_RANGE_HPP_
 
 // std
 #include <cstdint>
@@ -94,4 +94,4 @@ struct Comparator {
 
 } // end namespace semver::parser
 
-#endif // !SEMVER_PARSER_RANGE_HPP
+#endif // POAC_UTIL_SEMVER_PARSER_RANGE_HPP_
