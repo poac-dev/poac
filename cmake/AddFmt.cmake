@@ -15,10 +15,6 @@ else ()
     set(BUILD_SHARED_LIBS ON)
 endif ()
 
-# FIXME: Use FMT_SYSTEM_HEADERS as a workaround to suppress stringop-overflow warnings on GCC-12.
-# ref: https://github.com/fmtlib/fmt/issues/2708#issuecomment-1010010245
-set(FMT_SYSTEM_HEADERS ON)
-
 FetchContent_MakeAvailable(fmt)
 
 list(APPEND POAC_DEPENDENCIES fmt::fmt)
