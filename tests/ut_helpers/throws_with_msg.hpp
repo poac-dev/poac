@@ -5,7 +5,10 @@
 #include <string>
 
 // external
+// clang-format off
+// to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 #include <boost/ut.hpp>
+// clang-format on
 
 namespace poac::test::ut_helpers {
 
