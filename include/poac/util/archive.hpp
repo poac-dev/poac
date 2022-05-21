@@ -1,179 +1,175 @@
-#ifndef POAC_UTIL_ARCHIVE_HPP
-#define POAC_UTIL_ARCHIVE_HPP
+#ifndef POAC_UTIL_ARCHIVE_HPP_
+#define POAC_UTIL_ARCHIVE_HPP_
 
 // std
-#include <filesystem>
 #include <iostream>
-#include <string>
-#include <string_view>
 #include <memory>
-#include <vector>
+#include <string>
 
 // external
-#include <archive.h>
-#include <archive_entry.h>
+#include <archive.h>       // NOLINT(build/include_order)
+#include <archive_entry.h> // NOLINT(build/include_order)
 #include <boost/scope_exit.hpp>
-#include <fmt/core.h>
-#include <mitama/result/result.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
+
+// internal
+#include <poac/poac.hpp>
 
 namespace poac::util::archive {
-    using archive_t = struct archive;
 
-    struct archive_write_delete {
-        void operator()(archive_t* w) {
-            archive_write_close(w);
-            archive_write_free(w);
-        }
-    };
-    using writer_t = std::unique_ptr<archive_t, archive_write_delete>;
+using Archive = struct archive;
 
-    [[nodiscard]] mitama::result<void, std::string>
-    archive_write_data_block(
-        const writer_t& writer, const void* buffer,
-        std::size_t size, std::int64_t offset
-    ) noexcept {
-        const int res = archive_write_data_block(writer.get(), buffer, size, offset);
-        if (res < ARCHIVE_OK) {
-            return mitama::failure(archive_error_string(writer.get()));
-        }
-        return mitama::success();
+struct ArchiveWriteDelete {
+  void
+  operator()(Archive* w) {
+    archive_write_close(w);
+    archive_write_free(w);
+  }
+};
+using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
+
+[[nodiscard]] Result<void, String>
+archive_write_data_block(
+    const Writer& writer, const void* buffer, usize size, i64 offset
+) noexcept {
+  const i32 res = archive_write_data_block(writer.get(), buffer, size, offset);
+  if (res < ARCHIVE_OK) {
+    return Err(archive_error_string(writer.get()));
+  }
+  return Ok();
+}
+
+[[nodiscard]] Result<void, String>
+copy_data(Archive* reader, const Writer& writer) noexcept {
+  usize size{};
+  const void* buff = nullptr;
+  i64 offset{};
+
+  while (true) {
+    const i32 res = archive_read_data_block(reader, &buff, &size, &offset);
+    if (res == ARCHIVE_EOF) {
+      return Ok();
+    } else if (res < ARCHIVE_OK) {
+      return Err(archive_error_string(reader));
     }
+    Try(archive_write_data_block(writer, buff, size, offset));
+  }
+}
 
-    [[nodiscard]] mitama::result<void, std::string>
-    copy_data(archive_t* reader, const writer_t& writer) noexcept {
-        std::size_t size{};
-        const void* buff = nullptr;
-        std::int64_t offset{};
+[[nodiscard]] Result<void, String>
+archive_write_finish_entry(const Writer& writer) noexcept {
+  const i32 res = archive_write_finish_entry(writer.get());
+  if (res < ARCHIVE_OK) {
+    return Err(archive_error_string(writer.get()));
+  } else if (res < ARCHIVE_WARN) {
+    return Err("Encountered error while finishing entry.");
+  }
+  return Ok();
+}
 
-        while (true) {
-            const int res = archive_read_data_block(reader, &buff, &size, &offset);
-            if (res == ARCHIVE_EOF) {
-                return mitama::success();
-            } else if (res < ARCHIVE_OK) {
-                return mitama::failure(archive_error_string(reader));
-            }
-            MITAMA_TRY(archive_write_data_block(writer, buff, size, offset));
-        }
+[[nodiscard]] Result<void, String>
+archive_write_header(
+    Archive* reader, const Writer& writer, archive_entry* entry
+) noexcept {
+  if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
+    return Err(archive_error_string(writer.get()));
+  } else if (archive_entry_size(entry) > 0) {
+    Try(copy_data(reader, writer));
+  }
+  return Ok();
+}
+
+String
+set_extract_path(archive_entry* entry, const fs::path& extract_path) noexcept {
+  const String current_file = archive_entry_pathname(entry);
+  const fs::path full_output_path = extract_path / current_file;
+  spdlog::debug("extracting to `{}`", full_output_path.string());
+  archive_entry_set_pathname(entry, full_output_path.c_str());
+  return current_file;
+}
+
+[[nodiscard]] Result<bool, String>
+archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
+    !(true == ARCHIVE_EOF)
+) {
+  const i32 res = archive_read_next_header(reader, entry);
+  if (res == ARCHIVE_EOF) {
+    return Ok(ARCHIVE_EOF);
+  } else if (res < ARCHIVE_OK) {
+    return Err(archive_error_string(reader));
+  } else if (res < ARCHIVE_WARN) {
+    return Err("Encountered error while reading header.");
+  }
+  return Ok(false);
+}
+
+[[nodiscard]] Result<String, String>
+extract_impl(
+    Archive* reader, const Writer& writer, const fs::path& extract_path
+) noexcept {
+  archive_entry* entry = nullptr;
+  String extracted_directory_name{""};
+  while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
+    if (extracted_directory_name.empty()) {
+      extracted_directory_name = set_extract_path(entry, extract_path);
+    } else {
+      set_extract_path(entry, extract_path);
     }
+    Try(archive_write_header(reader, writer, entry));
+    Try(archive_write_finish_entry(writer));
+  }
+  return Ok(extracted_directory_name);
+}
 
-    [[nodiscard]] mitama::result<void, std::string>
-    archive_write_finish_entry(const writer_t& writer) noexcept {
-        const int res = archive_write_finish_entry(writer.get());
-        if (res < ARCHIVE_OK) {
-            return mitama::failure(archive_error_string(writer.get()));
-        } else if (res < ARCHIVE_WARN) {
-            return mitama::failure("Encountered error while finishing entry.");
-        }
-        return mitama::success();
-    }
+[[nodiscard]] Result<void, String>
+archive_read_open_filename(
+    Archive* reader, const fs::path& file_path, usize block_size
+) noexcept {
+  if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
+    return Err("Cannot archive_read_open_filename");
+  }
+  return Ok();
+}
 
-    [[nodiscard]] mitama::result<void, std::string>
-    archive_write_header(archive_t* reader, const writer_t& writer, archive_entry* entry) noexcept {
-        if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
-            return mitama::failure(archive_error_string(writer.get()));
-        } else if (archive_entry_size(entry) > 0) {
-            MITAMA_TRY(copy_data(reader, writer));
-        }
-        return mitama::success();
-    }
+i32
+make_flags() noexcept {
+  // Select which attributes we want to restore.
+  // int
+  return ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_UNLINK |
+         ARCHIVE_EXTRACT_SECURE_NODOTDOT;
+}
 
-    std::string
-    set_extract_path(archive_entry* entry, const std::filesystem::path& extract_path) noexcept {
-        const std::string current_file = archive_entry_pathname(entry);
-        const std::filesystem::path full_output_path = extract_path / current_file;
-        spdlog::debug("extracting to `{}`", full_output_path.string());
-        archive_entry_set_pathname(entry, full_output_path.c_str());
-        return current_file;
-    }
+void
+read_as_targz(Archive* reader) noexcept {
+  archive_read_support_format_tar(reader);
+  archive_read_support_filter_gzip(reader);
+}
 
-    [[nodiscard]] mitama::result<bool, std::string>
-    archive_read_next_header_(archive_t* reader, archive_entry** entry)
-        noexcept(!(true == ARCHIVE_EOF))
-    {
-        const int res = archive_read_next_header(reader, entry);
-        if (res == ARCHIVE_EOF) {
-            return mitama::success(ARCHIVE_EOF);
-        } else if (res < ARCHIVE_OK) {
-            return mitama::failure(archive_error_string(reader));
-        } else if (res < ARCHIVE_WARN) {
-            return mitama::failure("Encountered error while reading header.");
-        }
-        return mitama::success(false);
-    }
+[[nodiscard]] Result<String, String>
+extract(
+    const fs::path& target_file_path, const fs::path& extract_path
+) noexcept {
+  Archive* reader = archive_read_new();
+  if (!reader) {
+    return Err("Cannot archive_read_new");
+  }
+  BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_free(reader); };
+  read_as_targz(reader);
 
-    [[nodiscard]] mitama::result<std::string, std::string>
-    extract_impl(archive_t* reader, const writer_t& writer, const std::filesystem::path& extract_path) noexcept {
-        archive_entry* entry = nullptr;
-        std::string extracted_directory_name{""};
-        while (MITAMA_TRY(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
-            if (extracted_directory_name.empty()) {
-                extracted_directory_name = set_extract_path(entry, extract_path);
-            } else {
-                set_extract_path(entry, extract_path);
-            }
-            MITAMA_TRY(archive_write_header(reader, writer, entry));
-            MITAMA_TRY(archive_write_finish_entry(writer));
-        }
-        return mitama::success(extracted_directory_name);
-    }
+  Writer writer(archive_write_disk_new());
+  if (!writer) {
+    return Err("Cannot archive_write_disk_new");
+  }
 
-    [[nodiscard]] mitama::result<void, std::string>
-    archive_read_open_filename(
-        archive_t* reader,
-        const std::filesystem::path& file_path,
-        std::size_t block_size) noexcept
-    {
-        if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
-            return mitama::failure("Cannot archive_read_open_filename");
-        }
-        return mitama::success();
-    }
+  archive_write_disk_set_options(writer.get(), make_flags());
+  archive_write_disk_set_standard_lookup(writer.get());
 
-    int make_flags() noexcept
-    {
-        // Select which attributes we want to restore.
-        // int
-        return ARCHIVE_EXTRACT_TIME
-             | ARCHIVE_EXTRACT_UNLINK
-             | ARCHIVE_EXTRACT_SECURE_NODOTDOT;
-    }
+  Try(archive_read_open_filename(reader, target_file_path, 10'240));
+  BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_close(reader); };
 
-    void read_as_targz(archive_t* reader) noexcept {
-        archive_read_support_format_tar(reader);
-        archive_read_support_filter_gzip(reader);
-    }
+  return extract_impl(reader, writer, extract_path);
+}
 
-    [[nodiscard]] mitama::result<std::string, std::string>
-    extract(
-        const std::filesystem::path& target_file_path,
-        const std::filesystem::path& extract_path
-    ) noexcept
-    {
-        archive_t* reader = archive_read_new();
-        if (!reader) {
-            return mitama::failure("Cannot archive_read_new");
-        }
-        BOOST_SCOPE_EXIT_ALL(&reader) {
-            archive_read_free(reader);
-        };
-        read_as_targz(reader);
+} // namespace poac::util::archive
 
-        writer_t writer(archive_write_disk_new());
-        if (!writer) {
-            return mitama::failure("Cannot archive_write_disk_new");
-        }
-
-        archive_write_disk_set_options(writer.get(), make_flags());
-        archive_write_disk_set_standard_lookup(writer.get());
-
-        MITAMA_TRY(archive_read_open_filename(reader, target_file_path, 10'240));
-        BOOST_SCOPE_EXIT_ALL(&reader) {
-            archive_read_close(reader);
-        };
-
-        return extract_impl(reader, writer, extract_path);
-    }
-} // end namespace
-
-#endif // !POAC_UTIL_ARCHIVE_HPP
+#endif // POAC_UTIL_ARCHIVE_HPP_

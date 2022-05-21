@@ -134,8 +134,8 @@ After you prepared these requirements, you can build Poac using the following co
 ```bash
 $ git clone https://github.com/poacpm/poac.git
 $ cd poac
-$ mkdir build && cd $_
-$ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+$ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+$ cd build
 $ ninja
 $ ninja install
 ```
@@ -150,8 +150,24 @@ I also plan to implement integration with many other build systems and package m
 
 ## Contributing
 
-Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md).
-You can also find the useful [architecture documentation](https://doc.poac.pm/en/architecture.html).
+### Linter
+
+```bash
+$ cpplint --quiet --recursive .
+```
+
+### Formatter
+
+```bash
+$ clang-format ./include/**/*.hpp -i
+```
+
+These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
+In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.
+
+Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md) for more details.
+
+---
 
 This project exists thanks to all the people who contribute.
 
