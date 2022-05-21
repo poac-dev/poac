@@ -16,16 +16,16 @@ namespace poac::core::builder::ninja::log {
 
     public:
         using FailedToLoadBuildLog =
-            error<"loading build log `{0}`: {1}", String, String>;
+            error<"loading build log `{}`: {}", String, String>;
 
         using FailedToOpenBuildLog =
-            error<"opening build log: {0}", String>;
+            error<"opening build log: {}", String>;
 
         using FailedToLoadDepsLog =
-            error<"loading deps log `{0}`: {1}", String, String>;
+            error<"loading deps log `{}`: {}", String, String>;
 
         using FailedToOpenDepsLog =
-            error<"opening deps log: {0}", String>;
+            error<"opening deps log: {}", String>;
     };
 
     inline const String build_log_file_name = ".ninja_log";

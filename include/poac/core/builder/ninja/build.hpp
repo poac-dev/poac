@@ -33,7 +33,7 @@ namespace poac::core::builder::ninja::build {
     public:
         using GeneralError =
             error<
-                "internal build system has been stopped with an error:\n{0}",
+                "internal build system has been stopped with an error:\n{}",
                 String
             >;
     };

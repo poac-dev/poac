@@ -6,16 +6,14 @@
 
 // internal
 #include <poac/poac.hpp>
+#include <poac/config.hpp>
 #include <poac/data/manifest.hpp>
 #include <poac/util/semver/semver.hpp>
 
 namespace poac::core::validator {
     [[nodiscard]] Result<void, String>
-    required_config_exists(
-        const fs::path& base = fs::current_path())
-    noexcept
-    {
-        const auto config_path = base / data::manifest::manifest_file_name;
+    required_config_exists(const fs::path& base = config::path::cur_dir) noexcept {
+        const auto config_path = base / data::manifest::name;
         std::error_code ec{};
         if (fs::exists(config_path, ec)) {
             return Ok();

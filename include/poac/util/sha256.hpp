@@ -18,7 +18,7 @@ namespace poac::util::sha256 {
 
     public:
         using FailedToReadFile =
-            error<"Failed to read file: `{0}`", String>;
+            error<"Failed to read file: `{}`", String>;
 
         using FailedToCreateSha256Digest =
             error<"Failed to create a sha256 digest">;

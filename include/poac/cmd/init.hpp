@@ -11,6 +11,7 @@
 
 // internal
 #include <poac/poac.hpp>
+#include <poac/config.hpp>
 #include <poac/cmd/create.hpp>
 #include <poac/core/validator.hpp>
 #include <poac/data/manifest.hpp>
@@ -36,8 +37,8 @@ namespace poac::cmd::init {
     init(const Options& opts, StringRef package_name) {
         using create::ProjectType;
 
-        spdlog::trace("Creating ./{}", data::manifest::manifest_file_name);
-        std::ofstream ofs_config(data::manifest::manifest_file_name);
+        spdlog::trace("Creating ./{}", data::manifest::name);
+        std::ofstream ofs_config(data::manifest::name);
 
         const ProjectType type = create::opts_to_project_type(opts);
         switch (type) {
@@ -68,7 +69,7 @@ namespace poac::cmd::init {
             return Err<Error::AlreadyInitialized>();
         }
 
-        const String package_name = fs::current_path().stem().string();
+        const String package_name = config::path::cur_dir.stem().string();
         spdlog::trace("Validating the package name `{}`", package_name);
         tryi(core::validator::valid_package_name(package_name).map_err(to_anyhow));
 

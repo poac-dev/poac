@@ -25,10 +25,10 @@ namespace poac::data::lockfile {
 
     public:
         using InvalidLockfileVersion =
-            error<"invalid lockfile version found: {0}", i64>;
+            error<"invalid lockfile version found: {}", i64>;
 
         using FailedToReadLockfile =
-            error<"failed to read lockfile:\n{0}", String>;
+            error<"failed to read lockfile:\n{}", String>;
     };
 
     inline fs::file_time_type
@@ -104,14 +104,14 @@ namespace poac::data::lockfile::inline v1 {
     [[nodiscard]] Result<void>
     overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps) {
         const auto lock = tryi(convert_to_lock(deps));
-        std::ofstream lockfile(config::path::current / lockfile_name, std::ios::out);
+        std::ofstream lockfile(config::path::cur_dir / lockfile_name, std::ios::out);
         lockfile << lock;
         return Ok();
     }
 
     [[nodiscard]] Result<void>
     generate(const resolver::UniqDeps<resolver::WithDeps>& deps) {
-        if (is_outdated(config::path::current)) {
+        if (is_outdated(config::path::cur_dir)) {
             return overwrite(deps);
         }
         return Ok();

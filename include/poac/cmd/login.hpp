@@ -50,8 +50,8 @@ namespace poac::cmd::login {
         tryi(check_token(opts.api_token));
 
         // Write API Token to `~/.poac/credentials` as TOML
-        spdlog::trace("Exporting the api_token to `{}`", config::path::credentials.string());
-        std::ofstream ofs(config::path::credentials, std::ofstream::trunc);
+        spdlog::trace("Exporting the api_token to `{}`", config::path::cred_file);
+        std::ofstream ofs(config::path::cred_file, std::ofstream::trunc);
         ofs << format("[registry]\ntoken = \"{}\"\n", opts.api_token);
 
         spdlog::info(

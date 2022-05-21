@@ -16,6 +16,8 @@
 
 // external
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <fmt/ranges.h> // fmt::join
 #include <mitama/result/result.hpp>
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/thiserror/thiserror.hpp>
@@ -24,6 +26,9 @@
 #include <poac/util/termcolor2/termcolor2.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 
+//
+// Macros
+//
 #ifdef NDEBUG
 #  define unreachable() __builtin_unreachable()
 #else
@@ -40,14 +45,14 @@ inline auto lhs(Args&&... args) -> decltype(rhs(std::forward<Args>(args)...)) { 
 
 namespace poac {
     //
-    // namespaces
+    // Namespaces
     //
     namespace fs = std::filesystem;
     namespace anyhow = mitama::anyhow;
     namespace thiserror = mitama::thiserror;
 
     //
-    // string literals
+    // String literals
     //
     using namespace std::literals::string_literals;
     using namespace std::literals::string_view_literals;
@@ -60,7 +65,7 @@ namespace poac {
     }
 
     //
-    // data types
+    // Data types
     //
     using  u8 = std::uint8_t;
     using u16 = std::uint16_t;
@@ -118,12 +123,68 @@ namespace poac {
     };
 
     //
-    // utilities
+    // Utilities
     //
     using fmt::format;
     using fmt::print;
 
     const auto to_anyhow = [](const String& e){ return anyhow::anyhow(e); };
+} // end namespace
+
+//
+// Custom formatters
+//
+namespace fmt {
+    template <>
+    struct formatter<std::string_view> {
+        constexpr auto parse(format_parse_context& ctx) {
+            return ctx.begin();
+        }
+
+        template <typename FormatContext>
+        auto format(std::string_view sv, FormatContext& ctx) {
+            return format_to(ctx.out(), "{}", std::string(sv));
+        }
+    };
+
+    template <>
+    struct formatter<std::filesystem::path> {
+        constexpr auto parse(format_parse_context& ctx) {
+            return ctx.begin();
+        }
+
+        template <typename FormatContext>
+        auto format(const std::filesystem::path& p, FormatContext& ctx) {
+            return format_to(ctx.out(), "{}", p.string());
+        }
+    };
+
+    template <typename T1, typename T2>
+    struct formatter<std::pair<T1, T2>> {
+        constexpr auto parse(format_parse_context& ctx) {
+            return ctx.begin();
+        }
+
+        template <typename FormatContext>
+        auto format(const std::pair<T1, T2>& p, FormatContext& ctx) {
+            return format_to(ctx.out(), "({}, {})", p.first, p.second);
+        }
+    };
+
+    template <typename T, typename Alloc>
+    struct formatter<std::vector<T, Alloc>> {
+        constexpr auto parse(format_parse_context& ctx) {
+            return ctx.begin();
+        }
+
+        template <typename FormatContext>
+        auto format(const std::vector<T, Alloc>& v, FormatContext& ctx) {
+            if (v.empty()) {
+                return ctx;
+            }
+            return format_to(ctx.out(), "[{}]", fmt::join(v, ", "));
+        }
+    };
 } // end namespace
 
 #endif // !POAC_HPP

@@ -42,7 +42,7 @@ namespace poac::core::builder::ninja::manifest {
         }
         using poac::data::manifest::poac_toml_last_modified;
         return ninja_manifest_last_modified(build_dir)
-             < poac_toml_last_modified(config::path::current);
+             < poac_toml_last_modified(config::path::cur_dir);
     }
 
     bool
@@ -176,7 +176,7 @@ namespace poac::core::builder::ninja::manifest {
                 .variables = syntax::Variables{
                     {"PACKAGE_NAME", toml::find<String>(poac_manifest, "package", "name")},
                     {"PACKAGE_VERSION", toml::find<String>(poac_manifest, "package", "version")},
-                    {"PACKAGE_PATH", format("({})", config::path::current.string())},
+                    {"PACKAGE_PATH", format("({})", config::path::cur_dir.string())},
                     {"OPTIONS", boost::algorithm::join(options, " ")},
                     {"DEFINES", boost::algorithm::join(defines, " ")},
                     {"INCLUDES", boost::algorithm::join(includes, " ")},

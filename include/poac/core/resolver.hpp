@@ -43,30 +43,30 @@ namespace poac::core::resolver {
             error<"failed to resolve dependencies">;
 
         using FailedToResolveDepsWithCause =
-            error<"failed to resolve dependencies:\n{0}", String>;
+            error<"failed to resolve dependencies:\n{}", String>;
 
         using FailedToCreateDirs =
-            error<"failed to create directories:\n{0}", String>;
+            error<"failed to create directories:\n{}", String>;
 
         using FailedToRename =
-            error<"failed to rename a downloaded package: `{0}: {1}`", String, String>;
+            error<"failed to rename a downloaded package: `{}: {}`", String, String>;
 
         using FailedToFetch =
-            error<"failed to fetch a package: `{0}: {1}`", String, String>;
+            error<"failed to fetch a package: `{}: {}`", String, String>;
 
         using IncorrectSha256sum =
             error<
                 "the sha256sum when published did not match one when downloaded.\n"
-                "  published: `{0}` != downloaded: `{1}\n"
+                "  published: `{}` != downloaded: `{}\n"
                 "Since the downloaded package might contain malicious codes, it "
                 "was removed from this PC. We highly recommend submitting an "
                 "issue on GitHub of the package and stopping using this package:\n"
-                "  {2}: {3}",
+                "  {}: {}",
                 String, String, String, String
             >;
 
         using Unknown =
-            error<"unknown error occurred: {0}", String>;
+            error<"unknown error occurred: {}", String>;
     };
 
     inline String
@@ -294,13 +294,13 @@ namespace poac::core::resolver {
 
     [[nodiscard]] Result<Option<ResolvedDeps>>
     try_to_read_lockfile(const toml::value& config) {
-        if (data::lockfile::is_outdated(config::path::current)) {
+        if (data::lockfile::is_outdated(config::path::cur_dir)) {
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
             const auto resolvable_deps = tryi(to_resolvable_deps(deps));
             const auto resolved_deps = tryi(do_resolve(resolvable_deps));
             return Ok(resolved_deps);
         } else {
-            return data::lockfile::read(config::path::current);
+            return data::lockfile::read(config::path::cur_dir);
         }
     }
 

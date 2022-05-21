@@ -122,7 +122,7 @@ namespace poac::cmd::create {
                 fs::create_directories(package_name / "src"_path);
                 return {
                     { ".gitignore", "/target" },
-                    { data::manifest::manifest_file_name, files::poac_toml(package_name) },
+                    { data::manifest::name, files::poac_toml(package_name) },
                     { "src"_path / "main.cpp", files::main_cpp }
                 };
             case ProjectType::Lib:
@@ -131,7 +131,7 @@ namespace poac::cmd::create {
                 );
                 return {
                     { ".gitignore", "/target\npoac.lock" },
-                    { data::manifest::manifest_file_name, files::poac_toml(package_name) },
+                    { data::manifest::name, files::poac_toml(package_name) },
                     { "include"_path / package_name / (package_name + ".hpp"),
                         files::include_hpp(package_name)
                     },

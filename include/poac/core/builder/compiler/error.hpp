@@ -37,12 +37,12 @@ namespace poac::core::builder::compiler::error {
     public:
         using UnsupportedLangVersion =
             error<
-                "`{0}` ({1}) does not support {2} version: `{3}`",
+                "`{}` ({}) does not support {} version: `{}`",
                 String, String, String, i64
             >;
 
         using FailedToGetCompilerVersion =
-            error<"failed to get version of compiler `{0}`", String>;
+            error<"failed to get version of compiler `{}`", String>;
     };
 } // end namespace
 

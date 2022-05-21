@@ -31,7 +31,7 @@ namespace poac::cmd::build {
 
     public:
         using FailedToBuild =
-            error<"failed to build package `{0}`", String>;
+            error<"failed to build package `{}`", String>;
 
         using FailedToInstallDeps =
             error<"failed to install dependencies">;
@@ -65,7 +65,7 @@ namespace poac::cmd::build {
 
         // TODO: We have to keep in mind a case of only dependencies require to
         // be built, but this package does not.
-        if (!fs::exists(config::path::src_main_file)) {
+        if (!fs::exists(config::path::main_cpp_file)) {
             spdlog::info(
                 "{:>25} no build target(s) found",
                 "Finished"_bold_green
@@ -87,7 +87,7 @@ namespace poac::cmd::build {
 
         spdlog::trace("Parsing the manifest file ...");
         // TODO: parse as a static type rather than toml::value
-        const toml::value manifest = toml::parse(data::manifest::manifest_file_name);
+        const toml::value manifest = toml::parse(data::manifest::name);
 
         tryi(
             build(opts, manifest).with_context([&manifest]{

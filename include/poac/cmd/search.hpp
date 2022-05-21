@@ -32,7 +32,7 @@ namespace poac::cmd::search {
 
     public:
         using NotFound =
-            error<"No packages found for `{0}`", String>;
+            error<"No packages found for `{}`", String>;
     };
 
     [[nodiscard]] Result<void>

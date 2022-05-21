@@ -27,7 +27,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
 
 // internal
