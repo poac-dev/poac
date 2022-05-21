@@ -14,23 +14,15 @@
 #include <poac/util/shell.hpp>
 
 namespace poac::core::builder::compiler::cxx {
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using CompilerCommandNotFound =
-            error<
-                "either general compilers or environment variable `POAC_CXX` was not found.\n"
-                "Please export it like `export POAC_CXX=g++-11`."
-            >;
-
-        using UnknownCompilerCommand =
-            error<"unknown compiler command found: {}", String>;
-
-        using UnsupportedCompiler =
-            error<"unsupported compiler found: {}", String>;
-    };
+    using CompilerCommandNotFound =
+        Error<
+            "either general compilers or environment variable `POAC_CXX` was not found.\n"
+            "Please export it like `export POAC_CXX=g++-11`."
+        >;
+    using UnknownCompilerCommand =
+        Error<"unknown compiler command found: {}", String>;
+    using UnsupportedCompiler =
+        Error<"unsupported compiler found: {}", String>;
 
     inline const String ANY = R"([\s\S]*)";
 
@@ -40,7 +32,7 @@ namespace poac::core::builder::compiler::cxx {
 #  ifdef __APPLE__
             const String compiler(compiler_command);
             if (const auto res = util::shell::Cmd(compiler + " --version").stderr_to_stdout().exec()) {
-                if (res.value().find("Apple") != String::npos) {
+                if (res.value().find("Apple") != SNone) {
                     return Ok(util::cfg::compiler::apple_clang);
                 }
             }
@@ -51,7 +43,7 @@ namespace poac::core::builder::compiler::cxx {
                 return Ok(util::cfg::compiler::clang);
             }
         }
-        return Err<Error::UnknownCompilerCommand>(compiler_command);
+        return Err<UnknownCompilerCommand>(compiler_command);
     }
 
     [[nodiscard]] Result<String>
@@ -69,7 +61,7 @@ namespace poac::core::builder::compiler::cxx {
             case util::cfg::compiler::apple_clang:
                 return apple_clang::get_std_flag(compiler_command, cpp, use_gnu_extension);
             default:
-                return Err<Error::UnsupportedCompiler>(error::to_string(compiler));
+                return Err<UnsupportedCompiler>(error::to_string(compiler));
         }
     }
 
@@ -82,7 +74,7 @@ namespace poac::core::builder::compiler::cxx {
         } else if (util::shell::has_command("clang++")) {
             return Ok("clang++");
         } else {
-            return Err<Error::CompilerCommandNotFound>();
+            return Err<CompilerCommandNotFound>();
         }
     }
 

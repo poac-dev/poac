@@ -31,43 +31,30 @@
 namespace poac::core::resolver {
     using ResolvedDeps = resolve::UniqDeps<resolve::WithDeps>;
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using FailedToParseConfig =
-            error<"parsing the value of the `dependencies` key in poac.toml failed">;
-
-        using FailedToResolveDeps =
-            error<"failed to resolve dependencies">;
-
-        using FailedToResolveDepsWithCause =
-            error<"failed to resolve dependencies:\n{}", String>;
-
-        using FailedToCreateDirs =
-            error<"failed to create directories:\n{}", String>;
-
-        using FailedToRename =
-            error<"failed to rename a downloaded package: `{}: {}`", String, String>;
-
-        using FailedToFetch =
-            error<"failed to fetch a package: `{}: {}`", String, String>;
-
-        using IncorrectSha256sum =
-            error<
-                "the sha256sum when published did not match one when downloaded.\n"
-                "  published: `{}` != downloaded: `{}\n"
-                "Since the downloaded package might contain malicious codes, it "
-                "was removed from this PC. We highly recommend submitting an "
-                "issue on GitHub of the package and stopping using this package:\n"
-                "  {}: {}",
-                String, String, String, String
+    using FailedToParseConfig =
+        Error<"parsing the value of the `dependencies` key in poac.toml failed">;
+    using FailedToResolveDeps =
+        Error<"failed to resolve dependencies">;
+    using FailedToResolveDepsWithCause =
+        Error<"failed to resolve dependencies:\n{}", String>;
+    using FailedToCreateDirs =
+        Error<"failed to create directories:\n{}", String>;
+    using FailedToRename =
+        Error<"failed to rename a downloaded package: `{}: {}`", String, String>;
+    using FailedToFetch =
+        Error<"failed to fetch a package: `{}: {}`", String, String>;
+    using IncorrectSha256sum =
+        Error<
+            "the sha256sum when published did not match one when downloaded.\n"
+            "  published: `{}` != downloaded: `{}\n"
+            "Since the downloaded package might contain malicious codes, it "
+            "was removed from this PC. We highly recommend submitting an "
+            "issue on GitHub of the package and stopping using this package:\n"
+            "  {}: {}",
+            String, String, String, String
             >;
-
-        using Unknown =
-            error<"unknown error occurred: {}", String>;
-    };
+    using Unknown =
+        Error<"unknown error occurred: {}", String>;
 
     inline String
     get_install_name(const resolve::Package& package) {
@@ -94,7 +81,7 @@ namespace poac::core::resolver {
         std::error_code ec{};
         fs::rename(temporarily_extracted_path, extracted_path, ec);
         if (ec) {
-            return Err<Error::FailedToRename>(package.first, package.second);
+            return Err<FailedToRename>(package.first, package.second);
         }
         return Ok();
     }
@@ -162,12 +149,12 @@ namespace poac::core::resolver {
             return Ok(std::make_pair(archive_path, sha256sum));
         } catch (const std::exception& e) {
             return Result<std::pair<fs::path, String>>(
-                       Err<Error::Unknown>(e.what()))
+                       Err<Unknown>(e.what()))
                 .with_context([&name=package.first, &ver=package.second] {
-                    return Err<Error::FailedToFetch>(name, ver).get();
+                    return Err<FailedToFetch>(name, ver).get();
                 });
         } catch (...) {
-            return Err<Error::FailedToFetch>(package.first, package.second);
+            return Err<FailedToFetch>(package.first, package.second);
         }
     }
 
@@ -181,7 +168,7 @@ namespace poac::core::resolver {
                     tryi(util::sha256::sum(installed_path));
                 sha256sum != actual_sha256sum) {
                 fs::remove(installed_path);
-                return Err<Error::IncorrectSha256sum>(
+                return Err<IncorrectSha256sum>(
                     sha256sum,
                     actual_sha256sum,
                     resolve::get_name(package),
@@ -245,7 +232,7 @@ namespace poac::core::resolver {
         try {
             fs::create_directories(config::path::cache_dir);
         } catch (const std::exception& e) {
-            return Err<Error::FailedToCreateDirs>(e.what());
+            return Err<FailedToCreateDirs>(e.what());
         }
         return fetch(not_installed_deps);
     }
@@ -272,9 +259,9 @@ namespace poac::core::resolver {
                 return resolve::backtrack_loop(duplicate_deps).map_err(to_anyhow);
             }
         } catch (const std::exception& e) {
-            return Err<Error::FailedToResolveDepsWithCause>(e.what());
+            return Err<FailedToResolveDepsWithCause>(e.what());
         } catch (...) {
-            return Err<Error::FailedToResolveDeps>();
+            return Err<FailedToResolveDeps>();
         }
     }
 
@@ -288,7 +275,7 @@ namespace poac::core::resolver {
             }
             return Ok(resolvable_deps);
         } catch (...) {
-            return Err<Error::FailedToParseConfig>();
+            return Err<FailedToParseConfig>();
         }
     }
 

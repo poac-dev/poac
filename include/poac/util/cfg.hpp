@@ -763,7 +763,7 @@ namespace poac::util::cfg {
                 } else {
                     String msg = String(index + 1, ' ');
                     msg += "^";
-                    const int range = lexer.index - index - 2;
+                    const i32 range = lexer.index - index - 2;
                     msg += String(range < 0 ? 0 : range, '-');
                     msg += " expected a string";
                     throw cfg::syntax_error(String(lexer.str) + "\n" + msg);

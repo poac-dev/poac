@@ -28,14 +28,8 @@ namespace poac::cmd::create {
         Option<bool> lib = false;
     };
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using PassingBothBinAndLib =
-            error<"cannot specify both lib and binary outputs">;
-    };
+    using PassingBothBinAndLib =
+        Error<"cannot specify both lib and binary outputs">;
 
     enum class ProjectType {
         Bin,
@@ -168,7 +162,7 @@ namespace poac::cmd::create {
     [[nodiscard]] Result<void>
     exec(const Options& opts) {
         if (opts.bin.value() && opts.lib.value()) {
-            return Err<Error::PassingBothBinAndLib>();
+            return Err<PassingBothBinAndLib>();
         }
 
         spdlog::trace("Validating the `{}` directory exists", opts.package_name);

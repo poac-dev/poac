@@ -24,14 +24,8 @@ namespace poac::cmd::init {
         Option<bool> lib = false;
     };
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using AlreadyInitialized =
-            error<"cannot initialize an existing poac package">;
-    };
+    using AlreadyInitialized =
+        Error<"cannot initialize an existing poac package">;
 
     [[nodiscard]] Result<void>
     init(const Options& opts, StringRef package_name) {
@@ -64,9 +58,9 @@ namespace poac::cmd::init {
     [[nodiscard]] Result<void>
     exec(const Options& opts) {
         if (opts.bin.value() && opts.lib.value()) {
-            return Err<create::Error::PassingBothBinAndLib>();
+            return Err<create::PassingBothBinAndLib>();
         } else if (core::validator::required_config_exists().is_ok()) {
-            return Err<Error::AlreadyInitialized>();
+            return Err<AlreadyInitialized>();
         }
 
         const String package_name = config::path::cur_dir.stem().string();

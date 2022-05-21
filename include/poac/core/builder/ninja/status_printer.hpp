@@ -266,7 +266,7 @@ namespace poac::core::builder::ninja {
         const char* progress_status_format_;
 
         template<usize S>
-        void SnprintfRate(double rate, char(&buf)[S], const char* format) const {
+        void SnprintfRate(f64 rate, char(&buf)[S], const char* format) const {
             if (rate == -1) {
                 std::snprintf(buf, S, "?");
             } else {
@@ -277,7 +277,7 @@ namespace poac::core::builder::ninja {
         struct SlidingRateInfo {
             explicit SlidingRateInfo(int n) : rate_(-1), N(n), last_update_(-1) {}
 
-            double rate() { return rate_; }
+            f64 rate() { return rate_; }
 
             void UpdateRate(int update_hint, i64 time_millis_) {
                 if (update_hint == last_update_) {
@@ -295,9 +295,9 @@ namespace poac::core::builder::ninja {
             }
 
         private:
-            double rate_;
+            f64 rate_;
             const usize N;
-            std::queue<double> times_;
+            std::queue<f64> times_;
             int last_update_;
         };
 

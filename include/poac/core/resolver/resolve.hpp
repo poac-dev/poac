@@ -110,7 +110,7 @@ namespace poac::core::resolver::resolve {
         return deps.first;
     }
 
-    String to_binary_numbers(const int& x, const usize& digit) {
+    String to_binary_numbers(const i32& x, const usize& digit) {
         return format("{:0{}b}", x, digit);
     }
 
@@ -119,11 +119,11 @@ namespace poac::core::resolver::resolve {
     // ¬A ∨ B ∨ ¬C
     // ¬A ∨ ¬B ∨ C
     // ¬A ∨ ¬B ∨ ¬C
-    Vec<Vec<int>>
-    multiple_versions_cnf(const Vec<int>& clause) {
+    Vec<Vec<i32>>
+    multiple_versions_cnf(const Vec<i32>& clause) {
         return boost::irange(0, 1 << clause.size()) // number of combinations
             | boost::adaptors::transformed(
-                  [&clause](const auto& i){
+                  [&clause](const i32 i){
                       return boost::dynamic_bitset<>(
                           to_binary_numbers(i, clause.size())
                       );
@@ -135,11 +135,11 @@ namespace poac::core::resolver::resolve {
                   }
               )
             | boost::adaptors::transformed(
-                  [&clause](const boost::dynamic_bitset<>& bs) -> Vec<int> {
+                  [&clause](const boost::dynamic_bitset<>& bs) -> Vec<i32> {
                       return
                           boost::irange(usize{0}, bs.size())
                           | boost::adaptors::transformed(
-                                [&clause, &bs](const auto& i){
+                                [&clause, &bs](const i32 i){
                                     return bs[i] ? clause[i] * -1 : clause[i];
                                 }
                             )

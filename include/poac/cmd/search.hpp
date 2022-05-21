@@ -26,14 +26,8 @@ namespace poac::cmd::search {
         String package_name;
     };
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using NotFound =
-            error<"No packages found for `{}`", String>;
-    };
+    using NotFound =
+        Error<"No packages found for `{}`", String>;
 
     [[nodiscard]] Result<void>
     search(const Options& opts) {
@@ -48,7 +42,7 @@ namespace poac::cmd::search {
 
         const auto children = pt.get_child("data");
         if (children.empty()) {
-            return Err<Error::NotFound>(opts.package_name);
+            return Err<NotFound>(opts.package_name);
         }
         for (const boost::property_tree::ptree::value_type& child : children) {
             const boost::property_tree::ptree& hits = child.second;

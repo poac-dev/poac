@@ -12,20 +12,13 @@
 #include <poac/poac.hpp>
 
 namespace poac::util::sha256 {
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
+    using FailedToReadFile =
+        Error<"Failed to read file: `{}`", String>;
+    using FailedToCreateSha256Digest =
+        Error<"Failed to create a sha256 digest">;
 
-    public:
-        using FailedToReadFile =
-            error<"Failed to read file: `{}`", String>;
-
-        using FailedToCreateSha256Digest =
-            error<"Failed to create a sha256 digest">;
-    };
-
-    inline constexpr int buf_size = 32768;
-    inline constexpr int hash_size = 65;
+    inline constexpr i32 buf_size = 32768;
+    inline constexpr i32 hash_size = 65;
 
     // ref: https://stackoverflow.com/a/2458382
     String
@@ -43,23 +36,23 @@ namespace poac::util::sha256 {
     sum(const fs::path& path) {
         std::ifstream file(path, std::ios::binary);
         if (!file) {
-            return Err<Error::FailedToReadFile>(path.string());
+            return Err<FailedToReadFile>(path.string());
         }
 
         Vec<char> buffer(buf_size);
         Vec<unsigned char> hash(SHA256_DIGEST_LENGTH);
         EVP_MD_CTX* ctx = EVP_MD_CTX_create();
         if (ctx == NULL) {
-            return Err<Error::FailedToCreateSha256Digest>();
+            return Err<FailedToCreateSha256Digest>();
         }
         if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
-            return Err<Error::FailedToCreateSha256Digest>();
+            return Err<FailedToCreateSha256Digest>();
         }
 
         int bytesRead;
         while ((bytesRead = file.read(buffer.data(), buf_size).gcount())) {
             if (1 != EVP_DigestUpdate(ctx, buffer.data(), bytesRead)) {
-                return Err<Error::FailedToCreateSha256Digest>();
+                return Err<FailedToCreateSha256Digest>();
             }
         }
 
@@ -67,7 +60,7 @@ namespace poac::util::sha256 {
         // Let me know if this is wrong.
         u32 temp = 0;
         if (1 != EVP_DigestFinal_ex(ctx, hash.data(), &temp)) {
-            return Err<Error::FailedToCreateSha256Digest>();
+            return Err<FailedToCreateSha256Digest>();
         }
         EVP_MD_CTX_destroy(ctx);
 

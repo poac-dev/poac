@@ -26,17 +26,11 @@
 #include <poac/config.hpp>
 
 namespace poac::core::builder::ninja::build {
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using GeneralError =
-            error<
-                "internal build system has been stopped with an error:\n{}",
-                String
-            >;
-    };
+    using GeneralError =
+        Error<
+            "internal build system has been stopped with an error:\n{}",
+            String
+        >;
 
     enum class Mode {
         debug,
@@ -73,7 +67,7 @@ namespace poac::core::builder::ninja::build {
         String err;
         Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
         if (!err.empty()) {
-            return Err<Error::GeneralError>(err);
+            return Err<GeneralError>(err);
         }
         ninja_main.disk_interface.AllowStatCache(true);
 
@@ -89,7 +83,7 @@ namespace poac::core::builder::ninja::build {
         for (usize i = 0; i < targets.size(); ++i) {
             if (!builder.AddTarget(targets[i], &err)) {
                 if (!err.empty()) {
-                    return Err<Error::GeneralError>(err);
+                    return Err<GeneralError>(err);
                 }
                 // Added a target that is already up-to-date; not really an error.
             }
@@ -102,7 +96,7 @@ namespace poac::core::builder::ninja::build {
             return Ok();
         }
         if (!builder.Build(&err)) {
-            return Err<Error::GeneralError>(err);
+            return Err<GeneralError>(err);
         }
         return Ok();
     }
@@ -150,7 +144,7 @@ namespace poac::core::builder::ninja::build {
             );
             String err;
             if (!parser.Load((ninja_main.build_dir / manifest::manifest_file_name).string(), &err)) {
-                return Err<Error::GeneralError>(err);
+                return Err<GeneralError>(err);
             }
 
             tryi(log::load_build_log(ninja_main));
@@ -161,13 +155,13 @@ namespace poac::core::builder::ninja::build {
                 // Start the build over with the new manifest.
                 continue;
             } else if (!err.empty()) {
-                return Err<Error::GeneralError>(err);
+                return Err<GeneralError>(err);
             }
 
             tryi(run(ninja_main, status));
             return Ok(config::path::output_dir / to_string(mode));
         }
-        return Err<Error::GeneralError>(format(
+        return Err<GeneralError>(format(
             "internal manifest still dirty after {} tries, perhaps system time is not set",
             rebuildLimit
         ));

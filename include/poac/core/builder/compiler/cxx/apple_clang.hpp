@@ -25,7 +25,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
             }
             return Ok(semver::parse(version));
         }
-        return Err<error::Error::FailedToGetCompilerVersion>(
+        return Err<error::FailedToGetCompilerVersion>(
             error::to_string(compiler)
         );
     }
@@ -69,7 +69,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
                 }
                 break;
         }
-        return Err<error::Error::UnsupportedLangVersion>(
+        return Err<error::UnsupportedLangVersion>(
             error::to_string(compiler),
             version.get_full(),
             to_string(lang::Lang::cxx),

@@ -20,27 +20,20 @@ namespace poac::cmd::login {
         String api_token;
     };
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using InvalidAPIToken =
-            error<"invalid API token provided">;
-
-        using FailedToLogIn =
-            error<"failed to log in; API token might be incorrect">;
-    };
+    using InvalidAPIToken =
+        Error<"invalid API token provided">;
+    using FailedToLogIn =
+        Error<"failed to log in; API token might be incorrect">;
 
     [[nodiscard]] Result<void>
     check_token(StringRef api_token) {
         spdlog::trace("Checking if api_token has 32 length");
         if (api_token.size() != 32) {
-            return Err<Error::InvalidAPIToken>();
+            return Err<InvalidAPIToken>();
         }
         spdlog::trace("Checking if api_token exists");
         if (!util::net::api::login(api_token).unwrap_or(false)) {
-            return Err<Error::FailedToLogIn>();
+            return Err<FailedToLogIn>();
         }
         return Ok();
     }

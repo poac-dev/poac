@@ -59,9 +59,9 @@ namespace poac {
     using namespace fmt::literals;
     using namespace termcolor2::color_literals;
 
-    inline std::filesystem::path
+    inline fs::path
     operator ""_path(const char* str, std::size_t) {
-        return std::filesystem::path(str);
+        return fs::path(str);
     }
 
     //
@@ -78,6 +78,9 @@ namespace poac {
     using i64 = std::int64_t;
 
     using usize = std::size_t;
+
+    using f32 = float;
+    using f64 = double;
 
     using String = std::string;
     using StringRef = std::string_view;
@@ -129,6 +132,9 @@ namespace poac {
     using fmt::print;
 
     const auto to_anyhow = [](const String& e){ return anyhow::anyhow(e); };
+
+    template <thiserror::fixed_string S, class ...T>
+    using Error = thiserror::error<S, T...>;
 } // end namespace
 
 //

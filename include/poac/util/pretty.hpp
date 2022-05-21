@@ -2,6 +2,7 @@
 #define POAC_UTIL_PRETTY_HPP
 
 // std
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <chrono>
@@ -14,7 +15,7 @@
 #include <poac/poac.hpp>
 
 namespace poac::util::pretty {
-    String to_time(const double& total_seconds) {
+    String to_time(const f64& total_seconds) {
         if (total_seconds <= 1.0) {
             return format("{:.2f}s", total_seconds);
         }
@@ -43,11 +44,11 @@ namespace poac::util::pretty {
         return to_time(std::stod(s));
     }
 
-    inline const Vec<String> size_suffixes = {
+    inline constexpr std::array<StringRef, 9> size_suffixes = {
         "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"
     };
 
-    String to_byte(double bytes) {
+    String to_byte(f64 bytes) {
         int index = 0;
         for (; bytes >= 1000.0; bytes /= 1024.0, ++index);
         return format("{:.2f}{}", bytes, size_suffixes.at(index));

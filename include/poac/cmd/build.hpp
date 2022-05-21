@@ -25,17 +25,10 @@ namespace poac::cmd::build {
         Option<bool> release = false;
     };
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using FailedToBuild =
-            error<"failed to build package `{}`", String>;
-
-        using FailedToInstallDeps =
-            error<"failed to install dependencies">;
-    };
+    using FailedToBuild =
+        Error<"failed to build package `{}`", String>;
+    using FailedToInstallDeps =
+        Error<"failed to install dependencies">;
 
     [[nodiscard]] Result<fs::path>
     build_impl(const toml::value& manifest, const Mode& mode, const ResolvedDeps& resolved_deps) {
@@ -59,7 +52,7 @@ namespace poac::cmd::build {
         const auto resolved_deps = tryi(
             core::resolver::install_deps(manifest)
                 .with_context([]{
-                    return Err<Error::FailedToInstallDeps>().get();
+                    return Err<FailedToInstallDeps>().get();
                 })
         );
 
@@ -91,7 +84,7 @@ namespace poac::cmd::build {
 
         tryi(
             build(opts, manifest).with_context([&manifest]{
-                return Err<Error::FailedToBuild>(
+                return Err<FailedToBuild>(
                     toml::find<String>(manifest, "package", "name")
                 ).get();
             })

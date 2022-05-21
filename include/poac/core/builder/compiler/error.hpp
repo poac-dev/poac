@@ -30,20 +30,13 @@ namespace poac::core::builder::compiler::error {
         return (os << to_string(comp));
     }
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using UnsupportedLangVersion =
-            error<
-                "`{}` ({}) does not support {} version: `{}`",
-                String, String, String, i64
+    using UnsupportedLangVersion =
+        Error<
+            "`{}` ({}) does not support {} version: `{}`",
+            String, String, String, i64
             >;
-
-        using FailedToGetCompilerVersion =
-            error<"failed to get version of compiler `{}`", String>;
-    };
+    using FailedToGetCompilerVersion =
+        Error<"failed to get version of compiler `{}`", String>;
 } // end namespace
 
 #endif // !POAC_CORE_BUILDER_COMPILER_ERROR_HPP

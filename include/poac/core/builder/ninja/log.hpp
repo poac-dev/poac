@@ -10,23 +10,14 @@
 #include <poac/core/builder/ninja/data.hpp>
 
 namespace poac::core::builder::ninja::log {
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
-
-    public:
-        using FailedToLoadBuildLog =
-            error<"loading build log `{}`: {}", String, String>;
-
-        using FailedToOpenBuildLog =
-            error<"opening build log: {}", String>;
-
-        using FailedToLoadDepsLog =
-            error<"loading deps log `{}`: {}", String, String>;
-
-        using FailedToOpenDepsLog =
-            error<"opening deps log: {}", String>;
-    };
+    using FailedToLoadBuildLog =
+        Error<"loading build log `{}`: {}", String, String>;
+    using FailedToOpenBuildLog =
+        Error<"opening build log: {}", String>;
+    using FailedToLoadDepsLog =
+        Error<"loading deps log `{}`: {}", String, String>;
+    using FailedToOpenDepsLog =
+        Error<"opening deps log: {}", String>;
 
     inline const String build_log_file_name = ".ninja_log";
     inline const String deps_log_file_name = ".ninja_deps";
@@ -38,7 +29,7 @@ namespace poac::core::builder::ninja::log {
         String err;
         const LoadStatus status = ninja_main.build_log.Load(log_path, &err);
         if (status == LOAD_ERROR) {
-            return Err<Error::FailedToLoadBuildLog>(log_path.string(), err);
+            return Err<FailedToLoadBuildLog>(log_path.string(), err);
         }
         if (!err.empty()) {
             // Hack: Load() can return a warning via err by returning LOAD_SUCCESS.
@@ -47,7 +38,7 @@ namespace poac::core::builder::ninja::log {
         }
 
         if (!ninja_main.build_log.OpenForWrite(log_path, ninja_main, &err)) {
-            return Err<Error::FailedToOpenBuildLog>(err);
+            return Err<FailedToOpenBuildLog>(err);
         }
         return Ok();
     }
@@ -59,7 +50,7 @@ namespace poac::core::builder::ninja::log {
         String err;
         const LoadStatus status = ninja_main.deps_log.Load(log_path, &ninja_main.state, &err);
         if (status == LOAD_ERROR) {
-            return Err<Error::FailedToLoadDepsLog>(log_path.string(), err);
+            return Err<FailedToLoadDepsLog>(log_path.string(), err);
         }
         if (!err.empty()) {
             // Hack: Load() can return a warning via err by returning LOAD_SUCCESS.
@@ -68,7 +59,7 @@ namespace poac::core::builder::ninja::log {
         }
 
         if (!ninja_main.deps_log.OpenForWrite(log_path, &err)) {
-            return Err<Error::FailedToOpenDepsLog>(err);
+            return Err<FailedToOpenDepsLog>(err);
         }
         return Ok();
     }

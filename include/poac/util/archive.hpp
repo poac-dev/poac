@@ -29,7 +29,7 @@ namespace poac::util::archive {
     archive_write_data_block(
         const Writer& writer, const void* buffer, usize size, i64 offset
     ) noexcept {
-        const int res = archive_write_data_block(writer.get(), buffer, size, offset);
+        const i32 res = archive_write_data_block(writer.get(), buffer, size, offset);
         if (res < ARCHIVE_OK) {
             return Err(archive_error_string(writer.get()));
         }
@@ -43,7 +43,7 @@ namespace poac::util::archive {
         i64 offset{};
 
         while (true) {
-            const int res = archive_read_data_block(reader, &buff, &size, &offset);
+            const i32 res = archive_read_data_block(reader, &buff, &size, &offset);
             if (res == ARCHIVE_EOF) {
                 return Ok();
             } else if (res < ARCHIVE_OK) {
@@ -55,7 +55,7 @@ namespace poac::util::archive {
 
     [[nodiscard]] Result<void, String>
     archive_write_finish_entry(const Writer& writer) noexcept {
-        const int res = archive_write_finish_entry(writer.get());
+        const i32 res = archive_write_finish_entry(writer.get());
         if (res < ARCHIVE_OK) {
             return Err(archive_error_string(writer.get()));
         } else if (res < ARCHIVE_WARN) {
@@ -87,7 +87,7 @@ namespace poac::util::archive {
     archive_read_next_header_(Archive* reader, archive_entry** entry)
         noexcept(!(true == ARCHIVE_EOF))
     {
-        const int res = archive_read_next_header(reader, entry);
+        const i32 res = archive_read_next_header(reader, entry);
         if (res == ARCHIVE_EOF) {
             return Ok(ARCHIVE_EOF);
         } else if (res < ARCHIVE_OK) {
@@ -126,7 +126,7 @@ namespace poac::util::archive {
         return Ok();
     }
 
-    int make_flags() noexcept
+    i32 make_flags() noexcept
     {
         // Select which attributes we want to restore.
         // int

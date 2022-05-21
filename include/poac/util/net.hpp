@@ -536,11 +536,11 @@ namespace poac::util::net {
 
         void close_stream() const {
             // Gracefully close the stream
-            boost::system::error_code error;
-            stream->shutdown(error);
-            if (error == boost::asio::error::eof) {
+            boost::system::error_code ec;
+            stream->shutdown(ec);
+            if (ec == boost::asio::error::eof) {
                 // Rationale: https://stackoverflow.com/q/25587403
-                error.assign(0, error.category());
+                ec.assign(0, ec.category());
             }
         }
 
