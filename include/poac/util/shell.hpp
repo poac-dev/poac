@@ -1,152 +1,175 @@
-#ifndef POAC_UTIL_SHELL_HPP
-#define POAC_UTIL_SHELL_HPP
+#ifndef POAC_UTIL_SHELL_HPP_
+#define POAC_UTIL_SHELL_HPP_
 
-#include <iostream>
-#include <string>
+// std
 #include <array>
-#include <vector>
-#include <optional>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
+#include <string>
+
+// internal
+#include <poac/poac.hpp>
 
 namespace poac::util::shell {
-    class cmd {
-    public:
-        std::string string() const {
-            return cmd_;
-        }
 
-        cmd() : cmd_() {}
-        explicit cmd(const std::string& c) : cmd_(c) {}
+class Cmd {
+public:
+  String
+  string() const {
+    return cmd;
+  }
 
-        cmd& env(const std::string& name, const std::string& value) {
-            cmd_.insert(0, name + "=" + value + " ");
-            return *this;
-        }
-        cmd& stderr_to_stdout() {
-            cmd_ += " 2>&1";
-            return *this;
-        }
-        cmd& to_dev_null() {
-            cmd_ += " >/dev/null";
-            return *this;
-        }
-        cmd& dump_stdout() {
-            cmd_ += " 1>/dev/null";
-            return *this;
-        }
-        cmd& dump_stderr() {
-            cmd_ += " 2>/dev/null";
-            return *this;
-        }
+  Cmd() : cmd() {}
+  explicit Cmd(const String& c) : cmd(c) {}
 
-        // TODO: 全てのstderrをstdoutにパイプし，吸収した上で，resultとして返却？？？
-        // TODO: errorと，その内容を同時に捕捉できない．
-        std::optional<std::string>
-        exec() const {
-            std::array<char, 128> buffer{};
-            std::string result;
+  Cmd&
+  env(const String& name, const String& value) {
+    cmd.insert(0, name + "=" + value + " ");
+    return *this;
+  }
+  Cmd&
+  stderr_to_stdout() {
+    cmd += " 2>&1";
+    return *this;
+  }
+  Cmd&
+  to_dev_null() {
+    cmd += " >/dev/null";
+    return *this;
+  }
+  Cmd&
+  dump_stdout() {
+    cmd += " 1>/dev/null";
+    return *this;
+  }
+  Cmd&
+  dump_stderr() {
+    cmd += " 2>/dev/null";
+    return *this;
+  }
+
+  // TODO(ken-matsui): Do we need to return result that captures all piped
+  //  stderr and stdout? We cannot simultaneously know errors and their
+  //  contents.
+  Option<String>
+  exec() const {
+    std::array<char, 128> buffer{};
+    String result;
 
 #ifdef _WIN32
-            if (FILE* pipe = _popen(cmd.c_str(), "r")) {
+    if (FILE* pipe = _popen(cmd.c_str(), "r")) {
 #else
-            if (FILE* pipe = popen(cmd_.c_str(), "r")) {
+    if (FILE* pipe = popen(cmd.c_str(), "r")) {
 #endif
-                while (std::fgets(buffer.data(), 128, pipe) != nullptr)
-                    result += buffer.data();
+      while (std::fgets(buffer.data(), 128, pipe) != nullptr)
+        result += buffer.data();
 #ifdef _WIN32
-                if (_pclose(pipe) != 0) {
+      if (_pclose(pipe) != 0) {
 #else
-                if (pclose(pipe) != 0) {
+      if (pclose(pipe) != 0) {
 #endif
-                    std::cout << result; // TODO: error時も，errorをstdoutにパイプしていれば，resultに格納されるため，これを返したい．
-                    return std::nullopt;
-                }
-            }
-            else {
-                return std::nullopt;
-            }
-            return result;
-        }
-
-        bool exec_ignore() const {
-            // EXIT_SUCCESS -> 0 -> false -> true
-            // EXIT_FAILURE -> 1 -> true -> false
-            return !static_cast<bool>(std::system(cmd_.c_str()));
-        }
-
-        friend std::ostream&
-        operator<<(std::ostream& os, const cmd& c) {
-            return (os << c.cmd_);
-        }
-
-        bool operator==(const cmd& rhs) const {
-            return this->cmd_ == rhs.cmd_;
-        }
-        bool operator==(const std::string& rhs) const {
-            return this->cmd_ == rhs;
-        }
-
-        cmd
-        operator&&(const cmd& rhs) const {
-            return cmd(this->cmd_ + " && " + rhs.cmd_);
-        }
-        cmd
-        operator&&(const std::string& rhs) const {
-            return cmd(this->cmd_ + " && " + rhs);
-        }
-
-        cmd& operator&=(const cmd& rhs) {
-            this->cmd_ += " && " + rhs.cmd_;
-            return *this;
-        }
-        cmd& operator&=(const std::string& rhs) {
-            this->cmd_ += " && " + rhs;
-            return *this;
-        }
-
-        cmd
-        operator||(const cmd& rhs) const {
-            return cmd(this->cmd_ + " || " + rhs.cmd_);
-        }
-        cmd
-        operator||(const std::string& rhs) const {
-            return cmd(this->cmd_ + " || " + rhs);
-        }
-
-        cmd& operator|=(const cmd& rhs) {
-            this->cmd_ += " || " + rhs.cmd_;
-            return *this;
-        }
-        cmd& operator|=(const std::string& rhs) {
-            this->cmd_ += " || " + rhs;
-            return *this;
-        }
-
-        cmd
-        operator+(const cmd& rhs) const { // TODO: "; "でなくても良いのか
-            return cmd(this->cmd_ + " " + rhs.cmd_);
-        }
-        cmd
-        operator+(const std::string& rhs) const {
-            return cmd(this->cmd_ + " " + rhs);
-        }
-
-        cmd& operator+=(const cmd& rhs) {
-            this->cmd_ += " " + rhs.cmd_;
-            return *this;
-        }
-        cmd& operator+=(const std::string& rhs) {
-            this->cmd_ += " " + rhs;
-            return *this;
-        }
-
-    private:
-        std::string cmd_;
-    };
-
-    bool has_command(const std::string& c) {
-        return cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
+        std::cout << result;
+        // TODO(ken-matsui): When errored and piped errors to stdout,
+        //  I want to return result stored by them.
+        return None;
+      }
+    } else {
+      return None;
     }
-} // end namespace
-#endif // !POAC_UTIL_SHELL_HPP
+    return result;
+  }
+
+  bool
+  exec_ignore() const {
+    // EXIT_SUCCESS -> 0 -> false -> true
+    // EXIT_FAILURE -> 1 -> true -> false
+    return !static_cast<bool>(std::system(cmd.c_str()));
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const Cmd& c) {
+    return (os << c.cmd);
+  }
+
+  bool
+  operator==(const Cmd& rhs) const {
+    return this->cmd == rhs.cmd;
+  }
+  bool
+  operator==(const String& rhs) const {
+    return this->cmd == rhs;
+  }
+
+  Cmd
+  operator&&(const Cmd& rhs) const {
+    return Cmd(this->cmd + " && " + rhs.cmd);
+  }
+  Cmd
+  operator&&(const String& rhs) const {
+    return Cmd(this->cmd + " && " + rhs);
+  }
+
+  Cmd&
+  operator&=(const Cmd& rhs) {
+    this->cmd += " && " + rhs.cmd;
+    return *this;
+  }
+  Cmd&
+  operator&=(const String& rhs) {
+    this->cmd += " && " + rhs;
+    return *this;
+  }
+
+  Cmd
+  operator||(const Cmd& rhs) const {
+    return Cmd(this->cmd + " || " + rhs.cmd);
+  }
+  Cmd
+  operator||(const String& rhs) const {
+    return Cmd(this->cmd + " || " + rhs);
+  }
+
+  Cmd&
+  operator|=(const Cmd& rhs) {
+    this->cmd += " || " + rhs.cmd;
+    return *this;
+  }
+  Cmd&
+  operator|=(const String& rhs) {
+    this->cmd += " || " + rhs;
+    return *this;
+  }
+
+  Cmd
+  operator+(const Cmd& rhs) const { // TODO(ken-matsui): should this be "; "?
+    return Cmd(this->cmd + " " + rhs.cmd);
+  }
+  Cmd
+  operator+(const String& rhs) const {
+    return Cmd(this->cmd + " " + rhs);
+  }
+
+  Cmd&
+  operator+=(const Cmd& rhs) {
+    this->cmd += " " + rhs.cmd;
+    return *this;
+  }
+  Cmd&
+  operator+=(const String& rhs) {
+    this->cmd += " " + rhs;
+    return *this;
+  }
+
+private:
+  String cmd;
+}; // NOLINT(readability/braces)
+
+bool
+has_command(const String& c) {
+  return Cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
+}
+
+} // namespace poac::util::shell
+
+#endif // POAC_UTIL_SHELL_HPP_

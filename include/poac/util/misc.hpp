@@ -1,74 +1,68 @@
 // Miscellaneous utility
-#ifndef POAC_UTIL_MISC_HPP
-#define POAC_UTIL_MISC_HPP
+#ifndef POAC_UTIL_MISC_HPP_
+#define POAC_UTIL_MISC_HPP_
 
 // std
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
-#include <optional>
-#include <string>
-#include <vector>
 
 // external
 #include <boost/algorithm/string.hpp>
-#include <boost/predef.h>
-#include <mitama/result/result.hpp>
+#include <boost/predef.h> // NOLINT(build/include_order)
+
+// internal
+#include <poac/poac.hpp>
 
 namespace poac::util::misc {
-    inline namespace path_literals {
-        inline std::filesystem::path
-        operator ""_path(const char* str, std::size_t) {
-            return std::filesystem::path(str);
-        }
-    }
 
-    std::vector<std::string>
-    split(const std::string& raw, const std::string& delim) {
-        using boost::algorithm::token_compress_on;
-        using boost::is_any_of;
+Vec<String>
+split(const String& raw, const String& delim) {
+  using boost::is_any_of;
+  using boost::algorithm::token_compress_on;
 
-        std::vector<std::string> ret;
-        boost::split(ret, raw, is_any_of(delim), token_compress_on);
-        return ret;
-    }
+  Vec<String> ret;
+  boost::split(ret, raw, is_any_of(delim), token_compress_on);
+  return ret;
+}
 
-    std::optional<std::string>
-    dupenv(const std::string& name) {
+Option<String>
+dupenv(const String& name) {
 #if BOOST_COMP_MSVC
-        char* env;
-        std::size_t len;
-        if (_dupenv_s(&env, &len, name.c_str())) {
-            return std::nullopt;
-        } else {
-            std::string env_s(env);
-            std::free(env);
-            return env_s;
-        }
+  char* env;
+  usize len;
+  if (_dupenv_s(&env, &len, name.c_str())) {
+    return None;
+  } else {
+    String env_s(env);
+    std::free(env);
+    return env_s;
+  }
 #else
-        if (const char* env = std::getenv(name.c_str())) {
-            return env;
-        } else {
-            return std::nullopt;
-        }
+  if (const char* env = std::getenv(name.c_str())) {
+    return env;
+  } else {
+    return None;
+  }
 #endif
-    }
+}
 
-    // Inspired by https://stackoverflow.com/q/4891006
-    // Expand ~ to user home directory.
-    [[nodiscard]] mitama::result<std::filesystem::path, std::string>
-    expand_user() {
-        auto home = dupenv("HOME");
-        if (home || (home = dupenv("USERPROFILE"))) {
-            return mitama::success(home.value());
-        } else {
-            const auto home_drive = dupenv("HOMEDRIVE");
-            const auto home_path = dupenv("HOMEPATH");
-            if (home_drive && home_path) {
-                return mitama::success(home_drive.value() + home_path.value());
-            }
-            return mitama::failure("could not get home directory");
-        }
+// Inspired by https://stackoverflow.com/q/4891006
+// Expand ~ to user home directory.
+[[nodiscard]] Result<fs::path, String>
+expand_user() {
+  auto home = dupenv("HOME");
+  if (home || (home = dupenv("USERPROFILE"))) {
+    return Ok(home.value());
+  } else {
+    const auto home_drive = dupenv("HOMEDRIVE");
+    const auto home_path = dupenv("HOMEPATH");
+    if (home_drive && home_path) {
+      return Ok(home_drive.value() + home_path.value());
     }
-} // end namespace
-#endif // POAC_UTIL_MISC_HPP
+    return Err("could not get home directory");
+  }
+}
+
+} // namespace poac::util::misc
+
+#endif // POAC_UTIL_MISC_HPP_

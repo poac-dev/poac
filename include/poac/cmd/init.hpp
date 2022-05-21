@@ -1,94 +1,76 @@
-#ifndef POAC_CMD_INIT_HPP
-#define POAC_CMD_INIT_HPP
+#ifndef POAC_CMD_INIT_HPP_
+#define POAC_CMD_INIT_HPP_
 
 // std
-#include <iostream>
 #include <fstream>
-#include <filesystem>
-#include <optional>
+#include <iostream>
 #include <string>
 
 // external
-#include <fmt/core.h>
-#include <mitama/result/result.hpp>
-#include <mitama/anyhow/anyhow.hpp>
-#include <mitama/thiserror/thiserror.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal
 #include <poac/cmd/create.hpp>
+#include <poac/config.hpp>
 #include <poac/core/validator.hpp>
 #include <poac/data/manifest.hpp>
-#include <poac/util/termcolor2/termcolor2.hpp>
-#include <poac/util/termcolor2/literals_extra.hpp>
+#include <poac/poac.hpp>
 
 namespace poac::cmd::init {
-    namespace anyhow = mitama::anyhow;
-    namespace thiserror = mitama::thiserror;
 
-    struct Options: structopt::sub_command {
-        /// Use a binary (application) template [default]
-        std::optional<bool> bin = false;
-        /// Use a library template
-        std::optional<bool> lib = false;
-    };
+struct Options : structopt::sub_command {
+  /// Use a binary (application) template [default]
+  Option<bool> bin = false;
+  /// Use a library template
+  Option<bool> lib = false;
+};
 
-    class Error {
-        template <thiserror::fixed_string S, class ...T>
-        using error = thiserror::error<S, T...>;
+using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
 
-    public:
-        using AlreadyInitialized =
-            error<"cannot initialize an existing poac package">;
-    };
+[[nodiscard]] Result<void>
+init(const Options& opts, StringRef package_name) {
+  using create::ProjectType;
 
-    [[nodiscard]] anyhow::result<void>
-    init(const Options& opts, std::string_view package_name) {
-        using create::ProjectType;
+  spdlog::trace("Creating ./{}", data::manifest::name);
+  std::ofstream ofs_config(data::manifest::name);
 
-        spdlog::trace("Creating ./{}", data::manifest::manifest_file_name);
-        std::ofstream ofs_config(data::manifest::manifest_file_name);
+  const ProjectType type = create::opts_to_project_type(opts);
+  switch (type) {
+    case ProjectType::Bin:
+      ofs_config << create::files::poac_toml(package_name);
+      break;
+    case ProjectType::Lib:
+      ofs_config << create::files::poac_toml(package_name);
+      break;
+    default:
+      unreachable();
+  }
 
-        const ProjectType type = create::opts_to_project_type(opts);
-        switch (type) {
-            case ProjectType::Bin:
-                ofs_config << create::files::poac_toml(package_name);
-                break;
-            case ProjectType::Lib:
-                ofs_config << create::files::poac_toml(package_name);
-                break;
-        }
+  spdlog::info(
+      "{:>25} {} `{}` package", "Created"_bold_green, to_string(type),
+      package_name
+  );
+  return Ok();
+}
 
-        using termcolor2::color_literals::operator""_bold_green;
-        spdlog::info(
-            "{:>25} {} `{}` package",
-            "Created"_bold_green,
-            type,
-            package_name
-        );
-        return mitama::success();
-    }
+[[nodiscard]] Result<void>
+exec(const Options& opts) {
+  if (opts.bin.value() && opts.lib.value()) {
+    return Err<create::PassingBothBinAndLib>();
+  } else if (core::validator::required_config_exists().is_ok()) {
+    return Err<AlreadyInitialized>();
+  }
 
-    [[nodiscard]] anyhow::result<void>
-    exec(const Options& opts) {
-        if (opts.bin.value() && opts.lib.value()) {
-            return anyhow::failure<create::Error::PassingBothBinAndLib>();
-        } else if (core::validator::required_config_exists().is_ok()) {
-            return anyhow::failure<Error::AlreadyInitialized>();
-        }
+  const String package_name = config::path::cur_dir.stem().string();
+  spdlog::trace("Validating the package name `{}`", package_name);
+  Try(core::validator::valid_package_name(package_name).map_err(to_anyhow));
 
-        const std::string package_name = std::filesystem::current_path().stem().string();
-        spdlog::trace("Validating the package name `{}`", package_name);
-        MITAMA_TRY(
-            core::validator::valid_package_name(package_name)
-            .map_err([](const std::string& e){ return anyhow::anyhow(e); })
-        );
+  return init(opts, package_name);
+}
 
-        return init(opts, package_name);
-    }
-} // end namespace
+} // namespace poac::cmd::init
 
 STRUCTOPT(poac::cmd::init::Options, bin, lib);
 
-#endif // !POAC_CMD_INIT_HPP
+#endif // POAC_CMD_INIT_HPP_

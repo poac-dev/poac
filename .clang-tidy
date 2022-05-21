@@ -1,7 +1,7 @@
 ---
-# Enable all checks that are necessary to enforce cppcoreguidelines
-Checks: "-*,perf\*,\
-clang-diagnostic-*,\
+Checks: "\
+boost-*,\
+performance-*,\
 clang-analyzer-core.StackAddressEscape,\
 clang-analyzer-code.DivideZero,\
 clang-analyzer-core.NullDereference,\
