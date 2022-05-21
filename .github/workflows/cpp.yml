@@ -33,4 +33,4 @@ jobs:
         run: pip install cpplint
 
       - name: Run cpplint
-        run: cpplint --filter=-,+build/include_what_you_use --recursive .
+        run: cpplint --recursive .
