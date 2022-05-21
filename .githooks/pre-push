@@ -51,10 +51,10 @@ do
 done
 
 # Run clang-format
-clang-format ./include/**/*.hpp -i || exit 1
-clang-format ./src/*.cpp -i || exit 1
-clang-format ./tests/**/*.hpp -i || exit 1
-clang-format ./tests/**/*.cpp -i || exit 1
+clang-format ./include/**/*.hpp -i -Werror || exit 1
+clang-format ./src/*.cpp -i -Werror || exit 1
+clang-format ./tests/**/*.hpp -i -Werror || exit 1
+clang-format ./tests/**/*.cpp -i -Werror || exit 1
 
 # Run cpplint
 cpplint --filter=-,+build/include_what_you_use --recursive --exclude=build/** --exclude=cmake-build-debug/** . || exit 1
