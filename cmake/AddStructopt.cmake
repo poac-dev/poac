@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         structopt
         GIT_REPOSITORY https://github.com/p-ranav/structopt.git
-        GIT_TAG        v0.1.2
+        GIT_TAG        v0.1.3
 )
 FetchContent_MakeAvailable(structopt)
 list(APPEND POAC_DEPENDENCIES structopt::structopt)
