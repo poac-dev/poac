@@ -95,7 +95,7 @@ template <typename T, typename E = void>
 using Result = std::conditional_t<
     std::is_void_v<E>, anyhow::result<T>, mitama::result<T, E>>;
 
-alias_fn(Ok, mitama::success)
+alias_fn(Ok, mitama::success);
 
 template <typename E = void, typename... Args>
 inline auto

@@ -89,13 +89,13 @@ struct StatusPrinter : Status {
       // check if the output is empty. Some compilers, e.g. clang, check
       // isatty(stderr) to decide if they should print colored output.
       // To make it possible to use colored output with ninja, subprocesses
-      // should be run with a flag that forces them to always print color escape
-      // codes. To make sure these escape codes don't show up in a file if
-      // ninja's output is piped to a file, ninja strips ansi escape codes again
-      // if it's not writing to a |smart_terminal_|. (Launching subprocesses in
-      // pseudo ttys doesn't work because there are only a few hundred available
-      // on some systems, and ninja can launch thousands of parallel compile
-      // commands.)
+      // should be run with a flag that forces them to always print color
+      // escape codes. To make sure these escape codes don't show up in a file
+      // if ninja's output is piped to a file, ninja strips ansi escape codes
+      // again if it's not writing to a |smart_terminal_|. (Launching
+      // subprocesses in pseudo ttys doesn't work because there are only a few
+      // hundred available on some systems, and ninja can launch thousands of
+      // parallel compile commands.)
       String final_output;
       if (!printer_.supports_color()) {
         final_output = StripAnsiEscapeCodes(output);
@@ -247,7 +247,7 @@ struct StatusPrinter : Status {
     va_end(ap);
   }
 
-  private:
+private:
   void
   PrintStatus(const Edge* edge, i64 time_millis) {
     if (config_.verbosity == BuildConfig::QUIET ||
@@ -312,7 +312,7 @@ struct StatusPrinter : Status {
       }
     }
 
-private:
+  private:
     f64 rate_;
     const usize N;
     std::queue<f64> times_;

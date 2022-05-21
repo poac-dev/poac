@@ -19,11 +19,11 @@ namespace poac::util::archive {
 using Archive = struct archive;
 
 struct ArchiveWriteDelete {
-    void
-    operator()(Archive* w) {
-      archive_write_close(w);
-      archive_write_free(w);
-    }
+  void
+  operator()(Archive* w) {
+    archive_write_close(w);
+    archive_write_free(w);
+  }
 };
 using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 

@@ -19,7 +19,7 @@ namespace poac::util::meta {
 // std::conditional for non-type template
 template <auto Value>
 struct value_holder {
-    static constexpr auto value = Value;
+  static constexpr auto value = Value;
 };
 template <bool B, auto T, auto F>
 using non_type_conditional =
@@ -184,16 +184,15 @@ time_to_string(const std::chrono::seconds& time) {
 // ref: https://qiita.com/rinse_/items/f00bb2a78d14c3c2f9fa
 template <class Range>
 class containerizer {
-    Range range;
+  Range range;
 
-  public:
-    explicit containerizer(Range&& r) noexcept
-        : range{std::forward<Range>(r)} {}
+public:
+  explicit containerizer(Range&& r) noexcept : range{std::forward<Range>(r)} {}
 
-    template <class To>
-    operator To() const {
-      return To(std::begin(range), std::end(range));
-    }
+  template <class To>
+  operator To() const {
+    return To(std::begin(range), std::end(range));
+  }
 };
 
 template <class Range>

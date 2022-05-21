@@ -112,7 +112,7 @@ class Writer {
 
   // Export this function for testing
 #if __has_include(<boost/ut.hpp>)
-  public:
+public:
 #endif
   /// Write 'text' word-wrapped at self.width characters.
   void
@@ -155,7 +155,7 @@ class Writer {
     output << leading_space + text + '\n';
   }
 
-  public:
+public:
   explicit Writer(Ostream&& o, usize w = 78) : output(std::move(o)), width(w) {}
 
   inline String
