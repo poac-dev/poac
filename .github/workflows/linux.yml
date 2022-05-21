@@ -107,17 +107,18 @@ jobs:
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
 
-      - run: mkdir -p build
-
-      - name: Build Poac
+      - name: Run CMake
         run: |
           cmake ..                                        \
+            -B build                                      \
             -G Ninja                                      \
             -DPOAC_BUILD_TESTING=ON                       \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
-          ninja
+
+      - name: Build Poac
+        run: ninja
         working-directory: build
 
       - name: Test Poac

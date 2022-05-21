@@ -134,8 +134,8 @@ After you prepared these requirements, you can build Poac using the following co
 ```bash
 $ git clone https://github.com/poacpm/poac.git
 $ cd poac
-$ mkdir build && cd $_
-$ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+$ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+$ cd build
 $ ninja
 $ ninja install
 ```

@@ -27,15 +27,16 @@ jobs:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
 
-      - run: mkdir -p build
-
-      - name: Build Poac
+      - name: Run CMake
         run: |
           cmake ..                                      \
+            -B build                                    \
             -G Ninja                                    \
             -DPOAC_BUILD_TESTING=ON                     \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          ninja
+
+      - name: Build Poac
+        run: ninja
         working-directory: build
 
       - name: Test Poac
