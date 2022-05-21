@@ -109,7 +109,7 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake ..                                        \
+          cmake                                           \
             -B build                                      \
             -G Ninja                                      \
             -DPOAC_BUILD_TESTING=ON                       \
