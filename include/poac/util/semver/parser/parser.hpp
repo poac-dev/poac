@@ -4,363 +4,373 @@
 // std
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string_view>
 #include <vector>
-#include <optional>
 
 // internal
+#include <poac/util/semver/exception.hpp>
 #include <poac/util/semver/parser/lexer.hpp>
 #include <poac/util/semver/parser/range.hpp>
 #include <poac/util/semver/parser/token.hpp>
-#include <poac/util/semver/exception.hpp>
 
 namespace semver::parser {
-    struct Parser {
-        using string_type = std::string_view;
-        using value_type = string_type::value_type;
 
-        Lexer lexer;
-        Token c1;
+struct Parser {
+  using string_type = std::string_view;
+  using value_type = string_type::value_type;
 
-        /// Construct a new parser for the given input.
-        explicit
-        Parser(string_type str)
-            : lexer(str), c1(lexer.next())
-        {}
+  Lexer lexer;
+  Token c1;
 
-        /// Pop one token.
-        inline Token
-        pop() {
-            Token c1_ = this->c1;
-            this->c1 = lexer.next();
-            return c1_;
-        }
+  /// Construct a new parser for the given input.
+  explicit Parser(string_type str) : lexer(str), c1(lexer.next()) {}
 
-        /// Peek one token.
-        inline Token
-        peek() const noexcept {
-            return this->c1;
-        }
+  /// Pop one token.
+  inline Token
+  pop() {
+    Token c1_ = this->c1;
+    this->c1 = lexer.next();
+    return c1_;
+  }
 
-        /// Skip whitespace if present.
-        void skip_whitespace() {
-            if (peek().is_whitespace()) {
-                pop();
-            }
-        }
+  /// Peek one token.
+  inline Token
+  peek() const noexcept {
+    return this->c1;
+  }
 
-        /// Parse an optional comma separator, then if that is present a predicate.
-        std::optional<Predicate>
-        comma_predicate() {
-            const bool has_comma = has_ws_separator(Token::Comma);
+  /// Skip whitespace if present.
+  void
+  skip_whitespace() {
+    if (peek().is_whitespace()) {
+      pop();
+    }
+  }
 
-            if (const auto predicate = this->predicate()) {
-                return predicate;
-            } else if (has_comma) {
-                return std::nullopt; // Err(EmptyPredicate)
-            } else {
-                return std::nullopt;
-            }
-        }
+  /// Parse an optional comma separator, then if that is present a predicate.
+  std::optional<Predicate>
+  comma_predicate() {
+    const bool has_comma = has_ws_separator(Token::Comma);
 
-        /// Parse an optional or separator `||`, then if that is present a range.
-        std::optional<VersionReq>
-        or_range() {
-            if (!this->has_ws_separator(Token::Or)) {
-                return std::nullopt;
-            }
-            return this->range();
-        }
+    if (const auto predicate = this->predicate()) {
+      return predicate;
+    } else if (has_comma) {
+      return std::nullopt; // Err(EmptyPredicate)
+    } else {
+      return std::nullopt;
+    }
+  }
 
-        /// Parse a single component.
-        ///
-        /// Returns `None` if the component is a wildcard.
-        std::optional<std::uint_fast64_t>
-        component() {
-            if (const Token token = this->pop(); token.kind == Token::Numeric) {
-                return std::get<Token::numeric_type>(token.component);
-            } else if (token.is_wildcard()) {
-                return std::nullopt;
-            } else {
-                return std::nullopt; // Err(UnexpectedToken(tok))
-            }
-        }
+  /// Parse an optional or separator `||`, then if that is present a range.
+  std::optional<VersionReq>
+  or_range() {
+    if (!this->has_ws_separator(Token::Or)) {
+      return std::nullopt;
+    }
+    return this->range();
+  }
 
-        /// Parse a single numeric.
-        std::optional<std::uint_fast64_t>
-        numeric() {
-            if (const Token token = this->pop(); token.kind == Token::Numeric) {
-                return std::get<Token::numeric_type>(token.component);
-            }
-            return std::nullopt;
-        }
+  /// Parse a single component.
+  ///
+  /// Returns `None` if the component is a wildcard.
+  std::optional<std::uint_fast64_t>
+  component() {
+    if (const Token token = this->pop(); token.kind == Token::Numeric) {
+      return std::get<Token::numeric_type>(token.component);
+    } else if (token.is_wildcard()) {
+      return std::nullopt;
+    } else {
+      return std::nullopt; // Err(UnexpectedToken(tok))
+    }
+  }
 
-        /// Optionally parse a dot, then a component.
-        ///
-        /// The second component of the tuple indicates if a wildcard has been encountered, and is
-        /// always `false` if the first component is `Some`.
-        ///
-        /// If a dot is not encountered, `(None, false)` is returned.
-        ///
-        /// If a wildcard is encountered, `(None, true)` is returned.
-        std::optional<std::uint_fast64_t>
-        dot_component() {
-            if (this->peek() != Token::Dot) {
-                return std::nullopt;
-            }
-            // pop the peeked dot.
-            this->pop();
-            return this->component();
-        }
+  /// Parse a single numeric.
+  std::optional<std::uint_fast64_t>
+  numeric() {
+    if (const Token token = this->pop(); token.kind == Token::Numeric) {
+      return std::get<Token::numeric_type>(token.component);
+    }
+    return std::nullopt;
+  }
 
-        /// Parse a dot, then a numeric.
-        std::optional<std::uint_fast64_t>
-        dot_numeric() {
-            if (pop() != Token::Dot) {
-                return std::nullopt;
-            }
-            return numeric();
-        }
+  /// Optionally parse a dot, then a component.
+  ///
+  /// The second component of the tuple indicates if a wildcard has been
+  /// encountered, and is always `false` if the first component is `Some`.
+  ///
+  /// If a dot is not encountered, `(None, false)` is returned.
+  ///
+  /// If a wildcard is encountered, `(None, true)` is returned.
+  std::optional<std::uint_fast64_t>
+  dot_component() {
+    if (this->peek() != Token::Dot) {
+      return std::nullopt;
+    }
+    // pop the peeked dot.
+    this->pop();
+    return this->component();
+  }
 
-        /// Parse an string identifier.
-        ///
-        /// Like, `foo`, or `bar`.
-        std::optional<Identifier>
-        identifier() {
-            const Token& token = pop();
-            if (token.kind == Token::AlphaNumeric) {
-                return Identifier(Identifier::AlphaNumeric, std::get<Token::alphanumeric_type>(token.component));
-            }
-            else if (token.kind == Token::Numeric) {
-                return Identifier(Identifier::Numeric, std::get<Token::numeric_type>(token.component));
-            }
-            return std::nullopt;
-        }
+  /// Parse a dot, then a numeric.
+  std::optional<std::uint_fast64_t>
+  dot_numeric() {
+    if (pop() != Token::Dot) {
+      return std::nullopt;
+    }
+    return numeric();
+  }
 
-        /// Parse all pre-release identifiers, separated by dots.
-        ///
-        /// Like, `abcdef.1234`.
-        std::vector<Identifier>
-        pre() {
-            if (const auto p = peek(); p.kind == Token::Whitespace) {
-                pop(); // Drop whitespace
-                if (const auto p2 = peek(); p2 != Token::Unexpected && !p2.is_whitespace()) {
-                    // `1.2.3 a.b.c`
-                    throw version_error(
-                        "continuing pre-release identifiers after spaces is not allowed"
-                    );
-                }
-                return {};
-            } else if (p != Token::Hyphen) {
-                return {};
-            }
-            // pop the peeked hyphen.
-            pop();
-            return parts();
-        }
+  /// Parse an string identifier.
+  ///
+  /// Like, `foo`, or `bar`.
+  std::optional<Identifier>
+  identifier() {
+    const Token& token = pop();
+    if (token.kind == Token::AlphaNumeric) {
+      return Identifier(
+          Identifier::AlphaNumeric,
+          std::get<Token::alphanumeric_type>(token.component)
+      );
+    } else if (token.kind == Token::Numeric) {
+      return Identifier(
+          Identifier::Numeric, std::get<Token::numeric_type>(token.component)
+      );
+    }
+    return std::nullopt;
+  }
 
-        /// Parse a dot-separated set of identifiers.
-        std::vector<Identifier>
-        parts() {
-            std::vector<Identifier> parts{};
-            parts.push_back(identifier().value());
+  /// Parse all pre-release identifiers, separated by dots.
+  ///
+  /// Like, `abcdef.1234`.
+  std::vector<Identifier>
+  pre() {
+    if (const auto p = peek(); p.kind == Token::Whitespace) {
+      pop(); // Drop whitespace
+      if (const auto p2 = peek();
+          p2 != Token::Unexpected && !p2.is_whitespace()) {
+        // `1.2.3 a.b.c`
+        throw version_error(
+            "continuing pre-release identifiers after spaces is not allowed"
+        );
+      }
+      return {};
+    } else if (p != Token::Hyphen) {
+      return {};
+    }
+    // pop the peeked hyphen.
+    pop();
+    return parts();
+  }
 
-            while (peek() == Token::Dot) {
-                // pop the peeked hyphen.
-                pop();
-                parts.push_back(identifier().value());
-            }
-            return parts;
-        }
+  /// Parse a dot-separated set of identifiers.
+  std::vector<Identifier>
+  parts() {
+    std::vector<Identifier> parts{};
+    parts.push_back(identifier().value());
 
-        /// Parse optional build metadata.
-        ///
-        /// Like, `` (empty), or `+abcdef`.
-        std::vector<Identifier>
-        plus_build_metadata() {
-            if (peek() != Token::Plus) {
-                return {};
-            }
-            // pop the peeked plus.
-            pop();
-            return parts();
-        }
+    while (peek() == Token::Dot) {
+      // pop the peeked hyphen.
+      pop();
+      parts.push_back(identifier().value());
+    }
+    return parts;
+  }
 
-        /// Optionally parse a single operator.
-        ///
-        /// Like, `~`, or `^`.
-        Op op() {
-            Op op(Op::Compatible);
+  /// Parse optional build metadata.
+  ///
+  /// Like, `` (empty), or `+abcdef`.
+  std::vector<Identifier>
+  plus_build_metadata() {
+    if (peek() != Token::Plus) {
+      return {};
+    }
+    // pop the peeked plus.
+    pop();
+    return parts();
+  }
 
-            switch (peek().kind) {
-                case Token::Eq:
-                    op.kind = Op::Ex;
-                    break;
-                case Token::Gt:
-                    op.kind = Op::Gt;
-                    break;
-                case Token::GtEq:
-                    op.kind = Op::GtEq;
-                    break;
-                case Token::Lt:
-                    op.kind = Op::Lt;
-                    break;
-                case Token::LtEq:
-                    op.kind = Op::LtEq;
-                    break;
-                case Token::Tilde:
-                    op.kind = Op::Tilde;
-                    break;
-                case Token::Caret:
-                    op.kind = Op::Compatible;
-                    break;
-                // default op
-                default:
-                    op.kind = Op::Compatible;
-                    break;
-            }
-            // remove the matched token.
-            pop();
-            skip_whitespace();
-            return op;
-        }
+  /// Optionally parse a single operator.
+  ///
+  /// Like, `~`, or `^`.
+  Op
+  op() {
+    Op op(Op::Compatible);
 
-        /// Parse a single predicate.
-        ///
-        /// Like, `^1`, or `>=2.0.0`.
-        std::optional<Predicate>
-        predicate() {
-            if (is_eof()) {
-                return std::nullopt;
-            }
+    switch (peek().kind) {
+      case Token::Eq:
+        op.kind = Op::Ex;
+        break;
+      case Token::Gt:
+        op.kind = Op::Gt;
+        break;
+      case Token::GtEq:
+        op.kind = Op::GtEq;
+        break;
+      case Token::Lt:
+        op.kind = Op::Lt;
+        break;
+      case Token::LtEq:
+        op.kind = Op::LtEq;
+        break;
+      case Token::Tilde:
+        op.kind = Op::Tilde;
+        break;
+      case Token::Caret:
+        op.kind = Op::Compatible;
+        break;
+      // default op
+      default:
+        op.kind = Op::Compatible;
+        break;
+    }
+    // remove the matched token.
+    pop();
+    skip_whitespace();
+    return op;
+  }
 
-            Op op = this->op();
+  /// Parse a single predicate.
+  ///
+  /// Like, `^1`, or `>=2.0.0`.
+  std::optional<Predicate>
+  predicate() {
+    if (is_eof()) {
+      return std::nullopt;
+    }
 
-            std::uint_fast64_t major;
-            if (const auto m = this->component()) {
-                major = m.value();
-            } else {
-                return std::nullopt;
-            }
+    Op op = this->op();
 
-            const auto minor = this->dot_component();
-            const auto patch = this->dot_component();
-            const auto pre = this->pre();
+    std::uint_fast64_t major;
+    if (const auto m = this->component()) {
+      major = m.value();
+    } else {
+      return std::nullopt;
+    }
 
-            // TODO: avoid illegal combinations, like `1.*.0`.
-            if (!minor.has_value()) {
-                op = Op(Op::Wildcard, WildcardVersion::Minor);
-            }
-            if (!patch.has_value()) {
-                op = Op(Op::Wildcard, WildcardVersion::Patch);
-            }
+    const auto minor = this->dot_component();
+    const auto patch = this->dot_component();
+    const auto pre = this->pre();
 
-            // ignore build metadata
-            this->plus_build_metadata();
+    // TODO: avoid illegal combinations, like `1.*.0`.
+    if (!minor.has_value()) {
+      op = Op(Op::Wildcard, WildcardVersion::Minor);
+    }
+    if (!patch.has_value()) {
+      op = Op(Op::Wildcard, WildcardVersion::Patch);
+    }
 
-            return Predicate{ op, major, minor, patch, pre };
-        }
+    // ignore build metadata
+    this->plus_build_metadata();
 
-        /// Parse a single range.
-        ///
-        /// Like, `^1.0` or `>=3.0.0, <4.0.0`.
-        VersionReq
-        range() {
-            std::vector<Predicate> predicates{};
+    return Predicate{op, major, minor, patch, pre};
+  }
 
-            if (const auto predicate = this->predicate()) {
-                predicates.push_back(predicate.value());
+  /// Parse a single range.
+  ///
+  /// Like, `^1.0` or `>=3.0.0, <4.0.0`.
+  VersionReq
+  range() {
+    std::vector<Predicate> predicates{};
 
-                while (const auto next = this->comma_predicate()) {
-                    predicates.push_back(next.value());
-                }
-            }
-            return VersionReq{ predicates };
-        }
+    if (const auto predicate = this->predicate()) {
+      predicates.push_back(predicate.value());
 
-        /// Parse a comparator.
-        ///
-        /// Like, `1.0 || 2.0` or `^1 || >=3.0.0, <4.0.0`.
-        Comparator
-        comparator() {
-            std::vector<VersionReq> ranges{};
-            ranges.push_back(this->range());
+      while (const auto next = this->comma_predicate()) {
+        predicates.push_back(next.value());
+      }
+    }
+    return VersionReq{predicates};
+  }
 
-            while (const auto next = this->or_range()) {
-                ranges.push_back(next.value());
-            }
-            return Comparator{ ranges };
-        }
+  /// Parse a comparator.
+  ///
+  /// Like, `1.0 || 2.0` or `^1 || >=3.0.0, <4.0.0`.
+  Comparator
+  comparator() {
+    std::vector<VersionReq> ranges{};
+    ranges.push_back(this->range());
 
-        /// Parse a version.
-        ///
-        /// Like, `1.0.0` or `3.0.0-beta.1`.
-        Version
-        version() {
-            this->skip_whitespace();
+    while (const auto next = this->or_range()) {
+      ranges.push_back(next.value());
+    }
+    return Comparator{ranges};
+  }
 
-            const std::uint_fast64_t major = this->numeric().value();
-            const std::uint_fast64_t minor = this->dot_numeric().value();
-            const std::uint_fast64_t patch = this->dot_numeric().value();
-            const std::vector<Identifier> pre = this->pre();
-            const std::vector<Identifier> build = this->plus_build_metadata();
+  /// Parse a version.
+  ///
+  /// Like, `1.0.0` or `3.0.0-beta.1`.
+  Version
+  version() {
+    this->skip_whitespace();
 
-            this->skip_whitespace();
+    const std::uint_fast64_t major = this->numeric().value();
+    const std::uint_fast64_t minor = this->dot_numeric().value();
+    const std::uint_fast64_t patch = this->dot_numeric().value();
+    const std::vector<Identifier> pre = this->pre();
+    const std::vector<Identifier> build = this->plus_build_metadata();
 
-            return Version{ major, minor, patch, pre, build };
-        }
+    this->skip_whitespace();
 
-        /// Check if we have reached the end of input.
-        bool is_eof() const {
-            return lexer.size() < lexer.c1_index;
-        }
+    return Version{major, minor, patch, pre, build};
+  }
 
-        /// Get the rest of the tokens in the parser.
-        ///
-        /// Useful for debugging.
-        std::vector<Token>
-        tail() {
-            std::vector<Token> out{};
+  /// Check if we have reached the end of input.
+  bool
+  is_eof() const {
+    return lexer.size() < lexer.c1_index;
+  }
 
-            out.push_back(c1);
-            for (const Token token = lexer.next(); token != Token::Unexpected; ) {
-                out.push_back(token);
-            }
-            return out;
-        }
+  /// Get the rest of the tokens in the parser.
+  ///
+  /// Useful for debugging.
+  std::vector<Token>
+  tail() {
+    std::vector<Token> out{};
 
-    private:
-        bool has_ws_separator(const Token::Kind& pat) {
-            skip_whitespace();
+    out.push_back(c1);
+    for (const Token token = lexer.next(); token != Token::Unexpected;) {
+      out.push_back(token);
+    }
+    return out;
+  }
 
-            if (peek() == pat) {
-                // pop the separator.
-                pop();
-                // strip suffixing whitespace.
-                skip_whitespace();
-                return true;
-            }
-            return false;
-        }
-    };
+private:
+  bool
+  has_ws_separator(const Token::Kind& pat) {
+    skip_whitespace();
+
+    if (peek() == pat) {
+      // pop the separator.
+      pop();
+      // strip suffixing whitespace.
+      skip_whitespace();
+      return true;
+    }
+    return false;
+  }
+};
+
 } // end namespace semver::parser
 
 namespace semver {
-    Version
-    parse(std::string_view input) {
-        try {
-            parser::Parser parser(input);
-            return parser.version();
-        } catch (const std::bad_optional_access& e) {
-            throw semver::version_error(e.what());
-        }
-    }
 
-//    namespace range {
-//        VersionReq
-//        parse(std::string_view input) {
-//        }
-//    } // end namespace range
+Version
+parse(std::string_view input) {
+  try {
+    parser::Parser parser(input);
+    return parser.version();
+  } catch (const std::bad_optional_access& e) {
+    throw semver::version_error(e.what());
+  }
+}
+
+//  namespace range {
+//      VersionReq
+//      parse(std::string_view input) {
+//      }
+//  } // end namespace range
+
 } // end namespace semver
 
 #endif // !SEMVER_PARSER_PARSER_HPP
