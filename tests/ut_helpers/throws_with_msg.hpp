@@ -1,4 +1,5 @@
 #include <boost/ut.hpp>
+#include <string>
 
 namespace poac::test::ut_helpers {
 
