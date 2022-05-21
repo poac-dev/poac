@@ -20,23 +20,25 @@ jobs:
         compiler:
           - cc: clang-12
             cxx: clang++-12
-            version: 12
             subpackage: lld-12
           - cc: clang-13
             cxx: clang++-13
-            version: 13
             subpackage: lld-13
+          - cc: clang-14
+            cxx: clang++-14
+            subpackage: lld-14
           - cc: gcc-11
             cxx: g++-11
-            version: 11
+            subpackage: binutils
+          - cc: gcc-12
+            cxx: g++-12
             subpackage: binutils
         include:
           - build_type: Debug
             coverage: on
             compiler:
-              cc: gcc-11
-              cxx: g++-11
-              version: 11
+              cc: gcc-12
+              cxx: g++-12
               subpackage: binutils
     env:
       CC: ${{ matrix.compiler.cc }}
@@ -47,15 +49,11 @@ jobs:
 
       - name: Setup GCC
         if: startsWith(matrix.compiler.cc, 'gcc')
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: ${{ matrix.compiler.version }}
+        run: sudo apt-get install -y -qq ${{ matrix.compiler.cxx }}
 
       - name: Setup Clang
         if: startsWith(matrix.compiler.cc, 'clang')
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: ${{ matrix.compiler.version }}
+        run: sudo apt-get install -y -qq ${{ matrix.compiler.cc }}
 
       - name: Install Ninja & ${{ matrix.compiler.subpackage }}
         run: |
