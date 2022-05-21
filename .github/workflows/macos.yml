@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-11 ]
+        os: [ macos-11, macos-12 ]
         build_type: [ Debug, Release ]
     env:
       CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
