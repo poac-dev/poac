@@ -107,7 +107,7 @@ jobs:
           sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
         working-directory: ${{ runner.temp }}
 
-      - run: mkdir -p build
+      - run: mkdir build
 
       - name: Build Poac
         run: |
