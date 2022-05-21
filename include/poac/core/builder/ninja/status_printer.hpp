@@ -15,9 +15,9 @@
 #include <ninja/line_printer.h> // LinePrinter
 #include <ninja/status.h> // StatusPrinter
 
-namespace poac::core::builder::ninja::status_printer {
-    struct status_printer: Status {
-        status_printer(const BuildConfig& config, StringRef progress_status_format)
+namespace poac::core::builder::ninja {
+    struct StatusPrinter: Status {
+        StatusPrinter(const BuildConfig& config, StringRef progress_status_format)
             : config_(config),
               started_edges_(0),
               finished_edges_(0),

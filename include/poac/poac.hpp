@@ -51,7 +51,9 @@ namespace poac {
     //
     using namespace std::literals::string_literals;
     using namespace std::literals::string_view_literals;
+    using namespace fmt::literals;
     using namespace termcolor2::color_literals;
+
     inline std::filesystem::path
     operator ""_path(const char* str, std::size_t) {
         return std::filesystem::path(str);
@@ -105,6 +107,15 @@ namespace poac {
     using Map = std::map<K, V>;
     template <typename K, typename V, typename H = std::hash<K>, typename E = std::equal_to<K>>
     using HashMap = std::unordered_map<K, V, H, E>;
+
+    // For std::pair, we need to pass this struct as a Hash function.
+    // HashMap<std::pair<K, V>, String, HashPair>
+    struct HashPair {
+        template <typename T, typename U>
+        usize operator()(const std::pair<T, U>& p) const {
+            return std::hash<T>()(p.first) ^ std::hash<U>()(p.second);
+        }
+    };
 
     //
     // utilities

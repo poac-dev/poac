@@ -39,7 +39,7 @@ namespace poac::core::builder::compiler::cxx {
         if (compiler_command == "g++" || compiler_command == "clang++") {
 #  ifdef __APPLE__
             const String compiler(compiler_command);
-            if (const auto res = util::shell::cmd(compiler + " --version").stderr_to_stdout().exec()) {
+            if (const auto res = util::shell::Cmd(compiler + " --version").stderr_to_stdout().exec()) {
                 if (res.value().find("Apple") != String::npos) {
                     return Ok(util::cfg::compiler::apple_clang);
                 }

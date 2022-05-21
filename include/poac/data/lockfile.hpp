@@ -51,33 +51,33 @@ namespace poac::data::lockfile::inline v1 {
 
     inline constexpr i64 lockfile_version = 1;
 
-    struct package_t {
+    struct Package {
         String name;
         String version;
         Vec<String> dependencies;
     };
 
-    struct lockfile_t {
+    struct Lockfile {
         i64 version = lockfile_version;
-        Vec<package_t> package;
+        Vec<Package> package;
     };
 } // end namespace
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::lockfile::v1::package_t, name, version, dependencies
+    poac::data::lockfile::v1::Package, name, version, dependencies
 )
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::lockfile::v1::lockfile_t, version, package
+    poac::data::lockfile::v1::Lockfile, version, package
 )
 
 namespace poac::data::lockfile::inline v1 {
     // -------------------- INTO LOCKFILE --------------------
 
     [[nodiscard]] Result<toml::basic_value<toml::preserve_comments>>
-    convert_to_lock(const resolver::unique_deps_t<resolver::with_deps>& deps) {
-        Vec<package_t> packages;
+    convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps) {
+        Vec<Package> packages;
         for (const auto& [pack, inner_deps] : deps) {
-            package_t p{
+            Package p{
                 resolver::get_name(pack),
                 resolver::get_version(pack),
                 Vec<String>{},
@@ -95,14 +95,14 @@ namespace poac::data::lockfile::inline v1 {
         }
 
         toml::basic_value<toml::preserve_comments> lock(
-            lockfile_t{ .package = packages },
+            Lockfile{ .package = packages },
             { lockfile_header }
         );
         return Ok(lock);
     }
 
     [[nodiscard]] Result<void>
-    overwrite(const resolver::unique_deps_t<resolver::with_deps>& deps) {
+    overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps) {
         const auto lock = tryi(convert_to_lock(deps));
         std::ofstream lockfile(config::path::current / lockfile_name, std::ios::out);
         lockfile << lock;
@@ -110,7 +110,7 @@ namespace poac::data::lockfile::inline v1 {
     }
 
     [[nodiscard]] Result<void>
-    generate(const resolver::unique_deps_t<resolver::with_deps>& deps) {
+    generate(const resolver::UniqDeps<resolver::WithDeps>& deps) {
         if (is_outdated(config::path::current)) {
             return overwrite(deps);
         }
@@ -119,26 +119,26 @@ namespace poac::data::lockfile::inline v1 {
 
     // -------------------- FROM LOCKFILE --------------------
 
-    [[nodiscard]] resolver::unique_deps_t<resolver::with_deps>
-    convert_to_deps(const lockfile_t& lock) {
-        resolver::unique_deps_t<resolver::with_deps> deps;
+    [[nodiscard]] resolver::UniqDeps<resolver::WithDeps>
+    convert_to_deps(const Lockfile& lock) {
+        resolver::UniqDeps<resolver::WithDeps> deps;
         for (const auto& package : lock.package) {
-            resolver::unique_deps_t<resolver::with_deps>::mapped_type inner_deps = None;
+            resolver::UniqDeps<resolver::WithDeps>::mapped_type inner_deps = None;
             if (!package.dependencies.empty()) {
                 // When serializing lockfile, package version of inner dependencies
                 // will be dropped (ref: `convert_to_lock` function).
                 // Thus, the version should be restored just as empty string ("").
-                resolver::unique_deps_t<resolver::with_deps>::mapped_type::value_type ideps;
+                resolver::UniqDeps<resolver::WithDeps>::mapped_type::value_type ideps;
                 for (const auto& name : package.dependencies) {
                     ideps.push_back({ name, "" });
                 }
             }
-            deps.emplace(resolver::package_t{ package.name, package.version }, inner_deps);
+            deps.emplace(resolver::Package{ package.name, package.version }, inner_deps);
         }
         return deps;
     }
 
-    [[nodiscard]] Result<Option<resolver::unique_deps_t<resolver::with_deps>>>
+    [[nodiscard]] Result<Option<resolver::UniqDeps<resolver::WithDeps>>>
     read(const fs::path& base_dir) {
         if (!fs::exists(base_dir / lockfile_name)) {
             return Ok(None);
@@ -146,7 +146,7 @@ namespace poac::data::lockfile::inline v1 {
 
         try {
             const auto lock = toml::parse(base_dir / lockfile_name);
-            const auto parsed_lock = toml::get<lockfile_t>(lock);
+            const auto parsed_lock = toml::get<Lockfile>(lock);
             if (parsed_lock.version != lockfile_version) {
                 return Err<Error::InvalidLockfileVersion>(
                     parsed_lock.version

@@ -85,7 +85,7 @@ namespace poac::core::builder::ninja::manifest {
     }
 
     Vec<String>
-    gather_includes(const resolver::resolved_deps_t& resolved_deps) {
+    gather_includes(const resolver::ResolvedDeps& resolved_deps) {
         Vec<String> includes;
         for (const auto& [package, inner_deps] : resolved_deps) {
             static_cast<void>(inner_deps);
@@ -139,9 +139,9 @@ namespace poac::core::builder::ninja::manifest {
     construct(
         const fs::path& build_dir,
         const toml::value& poac_manifest,
-        const resolver::resolved_deps_t& resolved_deps
+        const resolver::ResolvedDeps& resolved_deps
     ) {
-        syntax::writer writer{ std::ostringstream() };
+        syntax::Writer writer{ std::ostringstream() };
         for (const auto& header : manifest_headers) {
             writer.comment(header);
         }
@@ -153,7 +153,7 @@ namespace poac::core::builder::ninja::manifest {
         writer.rule(
             "compile",
             format("{} $OPTIONS $DEFINES $INCLUDES $LIBRARIES $in -o $out", command),
-            syntax::rule_set_t{
+            syntax::RuleSet{
                 .description = "$PACKAGE_NAME v$PACKAGE_VERSION $PACKAGE_PATH",
             }
         );
@@ -171,9 +171,9 @@ namespace poac::core::builder::ninja::manifest {
         writer.build(
             {output_file.string()},
             "compile",
-            syntax::build_set_t{
+            syntax::BuildSet{
                 .inputs = std::vector{source_file.string()},
-                .variables = syntax::variables_t{
+                .variables = syntax::Variables{
                     {"PACKAGE_NAME", toml::find<String>(poac_manifest, "package", "name")},
                     {"PACKAGE_VERSION", toml::find<String>(poac_manifest, "package", "version")},
                     {"PACKAGE_PATH", format("({})", config::path::current.string())},
@@ -194,7 +194,7 @@ namespace poac::core::builder::ninja::manifest {
     create(
         const fs::path& build_dir,
         const toml::value& poac_manifest,
-        const resolver::resolved_deps_t& resolved_deps
+        const resolver::ResolvedDeps& resolved_deps
     ) {
         // `ninja.build` will be constructed from `poac.toml`,
         // so if `poac.toml` has no change,

@@ -20,12 +20,10 @@ namespace poac::core::validator {
         if (fs::exists(config_path, ec)) {
             return Ok();
         }
-        return Err(
-            format(
-                "required config file `{}` does not exist",
-                config_path.string()
-            )
-        );
+        return Err(format(
+            "required config file `{}` does not exist",
+            config_path.string()
+        ));
     }
 
     [[nodiscard]] Result<void, String>
@@ -148,12 +146,10 @@ namespace poac::core::validator {
             "volatile", "wchar_t", "while", "xor", "xor_eq",
         };
         if (std::find(blacklist.begin(), blacklist.end(), s) != blacklist.end()) {
-            return Err(
-                format(
-                    "`{}` is a keyword, so it cannot be used as a package name",
-                    String(s)
-                )
-            );
+            return Err(format(
+                "`{}` is a keyword, so it cannot be used as a package name",
+                String(s)
+            ));
         }
         return Ok();
     }

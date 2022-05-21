@@ -72,7 +72,7 @@ namespace poac::util::net {
     }
 
     namespace http = boost::beast::http;
-    using headers_t =
+    using Headers =
         HashMap<
             std::variant<
                 boost::beast::http::field,
@@ -85,7 +85,7 @@ namespace poac::util::net {
             http::verb method,
             const StringRef target,
             const StringRef host,
-            const headers_t& headers={}
+            const Headers& headers={}
     ) {
         // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
         http::request<RequestBody> req{ method, String(target), 11 };
@@ -106,20 +106,20 @@ namespace poac::util::net {
         return { host, target };
     }
 
-    class multi_part_form_t {
+    class MultiPartForm {
     public:
-        ~multi_part_form_t() = default;
-        multi_part_form_t(const multi_part_form_t&) = default;
-        multi_part_form_t& operator=(const multi_part_form_t&) = default;
-        multi_part_form_t(multi_part_form_t&&) = default;
-        multi_part_form_t& operator=(multi_part_form_t&&) = default;
+        ~MultiPartForm() = default;
+        MultiPartForm(const MultiPartForm&) = default;
+        MultiPartForm& operator=(const MultiPartForm&) = default;
+        MultiPartForm(MultiPartForm&&) = default;
+        MultiPartForm& operator=(MultiPartForm&&) = default;
 
     public:
         using file_name_type = String;
         using file_path_type = fs::path;
         using header_type = Map<http::field, String>;
-        using self_reference = multi_part_form_t&;
-        using const_self_reference = const multi_part_form_t&;
+        using self_reference = MultiPartForm&;
+        using const_self_reference = const MultiPartForm&;
 
     private:
         String m_crlf = "\r\n";
@@ -131,7 +131,7 @@ namespace poac::util::net {
         Vec<std::tuple<file_name_type, file_path_type, header_type>> m_file_param;
 
     public:
-        multi_part_form_t()
+        MultiPartForm()
             : m_boundary(boost::uuids::to_string(boost::uuids::random_generator{}()))
             , m_footer(format("{}--{}--{}", m_crlf, m_boundary, m_crlf))
         {}
@@ -146,7 +146,6 @@ namespace poac::util::net {
         }
 
         void set(const file_name_type& name, const String& value) {
-            using namespace fmt::literals;
             m_form_param.emplace_back(
                 format(
                     "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
@@ -182,13 +181,13 @@ namespace poac::util::net {
             );
         }
 
-        struct file_info_t {
+        struct FileInfo {
             String path;
             std::uintmax_t size;
         };
-        Vec<file_info_t>
+        Vec<FileInfo>
         get_files() const {
-            Vec<file_info_t> file_info;
+            Vec<FileInfo> file_info;
             for (const auto& f : m_file_param) {
                 const fs::path file_path = std::get<1>(f);
                 file_info.push_back({file_path.string(), fs::file_size(file_path)});
@@ -233,16 +232,16 @@ namespace poac::util::net {
 
     // TODO: ioc, ctx, resolver,...等はget等を呼び出し後，解体し，host等は残すことで，連続で呼び出し可能にする．
     // Only SSL usage
-    class requests {
+    class Requests {
     public:
-        requests() = delete;
-        ~requests() = default;
-        requests(const requests&) = delete;
-        requests& operator=(const requests&) = delete;
-        requests(requests&&) = default;
-        requests& operator=(requests&&) = default;
+        Requests() = delete;
+        ~Requests() = default;
+        Requests(const Requests&) = delete;
+        Requests& operator=(const Requests&) = delete;
+        Requests(Requests&&) = default;
+        Requests& operator=(Requests&&) = default;
 
-        explicit requests(const StringRef host)
+        explicit Requests(const StringRef host)
             : host(host)
             , ioc(std::make_unique<boost::asio::io_context>())
             , ctx(std::make_unique<boost::asio::ssl::context>(
@@ -285,7 +284,7 @@ namespace poac::util::net {
         [[nodiscard]] Result<typename ResponseBody::value_type, String>
         get(
             const StringRef target,
-            const headers_t& headers={},
+            const Headers& headers={},
             Ofstream&& ofs=nullptr
         ) const {
             const auto req = create_request<RequestBody>(
@@ -309,8 +308,7 @@ namespace poac::util::net {
             typename RequestBody =
                 std::conditional_t<
                     std::is_same_v<
-                        std::remove_cvref_t<BodyType>,
-                        multi_part_form_t>,
+                        std::remove_cvref_t<BodyType>, MultiPartForm>,
                     http::empty_body,
                     http::string_body>,
             typename ResponseBody =
@@ -324,7 +322,7 @@ namespace poac::util::net {
         post(
             const StringRef target,
             BodyType&& body,
-            const headers_t& headers={},
+            const Headers& headers={},
             Ofstream&& ofs=nullptr
         ) const {
             auto req = create_request<RequestBody>(
@@ -333,7 +331,7 @@ namespace poac::util::net {
             if constexpr (
                 !std::is_same_v<
                     std::remove_cvref_t<BodyType>,
-                    multi_part_form_t>
+                                          MultiPartForm>
             ) {
                 req.set(http::field::content_type, "application/json");
                 req.body() = body;
@@ -372,9 +370,7 @@ namespace poac::util::net {
                     std::is_same<
                         std::remove_cvref_t<
                             Request
-                        >,
-                        multi_part_form_t
-                    >>,
+                        >, MultiPartForm>>,
                 std::nullptr_t
             > = nullptr>
         void write_request(const Request& req) const {
@@ -390,8 +386,7 @@ namespace poac::util::net {
                     std::remove_cvref_t<
                         Request
                     >,
-                    multi_part_form_t
-                >,
+                                                  MultiPartForm>,
                 std::nullptr_t
             > = nullptr>
         void write_request(const Request& req) const {
@@ -530,7 +525,7 @@ namespace poac::util::net {
             spdlog::debug(format("Redirect to {}\n", new_location));
 
             // FIXME: header information is gone.
-            const requests req(new_host);
+            const Requests req(new_host);
             if constexpr (method == http::verb::get) {
                 return req.get(new_target, {}, std::forward<Ofstream>(ofs));
             } else if (method == http::verb::post) {
@@ -587,10 +582,10 @@ namespace poac::util::net::api {
     [[nodiscard]] Result<boost::property_tree::ptree, String>
     call(StringRef path, StringRef body) noexcept {
         try {
-            const requests request{
+            const Requests request{
                 format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)
             };
-            headers_t headers;
+            Headers headers;
             headers.emplace(
                 boost::beast::http::field::authorization,
                 format("Bearer {}", SUPABASE_ANON_KEY)

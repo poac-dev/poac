@@ -29,7 +29,7 @@
 #include <poac/config.hpp>
 
 namespace poac::core::resolver {
-    using resolved_deps_t = resolve::unique_deps_t<resolve::with_deps>;
+    using ResolvedDeps = resolve::UniqDeps<resolve::WithDeps>;
 
     class Error {
         template <thiserror::fixed_string S, class ...T>
@@ -70,21 +70,21 @@ namespace poac::core::resolver {
     };
 
     inline String
-    get_install_name(const resolve::package_t& package) {
+    get_install_name(const resolve::Package& package) {
         return boost::replace_first_copy(
             resolve::get_name(package), "/", "-"
         ) + "-" + resolve::get_version(package);
     }
 
     inline fs::path
-    get_extracted_path(const resolve::package_t& package) {
+    get_extracted_path(const resolve::Package& package) {
         return config::path::extract_dir / get_install_name(package);
     }
 
     /// Rename unknown extracted directory to easily access when building.
     [[nodiscard]] Result<void>
     rename_extracted_directory(
-        const resolve::package_t& package,
+        const resolve::Package& package,
         StringRef extracted_directory_name) noexcept
     {
         const fs::path temporarily_extracted_path =
@@ -100,7 +100,7 @@ namespace poac::core::resolver {
     }
 
     fs::path
-    get_archive_path(const resolve::package_t& package) {
+    get_archive_path(const resolve::Package& package) {
         fs::create_directories(config::path::archive_dir);
         return config::path::archive_dir / (get_install_name(package) + ".tar.gz");
     }
@@ -133,7 +133,7 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] Result<std::pair<String, String>, String>
-    get_download_link(const resolve::package_t& package) {
+    get_download_link(const resolve::Package& package) {
         const auto [repository, sha256sum] =
             tryi(util::net::api::repoinfo(
                 resolve::get_name(package), resolve::get_version(package)
@@ -144,7 +144,7 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] Result<std::pair<fs::path, String>>
-    fetch_impl(const resolve::package_t& package) noexcept {
+    fetch_impl(const resolve::Package& package) noexcept {
         try {
             const auto [download_link, sha256sum] = tryi(
                 get_download_link(package)
@@ -156,7 +156,7 @@ namespace poac::core::resolver {
 
             std::ofstream archive(archive_path);
             const auto [host, target] = util::net::parse_url(download_link);
-            const util::net::requests requests{ host };
+            const util::net::Requests requests{ host };
             std::ignore = requests.get(target, {}, std::move(archive));
 
             return Ok(std::make_pair(archive_path, sha256sum));
@@ -172,7 +172,7 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] Result<void>
-    fetch(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
+    fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
         for (const auto& package : deps) {
             const auto [installed_path, sha256sum] = tryi(fetch_impl(package));
             // Check if sha256sum of the downloaded package is the same with one
@@ -207,7 +207,7 @@ namespace poac::core::resolver {
     }
 
     bool
-    is_not_installed(const resolve::package_t& package) noexcept {
+    is_not_installed(const resolve::Package& package) noexcept {
         std::error_code ec{};
         bool exists = fs::exists(get_archive_path(package), ec);
         if (ec) {
@@ -216,15 +216,15 @@ namespace poac::core::resolver {
         return !exists;
     }
 
-    resolve::unique_deps_t<resolve::without_deps>
-    get_not_installed_deps(const resolved_deps_t& deps) noexcept {
+    resolve::UniqDeps<resolve::WithoutDeps>
+    get_not_installed_deps(const ResolvedDeps& deps) noexcept {
         return
             deps
             | boost::adaptors::map_keys
             | boost::adaptors::filtered(is_not_installed)
             // ref: https://stackoverflow.com/a/42251976
             | boost::adaptors::transformed(
-                [](const resolve::package_t& package){
+                [](const resolve::Package& package){
                     return std::make_pair(
                         resolve::get_name(package),
                         resolve::get_version(package)
@@ -234,7 +234,7 @@ namespace poac::core::resolver {
     }
 
     [[nodiscard]] Result<void>
-    download_deps(const resolved_deps_t& deps) noexcept {
+    download_deps(const ResolvedDeps& deps) noexcept {
         const auto not_installed_deps = get_not_installed_deps(deps);
         if (not_installed_deps.empty()) {
             // all resolved packages already have been installed
@@ -250,8 +250,8 @@ namespace poac::core::resolver {
         return fetch(not_installed_deps);
     }
 
-    [[nodiscard]] Result<resolved_deps_t>
-    do_resolve(const resolve::unique_deps_t<resolve::without_deps>& deps) noexcept {
+    [[nodiscard]] Result<ResolvedDeps>
+    do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
         try {
             const auto duplicate_deps = tryi(
                 resolve::gather_all_deps(deps).map_err(to_anyhow)
@@ -265,8 +265,7 @@ namespace poac::core::resolver {
                 // building depends on multiple versions of the same package.
                 // At the condition (the else clause), gathered dependencies
                 // should be in the backtrack loop.
-                return Ok(
-                    resolved_deps_t(
+                return Ok(ResolvedDeps(
                         duplicate_deps.cbegin(), duplicate_deps.cend()
                     ));
             } else {
@@ -279,10 +278,10 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] Result<resolve::unique_deps_t<resolve::without_deps>>
+    [[nodiscard]] Result<resolve::UniqDeps<resolve::WithoutDeps>>
     to_resolvable_deps(const toml::value& deps) noexcept {
         try {
-            resolve::unique_deps_t<resolve::without_deps> resolvable_deps{};
+            resolve::UniqDeps<resolve::WithoutDeps> resolvable_deps{};
             for (const auto& dep : toml::get<toml::table>(deps)) {
                 const String version = toml::get<String>(dep.second);
                 resolvable_deps.emplace(dep.first, version);
@@ -293,7 +292,7 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] Result<Option<resolved_deps_t>>
+    [[nodiscard]] Result<Option<ResolvedDeps>>
     try_to_read_lockfile(const toml::value& config) {
         if (data::lockfile::is_outdated(config::path::current)) {
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
@@ -305,7 +304,7 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] Result<resolved_deps_t>
+    [[nodiscard]] Result<ResolvedDeps>
     get_resolved_deps(const toml::value& config) {
         const auto resolved_deps = tryi(try_to_read_lockfile(config));
         if (resolved_deps.has_value()) {
@@ -318,10 +317,10 @@ namespace poac::core::resolver {
         }
     }
 
-    [[nodiscard]] Result<resolved_deps_t>
+    [[nodiscard]] Result<ResolvedDeps>
     install_deps(const toml::value& manifest) {
         if (!manifest.contains("dependencies")) {
-            const auto empty_deps = resolved_deps_t{};
+            const auto empty_deps = ResolvedDeps{};
             tryi(data::lockfile::generate(empty_deps));
             return Ok(empty_deps);
         }

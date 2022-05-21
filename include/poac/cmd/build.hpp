@@ -17,8 +17,8 @@
 #include <poac/config.hpp>
 
 namespace poac::cmd::build {
-    using core::builder::ninja::build::mode_t;
-    using core::resolver::resolved_deps_t;
+    using core::builder::ninja::build::Mode;
+    using core::resolver::ResolvedDeps;
 
     struct Options: structopt::sub_command {
         /// Build artifacts in release mode, with optimizations
@@ -38,7 +38,7 @@ namespace poac::cmd::build {
     };
 
     [[nodiscard]] Result<fs::path>
-    build_impl(const toml::value& manifest, const mode_t& mode, const resolved_deps_t& resolved_deps) {
+    build_impl(const toml::value& manifest, const Mode& mode, const ResolvedDeps& resolved_deps) {
         spdlog::stopwatch sw;
         const fs::path output_path = tryi(
             core::builder::ninja::build::start(manifest, mode, resolved_deps)
@@ -73,7 +73,7 @@ namespace poac::cmd::build {
             return Ok(None);
         }
 
-        const mode_t mode = opts.release.value() ? mode_t::release : mode_t::debug;
+        const Mode mode = opts.release.value() ? Mode::release : Mode::debug;
         const fs::path output_path = tryi(
             build_impl(manifest, mode, resolved_deps)
         );

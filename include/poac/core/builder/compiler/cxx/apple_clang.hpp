@@ -13,7 +13,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
 
     [[nodiscard]] Result<semver::Version>
     get_compiler_version(const String& compiler_command) {
-        const auto res = util::shell::cmd(compiler_command + " --version").dump_stderr().exec();
+        const auto res = util::shell::Cmd(compiler_command + " --version").dump_stderr().exec();
         if (res.has_value()) {
             // `Apple clang version 13.0.0 (...)`
             String version;
@@ -72,7 +72,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
         return Err<error::Error::UnsupportedLangVersion>(
             error::to_string(compiler),
             version.get_full(),
-            to_string(lang::lang_t::cxx),
+            to_string(lang::Lang::cxx),
             cpp
         );
     }

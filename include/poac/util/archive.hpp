@@ -17,13 +17,13 @@
 namespace poac::util::archive {
     using Archive = struct archive;
 
-    struct archive_write_delete {
+    struct ArchiveWriteDelete {
         void operator()(Archive* w) {
             archive_write_close(w);
             archive_write_free(w);
         }
     };
-    using Writer = std::unique_ptr<Archive, archive_write_delete>;
+    using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 
     [[nodiscard]] Result<void, String>
     archive_write_data_block(

@@ -38,17 +38,17 @@ namespace poac::core::builder::ninja::build {
             >;
     };
 
-    enum class mode_t {
+    enum class Mode {
         debug,
         release,
     };
 
     String
-    to_string(mode_t mode) {
+    to_string(Mode mode) {
         switch (mode) {
-            case mode_t::debug:
+            case Mode::debug:
                 return "debug";
-            case mode_t::release:
+            case Mode::release:
                 return "release";
             default:
                 unreachable();
@@ -56,11 +56,11 @@ namespace poac::core::builder::ninja::build {
     }
 
     std::ostream&
-    operator<<(std::ostream& os, mode_t mode) {
+    operator<<(std::ostream& os, Mode mode) {
         switch (mode) {
-            case mode_t::debug:
+            case Mode::debug:
                 return (os << "dev");
-            case mode_t::release:
+            case Mode::release:
                 return (os << "release");
             default:
                 unreachable();
@@ -127,13 +127,13 @@ namespace poac::core::builder::ninja::build {
     [[nodiscard]] Result<fs::path>
     start(
         const toml::value& poac_manifest,
-        const mode_t& mode,
-        const resolver::resolved_deps_t& resolved_deps
+        const Mode& mode,
+        const resolver::ResolvedDeps& resolved_deps
     ) {
         BuildConfig config;
         // setenv("NINJA_NOT_SMART_TERMINAL", "", true);
         // setenv("NINJA_STATUS", progress_status_format.c_str(), true);
-        status_printer::status_printer status(config, progress_status_format);
+        ninja::StatusPrinter status(config, progress_status_format);
 
         const fs::path build_dir = config::path::output_dir / to_string(mode);
         fs::create_directories(build_dir);

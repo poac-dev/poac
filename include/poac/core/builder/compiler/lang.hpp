@@ -6,17 +6,17 @@
 #include <poac/util/cfg.hpp> // compiler
 
 namespace poac::core::builder::compiler::lang {
-    enum class lang_t {
+    enum class Lang {
         c,
         cxx,
     };
 
     String
-    to_string(lang_t lang) {
+    to_string(Lang lang) {
         switch (lang) {
-            case lang_t::c:
+            case Lang::c:
                 return "C";
-            case lang_t::cxx:
+            case Lang::cxx:
                 return "C++";
             default:
                 unreachable();
@@ -24,7 +24,7 @@ namespace poac::core::builder::compiler::lang {
     }
 
     std::ostream&
-    operator<<(std::ostream& os, lang_t lang) {
+    operator<<(std::ostream& os, Lang lang) {
         return (os << to_string(lang));
     }
 } // end namespace

@@ -13,7 +13,7 @@ namespace poac::core::builder::compiler::cxx::gcc {
 
     [[nodiscard]] Result<semver::Version>
     get_compiler_version(const String& compiler_command) {
-        const auto res = util::shell::cmd(compiler_command + " --version").exec();
+        const auto res = util::shell::Cmd(compiler_command + " --version").exec();
         if (res.has_value()) {
             // `g++ (GCC) 11.2.0\n`
             String version;
@@ -73,7 +73,7 @@ namespace poac::core::builder::compiler::cxx::gcc {
         return Err<error::Error::UnsupportedLangVersion>(
             error::to_string(compiler),
             version.get_full(),
-            to_string(lang::lang_t::cxx),
+            to_string(lang::Lang::cxx),
             cpp
         );
     }

@@ -33,8 +33,8 @@
 #include <poac/util/verbosity.hpp>
 
 namespace poac::core::resolver::resolve {
-    struct with_deps : std::true_type {};
-    struct without_deps : std::false_type {};
+    struct WithDeps : std::true_type {};
+    struct WithoutDeps : std::false_type {};
 
     // Duplicate dependencies mean not resolved,
     //   so a package has version rather than interval generally.
@@ -43,77 +43,70 @@ namespace poac::core::resolver::resolve {
     // Package information does not need dependencies' dependencies,
     //   so second value of std::pair is not Package (this type)
     //   just needs std::string indicated specific version.
-    template <class WithDeps>
-    struct duplicate_deps {};
+    template <typename W>
+    struct DuplicateDeps {};
 
-    template <class WithDeps>
-    using duplicate_deps_t = typename duplicate_deps<WithDeps>::type;
+    template <typename W>
+    using DupDeps = typename DuplicateDeps<W>::type;
 
     template <>
-    struct duplicate_deps<without_deps> {
+    struct DuplicateDeps<WithoutDeps> {
         using type = Vec<std::pair<String, String>>;
     };
 
-    using package_t = std::pair<
+    using Package = std::pair<
         String, // name
         String // version or interval
     >;
 
-    inline package_t::first_type&
-    get_name(package_t& package) noexcept {
+    inline Package::first_type&
+    get_name(Package& package) noexcept {
         return package.first;
     }
 
-    inline const package_t::first_type&
-    get_name(const package_t& package) noexcept {
+    inline const Package::first_type&
+    get_name(const Package& package) noexcept {
         return package.first;
     }
 
-    inline package_t::second_type&
-    get_version(package_t& package) noexcept {
+    inline Package::second_type&
+    get_version(Package& package) noexcept {
         return package.second;
     }
 
-    inline const package_t::second_type&
-    get_version(const package_t& package) noexcept {
+    inline const Package::second_type&
+    get_version(const Package& package) noexcept {
         return package.second;
     }
 
-    inline package_t::second_type&
-    get_interval(package_t& package) noexcept {
+    inline Package::second_type&
+    get_interval(Package& package) noexcept {
         return get_version(package);
     }
 
-    inline const package_t::second_type&
-    get_interval(const package_t& package) noexcept {
+    inline const Package::second_type&
+    get_interval(const Package& package) noexcept {
         return get_version(package);
     }
 
-    using deps_t = Option<duplicate_deps_t<without_deps>>;
+    using Deps = Option<DupDeps<WithoutDeps>>;
 
     template <>
-    struct duplicate_deps<with_deps> {
-        using type = Vec<std::pair<package_t, deps_t>>;
+    struct DuplicateDeps<WithDeps> {
+        using type = Vec<std::pair<Package, Deps>>;
     };
 
-    struct hash_pair {
-        template <class T, class U>
-        usize operator()(const std::pair<T, U>& p) const {
-            return std::hash<T>()(p.first) ^ std::hash<U>()(p.second);
-        }
-    };
-
-    template <class WithDeps>
-    using unique_deps_t =
+    template <typename W>
+    using UniqDeps =
         std::conditional_t<
-            WithDeps::value,
-            HashMap<package_t, deps_t, hash_pair>,
+            W::value,
+            HashMap<Package, Deps, HashPair>,
             // <name, version or interval>
             HashMap<String, String>
         >;
 
-    inline const package_t&
-    get_package(const unique_deps_t<with_deps>::value_type& deps) noexcept {
+    inline const Package&
+    get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept {
         return deps.first;
     }
 
@@ -157,7 +150,7 @@ namespace poac::core::resolver::resolve {
     }
 
     Vec<Vec<i32>>
-    create_cnf(const duplicate_deps_t<with_deps>& activated) {
+    create_cnf(const DupDeps<WithDeps>& activated) {
         Vec<Vec<i32>> clauses;
         Vec<i32> already_added;
 
@@ -226,11 +219,11 @@ namespace poac::core::resolver::resolve {
         return clauses;
     }
 
-    [[nodiscard]] Result<unique_deps_t<with_deps>, String>
-    solve_sat(const duplicate_deps_t<with_deps>& activated, const Vec<Vec<i32>>& clauses) {
+    [[nodiscard]] Result<UniqDeps<WithDeps>, String>
+    solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
         // deps.activated.size() == variables
         const Vec<i32> assignments = tryi(sat::solve(clauses, activated.size()));
-        unique_deps_t<with_deps> resolved_deps{};
+        UniqDeps<WithDeps> resolved_deps{};
         spdlog::debug("SAT");
         for (const auto& a : assignments) {
             spdlog::debug("{} ", a);
@@ -243,8 +236,8 @@ namespace poac::core::resolver::resolve {
         return Ok(resolved_deps);
     }
 
-    [[nodiscard]] Result<unique_deps_t<with_deps>, String>
-    backtrack_loop(const duplicate_deps_t<with_deps>& activated) {
+    [[nodiscard]] Result<UniqDeps<WithDeps>, String>
+    backtrack_loop(const DupDeps<WithDeps>& activated) {
         const auto clauses = create_cnf(activated);
         if (util::verbosity::is_verbose()) {
             for (const auto& c : clauses) {
@@ -263,7 +256,7 @@ namespace poac::core::resolver::resolve {
         return solve_sat(activated, clauses);
     }
 
-    template <class SinglePassRange>
+    template <typename SinglePassRange>
     bool duplicate_loose(const SinglePassRange& rng) {
         const auto first = std::begin(rng);
         const auto last = std::end(rng);
@@ -279,7 +272,7 @@ namespace poac::core::resolver::resolve {
     // `latest` -> { 2.5.0 }: (removed)
     // name is boost/config, no boost-config
     [[nodiscard]] Result<Vec<String>, String>
-    get_versions_satisfy_interval(const package_t& package) {
+    get_versions_satisfy_interval(const Package& package) {
         // TODO: (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` -> OK)
         // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
         const semver::Interval i(get_interval(package));
@@ -299,32 +292,32 @@ namespace poac::core::resolver::resolve {
         return Ok(satisfied_versions);
     }
 
-    using interval_cache_t =
+    using IntervalCache =
         Vec<
             std::tuple<
-                package_t,
+                Package,
                 Vec<String> // versions in the interval
             >>;
 
-    inline const package_t&
-    get_package(const interval_cache_t::value_type& cache) noexcept {
+    inline const Package&
+    get_package(const IntervalCache::value_type& cache) noexcept {
         return std::get<0>(cache);
     }
 
     inline const Vec<String>&
-    get_versions(const interval_cache_t::value_type& cache) noexcept {
+    get_versions(const IntervalCache::value_type& cache) noexcept {
         return std::get<1>(cache);
     }
 
     inline bool
-    exist_cache_impl(const package_t& a, const package_t& b) noexcept {
+    exist_cache_impl(const Package& a, const Package& b) noexcept {
         return get_name(a) == get_name(b)
             && get_version(a) == get_version(b);
     }
 
-    template <class Range>
+    template <typename Range>
     inline bool
-    exist_cache(Range&& cache, const package_t& package) {
+    exist_cache(Range&& cache, const Package& package) {
         return util::meta::find_if(
             std::forward<Range>(cache),
             [&package](const auto& c) {
@@ -333,12 +326,12 @@ namespace poac::core::resolver::resolve {
         );
     }
 
-    duplicate_deps_t<without_deps>
+    DupDeps<WithoutDeps>
     gather_deps_of_deps(
-        const unique_deps_t<without_deps>& deps_api_res,
-        interval_cache_t& interval_cache)
+        const UniqDeps<WithoutDeps>& deps_api_res,
+                        IntervalCache& interval_cache)
     {
-        duplicate_deps_t<without_deps> cur_deps_deps;
+        DupDeps<WithoutDeps> cur_deps_deps;
         for (const auto& package : deps_api_res) {
             // Check if node package is resolved dependency (by interval)
             const auto found_cache =
@@ -365,9 +358,8 @@ namespace poac::core::resolver::resolve {
     }
 
     void gather_deps(
-        const package_t& package,
-        duplicate_deps_t<with_deps>& new_deps,
-        interval_cache_t& interval_cache)
+        const Package& package, DupDeps<WithDeps>& new_deps,
+                IntervalCache& interval_cache)
     {
         // Check if root package resolved dependency
         //   (whether the specific version is the same),
@@ -377,7 +369,7 @@ namespace poac::core::resolver::resolve {
         }
 
         // Get dependencies of dependencies
-        const unique_deps_t<without_deps> deps_api_res =
+        const UniqDeps<WithoutDeps> deps_api_res =
             util::net::api::deps(get_name(package), get_version(package)).unwrap();
         if (deps_api_res.empty()) {
             new_deps.emplace_back(package, None);
@@ -394,10 +386,10 @@ namespace poac::core::resolver::resolve {
         }
     }
 
-    [[nodiscard]] Result<duplicate_deps_t<with_deps>, String>
-    gather_all_deps(const unique_deps_t<without_deps>& deps) {
-        duplicate_deps_t<with_deps> duplicate_deps;
-        interval_cache_t interval_cache;
+    [[nodiscard]] Result<DupDeps<WithDeps>, String>
+    gather_all_deps(const UniqDeps<WithoutDeps>& deps) {
+        DupDeps<WithDeps> duplicate_deps;
+        IntervalCache interval_cache;
 
         // Activate the root of dependencies
         for (const auto& package : deps) {

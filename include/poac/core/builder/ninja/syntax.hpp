@@ -20,7 +20,7 @@
 #include <poac/util/pretty.hpp>
 
 namespace poac::core::builder::ninja::syntax {
-    struct rule_set_t {
+    struct RuleSet {
         Option<String> description = None;
         Option<String> depfile = None;
         bool generator = false;
@@ -31,12 +31,12 @@ namespace poac::core::builder::ninja::syntax {
         Option<String> deps = None;
     };
 
-    using variables_t = HashMap<String, String>;
-    struct build_set_t {
+    using Variables = HashMap<String, String>;
+    struct BuildSet {
         Option<Vec<String>> inputs = None;
         Option<Vec<fs::path>> implicit = None;
         Option<fs::path> order_only = None;
-        Option<variables_t> variables = None;
+        Option<Variables> variables = None;
         Option<fs::path> implicit_outputs = None;
         Option<String> pool = None;
         Option<String> dyndep = None;
@@ -65,10 +65,8 @@ namespace poac::core::builder::ninja::syntax {
     /// Note: doesn't handle the full Ninja variable syntax, but it's enough
     /// to make configure.py's use of it work.
     String
-    expand(const String& text, const variables_t& vars, const variables_t& local_vars={}) {
+    expand(const String& text, const Variables& vars, const Variables& local_vars={}) {
         const auto exp = [&](const boost::smatch& m) {
-            using namespace std::literals::string_literals;
-
             const String var = m[1].str();
             if (var == "$") {
                 return "$"s;
@@ -94,7 +92,7 @@ namespace poac::core::builder::ninja::syntax {
 
     template <typename Ostream>
     requires util::meta::derived_from<Ostream, std::ostream>
-    class writer {
+    class Writer {
         Ostream output;
         usize width;
 
@@ -151,7 +149,7 @@ namespace poac::core::builder::ninja::syntax {
         }
 
     public:
-        explicit writer(Ostream&& o, usize w = 78) : output(std::move(o)), width(w) {}
+        explicit Writer(Ostream&& o, usize w = 78) : output(std::move(o)), width(w) {}
 
         inline String
         get_value() const {
@@ -193,7 +191,7 @@ namespace poac::core::builder::ninja::syntax {
         }
 
         void
-        rule(StringRef name, StringRef command, const rule_set_t& rule_set={}) {
+        rule(StringRef name, StringRef command, const RuleSet& rule_set={}) {
             _line(format("rule {}", name));
             variable("command", command, 1);
             if (rule_set.description.has_value()) {
@@ -226,7 +224,7 @@ namespace poac::core::builder::ninja::syntax {
         build(
             const Vec<String>& outputs,
             StringRef rule,
-            const build_set_t& build_set={}
+            const BuildSet& build_set={}
         ) {
             Vec<String> out_outputs;
             for (const auto& o : outputs) {
@@ -309,7 +307,7 @@ namespace poac::core::builder::ninja::syntax {
         }
 
         friend std::ostream&
-        operator<<(std::ostream &os, const writer<Ostream>& w) {
+        operator<<(std::ostream &os, const Writer<Ostream>& w) {
             return os << w.get_value();
         }
     };

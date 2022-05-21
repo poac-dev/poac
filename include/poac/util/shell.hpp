@@ -11,33 +11,33 @@
 #include <poac/poac.hpp>
 
 namespace poac::util::shell {
-    class cmd {
+    class Cmd {
     public:
         String string() const {
-            return cmd_;
+            return cmd;
         }
 
-        cmd() : cmd_() {}
-        explicit cmd(const String& c) : cmd_(c) {}
+        Cmd() : cmd() {}
+        explicit Cmd(const String& c) : cmd(c) {}
 
-        cmd& env(const String& name, const String& value) {
-            cmd_.insert(0, name + "=" + value + " ");
+        Cmd& env(const String& name, const String& value) {
+            cmd.insert(0, name + "=" + value + " ");
             return *this;
         }
-        cmd& stderr_to_stdout() {
-            cmd_ += " 2>&1";
+        Cmd& stderr_to_stdout() {
+            cmd += " 2>&1";
             return *this;
         }
-        cmd& to_dev_null() {
-            cmd_ += " >/dev/null";
+        Cmd& to_dev_null() {
+            cmd += " >/dev/null";
             return *this;
         }
-        cmd& dump_stdout() {
-            cmd_ += " 1>/dev/null";
+        Cmd& dump_stdout() {
+            cmd += " 1>/dev/null";
             return *this;
         }
-        cmd& dump_stderr() {
-            cmd_ += " 2>/dev/null";
+        Cmd& dump_stderr() {
+            cmd += " 2>/dev/null";
             return *this;
         }
 
@@ -51,7 +51,7 @@ namespace poac::util::shell {
 #ifdef _WIN32
             if (FILE* pipe = _popen(cmd.c_str(), "r")) {
 #else
-            if (FILE* pipe = popen(cmd_.c_str(), "r")) {
+            if (FILE* pipe = popen(cmd.c_str(), "r")) {
 #endif
                 while (std::fgets(buffer.data(), 128, pipe) != nullptr)
                     result += buffer.data();
@@ -73,81 +73,81 @@ namespace poac::util::shell {
         bool exec_ignore() const {
             // EXIT_SUCCESS -> 0 -> false -> true
             // EXIT_FAILURE -> 1 -> true -> false
-            return !static_cast<bool>(std::system(cmd_.c_str()));
+            return !static_cast<bool>(std::system(cmd.c_str()));
         }
 
         friend std::ostream&
-        operator<<(std::ostream& os, const cmd& c) {
-            return (os << c.cmd_);
+        operator<<(std::ostream& os, const Cmd& c) {
+            return (os << c.cmd);
         }
 
-        bool operator==(const cmd& rhs) const {
-            return this->cmd_ == rhs.cmd_;
+        bool operator==(const Cmd& rhs) const {
+            return this->cmd == rhs.cmd;
         }
         bool operator==(const String& rhs) const {
-            return this->cmd_ == rhs;
+            return this->cmd == rhs;
         }
 
-        cmd
-        operator&&(const cmd& rhs) const {
-            return cmd(this->cmd_ + " && " + rhs.cmd_);
+        Cmd
+        operator&&(const Cmd& rhs) const {
+            return Cmd(this->cmd + " && " + rhs.cmd);
         }
-        cmd
+        Cmd
         operator&&(const String& rhs) const {
-            return cmd(this->cmd_ + " && " + rhs);
+            return Cmd(this->cmd + " && " + rhs);
         }
 
-        cmd& operator&=(const cmd& rhs) {
-            this->cmd_ += " && " + rhs.cmd_;
+        Cmd& operator&=(const Cmd& rhs) {
+            this->cmd += " && " + rhs.cmd;
             return *this;
         }
-        cmd& operator&=(const String& rhs) {
-            this->cmd_ += " && " + rhs;
+        Cmd& operator&=(const String& rhs) {
+            this->cmd += " && " + rhs;
             return *this;
         }
 
-        cmd
-        operator||(const cmd& rhs) const {
-            return cmd(this->cmd_ + " || " + rhs.cmd_);
+        Cmd
+        operator||(const Cmd& rhs) const {
+            return Cmd(this->cmd + " || " + rhs.cmd);
         }
-        cmd
+        Cmd
         operator||(const String& rhs) const {
-            return cmd(this->cmd_ + " || " + rhs);
+            return Cmd(this->cmd + " || " + rhs);
         }
 
-        cmd& operator|=(const cmd& rhs) {
-            this->cmd_ += " || " + rhs.cmd_;
+        Cmd& operator|=(const Cmd& rhs) {
+            this->cmd += " || " + rhs.cmd;
             return *this;
         }
-        cmd& operator|=(const String& rhs) {
-            this->cmd_ += " || " + rhs;
+        Cmd& operator|=(const String& rhs) {
+            this->cmd += " || " + rhs;
             return *this;
         }
 
-        cmd
-        operator+(const cmd& rhs) const { // TODO: "; "でなくても良いのか
-            return cmd(this->cmd_ + " " + rhs.cmd_);
+        Cmd
+        operator+(const Cmd& rhs) const { // TODO: "; "でなくても良いのか
+            return Cmd(this->cmd + " " + rhs.cmd);
         }
-        cmd
+        Cmd
         operator+(const String& rhs) const {
-            return cmd(this->cmd_ + " " + rhs);
+            return Cmd(this->cmd + " " + rhs);
         }
 
-        cmd& operator+=(const cmd& rhs) {
-            this->cmd_ += " " + rhs.cmd_;
+        Cmd& operator+=(const Cmd& rhs) {
+            this->cmd += " " + rhs.cmd;
             return *this;
         }
-        cmd& operator+=(const String& rhs) {
-            this->cmd_ += " " + rhs;
+        Cmd& operator+=(const String& rhs) {
+            this->cmd += " " + rhs;
             return *this;
         }
 
     private:
-        String cmd_;
+        String cmd;
     };
 
     bool has_command(const String& c) {
-        return cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
+        return Cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
     }
 } // end namespace
 #endif // !POAC_UTIL_SHELL_HPP
