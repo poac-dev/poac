@@ -2,74 +2,73 @@
 #define POAC_CMD_INIT_HPP
 
 // std
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 // external
 #include <spdlog/spdlog.h>
 #include <structopt/app.hpp>
 
 // internal
-#include <poac/poac.hpp>
-#include <poac/config.hpp>
 #include <poac/cmd/create.hpp>
+#include <poac/config.hpp>
 #include <poac/core/validator.hpp>
 #include <poac/data/manifest.hpp>
+#include <poac/poac.hpp>
 
 namespace poac::cmd::init {
-    struct Options: structopt::sub_command {
-        /// Use a binary (application) template [default]
-        Option<bool> bin = false;
-        /// Use a library template
-        Option<bool> lib = false;
-    };
 
-    using AlreadyInitialized =
-        Error<"cannot initialize an existing poac package">;
+struct Options : structopt::sub_command {
+  /// Use a binary (application) template [default]
+  Option<bool> bin = false;
+  /// Use a library template
+  Option<bool> lib = false;
+};
 
-    [[nodiscard]] Result<void>
-    init(const Options& opts, StringRef package_name) {
-        using create::ProjectType;
+using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
 
-        spdlog::trace("Creating ./{}", data::manifest::name);
-        std::ofstream ofs_config(data::manifest::name);
+[[nodiscard]] Result<void>
+init(const Options& opts, StringRef package_name) {
+  using create::ProjectType;
 
-        const ProjectType type = create::opts_to_project_type(opts);
-        switch (type) {
-            case ProjectType::Bin:
-                ofs_config << create::files::poac_toml(package_name);
-                break;
-            case ProjectType::Lib:
-                ofs_config << create::files::poac_toml(package_name);
-                break;
-            default:
-                unreachable();
-        }
+  spdlog::trace("Creating ./{}", data::manifest::name);
+  std::ofstream ofs_config(data::manifest::name);
 
-        spdlog::info(
-            "{:>25} {} `{}` package",
-            "Created"_bold_green,
-            to_string(type),
-            package_name
-        );
-        return Ok();
-    }
+  const ProjectType type = create::opts_to_project_type(opts);
+  switch (type) {
+    case ProjectType::Bin:
+      ofs_config << create::files::poac_toml(package_name);
+      break;
+    case ProjectType::Lib:
+      ofs_config << create::files::poac_toml(package_name);
+      break;
+    default:
+      unreachable();
+  }
 
-    [[nodiscard]] Result<void>
-    exec(const Options& opts) {
-        if (opts.bin.value() && opts.lib.value()) {
-            return Err<create::PassingBothBinAndLib>();
-        } else if (core::validator::required_config_exists().is_ok()) {
-            return Err<AlreadyInitialized>();
-        }
+  spdlog::info(
+      "{:>25} {} `{}` package", "Created"_bold_green, to_string(type),
+      package_name
+  );
+  return Ok();
+}
 
-        const String package_name = config::path::cur_dir.stem().string();
-        spdlog::trace("Validating the package name `{}`", package_name);
-        Try(core::validator::valid_package_name(package_name).map_err(to_anyhow));
+[[nodiscard]] Result<void>
+exec(const Options& opts) {
+  if (opts.bin.value() && opts.lib.value()) {
+    return Err<create::PassingBothBinAndLib>();
+  } else if (core::validator::required_config_exists().is_ok()) {
+    return Err<AlreadyInitialized>();
+  }
 
-        return init(opts, package_name);
-    }
-} // end namespace
+  const String package_name = config::path::cur_dir.stem().string();
+  spdlog::trace("Validating the package name `{}`", package_name);
+  Try(core::validator::valid_package_name(package_name).map_err(to_anyhow));
+
+  return init(opts, package_name);
+}
+
+} // namespace poac::cmd::init
 
 STRUCTOPT(poac::cmd::init::Options, bin, lib);
 
