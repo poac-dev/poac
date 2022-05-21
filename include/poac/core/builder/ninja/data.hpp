@@ -1,6 +1,9 @@
 #ifndef POAC_CORE_BUILDER_NINJA_DATA_HPP
 #define POAC_CORE_BUILDER_NINJA_DATA_HPP
 
+// std
+#include <string>
+
 // external
 #include <ninja/build.h>          // BuildConfig
 #include <ninja/build_log.h>      // BuildLog, BuildLogUser

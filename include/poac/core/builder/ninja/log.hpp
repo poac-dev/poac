@@ -1,6 +1,9 @@
 #ifndef POAC_CORE_BUILDER_NINJA_LOG_HPP
 #define POAC_CORE_BUILDER_NINJA_LOG_HPP
 
+// std
+#include <string>
+
 // external
 #include <ninja/load_status.h> // LoadStatus
 #include <spdlog/spdlog.h>

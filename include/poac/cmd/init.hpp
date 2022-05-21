@@ -4,6 +4,7 @@
 // std
 #include <fstream>
 #include <iostream>
+#include <string>
 
 // external
 #include <spdlog/spdlog.h>

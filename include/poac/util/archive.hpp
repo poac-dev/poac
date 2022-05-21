@@ -4,6 +4,7 @@
 // std
 #include <iostream>
 #include <memory>
+#include <string>
 
 // external
 #include <archive.h>

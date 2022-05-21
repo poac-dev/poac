@@ -8,6 +8,8 @@
 // std
 #include <cassert>
 #include <ostream>
+#include <string>
+#include <utility> // std::move
 
 // external
 #include <boost/algorithm/string.hpp>

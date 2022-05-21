@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <memory> // std::allocator
 #include <numeric>
 #include <utility>
 

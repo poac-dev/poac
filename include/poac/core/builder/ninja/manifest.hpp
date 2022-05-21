@@ -4,6 +4,7 @@
 // std
 #include <array>
 #include <fstream>
+#include <string>
 #include <utility> // std::make_pair
 
 // external

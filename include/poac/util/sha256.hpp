@@ -3,6 +3,7 @@
 
 // std
 #include <fstream>
+#include <string>
 
 // external
 #include <openssl/evp.h>

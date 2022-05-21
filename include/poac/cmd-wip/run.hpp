@@ -6,6 +6,7 @@
 #include <iostream>
 #include <poac/core/except.hpp>
 #include <string>
+#include <utility> // std::move
 #include <vector>
 
 namespace poac::opts::run {

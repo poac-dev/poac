@@ -3,6 +3,7 @@
 
 // std
 #include <algorithm>
+#include <string>
 
 // internal
 #include <poac/config.hpp>

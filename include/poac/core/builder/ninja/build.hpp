@@ -5,6 +5,7 @@
 #include <cstdlib> // setenv
 #include <ostream>
 #include <stdexcept>
+#include <string>
 
 // external
 #include <ninja/build.h>

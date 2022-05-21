@@ -1,6 +1,9 @@
 #ifndef POAC_CMD_BUILD_HPP
 #define POAC_CMD_BUILD_HPP
 
+// std
+#include <string>
+
 // external
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>
