@@ -23,3 +23,14 @@ jobs:
         with:
           clang-format-version: '14'
           check-path: ${{ matrix.path }}
+
+  cpplint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install cpplint
+        run: pip install cpplint
+
+      - name: Run cpplint
+        run: cpplint --filter=-,+build/include_what_you_use --recursive .
