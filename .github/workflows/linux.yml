@@ -6,8 +6,8 @@ on:
   pull_request:
 
 env:
-  OPENSSL_VERSION: 3.0.1
-  BOOST_VERSION: 1.78.0
+  OPENSSL_VERSION: 3.0.3
+  BOOST_VERSION: 1.79.0
 
 jobs:
   x86_64-unknown-linux-gnu:
