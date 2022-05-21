@@ -1,6 +1,11 @@
-#include <boost/ut.hpp>
-#include <poac/util/shell.hpp>
+// std
 #include <sstream>
+
+// external
+#include <boost/ut.hpp>
+
+// internal
+#include <poac/util/shell.hpp>
 
 int
 main() {

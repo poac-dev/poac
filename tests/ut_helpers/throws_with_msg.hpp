@@ -1,5 +1,11 @@
-#include <boost/ut.hpp>
+#ifndef TESTS_UT_HELPERS_THROWS_WITH_MSG_HPP_
+#define TESTS_UT_HELPERS_THROWS_WITH_MSG_HPP_
+
+// std
 #include <string>
+
+// external
+#include <boost/ut.hpp>
 
 namespace poac::test::ut_helpers {
 
@@ -22,3 +28,5 @@ throws_with_msg(const TExpr& expr, const std::string& msg) {
 #endif
 
 } // namespace poac::test::ut_helpers
+
+#endif // TESTS_UT_HELPERS_THROWS_WITH_MSG_HPP_

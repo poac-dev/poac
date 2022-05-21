@@ -1,13 +1,18 @@
-#include <boost/ut.hpp>
-#include <poac/core/builder/ninja/syntax.hpp>
+// std
 #include <sstream>
 #include <string>
 #include <vector>
 
-static const std::string LONGWORD = std::string(10, 'a');
-static const std::string LONGWORDWITHSPACES =
+// external
+#include <boost/ut.hpp>
+
+// internal
+#include <poac/core/builder/ninja/syntax.hpp>
+
+inline const std::string LONGWORD = std::string(10, 'a');
+inline const std::string LONGWORDWITHSPACES =
     std::string(5, 'a') + "$ " + std::string(5, 'a');
-static const std::string INDENT = "    ";
+inline const std::string INDENT = "    ";
 
 int
 main() {

@@ -1,11 +1,12 @@
-#include <boost/ut.hpp>
-
 // std
 #include <array>
 #include <map>
 #include <string>
 #include <tuple>
 #include <vector>
+
+// external
+#include <boost/ut.hpp>
 
 // internal
 #include <poac/util/meta.hpp>

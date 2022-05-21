@@ -72,7 +72,7 @@ main() {
         "`<1.0.0 and <1.0.0-alpha` is redundant expression.\n"
         "Did you mean <1.0.0 ?"
     );
-    // TODO
+    // TODO(ken-matsui)
     //        expect(throws<redundant_interval_error>([] {
     //            Interval("<1.0.0-alpha and <1.0.0");
     //        }));
@@ -133,7 +133,7 @@ main() {
 
     expect(throws<strange_interval_error>([] { Interval("<1.0.0 and >2.0.0"); })
     );
-    // TODO: test the throwed messages
+    // TODO(ken-matsui): test the throwed messages
     expect(throws<strange_interval_error>([] {
       Interval("<1.0.0-alpha and >1.0.0");
     }));

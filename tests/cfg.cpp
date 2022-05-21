@@ -1,5 +1,3 @@
-#include <boost/ut.hpp>
-
 // std
 #include <memory>
 #include <sstream>
@@ -7,7 +5,8 @@
 #include <vector>
 
 // external
-#include <boost/predef.h>
+#include <boost/ut.hpp>
+#include <boost/predef.h> // NOLINT: found C system header after other header
 
 // internal
 #include "./ut_helpers/throws_with_msg.hpp"
@@ -579,4 +578,4 @@ main() {
       expect(eq(output.str(), "ident: cfg"s));
     }
   };
-}
+} // NOLINT: too long fn main

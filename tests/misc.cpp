@@ -1,8 +1,9 @@
-#include <boost/ut.hpp>
-
 // std
 #include <string>
 #include <vector>
+
+// external
+#include <boost/ut.hpp>
 
 // internal
 #include <poac/util/misc.hpp>

@@ -1,8 +1,13 @@
-#include <boost/ut.hpp>
+// std
 #include <exception>
-#include <poac/util/pretty.hpp>
 #include <string>
 #include <utility>
+
+// external
+#include <boost/ut.hpp>
+
+// internal
+#include <poac/util/pretty.hpp>
 
 int
 main() {
