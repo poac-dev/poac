@@ -222,7 +222,7 @@ namespace poac::core::resolver::resolve {
     [[nodiscard]] Result<UniqDeps<WithDeps>, String>
     solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
         // deps.activated.size() == variables
-        const Vec<i32> assignments = tryi(sat::solve(clauses, activated.size()));
+        const Vec<i32> assignments = Try(sat::solve(clauses, activated.size()));
         UniqDeps<WithDeps> resolved_deps{};
         spdlog::debug("SAT");
         for (const auto& a : assignments) {
@@ -277,7 +277,7 @@ namespace poac::core::resolver::resolve {
         // `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
         const semver::Interval i(get_interval(package));
         const Vec<String> satisfied_versions =
-            tryi(util::net::api::versions(get_name(package)))
+            Try(util::net::api::versions(get_name(package)))
             | boost::adaptors::filtered(
                 [&i](StringRef s){ return i.satisfies(s); }
             )
@@ -403,11 +403,10 @@ namespace poac::core::resolver::resolve {
 
             // Get versions using interval
             // FIXME: versions API and deps API are received the almost same responses
-            const Vec<String> versions =
-                tryi(get_versions_satisfy_interval(package));
+            const Vec<String> versions = Try(get_versions_satisfy_interval(package));
             // Cache interval and versions pair
             interval_cache.emplace_back(package, versions);
-            for (const auto& version : versions) {
+            for (const String& version : versions) {
                 gather_deps(
                     std::make_pair(get_name(package), version),
                     duplicate_deps,

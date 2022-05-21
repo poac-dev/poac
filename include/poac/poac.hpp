@@ -35,7 +35,7 @@
 #  define unreachable() assert(false && "unreachable")
 #endif
 
-#define tryi( ... ) MITAMA_TRY(__VA_ARGS__)
+#define Try( ... ) MITAMA_TRY(__VA_ARGS__)
 
 #define alias_fn(lhs, rhs) \
 template <typename... Args> \

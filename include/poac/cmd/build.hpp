@@ -33,7 +33,7 @@ namespace poac::cmd::build {
     [[nodiscard]] Result<fs::path>
     build_impl(const toml::value& manifest, const Mode& mode, const ResolvedDeps& resolved_deps) {
         spdlog::stopwatch sw;
-        const fs::path output_path = tryi(
+        const fs::path output_path = Try(
             core::builder::ninja::build::start(manifest, mode, resolved_deps)
         );
 
@@ -49,7 +49,8 @@ namespace poac::cmd::build {
     [[nodiscard]] Result<Option<fs::path>>
     build(const Options& opts, const toml::value& manifest) {
         spdlog::trace("Resolving dependencies ...");
-        const auto resolved_deps = tryi(
+        const auto resolved_deps =
+            Try(
             core::resolver::install_deps(manifest)
                 .with_context([]{
                     return Err<FailedToInstallDeps>().get();
@@ -67,7 +68,8 @@ namespace poac::cmd::build {
         }
 
         const Mode mode = opts.release.value() ? Mode::release : Mode::debug;
-        const fs::path output_path = tryi(
+        const fs::path output_path =
+            Try(
             build_impl(manifest, mode, resolved_deps)
         );
         return Ok(output_path);
@@ -76,13 +78,13 @@ namespace poac::cmd::build {
     [[nodiscard]] Result<void>
     exec(const Options& opts) {
         spdlog::trace("Checking if required config exists ...");
-        tryi(core::validator::required_config_exists().map_err(to_anyhow));
+        Try(core::validator::required_config_exists().map_err(to_anyhow));
 
         spdlog::trace("Parsing the manifest file ...");
         // TODO: parse as a static type rather than toml::value
         const toml::value manifest = toml::parse(data::manifest::name);
 
-        tryi(
+        Try(
             build(opts, manifest).with_context([&manifest]{
                 return Err<FailedToBuild>(
                     toml::find<String>(manifest, "package", "name")

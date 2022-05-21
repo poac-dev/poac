@@ -121,8 +121,7 @@ namespace poac::core::resolver {
 
     [[nodiscard]] Result<std::pair<String, String>, String>
     get_download_link(const resolve::Package& package) {
-        const auto [repository, sha256sum] =
-            tryi(util::net::api::repoinfo(
+        const auto [repository, sha256sum] = Try(util::net::api::repoinfo(
                 resolve::get_name(package), resolve::get_version(package)
             ));
         return Ok(std::make_pair(
@@ -133,7 +132,8 @@ namespace poac::core::resolver {
     [[nodiscard]] Result<std::pair<fs::path, String>>
     fetch_impl(const resolve::Package& package) noexcept {
         try {
-            const auto [download_link, sha256sum] = tryi(
+            const auto [download_link, sha256sum] =
+                Try(
                 get_download_link(package)
                     .map_err(to_anyhow)
             );
@@ -161,11 +161,11 @@ namespace poac::core::resolver {
     [[nodiscard]] Result<void>
     fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
         for (const auto& package : deps) {
-            const auto [installed_path, sha256sum] = tryi(fetch_impl(package));
+            const auto [installed_path, sha256sum] = Try(fetch_impl(package));
             // Check if sha256sum of the downloaded package is the same with one
             // stored in DB.
             if (const String actual_sha256sum =
-                    tryi(util::sha256::sum(installed_path));
+                    Try(util::sha256::sum(installed_path));
                 sha256sum != actual_sha256sum) {
                 fs::remove(installed_path);
                 return Err<IncorrectSha256sum>(
@@ -176,11 +176,12 @@ namespace poac::core::resolver {
                 );
             }
 
-            const String extracted_directory_name = tryi(
+            const String extracted_directory_name =
+                Try(
                 util::archive::extract(installed_path, config::path::extract_dir)
                     .map_err(to_anyhow)
             );
-            tryi(
+            Try(
                 rename_extracted_directory(package, extracted_directory_name)
             );
 
@@ -240,7 +241,8 @@ namespace poac::core::resolver {
     [[nodiscard]] Result<ResolvedDeps>
     do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
         try {
-            const auto duplicate_deps = tryi(
+            const auto duplicate_deps =
+                Try(
                 resolve::gather_all_deps(deps).map_err(to_anyhow)
             );
             if (!resolve::duplicate_loose(duplicate_deps)) {
@@ -283,8 +285,8 @@ namespace poac::core::resolver {
     try_to_read_lockfile(const toml::value& config) {
         if (data::lockfile::is_outdated(config::path::cur_dir)) {
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-            const auto resolvable_deps = tryi(to_resolvable_deps(deps));
-            const auto resolved_deps = tryi(do_resolve(resolvable_deps));
+            const auto resolvable_deps = Try(to_resolvable_deps(deps));
+            const auto resolved_deps = Try(do_resolve(resolvable_deps));
             return Ok(resolved_deps);
         } else {
             return data::lockfile::read(config::path::cur_dir);
@@ -293,13 +295,13 @@ namespace poac::core::resolver {
 
     [[nodiscard]] Result<ResolvedDeps>
     get_resolved_deps(const toml::value& config) {
-        const auto resolved_deps = tryi(try_to_read_lockfile(config));
+        const auto resolved_deps = Try(try_to_read_lockfile(config));
         if (resolved_deps.has_value()) {
             return Ok(resolved_deps.value());
         } else {
             // Resolve dependencies from manifest file.
             const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-            const auto resolvable_deps = tryi(to_resolvable_deps(deps));
+            const auto resolvable_deps = Try(to_resolvable_deps(deps));
             return do_resolve(resolvable_deps);
         }
     }
@@ -308,13 +310,13 @@ namespace poac::core::resolver {
     install_deps(const toml::value& manifest) {
         if (!manifest.contains("dependencies")) {
             const auto empty_deps = ResolvedDeps{};
-            tryi(data::lockfile::generate(empty_deps));
+            Try(data::lockfile::generate(empty_deps));
             return Ok(empty_deps);
         }
 
-        const auto resolved_deps = tryi(get_resolved_deps(manifest));
-        tryi(download_deps(resolved_deps));
-        tryi(data::lockfile::generate(resolved_deps)); // when lockfile is old
+        const auto resolved_deps = Try(get_resolved_deps(manifest));
+        Try(download_deps(resolved_deps));
+        Try(data::lockfile::generate(resolved_deps)); // when lockfile is old
 
         return Ok(resolved_deps);
     }

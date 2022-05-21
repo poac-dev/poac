@@ -80,9 +80,9 @@ namespace poac::core::builder::compiler::cxx {
 
     [[nodiscard]] Result<String>
     get_command(const i64& cpp, const bool use_gnu_extension) {
-        const String compiler_command = tryi(get_compiler_command());
-        const util::cfg::compiler compiler = tryi(get_compiler_ident(compiler_command));
-        const String std_flag = tryi(get_std_flag(compiler, compiler_command, cpp, use_gnu_extension));
+        const String compiler_command = Try(get_compiler_command());
+        const util::cfg::compiler compiler = Try(get_compiler_ident(compiler_command));
+        const String std_flag = Try(get_std_flag(compiler, compiler_command, cpp, use_gnu_extension));
         return Ok(format("{} {}", compiler_command, std_flag));
     }
 } // end namespace

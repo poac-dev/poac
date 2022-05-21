@@ -31,8 +31,7 @@ namespace poac::cmd::search {
 
     [[nodiscard]] Result<void>
     search(const Options& opts) {
-        const boost::property_tree::ptree pt =
-            tryi(
+        const boost::property_tree::ptree pt = Try(
                 util::net::api::search(opts.package_name, 20)
                     .map_err(to_anyhow)
             );

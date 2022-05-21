@@ -65,7 +65,7 @@ namespace poac::cmd::init {
 
         const String package_name = config::path::cur_dir.stem().string();
         spdlog::trace("Validating the package name `{}`", package_name);
-        tryi(core::validator::valid_package_name(package_name).map_err(to_anyhow));
+        Try(core::validator::valid_package_name(package_name).map_err(to_anyhow));
 
         return init(opts, package_name);
     }

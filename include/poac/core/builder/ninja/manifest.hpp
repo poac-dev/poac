@@ -148,7 +148,7 @@ namespace poac::core::builder::ninja::manifest {
         writer.newline();
 
         const auto cpp = toml::find<toml::integer>(poac_manifest, "package", "cpp");
-        const String command = tryi(compiler::cxx::get_command(cpp, false));
+        const String command = Try(compiler::cxx::get_command(cpp, false));
 
         writer.rule(
             "compile",
@@ -201,7 +201,7 @@ namespace poac::core::builder::ninja::manifest {
         // then `ninja.build` is not needed to be updated.
 //        if (is_outdated(build_dir)) {
             std::ofstream ofs(build_dir / manifest_file_name, std::ios::out);
-            ofs << tryi(construct(build_dir, poac_manifest, resolved_deps));
+            ofs << Try(construct(build_dir, poac_manifest, resolved_deps));
 //        }
         return Ok();
     }

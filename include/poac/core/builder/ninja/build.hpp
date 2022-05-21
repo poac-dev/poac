@@ -131,7 +131,7 @@ namespace poac::core::builder::ninja::build {
 
         const fs::path build_dir = config::path::output_dir / to_string(mode);
         fs::create_directories(build_dir);
-        tryi(manifest::create(build_dir, poac_manifest, resolved_deps));
+        Try(manifest::create(build_dir, poac_manifest, resolved_deps));
 
         for (i32 cycle = 1; cycle <= rebuildLimit; ++cycle) {
             data::NinjaMain ninja_main(config, build_dir);
@@ -147,8 +147,8 @@ namespace poac::core::builder::ninja::build {
                 return Err<GeneralError>(err);
             }
 
-            tryi(log::load_build_log(ninja_main));
-            tryi(log::load_deps_log(ninja_main));
+            Try(log::load_build_log(ninja_main));
+            Try(log::load_deps_log(ninja_main));
 
             // Attempt to rebuild the manifest before building anything else
             if (manifest::rebuild(ninja_main, status, err)) {
@@ -158,7 +158,7 @@ namespace poac::core::builder::ninja::build {
                 return Err<GeneralError>(err);
             }
 
-            tryi(run(ninja_main, status));
+            Try(run(ninja_main, status));
             return Ok(config::path::output_dir / to_string(mode));
         }
         return Err<GeneralError>(format(

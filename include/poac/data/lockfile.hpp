@@ -96,7 +96,7 @@ namespace poac::data::lockfile::inline v1 {
 
     [[nodiscard]] Result<void>
     overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps) {
-        const auto lock = tryi(convert_to_lock(deps));
+        const auto lock = Try(convert_to_lock(deps));
         std::ofstream lockfile(config::path::cur_dir / lockfile_name, std::ios::out);
         lockfile << lock;
         return Ok();

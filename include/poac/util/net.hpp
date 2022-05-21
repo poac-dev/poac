@@ -590,7 +590,7 @@ namespace poac::util::net::api {
                 format("Bearer {}", SUPABASE_ANON_KEY)
             );
 
-            const auto response = tryi(request.post(path, body, headers));
+            const auto response = Try(request.post(path, body, headers));
             std::stringstream response_body;
             response_body << response.data();
 
@@ -626,7 +626,7 @@ namespace poac::util::net::api {
 
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        const boost::property_tree::ptree res = tryi(call("/deps", body.str()));
+        const boost::property_tree::ptree res = Try(call("/deps", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
@@ -641,7 +641,8 @@ namespace poac::util::net::api {
 
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        const boost::property_tree::ptree res = tryi(call("/versions", body.str()));
+        const boost::property_tree::ptree res =
+            Try(call("/versions", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
@@ -661,7 +662,8 @@ namespace poac::util::net::api {
 
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        const boost::property_tree::ptree res = tryi(call("/repoinfo", body.str()));
+        const boost::property_tree::ptree res =
+            Try(call("/repoinfo", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }
@@ -678,7 +680,7 @@ namespace poac::util::net::api {
 
         std::ostringstream body;
         boost::property_tree::json_parser::write_json(body, pt);
-        const boost::property_tree::ptree res = tryi(call("/login", body.str()));
+        const boost::property_tree::ptree res = Try(call("/login", body.str()));
         if (verbosity::is_verbose()) {
             boost::property_tree::json_parser::write_json(std::cout, res);
         }

@@ -40,7 +40,7 @@ namespace poac::cmd::login {
 
     [[nodiscard]] Result<void>
     exec(const Options& opts) {
-        tryi(check_token(opts.api_token));
+        Try(check_token(opts.api_token));
 
         // Write API Token to `~/.poac/credentials` as TOML
         spdlog::trace("Exporting the api_token to `{}`", config::path::cred_file);

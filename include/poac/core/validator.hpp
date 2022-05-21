@@ -114,10 +114,10 @@ namespace poac::core::validator {
 
     [[nodiscard]] Result<void, String>
     invalid_characters(StringRef s) noexcept {
-        tryi(invalid_characters_impl(s));
-        tryi(start_with_symbol(s));
-        tryi(end_with_symbol(s));
-        tryi(two_or_more_symbols(s));
+        Try(invalid_characters_impl(s));
+        Try(start_with_symbol(s));
+        Try(end_with_symbol(s));
+        Try(two_or_more_symbols(s));
         return Ok();
     }
 
@@ -154,8 +154,8 @@ namespace poac::core::validator {
 
     [[nodiscard]] Result<void, String>
     valid_package_name(StringRef s) {
-        tryi(invalid_characters(s));
-        tryi(using_keywords(s));
+        Try(invalid_characters(s));
+        Try(using_keywords(s));
         return Ok();
     }
 

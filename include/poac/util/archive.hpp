@@ -49,7 +49,7 @@ namespace poac::util::archive {
             } else if (res < ARCHIVE_OK) {
                 return Err(archive_error_string(reader));
             }
-            tryi(archive_write_data_block(writer, buff, size, offset));
+            Try(archive_write_data_block(writer, buff, size, offset));
         }
     }
 
@@ -69,7 +69,7 @@ namespace poac::util::archive {
         if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
             return Err(archive_error_string(writer.get()));
         } else if (archive_entry_size(entry) > 0) {
-            tryi(copy_data(reader, writer));
+            Try(copy_data(reader, writer));
         }
         return Ok();
     }
@@ -102,14 +102,14 @@ namespace poac::util::archive {
     extract_impl(Archive* reader, const Writer& writer, const fs::path& extract_path) noexcept {
         archive_entry* entry = nullptr;
         String extracted_directory_name{""};
-        while (tryi(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
+        while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
             if (extracted_directory_name.empty()) {
                 extracted_directory_name = set_extract_path(entry, extract_path);
             } else {
                 set_extract_path(entry, extract_path);
             }
-            tryi(archive_write_header(reader, writer, entry));
-            tryi(archive_write_finish_entry(writer));
+            Try(archive_write_header(reader, writer, entry));
+            Try(archive_write_finish_entry(writer));
         }
         return Ok(extracted_directory_name);
     }
@@ -163,7 +163,7 @@ namespace poac::util::archive {
         archive_write_disk_set_options(writer.get(), make_flags());
         archive_write_disk_set_standard_lookup(writer.get());
 
-        tryi(archive_read_open_filename(reader, target_file_path, 10'240));
+        Try(archive_read_open_filename(reader, target_file_path, 10'240));
         BOOST_SCOPE_EXIT_ALL(&reader) {
             archive_read_close(reader);
         };
