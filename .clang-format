@@ -15,6 +15,7 @@ BreakBeforeBraces: Attach
 BreakStringLiterals: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
+IndentAccessModifiers: true
 IndentWidth: 2
 IndentCaseLabels: true
 IndentPPDirectives: AfterHash
