@@ -70,7 +70,7 @@ namespace files {
         "name = \"{}\"\n"
         "version = \"0.1.0\"\n"
         "authors = []\n"
-        "edition = 2020",
+        "edition = 2020\n",
         project_name
     );
   }
@@ -79,7 +79,7 @@ namespace files {
       "#include <iostream>\n\n"
       "int main(int argc, char** argv) {\n"
       "    std::cout << \"Hello, world!\" << std::endl;\n"
-      "}"
+      "}\n"
   );
 
   inline String
