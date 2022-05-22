@@ -41,11 +41,14 @@ struct Commands {
   /// Publish a package to poac.pm
   subcmd::publish::Options publish;
 
+  /// Build and run a binary
+  subcmd::run::Options run;
+
   /// Search a package on poac.pm
   subcmd::search::Options search;
 };
 STRUCTOPT(
-    Commands, verbose, quiet, build, create, init, login, publish, search
+    Commands, verbose, quiet, build, create, init, login, publish, run, search
 );
 
 inline std::string
@@ -86,6 +89,8 @@ exec(const structopt::app& app, const Commands& args) {
     return subcmd::login::exec(args.login);
   } else if (args.publish.has_value()) {
     return subcmd::publish::exec(args.publish);
+  } else if (args.run.has_value()) {
+    return subcmd::run::exec(args.run);
   } else if (args.search.has_value()) {
     return subcmd::search::exec(args.search);
   } else {

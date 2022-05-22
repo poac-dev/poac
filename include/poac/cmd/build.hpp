@@ -57,8 +57,7 @@ build(const Options& opts, const toml::value& manifest) {
       }));
 
   // TODO(ken-matsui): We have to keep in mind a case of only dependencies
-  // require to
-  //   be built, but this package does not.
+  //  require to be built, but this package does not.
   if (!fs::exists(config::path::main_cpp_file)) {
     spdlog::info("{:>25} no build target(s) found", "Finished"_bold_green);
     return Ok(None);
