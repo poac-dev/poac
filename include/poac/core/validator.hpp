@@ -3,6 +3,7 @@
 
 // std
 #include <algorithm>
+#include <string>
 
 // external
 #include <toml.hpp>
@@ -255,7 +256,7 @@ valid_version(StringRef s) {
 
 [[nodiscard]] Result<void, String>
 valid_athr(StringRef s) {
-  // TODO: Email address parser
+  // TODO(ken-matsui): Email address parser
   if (usize pos = s.find('<'); pos != SNone) {
     if (pos = s.find('@', pos + 1); pos != SNone) {
       if (pos = s.find('>', pos + 1); pos != SNone) {

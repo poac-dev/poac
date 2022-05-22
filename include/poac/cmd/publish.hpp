@@ -52,7 +52,7 @@ get_manifest() {
   Try(core::validator::required_config_exists().map_err(to_anyhow));
 
   spdlog::trace("Parsing the manifest file ...");
-  // TODO: parse as a static type rather than toml::value
+  // TODO(ken-matsui): parse as a static type rather than toml::value
   return Ok(toml::parse(data::manifest::name));
 }
 
