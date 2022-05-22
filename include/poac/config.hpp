@@ -34,6 +34,8 @@ inline const fs::path extract_dir(cache_dir / "extract");
 inline const fs::path cur_dir = fs::current_path();
 inline const fs::path manifest_file(cur_dir / data::manifest::name);
 inline const fs::path src_dir(cur_dir / "src");
+inline const fs::path include_dir(cur_dir / "include");
+inline const fs::path tests_dir(cur_dir / "tests");
 inline const fs::path main_cpp_file(src_dir / "main.cpp");
 inline const fs::path output_dir(cur_dir / "poac_output");
 
