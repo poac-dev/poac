@@ -121,6 +121,29 @@ hello_world/$ poac run
 > We currently support building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
 
+### Run linter
+
+Linting source code is essential to protect its quality.
+Poac supports linting it by a simple command with `cpplint`:
+
+```bash
+hello_world/$ poac lint
+src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+Done processing src/main.cpp
+Total errors found: 1
+
+Error: `cpplint` finished with return code 1
+```
+
+> If you do not have `cpplint`, install it with the following command:
+>
+> ```bash
+> $ pip install cpplint
+> ```
+
+The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
+To customize the lint settings, try creating a [`CPPLINT.cfg`](/CPPLINT.cfg) file to the repository root.
+
 ### Search packages
 
 In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
@@ -290,6 +313,12 @@ I also plan to implement integration with many other build systems and package m
 ```bash
 $ cpplint --quiet --recursive .
 ```
+
+> If you have installed Poac, you can just run the `lint` command:
+>
+> ```bash
+> $ poac lint
+> ```
 
 ### Formatter
 
