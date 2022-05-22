@@ -15,6 +15,18 @@ By using Poac, you can create a C++ project, build sources, and execute an appli
 
 ![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
 
+## Roadmap
+
+Poac is still under development and may contain a bunch of bugs.
+
+|                     Feature                     |       Status       |
+|:-----------------------------------------------:|:------------------:|
+|              Install dependencies               | :white_check_mark: |
+|  Build packages with header-only dependencies   | :white_check_mark: |
+|                Publish packages                 |        WIP         |
+|   Special dependencies like dev-dependencies    |                    |
+| Build packages with build-required dependencies |                    |
+
 ## Supported Operating Systems
 
 |                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
