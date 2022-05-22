@@ -140,8 +140,11 @@ construct(
   }
   writer.newline();
 
-  const auto cpp = toml::find<toml::integer>(poac_manifest, "package", "cpp");
-  const String command = Try(compiler::cxx::get_command(cpp, false));
+  const String name = toml::find<String>(poac_manifest, "package", "name");
+  const String version =
+      toml::find<String>(poac_manifest, "package", "version");
+  const i64 edition = toml::find<i64>(poac_manifest, "package", "edition");
+  const String command = Try(compiler::cxx::get_command(edition, false));
 
   writer.rule(
       "compile",
@@ -153,8 +156,15 @@ construct(
   writer.newline();
 
   const fs::path source_file = "src"_path / "main.cpp";
-  const fs::path output_file = (build_dir / source_file).string() + ".o";
-  fs::create_directories(output_file.parent_path());
+  fs::path output_file;
+  if (source_file == "src"_path / "main.cpp") {
+    // When building src/main.cpp, the output executable should be stored at
+    // poac_output/debug/name
+    output_file = build_dir / name;
+  } else {
+    output_file = (build_dir / source_file).string() + ".o";
+    fs::create_directories(output_file.parent_path());
+  }
   const auto includes = gather_includes(resolved_deps);
 
   const auto defines = gather_flags(poac_manifest, "definitions", "-D");
@@ -167,12 +177,9 @@ construct(
           .inputs = std::vector{source_file.string()},
           .variables =
               syntax::Variables{
-                  {"PACKAGE_NAME",
-                   toml::find<String>(poac_manifest, "package", "name")},
-                  {"PACKAGE_VERSION",
-                   toml::find<String>(poac_manifest, "package", "version")},
-                  {"PACKAGE_PATH",
-                   format("({})", config::path::cur_dir.string())},
+                  {"PACKAGE_NAME", name},
+                  {"PACKAGE_VERSION", version},
+                  {"PACKAGE_PATH", format("({})", config::path::cur_dir)},
                   {"OPTIONS", boost::algorithm::join(options, " ")},
                   {"DEFINES", boost::algorithm::join(defines, " ")},
                   {"INCLUDES", boost::algorithm::join(includes, " ")},
@@ -191,9 +198,9 @@ create(
     const fs::path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
 ) {
-  // `ninja.build` will be constructed from `poac.toml`,
-  // so if `poac.toml` has no change,
-  // then `ninja.build` is not needed to be updated.
+  // TODO(ken-matsui): `ninja.build` will be constructed from `poac.toml`,
+  //   so if `poac.toml` has no change,
+  //   then `ninja.build` is not needed to be updated.
   //        if (is_outdated(build_dir)) {
   std::ofstream ofs(build_dir / manifest_file_name, std::ios::out);
   ofs << Try(construct(build_dir, poac_manifest, resolved_deps));

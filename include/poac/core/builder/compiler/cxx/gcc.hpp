@@ -33,38 +33,39 @@ get_compiler_version(const String& compiler_command) {
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/Compiler/GNU-CXX.cmake
 [[nodiscard]] Result<String>
 get_std_flag(
-    const String& compiler_command, const i64& cpp, const bool use_gnu_extension
+    const String& compiler_command, const i64 edition,
+    const bool use_gnu_extension
 ) {
   const semver::Version version = Try(get_compiler_version(compiler_command));
   const String specifier = use_gnu_extension ? "gnu" : "c";
-  switch (cpp) {
-    case 98:
+  switch (edition) {
+    case 1998:
       if (version >= "3.4.0") {
         return Ok(format("-std={}++98", specifier));
       }
       break;
-    case 11:
+    case 2011:
       if (version >= "4.7.0") {
         return Ok(format("-std={}++11", specifier));
       } else if (version >= "4.4.0") {
         return Ok(format("-std={}++0x", specifier));
       }
       break;
-    case 14:
+    case 2014:
       if (version >= "4.9.0") {
         return Ok(format("-std={}++14", specifier));
       } else if (version >= "4.8.0") {
         return Ok(format("-std={}++1y", specifier));
       }
       break;
-    case 17:
+    case 2017:
       if (version >= "8.0.0") {
         return Ok(format("-std={}++17", specifier));
       } else if (version >= "5.1.0") {
         return Ok(format("-std={}++1z", specifier));
       }
       break;
-    case 20:
+    case 2020:
       if (version >= "11.1.0") {
         return Ok(format("-std={}++20", specifier));
       } else if (version >= "8.0.0") {
@@ -74,7 +75,7 @@ get_std_flag(
   }
   return Err<error::UnsupportedLangVersion>(
       error::to_string(compiler), version.get_full(),
-      to_string(lang::Lang::cxx), cpp
+      to_string(lang::Lang::cxx), edition
   );
 }
 
