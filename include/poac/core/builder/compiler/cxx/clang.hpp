@@ -33,7 +33,8 @@ get_compiler_version(const String& compiler_command) {
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/Compiler/Clang.cmake
 [[nodiscard]] Result<String>
 get_std_flag(
-    const String& compiler_command, const i64 edition, const bool use_gnu_extension
+    const String& compiler_command, const i64 edition,
+    const bool use_gnu_extension
 ) {
   const semver::Version version = Try(get_compiler_version(compiler_command));
   const String specifier = use_gnu_extension ? "gnu" : "c";
