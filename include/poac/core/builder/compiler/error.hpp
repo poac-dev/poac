@@ -32,7 +32,7 @@ operator<<(std::ostream& os, util::cfg::compiler comp) {
 }
 
 using UnsupportedLangVersion = Error<
-    "`{}` ({}) does not support {} version: `{}`", String, String, String, i64>;
+    "`{}` ({}) does not support {} edition: `{}`", String, String, String, i64>;
 using FailedToGetCompilerVersion =
     Error<"failed to get version of compiler `{}`", String>;
 

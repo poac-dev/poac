@@ -140,8 +140,8 @@ construct(
   }
   writer.newline();
 
-  const auto cpp = toml::find<toml::integer>(poac_manifest, "package", "cpp");
-  const String command = Try(compiler::cxx::get_command(cpp, false));
+  const i64 edition = toml::find<i64>(poac_manifest, "package", "edition");
+  const String command = Try(compiler::cxx::get_command(edition, false));
 
   writer.rule(
       "compile",
