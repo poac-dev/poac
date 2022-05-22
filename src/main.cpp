@@ -35,6 +35,9 @@ struct Commands {
   /// Create a new poac package in an existing directory
   subcmd::init::Options init;
 
+  /// Run cpplint
+  subcmd::lint::Options lint;
+
   /// Log in to poac.pm
   subcmd::login::Options login;
 
@@ -48,7 +51,7 @@ struct Commands {
   subcmd::search::Options search;
 };
 STRUCTOPT(
-    Commands, verbose, quiet, build, create, init, login, publish, run, search
+    Commands, verbose, quiet, build, create, init, lint, login, publish, run, search
 );
 
 inline std::string
@@ -85,6 +88,8 @@ exec(const structopt::app& app, const Commands& args) {
     return subcmd::create::exec(args.create);
   } else if (args.init.has_value()) {
     return subcmd::init::exec(args.init);
+  } else if (args.lint.has_value()) {
+    return subcmd::lint::exec(args.lint);
   } else if (args.login.has_value()) {
     return subcmd::login::exec(args.login);
   } else if (args.publish.has_value()) {
