@@ -1,9 +1,6 @@
 #ifndef POAC_DATA_MANIFEST_HPP_
 #define POAC_DATA_MANIFEST_HPP_
 
-// std
-#include <vector>
-
 // external
 #include <toml.hpp>
 
@@ -12,21 +9,21 @@
 
 namespace poac::data::manifest {
 
-    struct PartialPackage {
-        std::string name;
-        std::string version;
-        std::int32_t edition;
-        std::vector<std::string> authors;
-        std::string license;
-        std::string repository;
-        std::string description;
-    };
+struct PartialPackage {
+  String name;
+  String version;
+  i32 edition;
+  Vec<String> authors;
+  String license;
+  String repository;
+  String description;
+};
 
-}
+} // namespace poac::data::manifest
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::manifest::PartialPackage,
-    name, version, edition, authors, license, repository, description
+    poac::data::manifest::PartialPackage, name, version, edition, authors,
+    license, repository, description
 )
 
 namespace poac::data::manifest {
