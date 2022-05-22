@@ -14,6 +14,7 @@
 
 // internal
 #include <poac/cmd.hpp>
+#include <poac/util/lev_distance.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 
 using namespace termcolor2::color_literals;
@@ -53,6 +54,8 @@ struct Commands {
 STRUCTOPT(
     Commands, verbose, quiet, build, create, init, lint, login, publish, run, search
 );
+inline const std::vector<std::string_view> command_list{
+    "build", "create", "init", "lint", "login", "run", "search"};
 
 inline std::string
 colorize_structopt_error(std::string s) {
@@ -129,6 +132,20 @@ main(const int argc, char* argv[]) {
         })
         .is_err();
   } catch (const structopt::exception& e) {
+    if (argc > 1) {
+      // try correcting typo
+      if (const auto sugg = poac::util::lev_distance::find_similar_str(
+              argv[1], command_list
+          )) {
+        spdlog::error(
+            "{}\n"
+            "  --> Did you mean `{}`?\n\n"
+            "For more information, try {}",
+            colorize_structopt_error(e.what()), sugg.value(), "--help"_green
+        );
+        return EXIT_FAILURE;
+      }
+    }
     spdlog::error(
         "{}\n\nFor more information, try {}",
         colorize_structopt_error(e.what()), "--help"_green
