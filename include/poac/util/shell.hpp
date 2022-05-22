@@ -81,7 +81,7 @@ public:
   }
 
   bool
-  exec_ignore() const {
+  exec_no_capture() const {
     // EXIT_SUCCESS -> 0 -> false -> true
     // EXIT_FAILURE -> 1 -> true -> false
     return !static_cast<bool>(std::system(cmd.c_str()));

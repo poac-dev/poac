@@ -294,12 +294,12 @@ public:
 
   inline void
   include(const fs::path& path) {
-    _line(format("include {}", path.string()));
+    _line(format("include {}", path));
   }
 
   inline void
   subninja(const fs::path& path) {
-    _line(format("subninja {}", path.string()));
+    _line(format("subninja {}", path));
   }
 
   inline void

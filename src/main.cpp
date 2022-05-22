@@ -35,10 +35,13 @@ struct Commands {
   /// Log in to poac.pm
   subcmd::login::Options login;
 
+  /// Build and run a binary
+  subcmd::run::Options run;
+
   /// Search a package on poac.pm
   subcmd::search::Options search;
 };
-STRUCTOPT(Commands, verbose, quiet, build, create, init, login, search);
+STRUCTOPT(Commands, verbose, quiet, build, create, init, login, run, search);
 
 inline std::string
 colorize_structopt_error(std::string s) {
@@ -76,6 +79,8 @@ exec(const structopt::app& app, const Commands& args) {
     return subcmd::init::exec(args.init);
   } else if (args.login.has_value()) {
     return subcmd::login::exec(args.login);
+  } else if (args.run.has_value()) {
+    return subcmd::run::exec(args.run);
   } else if (args.search.has_value()) {
     return subcmd::search::exec(args.search);
   } else {
