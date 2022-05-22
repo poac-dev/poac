@@ -13,7 +13,151 @@ Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.p
 
 By using Poac, you can create a C++ project, build sources, and execute an application:
 
-![Poac Demo](https://user-images.githubusercontent.com/26405363/100546063-9b81d500-32a2-11eb-9018-01f05e8d9252.gif)
+![demo](https://user-images.githubusercontent.com/26405363/169694620-2e3f769e-c6c5-4e6a-a645-e5bae226a8cb.gif)
+
+## Usage
+
+### Start a new project with Poac
+
+Use this command when you start a new poac project.
+
+```bash
+$ poac create hello_world
+     Created binary (application) `hello_world` package
+```
+
+> If you want to integrate your existing project with Poac, use the `init` command:
+> 
+> ```bash
+> your-pj/$ poac init
+>      Created binary (application) `your-pj` package
+> ```
+> 
+> This command just creates a `poac.toml` file not to let your project break.
+
+### Build the project
+
+In most cases, you will want to execute as well as build—of course, you can.
+
+```bash
+hello_world/$ poac run
+   Compiling 1/1: hello_world v0.1.0 (/Users/ken-matsui/hello_world)
+    Finished debug target(s) in 0.90s
+     Running `/Users/ken-matsui/hello_world/poac_output/debug/hoge`
+Hello, world!
+```
+
+Should you just build it, run the `build` command:
+
+```bash
+hello_world/$ poac build
+    Finished debug target(s) in 0.21s
+```
+
+Poac uses a cache since we executed the command with no changes.
+
+### Install dependencies
+
+Like Cargo for Rust does, Poac installs dependencies at build time.
+However, Poac does not support [weired specifiers](https://stackoverflow.com/q/22343224) for versions, such as `~` and `^`.
+You can specify dependencies like:
+
+`poac.toml`
+
+```toml
+[dependencies]
+"boost/bind" = ">=1.64.0 and <2.0.0"
+```
+
+We regularly avoid auto updating packages to major versions which bring breaking changes, but minor and patch are acceptable.
+
+> If you would use a specific version, you can write the version as following:
+>
+> ```toml
+> [dependencies]
+> "boost/bind" = "1.66.0"
+> ```
+
+After editing `poac.toml`, executing the `build` command will install the package and its dependencies.
+
+```bash
+hello_world/$ poac build
+ Downloading packages ...
+  Downloaded boost/bind v1.66.0
+  Downloaded boost/core v1.66.0
+  Downloaded boost/assert v1.66.0
+  Downloaded boost/config v1.66.0
+   Compiling 1/1: hello_world v0.1.0 (/Users/ken-matsui/hello_world)
+    Finished debug target(s) in 0.70s
+```
+
+To use this dependency, update the `main.cpp` file.
+
+`src/main.cpp`
+
+```cpp
+#include <iostream>
+#include <boost/bind.hpp>
+
+int f(int a, int b) {
+  return a + b;
+}
+
+int main(int argc, char** argv) {
+  std::cout << boost::bind(f, 5, _1)(10) << std::endl;
+}
+```
+
+You can now run this source code:
+
+```bash
+hello_world/$ poac run
+   Compiling 1/1: hello_world v0.1.0 (/Users/ken-matsui/hello_world)
+    Finished debug target(s) in 0.50s
+     Running `/Users/ken-matsui/hello_world/poac_output/debug/hello_world`
+15
+```
+
+> We currently support building a project with header-only dependencies.
+> Building with build-required dependencies will be soon supported.
+
+### Run linter
+
+Linting source code is essential to protect its quality.
+Poac supports linting it by a simple command with `cpplint`:
+
+```bash
+hello_world/$ poac lint
+src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+Done processing src/main.cpp
+Total errors found: 1
+
+Error: `cpplint` finished with return code 1
+```
+
+> If you do not have `cpplint`, install it with the following command:
+>
+> ```bash
+> $ pip install cpplint
+> ```
+
+The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
+To customize the lint settings, try creating a [`CPPLINT.cfg`](/CPPLINT.cfg) file to the repository root.
+
+### Search packages
+
+In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
+
+```bash
+$ poac search func
+boost/function = "1.66.0"               # Boost.org function module
+boost/function_types = "1.66.0"         # Boost.org function_types module
+boost/functional = "1.66.0"             # Boost.org functional module
+```
+
+### Publish packages
+
+WIP
 
 ## Roadmap
 
@@ -169,6 +313,12 @@ I also plan to implement integration with many other build systems and package m
 ```bash
 $ cpplint --quiet --recursive .
 ```
+
+> If you have installed Poac, you can just run the `lint` command:
+>
+> ```bash
+> $ poac lint
+> ```
 
 ### Formatter
 
