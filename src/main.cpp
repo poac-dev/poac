@@ -44,7 +44,9 @@ struct Commands {
   /// Search a package on poac.pm
   subcmd::search::Options search;
 };
-STRUCTOPT(Commands, verbose, quiet, build, create, init, login, publish, search);
+STRUCTOPT(
+    Commands, verbose, quiet, build, create, init, login, publish, search
+);
 
 inline std::string
 colorize_structopt_error(std::string s) {
