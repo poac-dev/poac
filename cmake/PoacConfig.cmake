@@ -2,6 +2,8 @@ include_guard(GLOBAL)
 include(cmake/Helpers.cmake)
 
 add_poac_definitions(POAC_VERSION="${PROJECT_VERSION}")
+add_poac_definitions(TOML11_NO_ERROR_PREFIX)
+add_poac_definitions(TOML11_COLORIZE_ERROR_MESSAGE)
 if (NOT MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") # undefined reference to symbol 'pthread_condattr_setclock@@GLIBC_2.3.3'
     if (APPLE)
