@@ -1,6 +1,3 @@
-// settings
-#define TOML11_COLORIZE_ERROR_MESSAGE
-
 // std
 #include <cstdlib>
 #include <exception>
@@ -52,7 +49,8 @@ struct Commands {
   subcmd::search::Options search;
 };
 STRUCTOPT(
-    Commands, verbose, quiet, build, create, init, lint, login, publish, run, search
+    Commands, verbose, quiet, build, create, init, lint, login, publish, run,
+    search
 );
 inline const std::vector<std::string_view> command_list{
     "build", "create", "init", "lint", "login", "run", "search"};
@@ -152,9 +150,7 @@ main(const int argc, char* argv[]) {
     );
     return EXIT_FAILURE;
   } catch (const std::exception& e) {
-    std::string err = e.what();
-    boost::replace_first(err, "[error] ", ""); // for toml11
-    spdlog::error("{} {}", "Error:"_bold_red, err);
+    spdlog::error("{} {}", "Error:"_bold_red, e.what());
     return EXIT_FAILURE;
   } catch (...) {
     spdlog::error(
