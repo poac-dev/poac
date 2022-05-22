@@ -78,7 +78,7 @@ namespace files {
   inline const String main_cpp(
       "#include <iostream>\n\n"
       "int main(int argc, char** argv) {\n"
-      "    std::cout << \"Hello, world!\" << std::endl;\n"
+      "  std::cout << \"Hello, world!\" << std::endl;\n"
       "}\n"
   );
 
