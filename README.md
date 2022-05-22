@@ -26,6 +26,7 @@ Poac is still under development and may contain a bunch of bugs.
 |                Publish packages                 |        WIP         |
 |   Special dependencies like dev-dependencies    |                    |
 | Build packages with build-required dependencies |                    |
+|            Build packages with CMake            |                    |
 
 ## Supported Operating Systems
 
