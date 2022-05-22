@@ -131,8 +131,9 @@ Poac requires the following compilers, tools, and packages to build:
   * awaiting the next release above [`v1.10.2`](https://github.com/ninja-build/ninja/releases/tag/v1.10.2)
 * [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
 * [`structopt`](https://github.com/p-ranav/structopt): [`v0.1.2`](https://github.com/p-ranav/structopt/releases/tag/v0.1.2) or later
-* [`toml11`](https://github.com/ToruNiina/toml11): [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1) branch
-  * requires [this commit](https://github.com/ToruNiina/toml11/commit/21732fce459911d4da0214baff52af7c8c48cc9f)
+* [`toml11`](https://github.com/ToruNiina/toml11): [`c26aa01`](https://github.com/ToruNiina/toml11/commit/c26aa013cdc75286f90e6d9f661c14890b3f358f) or later
+  * requires [this commit](https://github.com/ToruNiina/toml11/commit/c26aa013cdc75286f90e6d9f661c14890b3f358f)
+  * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
 
 **dev-dependencies**
 
