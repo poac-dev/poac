@@ -49,16 +49,16 @@ get_compiler_ident(const String& compiler_command) {
 [[nodiscard]] Result<String>
 get_std_flag(
     const util::cfg::compiler compiler, const String& compiler_command,
-    const i64& cpp, const bool use_gnu_extension
+    const i64 edition, const bool use_gnu_extension
 ) {
   switch (compiler) {
     case util::cfg::compiler::gcc:
-      return gcc::get_std_flag(compiler_command, cpp, use_gnu_extension);
+      return gcc::get_std_flag(compiler_command, edition, use_gnu_extension);
     case util::cfg::compiler::clang:
-      return clang::get_std_flag(compiler_command, cpp, use_gnu_extension);
+      return clang::get_std_flag(compiler_command, edition, use_gnu_extension);
     case util::cfg::compiler::apple_clang:
       return apple_clang::get_std_flag(
-          compiler_command, cpp, use_gnu_extension
+          compiler_command, edition, use_gnu_extension
       );
     default:
       return Err<UnsupportedCompiler>(error::to_string(compiler));
@@ -79,12 +79,12 @@ get_compiler_command() {
 }
 
 [[nodiscard]] Result<String>
-get_command(const i64& cpp, const bool use_gnu_extension) {
+get_command(const i64 edition, const bool use_gnu_extension) {
   const String compiler_command = Try(get_compiler_command());
   const util::cfg::compiler compiler =
       Try(get_compiler_ident(compiler_command));
   const String std_flag =
-      Try(get_std_flag(compiler, compiler_command, cpp, use_gnu_extension));
+      Try(get_std_flag(compiler, compiler_command, edition, use_gnu_extension));
   return Ok(format("{} {}", compiler_command, std_flag));
 }
 
