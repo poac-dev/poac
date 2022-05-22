@@ -118,6 +118,9 @@ hello_world/$ poac run
 15
 ```
 
+> We currently support building a project with header-only dependencies.
+> Building with build-required dependencies will be soon supported.
+
 ### Search packages
 
 In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
@@ -132,8 +135,6 @@ boost/functional = "1.66.0"             # Boost.org functional module
 ### Publish packages
 
 WIP
-
-## Roadmap
 
 ## Roadmap
 
