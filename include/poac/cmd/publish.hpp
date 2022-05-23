@@ -77,6 +77,9 @@ get_token(const Options& opts) {
   }
 }
 
+using NotImplemented = Error<
+    "failed to publish; `publish` command is currently under development">;
+
 [[nodiscard]] anyhow::result<void>
 exec(const Options& opts) {
   const String token = Try(get_token(opts));
@@ -90,11 +93,6 @@ exec(const Options& opts) {
   // no changes from HEAD
   // no changes from tag (using clone?)
 
-  // Can be built
-
-  // download tar.gz and get hash
-  // Run publish
-
   // Check buildablity
   Try(cmd::build::build(cmd::build::Options{.release = true}, manifest)
           .with_context([&manifest] {
@@ -104,7 +102,10 @@ exec(const Options& opts) {
                 .get();
           }));
 
-  return Ok();
+  // download tar.gz and get hash
+  // Run publish
+
+  return Err<NotImplemented>();
 }
 
 } // namespace poac::cmd::publish

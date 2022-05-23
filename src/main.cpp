@@ -56,8 +56,8 @@ STRUCTOPT(
     run, search
 );
 inline const std::vector<std::string_view> command_list{
-    "build", "create", "fmt", "init", "lint", "login", "publish", "run",
-    "search"};
+    "build", "create",  "fmt", "init",  "lint",
+    "login", "publish", "run", "search"};
 
 inline std::string
 colorize_structopt_error(std::string s) {
