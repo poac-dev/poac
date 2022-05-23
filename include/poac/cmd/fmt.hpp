@@ -6,7 +6,7 @@
 #include <string>
 
 // external
-#include <glob/glob.h> // NOLINT(build/include_order)
+#include <glob/glob.h>     // NOLINT(build/include_order)
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 #include <toml.hpp>
