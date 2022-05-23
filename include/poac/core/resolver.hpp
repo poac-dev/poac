@@ -128,9 +128,9 @@ fetch_impl(const resolve::Package& package) noexcept {
   try {
     const auto [download_link, sha256sum] =
         Try(get_download_link(package).map_err(to_anyhow));
-    spdlog::debug("downloading from `{}`", download_link);
+    log::debug("downloading from `{}`", download_link);
     const fs::path archive_path = get_archive_path(package);
-    spdlog::debug("writing to `{}`", archive_path.string());
+    log::debug("writing to `{}`", archive_path.string());
 
     std::ofstream archive(archive_path);
     const auto [host, target] = util::net::parse_url(download_link);
@@ -207,7 +207,7 @@ download_deps(const ResolvedDeps& deps) noexcept {
     return Ok();
   }
 
-  spdlog::info("{:>25} packages ...", "Downloading"_bold_green);
+  log::status("Downloading"_bold_green, "packages ...");
   try {
     fs::create_directories(config::path::cache_dir);
   } catch (const std::exception& e) {

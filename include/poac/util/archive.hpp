@@ -83,7 +83,7 @@ String
 set_extract_path(archive_entry* entry, const fs::path& extract_path) noexcept {
   const String current_file = archive_entry_pathname(entry);
   const fs::path full_output_path = extract_path / current_file;
-  spdlog::debug("extracting to `{}`", full_output_path.string());
+  log::debug("extracting to `{}`", full_output_path.string());
   archive_entry_set_pathname(entry, full_output_path.c_str());
   return current_file;
 }

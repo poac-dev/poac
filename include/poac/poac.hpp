@@ -23,6 +23,7 @@
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/result/result.hpp>
 #include <mitama/thiserror/thiserror.hpp>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include <poac/util/termcolor2/literals_extra.hpp>
@@ -147,6 +148,38 @@ append(Vec<T>& a, const Vec<U>& b) {
   a.insert(a.end(), b.cbegin(), b.cend());
 }
 
+//
+// Logs
+//
+namespace log {
+
+  // Printed when `no option` & `--verbose`
+  template <typename T>
+  inline void
+  status(StringRef header, T&& msg) {
+    spdlog::info("{:>25} {}", header, std::forward<T>(msg));
+  }
+  template <typename... Args>
+  inline void
+  status(StringRef header, fmt::format_string<Args...> fmt, Args&&... args) {
+    status(header, format(fmt, std::forward<Args>(args)...));
+  }
+
+  // Printed when `--verbose` but would support a `--debug` flag
+  // (TODO(ken-matsui))
+  template <typename T>
+  inline void
+  debug(T&& msg) {
+    spdlog::debug("[poac] {}", std::forward<T>(msg));
+  }
+  template <typename... Args>
+  inline void
+  debug(fmt::format_string<Args...> fmt, Args&&... args) {
+    debug(format(fmt, std::forward<Args>(args)...));
+  }
+
+} // namespace log
+
 } // namespace poac
 
 //
@@ -162,7 +195,7 @@ struct formatter<std::string_view> {
   }
 
   template <typename FormatContext>
-  auto
+  inline auto
   format(std::string_view sv, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", std::string(sv));
   }
@@ -176,7 +209,7 @@ struct formatter<std::filesystem::path> {
   }
 
   template <typename FormatContext>
-  auto
+  inline auto
   format(const std::filesystem::path& p, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", p.string());
   }
@@ -190,7 +223,7 @@ struct formatter<std::pair<T1, T2>> {
   }
 
   template <typename FormatContext>
-  auto
+  inline auto
   format(const std::pair<T1, T2>& p, FormatContext& ctx) {
     return format_to(ctx.out(), "({}, {})", p.first, p.second);
   }
@@ -204,7 +237,7 @@ struct formatter<std::vector<T, Alloc>> {
   }
 
   template <typename FormatContext>
-  auto
+  inline auto
   format(const std::vector<T, Alloc>& v, FormatContext& ctx) {
     if (v.empty()) {
       return ctx;

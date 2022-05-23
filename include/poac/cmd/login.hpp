@@ -46,7 +46,7 @@ exec(const Options& opts) {
   std::ofstream ofs(config::path::cred_file, std::ofstream::trunc);
   ofs << format("[registry]\ntoken = \"{}\"\n", opts.api_token);
 
-  spdlog::info("{:>25} token for `{}` saved", "Login"_bold_green, "poac.pm");
+  log::status("Login"_bold_green, "token for `{}` saved", "poac.pm");
   return Ok();
 }
 
