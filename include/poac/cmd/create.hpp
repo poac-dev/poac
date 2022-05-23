@@ -161,7 +161,7 @@ exec(const Options& opts) {
   namespace validator = core::validator;
 
   spdlog::trace("Validating the `{}` directory exists", opts.package_name);
-  Try(validator::can_crate_directory(opts.package_name).map_err(to_anyhow));
+  Try(validator::can_create_directory(opts.package_name).map_err(to_anyhow));
 
   spdlog::trace("Validating the package name `{}`", opts.package_name);
   Try(validator::valid_package_name(opts.package_name).map_err(to_anyhow));

@@ -7,6 +7,7 @@
 #include <poac/cmd/init.hpp>
 #include <poac/cmd/lint.hpp>
 #include <poac/cmd/login.hpp>
+#include <poac/cmd/publish.hpp>
 #include <poac/cmd/run.hpp>
 #include <poac/cmd/search.hpp>
 

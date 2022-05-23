@@ -42,6 +42,9 @@ struct Commands {
   /// Log in to poac.pm
   subcmd::login::Options login;
 
+  /// Publish a package to poac.pm
+  subcmd::publish::Options publish;
+
   /// Build and run a binary
   subcmd::run::Options run;
 
@@ -49,10 +52,12 @@ struct Commands {
   subcmd::search::Options search;
 };
 STRUCTOPT(
-    Commands, verbose, quiet, build, create, fmt, init, lint, login, run, search
+    Commands, verbose, quiet, build, create, fmt, init, lint, login, publish,
+    run, search
 );
 inline const std::vector<std::string_view> command_list{
-    "build", "create", "fmt", "init", "lint", "login", "run", "search"};
+    "build", "create",  "fmt", "init",  "lint",
+    "login", "publish", "run", "search"};
 
 inline std::string
 colorize_structopt_error(std::string s) {
@@ -94,6 +99,8 @@ exec(const structopt::app& app, const Commands& args) {
     return subcmd::lint::exec(args.lint);
   } else if (args.login.has_value()) {
     return subcmd::login::exec(args.login);
+  } else if (args.publish.has_value()) {
+    return subcmd::publish::exec(args.publish);
   } else if (args.run.has_value()) {
     return subcmd::run::exec(args.run);
   } else if (args.search.has_value()) {

@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <string>
 
+// external
+#include <toml.hpp>
+
 // internal
 #include <poac/config.hpp>
 #include <poac/data/manifest.hpp>
@@ -26,7 +29,7 @@ required_config_exists(const fs::path& base = config::path::cur_dir) noexcept {
 }
 
 [[nodiscard]] Result<void, String>
-can_crate_directory(const fs::path& p) {
+can_create_directory(const fs::path& p) {
   std::error_code ec{}; // This is to use for noexcept optimization
 
   const bool exists = fs::exists(p, ec);
@@ -223,9 +226,9 @@ using_keywords(StringRef s) {
       "xor_eq",
   };
   if (std::find(blacklist.begin(), blacklist.end(), s) != blacklist.end()) {
-    return Err(format(
-        "`{}` is a keyword, so it cannot be used as a package name", String(s)
-    ));
+    return Err(
+        format("`{}` is a keyword; it cannot be used as a package name", s)
+    );
   }
   return Ok();
 }
@@ -242,9 +245,147 @@ valid_version(StringRef s) {
   try {
     semver::parse(s);
   } catch (const semver::exception& e) {
-    return Err(e.what());
+    return Err(format(
+        "version `{}` is not compliant with the Semantic Versioning notation.\n"
+        "For more information, please go to: https://semver.org/",
+        String(s)
+    ));
   }
   return Ok();
+}
+
+[[nodiscard]] Result<void, String>
+valid_athr(StringRef s) {
+  // TODO(ken-matsui): Email address parser
+  if (usize pos = s.find('<'); pos != SNone) {
+    if (pos = s.find('@', pos + 1); pos != SNone) {
+      if (pos = s.find('>', pos + 1); pos != SNone) {
+        if (s.ends_with('>')) {
+          return Ok();
+        }
+      }
+    }
+  }
+  return Err(format(
+      "author `{}` is written in invalid style. It should be like:\n"
+      "  `Your Name <your-public@email.address>`",
+      String(s)
+  ));
+}
+
+[[nodiscard]] Result<void, String>
+valid_authors(const Vec<String>& authors) {
+  if (authors.empty()) {
+    return Err("key `authors` cannot be empty.");
+  }
+  for (StringRef a : authors) {
+    Try(valid_athr(a));
+  }
+  return Ok();
+}
+
+[[nodiscard]] Result<void, String>
+valid_edition(const i32& edition) {
+  switch (edition) {
+    case 1998:
+    case 2003:
+    case 2011:
+    case 2014:
+    case 2017:
+    case 2020:
+    case 2023:
+      return Ok();
+    default:
+      return Err(format(
+          "`{}` cannot be used as an `edition` key. Possible values are:\n"
+          "  1998, 2003, 2011, 2014, 2017, 2020, and 2023",
+          edition
+      ));
+  }
+}
+
+[[nodiscard]] Result<void, String>
+valid_license(StringRef license) {
+  // This list is from https://choosealicense.com/licenses
+  if (license == "AGPL-3.0" || license == "GPL-3.0" || license == "LGPL-3.0" ||
+      license == "MPL-2.0" || license == "Apache-2.0" || license == "MIT" ||
+      license == "BSL-1.0" || license == "Unlicense") {
+    return Ok();
+  }
+  return Err(format(
+      "`{}` cannot be used as `license` key. Possible values are:\n"
+      "  `AGPL-3.0`, `GPL-3.0`, `LGPL-3.0`, `MPL-2.0`, `Apache-2.0`, "
+      "`MIT`, `BSL-1.0`, and `Unlicense`",
+      String(license)
+  ));
+}
+
+[[nodiscard]] Result<void, String>
+valid_repository(StringRef repo) {
+  // Can be parsed? it should be:
+  // https://github.com/org/repo/tree/tag
+  if (repo.starts_with("https://github.com/")) {
+    // org/
+    // 19: size of `https://github.com/`
+    if (usize pos = repo.find('/', 19); pos != SNone) {
+      // repo/
+      if (pos = repo.find('/', pos + 1); pos != SNone) {
+        // tree/
+        if (repo.substr(pos + 1, 5) == "tree/") {
+          // repo/tree/
+          //     ^---->^
+          pos += 5;
+          // tag
+          if (repo.size() - 1 > pos) {
+            // -- tag found case
+            // tree/tag `8 (size)`
+            //      ^   `5 (pos)`
+
+            // -- no tag case
+            // tree/  `5 (size)`
+            //      ^ `5 (pos)`
+            return Ok();
+          }
+        }
+      }
+    }
+  }
+  return Err(format(
+      "`{}` is invalid form for the `repository` key. It should be like:\n"
+      "  `https://github.com/org/repo/tree/tag`",
+      repo
+  ));
+}
+
+[[nodiscard]] Result<void, String>
+valid_description(StringRef desc) {
+  const usize size = desc.size();
+  if (size < 10) {
+    return Err(
+        "the `description` key cannot be smaller than 10 characters long.\n"
+        "The `description` must be descriptive."
+    );
+  } else if (size > 180) {
+    return Err(
+        "the `description` key cannot exceed 180 characters long.\n"
+        "Please specify it more briefly."
+    );
+  }
+  return Ok();
+}
+
+[[nodiscard]] Result<data::manifest::PartialPackage, String>
+valid_manifest(const toml::value& manifest) {
+  const auto package =
+      toml::find<data::manifest::PartialPackage>(manifest, "package");
+  Try(valid_package_name(package.name));
+  Try(valid_version(package.version));
+  Try(valid_authors(package.authors));
+  Try(valid_edition(package.edition));
+  Try(valid_license(package.license));
+  Try(valid_repository(package.repository));
+  Try(valid_description(package.description));
+  return Ok(package);
 }
 
 } // namespace poac::core::validator
