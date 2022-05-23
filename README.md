@@ -401,6 +401,5 @@ Please see [LICENSE](LICENSE) for details.
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
 * μt - <https://github.com/boost-ext/ut/blob/master/LICENSE.md>
 
-## Footnotes
 
 [^1]: Amemiya, T., & Mizutani, S. (2006). On the Basic Affective Dimensions of Japanese Onomatopoeia and the Basic Level of Japanese Phonesthemes. 関西大学社会学部紀要, 37(2), 139–166. https://hdl.handle.net/10112/12311
