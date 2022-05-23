@@ -52,7 +52,7 @@ fmt(StringRef args) {
 
     for (StringRef e : extensions) {
       for (StringRef p : patterns) {
-        const String search = format(p, d, e);
+        const String search = format(::fmt::runtime(p), d, e);
         const Vec<fs::path> search_glob = glob::rglob(search);
         if (search_glob.empty()) {
           spdlog::trace("Glob `{}` not found; skipping ...", search);
