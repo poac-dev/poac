@@ -145,8 +145,8 @@ create(const Options& opts) {
   spdlog::trace("Initializing git repository at {}", opts.package_name);
   git2::repository().init(opts.package_name);
 
-  spdlog::info(
-      "{:>25} {} `{}` package", "Created"_bold_green, to_string(type),
+  log::status(
+      "Created"_bold_green, "{} `{}` package", to_string(type),
       opts.package_name
   );
   return Ok();

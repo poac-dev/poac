@@ -148,6 +148,12 @@ append(Vec<T>& a, const Vec<U>& b) {
   a.insert(a.end(), b.cbegin(), b.cend());
 }
 
+template <typename K, typename V>
+inline void
+append(HashMap<K, V>& a, const HashMap<K, V>& b) {
+  a.insert(b.cbegin(), b.cend());
+}
+
 //
 // Logs
 //
