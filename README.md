@@ -155,14 +155,16 @@ $ poac fmt
   Formatting poac
 ```
 
-This command automatically detects what files we need to format to avoid bothering commands like:
+> This command automatically detects what files we need to format to avoid bothering commands like:
+>
+> ```bash
+> $ clang-format ./src/**.cpp -i
+> $ clang-format ./include/**/*.hpp -i
+> $ clang-format ./tests/**/*.cpp -i
+> $ clang-format ...
+> ```
 
-```bash
-$ clang-format ./src/**.cpp -i
-$ clang-format ./include/**/*.hpp -i
-$ clang-format ./tests/**/*.cpp -i
-$ clang-format ...
-```
+To customize the format settings, try creating a [`.clang-format`](/.clang-format) file to the repository root.
 
 ### Search packages
 
