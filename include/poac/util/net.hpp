@@ -281,7 +281,7 @@ public:
     if (verbosity::is_verbose()) {
       std::stringstream ss;
       ss << req;
-      spdlog::debug("{}", ss.str());
+      log::debug("{}", ss.str());
     }
 
     return request<http::verb::get, ResponseBody>(
@@ -342,7 +342,7 @@ private:
                             std::nullptr_t> = nullptr>
   void
   write_request(const Request& req) const {
-    spdlog::debug("[util::net::requests] write type: string");
+    log::debug("[util::net::requests] write type: string");
     // Send the HTTP request to the remote host
     http::write(*stream, req);
   }
@@ -354,7 +354,7 @@ private:
           std::nullptr_t> = nullptr>
   void
   write_request(const Request& req) const {
-    spdlog::debug("[util::net::requests] write type: multipart/form-data");
+    log::debug("[util::net::requests] write type: multipart/form-data");
 
     // Send the HTTP request to the remote host
     stream->write_some(boost::asio::buffer(req.get_header()));
@@ -383,7 +383,7 @@ private:
     }
     // Send footer to stream
     stream->write_some(boost::asio::buffer(req.get_footer()));
-    spdlog::debug("[util::net::requests] waiting for server response...");
+    log::debug("[util::net::requests] waiting for server response...");
   }
 
   template <
@@ -443,10 +443,10 @@ private:
   parse_response(Response&& res, Ofstream&& ofs) const {
     if constexpr (!std::is_same_v<
                       std::remove_cvref_t<Ofstream>, std::ofstream>) {
-      spdlog::debug("[util::net::requests] read type: string");
+      log::debug("[util::net::requests] read type: string");
       return res.body();
     } else {
-      spdlog::debug("[util::net::requests] read type: file with progress");
+      log::debug("[util::net::requests] read type: file with progress");
       const typename ResponseBody::value_type response_body = res.body();
       const auto content_length = response_body.size();
       if (content_length < 100'000 /* 100KB */) {
@@ -477,7 +477,7 @@ private:
   redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
     const String new_location(res.base()["Location"]);
     const auto [new_host, new_target] = parse_url(new_location);
-    spdlog::debug(format("Redirect to {}\n", new_location));
+    spdlog::debug("Redirect to {}\n", new_location);
 
     // FIXME: header information is gone.
     const Requests req(new_host);
@@ -520,7 +520,7 @@ private:
       boost::system::error_code error{
           static_cast<i32>(::ERR_get_error()),
           boost::asio::error::get_ssl_category()};
-      spdlog::debug(error.message());
+      log::debug(error.message());
       throw boost::system::system_error{error};
     }
   }
@@ -606,7 +606,7 @@ versions(StringRef name) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
   const auto results = util::meta::to_vec<String>(res, "data");
-  spdlog::debug(
+  log::debug(
       "[util::net::api::versions] versions of {} are [{}]", name,
       fmt::join(results, ", ")
   );

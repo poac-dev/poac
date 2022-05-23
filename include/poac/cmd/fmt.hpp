@@ -96,7 +96,7 @@ exec(const Options& opts) {
     args += "--dry-run";
   } else {
     args += "-i";
-    spdlog::info("{:>25} {}", "Formatting"_bold_green, name);
+    log::status("Formatting"_bold_green, name);
   }
   return fmt(args);
 }

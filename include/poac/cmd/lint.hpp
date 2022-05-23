@@ -36,7 +36,7 @@ using CppLintError = Error<"`cpplint` finished with return code 1">;
 
 [[nodiscard]] Result<void>
 lint(StringRef name, Option<String> args) {
-  spdlog::info("{:>25} {}", "Linting"_bold_green, name);
+  log::status("Linting"_bold_green, name);
 
   String cpplint = "cpplint ";
   if (!args.has_value()) {
