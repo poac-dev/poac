@@ -93,6 +93,8 @@ exec(const Options& opts) {
   // no changes from HEAD
   // no changes from tag (using clone?)
 
+  // The `repository` key should be installable
+
   // Check buildablity
   Try(cmd::build::build(cmd::build::Options{.release = true}, manifest)
           .with_context([&manifest] {
