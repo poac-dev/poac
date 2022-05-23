@@ -2,7 +2,6 @@
 #define POAC_CMD_LINT_HPP_
 
 // std
-#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -36,15 +35,15 @@ using CppLintNotFound = Error<
 using CppLintError = Error<"`cpplint` finished with return code 1">;
 
 [[nodiscard]] Result<void>
-lint(StringRef name, Option<String> cpplint_args) {
+lint(StringRef name, Option<String> args) {
   spdlog::info("{:>25} {}", "Linting"_bold_green, name);
 
   String cpplint = "cpplint ";
-  if (!cpplint_args.has_value()) {
+  if (!args.has_value()) {
     spdlog::trace("Using cpplint config file ({}) ...", config_file);
   } else {
     spdlog::trace("Using pre-configured arguments ...");
-    cpplint += format("{} ", cpplint_args.value());
+    cpplint += format("{} ", args.value());
   }
   if (!util::verbosity::is_verbose()) {
     cpplint += "--quiet ";
@@ -80,14 +79,14 @@ exec([[maybe_unused]] const Options& opts) {
     return lint(name, None);
   }
 
-  String cpplint_args;
+  String args;
   if (fs::exists(config::path::include_dir)) {
-    cpplint_args += "--root=include ";
+    args += "--root=include ";
   }
   if (2011 < toml::find<i64>(manifest, "package", "edition")) {
-    cpplint_args += "--filter=-build/c++11 ";
+    args += "--filter=-build/c++11 ";
   }
-  return lint(name, cpplint_args);
+  return lint(name, args);
 }
 
 } // namespace poac::cmd::lint

@@ -128,6 +128,7 @@ Poac supports linting it by a simple command with `cpplint`:
 
 ```bash
 hello_world/$ poac lint
+     Linting poac
 src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
 Done processing src/main.cpp
 Total errors found: 1
@@ -143,6 +144,25 @@ Error: `cpplint` finished with return code 1
 
 The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
 To customize the lint settings, try creating a [`CPPLINT.cfg`](/CPPLINT.cfg) file to the repository root.
+
+### Run formatter
+
+Poac also supports formatting your source code with `clang-format`.
+Ensure having installed `clang-format` before running this command.
+
+```bash
+$ poac fmt
+  Formatting poac
+```
+
+This command automatically detects what files we need to format to avoid bothering commands like:
+
+```bash
+$ clang-format ./src/**.cpp -i
+$ clang-format ./include/**/*.hpp -i
+$ clang-format ./tests/**/*.cpp -i
+$ clang-format ...
+```
 
 ### Search packages
 
@@ -264,6 +284,7 @@ Poac requires the following compilers, tools, and packages to build:
 
 * [`fmt`](https://github.com/fmtlib/fmt): [`7.1.3`](https://github.com/fmtlib/fmt/releases/tag/7.1.3) or later
 * [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`v0.1.0-alpha.0`](https://github.com/ken-matsui/git2-cpp/releases/tag/v0.1.0-alpha.0) or later
+* [`glob`](https://github.com/p-ranav/glob): [`v0.0.1`](https://github.com/p-ranav/glob/releases/tag/v0.0.1) or later
 * [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
   * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
 * [`libgit2`](https://github.com/libgit2/libgit2): [`0.27`](https://github.com/libgit2/libgit2/releases/tag/v0.27.7) or later
@@ -326,6 +347,12 @@ $ cpplint --quiet --recursive .
 $ clang-format ./include/**/*.hpp -i
 ```
 
+> If you have installed Poac, you can just run the `fmt` command:
+>
+> ```bash
+> $ poac fmt
+> ```
+
 These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
 In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.
 
@@ -352,6 +379,7 @@ Please see [LICENSE](LICENSE) for details.
 * boost - <https://github.com/boostorg/boost/blob/master/LICENSE_1_0.txt>
 * fmt - <https://github.com/fmtlib/fmt/blob/master/LICENSE.rst>
 * git2-cpp - <https://github.com/ken-matsui/git2-cpp/blob/main/LICENSE>
+* glob - <https://github.com/p-ranav/glob/blob/master/LICENSE>
 * libarchive - <https://github.com/libarchive/libarchive/blob/master/COPYING>
 * libgit2 - <https://github.com/libgit2/libgit2/blob/master/COPYING>
 * mitama-cpp-result - <https://github.com/LoliGothick/mitama-cpp-result/blob/master/LICENSE>
