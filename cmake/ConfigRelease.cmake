@@ -11,7 +11,9 @@ else ()
             set(STATIC_LINK_FLAG "-static -fuse-ld=lld")
         endif ()
     else ()
-        set(STATIC_LINK_FLAG "-static") # ref: https://stackoverflow.com/a/3801032
+        # ref: https://gist.github.com/ken-matsui/f6c736ea9623cc15e0a1e8912cae5718
+        # I'm not sure why, but this fails on GCC with release builds
+#        set(STATIC_LINK_FLAG "-static") # ref: https://stackoverflow.com/a/3801032
     endif ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3") # -mtune=powerpc64le -mcpu=powerpc64le
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
