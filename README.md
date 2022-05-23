@@ -7,8 +7,6 @@ Poac (pronounced as `/pəʊək/`) is a package manager for C++ users.
 Poac can download project's dependencies and compile a project.
 Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html), and [The Poac Book](https://doc.poac.pm) for more details.
 
-:warning: Caution! Currently under development and cannot be used.
-
 ## Demo
 
 By using Poac, you can create a C++ project, build sources, and execute an application:
@@ -328,6 +326,13 @@ It is thought that it is hard to construct a C++ environment, no definitive pack
 
 By developing a package manager and build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo) and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
 I also plan to implement integration with many other build systems and package managers so that you can seamlessly switch a development environment.
+
+### Naming Background
+
+Poac is originated from `cpp` but also designed to emphasize ease of typing and avoiding the burden being placed on only one hand as Poac will be entered many times as a command.
+The ergonomically optimized name prevents you from leading to tenosynovitis.
+
+<img width="1230" alt="ergo" src="https://user-images.githubusercontent.com/26405363/169741684-ecb8aaad-2599-45ae-a680-a26f11652132.png">
 
 ## Contributing
 
