@@ -128,6 +128,7 @@ Poac supports linting it by a simple command with `cpplint`:
 
 ```bash
 hello_world/$ poac lint
+     Linting poac
 src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
 Done processing src/main.cpp
 Total errors found: 1
@@ -143,6 +144,25 @@ Error: `cpplint` finished with return code 1
 
 The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
 To customize the lint settings, try creating a [`CPPLINT.cfg`](/CPPLINT.cfg) file to the repository root.
+
+### Run formatter
+
+Poac also supports formatting your source code with `clang-format`.
+Ensure having installed `clang-format` before running this command.
+
+```bash
+$ poac fmt
+  Formatting poac
+```
+
+This command automatically detects what files we need to format to avoid bothering commands like:
+
+```bash
+$ clang-format ./src/**.cpp -i
+$ clang-format ./include/**/*.hpp -i
+$ clang-format ./tests/**/*.cpp -i
+$ clang-format ...
+```
 
 ### Search packages
 
@@ -325,6 +345,12 @@ $ cpplint --quiet --recursive .
 ```bash
 $ clang-format ./include/**/*.hpp -i
 ```
+
+> If you have installed Poac, you can just run the `fmt` command:
+>
+> ```bash
+> $ poac fmt
+> ```
 
 These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
 In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.
