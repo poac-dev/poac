@@ -246,7 +246,7 @@ pacman -S poac
 ### Build from source
 
 Should your environment is not listed on released packages, you will need to build Poac from source.
-Poac requires the following compilers, tools, and packages to build:
+Poac requires the following compilers, tools, and libraries to build:
 
 #### compilers
 
