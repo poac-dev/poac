@@ -221,15 +221,15 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
   // deps.activated.size() == variables
   const Vec<i32> assignments = Try(sat::solve(clauses, activated.size()));
   UniqDeps<WithDeps> resolved_deps{};
-  spdlog::debug("SAT");
+  log::debug("SAT");
   for (const auto& a : assignments) {
-    spdlog::debug("{} ", a);
+    log::debug("{} ", a);
     if (a > 0) {
       const auto& [package, deps] = activated[a - 1];
       resolved_deps.emplace(package, deps);
     }
   }
-  spdlog::debug(0);
+  log::debug(0);
   return Ok(resolved_deps);
 }
 
@@ -240,12 +240,12 @@ backtrack_loop(const DupDeps<WithDeps>& activated) {
     for (const auto& c : clauses) {
       for (const auto& l : c) {
         const auto deps = activated[std::abs(l) - 1];
-        spdlog::debug(
+        log::debug(
             "{}-{}: {}, ", get_name(get_package(deps)),
             get_version(get_package(deps)), l
         );
       }
-      spdlog::debug("");
+      log::debug("");
     }
   }
   return solve_sat(activated, clauses);

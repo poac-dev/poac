@@ -41,7 +41,7 @@ exec(const Options& opts) {
   }
 
   const fs::path executable = output.value() / name;
-  spdlog::info("{:>25} `{}`", "Running"_bold_green, executable);
+  log::status("Running"_bold_green, executable);
   if (!util::shell::Cmd(executable).exec_no_capture()) {
     return Err<FailedToRun>(executable);
   }
