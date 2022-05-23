@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional> // std::equal_to
+#include <iterator>   // std::begin, std::end
 #include <map>
 #include <optional>
 #include <string>
@@ -139,6 +140,12 @@ const auto to_anyhow = [](const String& e) { return anyhow::anyhow(e); };
 
 template <thiserror::fixed_string S, class... T>
 using Error = thiserror::error<S, T...>;
+
+template <typename T, typename U>
+inline void
+append(Vec<T>& a, const Vec<U>& b) {
+  a.insert(a.end(), b.cbegin(), b.cend());
+}
 
 } // namespace poac
 

@@ -30,6 +30,9 @@ struct Commands {
   /// Create a new poac package at <package_name>
   subcmd::create::Options create;
 
+  /// Format source code with clang-format (default `LLVM`)
+  subcmd::fmt::Options fmt;
+
   /// Create a new poac package in an existing directory
   subcmd::init::Options init;
 
@@ -49,11 +52,12 @@ struct Commands {
   subcmd::search::Options search;
 };
 STRUCTOPT(
-    Commands, verbose, quiet, build, create, init, lint, login, publish, run,
-    search
+    Commands, verbose, quiet, build, create, fmt, init, lint, login, publish,
+    run, search
 );
 inline const std::vector<std::string_view> command_list{
-    "build", "create", "init", "lint", "login", "run", "search"};
+    "build", "create", "fmt", "init", "lint", "login", "publish", "run",
+    "search"};
 
 inline std::string
 colorize_structopt_error(std::string s) {
@@ -87,6 +91,8 @@ exec(const structopt::app& app, const Commands& args) {
     return subcmd::build::exec(args.build);
   } else if (args.create.has_value()) {
     return subcmd::create::exec(args.create);
+  } else if (args.fmt.has_value()) {
+    return subcmd::fmt::exec(args.fmt);
   } else if (args.init.has_value()) {
     return subcmd::init::exec(args.init);
   } else if (args.lint.has_value()) {
