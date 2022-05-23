@@ -334,6 +334,10 @@ The ergonomically optimized name prevents you from leading to tenosynovitis.
 
 <img width="1230" alt="ergo" src="https://user-images.githubusercontent.com/26405363/169741684-ecb8aaad-2599-45ae-a680-a26f11652132.png">
 
+As I mentioned before, C++ is often avoided being selected for product development; however, I would like to disseminate C++ as a fun language through Poac.
+Amemiya and Mizutani argue that the `/p/` sound gives the brightest and softest impression (157).[^1]
+Accordingly, I believe Poac would likewise provide a bright and soft impression.
+
 ## Contributing
 
 ### Linter
@@ -396,3 +400,7 @@ Please see [LICENSE](LICENSE) for details.
 * structopt - <https://github.com/p-ranav/structopt/blob/master/LICENSE>
 * toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
 * μt - <https://github.com/boost-ext/ut/blob/master/LICENSE.md>
+
+## Footnotes
+
+[^1]: Amemiya, T., & Mizutani, S. (2006). On the Basic Affective Dimensions of Japanese Onomatopoeia and the Basic Level of Japanese Phonesthemes. 関西大学社会学部紀要, 37(2), 139–166. https://hdl.handle.net/10112/12311
