@@ -41,8 +41,8 @@ build_impl(
   const fs::path output_path =
       Try(core::builder::ninja::build::start(manifest, mode, resolved_deps));
 
-  spdlog::info(
-      "{:>25} {} target(s) in {}", "Finished"_bold_green, to_string(mode),
+  log::status(
+      "Finished"_bold_green, "{} target(s) in {}", to_string(mode),
       util::pretty::to_time(sw.elapsed().count())
   );
   return Ok(output_path);
@@ -50,7 +50,6 @@ build_impl(
 
 [[nodiscard]] Result<Option<fs::path>>
 build(const Options& opts, const toml::value& manifest) {
-  spdlog::trace("Resolving dependencies ...");
   const auto resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
         return Err<FailedToInstallDeps>().get();

@@ -168,8 +168,8 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
 
-    spdlog::info(
-        "{:>25} {} v{}", "Downloaded"_bold_green, resolve::get_name(package),
+    log::status(
+        "Downloaded"_bold_green, "{} v{}", resolve::get_name(package),
         resolve::get_version(package)
     );
   }
@@ -242,10 +242,10 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
 }
 
 [[nodiscard]] Result<resolve::UniqDeps<resolve::WithoutDeps>>
-to_resolvable_deps(const toml::value& deps) noexcept {
+to_resolvable_deps(const toml::table& deps) noexcept {
   try {
     resolve::UniqDeps<resolve::WithoutDeps> resolvable_deps{};
-    for (const auto& dep : toml::get<toml::table>(deps)) {
+    for (const auto& dep : deps) {
       const String version = toml::get<String>(dep.second);
       resolvable_deps.emplace(dep.first, version);
     }
@@ -255,40 +255,48 @@ to_resolvable_deps(const toml::value& deps) noexcept {
   }
 }
 
+[[nodiscard]] Result<ResolvedDeps>
+get_resolved_deps(const toml::value& manifest) {
+  toml::table deps = toml::find<toml::table>(manifest, "dependencies");
+  append(deps, toml::find<toml::table>(manifest, "dev-dependencies"));
+  const auto resolvable_deps = Try(to_resolvable_deps(deps));
+  const auto resolved_deps = Try(do_resolve(resolvable_deps));
+  return Ok(resolved_deps);
+}
+
+// If lockfile is not outdated, read it.
 [[nodiscard]] Result<Option<ResolvedDeps>>
-try_to_read_lockfile(const toml::value& config) {
-  if (data::lockfile::is_outdated(config::path::cur_dir)) {
-    const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-    const auto resolvable_deps = Try(to_resolvable_deps(deps));
-    const auto resolved_deps = Try(do_resolve(resolvable_deps));
-    return Ok(resolved_deps);
-  } else {
+try_to_read_lockfile() {
+  if (!data::lockfile::is_outdated(config::path::cur_dir)) {
     return data::lockfile::read(config::path::cur_dir);
+  } else {
+    return Ok(None);
   }
 }
 
 [[nodiscard]] Result<ResolvedDeps>
-get_resolved_deps(const toml::value& config) {
-  const auto resolved_deps = Try(try_to_read_lockfile(config));
-  if (resolved_deps.has_value()) {
-    return Ok(resolved_deps.value());
+resolve_deps(const toml::value& manifest) {
+  const auto locked_deps = Try(try_to_read_lockfile());
+  if (locked_deps.has_value()) {
+    // Lockfile exists and is not outdated.
+    return Ok(locked_deps.value());
   } else {
-    // Resolve dependencies from manifest file.
-    const toml::value deps = toml::get<toml::table>(config).at("dependencies");
-    const auto resolvable_deps = Try(to_resolvable_deps(deps));
-    return do_resolve(resolvable_deps);
+    // Lockfile not found or outdated. Resolve dependencies from manifest file.
+    log::status("Resolving"_bold_green, "dependencies ...");
+    return get_resolved_deps(manifest);
   }
 }
 
 [[nodiscard]] Result<ResolvedDeps>
 install_deps(const toml::value& manifest) {
-  if (!manifest.contains("dependencies")) {
+  if (!manifest.contains("dependencies") &&
+      !manifest.contains("dev-dependencies")) {
     const auto empty_deps = ResolvedDeps{};
     Try(data::lockfile::generate(empty_deps));
     return Ok(empty_deps);
   }
 
-  const auto resolved_deps = Try(get_resolved_deps(manifest));
+  const auto resolved_deps = Try(resolve_deps(manifest));
   Try(download_deps(resolved_deps));
   Try(data::lockfile::generate(resolved_deps)); // when lockfile is old
 

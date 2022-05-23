@@ -47,9 +47,8 @@ init(const Options& opts, StringRef package_name) {
       unreachable();
   }
 
-  spdlog::info(
-      "{:>25} {} `{}` package", "Created"_bold_green, to_string(type),
-      package_name
+  log::status(
+      "Created"_bold_green, "{} `{}` package", to_string(type), package_name
   );
   return Ok();
 }
