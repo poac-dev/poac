@@ -5,7 +5,7 @@ set(TEST_NAMES
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
-    add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
+    add_executable(${TEST_NAME} ${TEST_NAME}.cc)
     target_compile_features(${TEST_NAME} PRIVATE cxx_std_20)
     target_compile_options(${TEST_NAME} PRIVATE -g -O0 -Wno-gnu-string-literal-operator-template)
     if (POAC_ENABLE_COVERAGE)
