@@ -13,10 +13,12 @@
 #include <string_view>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
 // external
+#include <boost/container_hash/hash.hpp>
 #include <fmt/core.h>   // NOLINT(build/include_order)
 #include <fmt/format.h> // NOLINT(build/include_order)
 #include <fmt/ranges.h> // fmt::join // NOLINT(build/include_order)
@@ -116,20 +118,11 @@ inline constexpr std::nullopt_t None = std::nullopt;
 
 template <typename K, typename V>
 using Map = std::map<K, V>;
-template <
-    typename K, typename V, typename H = std::hash<K>,
-    typename E = std::equal_to<K>>
-using HashMap = std::unordered_map<K, V, H, E>;
+template <typename K, typename V, typename H = boost::hash<K>>
+using HashMap = std::unordered_map<K, V, H>;
 
-// For std::pair, we need to pass this struct as a Hash function.
-// HashMap<std::pair<K, V>, String, HashPair>
-struct HashPair {
-  template <typename T, typename U>
-  usize
-  operator()(const std::pair<T, U>& p) const {
-    return std::hash<T>()(p.first) ^ std::hash<U>()(p.second);
-  }
-};
+template <typename K>
+using HashSet = std::unordered_set<K, boost::hash<K>>;
 
 //
 // Utilities
@@ -148,9 +141,9 @@ append(Vec<T>& a, const Vec<U>& b) {
   a.insert(a.end(), b.cbegin(), b.cend());
 }
 
-template <typename K, typename V>
+template <typename K, typename V, typename H>
 inline void
-append(HashMap<K, V>& a, const HashMap<K, V>& b) {
+append(HashMap<K, V, H>& a, const HashMap<K, V, H>& b) {
   a.insert(b.cbegin(), b.cend());
 }
 

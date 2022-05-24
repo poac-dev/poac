@@ -77,8 +77,8 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps) {
   Vec<Package> packages;
   for (const auto& [pack, inner_deps] : deps) {
     Package p{
-        resolver::get_name(pack),
-        resolver::get_version(pack),
+        pack.name,
+        pack.version_rq,
         Vec<String>{},
     };
     if (inner_deps.has_value()) {

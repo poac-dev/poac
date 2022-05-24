@@ -264,6 +264,7 @@ Poac requires the following compilers, tools, and libraries to build:
   * algorithm
   * asio
   * beast
+  * container_hash
   * dynamic_bitset
   * graph
   * predef
