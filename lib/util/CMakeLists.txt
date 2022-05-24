@@ -5,6 +5,7 @@ add_library(poac_util
     cfg.cc
     lev_distance.cc
     misc.cc
+    net.cc
     pretty.cc
     sha256.cc
     shell.cc
