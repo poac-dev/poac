@@ -29,9 +29,9 @@ set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 
 include(cmake/CheckCompilerVersion.cmake)
 
-add_executable(${PROJECT_NAME} src/main.cc)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-target_include_directories(${PROJECT_NAME} PUBLIC
+add_executable(poac src/main.cc)
+target_compile_features(poac PUBLIC cxx_std_20)
+target_include_directories(poac PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
@@ -41,13 +41,14 @@ include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
+
 target_link_libraries(
-        ${PROJECT_NAME}
+        poac
         ${STATIC_LINK_FLAG}
         ${POAC_DEPENDENCIES}
 )
 
-set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake)
+set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
         ${CONFIG_VERSION_FILE} COMPATIBILITY AnyNewerVersion
@@ -57,17 +58,17 @@ install(DIRECTORY include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.hpp"
 )
-install(TARGETS ${PROJECT_NAME}
-        EXPORT ${PROJECT_NAME}-config
+install(TARGETS poac
+        EXPORT poac-config
 )
-install(EXPORT ${PROJECT_NAME}-config
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
-        NAMESPACE ${PROJECT_NAME}::
+install(EXPORT poac-config
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/poac
+        NAMESPACE poac::
 )
 install(FILES ${CONFIG_VERSION_FILE}
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/poac
 )
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS poac
         DESTINATION bin
 )
 
