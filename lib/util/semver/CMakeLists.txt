@@ -1,4 +1,6 @@
 add_library(poac_util_semver
+    comparison.cc
+    interval.cc
     lexer.cc
     parser.cc
     token.cc
