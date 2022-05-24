@@ -21,6 +21,7 @@ target_include_directories(poac_util PUBLIC
     ${OPENSSL_INCLUDE_DIR}
 )
 target_link_libraries(poac_util PUBLIC
+    ${STATIC_LINK_FLAG}
     archive
     fmt::fmt
     mitama-cpp-result::mitama-cpp-result
