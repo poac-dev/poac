@@ -1,6 +1,7 @@
 add_subdirectory(semver)
 
 add_library(poac_util
+    archive.cc
     cfg.cc
     lev_distance.cc
     misc.cc
@@ -15,6 +16,7 @@ add_library(poac_util
 target_compile_features(poac_util PUBLIC cxx_std_20)
 target_include_directories(poac_util PUBLIC ${CMAKE_HOME_DIRECTORY}/include ${Boost_INCLUDE_DIRS})
 target_link_libraries(poac_util PUBLIC
+    archive
     fmt::fmt
     mitama-cpp-result::mitama-cpp-result
     spdlog::spdlog
