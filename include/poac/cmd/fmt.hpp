@@ -33,14 +33,14 @@ using ClangFormatNotFound = Error<
 using ClangFormatError =
     Error<"`clang-format` finished with return code {}", i32>;
 
-inline const Vec<StringRef> directories = {
+inline constexpr StringRef directories[] = {
     "examples", "include", "src", "tests"};
 
-inline const Vec<StringRef> extensions = {"c",   "c++", "cc",  "cpp",
-                                          "cu",  "cuh", "cxx", "h",
-                                          "h++", "hh",  "hpp", "hxx"};
+inline constexpr StringRef extensions[] = {"c",   "c++", "cc",  "cpp",
+                                           "cu",  "cuh", "cxx", "h",
+                                           "h++", "hh",  "hpp", "hxx"};
 
-inline const Vec<StringRef> patterns = {"./{}/*.{}", "./{}/**/*.{}"};
+inline constexpr StringRef patterns[] = {"./{}/*.{}", "./{}/**/*.{}"};
 
 [[nodiscard]] Result<void>
 fmt(StringRef args) {
@@ -59,6 +59,7 @@ fmt(StringRef args) {
           spdlog::trace("Glob `{}` not found; skipping ...", search);
           continue;
         }
+        spdlog::trace("Glob `{}` found!", search);
         append(targets, search_glob);
       }
     }
