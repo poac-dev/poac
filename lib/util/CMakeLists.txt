@@ -1,5 +1,3 @@
-add_subdirectory(semver)
-
 add_library(poac_util
     archive.cc
     cfg.cc
@@ -29,3 +27,5 @@ target_link_libraries(poac_util PUBLIC
 
 add_library(poac::util ALIAS poac_util)
 #list(APPEND POAC_DEPENDENCIES poac::util)
+
+add_subdirectory(semver)
