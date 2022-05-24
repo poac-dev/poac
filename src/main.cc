@@ -15,6 +15,10 @@
 #include <poac/util/lev_distance.hpp>
 #include <poac/util/termcolor2/literals_extra.hpp>
 
+#ifndef POAC_VERSION
+#  error "POAC_VERSION is not defined"
+#endif
+
 using namespace termcolor2::color_literals;
 using namespace poac;
 namespace anyhow = mitama::anyhow;

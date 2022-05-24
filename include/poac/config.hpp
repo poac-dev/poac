@@ -1,15 +1,10 @@
 #ifndef POAC_CONFIG_HPP_
 #define POAC_CONFIG_HPP_
 
-#ifndef POAC_VERSION
-#  error "POAC_VERSION is not defined"
-#endif
-
 // std
 #include <filesystem>
 
 // internal
-#include "poac/data/manifest.hpp"
 #include "poac/poac.hpp"
 #include "poac/util/misc.hpp"
 
@@ -24,7 +19,6 @@ inline const Path archive_dir(cache_dir / "archive");
 inline const Path extract_dir(cache_dir / "extract");
 
 inline const Path cur_dir = fs::current_path();
-inline const Path manifest_file(cur_dir / data::manifest::name);
 inline const Path src_dir(cur_dir / "src");
 inline const Path include_dir(cur_dir / "include");
 inline const Path tests_dir(cur_dir / "tests");
