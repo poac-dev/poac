@@ -11,13 +11,13 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/cmd/create.hpp>
-#include <poac/config.hpp>
-#include <poac/core/validator.hpp>
-#include <poac/data/manifest.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/shell.hpp>
-#include <poac/util/verbosity.hpp>
+#include "poac/cmd/create.hpp"
+#include "poac/config.hpp"
+#include "poac/core/validator.hpp"
+#include "poac/data/manifest.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/shell.hpp"
+#include "poac/util/verbosity.hpp"
 
 namespace poac::cmd::lint {
 

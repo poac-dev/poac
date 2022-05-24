@@ -16,18 +16,18 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/config.hpp>
-#include <poac/core/resolver/resolve.hpp>
-#include <poac/core/resolver/sat.hpp>
-#include <poac/data/lockfile.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/archive.hpp>
-#include <poac/util/meta.hpp>
-#include <poac/util/misc.hpp>
-#include <poac/util/net.hpp>
-#include <poac/util/sha256.hpp>
-#include <poac/util/termcolor2/literals_extra.hpp>
-#include <poac/util/termcolor2/termcolor2.hpp>
+#include "poac/config.hpp"
+#include "poac/core/resolver/resolve.hpp"
+#include "poac/core/resolver/sat.hpp"
+#include "poac/data/lockfile.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/archive.hpp"
+#include "poac/util/meta.hpp"
+#include "poac/util/misc.hpp"
+#include "poac/util/net.hpp"
+#include "poac/util/sha256.hpp"
+#include "poac/util/termcolor2/literals_extra.hpp"
+#include "poac/util/termcolor2/termcolor2.hpp"
 
 namespace poac::core::resolver {
 

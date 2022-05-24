@@ -7,7 +7,7 @@
 #include <utility>   // std::pair
 
 // internal
-#include <poac/poac.hpp>
+#include "poac/poac.hpp"
 
 namespace poac::util::lev_distance {
 

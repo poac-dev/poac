@@ -10,7 +10,7 @@
 #include <openssl/sha.h> // SHA256_DIGEST_LENGTH // NOLINT(build/include_order)
 
 // internal
-#include <poac/poac.hpp>
+#include "poac/poac.hpp"
 
 namespace poac::util::sha256 {
 

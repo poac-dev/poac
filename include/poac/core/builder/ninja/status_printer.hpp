@@ -13,7 +13,9 @@
 #include <ninja/graph.h>        // Edge // NOLINT(build/include_order)
 #include <ninja/line_printer.h> // LinePrinter // NOLINT(build/include_order)
 #include <ninja/status.h>       // StatusPrinter // NOLINT(build/include_order)
-#include <poac/poac.hpp>
+
+// internal
+#include "poac/poac.hpp"
 
 namespace poac::core::builder::ninja {
 

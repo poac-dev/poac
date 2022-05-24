@@ -14,10 +14,10 @@
 #include <fmt/core.h> // NOLINT(build/include_order)
 
 // internal
-#include <poac/util/semver/comparison.hpp>
-#include <poac/util/semver/exception.hpp>
-#include <poac/util/semver/parser/parser.hpp>
-#include <poac/util/semver/parser/token.hpp>
+#include "poac/util/semver/comparison.hpp"
+#include "poac/util/semver/exception.hpp"
+#include "poac/util/semver/parser/parser.hpp"
+#include "poac/util/semver/parser/token.hpp"
 
 namespace semver {
 

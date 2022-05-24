@@ -9,10 +9,10 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/config.hpp>
-#include <poac/data/manifest.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/semver/semver.hpp>
+#include "poac/config.hpp"
+#include "poac/data/manifest.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/semver/semver.hpp"
 
 namespace poac::core::validator {
 

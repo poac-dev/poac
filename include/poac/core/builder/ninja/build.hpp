@@ -17,14 +17,14 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/config.hpp>
-#include <poac/core/builder/ninja/data.hpp>
-#include <poac/core/builder/ninja/log.hpp>
-#include <poac/core/builder/ninja/manifest.hpp>
-#include <poac/core/builder/ninja/status_printer.hpp>
-#include <poac/core/resolver.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/verbosity.hpp>
+#include "poac/config.hpp"
+#include "poac/core/builder/ninja/data.hpp"
+#include "poac/core/builder/ninja/log.hpp"
+#include "poac/core/builder/ninja/manifest.hpp"
+#include "poac/core/builder/ninja/status_printer.hpp"
+#include "poac/core/resolver.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/verbosity.hpp"
 
 namespace poac::core::builder::ninja::build {
 

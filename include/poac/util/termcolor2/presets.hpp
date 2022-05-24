@@ -7,7 +7,7 @@
 #include <type_traits>
 
 // internal
-#include <poac/util/termcolor2/config.hpp>
+#include "poac/util/termcolor2/config.hpp"
 
 namespace termcolor2 {
 namespace detail {

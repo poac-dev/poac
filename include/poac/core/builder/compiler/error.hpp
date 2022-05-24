@@ -2,9 +2,9 @@
 #define POAC_CORE_BUILDER_COMPILER_ERROR_HPP_
 
 // internal
-#include <poac/core/builder/compiler/lang.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/cfg.hpp> // compiler
+#include "poac/core/builder/compiler/lang.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/cfg.hpp" // compiler
 
 namespace poac::core::builder::compiler::error {
 
