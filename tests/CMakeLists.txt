@@ -2,6 +2,7 @@ include(cmake/PoacTestDependencies.cmake)
 
 set(TEST_NAMES
         cfg
+        lev_distance
         meta
         misc
         net
