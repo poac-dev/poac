@@ -50,6 +50,7 @@ target_link_libraries(
         poac::util::semver
         poac::util
         poac::core::resolver
+        poac::data
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
