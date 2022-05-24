@@ -47,6 +47,7 @@ target_link_libraries(
         poac
         ${STATIC_LINK_FLAG}
         ${POAC_DEPENDENCIES}
+        poac::util
         poac::util::semver
 )
 
