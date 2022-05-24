@@ -268,6 +268,7 @@ Poac requires the following compilers, tools, and libraries to build:
   * dynamic_bitset
   * graph
   * predef
+  * preprocessor
   * property_tree
   * range
   * regex

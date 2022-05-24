@@ -5,6 +5,9 @@
 
 // external
 #include <boost/algorithm/string.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
 #include <mitama/anyhow/anyhow.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
@@ -51,13 +54,22 @@ struct Commands {
   /// Search a package on poac.pm
   subcmd::search::Options search;
 };
-STRUCTOPT(
-    Commands, verbose, quiet, build, create, fmt, init, lint, login, publish,
-    run, search
-);
-inline const std::vector<std::string_view> command_list{
-    "build", "create",  "fmt", "init",  "lint",
-    "login", "publish", "run", "search"};
+
+#define STRINGIFY(r, data, elem) BOOST_PP_STRINGIZE(elem) ,
+
+#define TO_STRINGS(...) \
+  BOOST_PP_SEQ_FOR_EACH(STRINGIFY, hoge, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
+
+#define DECL_CMDS(...)                                      \
+  inline const std::vector<std::string_view> command_list { \
+    TO_STRINGS(__VA_ARGS__)                                 \
+  }
+
+#define structopt(...)                              \
+  STRUCTOPT(Commands, verbose, quiet, __VA_ARGS__); \
+  DECL_CMDS(__VA_ARGS__)
+
+structopt(build, create, fmt, init, lint, login, publish, run, search);
 
 inline std::string
 colorize_structopt_error(std::string s) {
