@@ -11,9 +11,9 @@
 #include <structopt/app.hpp>
 
 // internal
-#include <poac/cmd.hpp>
-#include <poac/util/lev_distance.hpp>
-#include <poac/util/termcolor2/literals_extra.hpp>
+#include <poac/cmd.hh>
+#include <poac/util/lev_distance.hh>
+#include <poac/util/termcolor2/literals_extra.hh>
 
 using namespace termcolor2::color_literals;
 using namespace poac;

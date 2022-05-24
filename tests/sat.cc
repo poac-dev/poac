@@ -1,5 +1,5 @@
 #include <boost/ut.hpp>
-#include <poac/core/resolver/sat.hpp>
+#include <poac/core/resolver/sat.hh>
 
 int
 main() {

@@ -1,5 +1,5 @@
 #include <boost/ut.hpp>
-#include <poac/util/termcolor2/to_color.hpp>
+#include <poac/util/termcolor2/to_color.hh>
 
 int
 main() {

@@ -5,7 +5,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/shell.hpp>
+#include <poac/util/shell.hh>
 
 int
 main() {

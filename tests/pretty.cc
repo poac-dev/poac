@@ -7,7 +7,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/pretty.hpp>
+#include <poac/util/pretty.hh>
 
 int
 main() {

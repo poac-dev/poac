@@ -9,7 +9,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/meta.hpp>
+#include <poac/util/meta.hh>
 
 int
 main() {

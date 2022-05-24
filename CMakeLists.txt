@@ -55,7 +55,7 @@ write_basic_package_version_file(
 
 install(DIRECTORY include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        FILES_MATCHING PATTERN "*.hpp"
+        FILES_MATCHING PATTERN "*.hh"
 )
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}-config

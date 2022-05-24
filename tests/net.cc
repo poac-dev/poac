@@ -1,5 +1,5 @@
 #include <boost/ut.hpp>
-#include <poac/util/net.hpp>
+#include <poac/util/net.hh>
 
 int
 main() {

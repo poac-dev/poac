@@ -6,7 +6,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/misc.hpp>
+#include <poac/util/misc.hh>
 
 int
 main() {

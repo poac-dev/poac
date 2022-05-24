@@ -1,5 +1,6 @@
+#include "poac/util/semver/parser/parser.hh"
+
 #include <boost/ut.hpp>
-#include <poac/util/semver/parser/parser.hpp>
 
 int
 main() {

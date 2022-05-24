@@ -6,7 +6,7 @@
 #  define TERMCOLOR2_NO_WARNING
 #  include <poac/util/termcolor2/comparison.hpp>
 #  include <poac/util/termcolor2/concat.hpp>
-#  include <poac/util/termcolor2/literals.hpp>
+#  include <poac/util/termcolor2/literals.hh>
 
 // FIXME
 BOOST_AUTO_TEST_CASE(

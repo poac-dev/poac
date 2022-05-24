@@ -7,7 +7,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/core/builder/ninja/syntax.hpp>
+#include <poac/core/builder/ninja/syntax.hh>
 
 inline const std::string LONGWORD = std::string(10, 'a');
 inline const std::string LONGWORDWITHSPACES =

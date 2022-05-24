@@ -1,8 +1,8 @@
-#include "../ut_helpers/throws_with_msg.hpp"
+#include "../ut_helpers/throws_with_msg.hh"
 
 #include <boost/ut.hpp>
-#include <poac/util/semver/exception.hpp>
-#include <poac/util/semver/interval.hpp>
+#include <poac/util/semver/exception.hh>
+#include <poac/util/semver/interval.hh>
 
 int
 main() {
