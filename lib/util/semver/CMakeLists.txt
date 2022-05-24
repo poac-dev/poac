@@ -1,5 +1,6 @@
 add_library(poac_util_semver
     lexer.cc
+    parser.cc
     token.cc
 )
 get_property(POAC_INCLUDE_DIRECTORIES TARGET poac PROPERTY INCLUDE_DIRECTORIES)
