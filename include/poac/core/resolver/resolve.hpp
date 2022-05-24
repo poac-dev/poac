@@ -25,13 +25,13 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include <poac/config.hpp>
-#include <poac/core/resolver/sat.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/meta.hpp>
-#include <poac/util/net.hpp>
-#include <poac/util/semver/semver.hpp>
-#include <poac/util/verbosity.hpp>
+#include "poac/config.hpp"
+#include "poac/core/resolver/sat.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/meta.hpp"
+#include "poac/util/net.hpp"
+#include "poac/util/semver/semver.hpp"
+#include "poac/util/verbosity.hpp"
 
 namespace poac::core::resolver::resolve {
 

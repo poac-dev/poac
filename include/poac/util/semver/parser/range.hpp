@@ -9,7 +9,7 @@
 #include <vector>
 
 // internal
-#include <poac/util/semver/parser/token.hpp>
+#include "poac/util/semver/parser/token.hpp"
 
 namespace semver::parser {
 

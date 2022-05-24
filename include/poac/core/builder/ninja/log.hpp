@@ -9,8 +9,8 @@
 #include <spdlog/spdlog.h>     // NOLINT(build/include_order)
 
 // internal
-#include <poac/core/builder/ninja/data.hpp>
-#include <poac/poac.hpp>
+#include "poac/core/builder/ninja/data.hpp"
+#include "poac/poac.hpp"
 
 namespace poac::core::builder::ninja::log {
 

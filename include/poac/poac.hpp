@@ -28,8 +28,8 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include <poac/util/termcolor2/literals_extra.hpp>
-#include <poac/util/termcolor2/termcolor2.hpp>
+#include "poac/util/termcolor2/literals_extra.hpp"
+#include "poac/util/termcolor2/termcolor2.hpp"
 
 //
 // Macros

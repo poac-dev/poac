@@ -11,7 +11,7 @@
 #include <boost/predef.h> // NOLINT(build/include_order)
 
 // internal
-#include <poac/poac.hpp>
+#include "poac/poac.hpp"
 
 namespace poac::util::misc {
 

@@ -11,13 +11,13 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/config.hpp>
-#include <poac/core/builder/ninja/build.hpp>
-#include <poac/core/resolver.hpp>
-#include <poac/core/validator.hpp>
-#include <poac/data/manifest.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/pretty.hpp>
+#include "poac/config.hpp"
+#include "poac/core/builder/ninja/build.hpp"
+#include "poac/core/resolver.hpp"
+#include "poac/core/validator.hpp"
+#include "poac/data/manifest.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/pretty.hpp"
 
 namespace poac::cmd::build {
 

@@ -14,15 +14,15 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/config.hpp>
-#include <poac/core/builder/compiler.hpp>
-#include <poac/core/builder/ninja/data.hpp>
-#include <poac/core/builder/ninja/syntax.hpp>
-#include <poac/core/resolver.hpp> // resolved_deps_t, get_extracted_path
-#include <poac/data/manifest.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/cfg.hpp>
-#include <poac/util/misc.hpp>
+#include "poac/config.hpp"
+#include "poac/core/builder/compiler.hpp"
+#include "poac/core/builder/ninja/data.hpp"
+#include "poac/core/builder/ninja/syntax.hpp"
+#include "poac/core/resolver.hpp" // resolved_deps_t, get_extracted_path
+#include "poac/data/manifest.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/cfg.hpp"
+#include "poac/util/misc.hpp"
 
 namespace poac::core::builder::ninja::manifest {
 

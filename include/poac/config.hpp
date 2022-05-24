@@ -9,9 +9,9 @@
 #include <filesystem>
 
 // internal
-#include <poac/data/manifest.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/misc.hpp>
+#include "poac/data/manifest.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/misc.hpp"
 
 namespace poac {
 

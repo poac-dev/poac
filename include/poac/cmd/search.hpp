@@ -13,12 +13,12 @@
 #include <structopt/app.hpp>
 
 // internal
-#include <poac/config.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/net.hpp>
-#include <poac/util/pretty.hpp>
-#include <poac/util/termcolor2/termcolor2.hpp>
-#include <poac/util/verbosity.hpp>
+#include "poac/config.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/net.hpp"
+#include "poac/util/pretty.hpp"
+#include "poac/util/termcolor2/termcolor2.hpp"
+#include "poac/util/verbosity.hpp"
 
 namespace poac::cmd::search {
 

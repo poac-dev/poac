@@ -6,7 +6,7 @@
 #include <string>  // std::basic_string
 
 // internal
-#include <poac/util/termcolor2/to_color.hpp>
+#include "poac/util/termcolor2/to_color.hpp"
 
 namespace termcolor2::inline color_literals::inline foreground_literals {
 

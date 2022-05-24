@@ -12,7 +12,7 @@
 #include <boost/algorithm/string.hpp>
 
 // internal
-#include <poac/poac.hpp>
+#include "poac/poac.hpp"
 
 namespace poac::util::pretty {
 
