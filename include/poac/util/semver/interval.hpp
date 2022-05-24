@@ -31,12 +31,12 @@ make_pre_or_build(const char& prefix, std::smatch::const_reference match_item) {
 }
 
 template <std::size_t Start, std::size_t... Is>
-inline constexpr std::index_sequence<(Start + Is)...>
+constexpr std::index_sequence<(Start + Is)...>
 add_offset(std::index_sequence<Is...>) {
   return {};
 }
 template <std::size_t Start, std::size_t End>
-inline constexpr auto
+constexpr auto
 make_range() {
   return add_offset<Start>(std::make_index_sequence<End - Start + 1>{});
 }

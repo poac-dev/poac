@@ -9,7 +9,7 @@
 
 namespace semver {
 
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Version& v) {
   os << v.get_full();
   return os;

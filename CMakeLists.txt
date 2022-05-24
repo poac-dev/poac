@@ -42,10 +42,12 @@ if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
 
+add_subdirectory(lib)
 target_link_libraries(
         poac
         ${STATIC_LINK_FLAG}
         ${POAC_DEPENDENCIES}
+        poac::util::semver
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
