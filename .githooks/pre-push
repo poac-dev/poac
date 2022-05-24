@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Run clang-format
-clang-format ./include/**/*.hpp -i -Werror -n || exit 1
+clang-format ./include/**/*.hh -i -Werror -n || exit 1
 clang-format ./src/*.cc -i -Werror -n || exit 1
-clang-format ./tests/**/*.hpp -i -Werror -n || exit 1
+clang-format ./tests/**/*.hh -i -Werror -n || exit 1
 clang-format ./tests/**/*.cc -i -Werror -n || exit 1
 
 # Run cpplint
