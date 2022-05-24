@@ -7,10 +7,10 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/cmd/build.hpp>
-#include <poac/core/validator.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/shell.hpp>
+#include "poac/cmd/build.hpp"
+#include "poac/core/validator.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/shell.hpp"
 
 namespace poac::cmd::run {
 

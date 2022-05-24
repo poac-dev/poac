@@ -21,11 +21,11 @@
 #include <boost/range/iterator_range_core.hpp>
 
 // internal
-#include <poac/core/except.hpp>
-#include <poac/core/resolver/resolve.hpp>
-#include <poac/io/config.hpp>
-#include <poac/io/term.hpp>
-#include <poac/util/shell.hpp>
+#include "poac/core/except.hpp"
+#include "poac/core/resolver/resolve.hpp"
+#include "poac/io/config.hpp"
+#include "poac/io/term.hpp"
+#include "poac/util/shell.hpp"
 
 namespace poac::opts::graph {
 

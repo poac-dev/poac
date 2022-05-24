@@ -2,8 +2,8 @@
 #define POAC_CORE_BUILDER_COMPILER_LANG_HPP_
 
 // internal
-#include <poac/poac.hpp>
-#include <poac/util/cfg.hpp> // compiler
+#include "poac/poac.hpp"
+#include "poac/util/cfg.hpp" // compiler
 
 namespace poac::core::builder::compiler::lang {
 

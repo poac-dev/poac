@@ -17,9 +17,9 @@
 #include <boost/regex.hpp>
 
 // internal
-#include <poac/poac.hpp>
-#include <poac/util/meta.hpp>
-#include <poac/util/pretty.hpp>
+#include "poac/poac.hpp"
+#include "poac/util/meta.hpp"
+#include "poac/util/pretty.hpp"
 
 namespace poac::core::builder::ninja::syntax {
 

@@ -11,13 +11,13 @@
 #include <toml.hpp>
 
 // internal
-#include <poac/cmd/build.hpp>
-#include <poac/cmd/login.hpp>
-#include <poac/config.hpp>
-#include <poac/core/validator.hpp>
-#include <poac/data/manifest.hpp>
-#include <poac/poac.hpp>
-#include <poac/util/net.hpp>
+#include "poac/cmd/build.hpp"
+#include "poac/cmd/login.hpp"
+#include "poac/config.hpp"
+#include "poac/core/validator.hpp"
+#include "poac/data/manifest.hpp"
+#include "poac/poac.hpp"
+#include "poac/util/net.hpp"
 
 namespace poac::cmd::publish {
 

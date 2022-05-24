@@ -9,7 +9,7 @@
 #include <string>
 
 // internal
-#include <poac/poac.hpp>
+#include "poac/poac.hpp"
 
 namespace poac::util::shell {
 

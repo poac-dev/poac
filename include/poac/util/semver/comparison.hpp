@@ -6,9 +6,9 @@
 #include <string>
 
 // internal
-#include <poac/util/semver/parser/lexer.hpp>
-#include <poac/util/semver/parser/parser.hpp>
-#include <poac/util/semver/parser/token.hpp>
+#include "poac/util/semver/parser/lexer.hpp"
+#include "poac/util/semver/parser/parser.hpp"
+#include "poac/util/semver/parser/token.hpp"
 
 namespace semver {
 namespace detail {

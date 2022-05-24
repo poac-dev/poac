@@ -17,7 +17,7 @@
 #include <spdlog/spdlog.h>      // spdlog::error // NOLINT(build/include_order)
 
 // internal
-#include <poac/poac.hpp>
+#include "poac/poac.hpp"
 
 namespace poac::core::builder::ninja::data {
 

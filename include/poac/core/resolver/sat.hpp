@@ -12,7 +12,9 @@
 // external
 #include <boost/range/adaptor/indexed.hpp>
 #include <mitama/result/result.hpp>
-#include <poac/poac.hpp>
+
+// internal
+#include "poac/poac.hpp"
 
 namespace poac::core::resolver::sat {
 
