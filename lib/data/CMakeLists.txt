@@ -1,6 +1,7 @@
 add_library(poac_data
     lockfile.cc
 )
+
 target_compile_features(poac_data PUBLIC cxx_std_20)
 target_include_directories(poac_data PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
