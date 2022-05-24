@@ -34,7 +34,7 @@ using ClangFormatError =
     Error<"`clang-format` finished with return code {}", i32>;
 
 inline constexpr StringRef directories[] = {
-    "examples", "include", "src", "tests"};
+    "examples", "include", "lib", "src", "tests"};
 
 inline constexpr StringRef extensions[] = {"c",   "c++", "cc",  "cpp",
                                            "cu",  "cuh", "cxx", "h",
