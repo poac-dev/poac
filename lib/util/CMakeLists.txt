@@ -19,10 +19,11 @@ target_include_directories(poac_util PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
     ${Boost_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIR}
+    ${LIBARCHIVE_INCLUDE_DIR}
 )
 target_link_libraries(poac_util PUBLIC
     ${STATIC_LINK_FLAG}
-    archive
+    ${LIBARCHIVE_LIBRARY}
     fmt::fmt
     mitama-cpp-result::mitama-cpp-result
     ${OPENSSL_LIBRARIES}
