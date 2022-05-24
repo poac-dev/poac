@@ -210,7 +210,8 @@ download_deps(const ResolvedDeps& deps) noexcept {
   } catch (const std::exception& e) {
     return Err<FailedToCreateDirs>(e.what());
   }
-  return fetch(not_installed_deps);
+  Try(fetch(not_installed_deps));
+  return Ok();
 }
 
 [[nodiscard]] Result<ResolvedDeps>

@@ -133,20 +133,19 @@ create_cnf(const DupDeps<WithDeps>& activated) {
   Vec<Vec<i32>> clauses;
   Vec<i32> already_added;
 
-  auto first = std::cbegin(activated);
-  auto last = std::cend(activated);
+  DupDeps<WithDeps>::const_iterator first = std::cbegin(activated);
+  DupDeps<WithDeps>::const_iterator last = std::cend(activated);
   for (i32 i = 0; i < static_cast<i32>(activated.size()); ++i) {
     if (util::meta::find(already_added, i)) {
       continue;
     }
 
     const auto name_lambda = [&](const auto& x) {
-      return x.first == activated[i].first;
+      return get_package(x) == get_package(activated[i]);
     };
     // No other packages with the same name as the package currently pointed to
     // exist
-    if (const auto count = std::count_if(first, last, name_lambda);
-        count == 1) {
+    if (const i64 count = std::count_if(first, last, name_lambda); count == 1) {
       Vec<i32> clause;
       clause.emplace_back(i + 1);
       clauses.emplace_back(clause);
@@ -160,7 +159,8 @@ create_cnf(const DupDeps<WithDeps>& activated) {
               util::meta::index_of_if(
                   first, last,
                   [&n = name, &v = version](const auto& d) {
-                    return d.first.name == n && d.first.version_rq == v;
+                    return get_package(d).name == n &&
+                           get_package(d).version_rq == v;
                   }
               ) +
               1
@@ -171,9 +171,9 @@ create_cnf(const DupDeps<WithDeps>& activated) {
     } else if (count > 1) {
       Vec<i32> clause;
 
-      for (auto found = first; found != last;
+      for (DupDeps<WithDeps>::const_iterator found = first; found != last;
            found = std::find_if(found, last, name_lambda)) {
-        const auto index = std::distance(first, found);
+        const i64 index = std::distance(first, found);
         clause.emplace_back(index + 1);
         already_added.emplace_back(index + 1);
 
@@ -181,14 +181,14 @@ create_cnf(const DupDeps<WithDeps>& activated) {
         if (!found->second.has_value()) {
           Vec<i32> new_clause;
           new_clause.emplace_back(index);
-          for (const auto& package : found->second.value()) {
+          for (const Package& package : found->second.value()) {
             // It is guaranteed to exist
             new_clause.emplace_back(
                 util::meta::index_of_if(
                     first, last,
-                    [&package = package](const auto& p) {
-                      return p.first.name == package.name &&
-                             p.first.version_rq == package.version_rq;
+                    [&package](const auto& p) {
+                      return get_package(p).name == package.name &&
+                             get_package(p).version_rq == package.version_rq;
                     }
                 ) +
                 1
@@ -210,7 +210,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
   const Vec<i32> assignments = Try(sat::solve(clauses, activated.size()));
   UniqDeps<WithDeps> resolved_deps{};
   log::debug("SAT");
-  for (const auto& a : assignments) {
+  for (i32 a : assignments) {
     log::debug("{} ", a);
     if (a > 0) {
       const auto& [package, deps] = activated[a - 1];
@@ -223,10 +223,10 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
 
 [[nodiscard]] Result<UniqDeps<WithDeps>, String>
 backtrack_loop(const DupDeps<WithDeps>& activated) {
-  const auto clauses = create_cnf(activated);
+  const Vec<Vec<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
-    for (const auto& c : clauses) {
-      for (const auto& l : c) {
+    for (const Vec<i32>& c : clauses) {
+      for (i32 l : c) {
         const auto deps = activated[std::abs(l) - 1];
         const Package package = get_package(deps);
         log::debug("{}-{}: {}, ", package.name, package.version_rq, l);
@@ -316,7 +316,7 @@ gather_deps_of_deps(
     const Package package{name, version_rq};
 
     // Check if node package is resolved dependency (by interval)
-    const auto found_cache =
+    const IntervalCache::iterator found_cache =
         boost::range::find_if(interval_cache, [&package](const Cache& cache) {
           return package == cache.package;
         });
@@ -346,7 +346,6 @@ gather_deps(
   if (cache_exists(new_deps, package)) {
     return;
   }
-  //  new_deps[0].first
 
   // Get dependencies of dependencies
   const UniqDeps<WithoutDeps> deps_api_res =
@@ -354,13 +353,14 @@ gather_deps(
   if (deps_api_res.empty()) {
     new_deps.emplace_back(package, None);
   } else {
-    const auto deps_of_deps = gather_deps_of_deps(deps_api_res, interval_cache);
+    const DupDeps<WithoutDeps> deps_of_deps =
+        gather_deps_of_deps(deps_api_res, interval_cache);
 
     // Store dependency and the dependency's dependencies.
     new_deps.emplace_back(package, deps_of_deps);
 
     // Gather dependencies of dependencies of dependencies.
-    for (const auto& dep_package : deps_of_deps) {
+    for (const Package& dep_package : deps_of_deps) {
       gather_deps(dep_package, new_deps, interval_cache);
     }
   }
