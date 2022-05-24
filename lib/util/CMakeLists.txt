@@ -19,10 +19,8 @@ target_include_directories(poac_util PUBLIC
 target_link_libraries(poac_util PUBLIC
     ${STATIC_LINK_FLAG}
     ${LIBARCHIVE_LIBRARY}
-    fmt::fmt
-    mitama-cpp-result::mitama-cpp-result
     ${OPENSSL_LIBRARIES}
-    spdlog::spdlog
+    ${POAC_HPP_LIBS}
 )
 
 add_library(poac::util ALIAS poac_util)
