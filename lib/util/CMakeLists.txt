@@ -6,6 +6,7 @@ add_library(poac_util
     lev_distance.cc
     misc.cc
     pretty.cc
+    sha256.cc
     shell.cc
 )
 #get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
@@ -14,11 +15,16 @@ add_library(poac_util
 #get_property(POAC_LINK_DIRECTORIES TARGET poac PROPERTY LINK_DIRECTORIES)
 
 target_compile_features(poac_util PUBLIC cxx_std_20)
-target_include_directories(poac_util PUBLIC ${CMAKE_HOME_DIRECTORY}/include ${Boost_INCLUDE_DIRS})
+target_include_directories(poac_util PUBLIC
+    ${CMAKE_HOME_DIRECTORY}/include
+    ${Boost_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIR}
+)
 target_link_libraries(poac_util PUBLIC
     archive
     fmt::fmt
     mitama-cpp-result::mitama-cpp-result
+    ${OPENSSL_LIBRARIES}
     spdlog::spdlog
 )
 #target_compile_features(poac_data PRIVATE ${POAC_COMPILE_FEATURES})
