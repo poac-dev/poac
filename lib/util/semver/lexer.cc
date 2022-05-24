@@ -65,6 +65,13 @@ Lexer::next() {
   }
 }
 
+void
+Lexer::step_n(const size_type& n) noexcept {
+  for (size_type i = 0; i < n; ++i) {
+    step();
+  }
+}
+
 /// Consume a component.
 ///
 /// A component can either be an alphanumeric or numeric.

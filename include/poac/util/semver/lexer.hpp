@@ -95,12 +95,8 @@ private:
     ++c1_index;
   }
 
-  inline void
-  step_n(const size_type& n) noexcept {
-    for (size_type i = 0; i < n; ++i) {
-      step();
-    }
-  }
+  void
+  step_n(const size_type& n) noexcept;
 
   /// Access the one character, or set it if it is not set.
   inline value_type
