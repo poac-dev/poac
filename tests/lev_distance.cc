@@ -23,13 +23,13 @@ main() {
     expect(eq(calc("aaab", "aaac"), 1));
   };
 
-  // ref: https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
+  // ref:
+  // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
   "test find_similar_str"_test = [] {
     using util::lev_distance::find_similar_str;
 
-    const Vec<StringRef> candidates = {
-        "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
-    };
+    const Vec<StringRef> candidates = {"if",   "ifdef", "ifndef",  "elif",
+                                       "else", "endif", "elifdef", "elifndef"};
     expect(find_similar_str("id", candidates) == "if"sv);
     expect(find_similar_str("ifd", candidates) == "if"sv);
     expect(find_similar_str("ifde", candidates) == "ifdef"sv);
