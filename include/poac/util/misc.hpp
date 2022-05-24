@@ -48,7 +48,7 @@ dupenv(const String& name) {
 
 // Inspired by https://stackoverflow.com/q/4891006
 // Expand ~ to user home directory.
-[[nodiscard]] Result<fs::path, String>
+[[nodiscard]] Result<Path, String>
 expand_user() {
   auto home = dupenv("HOME");
   if (home || (home = dupenv("USERPROFILE"))) {

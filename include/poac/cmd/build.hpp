@@ -32,13 +32,13 @@ struct Options : structopt::sub_command {
 using FailedToBuild = Error<"failed to build package `{}`", String>;
 using FailedToInstallDeps = Error<"failed to install dependencies">;
 
-[[nodiscard]] Result<fs::path>
+[[nodiscard]] Result<Path>
 build_impl(
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
 ) {
   spdlog::stopwatch sw;
-  const fs::path output_path =
+  const Path output_path =
       Try(core::builder::ninja::build::start(manifest, mode, resolved_deps));
 
   log::status(
@@ -48,7 +48,7 @@ build_impl(
   return Ok(output_path);
 }
 
-[[nodiscard]] Result<Option<fs::path>>
+[[nodiscard]] Result<Option<Path>>
 build(const Options& opts, const toml::value& manifest) {
   const auto resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
@@ -63,7 +63,7 @@ build(const Options& opts, const toml::value& manifest) {
   }
 
   const Mode mode = opts.release.value() ? Mode::release : Mode::debug;
-  const fs::path output_path = Try(build_impl(manifest, mode, resolved_deps));
+  const Path output_path = Try(build_impl(manifest, mode, resolved_deps));
   return Ok(output_path);
 }
 

@@ -55,11 +55,11 @@ using Unknown = Error<"unknown error occurred: {}", String>;
 
 inline String
 get_install_name(const resolve::Package& package) {
-  return boost::replace_first_copy(resolve::get_name(package), "/", "-") + "-" +
-         resolve::get_version(package);
+  return boost::replace_first_copy(package.name, "/", "-") + "-" +
+         package.version_rq;
 }
 
-inline fs::path
+inline Path
 get_extracted_path(const resolve::Package& package) {
   return config::path::extract_dir / get_install_name(package);
 }
@@ -69,19 +69,19 @@ get_extracted_path(const resolve::Package& package) {
 rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
 ) noexcept {
-  const fs::path temporarily_extracted_path =
+  const Path temporarily_extracted_path =
       config::path::extract_dir / extracted_directory_name;
-  const fs::path extracted_path = get_extracted_path(package);
+  const Path extracted_path = get_extracted_path(package);
 
   std::error_code ec{};
   fs::rename(temporarily_extracted_path, extracted_path, ec);
   if (ec) {
-    return Err<FailedToRename>(package.first, package.second);
+    return Err<FailedToRename>(package.name, package.version_rq);
   }
   return Ok();
 }
 
-fs::path
+Path
 get_archive_path(const resolve::Package& package) {
   fs::create_directories(config::path::archive_dir);
   return config::path::archive_dir / (get_install_name(package) + ".tar.gz");
@@ -117,19 +117,18 @@ convert_to_download_link(StringRef repository) {
 
 [[nodiscard]] Result<std::pair<String, String>, String>
 get_download_link(const resolve::Package& package) {
-  const auto [repository, sha256sum] = Try(util::net::api::repoinfo(
-      resolve::get_name(package), resolve::get_version(package)
-  ));
+  const auto [repository, sha256sum] =
+      Try(util::net::api::repoinfo(package.name, package.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }
 
-[[nodiscard]] Result<std::pair<fs::path, String>>
+[[nodiscard]] Result<std::pair<Path, String>>
 fetch_impl(const resolve::Package& package) noexcept {
   try {
     const auto [download_link, sha256sum] =
         Try(get_download_link(package).map_err(to_anyhow));
     log::debug("downloading from `{}`", download_link);
-    const fs::path archive_path = get_archive_path(package);
+    const Path archive_path = get_archive_path(package);
     log::debug("writing to `{}`", archive_path.string());
 
     std::ofstream archive(archive_path);
@@ -139,18 +138,20 @@ fetch_impl(const resolve::Package& package) noexcept {
 
     return Ok(std::make_pair(archive_path, sha256sum));
   } catch (const std::exception& e) {
-    return Result<std::pair<fs::path, String>>(Err<Unknown>(e.what()))
-        .with_context([&name = package.first, &ver = package.second] {
-          return Err<FailedToFetch>(name, ver).get();
+    return Result<std::pair<Path, String>>(Err<Unknown>(e.what()))
+        .with_context([&package] {
+          return Err<FailedToFetch>(package.name, package.version_rq).get();
         });
   } catch (...) {
-    return Err<FailedToFetch>(package.first, package.second);
+    return Err<FailedToFetch>(package.name, package.version_rq);
   }
 }
 
 [[nodiscard]] Result<void>
 fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
-  for (const auto& package : deps) {
+  for (const auto& [name, version_rq] : deps) {
+    const resolve::Package package{name, version_rq};
+
     const auto [installed_path, sha256sum] = Try(fetch_impl(package));
     // Check if sha256sum of the downloaded package is the same with one
     // stored in DB.
@@ -158,8 +159,7 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
         sha256sum != actual_sha256sum) {
       fs::remove(installed_path);
       return Err<IncorrectSha256sum>(
-          sha256sum, actual_sha256sum, resolve::get_name(package),
-          resolve::get_version(package)
+          sha256sum, actual_sha256sum, package.name, package.version_rq
       );
     }
 
@@ -169,8 +169,7 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
     Try(rename_extracted_directory(package, extracted_directory_name));
 
     log::status(
-        "Downloaded"_bold_green, "{} v{}", resolve::get_name(package),
-        resolve::get_version(package)
+        "Downloaded"_bold_green, "{} v{}", package.name, package.version_rq
     );
   }
   return Ok();
@@ -192,9 +191,7 @@ get_not_installed_deps(const ResolvedDeps& deps) noexcept {
          boost::adaptors::filtered(is_not_installed)
        // ref: https://stackoverflow.com/a/42251976
        | boost::adaptors::transformed([](const resolve::Package& package) {
-           return std::make_pair(
-               resolve::get_name(package), resolve::get_version(package)
-           );
+           return std::make_pair(package.name, package.version_rq);
          }) |
          util::meta::containerized;
 }
@@ -213,7 +210,8 @@ download_deps(const ResolvedDeps& deps) noexcept {
   } catch (const std::exception& e) {
     return Err<FailedToCreateDirs>(e.what());
   }
-  return fetch(not_installed_deps);
+  Try(fetch(not_installed_deps));
+  return Ok();
 }
 
 [[nodiscard]] Result<ResolvedDeps>
@@ -223,13 +221,13 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
         Try(resolve::gather_all_deps(deps).map_err(to_anyhow));
     if (!resolve::duplicate_loose(duplicate_deps)) {
       // When all dependencies are composed of one package and one version,
-      // a backtrack is not needed. Therefore, the duplicate_loose
+      // backtrack is not needed. Therefore, the `duplicate_loose`
       // function just needs to check whether the gathered dependencies
-      // have multiple packages with the same name. If found multiple
+      // have multiple packages with the same name or not. If found multiple
       // packages with the same name, then it means this package trying
-      // building depends on multiple versions of the same package.
+      // to be built depends on multiple versions of the same package.
       // At the condition (the else clause), gathered dependencies
-      // should be in the backtrack loop.
+      // should be in backtrack loop.
       return Ok(ResolvedDeps(duplicate_deps.cbegin(), duplicate_deps.cend()));
     } else {
       return resolve::backtrack_loop(duplicate_deps).map_err(to_anyhow);
@@ -242,12 +240,14 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
 }
 
 [[nodiscard]] Result<resolve::UniqDeps<resolve::WithoutDeps>>
-to_resolvable_deps(const toml::table& deps) noexcept {
+to_resolvable_deps(const toml::table& dependencies) noexcept {
   try {
+    // TOML tables should guarantee uniqueness.
     resolve::UniqDeps<resolve::WithoutDeps> resolvable_deps{};
-    for (const auto& dep : deps) {
-      const String version = toml::get<String>(dep.second);
-      resolvable_deps.emplace(dep.first, version);
+    for (const auto& d : dependencies) {
+      const String name = d.first;
+      const String version = toml::get<String>(d.second);
+      resolvable_deps.emplace(name, version);
     }
     return Ok(resolvable_deps);
   } catch (...) {
@@ -276,7 +276,7 @@ try_to_read_lockfile() {
 
 [[nodiscard]] Result<ResolvedDeps>
 resolve_deps(const toml::value& manifest) {
-  const auto locked_deps = Try(try_to_read_lockfile());
+  const Option<ResolvedDeps> locked_deps = Try(try_to_read_lockfile());
   if (locked_deps.has_value()) {
     // Lockfile exists and is not outdated.
     return Ok(locked_deps.value());
@@ -291,12 +291,12 @@ resolve_deps(const toml::value& manifest) {
 install_deps(const toml::value& manifest) {
   if (!manifest.contains("dependencies") &&
       !manifest.contains("dev-dependencies")) {
-    const auto empty_deps = ResolvedDeps{};
+    const ResolvedDeps empty_deps{};
     Try(data::lockfile::generate(empty_deps));
     return Ok(empty_deps);
   }
 
-  const auto resolved_deps = Try(resolve_deps(manifest));
+  const ResolvedDeps resolved_deps = Try(resolve_deps(manifest));
   Try(download_deps(resolved_deps));
   Try(data::lockfile::generate(resolved_deps)); // when lockfile is old
 

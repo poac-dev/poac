@@ -1,11 +1,12 @@
 // std
 #include <cstdlib>
 #include <exception>
-#include <optional>
 
 // external
 #include <boost/algorithm/string.hpp>
-#include <mitama/anyhow/anyhow.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
@@ -15,68 +16,75 @@
 #include <poac/util/termcolor2/literals_extra.hpp>
 
 using namespace termcolor2::color_literals;
-namespace subcmd = poac::cmd;
+using namespace poac;
 namespace anyhow = mitama::anyhow;
 
 struct Commands {
   /// Use verbose output
-  std::optional<bool> verbose = false;
+  Option<bool> verbose = false;
   /// Do not print poac log messages
-  std::optional<bool> quiet = false;
+  Option<bool> quiet = false;
 
   /// Compile a local package and all of its dependencies
-  subcmd::build::Options build;
+  cmd::build::Options build;
 
   /// Create a new poac package at <package_name>
-  subcmd::create::Options create;
+  cmd::create::Options create;
 
   /// Format source code with clang-format (default `LLVM`)
-  subcmd::fmt::Options fmt;
+  cmd::fmt::Options fmt;
 
   /// Create a new poac package in an existing directory
-  subcmd::init::Options init;
+  cmd::init::Options init;
 
   /// Run cpplint
-  subcmd::lint::Options lint;
+  cmd::lint::Options lint;
 
   /// Log in to poac.pm
-  subcmd::login::Options login;
+  cmd::login::Options login;
 
   /// Publish a package to poac.pm
-  subcmd::publish::Options publish;
+  cmd::publish::Options publish;
 
   /// Build and run a binary
-  subcmd::run::Options run;
+  cmd::run::Options run;
 
   /// Search a package on poac.pm
-  subcmd::search::Options search;
+  cmd::search::Options search;
 };
-STRUCTOPT(
-    Commands, verbose, quiet, build, create, fmt, init, lint, login, publish,
-    run, search
-);
-inline const std::vector<std::string_view> command_list{
-    "build", "create",  "fmt", "init",  "lint",
-    "login", "publish", "run", "search"};
 
-inline std::string
-colorize_structopt_error(std::string s) {
+#define STRINGIFY(r, data, elem) BOOST_PP_STRINGIZE(elem) ,
+
+#define TO_STRINGS(...) \
+  BOOST_PP_SEQ_FOR_EACH(STRINGIFY, hoge, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
+
+#define DECL_CMDS(...) \
+  inline const Vec<StringRef> command_list { TO_STRINGS(__VA_ARGS__) }
+
+#define structopt(...)                              \
+  STRUCTOPT(Commands, verbose, quiet, __VA_ARGS__); \
+  DECL_CMDS(__VA_ARGS__)
+
+structopt(build, create, fmt, init, lint, login, publish, run, search);
+
+inline String
+colorize_structopt_error(String s) {
   boost::replace_all(s, "Error:", "Error:"_bold_red);
   return s;
 }
 
-inline std::string
-colorize_anyhow_error(std::string s) {
+inline String
+colorize_anyhow_error(String s) {
   // `Caused by:` leaves a trailing newline
-  if (s.find("Caused by:") != std::string::npos) {
+  if (s.find("Caused by:") != SNone) {
     boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
     boost::replace_last(s, "\n", "");
   }
   return s;
 }
 
-inline std::string
-colorize_help(std::string s) {
+inline String
+colorize_help(String s) {
   boost::replace_all(s, "USAGE:", "USAGE:"_yellow);
   boost::replace_all(s, "FLAGS:", "FLAGS:"_yellow);
   boost::replace_all(s, "OPTIONS:", "OPTIONS:"_yellow);
@@ -85,29 +93,29 @@ colorize_help(std::string s) {
   return s;
 }
 
-[[nodiscard]] anyhow::result<void>
+[[nodiscard]] Result<void>
 exec(const structopt::app& app, const Commands& args) {
   if (args.build.has_value()) {
-    return subcmd::build::exec(args.build);
+    return cmd::build::exec(args.build);
   } else if (args.create.has_value()) {
-    return subcmd::create::exec(args.create);
+    return cmd::create::exec(args.create);
   } else if (args.fmt.has_value()) {
-    return subcmd::fmt::exec(args.fmt);
+    return cmd::fmt::exec(args.fmt);
   } else if (args.init.has_value()) {
-    return subcmd::init::exec(args.init);
+    return cmd::init::exec(args.init);
   } else if (args.lint.has_value()) {
-    return subcmd::lint::exec(args.lint);
+    return cmd::lint::exec(args.lint);
   } else if (args.login.has_value()) {
-    return subcmd::login::exec(args.login);
+    return cmd::login::exec(args.login);
   } else if (args.publish.has_value()) {
-    return subcmd::publish::exec(args.publish);
+    return cmd::publish::exec(args.publish);
   } else if (args.run.has_value()) {
-    return subcmd::run::exec(args.run);
+    return cmd::run::exec(args.run);
   } else if (args.search.has_value()) {
-    return subcmd::search::exec(args.search);
+    return cmd::search::exec(args.search);
   } else {
     spdlog::info("{}", colorize_help(app.help()));
-    return mitama::success();
+    return Ok();
   }
 }
 
@@ -131,16 +139,15 @@ main(const int argc, char* argv[]) {
         .map_err([](const auto& e) {
           spdlog::error(
               "{} {}", "Error:"_bold_red,
-              colorize_anyhow_error(fmt::format("{}", e->what()))
+              colorize_anyhow_error(format("{}", e->what()))
           );
         })
         .is_err();
   } catch (const structopt::exception& e) {
     if (argc > 1) {
       // try correcting typo
-      if (const auto sugg = poac::util::lev_distance::find_similar_str(
-              argv[1], command_list
-          )) {
+      if (const auto sugg =
+              util::lev_distance::find_similar_str(argv[1], command_list)) {
         spdlog::error(
             "{}\n"
             "  --> Did you mean `{}`?\n\n"

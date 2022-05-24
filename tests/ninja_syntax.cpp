@@ -17,10 +17,11 @@ inline const std::string INDENT = "    ";
 int
 main() {
   using namespace std::literals::string_literals;
+  using namespace poac;
   using namespace boost::ut;
   using namespace boost::ut::spec;
 
-  namespace ninja = poac::core::builder::ninja;
+  namespace ninja = core::builder::ninja;
   using boost::algorithm::join;
   using vec = std::vector<std::string>;
 
@@ -156,9 +157,7 @@ main() {
           {"out"}, "cc",
           ninja::syntax::BuildSet{
               .inputs = std::vector{"in"s},
-              .variables =
-                  std::unordered_map<std::string, std::string>{
-                      {"name", "value"}}}
+              .variables = HashMap<String, String>{{"name", "value"}}}
       );
 
       expect(

@@ -32,12 +32,12 @@ inline const std::array<String, 2> manifest_headers = {
     "It is not intended for manual editing."};
 
 inline fs::file_time_type
-ninja_manifest_last_modified(const fs::path& build_dir) {
+ninja_manifest_last_modified(const Path& build_dir) {
   return fs::last_write_time(build_dir / manifest_file_name);
 }
 
 inline bool
-is_outdated(const fs::path& build_dir) {
+is_outdated(const Path& build_dir) {
   if (!fs::exists(build_dir / manifest_file_name)) {
     return true;
   }
@@ -131,7 +131,7 @@ gather_flags(
 
 [[nodiscard]] Result<String>
 construct(
-    const fs::path& build_dir, const toml::value& poac_manifest,
+    const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
 ) {
   syntax::Writer writer{std::ostringstream()};
@@ -155,8 +155,8 @@ construct(
   );
   writer.newline();
 
-  const fs::path source_file = "src"_path / "main.cpp";
-  fs::path output_file;
+  const Path source_file = "src"_path / "main.cpp";
+  Path output_file;
   if (source_file == "src"_path / "main.cpp") {
     // When building src/main.cpp, the output executable should be stored at
     // poac_output/debug/name
@@ -195,7 +195,7 @@ construct(
 
 [[nodiscard]] Result<void>
 create(
-    const fs::path& build_dir, const toml::value& poac_manifest,
+    const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
 ) {
   // TODO(ken-matsui): `ninja.build` will be constructed from `poac.toml`,
