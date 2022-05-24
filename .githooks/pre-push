@@ -1,14 +1,24 @@
 #!/bin/sh
 
 # Run clang-format
-clang-format ./include/**/*.hpp -i -Werror -n || exit 1
-clang-format ./lib/**/*.cc -i -Werror -n || exit 1
-clang-format ./src/*.cc -i -Werror -n || exit 1
-clang-format ./tests/**/*.hpp -i -Werror -n || exit 1
-clang-format ./tests/*.cc -i -Werror -n || exit 1
-clang-format ./tests/**/*.cc -i -Werror -n || exit 1
+if command -v poac &> /dev/null
+then
+  poac fmt --check || exit 1
+else
+  clang-format ./include/**/*.hpp -i -Werror -n || exit 1
+  clang-format ./lib/**/*.cc -i -Werror -n || exit 1
+  clang-format ./src/*.cc -i -Werror -n || exit 1
+  clang-format ./tests/**/*.hpp -i -Werror -n || exit 1
+  clang-format ./tests/*.cc -i -Werror -n || exit 1
+  clang-format ./tests/**/*.cc -i -Werror -n || exit 1
+fi
 
 # Run cpplint
-cpplint --quiet --recursive . || exit 1
+if command -v poac &> /dev/null
+then
+  poac lint || exit 1
+else
+  cpplint --quiet --recursive . || exit 1
+fi
 
 exit 0
