@@ -183,14 +183,15 @@ WIP
 
 Poac is still under development and may contain a bunch of bugs.
 
-|                     Feature                     |       Status       |
-|:-----------------------------------------------:|:------------------:|
-|              Install dependencies               | :white_check_mark: |
-|  Build packages with header-only dependencies   | :white_check_mark: |
-|                Publish packages                 |        WIP         |
-|   Special dependencies like dev-dependencies    |                    |
-| Build packages with build-required dependencies |                    |
-|            Build packages with CMake            |                    |
+|                       Feature                       |       Status       |
+|:---------------------------------------------------:|:------------------:|
+|                Install dependencies                 | :white_check_mark: |
+|    Build packages with header-only dependencies     | :white_check_mark: |
+|              Support dev-dependencies               | :white_check_mark: |
+| Build packages separating headers & implementations |                    |
+|                  Publish packages                   |        WIP         |
+|   Build packages with build-required dependencies   |                    |
+|              Build packages with CMake              |                    |
 
 ## Supported Operating Systems
 
