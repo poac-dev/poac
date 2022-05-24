@@ -6,7 +6,7 @@ main() {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
-  using semver::parser::Parser;
+  using semver::Parser;
 
   "test parse empty"_test = [] {
     Parser parser("");
@@ -66,7 +66,7 @@ main() {
     expect(parsed.patch == 3_i);
   };
 
-  using semver::parser::Identifier;
+  using semver::Identifier;
 
   "test parser basic prerelease"_test = [] {
     Parser parser("1.2.3-pre");

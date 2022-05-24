@@ -14,7 +14,7 @@
 #include "poac/util/semver/range.hpp"
 #include "poac/util/semver/token.hpp"
 
-namespace semver::parser {
+namespace semver {
 
 struct Parser {
   using string_type = std::string_view;
@@ -351,14 +351,10 @@ private:
   }
 };
 
-} // end namespace semver::parser
-
-namespace semver {
-
 Version
 parse(std::string_view input) {
   try {
-    parser::Parser parser(input);
+    Parser parser(input);
     return parser.version();
   } catch (const std::bad_optional_access& e) {
     throw semver::version_error(e.what());

@@ -7,8 +7,8 @@ main() {
   using namespace boost::ut;
   using namespace boost::ut::spec;
 
-  using semver::parser::Lexer;
-  using semver::parser::Token;
+  using semver::Lexer;
+  using semver::Token;
 
   describe("test simple tokens") = [] {
     Lexer lexer{"=><<=>=^~*.,-+||"};
@@ -222,7 +222,7 @@ main() {
   };
 
   "test str_to_uint"_test = [] {
-    using semver::parser::str_to_uint;
+    using semver::str_to_uint;
     expect(constant<str_to_uint("123").value() == 123>);
     expect(constant<!str_to_uint("abc").has_value()>);
     expect(constant<!str_to_uint("12a").has_value()>);

@@ -11,7 +11,7 @@
 // internal
 #include "poac/util/semver/token.hpp"
 
-namespace semver::parser {
+namespace semver {
 
 enum class WildcardVersion {
   /// Wildcard minor version `1.*.3`.
@@ -44,14 +44,14 @@ struct Op {
   Kind kind;
   std::variant<std::monostate, WildcardVersion> component;
 
+  // clang-format off
   Op() = delete;
   Op(const Op&) = default;
-  Op&
-  operator=(const Op&) = default;
+  Op& operator=(const Op&) = default;
   Op(Op&&) noexcept = default;
-  Op&
-  operator=(Op&&) noexcept = default;
+  Op& operator=(Op&&) noexcept = default;
   ~Op() = default;
+  // clang-format on
 
   constexpr explicit Op(Kind k)
       : kind(
@@ -92,6 +92,6 @@ struct Comparator {
   std::vector<VersionReq> ranges;
 };
 
-} // end namespace semver::parser
+} // end namespace semver
 
 #endif // POAC_UTIL_SEMVER_RANGE_HPP_

@@ -6,7 +6,7 @@ main() {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
-  using semver::parser::Token;
+  using semver::Token;
 
   "test parser::Token"_test = [] {
     {

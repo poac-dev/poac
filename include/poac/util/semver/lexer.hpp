@@ -13,7 +13,7 @@
 // internal
 #include "poac/util/semver/token.hpp"
 
-namespace semver::parser {
+namespace semver {
 
 constexpr bool
 is_whitespace(const char c) noexcept {
@@ -225,6 +225,6 @@ private:
   }
 };
 
-} // end namespace semver::parser
+} // end namespace semver
 
 #endif // POAC_UTIL_SEMVER_LEXER_HPP_

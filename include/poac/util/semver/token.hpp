@@ -10,7 +10,7 @@
 #include <variant>
 #include <vector>
 
-namespace semver::parser {
+namespace semver {
 
 struct Token {
   enum Kind {
@@ -228,10 +228,6 @@ operator<<(std::ostream& os, const Identifier& id) {
   return (os << to_string(id));
 }
 
-} // end namespace semver::parser
-
-namespace semver {
-
 struct Version {
   /// Major version as number (`0` in `"0.1.2"`).
   std::uint_fast64_t major;
@@ -242,11 +238,11 @@ struct Version {
   /// Pre-release metadata as a vector of `Identifier` (`"alpha1"` in
   /// `"0.1.2-alpha1"` or `7` (numeric) in `"0.1.2-7"`, `"pre"` and `0`
   /// (numeric) in `"0.1.2-pre.0"`).
-  std::vector<parser::Identifier> pre;
+  std::vector<Identifier> pre;
   /// Build metadata as a vector of `Identifier` (`"build1"` in `"0.1.2+build1"`
   /// or `7` (numeric) in `"0.1.2+7"`, `"build"` and `0` (numeric) in
   /// `"0.1.2+pre.0"`).
-  std::vector<parser::Identifier> build;
+  std::vector<Identifier> build;
 
   std::string
   get_version() const {
