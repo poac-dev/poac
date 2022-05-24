@@ -32,7 +32,7 @@ inline const fs::path config_file(config::path::cur_dir / "CPPLINT.cfg");
 using CppLintNotFound = Error<
     "`lint` command requires `cpplint`; try installing it by:"
     "  pip install cpplint">;
-using CppLintError = Error<"`cpplint` finished with return code 1">;
+using CppLintError = Error<"`cpplint` finished with return code {}", i32>;
 
 [[nodiscard]] Result<void>
 lint(StringRef name, Option<String> args) {
@@ -51,12 +51,11 @@ lint(StringRef name, Option<String> args) {
   cpplint += "--exclude=poac_output/* --recursive .";
 
   spdlog::trace("Executing `{}`", cpplint);
-  if (util::shell::Cmd(cpplint).exec_no_capture()) {
-    return Ok();
-  } else {
+  if (const i32 code = util::shell::Cmd(cpplint).exec_no_capture(); code != 0) {
     spdlog::info("");
-    return Err<CppLintError>();
+    return Err<CppLintError>(code);
   }
+  return Ok();
 }
 
 [[nodiscard]] Result<void>
