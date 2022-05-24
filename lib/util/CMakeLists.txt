@@ -4,6 +4,7 @@ add_library(poac_util
     cfg.cc
     lev_distance.cc
     misc.cc
+    pretty.cc
 )
 #get_property(POAC_COMPILE_FEATURES TARGET poac PROPERTY COMPILE_FEATURES)
 #get_property(POAC_COMPILE_DEFINITIONS TARGET poac PROPERTY COMPILE_DEFINITIONS)
