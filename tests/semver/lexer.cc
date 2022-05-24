@@ -1,5 +1,5 @@
 #include <boost/ut.hpp>
-#include <poac/util/semver/parser/lexer.hpp>
+#include <poac/util/semver/lexer.hpp>
 
 int
 main() {

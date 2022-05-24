@@ -1,6 +1,6 @@
 #include <boost/ut.hpp>
 #include <poac/util/semver/comparison.hpp>
-#include <poac/util/semver/parser/token.hpp>
+#include <poac/util/semver/token.hpp>
 
 int
 main() {

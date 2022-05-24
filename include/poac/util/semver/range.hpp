@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_SEMVER_PARSER_RANGE_HPP_
-#define POAC_UTIL_SEMVER_PARSER_RANGE_HPP_
+#ifndef POAC_UTIL_SEMVER_RANGE_HPP_
+#define POAC_UTIL_SEMVER_RANGE_HPP_
 
 // std
 #include <cstdint>
@@ -9,7 +9,7 @@
 #include <vector>
 
 // internal
-#include "poac/util/semver/parser/token.hpp"
+#include "poac/util/semver/token.hpp"
 
 namespace semver::parser {
 
@@ -94,4 +94,4 @@ struct Comparator {
 
 } // end namespace semver::parser
 
-#endif // POAC_UTIL_SEMVER_PARSER_RANGE_HPP_
+#endif // POAC_UTIL_SEMVER_RANGE_HPP_
