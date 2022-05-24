@@ -130,7 +130,7 @@ inline Path operator""_path(const char* str, usize) { return Path(str); }
 using fmt::format;
 using fmt::print;
 
-const auto to_anyhow = [](const String& e) { return anyhow::anyhow(e); };
+inline const auto to_anyhow = [](const String& e) { return anyhow::anyhow(e); };
 
 template <thiserror::fixed_string S, class... T>
 using Error = thiserror::error<S, T...>;
