@@ -65,9 +65,9 @@ public:
       while (std::fgets(buffer.data(), 128, pipe) != nullptr)
         result += buffer.data();
 #ifdef _WIN32
-      if (_pclose(pipe) != 0) {
+      if (const i32 code = _pclose(pipe); code != 0) {
 #else
-      if (pclose(pipe) != 0) {
+      if (const i32 code = pclose(pipe); code != 0) {
 #endif
         std::cout << result;
         // TODO(ken-matsui): When errored and piped errors to stdout,
@@ -80,11 +80,9 @@ public:
     return result;
   }
 
-  bool
+  i32
   exec_no_capture() const {
-    // EXIT_SUCCESS -> 0 -> false -> true
-    // EXIT_FAILURE -> 1 -> true -> false
-    return !static_cast<bool>(std::system(cmd.c_str()));
+    return std::system(cmd.c_str());
   }
 
   friend std::ostream&

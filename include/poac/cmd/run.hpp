@@ -14,7 +14,7 @@
 
 namespace poac::cmd::run {
 
-using FailedToRun = Error<"`{}` finished with return code 1", fs::path>;
+using FailedToRun = Error<"`{}` finished with return code {}", fs::path, i32>;
 
 struct Options : structopt::sub_command {
   /// Build artifacts in release mode, with optimizations
@@ -42,8 +42,9 @@ exec(const Options& opts) {
 
   const fs::path executable = output.value() / name;
   log::status("Running"_bold_green, executable);
-  if (!util::shell::Cmd(executable).exec_no_capture()) {
-    return Err<FailedToRun>(executable);
+  if (const i32 code = util::shell::Cmd(executable).exec_no_capture();
+      code != 0) {
+    return Err<FailedToRun>(executable, code);
   }
   return Ok();
 }

@@ -30,7 +30,8 @@ struct Options : structopt::sub_command {
 using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:"
     "  apt/brew install clang-format">;
-using ClangFormatError = Error<"`clang-format` finished with return code 1">;
+using ClangFormatError =
+    Error<"`clang-format` finished with return code {}", i32>;
 
 inline const Vec<StringRef> directories = {
     "examples", "include", "src", "tests"};
@@ -66,9 +67,10 @@ fmt(StringRef args) {
   const String clang_format =
       format("clang-format {} {}", args, ::fmt::join(targets, " "));
   spdlog::trace("Executing `{}`", clang_format);
-  if (!util::shell::Cmd(clang_format).exec_no_capture()) {
+  if (const i32 code = util::shell::Cmd(clang_format).exec_no_capture();
+      code != 0) {
     spdlog::info("");
-    return Err<ClangFormatError>();
+    return Err<ClangFormatError>(code);
   }
   return Ok();
 }

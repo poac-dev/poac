@@ -56,7 +56,7 @@ main() {
   // bool exec_ignore()
   "test exec_no_capture"_test = [] {
     Cmd c("cd");
-    expect(c.exec_no_capture());
+    expect(eq(c.exec_no_capture(), 0));
   };
 
   // friend std::ostream& operator<<(std::ostream& stream, const shell& c)
