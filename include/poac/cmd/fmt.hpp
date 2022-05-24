@@ -44,7 +44,7 @@ inline const Vec<StringRef> patterns = {"./{}/*.{}", "./{}/**/*.{}"};
 
 [[nodiscard]] Result<void>
 fmt(StringRef args) {
-  Vec<fs::path> targets{};
+  Vec<Path> targets{};
   for (StringRef d : directories) {
     if (!fs::exists(d)) {
       spdlog::trace("Directory `{}` not found; skipping ...", d);
@@ -54,7 +54,7 @@ fmt(StringRef args) {
     for (StringRef e : extensions) {
       for (StringRef p : patterns) {
         const String search = format(::fmt::runtime(p), d, e);
-        const Vec<fs::path> search_glob = glob::rglob(search);
+        const Vec<Path> search_glob = glob::rglob(search);
         if (search_glob.empty()) {
           spdlog::trace("Glob `{}` not found; skipping ...", search);
           continue;

@@ -14,7 +14,7 @@
 
 namespace poac::cmd::run {
 
-using FailedToRun = Error<"`{}` finished with return code {}", fs::path, i32>;
+using FailedToRun = Error<"`{}` finished with return code {}", Path, i32>;
 
 struct Options : structopt::sub_command {
   /// Build artifacts in release mode, with optimizations
@@ -31,7 +31,7 @@ exec(const Options& opts) {
   const toml::value manifest = toml::parse(data::manifest::name);
   const String name = toml::find<String>(manifest, "package", "name");
 
-  const Option<fs::path> output = Try(
+  const Option<Path> output = Try(
       build::build({.release = opts.release}, manifest).with_context([&name] {
         return Err<build::FailedToBuild>(name).get();
       })
@@ -40,7 +40,7 @@ exec(const Options& opts) {
     return Ok();
   }
 
-  const fs::path executable = output.value() / name;
+  const Path executable = output.value() / name;
   log::status("Running"_bold_green, executable);
   if (const i32 code = util::shell::Cmd(executable).exec_no_capture();
       code != 0) {

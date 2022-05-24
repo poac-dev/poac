@@ -113,7 +113,7 @@ inline const String progress_status_format =
 // Limit number of rebuilds, to prevent infinite loops.
 inline constexpr i32 rebuildLimit = 100;
 
-[[nodiscard]] Result<fs::path>
+[[nodiscard]] Result<Path>
 start(
     const toml::value& poac_manifest, const Mode& mode,
     const resolver::ResolvedDeps& resolved_deps
@@ -123,7 +123,7 @@ start(
   // setenv("NINJA_STATUS", progress_status_format.c_str(), true);
   ninja::StatusPrinter status(config, progress_status_format);
 
-  const fs::path build_dir = config::path::output_dir / to_string(mode);
+  const Path build_dir = config::path::output_dir / to_string(mode);
   fs::create_directories(build_dir);
   Try(manifest::create(build_dir, poac_manifest, resolved_deps));
 

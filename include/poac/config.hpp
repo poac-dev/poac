@@ -23,21 +23,21 @@ inline constexpr StringRef SUPABASE_ANON_KEY =
 
 namespace poac::config::path {
 
-inline const fs::path user_dir = util::misc::expand_user().unwrap();
-inline const fs::path cfg_dir(user_dir / ".poac");
-inline const fs::path cred_file(cfg_dir / "credentials");
+inline const Path user_dir = util::misc::expand_user().unwrap();
+inline const Path cfg_dir(user_dir / ".poac");
+inline const Path cred_file(cfg_dir / "credentials");
 
-inline const fs::path cache_dir(cfg_dir / "cache");
-inline const fs::path archive_dir(cache_dir / "archive");
-inline const fs::path extract_dir(cache_dir / "extract");
+inline const Path cache_dir(cfg_dir / "cache");
+inline const Path archive_dir(cache_dir / "archive");
+inline const Path extract_dir(cache_dir / "extract");
 
-inline const fs::path cur_dir = fs::current_path();
-inline const fs::path manifest_file(cur_dir / data::manifest::name);
-inline const fs::path src_dir(cur_dir / "src");
-inline const fs::path include_dir(cur_dir / "include");
-inline const fs::path tests_dir(cur_dir / "tests");
-inline const fs::path main_cpp_file(src_dir / "main.cpp");
-inline const fs::path output_dir(cur_dir / "poac_output");
+inline const Path cur_dir = fs::current_path();
+inline const Path manifest_file(cur_dir / data::manifest::name);
+inline const Path src_dir(cur_dir / "src");
+inline const Path include_dir(cur_dir / "include");
+inline const Path tests_dir(cur_dir / "tests");
+inline const Path main_cpp_file(src_dir / "main.cpp");
+inline const Path output_dir(cur_dir / "poac_output");
 
 } // namespace poac::config::path
 

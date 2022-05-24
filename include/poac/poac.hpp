@@ -59,18 +59,6 @@ namespace anyhow = mitama::anyhow;
 namespace thiserror = mitama::thiserror;
 
 //
-// String literals
-//
-using namespace std::literals::string_literals;
-using namespace std::literals::string_view_literals;
-using namespace fmt::literals;
-using namespace termcolor2::color_literals;
-
-inline fs::path operator""_path(const char* str, std::size_t) {
-  return fs::path(str);
-}
-
-//
 // Data types
 //
 using u8 = std::uint8_t;
@@ -92,6 +80,8 @@ using String = std::string;
 using StringRef = std::string_view;
 static_assert(String::npos == StringRef::npos, "npos should be the same");
 inline constexpr usize SNone = StringRef::npos;
+
+using Path = fs::path;
 
 template <typename T>
 using Vec = std::vector<T>;
@@ -123,6 +113,16 @@ using HashMap = std::unordered_map<K, V, H>;
 
 template <typename K>
 using HashSet = std::unordered_set<K, boost::hash<K>>;
+
+//
+// String literals
+//
+using namespace std::literals::string_literals;
+using namespace std::literals::string_view_literals;
+using namespace fmt::literals;
+using namespace termcolor2::color_literals;
+
+inline Path operator""_path(const char* str, usize) { return Path(str); }
 
 //
 // Utilities

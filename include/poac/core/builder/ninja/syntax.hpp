@@ -37,16 +37,16 @@ struct RuleSet {
 using Variables = HashMap<String, String>;
 struct BuildSet {
   Option<Vec<String>> inputs = None;
-  Option<Vec<fs::path>> implicit = None;
-  Option<fs::path> order_only = None;
+  Option<Vec<Path>> implicit = None;
+  Option<Path> order_only = None;
   Option<Variables> variables = None;
-  Option<fs::path> implicit_outputs = None;
+  Option<Path> implicit_outputs = None;
   Option<String> pool = None;
   Option<String> dyndep = None;
 };
 
-inline fs::path
-escape_path(fs::path p) {
+inline Path
+escape_path(Path p) {
   String s = p.string();
   boost::replace_all(s, "$ ", "$$ ");
   boost::replace_all(s, " ", "$ ");
@@ -293,12 +293,12 @@ public:
   }
 
   inline void
-  include(const fs::path& path) {
+  include(const Path& path) {
     _line(format("include {}", path));
   }
 
   inline void
-  subninja(const fs::path& path) {
+  subninja(const Path& path) {
     _line(format("subninja {}", path));
   }
 

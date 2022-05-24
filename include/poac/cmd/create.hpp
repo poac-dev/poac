@@ -110,7 +110,7 @@ write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
   ofs.clear();
 }
 
-Map<fs::path, String>
+Map<Path, String>
 create_template_files(const ProjectType& type, const String& package_name) {
   switch (type) {
     case ProjectType::Bin:

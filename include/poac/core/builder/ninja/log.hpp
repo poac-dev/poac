@@ -25,7 +25,7 @@ inline const String deps_log_file_name = ".ninja_deps";
 
 [[nodiscard]] Result<void>
 load_build_log(data::NinjaMain& ninja_main) {
-  fs::path log_path = ninja_main.build_dir / build_log_file_name;
+  Path log_path = ninja_main.build_dir / build_log_file_name;
 
   String err;
   const LoadStatus status = ninja_main.build_log.Load(log_path, &err);
@@ -46,7 +46,7 @@ load_build_log(data::NinjaMain& ninja_main) {
 
 [[nodiscard]] Result<void>
 load_deps_log(data::NinjaMain& ninja_main) {
-  fs::path log_path = ninja_main.build_dir / deps_log_file_name;
+  Path log_path = ninja_main.build_dir / deps_log_file_name;
 
   String err;
   const LoadStatus status =

@@ -24,12 +24,12 @@ using InvalidLockfileVersion = Error<"invalid lockfile version found: {}", i64>;
 using FailedToReadLockfile = Error<"failed to read lockfile:\n{}", String>;
 
 inline fs::file_time_type
-poac_lock_last_modified(const fs::path& base_dir) {
+poac_lock_last_modified(const Path& base_dir) {
   return fs::last_write_time(base_dir / lockfile_name);
 }
 
 inline bool
-is_outdated(const fs::path& base_dir) {
+is_outdated(const Path& base_dir) {
   if (!fs::exists(base_dir / lockfile_name)) {
     return true;
   }
@@ -137,7 +137,7 @@ convert_to_deps(const Lockfile& lock) {
 }
 
 [[nodiscard]] Result<Option<resolver::UniqDeps<resolver::WithDeps>>>
-read(const fs::path& base_dir) {
+read(const Path& base_dir) {
   if (!fs::exists(base_dir / lockfile_name)) {
     return Ok(None);
   }

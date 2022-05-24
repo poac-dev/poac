@@ -116,7 +116,7 @@ public:
 
 public:
   using file_name_type = String;
-  using file_path_type = fs::path;
+  using file_path_type = Path;
   using header_type = Map<http::field, String>;
   using self_reference = MultiPartForm&;
   using const_self_reference = const MultiPartForm&;
@@ -191,7 +191,7 @@ public:
   get_files() const {
     Vec<FileInfo> file_info;
     for (const auto& f : m_file_param) {
-      const fs::path file_path = std::get<1>(f);
+      const Path file_path = std::get<1>(f);
       file_info.push_back({file_path.string(), fs::file_size(file_path)});
     }
     return file_info;

@@ -40,11 +40,11 @@ using APITokenNotFound = Error<
 using FailedToReadCred = Error<
     "failed to read credentials from {0}; do not edit it manually "
     "and use the `poac login` command.",
-    fs::path>;
+    Path>;
 using FailedToReadManifest = Error<
     "failed to read a manifest file ({0}) for this package. Make "
     "sure to the current directory was set up using Poac.",
-    fs::path>;
+    Path>;
 
 [[nodiscard]] anyhow::result<toml::value>
 get_manifest() {

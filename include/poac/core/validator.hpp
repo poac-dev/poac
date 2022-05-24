@@ -17,7 +17,7 @@
 namespace poac::core::validator {
 
 [[nodiscard]] Result<void, String>
-required_config_exists(const fs::path& base = config::path::cur_dir) noexcept {
+required_config_exists(const Path& base = config::path::cur_dir) noexcept {
   const auto config_path = base / data::manifest::name;
   std::error_code ec{};
   if (fs::exists(config_path, ec)) {
@@ -29,7 +29,7 @@ required_config_exists(const fs::path& base = config::path::cur_dir) noexcept {
 }
 
 [[nodiscard]] Result<void, String>
-can_create_directory(const fs::path& p) {
+can_create_directory(const Path& p) {
   std::error_code ec{}; // This is to use for noexcept optimization
 
   const bool exists = fs::exists(p, ec);

@@ -80,9 +80,9 @@ archive_write_header(
 }
 
 String
-set_extract_path(archive_entry* entry, const fs::path& extract_path) noexcept {
+set_extract_path(archive_entry* entry, const Path& extract_path) noexcept {
   const String current_file = archive_entry_pathname(entry);
-  const fs::path full_output_path = extract_path / current_file;
+  const Path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
   archive_entry_set_pathname(entry, full_output_path.c_str());
   return current_file;
@@ -105,7 +105,7 @@ archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
 
 [[nodiscard]] Result<String, String>
 extract_impl(
-    Archive* reader, const Writer& writer, const fs::path& extract_path
+    Archive* reader, const Writer& writer, const Path& extract_path
 ) noexcept {
   archive_entry* entry = nullptr;
   String extracted_directory_name{""};
@@ -123,7 +123,7 @@ extract_impl(
 
 [[nodiscard]] Result<void, String>
 archive_read_open_filename(
-    Archive* reader, const fs::path& file_path, usize block_size
+    Archive* reader, const Path& file_path, usize block_size
 ) noexcept {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
     return Err("Cannot archive_read_open_filename");
@@ -146,9 +146,7 @@ read_as_targz(Archive* reader) noexcept {
 }
 
 [[nodiscard]] Result<String, String>
-extract(
-    const fs::path& target_file_path, const fs::path& extract_path
-) noexcept {
+extract(const Path& target_file_path, const Path& extract_path) noexcept {
   Archive* reader = archive_read_new();
   if (!reader) {
     return Err("Cannot archive_read_new");

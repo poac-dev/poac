@@ -22,7 +22,7 @@
 namespace poac::core::builder::ninja::data {
 
 struct NinjaMain : public BuildLogUser {
-  NinjaMain(const BuildConfig& config, const fs::path& build_dir)
+  NinjaMain(const BuildConfig& config, const Path& build_dir)
       : config(config), build_dir(build_dir) {}
 
   /// Build configuration set from flags (e.g. parallelism).
@@ -35,7 +35,7 @@ struct NinjaMain : public BuildLogUser {
   RealDiskInterface disk_interface;
 
   /// The build directory, used for storing the build log etc.
-  fs::path build_dir;
+  Path build_dir;
 
   BuildLog build_log;
   DepsLog deps_log;
