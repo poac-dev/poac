@@ -30,7 +30,7 @@ get_property(POAC_LINK_LIBRARIES TARGET poac PROPERTY LINK_LIBRARIES)
 set_property(TARGET ut PROPERTY INTERFACE_COMPILE_OPTIONS)
 
 foreach (TEST_NAME ${TEST_NAMES})
-    add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
+    add_executable(${TEST_NAME} ${TEST_NAME}.cc)
     target_compile_features(${TEST_NAME} PRIVATE ${POAC_COMPILE_FEATURES})
     target_compile_definitions(${TEST_NAME} PRIVATE ${POAC_COMPILE_DEFINITIONS})
     target_compile_options(${TEST_NAME} PRIVATE -g -O0)

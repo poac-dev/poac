@@ -2,9 +2,9 @@
 
 # Run clang-format
 clang-format ./include/**/*.hpp -i -Werror -n || exit 1
-clang-format ./src/*.cpp -i -Werror -n || exit 1
+clang-format ./src/*.cc -i -Werror -n || exit 1
 clang-format ./tests/**/*.hpp -i -Werror -n || exit 1
-clang-format ./tests/**/*.cpp -i -Werror -n || exit 1
+clang-format ./tests/**/*.cc -i -Werror -n || exit 1
 
 # Run cpplint
 cpplint --quiet --recursive . || exit 1
