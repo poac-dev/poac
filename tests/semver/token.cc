@@ -1,12 +1,12 @@
 #include <boost/ut.hpp>
-#include <poac/util/semver/parser/token.hpp>
+#include <poac/util/semver/token.hpp>
 
 int
 main() {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
-  using semver::parser::Token;
+  using semver::Token;
 
   "test parser::Token"_test = [] {
     {

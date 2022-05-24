@@ -16,8 +16,8 @@
 // internal
 #include "poac/util/semver/comparison.hpp"
 #include "poac/util/semver/exception.hpp"
-#include "poac/util/semver/parser/parser.hpp"
-#include "poac/util/semver/parser/token.hpp"
+#include "poac/util/semver/parser.hpp"
+#include "poac/util/semver/token.hpp"
 
 namespace semver {
 

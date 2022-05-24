@@ -1,5 +1,5 @@
-#ifndef POAC_UTIL_SEMVER_PARSER_LEXER_HPP_
-#define POAC_UTIL_SEMVER_PARSER_LEXER_HPP_
+#ifndef POAC_UTIL_SEMVER_LEXER_HPP_
+#define POAC_UTIL_SEMVER_LEXER_HPP_
 
 // std
 #include <cstddef>
@@ -11,9 +11,9 @@
 #include <vector>
 
 // internal
-#include "poac/util/semver/parser/token.hpp"
+#include "poac/util/semver/token.hpp"
 
-namespace semver::parser {
+namespace semver {
 
 constexpr bool
 is_whitespace(const char c) noexcept {
@@ -225,6 +225,6 @@ private:
   }
 };
 
-} // end namespace semver::parser
+} // end namespace semver
 
-#endif // POAC_UTIL_SEMVER_PARSER_LEXER_HPP_
+#endif // POAC_UTIL_SEMVER_LEXER_HPP_

@@ -5,7 +5,7 @@
 #include <ostream> // std::ostream
 
 // internal
-#include "poac/util/semver/parser/token.hpp"
+#include "poac/util/semver/token.hpp"
 
 namespace semver {
 
