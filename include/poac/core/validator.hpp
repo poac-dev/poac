@@ -68,8 +68,7 @@ two_or_more_symbols(StringRef s) noexcept {
   if (slashes > 1) {
     return Err(
         "Invalid package name.\n"
-        "It is prohibited to use a character string\n"
-        " that is two or more `/`."
+        "It is prohibited to use two or more `/`."
     );
   }
   return Ok();
@@ -80,7 +79,7 @@ start_with_symbol(StringRef s) noexcept {
   if (s[0] == '_' || s[0] == '-' || s[0] == '/') {
     return Err(
         "Invalid package name.\n"
-        "It is prohibited to use a character string\n"
+        "It is prohibited to use a string\n"
         " that starts with `_`, `-`, and `/`."
     );
   }
@@ -93,7 +92,7 @@ end_with_symbol(StringRef s) noexcept {
   if (last == '_' || last == '-' || last == '/') {
     return Err(
         "Invalid package name.\n"
-        "It is prohibited to use a character string\n"
+        "It is prohibited to use a string\n"
         " that ends with `_`, `-`, and `/`."
     );
   }
@@ -106,7 +105,7 @@ invalid_characters_impl(StringRef s) noexcept {
     if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
       return Err(
           "Invalid package name.\n"
-          "It is prohibited to use a character string\n"
+          "It is prohibited to use a string\n"
           " that does not match ^([a-z|\\d|_|\\-|\\/]*)$."
       );
     }
@@ -234,7 +233,24 @@ using_keywords(StringRef s) {
 }
 
 [[nodiscard]] Result<void, String>
+one_char(StringRef s) {
+  if (s.empty()) {
+    return Err(
+        "Invalid package name.\n"
+        "It is prohibited to use an empty string."
+    );
+  } else if (s.size() == 1) {
+    return Err(
+        "Invalid package name.\n"
+        "It is prohibited to use one char."
+    );
+  }
+  return Ok();
+}
+
+[[nodiscard]] Result<void, String>
 valid_package_name(StringRef s) {
+  Try(one_char(s));
   Try(invalid_characters(s));
   Try(using_keywords(s));
   return Ok();
