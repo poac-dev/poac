@@ -43,9 +43,17 @@ if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif ()
 
 add_subdirectory(lib)
-target_link_libraries(poac
-    ${STATIC_LINK_FLAG}
-    ${POAC_DEPENDENCIES}
+target_link_libraries(poac ${STATIC_LINK_FLAG}
+    Boost::system
+    fmt::fmt
+    git2-cpp::git2-cpp
+    Glob
+    git2
+    mitama-cpp-result::mitama-cpp-result
+    spdlog::spdlog
+    structopt::structopt
+    toml11::toml11
+
     poac::util::semver
     poac::util
     poac::core::resolver
