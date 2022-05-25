@@ -1,13 +1,11 @@
 #ifndef POAC_CORE_BUILDER_COMPILER_CXX_HPP_
 #define POAC_CORE_BUILDER_COMPILER_CXX_HPP_
 
-// mod
+// internal
 #include "poac/core/builder/compiler/cxx/apple_clang.hpp"
 #include "poac/core/builder/compiler/cxx/clang.hpp"
 #include "poac/core/builder/compiler/cxx/gcc.hpp"
-
-// internal
-#include "poac/core/builder/compiler/error.hpp"
+#include "poac/core/builder/compiler/lang/error.hpp"
 #include "poac/poac.hpp"
 #include "poac/util/cfg.hpp"
 #include "poac/util/misc.hpp"
@@ -21,8 +19,6 @@ using CompilerCommandNotFound = Error<
 using UnknownCompilerCommand =
     Error<"unknown compiler command found: {}", String>;
 using UnsupportedCompiler = Error<"unsupported compiler found: {}", String>;
-
-inline const String ANY = R"([\s\S]*)";
 
 [[nodiscard]] Result<util::cfg::compiler>
 get_compiler_ident(const String& compiler_command) {

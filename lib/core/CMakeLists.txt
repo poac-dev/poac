@@ -20,4 +20,5 @@ target_link_libraries(poac_core PUBLIC
 
 add_library(poac::core ALIAS poac_core)
 
+add_subdirectory(builder)
 add_subdirectory(resolver)
