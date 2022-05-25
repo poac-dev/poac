@@ -18,13 +18,18 @@ main() {
   "test lev_distance"_test = [] {
     using util::lev_distance::calc;
 
+    // Test bytelength agnosticity
+    for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
+      expect(eq(calc(String(1, c), String(1, c)), 0));
+    }
+
     constexpr StringRef a = "\nMäry häd ä little lämb\n\nLittle lämb\n";
     constexpr StringRef b = "\nMary häd ä little lämb\n\nLittle lämb\n";
     constexpr StringRef c = "Mary häd ä little lämb\n\nLittle lämb\n";
-    expect(eq(calc(a, b), 1));
-    expect(eq(calc(b, a), 1));
-    expect(eq(calc(a, c), 2));
-    expect(eq(calc(c, a), 2));
+    expect(eq(calc(a, b), 2));
+    expect(eq(calc(b, a), 2));
+    expect(eq(calc(a, c), 3));
+    expect(eq(calc(c, a), 3));
     expect(eq(calc(b, c), 1));
     expect(eq(calc(c, b), 1));
 
@@ -70,12 +75,6 @@ main() {
     expect(find_similar_str("1111111111", candidates) == None);
 
     const Vec<StringRef> candidates2 = {"AAAA"};
-    expect(find_similar_str("aaaa", candidates) == "AAAA"sv);
-
-    const Vec<StringRef> candidates3 = {"a_longer_variable_name"};
-    expect(
-        find_similar_str("a_variable_longer_name", candidates) ==
-        "a_longer_variable_name"sv
-    );
+    expect(find_similar_str("aaaa", candidates2) == "AAAA"sv);
   };
 }
