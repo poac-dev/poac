@@ -1,6 +1,7 @@
 add_library(poac_cmd
     build.cc
     create.cc
+    fmt.cc
 )
 
 target_compile_features(poac_cmd PUBLIC cxx_std_20)
