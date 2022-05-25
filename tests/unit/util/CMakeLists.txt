@@ -1,5 +1,15 @@
+set(TEST_NAME_PREFIX "${TEST_NAME_PREFIX}/util")
+
 set(TEST_NAMES
-    ninja_syntax
+    cfg
+    lev_distance
+    meta
+    misc
+    net
+    pretty
+    sha256
+    shell
+    verbosity
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
@@ -10,7 +20,14 @@ foreach (TEST_NAME ${TEST_NAMES})
     endif ()
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
-        poac::core::builder::ninja
+        poac::util
     )
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+    add_test(
+        NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
+        COMMAND ${TEST_NAME}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    )
 endforeach ()
+
+add_subdirectory(semver)
+add_subdirectory(termcolor2)

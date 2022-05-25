@@ -5,11 +5,11 @@ if command -v poac &> /dev/null
 then
   poac fmt --check || exit 1
 else
-  clang-format ./include/**/*.hpp -i -Werror -n || exit 1
-  clang-format ./lib/**/*.cc -i -Werror -n || exit 1
-  clang-format ./src/*.cc -i -Werror -n || exit 1
-  clang-format ./tests/**/*.hpp -i -Werror -n || exit 1
-  clang-format ./tests/**/*.cc -i -Werror -n || exit 1
+  clang-format ./include/**/*.hpp -Werror -n || exit 1
+  clang-format ./lib/**/*.cc -Werror -n || exit 1
+  clang-format ./src/*.cc -Werror -n || exit 1
+  clang-format ./tests/**/**/*.hpp -Werror -n || exit 1
+  clang-format ./tests/**/**/*.cc -Werror -n || exit 1
 fi
 
 # Run cpplint

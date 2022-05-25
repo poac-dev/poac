@@ -1,9 +1,8 @@
+set(TEST_NAME_PREFIX "${TEST_NAME_PREFIX}/resolver")
+
 set(TEST_NAMES
-    interval
-    lexer
-    parser
-    token
-    version
+    resolve
+    sat
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
@@ -14,7 +13,11 @@ foreach (TEST_NAME ${TEST_NAMES})
     endif ()
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
-        poac::util::semver
+        poac::core::resolver
     )
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+    add_test(
+        NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
+        COMMAND ${TEST_NAME}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    )
 endforeach ()

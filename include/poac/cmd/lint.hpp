@@ -21,7 +21,6 @@ inline const Path config_file(config::path::cur_dir / "CPPLINT.cfg");
 using CppLintNotFound = Error<
     "`lint` command requires `cpplint`; try installing it by:"
     "  pip install cpplint">;
-using CppLintError = Error<"`cpplint` finished with return code {}", i32>;
 
 [[nodiscard]] Result<void>
 lint(StringRef name, Option<String> args);

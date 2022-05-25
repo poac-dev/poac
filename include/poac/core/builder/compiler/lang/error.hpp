@@ -5,21 +5,42 @@
 #include "poac/core/builder/compiler/lang/lang.hpp"
 #include "poac/poac.hpp"
 #include "poac/util/cfg.hpp" // compiler
+#include "poac/util/semver/semver.hpp"
 
 namespace poac::core::builder::compiler::error {
 
 String
 to_string(util::cfg::compiler comp);
 
-inline std::ostream&
-operator<<(std::ostream& os, util::cfg::compiler comp) {
-  return (os << to_string(comp));
-}
+} // namespace poac::core::builder::compiler::error
+
+namespace fmt {
+
+template <>
+struct formatter<poac::util::cfg::compiler> {
+  constexpr auto
+  parse(format_parse_context& ctx) {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  inline auto
+  format(poac::util::cfg::compiler c, FormatContext& ctx) {
+    return format_to(
+        ctx.out(), "{}", poac::core::builder::compiler::error::to_string(c)
+    );
+  }
+};
+
+} // namespace fmt
+
+namespace poac::core::builder::compiler::error {
 
 using UnsupportedLangVersion = Error<
-    "`{}` ({}) does not support {} edition: `{}`", String, String, String, i64>;
+    "`{}` ({}) does not support {} edition: `{}`", util::cfg::compiler,
+    semver::Version, poac::core::builder::compiler::lang::Lang, i64>;
 using FailedToGetCompilerVersion =
-    Error<"failed to get version of compiler `{}`", String>;
+    Error<"failed to get version of compiler `{}`", util::cfg::compiler>;
 
 } // namespace poac::core::builder::compiler::error
 

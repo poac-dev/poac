@@ -44,7 +44,7 @@ fmt(StringRef args) {
   if (const i32 code = util::shell::Cmd(clang_format).exec_no_capture();
       code != 0) {
     spdlog::info("");
-    return Err<ClangFormatError>(code);
+    return Err<SubprocessFailed>("clang-format", code);
   }
   return Ok();
 }

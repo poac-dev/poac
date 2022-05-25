@@ -1,6 +1,7 @@
+set(TEST_NAME_PREFIX "${TEST_NAME_PREFIX}/core")
+
 set(TEST_NAMES
-    resolve
-    sat
+    validator
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
@@ -11,7 +12,14 @@ foreach (TEST_NAME ${TEST_NAMES})
     endif ()
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
-        poac::core::resolver
+        poac::core
     )
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+    add_test(
+        NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
+        COMMAND ${TEST_NAME}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    )
 endforeach ()
+
+add_subdirectory(builder)
+add_subdirectory(resolver)

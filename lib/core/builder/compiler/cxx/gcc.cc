@@ -20,7 +20,7 @@ get_compiler_version(const String& compiler_command) {
     }
     return Ok(semver::parse(version));
   }
-  return Err<error::FailedToGetCompilerVersion>(error::to_string(compiler));
+  return Err<error::FailedToGetCompilerVersion>(compiler);
 }
 
 // thanks to:
@@ -68,8 +68,7 @@ get_std_flag(
       break;
   }
   return Err<error::UnsupportedLangVersion>(
-      error::to_string(compiler), version.get_full(),
-      to_string(lang::Lang::cxx), edition
+      compiler, version, lang::Lang::cxx, edition
   );
 }
 
