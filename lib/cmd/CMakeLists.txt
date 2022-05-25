@@ -16,6 +16,7 @@ target_link_libraries(poac_cmd PUBLIC
     ${POAC_HPP_LIBS}
     structopt::structopt
     toml11::toml11
+    git2
     git2-cpp::git2-cpp
     Glob
 
