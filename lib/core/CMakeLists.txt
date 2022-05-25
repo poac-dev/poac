@@ -1,5 +1,6 @@
 add_library(poac_core
     resolver.cc
+    validator.cc
 )
 
 target_compile_features(poac_core PUBLIC cxx_std_20)
@@ -14,6 +15,7 @@ target_link_libraries(poac_core PUBLIC
     poac_core_resolver
     poac_data
     poac_util
+    toml11::toml11
 )
 
 add_library(poac::core ALIAS poac_core)
