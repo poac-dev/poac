@@ -1,12 +1,12 @@
 add_library(poac_cmd
     build.cc
+    create.cc
 )
 
 target_compile_features(poac_cmd PUBLIC cxx_std_20)
 target_include_directories(poac_cmd PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
-#    ${Boost_INCLUDE_DIRS}
-    #    ${OPENSSL_INCLUDE_DIR}
+    ${Boost_INCLUDE_DIRS}
 )
 target_link_libraries(poac_cmd PUBLIC
     ${STATIC_LINK_FLAG}
@@ -14,6 +14,8 @@ target_link_libraries(poac_cmd PUBLIC
     ${POAC_HPP_LIBS}
     structopt::structopt
     toml11::toml11
+    git2-cpp::git2-cpp
+    Glob
 
     poac_core
     poac_util
