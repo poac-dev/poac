@@ -6,9 +6,10 @@ add_library(poac_core_builder_ninja
     syntax.cc
 )
 
-target_compile_features(poac_core_builder_ninja PUBLIC cxx_std_20)
 # https://stackoverflow.com/a/38297422
-set_property(TARGET poac_core_builder_ninja PROPERTY POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+target_compile_features(poac_core_builder_ninja PUBLIC cxx_std_20)
 target_include_directories(poac_core_builder_ninja PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
     ${Boost_INCLUDE_DIRS}
