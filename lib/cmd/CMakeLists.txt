@@ -4,6 +4,7 @@ add_library(poac_cmd
     fmt.cc
     init.cc
     lint.cc
+    login.cc
 )
 
 target_compile_features(poac_cmd PUBLIC cxx_std_20)
