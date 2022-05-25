@@ -14,8 +14,12 @@ FetchContent_MakeAvailable(ninja)
 
 file(MAKE_DIRECTORY ${ninja_BINARY_DIR}/include)
 file(CREATE_LINK ${ninja_SOURCE_DIR}/src ${ninja_BINARY_DIR}/include/ninja SYMBOLIC)
-target_include_directories(${PROJECT_NAME} PRIVATE ${ninja_BINARY_DIR}/include)
-list(APPEND POAC_DEPENDENCIES libninja libninja-re2c)
+
+set(NINJA_INCLUDE_DIR ${ninja_BINARY_DIR}/include)
+set(NINJA_LIBRARIES libninja libninja-re2c)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${NINJA_INCLUDE_DIR})
+list(APPEND POAC_DEPENDENCIES ${NINJA_LIBRARIES})
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

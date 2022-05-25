@@ -2,9 +2,6 @@
 #define POAC_UTIL_SHELL_HPP_
 
 // std
-#include <array>
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -15,7 +12,7 @@ namespace poac::util::shell {
 
 class Cmd {
 public:
-  String
+  inline String
   string() const {
     return cmd;
   }
@@ -23,27 +20,27 @@ public:
   Cmd() : cmd() {}
   explicit Cmd(const String& c) : cmd(c) {}
 
-  Cmd&
+  inline Cmd&
   env(const String& name, const String& value) {
     cmd.insert(0, name + "=" + value + " ");
     return *this;
   }
-  Cmd&
+  inline Cmd&
   stderr_to_stdout() {
     cmd += " 2>&1";
     return *this;
   }
-  Cmd&
+  inline Cmd&
   to_dev_null() {
     cmd += " >/dev/null";
     return *this;
   }
-  Cmd&
+  inline Cmd&
   dump_stdout() {
     cmd += " 1>/dev/null";
     return *this;
   }
-  Cmd&
+  inline Cmd&
   dump_stderr() {
     cmd += " 2>/dev/null";
     return *this;
@@ -53,107 +50,82 @@ public:
   //  stderr and stdout? We cannot simultaneously know errors and their
   //  contents.
   Option<String>
-  exec() const {
-    std::array<char, 128> buffer{};
-    String result;
+  exec() const;
 
-#ifdef _WIN32
-    if (FILE* pipe = _popen(cmd.c_str(), "r")) {
-#else
-    if (FILE* pipe = popen(cmd.c_str(), "r")) {
-#endif
-      while (std::fgets(buffer.data(), 128, pipe) != nullptr)
-        result += buffer.data();
-#ifdef _WIN32
-      if (const i32 code = _pclose(pipe); code != 0) {
-#else
-      if (const i32 code = pclose(pipe); code != 0) {
-#endif
-        std::cout << result;
-        // TODO(ken-matsui): When errored and piped errors to stdout,
-        //  I want to return result stored by them.
-        return None;
-      }
-    } else {
-      return None;
-    }
-    return result;
-  }
-
-  i32
+  inline i32
   exec_no_capture() const {
     return std::system(cmd.c_str());
   }
 
-  friend std::ostream&
+  inline friend std::ostream&
   operator<<(std::ostream& os, const Cmd& c) {
     return (os << c.cmd);
   }
 
-  bool
+  inline bool
   operator==(const Cmd& rhs) const {
     return this->cmd == rhs.cmd;
   }
-  bool
+  inline bool
   operator==(const String& rhs) const {
     return this->cmd == rhs;
   }
 
-  Cmd
+  inline Cmd
   operator&&(const Cmd& rhs) const {
     return Cmd(this->cmd + " && " + rhs.cmd);
   }
-  Cmd
+  inline Cmd
   operator&&(const String& rhs) const {
     return Cmd(this->cmd + " && " + rhs);
   }
 
-  Cmd&
+  inline Cmd&
   operator&=(const Cmd& rhs) {
     this->cmd += " && " + rhs.cmd;
     return *this;
   }
-  Cmd&
+  inline Cmd&
   operator&=(const String& rhs) {
     this->cmd += " && " + rhs;
     return *this;
   }
 
-  Cmd
+  inline Cmd
   operator||(const Cmd& rhs) const {
     return Cmd(this->cmd + " || " + rhs.cmd);
   }
-  Cmd
+  inline Cmd
   operator||(const String& rhs) const {
     return Cmd(this->cmd + " || " + rhs);
   }
 
-  Cmd&
+  inline Cmd&
   operator|=(const Cmd& rhs) {
     this->cmd += " || " + rhs.cmd;
     return *this;
   }
-  Cmd&
+  inline Cmd&
   operator|=(const String& rhs) {
     this->cmd += " || " + rhs;
     return *this;
   }
 
-  Cmd
+  inline Cmd
   operator+(const Cmd& rhs) const { // TODO(ken-matsui): should this be "; "?
     return Cmd(this->cmd + " " + rhs.cmd);
   }
-  Cmd
+  inline Cmd
   operator+(const String& rhs) const {
     return Cmd(this->cmd + " " + rhs);
   }
 
-  Cmd&
+  inline Cmd&
   operator+=(const Cmd& rhs) {
     this->cmd += " " + rhs.cmd;
     return *this;
   }
-  Cmd&
+  inline Cmd&
   operator+=(const String& rhs) {
     this->cmd += " " + rhs;
     return *this;
@@ -163,7 +135,7 @@ private:
   String cmd;
 }; // NOLINT(readability/braces)
 
-bool
+inline bool
 has_command(const String& c) {
   return Cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
 }

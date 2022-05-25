@@ -289,13 +289,13 @@ Poac requires the following compilers, tools, and libraries to build:
 **dependencies**
 
 * [`fmt`](https://github.com/fmtlib/fmt): [`7.1.3`](https://github.com/fmtlib/fmt/releases/tag/7.1.3) or later
-* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`v0.1.0-alpha.0`](https://github.com/ken-matsui/git2-cpp/releases/tag/v0.1.0-alpha.0) or later
+* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`v0.1.0-alpha.1`](https://github.com/ken-matsui/git2-cpp/releases/tag/v0.1.0-alpha.1) or later
 * [`glob`](https://github.com/p-ranav/glob): [`v0.0.1`](https://github.com/p-ranav/glob/releases/tag/v0.0.1) or later
 * [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
   * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
 * [`libgit2`](https://github.com/libgit2/libgit2): [`0.27`](https://github.com/libgit2/libgit2/releases/tag/v0.27.7) or later
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`master`](https://github.com/LoliGothick/mitama-cpp-result/tree/master) branch
-  * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/80cfbce0382a27262c15339a22a6f35246cac65e)
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`ec7f22a`](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819) or later
+  * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
   * awaiting the next release above [`v9.2.1`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.2.1)
 * [`ninja`](https://github.com/ninja-build/ninja): [`master`](https://github.com/ninja-build/ninja/tree/master) branch
   * requires [`src/status.h`](https://github.com/ninja-build/ninja/blob/ad3d29fb5375c3122b2318ea5efad170b83e74e5/src/status.h)

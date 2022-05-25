@@ -16,6 +16,7 @@
 
 // external
 #include <boost/algorithm/string.hpp>
+#define OPENSSL_SUPPRESS_DEPRECATED 1
 #include <boost/asio.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -32,7 +33,6 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include "poac/config.hpp"
 #include "poac/poac.hpp"
 #include "poac/util/meta.hpp"
 #include "poac/util/misc.hpp"
@@ -43,35 +43,11 @@ namespace poac::util::net {
 
 // Create progress bar, [====>   ]
 String
-to_progress(const i32& max_count, i32 now_count, const i32& bar_size = 50) {
-  if (now_count > max_count) {
-    now_count = max_count;
-  }
-  const i32 percent = (now_count * 100) / max_count;
-  const i32 bar_pos = percent / 2;
-
-  if (now_count == max_count) {
-    return format("[{:=>{}}", ">]", bar_size + 1);
-  } else if ((bar_pos - 1) > 0) {
-    return format("[{:=>{}}{:>{}}", ">", bar_pos, "]", bar_size - bar_pos + 1);
-  } else if (bar_pos == 1) {
-    return format("[>{:>{}}", "]", bar_size);
-  } else {
-    return format("[{:>{}}", "]", bar_size + 1);
-  }
-}
+to_progress(const i32& max_count, i32 now_count, const i32& bar_size = 50);
 
 // Create byte progress bar, [====>   ] 10.21B/21.28KB
 String
-to_byte_progress(const i32& max_count, i32 now_count) {
-  if (now_count > max_count) {
-    now_count = max_count;
-  }
-  return format(
-      "{} {}/{}", to_progress(max_count, now_count),
-      util::pretty::to_byte(now_count), util::pretty::to_byte(max_count)
-  );
-}
+to_byte_progress(const i32& max_count, i32 now_count);
 
 namespace http = boost::beast::http;
 using Headers =
@@ -95,7 +71,7 @@ create_request(
   return req;
 }
 
-std::pair<String, String>
+inline std::pair<String, String>
 parse_url(const String& url) {
   // https://api.poac.pm/packages/deps -> api.poac.pm
   const String host = util::misc::split(url, "://")[1];
@@ -135,16 +111,16 @@ public:
       : m_boundary(boost::uuids::to_string(boost::uuids::random_generator{}())),
         m_footer(format("{}--{}--{}", m_crlf, m_boundary, m_crlf)) {}
 
-  String
+  inline String
   get_header() const noexcept {
     return m_header;
   }
-  String
+  inline String
   get_footer() const noexcept {
     return m_footer;
   }
 
-  void
+  inline void
   set(const file_name_type& name, const String& value) {
     m_form_param.emplace_back(format(
         "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
@@ -153,14 +129,14 @@ public:
     ));
     generate_header(); // re-generate
   }
-  void
+  inline void
   set(const file_name_type& name, const file_path_type& value,
       const header_type& h) {
     m_file_param.emplace_back(name, value, h);
     generate_header(); // re-generate
   }
   template <typename Request>
-  void
+  inline void
   set_req(const Request& req) {
     std::ostringstream ss;
     ss << req;
@@ -168,11 +144,11 @@ public:
     generate_header(); // re-generate
   }
 
-  String
+  inline String
   content_type() const {
     return format("multipart/form-data; boundary={}", m_boundary);
   }
-  std::uintmax_t
+  inline std::uintmax_t
   content_length() const {
     return std::accumulate(
         m_file_param.begin(), m_file_param.end(),
@@ -188,45 +164,25 @@ public:
     std::uintmax_t size;
   };
   Vec<FileInfo>
-  get_files() const {
-    Vec<FileInfo> file_info;
-    for (const auto& f : m_file_param) {
-      const Path file_path = std::get<1>(f);
-      file_info.push_back({file_path.string(), fs::file_size(file_path)});
-    }
-    return file_info;
-  }
+  get_files() const;
 
-  self_reference
+  inline self_reference
   body() noexcept {
     return *this;
   }
-  const_self_reference
+  inline const_self_reference
   body() const noexcept {
     return *this;
   }
 
-  const_self_reference
+  inline const_self_reference
   cbody() const noexcept {
     return *this;
   }
 
 private:
   void
-  generate_header() {
-    m_header = format("{}{}", m_crlf, fmt::join(m_form_param, ""));
-    for (const auto& [name, filename, header] : m_file_param) {
-      String h = format(
-          "--{}{}{}name=\"{}\"; filename=\"{}\"", m_boundary, m_crlf,
-          m_content_disposition, name, filename.filename().string()
-      );
-      for (const auto& [field, content] : header) {
-        h += format("{}{}: {}", m_crlf, String(to_string(field)), content);
-      }
-      m_header += m_crlf + h;
-    }
-    m_header += m_crlf + m_crlf;
-  }
+  generate_header();
 };
 
 // TODO(ken-matsui): ioc, ctx,
@@ -235,12 +191,12 @@ private:
 class Requests {
 public:
   // clang-format off
-    Requests() = delete;
-    ~Requests() = default;
-    Requests(const Requests&) = delete;
-    Requests& operator=(const Requests&) = delete;
-    Requests(Requests&&) = default;
-    Requests& operator=(Requests&&) = default;
+  Requests() = delete;
+  ~Requests() = default;
+  Requests(const Requests&) = delete;
+  Requests& operator=(const Requests&) = delete;
+  Requests(Requests&&) = default;
+  Requests& operator=(Requests&&) = default;
   // clang-format on
 
   explicit Requests(const StringRef host)
@@ -493,18 +449,10 @@ private:
   }
 
   void
-  close_stream() const {
-    // Gracefully close the stream
-    boost::system::error_code ec;
-    stream->shutdown(ec);
-    if (ec == boost::asio::error::eof) {
-      // Rationale: https://stackoverflow.com/q/25587403
-      ec.assign(0, ec.category());
-    }
-  }
+  close_stream() const;
 
   // Prepare ssl connection
-  void
+  inline void
   ssl_prepare() const {
     ssl_set_tlsext();
     lookup();
@@ -512,20 +460,9 @@ private:
   }
 
   void
-  ssl_set_tlsext() const {
-    // Set SNI Hostname (many hosts need this to handshake successfully)
-    if (!SSL_set_tlsext_host_name(
-            stream->native_handle(), String(host).c_str()
-        )) {
-      boost::system::error_code error{
-          static_cast<i32>(::ERR_get_error()),
-          boost::asio::error::get_ssl_category()};
-      log::debug(error.message());
-      throw boost::system::system_error{error};
-    }
-  }
+  ssl_set_tlsext() const;
 
-  void
+  inline void
   lookup() const {
     // Look up the domain name
     const auto results = resolver->resolve(host, port);
@@ -533,116 +470,39 @@ private:
     boost::asio::connect(stream->next_layer(), results.begin(), results.end());
   }
 
-  void
+  inline void
   ssl_handshake() const {
     // Perform the SSL handshake
     stream->handshake(boost::asio::ssl::stream_base::client);
   }
 };
+
 } // namespace poac::util::net
 
 namespace poac::util::net::api {
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-call(StringRef path, StringRef body) noexcept {
-  try {
-    const Requests request{
-        format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)};
-    Headers headers;
-    headers.emplace(
-        boost::beast::http::field::authorization,
-        format("Bearer {}", SUPABASE_ANON_KEY)
-    );
 
-    const auto response = Try(request.post(path, body, headers));
-    std::stringstream response_body;
-    response_body << response.data();
-
-    boost::property_tree::ptree pt;
-    boost::property_tree::json_parser::read_json(response_body, pt);
-    return Ok(pt);
-  } catch (const std::exception& e) {
-    return Err(e.what());
-  } catch (...) {
-    return Err("unknown error caused when calling search api");
-  }
-}
+inline constexpr StringRef SUPABASE_PROJECT_REF = "jbzuxdflqzzgexrcsiwm";
+inline constexpr StringRef SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpienV4ZGZscXp6Z2V4cmNzaXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTI1MjgyNTAsImV4cCI6MTk2ODEwNDI1MH0.QZG-b6ab4iKk_ewlhEO3OtGpJfEFRos_G1fdDqcKrsA";
 
 [[nodiscard]] Result<boost::property_tree::ptree, String>
-search(StringRef query, const u64& count = 0) noexcept {
-  boost::property_tree::ptree pt;
-  pt.put("query", query);
-  pt.put("perPage", count);
+call(StringRef path, StringRef body) noexcept;
 
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  return call("/search", body.str());
-}
+[[nodiscard]] Result<boost::property_tree::ptree, String>
+search(StringRef query, const u64& count = 0) noexcept;
 
 [[nodiscard]] auto
 deps(StringRef name, StringRef version) noexcept
-    -> Result<HashMap<String, String>, String> {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-  pt.put("version", version);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/deps", body.str()));
-  if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
-  }
-  return Ok(util::meta::to_hash_map<String>(res, "data.dependencies"));
-}
+    -> Result<HashMap<String, String>, String>;
 
 [[nodiscard]] Result<Vec<String>, String>
-versions(StringRef name) {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/versions", body.str()));
-  if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
-  }
-  const auto results = util::meta::to_vec<String>(res, "data");
-  log::debug(
-      "[util::net::api::versions] versions of {} are [{}]", name,
-      fmt::join(results, ", ")
-  );
-  return Ok(results);
-}
+versions(StringRef name);
 
 [[nodiscard]] Result<std::pair<String, String>, String>
-repoinfo(StringRef name, StringRef version) {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-  pt.put("version", version);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/repoinfo", body.str()));
-  if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
-  }
-  return Ok(std::make_pair(
-      res.get<String>("data.repository"), res.get<String>("data.sha256sum")
-  ));
-}
+repoinfo(StringRef name, StringRef version);
 
 [[nodiscard]] Result<bool, String>
-login(StringRef api_token) {
-  boost::property_tree::ptree pt;
-  pt.put("api_token", api_token);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/login", body.str()));
-  if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
-  }
-  return Ok(res.get<bool>("data"));
-}
+login(StringRef api_token);
 
 } // namespace poac::util::net::api
 

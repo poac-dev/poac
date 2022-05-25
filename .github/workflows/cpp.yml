@@ -13,6 +13,7 @@ jobs:
       matrix:
         path:
           - "include"
+          - "lib"
           - "src"
           - "tests"
     steps:

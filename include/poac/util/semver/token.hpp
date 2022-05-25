@@ -192,12 +192,12 @@ struct Identifier {
     return kind == Kind::AlphaNumeric;
   }
 
-  numeric_type
+  inline numeric_type
   get_numeric() const {
     return std::get<Identifier::numeric_type>(component);
   }
 
-  alphanumeric_type
+  inline alphanumeric_type
   get_alpha_numeric() const {
     return std::get<Identifier::alphanumeric_type>(component);
   }
@@ -213,17 +213,9 @@ operator!=(const Identifier& lhs, const Identifier& rhs) {
 }
 
 std::string
-to_string(const Identifier& id) {
-  if (std::holds_alternative<Identifier::numeric_type>(id.component)) {
-    return std::to_string(id.get_numeric());
-  } else if (std::holds_alternative<Identifier::alphanumeric_type>(id.component
-             )) {
-    return std::string(id.get_alpha_numeric());
-  }
-  return ""; // not reachable
-}
+to_string(const Identifier& id);
 
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Identifier& id) {
   return (os << to_string(id));
 }
@@ -245,32 +237,10 @@ struct Version {
   std::vector<Identifier> build;
 
   std::string
-  get_version() const {
-    std::string version = std::to_string(major);
-    version += "." + std::to_string(minor);
-    version += "." + std::to_string(patch);
-    if (!pre.empty()) {
-      version += "-";
-      for (const auto& s : pre) {
-        version += to_string(s) + ".";
-      }
-      version.pop_back();
-    }
-    return version;
-  }
+  get_version() const;
 
   std::string
-  get_full() const {
-    std::string full = get_version();
-    if (!build.empty()) {
-      full += "+";
-      for (const auto& s : build) {
-        full += to_string(s) + ".";
-      }
-      full.pop_back();
-    }
-    return full;
-  }
+  get_full() const;
 };
 
 } // end namespace semver

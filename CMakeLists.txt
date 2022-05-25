@@ -9,8 +9,8 @@ endif ()
 
 cmake_minimum_required(VERSION 3.21)
 project(poac
-        VERSION 0.3.0
-        LANGUAGES CXX
+    VERSION 0.3.0
+    LANGUAGES CXX
 )
 
 include(GNUInstallDirs)
@@ -32,8 +32,8 @@ include(cmake/CheckCompilerVersion.cmake)
 add_executable(poac src/main.cc)
 target_compile_features(poac PUBLIC cxx_std_20)
 target_include_directories(poac PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 include(cmake/PoacConfig.cmake)
@@ -42,34 +42,34 @@ if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
 
-target_link_libraries(
-        poac
-        ${STATIC_LINK_FLAG}
-        ${POAC_DEPENDENCIES}
+add_subdirectory(lib)
+target_link_libraries(poac ${STATIC_LINK_FLAG}
+    poac::cmd
+    poac::util
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-        ${CONFIG_VERSION_FILE} COMPATIBILITY AnyNewerVersion
+    ${CONFIG_VERSION_FILE} COMPATIBILITY AnyNewerVersion
 )
 
 install(DIRECTORY include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        FILES_MATCHING PATTERN "*.hpp"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.hpp"
 )
 install(TARGETS poac
-        EXPORT poac-config
+    EXPORT poac-config
 )
 install(EXPORT poac-config
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/poac
-        NAMESPACE poac::
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/poac
+    NAMESPACE poac::
 )
 install(FILES ${CONFIG_VERSION_FILE}
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/poac
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/poac
 )
 install(TARGETS poac
-        DESTINATION bin
+    DESTINATION bin
 )
 
 include(CTest)
