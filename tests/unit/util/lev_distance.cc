@@ -18,11 +18,6 @@ main() {
   "test lev_distance"_test = [] {
     using util::lev_distance::calc;
 
-    // Test bytelength agnosticity
-    for (char c = 0; c <= std::numeric_limits<char>::max(); ++c) {
-      expect(eq(calc(String(1, c), String(1, c)), 0));
-    }
-
     constexpr StringRef a = "\nMäry häd ä little lämb\n\nLittle lämb\n";
     constexpr StringRef b = "\nMary häd ä little lämb\n\nLittle lämb\n";
     constexpr StringRef c = "Mary häd ä little lämb\n\nLittle lämb\n";
