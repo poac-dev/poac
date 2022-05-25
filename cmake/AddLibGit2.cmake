@@ -29,7 +29,9 @@ set(REGEX_BACKEND "builtin" CACHE INTERNAL "")
 
 FetchContent_MakeAvailable(libgit2)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${libgit2_SOURCE_DIR}/include)
+set(LIBGIT2_INCLUDE_DIR ${libgit2_SOURCE_DIR}/include)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${LIBGIT2_INCLUDE_DIR})
 list(APPEND POAC_DEPENDENCIES git2)
 message(CHECK_PASS "added")
 
