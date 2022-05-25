@@ -1,7 +1,7 @@
 set(TEST_NAMES
-#        gnu_literals
-        literals
-        to_color
+#    gnu_literals
+    literals
+    to_color
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
@@ -12,6 +12,8 @@ foreach (TEST_NAME ${TEST_NAMES})
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     endif ()
     target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_link_libraries(${TEST_NAME} PRIVATE ${POAC_TEST_DEPENDENCIES})
+    target_link_libraries(${TEST_NAME} PRIVATE
+        Boost::ut
+    )
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endforeach ()

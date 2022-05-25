@@ -1,9 +1,9 @@
 set(TEST_NAMES
-        interval
-        lexer
-        parser
-        token
-        version
+    interval
+    lexer
+    parser
+    token
+    version
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
@@ -12,6 +12,9 @@ foreach (TEST_NAME ${TEST_NAMES})
     if (POAC_ENABLE_COVERAGE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     endif ()
-    target_link_libraries(${TEST_NAME} PRIVATE poac::util::semver ${POAC_TEST_DEPENDENCIES})
+    target_link_libraries(${TEST_NAME} PRIVATE
+        Boost::ut
+        poac::util::semver
+    )
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endforeach ()
