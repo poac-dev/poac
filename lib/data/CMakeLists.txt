@@ -14,4 +14,3 @@ target_link_libraries(poac_data PUBLIC
 )
 
 add_library(poac::data ALIAS poac_data)
-#list(APPEND POAC_DEPENDENCIES poac::data)

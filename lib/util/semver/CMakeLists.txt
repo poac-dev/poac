@@ -15,4 +15,3 @@ target_link_libraries(poac_util_semver PUBLIC
 )
 
 add_library(poac::util::semver ALIAS poac_util_semver)
-#list(APPEND POAC_DEPENDENCIES poac::util::semver)

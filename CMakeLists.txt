@@ -60,6 +60,7 @@ target_link_libraries(poac ${STATIC_LINK_FLAG}
     poac::data
     poac::core
     poac::core::builder
+    poac::cmd
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)

@@ -12,6 +12,7 @@ target_include_directories(poac_core PUBLIC
 target_link_libraries(poac_core PUBLIC
     ${STATIC_LINK_FLAG}
     ${POAC_HPP_LIBS}
+    poac_core_builder_ninja
     poac_core_resolver
     poac_data
     poac_util
