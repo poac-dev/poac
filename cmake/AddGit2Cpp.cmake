@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         git2-cpp
         GIT_REPOSITORY https://github.com/ken-matsui/git2-cpp.git
-        GIT_TAG        v0.1.0-alpha.0
+        GIT_TAG        v0.1.0-alpha.1
 )
 
 set(BUILD_SHARED_LIBS OFF)
