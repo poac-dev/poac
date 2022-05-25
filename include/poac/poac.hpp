@@ -148,6 +148,11 @@ append(HashMap<K, V, H>& a, const HashMap<K, V, H>& b) {
 }
 
 //
+// Errors
+//
+using SubprocessFailed = Error<"`{}` completed with exit code {}", String, i32>;
+
+//
 // Logs
 //
 namespace log {

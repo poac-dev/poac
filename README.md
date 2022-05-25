@@ -134,7 +134,7 @@ src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright
 Done processing src/main.cpp
 Total errors found: 1
 
-Error: `cpplint` finished with return code 1
+Error: `cpplint` completed with exit code 1
 ```
 
 > If you do not have `cpplint`, install it with the following command:

@@ -17,8 +17,6 @@ struct Options : structopt::sub_command {
 using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:"
     "  apt/brew install clang-format">;
-using ClangFormatError =
-    Error<"`clang-format` finished with return code {}", i32>;
 
 inline constexpr StringRef directories[] = {
     "examples", "include", "lib", "src", "tests"};

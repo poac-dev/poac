@@ -29,7 +29,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps) {
   }
 
   toml::basic_value<toml::preserve_comments> lock(
-      Lockfile{.package = packages}, {lockfile_header}
+      Lockfile{.package = packages}, {String(lockfile_header)}
   );
   return Ok(lock);
 }

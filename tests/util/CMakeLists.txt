@@ -5,7 +5,9 @@ set(TEST_NAMES
     misc
     net
     pretty
+    sha256
     shell
+    verbosity
 )
 
 foreach (TEST_NAME ${TEST_NAMES})

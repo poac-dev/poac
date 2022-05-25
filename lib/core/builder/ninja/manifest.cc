@@ -105,8 +105,8 @@ construct(
     const resolver::ResolvedDeps& resolved_deps
 ) {
   syntax::Writer writer{std::ostringstream()};
-  for (const auto& header : manifest_headers) {
-    writer.comment(header);
+  for (StringRef header : manifest_headers) {
+    writer.comment(String(header));
   }
   writer.newline();
 

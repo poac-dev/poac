@@ -16,8 +16,8 @@ using FailedToOpenBuildLog = Error<"opening build log: {}", String>;
 using FailedToLoadDepsLog = Error<"loading deps log `{}`: {}", String, String>;
 using FailedToOpenDepsLog = Error<"opening deps log: {}", String>;
 
-inline const String build_log_file_name = ".ninja_log";
-inline const String deps_log_file_name = ".ninja_deps";
+inline constexpr StringRef build_log_file_name = ".ninja_log";
+inline constexpr StringRef deps_log_file_name = ".ninja_deps";
 
 [[nodiscard]] Result<void>
 load_build_log(data::NinjaMain& ninja_main);

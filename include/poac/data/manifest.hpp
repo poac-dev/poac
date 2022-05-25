@@ -28,7 +28,7 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
 
 namespace poac::data::manifest {
 
-inline const String name = "poac.toml";
+inline constexpr StringRef name = "poac.toml";
 
 inline fs::file_time_type
 poac_toml_last_modified(const Path& base_dir) {

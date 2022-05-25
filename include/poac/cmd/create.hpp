@@ -61,12 +61,11 @@ namespace files {
     );
   }
 
-  inline const String main_cpp(
+  inline constexpr StringRef main_cpp =
       "#include <iostream>\n\n"
       "int main(int argc, char** argv) {\n"
       "  std::cout << \"Hello, world!\" << std::endl;\n"
-      "}\n"
-  );
+      "}\n";
 
   inline String
   include_hpp(StringRef project_name) {

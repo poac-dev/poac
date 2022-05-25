@@ -17,4 +17,22 @@ operator<<(std::ostream& os, const Version& v) {
 
 } // end namespace semver
 
+namespace fmt {
+
+template <>
+struct formatter<semver::Version> {
+  constexpr auto
+  parse(format_parse_context& ctx) {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  inline auto
+  format(semver::Version v, FormatContext& ctx) {
+    return format_to(ctx.out(), "{}", v.get_full());
+  }
+};
+
+} // namespace fmt
+
 #endif // POAC_UTIL_SEMVER_IO_HPP_

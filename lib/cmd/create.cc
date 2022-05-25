@@ -39,7 +39,7 @@ create_template_files(const ProjectType& type, const String& package_name) {
       return {
           {".gitignore", "/target"},
           {data::manifest::name, files::poac_toml(package_name)},
-          {"src"_path / "main.cpp", files::main_cpp}};
+          {"src"_path / "main.cpp", String(files::main_cpp)}};
     case ProjectType::Lib:
       fs::create_directories(package_name / "include"_path / package_name);
       return {
