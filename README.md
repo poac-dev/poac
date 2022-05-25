@@ -1,4 +1,4 @@
-<div align="center"><img alt="poac" width="250" src="https://github.com/poacpm/design/raw/main/images/logo.svg"></div>
+<div align="center"><img alt="poac" width="250" src="https://user-images.githubusercontent.com/26405363/170156485-39785d37-8feb-4c41-b1b5-692ab5894416.svg"></div>
 
 ## Description
 
