@@ -51,7 +51,7 @@ target_link_libraries(poac
     poac::core::resolver
     poac::data
     poac::core
-    poac::core::builder::compiler::cxx
+    poac::core::builder
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)

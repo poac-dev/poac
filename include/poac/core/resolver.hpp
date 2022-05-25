@@ -11,12 +11,11 @@
 // internal
 #include "poac/config.hpp"
 #include "poac/core/resolver/resolve.hpp"
+#include "poac/core/resolver/types.hpp"
 #include "poac/poac.hpp"
 #include "poac/util/net.hpp"
 
 namespace poac::core::resolver {
-
-using ResolvedDeps = resolve::UniqDeps<resolve::WithDeps>;
 
 using FailedToParseConfig =
     Error<"parsing the value of the `dependencies` key in poac.toml failed">;

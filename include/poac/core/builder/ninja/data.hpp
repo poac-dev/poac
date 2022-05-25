@@ -1,9 +1,6 @@
 #ifndef POAC_CORE_BUILDER_NINJA_DATA_HPP_
 #define POAC_CORE_BUILDER_NINJA_DATA_HPP_
 
-// std
-#include <string>
-
 // external
 #include <ninja/build.h> // BuildConfig // NOLINT(build/include_order)
 #include <ninja/build_log.h> // BuildLog, BuildLogUser // NOLINT(build/include_order)
