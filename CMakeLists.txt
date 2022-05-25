@@ -44,12 +44,6 @@ endif ()
 
 add_subdirectory(lib)
 target_link_libraries(poac ${STATIC_LINK_FLAG}
-    fmt::fmt
-    mitama-cpp-result::mitama-cpp-result
-    spdlog::spdlog
-    structopt::structopt
-    toml11::toml11
-
     poac::cmd
     poac::util
 )

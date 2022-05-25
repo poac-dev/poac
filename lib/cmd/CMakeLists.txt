@@ -7,6 +7,7 @@ add_library(poac_cmd
     login.cc
     publish.cc
     run.cc
+    search.cc
 )
 
 target_compile_features(poac_cmd PUBLIC cxx_std_20)
