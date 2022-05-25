@@ -1,3 +1,5 @@
+set(TEST_NAME_PREFIX "${TEST_NAME_PREFIX}/semver")
+
 set(TEST_NAMES
     interval
     lexer
@@ -16,5 +18,9 @@ foreach (TEST_NAME ${TEST_NAMES})
         Boost::ut
         poac::util::semver
     )
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+    add_test(
+        NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
+        COMMAND ${TEST_NAME}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    )
 endforeach ()
