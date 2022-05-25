@@ -1,5 +1,5 @@
-#ifndef TESTS_UT_HELPERS_THROWS_WITH_MSG_HPP_
-#define TESTS_UT_HELPERS_THROWS_WITH_MSG_HPP_
+#ifndef TESTS_UTIL_UT_HELPERS_THROWS_WITH_MSG_HPP_
+#define TESTS_UTIL_UT_HELPERS_THROWS_WITH_MSG_HPP_
 
 // std
 #include <string>
@@ -29,4 +29,4 @@ throws_with_msg(const TExpr& expr, const std::string& msg) {
 
 } // namespace poac::test::ut_helpers
 
-#endif // TESTS_UT_HELPERS_THROWS_WITH_MSG_HPP_
+#endif // TESTS_UTIL_UT_HELPERS_THROWS_WITH_MSG_HPP_
