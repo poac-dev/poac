@@ -44,23 +44,14 @@ endif ()
 
 add_subdirectory(lib)
 target_link_libraries(poac ${STATIC_LINK_FLAG}
-    Boost::system
     fmt::fmt
-    git2-cpp::git2-cpp
-    Glob
-    git2
     mitama-cpp-result::mitama-cpp-result
     spdlog::spdlog
     structopt::structopt
     toml11::toml11
 
-    poac::util::semver
-    poac::util
-    poac::core::resolver
-    poac::data
-    poac::core
-    poac::core::builder
     poac::cmd
+    poac::util
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
