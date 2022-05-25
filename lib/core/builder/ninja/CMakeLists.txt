@@ -6,9 +6,6 @@ add_library(poac_core_builder_ninja
     syntax.cc
 )
 
-# https://stackoverflow.com/a/38297422
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 target_compile_features(poac_core_builder_ninja PUBLIC cxx_std_20)
 target_include_directories(poac_core_builder_ninja PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
