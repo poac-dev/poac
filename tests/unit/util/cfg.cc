@@ -12,7 +12,7 @@
 #include <boost/predef.h> // NOLINT: found C system header after other header
 
 // internal
-#include "../ut_helpers/throws_with_msg.hpp"
+#include "../../util/ut_helpers/throws_with_msg.hpp"
 
 #include <poac/util/cfg.hpp>
 

@@ -15,11 +15,26 @@ enum class Lang {
 String
 to_string(Lang lang);
 
-inline std::ostream&
-operator<<(std::ostream& os, Lang lang) {
-  return (os << to_string(lang));
-}
-
 } // namespace poac::core::builder::compiler::lang
+
+namespace fmt {
+
+template <>
+struct formatter<poac::core::builder::compiler::lang::Lang> {
+  constexpr auto
+  parse(format_parse_context& ctx) {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  inline auto
+  format(poac::core::builder::compiler::lang::Lang l, FormatContext& ctx) {
+    return format_to(
+        ctx.out(), "{}", poac::core::builder::compiler::lang::to_string(l)
+    );
+  }
+};
+
+} // namespace fmt
 
 #endif // POAC_CORE_BUILDER_COMPILER_LANG_LANG_HPP_

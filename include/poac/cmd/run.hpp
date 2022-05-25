@@ -9,8 +9,6 @@
 
 namespace poac::cmd::run {
 
-using FailedToRun = Error<"`{}` finished with return code {}", Path, i32>;
-
 struct Options : structopt::sub_command {
   /// Build artifacts in release mode, with optimizations
   Option<bool> release = false;

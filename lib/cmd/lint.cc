@@ -33,7 +33,7 @@ lint(StringRef name, Option<String> args) {
   spdlog::trace("Executing `{}`", cpplint);
   if (const i32 code = util::shell::Cmd(cpplint).exec_no_capture(); code != 0) {
     spdlog::info("");
-    return Err<CppLintError>(code);
+    return Err<SubprocessFailed>("cpplint", code);
   }
   return Ok();
 }
