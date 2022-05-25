@@ -1,4 +1,7 @@
-<div align="center"><img alt="poac" width="250" src="https://user-images.githubusercontent.com/26405363/170156485-39785d37-8feb-4c41-b1b5-692ab5894416.svg"></div>
+<div align="center">
+  <img alt="logo-white" width="250" src="https://user-images.githubusercontent.com/26405363/170157214-51b03bbd-cd29-432b-99ca-8f65c01f973e.svg#gh-dark-mode-only">
+  <img alt="logo-black" width="250" src="https://user-images.githubusercontent.com/26405363/170157184-e338188c-e4fa-4967-ac74-aba03aefa0bc.svg#gh-light-mode-only">
+</div>
 
 ## Description
 
