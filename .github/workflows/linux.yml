@@ -10,7 +10,8 @@ env:
   BOOST_VERSION: 1.79.0
 
 jobs:
-  x86_64-unknown-linux-gnu:
+  build-and-test:
+    name: "build & test"
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -132,13 +133,6 @@ jobs:
       - name: Print info of the executable file
         run: file ./poac
         working-directory: build
-
-      - name: Upload pre-built binary
-        uses: actions/upload-artifact@v3
-        if: matrix.build_type == 'Release'
-        with:
-          name: ${{ github.job }}-${{ matrix.compiler.cc }}
-          path: ./build/poac
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3.1.0

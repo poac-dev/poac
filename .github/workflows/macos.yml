@@ -6,7 +6,8 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-and-test:
+    name: "build & test"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
