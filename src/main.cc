@@ -100,6 +100,23 @@ colorize_help(String s) {
   return s;
 }
 
+String
+uncolorize_toml11_error(String s) {
+  using namespace termcolor2;
+
+  const String colors[] = {
+      gray_v(),     red_v(),       green_v(),   yellow_v(),     blue_v(),
+      magenta_v(),  cyan_v(),      white_v(),   on_gray_v(),    on_red_v(),
+      on_green_v(), on_yellow_v(), on_blue_v(), on_magenta_v(), on_cyan_v(),
+      on_white_v(), bold_v(),      dark_v(),    underline_v(),  blink_v(),
+      reverse_v(),  concealed_v(), reset_v(),
+  };
+  for (StringRef c : colors) {
+    boost::replace_all(s, c, "");
+  }
+  return s;
+}
+
 using ColorError = poac::Error<
     "argument for --color must be `auto`, `always`, or `never`, but found `{}`",
     StringRef>;
@@ -191,7 +208,11 @@ main(const int argc, char* argv[]) {
     );
     return EXIT_FAILURE;
   } catch (const std::exception& e) {
-    err_logger->error("{} {}", "Error:"_bold_red, e.what());
+    if (termcolor2::should_color()) {
+      err_logger->error("{} {}", "Error:"_bold_red, e.what());
+    } else {
+      err_logger->error("{} {}", "Error:", uncolorize_toml11_error(e.what()));
+    }
     return EXIT_FAILURE;
   } catch (...) {
     err_logger->error(
