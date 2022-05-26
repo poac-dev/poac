@@ -1,7 +1,6 @@
 set(TEST_NAME_PREFIX "${TEST_NAME_PREFIX}/termcolor2")
 
 set(TEST_NAMES
-#    gnu_literals
     literals
     to_color
 )

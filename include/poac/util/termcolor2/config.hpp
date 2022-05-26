@@ -26,21 +26,4 @@
 #  define TERMCOLOR2_CXX20_CONSTINIT
 #endif
 
-#ifdef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
-#  ifdef _MSC_VER
-//   Does not implement constexpr color literals for MSVC.
-#    undef TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
-#    ifndef TERMCOLOR2_NO_WARNING
-#      pragma message(                                                      \
-          "You cannot enable gnu-string-literal-operator-template on MSVC." \
-      )
-#    endif // !TERMCOLOR2_NO_WARNING
-#  elif !defined(TERMCOLOR2_NO_WARNING)
-#    warning \
-        "gnu-string-literal-operator-template is enabled." \
-             "You will see a warning associated with it." \
-             "If you want to hide warning, please pass -Wno-gnu-string-literal-operator-template to compiler option."
-#  endif // !_MSC_VER
-#endif   // !TERMCOLOR2_USE_GNU_STRING_LITERAL_OPERATOR_TEMPLATE
-
 #endif // POAC_UTIL_TERMCOLOR2_CONFIG_HPP_
