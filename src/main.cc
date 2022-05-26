@@ -7,7 +7,8 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/variadic/to_seq.hpp>
-#include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <spdlog/sinks/stdout_sinks.h> // NOLINT(build/include_order)
+#include <spdlog/spdlog.h>             // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal
@@ -148,6 +149,7 @@ exec(const structopt::app& app, const Commands& args) {
 int
 main(const int argc, char* argv[]) {
   spdlog::set_pattern("%v");
+  auto err_logger = spdlog::stderr_logger_st("stderr");
   auto app = structopt::app("poac", POAC_VERSION);
 
   try {
@@ -162,8 +164,8 @@ main(const int argc, char* argv[]) {
 
     // Subcommands
     return exec(app, args)
-        .map_err([](const auto& e) {
-          spdlog::error(
+        .map_err([err_logger](const auto& e) {
+          err_logger->error(
               "{} {}", "Error:"_bold_red,
               colorize_anyhow_error(format("{}", e->what()))
           );
@@ -174,7 +176,7 @@ main(const int argc, char* argv[]) {
       // try correcting typo
       if (const auto sugg =
               util::lev_distance::find_similar_str(argv[1], command_list)) {
-        spdlog::error(
+        err_logger->error(
             "{}\n"
             "  --> Did you mean `{}`?\n\n"
             "For more information, try {}",
@@ -183,16 +185,16 @@ main(const int argc, char* argv[]) {
         return EXIT_FAILURE;
       }
     }
-    spdlog::error(
+    err_logger->error(
         "{}\n\nFor more information, try {}",
         colorize_structopt_error(e.what()), "--help"_green
     );
     return EXIT_FAILURE;
   } catch (const std::exception& e) {
-    spdlog::error("{} {}", "Error:"_bold_red, e.what());
+    err_logger->error("{} {}", "Error:"_bold_red, e.what());
     return EXIT_FAILURE;
   } catch (...) {
-    spdlog::error(
+    err_logger->error(
         "{} Unknown error occurred\n\n"
         "Please open an issue with reproducible information at:\n"
         "https://github.com/poacpm/poac/issues",
