@@ -148,8 +148,6 @@ exec(const structopt::app& app, const Commands& args) {
 int
 main(const int argc, char* argv[]) {
   spdlog::set_pattern("%v");
-  // Temporarily force colorizing until parsing command line arguments is done
-  termcolor2::set_color_mode(spdlog::color_mode::always);
   auto app = structopt::app("poac", POAC_VERSION);
 
   try {

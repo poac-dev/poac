@@ -36,7 +36,8 @@ public:
   }
 
 private:
-  bool should_do_colors_ = false;
+  // default: automatic
+  bool should_do_colors_ = spdlog::details::os::is_color_terminal();
 };
 
 } // namespace termcolor2::details
