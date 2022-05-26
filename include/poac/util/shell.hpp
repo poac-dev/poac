@@ -1,27 +1,29 @@
+// This file is header-only and does not depend on "poac/poac.hpp" because of
+// being used for UI tests.
+
 #ifndef POAC_UTIL_SHELL_HPP_
 #define POAC_UTIL_SHELL_HPP_
 
 // std
+#include <array>
 #include <iostream>
+#include <optional>
 #include <string>
-
-// internal
-#include "poac/poac.hpp"
 
 namespace poac::util::shell {
 
 class Cmd {
 public:
-  inline String
+  inline std::string
   string() const {
     return cmd;
   }
 
   Cmd() : cmd() {}
-  explicit Cmd(const String& c) : cmd(c) {}
+  explicit Cmd(const std::string& c) : cmd(c) {}
 
   inline Cmd&
-  env(const String& name, const String& value) {
+  env(const std::string& name, const std::string& value) {
     cmd.insert(0, name + "=" + value + " ");
     return *this;
   }
@@ -49,10 +51,28 @@ public:
   // TODO(ken-matsui): Do we need to return result that captures all piped
   //  stderr and stdout? We cannot simultaneously know errors and their
   //  contents.
-  Option<String>
-  exec() const;
+  inline std::optional<std::string>
+  exec() const {
+    std::array<char, 128> buffer{};
+    std::string result;
 
-  inline i32
+    if (FILE* pipe = popen(cmd.c_str(), "r")) {
+      while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
+        result += buffer.data();
+      }
+      if (const std::int32_t code = pclose(pipe); code != 0) {
+        std::cout << result;
+        // TODO(ken-matsui): When errored and piped errors to stdout,
+        //  I want to return result stored by them.
+        return std::nullopt;
+      }
+    } else {
+      return std::nullopt;
+    }
+    return result;
+  }
+
+  inline std::int32_t
   exec_no_capture() const {
     return std::system(cmd.c_str());
   }
@@ -67,7 +87,7 @@ public:
     return this->cmd == rhs.cmd;
   }
   inline bool
-  operator==(const String& rhs) const {
+  operator==(const std::string& rhs) const {
     return this->cmd == rhs;
   }
 
@@ -76,7 +96,7 @@ public:
     return Cmd(this->cmd + " && " + rhs.cmd);
   }
   inline Cmd
-  operator&&(const String& rhs) const {
+  operator&&(const std::string& rhs) const {
     return Cmd(this->cmd + " && " + rhs);
   }
 
@@ -86,7 +106,7 @@ public:
     return *this;
   }
   inline Cmd&
-  operator&=(const String& rhs) {
+  operator&=(const std::string& rhs) {
     this->cmd += " && " + rhs;
     return *this;
   }
@@ -96,7 +116,7 @@ public:
     return Cmd(this->cmd + " || " + rhs.cmd);
   }
   inline Cmd
-  operator||(const String& rhs) const {
+  operator||(const std::string& rhs) const {
     return Cmd(this->cmd + " || " + rhs);
   }
 
@@ -106,7 +126,7 @@ public:
     return *this;
   }
   inline Cmd&
-  operator|=(const String& rhs) {
+  operator|=(const std::string& rhs) {
     this->cmd += " || " + rhs;
     return *this;
   }
@@ -116,7 +136,7 @@ public:
     return Cmd(this->cmd + " " + rhs.cmd);
   }
   inline Cmd
-  operator+(const String& rhs) const {
+  operator+(const std::string& rhs) const {
     return Cmd(this->cmd + " " + rhs);
   }
 
@@ -126,17 +146,17 @@ public:
     return *this;
   }
   inline Cmd&
-  operator+=(const String& rhs) {
+  operator+=(const std::string& rhs) {
     this->cmd += " " + rhs;
     return *this;
   }
 
 private:
-  String cmd;
+  std::string cmd;
 }; // NOLINT(readability/braces)
 
 inline bool
-has_command(const String& c) {
+has_command(const std::string& c) {
   return Cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
 }
 
