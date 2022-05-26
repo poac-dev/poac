@@ -87,7 +87,7 @@ jobs:
           git clone -q -b openssl-${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
           cd openssl
           [[ "${{ matrix.build_type }}" = 'Debug' ]] && USE_STATIC='' || USE_STATIC='--static -static'
-          ./config "$USE_STATIC" --prefix=${{ runner.temp }}/libs/openssl
+          ./config -fPIC "$USE_STATIC" --prefix=${{ runner.temp }}/libs/openssl
           make
           sudo make install
           echo "OPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl" >> "$GITHUB_ENV"
