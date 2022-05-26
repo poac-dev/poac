@@ -16,7 +16,7 @@ required_config_exists(const Path& base) noexcept {
     return Ok();
   }
   return Err(
-      format("required config file `{}` does not exist", config_path.string())
+      format("required manifest file `{}` does not exist", data::manifest::name)
   );
 }
 
