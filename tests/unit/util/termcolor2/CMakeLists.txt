@@ -15,6 +15,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
+        spdlog::spdlog
     )
     add_test(
         NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
