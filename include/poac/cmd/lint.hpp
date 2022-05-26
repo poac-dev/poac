@@ -19,7 +19,7 @@ struct Options : structopt::sub_command {
 inline const Path config_file(config::path::cur_dir / "CPPLINT.cfg");
 
 using CppLintNotFound = Error<
-    "`lint` command requires `cpplint`; try installing it by:"
+    "`lint` command requires `cpplint`; try installing it by:\n"
     "  pip install cpplint">;
 
 [[nodiscard]] Result<void>
