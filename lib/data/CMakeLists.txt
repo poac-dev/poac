@@ -3,6 +3,10 @@ add_library(poac_data
 )
 
 target_compile_features(poac_data PUBLIC cxx_std_20)
+target_compile_definitions(poac_data PUBLIC
+    TOML11_NO_ERROR_PREFIX
+    TOML11_COLORIZE_ERROR_MESSAGE
+)
 target_include_directories(poac_data PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
 )
