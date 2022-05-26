@@ -1,6 +1,7 @@
 include_guard(GLOBAL)
 
 if (APPLE)
+    # ref: https://stackoverflow.com/a/3801032
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native")
 elseif (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -14,7 +15,7 @@ elseif (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     elseif (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         # ref: https://gist.github.com/ken-matsui/f6c736ea9623cc15e0a1e8912cae5718
         # I'm not sure why, but this fails on GCC with release builds
-        set(STATIC_LINK_FLAG "-static") # ref: https://stackoverflow.com/a/3801032
+        set(STATIC_LINK_FLAG "-static")
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
     endif ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")

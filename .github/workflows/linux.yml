@@ -70,28 +70,7 @@ jobs:
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
 
       - name: Install openssl
-        if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y -qq libssl-dev
-
-      - name: Restore & Cache openssl (${{ env.OPENSSL_VERSION }})
-        if: startsWith(matrix.compiler.cc, 'gcc')
-        uses: actions/cache@v3.0.2
-        id: openssl-cache
-        with:
-          path: ${{ runner.temp }}/libs/openssl
-          key: ${{ env.CACHE_KEY_PREFIX }}-openssl-${{ env.OPENSSL_VERSION }}
-      - name: Install openssl (${{ env.OPENSSL_VERSION }})
-        if: startsWith(matrix.compiler.cc, 'gcc') && steps.openssl-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/openssl
-          git clone -q -b openssl-${{ env.OPENSSL_VERSION }} https://github.com/openssl/openssl.git
-          cd openssl
-          [[ "${{ matrix.build_type }}" = 'Debug' ]] && USE_STATIC='' || USE_STATIC='--static -static'
-          ./config "$USE_STATIC" --prefix=${{ runner.temp }}/libs/openssl
-          make
-          sudo make install
-          echo "OPENSSL_ROOT_DIR=${{ runner.temp }}/libs/openssl" >> "$GITHUB_ENV"
-        working-directory: ${{ runner.temp }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
         uses: actions/cache@v3.0.2
