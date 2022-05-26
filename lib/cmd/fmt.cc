@@ -37,6 +37,10 @@ fmt(StringRef args) {
       }
     }
   }
+  if (targets.empty()) {
+    spdlog::info("no targets found.");
+    return Ok();
+  }
 
   const String clang_format =
       format("clang-format {} {}", args, ::fmt::join(targets, " "));
