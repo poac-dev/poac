@@ -5,6 +5,7 @@ int
 main() {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
+  termcolor2::set_color_mode(spdlog::color_mode::always); // for CI
 
   "test foreground_literals"_test = [] {
     using namespace termcolor2::color_literals::foreground_literals;

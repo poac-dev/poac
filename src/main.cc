@@ -28,6 +28,8 @@ struct Commands {
   Option<bool> verbose = false;
   /// Do not print poac log messages
   Option<bool> quiet = false;
+  /// Coloring: auto, always, never
+  Option<String> color = "auto";
 
   /// Compile a local package and all of its dependencies
   cmd::build::Options build;
@@ -65,8 +67,8 @@ struct Commands {
 #define DECL_CMDS(...) \
   inline const Vec<StringRef> command_list { TO_STRINGS(__VA_ARGS__) }
 
-#define structopt(...)                              \
-  STRUCTOPT(Commands, verbose, quiet, __VA_ARGS__); \
+#define structopt(...)                                     \
+  STRUCTOPT(Commands, verbose, quiet, color, __VA_ARGS__); \
   DECL_CMDS(__VA_ARGS__)
 
 structopt(build, create, fmt, init, lint, login, publish, run, search);
@@ -97,8 +99,28 @@ colorize_help(String s) {
   return s;
 }
 
+using ColorError = poac::Error<
+    "argument for --color must be `auto`, `always`, or `never`, but found `{}`",
+    StringRef>;
+
+[[nodiscard]] Result<void>
+set_color_mode(StringRef color_mode) {
+  if (color_mode == "auto") {
+    termcolor2::set_color_mode(spdlog::color_mode::automatic);
+  } else if (color_mode == "always") {
+    termcolor2::set_color_mode(spdlog::color_mode::always);
+  } else if (color_mode == "never") {
+    termcolor2::set_color_mode(spdlog::color_mode::never);
+  } else {
+    return Err<ColorError>(color_mode);
+  }
+  return Ok();
+}
+
 [[nodiscard]] Result<void>
 exec(const structopt::app& app, const Commands& args) {
+  Try(set_color_mode(args.color.value()));
+
   if (args.build.has_value()) {
     return cmd::build::exec(args.build);
   } else if (args.create.has_value()) {

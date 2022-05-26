@@ -6,6 +6,7 @@
 #include <string_view> // std::basic_string_view
 
 // internal
+#include "poac/util/termcolor2/control.hpp"
 #include "poac/util/termcolor2/presets.hpp"
 
 namespace termcolor2 {
@@ -13,7 +14,21 @@ namespace termcolor2 {
 template <typename Fn, typename CharT>
 inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
 to_color(Fn&& fn, const std::basic_string<CharT>& str) {
-  return fn() + str + reset_v<CharT>();
+  if (should_color()) {
+    return fn() + str + reset_v<CharT>();
+  } else {
+    return str;
+  }
+}
+
+template <typename Fn1, typename Fn2, typename CharT>
+inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
+to_color2(Fn1&& f1, Fn2&& f2, const std::basic_string<CharT>& str) {
+  if (should_color()) {
+    return f1() + f2() + str + reset_v<CharT>();
+  } else {
+    return str;
+  }
 }
 
 //
