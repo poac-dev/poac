@@ -166,49 +166,49 @@ inline TERMCOLOR2_CXX20_CONSTINIT const auto on_white = on_white_v();
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 bold_v() {
-  return CHAR_LITERAL(CharT, "\033[1m");
+  return CHAR_LITERAL(CharT, "\033[01m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto bold = bold_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 dark_v() {
-  return CHAR_LITERAL(CharT, "\033[2m");
+  return CHAR_LITERAL(CharT, "\033[02m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto dark = dark_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 underline_v() {
-  return CHAR_LITERAL(CharT, "\033[4m");
+  return CHAR_LITERAL(CharT, "\033[04m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto underline = underline_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 blink_v() {
-  return CHAR_LITERAL(CharT, "\033[5m");
+  return CHAR_LITERAL(CharT, "\033[05m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto blink = blink_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 reverse_v() {
-  return CHAR_LITERAL(CharT, "\033[7m");
+  return CHAR_LITERAL(CharT, "\033[07m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto reverse = reverse_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 concealed_v() {
-  return CHAR_LITERAL(CharT, "\033[8m");
+  return CHAR_LITERAL(CharT, "\033[08m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto concealed = concealed_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 reset_v() {
-  return CHAR_LITERAL(CharT, "\033[0m");
+  return CHAR_LITERAL(CharT, "\033[00m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto reset = reset_v();
 
