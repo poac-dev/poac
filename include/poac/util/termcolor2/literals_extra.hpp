@@ -93,13 +93,15 @@ operator"" _bold_yellow(const char8_t* str, std::size_t len) {
 inline std::basic_string<char16_t>
 operator"" _bold_yellow(const char16_t* str, std::size_t len) {
   return to_color2(
-      bold_v<char16_t>, yellow_v<char16_t>, std::basic_string<char16_t>(str, len)
+      bold_v<char16_t>, yellow_v<char16_t>,
+      std::basic_string<char16_t>(str, len)
   );
 }
 inline std::basic_string<char32_t>
 operator"" _bold_yellow(const char32_t* str, std::size_t len) {
   return to_color2(
-      bold_v<char32_t>, yellow_v<char32_t>, std::basic_string<char32_t>(str, len)
+      bold_v<char32_t>, yellow_v<char32_t>,
+      std::basic_string<char32_t>(str, len)
   );
 }
 
