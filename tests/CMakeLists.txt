@@ -8,5 +8,5 @@
 #   https://cmake.org/cmake/help/latest/prop_tgt/INTERFACE_COMPILE_OPTIONS.html
 set_property(TARGET ut PROPERTY INTERFACE_COMPILE_OPTIONS)
 
-#add_subdirectory(ui)
+add_subdirectory(ui)
 add_subdirectory(unit)

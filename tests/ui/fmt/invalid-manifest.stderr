@@ -1,0 +1,5 @@
+Error: key "name" not found
+ --> poac.toml
+   |
+ 1 | [package]
+   | ~~~~~~~~~ in this table
