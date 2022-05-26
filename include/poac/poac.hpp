@@ -161,7 +161,11 @@ namespace log {
   template <typename T>
   inline void
   status(StringRef header, T&& msg) {
-    spdlog::info("{:>25} {}", header, std::forward<T>(msg));
+    if (termcolor2::should_color()) {
+      spdlog::info("{:>25} {}", header, std::forward<T>(msg));
+    } else {
+      spdlog::info("{:>12} {}", header, std::forward<T>(msg));
+    }
   }
   template <typename... Args>
   inline void
