@@ -162,7 +162,7 @@ namespace log {
   inline void
   status(StringRef header, T&& msg) {
     if (termcolor2::should_color()) {
-      spdlog::info("{:>25} {}", header, std::forward<T>(msg));
+      spdlog::info("{:>27} {}", header, std::forward<T>(msg));
     } else {
       spdlog::info("{:>12} {}", header, std::forward<T>(msg));
     }
