@@ -71,16 +71,17 @@ public:
   exec() const {
     std::array<char, 128> buffer{};
     std::string result;
-
-    if (FILE* pipe = popen(cmd.c_str(), "r")) {
-      while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
-        result += buffer.data();
-      }
-      if (const std::int32_t code = pclose(pipe); code != 0) {
-        return {code, result};
-      }
-    } else {
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) {
       return {1, ""};
+    }
+    while (std::fgets(buffer.data(), 128, pipe) != nullptr) {
+      result += buffer.data();
+    }
+
+    const std::int32_t code = pclose(pipe);
+    if (code != 0) {
+      return {code, result};
     }
     return {0, result};
   }
