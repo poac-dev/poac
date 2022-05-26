@@ -25,7 +25,7 @@ public:
     }
   }
   inline bool
-  should_color() {
+  should_color() const {
     return should_do_colors_;
   }
 
