@@ -1,5 +1,5 @@
-// This file is header-only and does not depend on "poac/poac.hpp" because of
-// being used for UI tests.
+// This file is specially header-only and does not depend on "poac/poac.hpp"
+// because of being used for UI tests.
 
 #ifndef POAC_UTIL_SHELL_HPP_
 #define POAC_UTIL_SHELL_HPP_
@@ -7,8 +7,8 @@
 // std
 #include <array>
 #include <iostream>
-#include <optional>
 #include <string>
+#include <utility>
 
 namespace poac::util::shell {
 
@@ -48,10 +48,26 @@ public:
     return *this;
   }
 
-  // TODO(ken-matsui): Do we need to return result that captures all piped
-  //  stderr and stdout? We cannot simultaneously know errors and their
-  //  contents.
-  inline std::optional<std::string>
+  struct SimpleResult : std::pair<std::int32_t, std::string> {
+    SimpleResult(std::int32_t c, const std::string& r)
+        : std::pair<std::int32_t, std::string>({c, r}) {}
+
+    inline bool
+    is_ok() const {
+      return first == 0;
+    }
+    inline bool
+    is_err() const {
+      return !is_ok();
+    }
+    inline std::string
+    output() const {
+      return second;
+    }
+    explicit inline operator bool() const { return is_ok(); }
+  };
+
+  inline SimpleResult
   exec() const {
     std::array<char, 128> buffer{};
     std::string result;
@@ -61,15 +77,12 @@ public:
         result += buffer.data();
       }
       if (const std::int32_t code = pclose(pipe); code != 0) {
-        std::cout << result;
-        // TODO(ken-matsui): When errored and piped errors to stdout,
-        //  I want to return result stored by them.
-        return std::nullopt;
+        return {code, result};
       }
     } else {
-      return std::nullopt;
+      return {1, ""};
     }
-    return result;
+    return {0, result};
   }
 
   inline std::int32_t
@@ -157,7 +170,7 @@ private:
 
 inline bool
 has_command(const std::string& c) {
-  return Cmd("type " + c + " >/dev/null 2>&1").exec().has_value();
+  return Cmd("type " + c + " >/dev/null 2>&1").exec().is_ok();
 }
 
 } // namespace poac::util::shell
