@@ -1,6 +1,7 @@
 add_library(poac_core_builder_compiler_cxx
     apple_clang.cc
     clang.cc
+    cxx.cc
     gcc.cc
 )
 
