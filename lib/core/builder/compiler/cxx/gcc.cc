@@ -9,14 +9,15 @@ namespace poac::core::builder::compiler::cxx::gcc {
 [[nodiscard]] Result<semver::Version>
 get_compiler_version(const String& compiler_command) {
   const auto res = util::shell::Cmd(compiler_command + " --version").exec();
-  if (res.has_value()) {
+  if (res.is_ok()) {
     // `g++ (GCC) 11.2.0\n`
+    const String output = res.output();
     String version;
-    for (usize i = 10; i < res->size(); ++i) {
-      if (res->operator[](i) == '\n') { // read until '\n'
+    for (usize i = 10; i < output.size(); ++i) {
+      if (output[i] == '\n') { // read until '\n'
         break;
       }
-      version += res->operator[](i);
+      version += output[i];
     }
     return Ok(semver::parse(version));
   }

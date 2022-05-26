@@ -49,8 +49,8 @@ main() {
 
   // boost::optional<std::string> exec()
   "test exec"_test = [] {
-    expect(eq(Cmd("echo test").exec().value(), "test\n"s));
-    expect(!Cmd("nocmd").exec().has_value());
+    expect(eq(Cmd("echo test").exec().output(), "test\n"s));
+    expect(Cmd("nocmd").exec().is_err());
   };
 
   // bool exec_ignore()

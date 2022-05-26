@@ -28,7 +28,7 @@ get_compiler_ident(const String& compiler_command) {
     if (const auto res = util::shell::Cmd(compiler + " --version")
                              .stderr_to_stdout()
                              .exec()) {
-      if (res.value().find("Apple") != SNone) {
+      if (res.output().find("Apple") != SNone) {
         return Ok(util::cfg::compiler::apple_clang);
       }
     }

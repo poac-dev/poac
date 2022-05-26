@@ -9,14 +9,15 @@ namespace poac::core::builder::compiler::cxx::clang {
 [[nodiscard]] Result<semver::Version>
 get_compiler_version(const String& compiler_command) {
   const auto res = util::shell::Cmd(compiler_command + " --version").exec();
-  if (res.has_value()) {
+  if (res.is_ok()) {
     // `clang version 12.0.0 (...)`
+    const String output = res.output();
     String version;
-    for (usize i = 14; i < res->size(); ++i) {
-      if (res->operator[](i) == ' ') { // read until space
+    for (usize i = 14; i < output.size(); ++i) {
+      if (output[i] == ' ') { // read until space
         break;
       }
-      version += res->operator[](i);
+      version += output[i];
     }
     return Ok(semver::parse(version));
   }
