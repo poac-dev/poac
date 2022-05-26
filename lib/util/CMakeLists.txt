@@ -6,7 +6,6 @@ add_library(poac_util
     net.cc
     pretty.cc
     sha256.cc
-    shell.cc
 )
 
 target_compile_features(poac_util PUBLIC cxx_std_20)
