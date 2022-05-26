@@ -48,56 +48,56 @@ namespace detail {
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 gray_v() {
-  return CHAR_LITERAL(CharT, "\x1b[30m");
+  return CHAR_LITERAL(CharT, "\033[30m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto gray = gray_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 red_v() {
-  return CHAR_LITERAL(CharT, "\x1b[31m");
+  return CHAR_LITERAL(CharT, "\033[31m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto red = red_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 green_v() {
-  return CHAR_LITERAL(CharT, "\x1b[32m");
+  return CHAR_LITERAL(CharT, "\033[32m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto green = green_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 yellow_v() {
-  return CHAR_LITERAL(CharT, "\x1b[33m");
+  return CHAR_LITERAL(CharT, "\033[33m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto yellow = yellow_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 blue_v() {
-  return CHAR_LITERAL(CharT, "\x1b[34m");
+  return CHAR_LITERAL(CharT, "\033[34m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto blue = blue_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 magenta_v() {
-  return CHAR_LITERAL(CharT, "\x1b[35m");
+  return CHAR_LITERAL(CharT, "\033[35m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto magenta = magenta_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 cyan_v() {
-  return CHAR_LITERAL(CharT, "\x1b[36m");
+  return CHAR_LITERAL(CharT, "\033[36m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto cyan = cyan_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 white_v() {
-  return CHAR_LITERAL(CharT, "\x1b[37m");
+  return CHAR_LITERAL(CharT, "\033[37m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto white = white_v();
 
@@ -107,56 +107,56 @@ inline TERMCOLOR2_CXX20_CONSTINIT const auto white = white_v();
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_gray_v() {
-  return CHAR_LITERAL(CharT, "\x1b[40m");
+  return CHAR_LITERAL(CharT, "\033[40m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_gray = on_gray_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_red_v() {
-  return CHAR_LITERAL(CharT, "\x1b[41m");
+  return CHAR_LITERAL(CharT, "\033[41m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_red = on_red_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_green_v() {
-  return CHAR_LITERAL(CharT, "\x1b[42m");
+  return CHAR_LITERAL(CharT, "\033[42m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_green = on_green_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_yellow_v() {
-  return CHAR_LITERAL(CharT, "\x1b[43m");
+  return CHAR_LITERAL(CharT, "\033[43m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_yellow = on_yellow_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_blue_v() {
-  return CHAR_LITERAL(CharT, "\x1b[44m");
+  return CHAR_LITERAL(CharT, "\033[44m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_blue = on_blue_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_magenta_v() {
-  return CHAR_LITERAL(CharT, "\x1b[45m");
+  return CHAR_LITERAL(CharT, "\033[45m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_magenta = on_magenta_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_cyan_v() {
-  return CHAR_LITERAL(CharT, "\x1b[46m");
+  return CHAR_LITERAL(CharT, "\033[46m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_cyan = on_cyan_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 on_white_v() {
-  return CHAR_LITERAL(CharT, "\x1b[47m");
+  return CHAR_LITERAL(CharT, "\033[47m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto on_white = on_white_v();
 
@@ -166,49 +166,49 @@ inline TERMCOLOR2_CXX20_CONSTINIT const auto on_white = on_white_v();
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 bold_v() {
-  return CHAR_LITERAL(CharT, "\x1b[1m");
+  return CHAR_LITERAL(CharT, "\033[1m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto bold = bold_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 dark_v() {
-  return CHAR_LITERAL(CharT, "\x1b[2m");
+  return CHAR_LITERAL(CharT, "\033[2m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto dark = dark_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 underline_v() {
-  return CHAR_LITERAL(CharT, "\x1b[4m");
+  return CHAR_LITERAL(CharT, "\033[4m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto underline = underline_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 blink_v() {
-  return CHAR_LITERAL(CharT, "\x1b[5m");
+  return CHAR_LITERAL(CharT, "\033[5m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto blink = blink_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 reverse_v() {
-  return CHAR_LITERAL(CharT, "\x1b[7m");
+  return CHAR_LITERAL(CharT, "\033[7m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto reverse = reverse_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 concealed_v() {
-  return CHAR_LITERAL(CharT, "\x1b[8m");
+  return CHAR_LITERAL(CharT, "\033[8m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto concealed = concealed_v();
 
 template <typename CharT = char>
 inline TERMCOLOR2_CXX20_CONSTEVAL_FN std::basic_string<CharT>
 reset_v() {
-  return CHAR_LITERAL(CharT, "\x1b[0m");
+  return CHAR_LITERAL(CharT, "\033[0m");
 }
 inline TERMCOLOR2_CXX20_CONSTINIT const auto reset = reset_v();
 
