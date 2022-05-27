@@ -11,7 +11,6 @@ __poac() {
   local prev=${COMP_WORDS[COMP_CWORD-1]}
 
   case "${prev}" in
-    uninstall) COMPREPLY=$(ls ./deps) ;;
     *) COMPREPLY=($__poac_commands) ;;
   esac
 
@@ -28,15 +27,12 @@ fi
 
 complete -F __poac poac
 
-__poac_commands='cache
-doc
+__poac_commands='build
+create
+fmt
 init
-install
+lint
 login
-new
 publish
-root
 run
-search
-uninstall
-update'
+search'
