@@ -106,7 +106,14 @@ jobs:
         run: ctest --output-on-failure --verbose
         working-directory: build
 
-      - name: Running test
+      - name: Install required software to process UI tests
+        run: sudo apt-get install -y -qq clang-format
+
+      - name: UI Test
+        run: ctest --output-on-failure --verbose
+        working-directory: build
+
+      - name: Print help
         run: ./poac --help
         working-directory: build
 
