@@ -100,23 +100,6 @@ colorize_help(String s) {
   return s;
 }
 
-String
-uncolorize_toml11_error(String s) {
-  using namespace termcolor2;
-
-  const String colors[] = {
-      gray_v(),     red_v(),       green_v(),   yellow_v(),     blue_v(),
-      magenta_v(),  cyan_v(),      white_v(),   on_gray_v(),    on_red_v(),
-      on_green_v(), on_yellow_v(), on_blue_v(), on_magenta_v(), on_cyan_v(),
-      on_white_v(), bold_v(),      dark_v(),    underline_v(),  blink_v(),
-      reverse_v(),  concealed_v(), reset_v(),
-  };
-  for (StringRef c : colors) {
-    boost::replace_all(s, c, "");
-  }
-  return s;
-}
-
 using ColorError = poac::Error<
     "argument for --color must be `auto`, `always`, or `never`, but found `{}`",
     StringRef>;
@@ -125,10 +108,17 @@ using ColorError = poac::Error<
 set_color_mode(StringRef color_mode) {
   if (color_mode == "auto") {
     termcolor2::set_color_mode(spdlog::color_mode::automatic);
+    if (termcolor2::should_color()) {
+      toml::color::enable();
+    } else {
+      toml::color::disable();
+    }
   } else if (color_mode == "always") {
     termcolor2::set_color_mode(spdlog::color_mode::always);
+    toml::color::enable();
   } else if (color_mode == "never") {
     termcolor2::set_color_mode(spdlog::color_mode::never);
+    toml::color::disable();
   } else {
     return Err<ColorError>(color_mode);
   }
@@ -207,11 +197,7 @@ main(const int argc, char* argv[]) {
     );
     return EXIT_FAILURE;
   } catch (const std::exception& e) {
-    if (termcolor2::should_color()) {
-      log::error(err_logger, e.what());
-    } else {
-      log::error(err_logger, uncolorize_toml11_error(e.what()));
-    }
+    log::error(err_logger, e.what());
     return EXIT_FAILURE;
   } catch (...) {
     err_logger->error(

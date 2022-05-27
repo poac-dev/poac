@@ -296,8 +296,8 @@ Poac requires the following compilers, tools, and libraries to build:
 * [`structopt`](https://github.com/p-ranav/structopt): [`e9722d3`](https://github.com/p-ranav/structopt/commit/e9722d3c2b52cf751ebc1911b93d9649c4e365cc) or later
   * requires [this commit](https://github.com/p-ranav/structopt/commit/e9722d3c2b52cf751ebc1911b93d9649c4e365cc)
   * awaiting the next release above [`v0.1.3`](https://github.com/p-ranav/structopt/releases/tag/v0.1.3)
-* [`toml11`](https://github.com/ToruNiina/toml11): [`c26aa01`](https://github.com/ToruNiina/toml11/commit/c26aa013cdc75286f90e6d9f661c14890b3f358f) or later
-  * requires [this commit](https://github.com/ToruNiina/toml11/commit/c26aa013cdc75286f90e6d9f661c14890b3f358f)
+* [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
+  * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
   * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
 
 **dev-dependencies**
