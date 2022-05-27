@@ -2,6 +2,7 @@
 #define TESTS_UI_UTIL_UI_TEST_UTIL_HPP_
 
 // std
+#include <algorithm> // std::shuffle
 #include <filesystem>
 #include <fstream>
 #include <initializer_list>
