@@ -6,7 +6,6 @@ on:
   pull_request:
 
 env:
-  OPENSSL_VERSION: 3.0.3
   BOOST_VERSION: 1.79.0
 
 jobs:
@@ -56,11 +55,11 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y -qq ${{ matrix.compiler.cc }}
 
-      - name: Install Ninja & ${{ matrix.compiler.subpackage }}
+      - name: Install Ninja, openssl, & ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y -qq ninja-build ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y -qq ninja-build libssl-dev ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
         if: matrix.coverage != 'on'
@@ -68,9 +67,6 @@ jobs:
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
-
-      - name: Install openssl
-        run: sudo apt-get install -y -qq libssl-dev
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
         uses: actions/cache@v3.0.2
@@ -106,7 +102,14 @@ jobs:
         run: ctest --output-on-failure --verbose
         working-directory: build
 
-      - name: Running test
+      - name: Install required software to process UI tests
+        run: sudo apt-get install -y -qq clang-format
+
+      - name: UI Test
+        run: ctest --output-on-failure --verbose
+        working-directory: build
+
+      - name: Print help
         run: ./poac --help
         working-directory: build
 

@@ -8,7 +8,7 @@
 Poac (pronounced as `/pəʊək/`) is a package manager for C++ users.
 
 Poac can download project's dependencies and compile a project.
-Please see [poac.pm](https://poac.pm), [installation instructions](https://doc.poac.pm/en/getting-started/installation.html), and [The Poac Book](https://doc.poac.pm) for more details.
+Please visit [poac.pm](https://poac.pm) and [The Poac Book](https://doc.poac.pm) for more details.
 
 ## Demo
 
@@ -159,10 +159,11 @@ $ poac fmt
 > This command automatically detects what files we need to format to avoid bothering commands like:
 >
 > ```bash
-> $ clang-format ./src/**.cpp -i
+> $ # We need to avoid the `build` dir and such dirs ...
+> $ clang-format ./src/*.cpp -i
 > $ clang-format ./include/**/*.hpp -i
 > $ clang-format ./tests/**/*.cpp -i
-> $ clang-format ...
+> $ ...
 > ```
 
 To customize the format settings, try creating a [`.clang-format`](/.clang-format) file to the repository root.
@@ -201,12 +202,6 @@ Poac is still under development and may contain a bunch of bugs.
 |                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22) |
-
-<!--
-[![GitHub Actions Windows Build](https://github.com/poacpm/poac/workflows/Windows/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Windows%22)|
--->
-
-Please see [1.1. Installation · The Poac Book](https://doc.poac.pm/en/getting-started/installation.html#supported-operating-systems) for more information about supported OS.
 
 ## Code Status
 
