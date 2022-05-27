@@ -78,9 +78,7 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
 
-    log::status(
-        "Downloaded"_bold_green, "{} v{}", package.name, package.version_rq
-    );
+    log::status("Downloaded", "{} v{}", package.name, package.version_rq);
   }
   return Ok();
 }
@@ -114,7 +112,7 @@ download_deps(const ResolvedDeps& deps) noexcept {
     return Ok();
   }
 
-  log::status("Downloading"_bold_green, "packages ...");
+  log::status("Downloading", "packages ...");
   try {
     fs::create_directories(config::path::cache_dir);
   } catch (const std::exception& e) {
@@ -192,7 +190,7 @@ resolve_deps(const toml::value& manifest) {
     return Ok(locked_deps.value());
   } else {
     // Lockfile not found or outdated. Resolve dependencies from manifest file.
-    log::status("Resolving"_bold_green, "dependencies ...");
+    log::status("Resolving", "dependencies ...");
     return get_resolved_deps(manifest);
   }
 }

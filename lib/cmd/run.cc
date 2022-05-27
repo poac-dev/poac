@@ -30,7 +30,7 @@ exec(const Options& opts) {
   }
 
   const Path executable = output.value() / name;
-  log::status("Running"_bold_green, executable);
+  log::status("Running", executable);
   if (const i32 code = util::shell::Cmd(executable).exec_no_capture();
       code != 0) {
     return Err<SubprocessFailed>(executable.string(), code);
