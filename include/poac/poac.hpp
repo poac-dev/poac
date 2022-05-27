@@ -8,6 +8,7 @@
 #include <functional> // std::equal_to
 #include <iterator>   // std::begin, std::end
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -157,12 +158,26 @@ using SubprocessFailed = Error<"`{}` completed with exit code {}", String, i32>;
 //
 namespace log {
 
+  // Printed when `--verbose`
+  template <typename T>
+  inline void
+  debug(T&& msg) {
+    spdlog::debug("[poac] {}", std::forward<T>(msg));
+  }
+  template <typename... Args>
+  inline void
+  debug(fmt::format_string<Args...> fmt, Args&&... args) {
+    debug(format(fmt, std::forward<Args>(args)...));
+  }
+
   // Printed when `no option` & `--verbose`
   template <typename T>
   inline void
   status(StringRef header, T&& msg) {
     if (termcolor2::should_color()) {
-      spdlog::info("{:>27} {}", header, std::forward<T>(msg));
+      spdlog::info(
+          "{:>27} {}", termcolor2::to_bold_green(header), std::forward<T>(msg)
+      );
     } else {
       spdlog::info("{:>12} {}", header, std::forward<T>(msg));
     }
@@ -173,17 +188,29 @@ namespace log {
     status(header, format(fmt, std::forward<Args>(args)...));
   }
 
-  // Printed when `--verbose` but would support a `--debug` flag
-  // (TODO(ken-matsui))
   template <typename T>
   inline void
-  debug(T&& msg) {
-    spdlog::debug("[poac] {}", std::forward<T>(msg));
+  warn(T&& msg) {
+    spdlog::warn("{} {}", "Warning:"_bold_yellow, std::forward<T>(msg));
   }
   template <typename... Args>
   inline void
-  debug(fmt::format_string<Args...> fmt, Args&&... args) {
-    debug(format(fmt, std::forward<Args>(args)...));
+  warn(fmt::format_string<Args...> fmt, Args&&... args) {
+    warn(format(fmt, std::forward<Args>(args)...));
+  }
+
+  template <typename T>
+  inline void
+  error(std::shared_ptr<spdlog::logger> logger, T&& msg) {
+    logger->error("{} {}", "Error:"_bold_red, std::forward<T>(msg));
+  }
+  template <typename... Args>
+  inline void
+  error(
+      std::shared_ptr<spdlog::logger> logger, fmt::format_string<Args...> fmt,
+      Args&&... args
+  ) {
+    error(logger, format(fmt, std::forward<Args>(args)...));
   }
 
 } // namespace log

@@ -167,8 +167,8 @@ int
 main(const int argc, char* argv[]) {
   spdlog::set_pattern("%v");
   auto err_logger = spdlog::stderr_logger_st("stderr");
-  auto app = structopt::app("poac", POAC_VERSION);
 
+  auto app = structopt::app("poac", POAC_VERSION);
   try {
     const auto args = app.parse<Commands>(argc, argv);
 
@@ -182,9 +182,8 @@ main(const int argc, char* argv[]) {
     // Subcommands
     return exec(app, args)
         .map_err([err_logger](const auto& e) {
-          err_logger->error(
-              "{} {}", "Error:"_bold_red,
-              colorize_anyhow_error(format("{}", e->what()))
+          log::error(
+              err_logger, colorize_anyhow_error(format("{}", e->what()))
           );
         })
         .is_err();
@@ -209,9 +208,9 @@ main(const int argc, char* argv[]) {
     return EXIT_FAILURE;
   } catch (const std::exception& e) {
     if (termcolor2::should_color()) {
-      err_logger->error("{} {}", "Error:"_bold_red, e.what());
+      log::error(err_logger, e.what());
     } else {
-      err_logger->error("{} {}", "Error:", uncolorize_toml11_error(e.what()));
+      log::error(err_logger, uncolorize_toml11_error(e.what()));
     }
     return EXIT_FAILURE;
   } catch (...) {

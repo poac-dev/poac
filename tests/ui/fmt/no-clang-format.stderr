@@ -1,0 +1,2 @@
+Error: `fmt` command requires `clang-format`; try installing it by:
+  apt/brew install clang-format

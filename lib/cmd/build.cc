@@ -24,7 +24,7 @@ build_impl(
       Try(core::builder::ninja::build::start(manifest, mode, resolved_deps));
 
   log::status(
-      "Finished"_bold_green, "{} target(s) in {}", to_string(mode),
+      "Finished", "{} target(s) in {}", to_string(mode),
       util::pretty::to_time(sw.elapsed().count())
   );
   return Ok(output_path);
@@ -40,7 +40,7 @@ build(const Options& opts, const toml::value& manifest) {
   // TODO(ken-matsui): We have to keep in mind a case of only dependencies
   //  require to be built, but this package does not.
   if (!fs::exists(config::path::main_cpp_file)) {
-    log::status("Finished"_bold_green, "no build target(s) found");
+    log::status("Finished", "no build target(s) found");
     return Ok(None);
   }
 

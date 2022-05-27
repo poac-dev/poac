@@ -33,7 +33,7 @@ exec(const Options& opts) {
   std::ofstream ofs(config::path::cred_file, std::ofstream::trunc);
   ofs << format("[registry]\ntoken = \"{}\"\n", opts.api_token);
 
-  log::status("Login"_bold_green, "token for `{}` saved", "poac.pm");
+  log::status("Login", "token for `{}` saved", "poac.pm");
   return Ok();
 }
 
