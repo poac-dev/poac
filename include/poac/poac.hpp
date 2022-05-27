@@ -186,6 +186,17 @@ namespace log {
     debug(format(fmt, std::forward<Args>(args)...));
   }
 
+  template <typename T>
+  inline void
+  warn(T&& msg) {
+    spdlog::warn("{} {}", "Warning:"_bold_yellow, std::forward<T>(msg));
+  }
+  template <typename... Args>
+  inline void
+  warn(fmt::format_string<Args...> fmt, Args&&... args) {
+    warn(format(fmt, std::forward<Args>(args)...));
+  }
+
 } // namespace log
 
 } // namespace poac

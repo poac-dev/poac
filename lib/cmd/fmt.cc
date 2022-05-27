@@ -66,7 +66,11 @@ exec(const Options& opts) {
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest = toml::parse(data::manifest::name);
-  const String name = toml::find<String>(manifest, "package", "name");
+  String name = toml::find<String>(manifest, "package", "name");
+  if (name.empty()) {
+    log::warn("project name is empty; try setting anything you want.");
+    name = "<empty>";
+  }
 
   String args = "--style=file --fallback-style=LLVM -Werror ";
   if (util::verbosity::is_verbose()) {
