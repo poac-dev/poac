@@ -287,9 +287,8 @@ Poac requires the following compilers, tools, and libraries to build:
 * [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
   * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
 * [`libgit2`](https://github.com/libgit2/libgit2): [`0.27`](https://github.com/libgit2/libgit2/releases/tag/v0.27.7) or later
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`ec7f22a`](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819) or later
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`v9.3.0`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.3.0) or later
   * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
-  * awaiting the next release above [`v9.2.1`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.2.1)
 * [`ninja`](https://github.com/ninja-build/ninja): [`master`](https://github.com/ninja-build/ninja/tree/master) branch
   * requires [`src/status.h`](https://github.com/ninja-build/ninja/blob/ad3d29fb5375c3122b2318ea5efad170b83e74e5/src/status.h)
   * awaiting the next release above [`v1.10.2`](https://github.com/ninja-build/ninja/releases/tag/v1.10.2)
