@@ -7,7 +7,7 @@
 #include <string_view> // std::basic_string_view
 
 // internal
-#include "poac/util/termcolor2/control.hpp"
+#include "poac/util/termcolor2/color_mode.hpp"
 #include "poac/util/termcolor2/presets.hpp"
 
 namespace termcolor2 {
