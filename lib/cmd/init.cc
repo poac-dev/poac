@@ -33,9 +33,7 @@ init(const Options& opts, StringRef package_name) {
       unreachable();
   }
 
-  log::status(
-      "Created"_bold_green, "{} `{}` package", to_string(type), package_name
-  );
+  log::status("Created", "{} `{}` package", to_string(type), package_name);
   return Ok();
 }
 

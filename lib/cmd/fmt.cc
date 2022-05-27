@@ -80,7 +80,7 @@ exec(const Options& opts) {
     args += "--dry-run";
   } else {
     args += "-i";
-    log::status("Formatting"_bold_green, name);
+    log::status("Formatting", name);
   }
   return fmt(args);
 }

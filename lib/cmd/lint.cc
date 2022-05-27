@@ -16,7 +16,7 @@ namespace poac::cmd::lint {
 
 [[nodiscard]] Result<void>
 lint(StringRef name, Option<String> args) {
-  log::status("Linting"_bold_green, name);
+  log::status("Linting", name);
 
   String cpplint = "cpplint ";
   if (!args.has_value()) {
