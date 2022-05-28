@@ -14,7 +14,6 @@ main() {
     cfg<override> = {.tag = {"no-cf"}};
   }
 
-  tag("no-cf") / "no clang-format"_test = [] {
-    uitest<Target::Stderr>(__FILE__, {"fmt"});
-  };
+  tag("no-cf") /
+      "no clang-format"_test = [] { uitest<Target::Stderr>({"fmt"}); };
 }

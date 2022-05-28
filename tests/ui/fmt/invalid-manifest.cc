@@ -22,6 +22,6 @@ main() {
     std::ofstream ofs(temp_dir / "poac.toml");
     ofs << "[package]";
     ofs.close();
-    uitest<Target::Stderr>(__FILE__, {"fmt"}, temp_dir);
+    uitest<Target::Stderr>({"fmt"}, temp_dir);
   };
 }

@@ -14,6 +14,5 @@ main() {
     cfg<override> = {.tag = {"has-cf"}};
   }
 
-  tag("has-cf") /
-      "no manifest"_test = [] { uitest<Target::Stderr>(__FILE__, {"fmt"}); };
+  tag("has-cf") / "no manifest"_test = [] { uitest<Target::Stderr>({"fmt"}); };
 }
