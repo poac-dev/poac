@@ -2,7 +2,6 @@
 #define POAC_UTIL_TERMCOLOR2_PRESETS_HPP_
 
 // std
-#include <concepts>
 #include <string>
 #include <type_traits>
 

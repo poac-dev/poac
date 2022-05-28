@@ -210,12 +210,6 @@ operator|(Range&& range, containerized_tag) {
   return containerize(std::forward<Range>(range));
 }
 
-// FIXME: Waiting for full support of concepts on Apple Clang
-// ref: https://en.cppreference.com/w/cpp/concepts/derived_from
-template <class Derived, class Base>
-concept derived_from = std::is_base_of_v<Base, Derived> &&
-    std::is_convertible_v<const volatile Derived*, const volatile Base*>;
-
 } // namespace poac::util::meta
 
 #endif // POAC_UTIL_META_HPP_
