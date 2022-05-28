@@ -2,7 +2,6 @@
 #define POAC_UTIL_TERMCOLOR2_PRESETS_HPP_
 
 // std
-#include <concepts>
 #include <string>
 #include <type_traits>
 
@@ -23,19 +22,19 @@ namespace detail {
       const char16_t (&s4)[N], const char32_t (&s5)[N]
   ) noexcept -> const CharT (&)[N] {
     // C++23 > if consteval
-    if constexpr (std::same_as<CharT, char>) {
+    if constexpr (std::is_same_v<CharT, char>) {
       return s1;
     }
-    if constexpr (std::same_as<CharT, wchar_t>) {
+    if constexpr (std::is_same_v<CharT, wchar_t>) {
       return s2;
     }
-    if constexpr (std::same_as<CharT, char8_t>) {
+    if constexpr (std::is_same_v<CharT, char8_t>) {
       return s3;
     }
-    if constexpr (std::same_as<CharT, char16_t>) {
+    if constexpr (std::is_same_v<CharT, char16_t>) {
       return s4;
     }
-    if constexpr (std::same_as<CharT, char32_t>) {
+    if constexpr (std::is_same_v<CharT, char32_t>) {
       return s5;
     }
   }
