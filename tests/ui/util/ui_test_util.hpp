@@ -11,6 +11,10 @@
 #include <string>
 #include <string_view>
 
+#if defined(__cpp_lib_source_location)
+#  include <source_location>
+#endif
+
 // external
 #include <boost/ut.hpp>
 
@@ -109,8 +113,13 @@ readfile(std::string_view name) {
 template <Target target>
 void
 uitest(
-    std::string_view name, std::initializer_list<std::string_view> args,
-    const fs::path& temp_dir = get_temp_dir()
+    std::initializer_list<std::string_view> args,
+    const fs::path& temp_dir = get_temp_dir(),
+#if defined(__cpp_lib_source_location)
+    std::string name = std::source_location::current().file_name()
+#else
+    std::string_view name = __builtin_FILE()
+#endif
 ) {
   const auto result = dispatch<target>(args, temp_dir);
   if (target == Target::Stdout) {
@@ -122,10 +131,5 @@ uitest(
 }
 
 } // namespace poac::test
-
-#define POAC_UITEST_STDOUT(...) \
-  poac::test::uitest<poac::test::Target::Stdout>(__FILE__, {__VA_ARGS__})
-#define POAC_UITEST_STDERR(...) \
-  poac::test::uitest<poac::test::Target::Stderr>(__FILE__, {__VA_ARGS__})
 
 #endif // TESTS_UI_UTIL_UI_TEST_UTIL_HPP_

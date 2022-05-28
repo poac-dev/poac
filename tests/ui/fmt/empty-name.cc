@@ -23,6 +23,6 @@ main() {
     ofs << "[package]\n"
            "name = \"\""; // empty name
     ofs.close();
-    uitest<Target::Stdout>(__FILE__, {"fmt"}, temp_dir);
+    uitest<Target::Stdout>({"fmt"}, temp_dir);
   };
 }
