@@ -12,6 +12,7 @@ project(poac
     VERSION 0.3.2
     LANGUAGES CXX
 )
+message(STATUS "CMake Version: ${CMAKE_VERSION}")
 
 include(GNUInstallDirs)
 
