@@ -21,6 +21,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # ref: https://gist.github.com/ken-matsui/f6c736ea9623cc15e0a1e8912cae5718
     # I'm not sure why, but the `-static` flag fails on GCC with release builds
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    enable_ipo()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(STATIC_LINK_FLAG "-static")
