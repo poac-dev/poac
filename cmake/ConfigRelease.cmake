@@ -1,6 +1,20 @@
 include_guard(GLOBAL)
 
-if (APPLE)
+function(enable_ipo)
+    include(CheckIPOSupported)
+    check_ipo_supported(
+        RESULT ipo_supported
+        OUTPUT ipo_check_output
+        LANGUAGES CXX
+    )
+    if (ipo_supported)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+    else ()
+        message(WARNING "IPO / LTO is not supported: ${ipo_check_output}")
+    endif ()
+endfunction()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     # ref: https://stackoverflow.com/a/3801032
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native")
 elseif (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -11,12 +25,12 @@ elseif (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         else ()
             set(STATIC_LINK_FLAG "-static -fuse-ld=lld")
         endif ()
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+        enable_ipo()
     elseif (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         # ref: https://gist.github.com/ken-matsui/f6c736ea9623cc15e0a1e8912cae5718
         # I'm not sure why, but this fails on GCC with release builds
         set(STATIC_LINK_FLAG "-static")
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+        enable_ipo()
     endif ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
