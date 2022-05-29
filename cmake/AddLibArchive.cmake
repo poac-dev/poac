@@ -30,6 +30,7 @@ CPMAddPackage(
 )
 
 if (LibArchive_ADDED) # If using downloaded package
+    set(LIBARCHIVE_INCLUDE_DIR "${LibArchive_SOURCE_DIR}/libarchive")
     if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
         set(LIBARCHIVE_LIBRARY archive)
         list(APPEND POAC_DEPENDENCIES archive)
