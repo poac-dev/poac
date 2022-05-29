@@ -27,7 +27,7 @@ endif ()
 set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
 set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 if (CPM_USE_LOCAL_PACKAGES)
-    set(CPM_SUPPORTED_LIBS LibArchive)
+    set(CPM_SUPPORTED_LIBS LibArchive Libgit2)
     message(STATUS "CPM_USE_LOCAL_PACKAGES is set as ON; `${CPM_SUPPORTED_LIBS}` on local will be used if found.")
 endif ()
 
