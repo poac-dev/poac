@@ -1,11 +1,3 @@
-macro (add_poac_options)
-    target_compile_options(poac PRIVATE ${ARGV})
-endmacro ()
-
-macro (add_poac_definitions)
-    target_compile_definitions(poac PRIVATE ${ARGV})
-endmacro ()
-
 # ref: https://stackoverflow.com/a/7788165
 macro (list_dir_items result curdir)
     file(GLOB items RELATIVE ${curdir} ${curdir}/*)
