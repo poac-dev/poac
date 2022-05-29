@@ -319,6 +319,8 @@ $ ninja
 $ ninja install
 ```
 
+If you want to use dependencies installed on local, pass `-DCPM_USE_LOCAL_PACKAGES=ON` as the `cmake` command options.
+
 ## Why Poac?
 
 C++ is often considered to be a complicated language and shunned unconsciously by most people.
