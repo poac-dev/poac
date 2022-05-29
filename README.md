@@ -286,7 +286,8 @@ Poac requires the following compilers, tools, and libraries to build:
 * [`glob`](https://github.com/p-ranav/glob): [`v0.0.1`](https://github.com/p-ranav/glob/releases/tag/v0.0.1) or later
 * [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
   * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
-* [`libgit2`](https://github.com/libgit2/libgit2): [`0.27`](https://github.com/libgit2/libgit2/releases/tag/v0.27.7) or later
+* [`libgit2`](https://github.com/libgit2/libgit2): [`v1.4.3`](https://github.com/libgit2/libgit2/releases/tag/v1.4.3) or later
+  * requires security updates
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`v9.3.0`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.3.0) or later
   * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
 * [`ninja`](https://github.com/ninja-build/ninja): [`v1.11.0`](https://github.com/ninja-build/ninja/releases/tag/v1.11.0) or later
