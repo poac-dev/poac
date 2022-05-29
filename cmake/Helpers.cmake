@@ -1,9 +1,9 @@
 macro (add_poac_options)
-    target_compile_options(${PROJECT_NAME} PRIVATE ${ARGV})
+    target_compile_options(poac PRIVATE ${ARGV})
 endmacro ()
 
 macro (add_poac_definitions)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE ${ARGV})
+    target_compile_definitions(poac PRIVATE ${ARGV})
 endmacro ()
 
 # ref: https://stackoverflow.com/a/7788165

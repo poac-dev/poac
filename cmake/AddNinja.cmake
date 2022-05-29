@@ -18,7 +18,6 @@ file(CREATE_LINK ${ninja_SOURCE_DIR}/src ${ninja_BINARY_DIR}/include/ninja SYMBO
 set(NINJA_INCLUDE_DIR ${ninja_BINARY_DIR}/include)
 set(NINJA_LIBRARIES libninja libninja-re2c)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${NINJA_INCLUDE_DIR})
 list(APPEND POAC_DEPENDENCIES ${NINJA_LIBRARIES})
 message(CHECK_PASS "added")
 
