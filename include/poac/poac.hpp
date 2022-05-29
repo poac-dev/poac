@@ -264,23 +264,6 @@ struct formatter<std::pair<T1, T2>> {
   }
 };
 
-template <typename T, typename Alloc>
-struct formatter<std::vector<T, Alloc>> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  inline auto
-  format(const std::vector<T, Alloc>& v, FormatContext& ctx) {
-    if (v.empty()) {
-      return ctx;
-    }
-    return format_to(ctx.out(), "[{}]", fmt::join(v, ", "));
-  }
-};
-
 } // namespace fmt
 
 #endif // POAC_POAC_HPP_
