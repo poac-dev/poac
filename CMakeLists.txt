@@ -32,8 +32,6 @@ if (CPM_USE_LOCAL_PACKAGES)
     message(STATUS "CPM_USE_LOCAL_PACKAGES is set as ON; `${CPM_SUPPORTED_LIBS}` on local will be used if found.")
 endif ()
 
-include(cmake/CheckCompilerVersion.cmake)
-
 add_executable(poac src/main.cc)
 target_compile_features(poac PUBLIC cxx_std_20)
 target_include_directories(poac PUBLIC

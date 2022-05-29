@@ -31,7 +31,7 @@ if (OPENSSL_FOUND)
     message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
     message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+    target_include_directories(poac PRIVATE ${OPENSSL_INCLUDE_DIR})
     list(APPEND POAC_DEPENDENCIES ${OPENSSL_LIBRARIES})
 else ()
     message(CHECK_FAIL "not found")
