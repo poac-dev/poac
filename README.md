@@ -257,7 +257,7 @@ Poac requires the following compilers, tools, and libraries to build:
 
 #### libraries
 
-* [`boost`](https://github.com/boostorg): [`1.70.0`](https://github.com/boostorg/boost/releases/tag/boost-1.70.0) or later
+* [`boost`](https://github.com/boostorg): [`1.77.0`](https://github.com/boostorg/boost/releases/tag/boost-1.70.0) or later
   * algorithm
   * asio
   * beast

@@ -8,7 +8,7 @@ if (DEFINED BOOST_ROOT)
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
 endif()
 
-find_package(Boost 1.70.0 REQUIRED COMPONENTS system regex)
+find_package(Boost 1.77.0 REQUIRED COMPONENTS system regex)
 if (Boost_FOUND)
     message(CHECK_PASS "added")
     message(STATUS "Boost include directories are ... ${Boost_INCLUDE_DIRS}")
