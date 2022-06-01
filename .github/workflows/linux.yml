@@ -63,13 +63,13 @@ jobs:
 
       - name: Restore & Cache CMake build results
         if: matrix.coverage != 'on'
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.3
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.3
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
