@@ -11,9 +11,11 @@ set(TEST_NAMES
 foreach (TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cc)
     target_compile_definitions(${TEST_NAME} PRIVATE POAC_EXECUTABLE="${POAC_EXECUTABLE}")
-    target_compile_options(${TEST_NAME} PRIVATE -g -O0)
     if (POAC_ENABLE_COVERAGE)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+        target_compile_options(${TEST_NAME} PRIVATE -g -O0 --coverage)
+        target_link_options(${TEST_NAME} PRIVATE --coverage)
+    else ()
+        target_compile_options(${TEST_NAME} PRIVATE -g -O0)
     endif ()
     target_include_directories(${TEST_NAME} PRIVATE
         ${CMAKE_HOME_DIRECTORY}/include

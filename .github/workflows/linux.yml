@@ -117,6 +117,15 @@ jobs:
         run: file ./poac
         working-directory: build
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3.1.0
+      - name: Print coverage
         if: success() && matrix.coverage == 'on'
+        run: |
+          lcov --directory . --capture --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
+          lcov --list coverage.info
+
+      - name: Upload coverage to Codecov
+        if: success() && matrix.coverage == 'on'
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          files: coverage.info
