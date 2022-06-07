@@ -27,6 +27,7 @@ $ poac create hello_world
      Created binary (application) `hello_world` package
 ```
 
+> **Note**:
 > If you want to integrate your existing project with Poac, use the `init` command:
 > 
 > ```bash
@@ -72,6 +73,7 @@ You can specify dependencies like:
 
 We regularly avoid auto updating packages to major versions which bring breaking changes, but minor and patch are acceptable.
 
+> **Note**:
 > If you would use a specific version, you can write the version as following:
 >
 > ```toml
@@ -119,6 +121,7 @@ hello_world/$ poac run
 15
 ```
 
+> **Warning**:
 > We currently support building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
 
@@ -137,6 +140,7 @@ Total errors found: 1
 Error: `cpplint` completed with exit code 1
 ```
 
+> **Note**:
 > If you do not have `cpplint`, install it with the following command:
 >
 > ```bash
@@ -156,6 +160,7 @@ $ poac fmt
   Formatting poac
 ```
 
+> **Note**:
 > This command automatically detects what files we need to format to avoid bothering commands like:
 >
 > ```bash
@@ -275,7 +280,11 @@ Poac requires the following compilers, tools, and libraries to build:
   * some `SHA256` functions are marked as [deprecated](https://github.com/openssl/openssl/blob/openssl-3.0.0/include/openssl/sha.h#L57-L79) since `3.0.0`
 
 <details>
-<summary>The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them.</summary>
+<summary>
+
+> **Note**:
+> The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them. (click here to see additional dependencies)
+</summary>
 
 ---
 
@@ -348,6 +357,7 @@ Accordingly, I believe Poac would likewise provide a bright and soft impression.
 $ cpplint --quiet --recursive .
 ```
 
+> **Note**:
 > If you have installed Poac, you can just run the `lint` command:
 >
 > ```bash
@@ -360,6 +370,7 @@ $ cpplint --quiet --recursive .
 $ clang-format ./include/**/*.hpp -i
 ```
 
+> **Note**:
 > If you have installed Poac, you can just run the `fmt` command:
 >
 > ```bash
