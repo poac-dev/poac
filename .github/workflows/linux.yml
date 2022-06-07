@@ -120,6 +120,7 @@ jobs:
       - name: Print coverage
         if: success() && matrix.coverage == 'on'
         run: |
+          sudo apt-get install -y -qq lcov
           lcov --directory . --capture --output-file coverage.info
           lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
           lcov --list coverage.info
