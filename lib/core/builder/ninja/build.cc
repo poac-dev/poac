@@ -5,15 +5,14 @@
 #include <ninja/build.h>           // NOLINT(build/include_order)
 #include <ninja/graph.h>           // NOLINT(build/include_order)
 #include <ninja/manifest_parser.h> // NOLINT(build/include_order)
-#include <ninja/status.h>          // NOLINT(build/include_order)
-#include <spdlog/spdlog.h>         // NOLINT(build/include_order)
+#include <ninja/status.h>  // StatusPrinter // NOLINT(build/include_order)
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include "poac/config.hpp"
 #include "poac/core/builder/ninja/build.hpp"
 #include "poac/core/builder/ninja/log.hpp"
 #include "poac/core/builder/ninja/manifest.hpp"
-#include "poac/core/builder/ninja/status_printer.hpp"
 #include "poac/util/verbosity.hpp"
 
 namespace poac::core::builder::ninja::build {
@@ -95,9 +94,11 @@ start(
     const resolver::ResolvedDeps& resolved_deps
 ) {
   BuildConfig config;
-  // setenv("NINJA_NOT_SMART_TERMINAL", "", true);
-  // setenv("NINJA_STATUS", progress_status_format.c_str(), true);
-  ninja::StatusPrinter status(config, progress_status_format);
+
+  // ref: https://github.com/ninja-build/ninja/pull/2102#issuecomment-1147771497
+  setenv("TERM", "dumb", true);
+  setenv("NINJA_STATUS", progress_status_format.c_str(), true);
+  StatusPrinter status(config);
 
   const Path build_dir = config::path::output_dir / to_string(mode);
   fs::create_directories(build_dir);

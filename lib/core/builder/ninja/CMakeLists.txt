@@ -2,7 +2,6 @@ add_library(poac_core_builder_ninja
     build.cc
     log.cc
     manifest.cc
-    status_printer.cc
     syntax.cc
 )
 
