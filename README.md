@@ -217,7 +217,7 @@ Poac is still under development and may contain a bunch of bugs.
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_shield)
 
 * Code Coverage:
-[![codecov](https://codecov.io/gh/poacpm/poac/branch/master/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
+[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
 
 * Code Quality:
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
