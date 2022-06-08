@@ -54,3 +54,7 @@ jobs:
       - name: Print help
         run: ./poac --help
         working-directory: build
+
+      - name: Show link libraries
+        run: otool -L ./poac
+        working-directory: build
