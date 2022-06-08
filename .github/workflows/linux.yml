@@ -120,7 +120,7 @@ jobs:
       - name: Print coverage
         if: success() && matrix.coverage == 'on'
         run: |
-          lcov --directory . --capture --output-file coverage.info
+          lcov --directory . --capture --no-external --output-file coverage.info
           lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
           lcov --list coverage.info
 
