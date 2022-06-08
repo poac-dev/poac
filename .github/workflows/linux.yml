@@ -39,7 +39,7 @@ jobs:
             compiler:
               cc: gcc-12
               cxx: g++-12
-              subpackage: binutils
+              subpackage: binutils lcov
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
@@ -120,9 +120,9 @@ jobs:
       - name: Print coverage
         if: success() && matrix.coverage == 'on'
         run: |
-          gcov --directory . --capture --no-external --output-file coverage.info
-          gcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
-          gcov --list coverage.info
+          lcov --directory . --capture --output-file coverage.info --gcov-tool /usr/bin/gcov-12
+          lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
+          lcov --list coverage.info
 
       - name: Upload coverage to Codecov
         if: success() && matrix.coverage == 'on'
