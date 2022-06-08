@@ -113,8 +113,8 @@ jobs:
         run: ./poac --help
         working-directory: build
 
-      - name: Show link libraries
-        run: ldd ./poac
+      - name: Print info of the executable file
+        run: file ./poac
         working-directory: build
 
       - name: Print coverage
