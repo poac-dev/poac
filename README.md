@@ -299,8 +299,8 @@ Poac requires the following compilers, tools, and libraries to build:
   * requires security updates
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`v9.3.0`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.3.0) or later
   * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
-* [`ninja`](https://github.com/ninja-build/ninja): [`v1.11.0`](https://github.com/ninja-build/ninja/releases/tag/v1.11.0) or later
-  * requires [this commit](https://github.com/ninja-build/ninja/commit/589f5b2497929a50a1c74786478cc6fea7a2e1c6)
+* [`ninja`](https://github.com/ninja-build/ninja): [`57b8fee`](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b) or later
+  * requires [this commit](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b)
 * [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
 * [`structopt`](https://github.com/p-ranav/structopt): [`e9722d3`](https://github.com/p-ranav/structopt/commit/e9722d3c2b52cf751ebc1911b93d9649c4e365cc) or later
   * requires [this commit](https://github.com/p-ranav/structopt/commit/e9722d3c2b52cf751ebc1911b93d9649c4e365cc)
