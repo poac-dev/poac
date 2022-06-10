@@ -3,6 +3,16 @@
   <img alt="logo-black" width="250" src="https://user-images.githubusercontent.com/26405363/170157184-e338188c-e4fa-4967-ac74-aba03aefa0bc.svg#gh-light-mode-only">
 </div>
 
+---
+
+[![GitHub Release Version](https://img.shields.io/github/release/poacpm/poac.svg?style=flat)](https://github.com/poacpm/poac/releases)
+[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/main/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_shield)
+[![DOI](https://zenodo.org/badge/119684778.svg)](https://zenodo.org/badge/latestdoi/119684778)
+[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
+[![CodeFactor](https://www.codefactor.io/repository/github/poacpm/poac/badge)](https://www.codefactor.io/repository/github/poacpm/poac)
+
 ## Description
 
 Poac (pronounced as `/pəʊək/`) is a package manager for C++ users.
@@ -207,20 +217,6 @@ Poac is still under development and may contain a bunch of bugs.
 |                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22) |
-
-## Code Status
-
-* GitHub:
-[![GitHub Release Version](https://img.shields.io/github/release/poacpm/poac.svg?style=flat)](https://github.com/poacpm/poac/releases)
-[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/main/LICENSE)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_shield)
-
-* Code Coverage:
-[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
-
-* Code Quality:
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
-[![CodeFactor](https://www.codefactor.io/repository/github/poacpm/poac/badge)](https://www.codefactor.io/repository/github/poacpm/poac)
 
 ## Installation
 
