@@ -6,10 +6,12 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         ninja
         GIT_REPOSITORY https://github.com/ninja-build/ninja
-        GIT_TAG        v1.11.0
+        GIT_TAG        1d4034f0ac2b5cfb809b5ab983d47c3cb2c78415
 )
 
 set(BUILD_TESTING OFF)
+set(NINJA_BUILD_BINARY OFF)
+
 FetchContent_MakeAvailable(ninja)
 
 file(MAKE_DIRECTORY ${ninja_BINARY_DIR}/include)
