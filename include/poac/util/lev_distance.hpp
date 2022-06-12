@@ -4,6 +4,7 @@
 // std
 #include <algorithm> // std::min, std::equal
 #include <locale>    // std::tolower
+#include <span>      // NOLINT(build/include_order)
 
 // internal
 #include "poac/poac.hpp"
@@ -32,7 +33,7 @@ equals_insensitive(StringRef a, StringRef b) {
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
 Option<StringRef>
-find_similar_str(StringRef lhs, const Vec<StringRef>& candidates);
+find_similar_str(StringRef lhs, std::span<const StringRef> candidates);
 
 } // namespace poac::util::lev_distance
 
