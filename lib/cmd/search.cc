@@ -28,7 +28,7 @@ search(const Options& opts) {
   }
   for (const boost::property_tree::ptree::value_type& child : children) {
     const boost::property_tree::ptree& hits = child.second;
-    const auto package = format(
+    const String package = format(
         "{} = \"{}\"", hits.get<String>("name"), hits.get<String>("version")
     );
 

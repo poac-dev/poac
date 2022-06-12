@@ -89,7 +89,7 @@ Writer::_line(String text, usize indent) {
 
 void
 Writer::comment(const String& text) {
-  for (const auto& line : util::pretty::textwrap(text, width - 2)) {
+  for (const String& line : util::pretty::textwrap(text, width - 2)) {
     output << "# " + line + '\n';
   }
 }
@@ -137,20 +137,20 @@ Writer::build(
     const Vec<String>& outputs, StringRef rule, const BuildSet& build_set
 ) {
   Vec<String> out_outputs;
-  for (const auto& o : outputs) {
+  for (const String& o : outputs) {
     out_outputs.emplace_back(escape_path(o).string());
   }
 
   Vec<String> all_inputs;
   if (build_set.inputs.has_value()) {
-    for (const auto& i : build_set.inputs.value()) {
+    for (const String& i : build_set.inputs.value()) {
       all_inputs.emplace_back(escape_path(i).string());
     }
   }
 
   if (build_set.implicit.has_value()) {
     Vec<String> implicit;
-    for (const auto& i : build_set.implicit.value()) {
+    for (const Path& i : build_set.implicit.value()) {
       implicit.emplace_back(escape_path(i).string());
     }
     all_inputs.emplace_back("|");
@@ -158,7 +158,7 @@ Writer::build(
   }
   if (build_set.order_only.has_value()) {
     Vec<String> order_only;
-    for (const auto& o : build_set.order_only.value()) {
+    for (const Path& o : build_set.order_only.value()) {
       order_only.emplace_back(escape_path(o).string());
     }
     all_inputs.emplace_back("||");
@@ -166,7 +166,7 @@ Writer::build(
   }
   if (build_set.implicit_outputs.has_value()) {
     Vec<String> implicit_outputs;
-    for (const auto& i : build_set.implicit_outputs.value()) {
+    for (const Path& i : build_set.implicit_outputs.value()) {
       implicit_outputs.emplace_back(escape_path(i).string());
     }
     out_outputs.emplace_back("|");

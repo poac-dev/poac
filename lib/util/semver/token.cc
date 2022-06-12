@@ -21,7 +21,7 @@ Version::get_version() const {
   version += "." + std::to_string(patch);
   if (!pre.empty()) {
     version += "-";
-    for (const auto& s : pre) {
+    for (const Identifier& s : pre) {
       version += to_string(s) + ".";
     }
     version.pop_back();
@@ -34,7 +34,7 @@ Version::get_full() const {
   std::string full = get_version();
   if (!build.empty()) {
     full += "+";
-    for (const auto& s : build) {
+    for (const Identifier& s : build) {
       full += to_string(s) + ".";
     }
     full.pop_back();

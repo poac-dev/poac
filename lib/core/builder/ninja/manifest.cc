@@ -57,7 +57,7 @@ gather_includes(const resolver::ResolvedDeps& resolved_deps) {
   for (const auto& [package, inner_deps] : resolved_deps) {
     static_cast<void>(inner_deps);
 
-    const auto include_path = resolver::get_extracted_path(package) / "include";
+    const Path include_path = resolver::get_extracted_path(package) / "include";
     if (fs::exists(include_path) && fs::is_directory(include_path)) {
       includes.emplace_back(format("-I{}", include_path.string()));
     }
@@ -135,11 +135,11 @@ construct(
     output_file = (build_dir / source_file).string() + ".o";
     fs::create_directories(output_file.parent_path());
   }
-  const auto includes = gather_includes(resolved_deps);
+  const Vec<String> includes = gather_includes(resolved_deps);
 
-  const auto defines = gather_flags(poac_manifest, "definitions", "-D");
-  const auto options = gather_flags(poac_manifest, "options");
-  const auto libraries = gather_flags(poac_manifest, "libraries", "-l");
+  const Vec<String> defines = gather_flags(poac_manifest, "definitions", "-D");
+  const Vec<String> options = gather_flags(poac_manifest, "options");
+  const Vec<String> libraries = gather_flags(poac_manifest, "libraries", "-l");
 
   writer.build(
       {output_file.string()}, "compile",
