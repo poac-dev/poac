@@ -57,8 +57,11 @@ fetch_impl(const resolve::Package& package) noexcept {
   }
 }
 
+using resolve::UniqDeps;
+using resolve::WithoutDeps;
+
 [[nodiscard]] Result<void>
-fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
+fetch(const UniqDeps<WithoutDeps>& deps) noexcept {
   for (const auto& [name, version_rq] : deps) {
     const resolve::Package package{name, version_rq};
 
@@ -84,16 +87,11 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
 }
 
 bool
-is_not_installed(const resolve::Package& package) noexcept {
-  std::error_code ec{};
-  bool exists = fs::exists(get_archive_path(package), ec);
-  if (ec) {
-    return false;
-  }
-  return !exists;
+is_not_installed(const resolve::Package& package) {
+  return !fs::exists(get_archive_path(package));
 }
 
-resolve::UniqDeps<resolve::WithoutDeps>
+UniqDeps<WithoutDeps>
 get_not_installed_deps(const ResolvedDeps& deps) noexcept {
   return deps | boost::adaptors::map_keys |
          boost::adaptors::filtered(is_not_installed)
@@ -106,7 +104,7 @@ get_not_installed_deps(const ResolvedDeps& deps) noexcept {
 
 [[nodiscard]] Result<void>
 download_deps(const ResolvedDeps& deps) noexcept {
-  const auto not_installed_deps = get_not_installed_deps(deps);
+  const UniqDeps<WithoutDeps> not_installed_deps = get_not_installed_deps(deps);
   if (not_installed_deps.empty()) {
     // all resolved packages already have been installed
     return Ok();
@@ -123,9 +121,9 @@ download_deps(const ResolvedDeps& deps) noexcept {
 }
 
 [[nodiscard]] Result<ResolvedDeps>
-do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
+do_resolve(const UniqDeps<WithoutDeps>& deps) noexcept {
   try {
-    const auto duplicate_deps =
+    const resolve::DupDeps<resolve::WithDeps> duplicate_deps =
         Try(resolve::gather_all_deps(deps).map_err(to_anyhow));
     if (!resolve::duplicate_loose(duplicate_deps)) {
       // When all dependencies are composed of one package and one version,
@@ -147,11 +145,11 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept {
   }
 }
 
-[[nodiscard]] Result<resolve::UniqDeps<resolve::WithoutDeps>>
+[[nodiscard]] Result<UniqDeps<WithoutDeps>>
 to_resolvable_deps(const toml::table& dependencies) noexcept {
   try {
     // TOML tables should guarantee uniqueness.
-    resolve::UniqDeps<resolve::WithoutDeps> resolvable_deps{};
+    UniqDeps<WithoutDeps> resolvable_deps{};
     for (const auto& d : dependencies) {
       const String name = d.first;
       const String version = toml::get<String>(d.second);

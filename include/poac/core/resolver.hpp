@@ -102,7 +102,7 @@ fetch_impl(const resolve::Package& package) noexcept;
 fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept;
 
 bool
-is_not_installed(const resolve::Package& package) noexcept;
+is_not_installed(const resolve::Package& package);
 
 resolve::UniqDeps<resolve::WithoutDeps>
 get_not_installed_deps(const ResolvedDeps& deps) noexcept;

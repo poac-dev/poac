@@ -108,9 +108,9 @@ Parser::identifier() {
 /// Like, `abcdef.1234`.
 std::vector<Identifier>
 Parser::pre() {
-  if (const auto p = peek(); p.kind == Token::Whitespace) {
+  if (const Token p = peek(); p.kind == Token::Whitespace) {
     pop(); // Drop whitespace
-    if (const auto p2 = peek();
+    if (const Token p2 = peek();
         p2 != Token::Unexpected && !p2.is_whitespace()) {
       // `1.2.3 a.b.c`
       throw version_error(

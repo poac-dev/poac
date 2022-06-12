@@ -221,14 +221,14 @@ CfgExpr::match() const {
       return !(std::get<expr_type>(this->expr)->match());
     case Kind::all: {
       bool res = true;
-      for (const auto& c : std::get<expr_list_type>(this->expr)) {
+      for (const CfgExpr& c : std::get<expr_list_type>(this->expr)) {
         res &= c.match();
       }
       return res;
     }
     case Kind::any: {
       bool res = false;
-      for (const auto& c : std::get<expr_list_type>(this->expr)) {
+      for (const CfgExpr& c : std::get<expr_list_type>(this->expr)) {
         res |= c.match();
       }
       return res;

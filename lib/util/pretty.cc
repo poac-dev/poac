@@ -13,17 +13,17 @@ to_time(const f64& total_seconds) {
   }
 
   String res;
-  const auto total_secs = static_cast<u64>(total_seconds);
-  if (const auto days = total_secs / 60 / 60 / 24; days > 0) {
+  const u64 total_secs = static_cast<u64>(total_seconds);
+  if (const u64 days = total_secs / 60 / 60 / 24; days > 0) {
     res += std::to_string(days) + "d ";
   }
-  if (const auto hours = (total_secs / 60 / 60) % 24; hours > 0) {
+  if (const u64 hours = (total_secs / 60 / 60) % 24; hours > 0) {
     res += std::to_string(hours) + "h ";
   }
-  if (const auto minutes = (total_secs / 60) % 60; minutes > 0) {
+  if (const u64 minutes = (total_secs / 60) % 60; minutes > 0) {
     res += std::to_string(minutes) + "m ";
   }
-  const auto seconds = total_secs % 60;
+  const u64 seconds = total_secs % 60;
   res += std::to_string(seconds) + "s";
   return res;
 }
