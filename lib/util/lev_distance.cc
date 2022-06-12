@@ -53,7 +53,7 @@ calc(StringRef a, StringRef b) {
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
 Option<StringRef>
-find_similar_str(StringRef lhs, const Vec<StringRef>& candidates) {
+find_similar_str(StringRef lhs, std::span<const StringRef> candidates) {
   // We need to check if `Candidates` has the exact case-insensitive string
   // because the Levenshtein distance match does not care about it.
   for (StringRef c : candidates) {

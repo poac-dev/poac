@@ -66,7 +66,7 @@ struct Commands {
   BOOST_PP_SEQ_FOR_EACH(STRINGIFY, hoge, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
 #define DECL_CMDS(...) \
-  inline const Vec<StringRef> command_list { TO_STRINGS(__VA_ARGS__) }
+  inline constexpr StringRef command_list[] = {TO_STRINGS(__VA_ARGS__)}
 
 #define structopt(...)                                     \
   STRUCTOPT(Commands, verbose, quiet, color, __VA_ARGS__); \

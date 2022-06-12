@@ -49,8 +49,8 @@ main() {
   "test find_similar_str"_test = [] {
     using util::lev_distance::find_similar_str;
 
-    const Vec<StringRef> candidates = {"if",   "ifdef", "ifndef",  "elif",
-                                       "else", "endif", "elifdef", "elifndef"};
+    constexpr StringRef candidates[] = {"if",   "ifdef", "ifndef",  "elif",
+                                        "else", "endif", "elifdef", "elifndef"};
     expect(find_similar_str("id", candidates) == "if"sv);
     expect(find_similar_str("ifd", candidates) == "if"sv);
     expect(find_similar_str("ifde", candidates) == "ifdef"sv);
@@ -70,11 +70,11 @@ main() {
   "test find_similar_str 2"_test = [] {
     using util::lev_distance::find_similar_str;
 
-    const Vec<StringRef> candidates = {"aaab", "aaabc"};
+    constexpr StringRef candidates[] = {"aaab", "aaabc"};
     expect(find_similar_str("aaaa", candidates) == "aaab"sv);
     expect(find_similar_str("1111111111", candidates) == None);
 
-    const Vec<StringRef> candidates2 = {"AAAA"};
+    constexpr StringRef candidates2[] = {"AAAA"};
     expect(find_similar_str("aaaa", candidates2) == "AAAA"sv);
   };
 }
