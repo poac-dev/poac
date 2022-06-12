@@ -45,11 +45,11 @@ $ poac create hello_world
 >      Created binary (application) `your-pj` package
 > ```
 > 
-> This command just creates a `poac.toml` file not to let your project break.
+> This command just creates a `poac.toml` file not to break your project.
 
 ### Build the project
 
-In most cases, you will want to execute as well as build—of course, you can.
+In most cases, you will want to execute a binary as well as build the project—of course, you can.
 
 ```bash
 hello_world/$ poac run
@@ -71,7 +71,7 @@ Poac uses a cache since we executed the command with no changes.
 ### Install dependencies
 
 Like Cargo for Rust does, Poac installs dependencies at build time.
-However, Poac does not support [weired specifiers](https://stackoverflow.com/q/22343224) for versions, such as `~` and `^`.
+However, Poac does not support [weired version specifiers](https://stackoverflow.com/q/22343224), such as `~` and `^`.
 You can specify dependencies like:
 
 `poac.toml`
@@ -95,6 +95,7 @@ After editing `poac.toml`, executing the `build` command will install the packag
 
 ```bash
 hello_world/$ poac build
+   Resolving dependencies ...
  Downloading packages ...
   Downloaded boost/bind v1.66.0
   Downloaded boost/core v1.66.0
