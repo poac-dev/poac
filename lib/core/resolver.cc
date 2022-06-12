@@ -166,7 +166,9 @@ to_resolvable_deps(const toml::table& dependencies) noexcept {
 [[nodiscard]] Result<ResolvedDeps>
 get_resolved_deps(const toml::value& manifest) {
   toml::table deps = toml::find<toml::table>(manifest, "dependencies");
-  append(deps, toml::find<toml::table>(manifest, "dev-dependencies"));
+  if (manifest.contains("dev-dependencies")) {
+    append(deps, toml::find<toml::table>(manifest, "dev-dependencies"));
+  }
   const auto resolvable_deps = Try(to_resolvable_deps(deps));
   const auto resolved_deps = Try(do_resolve(resolvable_deps));
   return Ok(resolved_deps);
