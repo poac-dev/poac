@@ -33,7 +33,7 @@ exec(const Options& opts) {
   log::status("Running", executable);
   if (const i32 code = util::shell::Cmd(executable).exec_no_capture();
       code != 0) {
-    return Err<SubprocessFailed>(executable.string(), code);
+    return Err<SubprocessFailed>(executable, code);
   }
   return Ok();
 }

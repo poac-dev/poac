@@ -1,5 +1,6 @@
 include_guard(GLOBAL)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address")
+# ref: https://github.com/google/sanitizers/wiki/AddressSanitizer#using-addresssanitizer
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O1 -fsanitize=address -fno-omit-frame-pointer")
 # https://stackoverflow.com/a/38297422
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC

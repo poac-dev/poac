@@ -12,13 +12,22 @@ get_compiler_version(const String& compiler_command) {
   if (res.is_ok()) {
     // `g++ (GCC) 11.2.0\n`
     const String output = res.output();
+    usize itr = output.find('(');
+    if (itr == SNone) {
+      return Err<error::FailedToGetCompilerVersion>(compiler);
+    }
+    itr = output.find(')', itr + 1);
+
     String version;
-    for (usize i = 10; i < output.size(); ++i) {
-      if (output[i] == '\n') { // read until '\n'
+    for (itr += 2; itr < output.size(); ++itr) {
+      if (std::isdigit(output[itr]) || output[itr] == '.') {
+        version += output[itr];
+      } else {
         break;
       }
-      version += output[i];
     }
+    std::cout << "output: " << output << std::endl;
+    std::cout << "version: " << version << std::endl;
     return Ok(semver::parse(version));
   }
   return Err<error::FailedToGetCompilerVersion>(compiler);

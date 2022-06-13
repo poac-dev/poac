@@ -109,13 +109,19 @@ jobs:
         run: ctest --output-on-failure --verbose
         working-directory: build
 
+      - name: Print info of the executable file
+        run: file ./poac
+        working-directory: build
+
       - name: Print help
         run: ./poac --help
         working-directory: build
 
-      - name: Print info of the executable file
-        run: file ./poac
-        working-directory: build
+      - name: Run Test
+        run: |
+          ./build/poac create hello_world
+          cd hello_world
+          ../build/poac run
 
       - name: Print coverage
         if: success() && matrix.coverage == 'on'

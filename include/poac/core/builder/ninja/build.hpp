@@ -37,9 +37,6 @@ run(data::NinjaMain& ninja_main, Status& status);
 BuildConfig::Verbosity
 get_ninja_verbosity();
 
-inline const String progress_status_format =
-    format("{:>27} %f/%t: ", "Compiling"_bold_green);
-
 // Limit number of rebuilds, to prevent infinite loops.
 inline constexpr i32 rebuildLimit = 100;
 
