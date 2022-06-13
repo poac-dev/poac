@@ -28,8 +28,6 @@ get_compiler_version(const String& compiler_command) {
         break;
       }
     }
-    std::cout << "output: " << output << std::endl;
-    std::cout << "version: " << version << std::endl;
     return Ok(semver::parse(version));
   }
   return Err<error::FailedToGetCompilerVersion>(compiler);
