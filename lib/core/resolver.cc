@@ -146,13 +146,11 @@ do_resolve(const UniqDeps<WithoutDeps>& deps) noexcept {
 }
 
 [[nodiscard]] Result<UniqDeps<WithoutDeps>>
-to_resolvable_deps(const toml::table& dependencies) noexcept {
+to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept {
   try {
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
-    for (const auto& d : dependencies) {
-      const String name = d.first;
-      const String version = toml::get<String>(d.second);
+    for (const auto& [name, version] : dependencies) {
       resolvable_deps.emplace(name, version);
     }
     return Ok(resolvable_deps);
@@ -163,12 +161,14 @@ to_resolvable_deps(const toml::table& dependencies) noexcept {
 
 [[nodiscard]] Result<ResolvedDeps>
 get_resolved_deps(const toml::value& manifest) {
-  toml::table deps = toml::find<toml::table>(manifest, "dependencies");
+  auto deps = toml::find<HashMap<String, String>>(manifest, "dependencies");
   if (manifest.contains("dev-dependencies")) {
-    append(deps, toml::find<toml::table>(manifest, "dev-dependencies"));
+    append(
+        deps, toml::find<HashMap<String, String>>(manifest, "dev-dependencies")
+    );
   }
-  const auto resolvable_deps = Try(to_resolvable_deps(deps));
-  const auto resolved_deps = Try(do_resolve(resolvable_deps));
+  const UniqDeps<WithoutDeps> resolvable_deps = Try(to_resolvable_deps(deps));
+  const ResolvedDeps resolved_deps = Try(do_resolve(resolvable_deps));
   return Ok(resolved_deps);
 }
 

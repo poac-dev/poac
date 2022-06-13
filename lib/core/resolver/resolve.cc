@@ -48,7 +48,7 @@ create_cnf(const DupDeps<WithDeps>& activated) {
 
   DupDeps<WithDeps>::const_iterator first = std::cbegin(activated);
   DupDeps<WithDeps>::const_iterator last = std::cend(activated);
-  for (i32 i = 0; i < static_cast<i32>(activated.size()); ++i) {
+  for (usize i = 0; i < activated.size(); ++i) {
     if (util::meta::find(already_added, i)) {
       continue;
     }
