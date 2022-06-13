@@ -1,6 +1,8 @@
+// std
+#include <cctype> // std::isdigit
+
 // internal
 #include "poac/core/builder/compiler/cxx/gcc.hpp"
-
 #include "poac/core/builder/compiler/lang/error.hpp"
 #include "poac/util/shell.hpp"
 
