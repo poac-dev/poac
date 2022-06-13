@@ -65,6 +65,7 @@ convert_to_deps(const Lockfile& lock) {
       for (const auto& name : package.dependencies) {
         ideps.push_back({name, ""});
       }
+      inner_deps = ideps;
     }
     deps.emplace(resolver::Package{package.name, package.version}, inner_deps);
   }
@@ -79,7 +80,7 @@ read(const Path& base_dir) {
 
   try {
     const toml::value lock = toml::parse(base_dir / lockfile_name);
-    const auto parsed_lock = toml::get<Lockfile>(lock);
+    const Lockfile parsed_lock = toml::get<Lockfile>(lock);
     if (parsed_lock.version != lockfile_version) {
       return Err<InvalidLockfileVersion>(parsed_lock.version);
     }

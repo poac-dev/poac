@@ -41,6 +41,9 @@ struct Commands {
   /// Format source code with clang-format (default `LLVM`)
   cmd::fmt::Options fmt;
 
+  /// Create graph of dependencies
+  cmd::graph::Options graph;
+
   /// Create a new poac package in an existing directory
   cmd::init::Options init;
 
@@ -72,7 +75,7 @@ struct Commands {
   STRUCTOPT(Commands, verbose, quiet, color, __VA_ARGS__); \
   DECL_CMDS(__VA_ARGS__)
 
-structopt(build, create, fmt, init, lint, login, publish, run, search);
+structopt(build, create, fmt, graph, init, lint, login, publish, run, search);
 
 inline String
 colorize_structopt_error(String s) {
@@ -135,6 +138,8 @@ exec(const structopt::app& app, const Commands& args) {
     return cmd::create::exec(args.create);
   } else if (args.fmt.has_value()) {
     return cmd::fmt::exec(args.fmt);
+  } else if (args.graph.has_value()) {
+    return cmd::graph::exec(args.graph);
   } else if (args.init.has_value()) {
     return cmd::init::exec(args.init);
   } else if (args.lint.has_value()) {

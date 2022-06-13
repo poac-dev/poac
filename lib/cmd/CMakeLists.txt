@@ -2,6 +2,7 @@ add_library(poac_cmd
     build.cc
     create.cc
     fmt.cc
+    graph.cc
     init.cc
     lint.cc
     login.cc
