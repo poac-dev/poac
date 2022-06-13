@@ -82,7 +82,6 @@ dispatch(
   Cmd cmd = mk_cmd(cmd_args, temp_dir);
   const Cmd::SimpleResult res =
       target == Target::Stdout ? cmd.exec() : cmd.stderr_to_stdout().exec();
-  remove_temp(temp_dir);
   return res;
 }
 
@@ -114,7 +113,7 @@ template <Target target>
 void
 uitest(
     std::initializer_list<std::string_view> args,
-    const fs::path& temp_dir = get_temp_dir(),
+    const fs::path& temp_dir = get_temp_dir(), bool auto_remove_temp = true,
 #if defined(__cpp_lib_source_location)
     std::string name = std::source_location::current().file_name()
 #else
@@ -128,6 +127,12 @@ uitest(
     expect(result.is_err());
   }
   expect(eq(result.output(), readfile<target>(name)));
+
+  if (auto_remove_temp) {
+    // TODO(ken-matsui): Create a class and be with destructor
+    // We can hold temp dir so that the remove_temp function can be simplified.
+    remove_temp(temp_dir);
+  }
 }
 
 } // namespace poac::test
