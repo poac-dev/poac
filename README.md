@@ -32,8 +32,8 @@ By using Poac, you can create a C++ project, build sources, and execute an appli
 
 Use this command when you start a new poac project.
 
-```bash
-$ poac create hello_world
+```console
+poac:~$ poac create hello_world
      Created binary (application) `hello_world` package
 ```
 
@@ -51,18 +51,18 @@ $ poac create hello_world
 
 In most cases, you will want to execute a binary as well as build the project—of course, you can.
 
-```bash
-hello_world/$ poac run
-   Compiling 1/1: hello_world v0.1.0 (/Users/ken-matsui/hello_world)
+```console
+poac:~/hello_world$ poac run
+   Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
     Finished debug target(s) in 0.90s
-     Running `/Users/ken-matsui/hello_world/poac_output/debug/hoge`
+     Running `/Users/poac/hello_world/poac_output/debug/hoge`
 Hello, world!
 ```
 
 Should you just build it, run the `build` command:
 
-```bash
-hello_world/$ poac build
+```console
+poac:~/hello_world$ poac build
     Finished debug target(s) in 0.21s
 ```
 
@@ -93,15 +93,15 @@ We regularly avoid auto updating packages to major versions which bring breaking
 
 After editing `poac.toml`, executing the `build` command will install the package and its dependencies.
 
-```bash
-hello_world/$ poac build
+```console
+poac:~/hello_world$ poac build
    Resolving dependencies ...
  Downloading packages ...
   Downloaded boost/bind v1.66.0
   Downloaded boost/core v1.66.0
   Downloaded boost/assert v1.66.0
   Downloaded boost/config v1.66.0
-   Compiling 1/1: hello_world v0.1.0 (/Users/ken-matsui/hello_world)
+   Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
     Finished debug target(s) in 0.70s
 ```
 
@@ -124,11 +124,11 @@ int main(int argc, char** argv) {
 
 You can now run this source code:
 
-```bash
-hello_world/$ poac run
-   Compiling 1/1: hello_world v0.1.0 (/Users/ken-matsui/hello_world)
+```console
+poac:~/hello_world$ poac run
+   Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
     Finished debug target(s) in 0.50s
-     Running `/Users/ken-matsui/hello_world/poac_output/debug/hello_world`
+     Running `/Users/poac/hello_world/poac_output/debug/hello_world`
 15
 ```
 
@@ -140,8 +140,8 @@ hello_world/$ poac run
 
 You can create a dependency graph by using the `graph` command:
 
-```bash
-hello_world/$ poac graph -o out.png
+```console
+poac:~/hello_world$ poac graph -o out.png
    Generated out.png
 ```
 
@@ -149,8 +149,8 @@ hello_world/$ poac graph -o out.png
 
 Or you can export the graph as a `.dot` file:
 
-```bash
-hello_world/$ poac graph -o out.dot
+```console
+poac:~/hello_world$ poac graph -o out.dot
    Generated out.dot
 ```
 
@@ -173,8 +173,8 @@ digraph G {
 
 If you omit specifying the output path, then Poac emits the graph to standard output:
 
-```bash
-hello_world/$ poac graph
+```console
+poac:~/hello_world$ poac graph
 boost/bind -> boost/core
 boost/bind -> boost/config
 boost/core -> boost/assert
@@ -187,8 +187,8 @@ boost/assert -> boost/config
 Linting source code is essential to protect its quality.
 Poac supports linting it by a simple command with `cpplint`:
 
-```bash
-hello_world/$ poac lint
+```console
+poac:~/hello_world$ poac lint
      Linting poac
 src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
 Done processing src/main.cpp
@@ -212,8 +212,8 @@ To customize the lint settings, try creating a [`CPPLINT.cfg`](/CPPLINT.cfg) fil
 Poac also supports formatting your source code with `clang-format`.
 Ensure having installed `clang-format` before running this command.
 
-```bash
-$ poac fmt
+```console
+poac:~/hello_world$ poac fmt
   Formatting poac
 ```
 
@@ -234,7 +234,7 @@ To customize the format settings, try creating a [`.clang-format`](/.clang-forma
 
 In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
 
-```bash
+```console
 $ poac search func
 boost/function = "1.66.0"               # Boost.org function module
 boost/function_types = "1.66.0"         # Boost.org function_types module
