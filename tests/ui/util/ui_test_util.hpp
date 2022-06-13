@@ -82,7 +82,7 @@ dispatch(
   Cmd cmd = mk_cmd(cmd_args, temp_dir);
   const Cmd::SimpleResult res =
       target == Target::Stdout ? cmd.exec() : cmd.stderr_to_stdout().exec();
-  remove_temp(temp_dir);
+  remove_temp(temp_dir); // TODO(ken-matsui): with destructor
   return res;
 }
 
