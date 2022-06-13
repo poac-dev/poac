@@ -136,6 +136,52 @@ hello_world/$ poac run
 > We currently support building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
 
+### Create a dependency graph
+
+You can create a dependency graph by using the `graph` command:
+
+```bash
+hello_world/$ poac graph -o out.png
+   Generated out.png
+```
+
+![Dependency Graph](https://user-images.githubusercontent.com/26405363/173274015-9fd4869d-94cf-4667-b07f-8e9fd94a02a6.png)
+
+Or you can export the graph as a `.dot` file:
+
+```bash
+hello_world/$ poac graph -o out.dot
+   Generated out.dot
+```
+
+```dot
+digraph G {
+0[label="boost/bind: 1.66.0"];
+1[label="boost/config: 1.66.0"];
+2[label="boost/core: 1.66.0"];
+3[label="boost/assert: 1.66.0"];
+0->2 ;
+0->1 ;
+2->3 ;
+2->1 ;
+3->1 ;
+}
+```
+
+> **Note**:
+> When you want to export the graph as a `.png` file, please ensure `graphviz` is installed.
+
+If you omit specifying the output path, then Poac emits the graph to standard output:
+
+```bash
+hello_world/$ poac graph
+boost/bind -> boost/core
+boost/bind -> boost/config
+boost/core -> boost/assert
+boost/core -> boost/config
+boost/assert -> boost/config
+```
+
 ### Run linter
 
 Linting source code is essential to protect its quality.
