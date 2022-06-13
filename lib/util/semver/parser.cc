@@ -311,8 +311,8 @@ parse(std::string_view input) {
   try {
     Parser parser(input);
     return parser.version();
-  } catch (const std::bad_optional_access& e) {
-    throw semver::version_error(e.what());
+  } catch (const std::bad_optional_access&) {
+    throw semver::version_error("invalid version found: " + std::string(input));
   }
 }
 

@@ -97,6 +97,10 @@ start(
 
   // ref: https://github.com/ninja-build/ninja/pull/2102#issuecomment-1147771497
   setenv("TERM", "dumb", true);
+  const String progress_status_format =
+      termcolor2::should_color()
+          ? format("{:>27} %f/%t: ", "Compiling"_bold_green)
+          : format("{:>12} %f/%t: ", "Compiling");
   setenv("NINJA_STATUS", progress_status_format.c_str(), true);
   StatusPrinter status(config);
 

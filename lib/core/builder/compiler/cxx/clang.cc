@@ -1,6 +1,8 @@
+// std
+#include <cctype> // std::isdigit
+
 // internal
 #include "poac/core/builder/compiler/cxx/clang.hpp"
-
 #include "poac/core/builder/compiler/lang/error.hpp"
 #include "poac/util/shell.hpp"
 
@@ -12,12 +14,19 @@ get_compiler_version(const String& compiler_command) {
   if (res.is_ok()) {
     // `clang version 12.0.0 (...)`
     const String output = res.output();
+    String search = "version ";
+    usize i = output.find(search);
+    if (i == SNone) {
+      return Err<error::FailedToGetCompilerVersion>(compiler);
+    }
+
     String version;
-    for (usize i = 14; i < output.size(); ++i) {
-      if (output[i] == ' ') { // read until space
+    for (i += search.size(); i < output.size(); ++i) {
+      if (std::isdigit(output[i]) || output[i] == '.') {
+        version += output[i];
+      } else {
         break;
       }
-      version += output[i];
     }
     return Ok(semver::parse(version));
   }

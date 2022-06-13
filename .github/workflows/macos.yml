@@ -51,10 +51,16 @@ jobs:
         run: ctest --output-on-failure --verbose
         working-directory: build
 
+      - name: Show link libraries
+        run: otool -L ./poac
+        working-directory: build
+
       - name: Print help
         run: ./poac --help
         working-directory: build
 
-      - name: Show link libraries
-        run: otool -L ./poac
-        working-directory: build
+      - name: Running Test
+        run: |
+          ./build/poac create hello_world
+          cd hello_world
+          ../build/poac run

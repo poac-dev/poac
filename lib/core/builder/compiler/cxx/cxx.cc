@@ -12,10 +12,10 @@ namespace poac::core::builder::compiler::cxx {
 
 [[nodiscard]] Result<util::cfg::compiler>
 get_compiler_ident(const String& compiler_command) {
-  if (compiler_command == "g++" || compiler_command == "clang++") {
+  if (compiler_command.starts_with("g++") ||
+      compiler_command.starts_with("clang++")) {
 #ifdef __APPLE__
-    const String compiler(compiler_command);
-    if (const auto res = util::shell::Cmd(compiler + " --version")
+    if (const auto res = util::shell::Cmd(compiler_command + " --version")
                              .stderr_to_stdout()
                              .exec()) {
       if (res.output().find("Apple") != SNone) {
@@ -23,9 +23,9 @@ get_compiler_ident(const String& compiler_command) {
       }
     }
 #endif
-    if (compiler_command == "g++") {
+    if (compiler_command.starts_with("g++")) {
       return Ok(util::cfg::compiler::gcc);
-    } else if (compiler_command == "clang++") {
+    } else if (compiler_command.starts_with("clang++")) {
       return Ok(util::cfg::compiler::clang);
     }
   }
@@ -53,7 +53,7 @@ get_std_flag(
 
 [[nodiscard]] Result<String>
 get_compiler_command() {
-  if (const auto cxx = util::misc::dupenv("POAC_CXX")) {
+  if (const auto cxx = util::misc::dupenv("CXX")) {
     return Ok(cxx.value());
   } else if (util::shell::has_command("g++")) {
     return Ok("g++");
