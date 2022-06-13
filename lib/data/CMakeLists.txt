@@ -12,6 +12,7 @@ target_link_libraries(poac_data PRIVATE
     ${POAC_HPP_LIBS}
     toml11::toml11
     poac_core_resolver
+    poac_util # expand_user
 )
 
 add_library(poac::data ALIAS poac_data)
