@@ -45,6 +45,13 @@ if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
 
+# Headers including `poac/poac.hpp` require these libraries
+set(POAC_HPP_LIBS
+    fmt::fmt
+    mitama-cpp-result::mitama-cpp-result
+    spdlog::spdlog
+)
+
 add_subdirectory(lib)
 target_link_libraries(poac ${STATIC_LINK_FLAG}
     poac::cmd

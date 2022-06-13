@@ -16,6 +16,7 @@ target_include_directories(poac_cmd PUBLIC
     ${CMAKE_HOME_DIRECTORY}/include
     ${Boost_INCLUDE_DIRS}
     ${LIBGIT2_INCLUDE_DIR}
+    ${NINJA_INCLUDE_DIR}
 )
 target_link_libraries(poac_cmd PUBLIC
     ${STATIC_LINK_FLAG}

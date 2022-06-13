@@ -9,7 +9,7 @@ target_include_directories(poac_core PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIR}
 )
-target_link_libraries(poac_core PUBLIC
+target_link_libraries(poac_core PRIVATE
     ${STATIC_LINK_FLAG}
     ${POAC_HPP_LIBS}
     ${LIBARCHIVE_LIBRARY}

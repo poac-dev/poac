@@ -9,7 +9,7 @@ target_include_directories(poac_core_resolver PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIR}
 )
-target_link_libraries(poac_core_resolver PUBLIC
+target_link_libraries(poac_core_resolver PRIVATE
     ${STATIC_LINK_FLAG}
     ${POAC_HPP_LIBS}
     poac_util # poac::util::net

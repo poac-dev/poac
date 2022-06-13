@@ -15,6 +15,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     endif ()
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
+        ${POAC_HPP_LIBS}
         poac::core::resolver
     )
     add_test(

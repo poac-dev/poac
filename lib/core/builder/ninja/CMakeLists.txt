@@ -11,7 +11,7 @@ target_include_directories(poac_core_builder_ninja PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${NINJA_INCLUDE_DIR}
 )
-target_link_libraries(poac_core_builder_ninja PUBLIC
+target_link_libraries(poac_core_builder_ninja PRIVATE
     ${STATIC_LINK_FLAG}
     ${POAC_HPP_LIBS}
     ${NINJA_LIBRARIES}
