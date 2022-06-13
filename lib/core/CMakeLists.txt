@@ -17,6 +17,7 @@ target_link_libraries(poac_core PRIVATE
     poac_core_resolver
     poac_data
     poac_util
+    poac_util_semver
     toml11::toml11
 )
 
