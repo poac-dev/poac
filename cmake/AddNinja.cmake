@@ -11,6 +11,7 @@ FetchContent_Declare(
 
 set(BUILD_TESTING OFF)
 set(NINJA_BUILD_BINARY OFF)
+set(CMAKE_CXX_STANDARD 11)
 
 FetchContent_MakeAvailable(ninja)
 
