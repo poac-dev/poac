@@ -59,7 +59,7 @@ jobs:
         run: ./poac --help
         working-directory: build
 
-      - name: Run Test
+      - name: Running Test
         run: |
           ./build/poac create hello_world
           cd hello_world
