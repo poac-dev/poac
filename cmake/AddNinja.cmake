@@ -6,7 +6,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 FetchContent_Declare(
         ninja
         GIT_REPOSITORY https://github.com/ken-matsui/ninja
-        GIT_TAG        c2407e3b3528d55e3a98ba0742227c5e6a62a02a
+        GIT_TAG        f40aff4287b84ebfa737cd75ab26676df82d9293
 )
 
 set(BUILD_TESTING OFF)
