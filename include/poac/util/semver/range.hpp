@@ -55,14 +55,14 @@ struct Op {
 
   constexpr explicit Op(Kind k)
       : kind(
-            k == Kind::Wildcard ? throw std::invalid_argument("semver::Op") : k
-        ),
+          k == Kind::Wildcard ? throw std::invalid_argument("semver::Op") : k
+      ),
         component() {}
 
   constexpr Op(Kind k, WildcardVersion wv)
       : kind(
-            k != Kind::Wildcard ? throw std::invalid_argument("semver::Op") : k
-        ),
+          k != Kind::Wildcard ? throw std::invalid_argument("semver::Op") : k
+      ),
         component(wv) {}
 };
 

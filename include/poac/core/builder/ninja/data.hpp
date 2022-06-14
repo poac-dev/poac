@@ -4,14 +4,14 @@
 // external
 #include <ninja/build.h> // BuildConfig // NOLINT(build/include_order)
 #include <ninja/build_log.h> // BuildLog, BuildLogUser // NOLINT(build/include_order)
-#include <ninja/deps_log.h>       // DepsLog // NOLINT(build/include_order)
+#include <ninja/deps_log.h> // DepsLog // NOLINT(build/include_order)
 #include <ninja/disk_interface.h> // RealDiskInterface // NOLINT(build/include_order)
-#include <ninja/graph.h>          // Node // NOLINT(build/include_order)
-#include <ninja/metrics.h>      // GetTimeMillis // NOLINT(build/include_order)
-#include <ninja/state.h>        // State // NOLINT(build/include_order)
+#include <ninja/graph.h> // Node // NOLINT(build/include_order)
+#include <ninja/metrics.h> // GetTimeMillis // NOLINT(build/include_order)
+#include <ninja/state.h> // State // NOLINT(build/include_order)
 #include <ninja/string_piece.h> // StringPiece // NOLINT(build/include_order)
-#include <ninja/timestamp.h>    // TimeStamp // NOLINT(build/include_order)
-#include <spdlog/spdlog.h>      // spdlog::error // NOLINT(build/include_order)
+#include <ninja/timestamp.h> // TimeStamp // NOLINT(build/include_order)
+#include <spdlog/spdlog.h> // spdlog::error // NOLINT(build/include_order)
 
 // internal
 #include "poac/poac.hpp"

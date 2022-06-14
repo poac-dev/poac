@@ -6,8 +6,8 @@ namespace semver {
 Token
 Lexer::next() {
   // Check out of range
-  if (c1_index >=
-      this->size()) { // should be `>=`, not `>` because of this->two()
+  if (c1_index
+      >= this->size()) { // should be `>=`, not `>` because of this->two()
     return Token{Token::Unexpected};
   }
 

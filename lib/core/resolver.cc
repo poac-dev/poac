@@ -93,13 +93,13 @@ is_not_installed(const resolve::Package& package) {
 
 UniqDeps<WithoutDeps>
 get_not_installed_deps(const ResolvedDeps& deps) noexcept {
-  return deps | boost::adaptors::map_keys |
-         boost::adaptors::filtered(is_not_installed)
-       // ref: https://stackoverflow.com/a/42251976
-       | boost::adaptors::transformed([](const resolve::Package& package) {
-           return std::make_pair(package.name, package.version_rq);
-         }) |
-         util::meta::containerized;
+  return deps | boost::adaptors::map_keys
+         | boost::adaptors::filtered(is_not_installed)
+         // ref: https://stackoverflow.com/a/42251976
+         | boost::adaptors::transformed([](const resolve::Package& package) {
+             return std::make_pair(package.name, package.version_rq);
+           })
+         | util::meta::containerized;
 }
 
 [[nodiscard]] Result<void>
@@ -197,8 +197,8 @@ resolve_deps(const toml::value& manifest) {
 
 [[nodiscard]] Result<ResolvedDeps>
 install_deps(const toml::value& manifest) {
-  if (!manifest.contains("dependencies") &&
-      !manifest.contains("dev-dependencies")) {
+  if (!manifest.contains("dependencies")
+      && !manifest.contains("dev-dependencies")) {
     const ResolvedDeps empty_deps{};
     Try(data::lockfile::generate(empty_deps));
     return Ok(empty_deps);

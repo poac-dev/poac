@@ -4,8 +4,8 @@
 
 // external
 #include <boost/algorithm/string.hpp> // boost::algorithm::join
-#include <ninja/build.h>              // Builder // NOLINT(build/include_order)
-#include <ninja/graph.h>              // Node // NOLINT(build/include_order)
+#include <ninja/build.h> // Builder // NOLINT(build/include_order)
+#include <ninja/graph.h> // Node // NOLINT(build/include_order)
 
 // internal
 #include "poac/core/builder/compiler.hpp"

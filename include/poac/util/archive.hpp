@@ -6,7 +6,7 @@
 #include <string>
 
 // external
-#include <archive.h>       // NOLINT(build/include_order)
+#include <archive.h> // NOLINT(build/include_order)
 #include <archive_entry.h> // NOLINT(build/include_order)
 
 // internal
@@ -63,8 +63,8 @@ inline i32
 make_flags() noexcept {
   // Select which attributes we want to restore.
   // int
-  return ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_UNLINK |
-         ARCHIVE_EXTRACT_SECURE_NODOTDOT;
+  return ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_UNLINK
+         | ARCHIVE_EXTRACT_SECURE_NODOTDOT;
 }
 
 inline void

@@ -37,8 +37,8 @@ BoundedInterval::satisfies_impl(std::string_view v) const {
 std::optional<std::string>
 BoundedInterval::is_wasteful_comparison_operation(
 ) const { // TODO(ken-matsui): noexcept
-  if ((left_comp_op == "<" || left_comp_op == "<=") &&
-      (right_comp_op == "<" || right_comp_op == "<=")) {
+  if ((left_comp_op == "<" || left_comp_op == "<=")
+      && (right_comp_op == "<" || right_comp_op == "<=")) {
     // Prioritize the larger version
     if (parse(left_version) > right_version) {
       return "Did you mean " + left_comp_op + left_version + " ?";
@@ -66,24 +66,24 @@ BoundedInterval::is_wasteful_comparison_operation(
 std::optional<std::string>
 BoundedInterval::is_bounded_interval() const { // TODO(ken-matsui): noexcept
   if (parse(left_version) < right_version) {
-    if ((left_comp_op == "<" || left_comp_op == "<=") &&
-        (right_comp_op == ">" || right_comp_op == ">=")) {
+    if ((left_comp_op == "<" || left_comp_op == "<=")
+        && (right_comp_op == ">" || right_comp_op == ">=")) {
       return "In this case of interval specification using `and` +\n"
              " it is necessary to be a bounded interval.\n"
              "Please specify as in the following example:\n"
-             "e.g. `" +
-             right_comp_op + left_version + " and " + left_comp_op +
-             right_version + "`";
+             "e.g. `"
+             + right_comp_op + left_version + " and " + left_comp_op
+             + right_version + "`";
     }
   } else if (parse(left_version) > right_version) {
-    if ((left_comp_op == ">" || left_comp_op == ">=") &&
-        (right_comp_op == "<" || right_comp_op == "<=")) {
+    if ((left_comp_op == ">" || left_comp_op == ">=")
+        && (right_comp_op == "<" || right_comp_op == "<=")) {
       return "In this case of interval specification using `and` +\n"
              " it is necessary to be a bounded interval.\n"
              "Please specify as in the following example:\n"
-             "e.g. `" +
-             left_comp_op + right_version + " and " + right_comp_op +
-             left_version + "`";
+             "e.g. `"
+             + left_comp_op + right_version + " and " + right_comp_op
+             + left_version + "`";
     }
   }
   return std::nullopt;
@@ -126,8 +126,8 @@ Interval::get_interval_class() const {
     const std::string version_str = make_version<3, 5>(match);
     return comp_op.empty() ? make_interval_class<ExactVersion>(version_str)
                            : make_interval_class<ClosedUnboundedInterval>(
-                                 comp_op, version_str
-                             );
+                               comp_op, version_str
+                           );
   } else if (interval_match(match, BOUNDED_INTERVAL)) {
     return BoundedInterval{match, interval};
   }

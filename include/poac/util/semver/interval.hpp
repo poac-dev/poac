@@ -162,9 +162,9 @@ inline const std::string NON_NUMERIC_IDENTIFIER =
 
 // ## Main Version
 // Three dot-separated numeric identifiers.
-inline const std::string MAIN_VERSION = "(" + NUMERIC_IDENTIFIER + R"()\.)" +
-                                        "(" + NUMERIC_IDENTIFIER + R"()\.)" +
-                                        "(" + NUMERIC_IDENTIFIER + ")";
+inline const std::string MAIN_VERSION = "(" + NUMERIC_IDENTIFIER + R"()\.)"
+                                        + "(" + NUMERIC_IDENTIFIER + R"()\.)"
+                                        + "(" + NUMERIC_IDENTIFIER + ")";
 
 // ## Pre-release Version Identifier
 // A numeric identifier, or a non-numeric identifier.
@@ -174,9 +174,9 @@ inline const std::string PRE_RELEASE_IDENTIFIER =
 // ## Pre-release Version
 // Hyphen, followed by one or more dot-separated pre-release version
 // identifiers.
-inline const std::string PRE_RELEASE = "(?:-(" + PRE_RELEASE_IDENTIFIER +
-                                       R"((?:\.)" + PRE_RELEASE_IDENTIFIER +
-                                       ")*))";
+inline const std::string PRE_RELEASE = "(?:-(" + PRE_RELEASE_IDENTIFIER
+                                       + R"((?:\.)" + PRE_RELEASE_IDENTIFIER
+                                       + ")*))";
 
 // ## Build Metadata Identifier
 // Any combination of digits, letters, or hyphens.

@@ -37,9 +37,13 @@ main() {
     using poac::util::meta::index_of_if;
 
     std::vector<std::string> test_case{"0", "1", "2"};
-    expect(index_of_if(test_case.cbegin(), test_case.cend(), [](auto& x) {
-             return x == "0";
-           }) == 0_i);
+    expect(
+        index_of_if(
+            test_case.cbegin(), test_case.cend(),
+            [](auto& x) { return x == "0"; }
+        )
+        == 0_i
+    );
   };
 
   // bool duplicate(const SinglePassRange& rng)
@@ -80,7 +84,7 @@ main() {
     pt.add_child("data", children);
 
     expect(eq(to_vec<std::string>(pt, "data"), test_case)); // 1
-    expect(eq(to_vec<std::string>(children), test_case));   // 2
+    expect(eq(to_vec<std::string>(children), test_case)); // 2
   };
 
   "test are_all_same"_test = [] {

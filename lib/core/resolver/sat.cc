@@ -51,18 +51,18 @@ delete_set_literal(
       // set_val -> unassigned(-1) -> always false
       // set_val -> true(0) -> value == index + 1
       // set_val -> false(1) -> value == -(index + 1)
-      if (set_val >= 0 &&
-          (set_val == 0 ? index + 1 : -1 * (index + 1)) == *itr2) {
+      if (set_val >= 0
+          && (set_val == 0 ? index + 1 : -1 * (index + 1)) == *itr2) {
         clauses.erase(itr1);
         --itr1; // reset iterator
         if (clauses.empty()) {
           return Status::satisfied;
         }
-        break;                                       // to the next clause
+        break; // to the next clause
       } else if (index == literal_to_index(*itr2)) { // the literal with
                                                      // opposite polarity
         itr1->erase(itr2); // remove the literal from the clause
-        --itr2;            // reset iterator
+        --itr2; // reset iterator
         if (itr1->empty()) {
           // unsatisfiable currently
           return Status::unsatisfied;

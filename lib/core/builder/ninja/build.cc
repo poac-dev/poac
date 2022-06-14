@@ -2,10 +2,10 @@
 #include <cstdlib> // setenv
 
 // external
-#include <ninja/build.h>           // NOLINT(build/include_order)
-#include <ninja/graph.h>           // NOLINT(build/include_order)
+#include <ninja/build.h> // NOLINT(build/include_order)
+#include <ninja/graph.h> // NOLINT(build/include_order)
 #include <ninja/manifest_parser.h> // NOLINT(build/include_order)
-#include <ninja/status.h>  // StatusPrinter // NOLINT(build/include_order)
+#include <ninja/status.h> // StatusPrinter // NOLINT(build/include_order)
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal

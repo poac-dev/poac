@@ -16,7 +16,7 @@ main() {
   // 1. shell::shell()
   // 2. shell::shell(const std::string& c)
   "test constructor"_test = [] {
-    expect(eq(Cmd().string(), ""s));       // 1
+    expect(eq(Cmd().string(), ""s)); // 1
     expect(eq(Cmd("cd").string(), "cd"s)); // 2
     expect(eq(Cmd("cd").string(), "cd"s)); // 3
   };

@@ -343,8 +343,8 @@ Parser::expr() {
   if (const auto token = lexer.peek(); !token.has_value()) {
     throw cfg::expression_error("expected start of a cfg expression");
   } else if (token->kind == Token::Ident) {
-    if (token->get_ident() == Token::ident::all ||
-        token->get_ident() == Token::ident::any) {
+    if (token->get_ident() == Token::ident::all
+        || token->get_ident() == Token::ident::any) {
       this->lexer.next();
       this->eat_left_paren(token->get_ident());
       Vec<CfgExpr> e;

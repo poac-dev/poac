@@ -52,8 +52,8 @@ struct ident_error : public cfg::exception {
 public:
   explicit ident_error(const String& what_)
       : exception(
-            "cfg expected parenthesis, comma, identifier, or string\n" + what_
-        ) {}
+          "cfg expected parenthesis, comma, identifier, or string\n" + what_
+      ) {}
   explicit ident_error(const char* what_) : ident_error(String(what_)) {}
   ~ident_error() noexcept override = default;
 
@@ -160,24 +160,24 @@ struct Token {
 
   explicit Token(Kind k)
       : kind(
-            k != Kind::String && k != Kind::Ident
-                ? k
-                : throw std::invalid_argument("poac::util::cfg::Token")
-        ),
+          k != Kind::String && k != Kind::Ident
+              ? k
+              : throw std::invalid_argument("poac::util::cfg::Token")
+      ),
         value() {}
   Token(Kind k, string_type s)
       : kind(
-            k == Kind::String
-                ? k
-                : throw std::invalid_argument("poac::util::cfg::Token")
-        ),
+          k == Kind::String
+              ? k
+              : throw std::invalid_argument("poac::util::cfg::Token")
+      ),
         value(s) {}
   Token(Kind k, ident i)
       : kind(
-            k == Kind::Ident
-                ? k
-                : throw std::invalid_argument("poac::util::cfg::Token")
-        ),
+          k == Kind::Ident
+              ? k
+              : throw std::invalid_argument("poac::util::cfg::Token")
+      ),
         value(i) {}
 
   // clang-format off
@@ -360,24 +360,24 @@ struct CfgExpr {
 
   CfgExpr(Kind kind, expr_type&& expr)
       : kind(
-            kind == Kind::not_ || kind == Kind::cfg
-                ? kind
-                : throw std::invalid_argument("poac::util::cfg::CfgExpr")
-        ),
+          kind == Kind::not_ || kind == Kind::cfg
+              ? kind
+              : throw std::invalid_argument("poac::util::cfg::CfgExpr")
+      ),
         expr(std::move(expr)) {}
   CfgExpr(Kind kind, expr_list_type&& expr)
       : kind(
-            kind == Kind::all || kind == Kind::any
-                ? kind
-                : throw std::invalid_argument("poac::util::cfg::CfgExpr")
-        ),
+          kind == Kind::all || kind == Kind::any
+              ? kind
+              : throw std::invalid_argument("poac::util::cfg::CfgExpr")
+      ),
         expr(std::move(expr)) {}
   CfgExpr(Kind kind, const Cfg& c)
       : kind(
-            kind == Kind::value
-                ? kind
-                : throw std::invalid_argument("poac::util::cfg::CfgExpr")
-        ),
+          kind == Kind::value
+              ? kind
+              : throw std::invalid_argument("poac::util::cfg::CfgExpr")
+      ),
         expr(c) {}
 
   // clang-format off

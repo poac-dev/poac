@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional> // std::equal_to
-#include <iterator>   // std::begin, std::end
+#include <iterator> // std::begin, std::end
 #include <map>
 #include <memory>
 #include <optional>
@@ -20,7 +20,7 @@
 
 // external
 #include <boost/container_hash/hash.hpp>
-#include <fmt/core.h>   // NOLINT(build/include_order)
+#include <fmt/core.h> // NOLINT(build/include_order)
 #include <fmt/format.h> // NOLINT(build/include_order)
 #include <fmt/ranges.h> // fmt::join // NOLINT(build/include_order)
 #include <mitama/anyhow/anyhow.hpp>
