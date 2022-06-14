@@ -12,8 +12,6 @@ namespace poac::core::builder::compiler::cxx {
 
 [[nodiscard]] Result<util::cfg::compiler>
 get_compiler_ident(const String& compiler_command) {
-  std::cout << "compiler_command: " << compiler_command << std::endl;
-
 #ifdef __APPLE__
   if (const auto res = util::shell::Cmd(compiler_command + " --version")
                            .stderr_to_stdout()
@@ -24,11 +22,12 @@ get_compiler_ident(const String& compiler_command) {
   }
 #endif
 
-  if (compiler_command.find("g++") != SNone) {
-    return Ok(util::cfg::compiler::gcc);
-  }
+  // `clang++` should be before `g++` because `g++` is a part of `clang++`
   if (compiler_command.find("clang++") != SNone) {
     return Ok(util::cfg::compiler::clang);
+  }
+  if (compiler_command.find("g++") != SNone) {
+    return Ok(util::cfg::compiler::gcc);
   }
   return Err<UnknownCompilerCommand>(compiler_command);
 }
