@@ -23,22 +23,24 @@ namespace poac::core::resolver::resolve {
 Vec<Vec<i32>>
 multiple_versions_cnf(const Vec<i32>& clause) {
   return boost::irange(0, 1 << clause.size()) // number of combinations
-       | boost::adaptors::transformed([&clause](const i32 i) {
-           return boost::dynamic_bitset<>(to_binary_numbers(i, clause.size()));
-         }) |
-         boost::adaptors::filtered([](const boost::dynamic_bitset<>& bs) {
-           return bs.count() != 1;
-         }) |
-         boost::adaptors::transformed(
+         | boost::adaptors::transformed([&clause](const i32 i) {
+             return boost::dynamic_bitset<>(to_binary_numbers(i, clause.size())
+             );
+           })
+         | boost::adaptors::filtered([](const boost::dynamic_bitset<>& bs) {
+             return bs.count() != 1;
+           })
+         | boost::adaptors::transformed(
              [&clause](const boost::dynamic_bitset<>& bs) -> Vec<i32> {
-               return boost::irange(usize{0}, bs.size()) |
-                      boost::adaptors::transformed([&clause, &bs](const i32 i) {
-                        return bs[i] ? clause[i] * -1 : clause[i];
-                      }) |
-                      util::meta::containerized;
+               return boost::irange(usize{0}, bs.size())
+                      | boost::adaptors::transformed([&clause,
+                                                      &bs](const i32 i) {
+                          return bs[i] ? clause[i] * -1 : clause[i];
+                        })
+                      | util::meta::containerized;
              }
-         ) |
-         util::meta::containerized;
+         )
+         | util::meta::containerized;
 }
 
 Vec<Vec<i32>>
@@ -72,11 +74,11 @@ create_cnf(const DupDeps<WithDeps>& activated) {
               util::meta::index_of_if(
                   first, last,
                   [&n = name, &v = version](const auto& d) {
-                    return get_package(d).name == n &&
-                           get_package(d).version_rq == v;
+                    return get_package(d).name == n
+                           && get_package(d).version_rq == v;
                   }
-              ) +
-              1
+              )
+              + 1
           );
         }
         clauses.emplace_back(clause);
@@ -100,11 +102,11 @@ create_cnf(const DupDeps<WithDeps>& activated) {
                 util::meta::index_of_if(
                     first, last,
                     [&package](const auto& p) {
-                      return get_package(p).name == package.name &&
-                             get_package(p).version_rq == package.version_rq;
+                      return get_package(p).name == package.name
+                             && get_package(p).version_rq == package.version_rq;
                     }
-                ) +
-                1
+                )
+                + 1
             );
           }
           clauses.emplace_back(new_clause);
@@ -159,9 +161,9 @@ get_versions_satisfy_interval(const Package& package) {
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(package.version_rq);
   const Vec<String> satisfied_versions =
-      Try(util::net::api::versions(package.name)) |
-      boost::adaptors::filtered([&i](StringRef s) { return i.satisfies(s); }) |
-      util::meta::containerized;
+      Try(util::net::api::versions(package.name))
+      | boost::adaptors::filtered([&i](StringRef s) { return i.satisfies(s); })
+      | util::meta::containerized;
 
   if (satisfied_versions.empty()) {
     return Err(format(

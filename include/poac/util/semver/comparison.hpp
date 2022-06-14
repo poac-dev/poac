@@ -22,8 +22,8 @@ namespace detail {
 
 inline bool
 operator==(const Version& lhs, const Version& rhs) {
-  return lhs.major == rhs.major && lhs.minor == rhs.minor &&
-         lhs.patch == rhs.patch && detail::eq_pre(lhs, rhs);
+  return lhs.major == rhs.major && lhs.minor == rhs.minor
+         && lhs.patch == rhs.patch && detail::eq_pre(lhs, rhs);
 }
 inline bool
 operator==(const Version& lhs, const std::string& rhs) {

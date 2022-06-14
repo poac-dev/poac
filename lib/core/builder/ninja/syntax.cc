@@ -19,7 +19,7 @@ expand(const String& text, const Variables& vars, const Variables& local_vars) {
       return "$"s;
     }
     return local_vars.contains(var) ? local_vars.at(var)
-         : vars.contains(var)       ? vars.at(var)
+           : vars.contains(var)     ? vars.at(var)
                                     : ""s;
   };
   return boost::regex_replace(text, boost::regex("\\$(\\$|\\w*)"), exp);

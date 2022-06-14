@@ -89,8 +89,8 @@ main() {
       expect(test1);
 
       expect(std::holds_alternative<Token::whitespace_type>(token.component));
-      const bool test2 = std::get<Token::whitespace_type>(token.component) ==
-                         Token::whitespace_type(0, 2);
+      const bool test2 = std::get<Token::whitespace_type>(token.component)
+                         == Token::whitespace_type(0, 2);
       expect(test2);
     };
     it("AlphaNumeric") = [&] {
@@ -109,8 +109,8 @@ main() {
       expect(test1);
 
       expect(std::holds_alternative<Token::whitespace_type>(token.component));
-      const bool test2 = std::get<Token::whitespace_type>(token.component) ==
-                         Token::whitespace_type(5, 9);
+      const bool test2 = std::get<Token::whitespace_type>(token.component)
+                         == Token::whitespace_type(5, 9);
       expect(test2);
     };
     it("AlphaNumeric 2") = [&] {

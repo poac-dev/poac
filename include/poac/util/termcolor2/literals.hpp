@@ -3,7 +3,7 @@
 
 // std
 #include <cstddef> // std::size_t
-#include <string>  // std::basic_string
+#include <string> // std::basic_string
 
 // internal
 #include "poac/util/termcolor2/to_color.hpp"

@@ -201,8 +201,8 @@ using_keywords(StringRef s) {
       "xor",
       "xor_eq",
   };
-  if (std::find(std::cbegin(blacklist), std::cend(blacklist), s) !=
-      std::cend(blacklist)) {
+  if (std::find(std::cbegin(blacklist), std::cend(blacklist), s)
+      != std::cend(blacklist)) {
     return Err(
         format("`{}` is a keyword; it cannot be used as a package name", s)
     );
@@ -301,9 +301,9 @@ valid_edition(const i32& edition) {
 [[nodiscard]] Result<void, String>
 valid_license(StringRef license) {
   // This list is from https://choosealicense.com/licenses
-  if (license == "AGPL-3.0" || license == "GPL-3.0" || license == "LGPL-3.0" ||
-      license == "MPL-2.0" || license == "Apache-2.0" || license == "MIT" ||
-      license == "BSL-1.0" || license == "Unlicense") {
+  if (license == "AGPL-3.0" || license == "GPL-3.0" || license == "LGPL-3.0"
+      || license == "MPL-2.0" || license == "Apache-2.0" || license == "MIT"
+      || license == "BSL-1.0" || license == "Unlicense") {
     return Ok();
   }
   return Err(format(

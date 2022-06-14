@@ -39,8 +39,8 @@ using Unknown = Error<"unknown error occurred: {}", String>;
 
 inline String
 get_install_name(const resolve::Package& package) {
-  return boost::replace_first_copy(package.name, "/", "-") + "-" +
-         package.version_rq;
+  return boost::replace_first_copy(package.name, "/", "-") + "-"
+         + package.version_rq;
 }
 
 inline Path

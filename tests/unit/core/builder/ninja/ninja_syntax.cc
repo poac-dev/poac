@@ -78,11 +78,11 @@ main() {
     it("test escaped spaces") = [] {
       ninja::syntax::Writer writer{std::ostringstream(), 8};
       writer._line(join(vec{"x"s, LONGWORDWITHSPACES, "y"s}, " "));
-      expect(eq(
-          join(vec{"x"s, INDENT + LONGWORDWITHSPACES, INDENT + "y"}, " $\n") +
-              '\n',
-          writer.get_value()
-      ));
+      expect(
+          eq(join(vec{"x"s, INDENT + LONGWORDWITHSPACES, INDENT + "y"}, " $\n")
+                 + '\n',
+             writer.get_value())
+      );
     };
 
     it("test fit many words") = [] {

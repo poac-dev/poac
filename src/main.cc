@@ -8,7 +8,7 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/variadic/to_seq.hpp>
 #include <spdlog/sinks/stdout_sinks.h> // NOLINT(build/include_order)
-#include <spdlog/spdlog.h>             // NOLINT(build/include_order)
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 
 // internal

@@ -33,8 +33,8 @@ calc(StringRef a, StringRef b) {
     for (usize j = 1; j <= bsize; ++j) {
       const usize substCost = a[i - 1] == b[j - 1] ? 0 : 1;
       d[i][j] = std::min({
-          d[i - 1][j] + 1,            // deletion
-          d[i][j - 1] + 1,            // insertion
+          d[i - 1][j] + 1, // deletion
+          d[i][j - 1] + 1, // insertion
           d[i - 1][j - 1] + substCost // substitution
       });
     }

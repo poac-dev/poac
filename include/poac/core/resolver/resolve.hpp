@@ -101,11 +101,19 @@ bool
 duplicate_loose(const SinglePassRange& rng) {
   const auto first = std::begin(rng);
   const auto last = std::end(rng);
-  return std::find_if(first, last, [&](const auto& x) {
-           return std::count_if(first, last, [&](const auto& y) {
-                    return get_package(x).name == get_package(y).name;
-                  }) > 1;
-         }) != last;
+  return std::find_if(
+             first, last,
+             [&](const auto& x) {
+               return std::count_if(
+                          first, last,
+                          [&](const auto& y) {
+                            return get_package(x).name == get_package(y).name;
+                          }
+                      )
+                      > 1;
+             }
+         )
+         != last;
 }
 
 // Interval to multiple versions

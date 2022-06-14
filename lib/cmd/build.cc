@@ -2,7 +2,7 @@
 #include <string>
 
 // external
-#include <spdlog/spdlog.h>    // NOLINT(build/include_order)
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <spdlog/stopwatch.h> // NOLINT(build/include_order)
 
 // internal

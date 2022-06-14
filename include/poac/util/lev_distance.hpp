@@ -3,8 +3,8 @@
 
 // std
 #include <algorithm> // std::min, std::equal
-#include <locale>    // std::tolower
-#include <span>      // NOLINT(build/include_order)
+#include <locale> // std::tolower
+#include <span> // NOLINT(build/include_order)
 
 // internal
 #include "poac/poac.hpp"

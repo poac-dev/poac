@@ -1,6 +1,6 @@
 // external
 #include <ninja/load_status.h> // LoadStatus // NOLINT(build/include_order)
-#include <spdlog/spdlog.h>     // NOLINT(build/include_order)
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include "poac/core/builder/ninja/log.hpp"

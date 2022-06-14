@@ -66,24 +66,23 @@ struct Token {
 
   constexpr Token(Kind k, const std::size_t& s1, const std::size_t& s2)
       : kind(
-            k != Kind::Whitespace ? throw std::invalid_argument("semver::Token")
-                                  : Kind::Whitespace
-        ),
+          k != Kind::Whitespace ? throw std::invalid_argument("semver::Token")
+                                : Kind::Whitespace
+      ),
         component(std::make_pair(s1, s2)) {}
 
   constexpr Token(Kind k, const numeric_type& n)
       : kind(
-            k != Kind::Numeric ? throw std::invalid_argument("semver::Token")
-                               : Kind::Numeric
-        ),
+          k != Kind::Numeric ? throw std::invalid_argument("semver::Token")
+                             : Kind::Numeric
+      ),
         component(n) {}
 
   constexpr Token(Kind k, alphanumeric_type c)
       : kind(
-            k != Kind::AlphaNumeric
-                ? throw std::invalid_argument("semver::Token")
-                : Kind::AlphaNumeric
-        ),
+          k != Kind::AlphaNumeric ? throw std::invalid_argument("semver::Token")
+                                  : Kind::AlphaNumeric
+      ),
         component(c) {}
 
   Token(const Token&) = default;
@@ -106,10 +105,10 @@ struct Token {
 
   constexpr bool
   is_wildcard() const noexcept {
-    return kind == Kind::Star ||
-           (std::holds_alternative<alphanumeric_type>(component) &&
-            (std::get<alphanumeric_type>(component) == "X" ||
-             std::get<alphanumeric_type>(component) == "x"));
+    return kind == Kind::Star
+           || (std::holds_alternative<alphanumeric_type>(component)
+               && (std::get<alphanumeric_type>(component) == "X"
+                   || std::get<alphanumeric_type>(component) == "x"));
   }
 };
 
@@ -168,18 +167,17 @@ struct Identifier {
 
   constexpr Identifier(Kind k, const numeric_type& n)
       : kind(
-            k != Kind::Numeric
-                ? throw std::invalid_argument("semver::Identifier")
-                : Kind::Numeric
-        ),
+          k != Kind::Numeric ? throw std::invalid_argument("semver::Identifier")
+                             : Kind::Numeric
+      ),
         component(n) {}
 
   constexpr Identifier(Kind k, alphanumeric_type c)
       : kind(
-            k != Kind::AlphaNumeric
-                ? throw std::invalid_argument("semver::Identifier")
-                : Kind::AlphaNumeric
-        ),
+          k != Kind::AlphaNumeric
+              ? throw std::invalid_argument("semver::Identifier")
+              : Kind::AlphaNumeric
+      ),
         component(c) {}
 
   constexpr bool

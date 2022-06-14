@@ -32,8 +32,8 @@ is_outdated(const Path& build_dir) {
     return true;
   }
   using poac::data::manifest::poac_toml_last_modified;
-  return ninja_manifest_last_modified(build_dir) <
-         poac_toml_last_modified(config::path::cur_dir);
+  return ninja_manifest_last_modified(build_dir)
+         < poac_toml_last_modified(config::path::cur_dir);
 }
 
 bool

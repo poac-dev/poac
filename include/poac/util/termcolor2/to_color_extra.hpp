@@ -2,8 +2,8 @@
 #define POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_
 
 // std
-#include <cstddef>     // std::size_t
-#include <string>      // std::basic_string
+#include <cstddef> // std::size_t
+#include <string> // std::basic_string
 #include <string_view> // std::basic_string_view
 
 // internal

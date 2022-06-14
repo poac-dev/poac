@@ -18,9 +18,9 @@
 namespace poac::core::resolver::sat {
 
 enum class Status {
-  satisfied,   // found a satisfying assignment
+  satisfied, // found a satisfying assignment
   unsatisfied, // found no satisfying assignment
-  normal,      // Successful completion OR unsolved
+  normal, // Successful completion OR unsolved
 };
 
 Vec<i32>
