@@ -11,16 +11,16 @@
 namespace poac::core::builder::compiler::cxx {
 
 [[nodiscard]] Result<util::cfg::compiler>
-get_compiler_ident(const String& compiler_command) {
-#ifdef __APPLE__
-  if (const auto res = util::shell::Cmd(compiler_command + " --version")
-                           .stderr_to_stdout()
-                           .exec()) {
-    if (res.output().find("Apple") != SNone) {
-      return Ok(util::cfg::compiler::apple_clang);
+get_compiler_ident(const String& compiler_command, const bool is_macos) {
+  if (is_macos) {
+    if (const auto res = util::shell::Cmd(compiler_command + " --version")
+                             .stderr_to_stdout()
+                             .exec()) {
+      if (res.output().find("Apple") != SNone) {
+        return Ok(util::cfg::compiler::apple_clang);
+      }
     }
   }
-#endif
 
   // `clang++` should be before `g++` because `g++` is a part of `clang++`
   if (compiler_command.find("clang++") != SNone) {
@@ -68,7 +68,12 @@ get_compiler_command() {
 get_command(const i64 edition, const bool use_gnu_extension) {
   const String compiler_command = Try(get_compiler_command());
   const util::cfg::compiler compiler =
-      Try(get_compiler_ident(compiler_command));
+#ifdef __APPLE__
+      Try(get_compiler_ident(compiler_command, true));
+#else
+      Try(get_compiler_ident(compiler_command, false));
+#endif
+
   const String std_flag =
       Try(get_std_flag(compiler, compiler_command, edition, use_gnu_extension));
   return Ok(format("{} {}", compiler_command, std_flag));

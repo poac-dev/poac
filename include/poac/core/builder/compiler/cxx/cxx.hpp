@@ -15,7 +15,7 @@ using UnknownCompilerCommand =
 using UnsupportedCompiler = Error<"unsupported compiler found: {}", String>;
 
 [[nodiscard]] Result<util::cfg::compiler>
-get_compiler_ident(const String& compiler_command);
+get_compiler_ident(const String& compiler_command, const bool is_macos);
 
 [[nodiscard]] Result<String>
 get_std_flag(
