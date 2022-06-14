@@ -11,6 +11,9 @@ namespace poac::core::builder::compiler::cxx::gcc {
 inline constexpr util::cfg::compiler compiler = util::cfg::compiler::gcc;
 
 [[nodiscard]] Result<semver::Version>
+get_compiler_version_impl(const String& cmd_output);
+
+[[nodiscard]] Result<semver::Version>
 get_compiler_version(const String& compiler_command);
 
 // thanks to:

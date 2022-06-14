@@ -9,26 +9,30 @@
 namespace poac::core::builder::compiler::cxx::clang {
 
 [[nodiscard]] Result<semver::Version>
+get_compiler_version_impl(const String& cmd_output) {
+  // `clang version 12.0.0 (...)`
+  String search = "version ";
+  usize i = cmd_output.find(search);
+  if (i == SNone) {
+    return Err<error::FailedToGetCompilerVersion>(compiler);
+  }
+
+  String version;
+  for (i += search.size(); i < cmd_output.size(); ++i) {
+    if (std::isdigit(cmd_output[i]) || cmd_output[i] == '.') {
+      version += cmd_output[i];
+    } else {
+      break;
+    }
+  }
+  return Ok(semver::parse(version));
+}
+
+[[nodiscard]] Result<semver::Version>
 get_compiler_version(const String& compiler_command) {
   const auto res = util::shell::Cmd(compiler_command + " --version").exec();
   if (res.is_ok()) {
-    // `clang version 12.0.0 (...)`
-    const String output = res.output();
-    String search = "version ";
-    usize i = output.find(search);
-    if (i == SNone) {
-      return Err<error::FailedToGetCompilerVersion>(compiler);
-    }
-
-    String version;
-    for (i += search.size(); i < output.size(); ++i) {
-      if (std::isdigit(output[i]) || output[i] == '.') {
-        version += output[i];
-      } else {
-        break;
-      }
-    }
-    return Ok(semver::parse(version));
+    return get_compiler_version_impl(res.output());
   }
   return Err<error::FailedToGetCompilerVersion>(compiler);
 }

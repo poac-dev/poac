@@ -7,20 +7,24 @@
 namespace poac::core::builder::compiler::cxx::apple_clang {
 
 [[nodiscard]] Result<semver::Version>
+get_compiler_version_impl(const String& cmd_output) {
+  // `Apple clang version 13.0.0 (...)`
+  String version;
+  for (usize i = 20; i < cmd_output.size(); ++i) {
+    if (cmd_output[i] == ' ') { // read until space
+      break;
+    }
+    version += cmd_output[i];
+  }
+  return Ok(semver::parse(version));
+}
+
+[[nodiscard]] Result<semver::Version>
 get_compiler_version(const String& compiler_command) {
   const auto res =
       util::shell::Cmd(compiler_command + " --version").dump_stderr().exec();
   if (res.is_ok()) {
-    // `Apple clang version 13.0.0 (...)`
-    const String output = res.output();
-    String version;
-    for (usize i = 20; i < output.size(); ++i) {
-      if (output[i] == ' ') { // read until space
-        break;
-      }
-      version += output[i];
-    }
-    return Ok(semver::parse(version));
+    return get_compiler_version_impl(res.output());
   }
   return Err<error::FailedToGetCompilerVersion>(compiler);
 }

@@ -9,26 +9,30 @@
 namespace poac::core::builder::compiler::cxx::gcc {
 
 [[nodiscard]] Result<semver::Version>
+get_compiler_version_impl(const String& cmd_output) {
+  // `g++ (GCC) 11.2.0\n`
+  usize itr = cmd_output.find('(');
+  if (itr == SNone) {
+    return Err<error::FailedToGetCompilerVersion>(compiler);
+  }
+  itr = cmd_output.find(')', itr + 1);
+
+  String version;
+  for (itr += 2; itr < cmd_output.size(); ++itr) {
+    if (std::isdigit(cmd_output[itr]) || cmd_output[itr] == '.') {
+      version += cmd_output[itr];
+    } else {
+      break;
+    }
+  }
+  return Ok(semver::parse(version));
+}
+
+[[nodiscard]] Result<semver::Version>
 get_compiler_version(const String& compiler_command) {
   const auto res = util::shell::Cmd(compiler_command + " --version").exec();
   if (res.is_ok()) {
-    // `g++ (GCC) 11.2.0\n`
-    const String output = res.output();
-    usize itr = output.find('(');
-    if (itr == SNone) {
-      return Err<error::FailedToGetCompilerVersion>(compiler);
-    }
-    itr = output.find(')', itr + 1);
-
-    String version;
-    for (itr += 2; itr < output.size(); ++itr) {
-      if (std::isdigit(output[itr]) || output[itr] == '.') {
-        version += output[itr];
-      } else {
-        break;
-      }
-    }
-    return Ok(semver::parse(version));
+    return get_compiler_version_impl(res.output());
   }
   return Err<error::FailedToGetCompilerVersion>(compiler);
 }
