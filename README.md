@@ -40,8 +40,8 @@ poac:~$ poac create hello_world
 > **Note**:
 > If you want to integrate your existing project with Poac, use the `init` command:
 > 
-> ```bash
-> your-pj/$ poac init
+> ```console
+> you:~/your-pj$ poac init
 >      Created binary (application) `your-pj` package
 > ```
 > 
