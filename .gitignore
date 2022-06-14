@@ -21,3 +21,6 @@ package-lock.json
 *.gcno
 *.gcda
 *.gcov
+
+# doxygen
+html

@@ -1,0 +1,26 @@
+name: Doxygen
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Graphviz
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get install -y -qq graphviz
+
+      - name: Build docs with doxygen
+        uses: mattnotmitt/doxygen-action@v1.9.2
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./html
+          cname: dev.poac.pm
