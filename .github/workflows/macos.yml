@@ -44,8 +44,8 @@ jobs:
         run: ctest --output-on-failure --verbose
         working-directory: build
 
-      - name: Uninstall optional software for some commands
-        run: brew uninstall clang-format
+      - name: Install optional software for some commands
+        run: brew install clang-format
 
       - name: More test Poac
         run: ctest --output-on-failure --verbose
