@@ -23,5 +23,6 @@ macro(createTests TEST_NAMES)
     endforeach ()
 endmacro()
 
+add_subdirectory(create)
 add_subdirectory(fmt)
 add_subdirectory(init)
