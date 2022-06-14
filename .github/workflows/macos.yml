@@ -44,10 +44,10 @@ jobs:
         run: ctest --output-on-failure --verbose
         working-directory: build
 
-      - name: Install required software to process UI tests
+      - name: Install optional software for some commands
         run: brew install clang-format
 
-      - name: UI Test
+      - name: More test Poac
         run: ctest --output-on-failure --verbose
         working-directory: build
 
@@ -59,7 +59,7 @@ jobs:
         run: ./poac --help
         working-directory: build
 
-      - name: Running Test
+      - name: Test binary
         run: |
           ./build/poac create hello_world
           cd hello_world
