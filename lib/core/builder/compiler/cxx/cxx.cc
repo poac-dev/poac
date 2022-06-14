@@ -12,22 +12,22 @@ namespace poac::core::builder::compiler::cxx {
 
 [[nodiscard]] Result<util::cfg::compiler>
 get_compiler_ident(const String& compiler_command) {
-  if (compiler_command.starts_with("g++") ||
-      compiler_command.starts_with("clang++")) {
 #ifdef __APPLE__
-    if (const auto res = util::shell::Cmd(compiler_command + " --version")
-                             .stderr_to_stdout()
-                             .exec()) {
-      if (res.output().find("Apple") != SNone) {
-        return Ok(util::cfg::compiler::apple_clang);
-      }
+  if (const auto res = util::shell::Cmd(compiler_command + " --version")
+                           .stderr_to_stdout()
+                           .exec()) {
+    if (res.output().find("Apple") != SNone) {
+      return Ok(util::cfg::compiler::apple_clang);
     }
+  }
 #endif
-    if (compiler_command.starts_with("g++")) {
-      return Ok(util::cfg::compiler::gcc);
-    } else if (compiler_command.starts_with("clang++")) {
-      return Ok(util::cfg::compiler::clang);
-    }
+
+  // `clang++` should be before `g++` because `g++` is a part of `clang++`
+  if (compiler_command.find("clang++") != SNone) {
+    return Ok(util::cfg::compiler::clang);
+  }
+  if (compiler_command.find("g++") != SNone) {
+    return Ok(util::cfg::compiler::gcc);
   }
   return Err<UnknownCompilerCommand>(compiler_command);
 }
