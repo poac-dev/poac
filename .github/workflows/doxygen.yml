@@ -13,7 +13,7 @@ jobs:
       - name: Install Graphviz
         run: |
           sudo apt-get -qq update
-          sudo apt-get install -y -qq graphviz
+          sudo apt-get install -y graphviz
 
       - name: Build docs with doxygen
         uses: mattnotmitt/doxygen-action@v1.9.2

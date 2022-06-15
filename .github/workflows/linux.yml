@@ -49,17 +49,17 @@ jobs:
 
       - name: Setup GCC
         if: startsWith(matrix.compiler.cc, 'gcc')
-        run: sudo apt-get install -y -qq ${{ matrix.compiler.cxx }}
+        run: sudo apt-get install -y ${{ matrix.compiler.cxx }}
 
       - name: Setup Clang
         if: startsWith(matrix.compiler.cc, 'clang')
-        run: sudo apt-get install -y -qq ${{ matrix.compiler.cc }}
+        run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
       - name: Install Ninja, openssl, & ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y -qq ninja-build libssl-dev ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y ninja-build libssl-dev ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache CMake build results
         if: matrix.coverage != 'on'
@@ -103,7 +103,7 @@ jobs:
         working-directory: build
 
       - name: Uninstall optional software for some commands
-        run: sudo apt-get purge -y -qq clang-format
+        run: sudo apt-get purge -y clang-format
 
       - name: More test Poac
         run: ctest --output-on-failure --verbose
