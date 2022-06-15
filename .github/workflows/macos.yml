@@ -35,15 +35,12 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake                                              \
-            -B build                                         \
-            -G Ninja                                         \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}      \
-            -DPOAC_BUILD_TESTING=ON                          \
-            -DCPM_USE_LOCAL_PACKAGES=${{ matrix.use_local }} \
-            -DCPM_LOCAL_PACKAGES_ONLY=${{ matrix.use_local }}
-        env:
-          PKG_CONFIG_PATH: "/usr/local/opt/libarchive/lib/pkgconfig"
+          cmake                                         \
+            -B build                                    \
+            -G Ninja                                    \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DPOAC_BUILD_TESTING=ON                     \
+            -DCPM_USE_LOCAL_PACKAGES=${{ matrix.use_local }}
 
       - name: Build Poac
         run: ninja
