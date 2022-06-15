@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ Debug, Release ]
+        use_local: [ on, off ]
         coverage: [ off ]
         compiler:
           - cc: clang-12
@@ -89,9 +90,9 @@ jobs:
           cmake                                           \
             -B build                                      \
             -G Ninja                                      \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
             -DPOAC_BUILD_TESTING=ON                       \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
             -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
 
       - name: Build Poac

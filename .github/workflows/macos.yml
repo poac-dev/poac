@@ -14,6 +14,7 @@ jobs:
       matrix:
         os: [ macos-11, macos-12 ]
         build_type: [ Debug, Release ]
+        use_local: [ on, off ]
     env:
       CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
@@ -21,6 +22,10 @@ jobs:
 
       - name: Install required libraries
         run: brew install openssl ninja boost
+
+      - name: Install optional libraries
+        if: matrix.use_local == 'on'
+        run: brew install libarchive libgit2 fmt spdlog
 
       - name: Restore & Cache CMake build results
         uses: actions/cache@v3.0.3
@@ -30,11 +35,13 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake                                         \
-            -B build                                    \
-            -G Ninja                                    \
-            -DPOAC_BUILD_TESTING=ON                     \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          cmake                                              \
+            -B build                                         \
+            -G Ninja                                         \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}      \
+            -DPOAC_BUILD_TESTING=ON                          \
+            -DCPM_USE_LOCAL_PACKAGES=${{ matrix.use_local }} \
+            -DCPM_LOCAL_PACKAGES_ONLY=${{ matrix.use_local }}
 
       - name: Build Poac
         run: ninja
