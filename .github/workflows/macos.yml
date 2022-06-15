@@ -25,7 +25,9 @@ jobs:
 
       - name: Install optional libraries
         if: matrix.use_local == 'on'
-        run: brew install libarchive libgit2 fmt spdlog
+        run: |
+          brew install libarchive libgit2 fmt spdlog
+          brew link --force libarchive
 
       - name: Restore & Cache CMake build results
         uses: actions/cache@v3.0.3
