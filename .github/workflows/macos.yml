@@ -25,9 +25,7 @@ jobs:
 
       - name: Install optional libraries
         if: matrix.use_local == 'on'
-        run: |
-          brew install libarchive libgit2 fmt spdlog
-          brew link --force libarchive
+        run: brew install libarchive libgit2 fmt spdlog
 
       - name: Restore & Cache CMake build results
         uses: actions/cache@v3.0.3
@@ -44,6 +42,8 @@ jobs:
             -DPOAC_BUILD_TESTING=ON                          \
             -DCPM_USE_LOCAL_PACKAGES=${{ matrix.use_local }} \
             -DCPM_LOCAL_PACKAGES_ONLY=${{ matrix.use_local }}
+        env:
+          PKG_CONFIG_PATH: "/usr/local/opt/libarchive/lib/pkgconfig"
 
       - name: Build Poac
         run: ninja
