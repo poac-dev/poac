@@ -16,7 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ Debug, Release ]
-        use_local: [ on, off ]
         coverage: [ off ]
         compiler:
           - cc: clang-12
