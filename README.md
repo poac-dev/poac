@@ -274,7 +274,7 @@ Since all packages through these providers may not be maintained by Poac owners,
 ### macOS
 
 ```bash
-brew install poacpm/tap/poac
+brew install poac
 ```
 
 ### Arch Linux
