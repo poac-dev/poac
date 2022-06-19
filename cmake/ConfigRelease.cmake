@@ -40,7 +40,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         if (lld_EXECUTABLE)
             set(STATIC_LINK_FLAG "${STATIC_FLAG} -fuse-ld=lld")
         else ()
-            set(STATIC_LINK_FLAG "${STATIC_FLAG}")
+            set(STATIC_LINK_FLAG "${STATIC_FLAG}") # use `ld`
         endif ()
     endif ()
     enable_ipo()
