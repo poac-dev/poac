@@ -1,6 +1,6 @@
 include_guard(GLOBAL)
 
-target_compile_definitions(poac PRIVATE POAC_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(poac PRIVATE POAC_VERSION="${CMAKE_PROJECT_VERSION}")
 if (NOT MSVC)
     # undefined reference to symbol 'pthread_condattr_setclock@@GLIBC_2.3.3'
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
