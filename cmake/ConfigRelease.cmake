@@ -15,7 +15,7 @@ function(enable_ipo)
 endfunction()
 
 if (APPLE)
-    set(STATIC_FLAG "-lc++")
+    set(STATIC_FLAG "-lc++abi")
 else ()
     set(STATIC_FLAG "-static")
 endif ()
