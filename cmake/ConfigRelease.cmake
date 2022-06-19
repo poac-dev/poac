@@ -15,6 +15,7 @@ function(enable_ipo)
 endfunction()
 
 if (APPLE)
+    # For nix, ref: https://github.com/NixOS/nixpkgs/issues/166205
     set(STATIC_FLAG "-lc++abi")
 else ()
     set(STATIC_FLAG "-static")
