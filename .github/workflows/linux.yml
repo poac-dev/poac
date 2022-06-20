@@ -86,13 +86,13 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake                                           \
-            -B build                                      \
-            -G Ninja                                      \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}   \
-            -DPOAC_BUILD_TESTING=ON                       \
-            -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }} \
-            -DPOAC_DEPS_DIR=${{ runner.temp }}/libs
+          cmake                                         \
+            -B build                                    \
+            -G Ninja                                    \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBOOST_ROOT=${{ runner.temp }}/libs/boost  \
+            -DPOAC_BUILD_TESTING=ON                     \
+            -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
 
       - name: Build Poac
         run: ninja
