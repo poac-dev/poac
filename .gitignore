@@ -1,5 +1,7 @@
+# macOS
 .DS_Store
 
+# CMake
 build/
 
 # CLion
@@ -9,18 +11,13 @@ cmake-build-debug/
 # VSCode
 .vscode/
 
-# gitbook
-node_modules/
-_book/
-package-lock.json
+# Poac
+/poac_output
 
-# poac
-/target
-
-# gcov
+# Gcov
 *.gcno
 *.gcda
 *.gcov
 
-# doxygen
+# Doxygen
 html
