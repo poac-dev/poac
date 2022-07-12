@@ -271,10 +271,16 @@ Since all packages through these providers may not be maintained by Poac owners,
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
-### macOS & [Linux](https://docs.brew.sh/Homebrew-on-Linux) via Homebrew
+### Via Homebrew
 
 ```bash
 brew install poac
+```
+
+### Via MacPorts
+
+```bash
+sudo port install poac
 ```
 
 ### Arch Linux
