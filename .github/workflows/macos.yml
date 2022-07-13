@@ -28,7 +28,7 @@ jobs:
         run: brew install libarchive libgit2 fmt spdlog
 
       - name: Restore & Cache CMake build results
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.5
         with:
           path: build
           key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
