@@ -49,7 +49,7 @@ endif ()
 add_subdirectory(lib)
 target_link_libraries(poac ${STATIC_LINK_FLAG}
     poac::cmd
-    poac::util
+    poac::util::lev_distance
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)

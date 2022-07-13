@@ -1,4 +1,8 @@
 # Headers including `poac/poac.hpp` require these libraries
+set(POAC_HPP_INCLUDES
+    ${CMAKE_HOME_DIRECTORY}/include
+    ${Boost_INCLUDE_DIRS}
+)
 set(POAC_HPP_LIBS
     fmt::fmt
     mitama-cpp-result::mitama-cpp-result

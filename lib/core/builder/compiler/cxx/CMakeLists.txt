@@ -13,8 +13,9 @@ target_link_libraries(poac_core_builder_compiler_cxx PUBLIC
     ${STATIC_LINK_FLAG}
     ${POAC_HPP_LIBS}
     poac_core_builder_compiler_lang
-    poac_util
+    poac_util_cfg
     poac_util_semver
+    poac_util_misc # in cxx.cc
 )
 
 add_library(poac::core::builder::compiler::cxx ALIAS poac_core_builder_compiler_cxx)
