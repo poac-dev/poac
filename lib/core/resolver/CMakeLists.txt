@@ -14,6 +14,8 @@ target_link_libraries(poac_core_resolver PUBLIC
     ${POAC_HPP_LIBS}
     poac_util_net
     poac_util_semver
+    poac_util_misc
+    poac_util_pretty
 )
 
 add_library(poac::core::resolver ALIAS poac_core_resolver)
