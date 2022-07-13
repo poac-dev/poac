@@ -26,10 +26,12 @@ foreach (TEST_NAME ${TEST_NAMES})
             ${CMAKE_HOME_DIRECTORY}/include
             ${Boost_INCLUDE_DIRS}
         )
-        target_link_libraries(${TEST_NAME} PRIVATE Boost::ut)
-        if (${TEST_NAME} STREQUAL "verbosity")
-            target_link_libraries(${TEST_NAME} PRIVATE fmt::fmt) # via spdlog
-        endif ()
+        target_link_libraries(${TEST_NAME} PRIVATE
+            Boost::ut
+            fmt::fmt
+            mitama-cpp-result::mitama-cpp-result
+            spdlog::spdlog
+        )
     else ()
         target_link_libraries(${TEST_NAME} PRIVATE Boost::ut "poac::util::${TEST_NAME}")
         if (${TEST_NAME} STREQUAL "net")
