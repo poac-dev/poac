@@ -28,7 +28,8 @@ target_link_libraries(poac_cmd PUBLIC
     Glob
 
     poac_core
-    poac_util
+    poac_util_pretty
+    poac_util_net
 )
 
 add_library(poac::cmd ALIAS poac_cmd)

@@ -16,7 +16,10 @@ target_link_libraries(poac_core PUBLIC
     poac_core_builder_ninja
     poac_core_resolver
     poac_data
-    poac_util
+    poac_util_archive
+    poac_util_sha256
+    poac_util_semver
+    poac_util_misc # via poac/config.hpp
     toml11::toml11
 )
 

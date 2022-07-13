@@ -10,7 +10,7 @@ target_include_directories(poac_core_builder_compiler_lang PUBLIC
 target_link_libraries(poac_core_builder_compiler_lang PUBLIC
     ${STATIC_LINK_FLAG}
     ${POAC_HPP_LIBS}
-    poac_util # cfg
+    poac_util_cfg
 )
 
 add_library(poac::core::builder::compiler::lang ALIAS poac_core_builder_compiler_lang)

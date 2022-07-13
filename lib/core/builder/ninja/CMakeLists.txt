@@ -17,7 +17,8 @@ target_link_libraries(poac_core_builder_ninja PUBLIC
     ${NINJA_LIBRARIES}
     Boost::regex
     toml11::toml11
-    poac_util
+    poac_util_cfg
+    poac_util_pretty
     poac_core_builder_compiler_cxx
     poac_core_resolver
 )
