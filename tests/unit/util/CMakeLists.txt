@@ -20,10 +20,23 @@ foreach (TEST_NAME ${TEST_NAMES})
     else ()
         target_compile_options(${TEST_NAME} PRIVATE -g -O0)
     endif ()
-    target_link_libraries(${TEST_NAME} PRIVATE
-        Boost::ut
-        poac::util
-    )
+
+    if (${TEST_NAME} STREQUAL "meta" OR ${TEST_NAME} STREQUAL "shell" OR ${TEST_NAME} STREQUAL "verbosity")
+        target_include_directories(${TEST_NAME} PUBLIC
+            ${CMAKE_HOME_DIRECTORY}/include
+            ${Boost_INCLUDE_DIRS}
+        )
+        target_link_libraries(${TEST_NAME} PRIVATE Boost::ut)
+        if (${TEST_NAME} STREQUAL "verbosity")
+            target_link_libraries(${TEST_NAME} PRIVATE fmt::fmt) # via spdlog
+        endif ()
+    else ()
+        target_link_libraries(${TEST_NAME} PRIVATE Boost::ut "poac::util::${TEST_NAME}")
+        if (${TEST_NAME} STREQUAL "net")
+            target_link_libraries(${TEST_NAME} PRIVATE poac::util::pretty) # FIXME: why needed?
+        endif ()
+    endif ()
+
     add_test(
         NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
         COMMAND ${TEST_NAME}
