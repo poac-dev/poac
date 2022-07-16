@@ -9,7 +9,7 @@ endif ()
 
 cmake_minimum_required(VERSION 3.21)
 project(poac
-    VERSION 0.3.7
+    VERSION 0.3.8
     LANGUAGES CXX
 )
 message(STATUS "CMake Version: ${CMAKE_VERSION}")
