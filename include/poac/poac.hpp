@@ -22,6 +22,7 @@
 #include <boost/container_hash/hash.hpp>
 #include <fmt/core.h> // NOLINT(build/include_order)
 #include <fmt/format.h> // NOLINT(build/include_order)
+#include <fmt/ostream.h> // ostream_formatter // NOLINT(build/include_order)
 #include <fmt/ranges.h> // fmt::join // NOLINT(build/include_order)
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/result/result.hpp>
@@ -220,6 +221,8 @@ namespace log {
 //
 // Custom formatters
 //
+#if FMT_VERSION < 90000
+
 namespace fmt {
 
 template <>
@@ -265,5 +268,11 @@ struct formatter<std::pair<T1, T2>> {
 };
 
 } // namespace fmt
+
+#else
+
+#  include <fmt/std.h>
+
+#endif
 
 #endif // POAC_POAC_HPP_
