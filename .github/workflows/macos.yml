@@ -16,7 +16,7 @@ jobs:
         build_type: [ Debug, Release ]
         use_local: [ on, off ]
     env:
-      CACHE_KEY_PREFIX: v3-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
+      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v3
 
