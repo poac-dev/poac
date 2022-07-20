@@ -221,6 +221,8 @@ namespace log {
 //
 // Custom formatters
 //
+#if FMT_VERSION < 90000
+
 namespace fmt {
 
 template <>
@@ -237,7 +239,6 @@ struct formatter<std::string_view> {
   }
 };
 
-#if FMT_VERSION < 90000
 template <>
 struct formatter<std::filesystem::path> {
   constexpr auto
@@ -251,10 +252,6 @@ struct formatter<std::filesystem::path> {
     return format_to(ctx.out(), "{}", p.string());
   }
 };
-#else
-template <>
-struct formatter<std::filesystem::path> : ostream_formatter {};
-#endif
 
 template <typename T1, typename T2>
 struct formatter<std::pair<T1, T2>> {
@@ -271,5 +268,11 @@ struct formatter<std::pair<T1, T2>> {
 };
 
 } // namespace fmt
+
+#else
+
+#  include <fmt/std.h>
+
+#endif
 
 #endif // POAC_POAC_HPP_
