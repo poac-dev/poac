@@ -37,11 +37,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     else ()
         target_link_libraries(${TEST_NAME} PRIVATE Boost::ut "poac::util::${TEST_NAME}")
         if (${TEST_NAME} STREQUAL "net")
-            target_link_libraries(${TEST_NAME} PRIVATE
-                spdlog::spdlog
-                poac::util::pretty
-                poac::util::misc
-            ) # FIXME: why needed?
+            target_link_libraries(${TEST_NAME} PRIVATE poac::util::pretty poac::util::misc) # FIXME: why needed?
         endif ()
     endif ()
 
