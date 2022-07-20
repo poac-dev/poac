@@ -253,7 +253,7 @@ struct formatter<std::filesystem::path> {
 };
 #else
 template <>
-struct fmt::formatter<std::filesystem::path> : ostream_formatter {};
+struct formatter<std::filesystem::path> : ostream_formatter {};
 #endif
 
 template <typename T1, typename T2>
