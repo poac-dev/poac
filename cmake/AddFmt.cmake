@@ -12,6 +12,7 @@ else ()
 endif ()
 CPMAddPackage(
     NAME fmt
+    VERSION 8.1.0 # minimum required version
     GITHUB_REPOSITORY fmtlib/fmt
     GIT_TAG 9.0.0
     OPTIONS
