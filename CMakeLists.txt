@@ -47,9 +47,11 @@ if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif ()
 
 add_subdirectory(lib)
-target_link_libraries(poac ${STATIC_LINK_FLAG}
+target_link_libraries(poac PRIVATE
+    ${STATIC_LINK_FLAG}
     poac_cmd
     poac_util_lev_distance
+    ${NINJA_LIBRARIES} # TODO: this should be propagated from poac_core_builder_ninja
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
