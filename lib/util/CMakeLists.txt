@@ -79,12 +79,4 @@ target_link_libraries(poac_util_net PUBLIC
     ${POAC_HPP_LIBS}
 )
 
-add_library(poac::util::archive ALIAS poac_util_archive)
-add_library(poac::util::cfg ALIAS poac_util_cfg)
-add_library(poac::util::lev_distance ALIAS poac_util_lev_distance)
-add_library(poac::util::misc ALIAS poac_util_misc)
-add_library(poac::util::net ALIAS poac_util_net)
-add_library(poac::util::pretty ALIAS poac_util_pretty)
-add_library(poac::util::sha256 ALIAS poac_util_sha256)
-
 add_subdirectory(semver)

@@ -22,5 +22,3 @@ target_link_libraries(poac_core_builder_ninja PUBLIC
     poac_core_builder_compiler_cxx
     poac_core_resolver
 )
-
-add_library(poac::core::builder::ninja ALIAS poac_core_builder_ninja)

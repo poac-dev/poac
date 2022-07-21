@@ -18,7 +18,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     endif ()
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
-        poac::util::semver
+        poac_util_semver
     )
     add_test(
         NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"

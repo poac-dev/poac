@@ -31,5 +31,3 @@ target_link_libraries(poac_cmd PUBLIC
     poac_util_pretty
     poac_util_net
 )
-
-add_library(poac::cmd ALIAS poac_cmd)

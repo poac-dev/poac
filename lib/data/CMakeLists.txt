@@ -13,5 +13,3 @@ target_link_libraries(poac_data PUBLIC
     toml11::toml11
     poac_core_resolver
 )
-
-add_library(poac::data ALIAS poac_data)
