@@ -1,5 +1,3 @@
-include(${CMAKE_SOURCE_DIR}/cmake/Helpers.cmake)
-
 add_poac_target(poac_core_builder_compiler_lang
     SOURCES
         error.cc

@@ -1,5 +1,3 @@
-include(${CMAKE_SOURCE_DIR}/cmake/Helpers.cmake)
-
 add_poac_target(poac_data
     SOURCES lockfile.cc
     DEFINES TOML11_NO_ERROR_PREFIX

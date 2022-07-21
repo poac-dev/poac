@@ -46,6 +46,7 @@ if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
 
+include(cmake/Helpers.cmake)
 add_subdirectory(lib)
 target_link_libraries(poac PRIVATE
     ${STATIC_LINK_FLAG}
