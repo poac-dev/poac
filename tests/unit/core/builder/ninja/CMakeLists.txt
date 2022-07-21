@@ -15,6 +15,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     target_link_libraries(${TEST_NAME} PRIVATE
         Boost::ut
         poac_core_builder_ninja
+        ${NINJA_LIBRARIES} # TODO: this should be propagated from poac_core_builder_ninja
     )
     add_test(
         NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"

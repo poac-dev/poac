@@ -1,19 +1,14 @@
-add_library(poac_core_builder_compiler_cxx
-    apple_clang.cc
-    clang.cc
-    cxx.cc
-    gcc.cc
-)
-
-target_compile_features(poac_core_builder_compiler_cxx PUBLIC cxx_std_20)
-target_include_directories(poac_core_builder_compiler_cxx PUBLIC
-    ${CMAKE_HOME_DIRECTORY}/include
-)
-target_link_libraries(poac_core_builder_compiler_cxx PUBLIC
-    ${STATIC_LINK_FLAG}
-    ${POAC_HPP_LIBS}
-    poac_core_builder_compiler_lang
-    poac_util_cfg
-    poac_util_semver
-    poac_util_misc # in cxx.cc
+add_poac_target(poac_core_builder_compiler_cxx
+    SOURCES
+        apple_clang.cc
+        clang.cc
+        cxx.cc
+        gcc.cc
+    INCLUDES ${POAC_HPP_INCLUDES}
+    LIBRARIES
+        ${POAC_HPP_LIBS}
+        poac_core_builder_compiler_lang
+        poac_util_cfg
+        poac_util_semver
+        poac_util_misc # in cxx.cc
 )
