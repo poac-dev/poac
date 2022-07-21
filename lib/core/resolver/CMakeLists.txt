@@ -17,5 +17,3 @@ target_link_libraries(poac_core_resolver PUBLIC
     poac_util_misc
     poac_util_pretty
 )
-
-add_library(poac::core::resolver ALIAS poac_core_resolver)

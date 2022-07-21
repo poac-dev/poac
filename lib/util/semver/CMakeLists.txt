@@ -13,5 +13,3 @@ target_link_libraries(poac_util_semver PUBLIC
     ${STATIC_LINK_FLAG}
     fmt::fmt
 )
-
-add_library(poac::util::semver ALIAS poac_util_semver)

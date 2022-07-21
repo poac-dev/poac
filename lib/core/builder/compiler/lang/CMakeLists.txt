@@ -12,5 +12,3 @@ target_link_libraries(poac_core_builder_compiler_lang PUBLIC
     ${POAC_HPP_LIBS}
     poac_util_cfg
 )
-
-add_library(poac::core::builder::compiler::lang ALIAS poac_core_builder_compiler_lang)
