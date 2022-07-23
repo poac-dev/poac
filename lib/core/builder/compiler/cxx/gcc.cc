@@ -12,7 +12,7 @@ namespace poac::core::builder::compiler::cxx::gcc {
 get_compiler_version_impl(const String& cmd_output) {
   // `g++ (GCC) 11.2.0\n`
   usize itr = cmd_output.find('(');
-  if (itr == SNone) {
+  if (itr == None) {
     return Err<error::FailedToGetCompilerVersion>(compiler);
   }
   itr = cmd_output.find(')', itr + 1);

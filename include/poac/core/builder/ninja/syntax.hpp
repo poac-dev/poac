@@ -55,7 +55,7 @@ escape_path(Path p) {
 /// further interpretation.
 inline void
 escape(String& s) {
-  assert(s.find('\n') == SNone); // Ninja syntax does not allow newlines
+  assert(s.find('\n') == None); // Ninja syntax does not allow newlines
   // We only have one special metacharacter: '$'.
   boost::replace_all(s, "$", "$$");
 }

@@ -16,17 +16,17 @@ get_compiler_ident(const String& compiler_command, const bool is_macos) {
     if (const auto res = util::shell::Cmd(compiler_command + " --version")
                              .stderr_to_stdout()
                              .exec()) {
-      if (res.output().find("Apple") != SNone) {
+      if (res.output().find("Apple") != None) {
         return Ok(util::cfg::compiler::apple_clang);
       }
     }
   }
 
   // `clang++` should be before `g++` because `g++` is a part of `clang++`
-  if (compiler_command.find("clang++") != SNone) {
+  if (compiler_command.find("clang++") != None) {
     return Ok(util::cfg::compiler::clang);
   }
-  if (compiler_command.find("g++") != SNone) {
+  if (compiler_command.find("g++") != None) {
     return Ok(util::cfg::compiler::gcc);
   }
   return Err<UnknownCompilerCommand>(compiler_command);

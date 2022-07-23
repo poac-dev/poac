@@ -71,7 +71,7 @@ get_cfg_profile(const toml::value& poac_manifest) {
       toml::find_or<toml::table>(poac_manifest, "target", toml::table{});
   Vec<toml::table> profiles;
   for (const auto& [key, val] : target) {
-    if (key.find("cfg(") != SNone) {
+    if (key.find("cfg(") != None) {
       if (util::cfg::parse(key).match()) {
         const auto profile =
             toml::find_or<toml::table>(val, "profile", toml::table{});
