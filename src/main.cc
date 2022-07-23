@@ -192,7 +192,8 @@ main(const int argc, char* argv[]) {
       // try correcting typo
       if (const auto sugg = util::lev_distance::find_similar_str(
               argv[subcommand_index], command_list
-          )) {
+          );
+          sugg && *sugg != argv[subcommand_index]) {
         err_logger->error(
             "{}\n"
             "  --> Did you mean `{}`?\n\n"
