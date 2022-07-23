@@ -27,12 +27,6 @@ jobs:
         if: matrix.use_local == 'on'
         run: brew install libarchive libgit2 fmt spdlog
 
-      - name: Restore & Cache CMake build results
-        uses: actions/cache@v3.0.5
-        with:
-          path: build
-          key: ${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('CMakeLists.txt', 'cmake/*.cmake') }}
-
       - name: Run CMake
         run: |
           cmake                                         \
