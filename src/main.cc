@@ -184,7 +184,7 @@ main(const int argc, char* argv[]) {
         .is_err();
   } catch (const structopt::exception& e) {
     if (argc > 1) {
-      int subcommand_index = 1;
+      i32 subcommand_index = 1;
       for (; subcommand_index < argc; ++subcommand_index) {
         if (argv[subcommand_index][0] != '-') {
           break;
