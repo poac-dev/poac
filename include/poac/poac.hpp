@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant> // std::monostate
 #include <vector>
 
 // external
@@ -81,7 +82,6 @@ using f64 = double;
 using String = std::string;
 using StringRef = std::string_view;
 static_assert(String::npos == StringRef::npos, "npos should be the same");
-inline constexpr usize SNone = StringRef::npos;
 
 using Path = fs::path;
 
@@ -106,7 +106,20 @@ Err(Args&&... args) {
 
 template <typename T>
 using Option = std::optional<T>;
-inline constexpr std::nullopt_t None = std::nullopt;
+
+struct NoneT : protected std::monostate {
+  constexpr bool
+  operator==(const usize rhs) const {
+    return String::npos == rhs;
+  }
+
+  constexpr operator std::nullopt_t() const { return std::nullopt; }
+  template <typename T>
+  constexpr operator Option<T>() const {
+    return std::nullopt;
+  }
+};
+inline constexpr NoneT None;
 
 template <typename K, typename V>
 using Map = std::map<K, V>;

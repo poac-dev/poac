@@ -86,7 +86,7 @@ colorize_structopt_error(String s) {
 inline String
 colorize_anyhow_error(String s) {
   // `Caused by:` leaves a trailing newline
-  if (s.find("Caused by:") != SNone) {
+  if (s.find("Caused by:") != None) {
     boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
     boost::replace_last(s, "\n", "");
   }

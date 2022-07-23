@@ -251,9 +251,9 @@ valid_version(StringRef s) {
 [[nodiscard]] Result<void, String>
 valid_athr(StringRef s) {
   // TODO(ken-matsui): Email address parser
-  if (usize pos = s.find('<'); pos != SNone) {
-    if (pos = s.find('@', pos + 1); pos != SNone) {
-      if (pos = s.find('>', pos + 1); pos != SNone) {
+  if (usize pos = s.find('<'); pos != None) {
+    if (pos = s.find('@', pos + 1); pos != None) {
+      if (pos = s.find('>', pos + 1); pos != None) {
         if (s.ends_with('>')) {
           return Ok();
         }
@@ -321,9 +321,9 @@ valid_repository(StringRef repo) {
   if (repo.starts_with("https://github.com/")) {
     // org/
     // 19: size of `https://github.com/`
-    if (usize pos = repo.find('/', 19); pos != SNone) {
+    if (usize pos = repo.find('/', 19); pos != None) {
       // repo/
-      if (pos = repo.find('/', pos + 1); pos != SNone) {
+      if (pos = repo.find('/', pos + 1); pos != None) {
         // tree/
         if (repo.substr(pos + 1, 5) == "tree/") {
           // repo/tree/
