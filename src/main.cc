@@ -193,7 +193,7 @@ main(const int argc, char* argv[]) {
       if (const auto sugg = util::lev_distance::find_similar_str(
               argv[subcommand_index], command_list
           );
-          sugg && *sugg != argv[subcommand_index]) {
+          sugg.has_value() && sugg.value() != argv[subcommand_index]) {
         err_logger->error(
             "{}\n"
             "  --> Did you mean `{}`?\n\n"
