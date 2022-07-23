@@ -185,9 +185,11 @@ main(const int argc, char* argv[]) {
   } catch (const structopt::exception& e) {
     if (argc > 1) {
       int subcommand_index = 1;
-      for (; subcommand_index < argc; ++subcommand_index)
-        if (argv[subcommand_index][0] != '-')
+      for (; subcommand_index < argc; ++subcommand_index) {
+        if (argv[subcommand_index][0] != '-') {
           break;
+        }
+      }
 
       // try correcting typo
       if (const auto sugg = util::lev_distance::find_similar_str(
