@@ -267,7 +267,7 @@ Poac is still under development and may contain a bunch of bugs.
 
 ## Installation
 
-Since all packages through these providers may not be maintained by Poac owners, install them at your own risk.
+Since packages through these providers may not be maintained by Poac owners, install them at your own risk.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
