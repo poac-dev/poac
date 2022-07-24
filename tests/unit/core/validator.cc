@@ -236,12 +236,12 @@ description = "Manifest Test library"
     {
       auto x = valid_profile(None, None);
       expect(x.is_ok());
-      expect(not x.unwrap().has_value());
+      expect(!x.unwrap().has_value());
     }
     {
       auto x = valid_profile(None, false);
       expect(x.is_ok());
-      expect(not x.unwrap().has_value());
+      expect(!x.unwrap().has_value());
     }
     {
       auto x = valid_profile(None, true);
