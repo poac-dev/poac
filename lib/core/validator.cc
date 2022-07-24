@@ -384,13 +384,7 @@ valid_manifest(const toml::value& manifest) {
 
 [[nodiscard]] Result<Option<String>, String>
 valid_profile(const Option<String>& profile, Option<bool> release) {
-  if (not release.has_value() || not release.value()) {
-    if (profile.has_value()) {
-      return Ok(profile.value());
-    } else {
-      return Ok(None);
-    }
-  } else {
+  if (release.has_value() && release.value()) {
     if (profile.has_value() && profile.value() != "release") {
       return Err(format(
           "Specified profiles are conflicted: you specify --release and --profile={}.",
@@ -398,6 +392,12 @@ valid_profile(const Option<String>& profile, Option<bool> release) {
       ));
     } else {
       return Ok("release");
+    }
+  } else {
+    if (profile.has_value()) {
+      return Ok(profile.value());
+    } else {
+      return Ok(None);
     }
   }
 }
