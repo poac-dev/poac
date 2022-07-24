@@ -80,6 +80,9 @@ valid_description(StringRef desc);
 [[nodiscard]] Result<data::manifest::PartialPackage, String>
 valid_manifest(const toml::value& manifest);
 
+[[nodiscard]] Result<Option<String>, String>
+valid_profile(const Option<String>& profile, Option<bool> release);
+
 } // namespace poac::core::validator
 
 #endif // POAC_CORE_VALIDATOR_HPP_

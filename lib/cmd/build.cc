@@ -44,7 +44,15 @@ build(const Options& opts, const toml::value& manifest) {
     return Ok(None);
   }
 
-  const Mode mode = opts.release.value() ? Mode::release : Mode::debug;
+  const auto profile =
+      Try(core::validator::valid_profile(opts.profile, opts.release)
+              .map_err(to_anyhow))
+          .value_or("debug");
+  if (profile != "debug" && profile != "release") {
+    return Err<UnsupportedProfile>(profile);
+  }
+
+  const Mode mode = profile == "release" ? Mode::release : Mode::debug;
   const Path output_path = Try(build_impl(manifest, mode, resolved_deps));
   return Ok(output_path);
 }

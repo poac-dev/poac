@@ -228,4 +228,39 @@ description = "Manifest Test library"
       );
     })) << "incorrect data type";
   };
+
+  "test valid_profile"_test = [] {
+    using poac::core::validator::valid_profile;
+    using poac::None;
+
+    {
+      auto x = valid_profile(None, None);
+      expect(x.is_ok());
+      expect(!x.unwrap().has_value());
+    }
+    {
+      auto x = valid_profile(None, false);
+      expect(x.is_ok());
+      expect(!x.unwrap().has_value());
+    }
+    {
+      auto x = valid_profile(None, true);
+      expect(x.is_ok());
+      expect(x.unwrap() == "release");
+    }
+    {
+      auto x = valid_profile("debug", None);
+      expect(x.is_ok());
+      expect(x.unwrap() == "debug");
+    }
+    {
+      auto x = valid_profile("debug", false);
+      expect(x.is_ok());
+      expect(x.unwrap() == "debug");
+    }
+    {
+      auto x = valid_profile("debug", true);
+      expect(x.is_err());
+    }
+  };
 }

@@ -382,4 +382,24 @@ valid_manifest(const toml::value& manifest) {
   return Ok(package);
 }
 
+[[nodiscard]] Result<Option<String>, String>
+valid_profile(const Option<String>& profile, Option<bool> release) {
+  if (release.has_value() && release.value()) {
+    if (profile.has_value() && profile.value() != "release") {
+      return Err(format(
+          "Specified profiles are conflicted: you specify --release and --profile={}.",
+          profile.value()
+      ));
+    } else {
+      return Ok("release");
+    }
+  } else {
+    if (profile.has_value()) {
+      return Ok(profile.value());
+    } else {
+      return Ok(None);
+    }
+  }
+}
+
 } // namespace poac::core::validator
