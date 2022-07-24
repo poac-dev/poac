@@ -184,9 +184,18 @@ main(const int argc, char* argv[]) {
         .is_err();
   } catch (const structopt::exception& e) {
     if (argc > 1) {
+      i32 subcommand_index = 1;
+      for (; subcommand_index < argc; ++subcommand_index) {
+        if (argv[subcommand_index][0] != '-') {
+          break;
+        }
+      }
+
       // try correcting typo
-      if (const auto sugg =
-              util::lev_distance::find_similar_str(argv[1], command_list)) {
+      if (const auto sugg = util::lev_distance::find_similar_str(
+              argv[subcommand_index], command_list
+          );
+          sugg.has_value() && sugg.value() != argv[subcommand_index]) {
         err_logger->error(
             "{}\n"
             "  --> Did you mean `{}`?\n\n"
