@@ -9,6 +9,7 @@ set(TEST_NAMES
     pretty
     sha256
     shell
+    validator
     verbosity
 )
 

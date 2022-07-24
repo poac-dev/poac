@@ -5,15 +5,15 @@
 // internal
 #include "poac/cmd/build.hpp"
 #include "poac/cmd/run.hpp"
-#include "poac/core/validator.hpp"
 #include "poac/util/shell.hpp"
+#include "poac/util/validator.hpp"
 
 namespace poac::cmd::run {
 
 [[nodiscard]] Result<void>
 exec(const Options& opts) {
   spdlog::trace("Checking if required config exists ...");
-  Try(core::validator::required_config_exists().map_err(to_anyhow));
+  Try(util::validator::required_config_exists().map_err(to_anyhow));
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value

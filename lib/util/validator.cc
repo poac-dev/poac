@@ -3,10 +3,10 @@
 #include <iterator> // std::cbegin, std::cend
 
 // internal
-#include "poac/core/validator.hpp"
 #include "poac/util/semver/semver.hpp"
+#include "poac/util/validator.hpp"
 
-namespace poac::core::validator {
+namespace poac::util::validator {
 
 [[nodiscard]] Result<void, String>
 required_config_exists(const Path& base) noexcept {
@@ -402,4 +402,4 @@ valid_profile(const Option<String>& profile, Option<bool> release) {
   }
 }
 
-} // namespace poac::core::validator
+} // namespace poac::util::validator

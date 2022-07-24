@@ -6,7 +6,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/core/validator.hpp>
+#include <poac/util/validator.hpp>
 
 int
 main() {
@@ -14,7 +14,7 @@ main() {
   using namespace boost::ut;
 
   "test can_create_directory"_test = [] {
-    using poac::core::validator::can_create_directory;
+    using poac::util::validator::can_create_directory;
 
     const std::filesystem::path test_dir = "test_dir";
     expect(can_create_directory(test_dir).is_ok());
@@ -29,7 +29,7 @@ main() {
   };
 
   "test invalid_characters"_test = [] {
-    using poac::core::validator::invalid_characters;
+    using poac::util::validator::invalid_characters;
 
     expect(invalid_characters("na$me").is_err());
     expect(invalid_characters("nam()e").is_err());
@@ -57,14 +57,14 @@ main() {
   };
 
   "test valid_version"_test = [] {
-    using poac::core::validator::valid_version;
+    using poac::util::validator::valid_version;
 
     expect(valid_version("v0.1.0").is_err());
     expect(valid_version("0.1.0").is_ok());
   };
 
   "test valid_athr"_test = [] {
-    using poac::core::validator::valid_athr;
+    using poac::util::validator::valid_athr;
 
     expect(
         valid_athr("Ken Matsui <26405363+ken-matsui@users.noreply.github.com>")
@@ -84,7 +84,7 @@ main() {
   };
 
   "test valid_authors"_test = [] {
-    using poac::core::validator::valid_authors;
+    using poac::util::validator::valid_authors;
 
     expect(valid_authors(
                {"Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"}
@@ -94,7 +94,7 @@ main() {
   };
 
   "test valid_edition"_test = [] {
-    using poac::core::validator::valid_edition;
+    using poac::util::validator::valid_edition;
 
     expect(valid_edition(1998).is_ok());
     expect(valid_edition(2003).is_ok());
@@ -107,7 +107,7 @@ main() {
   };
 
   "test valid_license"_test = [] {
-    using poac::core::validator::valid_license;
+    using poac::util::validator::valid_license;
 
     expect(valid_license("AGPL-3.0").is_ok());
     expect(valid_license("GPL-3.0").is_ok());
@@ -122,7 +122,7 @@ main() {
   };
 
   "test valid_repository"_test = [] {
-    using poac::core::validator::valid_repository;
+    using poac::util::validator::valid_repository;
 
     expect(valid_repository("https://github.com/org/repo/tree/tag").is_ok());
     expect(valid_repository("https://github.com/org/repo/tree/").is_err())
@@ -149,7 +149,7 @@ main() {
   };
 
   "test valid_description"_test = [] {
-    using poac::core::validator::valid_description;
+    using poac::util::validator::valid_description;
 
     expect(valid_description("Poac is a package manager for C++").is_ok());
     expect(valid_description("It's Poac").is_err())
@@ -166,7 +166,7 @@ main() {
   };
 
   "test valid_manifest"_test = [] {
-    using poac::core::validator::valid_manifest;
+    using poac::util::validator::valid_manifest;
     using namespace toml::literals::toml_literals;
 
     expect(valid_manifest(u8R"(
@@ -230,7 +230,7 @@ description = "Manifest Test library"
   };
 
   "test valid_profile"_test = [] {
-    using poac::core::validator::valid_profile;
+    using poac::util::validator::valid_profile;
     using poac::None;
 
     {

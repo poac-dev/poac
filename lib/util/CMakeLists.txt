@@ -65,6 +65,16 @@ add_poac_target(poac_util_shell
     LIBRARIES ${POAC_HPP_LIBS}
 )
 
+add_poac_target(poac_util_validator
+    SOURCES validator.cc
+    INCLUDES ${POAC_HPP_INCLUDES}
+    LIBRARIES
+        ${POAC_HPP_LIBS}
+        poac_util_semver
+        poac_util_misc # via poac/config.hpp
+        toml11::toml11
+)
+
 add_poac_target(poac_util_verbosity
     INCLUDES ${POAC_HPP_INCLUDES}
     LIBRARIES ${POAC_HPP_LIBS}

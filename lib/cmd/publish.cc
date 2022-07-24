@@ -10,15 +10,15 @@
 #include "poac/cmd/login.hpp"
 #include "poac/cmd/publish.hpp"
 #include "poac/config.hpp"
-#include "poac/core/validator.hpp"
 #include "poac/data/manifest.hpp"
+#include "poac/util/validator.hpp"
 
 namespace poac::cmd::publish {
 
 [[nodiscard]] anyhow::result<toml::value>
 get_manifest() {
   spdlog::trace("Checking if required config exists ...");
-  Try(core::validator::required_config_exists().map_err(to_anyhow));
+  Try(util::validator::required_config_exists().map_err(to_anyhow));
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
@@ -51,7 +51,7 @@ exec(const Options& opts) {
   const String token = Try(get_token(opts));
   const toml::value manifest = Try(get_manifest());
   const data::manifest::PartialPackage package =
-      Try(core::validator::valid_manifest(manifest).map_err(to_anyhow));
+      Try(util::validator::valid_manifest(manifest).map_err(to_anyhow));
 
   // if readme is specified, readme exists (and read)
 
