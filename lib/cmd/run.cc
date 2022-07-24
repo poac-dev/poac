@@ -21,9 +21,10 @@ exec(const Options& opts) {
   const String name = toml::find<String>(manifest, "package", "name");
 
   const Option<Path> output = Try(
-      build::build({.release = opts.release}, manifest).with_context([&name] {
-        return Err<build::FailedToBuild>(name).get();
-      })
+      build::build({.release = opts.release, .profile = opts.profile}, manifest)
+          .with_context([&name] {
+            return Err<build::FailedToBuild>(name).get();
+          })
   );
   if (!output.has_value()) {
     return Ok();
