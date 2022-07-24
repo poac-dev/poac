@@ -1,6 +1,7 @@
 add_poac_target(poac_cmd
     SOURCES
         build.cc
+        clean.cc
         create.cc
         fmt.cc
         graph.cc

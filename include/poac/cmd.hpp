@@ -2,6 +2,7 @@
 #define POAC_CMD_HPP_
 
 #include "poac/cmd/build.hpp"
+#include "poac/cmd/clean.hpp"
 #include "poac/cmd/create.hpp"
 #include "poac/cmd/fmt.hpp"
 #include "poac/cmd/graph.hpp"
