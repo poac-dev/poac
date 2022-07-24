@@ -76,13 +76,13 @@ exec(const Options& opts) {
     return Err<PassingBothBinAndLib>();
   }
 
+  namespace validator = util::validator;
+
   spdlog::trace("Validating the `{}` directory exists", opts.package_name);
-  Try(util::validator::can_create_directory(opts.package_name)
-          .map_err(to_anyhow));
+  Try(validator::can_create_directory(opts.package_name).map_err(to_anyhow));
 
   spdlog::trace("Validating the package name `{}`", opts.package_name);
-  Try(util::validator::valid_package_name(opts.package_name).map_err(to_anyhow)
-  );
+  Try(validator::valid_package_name(opts.package_name).map_err(to_anyhow));
 
   return create(opts);
 }
