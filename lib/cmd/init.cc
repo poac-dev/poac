@@ -9,8 +9,8 @@
 #include "poac/cmd/create.hpp"
 #include "poac/cmd/init.hpp"
 #include "poac/config.hpp"
-#include "poac/core/validator.hpp"
 #include "poac/data/manifest.hpp"
+#include "poac/util/validator.hpp"
 
 namespace poac::cmd::init {
 
@@ -41,13 +41,13 @@ init(const Options& opts, StringRef package_name) {
 exec(const Options& opts) {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<create::PassingBothBinAndLib>();
-  } else if (core::validator::required_config_exists().is_ok()) {
+  } else if (util::validator::required_config_exists().is_ok()) {
     return Err<AlreadyInitialized>();
   }
 
   const String package_name = config::path::cur_dir.stem().string();
   spdlog::trace("Validating the package name `{}`", package_name);
-  Try(core::validator::valid_package_name(package_name).map_err(to_anyhow));
+  Try(util::validator::valid_package_name(package_name).map_err(to_anyhow));
 
   return init(opts, package_name);
 }

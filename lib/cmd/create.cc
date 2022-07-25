@@ -4,8 +4,8 @@
 
 // internal
 #include "poac/cmd/create.hpp"
-#include "poac/core/validator.hpp"
 #include "poac/data/manifest.hpp"
+#include "poac/util/validator.hpp"
 
 namespace poac::cmd::create {
 
@@ -76,7 +76,7 @@ exec(const Options& opts) {
     return Err<PassingBothBinAndLib>();
   }
 
-  namespace validator = core::validator;
+  namespace validator = util::validator;
 
   spdlog::trace("Validating the `{}` directory exists", opts.package_name);
   Try(validator::can_create_directory(opts.package_name).map_err(to_anyhow));

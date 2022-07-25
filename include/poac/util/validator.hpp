@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_VALIDATOR_HPP_
-#define POAC_CORE_VALIDATOR_HPP_
+#ifndef POAC_UTIL_VALIDATOR_HPP_
+#define POAC_UTIL_VALIDATOR_HPP_
 
 // external
 #include <toml.hpp>
@@ -9,7 +9,7 @@
 #include "poac/data/manifest.hpp"
 #include "poac/poac.hpp"
 
-namespace poac::core::validator {
+namespace poac::util::validator {
 
 [[nodiscard]] Result<void, String>
 required_config_exists(const Path& base = config::path::cur_dir) noexcept;
@@ -83,6 +83,6 @@ valid_manifest(const toml::value& manifest);
 [[nodiscard]] Result<Option<String>, String>
 valid_profile(const Option<String>& profile, Option<bool> release);
 
-} // namespace poac::core::validator
+} // namespace poac::util::validator
 
-#endif // POAC_CORE_VALIDATOR_HPP_
+#endif // POAC_UTIL_VALIDATOR_HPP_

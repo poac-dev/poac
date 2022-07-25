@@ -11,6 +11,7 @@
 #include "poac/util/sha256.hpp"
 #include "poac/util/shell.hpp"
 #include "poac/util/termcolor2/termcolor2.hpp"
+#include "poac/util/validator.hpp"
 #include "poac/util/verbosity.hpp"
 
 #endif // POAC_UTIL_HPP_

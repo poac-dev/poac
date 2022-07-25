@@ -7,9 +7,9 @@
 
 // internal
 #include "poac/cmd/lint.hpp"
-#include "poac/core/validator.hpp"
 #include "poac/data/manifest.hpp"
 #include "poac/util/shell.hpp"
+#include "poac/util/validator.hpp"
 #include "poac/util/verbosity.hpp"
 
 namespace poac::cmd::lint {
@@ -46,7 +46,7 @@ exec([[maybe_unused]] const Options& opts) {
   }
 
   spdlog::trace("Checking if required config exists ...");
-  Try(core::validator::required_config_exists().map_err(to_anyhow));
+  Try(util::validator::required_config_exists().map_err(to_anyhow));
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
