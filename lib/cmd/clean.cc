@@ -25,9 +25,9 @@ clean(const Options& opts) {
 
   spdlog::trace("Removing ./{}", path);
 
-  if (std::filesystem::exists(path)) {
-    log::status("Removing", std::filesystem::canonical(path).string());
-    std::filesystem::remove_all(path);
+  if (fs::exists(path)) {
+    log::status("Removing", fs::canonical(path).string());
+    fs::remove_all(path);
   }
 
   return Ok();
