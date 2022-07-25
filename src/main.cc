@@ -35,6 +35,9 @@ struct Commands {
   /// Compile a local package and all of its dependencies
   cmd::build::Options build;
 
+  /// Remove the output directory
+  cmd::clean::Options clean;
+
   /// Create a new poac package at <package_name>
   cmd::create::Options create;
 
@@ -75,7 +78,9 @@ struct Commands {
   STRUCTOPT(Commands, verbose, quiet, color, __VA_ARGS__); \
   DECL_CMDS(__VA_ARGS__)
 
-structopt(build, create, fmt, graph, init, lint, login, publish, run, search);
+structopt(
+    build, clean, create, fmt, graph, init, lint, login, publish, run, search
+);
 
 inline String
 colorize_structopt_error(String s) {
@@ -134,6 +139,8 @@ exec(const structopt::app& app, const Commands& args) {
 
   if (args.build.has_value()) {
     return cmd::build::exec(args.build);
+  } else if (args.clean.has_value()) {
+    return cmd::clean::exec(args.clean);
   } else if (args.create.has_value()) {
     return cmd::create::exec(args.create);
   } else if (args.fmt.has_value()) {
