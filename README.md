@@ -350,8 +350,8 @@ Poac requires the following compilers, tools, and libraries to build:
 * [`ninja`](https://github.com/ninja-build/ninja): [`57b8fee`](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b) or later
   * requires [this commit](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b)
 * [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
-* [`structopt`](https://github.com/p-ranav/structopt): [`e9722d3`](https://github.com/p-ranav/structopt/commit/e9722d3c2b52cf751ebc1911b93d9649c4e365cc) or later
-  * requires [this commit](https://github.com/p-ranav/structopt/commit/e9722d3c2b52cf751ebc1911b93d9649c4e365cc)
+* [`structopt`](https://github.com/p-ranav/structopt): [`b1e1e16`](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041) or later
+  * requires [this commit](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041)
   * awaiting the next release above [`v0.1.3`](https://github.com/p-ranav/structopt/releases/tag/v0.1.3)
 * [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
   * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
