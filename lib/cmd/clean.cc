@@ -11,7 +11,7 @@ namespace poac::cmd::clean {
 
 [[nodiscard]] Result<void>
 clean(const Options& opts) {
-  const auto profile =
+  const Option<String> profile =
       Try(util::validator::valid_profile(opts.profile, opts.release)
               .map_err(to_anyhow));
   if (profile.has_value() && profile.value() != "debug"
@@ -19,7 +19,7 @@ clean(const Options& opts) {
     return Err<build::UnsupportedProfile>(profile.value());
   }
 
-  const auto path = profile.has_value()
+  const Path path = profile.has_value()
                         ? config::path::output_dir / profile.value()
                         : config::path::output_dir;
 
