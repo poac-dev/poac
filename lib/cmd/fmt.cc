@@ -1,5 +1,5 @@
 // std
-#include <string>
+#include <span>
 
 // external
 #include <glob/glob.h> // NOLINT(build/include_order)
@@ -15,10 +15,23 @@
 
 namespace poac::cmd::fmt {
 
-[[nodiscard]] Result<void>
-fmt(StringRef args) {
-  Vec<Path> targets{};
-  for (StringRef d : directories) {
+using ClangFormatNotFound = Error<
+    "`fmt` command requires `clang-format`; try installing it by:\n"
+    "  apt/brew install clang-format">;
+
+inline constexpr StringRef directories[] = {
+    "examples", "include", "lib", "src", "tests"};
+inline constexpr StringRef drogon_dirs[] = {"controllers", "filters", "views"};
+
+inline constexpr StringRef extensions[] = {"c",   "c++", "cc",  "cpp",
+                                           "cu",  "cuh", "cxx", "h",
+                                           "h++", "hh",  "hpp", "hxx"};
+
+inline constexpr StringRef patterns[] = {"./{}/*.{}", "./{}/**/*.{}"};
+
+void
+fmt_impl(std::span<const StringRef> dirs, Vec<Path>& targets) {
+  for (StringRef d : dirs) {
     if (!fs::exists(d)) {
       spdlog::trace("Directory `{}` not found; skipping ...", d);
       continue;
@@ -36,6 +49,16 @@ fmt(StringRef args) {
         append(targets, search_glob);
       }
     }
+  }
+}
+
+[[nodiscard]] Result<void>
+fmt(const Options& opts, StringRef args) {
+  Vec<Path> targets;
+
+  fmt_impl(directories, targets);
+  if (opts.drogon.value()) {
+    fmt_impl(drogon_dirs, targets);
   }
   if (targets.empty()) {
     spdlog::info("no targets found.");
@@ -82,7 +105,7 @@ exec(const Options& opts) {
     args += "-i";
     log::status("Formatting", name);
   }
-  return fmt(args);
+  return fmt(opts, args);
 }
 
 } // namespace poac::cmd::fmt
