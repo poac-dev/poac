@@ -2,10 +2,10 @@
 #include <boost/regex.hpp>
 
 // internal
-#include "poac/core/builder/ninja/syntax.hpp"
+#include "poac/core/builder/syntax.hpp"
 #include "poac/util/pretty.hpp"
 
-namespace poac::core::builder::ninja::syntax {
+namespace poac::core::builder::syntax {
 
 /// Expand a string containing $vars as Ninja would.
 ///
@@ -194,4 +194,4 @@ Writer::build(
   return outputs;
 }
 
-} // namespace poac::core::builder::ninja::syntax
+} // namespace poac::core::builder::syntax

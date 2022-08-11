@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_NINJA_BUILD_HPP_
-#define POAC_CORE_BUILDER_NINJA_BUILD_HPP_
+#ifndef POAC_CORE_BUILDER_BUILD_HPP_
+#define POAC_CORE_BUILDER_BUILD_HPP_
 
 // std
 #include <ostream>
@@ -10,11 +10,11 @@
 #include <toml.hpp>
 
 // internal
-#include "poac/core/builder/ninja/data.hpp"
+#include "poac/core/builder/data.hpp"
 #include "poac/core/resolver/types.hpp" // ResolvedDeps
 #include "poac/poac.hpp"
 
-namespace poac::core::builder::ninja::build {
+namespace poac::core::builder::build {
 
 using GeneralError =
     Error<"internal build system has been stopped with an error:\n{}", String>;
@@ -46,6 +46,6 @@ start(
     const resolver::ResolvedDeps& resolved_deps
 );
 
-} // namespace poac::core::builder::ninja::build
+} // namespace poac::core::builder::build
 
-#endif // POAC_CORE_BUILDER_NINJA_BUILD_HPP_
+#endif // POAC_CORE_BUILDER_BUILD_HPP_

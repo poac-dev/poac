@@ -7,13 +7,13 @@
 
 // internal
 #include "poac/config.hpp"
-#include "poac/core/builder/ninja/build.hpp"
+#include "poac/core/builder/build.hpp"
 #include "poac/core/resolver/types.hpp" // ResolvedDeps
 #include "poac/poac.hpp"
 
 namespace poac::cmd::build {
 
-using core::builder::ninja::build::Mode;
+using core::builder::build::Mode;
 using core::resolver::ResolvedDeps;
 
 struct Options : structopt::sub_command {
