@@ -2,8 +2,8 @@
 // This file is based on ninja_syntax.py from:
 // https://github.com/ninja-build/ninja/blob/master/misc/ninja_syntax.py
 
-#ifndef POAC_CORE_BUILDER_NINJA_SYNTAX_HPP_
-#define POAC_CORE_BUILDER_NINJA_SYNTAX_HPP_
+#ifndef POAC_CORE_BUILDER_SYNTAX_HPP_
+#define POAC_CORE_BUILDER_SYNTAX_HPP_
 
 // std
 #include <cassert>
@@ -18,7 +18,7 @@
 // internal
 #include "poac/poac.hpp"
 
-namespace poac::core::builder::ninja::syntax {
+namespace poac::core::builder::syntax {
 
 struct RuleSet {
   Option<String> description = None;
@@ -153,6 +153,6 @@ public:
   }
 };
 
-} // namespace poac::core::builder::ninja::syntax
+} // namespace poac::core::builder::syntax
 
-#endif // POAC_CORE_BUILDER_NINJA_SYNTAX_HPP_
+#endif // POAC_CORE_BUILDER_SYNTAX_HPP_

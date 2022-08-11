@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_NINJA_MANIFEST_HPP_
-#define POAC_CORE_BUILDER_NINJA_MANIFEST_HPP_
+#ifndef POAC_CORE_BUILDER_MANIFEST_HPP_
+#define POAC_CORE_BUILDER_MANIFEST_HPP_
 
 // std
 #include <array>
@@ -9,12 +9,12 @@
 
 // internal
 #include "poac/config.hpp"
-#include "poac/core/builder/ninja/data.hpp"
+#include "poac/core/builder/data.hpp"
 #include "poac/core/resolver/types.hpp" // ResolvedDeps
 #include "poac/data/manifest.hpp"
 #include "poac/poac.hpp"
 
-namespace poac::core::builder::ninja::manifest {
+namespace poac::core::builder::manifest {
 
 inline constexpr StringRef manifest_file_name = "ninja.build";
 inline constexpr StringRef manifest_headers[] = {
@@ -63,6 +63,6 @@ create(
     const resolver::ResolvedDeps& resolved_deps
 );
 
-} // namespace poac::core::builder::ninja::manifest
+} // namespace poac::core::builder::manifest
 
-#endif // POAC_CORE_BUILDER_NINJA_MANIFEST_HPP_
+#endif // POAC_CORE_BUILDER_MANIFEST_HPP_

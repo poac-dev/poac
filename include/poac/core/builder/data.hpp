@@ -1,5 +1,5 @@
-#ifndef POAC_CORE_BUILDER_NINJA_DATA_HPP_
-#define POAC_CORE_BUILDER_NINJA_DATA_HPP_
+#ifndef POAC_CORE_BUILDER_DATA_HPP_
+#define POAC_CORE_BUILDER_DATA_HPP_
 
 // external
 #include <ninja/build.h> // BuildConfig // NOLINT(build/include_order)
@@ -16,7 +16,7 @@
 // internal
 #include "poac/poac.hpp"
 
-namespace poac::core::builder::ninja::data {
+namespace poac::core::builder::data {
 
 struct NinjaMain : public BuildLogUser {
   NinjaMain(const BuildConfig& config, const Path& build_dir)
@@ -63,6 +63,6 @@ struct NinjaMain : public BuildLogUser {
   }
 };
 
-} // namespace poac::core::builder::ninja::data
+} // namespace poac::core::builder::data
 
-#endif // POAC_CORE_BUILDER_NINJA_DATA_HPP_
+#endif // POAC_CORE_BUILDER_DATA_HPP_

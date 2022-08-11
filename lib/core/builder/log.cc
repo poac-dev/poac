@@ -3,9 +3,9 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include "poac/core/builder/ninja/log.hpp"
+#include "poac/core/builder/log.hpp"
 
-namespace poac::core::builder::ninja::log {
+namespace poac::core::builder::log {
 
 [[nodiscard]] Result<void>
 load_build_log(data::NinjaMain& ninja_main) {
@@ -50,4 +50,4 @@ load_deps_log(data::NinjaMain& ninja_main) {
   return Ok();
 }
 
-} // namespace poac::core::builder::ninja::log
+} // namespace poac::core::builder::log
