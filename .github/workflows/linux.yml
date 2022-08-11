@@ -29,17 +29,15 @@ jobs:
             subpackage: lld-14
           - cc: gcc-11
             cxx: g++-11
-            subpackage: binutils
           - cc: gcc-12
             cxx: g++-12
-            subpackage: binutils
         include:
           - build_type: Debug
             coverage: on
             compiler:
               cc: gcc-12
               cxx: g++-12
-              subpackage: binutils lcov
+              subpackage: lcov
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
@@ -55,7 +53,7 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install Ninja, openssl, & ${{ matrix.compiler.subpackage }}
+      - name: Install Ninja, OpenSSL, and ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update

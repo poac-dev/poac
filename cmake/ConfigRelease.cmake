@@ -18,8 +18,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     # ref: https://stackoverflow.com/a/3801032
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto -mtune=native")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # ref: https://gist.github.com/ken-matsui/f6c736ea9623cc15e0a1e8912cae5718
-    # I'm not sure why, but the `-static` flag fails on GCC with release builds
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     # ref: https://stackoverflow.com/a/39256013
     SET(CMAKE_AR  "gcc-ar")
@@ -29,29 +27,25 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if (APPLE)
         # For nix, ref: https://github.com/NixOS/nixpkgs/issues/166205
-        set(STATIC_FLAG "-lc++abi")
-    else ()
-        set(STATIC_FLAG "-static")
+        set(STATIC_FLAG " -lc++abi")
     endif ()
 
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     if (${CMAKE_CXX_COMPILER} MATCHES "-[0-9]+$")
         string(REGEX REPLACE [[.*clang\+\+(-[0-9]+)$]] [[lld\1]] LINKER ${CMAKE_CXX_COMPILER})
-        set(STATIC_LINK_FLAG "${STATIC_FLAG} -fuse-ld=${LINKER}")
+        set(STATIC_LINK_FLAG "-fuse-ld=${LINKER}${STATIC_FLAG}")
     else ()
         find_program(lld_EXECUTABLE lld)
         if (lld_EXECUTABLE)
-            set(STATIC_LINK_FLAG "${STATIC_FLAG} -fuse-ld=lld")
+            set(STATIC_LINK_FLAG "-fuse-ld=lld${STATIC_FLAG}")
         else ()
             set(STATIC_LINK_FLAG "${STATIC_FLAG}") # use `ld`
         endif ()
     endif ()
+
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     enable_ipo()
 else ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-    if (NOT APPLE)
-        set(STATIC_LINK_FLAG "-static")
-    endif ()
     enable_ipo()
 endif ()
 

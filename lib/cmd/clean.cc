@@ -20,8 +20,8 @@ clean(const Options& opts) {
   }
 
   const Path path = profile.has_value()
-                        ? config::path::output_dir / profile.value()
-                        : config::path::output_dir;
+                        ? config::path::out_dir / profile.value()
+                        : config::path::out_dir;
 
   spdlog::trace("Removing ./{}", path);
 

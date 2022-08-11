@@ -28,7 +28,7 @@ lint(StringRef name, Option<String> args) {
   if (!util::verbosity::is_verbose()) {
     cpplint += "--quiet ";
   }
-  cpplint += "--exclude=poac_output/* --recursive .";
+  cpplint += "--exclude=poac-out/* --recursive .";
 
   spdlog::trace("Executing `{}`", cpplint);
   if (const i32 code = util::shell::Cmd(cpplint).exec_no_capture(); code != 0) {
