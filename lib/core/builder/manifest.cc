@@ -129,7 +129,7 @@ construct(
   Path output_file;
   if (source_file == "src"_path / "main.cpp") {
     // When building src/main.cpp, the output executable should be stored at
-    // poac_output/debug/name
+    // poac-out/debug/name
     output_file = build_dir / name;
   } else {
     output_file = (build_dir / source_file).string() + ".o";
