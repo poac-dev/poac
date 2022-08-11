@@ -30,8 +30,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if (APPLE)
         # For nix, ref: https://github.com/NixOS/nixpkgs/issues/166205
         set(STATIC_FLAG "-lc++abi")
-    else ()
-        set(STATIC_FLAG "-static")
     endif ()
 
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -49,9 +47,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     enable_ipo()
 else ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-    if (NOT APPLE)
-        set(STATIC_LINK_FLAG "-static")
-    endif ()
     enable_ipo()
 endif ()
 
