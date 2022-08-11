@@ -20,26 +20,20 @@ jobs:
         compiler:
           - cc: clang-12
             cxx: clang++-12
-            subpackage: lld-12
           - cc: clang-13
             cxx: clang++-13
-            subpackage: lld-13
           - cc: clang-14
             cxx: clang++-14
-            subpackage: lld-14
           - cc: gcc-11
             cxx: g++-11
-            subpackage: binutils
           - cc: gcc-12
             cxx: g++-12
-            subpackage: binutils
         include:
           - build_type: Debug
             coverage: on
             compiler:
               cc: gcc-12
               cxx: g++-12
-              subpackage: binutils lcov
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
@@ -55,11 +49,15 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install Ninja, openssl, & ${{ matrix.compiler.subpackage }}
+      - name: Install Ninja & openssl
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y ninja-build libssl-dev ${{ matrix.compiler.subpackage }}
+          sudo apt-get install -y ninja-build libssl-dev
+
+      - name: Install lcov
+        if: coverage == 'on'
+        run: sudo apt-get install -y lcov
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
         uses: actions/cache@v3.0.5
