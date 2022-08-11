@@ -21,7 +21,7 @@ build_impl(
 ) {
   spdlog::stopwatch sw;
   const Path output_path =
-      Try(core::builder::ninja::build::start(manifest, mode, resolved_deps));
+      Try(core::builder::build::start(manifest, mode, resolved_deps));
 
   log::status(
       "Finished", "{} target(s) in {}", to_string(mode),

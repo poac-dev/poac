@@ -22,9 +22,6 @@
 // external
 #include <boost/container_hash/hash.hpp>
 #include <fmt/core.h> // NOLINT(build/include_order)
-#include <fmt/format.h> // NOLINT(build/include_order)
-#include <fmt/ostream.h> // ostream_formatter // NOLINT(build/include_order)
-#include <fmt/ranges.h> // fmt::join // NOLINT(build/include_order)
 #include <mitama/anyhow/anyhow.hpp>
 #include <mitama/result/result.hpp>
 #include <mitama/thiserror/thiserror.hpp>

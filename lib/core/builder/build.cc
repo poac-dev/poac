@@ -10,12 +10,12 @@
 
 // internal
 #include "poac/config.hpp"
-#include "poac/core/builder/ninja/build.hpp"
-#include "poac/core/builder/ninja/log.hpp"
-#include "poac/core/builder/ninja/manifest.hpp"
+#include "poac/core/builder/build.hpp"
+#include "poac/core/builder/log.hpp"
+#include "poac/core/builder/manifest.hpp"
 #include "poac/util/verbosity.hpp"
 
-namespace poac::core::builder::ninja::build {
+namespace poac::core::builder::build {
 
 String
 to_string(Mode mode) {
@@ -142,4 +142,4 @@ start(
   ));
 }
 
-} // namespace poac::core::builder::ninja::build
+} // namespace poac::core::builder::build
