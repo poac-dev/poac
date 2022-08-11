@@ -12,7 +12,7 @@ cmake-build-debug/
 .vscode/
 
 # Poac
-/poac_output
+/poac-out
 
 # Gcov
 *.gcno

@@ -23,7 +23,7 @@ inline const Path src_dir(cur_dir / "src");
 inline const Path include_dir(cur_dir / "include");
 inline const Path tests_dir(cur_dir / "tests");
 inline const Path main_cpp_file(src_dir / "main.cpp");
-inline const Path output_dir(cur_dir / "poac_output");
+inline const Path out_dir(cur_dir / "poac-out");
 
 } // namespace poac::config::path
 
