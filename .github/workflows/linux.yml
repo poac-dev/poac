@@ -20,13 +20,13 @@ jobs:
         compiler:
           - cc: clang-12
             cxx: clang++-12
-            subpackage: llvm-12-dev
+            subpackage: lld-12
           - cc: clang-13
             cxx: clang++-13
-            subpackage: llvm-13-dev
+            subpackage: lld-13
           - cc: clang-14
             cxx: clang++-14
-            subpackage: llvm-14-dev
+            subpackage: lld-14
           - cc: gcc-11
             cxx: g++-11
           - cc: gcc-12
@@ -53,7 +53,7 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install Ninja, OpenSSL, & ${{ matrix.compiler.subpackage }}
+      - name: Install Ninja, OpenSSL, and ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
