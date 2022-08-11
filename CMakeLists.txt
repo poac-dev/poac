@@ -52,7 +52,7 @@ target_link_libraries(poac PRIVATE
     ${STATIC_LINK_FLAG}
     poac_cmd
     poac_util_lev_distance
-    ${NINJA_LIBRARIES} # TODO: this should be propagated from poac_core_builder_ninja
+    ${NINJA_LIBRARIES} # TODO: this should be propagated from poac_core_builder
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)

@@ -4,7 +4,7 @@ add_poac_target(poac_core
     INCLUDES ${POAC_HPP_INCLUDES}
     LIBRARIES
         ${POAC_HPP_LIBS}
-        poac_core_builder_ninja
+        poac_core_builder
         poac_core_resolver
         poac_data
         poac_util_archive
