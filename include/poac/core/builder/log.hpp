@@ -1,14 +1,14 @@
-#ifndef POAC_CORE_BUILDER_NINJA_LOG_HPP_
-#define POAC_CORE_BUILDER_NINJA_LOG_HPP_
+#ifndef POAC_CORE_BUILDER_LOG_HPP_
+#define POAC_CORE_BUILDER_LOG_HPP_
 
 // std
 #include <string>
 
 // internal
-#include "poac/core/builder/ninja/data.hpp"
+#include "poac/core/builder/data.hpp"
 #include "poac/poac.hpp"
 
-namespace poac::core::builder::ninja::log {
+namespace poac::core::builder::log {
 
 using FailedToLoadBuildLog =
     Error<"loading build log `{}`: {}", String, String>;
@@ -25,6 +25,6 @@ load_build_log(data::NinjaMain& ninja_main);
 [[nodiscard]] Result<void>
 load_deps_log(data::NinjaMain& ninja_main);
 
-} // namespace poac::core::builder::ninja::log
+} // namespace poac::core::builder::log
 
-#endif // POAC_CORE_BUILDER_NINJA_LOG_HPP_
+#endif // POAC_CORE_BUILDER_LOG_HPP_
