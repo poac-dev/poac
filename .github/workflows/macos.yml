@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - run: brew update
+
       - name: Install required libraries
         run: brew install openssl ninja boost
 
