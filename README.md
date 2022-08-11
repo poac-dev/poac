@@ -55,7 +55,7 @@ In most cases, you will want to execute a binary as well as build the project—
 you:~/hello_world$ poac run
    Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
     Finished debug target(s) in 0.90s
-     Running `/Users/poac/hello_world/poac_output/debug/hoge`
+     Running `/Users/poac/hello_world/poac-out/debug/hoge`
 Hello, world!
 ```
 
@@ -128,7 +128,7 @@ You can now run this source code:
 you:~/hello_world$ poac run
    Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
     Finished debug target(s) in 0.50s
-     Running `/Users/poac/hello_world/poac_output/debug/hello_world`
+     Running `/Users/poac/hello_world/poac-out/debug/hello_world`
 15
 ```
 

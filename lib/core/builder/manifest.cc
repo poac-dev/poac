@@ -9,12 +9,12 @@
 
 // internal
 #include "poac/core/builder/compiler.hpp"
-#include "poac/core/builder/ninja/manifest.hpp"
-#include "poac/core/builder/ninja/syntax.hpp"
+#include "poac/core/builder/manifest.hpp"
+#include "poac/core/builder/syntax.hpp"
 #include "poac/core/resolver.hpp" // get_extracted_path
 #include "poac/util/cfg.hpp"
 
-namespace poac::core::builder::ninja::manifest {
+namespace poac::core::builder::manifest {
 
 bool
 rebuild(data::NinjaMain& ninja_main, Status& status, String& err) {
@@ -129,7 +129,7 @@ construct(
   Path output_file;
   if (source_file == "src"_path / "main.cpp") {
     // When building src/main.cpp, the output executable should be stored at
-    // poac_output/debug/name
+    // poac-out/debug/name
     output_file = build_dir / name;
   } else {
     output_file = (build_dir / source_file).string() + ".o";
@@ -178,4 +178,4 @@ create(
   return Ok();
 }
 
-} // namespace poac::core::builder::ninja::manifest
+} // namespace poac::core::builder::manifest

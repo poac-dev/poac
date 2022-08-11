@@ -10,12 +10,12 @@
 
 // internal
 #include "poac/config.hpp"
-#include "poac/core/builder/ninja/build.hpp"
-#include "poac/core/builder/ninja/log.hpp"
-#include "poac/core/builder/ninja/manifest.hpp"
+#include "poac/core/builder/build.hpp"
+#include "poac/core/builder/log.hpp"
+#include "poac/core/builder/manifest.hpp"
 #include "poac/util/verbosity.hpp"
 
-namespace poac::core::builder::ninja::build {
+namespace poac::core::builder::build {
 
 String
 to_string(Mode mode) {
@@ -104,7 +104,7 @@ start(
   setenv("NINJA_STATUS", progress_status_format.c_str(), true);
   StatusPrinter status(config);
 
-  const Path build_dir = config::path::output_dir / to_string(mode);
+  const Path build_dir = config::path::out_dir / to_string(mode);
   fs::create_directories(build_dir);
   Try(manifest::create(build_dir, poac_manifest, resolved_deps));
 
@@ -134,7 +134,7 @@ start(
     }
 
     Try(run(ninja_main, status));
-    return Ok(config::path::output_dir / to_string(mode));
+    return Ok(config::path::out_dir / to_string(mode));
   }
   return Err<GeneralError>(format(
       "internal manifest still dirty after {} tries, perhaps system time is not set",
@@ -142,4 +142,4 @@ start(
   ));
 }
 
-} // namespace poac::core::builder::ninja::build
+} // namespace poac::core::builder::build
