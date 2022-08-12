@@ -25,20 +25,24 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     SET(CMAKE_CXX_ARCHIVE_FINISH true)
     enable_ipo()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    if (APPLE)
-        # For nix, ref: https://github.com/NixOS/nixpkgs/issues/166205
-        set(STATIC_FLAG " -lc++abi")
-    endif ()
-
     if (${CMAKE_CXX_COMPILER} MATCHES "-[0-9]+$")
         string(REGEX REPLACE [[.*clang\+\+(-[0-9]+)$]] [[lld\1]] LINKER ${CMAKE_CXX_COMPILER})
-        set(STATIC_LINK_FLAG "-fuse-ld=${LINKER}${STATIC_FLAG}")
+        set(STATIC_LINK_FLAG "-fuse-ld=${LINKER}")
     else ()
         find_program(lld_EXECUTABLE lld)
         if (lld_EXECUTABLE)
-            set(STATIC_LINK_FLAG "-fuse-ld=lld${STATIC_FLAG}")
+            set(STATIC_LINK_FLAG "-fuse-ld=lld")
         else ()
-            set(STATIC_LINK_FLAG "${STATIC_FLAG}") # use `ld`
+            set(STATIC_LINK_FLAG "") # use `ld`
+        endif ()
+    endif ()
+
+    # For nix, ref: https://github.com/NixOS/nixpkgs/issues/166205
+    if (APPLE)
+        if (STATIC_LINK_FLAG STREQUAL "")
+            set(STATIC_LINK_FLAG "-lc++abi")
+        else ()
+            set(STATIC_LINK_FLAG "${STATIC_LINK_FLAG} -lc++abi")
         endif ()
     endif ()
 
