@@ -4,7 +4,7 @@
 #include "poac/core/builder/compiler/cxx/apple_clang.hpp"
 #include "poac/core/builder/compiler/cxx/clang.hpp"
 #include "poac/core/builder/compiler/cxx/gcc.hpp"
-#include "poac/core/builder/compiler/lang/error.hpp"
+#include "poac/core/builder/compiler/error.hpp"
 #include "poac/util/misc.hpp"
 #include "poac/util/shell.hpp"
 

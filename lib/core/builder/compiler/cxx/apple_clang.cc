@@ -1,7 +1,7 @@
 // internal
 #include "poac/core/builder/compiler/cxx/apple_clang.hpp"
 
-#include "poac/core/builder/compiler/lang/error.hpp"
+#include "poac/core/builder/compiler/error.hpp"
 #include "poac/util/shell.hpp"
 
 namespace poac::core::builder::compiler::cxx::apple_clang {
