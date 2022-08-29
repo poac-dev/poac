@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  BOOST_VERSION: 1.79.0
+  BOOST_VERSION: 1.80.0
 
 jobs:
   build-and-test:
