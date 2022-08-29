@@ -1,5 +1,5 @@
 // internal
-#include "poac/core/builder/compiler/lang/lang.hpp"
+#include "poac/core/builder/compiler/lang.hpp"
 
 namespace poac::core::builder::compiler::lang {
 

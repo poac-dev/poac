@@ -1,5 +1,5 @@
 // internal
-#include "poac/core/builder/compiler/lang/error.hpp"
+#include "poac/core/builder/compiler/error.hpp"
 
 namespace poac::core::builder::compiler::error {
 
