@@ -306,7 +306,10 @@ Poac requires the following compilers, tools, and libraries to build:
 #### tools
 
 * [`CMake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
-* [`Ninja`](https://github.com/ninja-build/ninja): [`1.8`](https://github.com/ninja-build/ninja/releases/tag/v1.8.2) or later
+* One of the following build systems
+  * [`Ninja`](https://github.com/ninja-build/ninja) (recommended)
+  * [`Make`](https://www.gnu.org/software/make/)
+  * Something else supported by [`CMake Generator`](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
 
 #### libraries
 
