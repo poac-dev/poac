@@ -41,7 +41,7 @@ jobs:
         uses: mattnotmitt/doxygen-action@v1.9.2
 
       - name: Setup Pages
-        uses: actions/configure-pages@v1
+        uses: actions/configure-pages@v2
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
