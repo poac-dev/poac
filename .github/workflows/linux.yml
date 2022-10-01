@@ -60,7 +60,7 @@ jobs:
           sudo apt-get install -y ninja-build libssl-dev ${{ matrix.compiler.subpackage }}
 
       - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.9
         id: boost-cache
         with:
           path: ${{ runner.temp }}/libs/boost
