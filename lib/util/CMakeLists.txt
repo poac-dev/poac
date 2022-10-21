@@ -65,6 +65,12 @@ add_poac_target(poac_util_shell
     LIBRARIES ${POAC_HPP_LIBS}
 )
 
+add_poac_target(poac_util_file
+    SOURCES file.cc
+    INCLUDES ${POAC_HPP_INCLUDES}
+    LIBRARIES ${POAC_HPP_LIBS}
+)
+
 add_poac_target(poac_util_validator
     SOURCES validator.cc
     INCLUDES ${POAC_HPP_INCLUDES}

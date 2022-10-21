@@ -36,6 +36,11 @@ struct Package {
   ///
   /// Sometimes, this is like `1.66.0` or like `>=1.64.0 and <2.0.0`.
   String version_rq;
+
+  bool
+  is_conan() const noexcept {
+    return name.find("conan::") == 0;
+  }
 };
 
 inline bool

@@ -3,17 +3,189 @@
 #include <stdexcept>
 
 // external
+#include <boost/algorithm/string.hpp>
+#include <boost/predef.h> // NOLINT(build/include_order)
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <boost/scope_exit.hpp>
 
 // internal
 #include "poac/core/resolver.hpp"
 #include "poac/data/lockfile.hpp"
 #include "poac/util/archive.hpp"
+#include "poac/util/file.hpp"
 #include "poac/util/meta.hpp"
 #include "poac/util/sha256.hpp"
+#include "poac/util/shell.hpp"
+
+namespace {
+
+constexpr poac::StringRef generator_content = R"(
+from conans.model.conan_generator import Generator
+from conans import ConanFile
+
+
+class PoacGenerator(ConanFile):
+    name = "poac_generator"
+    version = "0.1.0"
+    url = "https://github.com/poacpm/poac"
+    description = "Conan build generator for poac build system"
+    topics = ("conan", "generator", "poac")
+    homepage = "https://poac.pm"
+    license = "MIT"
+
+
+class poac(Generator):
+    @property
+    def filename(self):
+        return "conan_poac.json"
+
+    @property
+    def content(self):
+        import json
+        deps = self.deps_build_info
+        return json.dumps({
+          'defines': deps.defines,
+          'include_paths': deps.include_paths,
+          'lib_paths': deps.lib_paths,
+          'libs': deps.libs
+        })
+)";
+
+constexpr poac::StringRef conanfile_template = R"(
+[generators]
+poac
+
+[requires]
+{}
+
+[build_requires]
+poac_generator/0.1.0@poac/generator
+)";
+
+} // namespace
+
+using namespace poac::util::shell;
+using namespace poac::util::file;
 
 namespace poac::core::resolver {
+
+Result<void>
+check_conan_install() {
+  if (!has_command("conan")) {
+    return Err<ConanNotFound>();
+  }
+
+  return Ok();
+}
+
+Result<void>
+install_conan_generator() {
+  const auto generator_dir = config::path::cfg_dir / "conan" / "generator";
+  const auto lockfile = generator_dir / "poac.lock";
+
+  if (fs::exists(lockfile)) {
+    return Ok();
+  }
+
+  if (!fs::exists(generator_dir)) {
+    fs::create_directories(generator_dir);
+  }
+
+  const auto conanfile = generator_dir / "conanfile.py";
+
+  log::status("Install conan generator", "to {}", conanfile);
+  Try(write_file(conanfile, generator_content));
+
+  util::shell::Cmd cmd(format("conan export {} poac/generator", generator_dir));
+  const auto r = cmd.dump_stdout().stderr_to_stdout().exec();
+  if (r.is_err()) {
+    return Err<FailedToResolveDepsWithCause>("export conan generator failed");
+  }
+
+  Try(write_file(lockfile, data::lockfile::lockfile_header));
+
+  return Ok();
+}
+
+inline StringRef
+get_conan_raw_name(StringRef name) noexcept {
+  name.remove_prefix("conan::"sv.size());
+  return name;
+}
+
+String
+format_conan_requires(const Vec<resolve::Package>& packages) {
+  Vec<String> lines;
+  lines.reserve(packages.size());
+
+  for (const auto& [name, version] : packages) {
+    log::status("Resolved", "{} v{}", name, version);
+    lines.push_back(format("{}/{}", get_conan_raw_name(name), version));
+  }
+
+  return boost::algorithm::join(lines, "\n");
+}
+
+Result<void>
+generate_conanfile(const Vec<resolve::Package>& packages) {
+  if (!fs::exists(config::path::conan_deps_dir)) {
+    fs::create_directories(config::path::conan_deps_dir);
+  }
+
+  const auto conanfile = config::path::conan_deps_dir / "conanfile.txt";
+  const auto content =
+      format(conanfile_template, format_conan_requires(packages));
+
+  return write_file(conanfile, content);
+}
+
+String
+get_conan_config() {
+  // TODO(qqiangwu): pass build config to conan
+
+  // I known this is ugly, but let it be
+#if BOOST_OS_LINUX
+  // if we are in linux, assume we are using libstdc++, with new ABI
+  return " -s compiler.libcxx=libstdc++11";
+#else
+  return "";
+#endif
+}
+
+Result<void>
+install_conan_packages() {
+  const auto cwd = fs::current_path();
+  BOOST_SCOPE_EXIT_ALL(&cwd) { fs::current_path(cwd); };
+
+  fs::current_path(config::path::conan_deps_dir);
+  util::shell::Cmd cmd(
+      format("conan install . --build=missing {}", get_conan_config())
+  );
+  const auto r = cmd.dump_stdout().stderr_to_stdout().exec();
+  if (r.is_err()) {
+    return Err<FailedToResolveDepsWithCause>(r.output());
+  }
+
+  return Ok();
+}
+
+Result<void>
+fetch_conan_packages(const Vec<resolve::Package>& packages) noexcept {
+  try {
+    // pass all conan packages to conan and conan can resolve conflict deps
+    Try(check_conan_install());
+    Try(install_conan_generator());
+    Try(generate_conanfile(packages));
+    Try(install_conan_packages());
+
+    return Ok();
+  } catch (const std::exception& e) {
+    return Err<FailedToResolveDepsWithCause>(e.what());
+  } catch (...) {
+    return Err<FailedToResolveDepsWithCause>("fetch conan packages failed");
+  }
+}
 
 /// Rename unknown extracted directory to easily access when building.
 [[nodiscard]] Result<void>
@@ -62,8 +234,15 @@ using resolve::WithoutDeps;
 
 [[nodiscard]] Result<void>
 fetch(const UniqDeps<WithoutDeps>& deps) noexcept {
+  Vec<resolve::Package> conan_packages;
+
   for (const auto& [name, version_rq] : deps) {
     const resolve::Package package{name, version_rq};
+
+    if (package.is_conan()) {
+      conan_packages.push_back(package);
+      continue;
+    }
 
     const auto [installed_path, sha256sum] = Try(fetch_impl(package));
     // Check if sha256sum of the downloaded package is the same with one
@@ -83,6 +262,17 @@ fetch(const UniqDeps<WithoutDeps>& deps) noexcept {
 
     log::status("Downloaded", "{} v{}", package.name, package.version_rq);
   }
+
+  if (!conan_packages.empty()) {
+    const auto toml_last_modified =
+        data::manifest::poac_toml_last_modified(config::path::cur_dir);
+    const auto conan_lockfile = config::path::conan_deps_dir / "conan.lock";
+    if (!fs::exists(conan_lockfile)
+        || fs::last_write_time(conan_lockfile) < toml_last_modified) {
+      Try(fetch_conan_packages(conan_packages));
+    }
+  }
+
   return Ok();
 }
 

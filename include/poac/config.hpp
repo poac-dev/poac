@@ -24,6 +24,8 @@ inline const Path include_dir(cur_dir / "include");
 inline const Path tests_dir(cur_dir / "tests");
 inline const Path main_cpp_file(src_dir / "main.cpp");
 inline const Path out_dir(cur_dir / "poac-out");
+inline const Path conan_deps_dir(out_dir / ".conan");
+inline const Path conan_deps_file(conan_deps_dir / "conan_poac.json");
 
 } // namespace poac::config::path
 

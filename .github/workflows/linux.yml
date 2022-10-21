@@ -117,6 +117,19 @@ jobs:
           cd hello_world
           ../build/poac run
 
+      - name: Install Conan
+        id: conan
+        uses: turtlebrowser/get-conan@main
+
+      - name: Test conan dependency
+        # FIXME: memory leak on Ninja
+        # https://github.com/poacpm/poac/runs/6859118992?check_suite_focus=true#step:16:21
+        if: matrix.build_type == 'Release'
+        run: |
+          git clone https://github.com/qqiangwu/poac-demo.git
+          cd poac-demo
+          ../build/poac build
+
       - name: Print coverage
         if: success() && matrix.coverage == 'on'
         run: |

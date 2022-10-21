@@ -35,6 +35,7 @@ using IncorrectSha256sum = Error<
     "issue on GitHub of the package and stopping using this package:\n"
     "  {}: {}",
     String, String, String, String>;
+using ConanNotFound = Error<"conan is not found">;
 using Unknown = Error<"unknown error occurred: {}", String>;
 
 inline String

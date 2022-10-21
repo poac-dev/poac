@@ -88,8 +88,14 @@ png_file_output(const Path& output_path) {
     std::ofstream file(file_dot);
     boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
 
-    util::shell::Cmd("dot -Tpng " + file_dot + " -o " + output_path.string())
-        .exec();
+    const auto r = util::shell::Cmd(
+                       "dot -Tpng " + file_dot + " -o " + output_path.string()
+    )
+                       .exec();
+    if (r.is_err()) {
+      return Err<SubprocessFailed>("dot", r.first);
+    }
+
     std::filesystem::remove(file_dot);
     return Ok();
   } else {

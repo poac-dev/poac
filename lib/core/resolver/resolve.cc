@@ -242,6 +242,12 @@ gather_all_deps(const UniqDeps<WithoutDeps>& deps) {
   for (const auto& [name, version_rq] : deps) {
     const Package package{name, version_rq};
 
+    // We don't resolve deps of conan packages, this is defer to conan itself
+    if (package.is_conan()) {
+      duplicate_deps.emplace_back(package, None);
+      continue;
+    }
+
     // Check whether the packages specified in poac.toml
     //   are already resolved which includes
     //   that package's dependencies and package's versions
