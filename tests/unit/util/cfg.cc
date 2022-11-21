@@ -475,9 +475,9 @@ main() {
       expect(parse("cfg(arch = \"x86_64\")").match());
     };
 
-    //#ifdef __SSE__
-    //    BOOST_CHECK( parse("cfg(feature = \"sse\")").match() );
-    //#endif
+    // #ifdef __SSE__
+    //     BOOST_CHECK( parse("cfg(feature = \"sse\")").match() );
+    // #endif
 
 #if BOOST_PLAT_MINGW
     skip /
@@ -486,15 +486,15 @@ main() {
       expect(parse("cfg(not(platform = \"mingw\"))").match());
     };
 
-    //#if BOOST_ARCH_X86_64 && defined(__SSE__) && !BOOST_PLAT_MINGW
-    //    BOOST_CHECK(
-    //        parse("cfg(all(os = \"unix\", "
-    //                      "arch = \"x86_64\", "
-    //                      "feature = \"x86_64\", "
-    //                      "not(platform = \"mingw\")"
-    //                   "))").match()
-    //    );
-    //#endif
+    // #if BOOST_ARCH_X86_64 && defined(__SSE__) && !BOOST_PLAT_MINGW
+    //     BOOST_CHECK(
+    //         parse("cfg(all(os = \"unix\", "
+    //                       "arch = \"x86_64\", "
+    //                       "feature = \"x86_64\", "
+    //                       "not(platform = \"mingw\")"
+    //                    "))").match()
+    //     );
+    // #endif
   };
 
   "test to_kind(std::string_view kind)"_test = [] {
