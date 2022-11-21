@@ -13,6 +13,9 @@ split(const String& raw, const String& delim);
 Option<String>
 dupenv(const String& name);
 
+String
+getenv(const String& name, const String& default_v);
+
 // Inspired by https://stackoverflow.com/q/4891006
 // Expand ~ to user home directory.
 [[nodiscard]] Result<Path, String>

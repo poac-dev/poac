@@ -40,6 +40,15 @@ dupenv(const String& name) {
 #endif
 }
 
+String
+getenv(const String& name, const String& default_v) {
+  if (const Option<String> env = dupenv(name)) {
+    return env.value();
+  } else {
+    return default_v;
+  }
+}
+
 // Inspired by https://stackoverflow.com/q/4891006
 // Expand ~ to user home directory.
 [[nodiscard]] Result<Path, String>
