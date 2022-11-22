@@ -12,7 +12,7 @@
 namespace poac::util::validator {
 
 [[nodiscard]] Result<void, String>
-required_config_exists(const Path& base = config::path::cur_dir) noexcept;
+required_config_exists(const Path& base = config::path::cwd) noexcept;
 
 [[nodiscard]] Result<void, String>
 can_create_directory(const Path& p);

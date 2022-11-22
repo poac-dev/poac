@@ -175,8 +175,8 @@ get_resolved_deps(const toml::value& manifest) {
 // If lockfile is not outdated, read it.
 [[nodiscard]] Result<Option<ResolvedDeps>>
 try_to_read_lockfile() {
-  if (!data::lockfile::is_outdated(config::path::cur_dir)) {
-    return data::lockfile::read(config::path::cur_dir);
+  if (!data::lockfile::is_outdated(config::path::cwd)) {
+    return data::lockfile::read(config::path::cwd);
   } else {
     return Ok(None);
   }
