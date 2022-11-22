@@ -27,19 +27,22 @@ inline constexpr StringRef extensions[] = {"c",   "c++", "cc",  "cpp",
                                            "cu",  "cuh", "cxx", "h",
                                            "h++", "hh",  "hpp", "hxx"};
 
-inline constexpr StringRef patterns[] = {"./{}/*.{}", "./{}/**/*.{}"};
+inline constexpr StringRef patterns[] = {"{}/*.{}", "{}/**/*.{}"};
 
 void
-fmt_impl(std::span<const StringRef> dirs, Vec<Path>& targets) {
+fmt_impl(
+    const Path& base_dir, std::span<const StringRef> dirs, Vec<Path>& targets
+) {
   for (StringRef d : dirs) {
-    if (!fs::exists(d)) {
+    if (!fs::exists(base_dir / d)) {
       spdlog::trace("Directory `{}` not found; skipping ...", d);
       continue;
     }
 
     for (StringRef e : extensions) {
       for (StringRef p : patterns) {
-        const String search = format(::fmt::runtime(p), d, e);
+        const String search =
+            format(::fmt::runtime((base_dir / p).string()), d, e);
         const Vec<Path> search_glob = glob::rglob(search);
         if (search_glob.empty()) {
           spdlog::trace("Glob `{}` not found; skipping ...", search);
@@ -53,20 +56,22 @@ fmt_impl(std::span<const StringRef> dirs, Vec<Path>& targets) {
 }
 
 [[nodiscard]] Result<void>
-fmt(const Options& opts, StringRef args) {
+fmt(const Options& opts, const Path& base_dir, StringRef args) {
   Vec<Path> targets;
 
-  fmt_impl(directories, targets);
+  fmt_impl(base_dir, directories, targets);
   if (opts.drogon.value()) {
-    fmt_impl(drogon_dirs, targets);
+    fmt_impl(base_dir, drogon_dirs, targets);
   }
   if (targets.empty()) {
     spdlog::info("no targets found.");
     return Ok();
   }
 
-  const String clang_format =
-      format("clang-format {} {}", args, ::fmt::join(targets, " "));
+  const String clang_format = format(
+      "cd {} && clang-format {} {}", base_dir.string(), args,
+      ::fmt::join(targets, " ")
+  );
   spdlog::trace("Executing `{}`", clang_format);
   if (const i32 code = util::shell::Cmd(clang_format).exec_no_capture();
       code != 0) {
@@ -84,11 +89,12 @@ exec(const Options& opts) {
   }
 
   spdlog::trace("Checking if required config exists ...");
-  Try(util::validator::required_config_exists().map_err(to_anyhow));
+  const Path manifest_path =
+      Try(util::validator::required_config_exists().map_err(to_anyhow));
 
-  spdlog::trace("Parsing the manifest file ...");
+  spdlog::trace("Parsing the manifest file: {} ...", manifest_path);
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  const toml::value manifest = toml::parse(data::manifest::name);
+  const toml::value manifest = toml::parse(manifest_path);
   String name = toml::find<String>(manifest, "package", "name");
   if (name.empty()) {
     log::warn("project name is empty; try setting anything you want.");
@@ -105,7 +111,7 @@ exec(const Options& opts) {
     args += "-i";
     log::status("Formatting", name);
   }
-  return fmt(opts, args);
+  return fmt(opts, manifest_path.parent_path(), args);
 }
 
 } // namespace poac::cmd::fmt

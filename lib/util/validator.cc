@@ -8,16 +8,26 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] Result<void, String>
-required_config_exists(const Path& base) noexcept {
-  const auto config_path = base / data::manifest::name;
-  std::error_code ec{};
-  if (fs::exists(config_path, ec)) {
-    return Ok();
+[[nodiscard]] Result<Path, String>
+required_config_exists() noexcept {
+  // TODO(ken-matsui): move out to data/manifest.hpp
+  Path candidate = config::path::cwd;
+  while (true) {
+    std::error_code ec{};
+    const Path config_path = candidate / data::manifest::name;
+    if (fs::exists(config_path, ec)) {
+      return Ok(config_path);
+    }
+
+    if (candidate.has_parent_path()) {
+      candidate = candidate.parent_path();
+    } else {
+      break;
+    }
   }
-  return Err(
-      format("required manifest file `{}` does not exist", data::manifest::name)
-  );
+  return Err(format(
+      "could not find `{}` here and in its parents", data::manifest::name
+  ));
 }
 
 [[nodiscard]] Result<void, String>

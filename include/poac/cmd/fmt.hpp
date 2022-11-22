@@ -18,9 +18,6 @@ struct Options : structopt::sub_command {
 };
 
 [[nodiscard]] Result<void>
-fmt(StringRef args);
-
-[[nodiscard]] Result<void>
 exec(const Options& opts);
 
 } // namespace poac::cmd::fmt
