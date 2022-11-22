@@ -53,9 +53,9 @@ In most cases, you will want to execute a binary as well as build the project—
 
 ```console
 you:~/hello_world$ poac run
-   Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
+   Compiling 1/1: hello_world v0.1.0 (/Users/you/hello_world)
     Finished debug target(s) in 0.90s
-     Running `/Users/poac/hello_world/poac-out/debug/hoge`
+     Running `/Users/you/hello_world/poac-out/debug/hoge`
 Hello, world!
 ```
 
@@ -101,7 +101,7 @@ you:~/hello_world$ poac build
   Downloaded boost/core v1.66.0
   Downloaded boost/assert v1.66.0
   Downloaded boost/config v1.66.0
-   Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
+   Compiling 1/1: hello_world v0.1.0 (/Users/you/hello_world)
     Finished debug target(s) in 0.70s
 ```
 
@@ -126,9 +126,9 @@ You can now run this source code:
 
 ```console
 you:~/hello_world$ poac run
-   Compiling 1/1: hello_world v0.1.0 (/Users/poac/hello_world)
+   Compiling 1/1: hello_world v0.1.0 (/Users/you/hello_world)
     Finished debug target(s) in 0.50s
-     Running `/Users/poac/hello_world/poac-out/debug/hello_world`
+     Running `/Users/you/hello_world/poac-out/debug/hello_world`
 15
 ```
 
@@ -189,7 +189,7 @@ Poac supports linting it by a simple command with `cpplint`:
 
 ```console
 you:~/hello_world$ poac lint
-     Linting poac
+     Linting hello_world
 src/main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
 Done processing src/main.cpp
 Total errors found: 1
@@ -214,7 +214,7 @@ Ensure having installed `clang-format` before running this command.
 
 ```console
 you:~/hello_world$ poac fmt
-  Formatting poac
+  Formatting hello_world
 ```
 
 > **Note**:
