@@ -5,9 +5,6 @@ on:
     branches: [ main ]
   pull_request:
 
-env:
-  BOOST_VERSION: 1.80.0
-
 jobs:
   build-and-test:
     name: "build & test"
@@ -41,7 +38,6 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
-      CACHE_KEY_PREFIX: v3-${{ github.ref }}-${{ github.job }}-${{ matrix.compiler.cc }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v3
 
@@ -53,35 +49,16 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install Ninja, OpenSSL, and ${{ matrix.compiler.subpackage }}
+      - name: Install Ninja, OpenSSL, Boost, and ${{ matrix.compiler.subpackage }}
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y ninja-build libssl-dev ${{ matrix.compiler.subpackage }}
-
-      - name: Restore & Cache boost (${{ env.BOOST_VERSION }})
-        uses: actions/cache@v3.0.11
-        id: boost-cache
-        with:
-          path: ${{ runner.temp }}/libs/boost
-          key: ${{ env.CACHE_KEY_PREFIX }}-boost-${{ env.BOOST_VERSION }}
-      - name: Install boost (${{ env.BOOST_VERSION }}) as static
-        if: steps.boost-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ runner.temp }}/libs/boost
-          git clone -q -b boost-${{ env.BOOST_VERSION }} --recursive https://github.com/boostorg/boost.git
-          cd boost
-          ./bootstrap.sh
-          sudo ./b2 link=static install -j2 --prefix=${{ runner.temp }}/libs/boost || exit 0
-        working-directory: ${{ runner.temp }}
+          sudo apt-get install -y ninja-build libssl-dev libboost-all-dev ${{ matrix.compiler.subpackage }}
 
       - name: Run CMake
         run: |
-          cmake                                         \
-            -B build                                    \
-            -G Ninja                                    \
+          cmake -B build -G Ninja                       \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBOOST_ROOT=${{ runner.temp }}/libs/boost  \
             -DPOAC_BUILD_TESTING=ON                     \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
 
