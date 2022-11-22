@@ -350,7 +350,7 @@ Poac requires the following compilers, tools, and libraries to build:
   * requires security updates
 * [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`v9.3.0`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.3.0) or later
   * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
-* [`ninja`](https://github.com/ninja-build/ninja): [`57b8fee`](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b) or later
+* [`ninja`](https://github.com/ninja-build/ninja): [`v1.11.1`](https://github.com/ninja-build/ninja/releases/tag/v1.11.1) or later
   * requires [this commit](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b)
 * [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
 * [`structopt`](https://github.com/p-ranav/structopt): [`b1e1e16`](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041) or later
