@@ -1,1 +1,1 @@
-Error: required manifest file `poac.toml` does not exist
+Error: could not find `poac.toml` here and in its parents

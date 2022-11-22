@@ -57,7 +57,8 @@ exec([[maybe_unused]] const Options& opts) {
 
   spdlog::trace("Parsing the manifest file: {} ...", manifest_path);
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  const toml::value manifest = toml::parse(manifest_path);
+  const toml::value manifest =
+      toml::parse(relative(manifest_path, config::path::cwd));
   const String name = toml::find<String>(manifest, "package", "name");
 
   const Path base_dir = manifest_path.parent_path();

@@ -15,12 +15,15 @@ required_config_exists() noexcept {
   while (true) {
     std::error_code ec{};
     const Path config_path = candidate / data::manifest::name;
+    spdlog::trace("Finding manifest: {} ...", config_path);
     if (fs::exists(config_path, ec)) {
       return Ok(config_path);
     }
 
-    if (candidate.has_parent_path()) {
-      candidate = candidate.parent_path();
+    const Path parent_path = candidate.parent_path();
+    if (candidate.has_parent_path()
+        && parent_path != candidate.root_directory()) {
+      candidate = parent_path;
     } else {
       break;
     }
