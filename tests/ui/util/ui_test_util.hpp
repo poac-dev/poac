@@ -5,8 +5,10 @@
 #include <algorithm> // std::shuffle
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
+#include <optional>
 #include <random>
 #include <string>
 #include <string_view>
@@ -113,7 +115,9 @@ template <Target target>
 void
 uitest(
     std::initializer_list<std::string_view> args,
-    const fs::path& temp_dir = get_temp_dir(), bool auto_remove_temp = true,
+    const fs::path& temp_dir = get_temp_dir(),
+    const std::optional<std::function<void(const fs::path&)>>& pre_temp_rm =
+        std::nullopt,
 #if defined(__cpp_lib_source_location)
     std::string name = std::source_location::current().file_name()
 #else
@@ -128,11 +132,10 @@ uitest(
   }
   expect(eq(result.output(), readfile<target>(name)));
 
-  if (auto_remove_temp) {
-    // TODO(ken-matsui): Create a class and be with destructor
-    // We can hold temp dir so that the remove_temp function can be simplified.
-    remove_temp(temp_dir);
+  if (pre_temp_rm) {
+    pre_temp_rm.value()(temp_dir);
   }
+  remove_temp(temp_dir);
 }
 
 } // namespace poac::test

@@ -13,9 +13,9 @@ main() {
   "simple case"_test = [] {
     const fs::path temp_dir = get_temp_dir() / "test";
     fs::create_directories(temp_dir);
-    uitest<Target::Stdout>({"init"}, temp_dir, false);
-    expect(fs::exists(temp_dir / "poac.toml"));
-    expect(!fs::is_directory(temp_dir / "poac.toml"));
-    remove_temp(temp_dir);
+    uitest<Target::Stdout>({"init"}, temp_dir, [](const fs::path& temp_dir) {
+      expect(fs::exists(temp_dir / "poac.toml"));
+      expect(!fs::is_directory(temp_dir / "poac.toml"));
+    });
   };
 }
