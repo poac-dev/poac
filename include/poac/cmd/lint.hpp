@@ -16,7 +16,7 @@ struct Options : structopt::sub_command {
   // FIXME(ken-matsui): this is structopt limitation; I'd remove this.
 };
 
-inline const Path config_file(config::path::cur_dir / "CPPLINT.cfg");
+inline const Path config_file(config::path::cwd / "CPPLINT.cfg");
 
 using CppLintNotFound = Error<
     "`lint` command requires `cpplint`; try installing it by:\n"

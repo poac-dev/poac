@@ -31,12 +31,12 @@ inline const Path extract_dir(cache_dir / "extract");
 inline const Path state_dir(xdg_state_home / "poac");
 inline const Path log_file(state_dir / "log");
 
-inline const Path cur_dir = fs::current_path();
-inline const Path src_dir(cur_dir / "src");
-inline const Path include_dir(cur_dir / "include");
-inline const Path tests_dir(cur_dir / "tests");
+inline const Path cwd = fs::current_path();
+inline const Path src_dir(cwd / "src");
+inline const Path include_dir(cwd / "include");
+inline const Path tests_dir(cwd / "tests");
 inline const Path main_cpp_file(src_dir / "main.cpp");
-inline const Path out_dir(cur_dir / "poac-out");
+inline const Path out_dir(cwd / "poac-out");
 
 } // namespace poac::config::path
 

@@ -149,7 +149,7 @@ construct(
               syntax::Variables{
                   {"PACKAGE_NAME", name},
                   {"PACKAGE_VERSION", version},
-                  {"PACKAGE_PATH", format("({})", config::path::cur_dir)},
+                  {"PACKAGE_PATH", format("({})", config::path::cwd)},
                   {"OPTIONS", boost::algorithm::join(options, " ")},
                   {"DEFINES", boost::algorithm::join(defines, " ")},
                   {"INCLUDES", boost::algorithm::join(includes, " ")},
