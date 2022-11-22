@@ -49,7 +49,7 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install Ninja, OpenSSL, Boost, and ${{ matrix.compiler.subpackage }}
+      - name: Install required dependencies
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
