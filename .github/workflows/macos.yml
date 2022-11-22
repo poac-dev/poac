@@ -14,7 +14,6 @@ jobs:
       matrix:
         os: [ macos-11, macos-12 ]
         build_type: [ Debug, Release ]
-        use_local: [ on, off ]
     env:
       CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
@@ -22,21 +21,18 @@ jobs:
 
       - run: brew update
 
-      - name: Install required libraries
+      - name: Install required dependencies
         run: brew install openssl ninja boost
 
-      - name: Install optional libraries
-        if: matrix.use_local == 'on'
+      - name: Install optional dependencies
         run: brew install libarchive libgit2 fmt spdlog
 
       - name: Run CMake
         run: |
-          cmake                                         \
-            -B build                                    \
-            -G Ninja                                    \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DPOAC_BUILD_TESTING=ON                     \
-            -DCPM_USE_LOCAL_PACKAGES=${{ matrix.use_local }}
+          cmake -B build -G Ninja       \
+            -DCPM_USE_LOCAL_PACKAGES=ON \
+            -DPOAC_BUILD_TESTING=ON     \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build Poac
         run: ninja
