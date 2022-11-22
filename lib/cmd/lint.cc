@@ -14,13 +14,19 @@
 
 namespace poac::cmd::lint {
 
+inline constexpr StringRef config_name = "CPPLINT.cfg";
+
+using CppLintNotFound = Error<
+    "`lint` command requires `cpplint`; try installing it by:\n"
+    "  pip install cpplint">;
+
 [[nodiscard]] Result<void>
-lint(StringRef name, Option<String> args) {
+lint(StringRef name, const Path& base_dir, Option<String> args) {
   log::status("Linting", name);
 
-  String cpplint = "cpplint ";
+  String cpplint = format("cd {} && cpplint ", base_dir.string());
   if (!args.has_value()) {
-    spdlog::trace("Using cpplint config file ({}) ...", config_file);
+    spdlog::trace("Using cpplint config file: {} ...", base_dir / config_name);
   } else {
     spdlog::trace("Using pre-configured arguments ...");
     cpplint += format("{} ", args.value());
@@ -46,16 +52,21 @@ exec([[maybe_unused]] const Options& opts) {
   }
 
   spdlog::trace("Checking if required config exists ...");
-  Try(util::validator::required_config_exists().map_err(to_anyhow));
+  const Path manifest_path =
+      Try(util::validator::required_config_exists().map_err(to_anyhow));
 
-  spdlog::trace("Parsing the manifest file ...");
+  spdlog::trace("Parsing the manifest file: {} ...", manifest_path);
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  const toml::value manifest = toml::parse(data::manifest::name);
+  const toml::value manifest =
+      toml::parse(relative(manifest_path, config::path::cwd));
   const String name = toml::find<String>(manifest, "package", "name");
 
-  spdlog::trace("Checking if cpplint config ({}) exists ...", config_file);
-  if (fs::exists(config_file)) {
-    return lint(name, None);
+  const Path base_dir = manifest_path.parent_path();
+  const Path config_path = base_dir / config_name;
+  spdlog::trace("Checking if cpplint config exists: {} ...", config_path);
+  if (fs::exists(config_path)) {
+    spdlog::trace("Using cpplint config file: {} ...", config_path);
+    return lint(name, base_dir, None);
   }
 
   String args;
@@ -65,7 +76,7 @@ exec([[maybe_unused]] const Options& opts) {
   if (2011 < toml::find<i64>(manifest, "package", "edition")) {
     args += "--filter=-build/c++11 ";
   }
-  return lint(name, args);
+  return lint(name, base_dir, args);
 }
 
 } // namespace poac::cmd::lint
