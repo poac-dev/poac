@@ -11,7 +11,8 @@ namespace poac::util::archive {
 archive_write_data_block(
     const Writer& writer, const void* buffer, usize size, i64 offset
 ) noexcept {
-  const i32 res = archive_write_data_block(writer.get(), buffer, size, offset);
+  const la_ssize_t res =
+      archive_write_data_block(writer.get(), buffer, size, offset);
   if (res < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
   }
@@ -111,7 +112,7 @@ archive_read_open_filename(
 }
 
 [[nodiscard]] Result<String, String>
-extract(const Path& target_file_path, const Path& extract_path) noexcept {
+extract(const Path& from, const Path& to) noexcept {
   Archive* reader = archive_read_new();
   if (!reader) {
     return Err("Cannot archive_read_new");
@@ -127,10 +128,10 @@ extract(const Path& target_file_path, const Path& extract_path) noexcept {
   archive_write_disk_set_options(writer.get(), make_flags());
   archive_write_disk_set_standard_lookup(writer.get());
 
-  Try(archive_read_open_filename(reader, target_file_path, 10'240));
+  Try(archive_read_open_filename(reader, from, 10'240));
   BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_close(reader); };
 
-  return extract_impl(reader, writer, extract_path);
+  return extract_impl(reader, writer, to);
 }
 
 } // namespace poac::util::archive

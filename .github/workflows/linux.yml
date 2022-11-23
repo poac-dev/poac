@@ -60,6 +60,7 @@ jobs:
           cmake -B build -G Ninja                       \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_BUILD_TESTING=ON                     \
+            -DPOAC_CLANG_TIDY=OFF                       \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
 
       - name: Build Poac

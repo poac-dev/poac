@@ -20,6 +20,7 @@ include(GNUInstallDirs)
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
 option(POAC_BUILD_TESTING "Do not build tests by default" OFF)
 option(POAC_ENABLE_COVERAGE "Enable coverage" OFF)
+option(POAC_CLANG_TIDY "Enable clang-tidy" ON)
 
 # Option checks
 if ((NOT POAC_BUILD_TESTING) AND POAC_ENABLE_COVERAGE)
@@ -31,6 +32,11 @@ set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 if (CPM_USE_LOCAL_PACKAGES)
     set(CPM_SUPPORTED_LIBS LibArchive Libgit2 fmt spdlog)
     message(STATUS "CPM_USE_LOCAL_PACKAGES is set as ON; `${CPM_SUPPORTED_LIBS}` on local will be used if found.")
+endif ()
+
+if (POAC_CLANG_TIDY)
+    # Enable clang-tidy
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy)
 endif ()
 
 add_executable(poac src/main.cc)
