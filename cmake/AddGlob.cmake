@@ -10,12 +10,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Glob)
 
-# Disable clang-tidy
-set_target_properties(
-    Glob
-    PROPERTIES
-        CXX_CLANG_TIDY ""
-)
+if (Glob_ADDED) # If using downloaded package
+    # Disable clang-tidy
+    set_target_properties(
+        Glob
+        PROPERTIES
+            CXX_CLANG_TIDY ""
+    )
+endif ()
 
 list(APPEND POAC_DEPENDENCIES Glob)
 message(CHECK_PASS "added")
