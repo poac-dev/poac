@@ -22,16 +22,7 @@ init(const Options& opts, StringRef package_name) {
   std::ofstream ofs_config(data::manifest::name);
 
   const ProjectType type = create::opts_to_project_type(opts);
-  switch (type) {
-    case ProjectType::Bin:
-      ofs_config << create::files::poac_toml(package_name);
-      break;
-    case ProjectType::Lib:
-      ofs_config << create::files::poac_toml(package_name);
-      break;
-    default:
-      unreachable();
-  }
+  ofs_config << create::files::poac_toml(package_name);
 
   log::status("Created", "{} `{}` package", to_string(type), package_name);
   return Ok();

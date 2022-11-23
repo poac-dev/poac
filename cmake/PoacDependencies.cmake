@@ -14,16 +14,17 @@ if (NOT POAC_BUILD_TESTING)
     list(REMOVE_ITEM DEPENDENCIES "AddBoostUt.cmake")
 endif ()
 
+# Include dependency cmake files
 foreach (DEP IN LISTS DEPENDENCIES)
     include(${CMAKE_SOURCE_DIR}/cmake/${DEP})
-endforeach()
+endforeach ()
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
-if(missingDependencies)
+if (missingDependencies)
     message(CHECK_FAIL "missing dependencies: ${missingDependencies}")
     message(FATAL_ERROR "missing dependencies found")
-else()
+else ()
     message(CHECK_PASS "all dependencies are added")
-endif()
+endif ()
 
 message(STATUS "dependencies are ... ${POAC_DEPENDENCIES}")

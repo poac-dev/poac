@@ -21,6 +21,15 @@ file(CREATE_LINK ${ninja_SOURCE_DIR}/src ${ninja_BINARY_DIR}/include/ninja SYMBO
 set(NINJA_INCLUDE_DIR ${ninja_BINARY_DIR}/include)
 set(NINJA_LIBRARIES libninja libninja-re2c)
 
+if (ninja_ADDED) # If using downloaded package
+    # Disable clang-tidy
+    set_target_properties(
+        libninja libninja-re2c
+        PROPERTIES
+            CXX_CLANG_TIDY ""
+    )
+endif ()
+
 list(APPEND POAC_DEPENDENCIES ${NINJA_LIBRARIES})
 message(CHECK_PASS "added")
 

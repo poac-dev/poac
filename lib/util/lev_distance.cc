@@ -72,11 +72,8 @@ find_similar_str(StringRef lhs, std::span<const StringRef> candidates) {
   for (StringRef c : candidates) {
     usize cur_dist = calc(lhs, c);
     if (cur_dist <= max_dist) {
-      if (!similar_str.has_value()) {
-        // The first similar string found.
-        similar_str = {c, cur_dist};
-      } else if (cur_dist < similar_str->second) {
-        // More similar string found.
+      // The first similar string found || More similar string found
+      if (!similar_str.has_value() || cur_dist < similar_str->second) {
         similar_str = {c, cur_dist};
       }
     }

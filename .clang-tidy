@@ -1,30 +1,6 @@
 ---
-Checks: "\
-boost-*,\
-performance-*,\
-clang-analyzer-core.StackAddressEscape,\
-clang-analyzer-code.DivideZero,\
-clang-analyzer-core.NullDereference,\
-clang-analyzer-cplusplus.NewDelete,\
-cppcoreguidelines-*,\
-google-explicit-constructor,\
-hicpp-signed-bitwise,\
-hicpp-exception-baseclass,\
-modernize-use-using,\
-modernize-make-unique,\
-modernize-make-shared,\
-modernize-loop-convert,\
-modernize-use-noexcept,\
-modernize-use-equals-default,\
-modernize-use-equals-delete,\
-modernize-make-unique,\
-modernize-make-shared,\
-misc-new-delete-overloads,\
-bugprone-use-after-move,\
-performance-noexcept-move-constructor,\
-misc-redundant-expression,\
-misc-undelegated-constructor,\
-misc-throw-by-value-catch-by-referencereadability-container-size-empty,\
-readability-simplify-boolean-expr,\
-readability-non-const-parameter,\
-"
+Checks: -*,
+  bugprone-*, -bugprone-unchecked-optional-access, -bugprone-exception-escape,
+  -bugprone-easily-swappable-parameters, -bugprone-narrowing-conversions, -bugprone-branch-clone
+WarningsAsErrors: true,*
+UseColor: true

@@ -22,6 +22,7 @@ main() {
     std::filesystem::create_directory(test_dir);
     expect(can_create_directory(test_dir).is_ok());
 
+    // NOLINTNEXTLINE(bugprone-unused-raii)
     std::ofstream((test_dir / "test_file").string());
     expect(can_create_directory(test_dir).is_err());
 

@@ -108,6 +108,7 @@ unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
 // recursive DPLL algorithm
 [[nodiscard]] Result<Vec<i32>, String>
 dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
+  // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));
   } else if (Status result = unit_propagate(clauses, literals);

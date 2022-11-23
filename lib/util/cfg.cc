@@ -85,9 +85,7 @@ Lexer::tokenize(size_type index_) const {
       } while (this->one(index_) == ' ');
       return tokenize(index_);
     case '(':
-      [[fallthrough]];
     case ')':
-      [[fallthrough]];
     case ',':
       [[fallthrough]];
     case '=':
