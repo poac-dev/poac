@@ -53,19 +53,18 @@ getenv(const String& name, const String& default_v) {
 // Expand ~ to user home directory.
 [[nodiscard]] Result<Path, String>
 expand_user() {
-  Option<String> home = dupenv("HOME");
-  if (home) {
-    home = dupenv("USERPROFILE");
-    if (home) {
-      return Ok(home.value());
+  if (Option<String> home = dupenv("HOME")) {
+    return Ok(home.value());
+  } else if (Option<String> user = dupenv("USERPROFILE")) {
+    return Ok(user.value());
+  } else {
+    const auto home_drive = dupenv("HOMEDRIVE");
+    const auto home_path = dupenv("HOMEPATH");
+    if (home_drive && home_path) {
+      return Ok(home_drive.value() + home_path.value());
     }
+    return Err("could not get home directory");
   }
-  const auto home_drive = dupenv("HOMEDRIVE");
-  const auto home_path = dupenv("HOMEPATH");
-  if (home_drive && home_path) {
-    return Ok(home_drive.value() + home_path.value());
-  }
-  return Err("could not get home directory");
 }
 
 } // namespace poac::util::misc
