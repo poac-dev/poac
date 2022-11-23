@@ -132,7 +132,7 @@ using HashSet = std::unordered_set<K, boost::hash<K>>;
 using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;
 using namespace fmt::literals;
-using namespace termcolor2::color_literals;
+using namespace termcolor2::color_literals; // NOLINT(build/namespaces)
 
 inline Path operator""_path(const char* str, usize) { return Path(str); }
 
