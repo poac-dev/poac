@@ -20,8 +20,8 @@
 #  error "POAC_VERSION is not defined"
 #endif
 
-using namespace termcolor2::color_literals;
-using namespace poac;
+using namespace termcolor2::color_literals; // NOLINT(build/namespaces)
+using namespace poac; // NOLINT(build/namespaces)
 namespace anyhow = mitama::anyhow;
 
 struct Commands {
