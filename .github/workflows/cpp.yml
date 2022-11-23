@@ -7,7 +7,7 @@ on:
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CXX: clang++-14
     steps:
@@ -27,7 +27,7 @@ jobs:
         working-directory: build
 
   clang-format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -46,7 +46,7 @@ jobs:
           check-path: ${{ matrix.path }}
 
   cpplint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
 
