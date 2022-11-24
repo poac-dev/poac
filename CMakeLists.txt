@@ -18,7 +18,7 @@ message(STATUS "Poac Version: ${CMAKE_PROJECT_VERSION}")
 include(GNUInstallDirs)
 
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
-option(POAC_BUILD_TESTING "Do not build tests by default" OFF)
+option(POAC_BUILD_TESTING "Enable build tests" OFF)
 option(POAC_ENABLE_COVERAGE "Enable coverage" OFF)
 option(POAC_CLANG_TIDY "Enable clang-tidy when debug" ON)
 

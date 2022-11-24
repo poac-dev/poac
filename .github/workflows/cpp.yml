@@ -24,14 +24,14 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install llvm
           echo '/home/linuxbrew/opt/llvm/bin' >> "$GITHUB_PATH"
-          /home/linuxbrew/opt/llvm/bin/clang-tidy --version
+          /home/linuxbrew/.linuxbrew/opt/llvm/bin/clang-tidy --version
+          clang-tidy --version
 
       - name: Run CMake
         run: |
           cmake -B build -G Ninja       \
             -DCPM_USE_LOCAL_PACKAGES=ON \
             -DPOAC_BUILD_TESTING=ON     \
-            -DPOAC_CLANG_TIDY=ON        \
             -DCMAKE_BUILD_TYPE=Debug
 
       - name: Build Poac
