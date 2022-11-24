@@ -9,6 +9,8 @@ jobs:
   clang-tidy:
     runs-on: macos-12
     steps:
+      - uses: actions/checkout@v3
+
       - run: brew update
 
       - name: Install required dependencies
