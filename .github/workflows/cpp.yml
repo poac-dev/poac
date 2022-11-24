@@ -22,7 +22,7 @@ jobs:
       - name: Run CMake
         run: cmake -B build -G Ninja
 
-      - name: Build Poac
+      - name: Run clang-tidy
         run: ninja
         working-directory: build
 
