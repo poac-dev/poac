@@ -19,14 +19,16 @@ CPMAddPackage(
         "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}"
 )
 
-# Disable clang-tidy
-set_target_properties(
-    fmt
-    PROPERTIES
-        CXX_CLANG_TIDY ""
-)
+if (POAC_CLANG_TIDY)
+    # Disable clang-tidy
+    set_target_properties(
+        fmt
+        PROPERTIES
+            CXX_CLANG_TIDY ""
+    )
+endif ()
 
-list(APPEND POAC_DEPENDENCIES fmt::fmt)
+list(APPEND POAC_gDEPENDENCIES fmt::fmt)
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
