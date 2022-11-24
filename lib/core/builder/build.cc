@@ -56,8 +56,8 @@ run(data::NinjaMain& ninja_main, Status& status) {
       &ninja_main.deps_log, &ninja_main.disk_interface, &status,
       ninja_main.start_time_millis
   );
-  for (usize i = 0; i < targets.size(); ++i) {
-    if (!builder.AddTarget(targets[i], &err)) {
+  for (Node* target : targets) {
+    if (!builder.AddTarget(target, &err)) {
       if (!err.empty()) {
         return Err<GeneralError>(err);
       }

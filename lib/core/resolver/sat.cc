@@ -142,7 +142,7 @@ dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
       continue;
     }
 
-    const auto result = dpll(clauses, new_literals);
+    auto result = dpll(clauses, new_literals);
     if (result.is_ok()) {
       return result;
     }

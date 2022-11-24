@@ -50,10 +50,11 @@ MultiPartForm::generate_header() {
   m_header = format("{}{}", m_crlf, fmt::join(m_form_param, ""));
   for (const auto& [name, filename, header] : m_file_param) {
     String h = format(
-        "--{}{}{}name=\"{}\"; filename=\"{}\"", m_boundary, m_crlf,
+        R"(--{}{}{}name="{}"; filename="{}")", m_boundary, m_crlf,
         m_content_disposition, name, filename.filename().string()
     );
     for (const auto& [field, content] : header) {
+      // NOLINTNEXTLINE(google-readability-casting)
       h += format("{}{}: {}", m_crlf, String(to_string(field)), content);
     }
     m_header += m_crlf + h;

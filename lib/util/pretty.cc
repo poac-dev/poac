@@ -31,8 +31,8 @@ to_time(const f64& total_seconds) {
 String
 to_byte(f64 bytes) {
   int index = 0;
-  for (; bytes >= 1000.0; bytes /= 1024.0, ++index)
-    ;
+  for (; bytes >= 1000.0; bytes /= 1024.0, ++index) {
+  }
   return format("{:.2f}{}", bytes, size_suffixes.at(index));
 }
 
