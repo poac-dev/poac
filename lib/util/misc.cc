@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 // external
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp> // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
 #include <boost/predef.h> // NOLINT(build/include_order)
 
 // internal
