@@ -49,7 +49,7 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install required dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get -qq update
           sudo apt-get install -y ninja-build libssl-dev libboost-all-dev ${{ matrix.compiler.subpackage }}

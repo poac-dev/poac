@@ -7,15 +7,16 @@ on:
 
 jobs:
   clang-tidy:
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
-          brew install openssl ninja boost
-          brew install libarchive libgit2 fmt spdlog
-          brew install llvm  # for clang-tidy
+          sudo apt-get -qq update
+          sudo apt-get install -y ninja-build libssl-dev libboost-all-dev clang-14 lld-14
+          sudo apt-get install -y libfmt-dev libgit2-dev
+          brew install llvm
           echo '/usr/local/opt/llvm/bin' >> "$GITHUB_PATH"
 
       - name: Run CMake
