@@ -19,20 +19,8 @@ jobs:
             ninja-build libssl-dev libboost-all-dev \
             libfmt-dev libgit2-dev
 
-      - name: Install clang-tidy 15
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install llvm
-          echo '/home/linuxbrew/opt/llvm/bin' >> "$GITHUB_PATH"
-          /home/linuxbrew/.linuxbrew/opt/llvm/bin/clang-tidy --version
-          clang-tidy --version
-
       - name: Run CMake
-        run: |
-          cmake -B build -G Ninja       \
-            -DCPM_USE_LOCAL_PACKAGES=ON \
-            -DPOAC_BUILD_TESTING=ON     \
-            -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -B build -G Ninja
 
       - name: Build Poac
         run: ninja

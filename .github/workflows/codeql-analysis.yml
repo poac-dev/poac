@@ -55,7 +55,7 @@ jobs:
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
     - name: Run CMake
-      run: cmake -B build -G Ninja -DPOAC_BUILD_TESTING=ON -DPOAC_CLANG_TIDY=OFF
+      run: cmake -B build -G Ninja -DPOAC_CLANG_TIDY=OFF
 
     - name: Build Poac
       run: ninja

@@ -60,8 +60,6 @@ jobs:
       - name: Run CMake
         run: |
           cmake -B build -G Ninja                       \
-            -DCPM_USE_LOCAL_PACKAGES=ON                 \
-            -DPOAC_BUILD_TESTING=ON                     \
             -DPOAC_CLANG_TIDY=OFF                       \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
