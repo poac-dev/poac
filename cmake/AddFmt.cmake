@@ -19,7 +19,7 @@ CPMAddPackage(
         "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}"
 )
 
-if (POAC_CLANG_TIDY)
+if (POAC_CLANG_TIDY AND fmt_ADDED) # If using downloaded package
     # Disable clang-tidy
     set_target_properties(
         fmt
