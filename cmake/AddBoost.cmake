@@ -15,7 +15,7 @@ if (Boost_FOUND)
     message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
     message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
 
-    target_include_directories(poac SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
+    target_include_directories(poac PRIVATE ${Boost_INCLUDE_DIRS})
     target_link_directories(poac PRIVATE ${Boost_LIBRARY_DIRS})
     list(APPEND POAC_DEPENDENCIES ${Boost_LIBRARIES})
 else ()
