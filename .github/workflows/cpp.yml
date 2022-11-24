@@ -17,6 +17,7 @@ jobs:
           brew install openssl ninja boost
           brew install libarchive libgit2 fmt spdlog
           brew install llvm  # for clang-tidy
+          echo 'PATH="/usr/local/opt/llvm/bin:$PATH"' >> $GITHUB_ENV
 
       - name: Run CMake
         run: |
