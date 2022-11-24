@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 // external
-#include <boost/algorithm/string.hpp> // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+#include <boost/algorithm/string.hpp>
 #include <boost/predef.h> // NOLINT(build/include_order)
 
 // internal
@@ -13,6 +13,7 @@ namespace poac::util::misc {
 Vec<String>
 split(const String& raw, const String& delim) {
   Vec<String> ret;
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
   boost::split(
       ret, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on
   );
