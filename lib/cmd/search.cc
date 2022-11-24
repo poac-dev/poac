@@ -32,7 +32,7 @@ search(const Options& opts) {
         "{} = \"{}\"", hits.get<String>("name"), hits.get<String>("version")
     );
 
-    String description = hits.get<String>("description");
+    auto description = hits.get<String>("description");
     description = util::pretty::clip_string(description, 100);
     // If util::pretty::clip_string clips last \n, \n should be removed
     description.erase(

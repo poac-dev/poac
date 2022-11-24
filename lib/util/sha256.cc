@@ -28,10 +28,10 @@ sum(const Path& path) {
   Vec<char> buffer(buf_size);
   Vec<unsigned char> hash(SHA256_DIGEST_LENGTH);
   EVP_MD_CTX* ctx = EVP_MD_CTX_create();
-  if (ctx == NULL) {
+  if (ctx == nullptr) {
     return Err<FailedToCreateSha256Digest>();
   }
-  if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
+  if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), nullptr)) {
     return Err<FailedToCreateSha256Digest>();
   }
 

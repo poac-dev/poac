@@ -16,7 +16,7 @@ std::optional<Predicate>
 Parser::comma_predicate() {
   const bool has_comma = has_ws_separator(Token::Comma);
 
-  if (const auto predicate = this->predicate()) {
+  if (auto predicate = this->predicate()) {
     return predicate;
   } else if (has_comma) {
     return std::nullopt; // Err(EmptyPredicate)

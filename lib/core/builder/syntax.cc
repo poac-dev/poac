@@ -22,7 +22,7 @@ expand(const String& text, const Variables& vars, const Variables& local_vars) {
            : vars.contains(var)     ? vars.at(var)
                                     : ""s;
   };
-  return boost::regex_replace(text, boost::regex("\\$(\\$|\\w*)"), exp);
+  return boost::regex_replace(text, boost::regex(R"(\$(\$|\w*))"), exp);
 }
 
 /// ref: https://stackoverflow.com/a/46379136
@@ -63,6 +63,7 @@ Writer::_line(String text, usize indent) {
     std::int32_t space = available_space;
     do {
       space = text.rfind(' ', space);
+      // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     } while (!(space < 0 || count_dollars_before_index(text, space) % 2 == 0));
 
     if (space < 0) {
@@ -70,6 +71,7 @@ Writer::_line(String text, usize indent) {
       space = available_space - 1;
       do {
         space = text.find(' ', space + 1);
+        // NOLINTNEXTLINE(readability-simplify-boolean-expr)
       } while (!(space < 0 || count_dollars_before_index(text, space) % 2 == 0)
       );
     }

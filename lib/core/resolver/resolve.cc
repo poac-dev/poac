@@ -44,12 +44,13 @@ multiple_versions_cnf(const Vec<i32>& clause) {
 }
 
 Vec<Vec<i32>>
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 create_cnf(const DupDeps<WithDeps>& activated) {
   Vec<Vec<i32>> clauses;
   Vec<i32> already_added;
 
-  DupDeps<WithDeps>::const_iterator first = std::cbegin(activated);
-  DupDeps<WithDeps>::const_iterator last = std::cend(activated);
+  auto first = std::cbegin(activated);
+  auto last = std::cend(activated);
   for (usize i = 0; i < activated.size(); ++i) {
     if (util::meta::find(already_added, i)) {
       continue;
@@ -86,7 +87,7 @@ create_cnf(const DupDeps<WithDeps>& activated) {
     } else if (count > 1) {
       Vec<i32> clause;
 
-      for (DupDeps<WithDeps>::const_iterator found = first; found != last;
+      for (auto found = first; found != last;
            found = std::find_if(found, last, name_lambda)) {
         const i64 index = std::distance(first, found);
         clause.emplace_back(index + 1);
@@ -142,7 +143,7 @@ backtrack_loop(const DupDeps<WithDeps>& activated) {
   if (util::verbosity::is_verbose()) {
     for (const Vec<i32>& c : clauses) {
       for (i32 l : c) {
-        const auto deps = activated[std::abs(l) - 1];
+        const auto& deps = activated[std::abs(l) - 1];
         const Package package = get_package(deps);
         log::debug("{}-{}: {}, ", package.name, package.version_rq, l);
       }
@@ -183,7 +184,7 @@ gather_deps_of_deps(
     const Package package{name, version_rq};
 
     // Check if node package is resolved dependency (by interval)
-    const IntervalCache::iterator found_cache =
+    const auto found_cache =
         boost::range::find_if(interval_cache, [&package](const Cache& cache) {
           return package == cache.package;
         });

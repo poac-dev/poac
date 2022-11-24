@@ -7,20 +7,24 @@ on:
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-22.04
-    env:
-      CXX: clang++-14
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install required dependencies
+      - name: Install dependencies
         run: |
-          sudo apt-get -qq clean
-          sudo apt-get -qq update
-          sudo apt-get install -y clang-14 lld-14 ninja-build libssl-dev libboost-all-dev
+          brew install openssl ninja boost
+          brew install libarchive libgit2 fmt spdlog
+          brew install llvm  # for clang-tidy
+          echo '/usr/local/opt/llvm/bin' >> "$GITHUB_PATH"
 
       - name: Run CMake
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPOAC_BUILD_TESTING=ON
+        run: |
+          cmake -B build -G Ninja       \
+            -DCPM_USE_LOCAL_PACKAGES=ON \
+            -DPOAC_BUILD_TESTING=ON     \
+            -DPOAC_CLANG_TIDY=ON        \
+            -DCMAKE_BUILD_TYPE=Debug
 
       - name: Build Poac
         run: ninja
@@ -38,6 +42,8 @@ jobs:
           - "tests"
     steps:
       - uses: actions/checkout@v3
+
+      - run: clang-tidy --version
 
       - name: Run clang-format style check
         uses: jidicula/clang-format-action@v4.9.0

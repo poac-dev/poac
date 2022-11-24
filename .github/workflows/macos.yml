@@ -19,13 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: brew update
-
-      - name: Install required dependencies
-        run: brew install openssl ninja boost
-
-      - name: Install optional dependencies
-        run: brew install libarchive libgit2 fmt spdlog
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install openssl ninja boost
+          brew install libarchive libgit2 fmt spdlog
 
       - name: Run CMake
         run: |

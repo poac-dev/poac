@@ -1,6 +1,30 @@
 ---
-Checks: -*,
-  bugprone-*, -bugprone-unchecked-optional-access, -bugprone-exception-escape,
-  -bugprone-easily-swappable-parameters, -bugprone-narrowing-conversions, -bugprone-branch-clone
-WarningsAsErrors: true,*
 UseColor: true
+WarningsAsErrors: true,*
+Checks: -*
+  bugprone-*
+    -bugprone-unchecked-optional-access
+    -bugprone-exception-escape
+    -bugprone-easily-swappable-parameters
+    -bugprone-narrowing-conversions
+    -bugprone-branch-clone
+  readability-*
+    -readability-convert-member-functions-to-static
+    -readability-else-after-return
+    -readability-identifier-length
+    -readability-implicit-bool-conversion
+    -readability-magic-numbers
+  performance-*
+  modernize-*
+    -modernize-use-trailing-return-type
+    -modernize-avoid-c-arrays
+  misc-*
+    -misc-const-correctness
+    -misc-static-assert
+    -misc-no-recursion
+  google-*
+    -google-readability-namespace-comments
+    -google-build-using-namespace
+CheckOptions:
+  - { key: readability-identifier-naming.ClassCase, value: CamelCase }
+  - { key: readability-identifier-naming.StructCase, value: CamelCase }

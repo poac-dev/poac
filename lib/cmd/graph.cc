@@ -75,7 +75,7 @@ create_graph() {
 dot_file_output(const Path& output_path) {
   const auto [g, names] = Try(create_graph());
   std::ofstream file(output_path);
-  boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
+  boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
   return Ok();
 }
 
@@ -86,7 +86,7 @@ png_file_output(const Path& output_path) {
 
     const String file_dot = output_path.stem().string() + ".dot";
     std::ofstream file(file_dot);
-    boost::write_graphviz(file, g, boost::make_label_writer(&names[0]));
+    boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
 
     util::shell::Cmd("dot -Tpng " + file_dot + " -o " + output_path.string())
         .exec();

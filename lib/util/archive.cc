@@ -61,7 +61,7 @@ archive_write_header(
 
 String
 set_extract_path(archive_entry* entry, const Path& extract_path) noexcept {
-  const String current_file = archive_entry_pathname(entry);
+  String current_file = archive_entry_pathname(entry);
   const Path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
   archive_entry_set_pathname(entry, full_output_path.c_str());
@@ -70,7 +70,7 @@ set_extract_path(archive_entry* entry, const Path& extract_path) noexcept {
 
 [[nodiscard]] Result<bool, String>
 archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
-    !(true == ARCHIVE_EOF)
+    !static_cast<bool>(ARCHIVE_EOF) // NOLINT(modernize-use-bool-literals)
 ) {
   const i32 res = archive_read_next_header(reader, entry);
   if (res == ARCHIVE_EOF) {
@@ -88,7 +88,7 @@ extract_impl(
     Archive* reader, const Writer& writer, const Path& extract_path
 ) noexcept {
   archive_entry* entry = nullptr;
-  String extracted_directory_name{""};
+  String extracted_directory_name;
   while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
     if (extracted_directory_name.empty()) {
       extracted_directory_name = set_extract_path(entry, extract_path);
@@ -112,7 +112,7 @@ archive_read_open_filename(
 }
 
 [[nodiscard]] Result<String, String>
-extract(const Path& from, const Path& to) noexcept {
+extract(const Path& target_file_path, const Path& extract_path) noexcept {
   Archive* reader = archive_read_new();
   if (!reader) {
     return Err("Cannot archive_read_new");
@@ -128,10 +128,10 @@ extract(const Path& from, const Path& to) noexcept {
   archive_write_disk_set_options(writer.get(), make_flags());
   archive_write_disk_set_standard_lookup(writer.get());
 
-  Try(archive_read_open_filename(reader, from, 10'240));
+  Try(archive_read_open_filename(reader, target_file_path, 10'240));
   BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_close(reader); };
 
-  return extract_impl(reader, writer, to);
+  return extract_impl(reader, writer, extract_path);
 }
 
 } // namespace poac::util::archive

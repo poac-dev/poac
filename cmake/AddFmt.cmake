@@ -19,7 +19,7 @@ CPMAddPackage(
         "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}"
 )
 
-if (fmt_ADDED) # If using downloaded package
+if (POAC_CLANG_TIDY AND fmt_ADDED) # If using downloaded package
     # Disable clang-tidy
     set_target_properties(
         fmt
@@ -28,7 +28,7 @@ if (fmt_ADDED) # If using downloaded package
     )
 endif ()
 
-list(APPEND POAC_DEPENDENCIES fmt::fmt)
+list(APPEND POAC_gDEPENDENCIES fmt::fmt)
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

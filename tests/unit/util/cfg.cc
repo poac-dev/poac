@@ -178,8 +178,8 @@ main() {
       );
 
       expect(nothrow([] { parse("cfg(not(os = \"foo\"))"); }));
-      expect(nothrow([] { parse("all(os = \"foo\", os = \"bar\")"); }));
-      expect(nothrow([] { parse("any(os = \"foo\", os = \"bar\")"); }));
+      expect(nothrow([] { parse(R"(all(os = "foo", os = "bar"))"); }));
+      expect(nothrow([] { parse(R"(any(os = "foo", os = "bar"))"); }));
     };
 
     it("test bad cases") = [] {
@@ -325,7 +325,7 @@ main() {
           "   ^ excepted '(' after `all`"
       );
       throws_with_msg<syntax_error>(
-          [] { parse("all(not(compiler = \"foo\", os = \"bar\")"); },
+          [] { parse(R"(all(not(compiler = "foo", os = "bar"))"); },
           "cfg syntax error\n"
           "all(not(compiler = \"foo\", os = \"bar\")\n"
           "                        ^ excepted ')'"
@@ -434,7 +434,7 @@ main() {
     expect(throws<std::invalid_argument>([&] { CfgExpr(CfgExpr::cfg, c); }));
 
     std::vector<CfgExpr> e;
-    e.emplace_back(CfgExpr(CfgExpr::value, c));
+    e.emplace_back(CfgExpr::value, c);
     expect(throws<std::invalid_argument>([&] {
       CfgExpr(CfgExpr::not_, std::move(e));
     }));
@@ -454,9 +454,9 @@ main() {
     it("test1") = [] {
       expect(!parse("cfg(not(os = \"unix\"))").match());
       expect(parse("cfg(not(not(os = \"unix\")))").match());
-      expect(parse("cfg(any(os = \"linux\", os = \"macos\")))").match());
-      expect(!parse("cfg(all(os = \"linux\", os = \"macos\")))").match());
-      expect(parse("cfg(all(os = \"unix\", os = \"unix\")))").match());
+      expect(parse(R"(cfg(any(os = "linux", os = "macos"))))").match());
+      expect(!parse(R"(cfg(all(os = "linux", os = "macos"))))").match());
+      expect(parse(R"(cfg(all(os = "unix", os = "unix"))))").match());
 
       // Always return false (unimplemented)
       expect(!parse("cfg(compiler = \"gcc\")").match());
