@@ -7,25 +7,23 @@ on:
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-22.04
-    env:
-      CXX: clang++-14
+    runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
+      - run: brew update
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get -qq clean
-          sudo apt-get -qq update
-          sudo apt-get install -y clang-14 lld-14 ninja-build libssl-dev libboost-all-dev
-          sudo apt-get install -y libfmt-dev libgit2-dev
+      - name: Install required dependencies
+        run: brew install openssl ninja boost
+
+      - name: Install optional dependencies
+        run: brew install libarchive libgit2 fmt spdlog
 
       - name: Run CMake
         run: |
           cmake -B build -G Ninja       \
             -DCPM_USE_LOCAL_PACKAGES=ON \
-            -DCMAKE_BUILD_TYPE=Debug    \
-            -DPOAC_BUILD_TESTING=ON
+            -DPOAC_BUILD_TESTING=ON     \
+            -DPOAC_CLANG_TIDY=ON        \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build Poac
         run: ninja
