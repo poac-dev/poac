@@ -366,6 +366,7 @@ private:
   [[nodiscard]] Result<typename ResponseBody::value_type, String>
   handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
     close_stream();
+    // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
     switch (res.base().result_int() / 100) {
       case 2:
         return Ok(parse_response(
@@ -444,7 +445,7 @@ private:
           new_target, old_req.body(), {}, std::forward<Ofstream>(ofs)
       );
     } else { // verb error
-      return Err("[util::net::requests] unknown verb used");
+      return Err("[util::net::requests] unknown method used");
     }
   }
 

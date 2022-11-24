@@ -18,9 +18,10 @@ message(STATUS "Poac Version: ${CMAKE_PROJECT_VERSION}")
 include(GNUInstallDirs)
 
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
-option(POAC_BUILD_TESTING "Do not build tests by default" OFF)
+option(POAC_BUILD_TESTING "Enable build tests" ON)
 option(POAC_ENABLE_COVERAGE "Enable coverage" OFF)
-option(POAC_CLANG_TIDY "Enable clang-tidy when debug" ON)
+option(POAC_CLANG_TIDY "Enable clang-tidy when Debug mode" ON)
+option(CPM_USE_LOCAL_PACKAGES "Try to use local packages" ON)
 
 # Option checks
 if ((NOT POAC_BUILD_TESTING) AND POAC_ENABLE_COVERAGE)
@@ -31,7 +32,7 @@ set(CMAKE_VERBOSE_MAKEFILE ${VERBOSE})
 set(CMAKE_CXX_EXTENSIONS OFF) # without compiler extensions like gnu++11
 if (CPM_USE_LOCAL_PACKAGES)
     set(CPM_SUPPORTED_LIBS LibArchive Libgit2 fmt spdlog)
-    message(STATUS "CPM_USE_LOCAL_PACKAGES is set as ON; `${CPM_SUPPORTED_LIBS}` on local will be used if found.")
+    message(STATUS "CPM_USE_LOCAL_PACKAGES is ON; `${CPM_SUPPORTED_LIBS}` on local will be used if found.")
 endif ()
 
 add_executable(poac src/main.cc)

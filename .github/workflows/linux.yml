@@ -49,18 +49,17 @@ jobs:
         if: startsWith(matrix.compiler.cc, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
-      - name: Install required dependencies
+      - name: Install dependencies
         run: |
-          sudo apt-get -qq clean
           sudo apt-get -qq update
-          sudo apt-get install -y ninja-build libssl-dev libboost-all-dev ${{ matrix.compiler.subpackage }}
-          sudo apt-get install -y libfmt-dev libgit2-dev
+          sudo apt-get install -y                   \
+            ${{ matrix.compiler.subpackage }}       \
+            ninja-build libssl-dev libboost-all-dev \
+            libfmt-dev libgit2-dev
 
       - name: Run CMake
         run: |
           cmake -B build -G Ninja                       \
-            -DCPM_USE_LOCAL_PACKAGES=ON                 \
-            -DPOAC_BUILD_TESTING=ON                     \
             -DPOAC_CLANG_TIDY=OFF                       \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
@@ -93,9 +92,10 @@ jobs:
         # https://github.com/poacpm/poac/runs/6859118992?check_suite_focus=true#step:16:21
         if: matrix.build_type == 'Release'
         run: |
-          ./build/poac create hello_world
+          ./poac create hello_world
           cd hello_world
-          ../build/poac run
+          ../poac run
+        working-directory: build
 
       - name: Print coverage
         if: success() && matrix.coverage == 'on'

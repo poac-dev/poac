@@ -14,23 +14,19 @@ jobs:
       matrix:
         os: [ macos-11, macos-12 ]
         build_type: [ Debug, Release ]
-    env:
-      CACHE_KEY_PREFIX: v2-${{ github.ref }}-${{ matrix.os }}-${{ matrix.build_type }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
-          brew update
-          brew install openssl ninja boost
-          brew install libarchive libgit2 fmt spdlog
+          brew install          \
+            openssl ninja boost \
+            libarchive libgit2 fmt spdlog
 
       - name: Run CMake
         run: |
-          cmake -B build -G Ninja       \
-            -DCPM_USE_LOCAL_PACKAGES=ON \
-            -DPOAC_BUILD_TESTING=ON     \
-            -DPOAC_CLANG_TIDY=OFF       \
+          cmake -B build -G Ninja \
+            -DPOAC_CLANG_TIDY=OFF \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build Poac
@@ -58,6 +54,7 @@ jobs:
 
       - name: Test binary
         run: |
-          ./build/poac create hello_world
+          ./poac create hello_world
           cd hello_world
-          ../build/poac run
+          ../poac run
+        working-directory: build
