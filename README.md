@@ -379,7 +379,7 @@ $ ninja
 $ ninja install
 ```
 
-Poac automatically try to use dependencies installed locally.
+Poac automatically tries to use dependencies installed locally.
 If you want to avoid using local packages, pass `-DCPM_USE_LOCAL_PACKAGES=OFF` as the `cmake` command options.
 
 ## Why Poac?
