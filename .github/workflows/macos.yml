@@ -19,8 +19,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install openssl ninja boost
-          brew install libarchive libgit2 fmt spdlog
+          brew install          \
+            openssl ninja boost \
+            libarchive libgit2 fmt spdlog
 
       - name: Run CMake
         run: |

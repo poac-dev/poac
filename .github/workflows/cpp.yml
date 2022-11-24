@@ -14,14 +14,17 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get -qq update
-          sudo apt-get install -y ninja-build libssl-dev libboost-all-dev clang-14 lld-14
-          sudo apt-get install -y libfmt-dev libgit2-dev
+          sudo apt-get install -y                   \
+            clang-14 lld-14                         \
+            ninja-build libssl-dev libboost-all-dev \
+            libfmt-dev libgit2-dev
 
       - name: Install clang-tidy 15
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install llvm
-          echo '/usr/local/opt/llvm/bin' >> "$GITHUB_PATH"
+          echo '/home/linuxbrew/opt/llvm/bin' >> "$GITHUB_PATH"
+          /home/linuxbrew/opt/llvm/bin/clang-tidy --version
 
       - name: Run CMake
         run: |
