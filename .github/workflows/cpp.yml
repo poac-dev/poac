@@ -25,7 +25,7 @@ jobs:
             -DCPM_USE_LOCAL_PACKAGES=ON \
             -DPOAC_BUILD_TESTING=ON     \
             -DPOAC_CLANG_TIDY=ON        \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=Debug
 
       - name: Build Poac
         run: ninja
