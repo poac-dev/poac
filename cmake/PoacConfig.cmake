@@ -25,6 +25,11 @@ else ()
     endif ()
 endif ()
 
+# Set default build type to Debug
+if (CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Debug")
+endif ()
+
 if ((MSVC OR MINGW) AND ENABLE_STATIC) # -DENABLE_STATIC=ON
     include(cmake/ConfigStatic.cmake)
 elseif (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
