@@ -13,14 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install required dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get -qq clean
           sudo apt-get -qq update
           sudo apt-get install -y clang-14 lld-14 ninja-build libssl-dev libboost-all-dev
+          sudo apt-get install -y libfmt-dev libgit2-dev
 
       - name: Run CMake
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPOAC_BUILD_TESTING=ON
+        run: |
+          cmake -B build -G Ninja       \
+            -DCPM_USE_LOCAL_PACKAGES=ON \
+            -DCMAKE_BUILD_TYPE=Debug    \
+            -DPOAC_BUILD_TESTING=ON
 
       - name: Build Poac
         run: ninja
