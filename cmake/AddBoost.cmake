@@ -18,6 +18,15 @@ if (Boost_FOUND)
     target_include_directories(poac PRIVATE ${Boost_INCLUDE_DIRS})
     target_link_directories(poac PRIVATE ${Boost_LIBRARY_DIRS})
     list(APPEND POAC_DEPENDENCIES ${Boost_LIBRARIES})
+
+    if (POAC_CLANG_TIDY)
+        # Disable clang-tidy
+        set_target_properties(
+            ${Boost_LIBRARIES}
+            PROPERTIES
+            CXX_CLANG_TIDY ""
+        )
+    endif ()
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies boost)
