@@ -13,6 +13,7 @@ namespace poac::util::misc {
 Vec<String>
 split(const String& raw, const String& delim) {
   Vec<String> ret;
+  // Ref: https://github.com/llvm/llvm-project/issues/40486
   // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
   boost::split(
       ret, raw, boost::is_any_of(delim), boost::algorithm::token_compress_on
