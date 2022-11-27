@@ -201,7 +201,7 @@ Error: `cpplint` completed with exit code 1
 > If you do not have `cpplint`, install it with the following command:
 >
 > ```bash
-> $ pip install cpplint
+> pip install cpplint
 > ```
 
 The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
@@ -221,11 +221,11 @@ you:~/hello_world$ poac fmt
 > This command automatically detects what files we need to format to avoid bothering commands like:
 >
 > ```bash
-> $ # We need to avoid the `build` dir and such dirs ...
-> $ clang-format ./src/*.cpp -i
-> $ clang-format ./include/**/*.hpp -i
-> $ clang-format ./tests/**/*.cpp -i
-> $ ...
+> # We need to avoid the `build` dir and such dirs ...
+> clang-format ./src/*.cpp -i
+> clang-format ./include/**/*.hpp -i
+> clang-format ./tests/**/*.cpp -i
+> ...
 > ```
 
 To customize the format settings, try creating a [`.clang-format`](/.clang-format) file to the repository root.
@@ -235,7 +235,8 @@ To customize the format settings, try creating a [`.clang-format`](/.clang-forma
 In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
 
 ```console
-$ poac search func
+poac search func
+
 boost/function = "1.66.0"               # Boost.org function module
 boost/function_types = "1.66.0"         # Boost.org function_types module
 boost/functional = "1.66.0"             # Boost.org functional module
@@ -371,12 +372,12 @@ Poac requires the following compilers, tools, and libraries to build:
 After you prepared these requirements, you can build Poac using the following commands:
 
 ```bash
-$ git clone https://github.com/poacpm/poac.git
-$ cd poac
-$ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-$ cd build
-$ ninja
-$ ninja install
+git clone https://github.com/poacpm/poac.git
+cd poac
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cd build
+ninja
+ninja install
 ```
 
 Poac automatically tries to use dependencies installed locally.
@@ -412,7 +413,7 @@ https://dev.poac.pm
 ### Linter
 
 ```bash
-$ cpplint --quiet --recursive .
+cpplint --quiet --recursive .
 ```
 
 > **Note**:
@@ -425,14 +426,14 @@ $ cpplint --quiet --recursive .
 ### Formatter
 
 ```bash
-$ clang-format ./include/**/*.hpp -i
+clang-format ./include/**/*.hpp -i
 ```
 
 > **Note**:
 > If you have installed Poac, you can just run the `fmt` command:
 >
 > ```bash
-> $ poac fmt
+> poac fmt
 > ```
 
 These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
