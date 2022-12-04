@@ -19,15 +19,16 @@ using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:\n"
     "  apt/brew install clang-format">;
 
-inline constexpr StringRef directories[] = {
+inline constexpr Arr<StringRef, 5> directories{
     "examples", "include", "lib", "src", "tests"};
-inline constexpr StringRef drogon_dirs[] = {"controllers", "filters", "views"};
+inline constexpr Arr<StringRef, 3> drogon_dirs{
+    "controllers", "filters", "views"};
 
-inline constexpr StringRef extensions[] = {"c",   "c++", "cc",  "cpp",
-                                           "cu",  "cuh", "cxx", "h",
-                                           "h++", "hh",  "hpp", "hxx"};
+inline constexpr Arr<StringRef, 12> extensions{"c",   "c++", "cc",  "cpp",
+                                               "cu",  "cuh", "cxx", "h",
+                                               "h++", "hh",  "hpp", "hxx"};
 
-inline constexpr StringRef patterns[] = {"{}/*.{}", "{}/**/*.{}"};
+inline constexpr Arr<StringRef, 2> patterns{"{}/*.{}", "{}/**/*.{}"};
 
 void
 fmt_impl(

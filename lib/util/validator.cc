@@ -116,7 +116,7 @@ invalid_characters(StringRef s) noexcept {
 using_keywords(StringRef s) {
   // Ban keywords
   // https://en.cppreference.com/w/cpp/keyword
-  constexpr StringRef blacklist[] = {
+  constexpr Arr<StringRef, 96> blacklist{
       "alignas",
       "alignof",
       "and",

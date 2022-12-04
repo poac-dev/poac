@@ -2,6 +2,7 @@
 #define POAC_POAC_HPP_
 
 // std
+#include <array>
 #include <cstddef> // std::size_t
 #include <cstdint>
 #include <filesystem>
@@ -82,6 +83,8 @@ static_assert(String::npos == StringRef::npos, "npos should be the same");
 
 using Path = fs::path;
 
+template <typename T, usize N>
+using Arr = std::array<T, N>;
 template <typename T>
 using Vec = std::vector<T>;
 
