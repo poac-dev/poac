@@ -22,7 +22,6 @@ Checks: -*
     -misc-no-recursion
   modernize-*
     -modernize-use-trailing-return-type
-    -modernize-avoid-c-arrays
   performance-*
   portability-*
   readability-*
