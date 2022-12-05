@@ -9,7 +9,6 @@ Checks: -*
     -bugprone-narrowing-conversions
     -bugprone-branch-clone
   cert-*
-    -cert-err58-cpp
   clang-analyzer-*
   google-*
     -google-readability-namespace-comments
@@ -21,7 +20,6 @@ Checks: -*
   performance-*
   portability-*
   readability-*
-    -readability-convert-member-functions-to-static
     -readability-else-after-return
     -readability-identifier-length
     -readability-implicit-bool-conversion
