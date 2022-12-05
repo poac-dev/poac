@@ -9,6 +9,7 @@
 // internal
 #include <poac/core/builder/syntax.hpp>
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace poac;

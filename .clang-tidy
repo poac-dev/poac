@@ -11,7 +11,6 @@ Checks: -*
   cert-*
   clang-analyzer-*
   google-*
-    -google-readability-namespace-comments
     -google-build-using-namespace
   misc-*
     -misc-const-correctness
