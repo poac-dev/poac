@@ -8,7 +8,7 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] auto required_config_exists() noexcept -> Result<Path, String> {
+[[nodiscard]] auto required_config_exists() -> Result<Path, String> {
   // TODO(ken-matsui): move out to data/manifest.hpp
   Path candidate = config::path::cwd;
   while (true) {
@@ -33,7 +33,7 @@ namespace poac::util::validator {
 }
 
 [[nodiscard]] auto can_create_directory(const Path& p) -> Result<void, String> {
-  std::error_code ec{}; // This is to use for noexcept optimization
+  std::error_code ec{}; // This is used for noexcept optimization
 
   const bool exists = fs::exists(p, ec);
   if (exists && !fs::is_directory(p, ec)) {

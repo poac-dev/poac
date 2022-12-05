@@ -93,7 +93,7 @@ private:
   Token component();
 
   /// Consume whitespace.
-  Token whitespace() noexcept;
+  Token whitespace();
 };
 
 } // end namespace semver

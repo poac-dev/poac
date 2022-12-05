@@ -37,7 +37,7 @@ auto operator*(const String& s, usize n) -> String {
 }
 
 /// Returns the number of '$' characters right in front of s[i].
-auto Writer::count_dollars_before_index(StringRef s, usize i) const -> usize {
+auto Writer::count_dollars_before_index(StringRef s, usize i) -> usize {
   usize dollar_count = 0;
   usize dollar_index = i - 1;
   while (dollar_index > 0 && s[dollar_index] == '$') {

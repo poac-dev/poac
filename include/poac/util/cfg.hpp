@@ -255,7 +255,7 @@ private:
 
   std::pair<size_type, Token> ident(size_type index_) const;
 
-  Option<Token::ident> to_ident(StringRef s) const noexcept;
+  static Option<Token::ident> to_ident(StringRef s) noexcept;
 };
 
 enum class compiler {
@@ -298,7 +298,7 @@ struct Cfg {
   ~Cfg() = default;
 
 private:
-  Ident from_token_ident(Token::ident ident) const;
+  static Ident from_token_ident(Token::ident ident);
 };
 
 struct CfgExpr {
@@ -350,7 +350,7 @@ struct CfgExpr {
   bool match() const;
 
 private:
-  bool match(const Cfg& c) const;
+  static bool match(const Cfg& c);
 };
 
 struct Parser {

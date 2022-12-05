@@ -18,7 +18,7 @@ namespace poac::core::resolver {
 /// Rename unknown extracted directory to easily access when building.
 [[nodiscard]] auto rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
-) noexcept -> Result<void> {
+) -> Result<void> {
   const Path temporarily_extracted_path =
       config::path::extract_dir / extracted_directory_name;
   const Path extracted_path = get_extracted_path(package);
@@ -59,8 +59,7 @@ namespace poac::core::resolver {
 using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
-[[nodiscard]] auto fetch(const UniqDeps<WithoutDeps>& deps) noexcept
-    -> Result<void> {
+[[nodiscard]] auto fetch(const UniqDeps<WithoutDeps>& deps) -> Result<void> {
   for (const auto& [name, version_rq] : deps) {
     const resolve::Package package{name, version_rq};
 
@@ -89,8 +88,7 @@ auto is_not_installed(const resolve::Package& package) -> bool {
   return !fs::exists(get_archive_path(package));
 }
 
-auto get_not_installed_deps(const ResolvedDeps& deps) noexcept
-    -> UniqDeps<WithoutDeps> {
+auto get_not_installed_deps(const ResolvedDeps& deps) -> UniqDeps<WithoutDeps> {
   return deps | boost::adaptors::map_keys
          | boost::adaptors::filtered(is_not_installed)
          // ref: https://stackoverflow.com/a/42251976
@@ -100,8 +98,7 @@ auto get_not_installed_deps(const ResolvedDeps& deps) noexcept
          | util::meta::containerized;
 }
 
-[[nodiscard]] auto download_deps(const ResolvedDeps& deps) noexcept
-    -> Result<void> {
+[[nodiscard]] auto download_deps(const ResolvedDeps& deps) -> Result<void> {
   const UniqDeps<WithoutDeps> not_installed_deps = get_not_installed_deps(deps);
   if (not_installed_deps.empty()) {
     // all resolved packages already have been installed

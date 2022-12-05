@@ -9,11 +9,6 @@
 // internal
 #include <poac/core/builder/syntax.hpp>
 
-inline const std::string LONGWORD = std::string(10, 'a');
-inline const std::string LONGWORDWITHSPACES =
-    std::string(5, 'a') + "$ " + std::string(5, 'a');
-inline const std::string INDENT = "    ";
-
 auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace poac;
@@ -22,16 +17,21 @@ auto main() -> int {
 
   namespace builder = core::builder;
   using boost::algorithm::join;
-  using vec = std::vector<std::string>;
+  using vec = Vec<std::string>;
 
-  describe("test line word wrap") = [] {
-    it("test single long word") = [] {
+  const std::string LONGWORD = std::string(10, 'a');
+  const std::string LONGWORDWITHSPACES =
+      std::string(5, 'a') + "$ " + std::string(5, 'a');
+  const std::string INDENT = "    ";
+
+  describe("test line word wrap") = [&] {
+    it("test single long word") = [&] {
       builder::syntax::Writer writer{std::ostringstream(), 8};
       writer._line(LONGWORD);
       expect(eq(LONGWORD + '\n', writer.get_value()));
     };
 
-    it("test few long words") = [] {
+    it("test few long words") = [&] {
       builder::syntax::Writer writer{std::ostringstream(), 8};
       writer._line(join(vec{"x"s, LONGWORD, "y"s}, " "));
       expect(
@@ -61,7 +61,7 @@ auto main() -> int {
       );
     };
 
-    it("test few long words indented") = [] {
+    it("test few long words indented") = [&] {
       // Check wrapping in the presence of indenting.
       builder::syntax::Writer writer{std::ostringstream(), 8};
       writer._line(join(vec{"x"s, LONGWORD, "y"s}, " "), 1);
@@ -74,7 +74,7 @@ auto main() -> int {
       ));
     };
 
-    it("test escaped spaces") = [] {
+    it("test escaped spaces") = [&] {
       builder::syntax::Writer writer{std::ostringstream(), 8};
       writer._line(join(vec{"x"s, LONGWORDWITHSPACES, "y"s}, " "));
       expect(

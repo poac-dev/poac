@@ -114,7 +114,7 @@ namespace poac::util::net::api {
   }
 }
 
-[[nodiscard]] auto search(StringRef query, const u64& count) noexcept
+[[nodiscard]] auto search(StringRef query, const u64& count)
     -> Result<boost::property_tree::ptree, String> {
   boost::property_tree::ptree pt;
   pt.put("query", query);
@@ -125,7 +125,7 @@ namespace poac::util::net::api {
   return call("/search", body.str());
 }
 
-[[nodiscard]] auto deps(StringRef name, StringRef version) noexcept
+[[nodiscard]] auto deps(StringRef name, StringRef version)
     -> Result<HashMap<String, String>, String> {
   boost::property_tree::ptree pt;
   pt.put("name", name);

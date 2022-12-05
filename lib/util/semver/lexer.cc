@@ -111,7 +111,7 @@ auto Lexer::component() -> Token {
 }
 
 /// Consume whitespace.
-auto Lexer::whitespace() noexcept -> Token {
+auto Lexer::whitespace() -> Token {
   const size_type start = this->c1_index;
   while (is_whitespace(this->one())) {
     this->step();
