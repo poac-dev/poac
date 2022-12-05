@@ -93,5 +93,5 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 
 // clang-format off
 // to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
-} // namespace poac::data::lockfile::inline v1
+} // namespace poac::data::lockfile::v1
 // clang-format on
