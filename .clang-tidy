@@ -10,14 +10,12 @@ Checks: -*
     -bugprone-narrowing-conversions
     -bugprone-branch-clone
   cert-*
-    -cert-dcl03-c
   clang-analyzer-*
   google-*
     -google-readability-namespace-comments
     -google-build-using-namespace
   misc-*
     -misc-const-correctness
-    -misc-static-assert
     -misc-no-recursion
   modernize-*
   performance-*
