@@ -74,7 +74,7 @@ class Writer {
   usize width;
 
   /// Returns the number of '$' characters right in front of s[i].
-  usize count_dollars_before_index(StringRef s, usize i) const;
+  static usize count_dollars_before_index(StringRef s, usize i);
 
   // Export this function for testing
 #if __has_include(<boost/ut.hpp>)
