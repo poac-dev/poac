@@ -10,7 +10,6 @@ Checks: -*
     -bugprone-narrowing-conversions
     -bugprone-branch-clone
   cert-*
-    -cert-dcl03-c
     -cert-err58-cpp
   clang-analyzer-*
   google-*
@@ -18,7 +17,6 @@ Checks: -*
     -google-build-using-namespace
   misc-*
     -misc-const-correctness
-    -misc-static-assert
     -misc-no-recursion
   modernize-*
   performance-*
