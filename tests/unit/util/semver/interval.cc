@@ -13,7 +13,7 @@ auto main() -> int {
 
   describe("test satisfies") = [] {
     it("test1") = [] {
-      Interval const interval(">=1.66.0 and <1.70.0");
+      const Interval interval(">=1.66.0 and <1.70.0");
       expect(interval.satisfies("1.66.0"));
       expect(interval.satisfies("1.67.0"));
       expect(interval.satisfies("1.68.0"));
@@ -23,7 +23,7 @@ auto main() -> int {
     };
 
     it("test2") = [] {
-      Interval const interval(">=1.0.0-alpha and <1.0.0");
+      const Interval interval(">=1.0.0-alpha and <1.0.0");
       expect(interval.satisfies("1.0.0-alpha"));
       expect(interval.satisfies("1.0.0-alpha.1"));
       expect(interval.satisfies("1.0.0-alpha.beta"));

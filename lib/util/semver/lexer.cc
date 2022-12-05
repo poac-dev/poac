@@ -81,7 +81,7 @@ auto Lexer::component() -> Token {
     while (is_alpha_numeric(this->one())) {
       this->step();
     }
-    std::string_view const sub = str.substr(start, this->c1_index - start);
+    const std::string_view sub = str.substr(start, this->c1_index - start);
     return Token{Token::AlphaNumeric, sub};
   }
 
@@ -97,7 +97,7 @@ auto Lexer::component() -> Token {
   }
   if (str[start] != '0' && !is_alphabet(this->one())) {
     // e.g. 3425
-    std::string_view const sub = str.substr(start, this->c1_index - start);
+    const std::string_view sub = str.substr(start, this->c1_index - start);
     const std::uint_fast64_t value = str_to_uint(sub).value();
     return Token{Token::Numeric, value};
   }
@@ -106,7 +106,7 @@ auto Lexer::component() -> Token {
   while (is_alpha_numeric(this->one())) {
     this->step();
   }
-  std::string_view const sub = str.substr(start, this->c1_index - start);
+  const std::string_view sub = str.substr(start, this->c1_index - start);
   return Token{Token::AlphaNumeric, sub};
 }
 

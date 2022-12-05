@@ -54,7 +54,7 @@ auto main() -> int {
 
   // bool exec_ignore()
   "test exec_no_capture"_test = [] {
-    Cmd const c("cd");
+    const Cmd c("cd");
     expect(eq(c.exec_no_capture(), 0));
   };
 
@@ -83,8 +83,8 @@ auto main() -> int {
   };
 
   "test operator&&(const shell& rhs)"_test = [] {
-    Cmd const c("mkdir test");
-    Cmd const c2 = (c && Cmd("cd test"));
+    const Cmd c("mkdir test");
+    const Cmd c2 = (c && Cmd("cd test"));
 
     expect(eq(c2.string(), "mkdir test && cd test"s));
   };
@@ -109,8 +109,8 @@ auto main() -> int {
   };
 
   "test operator||(const shell& rhs)"_test = [] {
-    Cmd const c("mkdir test");
-    Cmd const c2 = (c || Cmd("cd test"));
+    const Cmd c("mkdir test");
+    const Cmd c2 = (c || Cmd("cd test"));
 
     expect(eq(c2.string(), "mkdir test || cd test"s));
   };
@@ -135,8 +135,8 @@ auto main() -> int {
   };
 
   "test operator+(const shell& rhs)"_test = [] {
-    Cmd const c("mkdir test");
-    Cmd const c2 = (c + Cmd("cd test"));
+    const Cmd c("mkdir test");
+    const Cmd c2 = (c + Cmd("cd test"));
 
     expect(eq(c2.string(), "mkdir test cd test"s));
   };
