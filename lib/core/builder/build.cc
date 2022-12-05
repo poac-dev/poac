@@ -43,7 +43,7 @@ auto operator<<(std::ostream& os, Mode mode) -> std::ostream& {
 [[nodiscard]] auto run(data::NinjaMain& ninja_main, Status& status)
     -> Result<void> {
   String err;
-  Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
+  const Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
   if (!err.empty()) {
     return Err<GeneralError>(err);
   }
@@ -89,7 +89,7 @@ auto get_ninja_verbosity() -> BuildConfig::Verbosity {
     const toml::value& poac_manifest, const Mode& mode,
     const resolver::ResolvedDeps& resolved_deps
 ) -> Result<Path> {
-  BuildConfig config;
+  const BuildConfig config;
 
   // ref: https://github.com/ninja-build/ninja/pull/2102#issuecomment-1147771497
   setenv("TERM", "dumb", true);

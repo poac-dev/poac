@@ -64,12 +64,12 @@ auto find_similar_str(StringRef lhs, std::span<const StringRef> candidates)
   // Keep going with the Levenshtein distance match.
   // If the LHS size is less than 3, use the LHS size minus 1 and if not,
   // use the LHS size divided by 3.
-  usize length = lhs.size();
-  usize max_dist = length < 3 ? length - 1 : length / 3;
+  const usize length = lhs.size();
+  const usize max_dist = length < 3 ? length - 1 : length / 3;
 
   Option<std::pair<StringRef, usize>> similar_str = None;
-  for (StringRef c : candidates) {
-    usize cur_dist = calc(lhs, c);
+  for (const StringRef c : candidates) {
+    const usize cur_dist = calc(lhs, c);
     if (cur_dist <= max_dist) {
       // The first similar string found || More similar string found
       if (!similar_str.has_value() || cur_dist < similar_str->second) {

@@ -127,7 +127,7 @@ auto Lexer::string(size_type index_) const
       throw cfg::string_error(String(this->str) + "\n" + msg);
     }
   }
-  StringRef s = this->str.substr(start, index_ - start);
+  const StringRef s = this->str.substr(start, index_ - start);
   this->step(index_);
   return {this->diff_step(index_), Token{Token::String, s}};
 }
@@ -146,7 +146,7 @@ auto Lexer::ident(size_type index_) const
     this->step(index_);
   }
 
-  StringRef s = this->str.substr(start, index_ - start);
+  const StringRef s = this->str.substr(start, index_ - start);
   if (const auto ident = to_ident(s)) {
     return {this->diff_step(index_), Token{Token::Ident, ident.value()}};
   } else {

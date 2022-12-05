@@ -9,7 +9,7 @@ auto main() -> int {
 
   describe("test solve => SAT") = [] {
     it("test1") = [] {
-      std::vector<std::vector<int>> clauses{{1, 2}, {-1, 2}, {-1, -2}};
+      const std::vector<std::vector<int>> clauses{{1, 2}, {-1, 2}, {-1, -2}};
       const auto result = solve(clauses, 2);
 
       expect(result.is_ok());
@@ -17,7 +17,7 @@ auto main() -> int {
     };
 
     it("test2") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {-1, -2, -3}, {-2, -3, -4}, {-2, -2, 3}, {2, 2, 2}};
       const auto result = solve(clauses, 4);
 
@@ -26,7 +26,7 @@ auto main() -> int {
     };
 
     it("test3") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {1}, {-2, 4, 5}, {-2, 6}, {-3, 5}, {2}, {3}, {4, 5}, {-4, -5}, {6}};
       const auto result = solve(clauses, 6);
 
@@ -35,7 +35,7 @@ auto main() -> int {
     };
 
     it("test4") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {1, 2}, {-2, 3}, {-2, 4}, {-4, 5}, {1}, {2}, {3}, {4}, {5}};
       const auto result = solve(clauses, 5);
 
@@ -44,7 +44,8 @@ auto main() -> int {
     };
 
     it("test5") = [] {
-      std::vector<std::vector<int>> clauses{{1, 2}, {-3, 2}, {-3, 4}, {3}, {4}};
+      const std::vector<std::vector<int>> clauses{
+          {1, 2}, {-3, 2}, {-3, 4}, {3}, {4}};
       const auto result = solve(clauses, 4);
 
       expect(result.is_ok());
@@ -53,7 +54,7 @@ auto main() -> int {
 
     // FIXME: Maybe the SAT solver has a bug
     skip / it("test6") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {1},         {-2, 6, 5, 4}, {-3, 6, 4},  {2},
           {3},         {4, 5, 6},     {-4, -5, 6}, {-4, 5, -6},
           {4, -5, -6}, {-4, -5, -6},  {-4, 6}};
@@ -64,7 +65,7 @@ auto main() -> int {
     };
 
     it("test7") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {1}, {-2, 4, 5}, {-2, 6}, {-3, 5}, {2}, {3}, {4, 5}, {-4, -5}, {6}};
       const auto result = solve(clauses, 6);
 
@@ -73,7 +74,7 @@ auto main() -> int {
     };
 
     it("test8") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {1}, {2}, {3}, {-2, 4, 5, 6}, {-3, 5}, {4, 5}, {-4, -5}, {6}};
       const auto result = solve(clauses, 6);
 
@@ -84,8 +85,8 @@ auto main() -> int {
 
   describe("test solve => UNSAT") = [] {
     it("test1") = [] {
-      std::vector<std::vector<int>> clauses{{1},      {-2, 4}, {-3, 5}, {4, 5},
-                                            {-4, -5}, {2},     {3}};
+      const std::vector<std::vector<int>> clauses{
+          {1}, {-2, 4}, {-3, 5}, {4, 5}, {-4, -5}, {2}, {3}};
       const auto result = solve(clauses, 5);
 
       expect(result.is_err());
@@ -93,7 +94,7 @@ auto main() -> int {
 
     // FIXME: Maybe the SAT solver has a bug
     skip / it("test2") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {-1, -2, -3}, {-2, -3, -4}, {-2, -2, 3}, {2, 2, 2}, {1, -2, 4}};
       const auto result = solve(clauses, 4);
 
@@ -112,7 +113,7 @@ auto main() -> int {
     // c NOTE: Not Satisfiable
     // c
     skip / it("test3") = [] {
-      std::vector<std::vector<int>> clauses{
+      const std::vector<std::vector<int>> clauses{
           {16, 30, 95},     {-16, 30, 95},   {-30, 35, 78},   {-30, -78, 85},
           {-78, -85, 95},   {8, 55, 100},    {8, 55, -95},    {9, 52, 100},
           {9, 73, -100},    {-8, -9, 52},    {38, 66, 83},    {-38, 83, 87},

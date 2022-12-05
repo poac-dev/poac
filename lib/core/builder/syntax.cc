@@ -56,7 +56,7 @@ void Writer::_line(String text, usize indent) {
 
     // Find the rightmost space that would obey our width constraint and
     // that's not an escaped space.
-    std::int32_t available_space =
+    const std::int32_t available_space =
         width - leading_space.length() - 2; // " $".length() == 2
     std::int32_t space = available_space;
     do {

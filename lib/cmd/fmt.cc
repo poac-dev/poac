@@ -33,14 +33,14 @@ inline constexpr Arr<StringRef, 2> patterns{"{}/*.{}", "{}/**/*.{}"};
 void fmt_impl(
     const Path& base_dir, std::span<const StringRef> dirs, Vec<Path>& targets
 ) {
-  for (StringRef d : dirs) {
+  for (const StringRef d : dirs) {
     if (!fs::exists(base_dir / d)) {
       spdlog::trace("Directory `{}` not found; skipping ...", d);
       continue;
     }
 
-    for (StringRef e : extensions) {
-      for (StringRef p : patterns) {
+    for (const StringRef e : extensions) {
+      for (const StringRef p : patterns) {
         const String search =
             format(::fmt::runtime((base_dir / p).string()), d, e);
         const Vec<Path> search_glob = glob::rglob(search);

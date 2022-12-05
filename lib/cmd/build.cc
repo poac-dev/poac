@@ -18,7 +18,7 @@ namespace poac::cmd::build {
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
 ) -> Result<Path> {
-  spdlog::stopwatch sw;
+  const spdlog::stopwatch sw;
   const Path output_path =
       Try(core::builder::build::start(manifest, mode, resolved_deps));
 

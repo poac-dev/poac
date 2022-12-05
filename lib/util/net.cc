@@ -77,7 +77,7 @@ void Requests::ssl_set_tlsext() const {
   if (!SSL_set_tlsext_host_name(
           stream->native_handle(), String(host).c_str()
       )) {
-    boost::system::error_code error{
+    const boost::system::error_code error{
         static_cast<i32>(::ERR_get_error()),
         boost::asio::error::get_ssl_category()};
     log::debug(error.message());

@@ -278,7 +278,7 @@ namespace poac::util::validator {
   if (authors.empty()) {
     return Err("key `authors` cannot be empty.");
   }
-  for (StringRef a : authors) {
+  for (const StringRef a : authors) {
     Try(valid_athr(a));
   }
   return Ok();
