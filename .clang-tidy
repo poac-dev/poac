@@ -21,7 +21,6 @@ Checks: -*
   performance-*
   portability-*
   readability-*
-    -readability-convert-member-functions-to-static
     -readability-else-after-return
     -readability-identifier-length
     -readability-implicit-bool-conversion
