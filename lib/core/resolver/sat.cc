@@ -85,7 +85,7 @@ auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
         literals[literal_to_index(*itr->begin())] = *itr->begin() < 0;
 
         const i32 index = literal_to_index(*itr->begin());
-        Status const result =
+        const Status result =
             delete_set_literal(clauses, index, literals[index]);
         if (result == Status::satisfied || result == Status::unsatisfied) {
           return result;
@@ -108,7 +108,7 @@ auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
   // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));
-  } else if (Status const result = unit_propagate(clauses, literals);
+  } else if (const Status result = unit_propagate(clauses, literals);
              result == Status::satisfied) {
     return Ok(to_assignments(literals));
   } else if (result == Status::unsatisfied) {
@@ -131,7 +131,7 @@ auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
         calc_literal_polarity(clauses, i + 1) > 0 ? j : (j + 1) % 2;
 
     // apply the change to all the clauses
-    if (Status const result = delete_set_literal(clauses, i, new_literals[i]);
+    if (const Status result = delete_set_literal(clauses, i, new_literals[i]);
         result == Status::satisfied) {
       return Ok(to_assignments(new_literals));
     } else if (result == Status::unsatisfied) {
