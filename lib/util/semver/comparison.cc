@@ -4,8 +4,8 @@
 namespace semver {
 namespace detail {
 
-  bool
-  gt_pre(const Version& lhs, const Version& rhs) {
+  auto
+  gt_pre(const Version& lhs, const Version& rhs) -> bool {
     // NOT having a prerelease is > having one
     if (lhs.pre.empty() && !rhs.pre.empty()) { // gt
       return true;
@@ -39,8 +39,8 @@ namespace detail {
     }
     return false;
   }
-  bool
-  eq_pre(const Version& lhs, const Version& rhs) {
+  auto
+  eq_pre(const Version& lhs, const Version& rhs) -> bool {
     if (lhs.pre.empty() && rhs.pre.empty()) { // eq
       return true;
     }
@@ -66,8 +66,8 @@ namespace detail {
 
 } // end namespace detail
 
-bool
-operator>(const Version& lhs, const Version& rhs) { // gt
+auto
+operator>(const Version& lhs, const Version& rhs) -> bool { // gt
   if (lhs.major != rhs.major) {
     return lhs.major > rhs.major;
   } else if (lhs.minor != rhs.minor) {

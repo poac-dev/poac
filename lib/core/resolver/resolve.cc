@@ -20,8 +20,8 @@ namespace poac::core::resolver::resolve {
 // ¬A ∨ B ∨ ¬C
 // ¬A ∨ ¬B ∨ C
 // ¬A ∨ ¬B ∨ ¬C
-Vec<Vec<i32>>
-multiple_versions_cnf(const Vec<i32>& clause) {
+auto
+multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
   return boost::irange(0, 1 << clause.size()) // number of combinations
          | boost::adaptors::transformed([&clause](const i32 i) {
              return boost::dynamic_bitset<>(to_binary_numbers(i, clause.size())
@@ -43,9 +43,9 @@ multiple_versions_cnf(const Vec<i32>& clause) {
          | util::meta::containerized;
 }
 
-Vec<Vec<i32>>
+auto
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-create_cnf(const DupDeps<WithDeps>& activated) {
+create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
   Vec<Vec<i32>> clauses;
   Vec<i32> already_added;
 
@@ -120,8 +120,9 @@ create_cnf(const DupDeps<WithDeps>& activated) {
   return clauses;
 }
 
-[[nodiscard]] Result<UniqDeps<WithDeps>, String>
-solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
+[[nodiscard]] auto
+solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
+    -> Result<UniqDeps<WithDeps>, String> {
   // deps.activated.size() == variables
   const Vec<i32> assignments = Try(sat::solve(clauses, activated.size()));
   UniqDeps<WithDeps> resolved_deps{};
@@ -137,8 +138,9 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses) {
   return Ok(resolved_deps);
 }
 
-[[nodiscard]] Result<UniqDeps<WithDeps>, String>
-backtrack_loop(const DupDeps<WithDeps>& activated) {
+[[nodiscard]] auto
+backtrack_loop(const DupDeps<WithDeps>& activated)
+    -> Result<UniqDeps<WithDeps>, String> {
   const Vec<Vec<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
     for (const Vec<i32>& c : clauses) {
@@ -156,8 +158,9 @@ backtrack_loop(const DupDeps<WithDeps>& activated) {
 // Interval to multiple versions
 // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
 // name is boost/config, no boost-config
-[[nodiscard]] Result<Vec<String>, String>
-get_versions_satisfy_interval(const Package& package) {
+[[nodiscard]] auto
+get_versions_satisfy_interval(const Package& package)
+    -> Result<Vec<String>, String> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(package.version_rq);
@@ -175,10 +178,10 @@ get_versions_satisfy_interval(const Package& package) {
   return Ok(satisfied_versions);
 }
 
-DupDeps<WithoutDeps>
+auto
 gather_deps_of_deps(
     const UniqDeps<WithoutDeps>& deps_api_res, IntervalCache& interval_cache
-) {
+) -> DupDeps<WithoutDeps> {
   DupDeps<WithoutDeps> cur_deps_deps;
   for (const auto& [name, version_rq] : deps_api_res) {
     const Package package{name, version_rq};
@@ -234,8 +237,9 @@ gather_deps(
   }
 }
 
-[[nodiscard]] Result<DupDeps<WithDeps>, String>
-gather_all_deps(const UniqDeps<WithoutDeps>& deps) {
+[[nodiscard]] auto
+gather_all_deps(const UniqDeps<WithoutDeps>& deps)
+    -> Result<DupDeps<WithDeps>, String> {
   DupDeps<WithDeps> duplicate_deps;
   IntervalCache interval_cache;
 

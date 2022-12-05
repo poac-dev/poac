@@ -13,8 +13,8 @@
 
 namespace poac::cmd::graph {
 
-Result<core::resolver::ResolvedDeps>
-create_resolved_deps() {
+auto
+create_resolved_deps() -> Result<core::resolver::ResolvedDeps> {
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest = toml::parse(data::manifest::name);
@@ -24,8 +24,8 @@ create_resolved_deps() {
   });
 }
 
-Result<std::pair<Graph, Vec<String>>>
-create_graph() {
+auto
+create_graph() -> Result<std::pair<Graph, Vec<String>>> {
   const core::resolver::ResolvedDeps resolved_deps =
       Try(create_resolved_deps());
   Graph g;
@@ -71,16 +71,16 @@ create_graph() {
   return Ok(std::make_pair(g, names));
 }
 
-[[nodiscard]] Result<void>
-dot_file_output(const Path& output_path) {
+[[nodiscard]] auto
+dot_file_output(const Path& output_path) -> Result<void> {
   const auto [g, names] = Try(create_graph());
   std::ofstream file(output_path);
   boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-png_file_output(const Path& output_path) {
+[[nodiscard]] auto
+png_file_output(const Path& output_path) -> Result<void> {
   if (util::shell::has_command("dot")) {
     const auto [g, names] = Try(create_graph());
 
@@ -97,8 +97,8 @@ png_file_output(const Path& output_path) {
   }
 }
 
-[[nodiscard]] Result<void>
-file_output(const Path& output_path) {
+[[nodiscard]] auto
+file_output(const Path& output_path) -> Result<void> {
   if (output_path.extension() == ".png") {
     return png_file_output(output_path);
   } else if (output_path.extension() == ".dot") {
@@ -108,8 +108,8 @@ file_output(const Path& output_path) {
   }
 }
 
-[[nodiscard]] Result<void>
-console_output() {
+[[nodiscard]] auto
+console_output() -> Result<void> {
   const auto [g, names] = Try(create_graph());
   static_cast<void>(names); // error: unused variable
   for (auto [itr, end] = edges(g); itr != end; ++itr) {
@@ -121,8 +121,8 @@ console_output() {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] auto
+exec(const Options& opts) -> Result<void> {
   if (opts.output_file.has_value()) {
     Try(file_output(opts.output_file.value()));
     log::status("Generated", opts.output_file.value());

@@ -7,8 +7,8 @@
 namespace poac::util::sha256 {
 
 // ref: https://stackoverflow.com/a/2458382
-String
-hash_string(const Vec<unsigned char>& hash) {
+auto
+hash_string(const Vec<unsigned char>& hash) -> String {
   String output;
   for (const unsigned char h : hash) {
     // ref: https://stackoverflow.com/a/64311447
@@ -18,8 +18,8 @@ hash_string(const Vec<unsigned char>& hash) {
 }
 
 // ref: https://stackoverflow.com/a/34289358
-[[nodiscard]] Result<String>
-sum(const Path& path) {
+[[nodiscard]] auto
+sum(const Path& path) -> Result<String> {
   std::ifstream file(path, std::ios::binary);
   if (!file) {
     return Err<FailedToReadFile>(path.string());

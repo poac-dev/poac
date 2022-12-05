@@ -2,8 +2,8 @@
 #include <poac/util/semver/comparison.hpp>
 #include <poac/util/semver/token.hpp>
 
-int
-main() {
+auto
+main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 

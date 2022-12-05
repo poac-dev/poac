@@ -16,8 +16,8 @@
 
 namespace poac::core::builder::manifest {
 
-bool
-rebuild(data::NinjaMain& ninja_main, Status& status, String& err) {
+auto
+rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
   Node* node = ninja_main.state.LookupNode(
       (ninja_main.build_dir / manifest_file_name).string()
   );
@@ -51,8 +51,8 @@ rebuild(data::NinjaMain& ninja_main, Status& status, String& err) {
   return true;
 }
 
-Vec<String>
-gather_includes(const resolver::ResolvedDeps& resolved_deps) {
+auto
+gather_includes(const resolver::ResolvedDeps& resolved_deps) -> Vec<String> {
   Vec<String> includes;
   for (const auto& [package, inner_deps] : resolved_deps) {
     static_cast<void>(inner_deps);
@@ -65,8 +65,8 @@ gather_includes(const resolver::ResolvedDeps& resolved_deps) {
   return includes;
 }
 
-Vec<toml::table>
-get_cfg_profile(const toml::value& poac_manifest) {
+auto
+get_cfg_profile(const toml::value& poac_manifest) -> Vec<toml::table> {
   const auto target =
       toml::find_or<toml::table>(poac_manifest, "target", toml::table{});
   Vec<toml::table> profiles;
@@ -82,11 +82,11 @@ get_cfg_profile(const toml::value& poac_manifest) {
   return profiles;
 }
 
-Vec<String>
+auto
 gather_flags(
     const toml::value& poac_manifest, const String& name,
     const Option<String>& prefix
-) {
+) -> Vec<String> {
   auto f = toml::find_or<Vec<String>>(
       poac_manifest, "target", "profile", name, Vec<String>{}
   );
@@ -99,11 +99,11 @@ gather_flags(
   return f;
 }
 
-[[nodiscard]] Result<String>
+[[nodiscard]] auto
 construct(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
-) {
+) -> Result<String> {
   syntax::Writer writer{std::ostringstream()};
   for (StringRef header : manifest_headers) {
     writer.comment(String(header));
@@ -163,11 +163,11 @@ construct(
   return Ok(writer.get_value());
 }
 
-[[nodiscard]] Result<void>
+[[nodiscard]] auto
 create(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
-) {
+) -> Result<void> {
   // TODO(ken-matsui): `ninja.build` will be constructed from `poac.toml`,
   //   so if `poac.toml` has no change,
   //   then `ninja.build` is not needed to be updated.

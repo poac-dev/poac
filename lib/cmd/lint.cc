@@ -20,8 +20,9 @@ using CppLintNotFound = Error<
     "`lint` command requires `cpplint`; try installing it by:\n"
     "  pip install cpplint">;
 
-[[nodiscard]] Result<void>
-lint(StringRef name, const Path& base_dir, Option<String> args) {
+[[nodiscard]] auto
+lint(StringRef name, const Path& base_dir, Option<String> args)
+    -> Result<void> {
   log::status("Linting", name);
 
   String cpplint = format("cd {} && cpplint ", base_dir.string());
@@ -44,8 +45,8 @@ lint(StringRef name, const Path& base_dir, Option<String> args) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec([[maybe_unused]] const Options& opts) {
+[[nodiscard]] auto
+exec([[maybe_unused]] const Options& opts) -> Result<void> {
   spdlog::trace("Checking if `cpplint` command exists ...");
   if (!util::shell::has_command("cpplint")) {
     return Err<CppLintNotFound>();

@@ -4,8 +4,9 @@
 namespace poac::util::net {
 
 // Create progress bar, [====>   ]
-String
-to_progress(const i32& max_count, i32 now_count, const i32& bar_size) {
+auto
+to_progress(const i32& max_count, i32 now_count, const i32& bar_size)
+    -> String {
   if (now_count > max_count) {
     now_count = max_count;
   }
@@ -24,8 +25,8 @@ to_progress(const i32& max_count, i32 now_count, const i32& bar_size) {
 }
 
 // Create byte progress bar, [====>   ] 10.21B/21.28KB
-String
-to_byte_progress(const i32& max_count, i32 now_count) {
+auto
+to_byte_progress(const i32& max_count, i32 now_count) -> String {
   if (now_count > max_count) {
     now_count = max_count;
   }
@@ -35,8 +36,8 @@ to_byte_progress(const i32& max_count, i32 now_count) {
   );
 }
 
-Vec<MultiPartForm::FileInfo>
-MultiPartForm::get_files() const {
+auto
+MultiPartForm::get_files() const -> Vec<MultiPartForm::FileInfo> {
   Vec<FileInfo> file_info;
   for (const auto& f : m_file_param) {
     const Path file_path = std::get<1>(f);
@@ -94,8 +95,9 @@ Requests::ssl_set_tlsext() const {
 
 namespace poac::util::net::api {
 
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-call(StringRef path, StringRef body) noexcept {
+[[nodiscard]] auto
+call(StringRef path, StringRef body) noexcept
+    -> Result<boost::property_tree::ptree, String> {
   try {
     const Requests request{
         format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)};
@@ -119,8 +121,9 @@ call(StringRef path, StringRef body) noexcept {
   }
 }
 
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-search(StringRef query, const u64& count) noexcept {
+[[nodiscard]] auto
+search(StringRef query, const u64& count) noexcept
+    -> Result<boost::property_tree::ptree, String> {
   boost::property_tree::ptree pt;
   pt.put("query", query);
   pt.put("perPage", count);
@@ -146,8 +149,8 @@ deps(StringRef name, StringRef version) noexcept
   return Ok(util::meta::to_hash_map<String>(res, "data.dependencies"));
 }
 
-[[nodiscard]] Result<Vec<String>, String>
-versions(StringRef name) {
+[[nodiscard]] auto
+versions(StringRef name) -> Result<Vec<String>, String> {
   boost::property_tree::ptree pt;
   pt.put("name", name);
 
@@ -165,8 +168,9 @@ versions(StringRef name) {
   return Ok(results);
 }
 
-[[nodiscard]] Result<std::pair<String, String>, String>
-repoinfo(StringRef name, StringRef version) {
+[[nodiscard]] auto
+repoinfo(StringRef name, StringRef version)
+    -> Result<std::pair<String, String>, String> {
   boost::property_tree::ptree pt;
   pt.put("name", name);
   pt.put("version", version);
@@ -182,8 +186,8 @@ repoinfo(StringRef name, StringRef version) {
   ));
 }
 
-[[nodiscard]] Result<bool, String>
-login(StringRef api_token) {
+[[nodiscard]] auto
+login(StringRef api_token) -> Result<bool, String> {
   boost::property_tree::ptree pt;
   pt.put("api_token", api_token);
 

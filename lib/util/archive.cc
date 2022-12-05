@@ -7,10 +7,10 @@
 
 namespace poac::util::archive {
 
-[[nodiscard]] Result<void, String>
+[[nodiscard]] auto
 archive_write_data_block(
     const Writer& writer, const void* buffer, usize size, i64 offset
-) noexcept {
+) noexcept -> Result<void, String> {
   const la_ssize_t res =
       archive_write_data_block(writer.get(), buffer, size, offset);
   if (res < ARCHIVE_OK) {
@@ -19,8 +19,9 @@ archive_write_data_block(
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-copy_data(Archive* reader, const Writer& writer) noexcept {
+[[nodiscard]] auto
+copy_data(Archive* reader, const Writer& writer) noexcept
+    -> Result<void, String> {
   usize size{};
   const void* buff = nullptr;
   i64 offset{};
@@ -36,8 +37,9 @@ copy_data(Archive* reader, const Writer& writer) noexcept {
   }
 }
 
-[[nodiscard]] Result<void, String>
-archive_write_finish_entry(const Writer& writer) noexcept {
+[[nodiscard]] auto
+archive_write_finish_entry(const Writer& writer) noexcept
+    -> Result<void, String> {
   const i32 res = archive_write_finish_entry(writer.get());
   if (res < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
@@ -47,10 +49,10 @@ archive_write_finish_entry(const Writer& writer) noexcept {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
+[[nodiscard]] auto
 archive_write_header(
     Archive* reader, const Writer& writer, archive_entry* entry
-) noexcept {
+) noexcept -> Result<void, String> {
   if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
   } else if (archive_entry_size(entry) > 0) {
@@ -59,8 +61,9 @@ archive_write_header(
   return Ok();
 }
 
-String
-set_extract_path(archive_entry* entry, const Path& extract_path) noexcept {
+auto
+set_extract_path(archive_entry* entry, const Path& extract_path) noexcept
+    -> String {
   String current_file = archive_entry_pathname(entry);
   const Path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
@@ -68,10 +71,10 @@ set_extract_path(archive_entry* entry, const Path& extract_path) noexcept {
   return current_file;
 }
 
-[[nodiscard]] Result<bool, String>
+[[nodiscard]] auto
 archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
     !static_cast<bool>(ARCHIVE_EOF) // NOLINT(modernize-use-bool-literals)
-) {
+) -> Result<bool, String> {
   const i32 res = archive_read_next_header(reader, entry);
   if (res == ARCHIVE_EOF) {
     return Ok(ARCHIVE_EOF);
@@ -83,10 +86,10 @@ archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
   return Ok(false);
 }
 
-[[nodiscard]] Result<String, String>
+[[nodiscard]] auto
 extract_impl(
     Archive* reader, const Writer& writer, const Path& extract_path
-) noexcept {
+) noexcept -> Result<String, String> {
   archive_entry* entry = nullptr;
   String extracted_directory_name;
   while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
@@ -101,18 +104,19 @@ extract_impl(
   return Ok(extracted_directory_name);
 }
 
-[[nodiscard]] Result<void, String>
+[[nodiscard]] auto
 archive_read_open_filename(
     Archive* reader, const Path& file_path, usize block_size
-) noexcept {
+) noexcept -> Result<void, String> {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
     return Err("Cannot archive_read_open_filename");
   }
   return Ok();
 }
 
-[[nodiscard]] Result<String, String>
-extract(const Path& target_file_path, const Path& extract_path) noexcept {
+[[nodiscard]] auto
+extract(const Path& target_file_path, const Path& extract_path) noexcept
+    -> Result<String, String> {
   Archive* reader = archive_read_new();
   if (!reader) {
     return Err("Cannot archive_read_new");

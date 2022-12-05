@@ -7,8 +7,8 @@
 namespace poac::util::lev_distance {
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-usize
-calc(StringRef a, StringRef b) {
+auto
+calc(StringRef a, StringRef b) -> usize {
   const usize asize = a.size();
   const usize bsize = b.size();
 
@@ -52,8 +52,9 @@ calc(StringRef a, StringRef b) {
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef>
-find_similar_str(StringRef lhs, std::span<const StringRef> candidates) {
+auto
+find_similar_str(StringRef lhs, std::span<const StringRef> candidates)
+    -> Option<StringRef> {
   // We need to check if `Candidates` has the exact case-insensitive string
   // because the Levenshtein distance match does not care about it.
   for (StringRef c : candidates) {

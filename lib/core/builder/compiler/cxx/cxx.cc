@@ -10,8 +10,9 @@
 
 namespace poac::core::builder::compiler::cxx {
 
-[[nodiscard]] Result<util::cfg::compiler>
-get_compiler_ident(const String& compiler_command, const bool is_macos) {
+[[nodiscard]] auto
+get_compiler_ident(const String& compiler_command, const bool is_macos)
+    -> Result<util::cfg::compiler> {
   if (is_macos) {
     if (const auto res = util::shell::Cmd(compiler_command + " --version")
                              .stderr_to_stdout()
@@ -32,11 +33,11 @@ get_compiler_ident(const String& compiler_command, const bool is_macos) {
   return Err<UnknownCompilerCommand>(compiler_command);
 }
 
-[[nodiscard]] Result<String>
+[[nodiscard]] auto
 get_std_flag(
     const util::cfg::compiler compiler, const String& compiler_command,
     const i64 edition, const bool use_gnu_extension
-) {
+) -> Result<String> {
   switch (compiler) {
     case util::cfg::compiler::gcc:
       return gcc::get_std_flag(compiler_command, edition, use_gnu_extension);
@@ -51,8 +52,8 @@ get_std_flag(
   }
 }
 
-[[nodiscard]] Result<String>
-get_compiler_command() {
+[[nodiscard]] auto
+get_compiler_command() -> Result<String> {
   if (const auto cxx = util::misc::dupenv("CXX")) {
     return Ok(cxx.value());
   } else if (util::shell::has_command("g++")) {
@@ -64,8 +65,8 @@ get_compiler_command() {
   }
 }
 
-[[nodiscard]] Result<String>
-get_command(const i64 edition, const bool use_gnu_extension) {
+[[nodiscard]] auto
+get_command(const i64 edition, const bool use_gnu_extension) -> Result<String> {
   const String compiler_command = Try(get_compiler_command());
   const util::cfg::compiler compiler =
 #ifdef __APPLE__

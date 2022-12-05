@@ -3,8 +3,8 @@
 
 namespace poac::core::resolver::sat {
 
-Vec<i32>
-to_assignments(const Vec<i32>& literals) {
+auto
+to_assignments(const Vec<i32>& literals) -> Vec<i32> {
   Vec<i32> assignments;
   for (auto&& l : literals | boost::adaptors::indexed()) {
     const i32 literal = l.index() + 1;
@@ -22,8 +22,8 @@ to_assignments(const Vec<i32>& literals) {
 // assigned have been deleted from the clauses by the `delete_applied_literal`
 // function, so the index of the variable with the highest number of variables
 // is returned from the variables in the current clauses.
-i32
-maximum_literal_number_index(const Vec<Vec<i32>>& clauses) {
+auto
+maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
   Map<i32, i32> frequency;
   for (const auto& clause : clauses) {
     for (const auto& literal : clause) {
@@ -42,10 +42,9 @@ maximum_literal_number_index(const Vec<Vec<i32>>& clauses) {
 
 // Delete variables from the clauses for which variable assignment has been
 // determined.
-Status
-delete_set_literal(
-    Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val
-) {
+auto
+delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val)
+    -> Status {
   for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
     for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
       // set_val -> unassigned(-1) -> always false
@@ -75,8 +74,8 @@ delete_set_literal(
 }
 
 // unit resolution
-Status
-unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
+auto
+unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
   bool unit_clause_found = true;
   while (unit_clause_found) {
     unit_clause_found = false;
@@ -106,8 +105,8 @@ unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
 }
 
 // recursive DPLL algorithm
-[[nodiscard]] Result<Vec<i32>, String>
-dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) {
+[[nodiscard]] auto
+dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Result<Vec<i32>, String> {
   // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));

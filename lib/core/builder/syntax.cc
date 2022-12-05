@@ -11,8 +11,9 @@ namespace poac::core::builder::syntax {
 ///
 /// Note: doesn't handle the full Ninja variable syntax, but it's enough
 /// to make configure.py's use of it work.
-String
-expand(const String& text, const Variables& vars, const Variables& local_vars) {
+auto
+expand(const String& text, const Variables& vars, const Variables& local_vars)
+    -> String {
   const auto exp = [&](const boost::smatch& m) {
     const String var = m[1].str();
     if (var == "$") {
@@ -26,8 +27,8 @@ expand(const String& text, const Variables& vars, const Variables& local_vars) {
 }
 
 /// ref: https://stackoverflow.com/a/46379136
-String
-operator*(const String& s, usize n) {
+auto
+operator*(const String& s, usize n) -> String {
   String result;
   result.reserve(s.size() * n);
   for (usize i = 0; i < n; ++i) {
@@ -37,8 +38,8 @@ operator*(const String& s, usize n) {
 }
 
 /// Returns the number of '$' characters right in front of s[i].
-usize
-Writer::count_dollars_before_index(StringRef s, usize i) const {
+auto
+Writer::count_dollars_before_index(StringRef s, usize i) const -> usize {
   usize dollar_count = 0;
   usize dollar_index = i - 1;
   while (dollar_index > 0 && s[dollar_index] == '$') {
@@ -134,10 +135,10 @@ Writer::rule(StringRef name, StringRef command, const RuleSet& rule_set) {
   }
 }
 
-Vec<String>
+auto
 Writer::build(
     const Vec<String>& outputs, StringRef rule, const BuildSet& build_set
-) {
+) -> Vec<String> {
   Vec<String> out_outputs;
   for (const String& o : outputs) {
     out_outputs.emplace_back(escape_path(o).string());

@@ -21,7 +21,6 @@ Checks: -*
     -misc-static-assert
     -misc-no-recursion
   modernize-*
-    -modernize-use-trailing-return-type
   performance-*
   portability-*
   readability-*

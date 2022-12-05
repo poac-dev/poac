@@ -56,8 +56,8 @@ fmt_impl(
   }
 }
 
-[[nodiscard]] Result<void>
-fmt(const Options& opts, const Path& base_dir, StringRef args) {
+[[nodiscard]] auto
+fmt(const Options& opts, const Path& base_dir, StringRef args) -> Result<void> {
   Vec<Path> targets;
 
   fmt_impl(base_dir, directories, targets);
@@ -82,8 +82,8 @@ fmt(const Options& opts, const Path& base_dir, StringRef args) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] auto
+exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if `clang-format` command exists ...");
   if (!util::shell::has_command("clang-format")) {
     return Err<ClangFormatNotFound>();

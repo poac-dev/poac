@@ -10,8 +10,8 @@
 
 namespace poac::util::misc {
 
-Vec<String>
-split(const String& raw, const String& delim) {
+auto
+split(const String& raw, const String& delim) -> Vec<String> {
   Vec<String> ret;
   // Ref: https://github.com/llvm/llvm-project/issues/40486
   // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
@@ -21,8 +21,8 @@ split(const String& raw, const String& delim) {
   return ret;
 }
 
-Option<String>
-dupenv(const String& name) {
+auto
+dupenv(const String& name) -> Option<String> {
 #if BOOST_COMP_MSVC
   char* env;
   usize len;
@@ -42,8 +42,8 @@ dupenv(const String& name) {
 #endif
 }
 
-String
-getenv(const String& name, const String& default_v) {
+auto
+getenv(const String& name, const String& default_v) -> String {
   if (const Option<String> env = dupenv(name)) {
     return env.value();
   } else {
@@ -53,8 +53,8 @@ getenv(const String& name, const String& default_v) {
 
 // Inspired by https://stackoverflow.com/q/4891006
 // Expand ~ to user home directory.
-[[nodiscard]] Result<Path, String>
-expand_user() {
+[[nodiscard]] auto
+expand_user() -> Result<Path, String> {
   if (Option<String> home = dupenv("HOME")) {
     return Ok(home.value());
   } else if (Option<String> user = dupenv("USERPROFILE")) {
