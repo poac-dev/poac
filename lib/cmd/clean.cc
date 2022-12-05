@@ -9,8 +9,7 @@
 
 namespace poac::cmd::clean {
 
-[[nodiscard]] Result<void>
-clean(const Options& opts) {
+[[nodiscard]] auto clean(const Options& opts) -> Result<void> {
   const Option<String> profile =
       Try(util::validator::valid_profile(opts.profile, opts.release)
               .map_err(to_anyhow));
@@ -33,8 +32,7 @@ clean(const Options& opts) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

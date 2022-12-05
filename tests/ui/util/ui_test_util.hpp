@@ -38,8 +38,7 @@ enum class Target {
   Stderr,
 };
 
-inline std::string
-random_string() {
+inline std::string random_string() {
   std::string str(
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   );
@@ -49,31 +48,24 @@ random_string() {
   return str.substr(0, 30);
 }
 
-inline fs::path
-get_temp_dir() {
+inline fs::path get_temp_dir() {
   const fs::path temp_dir = fs::temp_directory_path() / random_string();
   fs::create_directories(temp_dir);
   return temp_dir;
 }
 
-inline Cmd
-move_to_temp(const fs::path& temp_dir) {
+inline Cmd move_to_temp(const fs::path& temp_dir) {
   return Cmd("cd " + temp_dir.string());
 }
 
-inline void
-remove_temp(const fs::path& temp_dir) {
-  fs::remove_all(temp_dir);
-}
+inline void remove_temp(const fs::path& temp_dir) { fs::remove_all(temp_dir); }
 
-inline Cmd
-mk_cmd(const std::string& cmd, const fs::path& temp_dir) {
+inline Cmd mk_cmd(const std::string& cmd, const fs::path& temp_dir) {
   return move_to_temp(temp_dir) && POAC_EXECUTABLE + cmd;
 }
 
 template <Target target>
-Cmd::SimpleResult
-dispatch(
+Cmd::SimpleResult dispatch(
     std::initializer_list<std::string_view> args, const fs::path& temp_dir
 ) {
   std::string cmd_args = " --color never"; // Disable color on tests
@@ -87,8 +79,7 @@ dispatch(
   return res;
 }
 
-inline std::string
-readfile_impl(const fs::path& path) {
+inline std::string readfile_impl(const fs::path& path) {
   std::ifstream input(path);
   if (!input.is_open()) {
     return "";
@@ -100,8 +91,7 @@ readfile_impl(const fs::path& path) {
 
 // Read an expectation file.
 template <Target target>
-std::string
-readfile(std::string_view name) {
+std::string readfile(std::string_view name) {
   fs::path input_path = name;
   if (target == Target::Stdout) {
     input_path.replace_extension(".stdout");
@@ -112,8 +102,7 @@ readfile(std::string_view name) {
 }
 
 template <Target target>
-void
-uitest(
+void uitest(
     std::initializer_list<std::string_view> args,
     const fs::path& temp_dir = get_temp_dir(),
     const std::optional<std::function<void(const fs::path&)>>& pre_temp_rm =

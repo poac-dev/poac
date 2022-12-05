@@ -20,12 +20,10 @@ inline constexpr i32 buf_size = 32768;
 inline constexpr i32 hash_size = 65;
 
 // ref: https://stackoverflow.com/a/2458382
-String
-hash_string(const Vec<unsigned char>& hash);
+String hash_string(const Vec<unsigned char>& hash);
 
 // ref: https://stackoverflow.com/a/34289358
-[[nodiscard]] Result<String>
-sum(const Path& path);
+[[nodiscard]] Result<String> sum(const Path& path);
 
 } // namespace poac::util::sha256
 

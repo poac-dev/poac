@@ -17,8 +17,7 @@
 
 namespace poac::core::builder::build {
 
-String
-to_string(Mode mode) {
+auto to_string(Mode mode) -> String {
   switch (mode) {
     case Mode::debug:
       return "debug";
@@ -29,8 +28,7 @@ to_string(Mode mode) {
   }
 }
 
-std::ostream&
-operator<<(std::ostream& os, Mode mode) {
+auto operator<<(std::ostream& os, Mode mode) -> std::ostream& {
   switch (mode) {
     case Mode::debug:
       return (os << "dev");
@@ -42,8 +40,8 @@ operator<<(std::ostream& os, Mode mode) {
 }
 
 /// Build the targets listed on the command line.
-[[nodiscard]] Result<void>
-run(data::NinjaMain& ninja_main, Status& status) {
+[[nodiscard]] auto run(data::NinjaMain& ninja_main, Status& status)
+    -> Result<void> {
   String err;
   Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
   if (!err.empty()) {
@@ -77,8 +75,7 @@ run(data::NinjaMain& ninja_main, Status& status) {
   return Ok();
 }
 
-BuildConfig::Verbosity
-get_ninja_verbosity() {
+auto get_ninja_verbosity() -> BuildConfig::Verbosity {
   if (util::verbosity::is_verbose()) {
     return BuildConfig::VERBOSE;
   } else if (util::verbosity::is_quiet()) {
@@ -88,11 +85,10 @@ get_ninja_verbosity() {
   }
 }
 
-[[nodiscard]] Result<Path>
-start(
+[[nodiscard]] auto start(
     const toml::value& poac_manifest, const Mode& mode,
     const resolver::ResolvedDeps& resolved_deps
-) {
+) -> Result<Path> {
   BuildConfig config;
 
   // ref: https://github.com/ninja-build/ninja/pull/2102#issuecomment-1147771497

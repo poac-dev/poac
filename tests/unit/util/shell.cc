@@ -7,8 +7,7 @@
 // internal
 #include <poac/util/shell.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
   using poac::util::shell::Cmd;

@@ -95,8 +95,7 @@ using Result = std::conditional_t<
 alias_fn(Ok, mitama::success);
 
 template <typename E = void, typename... Args>
-inline auto
-Err(Args&&... args) {
+inline auto Err(Args&&... args) {
   if constexpr (std::is_void_v<E>) {
     return mitama::failure(std::forward<Args>(args)...);
   } else {
@@ -108,8 +107,7 @@ template <typename T>
 using Option = std::optional<T>;
 
 struct NoneT : protected std::monostate {
-  constexpr bool
-  operator==(const usize rhs) const {
+  constexpr bool operator==(const usize rhs) const {
     return String::npos == rhs;
   }
 
@@ -153,14 +151,12 @@ template <thiserror::fixed_string S, class... T>
 using Error = thiserror::error<S, T...>;
 
 template <typename T, typename U>
-inline void
-append(Vec<T>& a, const Vec<U>& b) {
+inline void append(Vec<T>& a, const Vec<U>& b) {
   a.insert(a.end(), b.cbegin(), b.cend());
 }
 
 template <typename K, typename V, typename H>
-inline void
-append(HashMap<K, V, H>& a, const HashMap<K, V, H>& b) {
+inline void append(HashMap<K, V, H>& a, const HashMap<K, V, H>& b) {
   a.insert(b.cbegin(), b.cend());
 }
 
@@ -176,20 +172,17 @@ namespace log {
 
   // Printed when `--verbose`
   template <typename T>
-  inline void
-  debug(T&& msg) {
+  inline void debug(T&& msg) {
     spdlog::debug("[poac] {}", std::forward<T>(msg));
   }
   template <typename... Args>
-  inline void
-  debug(fmt::format_string<Args...> fmt, Args&&... args) {
+  inline void debug(fmt::format_string<Args...> fmt, Args&&... args) {
     debug(format(fmt, std::forward<Args>(args)...));
   }
 
   // Printed when `no option` & `--verbose`
   template <typename T>
-  inline void
-  status(StringRef header, T&& msg) {
+  inline void status(StringRef header, T&& msg) {
     if (termcolor2::should_color()) {
       spdlog::info(
           "{:>27} {}", termcolor2::to_bold_green(header), std::forward<T>(msg)
@@ -205,24 +198,20 @@ namespace log {
   }
 
   template <typename T>
-  inline void
-  warn(T&& msg) {
+  inline void warn(T&& msg) {
     spdlog::warn("{} {}", "Warning:"_bold_yellow, std::forward<T>(msg));
   }
   template <typename... Args>
-  inline void
-  warn(fmt::format_string<Args...> fmt, Args&&... args) {
+  inline void warn(fmt::format_string<Args...> fmt, Args&&... args) {
     warn(format(fmt, std::forward<Args>(args)...));
   }
 
   template <typename T>
-  inline void
-  error(std::shared_ptr<spdlog::logger> logger, T&& msg) {
+  inline void error(std::shared_ptr<spdlog::logger> logger, T&& msg) {
     logger->error("{} {}", "Error:"_bold_red, std::forward<T>(msg));
   }
   template <typename... Args>
-  inline void
-  error(
+  inline void error(
       std::shared_ptr<spdlog::logger> logger, fmt::format_string<Args...> fmt,
       Args&&... args
   ) {
@@ -242,42 +231,30 @@ namespace fmt {
 
 template <>
 struct formatter<std::string_view> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto
-  format(std::string_view sv, FormatContext& ctx) {
+  inline auto format(std::string_view sv, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", std::string(sv));
   }
 };
 
 template <>
 struct formatter<std::filesystem::path> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto
-  format(const std::filesystem::path& p, FormatContext& ctx) {
+  inline auto format(const std::filesystem::path& p, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", p.string());
   }
 };
 
 template <typename T1, typename T2>
 struct formatter<std::pair<T1, T2>> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto
-  format(const std::pair<T1, T2>& p, FormatContext& ctx) {
+  inline auto format(const std::pair<T1, T2>& p, FormatContext& ctx) {
     return format_to(ctx.out(), "({}, {})", p.first, p.second);
   }
 };

@@ -3,8 +3,7 @@
 
 namespace semver {
 
-std::string
-to_string(const Identifier& id) {
+auto to_string(const Identifier& id) -> std::string {
   if (std::holds_alternative<Identifier::numeric_type>(id.component)) {
     return std::to_string(id.get_numeric());
   } else if (std::holds_alternative<Identifier::alphanumeric_type>(id.component
@@ -14,8 +13,7 @@ to_string(const Identifier& id) {
   __builtin_unreachable();
 }
 
-std::string
-Version::get_version() const {
+auto Version::get_version() const -> std::string {
   std::string version = std::to_string(major);
   version += "." + std::to_string(minor);
   version += "." + std::to_string(patch);
@@ -29,8 +27,7 @@ Version::get_version() const {
   return version;
 }
 
-std::string
-Version::get_full() const {
+auto Version::get_full() const -> std::string {
   std::string full = get_version();
   if (!build.empty()) {
     full += "+";

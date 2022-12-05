@@ -17,11 +17,9 @@ struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-[[nodiscard]] Result<void>
-clean(const Options& opts);
+[[nodiscard]] Result<void> clean(const Options& opts);
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Result<void> exec(const Options& opts);
 
 } // namespace poac::cmd::clean
 

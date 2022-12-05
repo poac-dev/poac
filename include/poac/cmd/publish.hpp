@@ -35,17 +35,14 @@ using FailedToReadManifest = Error<
     "sure to the current directory was set up using Poac.",
     Path>;
 
-[[nodiscard]] anyhow::result<toml::value>
-get_manifest();
+[[nodiscard]] Result<toml::value> get_manifest();
 
-[[nodiscard]] anyhow::result<String>
-get_token(const Options& opts);
+[[nodiscard]] Result<String> get_token(const Options& opts);
 
 using NotImplemented = Error<
     "failed to publish; `publish` command is currently under development">;
 
-[[nodiscard]] anyhow::result<void>
-exec(const Options& opts);
+[[nodiscard]] Result<void> exec(const Options& opts);
 
 } // namespace poac::cmd::publish
 

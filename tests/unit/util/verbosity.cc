@@ -4,8 +4,7 @@
 // internal
 #include <poac/util/verbosity.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace poac;
   using namespace boost::ut;

@@ -30,8 +30,7 @@ namespace poac::data::manifest {
 
 inline const String name = "poac.toml";
 
-inline fs::file_time_type
-poac_toml_last_modified(const Path& base_dir) {
+inline fs::file_time_type poac_toml_last_modified(const Path& base_dir) {
   return fs::last_write_time(base_dir / name);
 }
 

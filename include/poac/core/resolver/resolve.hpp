@@ -38,13 +38,11 @@ struct Package {
   String version_rq;
 };
 
-inline bool
-operator==(const Package& lhs, const Package& rhs) {
+inline bool operator==(const Package& lhs, const Package& rhs) {
   return lhs.name == rhs.name && lhs.version_rq == rhs.version_rq;
 }
 
-inline usize
-hash_value(const Package& p) {
+inline usize hash_value(const Package& p) {
   usize seed = 0;
   boost::hash_combine(seed, p.name);
   boost::hash_combine(seed, p.version_rq);
@@ -69,13 +67,12 @@ using UniqDeps = std::conditional_t<
     // <name, ver_req>
     HashMap<String, String>>;
 
-inline const Package&
-get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept {
+inline const Package& get_package(const UniqDeps<WithDeps>::value_type& deps
+) noexcept {
   return deps.first;
 }
 
-inline String
-to_binary_numbers(const i32& x, const usize& digit) {
+inline String to_binary_numbers(const i32& x, const usize& digit) {
   return format("{:0{}b}", x, digit);
 }
 
@@ -84,11 +81,9 @@ to_binary_numbers(const i32& x, const usize& digit) {
 // ¬A ∨ B ∨ ¬C
 // ¬A ∨ ¬B ∨ C
 // ¬A ∨ ¬B ∨ ¬C
-Vec<Vec<i32>>
-multiple_versions_cnf(const Vec<i32>& clause);
+Vec<Vec<i32>> multiple_versions_cnf(const Vec<i32>& clause);
 
-Vec<Vec<i32>>
-create_cnf(const DupDeps<WithDeps>& activated);
+Vec<Vec<i32>> create_cnf(const DupDeps<WithDeps>& activated);
 
 [[nodiscard]] Result<UniqDeps<WithDeps>, String>
 solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses);
@@ -97,8 +92,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses);
 backtrack_loop(const DupDeps<WithDeps>& activated);
 
 template <typename SinglePassRange>
-bool
-duplicate_loose(const SinglePassRange& rng) {
+bool duplicate_loose(const SinglePassRange& rng) {
   const auto first = std::begin(rng);
   const auto last = std::end(rng);
   return std::find_if(
@@ -129,13 +123,11 @@ struct Cache {
   Vec<String> versions;
 };
 
-inline bool
-operator==(const Cache& lhs, const Cache& rhs) {
+inline bool operator==(const Cache& lhs, const Cache& rhs) {
   return lhs.package == rhs.package && lhs.versions == rhs.versions;
 }
 
-inline usize
-hash_value(const Cache& i) {
+inline usize hash_value(const Cache& i) {
   usize seed = 0;
   boost::hash_combine(seed, i.package);
   boost::hash_range(seed, i.versions.begin(), i.versions.end());
@@ -144,8 +136,7 @@ hash_value(const Cache& i) {
 
 using IntervalCache = HashSet<Cache>;
 
-inline bool
-cache_exists(const IntervalCache& cache, const Package& package) {
+inline bool cache_exists(const IntervalCache& cache, const Package& package) {
   return util::meta::find_if(cache, [&package](const Cache& c) {
     return c.package == package;
   });
@@ -158,13 +149,11 @@ cache_exists(const DupDeps<WithDeps>& deps, const Package& package) {
   });
 }
 
-DupDeps<WithoutDeps>
-gather_deps_of_deps(
+DupDeps<WithoutDeps> gather_deps_of_deps(
     const UniqDeps<WithoutDeps>& deps_api_res, IntervalCache& interval_cache
 );
 
-void
-gather_deps(
+void gather_deps(
     const Package& package, DupDeps<WithDeps>& new_deps,
     IntervalCache& interval_cache
 );

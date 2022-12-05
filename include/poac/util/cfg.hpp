@@ -18,17 +18,12 @@ struct exception : public std::exception {
   explicit exception(const String& what) : what_(what) {}
   explicit exception(const char* what) : what_(what) {}
   ~exception() noexcept override = default;
-  inline const char*
-  what() const noexcept override {
-    return what_.c_str();
-  }
+  inline const char* what() const noexcept override { return what_.c_str(); }
 
-  // clang-format off
   exception(const exception&) = default;
   exception& operator=(const exception&) = default;
   exception(exception&&) noexcept = default;
   exception& operator=(exception&&) noexcept = default;
-  // clang-format on
 
 protected:
   String what_;
@@ -40,12 +35,10 @@ struct string_error : public cfg::exception {
   explicit string_error(const char* what_) : string_error(String(what_)) {}
   ~string_error() noexcept override = default;
 
-  // clang-format off
   string_error(const string_error&) = default;
   string_error& operator=(const string_error&) = default;
   string_error(string_error&&) noexcept = default;
   string_error& operator=(string_error&&) noexcept = default;
-  // clang-format on
 };
 
 struct ident_error : public cfg::exception {
@@ -57,12 +50,10 @@ public:
   explicit ident_error(const char* what_) : ident_error(String(what_)) {}
   ~ident_error() noexcept override = default;
 
-  // clang-format off
   ident_error(const ident_error&) = default;
   ident_error& operator=(const ident_error&) = default;
   ident_error(ident_error&&) noexcept = default;
   ident_error& operator=(ident_error&&) noexcept = default;
-  // clang-format on
 };
 
 struct operator_error : public cfg::exception {
@@ -72,12 +63,10 @@ public:
   explicit operator_error(const char* what_) : operator_error(String(what_)) {}
   ~operator_error() noexcept override = default;
 
-  // clang-format off
   operator_error(const operator_error&) = default;
   operator_error& operator=(const operator_error&) = default;
   operator_error(operator_error&&) noexcept = default;
   operator_error& operator=(operator_error&&) noexcept = default;
-  // clang-format on
 };
 
 struct expression_error : public cfg::exception {
@@ -86,12 +75,10 @@ public:
   explicit expression_error(const char* what_) : exception(what_) {}
   ~expression_error() noexcept override = default;
 
-  // clang-format off
   expression_error(const expression_error&) = default;
   expression_error& operator=(const expression_error&) = default;
   expression_error(expression_error&&) noexcept = default;
   expression_error& operator=(expression_error&&) noexcept = default;
-  // clang-format on
 };
 
 struct syntax_error : public cfg::exception {
@@ -101,21 +88,17 @@ public:
   explicit syntax_error(const char* what_) : syntax_error(String(what_)) {}
   ~syntax_error() noexcept override = default;
 
-  // clang-format off
   syntax_error(const syntax_error&) = default;
   syntax_error& operator=(const syntax_error&) = default;
   syntax_error(syntax_error&&) noexcept = default;
   syntax_error& operator=(syntax_error&&) noexcept = default;
-  // clang-format on
 };
 
-constexpr bool
-is_ident_start(const char c) noexcept {
+constexpr bool is_ident_start(const char c) noexcept {
   return (c == '_') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 }
 
-constexpr bool
-is_ident_rest(const char c) noexcept {
+constexpr bool is_ident_rest(const char c) noexcept {
   return is_ident_start(c) || ('0' <= c && c <= '9');
 }
 
@@ -180,30 +163,22 @@ struct Token {
       ),
         value(i) {}
 
-  // clang-format off
   Token() = delete;
   Token(const Token&) = default;
   Token& operator=(const Token&) = default;
   Token(Token&&) noexcept = default;
   Token& operator=(Token&&) noexcept = default;
   ~Token() = default;
-  // clang-format on
 
-  inline string_type
-  get_str() const {
+  inline string_type get_str() const {
     return std::get<string_type>(this->value);
   }
-  inline ident
-  get_ident() const {
-    return std::get<ident>(this->value);
-  }
+  inline ident get_ident() const { return std::get<ident>(this->value); }
 
-  friend std::ostream&
-  operator<<(std::ostream& os, const Token& token);
+  friend std::ostream& operator<<(std::ostream& os, const Token& token);
 };
 
-constexpr Token::Kind
-to_kind(StringRef kind) {
+constexpr Token::Kind to_kind(StringRef kind) {
   if (kind == "(") {
     return Token::LeftParen;
   } else if (kind == ")") {
@@ -225,11 +200,9 @@ to_kind(StringRef kind) {
   }
 }
 
-String
-to_string(Token::ident ident);
+String to_string(Token::ident ident);
 
-std::ostream&
-operator<<(std::ostream& os, const Token& token);
+std::ostream& operator<<(std::ostream& os, const Token& token);
 
 struct Lexer {
   using value_type = StringRef::value_type;
@@ -240,15 +213,13 @@ struct Lexer {
 
   explicit Lexer(StringRef str) : str(str), index(0) {}
 
-  inline Option<Token>
-  next() {
+  inline Option<Token> next() {
     const auto [diff, token] = tokenize(this->index);
     this->step_n(diff);
     return token;
   }
 
-  inline Option<Token>
-  peek() const {
+  inline Option<Token> peek() const {
     const auto [diff, token] = tokenize(this->index);
     static_cast<void>(diff);
     return token;
@@ -267,32 +238,24 @@ private:
   std::pair<size_type, Option<Token>>
   analyze_two_phrase(size_type index_, const char kind) const;
 
-  std::pair<size_type, Option<Token>>
-  tokenize(size_type index_) const;
+  std::pair<size_type, Option<Token>> tokenize(size_type index_) const;
 
-  void
-  step(size_type& index_) const noexcept;
-  void
-  step_n(const size_type n) noexcept;
+  void step(size_type& index_) const noexcept;
+  void step_n(const size_type n) noexcept;
 
-  inline size_type
-  diff_step(const size_type index_) const noexcept {
+  inline size_type diff_step(const size_type index_) const noexcept {
     return index_ - this->index;
   }
 
-  inline value_type
-  one(const size_type index_) const noexcept {
+  inline value_type one(const size_type index_) const noexcept {
     return this->str[index_];
   }
 
-  std::pair<size_type, Token>
-  string(size_type index_) const;
+  std::pair<size_type, Token> string(size_type index_) const;
 
-  std::pair<size_type, Token>
-  ident(size_type index_) const;
+  std::pair<size_type, Token> ident(size_type index_) const;
 
-  Option<Token::ident>
-  to_ident(StringRef s) const noexcept;
+  Option<Token::ident> to_ident(StringRef s) const noexcept;
 };
 
 enum class compiler {
@@ -327,18 +290,15 @@ struct Cfg {
   Cfg(Token::ident key, Op op, StringRef value)
       : key(from_token_ident(key)), op(op), value(value) {}
 
-  // clang-format off
   Cfg() = delete;
   Cfg(const Cfg&) = default;
   Cfg& operator=(const Cfg&) = default;
   Cfg(Cfg&&) noexcept = default;
   Cfg& operator=(Cfg&&) noexcept = default;
   ~Cfg() = default;
-  // clang-format on
 
 private:
-  Ident
-  from_token_ident(Token::ident ident) const;
+  Ident from_token_ident(Token::ident ident) const;
 };
 
 struct CfgExpr {
@@ -380,21 +340,17 @@ struct CfgExpr {
       ),
         expr(c) {}
 
-  // clang-format off
   CfgExpr() = delete;
   CfgExpr(const CfgExpr&) = delete;
   CfgExpr& operator=(const CfgExpr&) = delete;
   CfgExpr(CfgExpr&&) noexcept = default;
   CfgExpr& operator=(CfgExpr&&) noexcept = default;
   ~CfgExpr() = default;
-  // clang-format on
 
-  bool
-  match() const;
+  bool match() const;
 
 private:
-  bool
-  match(const Cfg& c) const;
+  bool match(const Cfg& c) const;
 };
 
 struct Parser {
@@ -402,35 +358,24 @@ struct Parser {
 
   explicit Parser(StringRef str) : lexer(str) {}
 
-  CfgExpr
-  expr();
+  CfgExpr expr();
 
-  Cfg
-  cfg();
+  Cfg cfg();
 
 private:
-  [[noreturn]] void
-  throw_operator_error(const usize index, Cfg::Op op) const;
+  [[noreturn]] void throw_operator_error(const usize index, Cfg::Op op) const;
 
-  Cfg
-  cfg_str(const usize index, Token::ident ident, Cfg::Op op);
+  Cfg cfg_str(const usize index, Token::ident ident, Cfg::Op op);
 
-  Cfg
-  cfg_str(Token::ident ident, Cfg::Op op);
+  Cfg cfg_str(Token::ident ident, Cfg::Op op);
 
-  bool
-  r_try(Token::Kind kind);
+  bool r_try(Token::Kind kind);
 
-  void
-  eat_left_paren(Token::ident prev);
-  void
-  eat_right_paren();
+  void eat_left_paren(Token::ident prev);
+  void eat_right_paren();
 };
 
-inline CfgExpr
-parse(StringRef s) {
-  return Parser(s).expr();
-}
+inline CfgExpr parse(StringRef s) { return Parser(s).expr(); }
 
 } // end namespace poac::util::cfg
 

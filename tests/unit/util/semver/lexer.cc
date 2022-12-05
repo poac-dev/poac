@@ -1,8 +1,7 @@
 #include <boost/ut.hpp>
 #include <poac/util/semver/lexer.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
   using namespace boost::ut::spec;

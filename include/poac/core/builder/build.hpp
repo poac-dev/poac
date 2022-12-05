@@ -24,24 +24,19 @@ enum class Mode {
   release,
 };
 
-String
-to_string(Mode mode);
+String to_string(Mode mode);
 
-std::ostream&
-operator<<(std::ostream& os, Mode mode);
+std::ostream& operator<<(std::ostream& os, Mode mode);
 
 /// Build the targets listed on the command line.
-[[nodiscard]] Result<void>
-run(data::NinjaMain& ninja_main, Status& status);
+[[nodiscard]] Result<void> run(data::NinjaMain& ninja_main, Status& status);
 
-BuildConfig::Verbosity
-get_ninja_verbosity();
+BuildConfig::Verbosity get_ninja_verbosity();
 
 // Limit number of rebuilds, to prevent infinite loops.
 inline constexpr i32 rebuildLimit = 100;
 
-[[nodiscard]] Result<Path>
-start(
+[[nodiscard]] Result<Path> start(
     const toml::value& poac_manifest, const Mode& mode,
     const resolver::ResolvedDeps& resolved_deps
 );

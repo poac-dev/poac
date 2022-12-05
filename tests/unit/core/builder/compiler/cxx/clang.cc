@@ -1,8 +1,7 @@
 #include <boost/ut.hpp>
 #include <poac/core/builder/compiler/cxx/clang.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 

@@ -3,8 +3,7 @@
 
 namespace poac::core::builder::compiler::error {
 
-String
-to_string(util::cfg::compiler comp) {
+auto to_string(util::cfg::compiler comp) -> String {
   switch (comp) {
     case util::cfg::compiler::gcc:
       return "GCC";

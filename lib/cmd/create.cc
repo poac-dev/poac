@@ -9,8 +9,7 @@
 
 namespace poac::cmd::create {
 
-String
-to_string(ProjectType kind) {
+auto to_string(ProjectType kind) -> String {
   switch (kind) {
     case ProjectType::Bin:
       return "binary (application)";
@@ -21,8 +20,7 @@ to_string(ProjectType kind) {
   }
 }
 
-void
-write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
+void write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
   ofs.open(fname);
   if (ofs.is_open()) {
     ofs << text;
@@ -31,8 +29,8 @@ write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
   ofs.clear();
 }
 
-Map<Path, String>
-create_template_files(const ProjectType& type, const String& package_name) {
+auto create_template_files(const ProjectType& type, const String& package_name)
+    -> Map<Path, String> {
   switch (type) {
     case ProjectType::Bin:
       fs::create_directories(package_name / "src"_path);
@@ -53,8 +51,7 @@ create_template_files(const ProjectType& type, const String& package_name) {
   }
 }
 
-[[nodiscard]] Result<void>
-create(const Options& opts) {
+[[nodiscard]] auto create(const Options& opts) -> Result<void> {
   std::ofstream ofs;
   const ProjectType type = opts_to_project_type(opts);
   for (auto&& [name, text] : create_template_files(type, opts.package_name)) {
@@ -70,8 +67,7 @@ create(const Options& opts) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<PassingBothBinAndLib>();
   }

@@ -39,8 +39,7 @@ struct NinjaMain : public BuildLogUser {
 
   i64 start_time_millis = GetTimeMillis();
 
-  virtual bool
-  IsPathDead(StringPiece s) const {
+  virtual bool IsPathDead(StringPiece s) const {
     Node* n = state.LookupNode(s);
     if (n && n->in_edge()) {
       return false;

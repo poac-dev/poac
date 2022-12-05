@@ -3,8 +3,7 @@
 
 namespace semver {
 
-bool
-BoundedInterval::satisfies_impl(std::string_view v) const {
+auto BoundedInterval::satisfies_impl(std::string_view v) const -> bool {
   if (left_comp_op == ">") {
     if (right_comp_op == "<") {
       return (parse(v) > left_version) && (parse(v) < right_version);
@@ -34,9 +33,8 @@ BoundedInterval::satisfies_impl(std::string_view v) const {
 }
 
 // e.g. `>0.1.3 and >=0.3.2`, `<0.1.3 and <0.3.2`
-std::optional<std::string>
-BoundedInterval::is_wasteful_comparison_operation(
-) const { // TODO(ken-matsui): noexcept
+auto BoundedInterval::is_wasteful_comparison_operation() const
+    -> std::optional<std::string> { // TODO(ken-matsui): noexcept
   if ((left_comp_op == "<" || left_comp_op == "<=")
       && (right_comp_op == "<" || right_comp_op == "<=")) {
     // Prioritize the larger version
@@ -63,8 +61,8 @@ BoundedInterval::is_wasteful_comparison_operation(
 // [a, ∞) => closed unbounded interval => one_exp
 // (-∞, ∞) => closed unbounded interval => ERR!
 // e.g. <0.1.1 and >=0.3.2
-std::optional<std::string>
-BoundedInterval::is_bounded_interval() const { // TODO(ken-matsui): noexcept
+auto BoundedInterval::is_bounded_interval() const
+    -> std::optional<std::string> { // TODO(ken-matsui): noexcept
   if (parse(left_version) < right_version) {
     if ((left_comp_op == "<" || left_comp_op == "<=")
         && (right_comp_op == ">" || right_comp_op == ">=")) {
@@ -104,8 +102,7 @@ BoundedInterval::BoundedInterval(
 }
 
 // >2.3.0, 1.0.0, <=1.2.3-alpha, ...
-bool
-ClosedUnboundedInterval::satisfies_impl(std::string_view v) const {
+auto ClosedUnboundedInterval::satisfies_impl(std::string_view v) const -> bool {
   if (comp_op == ">") {
     return parse(v) > version_str;
   } else if (comp_op == ">=") {
@@ -118,8 +115,7 @@ ClosedUnboundedInterval::satisfies_impl(std::string_view v) const {
   return false;
 }
 
-Interval::IntervalClass
-Interval::get_interval_class() const {
+auto Interval::get_interval_class() const -> Interval::IntervalClass {
   std::smatch match;
   if (interval_match(match, CLOSED_UNBOUNDED_INTERVAL)) {
     const std::string comp_op = match[2].str();

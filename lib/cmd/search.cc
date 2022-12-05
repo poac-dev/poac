@@ -14,8 +14,7 @@
 
 namespace poac::cmd::search {
 
-[[nodiscard]] Result<void>
-search(const Options& opts) {
+[[nodiscard]] auto search(const Options& opts) -> Result<void> {
   const boost::property_tree::ptree pt =
       Try(util::net::api::search(opts.package_name, 20).map_err(to_anyhow));
   if (util::verbosity::is_verbose()) {

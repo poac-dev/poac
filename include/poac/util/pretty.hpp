@@ -10,29 +10,22 @@
 
 namespace poac::util::pretty {
 
-String
-to_time(const f64& total_seconds);
+String to_time(const f64& total_seconds);
 
-inline String
-to_time(const std::chrono::seconds& s) {
+inline String to_time(const std::chrono::seconds& s) {
   return to_time(s.count());
 }
 
-inline String
-to_time(const String& s) {
-  return to_time(std::stod(s));
-}
+inline String to_time(const String& s) { return to_time(std::stod(s)); }
 
 inline constexpr std::array<StringRef, 9> size_suffixes = {
     "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
-String
-to_byte(f64 bytes);
+String to_byte(f64 bytes);
 
 // If string size is over specified number of characters and it can be clipped,
 //  display an ellipsis (...).
-inline String
-clip_string(const String& s, const usize& n) {
+inline String clip_string(const String& s, const usize& n) {
   return s.size() <= n ? s : s.substr(0, n) + "...";
 }
 
@@ -44,8 +37,7 @@ clip_string(const String& s, const usize& n) {
 // long words and
 // break on
 // hyphens.
-Vec<String>
-textwrap(const String& text, usize width = 70);
+Vec<String> textwrap(const String& text, usize width = 70);
 
 } // namespace poac::util::pretty
 

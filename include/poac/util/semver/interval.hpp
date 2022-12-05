@@ -36,8 +36,7 @@ add_offset(std::index_sequence<Is...>) {
   return {};
 }
 template <std::size_t Start, std::size_t End>
-constexpr auto
-make_range() {
+constexpr auto make_range() {
   return add_offset<Start>(std::make_index_sequence<End - Start + 1>{});
 }
 
@@ -56,15 +55,13 @@ make_version_impl(const std::smatch& match, std::index_sequence<Is...>) {
 
 template <
     std::size_t Start, std::size_t End, std::size_t Pre, std::size_t Build>
-inline std::string
-make_version(const std::smatch& match) {
+inline std::string make_version(const std::smatch& match) {
   static_assert(End - Start == 2, "make_version: range diff should be 2");
   return make_version_impl<Pre, Build>(match, make_range<Start, End>());
 }
 
 template <std::size_t Start, std::size_t End>
-std::string
-make_version(const std::smatch& match) {
+std::string make_version(const std::smatch& match) {
   if constexpr (End - Start == 2) { // not include pre & build
     return make_version<Start, End, 0, 0>(match);
   } else if constexpr (End - Start == 4) {
@@ -84,8 +81,7 @@ private:
 public:
   explicit ExactVersion(std::string_view version) noexcept : version{version} {}
 
-  inline bool
-  satisfies(std::string_view interval) const noexcept {
+  inline bool satisfies(std::string_view interval) const noexcept {
     return version == interval;
   }
 };
@@ -97,12 +93,10 @@ private:
   const std::string left_version;
   const std::string right_version;
 
-  bool
-  satisfies_impl(std::string_view v) const;
+  bool satisfies_impl(std::string_view v) const;
 
   // e.g. `>0.1.3 and >=0.3.2`, `<0.1.3 and <0.3.2`
-  std::optional<std::string>
-  is_wasteful_comparison_operation() const;
+  std::optional<std::string> is_wasteful_comparison_operation() const;
 
   // Check if it is bounded interval
   //  (If it is unbounded, throw error)
@@ -111,14 +105,12 @@ private:
   // [a, ∞) => closed unbounded interval => one_exp
   // (-∞, ∞) => closed unbounded interval => ERR!
   // e.g. <0.1.1 and >=0.3.2
-  std::optional<std::string>
-  is_bounded_interval() const;
+  std::optional<std::string> is_bounded_interval() const;
 
 public:
   explicit BoundedInterval(const std::smatch& match, std::string_view interval);
 
-  inline bool
-  satisfies(std::string_view version) const {
+  inline bool satisfies(std::string_view version) const {
     return satisfies_impl(version);
   }
 };
@@ -129,8 +121,7 @@ private:
   const std::string version_str;
 
   // >2.3.0, 1.0.0, <=1.2.3-alpha, ...
-  bool
-  satisfies_impl(std::string_view v) const;
+  bool satisfies_impl(std::string_view v) const;
 
 public:
   explicit ClosedUnboundedInterval(
@@ -138,8 +129,7 @@ public:
   )
       : comp_op{comp_op}, version_str{version_str} {}
 
-  inline bool
-  satisfies(std::string_view version) const {
+  inline bool satisfies(std::string_view version) const {
     return satisfies_impl(version);
   }
 };
@@ -214,25 +204,21 @@ private:
   const IntervalClass interval_class;
 
   template <typename T, typename... U>
-  inline IntervalClass
-  make_interval_class(U&&... args) const {
+  inline IntervalClass make_interval_class(U&&... args) const {
     return IntervalClass{std::in_place_type<T>, std::forward<U>(args)...};
   }
 
-  inline bool
-  interval_match(std::smatch& match, const std::string& re) const {
+  inline bool interval_match(std::smatch& match, const std::string& re) const {
     return std::regex_match(interval, match, std::regex(re));
   }
 
-  IntervalClass
-  get_interval_class() const;
+  IntervalClass get_interval_class() const;
 
 public:
   explicit Interval(std::string_view i)
       : interval(i), interval_class{get_interval_class()} {}
 
-  inline bool
-  satisfies(std::string_view version) const {
+  inline bool satisfies(std::string_view version) const {
     return std::visit(
         [version = std::move(version)](const auto& i) {
           return i.satisfies(version);

@@ -11,8 +11,7 @@
 // internal
 #include <poac/util/meta.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 

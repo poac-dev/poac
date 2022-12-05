@@ -19,8 +19,7 @@ get_compiler_version(const String& compiler_command);
 
 // thanks to:
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/Compiler/AppleClang-CXX.cmake
-[[nodiscard]] Result<String>
-get_std_flag(
+[[nodiscard]] Result<String> get_std_flag(
     const String& compiler_command, const i64 edition,
     const bool use_gnu_extension
 );

@@ -17,14 +17,12 @@ using UnsupportedCompiler = Error<"unsupported compiler found: {}", String>;
 [[nodiscard]] Result<util::cfg::compiler>
 get_compiler_ident(const String& compiler_command, const bool is_macos);
 
-[[nodiscard]] Result<String>
-get_std_flag(
+[[nodiscard]] Result<String> get_std_flag(
     const util::cfg::compiler compiler, const String& compiler_command,
     const i64 edition, const bool use_gnu_extension
 );
 
-[[nodiscard]] Result<String>
-get_compiler_command();
+[[nodiscard]] Result<String> get_compiler_command();
 
 [[nodiscard]] Result<String>
 get_command(const i64 edition, const bool use_gnu_extension);

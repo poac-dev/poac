@@ -12,11 +12,9 @@
 namespace poac::util::lev_distance {
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-usize
-calc(StringRef a, StringRef b);
+usize calc(StringRef a, StringRef b);
 
-inline bool
-equals_insensitive(StringRef a, StringRef b) {
+inline bool equals_insensitive(StringRef a, StringRef b) {
   return std::equal(
       a.cbegin(), a.cend(), b.cbegin(), b.cend(),
       [](char a, char b) { return std::tolower(a) == std::tolower(b); }

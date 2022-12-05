@@ -23,16 +23,14 @@ enum class Status {
   normal, // Successful completion OR unsolved
 };
 
-Vec<i32>
-to_assignments(const Vec<i32>& literals);
+Vec<i32> to_assignments(const Vec<i32>& literals);
 
 // the difference in number of occurrences
 template <
     template <class T, class = std::allocator<T>> typename TwoDim,
     template <class T, class = std::allocator<T>> typename OneDim, typename T,
     typename U>
-T
-calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) {
+T calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) {
   T acc = 0;
   for (const auto& rn : rng) {
     for (const auto& r : rn) {
@@ -44,28 +42,22 @@ calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) {
   return acc;
 }
 
-inline i32
-literal_to_index(i32 l) {
-  return std::abs(l) - 1;
-}
+inline i32 literal_to_index(i32 l) { return std::abs(l) - 1; }
 
 // Find `1` or `-1` from whole clauses. Variables that have already been
 // assigned have been deleted from the clauses by the `delete_applied_literal`
 // function, so the index of the variable with the highest number of variables
 // is returned from the variables in the current clauses.
-i32
-maximum_literal_number_index(const Vec<Vec<i32>>& clauses);
+i32 maximum_literal_number_index(const Vec<Vec<i32>>& clauses);
 
 // Delete variables from the clauses for which variable assignment has been
 // determined.
-Status
-delete_set_literal(
+Status delete_set_literal(
     Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val
 );
 
 // unit resolution
-Status
-unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals);
+Status unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals);
 
 // recursive DPLL algorithm
 [[nodiscard]] Result<Vec<i32>, String>

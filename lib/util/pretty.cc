@@ -6,8 +6,7 @@
 
 namespace poac::util::pretty {
 
-String
-to_time(const f64& total_seconds) {
+auto to_time(const f64& total_seconds) -> String {
   if (total_seconds <= 1.0) {
     return format("{:.2f}s", total_seconds);
   }
@@ -28,8 +27,7 @@ to_time(const f64& total_seconds) {
   return res;
 }
 
-String
-to_byte(f64 bytes) {
+auto to_byte(f64 bytes) -> String {
   int index = 0;
   while (bytes >= 1000.0) {
     bytes /= 1024.0;
@@ -46,8 +44,7 @@ to_byte(f64 bytes) {
 // long words and
 // break on
 // hyphens.
-Vec<String>
-textwrap(const String& text, usize width) {
+auto textwrap(const String& text, usize width) -> Vec<String> {
   Vec<String> split_texts;
   boost::split(split_texts, text, boost::is_space());
 

@@ -42,8 +42,7 @@ struct BuildSet {
   Option<String> dyndep = None;
 };
 
-inline Path
-escape_path(Path p) {
+inline Path escape_path(Path p) {
   String s = p.string();
   boost::replace_all(s, "$ ", "$$ ");
   boost::replace_all(s, " ", "$ ");
@@ -53,8 +52,7 @@ escape_path(Path p) {
 
 /// Escape a string such that it can be embedded into a Ninja file without
 /// further interpretation.
-inline void
-escape(String& s) {
+inline void escape(String& s) {
   assert(s.find('\n') == None); // Ninja syntax does not allow newlines
   // We only have one special metacharacter: '$'.
   boost::replace_all(s, "$", "$$");
@@ -64,53 +62,40 @@ escape(String& s) {
 ///
 /// Note: doesn't handle the full Ninja variable syntax, but it's enough
 /// to make configure.py's use of it work.
-String
-expand(
+String expand(
     const String& text, const Variables& vars, const Variables& local_vars = {}
 );
 
 /// ref: https://stackoverflow.com/a/46379136
-String
-operator*(const String& s, usize n);
+String operator*(const String& s, usize n);
 
 class Writer {
   std::ostringstream output;
   usize width;
 
   /// Returns the number of '$' characters right in front of s[i].
-  usize
-  count_dollars_before_index(StringRef s, usize i) const;
+  usize count_dollars_before_index(StringRef s, usize i) const;
 
   // Export this function for testing
 #if __has_include(<boost/ut.hpp>)
 public:
 #endif
   /// Write 'text' word-wrapped at self.width characters.
-  void
-  _line(String text, usize indent = 0);
+  void _line(String text, usize indent = 0);
 
 public:
   explicit Writer(std::ostringstream&& o, usize w = 78)
       : output(std::move(o)), width(w) {}
 
-  inline String
-  get_value() const {
-    return output.str();
-  }
+  inline String get_value() const { return output.str(); }
 
-  inline void
-  newline() {
-    output << '\n';
-  }
+  inline void newline() { output << '\n'; }
 
-  void
-  comment(const String& text);
+  void comment(const String& text);
 
-  void
-  variable(StringRef key, StringRef value, usize indent = 0);
+  void variable(StringRef key, StringRef value, usize indent = 0);
 
-  inline void
-  variable(StringRef key, Vec<String> values, usize indent = 0) {
+  inline void variable(StringRef key, Vec<String> values, usize indent = 0) {
     const String value =
         boost::algorithm::join_if(values, " ", [](const auto& s) {
           return !s.empty();
@@ -118,37 +103,26 @@ public:
     _line(format("{} = {}", key, value), indent);
   }
 
-  inline void
-  pool(StringRef name, StringRef depth) {
+  inline void pool(StringRef name, StringRef depth) {
     _line(format("pool {}", name));
     variable("depth", depth, 1);
   }
 
-  void
-  rule(StringRef name, StringRef command, const RuleSet& rule_set = {});
+  void rule(StringRef name, StringRef command, const RuleSet& rule_set = {});
 
-  Vec<String>
-  build(
+  Vec<String> build(
       const Vec<String>& outputs, StringRef rule, const BuildSet& build_set = {}
   );
 
-  inline void
-  include(const Path& path) {
-    _line(format("include {}", path));
-  }
+  inline void include(const Path& path) { _line(format("include {}", path)); }
 
-  inline void
-  subninja(const Path& path) {
-    _line(format("subninja {}", path));
-  }
+  inline void subninja(const Path& path) { _line(format("subninja {}", path)); }
 
-  inline void
-  default_(const Vec<String>& paths) {
+  inline void default_(const Vec<String>& paths) {
     _line(format("default {}", boost::algorithm::join(paths, " ")));
   }
 
-  inline friend std::ostream&
-  operator<<(std::ostream& os, const Writer& w) {
+  inline friend std::ostream& operator<<(std::ostream& os, const Writer& w) {
     return os << w.get_value();
   }
 };

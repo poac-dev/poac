@@ -9,8 +9,7 @@
 
 namespace poac::core::builder::compiler::error {
 
-String
-to_string(util::cfg::compiler comp);
+String to_string(util::cfg::compiler comp);
 
 } // namespace poac::core::builder::compiler::error
 
@@ -18,14 +17,10 @@ namespace fmt {
 
 template <>
 struct formatter<poac::util::cfg::compiler> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto
-  format(poac::util::cfg::compiler c, FormatContext& ctx) {
+  inline auto format(poac::util::cfg::compiler c, FormatContext& ctx) {
     return format_to(
         ctx.out(), "{}", poac::core::builder::compiler::error::to_string(c)
     );
