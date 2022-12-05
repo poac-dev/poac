@@ -5,7 +5,6 @@ Checks: -*
   boost-*
   bugprone-*
     -bugprone-unchecked-optional-access
-    -bugprone-exception-escape
     -bugprone-easily-swappable-parameters
     -bugprone-narrowing-conversions
     -bugprone-branch-clone
