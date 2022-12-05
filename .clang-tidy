@@ -14,7 +14,6 @@ Checks: -*
     -google-readability-namespace-comments
     -google-build-using-namespace
   misc-*
-    -misc-const-correctness
     -misc-no-recursion
   modernize-*
   performance-*

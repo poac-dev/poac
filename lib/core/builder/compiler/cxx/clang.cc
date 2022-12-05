@@ -11,7 +11,7 @@ namespace poac::core::builder::compiler::cxx::clang {
 [[nodiscard]] auto get_compiler_version_impl(const String& cmd_output)
     -> Result<semver::Version> {
   // `clang version 12.0.0 (...)`
-  String search = "version ";
+  const String search = "version ";
   usize i = cmd_output.find(search);
   if (i == None) {
     return Err<error::FailedToGetCompilerVersion>(compiler);
