@@ -10,8 +10,7 @@
 // Some tests come from:
 // https://github.com/ken-matsui/lev_distance/blob/main/src/lib.rs
 
-auto
-main() -> int {
+auto main() -> int {
   using namespace poac;
   using namespace boost::ut;
 

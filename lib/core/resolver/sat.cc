@@ -3,8 +3,7 @@
 
 namespace poac::core::resolver::sat {
 
-auto
-to_assignments(const Vec<i32>& literals) -> Vec<i32> {
+auto to_assignments(const Vec<i32>& literals) -> Vec<i32> {
   Vec<i32> assignments;
   for (auto&& l : literals | boost::adaptors::indexed()) {
     const i32 literal = l.index() + 1;
@@ -22,8 +21,7 @@ to_assignments(const Vec<i32>& literals) -> Vec<i32> {
 // assigned have been deleted from the clauses by the `delete_applied_literal`
 // function, so the index of the variable with the highest number of variables
 // is returned from the variables in the current clauses.
-auto
-maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
+auto maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
   Map<i32, i32> frequency;
   for (const auto& clause : clauses) {
     for (const auto& literal : clause) {
@@ -42,9 +40,9 @@ maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
 
 // Delete variables from the clauses for which variable assignment has been
 // determined.
-auto
-delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val)
-    -> Status {
+auto delete_set_literal(
+    Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val
+) -> Status {
   for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
     for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
       // set_val -> unassigned(-1) -> always false
@@ -74,8 +72,7 @@ delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val)
 }
 
 // unit resolution
-auto
-unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
+auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
   bool unit_clause_found = true;
   while (unit_clause_found) {
     unit_clause_found = false;
@@ -105,8 +102,8 @@ unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
 }
 
 // recursive DPLL algorithm
-[[nodiscard]] auto
-dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Result<Vec<i32>, String> {
+[[nodiscard]] auto dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals)
+    -> Result<Vec<i32>, String> {
   // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));

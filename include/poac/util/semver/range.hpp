@@ -44,14 +44,12 @@ struct Op {
   Kind kind;
   std::variant<std::monostate, WildcardVersion> component;
 
-  // clang-format off
   Op() = delete;
   Op(const Op&) = default;
   Op& operator=(const Op&) = default;
   Op(Op&&) noexcept = default;
   Op& operator=(Op&&) noexcept = default;
   ~Op() = default;
-  // clang-format on
 
   constexpr explicit Op(Kind k)
       : kind(

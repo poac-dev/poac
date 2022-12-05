@@ -27,8 +27,7 @@ using FailedToBuild = Error<"failed to build package `{}`", String>;
 using FailedToInstallDeps = Error<"failed to install dependencies">;
 using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
 
-[[nodiscard]] Result<Path>
-build_impl(
+[[nodiscard]] Result<Path> build_impl(
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
 );
@@ -36,8 +35,7 @@ build_impl(
 [[nodiscard]] Result<Option<Path>>
 build(const Options& opts, const toml::value& manifest);
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Result<void> exec(const Options& opts);
 
 } // namespace poac::cmd::build
 

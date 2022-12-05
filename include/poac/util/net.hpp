@@ -46,16 +46,14 @@ String
 to_progress(const i32& max_count, i32 now_count, const i32& bar_size = 50);
 
 // Create byte progress bar, [====>   ] 10.21B/21.28KB
-String
-to_byte_progress(const i32& max_count, i32 now_count);
+String to_byte_progress(const i32& max_count, i32 now_count);
 
 namespace http = boost::beast::http;
 using Headers =
     HashMap<std::variant<boost::beast::http::field, String>, String>;
 
 template <typename RequestBody>
-http::request<RequestBody>
-create_request(
+http::request<RequestBody> create_request(
     http::verb method, const StringRef target, const StringRef host,
     const Headers& headers = {}
 ) {
@@ -71,8 +69,7 @@ create_request(
   return req;
 }
 
-inline std::pair<String, String>
-parse_url(const String& url) {
+inline std::pair<String, String> parse_url(const String& url) {
   // https://api.poac.pm/packages/deps -> api.poac.pm
   const String host = util::misc::split(url, "://")[1];
   // https://api.poac.pm/packages/deps -> /packages/deps
@@ -84,11 +81,9 @@ class MultiPartForm {
 public:
   ~MultiPartForm() = default;
   MultiPartForm(const MultiPartForm&) = default;
-  MultiPartForm&
-  operator=(const MultiPartForm&) = default;
+  MultiPartForm& operator=(const MultiPartForm&) = default;
   MultiPartForm(MultiPartForm&&) = default;
-  MultiPartForm&
-  operator=(MultiPartForm&&) = default;
+  MultiPartForm& operator=(MultiPartForm&&) = default;
 
 public:
   using file_name_type = String;
@@ -111,17 +106,10 @@ public:
       : m_boundary(boost::uuids::to_string(boost::uuids::random_generator{}())),
         m_footer(format("{}--{}--{}", m_crlf, m_boundary, m_crlf)) {}
 
-  inline String
-  get_header() const noexcept {
-    return m_header;
-  }
-  inline String
-  get_footer() const noexcept {
-    return m_footer;
-  }
+  inline String get_header() const noexcept { return m_header; }
+  inline String get_footer() const noexcept { return m_footer; }
 
-  inline void
-  set(const file_name_type& name, const String& value) {
+  inline void set(const file_name_type& name, const String& value) {
     m_form_param.emplace_back(format(
         "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
         "boundary"_a = m_boundary, "crlf"_a = m_crlf,
@@ -136,20 +124,17 @@ public:
     generate_header(); // re-generate
   }
   template <typename Request>
-  inline void
-  set_req(const Request& req) {
+  inline void set_req(const Request& req) {
     std::ostringstream ss;
     ss << req;
     m_form_param.insert(m_form_param.begin(), ss.str());
     generate_header(); // re-generate
   }
 
-  inline String
-  content_type() const {
+  inline String content_type() const {
     return format("multipart/form-data; boundary={}", m_boundary);
   }
-  inline std::uintmax_t
-  content_length() const {
+  inline std::uintmax_t content_length() const {
     return std::accumulate(
         m_file_param.begin(), m_file_param.end(),
         m_header.size() + m_footer.size(),
@@ -163,26 +148,15 @@ public:
     String path;
     std::uintmax_t size;
   };
-  Vec<FileInfo>
-  get_files() const;
+  Vec<FileInfo> get_files() const;
 
-  inline self_reference
-  body() noexcept {
-    return *this;
-  }
-  inline const_self_reference
-  body() const noexcept {
-    return *this;
-  }
+  inline self_reference body() noexcept { return *this; }
+  inline const_self_reference body() const noexcept { return *this; }
 
-  inline const_self_reference
-  cbody() const noexcept {
-    return *this;
-  }
+  inline const_self_reference cbody() const noexcept { return *this; }
 
 private:
-  void
-  generate_header();
+  void generate_header();
 };
 
 // TODO(ken-matsui): ioc, ctx,
@@ -190,14 +164,12 @@ private:
 // Only SSL usage
 class Requests {
 public:
-  // clang-format off
   Requests() = delete;
   ~Requests() = default;
   Requests(const Requests&) = delete;
   Requests& operator=(const Requests&) = delete;
   Requests(Requests&&) = default;
   Requests& operator=(Requests&&) = default;
-  // clang-format on
 
   explicit Requests(const StringRef host)
       : host(host), ioc(std::make_unique<boost::asio::io_context>()),
@@ -253,8 +225,7 @@ public:
       typename ResponseBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>,
           http::vector_body<unsigned char>, http::string_body>>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String>
-  post(
+  [[nodiscard]] Result<typename ResponseBody::value_type, String> post(
       const StringRef target, BodyType&& body, const Headers& headers = {},
       Ofstream&& ofs = nullptr
   ) const {
@@ -296,8 +267,7 @@ private:
                             std::negation_v<std::is_same<
                                 std::remove_cvref_t<Request>, MultiPartForm>>,
                             std::nullptr_t> = nullptr>
-  void
-  write_request(const Request& req) const {
+  void write_request(const Request& req) const {
     log::debug("[util::net::requests] write type: string");
     // Send the HTTP request to the remote host
     http::write(*stream, req);
@@ -308,8 +278,7 @@ private:
       std::enable_if_t<
           std::is_same_v<std::remove_cvref_t<Request>, MultiPartForm>,
           std::nullptr_t> = nullptr>
-  void
-  write_request(const Request& req) const {
+  void write_request(const Request& req) const {
     log::debug("[util::net::requests] write type: multipart/form-data");
 
     // Send the HTTP request to the remote host
@@ -449,30 +418,25 @@ private:
     }
   }
 
-  void
-  close_stream() const;
+  void close_stream() const;
 
   // Prepare ssl connection
-  inline void
-  ssl_prepare() const {
+  inline void ssl_prepare() const {
     ssl_set_tlsext();
     lookup();
     ssl_handshake();
   }
 
-  void
-  ssl_set_tlsext() const;
+  void ssl_set_tlsext() const;
 
-  inline void
-  lookup() const {
+  inline void lookup() const {
     // Look up the domain name
     const auto results = resolver->resolve(host, port);
     // Make the connection on the IP address we get from a lookup
     boost::asio::connect(stream->next_layer(), results.begin(), results.end());
   }
 
-  inline void
-  ssl_handshake() const {
+  inline void ssl_handshake() const {
     // Perform the SSL handshake
     stream->handshake(boost::asio::ssl::stream_base::client);
   }
@@ -492,18 +456,15 @@ call(StringRef path, StringRef body) noexcept;
 [[nodiscard]] Result<boost::property_tree::ptree, String>
 search(StringRef query, const u64& count = 0) noexcept;
 
-[[nodiscard]] auto
-deps(StringRef name, StringRef version) noexcept
+[[nodiscard]] auto deps(StringRef name, StringRef version) noexcept
     -> Result<HashMap<String, String>, String>;
 
-[[nodiscard]] Result<Vec<String>, String>
-versions(StringRef name);
+[[nodiscard]] Result<Vec<String>, String> versions(StringRef name);
 
 [[nodiscard]] Result<std::pair<String, String>, String>
 repoinfo(StringRef name, StringRef version);
 
-[[nodiscard]] Result<bool, String>
-login(StringRef api_token);
+[[nodiscard]] Result<bool, String> login(StringRef api_token);
 
 } // namespace poac::util::net::api
 

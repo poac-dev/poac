@@ -17,8 +17,7 @@ struct Options : structopt::sub_command {
   Option<bool> drogon = false;
 };
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Result<void> exec(const Options& opts);
 
 } // namespace poac::cmd::fmt
 

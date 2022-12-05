@@ -4,16 +4,14 @@
 namespace semver {
 
 /// Skip whitespace if present.
-void
-Parser::skip_whitespace() {
+void Parser::skip_whitespace() {
   if (peek().is_whitespace()) {
     pop();
   }
 }
 
 /// Parse an optional comma separator, then if that is present a predicate.
-auto
-Parser::comma_predicate() -> std::optional<Predicate> {
+auto Parser::comma_predicate() -> std::optional<Predicate> {
   const bool has_comma = has_ws_separator(Token::Comma);
 
   if (auto predicate = this->predicate()) {
@@ -26,8 +24,7 @@ Parser::comma_predicate() -> std::optional<Predicate> {
 }
 
 /// Parse an optional or separator `||`, then if that is present a range.
-auto
-Parser::or_range() -> std::optional<VersionReq> {
+auto Parser::or_range() -> std::optional<VersionReq> {
   if (!this->has_ws_separator(Token::Or)) {
     return std::nullopt;
   }
@@ -37,8 +34,7 @@ Parser::or_range() -> std::optional<VersionReq> {
 /// Parse a single component.
 ///
 /// Returns `None` if the component is a wildcard.
-auto
-Parser::component() -> std::optional<std::uint_fast64_t> {
+auto Parser::component() -> std::optional<std::uint_fast64_t> {
   if (const Token token = this->pop(); token.kind == Token::Numeric) {
     return std::get<Token::numeric_type>(token.component);
   } else if (token.is_wildcard()) {
@@ -49,8 +45,7 @@ Parser::component() -> std::optional<std::uint_fast64_t> {
 }
 
 /// Parse a single numeric.
-auto
-Parser::numeric() -> std::optional<std::uint_fast64_t> {
+auto Parser::numeric() -> std::optional<std::uint_fast64_t> {
   if (const Token token = this->pop(); token.kind == Token::Numeric) {
     return std::get<Token::numeric_type>(token.component);
   }
@@ -65,8 +60,7 @@ Parser::numeric() -> std::optional<std::uint_fast64_t> {
 /// If a dot is not encountered, `(None, false)` is returned.
 ///
 /// If a wildcard is encountered, `(None, true)` is returned.
-auto
-Parser::dot_component() -> std::optional<std::uint_fast64_t> {
+auto Parser::dot_component() -> std::optional<std::uint_fast64_t> {
   if (this->peek() != Token::Dot) {
     return std::nullopt;
   }
@@ -76,8 +70,7 @@ Parser::dot_component() -> std::optional<std::uint_fast64_t> {
 }
 
 /// Parse a dot, then a numeric.
-auto
-Parser::dot_numeric() -> std::optional<std::uint_fast64_t> {
+auto Parser::dot_numeric() -> std::optional<std::uint_fast64_t> {
   if (pop() != Token::Dot) {
     return std::nullopt;
   }
@@ -87,8 +80,7 @@ Parser::dot_numeric() -> std::optional<std::uint_fast64_t> {
 /// Parse an string identifier.
 ///
 /// Like, `foo`, or `bar`.
-auto
-Parser::identifier() -> std::optional<Identifier> {
+auto Parser::identifier() -> std::optional<Identifier> {
   const Token& token = pop();
   if (token.kind == Token::AlphaNumeric) {
     return Identifier(
@@ -106,8 +98,7 @@ Parser::identifier() -> std::optional<Identifier> {
 /// Parse all pre-release identifiers, separated by dots.
 ///
 /// Like, `abcdef.1234`.
-auto
-Parser::pre() -> std::vector<Identifier> {
+auto Parser::pre() -> std::vector<Identifier> {
   if (const Token p = peek(); p.kind == Token::Whitespace) {
     pop(); // Drop whitespace
     if (const Token p2 = peek();
@@ -127,8 +118,7 @@ Parser::pre() -> std::vector<Identifier> {
 }
 
 /// Parse a dot-separated set of identifiers.
-auto
-Parser::parts() -> std::vector<Identifier> {
+auto Parser::parts() -> std::vector<Identifier> {
   std::vector<Identifier> parts{};
   parts.push_back(identifier().value());
 
@@ -143,8 +133,7 @@ Parser::parts() -> std::vector<Identifier> {
 /// Parse optional build metadata.
 ///
 /// Like, `` (empty), or `+abcdef`.
-auto
-Parser::plus_build_metadata() -> std::vector<Identifier> {
+auto Parser::plus_build_metadata() -> std::vector<Identifier> {
   if (peek() != Token::Plus) {
     return {};
   }
@@ -156,8 +145,7 @@ Parser::plus_build_metadata() -> std::vector<Identifier> {
 /// Optionally parse a single operator.
 ///
 /// Like, `~`, or `^`.
-auto
-Parser::op() -> Op {
+auto Parser::op() -> Op {
   Op op(Op::Compatible);
 
   switch (peek().kind) {
@@ -196,8 +184,7 @@ Parser::op() -> Op {
 /// Parse a single predicate.
 ///
 /// Like, `^1`, or `>=2.0.0`.
-auto
-Parser::predicate() -> std::optional<Predicate> {
+auto Parser::predicate() -> std::optional<Predicate> {
   if (is_eof()) {
     return std::nullopt;
   }
@@ -232,8 +219,7 @@ Parser::predicate() -> std::optional<Predicate> {
 /// Parse a single range.
 ///
 /// Like, `^1.0` or `>=3.0.0, <4.0.0`.
-auto
-Parser::range() -> VersionReq {
+auto Parser::range() -> VersionReq {
   std::vector<Predicate> predicates{};
 
   if (const auto predicate = this->predicate()) {
@@ -249,8 +235,7 @@ Parser::range() -> VersionReq {
 /// Parse a comparator.
 ///
 /// Like, `1.0 || 2.0` or `^1 || >=3.0.0, <4.0.0`.
-auto
-Parser::comparator() -> Comparator {
+auto Parser::comparator() -> Comparator {
   std::vector<VersionReq> ranges{};
   ranges.push_back(this->range());
 
@@ -263,8 +248,7 @@ Parser::comparator() -> Comparator {
 /// Parse a version.
 ///
 /// Like, `1.0.0` or `3.0.0-beta.1`.
-auto
-Parser::version() -> Version {
+auto Parser::version() -> Version {
   this->skip_whitespace();
 
   const std::uint_fast64_t major = this->numeric().value();
@@ -281,8 +265,7 @@ Parser::version() -> Version {
 /// Get the rest of the tokens in the parser.
 ///
 /// Useful for debugging.
-auto
-Parser::tail() -> std::vector<Token> {
+auto Parser::tail() -> std::vector<Token> {
   std::vector<Token> out{};
 
   out.push_back(c1);
@@ -292,8 +275,7 @@ Parser::tail() -> std::vector<Token> {
   return out;
 }
 
-auto
-Parser::has_ws_separator(const Token::Kind& pat) -> bool {
+auto Parser::has_ws_separator(const Token::Kind& pat) -> bool {
   skip_whitespace();
 
   if (peek() == pat) {
@@ -306,8 +288,7 @@ Parser::has_ws_separator(const Token::Kind& pat) -> bool {
   return false;
 }
 
-auto
-parse(std::string_view input) -> Version {
+auto parse(std::string_view input) -> Version {
   try {
     Parser parser(input);
     return parser.version();

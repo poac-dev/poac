@@ -86,25 +86,20 @@ struct Token {
         component(c) {}
 
   Token(const Token&) = default;
-  Token&
-  operator=(const Token&) = default;
+  Token& operator=(const Token&) = default;
   Token(Token&&) noexcept = default;
-  Token&
-  operator=(Token&&) noexcept = default;
+  Token& operator=(Token&&) noexcept = default;
   ~Token() = default;
 
-  constexpr bool
-  is_whitespace() const noexcept {
+  constexpr bool is_whitespace() const noexcept {
     return kind == Kind::Whitespace;
   }
 
-  constexpr bool
-  is_simple_token() const noexcept {
+  constexpr bool is_simple_token() const noexcept {
     return std::holds_alternative<null_type>(component);
   }
 
-  constexpr bool
-  is_wildcard() const noexcept {
+  constexpr bool is_wildcard() const noexcept {
     return kind == Kind::Star
            || (std::holds_alternative<alphanumeric_type>(component)
                && (std::get<alphanumeric_type>(component) == "X"
@@ -112,32 +107,26 @@ struct Token {
   }
 };
 
-constexpr bool
-operator==(const Token& lhs, const Token& rhs) {
+constexpr bool operator==(const Token& lhs, const Token& rhs) {
   if (lhs.is_simple_token() && rhs.is_simple_token()) {
     return lhs.kind == rhs.kind;
   }
   return (lhs.kind == rhs.kind) && (lhs.component == rhs.component);
 }
-constexpr bool
-operator==(const Token& lhs, const Token::Kind& rhs) {
+constexpr bool operator==(const Token& lhs, const Token::Kind& rhs) {
   return lhs.is_simple_token() && (lhs.kind == rhs);
 }
-constexpr bool
-operator==(const Token::Kind& lhs, const Token& rhs) {
+constexpr bool operator==(const Token::Kind& lhs, const Token& rhs) {
   return rhs.is_simple_token() && (lhs == rhs.kind);
 }
 
-constexpr bool
-operator!=(const Token& lhs, const Token& rhs) {
+constexpr bool operator!=(const Token& lhs, const Token& rhs) {
   return !(lhs == rhs);
 }
-constexpr bool
-operator!=(const Token& lhs, const Token::Kind& rhs) {
+constexpr bool operator!=(const Token& lhs, const Token::Kind& rhs) {
   return !(lhs == rhs);
 }
-constexpr bool
-operator!=(const Token::Kind& lhs, const Token& rhs) {
+constexpr bool operator!=(const Token::Kind& lhs, const Token& rhs) {
   return !(lhs == rhs);
 }
 
@@ -156,14 +145,12 @@ struct Identifier {
   Kind kind;
   variant_type component;
 
-  // clang-format off
   Identifier() = delete;
   Identifier(const Identifier&) = default;
   Identifier& operator=(const Identifier&) = default;
   Identifier(Identifier&&) noexcept = default;
   Identifier& operator=(Identifier&&) noexcept = default;
   ~Identifier() = default;
-  // clang-format on
 
   constexpr Identifier(Kind k, const numeric_type& n)
       : kind(
@@ -180,41 +167,31 @@ struct Identifier {
       ),
         component(c) {}
 
-  constexpr bool
-  is_numeric() const noexcept {
-    return kind == Kind::Numeric;
-  }
+  constexpr bool is_numeric() const noexcept { return kind == Kind::Numeric; }
 
-  constexpr bool
-  is_alpha_numeric() const noexcept {
+  constexpr bool is_alpha_numeric() const noexcept {
     return kind == Kind::AlphaNumeric;
   }
 
-  inline numeric_type
-  get_numeric() const {
+  inline numeric_type get_numeric() const {
     return std::get<Identifier::numeric_type>(component);
   }
 
-  inline alphanumeric_type
-  get_alpha_numeric() const {
+  inline alphanumeric_type get_alpha_numeric() const {
     return std::get<Identifier::alphanumeric_type>(component);
   }
 };
 
-constexpr bool
-operator==(const Identifier& lhs, const Identifier& rhs) {
+constexpr bool operator==(const Identifier& lhs, const Identifier& rhs) {
   return (lhs.kind == rhs.kind) && (lhs.component == rhs.component);
 }
-constexpr bool
-operator!=(const Identifier& lhs, const Identifier& rhs) {
+constexpr bool operator!=(const Identifier& lhs, const Identifier& rhs) {
   return !(lhs == rhs);
 }
 
-std::string
-to_string(const Identifier& id);
+std::string to_string(const Identifier& id);
 
-inline std::ostream&
-operator<<(std::ostream& os, const Identifier& id) {
+inline std::ostream& operator<<(std::ostream& os, const Identifier& id) {
   return (os << to_string(id));
 }
 
@@ -234,11 +211,9 @@ struct Version {
   /// `"0.1.2+pre.0"`).
   std::vector<Identifier> build;
 
-  std::string
-  get_version() const;
+  std::string get_version() const;
 
-  std::string
-  get_full() const;
+  std::string get_full() const;
 };
 
 } // end namespace semver

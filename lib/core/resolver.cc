@@ -16,8 +16,7 @@
 namespace poac::core::resolver {
 
 /// Rename unknown extracted directory to easily access when building.
-[[nodiscard]] auto
-rename_extracted_directory(
+[[nodiscard]] auto rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
 ) noexcept -> Result<void> {
   const Path temporarily_extracted_path =
@@ -32,8 +31,7 @@ rename_extracted_directory(
   return Ok();
 }
 
-[[nodiscard]] auto
-fetch_impl(const resolve::Package& package) noexcept
+[[nodiscard]] auto fetch_impl(const resolve::Package& package) noexcept
     -> Result<std::pair<Path, String>> {
   try {
     const auto [download_link, sha256sum] =
@@ -61,8 +59,8 @@ fetch_impl(const resolve::Package& package) noexcept
 using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
-[[nodiscard]] auto
-fetch(const UniqDeps<WithoutDeps>& deps) noexcept -> Result<void> {
+[[nodiscard]] auto fetch(const UniqDeps<WithoutDeps>& deps) noexcept
+    -> Result<void> {
   for (const auto& [name, version_rq] : deps) {
     const resolve::Package package{name, version_rq};
 
@@ -87,13 +85,11 @@ fetch(const UniqDeps<WithoutDeps>& deps) noexcept -> Result<void> {
   return Ok();
 }
 
-auto
-is_not_installed(const resolve::Package& package) -> bool {
+auto is_not_installed(const resolve::Package& package) -> bool {
   return !fs::exists(get_archive_path(package));
 }
 
-auto
-get_not_installed_deps(const ResolvedDeps& deps) noexcept
+auto get_not_installed_deps(const ResolvedDeps& deps) noexcept
     -> UniqDeps<WithoutDeps> {
   return deps | boost::adaptors::map_keys
          | boost::adaptors::filtered(is_not_installed)
@@ -104,8 +100,8 @@ get_not_installed_deps(const ResolvedDeps& deps) noexcept
          | util::meta::containerized;
 }
 
-[[nodiscard]] auto
-download_deps(const ResolvedDeps& deps) noexcept -> Result<void> {
+[[nodiscard]] auto download_deps(const ResolvedDeps& deps) noexcept
+    -> Result<void> {
   const UniqDeps<WithoutDeps> not_installed_deps = get_not_installed_deps(deps);
   if (not_installed_deps.empty()) {
     // all resolved packages already have been installed
@@ -122,8 +118,8 @@ download_deps(const ResolvedDeps& deps) noexcept -> Result<void> {
   return Ok();
 }
 
-[[nodiscard]] auto
-do_resolve(const UniqDeps<WithoutDeps>& deps) noexcept -> Result<ResolvedDeps> {
+[[nodiscard]] auto do_resolve(const UniqDeps<WithoutDeps>& deps) noexcept
+    -> Result<ResolvedDeps> {
   try {
     const resolve::DupDeps<resolve::WithDeps> duplicate_deps =
         Try(resolve::gather_all_deps(deps).map_err(to_anyhow));
@@ -162,8 +158,8 @@ to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept
   }
 }
 
-[[nodiscard]] auto
-get_resolved_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
+[[nodiscard]] auto get_resolved_deps(const toml::value& manifest)
+    -> Result<ResolvedDeps> {
   auto deps = toml::find<HashMap<String, String>>(manifest, "dependencies");
   if (manifest.contains("dev-dependencies")) {
     append(
@@ -176,8 +172,7 @@ get_resolved_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
 }
 
 // If lockfile is not outdated, read it.
-[[nodiscard]] auto
-try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
+[[nodiscard]] auto try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
   if (!data::lockfile::is_outdated(config::path::cwd)) {
     return data::lockfile::read(config::path::cwd);
   } else {
@@ -185,8 +180,8 @@ try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
   }
 }
 
-[[nodiscard]] auto
-resolve_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
+[[nodiscard]] auto resolve_deps(const toml::value& manifest)
+    -> Result<ResolvedDeps> {
   const Option<ResolvedDeps> locked_deps = Try(try_to_read_lockfile());
   if (locked_deps.has_value()) {
     // Lockfile exists and is not outdated.
@@ -198,8 +193,8 @@ resolve_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
   }
 }
 
-[[nodiscard]] auto
-install_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
+[[nodiscard]] auto install_deps(const toml::value& manifest)
+    -> Result<ResolvedDeps> {
   if (!manifest.contains("dependencies")
       && !manifest.contains("dev-dependencies")) {
     const ResolvedDeps empty_deps{};

@@ -11,8 +11,7 @@
 
 namespace poac::cmd::login {
 
-[[nodiscard]] auto
-check_token(StringRef api_token) -> Result<void> {
+[[nodiscard]] auto check_token(StringRef api_token) -> Result<void> {
   spdlog::trace("Checking if api_token has 32 length");
   if (api_token.size() != 32) {
     return Err<InvalidAPIToken>();
@@ -24,8 +23,7 @@ check_token(StringRef api_token) -> Result<void> {
   return Ok();
 }
 
-[[nodiscard]] auto
-exec(const Options& opts) -> Result<void> {
+[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   Try(check_token(opts.api_token));
 
   // Write API Token to `~/.poac/credentials` as TOML

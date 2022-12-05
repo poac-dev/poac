@@ -1,8 +1,7 @@
 #include <boost/ut.hpp>
 #include <poac/util/termcolor2/literals.hpp>
 
-auto
-main() -> int {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
   termcolor2::set_color_mode(spdlog::color_mode::always); // for CI

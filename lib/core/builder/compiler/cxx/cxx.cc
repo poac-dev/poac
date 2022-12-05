@@ -33,8 +33,7 @@ get_compiler_ident(const String& compiler_command, const bool is_macos)
   return Err<UnknownCompilerCommand>(compiler_command);
 }
 
-[[nodiscard]] auto
-get_std_flag(
+[[nodiscard]] auto get_std_flag(
     const util::cfg::compiler compiler, const String& compiler_command,
     const i64 edition, const bool use_gnu_extension
 ) -> Result<String> {
@@ -52,8 +51,7 @@ get_std_flag(
   }
 }
 
-[[nodiscard]] auto
-get_compiler_command() -> Result<String> {
+[[nodiscard]] auto get_compiler_command() -> Result<String> {
   if (const auto cxx = util::misc::dupenv("CXX")) {
     return Ok(cxx.value());
   } else if (util::shell::has_command("g++")) {
@@ -65,8 +63,8 @@ get_compiler_command() -> Result<String> {
   }
 }
 
-[[nodiscard]] auto
-get_command(const i64 edition, const bool use_gnu_extension) -> Result<String> {
+[[nodiscard]] auto get_command(const i64 edition, const bool use_gnu_extension)
+    -> Result<String> {
   const String compiler_command = Try(get_compiler_command());
   const util::cfg::compiler compiler =
 #ifdef __APPLE__

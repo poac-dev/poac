@@ -11,9 +11,9 @@ namespace poac::core::builder::syntax {
 ///
 /// Note: doesn't handle the full Ninja variable syntax, but it's enough
 /// to make configure.py's use of it work.
-auto
-expand(const String& text, const Variables& vars, const Variables& local_vars)
-    -> String {
+auto expand(
+    const String& text, const Variables& vars, const Variables& local_vars
+) -> String {
   const auto exp = [&](const boost::smatch& m) {
     const String var = m[1].str();
     if (var == "$") {
@@ -27,8 +27,7 @@ expand(const String& text, const Variables& vars, const Variables& local_vars)
 }
 
 /// ref: https://stackoverflow.com/a/46379136
-auto
-operator*(const String& s, usize n) -> String {
+auto operator*(const String& s, usize n) -> String {
   String result;
   result.reserve(s.size() * n);
   for (usize i = 0; i < n; ++i) {
@@ -38,8 +37,7 @@ operator*(const String& s, usize n) -> String {
 }
 
 /// Returns the number of '$' characters right in front of s[i].
-auto
-Writer::count_dollars_before_index(StringRef s, usize i) const -> usize {
+auto Writer::count_dollars_before_index(StringRef s, usize i) const -> usize {
   usize dollar_count = 0;
   usize dollar_index = i - 1;
   while (dollar_index > 0 && s[dollar_index] == '$') {
@@ -50,8 +48,7 @@ Writer::count_dollars_before_index(StringRef s, usize i) const -> usize {
 }
 
 /// Write 'text' word-wrapped at self.width characters.
-void
-Writer::_line(String text, usize indent) {
+void Writer::_line(String text, usize indent) {
   String leading_space = String("  ") * indent;
 
   while (leading_space.length() + text.length() > width) {
@@ -90,23 +87,20 @@ Writer::_line(String text, usize indent) {
   output << leading_space + text + '\n';
 }
 
-void
-Writer::comment(const String& text) {
+void Writer::comment(const String& text) {
   for (const String& line : util::pretty::textwrap(text, width - 2)) {
     output << "# " + line + '\n';
   }
 }
 
-void
-Writer::variable(StringRef key, StringRef value, usize indent) {
+void Writer::variable(StringRef key, StringRef value, usize indent) {
   if (value.empty()) {
     return;
   }
   _line(format("{} = {}", key, value), indent);
 }
 
-void
-Writer::rule(StringRef name, StringRef command, const RuleSet& rule_set) {
+void Writer::rule(StringRef name, StringRef command, const RuleSet& rule_set) {
   _line(format("rule {}", name));
   variable("command", command, 1);
   if (rule_set.description.has_value()) {
@@ -135,8 +129,7 @@ Writer::rule(StringRef name, StringRef command, const RuleSet& rule_set) {
   }
 }
 
-auto
-Writer::build(
+auto Writer::build(
     const Vec<String>& outputs, StringRef rule, const BuildSet& build_set
 ) -> Vec<String> {
   Vec<String> out_outputs;

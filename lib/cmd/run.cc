@@ -10,8 +10,7 @@
 
 namespace poac::cmd::run {
 
-[[nodiscard]] auto
-exec(const Options& opts) -> Result<void> {
+[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

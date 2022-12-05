@@ -16,8 +16,7 @@
 
 namespace poac::core::builder::manifest {
 
-auto
-rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
+auto rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
   Node* node = ninja_main.state.LookupNode(
       (ninja_main.build_dir / manifest_file_name).string()
   );
@@ -51,8 +50,8 @@ rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
   return true;
 }
 
-auto
-gather_includes(const resolver::ResolvedDeps& resolved_deps) -> Vec<String> {
+auto gather_includes(const resolver::ResolvedDeps& resolved_deps)
+    -> Vec<String> {
   Vec<String> includes;
   for (const auto& [package, inner_deps] : resolved_deps) {
     static_cast<void>(inner_deps);
@@ -65,8 +64,7 @@ gather_includes(const resolver::ResolvedDeps& resolved_deps) -> Vec<String> {
   return includes;
 }
 
-auto
-get_cfg_profile(const toml::value& poac_manifest) -> Vec<toml::table> {
+auto get_cfg_profile(const toml::value& poac_manifest) -> Vec<toml::table> {
   const auto target =
       toml::find_or<toml::table>(poac_manifest, "target", toml::table{});
   Vec<toml::table> profiles;
@@ -82,8 +80,7 @@ get_cfg_profile(const toml::value& poac_manifest) -> Vec<toml::table> {
   return profiles;
 }
 
-auto
-gather_flags(
+auto gather_flags(
     const toml::value& poac_manifest, const String& name,
     const Option<String>& prefix
 ) -> Vec<String> {
@@ -99,8 +96,7 @@ gather_flags(
   return f;
 }
 
-[[nodiscard]] auto
-construct(
+[[nodiscard]] auto construct(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
 ) -> Result<String> {
@@ -163,8 +159,7 @@ construct(
   return Ok(writer.get_value());
 }
 
-[[nodiscard]] auto
-create(
+[[nodiscard]] auto create(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
 ) -> Result<void> {

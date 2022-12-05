@@ -30,8 +30,7 @@ inline constexpr Arr<StringRef, 12> extensions{"c",   "c++", "cc",  "cpp",
 
 inline constexpr Arr<StringRef, 2> patterns{"{}/*.{}", "{}/**/*.{}"};
 
-void
-fmt_impl(
+void fmt_impl(
     const Path& base_dir, std::span<const StringRef> dirs, Vec<Path>& targets
 ) {
   for (StringRef d : dirs) {
@@ -82,8 +81,7 @@ fmt(const Options& opts, const Path& base_dir, StringRef args) -> Result<void> {
   return Ok();
 }
 
-[[nodiscard]] auto
-exec(const Options& opts) -> Result<void> {
+[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if `clang-format` command exists ...");
   if (!util::shell::has_command("clang-format")) {
     return Err<ClangFormatNotFound>();

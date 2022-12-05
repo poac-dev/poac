@@ -6,15 +6,9 @@
 
 namespace poac::util::verbosity {
 
-inline bool
-is_verbose() {
-  return spdlog::should_log(spdlog::level::trace);
-}
+inline bool is_verbose() { return spdlog::should_log(spdlog::level::trace); }
 
-inline bool
-is_quiet() {
-  return spdlog::level::off == spdlog::get_level();
-}
+inline bool is_quiet() { return spdlog::level::off == spdlog::get_level(); }
 
 } // namespace poac::util::verbosity
 

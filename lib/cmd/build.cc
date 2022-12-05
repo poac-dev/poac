@@ -14,8 +14,7 @@
 
 namespace poac::cmd::build {
 
-[[nodiscard]] auto
-build_impl(
+[[nodiscard]] auto build_impl(
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
 ) -> Result<Path> {
@@ -30,8 +29,7 @@ build_impl(
   return Ok(output_path);
 }
 
-[[nodiscard]] auto
-build(const Options& opts, const toml::value& manifest)
+[[nodiscard]] auto build(const Options& opts, const toml::value& manifest)
     -> Result<Option<Path>> {
   const auto resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
@@ -58,8 +56,7 @@ build(const Options& opts, const toml::value& manifest)
   return Ok(output_path);
 }
 
-[[nodiscard]] auto
-exec(const Options& opts) -> Result<void> {
+[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

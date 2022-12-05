@@ -32,8 +32,7 @@ static constexpr auto non_type_conditional_v =
     non_type_conditional_t<B, T, F>::value;
 
 template <class InputIterator, class T>
-inline auto
-index_of(InputIterator first, InputIterator last, const T& value) {
+inline auto index_of(InputIterator first, InputIterator last, const T& value) {
   return std::distance(first, std::find(first, last, value));
 }
 
@@ -45,8 +44,7 @@ index_of_if(InputIterator first, InputIterator last, Predicate pred) {
 
 // Check if it has duplicate elements.
 template <class SinglePassRange>
-bool
-duplicate(const SinglePassRange& rng) {
+bool duplicate(const SinglePassRange& rng) {
   auto first = std::cbegin(rng);
   auto last = std::cend(rng);
   auto result = std::find_if(first, last, [&](const auto& v) {
@@ -57,8 +55,7 @@ duplicate(const SinglePassRange& rng) {
 
 // found: true
 template <class SinglePassRange, class T>
-bool
-find(const SinglePassRange& rng, const T& value) {
+bool find(const SinglePassRange& rng, const T& value) {
   auto first = std::cbegin(rng);
   auto last = std::cend(rng);
   return std::find(first, last, value) != last;
@@ -66,8 +63,7 @@ find(const SinglePassRange& rng, const T& value) {
 
 // found: true
 template <class SinglePassRange, class Predicate>
-bool
-find_if(const SinglePassRange& rng, Predicate pred) {
+bool find_if(const SinglePassRange& rng, Predicate pred) {
   auto first = std::cbegin(rng);
   auto last = std::cend(rng);
   return std::find_if(first, last, pred) != last;
@@ -76,8 +72,7 @@ find_if(const SinglePassRange& rng, Predicate pred) {
 // boost::property_tree::ptree : {"key": ["array", "...", ...]}
 //  -> std::vector<T> : ["array", "...", ...]
 template <class T, class U, class K = typename U::key_type>
-auto
-to_vec(const U& value, const K& key) -> std::enable_if_t<
+auto to_vec(const U& value, const K& key) -> std::enable_if_t<
     std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
     Vec<T>> {
   Vec<T> r;
@@ -90,8 +85,7 @@ to_vec(const U& value, const K& key) -> std::enable_if_t<
 // boost::property_tree::ptree : ["array", "...", ...]
 //  -> std::vector<T> : ["array", "...", ...]
 template <class T, class U>
-auto
-to_vec(const U& value) -> std::enable_if_t<
+auto to_vec(const U& value) -> std::enable_if_t<
     std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
     Vec<T>> {
   Vec<T> r;
@@ -106,8 +100,7 @@ to_vec(const U& value) -> std::enable_if_t<
 //    "key2": "value2", ...}
 // -> std::unordered_map<String, T>
 template <class T, class U>
-auto
-to_hash_map(const U& value, const String& key) -> std::enable_if_t<
+auto to_hash_map(const U& value, const String& key) -> std::enable_if_t<
     std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
     HashMap<String, T>> {
   HashMap<String, T> m{};
@@ -168,16 +161,14 @@ constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
 template <
     class T, std::enable_if_t<
                  is_tuple_v<std::remove_cvref_t<T>>, std::nullptr_t> = nullptr>
-constexpr auto
-to_array(T&& tuple) {
+constexpr auto to_array(T&& tuple) {
   return to_array(
       std::forward<T>(tuple),
       std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<T>>>{}
   );
 }
 
-inline String
-time_to_string(const std::chrono::seconds& time) {
+inline String time_to_string(const std::chrono::seconds& time) {
   return std::to_string(time.count());
 }
 
@@ -196,8 +187,7 @@ public:
 };
 
 template <class Range>
-inline containerizer<Range>
-containerize(Range&& range) {
+inline containerizer<Range> containerize(Range&& range) {
   return containerizer<Range>(std::forward<Range>(range));
 }
 
@@ -205,8 +195,7 @@ struct containerized_tag {};
 constexpr containerized_tag containerized;
 
 template <class Range>
-inline containerizer<Range>
-operator|(Range&& range, containerized_tag) {
+inline containerizer<Range> operator|(Range&& range, containerized_tag) {
   return containerize(std::forward<Range>(range));
 }
 

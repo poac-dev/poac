@@ -33,26 +33,19 @@ struct Vertex {
 using Graph =
     boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
-Result<core::resolver::ResolvedDeps>
-create_resolved_deps();
+Result<core::resolver::ResolvedDeps> create_resolved_deps();
 
-Result<std::pair<Graph, Vec<String>>>
-create_graph();
+Result<std::pair<Graph, Vec<String>>> create_graph();
 
-[[nodiscard]] Result<void>
-dot_file_output(const Path& output_path);
+[[nodiscard]] Result<void> dot_file_output(const Path& output_path);
 
-[[nodiscard]] Result<void>
-png_file_output(const Path& output_path);
+[[nodiscard]] Result<void> png_file_output(const Path& output_path);
 
-[[nodiscard]] Result<void>
-file_output(const Path& output_path);
+[[nodiscard]] Result<void> file_output(const Path& output_path);
 
-[[nodiscard]] Result<void>
-console_output();
+[[nodiscard]] Result<void> console_output();
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Result<void> exec(const Options& opts);
 
 } // namespace poac::cmd::graph
 

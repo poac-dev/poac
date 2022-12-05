@@ -9,8 +9,7 @@ namespace termcolor2::details {
 
 class ColorMode {
 public:
-  inline void
-  set(spdlog::color_mode mode) {
+  inline void set(spdlog::color_mode mode) {
     switch (mode) {
       case spdlog::color_mode::always:
         should_color_ = true;
@@ -25,13 +24,9 @@ public:
         __builtin_unreachable();
     }
   }
-  inline bool
-  should_color() const {
-    return should_color_;
-  }
+  inline bool should_color() const { return should_color_; }
 
-  static ColorMode&
-  instance() {
+  static ColorMode& instance() {
     static ColorMode s_instance;
     return s_instance;
   }
@@ -45,13 +40,11 @@ private:
 
 namespace termcolor2 {
 
-inline void
-set_color_mode(spdlog::color_mode cm) {
+inline void set_color_mode(spdlog::color_mode cm) {
   details::ColorMode::instance().set(cm);
 }
 
-inline bool
-should_color() {
+inline bool should_color() {
   return details::ColorMode::instance().should_color();
 }
 

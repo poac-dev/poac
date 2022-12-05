@@ -16,11 +16,9 @@ struct Options : structopt::sub_command {
 
 using NotFound = Error<"No packages found for `{}`", String>;
 
-[[nodiscard]] Result<void>
-search(const Options& opts);
+[[nodiscard]] Result<void> search(const Options& opts);
 
-[[nodiscard]] inline Result<void>
-exec(const Options& opts) {
+[[nodiscard]] inline Result<void> exec(const Options& opts) {
   return search(opts);
 }
 

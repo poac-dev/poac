@@ -7,8 +7,7 @@
 
 namespace poac::core::builder::log {
 
-[[nodiscard]] auto
-load_build_log(data::NinjaMain& ninja_main) -> Result<void> {
+[[nodiscard]] auto load_build_log(data::NinjaMain& ninja_main) -> Result<void> {
   Path log_path = ninja_main.build_dir / build_log_file_name;
 
   String err;
@@ -28,8 +27,7 @@ load_build_log(data::NinjaMain& ninja_main) -> Result<void> {
   return Ok();
 }
 
-[[nodiscard]] auto
-load_deps_log(data::NinjaMain& ninja_main) -> Result<void> {
+[[nodiscard]] auto load_deps_log(data::NinjaMain& ninja_main) -> Result<void> {
   Path log_path = ninja_main.build_dir / deps_log_file_name;
 
   String err;

@@ -45,8 +45,7 @@ lint(StringRef name, const Path& base_dir, Option<String> args)
   return Ok();
 }
 
-[[nodiscard]] auto
-exec([[maybe_unused]] const Options& opts) -> Result<void> {
+[[nodiscard]] auto exec([[maybe_unused]] const Options& opts) -> Result<void> {
   spdlog::trace("Checking if `cpplint` command exists ...");
   if (!util::shell::has_command("cpplint")) {
     return Err<CppLintNotFound>();

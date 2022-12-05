@@ -3,8 +3,7 @@
 
 namespace semver {
 
-auto
-Lexer::next() -> Token {
+auto Lexer::next() -> Token {
   // Check out of range
   if (c1_index
       >= this->size()) { // should be `>=`, not `>` because of this->two()
@@ -65,8 +64,7 @@ Lexer::next() -> Token {
   }
 }
 
-void
-Lexer::step_n(const size_type& n) noexcept {
+void Lexer::step_n(const size_type& n) noexcept {
   for (size_type i = 0; i < n; ++i) {
     step();
   }
@@ -76,8 +74,7 @@ Lexer::step_n(const size_type& n) noexcept {
 ///
 /// A component can either be an alphanumeric or numeric.
 /// Does not permit leading zeroes if numeric.
-auto
-Lexer::component() -> Token {
+auto Lexer::component() -> Token {
   // e.g. abcde
   if (is_alphabet(this->one())) {
     const size_type start = this->c1_index;
@@ -114,8 +111,7 @@ Lexer::component() -> Token {
 }
 
 /// Consume whitespace.
-auto
-Lexer::whitespace() noexcept -> Token {
+auto Lexer::whitespace() noexcept -> Token {
   const size_type start = this->c1_index;
   while (is_whitespace(this->one())) {
     this->step();

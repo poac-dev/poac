@@ -35,16 +35,16 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   return Ok(lock);
 }
 
-[[nodiscard]] auto
-overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps) -> Result<void> {
+[[nodiscard]] auto overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    -> Result<void> {
   const auto lock = Try(convert_to_lock(deps));
   std::ofstream lockfile(config::path::cwd / lockfile_name, std::ios::out);
   lockfile << lock;
   return Ok();
 }
 
-[[nodiscard]] auto
-generate(const resolver::UniqDeps<resolver::WithDeps>& deps) -> Result<void> {
+[[nodiscard]] auto generate(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    -> Result<void> {
   if (is_outdated(config::path::cwd)) {
     return overwrite(deps);
   }
@@ -53,8 +53,7 @@ generate(const resolver::UniqDeps<resolver::WithDeps>& deps) -> Result<void> {
 
 // -------------------- FROM LOCKFILE --------------------
 
-[[nodiscard]] auto
-convert_to_deps(const Lockfile& lock)
+[[nodiscard]] auto convert_to_deps(const Lockfile& lock)
     -> resolver::UniqDeps<resolver::WithDeps> {
   resolver::UniqDeps<resolver::WithDeps> deps;
   for (const auto& package : lock.package) {
@@ -74,8 +73,7 @@ convert_to_deps(const Lockfile& lock)
   return deps;
 }
 
-[[nodiscard]] auto
-read(const Path& base_dir)
+[[nodiscard]] auto read(const Path& base_dir)
     -> Result<Option<resolver::UniqDeps<resolver::WithDeps>>> {
   if (!fs::exists(base_dir / lockfile_name)) {
     return Ok(None);

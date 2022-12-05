@@ -8,8 +8,7 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] auto
-required_config_exists() noexcept -> Result<Path, String> {
+[[nodiscard]] auto required_config_exists() noexcept -> Result<Path, String> {
   // TODO(ken-matsui): move out to data/manifest.hpp
   Path candidate = config::path::cwd;
   while (true) {
@@ -33,8 +32,7 @@ required_config_exists() noexcept -> Result<Path, String> {
   ));
 }
 
-[[nodiscard]] auto
-can_create_directory(const Path& p) -> Result<void, String> {
+[[nodiscard]] auto can_create_directory(const Path& p) -> Result<void, String> {
   std::error_code ec{}; // This is to use for noexcept optimization
 
   const bool exists = fs::exists(p, ec);
@@ -52,8 +50,8 @@ can_create_directory(const Path& p) -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-two_or_more_symbols(StringRef s) noexcept -> Result<void, String> {
+[[nodiscard]] auto two_or_more_symbols(StringRef s) noexcept
+    -> Result<void, String> {
   const usize slashes = std::count(s.begin(), s.end(), '/');
   if (slashes > 1) {
     return Err(
@@ -64,8 +62,8 @@ two_or_more_symbols(StringRef s) noexcept -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-start_with_symbol(StringRef s) noexcept -> Result<void, String> {
+[[nodiscard]] auto start_with_symbol(StringRef s) noexcept
+    -> Result<void, String> {
   if (s[0] == '_' || s[0] == '-' || s[0] == '/') {
     return Err(
         "Invalid package name.\n"
@@ -76,8 +74,8 @@ start_with_symbol(StringRef s) noexcept -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-end_with_symbol(StringRef s) noexcept -> Result<void, String> {
+[[nodiscard]] auto end_with_symbol(StringRef s) noexcept
+    -> Result<void, String> {
   const char last = s[s.size() - 1];
   if (last == '_' || last == '-' || last == '/') {
     return Err(
@@ -89,8 +87,8 @@ end_with_symbol(StringRef s) noexcept -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-invalid_characters_impl(StringRef s) noexcept -> Result<void, String> {
+[[nodiscard]] auto invalid_characters_impl(StringRef s) noexcept
+    -> Result<void, String> {
   for (const char c : s) {
     if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
       return Err(
@@ -103,8 +101,8 @@ invalid_characters_impl(StringRef s) noexcept -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-invalid_characters(StringRef s) noexcept -> Result<void, String> {
+[[nodiscard]] auto invalid_characters(StringRef s) noexcept
+    -> Result<void, String> {
   Try(invalid_characters_impl(s));
   Try(start_with_symbol(s));
   Try(end_with_symbol(s));
@@ -112,8 +110,7 @@ invalid_characters(StringRef s) noexcept -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-using_keywords(StringRef s) -> Result<void, String> {
+[[nodiscard]] auto using_keywords(StringRef s) -> Result<void, String> {
   // Ban keywords
   // https://en.cppreference.com/w/cpp/keyword
   constexpr Arr<StringRef, 96> blacklist{
@@ -223,8 +220,7 @@ using_keywords(StringRef s) -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-one_char(StringRef s) -> Result<void, String> {
+[[nodiscard]] auto one_char(StringRef s) -> Result<void, String> {
   if (s.empty()) {
     return Err(
         "Invalid package name.\n"
@@ -239,16 +235,14 @@ one_char(StringRef s) -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-valid_package_name(StringRef s) -> Result<void, String> {
+[[nodiscard]] auto valid_package_name(StringRef s) -> Result<void, String> {
   Try(one_char(s));
   Try(invalid_characters(s));
   Try(using_keywords(s));
   return Ok();
 }
 
-[[nodiscard]] auto
-valid_version(StringRef s) -> Result<void, String> {
+[[nodiscard]] auto valid_version(StringRef s) -> Result<void, String> {
   try {
     semver::parse(s);
   } catch (const semver::exception& e) {
@@ -261,8 +255,7 @@ valid_version(StringRef s) -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-valid_athr(StringRef s) -> Result<void, String> {
+[[nodiscard]] auto valid_athr(StringRef s) -> Result<void, String> {
   // TODO(ken-matsui): Email address parser
   if (usize pos = s.find('<'); pos != None) {
     if (pos = s.find('@', pos + 1); pos != None) {
@@ -280,8 +273,8 @@ valid_athr(StringRef s) -> Result<void, String> {
   ));
 }
 
-[[nodiscard]] auto
-valid_authors(const Vec<String>& authors) -> Result<void, String> {
+[[nodiscard]] auto valid_authors(const Vec<String>& authors)
+    -> Result<void, String> {
   if (authors.empty()) {
     return Err("key `authors` cannot be empty.");
   }
@@ -291,8 +284,7 @@ valid_authors(const Vec<String>& authors) -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-valid_edition(const i32& edition) -> Result<void, String> {
+[[nodiscard]] auto valid_edition(const i32& edition) -> Result<void, String> {
   switch (edition) {
     case 1998:
     case 2003:
@@ -311,8 +303,7 @@ valid_edition(const i32& edition) -> Result<void, String> {
   }
 }
 
-[[nodiscard]] auto
-valid_license(StringRef license) -> Result<void, String> {
+[[nodiscard]] auto valid_license(StringRef license) -> Result<void, String> {
   // This list is from https://choosealicense.com/licenses
   if (license == "AGPL-3.0" || license == "GPL-3.0" || license == "LGPL-3.0"
       || license == "MPL-2.0" || license == "Apache-2.0" || license == "MIT"
@@ -327,8 +318,7 @@ valid_license(StringRef license) -> Result<void, String> {
   ));
 }
 
-[[nodiscard]] auto
-valid_repository(StringRef repo) -> Result<void, String> {
+[[nodiscard]] auto valid_repository(StringRef repo) -> Result<void, String> {
   // Can be parsed? it should be:
   // https://github.com/org/repo/tree/tag
   if (repo.starts_with("https://github.com/")) {
@@ -364,8 +354,7 @@ valid_repository(StringRef repo) -> Result<void, String> {
   ));
 }
 
-[[nodiscard]] auto
-valid_description(StringRef desc) -> Result<void, String> {
+[[nodiscard]] auto valid_description(StringRef desc) -> Result<void, String> {
   const usize size = desc.size();
   if (size < 10) {
     return Err(
@@ -381,8 +370,7 @@ valid_description(StringRef desc) -> Result<void, String> {
   return Ok();
 }
 
-[[nodiscard]] auto
-valid_manifest(const toml::value& manifest)
+[[nodiscard]] auto valid_manifest(const toml::value& manifest)
     -> Result<data::manifest::PartialPackage, String> {
   const auto package =
       toml::find<data::manifest::PartialPackage>(manifest, "package");

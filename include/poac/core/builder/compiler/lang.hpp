@@ -12,8 +12,7 @@ enum class Lang {
   cxx,
 };
 
-String
-to_string(Lang lang);
+String to_string(Lang lang);
 
 } // namespace poac::core::builder::compiler::lang
 
@@ -21,10 +20,7 @@ namespace fmt {
 
 template <>
 struct formatter<poac::core::builder::compiler::lang::Lang> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
   inline auto

@@ -7,8 +7,7 @@
 // internal
 #include "../util/ui_test_util.hpp"
 
-auto
-main() -> int {
+auto main() -> int {
   using namespace boost::ut;
   using namespace poac::util::shell;
   using namespace poac::test;
