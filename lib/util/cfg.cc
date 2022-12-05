@@ -159,7 +159,7 @@ auto Lexer::ident(size_type index_) const
   }
 }
 
-auto Lexer::to_ident(StringRef s) const noexcept -> Option<Token::ident> {
+auto Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
   if (s == "cfg") {
     return Token::ident::cfg;
   } else if (s == "not") {
@@ -185,7 +185,7 @@ auto Lexer::to_ident(StringRef s) const noexcept -> Option<Token::ident> {
   }
 }
 
-auto Cfg::from_token_ident(Token::ident ident) const -> Cfg::Ident {
+auto Cfg::from_token_ident(Token::ident ident) -> Cfg::Ident {
   switch (ident) {
     case Token::ident::compiler:
       return Ident::compiler;
@@ -225,13 +225,13 @@ auto CfgExpr::match() const -> bool {
       return res;
     }
     case Kind::value:
-      return this->match(std::get<Cfg>(this->expr));
+      return match(std::get<Cfg>(this->expr));
     default:
       unreachable();
   }
 }
 
-auto CfgExpr::match(const Cfg& c) const -> bool {
+auto CfgExpr::match(const Cfg& c) -> bool {
   switch (c.key) {
     case Cfg::Ident::compiler:
       return false;
