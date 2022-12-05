@@ -454,9 +454,9 @@ inline constexpr StringRef SUPABASE_ANON_KEY =
 call(StringRef path, StringRef body) noexcept;
 
 [[nodiscard]] Result<boost::property_tree::ptree, String>
-search(StringRef query, const u64& count = 0) noexcept;
+search(StringRef query, const u64& count = 0);
 
-[[nodiscard]] auto deps(StringRef name, StringRef version) noexcept
+[[nodiscard]] auto deps(StringRef name, StringRef version)
     -> Result<HashMap<String, String>, String>;
 
 [[nodiscard]] Result<Vec<String>, String> versions(StringRef name);

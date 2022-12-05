@@ -11,7 +11,7 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] Result<Path, String> required_config_exists() noexcept;
+[[nodiscard]] Result<Path, String> required_config_exists();
 
 [[nodiscard]] Result<void, String> can_create_directory(const Path& p);
 

@@ -49,7 +49,7 @@ inline Path get_extracted_path(const resolve::Package& package) {
 /// Rename unknown extracted directory to easily access when building.
 [[nodiscard]] Result<void> rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
-) noexcept;
+);
 
 inline Path get_archive_path(const resolve::Package& package) {
   fs::create_directories(config::path::archive_dir);
@@ -94,14 +94,14 @@ get_download_link(const resolve::Package& package) {
 fetch_impl(const resolve::Package& package) noexcept;
 
 [[nodiscard]] Result<void>
-fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept;
+fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps);
 
 bool is_not_installed(const resolve::Package& package);
 
 resolve::UniqDeps<resolve::WithoutDeps>
-get_not_installed_deps(const ResolvedDeps& deps) noexcept;
+get_not_installed_deps(const ResolvedDeps& deps);
 
-[[nodiscard]] Result<void> download_deps(const ResolvedDeps& deps) noexcept;
+[[nodiscard]] Result<void> download_deps(const ResolvedDeps& deps);
 
 [[nodiscard]] Result<ResolvedDeps>
 do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept;

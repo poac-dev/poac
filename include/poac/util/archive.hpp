@@ -38,16 +38,14 @@ archive_write_finish_entry(const Writer& writer) noexcept;
     Archive* reader, const Writer& writer, archive_entry* entry
 ) noexcept;
 
-String
-set_extract_path(archive_entry* entry, const Path& extract_path) noexcept;
+String set_extract_path(archive_entry* entry, const Path& extract_path);
 
 [[nodiscard]] Result<bool, String> archive_read_next_header_(
     Archive* reader, archive_entry** entry
 ) noexcept(!(true == ARCHIVE_EOF));
 
-[[nodiscard]] Result<String, String> extract_impl(
-    Archive* reader, const Writer& writer, const Path& extract_path
-) noexcept;
+[[nodiscard]] Result<String, String>
+extract_impl(Archive* reader, const Writer& writer, const Path& extract_path);
 
 [[nodiscard]] Result<void, String> archive_read_open_filename(
     Archive* reader, const Path& file_path, usize block_size
@@ -66,7 +64,7 @@ inline void read_as_targz(Archive* reader) noexcept {
 }
 
 [[nodiscard]] Result<String, String>
-extract(const Path& target_file_path, const Path& extract_path) noexcept;
+extract(const Path& target_file_path, const Path& extract_path);
 
 } // namespace poac::util::archive
 

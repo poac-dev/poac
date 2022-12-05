@@ -57,7 +57,7 @@ namespace poac::util::archive {
   return Ok();
 }
 
-auto set_extract_path(archive_entry* entry, const Path& extract_path) noexcept
+auto set_extract_path(archive_entry* entry, const Path& extract_path)
     -> String {
   String current_file = archive_entry_pathname(entry);
   const Path full_output_path = extract_path / current_file;
@@ -81,9 +81,9 @@ archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
   return Ok(false);
 }
 
-[[nodiscard]] auto extract_impl(
-    Archive* reader, const Writer& writer, const Path& extract_path
-) noexcept -> Result<String, String> {
+[[nodiscard]] auto
+extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
+    -> Result<String, String> {
   archive_entry* entry = nullptr;
   String extracted_directory_name;
   while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
@@ -108,7 +108,7 @@ archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
 }
 
 [[nodiscard]] auto
-extract(const Path& target_file_path, const Path& extract_path) noexcept
+extract(const Path& target_file_path, const Path& extract_path)
     -> Result<String, String> {
   Archive* reader = archive_read_new();
   if (!reader) {
