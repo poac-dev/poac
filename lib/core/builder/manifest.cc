@@ -101,7 +101,7 @@ auto gather_flags(
     const resolver::ResolvedDeps& resolved_deps
 ) -> Result<String> {
   syntax::Writer writer{std::ostringstream()};
-  for (StringRef header : manifest_headers) {
+  for (const StringRef header : manifest_headers) {
     writer.comment(String(header));
   }
   writer.newline();

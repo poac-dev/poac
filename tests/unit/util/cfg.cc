@@ -404,7 +404,7 @@ auto main() -> int {
     }
     {
       std::ostringstream output;
-      std::string s = "foo";
+      std::string const s = "foo";
       output << Token{Token::String, s};
       expect(eq(output.str(), "string: " + s));
     }

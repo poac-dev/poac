@@ -15,7 +15,7 @@ auto main() -> int {
   "test sha256::sum"_test = [] {
     using util::sha256::sum;
 
-    fs::path out_path = "test.txt";
+    fs::path const out_path = "test.txt";
     std::ofstream out(out_path);
     out << "Hello, Poac!";
     out.close();

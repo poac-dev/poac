@@ -35,7 +35,7 @@ auto main() -> int {
   "test index_of_if"_test = [] {
     using poac::util::meta::index_of_if;
 
-    std::vector<std::string> test_case{"0", "1", "2"};
+    std::vector<std::string> const test_case{"0", "1", "2"};
     expect(
         index_of_if(
             test_case.cbegin(), test_case.cend(),
@@ -62,7 +62,7 @@ auto main() -> int {
     using poac::util::meta::to_vec;
 
     boost::property_tree::ptree pt;
-    std::vector<std::string> test_case{"0", "1", "2"};
+    std::vector<std::string> const test_case{"0", "1", "2"};
 
     boost::property_tree::ptree children;
     {

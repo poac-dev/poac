@@ -117,7 +117,7 @@ extract(const Path& target_file_path, const Path& extract_path) noexcept
   BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_free(reader); };
   read_as_targz(reader);
 
-  Writer writer(archive_write_disk_new());
+  Writer const writer(archive_write_disk_new());
   if (!writer) {
     return Err("Cannot archive_write_disk_new");
   }

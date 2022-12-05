@@ -63,7 +63,7 @@ auto main() -> int {
   "test textwrap"_test = [] {
     using poac::util::pretty::textwrap;
 
-    std::string test_case =
+    std::string const test_case =
         "This function does not break long words and break on hyphens.";
     expect(
         eq(textwrap(test_case, 15),
