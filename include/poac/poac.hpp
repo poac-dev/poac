@@ -38,7 +38,7 @@
 #ifdef NDEBUG
 #  define unreachable() __builtin_unreachable()
 #else
-#  define unreachable() assert(false && "unreachable")
+#  define unreachable() __builtin_unreachable()
 #endif
 
 #define Try(...) MITAMA_TRY(__VA_ARGS__)
