@@ -16,7 +16,7 @@ struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-[[nodiscard]] Result<void> exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::run
 

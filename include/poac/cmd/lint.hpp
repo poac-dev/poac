@@ -16,7 +16,7 @@ struct Options : structopt::sub_command {
   // FIXME(ken-matsui): this is structopt limitation; I'd remove this.
 };
 
-[[nodiscard]] Result<void> exec([[maybe_unused]] const Options& opts);
+[[nodiscard]] Fn exec([[maybe_unused]] const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::lint
 

@@ -14,18 +14,20 @@ using UnknownCompilerCommand =
     Error<"unknown compiler command found: {}", String>;
 using UnsupportedCompiler = Error<"unsupported compiler found: {}", String>;
 
-[[nodiscard]] Result<util::cfg::compiler>
-get_compiler_ident(const String& compiler_command, const bool is_macos);
+[[nodiscard]] Fn
+get_compiler_ident(const String& compiler_command, bool is_macos)
+    ->Result<util::cfg::Compiler>;
 
-[[nodiscard]] Result<String> get_std_flag(
-    const util::cfg::compiler compiler, const String& compiler_command,
-    const i64 edition, const bool use_gnu_extension
-);
+[[nodiscard]] Fn get_std_flag(
+    util::cfg::Compiler compiler, const String& compiler_command, i64 edition,
+    bool use_gnu_extension
+)
+    ->Result<String>;
 
-[[nodiscard]] Result<String> get_compiler_command();
+[[nodiscard]] Fn get_compiler_command()->Result<String>;
 
-[[nodiscard]] Result<String>
-get_command(const i64 edition, const bool use_gnu_extension);
+[[nodiscard]] Fn get_command(i64 edition, bool use_gnu_extension)
+    ->Result<String>;
 
 } // namespace poac::core::builder::compiler::cxx
 

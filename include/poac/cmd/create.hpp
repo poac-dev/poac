@@ -33,20 +33,20 @@ enum class ProjectType {
   Lib,
 };
 
-String to_string(ProjectType kind);
+Fn to_string(ProjectType kind)->String;
 
-inline std::ostream& operator<<(std::ostream& os, ProjectType kind) {
+inline Fn operator<<(std::ostream& os, ProjectType kind)->std::ostream& {
   return (os << to_string(kind));
 }
 
 template <typename T>
-ProjectType opts_to_project_type(T&& opts) {
+Fn opts_to_project_type(T&& opts)->ProjectType {
   opts.bin.value(); // Just check opts has a `.bin` member
   return opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
 }
 
 namespace files {
-  inline String poac_toml(StringRef project_name) {
+  inline Fn poac_toml(StringRef project_name)->String {
     return format(
         "[package]\n"
         "name = \"{}\"\n"
@@ -63,7 +63,7 @@ namespace files {
       "  std::cout << \"Hello, world!\" << std::endl;\n"
       "}\n";
 
-  inline String include_hpp(StringRef project_name) {
+  inline Fn include_hpp(StringRef project_name)->String {
     String project_name_upper_cased{};
     std::transform(
         project_name.cbegin(), project_name.cend(),
@@ -82,12 +82,12 @@ namespace files {
 
 void write_to_file(std::ofstream& ofs, const String& fname, StringRef text);
 
-Map<Path, String>
-create_template_files(const ProjectType& type, const String& package_name);
+Fn create_template_files(const ProjectType& type, const String& package_name)
+    ->Map<Path, String>;
 
-[[nodiscard]] Result<void> create(const Options& opts);
+[[nodiscard]] Fn create(const Options& opts)->Result<void>;
 
-[[nodiscard]] Result<void> exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::create
 

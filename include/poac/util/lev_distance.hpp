@@ -12,9 +12,9 @@
 namespace poac::util::lev_distance {
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-usize calc(StringRef a, StringRef b);
+Fn calc(StringRef a, StringRef b)->usize;
 
-inline bool equals_insensitive(StringRef a, StringRef b) {
+inline Fn equals_insensitive(StringRef a, StringRef b)->bool {
   return std::equal(
       a.cbegin(), a.cend(), b.cbegin(), b.cend(),
       [](char a, char b) { return std::tolower(a) == std::tolower(b); }
@@ -30,8 +30,8 @@ inline bool equals_insensitive(StringRef a, StringRef b) {
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef>
-find_similar_str(StringRef lhs, std::span<const StringRef> candidates);
+Fn find_similar_str(StringRef lhs, std::span<const StringRef> candidates)
+    ->Option<StringRef>;
 
 } // namespace poac::util::lev_distance
 

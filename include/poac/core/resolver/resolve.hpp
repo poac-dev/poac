@@ -28,6 +28,7 @@ struct DuplicateDeps {};
 template <typename W>
 using DupDeps = typename DuplicateDeps<W>::type;
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Package {
   /// Package name
   String name;
@@ -38,11 +39,11 @@ struct Package {
   String version_rq;
 };
 
-inline bool operator==(const Package& lhs, const Package& rhs) {
+inline Fn operator==(const Package& lhs, const Package& rhs)->bool {
   return lhs.name == rhs.name && lhs.version_rq == rhs.version_rq;
 }
 
-inline usize hash_value(const Package& p) {
+inline Fn hash_value(const Package& p)->usize {
   usize seed = 0;
   boost::hash_combine(seed, p.name);
   boost::hash_combine(seed, p.version_rq);
@@ -67,12 +68,12 @@ using UniqDeps = std::conditional_t<
     // <name, ver_req>
     HashMap<String, String>>;
 
-inline const Package& get_package(const UniqDeps<WithDeps>::value_type& deps
-) noexcept {
+inline Fn get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept
+    -> const Package& {
   return deps.first;
 }
 
-inline String to_binary_numbers(const i32& x, const usize& digit) {
+inline Fn to_binary_numbers(const i32& x, const usize& digit)->String {
   return format("{:0{}b}", x, digit);
 }
 
@@ -81,18 +82,19 @@ inline String to_binary_numbers(const i32& x, const usize& digit) {
 // ¬A ∨ B ∨ ¬C
 // ¬A ∨ ¬B ∨ C
 // ¬A ∨ ¬B ∨ ¬C
-Vec<Vec<i32>> multiple_versions_cnf(const Vec<i32>& clause);
+Fn multiple_versions_cnf(const Vec<i32>& clause)->Vec<Vec<i32>>;
 
-Vec<Vec<i32>> create_cnf(const DupDeps<WithDeps>& activated);
+Fn create_cnf(const DupDeps<WithDeps>& activated)->Vec<Vec<i32>>;
 
-[[nodiscard]] Result<UniqDeps<WithDeps>, String>
-solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses);
+[[nodiscard]] Fn
+solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
+    ->Result<UniqDeps<WithDeps>, String>;
 
-[[nodiscard]] Result<UniqDeps<WithDeps>, String>
-backtrack_loop(const DupDeps<WithDeps>& activated);
+[[nodiscard]] Fn backtrack_loop(const DupDeps<WithDeps>& activated)
+    ->Result<UniqDeps<WithDeps>, String>;
 
 template <typename SinglePassRange>
-bool duplicate_loose(const SinglePassRange& rng) {
+Fn duplicate_loose(const SinglePassRange& rng)->bool {
   const auto first = std::begin(rng);
   const auto last = std::end(rng);
   return std::find_if(
@@ -113,9 +115,10 @@ bool duplicate_loose(const SinglePassRange& rng) {
 // Interval to multiple versions
 // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
 // name is boost/config, no boost-config
-[[nodiscard]] Result<Vec<String>, String>
-get_versions_satisfy_interval(const Package& package);
+[[nodiscard]] Fn get_versions_satisfy_interval(const Package& package)
+    ->Result<Vec<String>, String>;
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Cache {
   Package package;
 
@@ -123,11 +126,11 @@ struct Cache {
   Vec<String> versions;
 };
 
-inline bool operator==(const Cache& lhs, const Cache& rhs) {
+inline Fn operator==(const Cache& lhs, const Cache& rhs)->bool {
   return lhs.package == rhs.package && lhs.versions == rhs.versions;
 }
 
-inline usize hash_value(const Cache& i) {
+inline Fn hash_value(const Cache& i)->usize {
   usize seed = 0;
   boost::hash_combine(seed, i.package);
   boost::hash_range(seed, i.versions.begin(), i.versions.end());
@@ -136,30 +139,32 @@ inline usize hash_value(const Cache& i) {
 
 using IntervalCache = HashSet<Cache>;
 
-inline bool cache_exists(const IntervalCache& cache, const Package& package) {
+inline Fn cache_exists(const IntervalCache& cache, const Package& package)
+    ->bool {
   return util::meta::find_if(cache, [&package](const Cache& c) {
     return c.package == package;
   });
 }
 
-inline bool
-cache_exists(const DupDeps<WithDeps>& deps, const Package& package) {
+inline Fn cache_exists(const DupDeps<WithDeps>& deps, const Package& package)
+    ->bool {
   return util::meta::find_if(deps, [&package](const auto& c) {
     return get_package(c) == package;
   });
 }
 
-DupDeps<WithoutDeps> gather_deps_of_deps(
+Fn gather_deps_of_deps(
     const UniqDeps<WithoutDeps>& deps_api_res, IntervalCache& interval_cache
-);
+)
+    ->DupDeps<WithoutDeps>;
 
 void gather_deps(
     const Package& package, DupDeps<WithDeps>& new_deps,
     IntervalCache& interval_cache
 );
 
-[[nodiscard]] Result<DupDeps<WithDeps>, String>
-gather_all_deps(const UniqDeps<WithoutDeps>& deps);
+[[nodiscard]] Fn gather_all_deps(const UniqDeps<WithoutDeps>& deps)
+    ->Result<DupDeps<WithDeps>, String>;
 
 } // namespace poac::core::resolver::resolve
 

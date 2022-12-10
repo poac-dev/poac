@@ -87,34 +87,34 @@ auto main() -> int {
   };
 
   "test are_all_same"_test = [] {
-    using poac::util::meta::are_all_same;
+    using poac::util::meta::AreAllSame;
     using poac::util::meta::are_all_same_v;
 
-    expect(constant<are_all_same<int, int, int>::value>);
+    expect(constant<AreAllSame<int, int, int>::value>);
     expect(constant<are_all_same_v<int, int, int>>);
-    expect(constant<std::negation_v<are_all_same<int, std::string, int>>>);
-    expect(constant<std::negation_v<are_all_same<std::string, int, int>>>);
-    expect(constant<std::negation_v<are_all_same<int, int, std::string>>>);
+    expect(constant<std::negation_v<AreAllSame<int, std::string, int>>>);
+    expect(constant<std::negation_v<AreAllSame<std::string, int, int>>>);
+    expect(constant<std::negation_v<AreAllSame<int, int, std::string>>>);
   };
 
   "test is_specialization"_test = [] {
-    using poac::util::meta::is_specialization;
+    using poac::util::meta::IsSpecialization;
 
-    expect(constant<is_specialization<std::vector<int>, std::vector>::value>);
-    expect(constant<is_specialization<std::map<int, int>, std::map>::value>);
-    expect(constant<is_specialization<
-               std::map<int, std::vector<int>>, std::map>::value>);
-    expect(constant<std::negation_v<is_specialization<
+    expect(constant<IsSpecialization<std::vector<int>, std::vector>::value>);
+    expect(constant<IsSpecialization<std::map<int, int>, std::map>::value>);
+    expect(constant<
+           IsSpecialization<std::map<int, std::vector<int>>, std::map>::value>);
+    expect(constant<std::negation_v<IsSpecialization<
                std::map<int, std::vector<int>>, std::vector>>>);
   };
 
   "test is_tuple"_test = [] {
-    using poac::util::meta::is_tuple;
+    using poac::util::meta::IsTuple;
     using poac::util::meta::is_tuple_v;
 
     expect(constant<is_tuple_v<std::tuple<int>>>);
     expect(constant<is_tuple_v<std::tuple<int, std::string>>>);
-    expect(constant<std::negation_v<is_tuple<std::vector<int>>>>);
+    expect(constant<std::negation_v<IsTuple<std::vector<int>>>>);
   };
 
   "test to_array"_test = [] {

@@ -8,4 +8,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
 if (POAC_CLANG_TIDY)
     # Enable clang-tidy
     set(CMAKE_CXX_CLANG_TIDY clang-tidy) # -fix
+    # For header files:
+    # -export-fixes=out.yaml
+    # clang-apply-replacements .
 endif ()

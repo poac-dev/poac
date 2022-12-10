@@ -18,9 +18,10 @@ struct Options : structopt::sub_command {
 
 using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
 
-[[nodiscard]] Result<void> init(const Options& opts, StringRef package_name);
+[[nodiscard]] Fn init(const Options& opts, StringRef package_name)
+    ->Result<void>;
 
-[[nodiscard]] Result<void> exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::init
 

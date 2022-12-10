@@ -41,13 +41,13 @@
 #  define unreachable() __builtin_unreachable()
 #endif
 
+#define Fn auto
 #define Try(...) MITAMA_TRY(__VA_ARGS__)
 
-#define alias_fn(lhs, rhs)                           \
-  template <typename... Args>                        \
-  inline auto lhs(Args&&... args)                    \
-      ->decltype(rhs(std::forward<Args>(args)...)) { \
-    return rhs(std::forward<Args>(args)...);         \
+#define alias_fn(lhs, rhs)                                                    \
+  template <typename... Args>                                                 \
+  inline Fn lhs(Args&&... args)->decltype(rhs(std::forward<Args>(args)...)) { \
+    return rhs(std::forward<Args>(args)...);                                  \
   }
 
 namespace poac {
@@ -95,7 +95,7 @@ using Result = std::conditional_t<
 alias_fn(Ok, mitama::success);
 
 template <typename E = void, typename... Args>
-inline auto Err(Args&&... args) {
+inline Fn Err(Args&&... args) {
   if constexpr (std::is_void_v<E>) {
     return mitama::failure(std::forward<Args>(args)...);
   } else {
@@ -107,13 +107,15 @@ template <typename T>
 using Option = std::optional<T>;
 
 struct NoneT : protected std::monostate {
-  constexpr bool operator==(const usize rhs) const {
+  constexpr Fn operator==(const usize rhs) const->bool {
     return String::npos == rhs;
   }
 
+  // NOLINTNEXTLINE(google-explicit-constructor)
   constexpr operator std::nullopt_t() const { return std::nullopt; }
+
   template <typename T>
-  constexpr operator Option<T>() const {
+  constexpr operator Option<T>() const { // NOLINT(google-explicit-constructor)
     return std::nullopt;
   }
 };
@@ -135,7 +137,9 @@ using namespace std::literals::string_view_literals;
 using namespace fmt::literals;
 using namespace termcolor2::color_literals; // NOLINT(build/namespaces)
 
-inline Path operator""_path(const char* str, usize) { return Path(str); }
+inline Fn operator""_path(const char* str, usize /*unused*/)->Path {
+  return str;
+}
 
 //
 // Utilities
@@ -207,13 +211,13 @@ namespace log {
   }
 
   template <typename T>
-  inline void error(std::shared_ptr<spdlog::logger> logger, T&& msg) {
+  inline void error(const std::shared_ptr<spdlog::logger>& logger, T&& msg) {
     logger->error("{} {}", "Error:"_bold_red, std::forward<T>(msg));
   }
   template <typename... Args>
   inline void error(
-      std::shared_ptr<spdlog::logger> logger, fmt::format_string<Args...> fmt,
-      Args&&... args
+      const std::shared_ptr<spdlog::logger>& logger,
+      fmt::format_string<Args...> fmt, Args&&... args
   ) {
     error(logger, format(fmt, std::forward<Args>(args)...));
   }
@@ -231,30 +235,30 @@ namespace fmt {
 
 template <>
 struct formatter<std::string_view> {
-  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+  constexpr Fn parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto format(std::string_view sv, FormatContext& ctx) {
+  inline Fn format(std::string_view sv, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", std::string(sv));
   }
 };
 
 template <>
 struct formatter<std::filesystem::path> {
-  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+  constexpr Fn parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto format(const std::filesystem::path& p, FormatContext& ctx) {
+  inline Fn format(const std::filesystem::path& p, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", p.string());
   }
 };
 
 template <typename T1, typename T2>
 struct formatter<std::pair<T1, T2>> {
-  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+  constexpr Fn parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto format(const std::pair<T1, T2>& p, FormatContext& ctx) {
+  inline Fn format(const std::pair<T1, T2>& p, FormatContext& ctx) {
     return format_to(ctx.out(), "({}, {})", p.first, p.second);
   }
 };

@@ -13,99 +13,103 @@
 namespace semver {
 namespace detail {
 
-  bool gt_pre(const Version& lhs, const Version& rhs);
-  bool eq_pre(const Version& lhs, const Version& rhs);
+  auto gt_pre(const Version& lhs, const Version& rhs) -> bool;
+  auto eq_pre(const Version& lhs, const Version& rhs) -> bool;
 
 } // end namespace detail
 
-inline bool operator==(const Version& lhs, const Version& rhs) {
+inline auto operator==(const Version& lhs, const Version& rhs) -> bool {
   return lhs.major == rhs.major && lhs.minor == rhs.minor
          && lhs.patch == rhs.patch && detail::eq_pre(lhs, rhs);
 }
-inline bool operator==(const Version& lhs, const std::string& rhs) {
+inline auto operator==(const Version& lhs, const std::string& rhs) -> bool {
   return lhs == parse(rhs);
 }
-inline bool operator==(const std::string& lhs, const Version& rhs) {
+inline auto operator==(const std::string& lhs, const Version& rhs) -> bool {
   return parse(lhs) == rhs;
 }
-inline bool operator==(const Version& lhs, const char* rhs) {
+inline auto operator==(const Version& lhs, const char* rhs) -> bool {
   return lhs == parse(rhs);
 }
-inline bool operator==(const char* lhs, const Version& rhs) {
+inline auto operator==(const char* lhs, const Version& rhs) -> bool {
   return parse(lhs) == rhs;
 }
 
-inline bool operator!=(const Version& lhs, const Version& rhs) {
+inline auto operator!=(const Version& lhs, const Version& rhs) -> bool {
   return !(lhs == rhs);
 }
-inline bool operator!=(const Version& lhs, const std::string& rhs) {
+inline auto operator!=(const Version& lhs, const std::string& rhs) -> bool {
   return !(lhs == rhs);
 }
-inline bool operator!=(const std::string& lhs, const Version& rhs) {
+inline auto operator!=(const std::string& lhs, const Version& rhs) -> bool {
   return !(lhs == rhs);
 }
-inline bool operator!=(const Version& lhs, const char* rhs) {
+inline auto operator!=(const Version& lhs, const char* rhs) -> bool {
   return !(lhs == rhs);
 }
-inline bool operator!=(const char* lhs, const Version& rhs) {
+inline auto operator!=(const char* lhs, const Version& rhs) -> bool {
   return !(lhs == rhs);
 }
 
-bool operator>(const Version& lhs, const Version& rhs); // gt
-inline bool operator>(const Version& lhs, const std::string& rhs) {
+auto operator>(const Version& lhs, const Version& rhs) -> bool; // gt
+inline auto operator>(const Version& lhs, const std::string& rhs) -> bool {
   return lhs > parse(rhs);
 }
-inline bool operator>(const std::string& lhs, const Version& rhs) {
+inline auto operator>(const std::string& lhs, const Version& rhs) -> bool {
   return parse(lhs) > rhs;
 }
-inline bool operator>(const Version& lhs, const char* rhs) {
+inline auto operator>(const Version& lhs, const char* rhs) -> bool {
   return lhs > parse(rhs);
 }
-inline bool operator>(const char* lhs, const Version& rhs) {
+inline auto operator>(const char* lhs, const Version& rhs) -> bool {
   return parse(lhs) > rhs;
 }
 
-inline bool operator<(const Version& lhs, const Version& rhs) {
+inline auto operator<(const Version& lhs, const Version& rhs) -> bool {
   return rhs > lhs;
 }
-inline bool operator<(const Version& lhs, const std::string& rhs) {
+inline auto operator<(const Version& lhs, const std::string& rhs) -> bool {
   return rhs > lhs;
 }
-inline bool operator<(const std::string& lhs, const Version& rhs) {
+inline auto operator<(const std::string& lhs, const Version& rhs) -> bool {
   return rhs > lhs;
 }
-inline bool operator<(const Version& lhs, const char* rhs) { return rhs > lhs; }
-inline bool operator<(const char* lhs, const Version& rhs) { return rhs > lhs; }
-
-inline bool operator>=(const Version& lhs, const Version& rhs) {
-  return lhs > rhs || lhs == rhs;
+inline auto operator<(const Version& lhs, const char* rhs) -> bool {
+  return rhs > lhs;
 }
-inline bool operator>=(const Version& lhs, const std::string& rhs) {
-  return lhs > rhs || lhs == rhs;
-}
-inline bool operator>=(const std::string& lhs, const Version& rhs) {
-  return lhs > rhs || lhs == rhs;
-}
-inline bool operator>=(const Version& lhs, const char* rhs) {
-  return lhs > rhs || lhs == rhs;
-}
-inline bool operator>=(const char* lhs, const Version& rhs) {
-  return lhs > rhs || lhs == rhs;
+inline auto operator<(const char* lhs, const Version& rhs) -> bool {
+  return rhs > lhs;
 }
 
-inline bool operator<=(const Version& lhs, const Version& rhs) {
+inline auto operator>=(const Version& lhs, const Version& rhs) -> bool {
+  return lhs > rhs || lhs == rhs;
+}
+inline auto operator>=(const Version& lhs, const std::string& rhs) -> bool {
+  return lhs > rhs || lhs == rhs;
+}
+inline auto operator>=(const std::string& lhs, const Version& rhs) -> bool {
+  return lhs > rhs || lhs == rhs;
+}
+inline auto operator>=(const Version& lhs, const char* rhs) -> bool {
+  return lhs > rhs || lhs == rhs;
+}
+inline auto operator>=(const char* lhs, const Version& rhs) -> bool {
+  return lhs > rhs || lhs == rhs;
+}
+
+inline auto operator<=(const Version& lhs, const Version& rhs) -> bool {
   return lhs < rhs || lhs == rhs;
 }
-inline bool operator<=(const Version& lhs, const std::string& rhs) {
+inline auto operator<=(const Version& lhs, const std::string& rhs) -> bool {
   return lhs < rhs || lhs == rhs;
 }
-inline bool operator<=(const std::string& lhs, const Version& rhs) {
+inline auto operator<=(const std::string& lhs, const Version& rhs) -> bool {
   return lhs < rhs || lhs == rhs;
 }
-inline bool operator<=(const Version& lhs, const char* rhs) {
+inline auto operator<=(const Version& lhs, const char* rhs) -> bool {
   return lhs < rhs || lhs == rhs;
 }
-inline bool operator<=(const char* lhs, const Version& rhs) {
+inline auto operator<=(const char* lhs, const Version& rhs) -> bool {
   return lhs < rhs || lhs == rhs;
 }
 

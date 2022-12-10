@@ -7,7 +7,7 @@
 
 namespace poac::util::archive {
 
-[[nodiscard]] auto archive_write_data_block(
+[[nodiscard]] Fn archive_write_data_block(
     const Writer& writer, const void* buffer, usize size, i64 offset
 ) noexcept -> Result<void, String> {
   const la_ssize_t res =
@@ -18,7 +18,7 @@ namespace poac::util::archive {
   return Ok();
 }
 
-[[nodiscard]] auto copy_data(Archive* reader, const Writer& writer) noexcept
+[[nodiscard]] Fn copy_data(Archive* reader, const Writer& writer) noexcept
     -> Result<void, String> {
   usize size{};
   const void* buff = nullptr;
@@ -35,7 +35,7 @@ namespace poac::util::archive {
   }
 }
 
-[[nodiscard]] auto archive_write_finish_entry(const Writer& writer) noexcept
+[[nodiscard]] Fn archive_write_finish_entry(const Writer& writer) noexcept
     -> Result<void, String> {
   const i32 res = archive_write_finish_entry(writer.get());
   if (res < ARCHIVE_OK) {
@@ -46,7 +46,7 @@ namespace poac::util::archive {
   return Ok();
 }
 
-[[nodiscard]] auto archive_write_header(
+[[nodiscard]] Fn archive_write_header(
     Archive* reader, const Writer& writer, archive_entry* entry
 ) noexcept -> Result<void, String> {
   if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
@@ -57,8 +57,7 @@ namespace poac::util::archive {
   return Ok();
 }
 
-auto set_extract_path(archive_entry* entry, const Path& extract_path)
-    -> String {
+Fn set_extract_path(archive_entry* entry, const Path& extract_path)->String {
   String current_file = archive_entry_pathname(entry);
   const Path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
@@ -66,10 +65,11 @@ auto set_extract_path(archive_entry* entry, const Path& extract_path)
   return current_file;
 }
 
-[[nodiscard]] auto
+[[nodiscard]] Fn
 archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
     !static_cast<bool>(ARCHIVE_EOF) // NOLINT(modernize-use-bool-literals)
-) -> Result<bool, String> {
+)
+    ->Result<bool, String> {
   const i32 res = archive_read_next_header(reader, entry);
   if (res == ARCHIVE_EOF) {
     return Ok(ARCHIVE_EOF);
@@ -81,9 +81,9 @@ archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
   return Ok(false);
 }
 
-[[nodiscard]] auto
+[[nodiscard]] Fn
 extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
-    -> Result<String, String> {
+    ->Result<String, String> {
   archive_entry* entry = nullptr;
   String extracted_directory_name;
   while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
@@ -98,7 +98,7 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
   return Ok(extracted_directory_name);
 }
 
-[[nodiscard]] auto archive_read_open_filename(
+[[nodiscard]] Fn archive_read_open_filename(
     Archive* reader, const Path& file_path, usize block_size
 ) noexcept -> Result<void, String> {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
@@ -107,9 +107,8 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
   return Ok();
 }
 
-[[nodiscard]] auto
-extract(const Path& target_file_path, const Path& extract_path)
-    -> Result<String, String> {
+[[nodiscard]] Fn extract(const Path& target_file_path, const Path& extract_path)
+    ->Result<String, String> {
   Archive* reader = archive_read_new();
   if (!reader) {
     return Err("Cannot archive_read_new");

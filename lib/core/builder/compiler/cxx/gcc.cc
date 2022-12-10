@@ -8,8 +8,8 @@
 
 namespace poac::core::builder::compiler::cxx::gcc {
 
-[[nodiscard]] auto get_compiler_version_impl(const String& cmd_output)
-    -> Result<semver::Version> {
+[[nodiscard]] Fn get_compiler_version_impl(const String& cmd_output)
+    ->Result<semver::Version> {
   // `g++ (GCC) 11.2.0\n`
   usize itr = cmd_output.find('(');
   if (itr == None) {
@@ -28,8 +28,8 @@ namespace poac::core::builder::compiler::cxx::gcc {
   return Ok(semver::parse(version));
 }
 
-[[nodiscard]] auto get_compiler_version(const String& compiler_command)
-    -> Result<semver::Version> {
+[[nodiscard]] Fn get_compiler_version(const String& compiler_command)
+    ->Result<semver::Version> {
   const auto res = util::shell::Cmd(compiler_command + " --version").exec();
   if (res.is_ok()) {
     return get_compiler_version_impl(res.output());
@@ -39,10 +39,11 @@ namespace poac::core::builder::compiler::cxx::gcc {
 
 // thanks to:
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/Compiler/GNU-CXX.cmake
-[[nodiscard]] auto get_std_flag(
+[[nodiscard]] Fn get_std_flag(
     const String& compiler_command, const i64 edition,
     const bool use_gnu_extension
-) -> Result<String> {
+)
+    ->Result<String> {
   const semver::Version version = Try(get_compiler_version(compiler_command));
   const String specifier = use_gnu_extension ? "gnu" : "c";
   switch (edition) {

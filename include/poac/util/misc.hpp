@@ -7,15 +7,15 @@
 
 namespace poac::util::misc {
 
-Vec<String> split(const String& raw, const String& delim);
+Fn split(const String& raw, const String& delim)->Vec<String>;
 
-Option<String> dupenv(const String& name);
+Fn dupenv(const String& name)->Option<String>;
 
-String getenv(const String& name, const String& default_v);
+Fn getenv(const String& name, const String& default_v)->String;
 
 // Inspired by https://stackoverflow.com/q/4891006
 // Expand ~ to user home directory.
-[[nodiscard]] Result<Path, String> expand_user();
+[[nodiscard]] Fn expand_user()->Result<Path, String>;
 
 } // namespace poac::util::misc
 

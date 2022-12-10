@@ -15,7 +15,7 @@
 
 namespace poac::cmd::publish {
 
-[[nodiscard]] auto get_manifest() -> Result<toml::value> {
+[[nodiscard]] Fn get_manifest()->Result<toml::value> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 
@@ -24,7 +24,7 @@ namespace poac::cmd::publish {
   return Ok(toml::parse(data::manifest::name));
 }
 
-[[nodiscard]] auto get_token(const Options& opts) -> Result<String> {
+[[nodiscard]] Fn get_token(const Options& opts)->Result<String> {
   if (opts.token.has_value()) {
     Try(login::check_token(opts.token.value()));
     return Ok(opts.token.value());
@@ -44,7 +44,7 @@ namespace poac::cmd::publish {
   }
 }
 
-[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   const String token = Try(get_token(opts));
   const toml::value manifest = Try(get_manifest());
   const data::manifest::PartialPackage package =

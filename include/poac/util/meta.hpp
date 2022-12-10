@@ -18,33 +18,32 @@ namespace poac::util::meta {
 
 // std::conditional for non-type template
 template <auto Value>
-struct value_holder {
+struct ValueHolder {
   static constexpr auto value = Value;
 };
 template <bool B, auto T, auto F>
 using non_type_conditional =
-    std::conditional<B, value_holder<T>, value_holder<F>>;
+    std::conditional<B, ValueHolder<T>, ValueHolder<F>>;
 template <bool B, auto T, auto F>
 using non_type_conditional_t =
-    std::conditional_t<B, value_holder<T>, value_holder<F>>;
+    std::conditional_t<B, ValueHolder<T>, ValueHolder<F>>;
 template <bool B, auto T, auto F>
 static constexpr auto non_type_conditional_v =
     non_type_conditional_t<B, T, F>::value;
 
 template <class InputIterator, class T>
-inline auto index_of(InputIterator first, InputIterator last, const T& value) {
+inline Fn index_of(InputIterator first, InputIterator last, const T& value) {
   return std::distance(first, std::find(first, last, value));
 }
 
 template <class InputIterator, class Predicate>
-inline auto
-index_of_if(InputIterator first, InputIterator last, Predicate pred) {
+inline Fn index_of_if(InputIterator first, InputIterator last, Predicate pred) {
   return std::distance(first, std::find_if(first, last, pred));
 }
 
 // Check if it has duplicate elements.
 template <class SinglePassRange>
-bool duplicate(const SinglePassRange& rng) {
+Fn duplicate(const SinglePassRange& rng)->bool {
   auto first = std::cbegin(rng);
   auto last = std::cend(rng);
   auto result = std::find_if(first, last, [&](const auto& v) {
@@ -55,7 +54,7 @@ bool duplicate(const SinglePassRange& rng) {
 
 // found: true
 template <class SinglePassRange, class T>
-bool find(const SinglePassRange& rng, const T& value) {
+Fn find(const SinglePassRange& rng, const T& value)->bool {
   auto first = std::cbegin(rng);
   auto last = std::cend(rng);
   return std::find(first, last, value) != last;
@@ -63,7 +62,7 @@ bool find(const SinglePassRange& rng, const T& value) {
 
 // found: true
 template <class SinglePassRange, class Predicate>
-bool find_if(const SinglePassRange& rng, Predicate pred) {
+Fn find_if(const SinglePassRange& rng, Predicate pred)->bool {
   auto first = std::cbegin(rng);
   auto last = std::cend(rng);
   return std::find_if(first, last, pred) != last;
@@ -72,9 +71,10 @@ bool find_if(const SinglePassRange& rng, Predicate pred) {
 // boost::property_tree::ptree : {"key": ["array", "...", ...]}
 //  -> std::vector<T> : ["array", "...", ...]
 template <class T, class U, class K = typename U::key_type>
-auto to_vec(const U& value, const K& key) -> std::enable_if_t<
-    std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
-    Vec<T>> {
+Fn to_vec(const U& value, const K& key)
+    ->std::enable_if_t<
+        std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
+        Vec<T>> {
   Vec<T> r;
   for (const auto& item : value.get_child(key)) {
     r.push_back(item.second.template get_value<T>());
@@ -85,9 +85,10 @@ auto to_vec(const U& value, const K& key) -> std::enable_if_t<
 // boost::property_tree::ptree : ["array", "...", ...]
 //  -> std::vector<T> : ["array", "...", ...]
 template <class T, class U>
-auto to_vec(const U& value) -> std::enable_if_t<
-    std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
-    Vec<T>> {
+Fn to_vec(const U& value)
+    ->std::enable_if_t<
+        std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
+        Vec<T>> {
   Vec<T> r;
   for (const auto& item : value) {
     r.push_back(item.second.template get_value<T>());
@@ -100,9 +101,10 @@ auto to_vec(const U& value) -> std::enable_if_t<
 //    "key2": "value2", ...}
 // -> std::unordered_map<String, T>
 template <class T, class U>
-auto to_hash_map(const U& value, const String& key) -> std::enable_if_t<
-    std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
-    HashMap<String, T>> {
+Fn to_hash_map(const U& value, const String& key)
+    ->std::enable_if_t<
+        std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
+        HashMap<String, T>> {
   HashMap<String, T> m{};
   const auto child = value.get_child_optional(key);
   if (child.has_value()) {
@@ -114,26 +116,26 @@ auto to_hash_map(const U& value, const String& key) -> std::enable_if_t<
 }
 
 template <class T, class... Ts>
-struct are_all_same : std::conjunction<std::is_same<T, Ts>...> {};
+struct AreAllSame : std::conjunction<std::is_same<T, Ts>...> {};
 
 template <class T, class... Ts>
-inline constexpr bool are_all_same_v = are_all_same<T, Ts...>::value;
+inline constexpr bool are_all_same_v = AreAllSame<T, Ts...>::value;
 
 template <class T, template <class...> class Container>
-struct is_specialization : std::false_type {};
+struct IsSpecialization : std::false_type {};
 
 template <template <class...> class Container, class... Args>
-struct is_specialization<Container<Args...>, Container> : std::true_type {};
+struct IsSpecialization<Container<Args...>, Container> : std::true_type {};
 
 template <class T>
-struct is_tuple : is_specialization<T, std::tuple> {};
+struct IsTuple : IsSpecialization<T, std::tuple> {};
 
 template <class T>
-inline constexpr bool is_tuple_v = is_tuple<T>::value;
+inline constexpr bool is_tuple_v = IsTuple<T>::value;
 
 // clang-format off
 template <class T, usize... Indices>
-constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
+constexpr Fn to_array(T&& tuple, std::index_sequence<Indices...> /*unused*/)
     noexcept(
         std::is_nothrow_constructible_v<
             std::array<
@@ -144,8 +146,8 @@ constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
     )
     -> std::enable_if_t<
          std::conjunction_v<
-             is_tuple<std::remove_cvref_t<T>>,
-             are_all_same<
+             IsTuple<std::remove_cvref_t<T>>,
+             AreAllSame<
                  std::tuple_element_t<Indices, std::remove_cvref_t<T>>...
              >
          >,
@@ -161,41 +163,42 @@ constexpr auto to_array(T&& tuple, std::index_sequence<Indices...>)
 template <
     class T, std::enable_if_t<
                  is_tuple_v<std::remove_cvref_t<T>>, std::nullptr_t> = nullptr>
-constexpr auto to_array(T&& tuple) {
+constexpr Fn to_array(T&& tuple) {
   return to_array(
       std::forward<T>(tuple),
       std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<T>>>{}
   );
 }
 
-inline String time_to_string(const std::chrono::seconds& time) {
+inline Fn time_to_string(const std::chrono::seconds& time)->String {
   return std::to_string(time.count());
 }
 
 // ref: https://qiita.com/rinse_/items/f00bb2a78d14c3c2f9fa
 template <class Range>
-class containerizer {
+class Containerizer {
   Range range;
 
 public:
-  explicit containerizer(Range&& r) noexcept : range{std::forward<Range>(r)} {}
+  explicit Containerizer(Range&& r) noexcept : range{std::forward<Range>(r)} {}
 
   template <class To>
-  operator To() const {
+  operator To() const { // NOLINT(google-explicit-constructor)
     return To(std::begin(range), std::end(range));
   }
 };
 
 template <class Range>
-inline containerizer<Range> containerize(Range&& range) {
-  return containerizer<Range>(std::forward<Range>(range));
+inline Fn containerize(Range&& range)->Containerizer<Range> {
+  return Containerizer<Range>(std::forward<Range>(range));
 }
 
-struct containerized_tag {};
-constexpr containerized_tag containerized;
+struct ContainerizedTag {};
+constexpr ContainerizedTag containerized;
 
 template <class Range>
-inline containerizer<Range> operator|(Range&& range, containerized_tag) {
+inline Fn operator|(Range&& range, ContainerizedTag /*unused*/)
+    ->Containerizer<Range> {
   return containerize(std::forward<Range>(range));
 }
 

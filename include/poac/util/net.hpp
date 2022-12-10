@@ -42,21 +42,22 @@
 namespace poac::util::net {
 
 // Create progress bar, [====>   ]
-String
-to_progress(const i32& max_count, i32 now_count, const i32& bar_size = 50);
+Fn to_progress(const i32& max_count, i32 now_count, const i32& bar_size = 50)
+    ->String;
 
 // Create byte progress bar, [====>   ] 10.21B/21.28KB
-String to_byte_progress(const i32& max_count, i32 now_count);
+Fn to_byte_progress(const i32& max_count, i32 now_count)->String;
 
 namespace http = boost::beast::http;
 using Headers =
     HashMap<std::variant<boost::beast::http::field, String>, String>;
 
 template <typename RequestBody>
-http::request<RequestBody> create_request(
+Fn create_request(
     http::verb method, const StringRef target, const StringRef host,
     const Headers& headers = {}
-) {
+)
+    ->http::request<RequestBody> {
   // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
   http::request<RequestBody> req{method, String(target), 11};
   req.set(
@@ -69,7 +70,7 @@ http::request<RequestBody> create_request(
   return req;
 }
 
-inline std::pair<String, String> parse_url(const String& url) {
+inline Fn parse_url(const String& url)->std::pair<String, String> {
   // https://api.poac.pm/packages/deps -> api.poac.pm
   const String host = util::misc::split(url, "://")[1];
   // https://api.poac.pm/packages/deps -> /packages/deps
@@ -81,11 +82,10 @@ class MultiPartForm {
 public:
   ~MultiPartForm() = default;
   MultiPartForm(const MultiPartForm&) = default;
-  MultiPartForm& operator=(const MultiPartForm&) = default;
+  Fn operator=(const MultiPartForm&)->MultiPartForm& = default;
   MultiPartForm(MultiPartForm&&) = default;
-  MultiPartForm& operator=(MultiPartForm&&) = default;
+  Fn operator=(MultiPartForm&&)->MultiPartForm& = default;
 
-public:
   using file_name_type = String;
   using file_path_type = Path;
   using header_type = Map<http::field, String>;
@@ -106,8 +106,8 @@ public:
       : m_boundary(boost::uuids::to_string(boost::uuids::random_generator{}())),
         m_footer(format("{}--{}--{}", m_crlf, m_boundary, m_crlf)) {}
 
-  inline String get_header() const noexcept { return m_header; }
-  inline String get_footer() const noexcept { return m_footer; }
+  [[nodiscard]] inline Fn get_header() const->String { return m_header; }
+  [[nodiscard]] inline Fn get_footer() const->String { return m_footer; }
 
   inline void set(const file_name_type& name, const String& value) {
     m_form_param.emplace_back(format(
@@ -125,16 +125,16 @@ public:
   }
   template <typename Request>
   inline void set_req(const Request& req) {
-    std::ostringstream ss;
+    const std::ostringstream ss;
     ss << req;
     m_form_param.insert(m_form_param.begin(), ss.str());
     generate_header(); // re-generate
   }
 
-  inline String content_type() const {
+  [[nodiscard]] inline Fn content_type() const->String {
     return format("multipart/form-data; boundary={}", m_boundary);
   }
-  inline std::uintmax_t content_length() const {
+  [[nodiscard]] inline Fn content_length() const->std::uintmax_t {
     return std::accumulate(
         m_file_param.begin(), m_file_param.end(),
         m_header.size() + m_footer.size(),
@@ -144,16 +144,21 @@ public:
     );
   }
 
+  // NOLINTNEXTLINE(bugprone-exception-escape)
   struct FileInfo {
     String path;
     std::uintmax_t size;
   };
-  Vec<FileInfo> get_files() const;
+  [[nodiscard]] Fn get_files() const->Vec<FileInfo>;
 
-  inline self_reference body() noexcept { return *this; }
-  inline const_self_reference body() const noexcept { return *this; }
+  inline Fn body() noexcept -> self_reference { return *this; }
+  [[nodiscard]] inline Fn body() const noexcept -> const_self_reference {
+    return *this;
+  }
 
-  inline const_self_reference cbody() const noexcept { return *this; }
+  [[nodiscard]] inline Fn cbody() const noexcept -> const_self_reference {
+    return *this;
+  }
 
 private:
   void generate_header();
@@ -167,9 +172,9 @@ public:
   Requests() = delete;
   ~Requests() = default;
   Requests(const Requests&) = delete;
-  Requests& operator=(const Requests&) = delete;
+  Fn operator=(const Requests&)->Requests& = delete;
   Requests(Requests&&) = default;
-  Requests& operator=(Requests&&) = default;
+  Fn operator=(Requests&&)->Requests& = default;
 
   explicit Requests(const StringRef host)
       : host(host), ioc(std::make_unique<boost::asio::io_context>()),
@@ -185,8 +190,8 @@ public:
   template <
       http::verb method, typename ResponseBody, typename Request,
       typename Ofstream>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String>
-  request(Request&& req, Ofstream&& ofs) const {
+  [[nodiscard]] Fn request(Request&& req, Ofstream&& ofs) const
+      ->Result<typename ResponseBody::value_type, String> {
     ssl_prepare();
     write_request(req);
     return read_response<method, ResponseBody>(
@@ -200,14 +205,15 @@ public:
       typename ResponseBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>,
           http::vector_body<unsigned char>, http::string_body>>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String>
+  [[nodiscard]] Fn
   get(const StringRef target, const Headers& headers = {},
-      Ofstream&& ofs = nullptr) const {
+      Ofstream&& ofs = nullptr
+  ) const->Result<typename ResponseBody::value_type, String> {
     const auto req =
         create_request<RequestBody>(http::verb::get, target, host, headers);
 
     if (verbosity::is_verbose()) {
-      std::stringstream ss;
+      std::stringstream ss; // NOLINT(misc-const-correctness)
       ss << req;
       log::debug("{}", ss.str());
     }
@@ -225,10 +231,10 @@ public:
       typename ResponseBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>,
           http::vector_body<unsigned char>, http::string_body>>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String> post(
+  [[nodiscard]] Fn post(
       const StringRef target, BodyType&& body, const Headers& headers = {},
       Ofstream&& ofs = nullptr
-  ) const {
+  ) const->Result<typename ResponseBody::value_type, String> {
     auto req =
         create_request<RequestBody>(http::verb::post, target, host, headers);
     if constexpr (!std::is_same_v<
@@ -291,6 +297,7 @@ private:
       std::ifstream ifs(file.path, std::ios::in | std::ios::binary);
       constexpr usize kReadBites = 512;
 
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       char buf[kReadBites];
       //                unsigned long cur_file_size = 0;
       while (!ifs.eof()) {
@@ -314,8 +321,8 @@ private:
   template <
       http::verb method, typename ResponseBody, typename Request,
       typename Ofstream>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String>
-  read_response(Request&& old_req, Ofstream&& ofs) const {
+  [[nodiscard]] Fn read_response(Request&& old_req, Ofstream&& ofs) const
+      ->Result<typename ResponseBody::value_type, String> {
     // This buffer is used for reading and must be persisted
     boost::beast::flat_buffer buffer;
     // Declare a container to hold the response
@@ -332,8 +339,9 @@ private:
   template <
       http::verb method, typename Request, typename Response, typename Ofstream,
       typename ResponseBody = typename Response::body_type>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String>
-  handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const {
+  [[nodiscard]] Fn handle_status(
+      Request&& old_req, Response&& res, Ofstream&& ofs
+  ) const->Result<typename ResponseBody::value_type, String> {
     close_stream();
     // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
     switch (res.base().result_int() / 100) {
@@ -365,8 +373,8 @@ private:
   template <
       typename Response, typename Ofstream,
       typename ResponseBody = typename Response::body_type>
-  typename ResponseBody::value_type
-  parse_response(Response&& res, Ofstream&& ofs) const {
+  Fn parse_response(Response&& res, Ofstream&& ofs) const->
+      typename ResponseBody::value_type {
     if constexpr (!std::is_same_v<
                       std::remove_cvref_t<Ofstream>, std::ofstream>) {
       log::debug("[util::net::requests] read type: string");
@@ -399,8 +407,8 @@ private:
   template <
       http::verb method, typename Request, typename Response, typename Ofstream,
       typename ResponseBody = typename Response::body_type>
-  [[nodiscard]] Result<typename ResponseBody::value_type, String>
-  redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const {
+  [[nodiscard]] Fn redirect(Request&& old_req, Response&& res, Ofstream&& ofs)
+      const->Result<typename ResponseBody::value_type, String> {
     const String new_location(res.base()["Location"]);
     const auto [new_host, new_target] = parse_url(new_location);
     spdlog::debug("Redirect to {}\n", new_location);
@@ -450,21 +458,21 @@ inline constexpr StringRef SUPABASE_PROJECT_REF = "jbzuxdflqzzgexrcsiwm";
 inline constexpr StringRef SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpienV4ZGZscXp6Z2V4cmNzaXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTI1MjgyNTAsImV4cCI6MTk2ODEwNDI1MH0.QZG-b6ab4iKk_ewlhEO3OtGpJfEFRos_G1fdDqcKrsA";
 
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-call(StringRef path, StringRef body) noexcept;
+[[nodiscard]] Fn call(StringRef path, StringRef body) noexcept
+    -> Result<boost::property_tree::ptree, String>;
 
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-search(StringRef query, const u64& count = 0);
+[[nodiscard]] Fn search(StringRef query, const u64& count = 0)
+    ->Result<boost::property_tree::ptree, String>;
 
-[[nodiscard]] auto deps(StringRef name, StringRef version)
-    -> Result<HashMap<String, String>, String>;
+[[nodiscard]] Fn deps(StringRef name, StringRef version)
+    ->Result<HashMap<String, String>, String>;
 
-[[nodiscard]] Result<Vec<String>, String> versions(StringRef name);
+[[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String>;
 
-[[nodiscard]] Result<std::pair<String, String>, String>
-repoinfo(StringRef name, StringRef version);
+[[nodiscard]] Fn repoinfo(StringRef name, StringRef version)
+    ->Result<std::pair<String, String>, String>;
 
-[[nodiscard]] Result<bool, String> login(StringRef api_token);
+[[nodiscard]] Fn login(StringRef api_token)->Result<bool, String>;
 
 } // namespace poac::util::net::api
 

@@ -24,9 +24,11 @@ public:
         __builtin_unreachable();
     }
   }
-  inline bool should_color() const { return should_color_; }
+  [[nodiscard]] inline auto should_color() const -> bool {
+    return should_color_;
+  }
 
-  static ColorMode& instance() {
+  static auto instance() -> ColorMode& {
     static ColorMode s_instance;
     return s_instance;
   }
@@ -44,7 +46,7 @@ inline void set_color_mode(spdlog::color_mode cm) {
   details::ColorMode::instance().set(cm);
 }
 
-inline bool should_color() {
+inline auto should_color() -> bool {
   return details::ColorMode::instance().should_color();
 }
 

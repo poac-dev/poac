@@ -104,7 +104,7 @@ auto Parser::pre() -> std::vector<Identifier> {
     if (const Token p2 = peek();
         p2 != Token::Unexpected && !p2.is_whitespace()) {
       // `1.2.3 a.b.c`
-      throw version_error(
+      throw VersionError(
           "continuing pre-release identifiers after spaces is not allowed"
       );
     }
@@ -293,7 +293,7 @@ auto parse(std::string_view input) -> Version {
     Parser parser(input);
     return parser.version();
   } catch (const std::bad_optional_access&) {
-    throw semver::version_error("invalid version found: " + std::string(input));
+    throw semver::VersionError("invalid version found: " + std::string(input));
   }
 }
 

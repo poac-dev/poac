@@ -16,9 +16,10 @@
 namespace poac::core::resolver {
 
 /// Rename unknown extracted directory to easily access when building.
-[[nodiscard]] auto rename_extracted_directory(
+[[nodiscard]] Fn rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
-) -> Result<void> {
+)
+    ->Result<void> {
   const Path temporarily_extracted_path =
       config::path::extract_dir / extracted_directory_name;
   const Path extracted_path = get_extracted_path(package);
@@ -31,7 +32,7 @@ namespace poac::core::resolver {
   return Ok();
 }
 
-[[nodiscard]] auto fetch_impl(const resolve::Package& package) noexcept
+[[nodiscard]] Fn fetch_impl(const resolve::Package& package) noexcept
     -> Result<std::pair<Path, String>> {
   try {
     const auto [download_link, sha256sum] =
@@ -59,7 +60,7 @@ namespace poac::core::resolver {
 using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
-[[nodiscard]] auto fetch(const UniqDeps<WithoutDeps>& deps) -> Result<void> {
+[[nodiscard]] Fn fetch(const UniqDeps<WithoutDeps>& deps)->Result<void> {
   for (const auto& [name, version_rq] : deps) {
     const resolve::Package package{name, version_rq};
 
@@ -84,11 +85,11 @@ using resolve::WithoutDeps;
   return Ok();
 }
 
-auto is_not_installed(const resolve::Package& package) -> bool {
+Fn is_not_installed(const resolve::Package& package)->bool {
   return !fs::exists(get_archive_path(package));
 }
 
-auto get_not_installed_deps(const ResolvedDeps& deps) -> UniqDeps<WithoutDeps> {
+Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   return deps | boost::adaptors::map_keys
          | boost::adaptors::filtered(is_not_installed)
          // ref: https://stackoverflow.com/a/42251976
@@ -98,7 +99,7 @@ auto get_not_installed_deps(const ResolvedDeps& deps) -> UniqDeps<WithoutDeps> {
          | util::meta::containerized;
 }
 
-[[nodiscard]] auto download_deps(const ResolvedDeps& deps) -> Result<void> {
+[[nodiscard]] Fn download_deps(const ResolvedDeps& deps)->Result<void> {
   const UniqDeps<WithoutDeps> not_installed_deps = get_not_installed_deps(deps);
   if (not_installed_deps.empty()) {
     // all resolved packages already have been installed
@@ -115,7 +116,7 @@ auto get_not_installed_deps(const ResolvedDeps& deps) -> UniqDeps<WithoutDeps> {
   return Ok();
 }
 
-[[nodiscard]] auto do_resolve(const UniqDeps<WithoutDeps>& deps) noexcept
+[[nodiscard]] Fn do_resolve(const UniqDeps<WithoutDeps>& deps) noexcept
     -> Result<ResolvedDeps> {
   try {
     const resolve::DupDeps<resolve::WithDeps> duplicate_deps =
@@ -140,9 +141,8 @@ auto get_not_installed_deps(const ResolvedDeps& deps) -> UniqDeps<WithoutDeps> {
   }
 }
 
-[[nodiscard]] auto
-to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept
-    -> Result<UniqDeps<WithoutDeps>> {
+[[nodiscard]] Fn to_resolvable_deps(const HashMap<String, String>& dependencies
+) noexcept -> Result<UniqDeps<WithoutDeps>> {
   try {
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
@@ -155,8 +155,8 @@ to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept
   }
 }
 
-[[nodiscard]] auto get_resolved_deps(const toml::value& manifest)
-    -> Result<ResolvedDeps> {
+[[nodiscard]] Fn get_resolved_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps> {
   auto deps = toml::find<HashMap<String, String>>(manifest, "dependencies");
   if (manifest.contains("dev-dependencies")) {
     append(
@@ -169,7 +169,7 @@ to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept
 }
 
 // If lockfile is not outdated, read it.
-[[nodiscard]] auto try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
+[[nodiscard]] Fn try_to_read_lockfile()->Result<Option<ResolvedDeps>> {
   if (!data::lockfile::is_outdated(config::path::cwd)) {
     return data::lockfile::read(config::path::cwd);
   } else {
@@ -177,8 +177,8 @@ to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept
   }
 }
 
-[[nodiscard]] auto resolve_deps(const toml::value& manifest)
-    -> Result<ResolvedDeps> {
+[[nodiscard]] Fn resolve_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps> {
   const Option<ResolvedDeps> locked_deps = Try(try_to_read_lockfile());
   if (locked_deps.has_value()) {
     // Lockfile exists and is not outdated.
@@ -190,8 +190,8 @@ to_resolvable_deps(const HashMap<String, String>& dependencies) noexcept
   }
 }
 
-[[nodiscard]] auto install_deps(const toml::value& manifest)
-    -> Result<ResolvedDeps> {
+[[nodiscard]] Fn install_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps> {
   if (!manifest.contains("dependencies")
       && !manifest.contains("dev-dependencies")) {
     const ResolvedDeps empty_deps{};

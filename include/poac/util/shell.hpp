@@ -14,28 +14,28 @@ namespace poac::util::shell {
 
 class Cmd {
 public:
-  inline std::string string() const { return cmd; }
+  [[nodiscard]] inline auto string() const -> std::string { return cmd; }
 
-  Cmd() : cmd() {}
-  explicit Cmd(const std::string& c) : cmd(c) {}
+  Cmd() = default; // NOLINT(bugprone-exception-escape)
+  explicit Cmd(std::string c) : cmd(std::move(c)) {}
 
-  inline Cmd& env(const std::string& name, const std::string& value) {
+  inline auto env(const std::string& name, const std::string& value) -> Cmd& {
     cmd.insert(0, name + "=" + value + " ");
     return *this;
   }
-  inline Cmd& stderr_to_stdout() {
+  inline auto stderr_to_stdout() -> Cmd& {
     cmd += " 2>&1";
     return *this;
   }
-  inline Cmd& to_dev_null() {
+  inline auto to_dev_null() -> Cmd& {
     cmd += " >/dev/null";
     return *this;
   }
-  inline Cmd& dump_stdout() {
+  inline auto dump_stdout() -> Cmd& {
     cmd += " 1>/dev/null";
     return *this;
   }
-  inline Cmd& dump_stderr() {
+  inline auto dump_stderr() -> Cmd& {
     cmd += " 2>/dev/null";
     return *this;
   }
@@ -44,16 +44,16 @@ public:
     SimpleResult(std::int32_t c, const std::string& r)
         : std::pair<std::int32_t, std::string>({c, r}) {}
 
-    inline bool is_ok() const { return first == 0; }
-    inline bool is_err() const { return !is_ok(); }
-    inline std::string output() const { return second; }
+    [[nodiscard]] inline auto is_ok() const -> bool { return first == 0; }
+    [[nodiscard]] inline auto is_err() const -> bool { return !is_ok(); }
+    [[nodiscard]] inline auto output() const -> std::string { return second; }
     explicit inline operator bool() const { return is_ok(); }
   };
 
-  inline SimpleResult exec() const {
+  [[nodiscard]] inline auto exec() const -> SimpleResult {
     std::array<char, 128> buffer{};
     std::string result;
-    FILE* pipe = popen(cmd.c_str(), "r");
+    FILE* pipe = popen(cmd.c_str(), "r"); // NOLINT(cert-env33-c)
     if (!pipe) {
       return {1, ""};
     }
@@ -68,64 +68,67 @@ public:
     return {0, result};
   }
 
-  inline std::int32_t exec_no_capture() const {
-    return std::system(cmd.c_str());
+  [[nodiscard]] inline auto exec_no_capture() const -> std::int32_t {
+    return std::system(cmd.c_str()); // NOLINT(cert-env33-c)
   }
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Cmd& c) {
+  inline friend auto operator<<(std::ostream& os, const Cmd& c)
+      -> std::ostream& {
     return (os << c.cmd);
   }
 
-  inline bool operator==(const Cmd& rhs) const { return this->cmd == rhs.cmd; }
-  inline bool operator==(const std::string& rhs) const {
+  inline auto operator==(const Cmd& rhs) const -> bool {
+    return this->cmd == rhs.cmd;
+  }
+  inline auto operator==(const std::string& rhs) const -> bool {
     return this->cmd == rhs;
   }
 
-  inline Cmd operator&&(const Cmd& rhs) const {
+  inline auto operator&&(const Cmd& rhs) const -> Cmd {
     return Cmd(this->cmd + " && " + rhs.cmd);
   }
-  inline Cmd operator&&(const std::string& rhs) const {
+  inline auto operator&&(const std::string& rhs) const -> Cmd {
     return Cmd(this->cmd + " && " + rhs);
   }
 
-  inline Cmd& operator&=(const Cmd& rhs) {
+  inline auto operator&=(const Cmd& rhs) -> Cmd& {
     this->cmd += " && " + rhs.cmd;
     return *this;
   }
-  inline Cmd& operator&=(const std::string& rhs) {
+  inline auto operator&=(const std::string& rhs) -> Cmd& {
     this->cmd += " && " + rhs;
     return *this;
   }
 
-  inline Cmd operator||(const Cmd& rhs) const {
+  inline auto operator||(const Cmd& rhs) const -> Cmd {
     return Cmd(this->cmd + " || " + rhs.cmd);
   }
-  inline Cmd operator||(const std::string& rhs) const {
+  inline auto operator||(const std::string& rhs) const -> Cmd {
     return Cmd(this->cmd + " || " + rhs);
   }
 
-  inline Cmd& operator|=(const Cmd& rhs) {
+  inline auto operator|=(const Cmd& rhs) -> Cmd& {
     this->cmd += " || " + rhs.cmd;
     return *this;
   }
-  inline Cmd& operator|=(const std::string& rhs) {
+  inline auto operator|=(const std::string& rhs) -> Cmd& {
     this->cmd += " || " + rhs;
     return *this;
   }
 
-  inline Cmd operator+(const Cmd& rhs
-  ) const { // TODO(ken-matsui): should this be "; "?
+  // TODO(ken-matsui): should this be "; "?
+  inline auto operator+(const Cmd& rhs) const -> Cmd {
     return Cmd(this->cmd + " " + rhs.cmd);
   }
-  inline Cmd operator+(const std::string& rhs) const {
+  inline auto operator+(const std::string& rhs) const -> Cmd {
     return Cmd(this->cmd + " " + rhs);
   }
 
-  inline Cmd& operator+=(const Cmd& rhs) {
+  inline auto operator+=(const Cmd& rhs) -> Cmd& {
     this->cmd += " " + rhs.cmd;
     return *this;
   }
-  inline Cmd& operator+=(const std::string& rhs) {
+  inline auto operator+=(const std::string& rhs) -> Cmd& {
     this->cmd += " " + rhs;
     return *this;
   }
@@ -134,7 +137,7 @@ private:
   std::string cmd;
 }; // NOLINT(readability/braces)
 
-inline bool has_command(const std::string& c) {
+inline auto has_command(const std::string& c) -> bool {
   return Cmd("type " + c + " >/dev/null 2>&1").exec().is_ok();
 }
 

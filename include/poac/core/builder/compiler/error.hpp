@@ -9,18 +9,18 @@
 
 namespace poac::core::builder::compiler::error {
 
-String to_string(util::cfg::compiler comp);
+Fn to_string(util::cfg::Compiler comp)->String;
 
 } // namespace poac::core::builder::compiler::error
 
 namespace fmt {
 
 template <>
-struct formatter<poac::util::cfg::compiler> {
-  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+struct formatter<poac::util::cfg::Compiler> {
+  static constexpr Fn parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto format(poac::util::cfg::compiler c, FormatContext& ctx) {
+  inline Fn format(poac::util::cfg::Compiler c, FormatContext& ctx) {
     return format_to(
         ctx.out(), "{}", poac::core::builder::compiler::error::to_string(c)
     );
@@ -32,10 +32,10 @@ struct formatter<poac::util::cfg::compiler> {
 namespace poac::core::builder::compiler::error {
 
 using UnsupportedLangVersion = Error<
-    "`{}` ({}) does not support {} edition: `{}`", util::cfg::compiler,
+    "`{}` ({}) does not support {} edition: `{}`", util::cfg::Compiler,
     semver::Version, poac::core::builder::compiler::lang::Lang, i64>;
 using FailedToGetCompilerVersion =
-    Error<"failed to get version of compiler `{}`", util::cfg::compiler>;
+    Error<"failed to get version of compiler `{}`", util::cfg::Compiler>;
 
 } // namespace poac::core::builder::compiler::error
 

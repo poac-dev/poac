@@ -1,6 +1,7 @@
 ---
 UseColor: true
 WarningsAsErrors: true,*
+HeaderFilterRegex: include/poac/
 Checks: -*
   boost-*
   bugprone-*
@@ -9,6 +10,7 @@ Checks: -*
     -bugprone-narrowing-conversions
     -bugprone-branch-clone
   cert-*
+    -cert-err58-cpp
   clang-analyzer-*
   google-*
     -google-build-using-namespace
@@ -23,6 +25,9 @@ Checks: -*
     -readability-implicit-bool-conversion
     -readability-magic-numbers
 CheckOptions:
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: true
+
   - key: readability-identifier-naming.AbstractClassCase
     value: CamelCase
   - key: readability-identifier-naming.ClassCase

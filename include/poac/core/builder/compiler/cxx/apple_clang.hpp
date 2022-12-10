@@ -8,21 +8,21 @@
 
 namespace poac::core::builder::compiler::cxx::apple_clang {
 
-inline constexpr util::cfg::compiler compiler =
-    util::cfg::compiler::apple_clang;
+inline constexpr util::cfg::Compiler compiler =
+    util::cfg::Compiler::apple_clang;
 
-[[nodiscard]] Result<semver::Version>
-get_compiler_version_impl(const String& cmd_output);
+[[nodiscard]] Fn get_compiler_version_impl(const String& cmd_output)
+    ->Result<semver::Version>;
 
-[[nodiscard]] Result<semver::Version>
-get_compiler_version(const String& compiler_command);
+[[nodiscard]] Fn get_compiler_version(const String& compiler_command)
+    ->Result<semver::Version>;
 
 // thanks to:
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/Compiler/AppleClang-CXX.cmake
-[[nodiscard]] Result<String> get_std_flag(
-    const String& compiler_command, const i64 edition,
-    const bool use_gnu_extension
-);
+[[nodiscard]] Fn get_std_flag(
+    const String& compiler_command, i64 edition, bool use_gnu_extension
+)
+    ->Result<String>;
 
 } // namespace poac::core::builder::compiler::cxx::apple_clang
 

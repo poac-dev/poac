@@ -23,11 +23,11 @@ inline constexpr StringRef lockfile_header =
 using InvalidLockfileVersion = Error<"invalid lockfile version found: {}", i64>;
 using FailedToReadLockfile = Error<"failed to read lockfile:\n{}", String>;
 
-inline fs::file_time_type poac_lock_last_modified(const Path& base_dir) {
+inline Fn poac_lock_last_modified(const Path& base_dir)->fs::file_time_type {
   return fs::last_write_time(base_dir / lockfile_name);
 }
 
-inline bool is_outdated(const Path& base_dir) {
+inline Fn is_outdated(const Path& base_dir)->bool {
   if (!fs::exists(base_dir / lockfile_name)) {
     return true;
   }
@@ -43,6 +43,7 @@ namespace resolver = core::resolver::resolve;
 
 inline constexpr i64 lockfile_version = 1;
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Package {
   String name;
   String version;
@@ -56,12 +57,14 @@ struct Lockfile {
 
 // clang-format off
 // to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
-} // namespace poac::data::lockfile::inline v1
+} // namespace poac::data::lockfile::v1
 // clang-format on
 
+// NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
     poac::data::lockfile::v1::Package, name, version, dependencies
 )
+// NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
     poac::data::lockfile::v1::Lockfile, version, package
 )
@@ -70,26 +73,27 @@ namespace poac::data::lockfile::inline v1 {
 
 // -------------------- INTO LOCKFILE --------------------
 
-[[nodiscard]] Result<toml::basic_value<toml::preserve_comments>>
-convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps);
+[[nodiscard]] Fn
+convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    ->Result<toml::basic_value<toml::preserve_comments>>;
 
-[[nodiscard]] Result<void>
-overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps);
+[[nodiscard]] Fn overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    ->Result<void>;
 
-[[nodiscard]] Result<void>
-generate(const resolver::UniqDeps<resolver::WithDeps>& deps);
+[[nodiscard]] Fn generate(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    ->Result<void>;
 
 // -------------------- FROM LOCKFILE --------------------
 
-[[nodiscard]] resolver::UniqDeps<resolver::WithDeps>
-convert_to_deps(const Lockfile& lock);
+[[nodiscard]] Fn convert_to_deps(const Lockfile& lock)
+    ->resolver::UniqDeps<resolver::WithDeps>;
 
-[[nodiscard]] Result<Option<resolver::UniqDeps<resolver::WithDeps>>>
-read(const Path& base_dir);
+[[nodiscard]] Fn read(const Path& base_dir)
+    ->Result<Option<resolver::UniqDeps<resolver::WithDeps>>>;
 
 // clang-format off
 // to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
-} // namespace poac::data::lockfile::inline v1
+} // namespace poac::data::lockfile::v1
 // clang-format on
 
 #endif // POAC_DATA_LOCKFILE_HPP_
