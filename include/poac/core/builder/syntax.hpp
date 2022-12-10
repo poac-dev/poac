@@ -42,7 +42,7 @@ struct BuildSet {
   Option<String> dyndep = None;
 };
 
-inline Path escape_path(Path p) {
+inline Fn escape_path(const Path& p)->Path {
   String s = p.string();
   boost::replace_all(s, "$ ", "$$ ");
   boost::replace_all(s, " ", "$ ");
@@ -62,19 +62,20 @@ inline void escape(String& s) {
 ///
 /// Note: doesn't handle the full Ninja variable syntax, but it's enough
 /// to make configure.py's use of it work.
-String expand(
+Fn expand(
     const String& text, const Variables& vars, const Variables& local_vars = {}
-);
+)
+    ->String;
 
 /// ref: https://stackoverflow.com/a/46379136
-String operator*(const String& s, usize n);
+Fn operator*(const String& s, usize n)->String;
 
 class Writer {
   std::ostringstream output;
   usize width;
 
   /// Returns the number of '$' characters right in front of s[i].
-  static usize count_dollars_before_index(StringRef s, usize i);
+  static Fn count_dollars_before_index(StringRef s, usize i)->usize;
 
   // Export this function for testing
 #if __has_include(<boost/ut.hpp>)
@@ -83,11 +84,13 @@ public:
   /// Write 'text' word-wrapped at self.width characters.
   void _line(String text, usize indent = 0);
 
+#if !__has_include(<boost/ut.hpp>)
 public:
+#endif
   explicit Writer(std::ostringstream&& o, usize w = 78)
       : output(std::move(o)), width(w) {}
 
-  inline String get_value() const { return output.str(); }
+  inline Fn get_value() const->String { return output.str(); }
 
   inline void newline() { output << '\n'; }
 
@@ -95,7 +98,8 @@ public:
 
   void variable(StringRef key, StringRef value, usize indent = 0);
 
-  inline void variable(StringRef key, Vec<String> values, usize indent = 0) {
+  inline void
+  variable(StringRef key, const Vec<String>& values, usize indent = 0) {
     const String value =
         boost::algorithm::join_if(values, " ", [](const auto& s) {
           return !s.empty();
@@ -110,9 +114,10 @@ public:
 
   void rule(StringRef name, StringRef command, const RuleSet& rule_set = {});
 
-  Vec<String> build(
+  Fn build(
       const Vec<String>& outputs, StringRef rule, const BuildSet& build_set = {}
-  );
+  )
+      ->Vec<String>;
 
   inline void include(const Path& path) { _line(format("include {}", path)); }
 
@@ -122,7 +127,8 @@ public:
     _line(format("default {}", boost::algorithm::join(paths, " ")));
   }
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Writer& w) {
+  inline friend Fn operator<<(std::ostream& os, const Writer& w)
+      ->std::ostream& {
     return os << w.get_value();
   }
 };

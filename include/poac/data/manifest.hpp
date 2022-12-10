@@ -9,6 +9,7 @@
 
 namespace poac::data::manifest {
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct PartialPackage {
   String name;
   String version;
@@ -21,6 +22,7 @@ struct PartialPackage {
 
 } // namespace poac::data::manifest
 
+// NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
     poac::data::manifest::PartialPackage, name, version, edition, authors,
     license, repository, description
@@ -30,7 +32,7 @@ namespace poac::data::manifest {
 
 inline const String name = "poac.toml";
 
-inline fs::file_time_type poac_toml_last_modified(const Path& base_dir) {
+inline Fn poac_toml_last_modified(const Path& base_dir)->fs::file_time_type {
   return fs::last_write_time(base_dir / name);
 }
 

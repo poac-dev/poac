@@ -7,7 +7,7 @@ auto main() -> int {
 
   "test get_compiler_version_impl"_test = [] {
     using poac::core::builder::compiler::cxx::clang::get_compiler_version_impl;
-    using poac::util::cfg::compiler;
+    using poac::util::cfg::Compiler;
 
     auto version = get_compiler_version_impl(
         "Ubuntu clang version 14.0.0-1ubuntu1\n"

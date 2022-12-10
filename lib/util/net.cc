@@ -4,8 +4,8 @@
 namespace poac::util::net {
 
 // Create progress bar, [====>   ]
-auto to_progress(const i32& max_count, i32 now_count, const i32& bar_size)
-    -> String {
+Fn to_progress(const i32& max_count, i32 now_count, const i32& bar_size)
+    ->String {
   if (now_count > max_count) {
     now_count = max_count;
   }
@@ -24,7 +24,7 @@ auto to_progress(const i32& max_count, i32 now_count, const i32& bar_size)
 }
 
 // Create byte progress bar, [====>   ] 10.21B/21.28KB
-auto to_byte_progress(const i32& max_count, i32 now_count) -> String {
+Fn to_byte_progress(const i32& max_count, i32 now_count)->String {
   if (now_count > max_count) {
     now_count = max_count;
   }
@@ -34,7 +34,7 @@ auto to_byte_progress(const i32& max_count, i32 now_count) -> String {
   );
 }
 
-auto MultiPartForm::get_files() const -> Vec<MultiPartForm::FileInfo> {
+Fn MultiPartForm::get_files() const->Vec<MultiPartForm::FileInfo> {
   Vec<FileInfo> file_info;
   for (const auto& f : m_file_param) {
     const Path file_path = std::get<1>(f);
@@ -89,7 +89,7 @@ void Requests::ssl_set_tlsext() const {
 
 namespace poac::util::net::api {
 
-[[nodiscard]] auto call(StringRef path, StringRef body) noexcept
+[[nodiscard]] Fn call(StringRef path, StringRef body) noexcept
     -> Result<boost::property_tree::ptree, String> {
   try {
     const Requests request{
@@ -114,8 +114,8 @@ namespace poac::util::net::api {
   }
 }
 
-[[nodiscard]] auto search(StringRef query, const u64& count)
-    -> Result<boost::property_tree::ptree, String> {
+[[nodiscard]] Fn search(StringRef query, const u64& count)
+    ->Result<boost::property_tree::ptree, String> {
   boost::property_tree::ptree pt;
   pt.put("query", query);
   pt.put("perPage", count);
@@ -125,8 +125,8 @@ namespace poac::util::net::api {
   return call("/search", body.str());
 }
 
-[[nodiscard]] auto deps(StringRef name, StringRef version)
-    -> Result<HashMap<String, String>, String> {
+[[nodiscard]] Fn deps(StringRef name, StringRef version)
+    ->Result<HashMap<String, String>, String> {
   boost::property_tree::ptree pt;
   pt.put("name", name);
   pt.put("version", version);
@@ -140,7 +140,7 @@ namespace poac::util::net::api {
   return Ok(util::meta::to_hash_map<String>(res, "data.dependencies"));
 }
 
-[[nodiscard]] auto versions(StringRef name) -> Result<Vec<String>, String> {
+[[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String> {
   boost::property_tree::ptree pt;
   pt.put("name", name);
 
@@ -158,8 +158,8 @@ namespace poac::util::net::api {
   return Ok(results);
 }
 
-[[nodiscard]] auto repoinfo(StringRef name, StringRef version)
-    -> Result<std::pair<String, String>, String> {
+[[nodiscard]] Fn repoinfo(StringRef name, StringRef version)
+    ->Result<std::pair<String, String>, String> {
   boost::property_tree::ptree pt;
   pt.put("name", name);
   pt.put("version", version);
@@ -175,7 +175,7 @@ namespace poac::util::net::api {
   ));
 }
 
-[[nodiscard]] auto login(StringRef api_token) -> Result<bool, String> {
+[[nodiscard]] Fn login(StringRef api_token)->Result<bool, String> {
   boost::property_tree::ptree pt;
   pt.put("api_token", api_token);
 

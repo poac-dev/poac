@@ -46,16 +46,15 @@ struct Op {
 
   Op() = delete;
   Op(const Op&) = default;
-  Op& operator=(const Op&) = default;
+  auto operator=(const Op&) -> Op& = default;
   Op(Op&&) noexcept = default;
-  Op& operator=(Op&&) noexcept = default;
+  auto operator=(Op&&) noexcept -> Op& = default;
   ~Op() = default;
 
   constexpr explicit Op(Kind k)
       : kind(
           k == Kind::Wildcard ? throw std::invalid_argument("semver::Op") : k
-      ),
-        component() {}
+      ) {}
 
   constexpr Op(Kind k, WildcardVersion wv)
       : kind(

@@ -14,8 +14,8 @@
 
 namespace poac::cmd::init {
 
-[[nodiscard]] auto init(const Options& opts, StringRef package_name)
-    -> Result<void> {
+[[nodiscard]] Fn init(const Options& opts, StringRef package_name)
+    ->Result<void> {
   using create::ProjectType;
 
   spdlog::trace("Creating ./{}", data::manifest::name);
@@ -28,7 +28,7 @@ namespace poac::cmd::init {
   return Ok();
 }
 
-[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<create::PassingBothBinAndLib>();
   } else if (util::validator::required_config_exists().is_ok()) {

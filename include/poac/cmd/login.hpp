@@ -17,9 +17,9 @@ struct Options : structopt::sub_command {
 using InvalidAPIToken = Error<"invalid API token provided">;
 using FailedToLogIn = Error<"failed to log in; API token might be incorrect">;
 
-[[nodiscard]] Result<void> check_token(StringRef api_token);
+[[nodiscard]] Fn check_token(StringRef api_token)->Result<void>;
 
-[[nodiscard]] Result<void> exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::login
 

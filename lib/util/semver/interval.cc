@@ -94,10 +94,10 @@ BoundedInterval::BoundedInterval(
       left_version{make_version<3, 7>(match)},
       right_version{make_version<10, 14>(match)} {
   if (const auto error = is_wasteful_comparison_operation()) {
-    throw redundant_interval_error(std::string(interval), error.value());
+    throw RedundantIntervalError(std::string(interval), error.value());
   }
   if (const auto error = is_bounded_interval()) {
-    throw strange_interval_error(std::string(interval), error.value());
+    throw StrangeIntervalError(std::string(interval), error.value());
   }
 }
 
@@ -127,7 +127,7 @@ auto Interval::get_interval_class() const -> Interval::IntervalClass {
   } else if (interval_match(match, BOUNDED_INTERVAL)) {
     return BoundedInterval{match, interval};
   }
-  throw invalid_interval_error(
+  throw InvalidIntervalError(
       interval,
       "Comparison operators:\n"
       "  >, >=, <, <=\n"

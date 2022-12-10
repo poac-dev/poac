@@ -62,7 +62,7 @@ struct Token {
 
   constexpr Token() noexcept : Token(Kind::Unexpected) {} // delegation
 
-  constexpr explicit Token(Kind k) noexcept : kind(k), component() {}
+  constexpr explicit Token(Kind k) noexcept : kind(k) {}
 
   constexpr Token(Kind k, const std::size_t& s1, const std::size_t& s2)
       : kind(
@@ -86,20 +86,20 @@ struct Token {
         component(c) {}
 
   Token(const Token&) = default;
-  Token& operator=(const Token&) = default;
+  auto operator=(const Token&) -> Token& = default;
   Token(Token&&) noexcept = default;
-  Token& operator=(Token&&) noexcept = default;
+  auto operator=(Token&&) noexcept -> Token& = default;
   ~Token() = default;
 
-  constexpr bool is_whitespace() const noexcept {
+  [[nodiscard]] constexpr auto is_whitespace() const noexcept -> bool {
     return kind == Kind::Whitespace;
   }
 
-  constexpr bool is_simple_token() const noexcept {
+  [[nodiscard]] constexpr auto is_simple_token() const noexcept -> bool {
     return std::holds_alternative<null_type>(component);
   }
 
-  constexpr bool is_wildcard() const noexcept {
+  [[nodiscard]] constexpr auto is_wildcard() const noexcept -> bool {
     return kind == Kind::Star
            || (std::holds_alternative<alphanumeric_type>(component)
                && (std::get<alphanumeric_type>(component) == "X"
@@ -107,26 +107,26 @@ struct Token {
   }
 };
 
-constexpr bool operator==(const Token& lhs, const Token& rhs) {
+constexpr auto operator==(const Token& lhs, const Token& rhs) -> bool {
   if (lhs.is_simple_token() && rhs.is_simple_token()) {
     return lhs.kind == rhs.kind;
   }
   return (lhs.kind == rhs.kind) && (lhs.component == rhs.component);
 }
-constexpr bool operator==(const Token& lhs, const Token::Kind& rhs) {
+constexpr auto operator==(const Token& lhs, const Token::Kind& rhs) -> bool {
   return lhs.is_simple_token() && (lhs.kind == rhs);
 }
-constexpr bool operator==(const Token::Kind& lhs, const Token& rhs) {
+constexpr auto operator==(const Token::Kind& lhs, const Token& rhs) -> bool {
   return rhs.is_simple_token() && (lhs == rhs.kind);
 }
 
-constexpr bool operator!=(const Token& lhs, const Token& rhs) {
+constexpr auto operator!=(const Token& lhs, const Token& rhs) -> bool {
   return !(lhs == rhs);
 }
-constexpr bool operator!=(const Token& lhs, const Token::Kind& rhs) {
+constexpr auto operator!=(const Token& lhs, const Token::Kind& rhs) -> bool {
   return !(lhs == rhs);
 }
-constexpr bool operator!=(const Token::Kind& lhs, const Token& rhs) {
+constexpr auto operator!=(const Token::Kind& lhs, const Token& rhs) -> bool {
   return !(lhs == rhs);
 }
 
@@ -147,9 +147,9 @@ struct Identifier {
 
   Identifier() = delete;
   Identifier(const Identifier&) = default;
-  Identifier& operator=(const Identifier&) = default;
+  auto operator=(const Identifier&) -> Identifier& = default;
   Identifier(Identifier&&) noexcept = default;
-  Identifier& operator=(Identifier&&) noexcept = default;
+  auto operator=(Identifier&&) noexcept -> Identifier& = default;
   ~Identifier() = default;
 
   constexpr Identifier(Kind k, const numeric_type& n)
@@ -167,31 +167,36 @@ struct Identifier {
       ),
         component(c) {}
 
-  constexpr bool is_numeric() const noexcept { return kind == Kind::Numeric; }
+  [[nodiscard]] constexpr auto is_numeric() const noexcept -> bool {
+    return kind == Kind::Numeric;
+  }
 
-  constexpr bool is_alpha_numeric() const noexcept {
+  [[nodiscard]] constexpr auto is_alpha_numeric() const noexcept -> bool {
     return kind == Kind::AlphaNumeric;
   }
 
-  inline numeric_type get_numeric() const {
+  [[nodiscard]] inline auto get_numeric() const -> numeric_type {
     return std::get<Identifier::numeric_type>(component);
   }
 
-  inline alphanumeric_type get_alpha_numeric() const {
+  [[nodiscard]] inline auto get_alpha_numeric() const -> alphanumeric_type {
     return std::get<Identifier::alphanumeric_type>(component);
   }
 };
 
-constexpr bool operator==(const Identifier& lhs, const Identifier& rhs) {
+constexpr auto operator==(const Identifier& lhs, const Identifier& rhs)
+    -> bool {
   return (lhs.kind == rhs.kind) && (lhs.component == rhs.component);
 }
-constexpr bool operator!=(const Identifier& lhs, const Identifier& rhs) {
+constexpr auto operator!=(const Identifier& lhs, const Identifier& rhs)
+    -> bool {
   return !(lhs == rhs);
 }
 
-std::string to_string(const Identifier& id);
+auto to_string(const Identifier& id) -> std::string;
 
-inline std::ostream& operator<<(std::ostream& os, const Identifier& id) {
+inline auto operator<<(std::ostream& os, const Identifier& id)
+    -> std::ostream& {
   return (os << to_string(id));
 }
 
@@ -211,9 +216,9 @@ struct Version {
   /// `"0.1.2+pre.0"`).
   std::vector<Identifier> build;
 
-  std::string get_version() const;
+  [[nodiscard]] auto get_version() const -> std::string;
 
-  std::string get_full() const;
+  [[nodiscard]] auto get_full() const -> std::string;
 };
 
 } // end namespace semver

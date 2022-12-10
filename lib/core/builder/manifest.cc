@@ -16,7 +16,7 @@
 
 namespace poac::core::builder::manifest {
 
-auto rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
+Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool {
   Node* node = ninja_main.state.LookupNode(
       (ninja_main.build_dir / manifest_file_name).string()
   );
@@ -50,8 +50,7 @@ auto rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
   return true;
 }
 
-auto gather_includes(const resolver::ResolvedDeps& resolved_deps)
-    -> Vec<String> {
+Fn gather_includes(const resolver::ResolvedDeps& resolved_deps)->Vec<String> {
   Vec<String> includes;
   for (const auto& [package, inner_deps] : resolved_deps) {
     static_cast<void>(inner_deps);
@@ -64,7 +63,7 @@ auto gather_includes(const resolver::ResolvedDeps& resolved_deps)
   return includes;
 }
 
-auto get_cfg_profile(const toml::value& poac_manifest) -> Vec<toml::table> {
+Fn get_cfg_profile(const toml::value& poac_manifest)->Vec<toml::table> {
   const auto target =
       toml::find_or<toml::table>(poac_manifest, "target", toml::table{});
   Vec<toml::table> profiles;
@@ -80,10 +79,11 @@ auto get_cfg_profile(const toml::value& poac_manifest) -> Vec<toml::table> {
   return profiles;
 }
 
-auto gather_flags(
+Fn gather_flags(
     const toml::value& poac_manifest, const String& name,
     const Option<String>& prefix
-) -> Vec<String> {
+)
+    ->Vec<String> {
   auto f = toml::find_or<Vec<String>>(
       poac_manifest, "target", "profile", name, Vec<String>{}
   );
@@ -96,10 +96,11 @@ auto gather_flags(
   return f;
 }
 
-[[nodiscard]] auto construct(
+[[nodiscard]] Fn construct(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
-) -> Result<String> {
+)
+    ->Result<String> {
   syntax::Writer writer{std::ostringstream()};
   for (const StringRef header : manifest_headers) {
     writer.comment(String(header));
@@ -159,10 +160,11 @@ auto gather_flags(
   return Ok(writer.get_value());
 }
 
-[[nodiscard]] auto create(
+[[nodiscard]] Fn create(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
-) -> Result<void> {
+)
+    ->Result<void> {
   // TODO(ken-matsui): `ninja.build` will be constructed from `poac.toml`,
   //   so if `poac.toml` has no change,
   //   then `ninja.build` is not needed to be updated.

@@ -7,7 +7,7 @@
 
 namespace poac::core::builder::log {
 
-[[nodiscard]] auto load_build_log(data::NinjaMain& ninja_main) -> Result<void> {
+[[nodiscard]] Fn load_build_log(data::NinjaMain& ninja_main)->Result<void> {
   const Path log_path = ninja_main.build_dir / build_log_file_name;
 
   String err;
@@ -27,7 +27,7 @@ namespace poac::core::builder::log {
   return Ok();
 }
 
-[[nodiscard]] auto load_deps_log(data::NinjaMain& ninja_main) -> Result<void> {
+[[nodiscard]] Fn load_deps_log(data::NinjaMain& ninja_main)->Result<void> {
   const Path log_path = ninja_main.build_dir / deps_log_file_name;
 
   String err;

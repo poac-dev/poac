@@ -1,6 +1,9 @@
 #ifndef POAC_CORE_BUILDER_DATA_HPP_
 #define POAC_CORE_BUILDER_DATA_HPP_
 
+// std
+#include <utility>
+
 // external
 #include <ninja/build.h> // BuildConfig // NOLINT(build/include_order)
 #include <ninja/build_log.h> // BuildLog, BuildLogUser // NOLINT(build/include_order)
@@ -19,8 +22,8 @@
 namespace poac::core::builder::data {
 
 struct NinjaMain : public BuildLogUser {
-  NinjaMain(const BuildConfig& config, const Path& build_dir)
-      : config(config), build_dir(build_dir) {}
+  NinjaMain(const BuildConfig& config, Path build_dir)
+      : config(config), build_dir(std::move(build_dir)) {}
 
   /// Build configuration set from flags (e.g. parallelism).
   const BuildConfig& config;
@@ -39,7 +42,7 @@ struct NinjaMain : public BuildLogUser {
 
   i64 start_time_millis = GetTimeMillis();
 
-  virtual bool IsPathDead(StringPiece s) const {
+  [[nodiscard]] Fn IsPathDead(StringPiece s) const->bool override {
     Node* n = state.LookupNode(s);
     if (n && n->in_edge()) {
       return false;
@@ -54,7 +57,7 @@ struct NinjaMain : public BuildLogUser {
     // keep entries around for files which still exist on disk, for generators
     // that want to use this information.
     String err;
-    TimeStamp mtime = disk_interface.Stat(s.AsString(), &err);
+    const TimeStamp mtime = disk_interface.Stat(s.AsString(), &err);
     if (mtime == -1) {
       spdlog::error(err); // Log and ignore Stat() errors.
     }

@@ -14,10 +14,11 @@
 
 namespace poac::cmd::build {
 
-[[nodiscard]] auto build_impl(
+[[nodiscard]] Fn build_impl(
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
-) -> Result<Path> {
+)
+    ->Result<Path> {
   const spdlog::stopwatch sw;
   const Path output_path =
       Try(core::builder::build::start(manifest, mode, resolved_deps));
@@ -29,8 +30,8 @@ namespace poac::cmd::build {
   return Ok(output_path);
 }
 
-[[nodiscard]] auto build(const Options& opts, const toml::value& manifest)
-    -> Result<Option<Path>> {
+[[nodiscard]] Fn build(const Options& opts, const toml::value& manifest)
+    ->Result<Option<Path>> {
   const auto resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
         return Err<FailedToInstallDeps>().get();
@@ -56,7 +57,7 @@ namespace poac::cmd::build {
   return Ok(output_path);
 }
 
-[[nodiscard]] auto exec(const Options& opts) -> Result<void> {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

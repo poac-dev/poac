@@ -14,91 +14,93 @@
 
 namespace poac::util::cfg {
 
-struct exception : public std::exception {
-  explicit exception(const String& what) : what_(what) {}
-  explicit exception(const char* what) : what_(what) {}
-  ~exception() noexcept override = default;
-  inline const char* what() const noexcept override { return what_.c_str(); }
+struct Exception : public std::exception {
+  explicit Exception(String what) : what_(std::move(what)) {}
+  explicit Exception(const char* what) : what_(what) {}
+  ~Exception() noexcept override = default;
+  [[nodiscard]] inline Fn what() const noexcept -> const char* override {
+    return what_.c_str();
+  }
 
-  exception(const exception&) = default;
-  exception& operator=(const exception&) = default;
-  exception(exception&&) noexcept = default;
-  exception& operator=(exception&&) noexcept = default;
+  Exception(const Exception&) = default;
+  Fn operator=(const Exception&)->Exception& = default;
+  Exception(Exception&&) noexcept = default;
+  Fn operator=(Exception&&) noexcept -> Exception& = default;
 
-protected:
+private:
   String what_;
 };
 
-struct string_error : public cfg::exception {
-  explicit string_error(const String& what_)
-      : exception("missing terminating '\"' character\n" + what_) {}
-  explicit string_error(const char* what_) : string_error(String(what_)) {}
-  ~string_error() noexcept override = default;
+struct StringError : public cfg::Exception {
+  explicit StringError(const String& what_)
+      : Exception("missing terminating '\"' character\n" + what_) {}
+  explicit StringError(const char* what_) : StringError(String(what_)) {}
+  ~StringError() noexcept override = default;
 
-  string_error(const string_error&) = default;
-  string_error& operator=(const string_error&) = default;
-  string_error(string_error&&) noexcept = default;
-  string_error& operator=(string_error&&) noexcept = default;
+  StringError(const StringError&) = default;
+  Fn operator=(const StringError&)->StringError& = default;
+  StringError(StringError&&) noexcept = default;
+  Fn operator=(StringError&&) noexcept -> StringError& = default;
 };
 
-struct ident_error : public cfg::exception {
+struct IdentError : public cfg::Exception {
 public:
-  explicit ident_error(const String& what_)
-      : exception(
+  explicit IdentError(const String& what_)
+      : Exception(
           "cfg expected parenthesis, comma, identifier, or string\n" + what_
       ) {}
-  explicit ident_error(const char* what_) : ident_error(String(what_)) {}
-  ~ident_error() noexcept override = default;
+  explicit IdentError(const char* what_) : IdentError(String(what_)) {}
+  ~IdentError() noexcept override = default;
 
-  ident_error(const ident_error&) = default;
-  ident_error& operator=(const ident_error&) = default;
-  ident_error(ident_error&&) noexcept = default;
-  ident_error& operator=(ident_error&&) noexcept = default;
+  IdentError(const IdentError&) = default;
+  Fn operator=(const IdentError&)->IdentError& = default;
+  IdentError(IdentError&&) noexcept = default;
+  Fn operator=(IdentError&&) noexcept -> IdentError& = default;
 };
 
-struct operator_error : public cfg::exception {
+struct OperatorError : public cfg::Exception {
 public:
-  explicit operator_error(const String& what_)
-      : exception("cfg operator error\n" + what_) {}
-  explicit operator_error(const char* what_) : operator_error(String(what_)) {}
-  ~operator_error() noexcept override = default;
+  explicit OperatorError(const String& what_)
+      : Exception("cfg operator error\n" + what_) {}
+  explicit OperatorError(const char* what_) : OperatorError(String(what_)) {}
+  ~OperatorError() noexcept override = default;
 
-  operator_error(const operator_error&) = default;
-  operator_error& operator=(const operator_error&) = default;
-  operator_error(operator_error&&) noexcept = default;
-  operator_error& operator=(operator_error&&) noexcept = default;
+  OperatorError(const OperatorError&) = default;
+  Fn operator=(const OperatorError&)->OperatorError& = default;
+  OperatorError(OperatorError&&) noexcept = default;
+  Fn operator=(OperatorError&&) noexcept -> OperatorError& = default;
 };
 
-struct expression_error : public cfg::exception {
+struct ExpressionError : public cfg::Exception {
 public:
-  explicit expression_error(const String& what_) : exception(what_) {}
-  explicit expression_error(const char* what_) : exception(what_) {}
-  ~expression_error() noexcept override = default;
+  explicit ExpressionError(const String& what_) : Exception(what_) {}
+  explicit ExpressionError(const char* what_) : Exception(what_) {}
+  ~ExpressionError() noexcept override = default;
 
-  expression_error(const expression_error&) = default;
-  expression_error& operator=(const expression_error&) = default;
-  expression_error(expression_error&&) noexcept = default;
-  expression_error& operator=(expression_error&&) noexcept = default;
+  ExpressionError(const ExpressionError&) = default;
+  Fn operator=(const ExpressionError&)->ExpressionError& = default;
+  ExpressionError(ExpressionError&&) noexcept = default;
+  Fn operator=(ExpressionError&&) noexcept -> ExpressionError& = default;
 };
 
-struct syntax_error : public cfg::exception {
+struct SyntaxError : public cfg::Exception {
 public:
-  explicit syntax_error(const String& what_)
-      : exception("cfg syntax error\n" + what_) {}
-  explicit syntax_error(const char* what_) : syntax_error(String(what_)) {}
-  ~syntax_error() noexcept override = default;
+  explicit SyntaxError(const String& what_)
+      : Exception("cfg syntax error\n" + what_) {}
+  explicit SyntaxError(const char* what_) : SyntaxError(String(what_)) {}
+  ~SyntaxError() noexcept override = default;
 
-  syntax_error(const syntax_error&) = default;
-  syntax_error& operator=(const syntax_error&) = default;
-  syntax_error(syntax_error&&) noexcept = default;
-  syntax_error& operator=(syntax_error&&) noexcept = default;
+  SyntaxError(const SyntaxError&) = default;
+  Fn operator=(const SyntaxError&)->SyntaxError& = default;
+  SyntaxError(SyntaxError&&) noexcept = default;
+  Fn operator=(SyntaxError&&) noexcept -> SyntaxError& = default;
 };
 
-constexpr bool is_ident_start(const char c) noexcept {
+constexpr Fn is_ident_start(const char c) noexcept -> bool {
   return (c == '_') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 }
 
-constexpr bool is_ident_rest(const char c) noexcept {
+constexpr Fn is_ident_rest(const char c) noexcept -> bool {
   return is_ident_start(c) || ('0' <= c && c <= '9');
 }
 
@@ -124,6 +126,7 @@ struct Token {
     Ident,
   };
 
+  // NOLINTNEXTLINE(readability-identifier-naming)
   enum class ident {
     cfg,
     not_,
@@ -146,8 +149,7 @@ struct Token {
           k != Kind::String && k != Kind::Ident
               ? k
               : throw std::invalid_argument("poac::util::cfg::Token")
-      ),
-        value() {}
+      ) {}
   Token(Kind k, string_type s)
       : kind(
           k == Kind::String
@@ -165,20 +167,22 @@ struct Token {
 
   Token() = delete;
   Token(const Token&) = default;
-  Token& operator=(const Token&) = default;
+  Fn operator=(const Token&)->Token& = default;
   Token(Token&&) noexcept = default;
-  Token& operator=(Token&&) noexcept = default;
+  Fn operator=(Token&&) noexcept -> Token& = default;
   ~Token() = default;
 
-  inline string_type get_str() const {
+  [[nodiscard]] inline Fn get_str() const->string_type {
     return std::get<string_type>(this->value);
   }
-  inline ident get_ident() const { return std::get<ident>(this->value); }
+  [[nodiscard]] inline Fn get_ident() const->ident {
+    return std::get<ident>(this->value);
+  }
 
-  friend std::ostream& operator<<(std::ostream& os, const Token& token);
+  friend Fn operator<<(std::ostream& os, const Token& token)->std::ostream&;
 };
 
-constexpr Token::Kind to_kind(StringRef kind) {
+constexpr Fn to_kind(StringRef kind)->Token::Kind {
   if (kind == "(") {
     return Token::LeftParen;
   } else if (kind == ")") {
@@ -196,69 +200,73 @@ constexpr Token::Kind to_kind(StringRef kind) {
   } else if (kind == "<=") {
     return Token::LtEq;
   } else {
-    throw exception("Unexpected to_kind error");
+    throw Exception("Unexpected to_kind error");
   }
 }
 
-String to_string(Token::ident ident);
+Fn to_string(Token::ident ident)->String;
 
-std::ostream& operator<<(std::ostream& os, const Token& token);
+Fn operator<<(std::ostream& os, const Token& token)->std::ostream&;
 
 struct Lexer {
   using value_type = StringRef::value_type;
   using size_type = usize;
 
   StringRef str;
-  size_type index;
+  size_type index{0};
 
-  explicit Lexer(StringRef str) : str(str), index(0) {}
+  explicit Lexer(StringRef str) : str(str) {}
 
-  inline Option<Token> next() {
+  inline Fn next()->Option<Token> {
     const auto [diff, token] = tokenize(this->index);
     this->step_n(diff);
     return token;
   }
 
-  inline Option<Token> peek() const {
+  [[nodiscard]] inline Fn peek() const->Option<Token> {
     const auto [diff, token] = tokenize(this->index);
     static_cast<void>(diff);
     return token;
   }
 
 private:
-  inline std::pair<size_type, Option<Token>>
-  generate_token(size_type index_, const Option<Token>& token) const {
+  [[nodiscard]] inline Fn generate_token(
+      size_type index_, const Option<Token>& token
+  ) const->std::pair<size_type, Option<Token>> {
     return {this->diff_step(index_), token};
   }
-  inline std::pair<size_type, Option<Token>>
-  generate_token(size_type index_, StringRef kind) const {
+  [[nodiscard]] inline Fn generate_token(size_type index_, StringRef kind) const
+      ->std::pair<size_type, Option<Token>> {
     return generate_token(index_, Token{to_kind(kind)});
   }
 
-  std::pair<size_type, Option<Token>>
-  analyze_two_phrase(size_type index_, const char kind) const;
+  [[nodiscard]] Fn analyze_two_phrase(size_type index_, char kind) const
+      ->std::pair<size_type, Option<Token>>;
 
-  std::pair<size_type, Option<Token>> tokenize(size_type index_) const;
+  [[nodiscard]] Fn tokenize(size_type index_
+  ) const->std::pair<size_type, Option<Token>>;
 
   void step(size_type& index_) const noexcept;
-  void step_n(const size_type n) noexcept;
+  void step_n(size_type n) noexcept;
 
-  inline size_type diff_step(const size_type index_) const noexcept {
+  [[nodiscard]] inline Fn diff_step(const size_type index_) const noexcept
+      -> size_type {
     return index_ - this->index;
   }
 
-  inline value_type one(const size_type index_) const noexcept {
+  [[nodiscard]] inline Fn one(const size_type index_) const noexcept
+      -> value_type {
     return this->str[index_];
   }
 
-  std::pair<size_type, Token> string(size_type index_) const;
+  [[nodiscard]] Fn string(size_type index_) const->std::pair<size_type, Token>;
 
-  std::pair<size_type, Token> ident(size_type index_) const;
+  [[nodiscard]] Fn ident(size_type index_) const->std::pair<size_type, Token>;
 
-  static Option<Token::ident> to_ident(StringRef s) noexcept;
+  static Fn to_ident(StringRef s) noexcept -> Option<Token::ident>;
 };
 
-enum class compiler {
+enum class Compiler {
   gcc,
   clang,
   apple_clang,
@@ -292,13 +300,13 @@ struct Cfg {
 
   Cfg() = delete;
   Cfg(const Cfg&) = default;
-  Cfg& operator=(const Cfg&) = default;
+  Fn operator=(const Cfg&)->Cfg& = default;
   Cfg(Cfg&&) noexcept = default;
-  Cfg& operator=(Cfg&&) noexcept = default;
+  Fn operator=(Cfg&&) noexcept -> Cfg& = default;
   ~Cfg() = default;
 
 private:
-  static Ident from_token_ident(Token::ident ident);
+  static Fn from_token_ident(Token::ident ident)->Ident;
 };
 
 struct CfgExpr {
@@ -342,15 +350,15 @@ struct CfgExpr {
 
   CfgExpr() = delete;
   CfgExpr(const CfgExpr&) = delete;
-  CfgExpr& operator=(const CfgExpr&) = delete;
+  Fn operator=(const CfgExpr&)->CfgExpr& = delete;
   CfgExpr(CfgExpr&&) noexcept = default;
-  CfgExpr& operator=(CfgExpr&&) noexcept = default;
+  Fn operator=(CfgExpr&&) noexcept -> CfgExpr& = default;
   ~CfgExpr() = default;
 
-  bool match() const;
+  [[nodiscard]] Fn match() const->bool;
 
 private:
-  static bool match(const Cfg& c);
+  static Fn match(const Cfg& c)->bool;
 };
 
 struct Parser {
@@ -358,24 +366,24 @@ struct Parser {
 
   explicit Parser(StringRef str) : lexer(str) {}
 
-  CfgExpr expr();
+  Fn expr()->CfgExpr;
 
-  Cfg cfg();
+  Fn cfg()->Cfg;
 
 private:
-  [[noreturn]] void throw_operator_error(const usize index, Cfg::Op op) const;
+  [[noreturn]] void throw_operator_error(usize index, Cfg::Op op) const;
 
-  Cfg cfg_str(const usize index, Token::ident ident, Cfg::Op op);
+  Fn cfg_str(usize index, Token::ident ident, Cfg::Op op)->Cfg;
 
-  Cfg cfg_str(Token::ident ident, Cfg::Op op);
+  Fn cfg_str(Token::ident ident, Cfg::Op op)->Cfg;
 
-  bool r_try(Token::Kind kind);
+  Fn r_try(Token::Kind kind)->bool;
 
   void eat_left_paren(Token::ident prev);
   void eat_right_paren();
 };
 
-inline CfgExpr parse(StringRef s) { return Parser(s).expr(); }
+inline Fn parse(StringRef s)->CfgExpr { return Parser(s).expr(); }
 
 } // end namespace poac::util::cfg
 

@@ -7,9 +7,9 @@ namespace poac::data::lockfile::inline v1 {
 
 // -------------------- INTO LOCKFILE --------------------
 
-[[nodiscard]] auto
+[[nodiscard]] Fn
 convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
-    -> Result<toml::basic_value<toml::preserve_comments>> {
+    ->Result<toml::basic_value<toml::preserve_comments>> {
   Vec<Package> packages;
   for (const auto& [pack, inner_deps] : deps) {
     Package p{
@@ -35,16 +35,16 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   return Ok(lock);
 }
 
-[[nodiscard]] auto overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
-    -> Result<void> {
+[[nodiscard]] Fn overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    ->Result<void> {
   const auto lock = Try(convert_to_lock(deps));
   std::ofstream lockfile(config::path::cwd / lockfile_name, std::ios::out);
   lockfile << lock;
   return Ok();
 }
 
-[[nodiscard]] auto generate(const resolver::UniqDeps<resolver::WithDeps>& deps)
-    -> Result<void> {
+[[nodiscard]] Fn generate(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    ->Result<void> {
   if (is_outdated(config::path::cwd)) {
     return overwrite(deps);
   }
@@ -53,8 +53,8 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 
 // -------------------- FROM LOCKFILE --------------------
 
-[[nodiscard]] auto convert_to_deps(const Lockfile& lock)
-    -> resolver::UniqDeps<resolver::WithDeps> {
+[[nodiscard]] Fn convert_to_deps(const Lockfile& lock)
+    ->resolver::UniqDeps<resolver::WithDeps> {
   resolver::UniqDeps<resolver::WithDeps> deps;
   for (const auto& package : lock.package) {
     resolver::UniqDeps<resolver::WithDeps>::mapped_type inner_deps = None;
@@ -73,8 +73,8 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   return deps;
 }
 
-[[nodiscard]] auto read(const Path& base_dir)
-    -> Result<Option<resolver::UniqDeps<resolver::WithDeps>>> {
+[[nodiscard]] Fn read(const Path& base_dir)
+    ->Result<Option<resolver::UniqDeps<resolver::WithDeps>>> {
   if (!fs::exists(base_dir / lockfile_name)) {
     return Ok(None);
   }

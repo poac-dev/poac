@@ -6,7 +6,7 @@
 
 namespace poac::util::cfg {
 
-auto to_string(Token::ident ident) -> String {
+Fn to_string(Token::ident ident)->String {
   switch (ident) {
     case Token::ident::cfg:
       return "cfg";
@@ -33,7 +33,7 @@ auto to_string(Token::ident ident) -> String {
   }
 }
 
-auto operator<<(std::ostream& os, const Token& token) -> std::ostream& {
+Fn operator<<(std::ostream& os, const Token& token)->std::ostream& {
   switch (token.kind) {
     case Token::LeftParen:
       return (os << "left_paren: (");
@@ -60,8 +60,8 @@ auto operator<<(std::ostream& os, const Token& token) -> std::ostream& {
   }
 }
 
-auto Lexer::analyze_two_phrase(size_type index_, const char kind) const
-    -> std::pair<Lexer::size_type, Option<Token>> {
+Fn Lexer::analyze_two_phrase(size_type index_, const char kind) const
+    ->std::pair<Lexer::size_type, Option<Token>> {
   if (this->one(index_) == '=') {
     this->step(index_);
     return generate_token(index_, String{kind} + '=');
@@ -70,8 +70,8 @@ auto Lexer::analyze_two_phrase(size_type index_, const char kind) const
   }
 }
 
-auto Lexer::tokenize(size_type index_) const
-    -> std::pair<Lexer::size_type, Option<Token>> {
+Fn Lexer::tokenize(size_type index_
+) const->std::pair<Lexer::size_type, Option<Token>> {
   if (index_ >= this->str.size()) {
     return generate_token(index_, None);
   }
@@ -112,8 +112,7 @@ void Lexer::step_n(const size_type n) noexcept {
   }
 }
 
-auto Lexer::string(size_type index_) const
-    -> std::pair<Lexer::size_type, Token> {
+Fn Lexer::string(size_type index_) const->std::pair<Lexer::size_type, Token> {
   this->step(index_);
   const size_type start = index_;
   while (this->one(index_) != '"') {
@@ -124,7 +123,7 @@ auto Lexer::string(size_type index_) const
       msg += "^";
       msg += String(this->str.size() - start, '-');
       msg += " unterminated string";
-      throw cfg::string_error(String(this->str) + "\n" + msg);
+      throw cfg::StringError(String(this->str) + "\n" + msg);
     }
   }
   const StringRef s = this->str.substr(start, index_ - start);
@@ -132,13 +131,12 @@ auto Lexer::string(size_type index_) const
   return {this->diff_step(index_), Token{Token::String, s}};
 }
 
-auto Lexer::ident(size_type index_) const
-    -> std::pair<Lexer::size_type, Token> {
+Fn Lexer::ident(size_type index_) const->std::pair<Lexer::size_type, Token> {
   if (!is_ident_start(this->one(index_))) {
     String msg;
     msg += String(index_, ' ');
     msg += "^ unexpected character";
-    throw cfg::ident_error(String(this->str) + "\n" + msg);
+    throw cfg::IdentError(String(this->str) + "\n" + msg);
   }
   const size_type start = index_;
   this->step(index_);
@@ -155,11 +153,11 @@ auto Lexer::ident(size_type index_) const
     msg += "^";
     msg += String(index_ - start - 1, '-');
     msg += " unknown identify";
-    throw cfg::ident_error(String(this->str) + "\n" + msg);
+    throw cfg::IdentError(String(this->str) + "\n" + msg);
   }
 }
 
-auto Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
+Fn Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
   if (s == "cfg") {
     return Token::ident::cfg;
   } else if (s == "not") {
@@ -185,7 +183,7 @@ auto Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
   }
 }
 
-auto Cfg::from_token_ident(Token::ident ident) -> Cfg::Ident {
+Fn Cfg::from_token_ident(Token::ident ident)->Cfg::Ident {
   switch (ident) {
     case Token::ident::compiler:
       return Ident::compiler;
@@ -204,7 +202,7 @@ auto Cfg::from_token_ident(Token::ident ident) -> Cfg::Ident {
   }
 }
 
-auto CfgExpr::match() const -> bool {
+Fn CfgExpr::match() const->bool {
   switch (this->kind) {
     case Kind::cfg:
       return std::get<expr_type>(this->expr)->match();
@@ -231,7 +229,7 @@ auto CfgExpr::match() const -> bool {
   }
 }
 
-auto CfgExpr::match(const Cfg& c) -> bool {
+Fn CfgExpr::match(const Cfg& c)->bool {
   switch (c.key) {
     case Cfg::Ident::compiler:
       return false;
@@ -328,9 +326,9 @@ auto CfgExpr::match(const Cfg& c) -> bool {
   }
 }
 
-auto Parser::expr() -> CfgExpr {
+Fn Parser::expr()->CfgExpr {
   if (const auto token = lexer.peek(); !token.has_value()) {
-    throw cfg::expression_error("expected start of a cfg expression");
+    throw cfg::ExpressionError("expected start of a cfg expression");
   } else if (token->kind == Token::Ident) {
     if (token->get_ident() == Token::ident::all
         || token->get_ident() == Token::ident::any) {
@@ -364,12 +362,12 @@ auto Parser::expr() -> CfgExpr {
   return CfgExpr{CfgExpr::value, this->cfg()};
 }
 
-auto Parser::cfg() -> Cfg {
+Fn Parser::cfg()->Cfg {
   const usize index = lexer.index;
   if (const auto token = lexer.next(); !token.has_value()) {
     String msg = String(index + 1, ' ');
     msg += " ^ expected operator, but cfg expression ended";
-    throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
   } else if (token->kind == Token::Ident) {
     if (this->r_try(Token::Equals)) {
       return this->cfg_str(token->get_ident(), Cfg::Op::Equals);
@@ -385,7 +383,7 @@ auto Parser::cfg() -> Cfg {
   }
   String msg = String(lexer.index + 1, ' ');
   msg += "^ expected operator";
-  throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+  throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
 }
 
 [[noreturn]] void
@@ -399,10 +397,10 @@ Parser::throw_operator_error(const usize index, Cfg::Op op) const {
     msg += "^-";
   }
   msg += " cannot be specified except os_version";
-  throw cfg::operator_error(String(lexer.str) + "\n" + msg);
+  throw cfg::OperatorError(String(lexer.str) + "\n" + msg);
 }
 
-auto Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op) -> Cfg {
+Fn Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op)->Cfg {
   const Cfg c = this->cfg_str(ident, op);
   if (ident != Token::ident::os_version) {
     this->throw_operator_error(index, op);
@@ -410,7 +408,7 @@ auto Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op) -> Cfg {
   return c;
 }
 
-auto Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
+Fn Parser::cfg_str(Token::ident ident, Cfg::Op op)->Cfg {
   const usize index = lexer.index;
   if (const auto t = lexer.next()) {
     if (t->kind == Token::String) {
@@ -421,16 +419,16 @@ auto Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
       const i32 range = lexer.index - index - 2;
       msg += String(range < 0 ? 0 : range, '-');
       msg += " expected a string";
-      throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+      throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
     }
   } else {
     String msg = String(index, ' ');
     msg += "^ expected a string, but cfg expression ended";
-    throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
   }
 }
 
-auto Parser::r_try(Token::Kind kind) -> bool {
+Fn Parser::r_try(Token::Kind kind)->bool {
   if (const auto token = lexer.peek()) {
     if (token->kind == kind) {
       this->lexer.next();
@@ -446,12 +444,12 @@ void Parser::eat_left_paren(Token::ident prev) {
     if (token->kind != Token::LeftParen) {
       String msg = String(index, ' ');
       msg += "^ excepted '(' after `" + to_string(prev) + "`";
-      throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+      throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
     }
   } else {
     String msg = String(index, ' ');
     msg += "^ expected '(', but cfg expression ended";
-    throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
   }
 }
 void Parser::eat_right_paren() {
@@ -462,12 +460,12 @@ void Parser::eat_right_paren() {
       msg += "^";
       msg += String(lexer.index - index - 1, '-');
       msg += " excepted ')'";
-      throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+      throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
     }
   } else {
     String msg = String(index, ' ');
     msg += "^ expected ')', but cfg expression ended";
-    throw cfg::syntax_error(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
   }
 }
 
