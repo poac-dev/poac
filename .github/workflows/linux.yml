@@ -52,10 +52,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get -qq update
-          sudo apt-get install -y                   \
-            ${{ matrix.compiler.subpackage }}       \
-            ninja-build libssl-dev libboost-all-dev \
-            libfmt-dev libgit2-dev
+          sudo apt-get install -y             \
+            ${{ matrix.compiler.subpackage }} \
+            ninja-build libboost-all-dev      \
+            libfmt-dev libgit2-dev libspdlog-dev
 
       - name: Run CMake
         run: |

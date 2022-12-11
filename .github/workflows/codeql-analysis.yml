@@ -41,8 +41,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install required libraries
-      run: sudo apt-get install -y libboost-all-dev ninja-build
+    - name: Install dependencies
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get install -y        \
+          ninja-build libboost-all-dev \
+          libfmt-dev libgit2-dev libspdlog-dev
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
