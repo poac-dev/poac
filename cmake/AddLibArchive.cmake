@@ -9,7 +9,7 @@ set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/LibArchiv
 CPMAddPackage(
     NAME LibArchive
     GITHUB_REPOSITORY libarchive/libarchive
-    VERSION 3.6.1
+    VERSION 3.6.0 # minimum required version
     GIT_TAG v3.6.1
     OPTIONS
         "ENABLE_OPENSSL OFF"
