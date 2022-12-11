@@ -44,6 +44,9 @@ if (LibArchive_ADDED) # If using downloaded package
         list(APPEND POAC_DEPENDENCIES archive_static)
     endif ()
 else () # If using local package
+    if (APPLE)
+        set(LIBARCHIVE_INCLUDE_DIR ${LibArchive_INCLUDE_DIR})
+    endif ()
     set(LIBARCHIVE_LIBRARY archive)
     list(APPEND POAC_DEPENDENCIES archive)
 endif ()
