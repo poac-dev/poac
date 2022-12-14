@@ -11,7 +11,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::meta {
 

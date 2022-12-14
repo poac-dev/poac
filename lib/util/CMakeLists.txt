@@ -11,18 +11,18 @@ add_poac_target(poac_util_archive
 add_poac_target(poac_util_cfg
     SOURCES cfg.cc
     INCLUDES ${POAC_HPP_INCLUDES}
-    LIBRARIES ${POAC_HPP_LIBS}
+    LIBRARIES poac_util_rustify
 )
 
 add_poac_target(poac_util_lev_distance
     SOURCES lev_distance.cc
     INCLUDES ${POAC_HPP_INCLUDES}
-    LIBRARIES ${POAC_HPP_LIBS}
+    LIBRARIES poac_util_rustify
 )
 
 add_poac_target(poac_util_meta
     INCLUDES ${POAC_HPP_INCLUDES}
-    LIBRARIES ${POAC_HPP_LIBS}
+    LIBRARIES poac_util_rustify
 )
 
 add_poac_target(poac_util_misc
@@ -50,6 +50,10 @@ add_poac_target(poac_util_pretty
     LIBRARIES ${POAC_HPP_LIBS}
 )
 
+add_poac_header_target(poac_util_rustify
+    INCLUDES ${Boost_INCLUDE_DIRS}
+)
+
 add_poac_target(poac_util_sha256
     SOURCES sha256.cc
     INCLUDES
@@ -72,6 +76,7 @@ add_poac_target(poac_util_validator
         ${POAC_HPP_LIBS}
         poac_util_semver
         poac_util_misc # via poac/config.hpp
+        poac_util_rustify # via poac/config.hpp
         toml11::toml11
 )
 

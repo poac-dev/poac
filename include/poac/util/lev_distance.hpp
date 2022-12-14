@@ -6,7 +6,7 @@
 #include <span> // NOLINT(build/include_order)
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::lev_distance {
 

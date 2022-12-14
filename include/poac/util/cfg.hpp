@@ -9,7 +9,7 @@
 #include <variant>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::cfg {
 
