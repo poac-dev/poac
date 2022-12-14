@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_EXCEPTION_HPP_
-#define POAC_UTIL_SEMVER_EXCEPTION_HPP_
+#pragma once
 
 // std
 #include <stdexcept>
@@ -83,5 +82,3 @@ struct StrangeIntervalError : public semver::Exception {
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_EXCEPTION_HPP_

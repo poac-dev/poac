@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_PRESETS_HPP_
-#define POAC_UTIL_TERMCOLOR2_PRESETS_HPP_
+#pragma once
 
 // std
 #include <string>
@@ -217,5 +216,3 @@ inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto reset_v() noexcept
 inline TERMCOLOR2_CXX20_CONSTINIT const auto reset = reset_v();
 
 } // end namespace termcolor2
-
-#endif // POAC_UTIL_TERMCOLOR2_PRESETS_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_LITERALS_EXTRA_HPP_
-#define POAC_UTIL_TERMCOLOR2_LITERALS_EXTRA_HPP_
+#pragma once
 
 // std
 #include <cstddef> // std::size_t
@@ -182,5 +181,3 @@ inline auto operator"" _bold_white(const char32_t* str, std::size_t len)
 // to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 }  // namespace termcolor2::color_literals::foreground_literals
 // clang-format on
-
-#endif // POAC_UTIL_TERMCOLOR2_LITERALS_EXTRA_HPP_

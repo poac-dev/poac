@@ -1,5 +1,4 @@
-#ifndef TESTS_UI_UTIL_UI_TEST_UTIL_HPP_
-#define TESTS_UI_UTIL_UI_TEST_UTIL_HPP_
+#pragma once
 
 // std
 #include <algorithm> // std::shuffle
@@ -128,5 +127,3 @@ void uitest(
 }
 
 } // namespace poac::test
-
-#endif // TESTS_UI_UTIL_UI_TEST_UTIL_HPP_

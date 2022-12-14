@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_ARCHIVE_HPP_
-#define POAC_UTIL_ARCHIVE_HPP_
+#pragma once
 
 // std
 #include <memory>
@@ -69,5 +68,3 @@ inline void read_as_targz(Archive* reader) noexcept {
     ->Result<String, String>;
 
 } // namespace poac::util::archive
-
-#endif // POAC_UTIL_ARCHIVE_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_POAC_HPP_
-#define POAC_POAC_HPP_
+#pragma once
 
 // std
 #include <array>
@@ -270,5 +269,3 @@ struct formatter<std::pair<T1, T2>> {
 #  include <fmt/std.h>
 
 #endif
-
-#endif // POAC_POAC_HPP_

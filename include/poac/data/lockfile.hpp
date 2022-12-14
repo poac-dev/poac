@@ -1,5 +1,4 @@
-#ifndef POAC_DATA_LOCKFILE_HPP_
-#define POAC_DATA_LOCKFILE_HPP_
+#pragma once
 
 // std
 #include <fstream>
@@ -95,5 +94,3 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 // to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace poac::data::lockfile::v1
 // clang-format on
-
-#endif // POAC_DATA_LOCKFILE_HPP_

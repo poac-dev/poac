@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_VALIDATOR_HPP_
-#define POAC_UTIL_VALIDATOR_HPP_
+#pragma once
 
 // external
 #include <toml.hpp>
@@ -70,5 +69,3 @@ valid_profile(const Option<String>& profile, Option<bool> release)
     ->Result<Option<String>, String>;
 
 } // namespace poac::util::validator
-
-#endif // POAC_UTIL_VALIDATOR_HPP_

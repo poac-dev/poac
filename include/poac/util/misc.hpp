@@ -1,6 +1,5 @@
 // Miscellaneous utility
-#ifndef POAC_UTIL_MISC_HPP_
-#define POAC_UTIL_MISC_HPP_
+#pragma once
 
 // internal
 #include "poac/poac.hpp"
@@ -18,5 +17,3 @@ Fn getenv(const String& name, const String& default_v)->String;
 [[nodiscard]] Fn expand_user()->Result<Path, String>;
 
 } // namespace poac::util::misc
-
-#endif // POAC_UTIL_MISC_HPP_

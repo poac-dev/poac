@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_MANIFEST_HPP_
-#define POAC_CORE_BUILDER_MANIFEST_HPP_
+#pragma once
 
 // external
 #include <toml.hpp>
@@ -57,5 +56,3 @@ Fn gather_flags(
     ->Result<void>;
 
 } // namespace poac::core::builder::manifest
-
-#endif // POAC_CORE_BUILDER_MANIFEST_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_HPP_
-#define POAC_UTIL_HPP_
+#pragma once
 
 #include "poac/util/archive.hpp"
 #include "poac/util/cfg.hpp"
@@ -13,5 +12,3 @@
 #include "poac/util/termcolor2/termcolor2.hpp"
 #include "poac/util/validator.hpp"
 #include "poac/util/verbosity.hpp"
-
-#endif // POAC_UTIL_HPP_

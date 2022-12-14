@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_RUN_HPP_
-#define POAC_CMD_RUN_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -21,5 +20,3 @@ struct Options : structopt::sub_command {
 } // namespace poac::cmd::run
 
 STRUCTOPT(poac::cmd::run::Options, release, profile);
-
-#endif // POAC_CMD_RUN_HPP_

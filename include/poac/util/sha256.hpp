@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SHA256_HPP_
-#define POAC_UTIL_SHA256_HPP_
+#pragma once
 
 // std
 #include <string>
@@ -26,5 +25,3 @@ Fn hash_string(const Vec<unsigned char>& hash)->String;
 [[nodiscard]] Fn sum(const Path& path)->Result<String>;
 
 } // namespace poac::util::sha256
-
-#endif // POAC_UTIL_SHA256_HPP_

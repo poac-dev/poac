@@ -2,8 +2,7 @@
 // This file is based on ninja_syntax.py from:
 // https://github.com/ninja-build/ninja/blob/master/misc/ninja_syntax.py
 
-#ifndef POAC_CORE_BUILDER_SYNTAX_HPP_
-#define POAC_CORE_BUILDER_SYNTAX_HPP_
+#pragma once
 
 // std
 #include <cassert>
@@ -134,5 +133,3 @@ public:
 };
 
 } // namespace poac::core::builder::syntax
-
-#endif // POAC_CORE_BUILDER_SYNTAX_HPP_

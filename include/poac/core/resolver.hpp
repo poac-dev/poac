@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_RESOLVER_HPP_
-#define POAC_CORE_RESOLVER_HPP_
+#pragma once
 
 // std
 #include <utility>
@@ -123,5 +122,3 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)
     ->Result<ResolvedDeps>;
 
 } // namespace poac::core::resolver
-
-#endif // POAC_CORE_RESOLVER_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_LEV_DISTANCE_HPP_
-#define POAC_UTIL_LEV_DISTANCE_HPP_
+#pragma once
 
 // std
 #include <algorithm> // std::min, std::equal
@@ -34,5 +33,3 @@ Fn find_similar_str(StringRef lhs, std::span<const StringRef> candidates)
     ->Option<StringRef>;
 
 } // namespace poac::util::lev_distance
-
-#endif // POAC_UTIL_LEV_DISTANCE_HPP_

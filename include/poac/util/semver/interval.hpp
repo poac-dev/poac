@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_INTERVAL_HPP_
-#define POAC_UTIL_SEMVER_INTERVAL_HPP_
+#pragma once
 
 // std
 #include <optional>
@@ -233,5 +232,3 @@ public:
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_INTERVAL_HPP_

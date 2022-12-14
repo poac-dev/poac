@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_SEARCH_HPP_
-#define POAC_CMD_SEARCH_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -25,5 +24,3 @@ using NotFound = Error<"No packages found for `{}`", String>;
 } // namespace poac::cmd::search
 
 STRUCTOPT(poac::cmd::search::Options, package_name);
-
-#endif // POAC_CMD_SEARCH_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_PRETTY_HPP_
-#define POAC_UTIL_PRETTY_HPP_
+#pragma once
 
 // std
 #include <array>
@@ -40,5 +39,3 @@ inline Fn clip_string(const String& s, const usize& n)->String {
 Fn textwrap(const String& text, usize width = 70)->Vec<String>;
 
 } // namespace poac::util::pretty
-
-#endif // POAC_UTIL_PRETTY_HPP_

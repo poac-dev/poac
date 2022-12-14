@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_ERROR_HPP_
-#define POAC_CORE_BUILDER_COMPILER_ERROR_HPP_
+#pragma once
 
 // internal
 #include "poac/core/builder/compiler/lang.hpp"
@@ -38,5 +37,3 @@ using FailedToGetCompilerVersion =
     Error<"failed to get version of compiler `{}`", util::cfg::Compiler>;
 
 } // namespace poac::core::builder::compiler::error
-
-#endif // POAC_CORE_BUILDER_COMPILER_ERROR_HPP_

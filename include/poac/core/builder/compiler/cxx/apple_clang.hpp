@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP_
-#define POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP_
+#pragma once
 
 // internal
 #include "poac/poac.hpp"
@@ -25,5 +24,3 @@ inline constexpr util::cfg::Compiler compiler =
     ->Result<String>;
 
 } // namespace poac::core::builder::compiler::cxx::apple_clang
-
-#endif // POAC_CORE_BUILDER_COMPILER_CXX_APPLE_CLANG_HPP_

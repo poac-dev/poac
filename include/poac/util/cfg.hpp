@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_CFG_HPP_
-#define POAC_UTIL_CFG_HPP_
+#pragma once
 
 // std
 #include <cstddef>
@@ -386,5 +385,3 @@ private:
 inline Fn parse(StringRef s)->CfgExpr { return Parser(s).expr(); }
 
 } // end namespace poac::util::cfg
-
-#endif // POAC_UTIL_CFG_HPP_
