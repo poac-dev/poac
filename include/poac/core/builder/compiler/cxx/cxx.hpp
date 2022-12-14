@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_CXX_CXX_HPP_
-#define POAC_CORE_BUILDER_COMPILER_CXX_CXX_HPP_
+#pragma once
 
 // internal
 #include "poac/poac.hpp"
@@ -30,5 +29,3 @@ get_compiler_ident(const String& compiler_command, bool is_macos)
     ->Result<String>;
 
 } // namespace poac::core::builder::compiler::cxx
-
-#endif // POAC_CORE_BUILDER_COMPILER_CXX_CXX_HPP_

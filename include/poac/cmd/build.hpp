@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_BUILD_HPP_
-#define POAC_CMD_BUILD_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -41,5 +40,3 @@ using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
 } // namespace poac::cmd::build
 
 STRUCTOPT(poac::cmd::build::Options, release, profile);
-
-#endif // POAC_CMD_BUILD_HPP_

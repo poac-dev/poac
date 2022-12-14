@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_TOKEN_HPP_
-#define POAC_UTIL_SEMVER_TOKEN_HPP_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -222,5 +221,3 @@ struct Version {
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_TOKEN_HPP_

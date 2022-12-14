@@ -1,5 +1,4 @@
-#ifndef POAC_DATA_MANIFEST_HPP_
-#define POAC_DATA_MANIFEST_HPP_
+#pragma once
 
 // external
 #include <toml.hpp>
@@ -37,5 +36,3 @@ inline Fn poac_toml_last_modified(const Path& base_dir)->fs::file_time_type {
 }
 
 } // namespace poac::data::manifest
-
-#endif // POAC_DATA_MANIFEST_HPP_

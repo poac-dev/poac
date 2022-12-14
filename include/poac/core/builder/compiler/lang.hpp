@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_LANG_HPP_
-#define POAC_CORE_BUILDER_COMPILER_LANG_HPP_
+#pragma once
 
 // internal
 #include "poac/poac.hpp"
@@ -32,5 +31,3 @@ struct formatter<poac::core::builder::compiler::lang::Lang> {
 };
 
 } // namespace fmt
-
-#endif // POAC_CORE_BUILDER_COMPILER_LANG_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_RESOLVER_RESOLVE_HPP_
-#define POAC_CORE_RESOLVER_RESOLVE_HPP_
+#pragma once
 
 // std
 #include <algorithm>
@@ -167,5 +166,3 @@ void gather_deps(
     ->Result<DupDeps<WithDeps>, String>;
 
 } // namespace poac::core::resolver::resolve
-
-#endif // POAC_CORE_RESOLVER_RESOLVE_HPP_

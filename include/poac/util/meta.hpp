@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_META_HPP_
-#define POAC_UTIL_META_HPP_
+#pragma once
 
 // std
 #include <chrono>
@@ -203,5 +202,3 @@ inline Fn operator|(Range&& range, ContainerizedTag /*unused*/)
 }
 
 } // namespace poac::util::meta
-
-#endif // POAC_UTIL_META_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_GRAPH_HPP_
-#define POAC_CMD_GRAPH_HPP_
+#pragma once
 
 // std
 #include <utility>
@@ -51,5 +50,3 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>>;
 } // namespace poac::cmd::graph
 
 STRUCTOPT(poac::cmd::graph::Options, output_file);
-
-#endif // POAC_CMD_GRAPH_HPP_

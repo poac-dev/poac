@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_DATA_HPP_
-#define POAC_CORE_BUILDER_DATA_HPP_
+#pragma once
 
 // std
 #include <utility>
@@ -66,5 +65,3 @@ struct NinjaMain : public BuildLogUser {
 };
 
 } // namespace poac::core::builder::data
-
-#endif // POAC_CORE_BUILDER_DATA_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_CONFIG_HPP_
-#define POAC_UTIL_TERMCOLOR2_CONFIG_HPP_
+#pragma once
 
 #ifdef __cplusplus
 #  ifndef TERMCOLOR2_STD_VER
@@ -25,5 +24,3 @@
 #  define TERMCOLOR2_CXX20_CONSTEVAL_FN constexpr
 #  define TERMCOLOR2_CXX20_CONSTINIT
 #endif
-
-#endif // POAC_UTIL_TERMCOLOR2_CONFIG_HPP_

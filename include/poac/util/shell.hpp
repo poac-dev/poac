@@ -1,8 +1,7 @@
 // This file is specially header-only and does not depend on "poac/poac.hpp"
 // because of being used for UI tests.
 
-#ifndef POAC_UTIL_SHELL_HPP_
-#define POAC_UTIL_SHELL_HPP_
+#pragma once
 
 // std
 #include <array>
@@ -142,5 +141,3 @@ inline auto has_command(const std::string& c) -> bool {
 }
 
 } // namespace poac::util::shell
-
-#endif // POAC_UTIL_SHELL_HPP_

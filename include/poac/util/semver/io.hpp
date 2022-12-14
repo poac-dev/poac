@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_IO_HPP_
-#define POAC_UTIL_SEMVER_IO_HPP_
+#pragma once
 
 // std
 #include <ostream> // std::ostream
@@ -29,5 +28,3 @@ struct formatter<semver::Version> {
 };
 
 } // namespace fmt
-
-#endif // POAC_UTIL_SEMVER_IO_HPP_

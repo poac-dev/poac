@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_NET_HPP_
-#define POAC_UTIL_NET_HPP_
+#pragma once
 
 // std
 #include <cstdint>
@@ -475,5 +474,3 @@ inline constexpr StringRef SUPABASE_ANON_KEY =
 [[nodiscard]] Fn login(StringRef api_token)->Result<bool, String>;
 
 } // namespace poac::util::net::api
-
-#endif // POAC_UTIL_NET_HPP_

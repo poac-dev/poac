@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_
-#define POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_
+#pragma once
 
 // std
 #include <cstddef> // std::size_t
@@ -205,5 +204,3 @@ to_bold_white(const std::basic_string_view<CharT> str)
 }
 
 } // namespace termcolor2
-
-#endif // POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_

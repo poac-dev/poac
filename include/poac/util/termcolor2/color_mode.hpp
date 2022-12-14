@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_COLOR_MODE_HPP_
-#define POAC_UTIL_TERMCOLOR2_COLOR_MODE_HPP_
+#pragma once
 
 // external
 #include <spdlog/details/os.h>
@@ -51,5 +50,3 @@ inline auto should_color() -> bool {
 }
 
 } // namespace termcolor2
-
-#endif // POAC_UTIL_TERMCOLOR2_COLOR_MODE_HPP_

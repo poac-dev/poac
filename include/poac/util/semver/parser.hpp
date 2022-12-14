@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_PARSER_HPP_
-#define POAC_UTIL_SEMVER_PARSER_HPP_
+#pragma once
 
 // std
 #include <cstddef>
@@ -132,5 +131,3 @@ auto parse(std::string_view input) -> Version;
 //  } // end namespace range
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_PARSER_HPP_

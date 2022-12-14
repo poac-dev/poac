@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_CXX_GCC_HPP_
-#define POAC_CORE_BUILDER_COMPILER_CXX_GCC_HPP_
+#pragma once
 
 // internal
 #include "poac/poac.hpp"
@@ -24,5 +23,3 @@ inline constexpr util::cfg::Compiler compiler = util::cfg::Compiler::gcc;
     ->Result<String>;
 
 } // namespace poac::core::builder::compiler::cxx::gcc
-
-#endif // POAC_CORE_BUILDER_COMPILER_CXX_GCC_HPP_

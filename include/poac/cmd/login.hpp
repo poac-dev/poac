@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_LOGIN_HPP_
-#define POAC_CMD_LOGIN_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -24,5 +23,3 @@ using FailedToLogIn = Error<"failed to log in; API token might be incorrect">;
 } // namespace poac::cmd::login
 
 STRUCTOPT(poac::cmd::login::Options, api_token);
-
-#endif // POAC_CMD_LOGIN_HPP_

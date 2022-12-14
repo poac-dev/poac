@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_COMPARISON_HPP_
-#define POAC_UTIL_SEMVER_COMPARISON_HPP_
+#pragma once
 
 // std
 #include <algorithm>
@@ -114,5 +113,3 @@ inline auto operator<=(const char* lhs, const Version& rhs) -> bool {
 }
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_COMPARISON_HPP_

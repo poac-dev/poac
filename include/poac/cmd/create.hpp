@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_CREATE_HPP_
-#define POAC_CMD_CREATE_HPP_
+#pragma once
 
 // std
 #include <algorithm> // transform
@@ -92,5 +91,3 @@ Fn create_template_files(const ProjectType& type, const String& package_name)
 } // namespace poac::cmd::create
 
 STRUCTOPT(poac::cmd::create::Options, package_name, bin, lib);
-
-#endif // POAC_CMD_CREATE_HPP_

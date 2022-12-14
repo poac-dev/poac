@@ -1,5 +1,4 @@
-#ifndef POAC_CONFIG_HPP_
-#define POAC_CONFIG_HPP_
+#pragma once
 
 // std
 #include <filesystem>
@@ -39,5 +38,3 @@ inline const Path main_cpp_file(src_dir / "main.cpp");
 inline const Path out_dir(cwd / "poac-out");
 
 } // namespace poac::config::path
-
-#endif // POAC_CONFIG_HPP_

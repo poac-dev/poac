@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_RESOLVER_SAT_HPP_
-#define POAC_CORE_RESOLVER_SAT_HPP_
+#pragma once
 
 // std
 #include <algorithm>
@@ -74,5 +73,3 @@ Fn unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals)->Status;
 }
 
 } // namespace poac::core::resolver::sat
-
-#endif // POAC_CORE_RESOLVER_SAT_HPP_

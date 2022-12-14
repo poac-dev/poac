@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_LITERALS_HPP_
-#define POAC_UTIL_TERMCOLOR2_LITERALS_HPP_
+#pragma once
 
 // std
 #include <cstddef> // std::size_t
@@ -494,5 +493,3 @@ namespace termcolor2::inline control_literals {
 // to avoid reporting errors with inline namespace on only the dry-run mode. (IDK why)
 } // namespace termcolor2::inline control_literals
 // clang-format on
-
-#endif // POAC_UTIL_TERMCOLOR2_LITERALS_HPP_

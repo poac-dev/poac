@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_LEXER_HPP_
-#define POAC_UTIL_SEMVER_LEXER_HPP_
+#pragma once
 
 // std
 #include <cstddef>
@@ -108,5 +107,3 @@ private:
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_LEXER_HPP_

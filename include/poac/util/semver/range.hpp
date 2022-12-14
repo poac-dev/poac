@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_RANGE_HPP_
-#define POAC_UTIL_SEMVER_RANGE_HPP_
+#pragma once
 
 // std
 #include <cstdint>
@@ -90,5 +89,3 @@ struct Comparator {
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_RANGE_HPP_

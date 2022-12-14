@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_LOG_HPP_
-#define POAC_CORE_BUILDER_LOG_HPP_
+#pragma once
 
 // std
 #include <string>
@@ -24,5 +23,3 @@ inline constexpr StringRef deps_log_file_name = ".ninja_deps";
 [[nodiscard]] Fn load_deps_log(data::NinjaMain& ninja_main)->Result<void>;
 
 } // namespace poac::core::builder::log
-
-#endif // POAC_CORE_BUILDER_LOG_HPP_

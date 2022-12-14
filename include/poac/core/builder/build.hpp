@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_BUILDER_BUILD_HPP_
-#define POAC_CORE_BUILDER_BUILD_HPP_
+#pragma once
 
 // std
 #include <ostream>
@@ -43,5 +42,3 @@ inline constexpr i32 rebuildLimit = 100;
     ->Result<Path>;
 
 } // namespace poac::core::builder::build
-
-#endif // POAC_CORE_BUILDER_BUILD_HPP_

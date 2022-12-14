@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_TO_COLOR_HPP_
-#define POAC_UTIL_TERMCOLOR2_TO_COLOR_HPP_
+#pragma once
 
 // std
 #include <cstddef> // std::size_t
@@ -506,5 +505,3 @@ to_concealed(const std::basic_string_view<CharT> str)
 }
 
 } // namespace termcolor2
-
-#endif // POAC_UTIL_TERMCOLOR2_TO_COLOR_HPP_

@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_CLEAN_HPP_
-#define POAC_CMD_CLEAN_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -24,5 +23,3 @@ struct Options : structopt::sub_command {
 } // namespace poac::cmd::clean
 
 STRUCTOPT(poac::cmd::clean::Options, release, profile);
-
-#endif // POAC_CMD_CLEAN_HPP_

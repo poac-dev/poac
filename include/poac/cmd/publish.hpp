@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_PUBLISH_HPP_
-#define POAC_CMD_PUBLISH_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -47,5 +46,3 @@ using NotImplemented = Error<
 } // namespace poac::cmd::publish
 
 STRUCTOPT(poac::cmd::publish::Options, token, dry_run, allow_dirty);
-
-#endif // POAC_CMD_PUBLISH_HPP_

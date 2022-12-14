@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_FMT_HPP_
-#define POAC_CMD_FMT_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -22,5 +21,3 @@ struct Options : structopt::sub_command {
 } // namespace poac::cmd::fmt
 
 STRUCTOPT(poac::cmd::fmt::Options, check, drogon);
-
-#endif // POAC_CMD_FMT_HPP_
