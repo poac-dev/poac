@@ -57,7 +57,7 @@ using CppLintNotFound = Error<
   spdlog::trace("Parsing the manifest file: {} ...", manifest_path);
   // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest =
-      toml::parse(relative(manifest_path, config::path::cwd));
+      toml::parse(relative(manifest_path, config::cwd));
   const String name = toml::find<String>(manifest, "package", "name");
 
   const Path base_dir = manifest_path.parent_path();
@@ -69,7 +69,7 @@ using CppLintNotFound = Error<
   }
 
   String args;
-  if (fs::exists(config::path::include_dir)) {
+  if (fs::exists(config::include_dir)) {
     args += "--root=include ";
   }
   if (2011 < toml::find<i64>(manifest, "package", "edition")) {

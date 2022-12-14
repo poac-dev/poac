@@ -30,13 +30,13 @@ namespace poac::cmd::publish {
     return Ok(opts.token.value());
   } else {
     // Retrieve a token from `~/.poac/credentials`
-    if (!fs::exists(config::path::cred_file)) {
+    if (!fs::exists(config::cred_file)) {
       return Err<APITokenNotFound>();
     }
 
-    const toml::value cred = toml::parse(config::path::cred_file);
+    const toml::value cred = toml::parse(config::cred_file);
     if (!cred.contains("registry")) {
-      return Err<FailedToReadCred>(config::path::cred_file);
+      return Err<FailedToReadCred>(config::cred_file);
     }
     const String token = toml::find<String>(cred, "registry", "token");
     Try(login::check_token(token));

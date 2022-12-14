@@ -21,7 +21,7 @@ namespace poac::core::resolver {
 )
     ->Result<void> {
   const Path temporarily_extracted_path =
-      config::path::extract_dir / extracted_directory_name;
+      config::extract_dir / extracted_directory_name;
   const Path extracted_path = get_extracted_path(package);
 
   std::error_code ec{};
@@ -76,7 +76,7 @@ using resolve::WithoutDeps;
     }
 
     const String extracted_directory_name =
-        Try(util::archive::extract(installed_path, config::path::extract_dir)
+        Try(util::archive::extract(installed_path, config::extract_dir)
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
 
@@ -108,7 +108,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
 
   log::status("Downloading", "packages ...");
   try {
-    fs::create_directories(config::path::cache_dir);
+    fs::create_directories(config::cache_dir);
   } catch (const std::exception& e) {
     return Err<FailedToCreateDirs>(e.what());
   }
@@ -170,8 +170,8 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
 
 // If lockfile is not outdated, read it.
 [[nodiscard]] Fn try_to_read_lockfile()->Result<Option<ResolvedDeps>> {
-  if (!data::lockfile::is_outdated(config::path::cwd)) {
-    return data::lockfile::read(config::path::cwd);
+  if (!data::lockfile::is_outdated(config::cwd)) {
+    return data::lockfile::read(config::cwd);
   } else {
     return Ok(None);
   }

@@ -10,7 +10,7 @@ namespace poac::util::validator {
 
 [[nodiscard]] Fn required_config_exists()->Result<Path, String> {
   // TODO(ken-matsui): move out to data/manifest.hpp
-  Path candidate = config::path::cwd;
+  Path candidate = config::cwd;
   while (true) {
     std::error_code ec{};
     const Path config_path = candidate / data::manifest::NAME;

@@ -57,6 +57,14 @@ inline Fn Err(Args&&... args) { // NOLINT(readability-identifier-naming)
 }
 
 //
+// Errors
+//
+template <thiserror::fixed_string S, class... T>
+using Error = thiserror::error<S, T...>;
+
+using SubprocessFailed = Error<"`{}` completed with exit code {}", String, i32>;
+
+//
 // String literals
 //
 using namespace fmt::literals;
@@ -72,14 +80,6 @@ using fmt::print;
 inline constexpr auto to_anyhow = [](const String& e) {
   return anyhow::anyhow(e);
 };
-
-template <thiserror::fixed_string S, class... T>
-using Error = thiserror::error<S, T...>;
-
-//
-// Errors
-//
-using SubprocessFailed = Error<"`{}` completed with exit code {}", String, i32>;
 
 //
 // Logs

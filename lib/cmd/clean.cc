@@ -18,9 +18,8 @@ namespace poac::cmd::clean {
     return Err<build::UnsupportedProfile>(profile.value());
   }
 
-  const Path path = profile.has_value()
-                        ? config::path::out_dir / profile.value()
-                        : config::path::out_dir;
+  const Path path =
+      profile.has_value() ? config::out_dir / profile.value() : config::out_dir;
 
   spdlog::trace("Removing ./{}", path);
 
