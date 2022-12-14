@@ -29,7 +29,7 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
 
 namespace poac::data::manifest {
 
-inline constexpr StringRef NAME = "poac.toml";
+inline const String NAME = "poac.toml"; // NOLINT(readability-identifier-naming)
 
 inline Fn poac_toml_last_modified(const Path& base_dir)->fs::file_time_type {
   return fs::last_write_time(base_dir / NAME);
