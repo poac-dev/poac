@@ -35,7 +35,7 @@ namespace poac::cmd::init {
     return Err<AlreadyInitialized>();
   }
 
-  const String package_name = config::path::cwd.stem().string();
+  const String package_name = config::cwd.stem().string();
   spdlog::trace("Validating the package name `{}`", package_name);
   Try(util::validator::valid_package_name(package_name).map_err(to_anyhow));
 

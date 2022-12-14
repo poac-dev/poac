@@ -39,7 +39,7 @@ namespace poac::cmd::build {
 
   // TODO(ken-matsui): We have to keep in mind a case of only dependencies
   //  require to be built, but this package does not.
-  if (!fs::exists(config::path::main_cpp_file)) {
+  if (!fs::exists(config::main_cpp_file)) {
     log::status("Finished", "no build target(s) found");
     return Ok(None);
   }

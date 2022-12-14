@@ -7,7 +7,7 @@
 #include "poac/util/misc.hpp"
 #include "poac/util/rustify.hpp"
 
-namespace poac::config::path {
+namespace poac::config {
 
 inline const Path user_dir = util::misc::expand_user().unwrap();
 
@@ -37,4 +37,4 @@ inline const Path tests_dir(cwd / "tests");
 inline const Path main_cpp_file(src_dir / "main.cpp");
 inline const Path out_dir(cwd / "poac-out");
 
-} // namespace poac::config::path
+} // namespace poac::config

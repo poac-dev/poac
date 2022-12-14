@@ -28,7 +28,7 @@ inline Fn is_outdated(const Path& build_dir)->bool {
   }
   using poac::data::manifest::poac_toml_last_modified;
   return ninja_manifest_last_modified(build_dir)
-         < poac_toml_last_modified(config::path::cwd);
+         < poac_toml_last_modified(config::cwd);
 }
 
 Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool;

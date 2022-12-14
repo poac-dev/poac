@@ -101,7 +101,7 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
   setenv("NINJA_STATUS", progress_status_format.c_str(), true);
   StatusPrinter status(config);
 
-  const Path build_dir = config::path::out_dir / to_string(mode);
+  const Path build_dir = config::out_dir / to_string(mode);
   fs::create_directories(build_dir);
   Try(manifest::create(build_dir, poac_manifest, resolved_deps));
 
@@ -131,7 +131,7 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
     }
 
     Try(run(ninja_main, status));
-    return Ok(config::path::out_dir / to_string(mode));
+    return Ok(config::out_dir / to_string(mode));
   }
   return Err<GeneralError>(format(
       "internal manifest still dirty after {} tries, perhaps system time is not set",

@@ -38,14 +38,14 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 [[nodiscard]] Fn overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
     ->Result<void> {
   const auto lock = Try(convert_to_lock(deps));
-  std::ofstream lockfile(config::path::cwd / LOCKFILE_NAME, std::ios::out);
+  std::ofstream lockfile(config::cwd / LOCKFILE_NAME, std::ios::out);
   lockfile << lock;
   return Ok();
 }
 
 [[nodiscard]] Fn generate(const resolver::UniqDeps<resolver::WithDeps>& deps)
     ->Result<void> {
-  if (is_outdated(config::path::cwd)) {
+  if (is_outdated(config::cwd)) {
     return overwrite(deps);
   }
   return Ok();

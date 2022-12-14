@@ -146,7 +146,7 @@ Fn gather_flags(
               syntax::Variables{
                   {"PACKAGE_NAME", name},
                   {"PACKAGE_VERSION", version},
-                  {"PACKAGE_PATH", format("({})", config::path::cwd)},
+                  {"PACKAGE_PATH", format("({})", config::cwd)},
                   {"OPTIONS", boost::algorithm::join(options, " ")},
                   {"DEFINES", boost::algorithm::join(defines, " ")},
                   {"INCLUDES", boost::algorithm::join(includes, " ")},
