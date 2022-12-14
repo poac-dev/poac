@@ -54,3 +54,19 @@ function (add_poac_target target_name)
         )
     endif ()
 endfunction ()
+
+# Header target for sources that use the target header file.
+function (add_poac_header_target target_name)
+    cmake_parse_arguments(VARS "" "CXX" "INCLUDES;LIBRARIES;DEFINES" ${ARGN})
+
+    if (NOT DEFINED VARS_CXX)
+        set(VARS_CXX_STD cxx_std_20)
+    else ()
+        set(VARS_CXX_STD cxx_std_${VARS_CXX})
+    endif ()
+
+    add_library(${target_name} INTERFACE)
+    target_compile_features(${target_name} INTERFACE ${VARS_CXX_STD})
+    target_compile_definitions(${target_name} INTERFACE ${VARS_DEFINES})
+    target_include_directories(${target_name} INTERFACE ${VARS_INCLUDES})
+endfunction ()

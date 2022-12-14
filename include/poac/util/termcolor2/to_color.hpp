@@ -11,9 +11,9 @@
 
 namespace termcolor2 {
 
-template <typename Fn, typename CharT>
+template <typename Func, typename CharT>
 inline TERMCOLOR2_CXX20_CONSTEVAL auto
-to_color(Fn&& fn, const std::basic_string<CharT>& str)
+to_color(Func&& fn, const std::basic_string<CharT>& str)
     -> std::basic_string<CharT> {
   if (should_color()) {
     return fn() + str + reset_v<CharT>();

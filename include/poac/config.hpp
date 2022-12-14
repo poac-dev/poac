@@ -4,8 +4,8 @@
 #include <filesystem>
 
 // internal
-#include "poac/poac.hpp"
 #include "poac/util/misc.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::config::path {
 

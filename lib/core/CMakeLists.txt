@@ -11,6 +11,7 @@ add_poac_target(poac_core
         poac_util_sha256
         poac_util_semver
         poac_util_misc # via poac/config.hpp
+        poac_util_rustify # via poac/config.hpp
         toml11::toml11
 )
 
