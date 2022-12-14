@@ -105,7 +105,7 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
   fs::create_directories(build_dir);
   Try(manifest::create(build_dir, poac_manifest, resolved_deps));
 
-  for (i32 cycle = 1; cycle <= rebuildLimit; ++cycle) {
+  for (i32 cycle = 1; cycle <= REBUILD_LIMIT; ++cycle) {
     data::NinjaMain ninja_main(config, build_dir);
     ManifestParserOptions parser_opts;
     parser_opts.dupe_edge_action_ = kDupeEdgeActionError;
@@ -114,7 +114,7 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
     );
     String err;
     if (!parser.Load(
-            (ninja_main.build_dir / manifest::manifest_file_name).string(), &err
+            (ninja_main.build_dir / manifest::MANIFEST_FILE_NAME).string(), &err
         )) {
       return Err<GeneralError>(err);
     }
@@ -135,7 +135,7 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
   }
   return Err<GeneralError>(format(
       "internal manifest still dirty after {} tries, perhaps system time is not set",
-      rebuildLimit
+      REBUILD_LIMIT
   ));
 }
 

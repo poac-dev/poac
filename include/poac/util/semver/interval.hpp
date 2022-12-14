@@ -20,8 +20,8 @@
 
 namespace semver {
 
-inline constexpr std::string_view base_version_format = "{}.{}.{}"; // 1.2.3
-inline constexpr std::string_view version_format =
+inline constexpr std::string_view BASE_VERSION_FORMAT = "{}.{}.{}"; // 1.2.3
+inline constexpr std::string_view VERSION_FORMAT =
     "{}.{}.{}{}{}"; // 1.2.3-beta+11.22.33
 
 inline auto
@@ -45,10 +45,10 @@ auto make_version_impl(
     const std::smatch& match, std::index_sequence<Is...> /*unused*/
 ) -> std::string {
   if constexpr (Pre == 0 || Build == 0) {
-    return fmt::format(base_version_format, match[Is].str()...);
+    return fmt::format(BASE_VERSION_FORMAT, match[Is].str()...);
   } else {
     return fmt::format(
-        version_format, match[Is].str()..., make_pre_or_build('-', match[Pre]),
+        VERSION_FORMAT, match[Is].str()..., make_pre_or_build('-', match[Pre]),
         make_pre_or_build('+', match[Build])
     );
   }

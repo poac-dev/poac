@@ -8,7 +8,7 @@
 namespace poac::core::builder::log {
 
 [[nodiscard]] Fn load_build_log(data::NinjaMain& ninja_main)->Result<void> {
-  const Path log_path = ninja_main.build_dir / build_log_file_name;
+  const Path log_path = ninja_main.build_dir / BUILD_LOG_FILE_NAME;
 
   String err;
   const LoadStatus status = ninja_main.build_log.Load(log_path, &err);
@@ -28,7 +28,7 @@ namespace poac::core::builder::log {
 }
 
 [[nodiscard]] Fn load_deps_log(data::NinjaMain& ninja_main)->Result<void> {
-  const Path log_path = ninja_main.build_dir / deps_log_file_name;
+  const Path log_path = ninja_main.build_dir / DEPS_LOG_FILE_NAME;
 
   String err;
   const LoadStatus status =

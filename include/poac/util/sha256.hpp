@@ -15,8 +15,8 @@ namespace poac::util::sha256 {
 using FailedToReadFile = Error<"Failed to read file: `{}`", String>;
 using FailedToCreateSha256Digest = Error<"Failed to create a sha256 digest">;
 
-inline constexpr i32 buf_size = 32768;
-inline constexpr i32 hash_size = 65;
+inline constexpr i32 BUF_SIZE = 32768;
+inline constexpr i32 HASH_SIZE = 65;
 
 // ref: https://stackoverflow.com/a/2458382
 Fn hash_string(const Vec<unsigned char>& hash)->String;

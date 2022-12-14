@@ -36,13 +36,13 @@ Fn create_template_files(const ProjectType& type, const String& package_name)
       fs::create_directories(package_name / "src"_path);
       return {
           {".gitignore", "/poac-out"},
-          {data::manifest::name, files::poac_toml(package_name)},
-          {"src"_path / "main.cpp", String(files::main_cpp)}};
+          {data::manifest::NAME, files::poac_toml(package_name)},
+          {"src"_path / "main.cpp", String(files::MAIN_CPP)}};
     case ProjectType::Lib:
       fs::create_directories(package_name / "include"_path / package_name);
       return {
           {".gitignore", "/poac-out\npoac.lock"},
-          {data::manifest::name, files::poac_toml(package_name)},
+          {data::manifest::NAME, files::poac_toml(package_name)},
           {"include"_path / package_name / (package_name + ".hpp"),
            files::include_hpp(package_name)},
       };

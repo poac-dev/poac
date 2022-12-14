@@ -4,9 +4,9 @@
 namespace semver {
 
 auto to_string(const Identifier& id) -> std::string {
-  if (std::holds_alternative<Identifier::numeric_type>(id.component)) {
+  if (std::holds_alternative<Identifier::NumericType>(id.component)) {
     return std::to_string(id.get_numeric());
-  } else if (std::holds_alternative<Identifier::alphanumeric_type>(id.component
+  } else if (std::holds_alternative<Identifier::AlphanumericType>(id.component
              )) {
     return std::string(id.get_alpha_numeric());
   }

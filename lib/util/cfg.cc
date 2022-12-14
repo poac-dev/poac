@@ -60,8 +60,8 @@ Fn operator<<(std::ostream& os, const Token& token)->std::ostream& {
   }
 }
 
-Fn Lexer::analyze_two_phrase(size_type index_, const char kind) const
-    ->std::pair<Lexer::size_type, Option<Token>> {
+Fn Lexer::analyze_two_phrase(SizeType index_, const char kind) const
+    ->std::pair<Lexer::SizeType, Option<Token>> {
   if (this->one(index_) == '=') {
     this->step(index_);
     return generate_token(index_, String{kind} + '=');
@@ -70,8 +70,8 @@ Fn Lexer::analyze_two_phrase(size_type index_, const char kind) const
   }
 }
 
-Fn Lexer::tokenize(size_type index_
-) const->std::pair<Lexer::size_type, Option<Token>> {
+Fn Lexer::tokenize(SizeType index_
+) const->std::pair<Lexer::SizeType, Option<Token>> {
   if (index_ >= this->str.size()) {
     return generate_token(index_, None);
   }
@@ -101,20 +101,20 @@ Fn Lexer::tokenize(size_type index_
   }
 }
 
-void Lexer::step(size_type& index_) const noexcept {
+void Lexer::step(SizeType& index_) const noexcept {
   if (index_ < this->str.size()) {
     ++index_;
   }
 }
-void Lexer::step_n(const size_type n) noexcept {
-  for (size_type i = 0; i < n; ++i) {
+void Lexer::step_n(const SizeType n) noexcept {
+  for (SizeType i = 0; i < n; ++i) {
     this->step(this->index);
   }
 }
 
-Fn Lexer::string(size_type index_) const->std::pair<Lexer::size_type, Token> {
+Fn Lexer::string(SizeType index_) const->std::pair<Lexer::SizeType, Token> {
   this->step(index_);
-  const size_type start = index_;
+  const SizeType start = index_;
   while (this->one(index_) != '"') {
     this->step(index_);
     if (index_ >= this->str.size()) {
@@ -131,14 +131,14 @@ Fn Lexer::string(size_type index_) const->std::pair<Lexer::size_type, Token> {
   return {this->diff_step(index_), Token{Token::String, s}};
 }
 
-Fn Lexer::ident(size_type index_) const->std::pair<Lexer::size_type, Token> {
+Fn Lexer::ident(SizeType index_) const->std::pair<Lexer::SizeType, Token> {
   if (!is_ident_start(this->one(index_))) {
     String msg;
     msg += String(index_, ' ');
     msg += "^ unexpected character";
     throw cfg::IdentError(String(this->str) + "\n" + msg);
   }
-  const size_type start = index_;
+  const SizeType start = index_;
   this->step(index_);
   while (is_ident_rest(this->one(index_))) {
     this->step(index_);
@@ -205,19 +205,19 @@ Fn Cfg::from_token_ident(Token::ident ident)->Cfg::Ident {
 Fn CfgExpr::match() const->bool {
   switch (this->kind) {
     case Kind::cfg:
-      return std::get<expr_type>(this->expr)->match();
+      return std::get<ExprType>(this->expr)->match();
     case Kind::not_:
-      return !(std::get<expr_type>(this->expr)->match());
+      return !(std::get<ExprType>(this->expr)->match());
     case Kind::all: {
       bool res = true;
-      for (const CfgExpr& c : std::get<expr_list_type>(this->expr)) {
+      for (const CfgExpr& c : std::get<ExprListType>(this->expr)) {
         res &= c.match();
       }
       return res;
     }
     case Kind::any: {
       bool res = false;
-      for (const CfgExpr& c : std::get<expr_list_type>(this->expr)) {
+      for (const CfgExpr& c : std::get<ExprListType>(this->expr)) {
         res |= c.match();
       }
       return res;

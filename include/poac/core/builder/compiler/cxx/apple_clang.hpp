@@ -7,7 +7,7 @@
 
 namespace poac::core::builder::compiler::cxx::apple_clang {
 
-inline constexpr util::cfg::Compiler compiler =
+inline constexpr util::cfg::Compiler COMPILER =
     util::cfg::Compiler::apple_clang;
 
 [[nodiscard]] Fn get_compiler_version_impl(const String& cmd_output)

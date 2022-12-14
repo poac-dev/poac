@@ -7,7 +7,7 @@
 
 namespace poac::core::builder::compiler::cxx::gcc {
 
-inline constexpr util::cfg::Compiler compiler = util::cfg::Compiler::gcc;
+inline constexpr util::cfg::Compiler COMPILER = util::cfg::Compiler::gcc;
 
 [[nodiscard]] Fn get_compiler_version_impl(const String& cmd_output)
     ->Result<semver::Version>;

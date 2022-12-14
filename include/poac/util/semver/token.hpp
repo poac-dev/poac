@@ -49,15 +49,15 @@ struct Token {
     Unexpected
   };
 
-  using null_type = std::monostate;
-  using whitespace_type = std::pair<std::size_t, std::size_t>;
-  using numeric_type = std::uint_fast64_t;
-  using alphanumeric_type = std::string_view;
-  using variant_type =
-      std::variant<null_type, whitespace_type, numeric_type, alphanumeric_type>;
+  using NullType = std::monostate;
+  using WhitespaceType = std::pair<std::size_t, std::size_t>;
+  using NumericType = std::uint_fast64_t;
+  using AlphanumericType = std::string_view;
+  using VariantType =
+      std::variant<NullType, WhitespaceType, NumericType, AlphanumericType>;
 
   Kind kind;
-  variant_type component;
+  VariantType component;
 
   constexpr Token() noexcept : Token(Kind::Unexpected) {} // delegation
 
@@ -70,14 +70,14 @@ struct Token {
       ),
         component(std::make_pair(s1, s2)) {}
 
-  constexpr Token(Kind k, const numeric_type& n)
+  constexpr Token(Kind k, const NumericType& n)
       : kind(
           k != Kind::Numeric ? throw std::invalid_argument("semver::Token")
                              : Kind::Numeric
       ),
         component(n) {}
 
-  constexpr Token(Kind k, alphanumeric_type c)
+  constexpr Token(Kind k, AlphanumericType c)
       : kind(
           k != Kind::AlphaNumeric ? throw std::invalid_argument("semver::Token")
                                   : Kind::AlphaNumeric
@@ -95,14 +95,14 @@ struct Token {
   }
 
   [[nodiscard]] constexpr auto is_simple_token() const noexcept -> bool {
-    return std::holds_alternative<null_type>(component);
+    return std::holds_alternative<NullType>(component);
   }
 
   [[nodiscard]] constexpr auto is_wildcard() const noexcept -> bool {
     return kind == Kind::Star
-           || (std::holds_alternative<alphanumeric_type>(component)
-               && (std::get<alphanumeric_type>(component) == "X"
-                   || std::get<alphanumeric_type>(component) == "x"));
+           || (std::holds_alternative<AlphanumericType>(component)
+               && (std::get<AlphanumericType>(component) == "X"
+                   || std::get<AlphanumericType>(component) == "x"));
   }
 };
 
@@ -137,12 +137,12 @@ struct Identifier {
     AlphaNumeric
   };
 
-  using numeric_type = std::uint_fast64_t;
-  using alphanumeric_type = std::string_view;
-  using variant_type = std::variant<numeric_type, alphanumeric_type>;
+  using NumericType = std::uint_fast64_t;
+  using AlphanumericType = std::string_view;
+  using VariantType = std::variant<NumericType, AlphanumericType>;
 
   Kind kind;
-  variant_type component;
+  VariantType component;
 
   Identifier() = delete;
   Identifier(const Identifier&) = default;
@@ -151,14 +151,14 @@ struct Identifier {
   auto operator=(Identifier&&) noexcept -> Identifier& = default;
   ~Identifier() = default;
 
-  constexpr Identifier(Kind k, const numeric_type& n)
+  constexpr Identifier(Kind k, const NumericType& n)
       : kind(
           k != Kind::Numeric ? throw std::invalid_argument("semver::Identifier")
                              : Kind::Numeric
       ),
         component(n) {}
 
-  constexpr Identifier(Kind k, alphanumeric_type c)
+  constexpr Identifier(Kind k, AlphanumericType c)
       : kind(
           k != Kind::AlphaNumeric
               ? throw std::invalid_argument("semver::Identifier")
@@ -174,12 +174,12 @@ struct Identifier {
     return kind == Kind::AlphaNumeric;
   }
 
-  [[nodiscard]] inline auto get_numeric() const -> numeric_type {
-    return std::get<Identifier::numeric_type>(component);
+  [[nodiscard]] inline auto get_numeric() const -> NumericType {
+    return std::get<Identifier::NumericType>(component);
   }
 
-  [[nodiscard]] inline auto get_alpha_numeric() const -> alphanumeric_type {
-    return std::get<Identifier::alphanumeric_type>(component);
+  [[nodiscard]] inline auto get_alpha_numeric() const -> AlphanumericType {
+    return std::get<Identifier::AlphanumericType>(component);
   }
 };
 

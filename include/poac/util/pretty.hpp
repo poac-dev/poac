@@ -17,7 +17,7 @@ inline Fn to_time(const std::chrono::seconds& s)->String {
 
 inline Fn to_time(const String& s)->String { return to_time(std::stod(s)); }
 
-inline constexpr std::array<StringRef, 9> size_suffixes = {
+inline constexpr std::array<StringRef, 9> SIZE_SUFFIXES = {
     "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
 Fn to_byte(f64 bytes)->String;

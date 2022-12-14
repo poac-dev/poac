@@ -14,7 +14,7 @@
 
 namespace poac::cmd::lint {
 
-inline constexpr StringRef config_name = "CPPLINT.cfg";
+inline constexpr StringRef CONFIG_NAME = "CPPLINT.cfg";
 
 using CppLintNotFound = Error<
     "`lint` command requires `cpplint`; try installing it by:\n"
@@ -26,7 +26,7 @@ using CppLintNotFound = Error<
 
   String cpplint = format("cd {} && cpplint ", base_dir.string());
   if (!args.has_value()) {
-    spdlog::trace("Using cpplint config file: {} ...", base_dir / config_name);
+    spdlog::trace("Using cpplint config file: {} ...", base_dir / CONFIG_NAME);
   } else {
     spdlog::trace("Using pre-configured arguments ...");
     cpplint += format("{} ", args.value());
@@ -61,7 +61,7 @@ using CppLintNotFound = Error<
   const String name = toml::find<String>(manifest, "package", "name");
 
   const Path base_dir = manifest_path.parent_path();
-  const Path config_path = base_dir / config_name;
+  const Path config_path = base_dir / CONFIG_NAME;
   spdlog::trace("Checking if cpplint config exists: {} ...", config_path);
   if (fs::exists(config_path)) {
     spdlog::trace("Using cpplint config file: {} ...", config_path);

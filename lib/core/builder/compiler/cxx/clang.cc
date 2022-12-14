@@ -14,7 +14,7 @@ namespace poac::core::builder::compiler::cxx::clang {
   const String search = "version ";
   usize i = cmd_output.find(search);
   if (i == None) {
-    return Err<error::FailedToGetCompilerVersion>(compiler);
+    return Err<error::FailedToGetCompilerVersion>(COMPILER);
   }
 
   String version;
@@ -34,7 +34,7 @@ namespace poac::core::builder::compiler::cxx::clang {
   if (res.is_ok()) {
     return get_compiler_version_impl(res.output());
   }
-  return Err<error::FailedToGetCompilerVersion>(compiler);
+  return Err<error::FailedToGetCompilerVersion>(COMPILER);
 }
 
 // thanks to:
@@ -82,7 +82,7 @@ namespace poac::core::builder::compiler::cxx::clang {
       break;
   }
   return Err<error::UnsupportedLangVersion>(
-      compiler, version, lang::Lang::cxx, edition
+      COMPILER, version, lang::Lang::cxx, edition
   );
 }
 

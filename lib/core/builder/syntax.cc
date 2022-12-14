@@ -49,7 +49,7 @@ Fn Writer::count_dollars_before_index(StringRef s, usize i)->usize {
 }
 
 /// Write 'text' word-wrapped at self.width characters.
-void Writer::_line(String text, usize indent) {
+void Writer::line(String text, usize indent) {
   String leading_space = String("  ") * indent;
 
   while (leading_space.length() + text.length() > width) {
@@ -98,11 +98,11 @@ void Writer::variable(StringRef key, StringRef value, usize indent) {
   if (value.empty()) {
     return;
   }
-  _line(format("{} = {}", key, value), indent);
+  line(format("{} = {}", key, value), indent);
 }
 
 void Writer::rule(StringRef name, StringRef command, const RuleSet& rule_set) {
-  _line(format("rule {}", name));
+  line(format("rule {}", name));
   variable("command", command, 1);
   if (rule_set.description.has_value()) {
     variable("description", rule_set.description.value(), 1);
@@ -171,16 +171,16 @@ Fn Writer::build(
     boost::push_back(out_outputs, implicit_outputs);
   }
 
-  _line(format(
+  line(format(
       "build {}: {} {}", boost::algorithm::join(out_outputs, " "), rule,
       boost::algorithm::join(all_inputs, " ")
   ));
 
   if (build_set.pool.has_value()) {
-    _line(format("  pool = {}", build_set.pool.value()));
+    line(format("  pool = {}", build_set.pool.value()));
   }
   if (build_set.dyndep.has_value()) {
-    _line(format("  dyndep = {}", build_set.dyndep.value()));
+    line(format("  dyndep = {}", build_set.dyndep.value()));
   }
 
   if (build_set.variables.has_value()) {

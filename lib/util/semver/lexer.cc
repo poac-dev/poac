@@ -64,8 +64,8 @@ auto Lexer::next() -> Token {
   }
 }
 
-void Lexer::step_n(const size_type& n) noexcept {
-  for (size_type i = 0; i < n; ++i) {
+void Lexer::step_n(const SizeType& n) noexcept {
+  for (SizeType i = 0; i < n; ++i) {
     step();
   }
 }
@@ -77,7 +77,7 @@ void Lexer::step_n(const size_type& n) noexcept {
 auto Lexer::component() -> Token {
   // e.g. abcde
   if (is_alphabet(this->one())) {
-    const size_type start = this->c1_index;
+    const SizeType start = this->c1_index;
     while (is_alpha_numeric(this->one())) {
       this->step();
     }
@@ -91,7 +91,7 @@ auto Lexer::component() -> Token {
     return Token{Token::Numeric, 0};
   }
 
-  const size_type start = this->c1_index;
+  const SizeType start = this->c1_index;
   while (is_digit(this->one())) {
     this->step();
   }
@@ -112,7 +112,7 @@ auto Lexer::component() -> Token {
 
 /// Consume whitespace.
 auto Lexer::whitespace() -> Token {
-  const size_type start = this->c1_index;
+  const SizeType start = this->c1_index;
   while (is_whitespace(this->one())) {
     this->step();
   }

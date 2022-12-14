@@ -21,7 +21,7 @@ namespace poac::cmd::publish {
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  return Ok(toml::parse(data::manifest::name));
+  return Ok(toml::parse(data::manifest::NAME));
 }
 
 [[nodiscard]] Fn get_token(const Options& opts)->Result<String> {

@@ -18,17 +18,16 @@ namespace poac::util::meta {
 // std::conditional for non-type template
 template <auto Value>
 struct ValueHolder {
-  static constexpr auto value = Value;
+  static constexpr auto VALUE = Value;
 };
 template <bool B, auto T, auto F>
-using non_type_conditional =
-    std::conditional<B, ValueHolder<T>, ValueHolder<F>>;
+using NonTypeConditional = std::conditional<B, ValueHolder<T>, ValueHolder<F>>;
 template <bool B, auto T, auto F>
-using non_type_conditional_t =
+using NonTypeConditionalT =
     std::conditional_t<B, ValueHolder<T>, ValueHolder<F>>;
 template <bool B, auto T, auto F>
-static constexpr auto non_type_conditional_v =
-    non_type_conditional_t<B, T, F>::value;
+static constexpr auto NON_TYPE_CONDITIONAL_V =
+    NonTypeConditionalT<B, T, F>::VALUE;
 
 template <class InputIterator, class T>
 inline Fn index_of(InputIterator first, InputIterator last, const T& value) {
@@ -118,7 +117,7 @@ template <class T, class... Ts>
 struct AreAllSame : std::conjunction<std::is_same<T, Ts>...> {};
 
 template <class T, class... Ts>
-inline constexpr bool are_all_same_v = AreAllSame<T, Ts...>::value;
+inline constexpr bool ARE_ALL_SAME_V = AreAllSame<T, Ts...>::value;
 
 template <class T, template <class...> class Container>
 struct IsSpecialization : std::false_type {};
@@ -130,7 +129,7 @@ template <class T>
 struct IsTuple : IsSpecialization<T, std::tuple> {};
 
 template <class T>
-inline constexpr bool is_tuple_v = IsTuple<T>::value;
+inline constexpr bool IS_TUPLE_V = IsTuple<T>::value;
 
 // clang-format off
 template <class T, usize... Indices>
@@ -161,7 +160,7 @@ constexpr Fn to_array(T&& tuple, std::index_sequence<Indices...> /*unused*/)
 
 template <
     class T, std::enable_if_t<
-                 is_tuple_v<std::remove_cvref_t<T>>, std::nullptr_t> = nullptr>
+                 IS_TUPLE_V<std::remove_cvref_t<T>>, std::nullptr_t> = nullptr>
 constexpr Fn to_array(T&& tuple) {
   return to_array(
       std::forward<T>(tuple),
@@ -193,7 +192,7 @@ inline Fn containerize(Range&& range)->Containerizer<Range> {
 }
 
 struct ContainerizedTag {};
-constexpr ContainerizedTag containerized;
+constexpr ContainerizedTag CONTAINERIZED;
 
 template <class Range>
 inline Fn operator|(Range&& range, ContainerizedTag /*unused*/)

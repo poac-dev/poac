@@ -16,18 +16,18 @@
 namespace semver {
 
 struct Parser {
-  using string_type = std::string_view;
-  using value_type = string_type::value_type;
+  using StringType = std::string_view;
+  using ValueType = StringType::value_type;
 
   Lexer lexer;
   Token c1;
 
   /// Construct a new parser for the given input.
-  explicit Parser(string_type str) : lexer(str), c1(lexer.next()) {}
+  explicit Parser(StringType str) : lexer(str), c1(lexer.next()) {}
 
   /// Pop one token.
   inline auto pop() -> Token {
-    Token c1_ = this->c1;
+    Token c1_ = this->c1; // NOLINT(readability-identifier-naming)
     this->c1 = lexer.next();
     return c1_;
   }

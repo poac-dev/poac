@@ -39,7 +39,7 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 
 Fn set_extract_path(archive_entry* entry, const Path& extract_path)->String;
 
-[[nodiscard]] Fn archive_read_next_header_(
+[[nodiscard]] Fn archive_read_next_header(
     Archive* reader, archive_entry** entry
 ) noexcept(!(ARCHIVE_EOF))
     ->Result<bool, String>;

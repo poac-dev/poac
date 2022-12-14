@@ -18,7 +18,7 @@ namespace poac::core::builder::manifest {
 
 Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool {
   Node* node = ninja_main.state.LookupNode(
-      (ninja_main.build_dir / manifest_file_name).string()
+      (ninja_main.build_dir / MANIFEST_FILE_NAME).string()
   );
   if (!node) {
     return false;
@@ -102,7 +102,7 @@ Fn gather_flags(
 )
     ->Result<String> {
   syntax::Writer writer{std::ostringstream()};
-  for (const StringRef header : manifest_headers) {
+  for (const StringRef header : MANIFEST_HEADERS) {
     writer.comment(String(header));
   }
   writer.newline();
@@ -156,7 +156,7 @@ Fn gather_flags(
   );
   writer.newline();
 
-  writer.default_({output_file.string()});
+  writer.defalt({output_file.string()});
   return Ok(writer.get_value());
 }
 
@@ -169,7 +169,7 @@ Fn gather_flags(
   //   so if `poac.toml` has no change,
   //   then `ninja.build` is not needed to be updated.
   //        if (is_outdated(build_dir)) {
-  std::ofstream ofs(build_dir / manifest_file_name, std::ios::out);
+  std::ofstream ofs(build_dir / MANIFEST_FILE_NAME, std::ios::out);
   ofs << Try(construct(build_dir, poac_manifest, resolved_deps));
   //        }
   return Ok();

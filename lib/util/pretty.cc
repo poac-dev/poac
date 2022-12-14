@@ -33,7 +33,7 @@ Fn to_byte(f64 bytes)->String {
     bytes /= 1024.0;
     ++index;
   }
-  return format("{:.2f}{}", bytes, size_suffixes.at(index));
+  return format("{:.2f}{}", bytes, SIZE_SUFFIXES.at(index));
 }
 
 // This function does not break long words and break on hyphens.

@@ -26,7 +26,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
   if (res.is_ok()) {
     return get_compiler_version_impl(res.output());
   }
-  return Err<error::FailedToGetCompilerVersion>(compiler);
+  return Err<error::FailedToGetCompilerVersion>(COMPILER);
 }
 
 // thanks to:
@@ -74,7 +74,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
       break;
   }
   return Err<error::UnsupportedLangVersion>(
-      compiler, version, lang::Lang::cxx, edition
+      COMPILER, version, lang::Lang::cxx, edition
   );
 }
 

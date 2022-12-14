@@ -7,7 +7,7 @@
 
 namespace poac::core::builder::compiler::cxx::clang {
 
-inline constexpr util::cfg::Compiler compiler = util::cfg::Compiler::clang;
+inline constexpr util::cfg::Compiler COMPILER = util::cfg::Compiler::clang;
 
 [[nodiscard]] Fn get_compiler_version_impl(const String& cmd_output)
     ->Result<semver::Version>;

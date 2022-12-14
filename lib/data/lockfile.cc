@@ -30,7 +30,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   }
 
   toml::basic_value<toml::preserve_comments> lock(
-      Lockfile{.package = packages}, {String(lockfile_header)}
+      Lockfile{.package = packages}, {String(LOCKFILE_HEADER)}
   );
   return Ok(lock);
 }
@@ -38,7 +38,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 [[nodiscard]] Fn overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
     ->Result<void> {
   const auto lock = Try(convert_to_lock(deps));
-  std::ofstream lockfile(config::path::cwd / lockfile_name, std::ios::out);
+  std::ofstream lockfile(config::path::cwd / LOCKFILE_NAME, std::ios::out);
   lockfile << lock;
   return Ok();
 }
@@ -75,14 +75,14 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 
 [[nodiscard]] Fn read(const Path& base_dir)
     ->Result<Option<resolver::UniqDeps<resolver::WithDeps>>> {
-  if (!fs::exists(base_dir / lockfile_name)) {
+  if (!fs::exists(base_dir / LOCKFILE_NAME)) {
     return Ok(None);
   }
 
   try {
-    const toml::value lock = toml::parse(base_dir / lockfile_name);
+    const toml::value lock = toml::parse(base_dir / LOCKFILE_NAME);
     const Lockfile parsed_lock = toml::get<Lockfile>(lock);
-    if (parsed_lock.version != lockfile_version) {
+    if (parsed_lock.version != LOCKFILE_VERSION) {
       return Err<InvalidLockfileVersion>(parsed_lock.version);
     }
     return Ok(convert_to_deps(parsed_lock));

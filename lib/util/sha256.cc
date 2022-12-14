@@ -23,7 +23,7 @@ Fn hash_string(const Vec<unsigned char>& hash)->String {
     return Err<FailedToReadFile>(path.string());
   }
 
-  Vec<char> buffer(buf_size);
+  Vec<char> buffer(BUF_SIZE);
   Vec<unsigned char> hash(SHA256_DIGEST_LENGTH);
   EVP_MD_CTX* ctx = EVP_MD_CTX_create();
   if (ctx == nullptr) {
@@ -33,9 +33,9 @@ Fn hash_string(const Vec<unsigned char>& hash)->String {
     return Err<FailedToCreateSha256Digest>();
   }
 
-  int bytesRead;
-  while ((bytesRead = file.read(buffer.data(), buf_size).gcount())) {
-    if (1 != EVP_DigestUpdate(ctx, buffer.data(), bytesRead)) {
+  int bytes_read;
+  while ((bytes_read = file.read(buffer.data(), BUF_SIZE).gcount())) {
+    if (1 != EVP_DigestUpdate(ctx, buffer.data(), bytes_read)) {
       return Err<FailedToCreateSha256Digest>();
     }
   }

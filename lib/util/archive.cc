@@ -66,11 +66,11 @@ Fn set_extract_path(archive_entry* entry, const Path& extract_path)->String {
 }
 
 [[nodiscard]] Fn
-archive_read_next_header_(Archive* reader, archive_entry** entry) noexcept(
+archive_read_next_header(Archive* reader, archive_entry** entry) noexcept(
     !static_cast<bool>(ARCHIVE_EOF) // NOLINT(modernize-use-bool-literals)
 )
     ->Result<bool, String> {
-  const i32 res = archive_read_next_header(reader, entry);
+  const i32 res = ::archive_read_next_header(reader, entry);
   if (res == ARCHIVE_EOF) {
     return Ok(ARCHIVE_EOF);
   } else if (res < ARCHIVE_OK) {
@@ -86,7 +86,8 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
     ->Result<String, String> {
   archive_entry* entry = nullptr;
   String extracted_directory_name;
-  while (Try(archive_read_next_header_(reader, &entry)) != ARCHIVE_EOF) {
+  while (Try(archive::archive_read_next_header(reader, &entry)) != ARCHIVE_EOF
+  ) {
     if (extracted_directory_name.empty()) {
       extracted_directory_name = set_extract_path(entry, extract_path);
     } else {
