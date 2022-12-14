@@ -4,7 +4,6 @@ add_poac_target(poac_core_builder_compiler_cxx
         clang.cc
         cxx.cc
         gcc.cc
-    INCLUDES ${POAC_HPP_INCLUDES}
     LIBRARIES
         ${POAC_HPP_LIBS}
         poac_core_builder_compiler

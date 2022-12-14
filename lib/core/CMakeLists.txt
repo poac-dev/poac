@@ -1,7 +1,6 @@
 add_poac_target(poac_core
     SOURCES
         resolver.cc
-    INCLUDES ${POAC_HPP_INCLUDES}
     LIBRARIES
         ${POAC_HPP_LIBS}
         poac_core_builder

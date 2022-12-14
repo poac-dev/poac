@@ -12,7 +12,6 @@ add_poac_target(poac_cmd
         run.cc
         search.cc
     INCLUDES
-        ${POAC_HPP_INCLUDES}
         ${LIBGIT2_INCLUDE_DIR}
     LIBRARIES
         ${POAC_HPP_LIBS}

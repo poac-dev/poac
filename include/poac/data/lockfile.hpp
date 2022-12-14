@@ -10,7 +10,8 @@
 // internal
 #include "poac/core/resolver/resolve.hpp"
 #include "poac/data/manifest.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::data::lockfile {
 

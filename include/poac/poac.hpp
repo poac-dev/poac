@@ -13,56 +13,12 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
+#include "poac/util/result.hpp"
 #include "poac/util/rustify.hpp"
 #include "poac/util/termcolor2/literals_extra.hpp"
 #include "poac/util/termcolor2/termcolor2.hpp"
 
-//
-// Macros
-//
-// NOLINTNEXTLINE(readability-identifier-naming)
-#define Try(...) MITAMA_TRY(__VA_ARGS__)
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-#define alias_fn(lhs, rhs)                                                    \
-  template <typename... Args>                                                 \
-  inline Fn lhs(Args&&... args)->decltype(rhs(std::forward<Args>(args)...)) { \
-    return rhs(std::forward<Args>(args)...);                                  \
-  }
-
 namespace poac {
-
-//
-// Namespaces
-//
-namespace anyhow = mitama::anyhow;
-namespace thiserror = mitama::thiserror;
-
-//
-// Data types
-//
-template <typename T, typename E = void>
-using Result = std::conditional_t<
-    std::is_void_v<E>, anyhow::result<T>, mitama::result<T, E>>;
-
-alias_fn(Ok, mitama::success); // NOLINT(readability-identifier-naming)
-
-template <typename E = void, typename... Args>
-inline Fn Err(Args&&... args) { // NOLINT(readability-identifier-naming)
-  if constexpr (std::is_void_v<E>) {
-    return mitama::failure(std::forward<Args>(args)...);
-  } else {
-    return anyhow::failure<E>(std::forward<Args>(args)...);
-  }
-}
-
-//
-// Errors
-//
-template <thiserror::fixed_string S, class... T>
-using Error = thiserror::error<S, T...>;
-
-using SubprocessFailed = Error<"`{}` completed with exit code {}", String, i32>;
 
 //
 // String literals
@@ -75,11 +31,6 @@ using namespace termcolor2::color_literals; // NOLINT(build/namespaces)
 //
 using fmt::format;
 using fmt::print;
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr auto to_anyhow = [](const String& e) {
-  return anyhow::anyhow(e);
-};
 
 //
 // Logs
