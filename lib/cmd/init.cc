@@ -18,8 +18,8 @@ namespace poac::cmd::init {
     ->Result<void> {
   using create::ProjectType;
 
-  spdlog::trace("Creating ./{}", data::manifest::name);
-  std::ofstream ofs_config(data::manifest::name);
+  spdlog::trace("Creating ./{}", data::manifest::NAME);
+  std::ofstream ofs_config(data::manifest::NAME);
 
   const ProjectType type = create::opts_to_project_type(opts);
   ofs_config << create::files::poac_toml(package_name);

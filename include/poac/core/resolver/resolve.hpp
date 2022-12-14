@@ -25,7 +25,7 @@ template <typename W>
 struct DuplicateDeps {};
 
 template <typename W>
-using DupDeps = typename DuplicateDeps<W>::type;
+using DupDeps = typename DuplicateDeps<W>::Type;
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Package {
@@ -51,14 +51,14 @@ inline Fn hash_value(const Package& p)->usize {
 
 template <>
 struct DuplicateDeps<WithoutDeps> {
-  using type = Vec<Package>;
+  using Type = Vec<Package>;
 };
 
 using Deps = Option<DupDeps<WithoutDeps>>;
 
 template <>
 struct DuplicateDeps<WithDeps> {
-  using type = Vec<std::pair<Package, Deps>>;
+  using Type = Vec<std::pair<Package, Deps>>;
 };
 
 template <typename W>

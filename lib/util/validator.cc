@@ -13,7 +13,7 @@ namespace poac::util::validator {
   Path candidate = config::path::cwd;
   while (true) {
     std::error_code ec{};
-    const Path config_path = candidate / data::manifest::name;
+    const Path config_path = candidate / data::manifest::NAME;
     spdlog::trace("Finding manifest: {} ...", config_path);
     if (fs::exists(config_path, ec)) {
       return Ok(config_path);
@@ -28,7 +28,7 @@ namespace poac::util::validator {
     }
   }
   return Err(format(
-      "could not find `{}` here and in its parents", data::manifest::name
+      "could not find `{}` here and in its parents", data::manifest::NAME
   ));
 }
 
@@ -112,7 +112,7 @@ namespace poac::util::validator {
 [[nodiscard]] Fn using_keywords(StringRef s)->Result<void, String> {
   // Ban keywords
   // https://en.cppreference.com/w/cpp/keyword
-  constexpr Arr<StringRef, 96> blacklist{
+  constexpr Arr<StringRef, 96> BLACKLIST{
       "alignas",
       "alignof",
       "and",
@@ -210,8 +210,8 @@ namespace poac::util::validator {
       "xor",
       "xor_eq",
   };
-  if (std::find(std::cbegin(blacklist), std::cend(blacklist), s)
-      != std::cend(blacklist)) {
+  if (std::find(std::cbegin(BLACKLIST), std::cend(BLACKLIST), s)
+      != std::cend(BLACKLIST)) {
     return Err(
         format("`{}` is a keyword; it cannot be used as a package name", s)
     );

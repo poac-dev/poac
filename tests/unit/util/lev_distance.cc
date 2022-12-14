@@ -22,15 +22,15 @@ auto main() -> int {
       expect(eq(calc(String(1, c), String(1, c)), 0));
     }
 
-    constexpr StringRef a = "\nMäry häd ä little lämb\n\nLittle lämb\n";
-    constexpr StringRef b = "\nMary häd ä little lämb\n\nLittle lämb\n";
-    constexpr StringRef c = "Mary häd ä little lämb\n\nLittle lämb\n";
-    expect(eq(calc(a, b), 2));
-    expect(eq(calc(b, a), 2));
-    expect(eq(calc(a, c), 3));
-    expect(eq(calc(c, a), 3));
-    expect(eq(calc(b, c), 1));
-    expect(eq(calc(c, b), 1));
+    constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
+    constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
+    constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
+    expect(eq(calc(A, B), 2));
+    expect(eq(calc(B, A), 2));
+    expect(eq(calc(A, C), 3));
+    expect(eq(calc(C, A), 3));
+    expect(eq(calc(B, C), 1));
+    expect(eq(calc(C, B), 1));
 
     expect(eq(calc("b", "bc"), 1));
     expect(eq(calc("ab", "abc"), 1));
@@ -48,33 +48,33 @@ auto main() -> int {
   "test find_similar_str"_test = [] {
     using util::lev_distance::find_similar_str;
 
-    constexpr Arr<StringRef, 8> candidates{"if",      "ifdef",   "ifndef",
+    constexpr Arr<StringRef, 8> CANDIDATES{"if",      "ifdef",   "ifndef",
                                            "elif",    "else",    "endif",
                                            "elifdef", "elifndef"};
-    expect(find_similar_str("id", candidates) == "if"sv);
-    expect(find_similar_str("ifd", candidates) == "if"sv);
-    expect(find_similar_str("ifde", candidates) == "ifdef"sv);
-    expect(find_similar_str("elf", candidates) == "elif"sv);
-    expect(find_similar_str("elsif", candidates) == "elif"sv);
-    expect(find_similar_str("elseif", candidates) == "elif"sv);
-    expect(find_similar_str("elfidef", candidates) == "elifdef"sv);
-    expect(find_similar_str("elfindef", candidates) == "elifdef"sv);
-    expect(find_similar_str("elfinndef", candidates) == "elifndef"sv);
-    expect(find_similar_str("els", candidates) == "else"sv);
-    expect(find_similar_str("endi", candidates) == "endif"sv);
+    expect(find_similar_str("id", CANDIDATES) == "if"sv);
+    expect(find_similar_str("ifd", CANDIDATES) == "if"sv);
+    expect(find_similar_str("ifde", CANDIDATES) == "ifdef"sv);
+    expect(find_similar_str("elf", CANDIDATES) == "elif"sv);
+    expect(find_similar_str("elsif", CANDIDATES) == "elif"sv);
+    expect(find_similar_str("elseif", CANDIDATES) == "elif"sv);
+    expect(find_similar_str("elfidef", CANDIDATES) == "elifdef"sv);
+    expect(find_similar_str("elfindef", CANDIDATES) == "elifdef"sv);
+    expect(find_similar_str("elfinndef", CANDIDATES) == "elifndef"sv);
+    expect(find_similar_str("els", CANDIDATES) == "else"sv);
+    expect(find_similar_str("endi", CANDIDATES) == "endif"sv);
 
-    expect(find_similar_str("i", candidates) == None);
-    expect(find_similar_str("special_compiler_directive", candidates) == None);
+    expect(find_similar_str("i", CANDIDATES) == None);
+    expect(find_similar_str("special_compiler_directive", CANDIDATES) == None);
   };
 
   "test find_similar_str 2"_test = [] {
     using util::lev_distance::find_similar_str;
 
-    constexpr Arr<StringRef, 2> candidates{"aaab", "aaabc"};
-    expect(find_similar_str("aaaa", candidates) == "aaab"sv);
-    expect(find_similar_str("1111111111", candidates) == None);
+    constexpr Arr<StringRef, 2> CANDIDATES{"aaab", "aaabc"};
+    expect(find_similar_str("aaaa", CANDIDATES) == "aaab"sv);
+    expect(find_similar_str("1111111111", CANDIDATES) == None);
 
-    constexpr Arr<StringRef, 1> candidates2{"AAAA"};
-    expect(find_similar_str("aaaa", candidates2) == "AAAA"sv);
+    constexpr Arr<StringRef, 1> CANDIDATES2{"AAAA"};
+    expect(find_similar_str("aaaa", CANDIDATES2) == "AAAA"sv);
   };
 }

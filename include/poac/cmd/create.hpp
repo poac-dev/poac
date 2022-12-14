@@ -56,7 +56,7 @@ namespace files {
     );
   }
 
-  inline constexpr StringRef main_cpp =
+  inline constexpr StringRef MAIN_CPP =
       "#include <iostream>\n\n"
       "int main(int argc, char** argv) {\n"
       "  std::cout << \"Hello, world!\" << std::endl;\n"

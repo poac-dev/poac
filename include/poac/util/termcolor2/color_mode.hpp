@@ -28,8 +28,8 @@ public:
   }
 
   static auto instance() -> ColorMode& {
-    static ColorMode s_instance;
-    return s_instance;
+    static ColorMode INSTANCE;
+    return INSTANCE;
   }
 
 private:

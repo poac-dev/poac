@@ -140,8 +140,8 @@ struct Token {
   };
 
   Kind kind;
-  using string_type = StringRef;
-  std::variant<std::monostate, string_type, ident> value;
+  using StringType = StringRef;
+  std::variant<std::monostate, StringType, ident> value;
 
   explicit Token(Kind k)
       : kind(
@@ -149,7 +149,7 @@ struct Token {
               ? k
               : throw std::invalid_argument("poac::util::cfg::Token")
       ) {}
-  Token(Kind k, string_type s)
+  Token(Kind k, StringType s)
       : kind(
           k == Kind::String
               ? k
@@ -171,8 +171,8 @@ struct Token {
   Fn operator=(Token&&) noexcept -> Token& = default;
   ~Token() = default;
 
-  [[nodiscard]] inline Fn get_str() const->string_type {
-    return std::get<string_type>(this->value);
+  [[nodiscard]] inline Fn get_str() const->StringType {
+    return std::get<StringType>(this->value);
   }
   [[nodiscard]] inline Fn get_ident() const->ident {
     return std::get<ident>(this->value);
@@ -208,11 +208,11 @@ Fn to_string(Token::ident ident)->String;
 Fn operator<<(std::ostream& os, const Token& token)->std::ostream&;
 
 struct Lexer {
-  using value_type = StringRef::value_type;
-  using size_type = usize;
+  using ValueType = StringRef::value_type;
+  using SizeType = usize;
 
   StringRef str;
-  size_type index{0};
+  SizeType index{0};
 
   explicit Lexer(StringRef str) : str(str) {}
 
@@ -230,37 +230,37 @@ struct Lexer {
 
 private:
   [[nodiscard]] inline Fn generate_token(
-      size_type index_, const Option<Token>& token
-  ) const->std::pair<size_type, Option<Token>> {
+      SizeType index_, const Option<Token>& token
+  ) const->std::pair<SizeType, Option<Token>> {
     return {this->diff_step(index_), token};
   }
-  [[nodiscard]] inline Fn generate_token(size_type index_, StringRef kind) const
-      ->std::pair<size_type, Option<Token>> {
+  [[nodiscard]] inline Fn generate_token(SizeType index_, StringRef kind) const
+      ->std::pair<SizeType, Option<Token>> {
     return generate_token(index_, Token{to_kind(kind)});
   }
 
-  [[nodiscard]] Fn analyze_two_phrase(size_type index_, char kind) const
-      ->std::pair<size_type, Option<Token>>;
+  [[nodiscard]] Fn analyze_two_phrase(SizeType index_, char kind) const
+      ->std::pair<SizeType, Option<Token>>;
 
-  [[nodiscard]] Fn tokenize(size_type index_
-  ) const->std::pair<size_type, Option<Token>>;
+  [[nodiscard]] Fn tokenize(SizeType index_
+  ) const->std::pair<SizeType, Option<Token>>;
 
-  void step(size_type& index_) const noexcept;
-  void step_n(size_type n) noexcept;
+  void step(SizeType& index_) const noexcept;
+  void step_n(SizeType n) noexcept;
 
-  [[nodiscard]] inline Fn diff_step(const size_type index_) const noexcept
-      -> size_type {
+  [[nodiscard]] inline Fn diff_step(const SizeType index_) const noexcept
+      -> SizeType {
     return index_ - this->index;
   }
 
-  [[nodiscard]] inline Fn one(const size_type index_) const noexcept
-      -> value_type {
+  [[nodiscard]] inline Fn one(const SizeType index_) const noexcept
+      -> ValueType {
     return this->str[index_];
   }
 
-  [[nodiscard]] Fn string(size_type index_) const->std::pair<size_type, Token>;
+  [[nodiscard]] Fn string(SizeType index_) const->std::pair<SizeType, Token>;
 
-  [[nodiscard]] Fn ident(size_type index_) const->std::pair<size_type, Token>;
+  [[nodiscard]] Fn ident(SizeType index_) const->std::pair<SizeType, Token>;
 
   static Fn to_ident(StringRef s) noexcept -> Option<Token::ident>;
 };
@@ -317,22 +317,22 @@ struct CfgExpr {
     value,
   };
 
-  using null_type = std::monostate;
-  using expr_type = std::unique_ptr<CfgExpr>;
-  using expr_list_type = Vec<CfgExpr>;
-  using variant_type = std::variant<null_type, expr_type, expr_list_type, Cfg>;
+  using NullType = std::monostate;
+  using ExprType = std::unique_ptr<CfgExpr>;
+  using ExprListType = Vec<CfgExpr>;
+  using VariantType = std::variant<NullType, ExprType, ExprListType, Cfg>;
 
   Kind kind;
-  variant_type expr;
+  VariantType expr;
 
-  CfgExpr(Kind kind, expr_type&& expr)
+  CfgExpr(Kind kind, ExprType&& expr)
       : kind(
           kind == Kind::not_ || kind == Kind::cfg
               ? kind
               : throw std::invalid_argument("poac::util::cfg::CfgExpr")
       ),
         expr(std::move(expr)) {}
-  CfgExpr(Kind kind, expr_list_type&& expr)
+  CfgExpr(Kind kind, ExprListType&& expr)
       : kind(
           kind == Kind::all || kind == Kind::any
               ? kind

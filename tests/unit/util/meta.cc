@@ -88,10 +88,10 @@ auto main() -> int {
 
   "test are_all_same"_test = [] {
     using poac::util::meta::AreAllSame;
-    using poac::util::meta::are_all_same_v;
+    using poac::util::meta::ARE_ALL_SAME_V;
 
     expect(constant<AreAllSame<int, int, int>::value>);
-    expect(constant<are_all_same_v<int, int, int>>);
+    expect(constant<ARE_ALL_SAME_V<int, int, int>>);
     expect(constant<std::negation_v<AreAllSame<int, std::string, int>>>);
     expect(constant<std::negation_v<AreAllSame<std::string, int, int>>>);
     expect(constant<std::negation_v<AreAllSame<int, int, std::string>>>);
@@ -110,19 +110,19 @@ auto main() -> int {
 
   "test is_tuple"_test = [] {
     using poac::util::meta::IsTuple;
-    using poac::util::meta::is_tuple_v;
+    using poac::util::meta::IS_TUPLE_V;
 
-    expect(constant<is_tuple_v<std::tuple<int>>>);
-    expect(constant<is_tuple_v<std::tuple<int, std::string>>>);
+    expect(constant<IS_TUPLE_V<std::tuple<int>>>);
+    expect(constant<IS_TUPLE_V<std::tuple<int, std::string>>>);
     expect(constant<std::negation_v<IsTuple<std::vector<int>>>>);
   };
 
   "test to_array"_test = [] {
     using poac::util::meta::to_array;
 
-    constexpr std::array<int, 3> test_case{0, 1, 2};
-    constexpr std::tuple<int, int, int> res1 = std::make_tuple(0, 1, 2);
-    constexpr std::array<int, 3> res = to_array(res1);
-    expect(constant<res == test_case>);
+    constexpr std::array<int, 3> TEST_CASE{0, 1, 2};
+    constexpr std::tuple<int, int, int> RES1 = std::make_tuple(0, 1, 2);
+    constexpr std::array<int, 3> RES = to_array(RES1);
+    expect(constant<RES == TEST_CASE>);
   };
 }

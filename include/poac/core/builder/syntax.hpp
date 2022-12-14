@@ -81,7 +81,7 @@ class Writer {
 public:
 #endif
   /// Write 'text' word-wrapped at self.width characters.
-  void _line(String text, usize indent = 0);
+  void line(String text, usize indent = 0);
 
 #if !__has_include(<boost/ut.hpp>)
 public:
@@ -103,11 +103,11 @@ public:
         boost::algorithm::join_if(values, " ", [](const auto& s) {
           return !s.empty();
         });
-    _line(format("{} = {}", key, value), indent);
+    line(format("{} = {}", key, value), indent);
   }
 
   inline void pool(StringRef name, StringRef depth) {
-    _line(format("pool {}", name));
+    line(format("pool {}", name));
     variable("depth", depth, 1);
   }
 
@@ -118,12 +118,12 @@ public:
   )
       ->Vec<String>;
 
-  inline void include(const Path& path) { _line(format("include {}", path)); }
+  inline void include(const Path& path) { line(format("include {}", path)); }
 
-  inline void subninja(const Path& path) { _line(format("subninja {}", path)); }
+  inline void subninja(const Path& path) { line(format("subninja {}", path)); }
 
-  inline void default_(const Vec<String>& paths) {
-    _line(format("default {}", boost::algorithm::join(paths, " ")));
+  inline void defalt(const Vec<String>& paths) {
+    line(format("default {}", boost::algorithm::join(paths, " ")));
   }
 
   inline friend Fn operator<<(std::ostream& os, const Writer& w)

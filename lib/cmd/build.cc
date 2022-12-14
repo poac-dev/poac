@@ -63,7 +63,7 @@ namespace poac::cmd::build {
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  const toml::value manifest = toml::parse(data::manifest::name);
+  const toml::value manifest = toml::parse(data::manifest::NAME);
 
   Try(build(opts, manifest).with_context([&manifest] {
     return Err<FailedToBuild>(toml::find<String>(manifest, "package", "name"))

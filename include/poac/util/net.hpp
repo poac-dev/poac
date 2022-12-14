@@ -85,11 +85,11 @@ public:
   MultiPartForm(MultiPartForm&&) = default;
   Fn operator=(MultiPartForm&&)->MultiPartForm& = default;
 
-  using file_name_type = String;
-  using file_path_type = Path;
-  using header_type = Map<http::field, String>;
-  using self_reference = MultiPartForm&;
-  using const_self_reference = const MultiPartForm&;
+  using FileNameType = String;
+  using FilePathType = Path;
+  using HeaderType = Map<http::field, String>;
+  using SelfReference = MultiPartForm&;
+  using ConstSelfReference = const MultiPartForm&;
 
 private:
   String m_crlf = "\r\n";
@@ -98,7 +98,7 @@ private:
   String m_footer;
   String m_content_disposition = "Content-Disposition: form-data; ";
   Vec<String> m_form_param;
-  Vec<std::tuple<file_name_type, file_path_type, header_type>> m_file_param;
+  Vec<std::tuple<FileNameType, FilePathType, HeaderType>> m_file_param;
 
 public:
   MultiPartForm()
@@ -108,7 +108,7 @@ public:
   [[nodiscard]] inline Fn get_header() const->String { return m_header; }
   [[nodiscard]] inline Fn get_footer() const->String { return m_footer; }
 
-  inline void set(const file_name_type& name, const String& value) {
+  inline void set(const FileNameType& name, const String& value) {
     m_form_param.emplace_back(format(
         "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
         "boundary"_a = m_boundary, "crlf"_a = m_crlf,
@@ -117,8 +117,8 @@ public:
     generate_header(); // re-generate
   }
   inline void
-  set(const file_name_type& name, const file_path_type& value,
-      const header_type& h) {
+  set(const FileNameType& name, const FilePathType& value,
+      const HeaderType& h) {
     m_file_param.emplace_back(name, value, h);
     generate_header(); // re-generate
   }
@@ -150,12 +150,12 @@ public:
   };
   [[nodiscard]] Fn get_files() const->Vec<FileInfo>;
 
-  inline Fn body() noexcept -> self_reference { return *this; }
-  [[nodiscard]] inline Fn body() const noexcept -> const_self_reference {
+  inline Fn body() noexcept -> SelfReference { return *this; }
+  [[nodiscard]] inline Fn body() const noexcept -> ConstSelfReference {
     return *this;
   }
 
-  [[nodiscard]] inline Fn cbody() const noexcept -> const_self_reference {
+  [[nodiscard]] inline Fn cbody() const noexcept -> ConstSelfReference {
     return *this;
   }
 
@@ -294,13 +294,13 @@ private:
     //  複数ファイルだと，req.headerをちょびちょびで送る必要がある．
     for (const auto& file : req.get_files()) {
       std::ifstream ifs(file.path, std::ios::in | std::ios::binary);
-      constexpr usize kReadBites = 512;
+      constexpr usize K_READ_BITES = 512;
 
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      char buf[kReadBites];
+      char buf[K_READ_BITES];
       //                unsigned long cur_file_size = 0;
       while (!ifs.eof()) {
-        ifs.read(buf, kReadBites);
+        ifs.read(buf, K_READ_BITES);
         stream->write_some(boost::asio::buffer(buf, ifs.gcount()));
 
         // Print progress bar TODO:

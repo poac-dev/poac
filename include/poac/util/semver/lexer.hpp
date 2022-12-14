@@ -56,24 +56,24 @@ constexpr auto str_to_uint(std::string_view s) noexcept
 
 class Lexer {
 public:
-  using size_type = std::size_t;
-  using string_type = std::string_view;
-  using value_type = string_type::value_type;
-  using traits_type = string_type::traits_type;
-  using const_iterator = string_type::const_iterator;
-  using const_reverse_iterator = string_type::const_reverse_iterator;
+  using SizeType = std::size_t;
+  using StringType = std::string_view;
+  using ValueType = StringType::value_type;
+  using TraitsType = StringType::traits_type;
+  using ConstIterator = StringType::const_iterator;
+  using ConstReverseIterator = StringType::const_reverse_iterator;
 
-  string_type str;
-  size_type c1_index{0};
+  StringType str;
+  SizeType c1_index{0};
 
-  explicit Lexer(string_type s) : str(s) {}
+  explicit Lexer(StringType s) : str(s) {}
 
   auto next() -> Token;
 
-  [[nodiscard]] constexpr auto size() const noexcept -> size_type {
+  [[nodiscard]] constexpr auto size() const noexcept -> SizeType {
     return str.size();
   }
-  [[nodiscard]] constexpr auto max_size() const noexcept -> size_type {
+  [[nodiscard]] constexpr auto max_size() const noexcept -> SizeType {
     return str.max_size();
   }
   [[nodiscard]] constexpr auto empty() const noexcept -> bool {
@@ -83,16 +83,16 @@ public:
 private:
   inline void step() noexcept { ++c1_index; }
 
-  void step_n(const size_type& n) noexcept;
+  void step_n(const SizeType& n) noexcept;
 
   /// Access the one character, or set it if it is not set.
-  [[nodiscard]] inline auto one() const noexcept -> value_type {
+  [[nodiscard]] inline auto one() const noexcept -> ValueType {
     return str[c1_index];
   }
 
   /// Access two characters.
   [[nodiscard]] inline auto two() const noexcept
-      -> std::pair<value_type, value_type> {
+      -> std::pair<ValueType, ValueType> {
     return {str[c1_index], str[c1_index + 1]};
   }
 

@@ -36,7 +36,7 @@ auto Parser::or_range() -> std::optional<VersionReq> {
 /// Returns `None` if the component is a wildcard.
 auto Parser::component() -> std::optional<std::uint_fast64_t> {
   if (const Token token = this->pop(); token.kind == Token::Numeric) {
-    return std::get<Token::numeric_type>(token.component);
+    return std::get<Token::NumericType>(token.component);
   } else if (token.is_wildcard()) {
     return std::nullopt;
   } else {
@@ -47,7 +47,7 @@ auto Parser::component() -> std::optional<std::uint_fast64_t> {
 /// Parse a single numeric.
 auto Parser::numeric() -> std::optional<std::uint_fast64_t> {
   if (const Token token = this->pop(); token.kind == Token::Numeric) {
-    return std::get<Token::numeric_type>(token.component);
+    return std::get<Token::NumericType>(token.component);
   }
   return std::nullopt;
 }
@@ -85,11 +85,11 @@ auto Parser::identifier() -> std::optional<Identifier> {
   if (token.kind == Token::AlphaNumeric) {
     return Identifier(
         Identifier::AlphaNumeric,
-        std::get<Token::alphanumeric_type>(token.component)
+        std::get<Token::AlphanumericType>(token.component)
     );
   } else if (token.kind == Token::Numeric) {
     return Identifier(
-        Identifier::Numeric, std::get<Token::numeric_type>(token.component)
+        Identifier::Numeric, std::get<Token::NumericType>(token.component)
     );
   }
   return std::nullopt;

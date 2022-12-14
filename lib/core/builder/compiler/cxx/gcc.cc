@@ -13,7 +13,7 @@ namespace poac::core::builder::compiler::cxx::gcc {
   // `g++ (GCC) 11.2.0\n`
   usize itr = cmd_output.find('(');
   if (itr == None) {
-    return Err<error::FailedToGetCompilerVersion>(compiler);
+    return Err<error::FailedToGetCompilerVersion>(COMPILER);
   }
   itr = cmd_output.find(')', itr + 1);
 
@@ -34,7 +34,7 @@ namespace poac::core::builder::compiler::cxx::gcc {
   if (res.is_ok()) {
     return get_compiler_version_impl(res.output());
   }
-  return Err<error::FailedToGetCompilerVersion>(compiler);
+  return Err<error::FailedToGetCompilerVersion>(COMPILER);
 }
 
 // thanks to:
@@ -82,7 +82,7 @@ namespace poac::core::builder::compiler::cxx::gcc {
       break;
   }
   return Err<error::UnsupportedLangVersion>(
-      compiler, version, lang::Lang::cxx, edition
+      COMPILER, version, lang::Lang::cxx, edition
   );
 }
 

@@ -36,10 +36,10 @@ Fn multiple_versions_cnf(const Vec<i32>& clause)->Vec<Vec<i32>> {
                                                       &bs](const i32 i) {
                           return bs[i] ? clause[i] * -1 : clause[i];
                         })
-                      | util::meta::containerized;
+                      | util::meta::CONTAINERIZED;
              }
          )
-         | util::meta::containerized;
+         | util::meta::CONTAINERIZED;
 }
 
 Fn
@@ -165,7 +165,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
   const Vec<String> satisfied_versions =
       Try(util::net::api::versions(package.name))
       | boost::adaptors::filtered([&i](StringRef s) { return i.satisfies(s); })
-      | util::meta::containerized;
+      | util::meta::CONTAINERIZED;
 
   if (satisfied_versions.empty()) {
     return Err(format(

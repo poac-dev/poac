@@ -19,16 +19,16 @@ using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:\n"
     "  apt/brew install clang-format">;
 
-inline constexpr Arr<StringRef, 5> directories{
+inline constexpr Arr<StringRef, 5> DIRECTORIES{
     "examples", "include", "lib", "src", "tests"};
-inline constexpr Arr<StringRef, 3> drogon_dirs{
+inline constexpr Arr<StringRef, 3> DROGON_DIRS{
     "controllers", "filters", "views"};
 
-inline constexpr Arr<StringRef, 12> extensions{"c",   "c++", "cc",  "cpp",
+inline constexpr Arr<StringRef, 12> EXTENSIONS{"c",   "c++", "cc",  "cpp",
                                                "cu",  "cuh", "cxx", "h",
                                                "h++", "hh",  "hpp", "hxx"};
 
-inline constexpr Arr<StringRef, 2> patterns{"{}/*.{}", "{}/**/*.{}"};
+inline constexpr Arr<StringRef, 2> PATTERNS{"{}/*.{}", "{}/**/*.{}"};
 
 void fmt_impl(
     const Path& base_dir, std::span<const StringRef> dirs, Vec<Path>& targets
@@ -39,8 +39,8 @@ void fmt_impl(
       continue;
     }
 
-    for (const StringRef e : extensions) {
-      for (const StringRef p : patterns) {
+    for (const StringRef e : EXTENSIONS) {
+      for (const StringRef p : PATTERNS) {
         const String search =
             format(::fmt::runtime((base_dir / p).string()), d, e);
         const Vec<Path> search_glob = glob::rglob(search);
@@ -59,9 +59,9 @@ void fmt_impl(
     ->Result<void> {
   Vec<Path> targets;
 
-  fmt_impl(base_dir, directories, targets);
+  fmt_impl(base_dir, DIRECTORIES, targets);
   if (opts.drogon.value()) {
-    fmt_impl(base_dir, drogon_dirs, targets);
+    fmt_impl(base_dir, DROGON_DIRS, targets);
   }
   if (targets.empty()) {
     spdlog::info("no targets found.");

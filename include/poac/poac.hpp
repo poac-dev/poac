@@ -34,15 +34,14 @@
 //
 // Macros
 //
-#ifdef NDEBUG
-#  define unreachable() __builtin_unreachable()
-#else
-#  define unreachable() __builtin_unreachable()
-#endif
-
+// NOLINTNEXTLINE(readability-identifier-naming)
 #define Fn auto
+// NOLINTNEXTLINE(readability-identifier-naming)
 #define Try(...) MITAMA_TRY(__VA_ARGS__)
+// NOLINTNEXTLINE(readability-identifier-naming)
+#define unreachable() __builtin_unreachable()
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 #define alias_fn(lhs, rhs)                                                    \
   template <typename... Args>                                                 \
   inline Fn lhs(Args&&... args)->decltype(rhs(std::forward<Args>(args)...)) { \
@@ -61,20 +60,20 @@ namespace thiserror = mitama::thiserror;
 //
 // Data types
 //
-using u8 = std::uint8_t;
-using u16 = std::uint16_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
+using u8 = std::uint8_t; // NOLINT(readability-identifier-naming)
+using u16 = std::uint16_t; // NOLINT(readability-identifier-naming)
+using u32 = std::uint32_t; // NOLINT(readability-identifier-naming)
+using u64 = std::uint64_t; // NOLINT(readability-identifier-naming)
 
-using i8 = std::int8_t;
-using i16 = std::int16_t;
-using i32 = std::int32_t; // a.k.a. `int`
-using i64 = std::int64_t; // a.k.a. `long`
+using i8 = std::int8_t; // NOLINT(readability-identifier-naming)
+using i16 = std::int16_t; // NOLINT(readability-identifier-naming)
+using i32 = std::int32_t; // NOLINT(readability-identifier-naming)
+using i64 = std::int64_t; // NOLINT(readability-identifier-naming)
 
-using usize = std::size_t;
+using usize = std::size_t; // NOLINT(readability-identifier-naming)
 
-using f32 = float;
-using f64 = double;
+using f32 = float; // NOLINT(readability-identifier-naming)
+using f64 = double; // NOLINT(readability-identifier-naming)
 
 using String = std::string;
 using StringRef = std::string_view;
@@ -91,10 +90,10 @@ template <typename T, typename E = void>
 using Result = std::conditional_t<
     std::is_void_v<E>, anyhow::result<T>, mitama::result<T, E>>;
 
-alias_fn(Ok, mitama::success);
+alias_fn(Ok, mitama::success); // NOLINT(readability-identifier-naming)
 
 template <typename E = void, typename... Args>
-inline Fn Err(Args&&... args) {
+inline Fn Err(Args&&... args) { // NOLINT(readability-identifier-naming)
   if constexpr (std::is_void_v<E>) {
     return mitama::failure(std::forward<Args>(args)...);
   } else {
@@ -118,7 +117,7 @@ struct NoneT : protected std::monostate {
     return std::nullopt;
   }
 };
-inline constexpr NoneT None;
+inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
 
 template <typename K, typename V>
 using Map = std::map<K, V>;
@@ -146,6 +145,7 @@ inline Fn operator""_path(const char* str, usize /*unused*/)->Path {
 using fmt::format;
 using fmt::print;
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 inline constexpr auto to_anyhow = [](const String& e) {
   return anyhow::anyhow(e);
 };

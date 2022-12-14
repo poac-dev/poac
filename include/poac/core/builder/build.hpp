@@ -33,7 +33,7 @@ Fn operator<<(std::ostream& os, Mode mode)->std::ostream&;
 Fn get_ninja_verbosity()->BuildConfig::Verbosity;
 
 // Limit number of rebuilds, to prevent infinite loops.
-inline constexpr i32 rebuildLimit = 100;
+inline constexpr i32 REBUILD_LIMIT = 100;
 
 [[nodiscard]] Fn start(
     const toml::value& poac_manifest, const Mode& mode,

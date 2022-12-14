@@ -96,7 +96,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
          | boost::adaptors::transformed([](const resolve::Package& package) {
              return std::make_pair(package.name, package.version_rq);
            })
-         | util::meta::containerized;
+         | util::meta::CONTAINERIZED;
 }
 
 [[nodiscard]] Fn download_deps(const ResolvedDeps& deps)->Result<void> {

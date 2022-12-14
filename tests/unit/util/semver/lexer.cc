@@ -87,9 +87,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::Whitespace;
       expect(test1);
 
-      expect(std::holds_alternative<Token::whitespace_type>(token.component));
-      const bool test2 = std::get<Token::whitespace_type>(token.component)
-                         == Token::whitespace_type(0, 2);
+      expect(std::holds_alternative<Token::WhitespaceType>(token.component));
+      const bool test2 = std::get<Token::WhitespaceType>(token.component)
+                         == Token::WhitespaceType(0, 2);
       expect(test2);
     };
     it("AlphaNumeric") = [&] {
@@ -97,9 +97,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::AlphaNumeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::alphanumeric_type>(token.component));
+      expect(std::holds_alternative<Token::AlphanumericType>(token.component));
       const bool test2 =
-          std::get<Token::alphanumeric_type>(token.component) == "foo";
+          std::get<Token::AlphanumericType>(token.component) == "foo";
       expect(test2);
     };
     it("Whitespace 2") = [&] {
@@ -107,9 +107,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::Whitespace;
       expect(test1);
 
-      expect(std::holds_alternative<Token::whitespace_type>(token.component));
-      const bool test2 = std::get<Token::whitespace_type>(token.component)
-                         == Token::whitespace_type(5, 9);
+      expect(std::holds_alternative<Token::WhitespaceType>(token.component));
+      const bool test2 = std::get<Token::WhitespaceType>(token.component)
+                         == Token::WhitespaceType(5, 9);
       expect(test2);
     };
     it("AlphaNumeric 2") = [&] {
@@ -117,9 +117,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::AlphaNumeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::alphanumeric_type>(token.component));
+      expect(std::holds_alternative<Token::AlphanumericType>(token.component));
       const bool test2 =
-          std::get<Token::alphanumeric_type>(token.component) == "bar";
+          std::get<Token::AlphanumericType>(token.component) == "bar";
       expect(test2);
     };
   };
@@ -131,8 +131,8 @@ auto main() -> int {
       const bool test1 = token.kind == Token::Numeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::numeric_type>(token.component));
-      const bool test2 = std::get<Token::numeric_type>(token.component) == 42;
+      expect(std::holds_alternative<Token::NumericType>(token.component));
+      const bool test2 = std::get<Token::NumericType>(token.component) == 42;
       expect(test2);
     };
 
@@ -142,8 +142,8 @@ auto main() -> int {
       const bool test1 = token.kind == Token::Numeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::numeric_type>(token.component));
-      const bool test2 = std::get<Token::numeric_type>(token.component) == 0;
+      expect(std::holds_alternative<Token::NumericType>(token.component));
+      const bool test2 = std::get<Token::NumericType>(token.component) == 0;
       expect(test2);
     };
 
@@ -153,9 +153,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::AlphaNumeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::alphanumeric_type>(token.component));
+      expect(std::holds_alternative<Token::AlphanumericType>(token.component));
       const bool test2 =
-          std::get<Token::alphanumeric_type>(token.component) == "01";
+          std::get<Token::AlphanumericType>(token.component) == "01";
       expect(test2);
     };
 
@@ -165,9 +165,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::AlphaNumeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::alphanumeric_type>(token.component));
+      expect(std::holds_alternative<Token::AlphanumericType>(token.component));
       const bool test2 =
-          std::get<Token::alphanumeric_type>(token.component) == "5885644aa";
+          std::get<Token::AlphanumericType>(token.component) == "5885644aa";
       expect(test2);
     };
 
@@ -177,9 +177,9 @@ auto main() -> int {
       const bool test1 = token.kind == Token::AlphaNumeric;
       expect(test1);
 
-      expect(std::holds_alternative<Token::alphanumeric_type>(token.component));
+      expect(std::holds_alternative<Token::AlphanumericType>(token.component));
       const bool test2 =
-          std::get<Token::alphanumeric_type>(token.component) == "beta2";
+          std::get<Token::AlphanumericType>(token.component) == "beta2";
       expect(test2);
     };
 
@@ -190,10 +190,10 @@ auto main() -> int {
         const bool test1 = token.kind == Token::AlphaNumeric;
         expect(test1);
 
-        expect(std::holds_alternative<Token::alphanumeric_type>(token.component)
+        expect(std::holds_alternative<Token::AlphanumericType>(token.component)
         );
         const bool test2 =
-            std::get<Token::alphanumeric_type>(token.component) == "beta";
+            std::get<Token::AlphanumericType>(token.component) == "beta";
         expect(test2);
       }
       {
@@ -206,8 +206,8 @@ auto main() -> int {
         const bool test1 = token.kind == Token::Numeric;
         expect(test1);
 
-        expect(std::holds_alternative<Token::numeric_type>(token.component));
-        const bool test2 = std::get<Token::numeric_type>(token.component) == 2;
+        expect(std::holds_alternative<Token::NumericType>(token.component));
+        const bool test2 = std::get<Token::NumericType>(token.component) == 2;
         expect(test2);
       }
     };

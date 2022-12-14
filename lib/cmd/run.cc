@@ -16,7 +16,7 @@ namespace poac::cmd::run {
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  const toml::value manifest = toml::parse(data::manifest::name);
+  const toml::value manifest = toml::parse(data::manifest::NAME);
   const String name = toml::find<String>(manifest, "package", "name");
 
   const Option<Path> output = Try(
