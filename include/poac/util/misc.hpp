@@ -2,7 +2,8 @@
 #pragma once
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::misc {
 

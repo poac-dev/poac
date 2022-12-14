@@ -2,9 +2,7 @@ add_poac_target(poac_core_resolver
     SOURCES
         sat.cc
         resolve.cc
-    INCLUDES
-        ${POAC_HPP_INCLUDES}
-        ${OPENSSL_INCLUDE_DIR}
+    INCLUDES ${OPENSSL_INCLUDE_DIR}
     LIBRARIES
         ${POAC_HPP_LIBS}
         poac_util_net
