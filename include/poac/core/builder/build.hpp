@@ -11,7 +11,10 @@
 // internal
 #include "poac/core/builder/data.hpp"
 #include "poac/core/resolver/types.hpp" // ResolvedDeps
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::core::builder::build {
 

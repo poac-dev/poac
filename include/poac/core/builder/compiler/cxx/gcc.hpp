@@ -1,8 +1,11 @@
 #pragma once
 
 // internal
-#include "poac/poac.hpp"
 #include "poac/util/cfg.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 #include "poac/util/semver/semver.hpp"
 
 namespace poac::core::builder::compiler::cxx::gcc {

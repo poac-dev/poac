@@ -11,8 +11,11 @@
 #include "poac/config.hpp"
 #include "poac/core/resolver/resolve.hpp"
 #include "poac/core/resolver/types.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
 #include "poac/util/net.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::core::resolver {
 

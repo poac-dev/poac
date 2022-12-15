@@ -14,14 +14,17 @@ add_poac_target(poac_cmd
     INCLUDES
         ${LIBGIT2_INCLUDE_DIR}
     LIBRARIES
-        ${POAC_HPP_LIBS}
         structopt::structopt
         toml11::toml11
         ${LIBGIT2_LIBRARY}
         git2-cpp::git2-cpp
         Glob
         poac_core
-        poac_util_pretty
+        poac_util_format
+        poac_util_log
         poac_util_net
+        poac_util_result
+        poac_util_pretty
+        poac_util_rustify
         poac_util_validator
 )

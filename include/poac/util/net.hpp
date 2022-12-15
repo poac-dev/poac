@@ -32,10 +32,13 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
 #include "poac/util/meta.hpp"
 #include "poac/util/misc.hpp"
 #include "poac/util/pretty.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 #include "poac/util/verbosity.hpp"
 
 namespace poac::util::net {

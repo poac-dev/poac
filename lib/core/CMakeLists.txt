@@ -2,7 +2,6 @@ add_poac_target(poac_core
     SOURCES
         resolver.cc
     LIBRARIES
-        ${POAC_HPP_LIBS}
         poac_core_builder
         poac_core_resolver
         poac_data
@@ -11,6 +10,9 @@ add_poac_target(poac_core
         poac_util_semver
         poac_util_misc # via poac/config.hpp
         poac_util_rustify # via poac/config.hpp
+        poac_util_format
+        poac_util_log
+        poac_util_result
         toml11::toml11
 )
 
