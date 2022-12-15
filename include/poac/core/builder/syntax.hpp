@@ -15,7 +15,10 @@
 #include <boost/range/algorithm_ext/push_back.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::core::builder::syntax {
 

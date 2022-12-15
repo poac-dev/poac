@@ -2,8 +2,11 @@
 
 // internal
 #include "poac/core/builder/compiler/lang.hpp"
-#include "poac/poac.hpp"
 #include "poac/util/cfg.hpp" // compiler
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 #include "poac/util/semver/semver.hpp"
 
 namespace poac::core::builder::compiler::error {

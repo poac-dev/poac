@@ -8,7 +8,8 @@
 #include "poac/config.hpp"
 #include "poac/core/builder/build.hpp"
 #include "poac/core/resolver/types.hpp" // ResolvedDeps
-#include "poac/poac.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::build {
 

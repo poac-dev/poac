@@ -2,8 +2,9 @@
 #include <boost/algorithm/string.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
 #include "poac/util/pretty.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::pretty {
 

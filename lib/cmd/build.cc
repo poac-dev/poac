@@ -9,6 +9,7 @@
 #include "poac/cmd/build.hpp"
 #include "poac/core/resolver.hpp" // install_deps
 #include "poac/data/manifest.hpp"
+#include "poac/util/log.hpp"
 #include "poac/util/pretty.hpp" // to_time
 #include "poac/util/validator.hpp"
 
