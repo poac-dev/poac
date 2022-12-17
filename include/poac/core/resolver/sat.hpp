@@ -34,8 +34,8 @@ template <
     typename U>
 Fn calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i)->T {
   T acc = 0;
-  for (const auto& rn : rng) {
-    for (const auto& r : rn) {
+  for (Let& rn : rng) {
+    for (Let& r : rn) {
       if (std::abs(r) == i) {
         r > 0 ? ++acc : --acc;
       }

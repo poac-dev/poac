@@ -163,11 +163,11 @@ exec(const structopt::app& app, const Commands& args) {
 
 int main(const int argc, char* argv[]) {
   spdlog::set_pattern("%v");
-  auto err_logger = spdlog::stderr_logger_st("stderr");
+  LetMut err_logger = spdlog::stderr_logger_st("stderr");
 
   auto app = structopt::app("poac", POAC_VERSION);
   try {
-    const auto args = app.parse<Commands>(argc, argv);
+    Let args = app.parse<Commands>(argc, argv);
 
     // Global options
     if (args.verbose.value()) {
@@ -178,7 +178,7 @@ int main(const int argc, char* argv[]) {
 
     // Subcommands
     return exec(app, args)
-        .map_err([err_logger](const auto& e) {
+        .map_err([err_logger](Let& e) {
           log::error(
               err_logger, colorize_anyhow_error(format("{}", e->what()))
           );
@@ -194,7 +194,7 @@ int main(const int argc, char* argv[]) {
       }
 
       // try correcting typo
-      if (const auto sugg = util::lev_distance::find_similar_str(
+      if (Let sugg = util::lev_distance::find_similar_str(
               argv[subcommand_index], command_list
           );
           sugg.has_value() && sugg.value() != argv[subcommand_index]) {

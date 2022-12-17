@@ -16,10 +16,11 @@ namespace poac::cmd::login {
   if (api_token.size() != 32) {
     return Err<InvalidAPIToken>();
   }
-  spdlog::trace("Checking if api_token exists");
-  if (!util::net::api::login(api_token).unwrap_or(false)) {
-    return Err<FailedToLogIn>();
-  }
+  // TODO(ken-matsui): Implement login API
+  //  spdlog::trace("Checking if api_token exists");
+  //  if (!util::net::api::login(api_token).unwrap_or(false)) {
+  //    return Err<FailedToLogIn>();
+  //  }
   return Ok();
 }
 

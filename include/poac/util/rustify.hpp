@@ -22,10 +22,12 @@
 //
 // Macros
 //
-// NOLINTNEXTLINE(readability-identifier-naming)
+// NOLINTBEGIN(readability-identifier-naming)
 #define Fn auto
-// NOLINTNEXTLINE(readability-identifier-naming)
+#define Let const auto
+#define LetMut auto
 #define unreachable() __builtin_unreachable()
+// NOLINTEND(readability-identifier-naming)
 
 namespace poac {
 
@@ -37,20 +39,22 @@ namespace fs = std::filesystem;
 //
 // Data types
 //
-using u8 = std::uint8_t; // NOLINT(readability-identifier-naming)
-using u16 = std::uint16_t; // NOLINT(readability-identifier-naming)
-using u32 = std::uint32_t; // NOLINT(readability-identifier-naming)
-using u64 = std::uint64_t; // NOLINT(readability-identifier-naming)
+// NOLINTBEGIN(readability-identifier-naming)
+using u8 = std::uint8_t;
+using u16 = std::uint16_t;
+using u32 = std::uint32_t;
+using u64 = std::uint64_t;
 
-using i8 = std::int8_t; // NOLINT(readability-identifier-naming)
-using i16 = std::int16_t; // NOLINT(readability-identifier-naming)
-using i32 = std::int32_t; // NOLINT(readability-identifier-naming)
-using i64 = std::int64_t; // NOLINT(readability-identifier-naming)
+using i8 = std::int8_t;
+using i16 = std::int16_t;
+using i32 = std::int32_t;
+using i64 = std::int64_t;
 
-using usize = std::size_t; // NOLINT(readability-identifier-naming)
+using usize = std::size_t;
 
-using f32 = float; // NOLINT(readability-identifier-naming)
-using f64 = double; // NOLINT(readability-identifier-naming)
+using f32 = float;
+using f64 = double;
+// NOLINTEND(readability-identifier-naming)
 
 using String = std::string;
 using StringRef = std::string_view;

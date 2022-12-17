@@ -102,10 +102,9 @@ public:
 
   inline void
   variable(StringRef key, const Vec<String>& values, usize indent = 0) {
-    const String value =
-        boost::algorithm::join_if(values, " ", [](const auto& s) {
-          return !s.empty();
-        });
+    const String value = boost::algorithm::join_if(values, " ", [](Let& s) {
+      return !s.empty();
+    });
     line(format("{} = {}", key, value), indent);
   }
 

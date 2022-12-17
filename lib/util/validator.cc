@@ -8,10 +8,11 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] Fn required_config_exists()->Result<Path, String> {
+[[nodiscard]] Fn required_config_exists(bool find_parents)
+    ->Result<Path, String> {
   // TODO(ken-matsui): move out to data/manifest.hpp
   Path candidate = config::cwd;
-  while (true) {
+  do {
     std::error_code ec{};
     const Path config_path = candidate / data::manifest::NAME;
     spdlog::trace("Finding manifest: {} ...", config_path);
@@ -26,9 +27,10 @@ namespace poac::util::validator {
     } else {
       break;
     }
-  }
+  } while (find_parents);
   return Err(format(
-      "could not find `{}` here and in its parents", data::manifest::NAME
+      "could not find `{}` here{}", data::manifest::NAME,
+      find_parents ? " and in its parents" : ""
   ));
 }
 
@@ -371,8 +373,7 @@ namespace poac::util::validator {
 
 [[nodiscard]] Fn valid_manifest(const toml::value& manifest)
     ->Result<data::manifest::PartialPackage, String> {
-  const auto package =
-      toml::find<data::manifest::PartialPackage>(manifest, "package");
+  Let package = toml::find<data::manifest::PartialPackage>(manifest, "package");
   Try(valid_package_name(package.name));
   Try(valid_version(package.version));
   Try(valid_authors(package.authors));

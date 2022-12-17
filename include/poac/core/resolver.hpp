@@ -88,7 +88,7 @@ inline Fn convert_to_download_link(StringRef repository)->String {
 
 [[nodiscard]] inline Fn get_download_link(const resolve::Package& package)
     ->Result<std::pair<String, String>, String> {
-  const auto [repository, sha256sum] =
+  Let[repository, sha256sum] =
       Try(util::net::api::repoinfo(package.name, package.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }

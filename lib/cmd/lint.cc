@@ -62,7 +62,7 @@ using CppLintNotFound = Error<
   const toml::value manifest =
       toml::parse(relative(manifest_path, config::cwd));
   const String name = toml::find<String>(manifest, "package", "name");
-  const auto filters = toml::find_or<Vec<String>>(
+  Let filters = toml::find_or<Vec<String>>(
       manifest, "lint", "cpplint", "filters", Vec<String>{}
   );
   if (!filters.empty()) {

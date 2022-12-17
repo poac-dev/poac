@@ -23,8 +23,8 @@ Fn to_assignments(const Vec<i32>& literals)->Vec<i32> {
 // is returned from the variables in the current clauses.
 Fn maximum_literal_number_index(const Vec<Vec<i32>>& clauses)->i32 {
   Map<i32, i32> frequency;
-  for (const auto& clause : clauses) {
-    for (const auto& literal : clause) {
+  for (Let& clause : clauses) {
+    for (Let& literal : clause) {
       auto result = frequency.insert({literal_to_index(literal), 1});
       if (!result.second) {
         result.first->second++;
@@ -33,7 +33,7 @@ Fn maximum_literal_number_index(const Vec<Vec<i32>>& clauses)->i32 {
   }
   auto x = std::max_element(
       frequency.begin(), frequency.end(),
-      [](const auto& p1, const auto& p2) { return p1.second > p2.second; }
+      [](Let& p1, Let& p2) { return p1.second > p2.second; }
   );
   return x->first;
 }

@@ -14,9 +14,9 @@ namespace poac::core::builder::compiler::cxx {
 get_compiler_ident(const String& compiler_command, const bool is_macos)
     ->Result<util::cfg::Compiler> {
   if (is_macos) {
-    if (const auto res = util::shell::Cmd(compiler_command + " --version")
-                             .stderr_to_stdout()
-                             .exec()) {
+    if (Let res = util::shell::Cmd(compiler_command + " --version")
+                      .stderr_to_stdout()
+                      .exec()) {
       if (res.output().find("Apple") != None) {
         return Ok(util::cfg::Compiler::apple_clang);
       }
@@ -53,7 +53,7 @@ get_compiler_ident(const String& compiler_command, const bool is_macos)
 }
 
 [[nodiscard]] Fn get_compiler_command()->Result<String> {
-  if (const auto cxx = util::misc::dupenv("CXX")) {
+  if (Let cxx = util::misc::dupenv("CXX")) {
     return Ok(cxx.value());
   } else if (util::shell::has_command("g++")) {
     return Ok("g++");

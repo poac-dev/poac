@@ -15,7 +15,7 @@ Fn expand(
     const String& text, const Variables& vars, const Variables& local_vars
 )
     ->String {
-  const auto exp = [&](const boost::smatch& m) {
+  Let exp = [&](const boost::smatch& m) {
     const String var = m[1].str();
     if (var == "$") {
       return "$"s;
@@ -184,7 +184,7 @@ Fn Writer::build(
   }
 
   if (build_set.variables.has_value()) {
-    for (const auto& [key, val] : build_set.variables.value()) {
+    for (Let & [ key, val ] : build_set.variables.value()) {
       variable(key, val, 1);
     }
   }

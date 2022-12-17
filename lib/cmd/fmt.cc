@@ -22,7 +22,7 @@ inline constexpr Arr<StringRef, 12> EXTENSIONS{"c",   "c++", "cc",  "cpp",
 inline constexpr Arr<StringRef, 2> PATTERNS{"{}/*.{}", "{}/**/*.{}"};
 
 void fmt_impl(const Path& base_dir, Vec<Path>& targets) {
-  for (const auto& entry : fs::directory_iterator(base_dir)) {
+  for (Let& entry : fs::directory_iterator(base_dir)) {
     if (entry.is_directory()) {
       const String d = entry.path().filename().string();
       if (!d.starts_with('.') && !contains(EXCLUDES, d)) {

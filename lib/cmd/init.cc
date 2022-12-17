@@ -31,7 +31,7 @@ namespace poac::cmd::init {
 [[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<create::PassingBothBinAndLib>();
-  } else if (util::validator::required_config_exists().is_ok()) {
+  } else if (util::validator::required_config_exists(false).is_ok()) {
     return Err<AlreadyInitialized>();
   }
 
