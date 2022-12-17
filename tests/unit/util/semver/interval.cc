@@ -4,8 +4,7 @@
 #include <poac/util/semver/exception.hpp>
 #include <poac/util/semver/interval.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
   using namespace boost::ut::spec;
@@ -14,7 +13,7 @@ main() {
 
   describe("test satisfies") = [] {
     it("test1") = [] {
-      Interval interval(">=1.66.0 and <1.70.0");
+      const Interval interval(">=1.66.0 and <1.70.0");
       expect(interval.satisfies("1.66.0"));
       expect(interval.satisfies("1.67.0"));
       expect(interval.satisfies("1.68.0"));
@@ -24,7 +23,7 @@ main() {
     };
 
     it("test2") = [] {
-      Interval interval(">=1.0.0-alpha and <1.0.0");
+      const Interval interval(">=1.0.0-alpha and <1.0.0");
       expect(interval.satisfies("1.0.0-alpha"));
       expect(interval.satisfies("1.0.0-alpha.1"));
       expect(interval.satisfies("1.0.0-alpha.beta"));
@@ -37,37 +36,37 @@ main() {
   };
 
   "test is_wasteful_comparison_operation"_test = [] {
-    using semver::redundant_interval_error;
+    using semver::RedundantIntervalError;
     using poac::test::ut_helpers::throws_with_msg;
 
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<2.0.0 and <1.0.0"); },
         "`<2.0.0 and <1.0.0` is redundant expression.\n"
         "Did you mean <2.0.0 ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<1.0.0 and <2.0.0"); },
         "`<1.0.0 and <2.0.0` is redundant expression.\n"
         "Did you mean <2.0.0 ?"
     );
 
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<=2.0.0 and <=1.0.0"); },
         "`<=2.0.0 and <=1.0.0` is redundant expression.\n"
         "Did you mean <=2.0.0 ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<2.0.0 and <=1.0.0"); },
         "`<2.0.0 and <=1.0.0` is redundant expression.\n"
         "Did you mean <2.0.0 ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<=2.0.0 and <1.0.0"); },
         "`<=2.0.0 and <1.0.0` is redundant expression.\n"
         "Did you mean <=2.0.0 ?"
     );
 
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<1.0.0 and <1.0.0-alpha"); },
         "`<1.0.0 and <1.0.0-alpha` is redundant expression.\n"
         "Did you mean <1.0.0 ?"
@@ -89,39 +88,39 @@ main() {
     //            }()
     //        ));
 
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval("<1.0.0 and <1.0.0"); },
         "`<1.0.0 and <1.0.0` is redundant expression.\n"
         "Did you mean <1.0.0 ?"
     );
 
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval(">2.0.0 and >1.0.0"); },
         "`>2.0.0 and >1.0.0` is redundant expression.\n"
         "Did you mean >1.0.0 ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval(">=2.0.0 and >=1.0.0"); },
         "`>=2.0.0 and >=1.0.0` is redundant expression.\n"
         "Did you mean >=1.0.0 ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval(">2.0.0 and >=1.0.0"); },
         "`>2.0.0 and >=1.0.0` is redundant expression.\n"
         "Did you mean >=1.0.0 ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval(">=2.0.0 and >1.0.0"); },
         "`>=2.0.0 and >1.0.0` is redundant expression.\n"
         "Did you mean >1.0.0 ?"
     );
 
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval(">1.0.0-alpha and >1.0.0"); },
         "`>1.0.0-alpha and >1.0.0` is redundant expression.\n"
         "Did you mean >1.0.0-alpha ?"
     );
-    throws_with_msg<redundant_interval_error>(
+    throws_with_msg<RedundantIntervalError>(
         [] { Interval(">1.0.0 and >1.0.0"); },
         "`>1.0.0 and >1.0.0` is redundant expression.\n"
         "Did you mean >1.0.0 ?"
@@ -129,12 +128,11 @@ main() {
   };
 
   "test is_bounded_interval"_test = [] {
-    using semver::strange_interval_error;
+    using semver::StrangeIntervalError;
 
-    expect(throws<strange_interval_error>([] { Interval("<1.0.0 and >2.0.0"); })
-    );
+    expect(throws<StrangeIntervalError>([] { Interval("<1.0.0 and >2.0.0"); }));
     // TODO(ken-matsui): test the throwed messages
-    expect(throws<strange_interval_error>([] {
+    expect(throws<StrangeIntervalError>([] {
       Interval("<1.0.0-alpha and >1.0.0");
     }));
   };

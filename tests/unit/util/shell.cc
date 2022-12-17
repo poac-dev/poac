@@ -7,8 +7,7 @@
 // internal
 #include <poac/util/shell.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
   using poac::util::shell::Cmd;
@@ -55,7 +54,7 @@ main() {
 
   // bool exec_ignore()
   "test exec_no_capture"_test = [] {
-    Cmd c("cd");
+    const Cmd c("cd");
     expect(eq(c.exec_no_capture(), 0));
   };
 
@@ -84,8 +83,8 @@ main() {
   };
 
   "test operator&&(const shell& rhs)"_test = [] {
-    Cmd c("mkdir test");
-    Cmd c2 = (c && Cmd("cd test"));
+    const Cmd c("mkdir test");
+    const Cmd c2 = (c && Cmd("cd test"));
 
     expect(eq(c2.string(), "mkdir test && cd test"s));
   };
@@ -110,8 +109,8 @@ main() {
   };
 
   "test operator||(const shell& rhs)"_test = [] {
-    Cmd c("mkdir test");
-    Cmd c2 = (c || Cmd("cd test"));
+    const Cmd c("mkdir test");
+    const Cmd c2 = (c || Cmd("cd test"));
 
     expect(eq(c2.string(), "mkdir test || cd test"s));
   };
@@ -136,8 +135,8 @@ main() {
   };
 
   "test operator+(const shell& rhs)"_test = [] {
-    Cmd c("mkdir test");
-    Cmd c2 = (c + Cmd("cd test"));
+    const Cmd c("mkdir test");
+    const Cmd c2 = (c + Cmd("cd test"));
 
     expect(eq(c2.string(), "mkdir test cd test"s));
   };

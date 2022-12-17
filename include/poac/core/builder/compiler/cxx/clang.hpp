@@ -1,29 +1,28 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_CXX_CLANG_HPP_
-#define POAC_CORE_BUILDER_COMPILER_CXX_CLANG_HPP_
+#pragma once
 
 // internal
-#include "poac/poac.hpp"
 #include "poac/util/cfg.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 #include "poac/util/semver/semver.hpp"
 
 namespace poac::core::builder::compiler::cxx::clang {
 
-inline constexpr util::cfg::compiler compiler = util::cfg::compiler::clang;
+inline constexpr util::cfg::Compiler COMPILER = util::cfg::Compiler::clang;
 
-[[nodiscard]] Result<semver::Version>
-get_compiler_version_impl(const String& cmd_output);
+[[nodiscard]] Fn get_compiler_version_impl(const String& cmd_output)
+    ->Result<semver::Version>;
 
-[[nodiscard]] Result<semver::Version>
-get_compiler_version(const String& compiler_command);
+[[nodiscard]] Fn get_compiler_version(const String& compiler_command)
+    ->Result<semver::Version>;
 
 // thanks to:
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/Compiler/Clang.cmake
-[[nodiscard]] Result<String>
-get_std_flag(
-    const String& compiler_command, const i64 edition,
-    const bool use_gnu_extension
-);
+[[nodiscard]] Fn get_std_flag(
+    const String& compiler_command, i64 edition, bool use_gnu_extension
+)
+    ->Result<String>;
 
 } // namespace poac::core::builder::compiler::cxx::clang
-
-#endif // POAC_CORE_BUILDER_COMPILER_CXX_CLANG_HPP_

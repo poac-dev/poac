@@ -1,15 +1,14 @@
 #include <boost/ut.hpp>
 #include <poac/core/builder/compiler/cxx/apple_clang.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
   "test get_compiler_version_impl"_test = [] {
     using poac::core::builder::compiler::cxx::apple_clang::
         get_compiler_version_impl;
-    using poac::util::cfg::compiler;
+    using poac::util::cfg::Compiler;
 
     auto version = get_compiler_version_impl(
         "Apple clang version 13.1.6 (clang-1316.0.21.2.5)\n"

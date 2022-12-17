@@ -9,8 +9,7 @@
 // internal
 #include <poac/util/pretty.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
@@ -64,7 +63,7 @@ main() {
   "test textwrap"_test = [] {
     using poac::util::pretty::textwrap;
 
-    std::string test_case =
+    const std::string test_case =
         "This function does not break long words and break on hyphens.";
     expect(
         eq(textwrap(test_case, 15),

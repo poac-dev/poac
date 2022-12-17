@@ -5,12 +5,17 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 include(cmake/CPM.cmake)
 
+if (APPLE)
+    # To support finding LibArchive on macOS
+    set(LibArchive_INCLUDE_DIR "${POAC_HOMEBREW_ROOT_PATH}/libarchive/include")
+endif ()
+
 set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/LibArchivePoliciesFix.cmake")
 CPMAddPackage(
     NAME LibArchive
     GITHUB_REPOSITORY libarchive/libarchive
-    VERSION 3.6.1
-    GIT_TAG v3.6.1
+    VERSION 3.6.0 # minimum required version (but only when using local one)
+    GIT_TAG v3.6.1 # (3.6.1 or over is needed to build downloaded one)
     OPTIONS
         "ENABLE_OPENSSL OFF"
         "ENABLE_LIBB2 OFF"
@@ -39,6 +44,9 @@ if (LibArchive_ADDED) # If using downloaded package
         list(APPEND POAC_DEPENDENCIES archive_static)
     endif ()
 else () # If using local package
+    if (APPLE)
+        set(LIBARCHIVE_INCLUDE_DIR ${LibArchive_INCLUDE_DIR})
+    endif ()
     set(LIBARCHIVE_LIBRARY archive)
     list(APPEND POAC_DEPENDENCIES archive)
 endif ()

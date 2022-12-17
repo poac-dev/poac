@@ -16,10 +16,9 @@
 
 namespace poac::core::builder::manifest {
 
-bool
-rebuild(data::NinjaMain& ninja_main, Status& status, String& err) {
+Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool {
   Node* node = ninja_main.state.LookupNode(
-      (ninja_main.build_dir / manifest_file_name).string()
+      (ninja_main.build_dir / MANIFEST_FILE_NAME).string()
   );
   if (!node) {
     return false;
@@ -51,10 +50,9 @@ rebuild(data::NinjaMain& ninja_main, Status& status, String& err) {
   return true;
 }
 
-Vec<String>
-gather_includes(const resolver::ResolvedDeps& resolved_deps) {
+Fn gather_includes(const resolver::ResolvedDeps& resolved_deps)->Vec<String> {
   Vec<String> includes;
-  for (const auto& [package, inner_deps] : resolved_deps) {
+  for (Let & [ package, inner_deps ] : resolved_deps) {
     static_cast<void>(inner_deps);
 
     const Path include_path = resolver::get_extracted_path(package) / "include";
@@ -65,16 +63,14 @@ gather_includes(const resolver::ResolvedDeps& resolved_deps) {
   return includes;
 }
 
-Vec<toml::table>
-get_cfg_profile(const toml::value& poac_manifest) {
-  const auto target =
+Fn get_cfg_profile(const toml::value& poac_manifest)->Vec<toml::table> {
+  Let target =
       toml::find_or<toml::table>(poac_manifest, "target", toml::table{});
   Vec<toml::table> profiles;
-  for (const auto& [key, val] : target) {
+  for (Let & [ key, val ] : target) {
     if (key.find("cfg(") != None) {
       if (util::cfg::parse(key).match()) {
-        const auto profile =
-            toml::find_or<toml::table>(val, "profile", toml::table{});
+        Let profile = toml::find_or<toml::table>(val, "profile", toml::table{});
         profiles.emplace_back(profile);
       }
     }
@@ -82,30 +78,29 @@ get_cfg_profile(const toml::value& poac_manifest) {
   return profiles;
 }
 
-Vec<String>
-gather_flags(
+Fn gather_flags(
     const toml::value& poac_manifest, const String& name,
     const Option<String>& prefix
-) {
+)
+    ->Vec<String> {
   auto f = toml::find_or<Vec<String>>(
       poac_manifest, "target", "profile", name, Vec<String>{}
   );
   if (prefix.has_value()) {
-    std::transform(
-        f.begin(), f.end(), f.begin(),
-        [p = prefix.value()](const auto& s) { return p + s; }
-    );
+    std::transform(f.begin(), f.end(), f.begin(), [p = prefix.value()](Let& s) {
+      return p + s;
+    });
   }
   return f;
 }
 
-[[nodiscard]] Result<String>
-construct(
+[[nodiscard]] Fn construct(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
-) {
+)
+    ->Result<String> {
   syntax::Writer writer{std::ostringstream()};
-  for (StringRef header : manifest_headers) {
+  for (const StringRef header : MANIFEST_HEADERS) {
     writer.comment(String(header));
   }
   writer.newline();
@@ -149,7 +144,7 @@ construct(
               syntax::Variables{
                   {"PACKAGE_NAME", name},
                   {"PACKAGE_VERSION", version},
-                  {"PACKAGE_PATH", format("({})", config::path::cwd)},
+                  {"PACKAGE_PATH", format("({})", config::cwd)},
                   {"OPTIONS", boost::algorithm::join(options, " ")},
                   {"DEFINES", boost::algorithm::join(defines, " ")},
                   {"INCLUDES", boost::algorithm::join(includes, " ")},
@@ -159,20 +154,20 @@ construct(
   );
   writer.newline();
 
-  writer.default_({output_file.string()});
+  writer.defalt({output_file.string()});
   return Ok(writer.get_value());
 }
 
-[[nodiscard]] Result<void>
-create(
+[[nodiscard]] Fn create(
     const Path& build_dir, const toml::value& poac_manifest,
     const resolver::ResolvedDeps& resolved_deps
-) {
+)
+    ->Result<void> {
   // TODO(ken-matsui): `ninja.build` will be constructed from `poac.toml`,
   //   so if `poac.toml` has no change,
   //   then `ninja.build` is not needed to be updated.
   //        if (is_outdated(build_dir)) {
-  std::ofstream ofs(build_dir / manifest_file_name, std::ios::out);
+  std::ofstream ofs(build_dir / MANIFEST_FILE_NAME, std::ios::out);
   ofs << Try(construct(build_dir, poac_manifest, resolved_deps));
   //        }
   return Ok();

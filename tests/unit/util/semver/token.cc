@@ -1,8 +1,7 @@
 #include <boost/ut.hpp>
 #include <poac/util/semver/token.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
@@ -10,26 +9,26 @@ main() {
 
   "test parser::Token"_test = [] {
     {
-      constexpr Token token{Token::Eq};
-      expect(constant<token == Token::Eq>);
-      expect(constant<std::holds_alternative<std::monostate>(token.component)>);
+      constexpr Token TOKEN{Token::Eq};
+      expect(constant<TOKEN == Token::Eq>);
+      expect(constant<std::holds_alternative<std::monostate>(TOKEN.component)>);
     }
     {
-      constexpr Token token{Token::Whitespace, 0, 2};
-      expect(constant<token.kind == Token::Whitespace>);
+      constexpr Token TOKEN{Token::Whitespace, 0, 2};
+      expect(constant<TOKEN.kind == Token::Whitespace>);
       expect(constant<
-             token.component == Token::variant_type{std::make_pair(0, 2)}>);
+             TOKEN.component == Token::VariantType{std::make_pair(0, 2)}>);
     }
     {
-      constexpr Token token{Token::Numeric, 0};
-      expect(constant<token.kind == Token::Numeric>);
+      constexpr Token TOKEN{Token::Numeric, 0};
+      expect(constant<TOKEN.kind == Token::Numeric>);
       expect(constant<
-             token.component == Token::variant_type{std::uint_fast64_t{0}}>);
+             TOKEN.component == Token::VariantType{std::uint_fast64_t{0}}>);
     }
     {
-      constexpr Token token{Token::AlphaNumeric, "beta.2"};
-      expect(constant<token.kind == Token::AlphaNumeric>);
-      expect(constant<token.component == Token::variant_type{"beta.2"}>);
+      constexpr Token TOKEN{Token::AlphaNumeric, "beta.2"};
+      expect(constant<TOKEN.kind == Token::AlphaNumeric>);
+      expect(constant<TOKEN.component == Token::VariantType{"beta.2"}>);
     }
 
     expect(throws<std::invalid_argument>([] {

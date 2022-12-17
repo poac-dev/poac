@@ -11,8 +11,7 @@
 // internal
 #include <poac/util/meta.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
@@ -36,7 +35,7 @@ main() {
   "test index_of_if"_test = [] {
     using poac::util::meta::index_of_if;
 
-    std::vector<std::string> test_case{"0", "1", "2"};
+    const std::vector<std::string> test_case{"0", "1", "2"};
     expect(
         index_of_if(
             test_case.cbegin(), test_case.cend(),
@@ -63,7 +62,7 @@ main() {
     using poac::util::meta::to_vec;
 
     boost::property_tree::ptree pt;
-    std::vector<std::string> test_case{"0", "1", "2"};
+    const std::vector<std::string> test_case{"0", "1", "2"};
 
     boost::property_tree::ptree children;
     {
@@ -88,42 +87,42 @@ main() {
   };
 
   "test are_all_same"_test = [] {
-    using poac::util::meta::are_all_same;
-    using poac::util::meta::are_all_same_v;
+    using poac::util::meta::AreAllSame;
+    using poac::util::meta::ARE_ALL_SAME_V;
 
-    expect(constant<are_all_same<int, int, int>::value>);
-    expect(constant<are_all_same_v<int, int, int>>);
-    expect(constant<std::negation_v<are_all_same<int, std::string, int>>>);
-    expect(constant<std::negation_v<are_all_same<std::string, int, int>>>);
-    expect(constant<std::negation_v<are_all_same<int, int, std::string>>>);
+    expect(constant<AreAllSame<int, int, int>::value>);
+    expect(constant<ARE_ALL_SAME_V<int, int, int>>);
+    expect(constant<std::negation_v<AreAllSame<int, std::string, int>>>);
+    expect(constant<std::negation_v<AreAllSame<std::string, int, int>>>);
+    expect(constant<std::negation_v<AreAllSame<int, int, std::string>>>);
   };
 
   "test is_specialization"_test = [] {
-    using poac::util::meta::is_specialization;
+    using poac::util::meta::IsSpecialization;
 
-    expect(constant<is_specialization<std::vector<int>, std::vector>::value>);
-    expect(constant<is_specialization<std::map<int, int>, std::map>::value>);
-    expect(constant<is_specialization<
-               std::map<int, std::vector<int>>, std::map>::value>);
-    expect(constant<std::negation_v<is_specialization<
+    expect(constant<IsSpecialization<std::vector<int>, std::vector>::value>);
+    expect(constant<IsSpecialization<std::map<int, int>, std::map>::value>);
+    expect(constant<
+           IsSpecialization<std::map<int, std::vector<int>>, std::map>::value>);
+    expect(constant<std::negation_v<IsSpecialization<
                std::map<int, std::vector<int>>, std::vector>>>);
   };
 
   "test is_tuple"_test = [] {
-    using poac::util::meta::is_tuple;
-    using poac::util::meta::is_tuple_v;
+    using poac::util::meta::IsTuple;
+    using poac::util::meta::IS_TUPLE_V;
 
-    expect(constant<is_tuple_v<std::tuple<int>>>);
-    expect(constant<is_tuple_v<std::tuple<int, std::string>>>);
-    expect(constant<std::negation_v<is_tuple<std::vector<int>>>>);
+    expect(constant<IS_TUPLE_V<std::tuple<int>>>);
+    expect(constant<IS_TUPLE_V<std::tuple<int, std::string>>>);
+    expect(constant<std::negation_v<IsTuple<std::vector<int>>>>);
   };
 
   "test to_array"_test = [] {
     using poac::util::meta::to_array;
 
-    constexpr std::array<int, 3> test_case{0, 1, 2};
-    constexpr std::tuple<int, int, int> res1 = std::make_tuple(0, 1, 2);
-    constexpr std::array<int, 3> res = to_array(res1);
-    expect(constant<res == test_case>);
+    constexpr std::array<int, 3> TEST_CASE{0, 1, 2};
+    constexpr std::tuple<int, int, int> RES1 = std::make_tuple(0, 1, 2);
+    constexpr std::array<int, 3> RES = to_array(RES1);
+    expect(constant<RES == TEST_CASE>);
   };
 }

@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_BUILD_HPP_
-#define POAC_CMD_BUILD_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
@@ -9,7 +8,8 @@
 #include "poac/config.hpp"
 #include "poac/core/builder/build.hpp"
 #include "poac/core/resolver/types.hpp" // ResolvedDeps
-#include "poac/poac.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::build {
 
@@ -27,20 +27,17 @@ using FailedToBuild = Error<"failed to build package `{}`", String>;
 using FailedToInstallDeps = Error<"failed to install dependencies">;
 using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
 
-[[nodiscard]] Result<Path>
-build_impl(
+[[nodiscard]] Fn build_impl(
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
-);
+)
+    ->Result<Path>;
 
-[[nodiscard]] Result<Option<Path>>
-build(const Options& opts, const toml::value& manifest);
+[[nodiscard]] Fn build(const Options& opts, const toml::value& manifest)
+    ->Result<Option<Path>>;
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::build
 
 STRUCTOPT(poac::cmd::build::Options, release, profile);
-
-#endif // POAC_CMD_BUILD_HPP_

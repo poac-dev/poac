@@ -1,9 +1,11 @@
-#ifndef POAC_CORE_BUILDER_COMPILER_LANG_HPP_
-#define POAC_CORE_BUILDER_COMPILER_LANG_HPP_
+#pragma once
 
 // internal
-#include "poac/poac.hpp"
 #include "poac/util/cfg.hpp" // compiler
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::core::builder::compiler::lang {
 
@@ -12,8 +14,7 @@ enum class Lang {
   cxx,
 };
 
-String
-to_string(Lang lang);
+Fn to_string(Lang lang)->String;
 
 } // namespace poac::core::builder::compiler::lang
 
@@ -21,13 +22,10 @@ namespace fmt {
 
 template <>
 struct formatter<poac::core::builder::compiler::lang::Lang> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  static constexpr Fn parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto
+  inline Fn
   format(poac::core::builder::compiler::lang::Lang l, FormatContext& ctx) {
     return format_to(
         ctx.out(), "{}", poac::core::builder::compiler::lang::to_string(l)
@@ -36,5 +34,3 @@ struct formatter<poac::core::builder::compiler::lang::Lang> {
 };
 
 } // namespace fmt
-
-#endif // POAC_CORE_BUILDER_COMPILER_LANG_HPP_

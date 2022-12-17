@@ -1,12 +1,14 @@
-#ifndef POAC_CMD_LINT_HPP_
-#define POAC_CMD_LINT_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
 
 // internal
 #include "poac/config.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::lint {
 
@@ -16,11 +18,8 @@ struct Options : structopt::sub_command {
   // FIXME(ken-matsui): this is structopt limitation; I'd remove this.
 };
 
-[[nodiscard]] Result<void>
-exec([[maybe_unused]] const Options& opts);
+[[nodiscard]] Fn exec([[maybe_unused]] const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::lint
 
 STRUCTOPT(poac::cmd::lint::Options, dummy);
-
-#endif // POAC_CMD_LINT_HPP_

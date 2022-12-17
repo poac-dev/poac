@@ -7,8 +7,7 @@
 // internal
 #include <poac/util/sha256.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace poac;
   using namespace boost::ut;
@@ -16,7 +15,7 @@ main() {
   "test sha256::sum"_test = [] {
     using util::sha256::sum;
 
-    fs::path out_path = "test.txt";
+    const fs::path out_path = "test.txt";
     std::ofstream out(out_path);
     out << "Hello, Poac!";
     out.close();

@@ -8,13 +8,13 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] Result<Path, String>
-required_config_exists() noexcept {
+[[nodiscard]] Fn required_config_exists(bool find_parents)
+    ->Result<Path, String> {
   // TODO(ken-matsui): move out to data/manifest.hpp
-  Path candidate = config::path::cwd;
-  while (true) {
+  Path candidate = config::cwd;
+  do {
     std::error_code ec{};
-    const Path config_path = candidate / data::manifest::name;
+    const Path config_path = candidate / data::manifest::NAME;
     spdlog::trace("Finding manifest: {} ...", config_path);
     if (fs::exists(config_path, ec)) {
       return Ok(config_path);
@@ -27,15 +27,15 @@ required_config_exists() noexcept {
     } else {
       break;
     }
-  }
+  } while (find_parents);
   return Err(format(
-      "could not find `{}` here and in its parents", data::manifest::name
+      "could not find `{}` here{}", data::manifest::NAME,
+      find_parents ? " and in its parents" : ""
   ));
 }
 
-[[nodiscard]] Result<void, String>
-can_create_directory(const Path& p) {
-  std::error_code ec{}; // This is to use for noexcept optimization
+[[nodiscard]] Fn can_create_directory(const Path& p)->Result<void, String> {
+  std::error_code ec{}; // This is used for noexcept optimization
 
   const bool exists = fs::exists(p, ec);
   if (exists && !fs::is_directory(p, ec)) {
@@ -52,8 +52,8 @@ can_create_directory(const Path& p) {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-two_or_more_symbols(StringRef s) noexcept {
+[[nodiscard]] Fn two_or_more_symbols(StringRef s) noexcept
+    -> Result<void, String> {
   const usize slashes = std::count(s.begin(), s.end(), '/');
   if (slashes > 1) {
     return Err(
@@ -64,8 +64,8 @@ two_or_more_symbols(StringRef s) noexcept {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-start_with_symbol(StringRef s) noexcept {
+[[nodiscard]] Fn start_with_symbol(StringRef s) noexcept
+    -> Result<void, String> {
   if (s[0] == '_' || s[0] == '-' || s[0] == '/') {
     return Err(
         "Invalid package name.\n"
@@ -76,8 +76,7 @@ start_with_symbol(StringRef s) noexcept {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-end_with_symbol(StringRef s) noexcept {
+[[nodiscard]] Fn end_with_symbol(StringRef s) noexcept -> Result<void, String> {
   const char last = s[s.size() - 1];
   if (last == '_' || last == '-' || last == '/') {
     return Err(
@@ -89,8 +88,8 @@ end_with_symbol(StringRef s) noexcept {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-invalid_characters_impl(StringRef s) noexcept {
+[[nodiscard]] Fn invalid_characters_impl(StringRef s) noexcept
+    -> Result<void, String> {
   for (const char c : s) {
     if (!is_alpha_numeric(c) && c != '_' && c != '-' && c != '/') {
       return Err(
@@ -103,8 +102,8 @@ invalid_characters_impl(StringRef s) noexcept {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-invalid_characters(StringRef s) noexcept {
+[[nodiscard]] Fn invalid_characters(StringRef s) noexcept
+    -> Result<void, String> {
   Try(invalid_characters_impl(s));
   Try(start_with_symbol(s));
   Try(end_with_symbol(s));
@@ -112,11 +111,10 @@ invalid_characters(StringRef s) noexcept {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-using_keywords(StringRef s) {
+[[nodiscard]] Fn using_keywords(StringRef s)->Result<void, String> {
   // Ban keywords
   // https://en.cppreference.com/w/cpp/keyword
-  constexpr StringRef blacklist[] = {
+  constexpr Arr<StringRef, 96> BLACKLIST{
       "alignas",
       "alignof",
       "and",
@@ -214,8 +212,8 @@ using_keywords(StringRef s) {
       "xor",
       "xor_eq",
   };
-  if (std::find(std::cbegin(blacklist), std::cend(blacklist), s)
-      != std::cend(blacklist)) {
+  if (std::find(std::cbegin(BLACKLIST), std::cend(BLACKLIST), s)
+      != std::cend(BLACKLIST)) {
     return Err(
         format("`{}` is a keyword; it cannot be used as a package name", s)
     );
@@ -223,8 +221,7 @@ using_keywords(StringRef s) {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-one_char(StringRef s) {
+[[nodiscard]] Fn one_char(StringRef s)->Result<void, String> {
   if (s.empty()) {
     return Err(
         "Invalid package name.\n"
@@ -239,19 +236,17 @@ one_char(StringRef s) {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-valid_package_name(StringRef s) {
+[[nodiscard]] Fn valid_package_name(StringRef s)->Result<void, String> {
   Try(one_char(s));
   Try(invalid_characters(s));
   Try(using_keywords(s));
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-valid_version(StringRef s) {
+[[nodiscard]] Fn valid_version(StringRef s)->Result<void, String> {
   try {
     semver::parse(s);
-  } catch (const semver::exception& e) {
+  } catch (const semver::Exception& e) {
     return Err(format(
         "version `{}` is not compliant with the Semantic Versioning notation.\n"
         "For more information, please go to: https://semver.org/",
@@ -261,8 +256,7 @@ valid_version(StringRef s) {
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-valid_athr(StringRef s) {
+[[nodiscard]] Fn valid_athr(StringRef s)->Result<void, String> {
   // TODO(ken-matsui): Email address parser
   if (usize pos = s.find('<'); pos != None) {
     if (pos = s.find('@', pos + 1); pos != None) {
@@ -280,19 +274,18 @@ valid_athr(StringRef s) {
   ));
 }
 
-[[nodiscard]] Result<void, String>
-valid_authors(const Vec<String>& authors) {
+[[nodiscard]] Fn valid_authors(const Vec<String>& authors)
+    ->Result<void, String> {
   if (authors.empty()) {
     return Err("key `authors` cannot be empty.");
   }
-  for (StringRef a : authors) {
+  for (const StringRef a : authors) {
     Try(valid_athr(a));
   }
   return Ok();
 }
 
-[[nodiscard]] Result<void, String>
-valid_edition(const i32& edition) {
+[[nodiscard]] Fn valid_edition(const i32& edition)->Result<void, String> {
   switch (edition) {
     case 1998:
     case 2003:
@@ -311,8 +304,7 @@ valid_edition(const i32& edition) {
   }
 }
 
-[[nodiscard]] Result<void, String>
-valid_license(StringRef license) {
+[[nodiscard]] Fn valid_license(StringRef license)->Result<void, String> {
   // This list is from https://choosealicense.com/licenses
   if (license == "AGPL-3.0" || license == "GPL-3.0" || license == "LGPL-3.0"
       || license == "MPL-2.0" || license == "Apache-2.0" || license == "MIT"
@@ -327,8 +319,7 @@ valid_license(StringRef license) {
   ));
 }
 
-[[nodiscard]] Result<void, String>
-valid_repository(StringRef repo) {
+[[nodiscard]] Fn valid_repository(StringRef repo)->Result<void, String> {
   // Can be parsed? it should be:
   // https://github.com/org/repo/tree/tag
   if (repo.starts_with("https://github.com/")) {
@@ -364,8 +355,7 @@ valid_repository(StringRef repo) {
   ));
 }
 
-[[nodiscard]] Result<void, String>
-valid_description(StringRef desc) {
+[[nodiscard]] Fn valid_description(StringRef desc)->Result<void, String> {
   const usize size = desc.size();
   if (size < 10) {
     return Err(
@@ -381,10 +371,9 @@ valid_description(StringRef desc) {
   return Ok();
 }
 
-[[nodiscard]] Result<data::manifest::PartialPackage, String>
-valid_manifest(const toml::value& manifest) {
-  const auto package =
-      toml::find<data::manifest::PartialPackage>(manifest, "package");
+[[nodiscard]] Fn valid_manifest(const toml::value& manifest)
+    ->Result<data::manifest::PartialPackage, String> {
+  Let package = toml::find<data::manifest::PartialPackage>(manifest, "package");
   Try(valid_package_name(package.name));
   Try(valid_version(package.version));
   Try(valid_authors(package.authors));
@@ -395,8 +384,9 @@ valid_manifest(const toml::value& manifest) {
   return Ok(package);
 }
 
-[[nodiscard]] Result<Option<String>, String>
-valid_profile(const Option<String>& profile, Option<bool> release) {
+[[nodiscard]] Fn
+valid_profile(const Option<String>& profile, Option<bool> release)
+    ->Result<Option<String>, String> {
   if (release.has_value() && release.value()) {
     if (profile.has_value() && profile.value() != "release") {
       return Err(format(

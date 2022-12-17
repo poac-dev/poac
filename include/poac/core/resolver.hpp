@@ -1,5 +1,4 @@
-#ifndef POAC_CORE_RESOLVER_HPP_
-#define POAC_CORE_RESOLVER_HPP_
+#pragma once
 
 // std
 #include <utility>
@@ -12,8 +11,11 @@
 #include "poac/config.hpp"
 #include "poac/core/resolver/resolve.hpp"
 #include "poac/core/resolver/types.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
 #include "poac/util/net.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::core::resolver {
 
@@ -37,31 +39,27 @@ using IncorrectSha256sum = Error<
     String, String, String, String>;
 using Unknown = Error<"unknown error occurred: {}", String>;
 
-inline String
-get_install_name(const resolve::Package& package) {
+inline Fn get_install_name(const resolve::Package& package)->String {
   return boost::replace_first_copy(package.name, "/", "-") + "-"
          + package.version_rq;
 }
 
-inline Path
-get_extracted_path(const resolve::Package& package) {
-  return config::path::extract_dir / get_install_name(package);
+inline Fn get_extracted_path(const resolve::Package& package)->Path {
+  return config::extract_dir / get_install_name(package);
 }
 
 /// Rename unknown extracted directory to easily access when building.
-[[nodiscard]] Result<void>
-rename_extracted_directory(
+[[nodiscard]] Fn rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
-) noexcept;
+)
+    ->Result<void>;
 
-inline Path
-get_archive_path(const resolve::Package& package) {
-  fs::create_directories(config::path::archive_dir);
-  return config::path::archive_dir / (get_install_name(package) + ".tar.gz");
+inline Fn get_archive_path(const resolve::Package& package)->Path {
+  fs::create_directories(config::archive_dir);
+  return config::archive_dir / (get_install_name(package) + ".tar.gz");
 }
 
-inline String
-convert_to_download_link(StringRef repository) {
+inline Fn convert_to_download_link(StringRef repository)->String {
   // repository should be like =>
   //   https://github.com/boostorg/winapi/tree/boost-1.66.0
   // convert it to =>
@@ -88,47 +86,42 @@ convert_to_download_link(StringRef repository) {
   return format("{}archive{}.tar.gz", left, right);
 }
 
-[[nodiscard]] inline Result<std::pair<String, String>, String>
-get_download_link(const resolve::Package& package) {
-  const auto [repository, sha256sum] =
+[[nodiscard]] inline Fn get_download_link(const resolve::Package& package)
+    ->Result<std::pair<String, String>, String> {
+  Let[repository, sha256sum] =
       Try(util::net::api::repoinfo(package.name, package.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }
 
-[[nodiscard]] Result<std::pair<Path, String>>
-fetch_impl(const resolve::Package& package) noexcept;
+[[nodiscard]] Fn fetch_impl(const resolve::Package& package) noexcept
+    -> Result<std::pair<Path, String>>;
 
-[[nodiscard]] Result<void>
-fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept;
+[[nodiscard]] Fn fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps)
+    ->Result<void>;
 
-bool
-is_not_installed(const resolve::Package& package);
+Fn is_not_installed(const resolve::Package& package)->bool;
 
-resolve::UniqDeps<resolve::WithoutDeps>
-get_not_installed_deps(const ResolvedDeps& deps) noexcept;
+Fn get_not_installed_deps(const ResolvedDeps& deps)
+    ->resolve::UniqDeps<resolve::WithoutDeps>;
 
-[[nodiscard]] Result<void>
-download_deps(const ResolvedDeps& deps) noexcept;
+[[nodiscard]] Fn download_deps(const ResolvedDeps& deps)->Result<void>;
 
-[[nodiscard]] Result<ResolvedDeps>
-do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept;
+[[nodiscard]] Fn do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps
+) noexcept -> Result<ResolvedDeps>;
 
-[[nodiscard]] Result<resolve::UniqDeps<resolve::WithoutDeps>>
-to_resolvable_deps(const toml::table& dependencies) noexcept;
+[[nodiscard]] Fn to_resolvable_deps(const toml::table& dependencies) noexcept
+    -> Result<resolve::UniqDeps<resolve::WithoutDeps>>;
 
-[[nodiscard]] Result<ResolvedDeps>
-get_resolved_deps(const toml::value& manifest);
+[[nodiscard]] Fn get_resolved_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps>;
 
 // If lockfile is not outdated, read it.
-[[nodiscard]] Result<Option<ResolvedDeps>>
-try_to_read_lockfile();
+[[nodiscard]] Fn try_to_read_lockfile()->Result<Option<ResolvedDeps>>;
 
-[[nodiscard]] Result<ResolvedDeps>
-resolve_deps(const toml::value& manifest);
+[[nodiscard]] Fn resolve_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps>;
 
-[[nodiscard]] Result<ResolvedDeps>
-install_deps(const toml::value& manifest);
+[[nodiscard]] Fn install_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps>;
 
 } // namespace poac::core::resolver
-
-#endif // POAC_CORE_RESOLVER_HPP_

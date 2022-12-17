@@ -17,11 +17,27 @@ message(STATUS "Poac Version: ${CMAKE_PROJECT_VERSION}")
 
 include(GNUInstallDirs)
 
+# Set the default build type to Debug
+if (CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Debug")
+endif ()
+
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
-option(POAC_BUILD_TESTING "Enable build tests" ON)
-option(POAC_ENABLE_COVERAGE "Enable coverage" OFF)
-option(POAC_CLANG_TIDY "Enable clang-tidy when Debug mode" ON)
 option(CPM_USE_LOCAL_PACKAGES "Try to use local packages" ON)
+
+include(CMakeDependentOption)
+cmake_dependent_option(
+    POAC_CLANG_TIDY "Enable clang-tidy when Debug mode" ON
+    "CMAKE_BUILD_TYPE STREQUAL Debug" OFF
+)
+cmake_dependent_option(
+    POAC_BUILD_TESTING "Enable build tests" ON
+    "CMAKE_BUILD_TYPE STREQUAL Debug" OFF
+)
+cmake_dependent_option(
+    POAC_ENABLE_COVERAGE "Enable coverage" OFF
+    "POAC_BUILD_TESTING" OFF
+)
 
 # Option checks
 if ((NOT POAC_BUILD_TESTING) AND POAC_ENABLE_COVERAGE)

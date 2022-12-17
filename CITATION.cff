@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+
+authors:
+- given-names: "Ken"
+  family-names: "Matsui"
+  orcid: "https://orcid.org/0000-0002-9649-2841"
+
+title: "Poac"
+type: software
+license: Apache-2.0
+doi: 10.5281/zenodo.6633694
+url: "https://poac.pm"
+repository-code: "https://github.com/poacpm/poac"
+
+version: 0.4.1
+date-released: 2022-08-11

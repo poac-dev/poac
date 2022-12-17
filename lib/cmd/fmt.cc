@@ -1,6 +1,3 @@
-// std
-#include <span>
-
 // external
 #include <glob/glob.h> // NOLINT(build/include_order)
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
@@ -19,50 +16,37 @@ using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:\n"
     "  apt/brew install clang-format">;
 
-inline constexpr StringRef directories[] = {
-    "examples", "include", "lib", "src", "tests"};
-inline constexpr StringRef drogon_dirs[] = {"controllers", "filters", "views"};
+inline constexpr Arr<StringRef, 12> EXTENSIONS{"c",   "c++", "cc",  "cpp",
+                                               "cu",  "cuh", "cxx", "h",
+                                               "h++", "hh",  "hpp", "hxx"};
+inline constexpr Arr<StringRef, 2> PATTERNS{"{}/*.{}", "{}/**/*.{}"};
 
-inline constexpr StringRef extensions[] = {"c",   "c++", "cc",  "cpp",
-                                           "cu",  "cuh", "cxx", "h",
-                                           "h++", "hh",  "hpp", "hxx"};
-
-inline constexpr StringRef patterns[] = {"{}/*.{}", "{}/**/*.{}"};
-
-void
-fmt_impl(
-    const Path& base_dir, std::span<const StringRef> dirs, Vec<Path>& targets
-) {
-  for (StringRef d : dirs) {
-    if (!fs::exists(base_dir / d)) {
-      spdlog::trace("Directory `{}` not found; skipping ...", d);
-      continue;
-    }
-
-    for (StringRef e : extensions) {
-      for (StringRef p : patterns) {
-        const String search =
-            format(::fmt::runtime((base_dir / p).string()), d, e);
-        const Vec<Path> search_glob = glob::rglob(search);
-        if (search_glob.empty()) {
-          spdlog::trace("Glob `{}` not found; skipping ...", search);
-          continue;
+void fmt_impl(const Path& base_dir, Vec<Path>& targets) {
+  for (Let& entry : fs::directory_iterator(base_dir)) {
+    if (entry.is_directory()) {
+      const String d = entry.path().filename().string();
+      if (!d.starts_with('.') && !contains(EXCLUDES, d)) {
+        for (const StringRef e : EXTENSIONS) {
+          for (const StringRef p : PATTERNS) {
+            const String search =
+                format(::fmt::runtime((base_dir / p).string()), d, e);
+            const Vec<Path> search_glob = glob::rglob(search);
+            if (search_glob.empty()) {
+              spdlog::trace("Glob `{}` not found; skipping ...", search);
+              continue;
+            }
+            spdlog::trace("Glob `{}` found!", search);
+            append(targets, search_glob);
+          }
         }
-        spdlog::trace("Glob `{}` found!", search);
-        append(targets, search_glob);
       }
     }
   }
 }
 
-[[nodiscard]] Result<void>
-fmt(const Options& opts, const Path& base_dir, StringRef args) {
+[[nodiscard]] Fn fmt(const Path& base_dir, StringRef args)->Result<void> {
   Vec<Path> targets;
-
-  fmt_impl(base_dir, directories, targets);
-  if (opts.drogon.value()) {
-    fmt_impl(base_dir, drogon_dirs, targets);
-  }
+  fmt_impl(base_dir, targets);
   if (targets.empty()) {
     spdlog::info("no targets found.");
     return Ok();
@@ -81,8 +65,7 @@ fmt(const Options& opts, const Path& base_dir, StringRef args) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   spdlog::trace("Checking if `clang-format` command exists ...");
   if (!util::shell::has_command("clang-format")) {
     return Err<ClangFormatNotFound>();
@@ -95,7 +78,7 @@ exec(const Options& opts) {
   spdlog::trace("Parsing the manifest file: {} ...", manifest_path);
   // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest =
-      toml::parse(relative(manifest_path, config::path::cwd));
+      toml::parse(relative(manifest_path, config::cwd));
   String name = toml::find<String>(manifest, "package", "name");
   if (name.empty()) {
     log::warn("project name is empty; try setting anything you want.");
@@ -112,7 +95,7 @@ exec(const Options& opts) {
     args += "-i";
     log::status("Formatting", name);
   }
-  return fmt(opts, manifest_path.parent_path(), args);
+  return fmt(manifest_path.parent_path(), args);
 }
 
 } // namespace poac::cmd::fmt

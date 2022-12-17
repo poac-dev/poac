@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_COLOR_MODE_HPP_
-#define POAC_UTIL_TERMCOLOR2_COLOR_MODE_HPP_
+#pragma once
 
 // external
 #include <spdlog/details/os.h>
@@ -9,8 +8,7 @@ namespace termcolor2::details {
 
 class ColorMode {
 public:
-  inline void
-  set(spdlog::color_mode mode) {
+  inline void set(spdlog::color_mode mode) {
     switch (mode) {
       case spdlog::color_mode::always:
         should_color_ = true;
@@ -25,15 +23,13 @@ public:
         __builtin_unreachable();
     }
   }
-  inline bool
-  should_color() const {
+  [[nodiscard]] inline auto should_color() const -> bool {
     return should_color_;
   }
 
-  static ColorMode&
-  instance() {
-    static ColorMode s_instance;
-    return s_instance;
+  static auto instance() -> ColorMode& {
+    static ColorMode INSTANCE;
+    return INSTANCE;
   }
 
 private:
@@ -45,16 +41,12 @@ private:
 
 namespace termcolor2 {
 
-inline void
-set_color_mode(spdlog::color_mode cm) {
+inline void set_color_mode(spdlog::color_mode cm) {
   details::ColorMode::instance().set(cm);
 }
 
-inline bool
-should_color() {
+inline auto should_color() -> bool {
   return details::ColorMode::instance().should_color();
 }
 
 } // namespace termcolor2
-
-#endif // POAC_UTIL_TERMCOLOR2_COLOR_MODE_HPP_

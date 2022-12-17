@@ -9,8 +9,7 @@
 
 namespace poac::cmd::clean {
 
-[[nodiscard]] Result<void>
-clean(const Options& opts) {
+[[nodiscard]] Fn clean(const Options& opts)->Result<void> {
   const Option<String> profile =
       Try(util::validator::valid_profile(opts.profile, opts.release)
               .map_err(to_anyhow));
@@ -19,9 +18,8 @@ clean(const Options& opts) {
     return Err<build::UnsupportedProfile>(profile.value());
   }
 
-  const Path path = profile.has_value()
-                        ? config::path::out_dir / profile.value()
-                        : config::path::out_dir;
+  const Path path =
+      profile.has_value() ? config::out_dir / profile.value() : config::out_dir;
 
   spdlog::trace("Removing ./{}", path);
 
@@ -33,8 +31,7 @@ clean(const Options& opts) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

@@ -17,8 +17,7 @@
 
 namespace poac::core::builder::build {
 
-String
-to_string(Mode mode) {
+Fn to_string(Mode mode)->String {
   switch (mode) {
     case Mode::debug:
       return "debug";
@@ -29,8 +28,7 @@ to_string(Mode mode) {
   }
 }
 
-std::ostream&
-operator<<(std::ostream& os, Mode mode) {
+Fn operator<<(std::ostream& os, Mode mode)->std::ostream& {
   switch (mode) {
     case Mode::debug:
       return (os << "dev");
@@ -42,10 +40,10 @@ operator<<(std::ostream& os, Mode mode) {
 }
 
 /// Build the targets listed on the command line.
-[[nodiscard]] Result<void>
-run(data::NinjaMain& ninja_main, Status& status) {
+[[nodiscard]] Fn run(data::NinjaMain& ninja_main, Status& status)
+    ->Result<void> {
   String err;
-  Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
+  const Vec<Node*> targets = ninja_main.state.DefaultNodes(&err);
   if (!err.empty()) {
     return Err<GeneralError>(err);
   }
@@ -77,8 +75,7 @@ run(data::NinjaMain& ninja_main, Status& status) {
   return Ok();
 }
 
-BuildConfig::Verbosity
-get_ninja_verbosity() {
+Fn get_ninja_verbosity()->BuildConfig::Verbosity {
   if (util::verbosity::is_verbose()) {
     return BuildConfig::VERBOSE;
   } else if (util::verbosity::is_quiet()) {
@@ -88,12 +85,12 @@ get_ninja_verbosity() {
   }
 }
 
-[[nodiscard]] Result<Path>
-start(
+[[nodiscard]] Fn start(
     const toml::value& poac_manifest, const Mode& mode,
     const resolver::ResolvedDeps& resolved_deps
-) {
-  BuildConfig config;
+)
+    ->Result<Path> {
+  const BuildConfig config;
 
   // ref: https://github.com/ninja-build/ninja/pull/2102#issuecomment-1147771497
   setenv("TERM", "dumb", true);
@@ -104,11 +101,11 @@ start(
   setenv("NINJA_STATUS", progress_status_format.c_str(), true);
   StatusPrinter status(config);
 
-  const Path build_dir = config::path::out_dir / to_string(mode);
+  const Path build_dir = config::out_dir / to_string(mode);
   fs::create_directories(build_dir);
   Try(manifest::create(build_dir, poac_manifest, resolved_deps));
 
-  for (i32 cycle = 1; cycle <= rebuildLimit; ++cycle) {
+  for (i32 cycle = 1; cycle <= REBUILD_LIMIT; ++cycle) {
     data::NinjaMain ninja_main(config, build_dir);
     ManifestParserOptions parser_opts;
     parser_opts.dupe_edge_action_ = kDupeEdgeActionError;
@@ -117,7 +114,7 @@ start(
     );
     String err;
     if (!parser.Load(
-            (ninja_main.build_dir / manifest::manifest_file_name).string(), &err
+            (ninja_main.build_dir / manifest::MANIFEST_FILE_NAME).string(), &err
         )) {
       return Err<GeneralError>(err);
     }
@@ -134,11 +131,11 @@ start(
     }
 
     Try(run(ninja_main, status));
-    return Ok(config::path::out_dir / to_string(mode));
+    return Ok(config::out_dir / to_string(mode));
   }
   return Err<GeneralError>(format(
       "internal manifest still dirty after {} tries, perhaps system time is not set",
-      rebuildLimit
+      REBUILD_LIMIT
   ));
 }
 

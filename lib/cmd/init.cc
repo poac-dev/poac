@@ -14,12 +14,12 @@
 
 namespace poac::cmd::init {
 
-[[nodiscard]] Result<void>
-init(const Options& opts, StringRef package_name) {
+[[nodiscard]] Fn init(const Options& opts, StringRef package_name)
+    ->Result<void> {
   using create::ProjectType;
 
-  spdlog::trace("Creating ./{}", data::manifest::name);
-  std::ofstream ofs_config(data::manifest::name);
+  spdlog::trace("Creating ./{}", data::manifest::NAME);
+  std::ofstream ofs_config(data::manifest::NAME);
 
   const ProjectType type = create::opts_to_project_type(opts);
   ofs_config << create::files::poac_toml(package_name);
@@ -28,15 +28,14 @@ init(const Options& opts, StringRef package_name) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<create::PassingBothBinAndLib>();
-  } else if (util::validator::required_config_exists().is_ok()) {
+  } else if (util::validator::required_config_exists(false).is_ok()) {
     return Err<AlreadyInitialized>();
   }
 
-  const String package_name = config::path::cwd.stem().string();
+  const String package_name = config::cwd.stem().string();
   spdlog::trace("Validating the package name `{}`", package_name);
   Try(util::validator::valid_package_name(package_name).map_err(to_anyhow));
 

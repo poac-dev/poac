@@ -13,26 +13,24 @@
 
 namespace poac::cmd::graph {
 
-Result<core::resolver::ResolvedDeps>
-create_resolved_deps() {
+Fn create_resolved_deps()->Result<core::resolver::ResolvedDeps> {
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  const toml::value manifest = toml::parse(data::manifest::name);
+  const toml::value manifest = toml::parse(data::manifest::NAME);
 
   return core::resolver::install_deps(manifest).with_context([] {
     return Err<FailedToInstallDeps>().get();
   });
 }
 
-Result<std::pair<Graph, Vec<String>>>
-create_graph() {
+Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
   const core::resolver::ResolvedDeps resolved_deps =
       Try(create_resolved_deps());
   Graph g;
 
   // Add vertex
   Vec<Graph::vertex_descriptor> desc;
-  for (const auto& dep : resolved_deps | boost::adaptors::indexed()) {
+  for (Let& dep : resolved_deps | boost::adaptors::indexed()) {
     desc.push_back(boost::add_vertex(g));
 
     const i64 index = dep.index();
@@ -43,16 +41,16 @@ create_graph() {
   }
 
   // Add edge
-  for (const auto& dep : resolved_deps | boost::adaptors::indexed()) {
+  for (Let& dep : resolved_deps | boost::adaptors::indexed()) {
     const i64 index = dep.index();
-    const auto deps = dep.value().second;
+    Let deps = dep.value().second;
 
     if (deps.has_value()) {
-      for (const auto& [name, version] : deps.value()) {
+      for (Let & [ name, version ] : deps.value()) {
         auto first = resolved_deps.cbegin();
         auto last = resolved_deps.cend();
 
-        const auto result = std::find_if(first, last, [&n = name](auto d) {
+        Let result = std::find_if(first, last, [&n = name](auto d) {
           // dependency should be resolved as only one package.
           return d.first.name == n;
         });
@@ -64,32 +62,32 @@ create_graph() {
   }
 
   Vec<String> names;
-  for (const auto& [package, deps] : resolved_deps) {
+  for (Let & [ package, deps ] : resolved_deps) {
     static_cast<void>(deps);
     names.push_back(package.name + ": " + package.version_rq);
   }
   return Ok(std::make_pair(g, names));
 }
 
-[[nodiscard]] Result<void>
-dot_file_output(const Path& output_path) {
-  const auto [g, names] = Try(create_graph());
+[[nodiscard]] Fn dot_file_output(const Path& output_path)->Result<void> {
+  Let[g, names] = Try(create_graph());
   std::ofstream file(output_path);
   boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-png_file_output(const Path& output_path) {
+[[nodiscard]] Fn png_file_output(const Path& output_path)->Result<void> {
   if (util::shell::has_command("dot")) {
-    const auto [g, names] = Try(create_graph());
+    Let[g, names] = Try(create_graph());
 
     const String file_dot = output_path.stem().string() + ".dot";
     std::ofstream file(file_dot);
     boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
 
-    util::shell::Cmd("dot -Tpng " + file_dot + " -o " + output_path.string())
-        .exec();
+    std::ignore = util::shell::Cmd(
+                      "dot -Tpng " + file_dot + " -o " + output_path.string()
+    )
+                      .exec();
     std::filesystem::remove(file_dot);
     return Ok();
   } else {
@@ -97,8 +95,7 @@ png_file_output(const Path& output_path) {
   }
 }
 
-[[nodiscard]] Result<void>
-file_output(const Path& output_path) {
+[[nodiscard]] Fn file_output(const Path& output_path)->Result<void> {
   if (output_path.extension() == ".png") {
     return png_file_output(output_path);
   } else if (output_path.extension() == ".dot") {
@@ -108,9 +105,8 @@ file_output(const Path& output_path) {
   }
 }
 
-[[nodiscard]] Result<void>
-console_output() {
-  const auto [g, names] = Try(create_graph());
+[[nodiscard]] Fn console_output()->Result<void> {
+  Let[g, names] = Try(create_graph());
   static_cast<void>(names); // error: unused variable
   for (auto [itr, end] = edges(g); itr != end; ++itr) {
     spdlog::info(
@@ -121,8 +117,7 @@ console_output() {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   if (opts.output_file.has_value()) {
     Try(file_output(opts.output_file.value()));
     log::status("Generated", opts.output_file.value());

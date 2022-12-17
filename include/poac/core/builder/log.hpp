@@ -1,12 +1,14 @@
-#ifndef POAC_CORE_BUILDER_LOG_HPP_
-#define POAC_CORE_BUILDER_LOG_HPP_
+#pragma once
 
 // std
 #include <string>
 
 // internal
 #include "poac/core/builder/data.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::core::builder::log {
 
@@ -16,15 +18,11 @@ using FailedToOpenBuildLog = Error<"opening build log: {}", String>;
 using FailedToLoadDepsLog = Error<"loading deps log `{}`: {}", String, String>;
 using FailedToOpenDepsLog = Error<"opening deps log: {}", String>;
 
-inline constexpr StringRef build_log_file_name = ".ninja_log";
-inline constexpr StringRef deps_log_file_name = ".ninja_deps";
+inline constexpr StringRef BUILD_LOG_FILE_NAME = ".ninja_log";
+inline constexpr StringRef DEPS_LOG_FILE_NAME = ".ninja_deps";
 
-[[nodiscard]] Result<void>
-load_build_log(data::NinjaMain& ninja_main);
+[[nodiscard]] Fn load_build_log(data::NinjaMain& ninja_main)->Result<void>;
 
-[[nodiscard]] Result<void>
-load_deps_log(data::NinjaMain& ninja_main);
+[[nodiscard]] Fn load_deps_log(data::NinjaMain& ninja_main)->Result<void>;
 
 } // namespace poac::core::builder::log
-
-#endif // POAC_CORE_BUILDER_LOG_HPP_

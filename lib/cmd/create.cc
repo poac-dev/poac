@@ -4,13 +4,13 @@
 
 // internal
 #include "poac/cmd/create.hpp"
+#include "poac/config.hpp"
 #include "poac/data/manifest.hpp"
 #include "poac/util/validator.hpp"
 
 namespace poac::cmd::create {
 
-String
-to_string(ProjectType kind) {
+Fn to_string(ProjectType kind)->String {
   switch (kind) {
     case ProjectType::Bin:
       return "binary (application)";
@@ -21,8 +21,7 @@ to_string(ProjectType kind) {
   }
 }
 
-void
-write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
+void write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
   ofs.open(fname);
   if (ofs.is_open()) {
     ofs << text;
@@ -31,20 +30,20 @@ write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
   ofs.clear();
 }
 
-Map<Path, String>
-create_template_files(const ProjectType& type, const String& package_name) {
+Fn create_template_files(const ProjectType& type, const String& package_name)
+    ->Map<Path, String> {
   switch (type) {
     case ProjectType::Bin:
       fs::create_directories(package_name / "src"_path);
       return {
-          {".gitignore", "/poac-out"},
-          {data::manifest::name, files::poac_toml(package_name)},
-          {"src"_path / "main.cpp", String(files::main_cpp)}};
+          {".gitignore", format("/{}", config::POAC_OUT)},
+          {data::manifest::NAME, files::poac_toml(package_name)},
+          {"src"_path / "main.cpp", String(files::MAIN_CPP)}};
     case ProjectType::Lib:
       fs::create_directories(package_name / "include"_path / package_name);
       return {
-          {".gitignore", "/poac-out\npoac.lock"},
-          {data::manifest::name, files::poac_toml(package_name)},
+          {".gitignore", format("/{}\npoac.lock", config::POAC_OUT)},
+          {data::manifest::NAME, files::poac_toml(package_name)},
           {"include"_path / package_name / (package_name + ".hpp"),
            files::include_hpp(package_name)},
       };
@@ -53,8 +52,7 @@ create_template_files(const ProjectType& type, const String& package_name) {
   }
 }
 
-[[nodiscard]] Result<void>
-create(const Options& opts) {
+[[nodiscard]] Fn create(const Options& opts)->Result<void> {
   std::ofstream ofs;
   const ProjectType type = opts_to_project_type(opts);
   for (auto&& [name, text] : create_template_files(type, opts.package_name)) {
@@ -70,8 +68,7 @@ create(const Options& opts) {
   return Ok();
 }
 
-[[nodiscard]] Result<void>
-exec(const Options& opts) {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<PassingBothBinAndLib>();
   }

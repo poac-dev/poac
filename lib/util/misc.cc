@@ -10,8 +10,7 @@
 
 namespace poac::util::misc {
 
-Vec<String>
-split(const String& raw, const String& delim) {
+Fn split(const String& raw, const String& delim)->Vec<String> {
   Vec<String> ret;
   // Ref: https://github.com/llvm/llvm-project/issues/40486
   // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
@@ -21,8 +20,7 @@ split(const String& raw, const String& delim) {
   return ret;
 }
 
-Option<String>
-dupenv(const String& name) {
+Fn dupenv(const String& name)->Option<String> {
 #if BOOST_COMP_MSVC
   char* env;
   usize len;
@@ -42,8 +40,7 @@ dupenv(const String& name) {
 #endif
 }
 
-String
-getenv(const String& name, const String& default_v) {
+Fn getenv(const String& name, const String& default_v)->String {
   if (const Option<String> env = dupenv(name)) {
     return env.value();
   } else {
@@ -53,15 +50,14 @@ getenv(const String& name, const String& default_v) {
 
 // Inspired by https://stackoverflow.com/q/4891006
 // Expand ~ to user home directory.
-[[nodiscard]] Result<Path, String>
-expand_user() {
+[[nodiscard]] Fn expand_user()->Result<Path, String> {
   if (Option<String> home = dupenv("HOME")) {
     return Ok(home.value());
   } else if (Option<String> user = dupenv("USERPROFILE")) {
     return Ok(user.value());
   } else {
-    const auto home_drive = dupenv("HOMEDRIVE");
-    const auto home_path = dupenv("HOMEPATH");
+    Let home_drive = dupenv("HOMEDRIVE");
+    Let home_path = dupenv("HOMEPATH");
     if (home_drive && home_path) {
       return Ok(home_drive.value() + home_path.value());
     }

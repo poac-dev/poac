@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_LEXER_HPP_
-#define POAC_UTIL_SEMVER_LEXER_HPP_
+#pragma once
 
 // std
 #include <cstddef>
@@ -15,8 +14,7 @@
 
 namespace semver {
 
-constexpr bool
-is_whitespace(const char c) noexcept {
+constexpr auto is_whitespace(const char c) noexcept -> bool {
   switch (c) {
     case ' ':
     case '\t':
@@ -28,27 +26,24 @@ is_whitespace(const char c) noexcept {
   }
 }
 
-constexpr bool
-is_digit(const char c) noexcept {
+constexpr auto is_digit(const char c) noexcept -> bool {
   return '0' <= c && c <= '9';
 }
 
-constexpr bool
-is_alphabet(const char c) noexcept {
+constexpr auto is_alphabet(const char c) noexcept -> bool {
   return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
 }
 
-constexpr bool
-is_alpha_numeric(const char c) noexcept {
+constexpr auto is_alpha_numeric(const char c) noexcept -> bool {
   return is_digit(c) || is_alphabet(c);
 }
 
-constexpr std::optional<std::uint_fast64_t>
-str_to_uint(std::string_view s) noexcept {
+constexpr auto str_to_uint(std::string_view s) noexcept
+    -> std::optional<std::uint_fast64_t> {
   std::uint_fast64_t i = 0;
   std::uint_fast64_t digit = 1;
   for (int size = s.size() - 1; size >= 0; --size) {
-    char c = s[size];
+    const char c = s[size];
     if (is_digit(c)) {
       i += (c - '0') * digit;
     } else {
@@ -61,52 +56,43 @@ str_to_uint(std::string_view s) noexcept {
 
 class Lexer {
 public:
-  using size_type = std::size_t;
-  using string_type = std::string_view;
-  using value_type = string_type::value_type;
-  using traits_type = string_type::traits_type;
-  using const_iterator = string_type::const_iterator;
-  using const_reverse_iterator = string_type::const_reverse_iterator;
+  using SizeType = std::size_t;
+  using StringType = std::string_view;
+  using ValueType = StringType::value_type;
+  using TraitsType = StringType::traits_type;
+  using ConstIterator = StringType::const_iterator;
+  using ConstReverseIterator = StringType::const_reverse_iterator;
 
-  string_type str;
-  size_type c1_index;
+  StringType str;
+  SizeType c1_index{0};
 
-  explicit Lexer(string_type s) : str(s), c1_index(0) {}
+  explicit Lexer(StringType s) : str(s) {}
 
-  Token
-  next();
+  auto next() -> Token;
 
-  constexpr size_type
-  size() const noexcept {
+  [[nodiscard]] constexpr auto size() const noexcept -> SizeType {
     return str.size();
   }
-  constexpr size_type
-  max_size() const noexcept {
+  [[nodiscard]] constexpr auto max_size() const noexcept -> SizeType {
     return str.max_size();
   }
-  constexpr bool
-  empty() const noexcept {
+  [[nodiscard]] constexpr auto empty() const noexcept -> bool {
     return str.empty();
   }
 
 private:
-  inline void
-  step() noexcept {
-    ++c1_index;
-  }
+  inline void step() noexcept { ++c1_index; }
 
-  void
-  step_n(const size_type& n) noexcept;
+  void step_n(const SizeType& n) noexcept;
 
   /// Access the one character, or set it if it is not set.
-  inline value_type
-  one() const noexcept {
+  [[nodiscard]] inline auto one() const noexcept -> ValueType {
     return str[c1_index];
   }
 
   /// Access two characters.
-  inline std::pair<value_type, value_type>
-  two() const noexcept {
+  [[nodiscard]] inline auto two() const noexcept
+      -> std::pair<ValueType, ValueType> {
     return {str[c1_index], str[c1_index + 1]};
   }
 
@@ -114,14 +100,10 @@ private:
   ///
   /// A component can either be an alphanumeric or numeric.
   /// Does not permit leading zeroes if numeric.
-  Token
-  component();
+  auto component() -> Token;
 
   /// Consume whitespace.
-  Token
-  whitespace() noexcept;
+  auto whitespace() -> Token;
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_LEXER_HPP_

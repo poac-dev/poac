@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_RANGE_HPP_
-#define POAC_UTIL_SEMVER_RANGE_HPP_
+#pragma once
 
 // std
 #include <cstdint>
@@ -44,20 +43,17 @@ struct Op {
   Kind kind;
   std::variant<std::monostate, WildcardVersion> component;
 
-  // clang-format off
   Op() = delete;
   Op(const Op&) = default;
-  Op& operator=(const Op&) = default;
+  auto operator=(const Op&) -> Op& = default;
   Op(Op&&) noexcept = default;
-  Op& operator=(Op&&) noexcept = default;
+  auto operator=(Op&&) noexcept -> Op& = default;
   ~Op() = default;
-  // clang-format on
 
   constexpr explicit Op(Kind k)
       : kind(
           k == Kind::Wildcard ? throw std::invalid_argument("semver::Op") : k
-      ),
-        component() {}
+      ) {}
 
   constexpr Op(Kind k, WildcardVersion wv)
       : kind(
@@ -93,5 +89,3 @@ struct Comparator {
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_RANGE_HPP_

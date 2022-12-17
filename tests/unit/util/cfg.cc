@@ -16,8 +16,7 @@
 
 #include <poac/util/cfg.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
   using namespace boost::ut::spec;
@@ -27,77 +26,77 @@ main() {
     using poac::util::cfg::parse;
 
     it("test good cases") = [] {
-      using poac::util::cfg::ident_error;
-      using poac::util::cfg::syntax_error;
+      using poac::util::cfg::IdentError;
+      using poac::util::cfg::SyntaxError;
 
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("foo"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "foo\n"
           "^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("_bar"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "_bar\n"
           "^--- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse(" foo"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           " foo\n"
           " ^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse(" foo  "); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           " foo  \n"
           " ^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse(" foo  = \"bar\""); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           " foo  = \"bar\"\n"
           " ^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("foo=\"\""); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "foo=\"\"\n"
           "^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse(" foo=\"3\"      "); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           " foo=\"3\"      \n"
           " ^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("foo = \"3 e\""); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "foo = \"3 e\"\n"
           "^-- unknown identify"
       );
 
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("os"); },
           "cfg syntax error\n"
           "os\n"
           "   ^ expected operator"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("_os"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "_os\n"
           "^-- unknown identify"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse(" os"); },
           "cfg syntax error\n"
           " os\n"
           "    ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse(" os  "); },
           "cfg syntax error\n"
           " os  \n"
@@ -108,69 +107,69 @@ main() {
       expect(nothrow([] { parse(" os=\"3\"      "); }));
       expect(nothrow([] { parse("os = \"3 e\""); }));
 
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all()"); },
           "cfg syntax error\n"
           "all()\n"
           "      ^ expected operator"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("all(a)"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "all(a)\n"
           "    ^ unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("all(a, b)"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "all(a, b)\n"
           "    ^ unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("all(a, )"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "all(a, )\n"
           "    ^ unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("not(a = \"b\")"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "not(a = \"b\")\n"
           "    ^ unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("not(all(a))"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "not(all(a))\n"
           "        ^ unknown identify"
       );
 
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all()"); },
           "cfg syntax error\n"
           "all()\n"
           "      ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(os)"); },
           "cfg syntax error\n"
           "all(os)\n"
           "       ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(os, compiler)"); },
           "cfg syntax error\n"
           "all(os, compiler)\n"
           "       ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(os, )"); },
           "cfg syntax error\n"
           "all(os, )\n"
           "       ^ expected operator"
       );
       expect(nothrow([] { parse("not(os = \"b\")"); }));
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("not(all(os))"); },
           "cfg syntax error\n"
           "not(all(os))\n"
@@ -183,89 +182,89 @@ main() {
     };
 
     it("test bad cases") = [] {
-      using poac::util::cfg::string_error;
-      using poac::util::cfg::ident_error;
-      using poac::util::cfg::operator_error;
-      using poac::util::cfg::expression_error;
-      using poac::util::cfg::syntax_error;
+      using poac::util::cfg::StringError;
+      using poac::util::cfg::IdentError;
+      using poac::util::cfg::OperatorError;
+      using poac::util::cfg::ExpressionError;
+      using poac::util::cfg::SyntaxError;
 
-      throws_with_msg<expression_error>(
+      throws_with_msg<ExpressionError>(
           [] { parse(" "); }, "expected start of a cfg expression"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse(" all"); },
           "cfg syntax error\n"
           " all\n"
           "    ^ expected '(', but cfg expression ended"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(os"); },
           "cfg syntax error\n"
           "all(os\n"
           "       ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("not"); },
           "cfg syntax error\n"
           "not\n"
           "   ^ expected '(', but cfg expression ended"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("not(os"); },
           "cfg syntax error\n"
           "not(os\n"
           "       ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("os "); },
           "cfg syntax error\n"
           "os \n"
           "   ^ expected operator"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("os = "); },
           "cfg syntax error\n"
           "os = \n"
           "    ^ expected a string, but cfg expression ended"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(not())"); },
           "cfg syntax error\n"
           "all(not())\n"
           "          ^ expected operator"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("foo(a)"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "foo(a)\n"
           "^-- unknown identify"
       );
 
-      throws_with_msg<string_error>(
+      throws_with_msg<StringError>(
           [] { parse("os = \"foo"); },
           "missing terminating '\"' character\n"
           "os = \"foo\n"
           "     ^--- unterminated string"
       );
-      throws_with_msg<operator_error>(
+      throws_with_msg<OperatorError>(
           [] { parse("os < \"foo\""); },
           "cfg operator error\n"
           "os < \"foo\"\n"
           "   ^ cannot be specified except os_version"
       );
-      throws_with_msg<operator_error>(
+      throws_with_msg<OperatorError>(
           [] { parse("os <= \"foo\""); },
           "cfg operator error\n"
           "os <= \"foo\"\n"
           "   ^- cannot be specified except os_version"
       );
-      throws_with_msg<operator_error>(
+      throws_with_msg<OperatorError>(
           [] { parse("os > \"foo\""); },
           "cfg operator error\n"
           "os > \"foo\"\n"
           "   ^ cannot be specified except os_version"
       );
-      throws_with_msg<operator_error>(
+      throws_with_msg<OperatorError>(
           [] { parse("os >= \"foo\""); },
           "cfg operator error\n"
           "os >= \"foo\"\n"
@@ -277,19 +276,19 @@ main() {
       expect(nothrow([] { parse("os_version >= \"foo\""); }));
       expect(nothrow([] { parse("os_version = \"foo\""); }));
 
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(os = \"foo\""); },
           "cfg syntax error\n"
           "all(os = \"foo\"\n"
           "              ^ expected ')', but cfg expression ended"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("and()"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "and()\n"
           "^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("or()"); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "or()\n"
@@ -300,31 +299,31 @@ main() {
       expect(nothrow([] { parse("feature = \"foo\""); }));
       expect(nothrow([] { parse("os = \"foo\""); }));
       expect(nothrow([] { parse("platform = \"foo\""); }));
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("foo = \"bar\""); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "foo = \"bar\"\n"
           "^-- unknown identify"
       );
-      throws_with_msg<ident_error>(
+      throws_with_msg<IdentError>(
           [] { parse("3compiler = \"bar\""); },
           "cfg expected parenthesis, comma, identifier, or string\n"
           "3compiler = \"bar\"\n"
           "^ unexpected character"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all(compiler = os)"); },
           "cfg syntax error\n"
           "all(compiler = os)\n"
           "               ^- expected a string"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse("all compiler = \"bar\")"); },
           "cfg syntax error\n"
           "all compiler = \"bar\")\n"
           "   ^ excepted '(' after `all`"
       );
-      throws_with_msg<syntax_error>(
+      throws_with_msg<SyntaxError>(
           [] { parse(R"(all(not(compiler = "foo", os = "bar"))"); },
           "cfg syntax error\n"
           "all(not(compiler = \"foo\", os = \"bar\")\n"
@@ -405,7 +404,7 @@ main() {
     }
     {
       std::ostringstream output;
-      std::string s = "foo";
+      const std::string s = "foo";
       output << Token{Token::String, s};
       expect(eq(output.str(), "string: " + s));
     }
@@ -509,7 +508,7 @@ main() {
     expect(constant<to_kind(">=") == Token::GtEq>);
     expect(constant<to_kind("<") == Token::Lt>);
     expect(constant<to_kind("<=") == Token::LtEq>);
-    expect(throws<poac::util::cfg::exception>([] { to_kind("unknown"); }));
+    expect(throws<poac::util::cfg::Exception>([] { to_kind("unknown"); }));
   };
 
   "test to_string(Token::ident ident)"_test = [] {

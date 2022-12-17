@@ -4,8 +4,8 @@
 namespace poac::util::net {
 
 // Create progress bar, [====>   ]
-String
-to_progress(const i32& max_count, i32 now_count, const i32& bar_size) {
+Fn to_progress(const i32& max_count, i32 now_count, const i32& bar_size)
+    ->String {
   if (now_count > max_count) {
     now_count = max_count;
   }
@@ -24,8 +24,7 @@ to_progress(const i32& max_count, i32 now_count, const i32& bar_size) {
 }
 
 // Create byte progress bar, [====>   ] 10.21B/21.28KB
-String
-to_byte_progress(const i32& max_count, i32 now_count) {
+Fn to_byte_progress(const i32& max_count, i32 now_count)->String {
   if (now_count > max_count) {
     now_count = max_count;
   }
@@ -35,25 +34,23 @@ to_byte_progress(const i32& max_count, i32 now_count) {
   );
 }
 
-Vec<MultiPartForm::FileInfo>
-MultiPartForm::get_files() const {
+Fn MultiPartForm::get_files() const->Vec<MultiPartForm::FileInfo> {
   Vec<FileInfo> file_info;
-  for (const auto& f : m_file_param) {
+  for (Let& f : m_file_param) {
     const Path file_path = std::get<1>(f);
     file_info.push_back({file_path.string(), fs::file_size(file_path)});
   }
   return file_info;
 }
 
-void
-MultiPartForm::generate_header() {
+void MultiPartForm::generate_header() {
   m_header = format("{}{}", m_crlf, fmt::join(m_form_param, ""));
-  for (const auto& [name, filename, header] : m_file_param) {
+  for (Let & [ name, filename, header ] : m_file_param) {
     String h = format(
         R"(--{}{}{}name="{}"; filename="{}")", m_boundary, m_crlf,
         m_content_disposition, name, filename.filename().string()
     );
-    for (const auto& [field, content] : header) {
+    for (Let & [ field, content ] : header) {
       // NOLINTNEXTLINE(google-readability-casting)
       h += format("{}{}: {}", m_crlf, String(to_string(field)), content);
     }
@@ -65,8 +62,7 @@ MultiPartForm::generate_header() {
 // TODO(ken-matsui): ioc, ctx,
 // resolver,...等はget等を呼び出し後，解体し，host等は残すことで，連続で呼び出し可能にする．
 // Only SSL usage
-void
-Requests::close_stream() const {
+void Requests::close_stream() const {
   // Gracefully close the stream
   boost::system::error_code ec;
   stream->shutdown(ec);
@@ -76,13 +72,12 @@ Requests::close_stream() const {
   }
 }
 
-void
-Requests::ssl_set_tlsext() const {
+void Requests::ssl_set_tlsext() const {
   // Set SNI Hostname (many hosts need this to handshake successfully)
   if (!SSL_set_tlsext_host_name(
           stream->native_handle(), String(host).c_str()
       )) {
-    boost::system::error_code error{
+    const boost::system::error_code error{
         static_cast<i32>(::ERR_get_error()),
         boost::asio::error::get_ssl_category()};
     log::debug(error.message());
@@ -94,18 +89,14 @@ Requests::ssl_set_tlsext() const {
 
 namespace poac::util::net::api {
 
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-call(StringRef path, StringRef body) noexcept {
+[[nodiscard]] Fn call(StringRef path, const Option<String>& body) noexcept
+    -> Result<boost::property_tree::ptree, String> {
   try {
-    const Requests request{
-        format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)};
-    Headers headers;
-    headers.emplace(
-        boost::beast::http::field::authorization,
-        format("Bearer {}", SUPABASE_ANON_KEY)
-    );
-
-    const auto response = Try(request.post(path, body, headers));
+    const Requests request{"api.poac.pm"};
+    const String target = format("/v1{}", path);
+    Let response =
+        Try(body.has_value() ? request.post(target, body.value())
+                             : request.get(target));
     std::stringstream response_body;
     response_body << response.data();
 
@@ -115,49 +106,38 @@ call(StringRef path, StringRef body) noexcept {
   } catch (const std::exception& e) {
     return Err(e.what());
   } catch (...) {
-    return Err("unknown error caused when calling search api");
+    return Err(format("unknown error caused when calling API for {}", path));
   }
 }
 
-[[nodiscard]] Result<boost::property_tree::ptree, String>
-search(StringRef query, const u64& count) noexcept {
+[[nodiscard]] Fn search(StringRef query, const u64& count)
+    ->Result<boost::property_tree::ptree, String> {
   boost::property_tree::ptree pt;
   pt.put("query", query);
   pt.put("perPage", count);
 
   std::ostringstream body;
   boost::property_tree::json_parser::write_json(body, pt);
-  return call("/search", body.str());
+  return call("/packages/search", body.str());
 }
 
-[[nodiscard]] auto
-deps(StringRef name, StringRef version) noexcept
-    -> Result<HashMap<String, String>, String> {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-  pt.put("version", version);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/deps", body.str()));
+[[nodiscard]] Fn deps(StringRef name, StringRef version)
+    ->Result<HashMap<String, String>, String> {
+  const String path = format("/packages/{}/{}/deps", name, version);
+  const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
-  return Ok(util::meta::to_hash_map<String>(res, "data.dependencies"));
+  return Ok(util::meta::to_hash_map<String>(res, "data"));
 }
 
-[[nodiscard]] Result<Vec<String>, String>
-versions(StringRef name) {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/versions", body.str()));
+[[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String> {
+  const String path = format("/packages/{}/versions", name);
+  const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
-  const auto results = util::meta::to_vec<String>(res, "data");
+  Let results = util::meta::to_vec<String>(res, "data");
   log::debug(
       "[util::net::api::versions] versions of {} are [{}]", name,
       fmt::join(results, ", ")
@@ -165,15 +145,10 @@ versions(StringRef name) {
   return Ok(results);
 }
 
-[[nodiscard]] Result<std::pair<String, String>, String>
-repoinfo(StringRef name, StringRef version) {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-  pt.put("version", version);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/repoinfo", body.str()));
+[[nodiscard]] Fn repoinfo(StringRef name, StringRef version)
+    ->Result<std::pair<String, String>, String> {
+  const String path = format("/packages/{}/{}/repoinfo", name, version);
+  const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
@@ -182,8 +157,7 @@ repoinfo(StringRef name, StringRef version) {
   ));
 }
 
-[[nodiscard]] Result<bool, String>
-login(StringRef api_token) {
+[[nodiscard]] Fn login(StringRef api_token)->Result<bool, String> {
   boost::property_tree::ptree pt;
   pt.put("api_token", api_token);
 

@@ -1,12 +1,12 @@
 [package]
-name = "poac" # required
-version = "0.4.1" # required
-edition = 2020 # required
-authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"] # required
-license = "Apache-2.0" # required
+name = "poac"
+version = "0.4.1"
+edition = 2020
+authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
+license = "Apache-2.0"
 homepage = "https://poac.pm"
-repository = "https://github.com/poacpm/poac" # required
-description = "Poac is a package manager for C++" # required
+repository = "https://github.com/poacpm/poac"
+description = "Package Manager for C++"
 
 [dependencies]
 "ken-matsui/termcolor2" = ">=0.1.0 and <1.0.0"
@@ -63,3 +63,21 @@ libraries = ["boost_sysytem", "git2"]
 
 [profile.release]
 lto = true
+
+[lint.cpplint]
+filters = [
+    "-legal/copyright",
+    "-whitespace",
+    "+whitespace/ending_newline",
+    "-build/c++11",
+    "-build/namespaces_literals",
+    # Didn't work correctly with inline namespaces
+    # `namespace termcolor2::inline color_literals::inline foreground_literals`
+    # suggested to `namespace termcolor2::inline`
+    "-readability/namespace",
+    # Unknown NOLINT error category: bugprone-branch-clone
+    # This is for clang-tidy
+    "-readability/nolint",
+    # I believe non-const reference would be much better than a pointer.
+    "-runtime/references",
+]

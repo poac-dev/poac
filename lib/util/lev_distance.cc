@@ -7,8 +7,7 @@
 namespace poac::util::lev_distance {
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-usize
-calc(StringRef a, StringRef b) {
+Fn calc(StringRef a, StringRef b)->usize {
   const usize asize = a.size();
   const usize bsize = b.size();
 
@@ -31,11 +30,11 @@ calc(StringRef a, StringRef b) {
 
   for (usize i = 1; i <= asize; ++i) {
     for (usize j = 1; j <= bsize; ++j) {
-      const usize substCost = a[i - 1] == b[j - 1] ? 0 : 1;
+      const usize subst_cost = a[i - 1] == b[j - 1] ? 0 : 1;
       d[i][j] = std::min({
           d[i - 1][j] + 1, // deletion
           d[i][j - 1] + 1, // insertion
-          d[i - 1][j - 1] + substCost // substitution
+          d[i - 1][j - 1] + subst_cost // substitution
       });
     }
   }
@@ -52,8 +51,8 @@ calc(StringRef a, StringRef b) {
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef>
-find_similar_str(StringRef lhs, std::span<const StringRef> candidates) {
+Fn find_similar_str(StringRef lhs, std::span<const StringRef> candidates)
+    ->Option<StringRef> {
   // We need to check if `Candidates` has the exact case-insensitive string
   // because the Levenshtein distance match does not care about it.
   for (StringRef c : candidates) {
@@ -65,12 +64,12 @@ find_similar_str(StringRef lhs, std::span<const StringRef> candidates) {
   // Keep going with the Levenshtein distance match.
   // If the LHS size is less than 3, use the LHS size minus 1 and if not,
   // use the LHS size divided by 3.
-  usize length = lhs.size();
-  usize max_dist = length < 3 ? length - 1 : length / 3;
+  const usize length = lhs.size();
+  const usize max_dist = length < 3 ? length - 1 : length / 3;
 
   Option<std::pair<StringRef, usize>> similar_str = None;
-  for (StringRef c : candidates) {
-    usize cur_dist = calc(lhs, c);
+  for (const StringRef c : candidates) {
+    const usize cur_dist = calc(lhs, c);
     if (cur_dist <= max_dist) {
       // The first similar string found || More similar string found
       if (!similar_str.has_value() || cur_dist < similar_str->second) {

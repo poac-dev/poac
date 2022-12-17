@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_VALIDATOR_HPP_
-#define POAC_UTIL_VALIDATOR_HPP_
+#pragma once
 
 // external
 #include <toml.hpp>
@@ -7,82 +6,70 @@
 // internal
 #include "poac/config.hpp"
 #include "poac/data/manifest.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::validator {
 
-[[nodiscard]] Result<Path, String>
-required_config_exists() noexcept;
+[[nodiscard]] Fn required_config_exists(bool find_parents = true)
+    ->Result<Path, String>;
 
-[[nodiscard]] Result<void, String>
-can_create_directory(const Path& p);
+[[nodiscard]] Fn can_create_directory(const Path& p)->Result<void, String>;
 
-constexpr bool
-is_digit(const char c) noexcept {
+constexpr Fn is_digit(const char c) noexcept -> bool {
   return '0' <= c && c <= '9';
 }
 
-constexpr bool
-is_alphabet(const char c) noexcept {
+constexpr Fn is_alphabet(const char c) noexcept -> bool {
   return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
 }
 
-constexpr bool
-is_alpha_numeric(const char c) noexcept {
+constexpr Fn is_alpha_numeric(const char c) noexcept -> bool {
   return is_digit(c) || is_alphabet(c);
 }
 
-[[nodiscard]] Result<void, String>
-two_or_more_symbols(StringRef s) noexcept;
+[[nodiscard]] Fn two_or_more_symbols(StringRef s) noexcept
+    -> Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-start_with_symbol(StringRef s) noexcept;
+[[nodiscard]] Fn start_with_symbol(StringRef s) noexcept
+    -> Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-end_with_symbol(StringRef s) noexcept;
+[[nodiscard]] Fn end_with_symbol(StringRef s) noexcept -> Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-invalid_characters_impl(StringRef s) noexcept;
+[[nodiscard]] Fn invalid_characters_impl(StringRef s) noexcept
+    -> Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-invalid_characters(StringRef s) noexcept;
+[[nodiscard]] Fn invalid_characters(StringRef s) noexcept
+    -> Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-using_keywords(StringRef s);
+[[nodiscard]] Fn using_keywords(StringRef s)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-one_char(StringRef s);
+[[nodiscard]] Fn one_char(StringRef s)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_package_name(StringRef s);
+[[nodiscard]] Fn valid_package_name(StringRef s)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_version(StringRef s);
+[[nodiscard]] Fn valid_version(StringRef s)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_athr(StringRef s);
+[[nodiscard]] Fn valid_athr(StringRef s)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_authors(const Vec<String>& authors);
+[[nodiscard]] Fn valid_authors(const Vec<String>& authors)
+    ->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_edition(const i32& edition);
+[[nodiscard]] Fn valid_edition(const i32& edition)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_license(StringRef license);
+[[nodiscard]] Fn valid_license(StringRef license)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_repository(StringRef repo);
+[[nodiscard]] Fn valid_repository(StringRef repo)->Result<void, String>;
 
-[[nodiscard]] Result<void, String>
-valid_description(StringRef desc);
+[[nodiscard]] Fn valid_description(StringRef desc)->Result<void, String>;
 
-[[nodiscard]] Result<data::manifest::PartialPackage, String>
-valid_manifest(const toml::value& manifest);
+[[nodiscard]] Fn valid_manifest(const toml::value& manifest)
+    ->Result<data::manifest::PartialPackage, String>;
 
-[[nodiscard]] Result<Option<String>, String>
-valid_profile(const Option<String>& profile, Option<bool> release);
+[[nodiscard]] Fn
+valid_profile(const Option<String>& profile, Option<bool> release)
+    ->Result<Option<String>, String>;
 
 } // namespace poac::util::validator
-
-#endif // POAC_UTIL_VALIDATOR_HPP_

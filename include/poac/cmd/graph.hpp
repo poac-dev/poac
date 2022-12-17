@@ -1,5 +1,4 @@
-#ifndef POAC_CMD_GRAPH_HPP_
-#define POAC_CMD_GRAPH_HPP_
+#pragma once
 
 // std
 #include <utility>
@@ -10,7 +9,10 @@
 
 // internal
 #include "poac/core/resolver.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::graph {
 
@@ -26,6 +28,7 @@ using GraphvizNotFound = Error<
     "Or consider outputting this as `.dot`">;
 using FailedToInstallDeps = Error<"failed to install dependencies">;
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Vertex {
   String name;
   String version;
@@ -33,29 +36,20 @@ struct Vertex {
 using Graph =
     boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
-Result<core::resolver::ResolvedDeps>
-create_resolved_deps();
+Fn create_resolved_deps()->Result<core::resolver::ResolvedDeps>;
 
-Result<std::pair<Graph, Vec<String>>>
-create_graph();
+Fn create_graph()->Result<std::pair<Graph, Vec<String>>>;
 
-[[nodiscard]] Result<void>
-dot_file_output(const Path& output_path);
+[[nodiscard]] Fn dot_file_output(const Path& output_path)->Result<void>;
 
-[[nodiscard]] Result<void>
-png_file_output(const Path& output_path);
+[[nodiscard]] Fn png_file_output(const Path& output_path)->Result<void>;
 
-[[nodiscard]] Result<void>
-file_output(const Path& output_path);
+[[nodiscard]] Fn file_output(const Path& output_path)->Result<void>;
 
-[[nodiscard]] Result<void>
-console_output();
+[[nodiscard]] Fn console_output()->Result<void>;
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::graph
 
 STRUCTOPT(poac::cmd::graph::Options, output_file);
-
-#endif // POAC_CMD_GRAPH_HPP_

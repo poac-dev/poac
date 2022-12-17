@@ -1,8 +1,7 @@
 #include <boost/ut.hpp>
 #include <poac/util/semver/parser.hpp>
 
-int
-main() {
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace boost::ut;
 
@@ -46,7 +45,7 @@ main() {
 
   "test parse with letters"_test = [] {
     Parser parser("1.2.3 a.b.c");
-    expect(throws<semver::version_error>([&] { parser.version(); }))
+    expect(throws<semver::VersionError>([&] { parser.version(); }))
         << "1.2.3 a.b.c incorrectly considered a valid parse";
   };
 

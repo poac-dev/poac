@@ -1,12 +1,14 @@
-#ifndef POAC_CMD_PUBLISH_HPP_
-#define POAC_CMD_PUBLISH_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
 #include <toml.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::publish {
 
@@ -35,20 +37,15 @@ using FailedToReadManifest = Error<
     "sure to the current directory was set up using Poac.",
     Path>;
 
-[[nodiscard]] anyhow::result<toml::value>
-get_manifest();
+[[nodiscard]] Fn get_manifest()->Result<toml::value>;
 
-[[nodiscard]] anyhow::result<String>
-get_token(const Options& opts);
+[[nodiscard]] Fn get_token(const Options& opts)->Result<String>;
 
 using NotImplemented = Error<
     "failed to publish; `publish` command is currently under development">;
 
-[[nodiscard]] anyhow::result<void>
-exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::publish
 
 STRUCTOPT(poac::cmd::publish::Options, token, dry_run, allow_dirty);
-
-#endif // POAC_CMD_PUBLISH_HPP_

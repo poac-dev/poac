@@ -9,13 +9,8 @@
 // internal
 #include <poac/core/builder/syntax.hpp>
 
-inline const std::string LONGWORD = std::string(10, 'a');
-inline const std::string LONGWORDWITHSPACES =
-    std::string(5, 'a') + "$ " + std::string(5, 'a');
-inline const std::string INDENT = "    ";
-
-int
-main() {
+// NOLINTNEXTLINE(bugprone-exception-escape)
+auto main() -> int {
   using namespace std::literals::string_literals;
   using namespace poac;
   using namespace boost::ut;
@@ -23,20 +18,25 @@ main() {
 
   namespace builder = core::builder;
   using boost::algorithm::join;
-  using vec = std::vector<std::string>;
+  using Vec = Vec<std::string>;
 
-  describe("test line word wrap") = [] {
-    it("test single long word") = [] {
+  const std::string longword = std::string(10, 'a');
+  const std::string longwordwithspaces =
+      std::string(5, 'a') + "$ " + std::string(5, 'a');
+  const std::string indent = "    ";
+
+  describe("test line word wrap") = [&] {
+    it("test single long word") = [&] {
       builder::syntax::Writer writer{std::ostringstream(), 8};
-      writer._line(LONGWORD);
-      expect(eq(LONGWORD + '\n', writer.get_value()));
+      writer.line(longword);
+      expect(eq(longword + '\n', writer.get_value()));
     };
 
-    it("test few long words") = [] {
+    it("test few long words") = [&] {
       builder::syntax::Writer writer{std::ostringstream(), 8};
-      writer._line(join(vec{"x"s, LONGWORD, "y"s}, " "));
+      writer.line(join(Vec{"x"s, longword, "y"s}, " "));
       expect(
-          eq(join(vec{"x"s, INDENT + LONGWORD, INDENT + "y"}, " $\n") + '\n',
+          eq(join(Vec{"x"s, indent + longword, indent + "y"}, " $\n") + '\n',
              writer.get_value())
       );
     };
@@ -53,7 +53,7 @@ main() {
       // The second line should not be '    to tree', as that's longer than the
       // test layout width of 8.
       builder::syntax::Writer writer{std::ostringstream(), 8};
-      writer._line("line_one to tree");
+      writer.line("line_one to tree");
       expect(
           eq("line_one $\n"
              "    to $\n"
@@ -62,24 +62,24 @@ main() {
       );
     };
 
-    it("test few long words indented") = [] {
+    it("test few long words indented") = [&] {
       // Check wrapping in the presence of indenting.
       builder::syntax::Writer writer{std::ostringstream(), 8};
-      writer._line(join(vec{"x"s, LONGWORD, "y"s}, " "), 1);
+      writer.line(join(Vec{"x"s, longword, "y"s}, " "), 1);
       expect(eq(
           join(
-              vec{"  "s + "x", "  " + INDENT + LONGWORD, "  " + INDENT + "y"},
+              Vec{"  "s + "x", "  " + indent + longword, "  " + indent + "y"},
               " $\n"
           ) + '\n',
           writer.get_value()
       ));
     };
 
-    it("test escaped spaces") = [] {
+    it("test escaped spaces") = [&] {
       builder::syntax::Writer writer{std::ostringstream(), 8};
-      writer._line(join(vec{"x"s, LONGWORDWITHSPACES, "y"s}, " "));
+      writer.line(join(Vec{"x"s, longwordwithspaces, "y"s}, " "));
       expect(
-          eq(join(vec{"x"s, INDENT + LONGWORDWITHSPACES, INDENT + "y"}, " $\n")
+          eq(join(Vec{"x"s, indent + longwordwithspaces, indent + "y"}, " $\n")
                  + '\n',
              writer.get_value())
       );
@@ -87,7 +87,7 @@ main() {
 
     it("test fit many words") = [] {
       builder::syntax::Writer writer{std::ostringstream(), 78};
-      writer._line(
+      writer.line(
           "command = cd ../../chrome; python ../tools/grit/grit/format/repack.py ../out/Debug/obj/chrome/chrome_dll.gen/repack/theme_resources_large.pak ../out/Debug/gen/chrome/theme_resources_large.pak",
           1
       );
@@ -101,7 +101,7 @@ main() {
 
     it("test leading space") = [] {
       builder::syntax::Writer writer{std::ostringstream(), 14};
-      writer.variable("foo", vec{"", "-bar", "-somethinglong"}, 0);
+      writer.variable("foo", Vec{"", "-bar", "-somethinglong"}, 0);
       expect(
           eq("foo = -bar $\n"
              "    -somethinglong\n"s,
@@ -111,7 +111,7 @@ main() {
 
     it("test embedded dollar dollar") = [] {
       builder::syntax::Writer writer{std::ostringstream(), 15};
-      writer.variable("foo", vec{"a$$b", "-somethinglong"}, 0);
+      writer.variable("foo", Vec{"a$$b", "-somethinglong"}, 0);
       expect(
           eq("foo = a$$b $\n"
              "    -somethinglong\n"s,
@@ -121,7 +121,7 @@ main() {
 
     it("test two embedded dollar dollars") = [] {
       builder::syntax::Writer writer{std::ostringstream(), 17};
-      writer.variable("foo", vec{"a$$b", "-somethinglong"}, 0);
+      writer.variable("foo", Vec{"a$$b", "-somethinglong"}, 0);
       expect(
           eq("foo = a$$b $\n"
              "    -somethinglong\n"s,
@@ -131,7 +131,7 @@ main() {
 
     it("test leading dollar dollar") = [] {
       builder::syntax::Writer writer{std::ostringstream(), 14};
-      writer.variable("foo", vec{"$$b", "-somethinglong"}, 0);
+      writer.variable("foo", Vec{"$$b", "-somethinglong"}, 0);
       expect(
           eq("foo = $$b $\n"
              "    -somethinglong\n"s,
@@ -141,7 +141,7 @@ main() {
 
     it("test trailing dollar dollar") = [] {
       builder::syntax::Writer writer{std::ostringstream(), 14};
-      writer.variable("foo", vec{"a$$", "-somethinglong"}, 0);
+      writer.variable("foo", Vec{"a$$", "-somethinglong"}, 0);
       expect(
           eq("foo = a$$ $\n"
              "    -somethinglong\n"s,
@@ -156,7 +156,7 @@ main() {
       writer.build(
           {"out"}, "cc",
           builder::syntax::BuildSet{
-              .inputs = std::vector{"in"s},
+              .inputs = Vec{"in"s},
               .variables = HashMap<String, String>{{"name", "value"}}}
       );
 
@@ -172,7 +172,7 @@ main() {
       writer.build(
           {"o"}, "cc",
           builder::syntax::BuildSet{
-              .inputs = std::vector{"i"s},
+              .inputs = Vec{"i"s},
               .implicit_outputs = "io",
           }
       );

@@ -1,14 +1,14 @@
-#ifndef POAC_CONFIG_HPP_
-#define POAC_CONFIG_HPP_
+#pragma once
 
 // std
 #include <filesystem>
+#include <string_view>
 
 // internal
-#include "poac/poac.hpp"
 #include "poac/util/misc.hpp"
+#include "poac/util/rustify.hpp"
 
-namespace poac::config::path {
+namespace poac::config {
 
 inline const Path user_dir = util::misc::expand_user().unwrap();
 
@@ -36,8 +36,7 @@ inline const Path src_dir(cwd / "src");
 inline const Path include_dir(cwd / "include");
 inline const Path tests_dir(cwd / "tests");
 inline const Path main_cpp_file(src_dir / "main.cpp");
-inline const Path out_dir(cwd / "poac-out");
+inline constexpr StringRef POAC_OUT = "poac-out";
+inline const Path out_dir(cwd / POAC_OUT);
 
-} // namespace poac::config::path
-
-#endif // POAC_CONFIG_HPP_
+} // namespace poac::config

@@ -3,8 +3,7 @@
 
 namespace poac::core::builder::compiler::lang {
 
-String
-to_string(Lang lang) {
+Fn to_string(Lang lang)->String {
   switch (lang) {
     case Lang::c:
       return "C";

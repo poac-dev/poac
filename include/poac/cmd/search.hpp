@@ -1,11 +1,13 @@
-#ifndef POAC_CMD_SEARCH_HPP_
-#define POAC_CMD_SEARCH_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::search {
 
@@ -16,16 +18,12 @@ struct Options : structopt::sub_command {
 
 using NotFound = Error<"No packages found for `{}`", String>;
 
-[[nodiscard]] Result<void>
-search(const Options& opts);
+[[nodiscard]] Fn search(const Options& opts)->Result<void>;
 
-[[nodiscard]] inline Result<void>
-exec(const Options& opts) {
+[[nodiscard]] inline Fn exec(const Options& opts)->Result<void> {
   return search(opts);
 }
 
 } // namespace poac::cmd::search
 
 STRUCTOPT(poac::cmd::search::Options, package_name);
-
-#endif // POAC_CMD_SEARCH_HPP_

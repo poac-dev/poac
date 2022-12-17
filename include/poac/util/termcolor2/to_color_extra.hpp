@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_
-#define POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_
+#pragma once
 
 // std
 #include <cstddef> // std::size_t
@@ -12,9 +11,10 @@
 
 namespace termcolor2 {
 
-template <typename Fn, typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_color(Fn&& fn, const std::basic_string<CharT>& str) {
+template <typename Func, typename CharT>
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_color(Func&& fn, const std::basic_string<CharT>& str)
+    -> std::basic_string<CharT> {
   if (should_color()) {
     return bold_v<CharT>() + fn() + str + reset_v<CharT>();
   } else {
@@ -26,173 +26,181 @@ to_bold_color(Fn&& fn, const std::basic_string<CharT>& str) {
 // Foreground manipulators
 //
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_gray(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_gray(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(gray_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_gray(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_gray(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(gray_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_gray(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_gray(const std::basic_string<CharT>& str) -> std::basic_string<CharT> {
   return to_bold_color(gray_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_gray(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_gray(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(gray_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_red(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_red(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(red_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_red(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_red(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(red_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_red(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_red(const std::basic_string<CharT>& str) -> std::basic_string<CharT> {
   return to_bold_color(red_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_red(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_red(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(red_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_green(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_green(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(green_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_green(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_green(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(green_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_green(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_green(const std::basic_string<CharT>& str) -> std::basic_string<CharT> {
   return to_bold_color(green_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_green(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_green(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(green_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_yellow(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_yellow(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(yellow_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_yellow(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_yellow(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(yellow_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_yellow(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_yellow(const std::basic_string<CharT>& str)
+    -> std::basic_string<CharT> {
   return to_bold_color(yellow_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_yellow(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_yellow(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(yellow_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_blue(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_blue(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(blue_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_blue(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_blue(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(blue_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_blue(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_blue(const std::basic_string<CharT>& str) -> std::basic_string<CharT> {
   return to_bold_color(blue_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_blue(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_blue(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(blue_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_magenta(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_magenta(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(magenta_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_magenta(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_magenta(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(magenta_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_magenta(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_magenta(const std::basic_string<CharT>& str)
+    -> std::basic_string<CharT> {
   return to_bold_color(magenta_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_magenta(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_magenta(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(magenta_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_cyan(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_cyan(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(cyan_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_cyan(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_cyan(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(cyan_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_cyan(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_cyan(const std::basic_string<CharT>& str) -> std::basic_string<CharT> {
   return to_bold_color(cyan_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_cyan(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_cyan(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(cyan_v<CharT>, std::basic_string<CharT>(str));
 }
 
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_white(const CharT* str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto to_bold_white(const CharT* str)
+    -> std::basic_string<CharT> {
   return to_bold_color(white_v<CharT>, std::basic_string<CharT>(str));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_white(const CharT* str, std::size_t len) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_white(const CharT* str, std::size_t len) -> std::basic_string<CharT> {
   return to_bold_color(white_v<CharT>, std::basic_string<CharT>(str, len));
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_white(const std::basic_string<CharT>& str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_white(const std::basic_string<CharT>& str) -> std::basic_string<CharT> {
   return to_bold_color(white_v<CharT>, str);
 }
 template <typename CharT>
-inline TERMCOLOR2_CXX20_CONSTEVAL std::basic_string<CharT>
-to_bold_white(const std::basic_string_view<CharT> str) {
+inline TERMCOLOR2_CXX20_CONSTEVAL auto
+to_bold_white(const std::basic_string_view<CharT> str)
+    -> std::basic_string<CharT> {
   return to_bold_color(white_v<CharT>, std::basic_string<CharT>(str));
 }
 
 } // namespace termcolor2
-
-#endif // POAC_UTIL_TERMCOLOR2_TO_COLOR_EXTRA_HPP_

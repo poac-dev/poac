@@ -3,18 +3,17 @@
 
 namespace poac::core::builder::compiler::error {
 
-String
-to_string(util::cfg::compiler comp) {
+Fn to_string(util::cfg::Compiler comp)->String {
   switch (comp) {
-    case util::cfg::compiler::gcc:
+    case util::cfg::Compiler::gcc:
       return "GCC";
-    case util::cfg::compiler::clang:
+    case util::cfg::Compiler::clang:
       return "Clang";
-    case util::cfg::compiler::apple_clang:
+    case util::cfg::Compiler::apple_clang:
       return "Apple Clang";
-    case util::cfg::compiler::msvc:
+    case util::cfg::Compiler::msvc:
       return "MSVC";
-    case util::cfg::compiler::icc:
+    case util::cfg::Compiler::icc:
       return "Intel C++ Compiler";
     default:
       unreachable();

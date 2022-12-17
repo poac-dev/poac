@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_IO_HPP_
-#define POAC_UTIL_SEMVER_IO_HPP_
+#pragma once
 
 // std
 #include <ostream> // std::ostream
@@ -9,8 +8,7 @@
 
 namespace semver {
 
-inline std::ostream&
-operator<<(std::ostream& os, const Version& v) {
+inline auto operator<<(std::ostream& os, const Version& v) -> std::ostream& {
   os << v.get_full();
   return os;
 }
@@ -21,18 +19,12 @@ namespace fmt {
 
 template <>
 struct formatter<semver::Version> {
-  constexpr auto
-  parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
+  static constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
-  inline auto
-  format(semver::Version v, FormatContext& ctx) {
+  inline auto format(const semver::Version& v, FormatContext& ctx) {
     return format_to(ctx.out(), "{}", v.get_full());
   }
 };
 
 } // namespace fmt
-
-#endif // POAC_UTIL_SEMVER_IO_HPP_

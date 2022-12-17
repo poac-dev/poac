@@ -4,9 +4,9 @@ message(CHECK_START "Adding ninja")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 FetchContent_Declare(
-        ninja
-        GIT_REPOSITORY https://github.com/ninja-build/ninja
-        GIT_TAG        v1.11.1
+    ninja
+    GIT_REPOSITORY https://github.com/ninja-build/ninja
+    GIT_TAG        c6e002d86d6657f18dd772c8138454291becf885
 )
 
 set(BUILD_TESTING OFF)

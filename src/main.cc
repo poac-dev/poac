@@ -82,14 +82,12 @@ structopt(
     build, clean, create, fmt, graph, init, lint, login, publish, run, search
 );
 
-inline String
-colorize_structopt_error(String s) {
+inline String colorize_structopt_error(String s) {
   boost::replace_all(s, "Error:", "Error:"_bold_red);
   return s;
 }
 
-inline String
-colorize_anyhow_error(String s) {
+inline String colorize_anyhow_error(String s) {
   // `Caused by:` leaves a trailing newline
   if (s.find("Caused by:") != None) {
     boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
@@ -98,8 +96,7 @@ colorize_anyhow_error(String s) {
   return s;
 }
 
-inline String
-colorize_help(String s) {
+inline String colorize_help(String s) {
   boost::replace_all(s, "USAGE:", "USAGE:"_yellow);
   boost::replace_all(s, "FLAGS:", "FLAGS:"_yellow);
   boost::replace_all(s, "OPTIONS:", "OPTIONS:"_yellow);
@@ -112,8 +109,7 @@ using ColorError = poac::Error<
     "argument for --color must be `auto`, `always`, or `never`, but found `{}`",
     StringRef>;
 
-[[nodiscard]] Result<void>
-set_color_mode(StringRef color_mode) {
+[[nodiscard]] Result<void> set_color_mode(StringRef color_mode) {
   if (color_mode == "auto") {
     termcolor2::set_color_mode(spdlog::color_mode::automatic);
     if (termcolor2::should_color()) {
@@ -165,14 +161,13 @@ exec(const structopt::app& app, const Commands& args) {
   }
 }
 
-int
-main(const int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
   spdlog::set_pattern("%v");
-  auto err_logger = spdlog::stderr_logger_st("stderr");
+  LetMut err_logger = spdlog::stderr_logger_st("stderr");
 
   auto app = structopt::app("poac", POAC_VERSION);
   try {
-    const auto args = app.parse<Commands>(argc, argv);
+    Let args = app.parse<Commands>(argc, argv);
 
     // Global options
     if (args.verbose.value()) {
@@ -183,7 +178,7 @@ main(const int argc, char* argv[]) {
 
     // Subcommands
     return exec(app, args)
-        .map_err([err_logger](const auto& e) {
+        .map_err([err_logger](Let& e) {
           log::error(
               err_logger, colorize_anyhow_error(format("{}", e->what()))
           );
@@ -199,7 +194,7 @@ main(const int argc, char* argv[]) {
       }
 
       // try correcting typo
-      if (const auto sugg = util::lev_distance::find_similar_str(
+      if (Let sugg = util::lev_distance::find_similar_str(
               argv[subcommand_index], command_list
           );
           sugg.has_value() && sugg.value() != argv[subcommand_index]) {

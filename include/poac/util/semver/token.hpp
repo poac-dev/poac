@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_SEMVER_TOKEN_HPP_
-#define POAC_UTIL_SEMVER_TOKEN_HPP_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -50,19 +49,19 @@ struct Token {
     Unexpected
   };
 
-  using null_type = std::monostate;
-  using whitespace_type = std::pair<std::size_t, std::size_t>;
-  using numeric_type = std::uint_fast64_t;
-  using alphanumeric_type = std::string_view;
-  using variant_type =
-      std::variant<null_type, whitespace_type, numeric_type, alphanumeric_type>;
+  using NullType = std::monostate;
+  using WhitespaceType = std::pair<std::size_t, std::size_t>;
+  using NumericType = std::uint_fast64_t;
+  using AlphanumericType = std::string_view;
+  using VariantType =
+      std::variant<NullType, WhitespaceType, NumericType, AlphanumericType>;
 
   Kind kind;
-  variant_type component;
+  VariantType component;
 
   constexpr Token() noexcept : Token(Kind::Unexpected) {} // delegation
 
-  constexpr explicit Token(Kind k) noexcept : kind(k), component() {}
+  constexpr explicit Token(Kind k) noexcept : kind(k) {}
 
   constexpr Token(Kind k, const std::size_t& s1, const std::size_t& s2)
       : kind(
@@ -71,14 +70,14 @@ struct Token {
       ),
         component(std::make_pair(s1, s2)) {}
 
-  constexpr Token(Kind k, const numeric_type& n)
+  constexpr Token(Kind k, const NumericType& n)
       : kind(
           k != Kind::Numeric ? throw std::invalid_argument("semver::Token")
                              : Kind::Numeric
       ),
         component(n) {}
 
-  constexpr Token(Kind k, alphanumeric_type c)
+  constexpr Token(Kind k, AlphanumericType c)
       : kind(
           k != Kind::AlphaNumeric ? throw std::invalid_argument("semver::Token")
                                   : Kind::AlphaNumeric
@@ -86,58 +85,47 @@ struct Token {
         component(c) {}
 
   Token(const Token&) = default;
-  Token&
-  operator=(const Token&) = default;
+  auto operator=(const Token&) -> Token& = default;
   Token(Token&&) noexcept = default;
-  Token&
-  operator=(Token&&) noexcept = default;
+  auto operator=(Token&&) noexcept -> Token& = default;
   ~Token() = default;
 
-  constexpr bool
-  is_whitespace() const noexcept {
+  [[nodiscard]] constexpr auto is_whitespace() const noexcept -> bool {
     return kind == Kind::Whitespace;
   }
 
-  constexpr bool
-  is_simple_token() const noexcept {
-    return std::holds_alternative<null_type>(component);
+  [[nodiscard]] constexpr auto is_simple_token() const noexcept -> bool {
+    return std::holds_alternative<NullType>(component);
   }
 
-  constexpr bool
-  is_wildcard() const noexcept {
+  [[nodiscard]] constexpr auto is_wildcard() const noexcept -> bool {
     return kind == Kind::Star
-           || (std::holds_alternative<alphanumeric_type>(component)
-               && (std::get<alphanumeric_type>(component) == "X"
-                   || std::get<alphanumeric_type>(component) == "x"));
+           || (std::holds_alternative<AlphanumericType>(component)
+               && (std::get<AlphanumericType>(component) == "X"
+                   || std::get<AlphanumericType>(component) == "x"));
   }
 };
 
-constexpr bool
-operator==(const Token& lhs, const Token& rhs) {
+constexpr auto operator==(const Token& lhs, const Token& rhs) -> bool {
   if (lhs.is_simple_token() && rhs.is_simple_token()) {
     return lhs.kind == rhs.kind;
   }
   return (lhs.kind == rhs.kind) && (lhs.component == rhs.component);
 }
-constexpr bool
-operator==(const Token& lhs, const Token::Kind& rhs) {
+constexpr auto operator==(const Token& lhs, const Token::Kind& rhs) -> bool {
   return lhs.is_simple_token() && (lhs.kind == rhs);
 }
-constexpr bool
-operator==(const Token::Kind& lhs, const Token& rhs) {
+constexpr auto operator==(const Token::Kind& lhs, const Token& rhs) -> bool {
   return rhs.is_simple_token() && (lhs == rhs.kind);
 }
 
-constexpr bool
-operator!=(const Token& lhs, const Token& rhs) {
+constexpr auto operator!=(const Token& lhs, const Token& rhs) -> bool {
   return !(lhs == rhs);
 }
-constexpr bool
-operator!=(const Token& lhs, const Token::Kind& rhs) {
+constexpr auto operator!=(const Token& lhs, const Token::Kind& rhs) -> bool {
   return !(lhs == rhs);
 }
-constexpr bool
-operator!=(const Token::Kind& lhs, const Token& rhs) {
+constexpr auto operator!=(const Token::Kind& lhs, const Token& rhs) -> bool {
   return !(lhs == rhs);
 }
 
@@ -149,30 +137,28 @@ struct Identifier {
     AlphaNumeric
   };
 
-  using numeric_type = std::uint_fast64_t;
-  using alphanumeric_type = std::string_view;
-  using variant_type = std::variant<numeric_type, alphanumeric_type>;
+  using NumericType = std::uint_fast64_t;
+  using AlphanumericType = std::string_view;
+  using VariantType = std::variant<NumericType, AlphanumericType>;
 
   Kind kind;
-  variant_type component;
+  VariantType component;
 
-  // clang-format off
   Identifier() = delete;
   Identifier(const Identifier&) = default;
-  Identifier& operator=(const Identifier&) = default;
+  auto operator=(const Identifier&) -> Identifier& = default;
   Identifier(Identifier&&) noexcept = default;
-  Identifier& operator=(Identifier&&) noexcept = default;
+  auto operator=(Identifier&&) noexcept -> Identifier& = default;
   ~Identifier() = default;
-  // clang-format on
 
-  constexpr Identifier(Kind k, const numeric_type& n)
+  constexpr Identifier(Kind k, const NumericType& n)
       : kind(
           k != Kind::Numeric ? throw std::invalid_argument("semver::Identifier")
                              : Kind::Numeric
       ),
         component(n) {}
 
-  constexpr Identifier(Kind k, alphanumeric_type c)
+  constexpr Identifier(Kind k, AlphanumericType c)
       : kind(
           k != Kind::AlphaNumeric
               ? throw std::invalid_argument("semver::Identifier")
@@ -180,41 +166,36 @@ struct Identifier {
       ),
         component(c) {}
 
-  constexpr bool
-  is_numeric() const noexcept {
+  [[nodiscard]] constexpr auto is_numeric() const noexcept -> bool {
     return kind == Kind::Numeric;
   }
 
-  constexpr bool
-  is_alpha_numeric() const noexcept {
+  [[nodiscard]] constexpr auto is_alpha_numeric() const noexcept -> bool {
     return kind == Kind::AlphaNumeric;
   }
 
-  inline numeric_type
-  get_numeric() const {
-    return std::get<Identifier::numeric_type>(component);
+  [[nodiscard]] inline auto get_numeric() const -> NumericType {
+    return std::get<Identifier::NumericType>(component);
   }
 
-  inline alphanumeric_type
-  get_alpha_numeric() const {
-    return std::get<Identifier::alphanumeric_type>(component);
+  [[nodiscard]] inline auto get_alpha_numeric() const -> AlphanumericType {
+    return std::get<Identifier::AlphanumericType>(component);
   }
 };
 
-constexpr bool
-operator==(const Identifier& lhs, const Identifier& rhs) {
+constexpr auto operator==(const Identifier& lhs, const Identifier& rhs)
+    -> bool {
   return (lhs.kind == rhs.kind) && (lhs.component == rhs.component);
 }
-constexpr bool
-operator!=(const Identifier& lhs, const Identifier& rhs) {
+constexpr auto operator!=(const Identifier& lhs, const Identifier& rhs)
+    -> bool {
   return !(lhs == rhs);
 }
 
-std::string
-to_string(const Identifier& id);
+auto to_string(const Identifier& id) -> std::string;
 
-inline std::ostream&
-operator<<(std::ostream& os, const Identifier& id) {
+inline auto operator<<(std::ostream& os, const Identifier& id)
+    -> std::ostream& {
   return (os << to_string(id));
 }
 
@@ -234,13 +215,9 @@ struct Version {
   /// `"0.1.2+pre.0"`).
   std::vector<Identifier> build;
 
-  std::string
-  get_version() const;
+  [[nodiscard]] auto get_version() const -> std::string;
 
-  std::string
-  get_full() const;
+  [[nodiscard]] auto get_full() const -> std::string;
 };
 
 } // end namespace semver
-
-#endif // POAC_UTIL_SEMVER_TOKEN_HPP_

@@ -3,8 +3,7 @@
 
 namespace semver {
 
-Token
-Lexer::next() {
+auto Lexer::next() -> Token {
   // Check out of range
   if (c1_index
       >= this->size()) { // should be `>=`, not `>` because of this->two()
@@ -65,9 +64,8 @@ Lexer::next() {
   }
 }
 
-void
-Lexer::step_n(const size_type& n) noexcept {
-  for (size_type i = 0; i < n; ++i) {
+void Lexer::step_n(const SizeType& n) noexcept {
+  for (SizeType i = 0; i < n; ++i) {
     step();
   }
 }
@@ -76,15 +74,14 @@ Lexer::step_n(const size_type& n) noexcept {
 ///
 /// A component can either be an alphanumeric or numeric.
 /// Does not permit leading zeroes if numeric.
-Token
-Lexer::component() {
+auto Lexer::component() -> Token {
   // e.g. abcde
   if (is_alphabet(this->one())) {
-    const size_type start = this->c1_index;
+    const SizeType start = this->c1_index;
     while (is_alpha_numeric(this->one())) {
       this->step();
     }
-    std::string_view sub = str.substr(start, this->c1_index - start);
+    const std::string_view sub = str.substr(start, this->c1_index - start);
     return Token{Token::AlphaNumeric, sub};
   }
 
@@ -94,13 +91,13 @@ Lexer::component() {
     return Token{Token::Numeric, 0};
   }
 
-  const size_type start = this->c1_index;
+  const SizeType start = this->c1_index;
   while (is_digit(this->one())) {
     this->step();
   }
   if (str[start] != '0' && !is_alphabet(this->one())) {
     // e.g. 3425
-    std::string_view sub = str.substr(start, this->c1_index - start);
+    const std::string_view sub = str.substr(start, this->c1_index - start);
     const std::uint_fast64_t value = str_to_uint(sub).value();
     return Token{Token::Numeric, value};
   }
@@ -109,14 +106,13 @@ Lexer::component() {
   while (is_alpha_numeric(this->one())) {
     this->step();
   }
-  std::string_view sub = str.substr(start, this->c1_index - start);
+  const std::string_view sub = str.substr(start, this->c1_index - start);
   return Token{Token::AlphaNumeric, sub};
 }
 
 /// Consume whitespace.
-Token
-Lexer::whitespace() noexcept {
-  const size_type start = this->c1_index;
+auto Lexer::whitespace() -> Token {
+  const SizeType start = this->c1_index;
   while (is_whitespace(this->one())) {
     this->step();
   }

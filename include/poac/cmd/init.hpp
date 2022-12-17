@@ -1,11 +1,13 @@
-#ifndef POAC_CMD_INIT_HPP_
-#define POAC_CMD_INIT_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::init {
 
@@ -18,14 +20,11 @@ struct Options : structopt::sub_command {
 
 using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
 
-[[nodiscard]] Result<void>
-init(const Options& opts, StringRef package_name);
+[[nodiscard]] Fn init(const Options& opts, StringRef package_name)
+    ->Result<void>;
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::init
 
 STRUCTOPT(poac::cmd::init::Options, bin, lib);
-
-#endif // POAC_CMD_INIT_HPP_

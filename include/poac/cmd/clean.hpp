@@ -1,12 +1,14 @@
-#ifndef POAC_CMD_CLEAN_HPP_
-#define POAC_CMD_CLEAN_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
 
 // internal
 #include "poac/cmd/build.hpp"
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::clean {
 
@@ -17,14 +19,10 @@ struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-[[nodiscard]] Result<void>
-clean(const Options& opts);
+[[nodiscard]] Fn clean(const Options& opts)->Result<void>;
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::clean
 
 STRUCTOPT(poac::cmd::clean::Options, release, profile);
-
-#endif // POAC_CMD_CLEAN_HPP_

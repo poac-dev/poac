@@ -6,11 +6,8 @@ add_poac_target(poac_core_builder
         log.cc
         manifest.cc
         syntax.cc
-    INCLUDES
-        ${POAC_HPP_INCLUDES}
-        ${NINJA_INCLUDE_DIR}
+    INCLUDES ${NINJA_INCLUDE_DIR}
     LIBRARIES
-        ${POAC_HPP_LIBS}
         ${NINJA_LIBRARIES}
         Boost::regex
         toml11::toml11
@@ -18,4 +15,8 @@ add_poac_target(poac_core_builder
         poac_util_pretty
         poac_core_builder_compiler_cxx
         poac_core_resolver
+        poac_util_format
+        poac_util_log
+        poac_util_result
+        poac_util_rustify
 )

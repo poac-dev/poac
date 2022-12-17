@@ -1,11 +1,13 @@
-#ifndef POAC_CMD_RUN_HPP_
-#define POAC_CMD_RUN_HPP_
+#pragma once
 
 // external
 #include <structopt/app.hpp>
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/format.hpp"
+#include "poac/util/log.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::cmd::run {
 
@@ -16,11 +18,8 @@ struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-[[nodiscard]] Result<void>
-exec(const Options& opts);
+[[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::run
 
 STRUCTOPT(poac::cmd::run::Options, release, profile);
-
-#endif // POAC_CMD_RUN_HPP_

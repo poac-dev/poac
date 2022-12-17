@@ -15,30 +15,28 @@
 
 namespace poac::cmd::publish {
 
-[[nodiscard]] anyhow::result<toml::value>
-get_manifest() {
+[[nodiscard]] Fn get_manifest()->Result<toml::value> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
-  return Ok(toml::parse(data::manifest::name));
+  return Ok(toml::parse(data::manifest::NAME));
 }
 
-[[nodiscard]] anyhow::result<String>
-get_token(const Options& opts) {
+[[nodiscard]] Fn get_token(const Options& opts)->Result<String> {
   if (opts.token.has_value()) {
     Try(login::check_token(opts.token.value()));
     return Ok(opts.token.value());
   } else {
     // Retrieve a token from `~/.poac/credentials`
-    if (!fs::exists(config::path::cred_file)) {
+    if (!fs::exists(config::cred_file)) {
       return Err<APITokenNotFound>();
     }
 
-    const toml::value cred = toml::parse(config::path::cred_file);
+    const toml::value cred = toml::parse(config::cred_file);
     if (!cred.contains("registry")) {
-      return Err<FailedToReadCred>(config::path::cred_file);
+      return Err<FailedToReadCred>(config::cred_file);
     }
     const String token = toml::find<String>(cred, "registry", "token");
     Try(login::check_token(token));
@@ -46,8 +44,7 @@ get_token(const Options& opts) {
   }
 }
 
-[[nodiscard]] anyhow::result<void>
-exec(const Options& opts) {
+[[nodiscard]] Fn exec(const Options& opts)->Result<void> {
   const String token = Try(get_token(opts));
   const toml::value manifest = Try(get_manifest());
   const data::manifest::PartialPackage package =
