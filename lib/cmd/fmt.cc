@@ -1,6 +1,3 @@
-// std
-#include <span>
-
 // external
 #include <glob/glob.h> // NOLINT(build/include_order)
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
@@ -19,50 +16,38 @@ using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:\n"
     "  apt/brew install clang-format">;
 
-inline constexpr Arr<StringRef, 5> DIRECTORIES{
-    "examples", "include", "lib", "src", "tests"};
-inline constexpr Arr<StringRef, 3> DROGON_DIRS{
-    "controllers", "filters", "views"};
-
+inline constexpr Arr<StringRef, 2> EXCLUDES{"build", "cmake-build-debug"};
 inline constexpr Arr<StringRef, 12> EXTENSIONS{"c",   "c++", "cc",  "cpp",
                                                "cu",  "cuh", "cxx", "h",
                                                "h++", "hh",  "hpp", "hxx"};
-
 inline constexpr Arr<StringRef, 2> PATTERNS{"{}/*.{}", "{}/**/*.{}"};
 
-void fmt_impl(
-    const Path& base_dir, std::span<const StringRef> dirs, Vec<Path>& targets
-) {
-  for (const StringRef d : dirs) {
-    if (!fs::exists(base_dir / d)) {
-      spdlog::trace("Directory `{}` not found; skipping ...", d);
-      continue;
-    }
-
-    for (const StringRef e : EXTENSIONS) {
-      for (const StringRef p : PATTERNS) {
-        const String search =
-            format(::fmt::runtime((base_dir / p).string()), d, e);
-        const Vec<Path> search_glob = glob::rglob(search);
-        if (search_glob.empty()) {
-          spdlog::trace("Glob `{}` not found; skipping ...", search);
-          continue;
+void fmt_impl(const Path& base_dir, Vec<Path>& targets) {
+  for (const auto& entry : fs::directory_iterator(base_dir)) {
+    if (entry.is_directory()) {
+      const String d = entry.path().filename().string();
+      if (!d.starts_with('.') && !contains(EXCLUDES, d)) {
+        for (const StringRef e : EXTENSIONS) {
+          for (const StringRef p : PATTERNS) {
+            const String search =
+                format(::fmt::runtime((base_dir / p).string()), d, e);
+            const Vec<Path> search_glob = glob::rglob(search);
+            if (search_glob.empty()) {
+              spdlog::trace("Glob `{}` not found; skipping ...", search);
+              continue;
+            }
+            spdlog::trace("Glob `{}` found!", search);
+            append(targets, search_glob);
+          }
         }
-        spdlog::trace("Glob `{}` found!", search);
-        append(targets, search_glob);
       }
     }
   }
 }
 
-[[nodiscard]] Fn fmt(const Options& opts, const Path& base_dir, StringRef args)
-    ->Result<void> {
+[[nodiscard]] Fn fmt(const Path& base_dir, StringRef args)->Result<void> {
   Vec<Path> targets;
-
-  fmt_impl(base_dir, DIRECTORIES, targets);
-  if (opts.drogon.value()) {
-    fmt_impl(base_dir, DROGON_DIRS, targets);
-  }
+  fmt_impl(base_dir, targets);
   if (targets.empty()) {
     spdlog::info("no targets found.");
     return Ok();
@@ -111,7 +96,7 @@ void fmt_impl(
     args += "-i";
     log::status("Formatting", name);
   }
-  return fmt(opts, manifest_path.parent_path(), args);
+  return fmt(manifest_path.parent_path(), args);
 }
 
 } // namespace poac::cmd::fmt

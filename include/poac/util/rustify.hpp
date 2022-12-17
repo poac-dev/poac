@@ -106,10 +106,14 @@ template <typename T, typename U>
 inline void append(Vec<T>& a, const Vec<U>& b) {
   a.insert(a.end(), b.cbegin(), b.cend());
 }
-
 template <typename K, typename V, typename H>
 inline void append(HashMap<K, V, H>& a, const HashMap<K, V, H>& b) {
   a.insert(b.cbegin(), b.cend());
+}
+
+template <typename T, usize N, typename U>
+constexpr auto contains(const Arr<T, N>& a, const U& b) -> bool {
+  return std::find(std::begin(a), std::end(a), b) != std::end(a);
 }
 
 } // namespace poac
