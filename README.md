@@ -236,7 +236,6 @@ In case you would find what packages are provided, you can use the `search` comm
 
 ```console
 $ poac search func
-
 boost/function = "1.66.0"               # Boost.org function module
 boost/function_types = "1.66.0"         # Boost.org function_types module
 boost/functional = "1.66.0"             # Boost.org functional module
