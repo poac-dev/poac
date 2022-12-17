@@ -16,7 +16,6 @@ using ClangFormatNotFound = Error<
     "`fmt` command requires `clang-format`; try installing it by:\n"
     "  apt/brew install clang-format">;
 
-inline constexpr Arr<StringRef, 2> EXCLUDES{"build", "cmake-build-debug"};
 inline constexpr Arr<StringRef, 12> EXTENSIONS{"c",   "c++", "cc",  "cpp",
                                                "cu",  "cuh", "cxx", "h",
                                                "h++", "hh",  "hpp", "hxx"};
