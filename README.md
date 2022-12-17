@@ -220,12 +220,12 @@ you:~/hello_world$ poac fmt
 > **Note**:
 > This command automatically detects what files we need to format to avoid bothering commands like:
 >
-> ```bash
-> # We need to avoid the `build` dir and such dirs ...
-> clang-format ./src/*.cpp -i
-> clang-format ./include/**/*.hpp -i
-> clang-format ./tests/**/*.cpp -i
-> ...
+> ```console
+> $ # We need to avoid the `build` dir and such dirs ...
+> $ clang-format ./src/*.cpp -i
+> $ clang-format ./include/**/*.hpp -i
+> $ clang-format ./tests/**/*.cpp -i
+> $ ...
 > ```
 
 To customize the format settings, try creating a [`.clang-format`](/.clang-format) file to the repository root.
@@ -235,7 +235,7 @@ To customize the format settings, try creating a [`.clang-format`](/.clang-forma
 In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
 
 ```console
-poac search func
+$ poac search func
 
 boost/function = "1.66.0"               # Boost.org function module
 boost/function_types = "1.66.0"         # Boost.org function_types module
@@ -420,7 +420,7 @@ cpplint --quiet --recursive .
 > If you have installed Poac, you can just run the `lint` command:
 >
 > ```bash
-> $ poac lint
+> poac lint
 > ```
 
 ### Formatter
