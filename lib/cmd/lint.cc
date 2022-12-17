@@ -36,7 +36,7 @@ using CppLintNotFound = Error<
   if (!util::verbosity::is_verbose()) {
     cpplint += "--quiet ";
   }
-  cpplint += "--exclude=poac-out/* --recursive .";
+  cpplint += format("--exclude={} --recursive .", config::POAC_OUT);
 
   spdlog::trace("Executing `{}`", cpplint);
   if (const i32 code = util::shell::Cmd(cpplint).exec_no_capture(); code != 0) {
