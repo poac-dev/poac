@@ -21,17 +21,24 @@ namespace poac::cmd::search {
     boost::property_tree::json_parser::write_json(std::cout, pt);
   }
 
-  const auto children = pt.get_child("data");
+  Let children = pt.get_child("data.results");
   if (children.empty()) {
     return Err<NotFound>(opts.package_name);
   }
+
+  constexpr i32 MAX_COLUMNS = 10; // limit the number of columns
+  i32 i = 1;
   for (const boost::property_tree::ptree::value_type& child : children) {
+    if (i > MAX_COLUMNS) {
+      break;
+    }
+
     const boost::property_tree::ptree& hits = child.second;
     const String package = format(
         "{} = \"{}\"", hits.get<String>("name"), hits.get<String>("version")
     );
 
-    auto description = hits.get<String>("description");
+    LetMut description = hits.get<String>("description");
     description = util::pretty::clip_string(description, 100);
     // If util::pretty::clip_string clips last \n, \n should be removed
     description.erase(
@@ -40,6 +47,7 @@ namespace poac::cmd::search {
     );
 
     spdlog::info("{:<40}# {}", package, description);
+    ++i;
   }
   return Ok();
 }

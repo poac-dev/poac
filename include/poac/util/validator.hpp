@@ -13,7 +13,8 @@
 
 namespace poac::util::validator {
 
-[[nodiscard]] Fn required_config_exists()->Result<Path, String>;
+[[nodiscard]] Fn required_config_exists(bool find_parents = true)
+    ->Result<Path, String>;
 
 [[nodiscard]] Fn can_create_directory(const Path& p)->Result<void, String>;
 

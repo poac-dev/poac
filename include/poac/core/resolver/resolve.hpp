@@ -97,14 +97,14 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
 
 template <typename SinglePassRange>
 Fn duplicate_loose(const SinglePassRange& rng)->bool {
-  const auto first = std::begin(rng);
-  const auto last = std::end(rng);
+  Let first = std::begin(rng);
+  Let last = std::end(rng);
   return std::find_if(
              first, last,
-             [&](const auto& x) {
+             [&](Let& x) {
                return std::count_if(
                           first, last,
-                          [&](const auto& y) {
+                          [&](Let& y) {
                             return get_package(x).name == get_package(y).name;
                           }
                       )
@@ -150,7 +150,7 @@ inline Fn cache_exists(const IntervalCache& cache, const Package& package)
 
 inline Fn cache_exists(const DupDeps<WithDeps>& deps, const Package& package)
     ->bool {
-  return util::meta::find_if(deps, [&package](const auto& c) {
+  return util::meta::find_if(deps, [&package](Let& c) {
     return get_package(c) == package;
   });
 }

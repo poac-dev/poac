@@ -35,14 +35,14 @@ namespace poac::core::resolver {
 [[nodiscard]] Fn fetch_impl(const resolve::Package& package) noexcept
     -> Result<std::pair<Path, String>> {
   try {
-    const auto [download_link, sha256sum] =
+    Let[download_link, sha256sum] =
         Try(get_download_link(package).map_err(to_anyhow));
     log::debug("downloading from `{}`", download_link);
     const Path archive_path = get_archive_path(package);
     log::debug("writing to `{}`", archive_path.string());
 
     std::ofstream archive(archive_path);
-    const auto [host, target] = util::net::parse_url(download_link);
+    Let[host, target] = util::net::parse_url(download_link);
     const util::net::Requests requests{host};
     std::ignore = requests.get(target, {}, std::move(archive));
 
@@ -61,10 +61,10 @@ using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
 [[nodiscard]] Fn fetch(const UniqDeps<WithoutDeps>& deps)->Result<void> {
-  for (const auto& [name, version_rq] : deps) {
+  for (Let & [ name, version_rq ] : deps) {
     const resolve::Package package{name, version_rq};
 
-    const auto [installed_path, sha256sum] = Try(fetch_impl(package));
+    Let[installed_path, sha256sum] = Try(fetch_impl(package));
     // Check if sha256sum of the downloaded package is the same with one
     // stored in DB.
     if (const String actual_sha256sum = Try(util::sha256::sum(installed_path));
@@ -146,7 +146,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   try {
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
-    for (const auto& [name, version] : dependencies) {
+    for (Let & [ name, version ] : dependencies) {
       resolvable_deps.emplace(name, version);
     }
     return Ok(resolvable_deps);

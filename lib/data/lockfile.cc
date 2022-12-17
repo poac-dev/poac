@@ -11,7 +11,7 @@ namespace poac::data::lockfile::inline v1 {
 convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
     ->Result<toml::basic_value<toml::preserve_comments>> {
   Vec<Package> packages;
-  for (const auto& [pack, inner_deps] : deps) {
+  for (Let & [ pack, inner_deps ] : deps) {
     Package p{
         pack.name,
         pack.version_rq,
@@ -20,7 +20,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
     if (inner_deps.has_value()) {
       // Extract name from inner dependencies and drop version.
       Vec<String> ideps;
-      for (const auto& [name, _v] : inner_deps.value()) {
+      for (Let & [ name, _v ] : inner_deps.value()) {
         static_cast<void>(_v);
         ideps.emplace_back(name);
       }
@@ -37,7 +37,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 
 [[nodiscard]] Fn overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
     ->Result<void> {
-  const auto lock = Try(convert_to_lock(deps));
+  Let lock = Try(convert_to_lock(deps));
   std::ofstream lockfile(config::cwd / LOCKFILE_NAME, std::ios::out);
   lockfile << lock;
   return Ok();
@@ -56,14 +56,14 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 [[nodiscard]] Fn convert_to_deps(const Lockfile& lock)
     ->resolver::UniqDeps<resolver::WithDeps> {
   resolver::UniqDeps<resolver::WithDeps> deps;
-  for (const auto& package : lock.package) {
+  for (Let& package : lock.package) {
     resolver::UniqDeps<resolver::WithDeps>::mapped_type inner_deps = None;
     if (!package.dependencies.empty()) {
       // When serializing lockfile, package version of inner dependencies
       // will be dropped (ref: `convert_to_lock` function).
       // Thus, the version should be restored just as empty string ("").
       resolver::UniqDeps<resolver::WithDeps>::mapped_type::value_type ideps;
-      for (const auto& name : package.dependencies) {
+      for (Let& name : package.dependencies) {
         ideps.push_back({name, ""});
       }
       inner_deps = ideps;

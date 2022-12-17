@@ -52,7 +52,7 @@ Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool {
 
 Fn gather_includes(const resolver::ResolvedDeps& resolved_deps)->Vec<String> {
   Vec<String> includes;
-  for (const auto& [package, inner_deps] : resolved_deps) {
+  for (Let & [ package, inner_deps ] : resolved_deps) {
     static_cast<void>(inner_deps);
 
     const Path include_path = resolver::get_extracted_path(package) / "include";
@@ -64,14 +64,13 @@ Fn gather_includes(const resolver::ResolvedDeps& resolved_deps)->Vec<String> {
 }
 
 Fn get_cfg_profile(const toml::value& poac_manifest)->Vec<toml::table> {
-  const auto target =
+  Let target =
       toml::find_or<toml::table>(poac_manifest, "target", toml::table{});
   Vec<toml::table> profiles;
-  for (const auto& [key, val] : target) {
+  for (Let & [ key, val ] : target) {
     if (key.find("cfg(") != None) {
       if (util::cfg::parse(key).match()) {
-        const auto profile =
-            toml::find_or<toml::table>(val, "profile", toml::table{});
+        Let profile = toml::find_or<toml::table>(val, "profile", toml::table{});
         profiles.emplace_back(profile);
       }
     }
@@ -88,10 +87,9 @@ Fn gather_flags(
       poac_manifest, "target", "profile", name, Vec<String>{}
   );
   if (prefix.has_value()) {
-    std::transform(
-        f.begin(), f.end(), f.begin(),
-        [p = prefix.value()](const auto& s) { return p + s; }
-    );
+    std::transform(f.begin(), f.end(), f.begin(), [p = prefix.value()](Let& s) {
+      return p + s;
+    });
   }
   return f;
 }

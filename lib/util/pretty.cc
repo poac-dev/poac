@@ -52,7 +52,7 @@ Fn textwrap(const String& text, usize width)->Vec<String> {
 
   Vec<String> wrapped_texts;
   String consuming_text;
-  for (const auto& st : split_texts) {
+  for (Let& st : split_texts) {
     if (consuming_text.size() + st.size() < width) {
       consuming_text +=
           consuming_text.empty() ? st : " " + st; // assumes space size is one

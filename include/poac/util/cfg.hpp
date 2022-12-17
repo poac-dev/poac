@@ -217,13 +217,13 @@ struct Lexer {
   explicit Lexer(StringRef str) : str(str) {}
 
   inline Fn next()->Option<Token> {
-    const auto [diff, token] = tokenize(this->index);
+    Let[diff, token] = tokenize(this->index);
     this->step_n(diff);
     return token;
   }
 
   [[nodiscard]] inline Fn peek() const->Option<Token> {
-    const auto [diff, token] = tokenize(this->index);
+    Let[diff, token] = tokenize(this->index);
     static_cast<void>(diff);
     return token;
   }

@@ -33,7 +33,7 @@ namespace poac::cmd::build {
 
 [[nodiscard]] Fn build(const Options& opts, const toml::value& manifest)
     ->Result<Option<Path>> {
-  const auto resolved_deps =
+  Let resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
         return Err<FailedToInstallDeps>().get();
       }));
@@ -45,10 +45,9 @@ namespace poac::cmd::build {
     return Ok(None);
   }
 
-  const auto profile =
-      Try(util::validator::valid_profile(opts.profile, opts.release)
-              .map_err(to_anyhow))
-          .value_or("debug");
+  Let profile = Try(util::validator::valid_profile(opts.profile, opts.release)
+                        .map_err(to_anyhow))
+                    .value_or("debug");
   if (profile != "debug" && profile != "release") {
     return Err<UnsupportedProfile>(profile);
   }

@@ -56,8 +56,8 @@ Fn getenv(const String& name, const String& default_v)->String {
   } else if (Option<String> user = dupenv("USERPROFILE")) {
     return Ok(user.value());
   } else {
-    const auto home_drive = dupenv("HOMEDRIVE");
-    const auto home_path = dupenv("HOMEPATH");
+    Let home_drive = dupenv("HOMEDRIVE");
+    Let home_path = dupenv("HOMEPATH");
     if (home_drive && home_path) {
       return Ok(home_drive.value() + home_path.value());
     }

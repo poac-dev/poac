@@ -145,7 +145,7 @@ Fn Lexer::ident(SizeType index_) const->std::pair<Lexer::SizeType, Token> {
   }
 
   const StringRef s = this->str.substr(start, index_ - start);
-  if (const auto ident = to_ident(s)) {
+  if (Let ident = to_ident(s)) {
     return {this->diff_step(index_), Token{Token::Ident, ident.value()}};
   } else {
     String msg;
@@ -327,7 +327,7 @@ Fn CfgExpr::match(const Cfg& c)->bool {
 }
 
 Fn Parser::expr()->CfgExpr {
-  if (const auto token = lexer.peek(); !token.has_value()) {
+  if (Let token = lexer.peek(); !token.has_value()) {
     throw cfg::ExpressionError("expected start of a cfg expression");
   } else if (token->kind == Token::Ident) {
     if (token->get_ident() == Token::ident::all
@@ -364,7 +364,7 @@ Fn Parser::expr()->CfgExpr {
 
 Fn Parser::cfg()->Cfg {
   const usize index = lexer.index;
-  if (const auto token = lexer.next(); !token.has_value()) {
+  if (Let token = lexer.next(); !token.has_value()) {
     String msg = String(index + 1, ' ');
     msg += " ^ expected operator, but cfg expression ended";
     throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
@@ -410,7 +410,7 @@ Fn Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op)->Cfg {
 
 Fn Parser::cfg_str(Token::ident ident, Cfg::Op op)->Cfg {
   const usize index = lexer.index;
-  if (const auto t = lexer.next()) {
+  if (Let t = lexer.next()) {
     if (t->kind == Token::String) {
       return {ident, op, t->get_str()};
     } else {
@@ -429,7 +429,7 @@ Fn Parser::cfg_str(Token::ident ident, Cfg::Op op)->Cfg {
 }
 
 Fn Parser::r_try(Token::Kind kind)->bool {
-  if (const auto token = lexer.peek()) {
+  if (Let token = lexer.peek()) {
     if (token->kind == kind) {
       this->lexer.next();
       return true;
@@ -440,7 +440,7 @@ Fn Parser::r_try(Token::Kind kind)->bool {
 
 void Parser::eat_left_paren(Token::ident prev) {
   const usize index = lexer.index;
-  if (const auto token = lexer.next()) {
+  if (Let token = lexer.next()) {
     if (token->kind != Token::LeftParen) {
       String msg = String(index, ' ');
       msg += "^ excepted '(' after `" + to_string(prev) + "`";
@@ -454,7 +454,7 @@ void Parser::eat_left_paren(Token::ident prev) {
 }
 void Parser::eat_right_paren() {
   const usize index = lexer.index;
-  if (const auto token = lexer.next()) {
+  if (Let token = lexer.next()) {
     if (token->kind != Token::RightParen) {
       String msg = String(index, ' ');
       msg += "^";

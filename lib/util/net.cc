@@ -36,7 +36,7 @@ Fn to_byte_progress(const i32& max_count, i32 now_count)->String {
 
 Fn MultiPartForm::get_files() const->Vec<MultiPartForm::FileInfo> {
   Vec<FileInfo> file_info;
-  for (const auto& f : m_file_param) {
+  for (Let& f : m_file_param) {
     const Path file_path = std::get<1>(f);
     file_info.push_back({file_path.string(), fs::file_size(file_path)});
   }
@@ -45,12 +45,12 @@ Fn MultiPartForm::get_files() const->Vec<MultiPartForm::FileInfo> {
 
 void MultiPartForm::generate_header() {
   m_header = format("{}{}", m_crlf, fmt::join(m_form_param, ""));
-  for (const auto& [name, filename, header] : m_file_param) {
+  for (Let & [ name, filename, header ] : m_file_param) {
     String h = format(
         R"(--{}{}{}name="{}"; filename="{}")", m_boundary, m_crlf,
         m_content_disposition, name, filename.filename().string()
     );
-    for (const auto& [field, content] : header) {
+    for (Let & [ field, content ] : header) {
       // NOLINTNEXTLINE(google-readability-casting)
       h += format("{}{}: {}", m_crlf, String(to_string(field)), content);
     }
@@ -89,18 +89,14 @@ void Requests::ssl_set_tlsext() const {
 
 namespace poac::util::net::api {
 
-[[nodiscard]] Fn call(StringRef path, StringRef body) noexcept
+[[nodiscard]] Fn call(StringRef path, const Option<String>& body) noexcept
     -> Result<boost::property_tree::ptree, String> {
   try {
-    const Requests request{
-        format("{}.functions.supabase.co", SUPABASE_PROJECT_REF)};
-    Headers headers;
-    headers.emplace(
-        boost::beast::http::field::authorization,
-        format("Bearer {}", SUPABASE_ANON_KEY)
-    );
-
-    const auto response = Try(request.post(path, body, headers));
+    const Requests request{"api.poac.pm"};
+    const String target = format("/v1{}", path);
+    Let response =
+        Try(body.has_value() ? request.post(target, body.value())
+                             : request.get(target));
     std::stringstream response_body;
     response_body << response.data();
 
@@ -110,7 +106,7 @@ namespace poac::util::net::api {
   } catch (const std::exception& e) {
     return Err(e.what());
   } catch (...) {
-    return Err("unknown error caused when calling search api");
+    return Err(format("unknown error caused when calling API for {}", path));
   }
 }
 
@@ -122,35 +118,26 @@ namespace poac::util::net::api {
 
   std::ostringstream body;
   boost::property_tree::json_parser::write_json(body, pt);
-  return call("/search", body.str());
+  return call("/packages/search", body.str());
 }
 
 [[nodiscard]] Fn deps(StringRef name, StringRef version)
     ->Result<HashMap<String, String>, String> {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-  pt.put("version", version);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/deps", body.str()));
+  const String path = format("/packages/{}/{}/deps", name, version);
+  const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
-  return Ok(util::meta::to_hash_map<String>(res, "data.dependencies"));
+  return Ok(util::meta::to_hash_map<String>(res, "data"));
 }
 
 [[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String> {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/versions", body.str()));
+  const String path = format("/packages/{}/versions", name);
+  const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
-  const auto results = util::meta::to_vec<String>(res, "data");
+  Let results = util::meta::to_vec<String>(res, "data");
   log::debug(
       "[util::net::api::versions] versions of {} are [{}]", name,
       fmt::join(results, ", ")
@@ -160,13 +147,8 @@ namespace poac::util::net::api {
 
 [[nodiscard]] Fn repoinfo(StringRef name, StringRef version)
     ->Result<std::pair<String, String>, String> {
-  boost::property_tree::ptree pt;
-  pt.put("name", name);
-  pt.put("version", version);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  const boost::property_tree::ptree res = Try(call("/repoinfo", body.str()));
+  const String path = format("/packages/{}/{}/repoinfo", name, version);
+  const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }

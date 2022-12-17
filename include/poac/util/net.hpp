@@ -66,8 +66,8 @@ Fn create_request(
       http::field::host, String(host)
   ); // no matching member function for call to 'set'
   req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-  for (const auto& [field, value] : headers) {
-    std::visit([&, v = value](const auto& f) { req.set(f, v); }, field);
+  for (Let & [ field, value ] : headers) {
+    std::visit([&, v = value](Let& f) { req.set(f, v); }, field);
   }
   return req;
 }
@@ -140,7 +140,7 @@ public:
     return std::accumulate(
         m_file_param.begin(), m_file_param.end(),
         m_header.size() + m_footer.size(),
-        [](std::uintmax_t acc, const auto& f) {
+        [](std::uintmax_t acc, Let& f) {
           return acc + fs::file_size(std::get<1>(f));
         }
     );
@@ -211,7 +211,7 @@ public:
   get(const StringRef target, const Headers& headers = {},
       Ofstream&& ofs = nullptr
   ) const->Result<typename ResponseBody::value_type, String> {
-    const auto req =
+    Let req =
         create_request<RequestBody>(http::verb::get, target, host, headers);
 
     if (verbosity::is_verbose()) {
@@ -295,7 +295,7 @@ private:
     // TODO(ken-matsui): 複数のファイル送信を想定していない．
     //  TODO(ken-matsui): ->
     //  複数ファイルだと，req.headerをちょびちょびで送る必要がある．
-    for (const auto& file : req.get_files()) {
+    for (Let& file : req.get_files()) {
       std::ifstream ifs(file.path, std::ios::in | std::ios::binary);
       constexpr usize K_READ_BITES = 512;
 
@@ -384,14 +384,14 @@ private:
     } else {
       log::debug("[util::net::requests] read type: file with progress");
       const typename ResponseBody::value_type response_body = res.body();
-      const auto content_length = response_body.size();
+      Let content_length = response_body.size();
       if (content_length < 100'000 /* 100KB */) {
-        for (const auto& r : response_body) {
+        for (Let& r : response_body) {
           ofs << r;
         }
       } else {
         i32 acc = 0;
-        for (const auto& r : response_body) {
+        for (Let& r : response_body) {
           ofs << r;
           if (++acc % 100 == 0) {
             // To be accurate, not downloading.
@@ -412,7 +412,7 @@ private:
   [[nodiscard]] Fn redirect(Request&& old_req, Response&& res, Ofstream&& ofs)
       const->Result<typename ResponseBody::value_type, String> {
     const String new_location(res.base()["Location"]);
-    const auto [new_host, new_target] = parse_url(new_location);
+    Let[new_host, new_target] = parse_url(new_location);
     spdlog::debug("Redirect to {}\n", new_location);
 
     // FIXME: header information is gone.
@@ -441,7 +441,7 @@ private:
 
   inline void lookup() const {
     // Look up the domain name
-    const auto results = resolver->resolve(host, port);
+    Let results = resolver->resolve(host, port);
     // Make the connection on the IP address we get from a lookup
     boost::asio::connect(stream->next_layer(), results.begin(), results.end());
   }
@@ -456,11 +456,8 @@ private:
 
 namespace poac::util::net::api {
 
-inline constexpr StringRef SUPABASE_PROJECT_REF = "jbzuxdflqzzgexrcsiwm";
-inline constexpr StringRef SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpienV4ZGZscXp6Z2V4cmNzaXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTI1MjgyNTAsImV4cCI6MTk2ODEwNDI1MH0.QZG-b6ab4iKk_ewlhEO3OtGpJfEFRos_G1fdDqcKrsA";
-
-[[nodiscard]] Fn call(StringRef path, StringRef body) noexcept
+[[nodiscard]] Fn
+call(StringRef path, const Option<String>& body = None) noexcept
     -> Result<boost::property_tree::ptree, String>;
 
 [[nodiscard]] Fn search(StringRef query, const u64& count = 0)

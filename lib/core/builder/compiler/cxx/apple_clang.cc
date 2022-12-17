@@ -21,7 +21,7 @@ namespace poac::core::builder::compiler::cxx::apple_clang {
 
 [[nodiscard]] Fn get_compiler_version(const String& compiler_command)
     ->Result<semver::Version> {
-  const auto res =
+  Let res =
       util::shell::Cmd(compiler_command + " --version").dump_stderr().exec();
   if (res.is_ok()) {
     return get_compiler_version_impl(res.output());

@@ -30,7 +30,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
 
   // Add vertex
   Vec<Graph::vertex_descriptor> desc;
-  for (const auto& dep : resolved_deps | boost::adaptors::indexed()) {
+  for (Let& dep : resolved_deps | boost::adaptors::indexed()) {
     desc.push_back(boost::add_vertex(g));
 
     const i64 index = dep.index();
@@ -41,16 +41,16 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
   }
 
   // Add edge
-  for (const auto& dep : resolved_deps | boost::adaptors::indexed()) {
+  for (Let& dep : resolved_deps | boost::adaptors::indexed()) {
     const i64 index = dep.index();
-    const auto deps = dep.value().second;
+    Let deps = dep.value().second;
 
     if (deps.has_value()) {
-      for (const auto& [name, version] : deps.value()) {
+      for (Let & [ name, version ] : deps.value()) {
         auto first = resolved_deps.cbegin();
         auto last = resolved_deps.cend();
 
-        const auto result = std::find_if(first, last, [&n = name](auto d) {
+        Let result = std::find_if(first, last, [&n = name](auto d) {
           // dependency should be resolved as only one package.
           return d.first.name == n;
         });
@@ -62,7 +62,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
   }
 
   Vec<String> names;
-  for (const auto& [package, deps] : resolved_deps) {
+  for (Let & [ package, deps ] : resolved_deps) {
     static_cast<void>(deps);
     names.push_back(package.name + ": " + package.version_rq);
   }
@@ -70,7 +70,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
 }
 
 [[nodiscard]] Fn dot_file_output(const Path& output_path)->Result<void> {
-  const auto [g, names] = Try(create_graph());
+  Let[g, names] = Try(create_graph());
   std::ofstream file(output_path);
   boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
   return Ok();
@@ -78,7 +78,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
 
 [[nodiscard]] Fn png_file_output(const Path& output_path)->Result<void> {
   if (util::shell::has_command("dot")) {
-    const auto [g, names] = Try(create_graph());
+    Let[g, names] = Try(create_graph());
 
     const String file_dot = output_path.stem().string() + ".dot";
     std::ofstream file(file_dot);
@@ -106,7 +106,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
 }
 
 [[nodiscard]] Fn console_output()->Result<void> {
-  const auto [g, names] = Try(create_graph());
+  Let[g, names] = Try(create_graph());
   static_cast<void>(names); // error: unused variable
   for (auto [itr, end] = edges(g); itr != end; ++itr) {
     spdlog::info(

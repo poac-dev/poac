@@ -42,9 +42,9 @@ inline Fn index_of_if(InputIterator first, InputIterator last, Predicate pred) {
 // Check if it has duplicate elements.
 template <class SinglePassRange>
 Fn duplicate(const SinglePassRange& rng)->bool {
-  auto first = std::cbegin(rng);
-  auto last = std::cend(rng);
-  auto result = std::find_if(first, last, [&](const auto& v) {
+  LetMut first = std::cbegin(rng);
+  LetMut last = std::cend(rng);
+  LetMut result = std::find_if(first, last, [&](Let& v) {
     return std::count(first, last, v) > 1;
   });
   return result != last;
@@ -53,16 +53,16 @@ Fn duplicate(const SinglePassRange& rng)->bool {
 // found: true
 template <class SinglePassRange, class T>
 Fn find(const SinglePassRange& rng, const T& value)->bool {
-  auto first = std::cbegin(rng);
-  auto last = std::cend(rng);
+  LetMut first = std::cbegin(rng);
+  LetMut last = std::cend(rng);
   return std::find(first, last, value) != last;
 }
 
 // found: true
 template <class SinglePassRange, class Predicate>
 Fn find_if(const SinglePassRange& rng, Predicate pred)->bool {
-  auto first = std::cbegin(rng);
-  auto last = std::cend(rng);
+  LetMut first = std::cbegin(rng);
+  LetMut last = std::cend(rng);
   return std::find_if(first, last, pred) != last;
 }
 
@@ -74,7 +74,7 @@ Fn to_vec(const U& value, const K& key)
         std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
         Vec<T>> {
   Vec<T> r;
-  for (const auto& item : value.get_child(key)) {
+  for (Let& item : value.get_child(key)) {
     r.push_back(item.second.template get_value<T>());
   }
   return r;
@@ -88,7 +88,7 @@ Fn to_vec(const U& value)
         std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
         Vec<T>> {
   Vec<T> r;
-  for (const auto& item : value) {
+  for (Let& item : value) {
     r.push_back(item.second.template get_value<T>());
   }
   return r;
@@ -104,9 +104,9 @@ Fn to_hash_map(const U& value, const String& key)
         std::is_same_v<std::remove_cvref_t<U>, boost::property_tree::ptree>,
         HashMap<String, T>> {
   HashMap<String, T> m{};
-  const auto child = value.get_child_optional(key);
+  Let child = value.get_child_optional(key);
   if (child.has_value()) {
-    for (const auto& [k, v] : child.value()) {
+    for (Let & [ k, v ] : child.value()) {
       m.emplace(k, v.template get_value<T>());
     }
   }
