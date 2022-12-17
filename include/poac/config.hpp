@@ -2,6 +2,7 @@
 
 // std
 #include <filesystem>
+#include <string_view>
 
 // internal
 #include "poac/util/misc.hpp"
@@ -35,6 +36,7 @@ inline const Path src_dir(cwd / "src");
 inline const Path include_dir(cwd / "include");
 inline const Path tests_dir(cwd / "tests");
 inline const Path main_cpp_file(src_dir / "main.cpp");
-inline const Path out_dir(cwd / "poac-out");
+inline constexpr StringRef POAC_OUT = "poac-out";
+inline const Path out_dir(cwd / POAC_OUT);
 
 } // namespace poac::config

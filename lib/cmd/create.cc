@@ -4,6 +4,7 @@
 
 // internal
 #include "poac/cmd/create.hpp"
+#include "poac/config.hpp"
 #include "poac/data/manifest.hpp"
 #include "poac/util/validator.hpp"
 
@@ -35,13 +36,13 @@ Fn create_template_files(const ProjectType& type, const String& package_name)
     case ProjectType::Bin:
       fs::create_directories(package_name / "src"_path);
       return {
-          {".gitignore", "/poac-out"},
+          {".gitignore", format("/{}", config::POAC_OUT)},
           {data::manifest::NAME, files::poac_toml(package_name)},
           {"src"_path / "main.cpp", String(files::MAIN_CPP)}};
     case ProjectType::Lib:
       fs::create_directories(package_name / "include"_path / package_name);
       return {
-          {".gitignore", "/poac-out\npoac.lock"},
+          {".gitignore", format("/{}\npoac.lock", config::POAC_OUT)},
           {data::manifest::NAME, files::poac_toml(package_name)},
           {"include"_path / package_name / (package_name + ".hpp"),
            files::include_hpp(package_name)},

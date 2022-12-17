@@ -2,10 +2,12 @@
 #include <string>
 
 // external
+#include <boost/algorithm/string/join.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <toml.hpp>
 
 // internal
+#include "poac/cmd/fmt.hpp"
 #include "poac/cmd/lint.hpp"
 #include "poac/data/manifest.hpp"
 #include "poac/util/shell.hpp"
@@ -34,7 +36,7 @@ using CppLintNotFound = Error<
   if (!util::verbosity::is_verbose()) {
     cpplint += "--quiet ";
   }
-  cpplint += "--exclude=poac-out/* --recursive .";
+  cpplint += format("--exclude={} --recursive .", config::POAC_OUT);
 
   spdlog::trace("Executing `{}`", cpplint);
   if (const i32 code = util::shell::Cmd(cpplint).exec_no_capture(); code != 0) {
@@ -53,14 +55,26 @@ using CppLintNotFound = Error<
   spdlog::trace("Checking if required config exists ...");
   const Path manifest_path =
       Try(util::validator::required_config_exists().map_err(to_anyhow));
+  const Path base_dir = manifest_path.parent_path();
 
   spdlog::trace("Parsing the manifest file: {} ...", manifest_path);
   // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest =
       toml::parse(relative(manifest_path, config::cwd));
   const String name = toml::find<String>(manifest, "package", "name");
+  const auto filters = toml::find_or<Vec<String>>(
+      manifest, "lint", "cpplint", "filters", Vec<String>{}
+  );
+  if (!filters.empty()) {
+    spdlog::trace("Using Poac manifest file for lint ...");
+    String args = "--root=include ";
+    for (const StringRef d : fmt::EXCLUDES) {
+      args += format("--exclude={} ", d);
+    }
+    args += "--filter=" + boost::join(filters, ",");
+    return lint(name, base_dir, args);
+  }
 
-  const Path base_dir = manifest_path.parent_path();
   const Path config_path = base_dir / CONFIG_NAME;
   spdlog::trace("Checking if cpplint config exists: {} ...", config_path);
   if (fs::exists(config_path)) {
