@@ -26,6 +26,16 @@ By using Poac, you can create a C++ project, build sources, and execute an appli
 
 ![demo](https://user-images.githubusercontent.com/26405363/169694620-2e3f769e-c6c5-4e6a-a645-e5bae226a8cb.gif)
 
+## Getting Started
+
+As the demo shows, you can get started with just a few commands.
+
+```bash
+poac create hello_world
+cd hello_world
+poac run
+```
+
 ## Usage
 
 ### Start a new project with Poac
