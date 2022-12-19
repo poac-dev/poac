@@ -216,7 +216,7 @@ Error: `cpplint` completed with exit code 1
 
 The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
 To customize the lint settings, try adding the `[lint.cpplint]` key in your `poac.toml` like [this](https://github.com/poacpm/poac/blob/cc30b706fb49860903384df56d650a0955aca16c/poac.toml#L67-L83)
-or creating a [`CPPLINT.cfg`](/CPPLINT.cfg) file to the repository root.
+or creating a [`CPPLINT.cfg`](https://github.com/poacpm/poac/blob/5e7e3792e8818d165149214e94f30958fb0fef66/CPPLINT.cfg) file to the repository root.
 
 ### Run formatter
 
