@@ -353,7 +353,7 @@ Poac requires the following compilers, tools, and libraries to build:
 **dependencies**
 
 * [`fmt`](https://github.com/fmtlib/fmt): [`8.1.0`](https://github.com/fmtlib/fmt/releases/tag/8.1.0) or later
-* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`v0.1.0-alpha.1`](https://github.com/ken-matsui/git2-cpp/releases/tag/v0.1.0-alpha.1) or later
+* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`0.1.1`](https://github.com/ken-matsui/git2-cpp/releases/tag/0.1.1) or later
 * [`glob`](https://github.com/p-ranav/glob): [`v0.0.1`](https://github.com/p-ranav/glob/releases/tag/v0.0.1) or later
 * [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
   * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
