@@ -75,7 +75,7 @@ jobs:
       - name: Uninstall optional software for some commands
         run: sudo apt-get purge -y clang-format
 
-      - name: More test Poac
+      - name: Test Poac more
         run: ctest --output-on-failure --verbose
         working-directory: build
 
