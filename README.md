@@ -423,28 +423,14 @@ https://dev.poac.pm
 ### Linter
 
 ```bash
-cpplint --quiet --recursive .
+poac lint
 ```
-
-> **Note**:
-> If you have installed Poac, you can just run the `lint` command:
->
-> ```bash
-> poac lint
-> ```
 
 ### Formatter
 
 ```bash
-clang-format ./include/**/*.hpp -i
+poac fmt
 ```
-
-> **Note**:
-> If you have installed Poac, you can just run the `fmt` command:
->
-> ```bash
-> poac fmt
-> ```
 
 These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
 In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.

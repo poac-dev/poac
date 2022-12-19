@@ -1,23 +1,9 @@
 #!/bin/sh
 
-# Run clang-format
-if command -v poac &> /dev/null
-then
-  poac fmt --check || exit 1
-else
-  clang-format ./include/**/*.hpp -Werror -n || exit 1
-  clang-format ./lib/**/*.cc -Werror -n || exit 1
-  clang-format ./src/*.cc -Werror -n || exit 1
-  clang-format ./tests/**/**/*.hpp -Werror -n || exit 1
-  clang-format ./tests/**/**/*.cc -Werror -n || exit 1
-fi
+# Run format
+poac fmt --check || exit 1
 
-# Run cpplint
-if command -v poac &> /dev/null
-then
-  poac lint || exit 1
-else
-  cpplint --quiet --recursive . || exit 1
-fi
+# Run lint
+poac lint || exit 1
 
 exit 0
