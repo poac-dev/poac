@@ -5,9 +5,18 @@ list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 include(cmake/CPM.cmake)
 
-if (APPLE)
-    # To support finding LibArchive on macOS
-    set(LibArchive_INCLUDE_DIR "${POAC_HOMEBREW_ROOT_PATH}/libarchive/include")
+if (DEFINED LibArchive_INCLUDE_DIR)
+    message(STATUS "LibArchive_INCLUDE_DIR has been set manually: ${LibArchive_INCLUDE_DIR}")
+else ()
+    set(LIBARCHIVE_INCLUDE_DIR_TMP "${POAC_HOMEBREW_ROOT_PATH}/libarchive/include")
+    if (APPLE AND EXISTS "${LIBARCHIVE_INCLUDE_DIR_TMP}/archive.h")
+        # To support finding LibArchive on macOS
+        set(LibArchive_INCLUDE_DIR ${LIBARCHIVE_INCLUDE_DIR_TMP})
+        message(STATUS "LibArchive_INCLUDE_DIR has been set automatically: ${LibArchive_INCLUDE_DIR}")
+    else ()
+        message(STATUS "LibArchive_INCLUDE_DIR could not be set automatically")
+    endif ()
+    unset(LIBARCHIVE_INCLUDE_DIR_TMP)
 endif ()
 
 set(CMAKE_PROJECT_libarchive_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/LibArchivePoliciesFix.cmake")

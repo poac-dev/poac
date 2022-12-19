@@ -40,11 +40,11 @@ jobs:
       - name: Install optional software for some commands
         run: brew install clang-format
 
-      - name: More test Poac
+      - name: Test Poac more
         run: ctest --output-on-failure --verbose
         working-directory: build
 
-      - name: Show link libraries
+      - name: Show linked libraries
         run: otool -L ./poac
         working-directory: build
 
