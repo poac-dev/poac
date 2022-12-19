@@ -215,7 +215,8 @@ Error: `cpplint` completed with exit code 1
 > ```
 
 The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
-To customize the lint settings, try creating a [`CPPLINT.cfg`](/CPPLINT.cfg) file to the repository root.
+To customize the lint settings, try adding the `[lint.cpplint]` key in your `poac.toml` like [this](https://github.com/poacpm/poac/blob/cc30b706fb49860903384df56d650a0955aca16c/poac.toml#L67-L83)
+or creating a [`CPPLINT.cfg`](https://github.com/poacpm/poac/blob/5e7e3792e8818d165149214e94f30958fb0fef66/CPPLINT.cfg) file to the repository root.
 
 ### Run formatter
 
@@ -423,28 +424,14 @@ https://dev.poac.pm
 ### Linter
 
 ```bash
-cpplint --quiet --recursive .
+poac lint
 ```
-
-> **Note**:
-> If you have installed Poac, you can just run the `lint` command:
->
-> ```bash
-> poac lint
-> ```
 
 ### Formatter
 
 ```bash
-clang-format ./include/**/*.hpp -i
+poac fmt
 ```
-
-> **Note**:
-> If you have installed Poac, you can just run the `fmt` command:
->
-> ```bash
-> poac fmt
-> ```
 
 These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
 In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.
