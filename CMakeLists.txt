@@ -24,14 +24,11 @@ endif ()
 
 option(VERBOSE "Use verbose output" OFF) # -DVERBOSE=ON
 option(CPM_USE_LOCAL_PACKAGES "Try to use local packages" ON)
+option(POAC_BUILD_TESTING "Enable build tests" ON)
 
 include(CMakeDependentOption)
 cmake_dependent_option(
     POAC_CLANG_TIDY "Enable clang-tidy when Debug mode" ON
-    "CMAKE_BUILD_TYPE STREQUAL Debug" OFF
-)
-cmake_dependent_option(
-    POAC_BUILD_TESTING "Enable build tests" ON
     "CMAKE_BUILD_TYPE STREQUAL Debug" OFF
 )
 cmake_dependent_option(
