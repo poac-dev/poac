@@ -63,7 +63,9 @@ add_poac_target(poac_util_pretty
 )
 
 add_poac_header_target(poac_util_result
-    LIBRARIES mitama-cpp-result::mitama-cpp-result
+    LIBRARIES
+        fmt::fmt # mitama-cpp-result uses `fmt` internally
+        mitama-cpp-result::mitama-cpp-result
 )
 
 add_poac_header_target(poac_util_rustify
