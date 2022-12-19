@@ -26,34 +26,34 @@ jobs:
         run: ninja
         working-directory: build
 
-  clang-format:
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        path:
-          - "include"
-          - "lib"
-          - "src"
-          - "tests"
+  format:
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
 
-      - run: clang-tidy --version
+      - name: Install Poac & clang-format
+        run: |
+          brew update
+          brew install poac clang-format
 
-      - name: Run clang-format style check
-        uses: jidicula/clang-format-action@v4.9.0
-        with:
-          clang-format-version: '15'
-          check-path: ${{ matrix.path }}
+      - name: Check format
+        run: poac fmt --check --verbose
 
-  cpplint:
+  lint:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install Poac
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew update
+          brew install poac
 
       - name: Install cpplint
         run: pip install cpplint
 
-      - name: Run cpplint
-        run: cpplint --recursive .
+      - name: Run lint
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          poac lint --verbose
