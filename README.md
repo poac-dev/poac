@@ -282,6 +282,16 @@ Since packages through these providers may not be maintained by Poac owners, ins
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
+Most package providers basically name this `poac`, so the way to install it should be like the following:
+
+```sh
+$PACKAGE_MANAGER install poac
+```
+
+However, I highly recommend confirming (and copy) the package name before installation to avoid typosquatting attacks.
+
+To do so, please follow the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
+
 ### Build from source
 
 Should your environment is not listed on released packages, you will need to build Poac from source.
