@@ -12,9 +12,9 @@
 #include <structopt/app.hpp>
 
 // internal
-#include <poac/cmd.hpp>
-#include <poac/util/lev_distance.hpp>
-#include <poac/util/termcolor2/literals_extra.hpp>
+#include "poac/cmd.hpp"
+#include "poac/util/lev_distance.hpp"
+#include "poac/util/termcolor2/literals_extra.hpp"
 
 #ifndef POAC_VERSION
 #  error "POAC_VERSION is not defined"
