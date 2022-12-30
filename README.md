@@ -282,26 +282,6 @@ Since packages through these providers may not be maintained by Poac owners, ins
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
-### Via Homebrew
-
-```bash
-brew install poac
-```
-
-### Via MacPorts
-
-```bash
-sudo port install poac
-```
-
-### Arch Linux
-
-> [poac](https://aur.archlinux.org/packages/poac/), [poac-devel-git](https://aur.archlinux.org/packages/poac-devel-git), and [poac-git](https://aur.archlinux.org/packages/poac-git)
-
-```bash
-pacman -S poac
-```
-
 ### Build from source
 
 Should your environment is not listed on released packages, you will need to build Poac from source.
