@@ -288,9 +288,9 @@ Most package providers basically name this `poac`, so the way to install it shou
 $PACKAGE_MANAGER install poac
 ```
 
-However, I highly recommend confirming (and copy) the package name before installation to avoid typosquatting attacks.
+However, I highly recommend confirming (and copying) the package name before installation to avoid typosquatting attacks.
 
-To do so, please follow the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
+To do so, you can follow the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
 
 ### Build from source
 
