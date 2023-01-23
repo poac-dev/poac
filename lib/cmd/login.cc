@@ -11,6 +11,9 @@
 
 namespace poac::cmd::login {
 
+using InvalidAPIToken = Error<"invalid API token provided">;
+using FailedToLogIn = Error<"failed to log in; API token might be incorrect">;
+
 [[nodiscard]] Fn check_token(StringRef api_token)->Result<void> {
   spdlog::trace("Checking if api_token has 32 length");
   if (api_token.size() != 32) {

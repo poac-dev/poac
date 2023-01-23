@@ -16,8 +16,6 @@ struct Options : structopt::sub_command {
   String package_name;
 };
 
-using NotFound = Error<"No packages found for `{}`", String>;
-
 [[nodiscard]] Fn search(const Options& opts)->Result<void>;
 
 [[nodiscard]] inline Fn exec(const Options& opts)->Result<void> {

@@ -14,6 +14,8 @@
 
 namespace poac::cmd::init {
 
+using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
+
 [[nodiscard]] Fn init(const Options& opts, StringRef package_name)
     ->Result<void> {
   using create::ProjectType;

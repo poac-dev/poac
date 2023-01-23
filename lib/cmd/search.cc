@@ -14,6 +14,8 @@
 
 namespace poac::cmd::search {
 
+using PackageNotFound = Error<"No packages found for `{}`", String>;
+
 [[nodiscard]] Fn search(const Options& opts)->Result<void> {
   const boost::property_tree::ptree pt =
       Try(util::net::api::search(opts.package_name, 20).map_err(to_anyhow));
@@ -23,7 +25,7 @@ namespace poac::cmd::search {
 
   Let children = pt.get_child("data.results");
   if (children.empty()) {
-    return Err<NotFound>(opts.package_name);
+    return Err<PackageNotFound>(opts.package_name);
   }
 
   constexpr i32 MAX_COLUMNS = 10; // limit the number of columns
