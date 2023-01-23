@@ -18,11 +18,6 @@ struct Options : structopt::sub_command {
   Option<bool> lib = false;
 };
 
-using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
-
-[[nodiscard]] Fn init(const Options& opts, StringRef package_name)
-    ->Result<void>;
-
 [[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::init

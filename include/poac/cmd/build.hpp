@@ -27,12 +27,6 @@ using FailedToBuild = Error<"failed to build package `{}`", String>;
 using FailedToInstallDeps = Error<"failed to install dependencies">;
 using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
 
-[[nodiscard]] Fn build_impl(
-    const toml::value& manifest, const Mode& mode,
-    const ResolvedDeps& resolved_deps
-)
-    ->Result<Path>;
-
 [[nodiscard]] Fn build(const Options& opts, const toml::value& manifest)
     ->Result<Option<Path>>;
 

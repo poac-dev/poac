@@ -19,8 +19,6 @@ struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-[[nodiscard]] Fn clean(const Options& opts)->Result<void>;
-
 [[nodiscard]] Fn exec(const Options& opts)->Result<void>;
 
 } // namespace poac::cmd::clean

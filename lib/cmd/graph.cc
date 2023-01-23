@@ -7,11 +7,26 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 // internal
+#include "poac/cmd/build.hpp"
 #include "poac/cmd/graph.hpp"
 #include "poac/data/manifest.hpp"
 #include "poac/util/shell.hpp"
 
 namespace poac::cmd::graph {
+
+using ExtError = Error<"The extension of the output file must be .dot or .png">;
+using GraphvizNotFound = Error<
+    "`graph` command requires `graphviz`; try installing it by:\n"
+    "  apt/brew install graphviz\n"
+    "Or consider outputting this as `.dot`">;
+
+// NOLINTNEXTLINE(bugprone-exception-escape)
+struct Vertex {
+  String name;
+  String version;
+};
+using Graph =
+    boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
 Fn create_resolved_deps()->Result<core::resolver::ResolvedDeps> {
   spdlog::trace("Parsing the manifest file ...");
@@ -19,7 +34,7 @@ Fn create_resolved_deps()->Result<core::resolver::ResolvedDeps> {
   const toml::value manifest = toml::parse(data::manifest::NAME);
 
   return core::resolver::install_deps(manifest).with_context([] {
-    return Err<FailedToInstallDeps>().get();
+    return Err<build::FailedToInstallDeps>().get();
   });
 }
 

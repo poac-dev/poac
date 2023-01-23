@@ -43,7 +43,7 @@ inline Fn operator<<(std::ostream& os, ProjectType kind)->std::ostream& {
 
 template <typename T>
 Fn opts_to_project_type(T&& opts)->ProjectType {
-  opts.bin.value(); // Just check opts has a `.bin` member
+  opts.bin.value(); // Just check if opts has a `.bin` member
   return opts.lib.value() ? ProjectType::Lib : ProjectType::Bin;
 }
 

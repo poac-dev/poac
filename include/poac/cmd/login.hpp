@@ -16,9 +16,6 @@ struct Options : structopt::sub_command {
   String api_token;
 };
 
-using InvalidAPIToken = Error<"invalid API token provided">;
-using FailedToLogIn = Error<"failed to log in; API token might be incorrect">;
-
 [[nodiscard]] Fn check_token(StringRef api_token)->Result<void>;
 
 [[nodiscard]] Fn exec(const Options& opts)->Result<void>;
