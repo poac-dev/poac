@@ -5,20 +5,20 @@
 
 ---
 
-[![GitHub Release Version](https://img.shields.io/github/release/poacpm/poac.svg?style=flat)](https://github.com/poacpm/poac/releases)
-[![GitHub License](https://img.shields.io/github/license/poacpm/poac.svg)](https://github.com/awslabs/aws-c-common/blob/main/LICENSE)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_shield)
+[![GitHub Release Version](https://img.shields.io/github/release/poac-dev/poac.svg?style=flat)](https://github.com/poac-dev/poac/releases)
+[![GitHub License](https://img.shields.io/github/license/poac-dev/poac.svg)](https://github.com/awslabs/aws-c-common/blob/main/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpoac-dev%2Fpoac.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpoac-dev%2Fpoac?ref=badge_shield)
 [![DOI](https://zenodo.org/badge/119684778.svg)](https://zenodo.org/badge/latestdoi/119684778)
-[![codecov](https://codecov.io/gh/poacpm/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poacpm/poac)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poacpm/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poacpm/poac&amp;utm_campaign=Badge_Grade)
-[![CodeFactor](https://www.codefactor.io/repository/github/poacpm/poac/badge)](https://www.codefactor.io/repository/github/poacpm/poac)
+[![codecov](https://codecov.io/gh/poac-dev/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poac-dev/poac)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poac-dev/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poac-dev/poac&amp;utm_campaign=Badge_Grade)
+[![CodeFactor](https://www.codefactor.io/repository/github/poac-dev/poac/badge)](https://www.codefactor.io/repository/github/poac-dev/poac)
 
 ## Description
 
 Poac (pronounced as `/pəʊək/`) is a package manager for C++ users, inspired by Cargo for Rust.
 
 Poac can download project's dependencies and compile a project.
-Please visit [poac.pm](https://poac.pm) and [The Poac Book](https://doc.poac.pm) for more details.
+Please visit [poac.dev](https://poac.dev) and [The Poac Book](https://doc.poac.dev) for more details.
 
 ## Demo
 
@@ -215,8 +215,8 @@ Error: `cpplint` completed with exit code 1
 > ```
 
 The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
-To customize the lint settings, try adding the `[lint.cpplint]` key in your `poac.toml` like [this](https://github.com/poacpm/poac/blob/cc30b706fb49860903384df56d650a0955aca16c/poac.toml#L67-L83)
-or creating a [`CPPLINT.cfg`](https://github.com/poacpm/poac/blob/5e7e3792e8818d165149214e94f30958fb0fef66/CPPLINT.cfg) file to the repository root.
+To customize the lint settings, try adding the `[lint.cpplint]` key in your `poac.toml` like [this](https://github.com/poac-dev/poac/blob/cc30b706fb49860903384df56d650a0955aca16c/poac.toml#L67-L83)
+or creating a [`CPPLINT.cfg`](https://github.com/poac-dev/poac/blob/5e7e3792e8818d165149214e94f30958fb0fef66/CPPLINT.cfg) file to the repository root.
 
 ### Run formatter
 
@@ -243,7 +243,7 @@ To customize the format settings, try creating a [`.clang-format`](/.clang-forma
 
 ### Search packages
 
-In case you would find what packages are provided, you can use the `search` command or visit [poac.pm](https://poac.pm).
+In case you would find what packages are provided, you can use the `search` command or visit [poac.dev](https://poac.dev).
 
 ```console
 $ poac search func
@@ -274,7 +274,7 @@ Poac is still under development and may contain a bunch of bugs.
 
 |                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![GitHub Actions Linux Build](https://github.com/poacpm/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poacpm/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poacpm/poac/actions?query=workflow%3A%22macOS%22) |
+| [![GitHub Actions Linux Build](https://github.com/poac-dev/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poac-dev/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22macOS%22) |
 
 ## Installation
 
@@ -373,7 +373,7 @@ Poac requires the following compilers, tools, and libraries to build:
 After you prepared these requirements, you can build Poac using the following commands:
 
 ```bash
-git clone https://github.com/poacpm/poac.git
+git clone https://github.com/poac-dev/poac.git
 cd poac
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cd build
@@ -409,7 +409,7 @@ Accordingly, I believe Poac would likewise provide a bright and soft impression.
 
 A source code documentation for Poac is generated by Doxygen every commit to the `main` branch:
 
-https://dev.poac.pm
+https://dev.poac.dev
 
 ### Linter
 
@@ -426,14 +426,14 @@ poac fmt
 These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
 In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.
 
-Please see [CONTRIBUTING.md](https://github.com/poacpm/.github/blob/main/CONTRIBUTING.md) for more details.
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ---
 
 This project exists thanks to all the people who contribute.
 
-<a href="https://github.com/poacpm/poac/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=poacpm/poac" />
+<a href="https://github.com/poac-dev/poac/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=poac-dev/poac" />
 </a>
 
 ## License
@@ -442,7 +442,7 @@ Poac is licensed under the terms of the Apache License version 2.0.
 
 Please see [LICENSE](LICENSE) for details.
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpoacpm%2Fpoac?ref=badge_large)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpoac-dev%2Fpoac.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpoac-dev%2Fpoac?ref=badge_large)
 
 ### Third-party software
 
