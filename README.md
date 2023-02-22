@@ -6,7 +6,7 @@
 ---
 
 [![GitHub Release Version](https://img.shields.io/github/release/poac-dev/poac.svg?style=flat)](https://github.com/poac-dev/poac/releases)
-[![GitHub License](https://img.shields.io/github/license/poac-dev/poac.svg)](https://github.com/awslabs/aws-c-common/blob/main/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/poac-dev/poac.svg)](LICENSE)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpoac-dev%2Fpoac.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpoac-dev%2Fpoac?ref=badge_shield)
 [![DOI](https://zenodo.org/badge/119684778.svg)](https://zenodo.org/badge/latestdoi/119684778)
 [![codecov](https://codecov.io/gh/poac-dev/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poac-dev/poac)
