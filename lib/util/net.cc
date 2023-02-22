@@ -92,7 +92,7 @@ namespace poac::util::net::api {
 [[nodiscard]] Fn call(StringRef path, const Option<String>& body) noexcept
     -> Result<boost::property_tree::ptree, String> {
   try {
-    const Requests request{"api.poac.pm"};
+    const Requests request{"api.poac.dev"};
     const String target = format("/v1{}", path);
     Let response =
         Try(body.has_value() ? request.post(target, body.value())

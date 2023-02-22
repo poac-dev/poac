@@ -13,7 +13,7 @@
 namespace poac::cmd::publish {
 
 struct Options : structopt::sub_command {
-  /// API Token obtained on poac.pm
+  /// API Token obtained on poac.dev
   Option<String> token;
 
   /// Perform all checks without uploading

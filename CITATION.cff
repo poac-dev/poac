@@ -10,8 +10,8 @@ title: "Poac"
 type: software
 license: Apache-2.0
 doi: 10.5281/zenodo.6633694
-url: "https://poac.pm"
-repository-code: "https://github.com/poacpm/poac"
+url: "https://poac.dev"
+repository-code: "https://github.com/poac-dev/poac"
 
 version: 0.5.1
 date-released: 2022-12-18

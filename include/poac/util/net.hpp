@@ -73,9 +73,9 @@ Fn create_request(
 }
 
 inline Fn parse_url(const String& url)->std::pair<String, String> {
-  // https://api.poac.pm/packages/deps -> api.poac.pm
+  // https://api.poac.dev/packages/deps -> api.poac.dev
   const String host = util::misc::split(url, "://")[1];
-  // https://api.poac.pm/packages/deps -> /packages/deps
+  // https://api.poac.dev/packages/deps -> /packages/deps
   const String target(url, url.find(host) + host.size());
   return {host, target};
 }
