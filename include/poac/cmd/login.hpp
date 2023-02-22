@@ -12,7 +12,7 @@
 namespace poac::cmd::login {
 
 struct Options : structopt::sub_command {
-  /// API Token obtained on poac.pm
+  /// API Token obtained on poac.dev
   String api_token;
 };
 

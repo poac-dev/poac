@@ -4,8 +4,8 @@ version = "0.5.1"
 edition = 2020
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
 license = "Apache-2.0"
-homepage = "https://poac.pm"
-repository = "https://github.com/poacpm/poac"
+homepage = "https://poac.dev"
+repository = "https://github.com/poac-dev/poac"
 description = "Package Manager for C++"
 
 [dependencies]

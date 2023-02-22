@@ -53,16 +53,16 @@ struct Commands {
   /// Run cpplint
   cmd::lint::Options lint;
 
-  /// Log in to poac.pm
+  /// Log in to poac.dev
   cmd::login::Options login;
 
-  /// Publish a package to poac.pm
+  /// Publish a package to poac.dev
   cmd::publish::Options publish;
 
   /// Build and run a binary
   cmd::run::Options run;
 
-  /// Search a package on poac.pm
+  /// Search a package on poac.dev
   cmd::search::Options search;
 };
 
@@ -219,7 +219,7 @@ int main(const int argc, char* argv[]) {
     err_logger->error(
         "{} Unknown error occurred\n\n"
         "Please open an issue with reproducible information at:\n"
-        "https://github.com/poacpm/poac/issues",
+        "https://github.com/poac-dev/poac/issues",
         "Error:"_bold_red
     );
     return EXIT_FAILURE;

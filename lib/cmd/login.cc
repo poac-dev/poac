@@ -35,7 +35,7 @@ using FailedToLogIn = Error<"failed to log in; API token might be incorrect">;
   std::ofstream ofs(config::cred_file, std::ofstream::trunc);
   ofs << format("[registry]\ntoken = \"{}\"\n", opts.api_token);
 
-  log::status("Login", "token for `{}` saved", "poac.pm");
+  log::status("Login", "token for `{}` saved", "poac.dev");
   return Ok();
 }
 

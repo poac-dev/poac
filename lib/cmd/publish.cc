@@ -18,8 +18,8 @@ namespace poac::cmd::publish {
 using APITokenNotFound = Error<
     "API token not found; please provide it through `--token "
     "$YOUR_TOKEN` or `poac login $YOUR_TOKEN`. If you do not have "
-    "it yet, try signing up into poac.pm and generate a token at:\n"
-    "  https://poac.pm/settings/tokens">;
+    "it yet, try signing up into poac.dev and generate a token at:\n"
+    "  https://poac.dev/settings/tokens">;
 using FailedToReadCred = Error<
     "failed to read credentials from {0}; do not edit it manually "
     "and use the `poac login` command.",
