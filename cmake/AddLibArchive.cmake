@@ -24,7 +24,7 @@ CPMAddPackage(
     NAME LibArchive
     GITHUB_REPOSITORY libarchive/libarchive
     VERSION 3.6.0 # minimum required version (but only when using local one)
-    GIT_TAG v3.6.1 # (3.6.1 or over is needed to build downloaded one)
+    GIT_TAG v3.6.2 # (3.6.1 or over is needed to build downloaded one)
     OPTIONS
         "ENABLE_OPENSSL OFF"
         "ENABLE_LIBB2 OFF"
