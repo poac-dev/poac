@@ -22,8 +22,8 @@ endif ()
 CPMAddPackage(
     NAME libgit2
     GITHUB_REPOSITORY libgit2/libgit2
-    VERSION 1.4.3
-    GIT_TAG v1.4.3
+    VERSION 1.4.3 # minimum required version
+    GIT_TAG v1.6.1
     OPTIONS
         "BUILD_TESTS OFF"
         "USE_SSH OFF"
