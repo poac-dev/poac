@@ -26,14 +26,24 @@ By using Poac, you can create a C++ project, build sources, and execute an appli
 
 ![demo](https://user-images.githubusercontent.com/26405363/169694620-2e3f769e-c6c5-4e6a-a645-e5bae226a8cb.gif)
 
-## Getting Started
+## Hello World
 
-You can get started with just a few commands as the demo shows:
+You can get started with just a few commands as the demo shows. Let's create a new Poac project as follows:
 
-```bash
-poac create hello_world
-cd hello_world
-poac run
+```console
+you:~$ poac create hello_world
+     Created binary (application) `hello_world` package
+```
+
+Then, you can use the `poac run` command to run your application:
+
+```console
+you:~$ cd hello_world
+you:~/hello_world$ poac run
+   Compiling 1/1: hello_world v0.1.0 (/Users/you/hello_world)
+    Finished debug target(s) in 0.90s
+     Running `/Users/you/hello_world/poac-out/debug/hello_world`
+Hello, world!
 ```
 
 ## Usage
@@ -65,7 +75,7 @@ In most cases, you will want to execute a binary as well as build the project—
 you:~/hello_world$ poac run
    Compiling 1/1: hello_world v0.1.0 (/Users/you/hello_world)
     Finished debug target(s) in 0.90s
-     Running `/Users/you/hello_world/poac-out/debug/hoge`
+     Running `/Users/you/hello_world/poac-out/debug/hello_world`
 Hello, world!
 ```
 
