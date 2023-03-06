@@ -433,8 +433,8 @@ poac lint
 poac fmt
 ```
 
-These are also done when pre-pushing changes in [`.githooks/pre-push`](/.githooks/pre-push).
-In case you would skip these hooks, use the [`--no-verify`](https://stackoverflow.com/a/7230886) option.
+These are also done when pre-push as specified in [`.githooks/pre-push`](/.githooks/pre-push).
+In case you would skip these hooks, use the [`--no-verify`](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---no-verify) option.
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
