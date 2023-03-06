@@ -46,13 +46,13 @@ you:~/hello_world$ poac run
 Hello, world!
 ```
 
-## Supported Operating Systems
+## Installation
+
+### Supported Operating Systems
 
 |                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![GitHub Actions Linux Build](https://github.com/poac-dev/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poac-dev/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22macOS%22) |
-
-## Installation
 
 Since packages through these providers may not be maintained by Poac owners, install them at your own risk.
 
