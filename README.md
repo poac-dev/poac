@@ -46,6 +46,120 @@ you:~/hello_world$ poac run
 Hello, world!
 ```
 
+## Supported Operating Systems
+
+|                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![GitHub Actions Linux Build](https://github.com/poac-dev/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poac-dev/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22macOS%22) |
+
+## Installation
+
+Since packages through these providers may not be maintained by Poac owners, install them at your own risk.
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
+
+Most package providers basically name this `poac`, so the way to install it should be like the following:
+
+```sh
+$PACKAGE_MANAGER install poac
+```
+
+However, I highly recommend confirming (and copying) the package name before installation to avoid typosquatting attacks.
+
+To do so, you can follow the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
+
+### Build from source
+
+Should your environment is not listed on released packages, you will need to build Poac from source.
+Poac requires the following compilers, tools, and libraries to build:
+
+#### compilers
+
+* Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
+  * `GCC`: `11` or later
+  * `Clang`: `12` or later
+  * `Apple Clang`: provided by `macOS Big Sur (11)` or later
+
+#### tools
+
+* [`CMake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
+* One of the following build systems
+  * [`Ninja`](https://github.com/ninja-build/ninja) (recommended)
+  * [`Make`](https://www.gnu.org/software/make/)
+  * Something else supported by [`CMake Generator`](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
+
+#### libraries
+
+* [`boost`](https://github.com/boostorg): [`1.70.0`](https://github.com/boostorg/boost/releases/tag/boost-1.70.0) or later
+  * algorithm
+  * asio
+  * beast
+  * container_hash
+  * dynamic_bitset
+  * graph
+  * predef
+  * preprocessor
+  * property_tree
+  * range
+  * regex
+  * scope_exit
+  * uuid
+* [`openssl`](https://github.com/openssl/openssl): [`3.0.0`](https://github.com/openssl/openssl/releases/tag/openssl-3.0.0) or later
+  * some `SHA256` functions are marked as [deprecated](https://github.com/openssl/openssl/blob/openssl-3.0.0/include/openssl/sha.h#L57-L79) since `3.0.0`
+
+<details>
+<summary>
+
+> **Note**:
+> The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them. (click here to see additional dependencies)
+</summary>
+
+---
+
+**dependencies**
+
+* [`fmt`](https://github.com/fmtlib/fmt): [`8.1.0`](https://github.com/fmtlib/fmt/releases/tag/8.1.0) or later
+* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`0.1.1`](https://github.com/ken-matsui/git2-cpp/releases/tag/0.1.1) or later
+* [`glob`](https://github.com/p-ranav/glob): [`v0.0.1`](https://github.com/p-ranav/glob/releases/tag/v0.0.1) or later
+* [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
+  * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
+* [`libgit2`](https://github.com/libgit2/libgit2): [`v1.4.3`](https://github.com/libgit2/libgit2/releases/tag/v1.4.3) or later
+  * requires security updates
+* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`v9.3.0`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.3.0) or later
+  * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
+* [`ninja`](https://github.com/ninja-build/ninja): [`57b8fee`](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b) or later
+  * requires [this commit](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b)
+  * [`v1.11.1`](https://github.com/ninja-build/ninja/releases/tag/v1.11.1) does not include the commit
+* [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
+* [`structopt`](https://github.com/p-ranav/structopt): [`b1e1e16`](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041) or later
+  * requires [this commit](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041)
+  * awaiting the next release above [`v0.1.3`](https://github.com/p-ranav/structopt/releases/tag/v0.1.3)
+* [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
+  * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
+  * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
+
+**dev-dependencies**
+
+* [`μt`](https://github.com/boost-ext/ut): [`v1.1.9`](https://github.com/boost-ext/ut/releases/tag/v1.1.9) or later
+
+---
+
+</details>
+
+After you prepared these requirements, you can build Poac using the following commands:
+
+```bash
+git clone https://github.com/poac-dev/poac.git
+cd poac
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cd build
+ninja
+ninja install
+```
+
+Poac automatically tries to use dependencies installed locally.
+If you want to avoid using local packages, pass `-DCPM_USE_LOCAL_PACKAGES=OFF` as the `cmake` command options.
+
 ## Usage
 
 ### Start a new project with Poac
@@ -279,120 +393,6 @@ Poac is still under development and may contain a bunch of bugs.
 |                   Publish packages                    |        WIP         |
 |    Build packages with build-required dependencies    |                    |
 |               Build packages with CMake               |                    |
-
-## Supported Operating Systems
-
-|                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
-|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![GitHub Actions Linux Build](https://github.com/poac-dev/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poac-dev/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22macOS%22) |
-
-## Installation
-
-Since packages through these providers may not be maintained by Poac owners, install them at your own risk.
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
-
-Most package providers basically name this `poac`, so the way to install it should be like the following:
-
-```sh
-$PACKAGE_MANAGER install poac
-```
-
-However, I highly recommend confirming (and copying) the package name before installation to avoid typosquatting attacks.
-
-To do so, you can follow the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
-
-### Build from source
-
-Should your environment is not listed on released packages, you will need to build Poac from source.
-Poac requires the following compilers, tools, and libraries to build:
-
-#### compilers
-
-* Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
-  * `GCC`: `11` or later
-  * `Clang`: `12` or later
-  * `Apple Clang`: provided by `macOS Big Sur (11)` or later
-
-#### tools
-
-* [`CMake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
-* One of the following build systems
-  * [`Ninja`](https://github.com/ninja-build/ninja) (recommended)
-  * [`Make`](https://www.gnu.org/software/make/)
-  * Something else supported by [`CMake Generator`](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
-
-#### libraries
-
-* [`boost`](https://github.com/boostorg): [`1.70.0`](https://github.com/boostorg/boost/releases/tag/boost-1.70.0) or later
-  * algorithm
-  * asio
-  * beast
-  * container_hash
-  * dynamic_bitset
-  * graph
-  * predef
-  * preprocessor
-  * property_tree
-  * range
-  * regex
-  * scope_exit
-  * uuid
-* [`openssl`](https://github.com/openssl/openssl): [`3.0.0`](https://github.com/openssl/openssl/releases/tag/openssl-3.0.0) or later
-  * some `SHA256` functions are marked as [deprecated](https://github.com/openssl/openssl/blob/openssl-3.0.0/include/openssl/sha.h#L57-L79) since `3.0.0`
-
-<details>
-<summary>
-
-> **Note**:
-> The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them. (click here to see additional dependencies)
-</summary>
-
----
-
-**dependencies**
-
-* [`fmt`](https://github.com/fmtlib/fmt): [`8.1.0`](https://github.com/fmtlib/fmt/releases/tag/8.1.0) or later
-* [`git2-cpp`](https://github.com/ken-matsui/git2-cpp): [`0.1.1`](https://github.com/ken-matsui/git2-cpp/releases/tag/0.1.1) or later
-* [`glob`](https://github.com/p-ranav/glob): [`v0.0.1`](https://github.com/p-ranav/glob/releases/tag/v0.0.1) or later
-* [`libarchive`](https://github.com/libarchive/libarchive): [`v3.6.1`](https://github.com/libarchive/libarchive/tree/master) or later
-  * requires [this commit](https://github.com/libarchive/libarchive/commit/a4c3c90bb828ab5f01589718266ac5d3fdccb854)
-* [`libgit2`](https://github.com/libgit2/libgit2): [`v1.4.3`](https://github.com/libgit2/libgit2/releases/tag/v1.4.3) or later
-  * requires security updates
-* [`mitama-cpp-result`](https://github.com/LoliGothick/mitama-cpp-result): [`v9.3.0`](https://github.com/LoliGothick/mitama-cpp-result/releases/tag/v9.3.0) or later
-  * requires [this commit](https://github.com/LoliGothick/mitama-cpp-result/commit/ec7f22ae921f750b0115681623d0c06223737819)
-* [`ninja`](https://github.com/ninja-build/ninja): [`57b8fee`](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b) or later
-  * requires [this commit](https://github.com/ninja-build/ninja/commit/57b8fee639a4290176086f3839c78bfc0d02c42b)
-  * [`v1.11.1`](https://github.com/ninja-build/ninja/releases/tag/v1.11.1) does not include the commit
-* [`spdlog`](https://github.com/gabime/spdlog): [`1.9.0`](https://github.com/gabime/spdlog/releases/tag/v1.9.0) or later
-* [`structopt`](https://github.com/p-ranav/structopt): [`b1e1e16`](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041) or later
-  * requires [this commit](https://github.com/p-ranav/structopt/commit/b1e1e16867a5cf282664d392a18680cb5e3f6041)
-  * awaiting the next release above [`v0.1.3`](https://github.com/p-ranav/structopt/releases/tag/v0.1.3)
-* [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
-  * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
-  * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
-
-**dev-dependencies**
-
-* [`μt`](https://github.com/boost-ext/ut): [`v1.1.9`](https://github.com/boost-ext/ut/releases/tag/v1.1.9) or later
-
----
-
-</details>
-
-After you prepared these requirements, you can build Poac using the following commands:
-
-```bash
-git clone https://github.com/poac-dev/poac.git
-cd poac
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cd build
-ninja
-ninja install
-```
-
-Poac automatically tries to use dependencies installed locally.
-If you want to avoid using local packages, pass `-DCPM_USE_LOCAL_PACKAGES=OFF` as the `cmake` command options.
 
 ## Why Poac?
 
