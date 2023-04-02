@@ -35,7 +35,7 @@ CPMAddPackage(
 
 if (libgit2_ADDED) # If using downloaded package
     set(LIBGIT2_INCLUDE_DIR ${libgit2_SOURCE_DIR}/include)
-    set(LIBGIT2_LIBRARY git2)
+    set(LIBGIT2_LIBRARY libgit2package)
 else () # If using local package
     set(LIBGIT2_LIBRARY ${LIBGIT2_LIBRARIES})
 endif ()
