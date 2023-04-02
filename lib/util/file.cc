@@ -12,7 +12,7 @@ Result<void> write_file(const Path& p, StringRef content) noexcept {
   ofs.close();
 
   if (!ofs) {
-    return Err<WriteFileFailed>(p);
+    return Err<WriteFileFailed>(p.string());
   }
 
   return Ok();

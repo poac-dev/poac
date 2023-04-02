@@ -27,5 +27,4 @@ add_poac_target(poac_cmd
         poac_util_pretty
         poac_util_rustify
         poac_util_validator
-        poac_util_file
 )

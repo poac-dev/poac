@@ -4,8 +4,6 @@
 
 // external
 #include <boost/algorithm/string.hpp> // boost::algorithm::join
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <ninja/build.h> // Builder // NOLINT(build/include_order)
 #include <ninja/graph.h> // Node // NOLINT(build/include_order)
 
@@ -15,6 +13,7 @@
 #include "poac/core/builder/syntax.hpp"
 #include "poac/core/resolver.hpp" // get_extracted_path
 #include "poac/util/cfg.hpp"
+#include "poac/util/registry/conan/manifest.hpp"
 
 namespace poac::core::builder::manifest {
 
@@ -50,61 +49,6 @@ Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool {
     return false;
   }
   return true;
-}
-
-Vec<String> gather_conan_conf(
-    const boost::property_tree::ptree& pt, const std::string& field,
-    const std::string& prefix
-) {
-  Vec<String> lines;
-
-  for (const auto& s : pt.get_child(field)) {
-    lines.push_back(fmt::format("{}{}", prefix, s.second.data()));
-  }
-
-  return lines;
-}
-
-inline Vec<String> gather_conan_defines(const boost::property_tree::ptree& pt) {
-  return gather_conan_conf(pt, "defines", "-D");
-}
-
-inline Vec<String> gather_conan_includes(const boost::property_tree::ptree& pt
-) {
-  return gather_conan_conf(pt, "include_paths", "-I");
-}
-
-inline Vec<String> gather_conan_libdirs(const boost::property_tree::ptree& pt) {
-  return gather_conan_conf(pt, "lib_paths", "-L");
-}
-
-inline Vec<String> gather_conan_libraries(const boost::property_tree::ptree& pt
-) {
-  return gather_conan_conf(pt, "libs", "-l");
-}
-
-struct ConanManifest {
-  Vec<String> defines;
-  Vec<String> includes;
-  Vec<String> libdirs;
-  Vec<String> libraries;
-};
-
-Result<ConanManifest> gather_conan_deps() {
-  if (!fs::exists(config::path::conan_deps_file)) {
-    return Ok(ConanManifest{});
-  }
-
-  using namespace boost::property_tree;
-  std::ifstream ifs(config::path::conan_deps_file);
-  ptree pt;
-  read_json(ifs, pt);
-
-  return Ok(ConanManifest{
-      .defines = gather_conan_defines(pt),
-      .includes = gather_conan_includes(pt),
-      .libdirs = gather_conan_libdirs(pt),
-      .libraries = gather_conan_libraries(pt)});
 }
 
 Fn gather_includes(const resolver::ResolvedDeps& resolved_deps)->Vec<String> {
@@ -197,7 +141,8 @@ Fn gather_flags(
   Vec<String> libraries = gather_flags(poac_manifest, "libraries", "-l");
   Vec<String> libdirs;
 
-  auto conan_manifest = Try(gather_conan_deps());
+  auto conan_manifest =
+      Try(poac::util::registry::conan::manifest::gather_conan_deps());
   append(includes, conan_manifest.includes);
   append(defines, conan_manifest.defines);
   append(libraries, conan_manifest.libraries);

@@ -10,6 +10,7 @@
 #include "poac/core/resolver/resolve.hpp"
 #include "poac/core/resolver/sat.hpp"
 #include "poac/util/net.hpp"
+#include "poac/util/registry/conan/resolver.hpp"
 #include "poac/util/semver/semver.hpp"
 #include "poac/util/verbosity.hpp"
 

@@ -2,13 +2,14 @@
 #define POAC_UTIL_FILE_HPP_
 
 // internal
-#include "poac/poac.hpp"
+#include "poac/util/result.hpp"
+#include "poac/util/rustify.hpp"
 
 namespace poac::util::file {
 
 Result<void> write_file(const Path& p, StringRef content) noexcept;
 
-using WriteFileFailed = Error<"write to `{}` failed", Path>;
+using WriteFileFailed = Error<"writing `{}` failed", String>;
 
 } // namespace poac::util::file
 

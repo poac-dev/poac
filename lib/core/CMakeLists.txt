@@ -13,6 +13,7 @@ add_poac_target(poac_core
         poac_util_format
         poac_util_log
         poac_util_result
+        poac_util_registry_conan_resolver
         toml11::toml11
 )
 
