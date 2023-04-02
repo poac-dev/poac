@@ -30,25 +30,40 @@ struct DuplicateDeps {};
 template <typename W>
 using DupDeps = typename DuplicateDeps<W>::Type;
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
-struct Package {
-  /// Package name
-  String name;
-
+struct DependencyInfo {
   /// Version Requirement
   ///
   /// Sometimes, this is like `1.66.0` or like `>=1.64.0 and <2.0.0`.
   String version_rq;
 };
 
+inline Fn operator==(const DependencyInfo& lhs, const DependencyInfo& rhs)
+    ->bool {
+  return lhs.version_rq == rhs.version_rq;
+}
+
+inline Fn hash_value(const DependencyInfo& d)->usize {
+  usize seed = 0;
+  boost::hash_combine(seed, d.version_rq);
+  return seed;
+}
+
+// NOLINTNEXTLINE(bugprone-exception-escape)
+struct Package {
+  /// Package name
+  String name;
+
+  DependencyInfo dep_info;
+};
+
 inline Fn operator==(const Package& lhs, const Package& rhs)->bool {
-  return lhs.name == rhs.name && lhs.version_rq == rhs.version_rq;
+  return lhs.name == rhs.name && lhs.dep_info == rhs.dep_info;
 }
 
 inline Fn hash_value(const Package& p)->usize {
   usize seed = 0;
   boost::hash_combine(seed, p.name);
-  boost::hash_combine(seed, p.version_rq);
+  boost::hash_combine(seed, p.dep_info);
   return seed;
 }
 
@@ -68,7 +83,7 @@ template <typename W>
 using UniqDeps = std::conditional_t<
     W::value, HashMap<Package, Deps>,
     // <name, ver_req>
-    HashMap<String, String>>;
+    HashMap<String, DependencyInfo>>;
 
 inline Fn get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept
     -> const Package& {

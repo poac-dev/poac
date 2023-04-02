@@ -122,13 +122,22 @@ namespace poac::util::net::api {
 }
 
 [[nodiscard]] Fn deps(StringRef name, StringRef version)
-    ->Result<HashMap<String, String>, String> {
+    ->Result<
+        HashMap<String, poac::core::resolver::resolve::DependencyInfo>,
+        String> {
   const String path = format("/packages/{}/{}/deps", name, version);
   const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
-  return Ok(util::meta::to_hash_map<String>(res, "data"));
+  HashMap<String, String> temp = util::meta::to_hash_map<String>(res, "data");
+  HashMap<String, poac::core::resolver::resolve::DependencyInfo> ret;
+  for (Let & [ name, data ] : temp)
+    ret.emplace(
+        std::move(name),
+        poac::core::resolver::resolve::DependencyInfo{std::move(data)}
+    );
+  return Ok(std::move(ret));
 }
 
 [[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String> {

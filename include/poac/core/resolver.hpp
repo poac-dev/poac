@@ -41,7 +41,7 @@ using Unknown = Error<"unknown error occurred: {}", String>;
 
 inline Fn get_install_name(const resolve::Package& package)->String {
   return boost::replace_first_copy(package.name, "/", "-") + "-"
-         + package.version_rq;
+         + package.dep_info.version_rq;
 }
 
 inline Fn get_extracted_path(const resolve::Package& package)->Path {
@@ -89,7 +89,7 @@ inline Fn convert_to_download_link(StringRef repository)->String {
 [[nodiscard]] inline Fn get_download_link(const resolve::Package& package)
     ->Result<std::pair<String, String>, String> {
   Let[repository, sha256sum] =
-      Try(util::net::api::repoinfo(package.name, package.version_rq));
+      Try(util::net::api::repoinfo(package.name, package.dep_info.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }
 

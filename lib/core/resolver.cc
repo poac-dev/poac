@@ -27,7 +27,7 @@ namespace poac::core::resolver {
   std::error_code ec{};
   fs::rename(temporarily_extracted_path, extracted_path, ec);
   if (ec) {
-    return Err<FailedToRename>(package.name, package.version_rq);
+    return Err<FailedToRename>(package.name, package.dep_info.version_rq);
   }
   return Ok();
 }
@@ -50,10 +50,11 @@ namespace poac::core::resolver {
   } catch (const std::exception& e) {
     return Result<std::pair<Path, String>>(Err<Unknown>(e.what()))
         .with_context([&package] {
-          return Err<FailedToFetch>(package.name, package.version_rq).get();
+          return Err<FailedToFetch>(package.name, package.dep_info.version_rq)
+              .get();
         });
   } catch (...) {
-    return Err<FailedToFetch>(package.name, package.version_rq);
+    return Err<FailedToFetch>(package.name, package.dep_info.version_rq);
   }
 }
 
@@ -61,7 +62,7 @@ using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
 [[nodiscard]] Fn fetch(const UniqDeps<WithoutDeps>& deps)->Result<void> {
-  for (Let & [ name, version_rq ] : deps) {
+  for (Let & [ name, dep_info ] : deps) {
     const resolve::Package package{name, version_rq};
 
     Let[installed_path, sha256sum] = Try(fetch_impl(package));
@@ -71,7 +72,7 @@ using resolve::WithoutDeps;
         sha256sum != actual_sha256sum) {
       fs::remove(installed_path);
       return Err<IncorrectSha256sum>(
-          sha256sum, actual_sha256sum, package.name, package.version_rq
+          sha256sum, actual_sha256sum, package.name, package.dep_info.version_rq
       );
     }
 
@@ -80,7 +81,9 @@ using resolve::WithoutDeps;
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
 
-    log::status("Downloaded", "{} v{}", package.name, package.version_rq);
+    log::status(
+        "Downloaded", "{} v{}", package.name, package.dep_info.version_rq
+    );
   }
   return Ok();
 }
@@ -94,7 +97,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
          | boost::adaptors::filtered(is_not_installed)
          // ref: https://stackoverflow.com/a/42251976
          | boost::adaptors::transformed([](const resolve::Package& package) {
-             return std::make_pair(package.name, package.version_rq);
+             return std::make_pair(package.name, package.dep_info);
            })
          | util::meta::CONTAINERIZED;
 }
@@ -141,13 +144,24 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   }
 }
 
-[[nodiscard]] Fn to_resolvable_deps(const HashMap<String, String>& dependencies
-) noexcept -> Result<UniqDeps<WithoutDeps>> {
+[[nodiscard]] Fn to_resolvable_deps(const toml::table& dependencies) noexcept
+    -> Result<UniqDeps<WithoutDeps>> {
   try {
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
-    for (Let & [ name, version ] : dependencies) {
-      resolvable_deps.emplace(name, version);
+    for (Let & [ name, table ] : dependencies) {
+      poac::core::resolver::resolve::DependencyInfo info = {};
+      if (table.is_table()) {
+        const toml::table& entries = table.as_table();
+        for (Let & [ n, v ] : entries)
+          if (n == "version"sv)
+            info.version_rq = v.as_string();
+          else
+            return Err<FailedToParseConfig>();
+      } else {
+        info.version_rq = table.as_string();
+      }
+      resolvable_deps.emplace(name, std::move(info));
     }
     return Ok(resolvable_deps);
   } catch (...) {
@@ -157,11 +171,9 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
 
 [[nodiscard]] Fn get_resolved_deps(const toml::value& manifest)
     ->Result<ResolvedDeps> {
-  auto deps = toml::find<HashMap<String, String>>(manifest, "dependencies");
+  auto deps = toml::find(manifest, "dependencies").as_table();
   if (manifest.contains("dev-dependencies")) {
-    append(
-        deps, toml::find<HashMap<String, String>>(manifest, "dev-dependencies")
-    );
+    append(deps, toml::find(manifest, "dev-dependencies").as_table());
   }
   const UniqDeps<WithoutDeps> resolvable_deps = Try(to_resolvable_deps(deps));
   const ResolvedDeps resolved_deps = Try(do_resolve(resolvable_deps));

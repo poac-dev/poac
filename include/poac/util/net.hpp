@@ -32,6 +32,7 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
+#include "poac/core/resolver/resolve.hpp"
 #include "poac/util/format.hpp"
 #include "poac/util/log.hpp"
 #include "poac/util/meta.hpp"
@@ -464,7 +465,8 @@ call(StringRef path, const Option<String>& body = None) noexcept
     ->Result<boost::property_tree::ptree, String>;
 
 [[nodiscard]] Fn deps(StringRef name, StringRef version)
-    ->Result<HashMap<String, String>, String>;
+    ->Result<
+        HashMap<String, poac::core::resolver::resolve::DependencyInfo>, String>;
 
 [[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String>;
 

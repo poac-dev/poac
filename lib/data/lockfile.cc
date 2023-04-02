@@ -14,7 +14,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   for (Let & [ pack, inner_deps ] : deps) {
     Package p{
         pack.name,
-        pack.version_rq,
+        pack.dep_info.version_rq,
         Vec<String>{},
     };
     if (inner_deps.has_value()) {
