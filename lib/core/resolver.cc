@@ -72,7 +72,7 @@ using resolve::WithoutDeps;
   for (Let & [ name, dep_info ] : deps) {
     const resolve::Package package{name, dep_info};
 
-    if (package.is_conan()) {
+    if (poac::util::registry::conan::resolver::is_conan(package)) {
       conan_packages.push_back(package);
       continue;
     }

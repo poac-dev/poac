@@ -179,4 +179,8 @@ fetch_conan_packages(const Vec<poac::core::resolver::resolve::Package>& packages
   }
 }
 
+bool is_conan(const poac::core::resolver::resolve::Package& package) noexcept {
+  return package.name.find("conan::") == 0;
+}
+
 } // namespace poac::util::registry::conan::resolver

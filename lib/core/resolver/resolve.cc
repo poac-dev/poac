@@ -245,7 +245,7 @@ void gather_deps(
     const Package package{name, dep_info};
 
     // We don't resolve deps of conan packages, this is defer to conan itself
-    if (package.is_conan()) {
+    if (poac::util::registry::conan::resolver::is_conan(package)) {
       duplicate_deps.emplace_back(package, None);
       continue;
     }

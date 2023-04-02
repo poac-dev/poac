@@ -54,8 +54,6 @@ struct Package {
   String name;
 
   DependencyInfo dep_info;
-
-  bool is_conan() const noexcept { return name.find("conan::") == 0; }
 };
 
 inline Fn operator==(const Package& lhs, const Package& rhs)->bool {
