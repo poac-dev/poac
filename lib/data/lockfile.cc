@@ -12,6 +12,8 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
     ->Result<toml::basic_value<toml::preserve_comments>> {
   Vec<Package> packages;
   for (Let & [ pack, inner_deps ] : deps) {
+    if (pack.dep_info.type != "poac")
+      continue;
     Package p{
         pack.name,
         pack.dep_info.version_rq,

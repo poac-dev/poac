@@ -96,11 +96,6 @@ Result<void> install_conan_generator() {
   return Ok();
 }
 
-inline StringRef get_conan_raw_name(StringRef name) noexcept {
-  name.remove_prefix("conan::"sv.size());
-  return name;
-}
-
 String format_conan_requires(
     const Vec<poac::core::resolver::resolve::Package>& packages
 ) {
@@ -109,9 +104,7 @@ String format_conan_requires(
 
   for (const auto& [name, dep_info] : packages) {
     log::status("Resolved", "{} v{}", name, dep_info.version_rq);
-    lines.push_back(
-        format("{}/{}", get_conan_raw_name(name), dep_info.version_rq)
-    );
+    lines.push_back(format("{}/{}", name, dep_info.version_rq));
   }
 
   return boost::algorithm::join(lines, "\n");
@@ -180,7 +173,7 @@ fetch_conan_packages(const Vec<poac::core::resolver::resolve::Package>& packages
 }
 
 bool is_conan(const poac::core::resolver::resolve::Package& package) noexcept {
-  return package.name.find("conan::") == 0;
+  return package.dep_info.type == "conan"sv;
 }
 
 } // namespace poac::util::registry::conan::resolver

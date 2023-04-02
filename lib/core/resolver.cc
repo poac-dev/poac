@@ -10,6 +10,7 @@
 
 // internal
 #include "poac/core/resolver.hpp"
+#include "poac/core/resolver/registry.hpp"
 #include "poac/data/lockfile.hpp"
 #include "poac/util/archive.hpp"
 #include "poac/util/file.hpp"
@@ -169,19 +170,25 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   }
 }
 
-[[nodiscard]] Fn to_resolvable_deps(const toml::table& dependencies) noexcept
-    -> Result<UniqDeps<WithoutDeps>> {
+[[nodiscard]] Fn to_resolvable_deps(
+    const toml::table& dependencies, const registry::Registries& registries
+) noexcept -> Result<UniqDeps<WithoutDeps>> {
   try {
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
     for (Let & [ name, table ] : dependencies) {
-      poac::core::resolver::resolve::DependencyInfo info = {};
+      poac::core::resolver::resolve::DependencyInfo info = {
+          .index = "poac", .type = "poac"};
       if (table.is_table()) {
         const toml::table& entries = table.as_table();
         for (Let & [ n, v ] : entries)
           if (n == "version"sv)
             info.version_rq = v.as_string();
-          else
+          else if (n == "registry"sv) {
+            const auto& entry = registries.at(v.as_string());
+            info.index = entry.index;
+            info.type = entry.type;
+          } else
             return Err<FailedToParseConfig>();
       } else {
         info.version_rq = table.as_string();
@@ -194,13 +201,43 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   }
 }
 
+[[nodiscard]] Fn get_registries(const toml::value& manifest)
+    ->Result<registry::Registries> {
+  registry::Registries regs = {
+      {"poac", {.index = "poac", .type = "poac"}},
+      {"conan", {.index = "conan", .type = "conan"}}};
+  if (!manifest.contains("registries"))
+    return Ok(regs);
+  const auto& regs_table = toml::find(manifest, "registries").as_table();
+  for (Let & [ name, table ] : regs_table) {
+    if (regs.contains(name)) {
+      if (name == "poac" || name == "conan")
+        return Err<RedefinePredefinedRegistryEntry>(name);
+      else
+        return Err<DuplicateRegistryEntry>(name);
+    }
+    String index = toml::find<String>(table, "index");
+    String type = toml::find<String>(table, "type");
+    if (type != "poac" && type != "conan")
+      return Err<UnknownRegistryType>(name, type);
+    regs.emplace(
+        name,
+        registry::Registry{.index = std::move(index), .type = std::move(type)}
+    );
+  }
+  return Ok(regs);
+}
+
 [[nodiscard]] Fn get_resolved_deps(const toml::value& manifest)
     ->Result<ResolvedDeps> {
+  const registry::Registries registries = Try(get_registries(manifest));
+
   auto deps = toml::find(manifest, "dependencies").as_table();
   if (manifest.contains("dev-dependencies")) {
     append(deps, toml::find(manifest, "dev-dependencies").as_table());
   }
-  const UniqDeps<WithoutDeps> resolvable_deps = Try(to_resolvable_deps(deps));
+  const UniqDeps<WithoutDeps> resolvable_deps =
+      Try(to_resolvable_deps(deps, registries));
   const ResolvedDeps resolved_deps = Try(do_resolve(resolvable_deps));
   return Ok(resolved_deps);
 }

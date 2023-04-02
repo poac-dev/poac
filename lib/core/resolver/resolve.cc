@@ -265,7 +265,10 @@ void gather_deps(
     interval_cache.emplace(Cache{package, versions});
     for (const String& version : versions) {
       gather_deps(
-          Package{package.name, version}, duplicate_deps, interval_cache
+          Package{
+              package.name,
+              {version, package.dep_info.index, package.dep_info.type}},
+          duplicate_deps, interval_cache
       );
     }
   }

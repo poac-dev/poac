@@ -35,16 +35,25 @@ struct DependencyInfo {
   ///
   /// Sometimes, this is like `1.66.0` or like `>=1.64.0 and <2.0.0`.
   String version_rq;
+
+  /// Registry Index
+  String index;
+
+  /// Package type
+  String type;
 };
 
 inline Fn operator==(const DependencyInfo& lhs, const DependencyInfo& rhs)
     ->bool {
-  return lhs.version_rq == rhs.version_rq;
+  return lhs.version_rq == rhs.version_rq && lhs.index == rhs.index
+         && lhs.type == rhs.type;
 }
 
 inline Fn hash_value(const DependencyInfo& d)->usize {
   usize seed = 0;
   boost::hash_combine(seed, d.version_rq);
+  boost::hash_combine(seed, d.index);
+  boost::hash_combine(seed, d.type);
   return seed;
 }
 
