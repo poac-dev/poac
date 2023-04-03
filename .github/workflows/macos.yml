@@ -69,9 +69,11 @@ jobs:
       - name: Install Conan
         id: conan
         uses: turtlebrowser/get-conan@main
+        with:
+          version: 1.59.0
 
       - name: Test conan dependency
         run: |
-          git clone https://github.com/qqiangwu/poac-demo.git
-          cd poac-demo
+          git clone https://github.com/wx257osn2/poac-conan-demo.git
+          cd poac-conan-demo
           ../build/poac build
