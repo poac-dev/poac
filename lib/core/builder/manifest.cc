@@ -13,7 +13,7 @@
 #include "poac/core/builder/syntax.hpp"
 #include "poac/core/resolver.hpp" // get_extracted_path
 #include "poac/util/cfg.hpp"
-#include "poac/util/registry/conan/manifest.hpp"
+#include "poac/util/registry/conan/v1/manifest.hpp"
 
 namespace poac::core::builder::manifest {
 
@@ -142,7 +142,7 @@ Fn gather_flags(
   Vec<String> libdirs;
 
   auto conan_manifest =
-      Try(poac::util::registry::conan::manifest::gather_conan_deps());
+      Try(poac::util::registry::conan::v1::manifest::gather_conan_deps());
   append(includes, conan_manifest.includes);
   append(defines, conan_manifest.defines);
   append(libraries, conan_manifest.libraries);

@@ -10,7 +10,7 @@
 #include "poac/util/result.hpp"
 #include "poac/util/rustify.hpp"
 
-namespace poac::util::registry::conan::manifest {
+namespace poac::util::registry::conan::v1::manifest {
 
 Vec<String> gather_conan_conf(
     const boost::property_tree::ptree& pt, const std::string& field,
@@ -26,4 +26,4 @@ struct ConanManifest {
 
 Result<ConanManifest> gather_conan_deps();
 
-} // namespace poac::util::registry::conan::manifest
+} // namespace poac::util::registry::conan::v1::manifest

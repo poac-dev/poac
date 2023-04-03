@@ -6,7 +6,7 @@
 #include "poac/core/resolver.hpp"
 #include "poac/data/lockfile.hpp"
 #include "poac/util/file.hpp"
-#include "poac/util/registry/conan/resolver.hpp"
+#include "poac/util/registry/conan/v1/resolver.hpp"
 #include "poac/util/shell.hpp"
 
 namespace {
@@ -56,12 +56,18 @@ poac_generator/0.1.0@poac/generator
 
 } // namespace
 
-namespace poac::util::registry::conan::resolver {
+namespace poac::util::registry::conan::v1::resolver {
 
 Result<void> check_conan_command() {
   if (!poac::util::shell::has_command("conan")) {
     return Err<ConanNotFound>();
   }
+  util::shell::Cmd cmd("conan --version");
+  const auto r = cmd.dump_stderr().exec();
+  if (r.is_err())
+    return Err<ConanNotFound>();
+  if (!r.output().starts_with("Conan version 1."))
+    return Err<ConanIsNotV1>();
 
   return Ok();
 }
@@ -173,7 +179,7 @@ fetch_conan_packages(const Vec<poac::core::resolver::resolve::Package>& packages
 }
 
 bool is_conan(const poac::core::resolver::resolve::Package& package) noexcept {
-  return package.dep_info.type == "conan"sv;
+  return package.dep_info.type == "conan-v1"sv;
 }
 
-} // namespace poac::util::registry::conan::resolver
+} // namespace poac::util::registry::conan::v1::resolver

@@ -10,7 +10,7 @@
 #include "poac/core/resolver/resolve.hpp"
 #include "poac/core/resolver/sat.hpp"
 #include "poac/util/net.hpp"
-#include "poac/util/registry/conan/resolver.hpp"
+#include "poac/util/registry/conan/v1/resolver.hpp"
 #include "poac/util/semver/semver.hpp"
 #include "poac/util/verbosity.hpp"
 
@@ -245,7 +245,7 @@ void gather_deps(
     const Package package{name, dep_info};
 
     // We don't resolve deps of conan packages, this is defer to conan itself
-    if (poac::util::registry::conan::resolver::is_conan(package)) {
+    if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
       duplicate_deps.emplace_back(package, None);
       continue;
     }

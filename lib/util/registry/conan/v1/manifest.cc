@@ -7,9 +7,9 @@
 // internal
 #include "poac/config.hpp"
 #include "poac/util/format.hpp"
-#include "poac/util/registry/conan/manifest.hpp"
+#include "poac/util/registry/conan/v1/manifest.hpp"
 
-namespace poac::util::registry::conan::manifest {
+namespace poac::util::registry::conan::v1::manifest {
 
 Vec<String> gather_conan_conf(
     const boost::property_tree::ptree& pt, const std::string& field,
@@ -58,4 +58,4 @@ Result<ConanManifest> gather_conan_deps() {
       .libraries = gather_conan_libraries(pt)});
 }
 
-} // namespace poac::util::registry::conan::manifest
+} // namespace poac::util::registry::conan::v1::manifest

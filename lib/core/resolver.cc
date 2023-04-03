@@ -15,7 +15,7 @@
 #include "poac/util/archive.hpp"
 #include "poac/util/file.hpp"
 #include "poac/util/meta.hpp"
-#include "poac/util/registry/conan/resolver.hpp"
+#include "poac/util/registry/conan/v1/resolver.hpp"
 #include "poac/util/sha256.hpp"
 #include "poac/util/shell.hpp"
 
@@ -73,7 +73,7 @@ using resolve::WithoutDeps;
   for (Let & [ name, dep_info ] : deps) {
     const resolve::Package package{name, dep_info};
 
-    if (poac::util::registry::conan::resolver::is_conan(package)) {
+    if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
       conan_packages.push_back(package);
       continue;
     }
@@ -105,7 +105,7 @@ using resolve::WithoutDeps;
     const auto conan_lockfile = config::conan_deps_dir / "conan.lock";
     if (!fs::exists(conan_lockfile)
         || fs::last_write_time(conan_lockfile) < toml_last_modified) {
-      Try(poac::util::registry::conan::resolver::fetch_conan_packages(
+      Try(poac::util::registry::conan::v1::resolver::fetch_conan_packages(
           conan_packages
       ));
     }
@@ -205,20 +205,20 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
     ->Result<registry::Registries> {
   registry::Registries regs = {
       {"poac", {.index = "poac", .type = "poac"}},
-      {"conan", {.index = "conan", .type = "conan"}}};
+      {"conan-v1", {.index = "conan", .type = "conan-v1"}}};
   if (!manifest.contains("registries"))
     return Ok(regs);
   const auto& regs_table = toml::find(manifest, "registries").as_table();
   for (Let & [ name, table ] : regs_table) {
     if (regs.contains(name)) {
-      if (name == "poac" || name == "conan")
+      if (name == "poac" || name == "conan-v1")
         return Err<RedefinePredefinedRegistryEntry>(name);
       else
         return Err<DuplicateRegistryEntry>(name);
     }
     String index = toml::find<String>(table, "index");
     String type = toml::find<String>(table, "type");
-    if (type != "poac" && type != "conan")
+    if (type != "poac" && type != "conan-v1")
       return Err<UnknownRegistryType>(name, type);
     regs.emplace(
         name,
