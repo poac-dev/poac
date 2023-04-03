@@ -65,3 +65,13 @@ jobs:
           cd hello_world
           ../poac run
         working-directory: build
+
+      - name: Install Conan
+        id: conan
+        uses: turtlebrowser/get-conan@main
+
+      - name: Test conan dependency
+        run: |
+          git clone https://github.com/qqiangwu/poac-demo.git
+          cd poac-demo
+          ../build/poac build

@@ -39,4 +39,7 @@ inline const Path main_cpp_file(src_dir / "main.cpp");
 inline constexpr StringRef POAC_OUT = "poac-out";
 inline const Path out_dir(cwd / POAC_OUT);
 
+inline const Path conan_deps_dir(out_dir / ".conan");
+inline const Path conan_deps_file(conan_deps_dir / "conan_poac.json");
+
 } // namespace poac::config
