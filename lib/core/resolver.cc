@@ -182,14 +182,15 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
       if (table.is_table()) {
         const toml::table& entries = table.as_table();
         for (Let & [ n, v ] : entries)
-          if (n == "version"sv)
+          if (n == "version"sv) {
             info.version_rq = v.as_string();
-          else if (n == "registry"sv) {
+          } else if (n == "registry"sv) {
             const auto& entry = registries.at(v.as_string());
             info.index = entry.index;
             info.type = entry.type;
-          } else
+          } else {
             return Err<FailedToParseConfig>();
+          }
       } else {
         info.version_rq = table.as_string();
       }
