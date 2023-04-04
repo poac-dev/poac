@@ -11,7 +11,7 @@
 
 namespace {
 
-constexpr poac::StringRef generator_content = R"(
+constexpr poac::StringRef GENERATOR_CONTENT = R"(
 from conans.model.conan_generator import Generator
 from conans import ConanFile
 
@@ -43,7 +43,7 @@ class poac(Generator):
         })
 )";
 
-constexpr poac::StringRef conanfile_template = R"(
+constexpr poac::StringRef CONANFILE_TEMPLATE = R"(
 [generators]
 poac
 
@@ -58,21 +58,23 @@ poac_generator/0.1.0@poac/generator
 
 namespace poac::util::registry::conan::v1::resolver {
 
-Result<void> check_conan_command() {
-  if (!poac::util::shell::has_command("conan")) {
+Fn check_conan_command()->Result<void> {
+  if (!util::shell::has_command("conan")) {
     return Err<ConanNotFound>();
   }
   util::shell::Cmd cmd("conan --version");
   const auto r = cmd.dump_stderr().exec();
-  if (r.is_err())
+  if (r.is_err()) {
     return Err<ConanNotFound>();
-  if (!r.output().starts_with("Conan version 1."))
+  }
+  if (!r.output().starts_with("Conan version 1.")) {
     return Err<ConanIsNotV1>();
+  }
 
   return Ok();
 }
 
-Result<void> install_conan_generator() {
+Fn install_conan_generator()->Result<void> {
   const Path generator_dir = config::data_dir / "conan" / "generator";
   const Path lockfile = generator_dir / "poac.lock";
 
@@ -87,24 +89,23 @@ Result<void> install_conan_generator() {
   const Path conanfile = generator_dir / "conanfile.py";
 
   log::status("Installing", "conan generator to {}", conanfile);
-  Try(poac::util::file::write_file(conanfile, generator_content));
+  Try(util::file::write_file(conanfile, GENERATOR_CONTENT));
 
   util::shell::Cmd cmd(format("conan export {} poac/generator", generator_dir));
   const auto r = cmd.dump_stdout().stderr_to_stdout().exec();
   if (r.is_err()) {
-    return Err<poac::core::resolver::FailedToResolveDepsWithCause>(
+    return Err<core::resolver::FailedToResolveDepsWithCause>(
         "export conan generator failed"
     );
   }
 
-  Try(poac::util::file::write_file(lockfile, data::lockfile::LOCKFILE_HEADER));
+  Try(util::file::write_file(lockfile, data::lockfile::LOCKFILE_HEADER));
 
   return Ok();
 }
 
-String format_conan_requires(
-    const Vec<poac::core::resolver::resolve::Package>& packages
-) {
+Fn format_conan_requires(const Vec<core::resolver::resolve::Package>& packages)
+    ->String {
   Vec<String> lines;
   lines.reserve(packages.size());
 
@@ -116,21 +117,20 @@ String format_conan_requires(
   return boost::algorithm::join(lines, "\n");
 }
 
-Result<void>
-generate_conanfile(const Vec<poac::core::resolver::resolve::Package>& packages
-) {
+Fn generate_conanfile(const Vec<core::resolver::resolve::Package>& packages)
+    ->Result<void> {
   if (!fs::exists(config::conan_deps_dir)) {
     fs::create_directories(config::conan_deps_dir);
   }
 
   const Path conanfile = config::conan_deps_dir / "conanfile.txt";
   const auto content =
-      format(conanfile_template, format_conan_requires(packages));
+      format(CONANFILE_TEMPLATE, format_conan_requires(packages));
 
-  return poac::util::file::write_file(conanfile, content);
+  return util::file::write_file(conanfile, content);
 }
 
-String get_conan_config() {
+Fn get_conan_config()->String {
   // TODO(qqiangwu): pass build config to conan
 
   // I know this is ugly, but let it be
@@ -142,7 +142,7 @@ String get_conan_config() {
 #endif
 }
 
-Result<void> install_conan_packages() {
+Fn install_conan_packages()->Result<void> {
   const Path cwd = fs::current_path();
   BOOST_SCOPE_EXIT_ALL(&cwd) { fs::current_path(cwd); };
 
@@ -152,15 +152,14 @@ Result<void> install_conan_packages() {
   );
   const auto r = cmd.dump_stdout().stderr_to_stdout().exec();
   if (r.is_err()) {
-    return Err<poac::core::resolver::FailedToResolveDepsWithCause>(r.output());
+    return Err<core::resolver::FailedToResolveDepsWithCause>(r.output());
   }
 
   return Ok();
 }
 
-Result<void>
-fetch_conan_packages(const Vec<poac::core::resolver::resolve::Package>& packages
-) noexcept {
+Fn fetch_conan_packages(const Vec<core::resolver::resolve::Package>& packages
+) noexcept -> Result<void> {
   try {
     // pass all conan packages to conan and conan can resolve conflict deps
     Try(check_conan_command());
@@ -170,16 +169,16 @@ fetch_conan_packages(const Vec<poac::core::resolver::resolve::Package>& packages
 
     return Ok();
   } catch (const std::exception& e) {
-    return Err<poac::core::resolver::FailedToResolveDepsWithCause>(e.what());
+    return Err<core::resolver::FailedToResolveDepsWithCause>(e.what());
   } catch (...) {
-    return Err<poac::core::resolver::FailedToResolveDepsWithCause>(
+    return Err<core::resolver::FailedToResolveDepsWithCause>(
         "fetching conan packages failed"
     );
   }
 }
 
-bool is_conan(const poac::core::resolver::resolve::Package& package) noexcept {
-  return package.dep_info.type == "conan-v1"sv;
+Fn is_conan(const core::resolver::resolve::Package& package) noexcept -> bool {
+  return package.dep_info.type == "conan-v1";
 }
 
 } // namespace poac::util::registry::conan::v1::resolver

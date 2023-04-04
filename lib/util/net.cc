@@ -36,7 +36,7 @@ Fn to_byte_progress(const i32& max_count, i32 now_count)->String {
 
 Fn MultiPartForm::get_files() const->Vec<MultiPartForm::FileInfo> {
   Vec<FileInfo> file_info;
-  for (Let& f : m_file_param) {
+  for (Let& f : _file_param) {
     const Path file_path = std::get<1>(f);
     file_info.push_back({file_path.string(), fs::file_size(file_path)});
   }
@@ -44,19 +44,19 @@ Fn MultiPartForm::get_files() const->Vec<MultiPartForm::FileInfo> {
 }
 
 void MultiPartForm::generate_header() {
-  m_header = format("{}{}", m_crlf, fmt::join(m_form_param, ""));
-  for (Let & [ name, filename, header ] : m_file_param) {
+  _header = format("{}{}", _crlf, fmt::join(_form_param, ""));
+  for (Let & [ name, filename, header ] : _file_param) {
     String h = format(
-        R"(--{}{}{}name="{}"; filename="{}")", m_boundary, m_crlf,
-        m_content_disposition, name, filename.filename().string()
+        R"(--{}{}{}name="{}"; filename="{}")", _boundary, _crlf,
+        _content_disposition, name, filename.filename().string()
     );
     for (Let & [ field, content ] : header) {
       // NOLINTNEXTLINE(google-readability-casting)
-      h += format("{}{}: {}", m_crlf, String(to_string(field)), content);
+      h += format("{}{}: {}", _crlf, String(to_string(field)), content);
     }
-    m_header += m_crlf + h;
+    _header += _crlf + h;
   }
-  m_header += m_crlf + m_crlf;
+  _header += _crlf + _crlf;
 }
 
 // TODO(ken-matsui): ioc, ctx,
@@ -130,13 +130,12 @@ namespace poac::util::net::api {
   if (verbosity::is_verbose()) {
     boost::property_tree::json_parser::write_json(std::cout, res);
   }
-  HashMap<String, String> temp = util::meta::to_hash_map<String>(res, "data");
+  const HashMap<String, String> temp =
+      util::meta::to_hash_map<String>(res, "data");
   HashMap<String, poac::core::resolver::resolve::DependencyInfo> ret;
-  for (Let & [ name, data ] : temp)
-    ret.emplace(
-        std::move(name),
-        poac::core::resolver::resolve::DependencyInfo{std::move(data)}
-    );
+  for (Let & [ name, data ] : temp) {
+    ret.emplace(name, poac::core::resolver::resolve::DependencyInfo{data});
+  }
   return Ok(std::move(ret));
 }
 

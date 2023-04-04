@@ -9,6 +9,7 @@
 
 namespace poac::core::resolver::registry {
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Registry {
   String index;
   String type;

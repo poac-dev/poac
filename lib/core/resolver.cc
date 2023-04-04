@@ -181,7 +181,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
           .index = "poac", .type = "poac"};
       if (table.is_table()) {
         const toml::table& entries = table.as_table();
-        for (Let & [ n, v ] : entries)
+        for (Let & [ n, v ] : entries) {
           if (n == "version"sv) {
             info.version_rq = v.as_string();
           } else if (n == "registry"sv) {
@@ -191,6 +191,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
           } else {
             return Err<FailedToParseConfig>();
           }
+        }
       } else {
         info.version_rq = table.as_string();
       }
@@ -207,20 +208,23 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   registry::Registries regs = {
       {"poac", {.index = "poac", .type = "poac"}},
       {"conan-v1", {.index = "conan", .type = "conan-v1"}}};
-  if (!manifest.contains("registries"))
+  if (!manifest.contains("registries")) {
     return Ok(regs);
+  }
   const auto& regs_table = toml::find(manifest, "registries").as_table();
   for (Let & [ name, table ] : regs_table) {
     if (regs.contains(name)) {
-      if (name == "poac" || name == "conan-v1")
+      if (name == "poac" || name == "conan-v1") {
         return Err<RedefinePredefinedRegistryEntry>(name);
-      else
+      } else {
         return Err<DuplicateRegistryEntry>(name);
+      }
     }
     String index = toml::find<String>(table, "index");
     String type = toml::find<String>(table, "type");
-    if (type != "poac" && type != "conan-v1")
+    if (type != "poac" && type != "conan-v1") {
       return Err<UnknownRegistryType>(name, type);
+    }
     regs.emplace(
         name,
         registry::Registry{.index = std::move(index), .type = std::move(type)}

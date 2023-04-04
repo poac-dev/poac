@@ -12,10 +12,11 @@
 
 namespace poac::util::registry::conan::v1::manifest {
 
-Vec<String> gather_conan_conf(
+Fn gather_conan_conf(
     const boost::property_tree::ptree& pt, const std::string& field,
     const std::string& prefix
-);
+)
+    ->Vec<String>;
 
 struct ConanManifest {
   Vec<String> defines;
@@ -24,6 +25,6 @@ struct ConanManifest {
   Vec<String> libraries;
 };
 
-Result<ConanManifest> gather_conan_deps();
+Fn gather_conan_deps()->Result<ConanManifest>;
 
 } // namespace poac::util::registry::conan::v1::manifest

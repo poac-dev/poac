@@ -30,6 +30,7 @@ struct DuplicateDeps {};
 template <typename W>
 using DupDeps = typename DuplicateDeps<W>::Type;
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct DependencyInfo {
   /// Version Requirement
   ///

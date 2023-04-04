@@ -6,7 +6,7 @@
 
 namespace poac::util::file {
 
-Result<void> write_file(const Path& p, StringRef content) noexcept {
+Fn write_file(const Path& p, StringRef content)->Result<void> {
   std::ofstream ofs(p);
   ofs << content;
   ofs.close();

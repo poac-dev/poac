@@ -10,22 +10,20 @@ using ConanNotFound = Error<"conan is not found">;
 using ConanIsNotV1 =
     Error<"your conan is not v1. conan-v1 registry needs conan v1.">;
 
-Result<void> check_conan_command();
+Fn check_conan_command()->Result<void>;
 
-Result<void> install_conan_generator();
+Fn install_conan_generator()->Result<void>;
 
-String format_conan_requires(
-    const Vec<poac::core::resolver::resolve::Package>& packages
-);
+Fn format_conan_requires(const Vec<core::resolver::resolve::Package>& packages)
+    ->String;
 
-String get_conan_config();
+Fn get_conan_config()->String;
 
-Result<void> install_conan_packages();
+Fn install_conan_packages()->Result<void>;
 
-Result<void>
-fetch_conan_packages(const Vec<poac::core::resolver::resolve::Package>& packages
-) noexcept;
+Fn fetch_conan_packages(const Vec<core::resolver::resolve::Package>& packages
+) noexcept -> Result<void>;
 
-bool is_conan(const poac::core::resolver::resolve::Package& package) noexcept;
+Fn is_conan(const core::resolver::resolve::Package& package) noexcept -> bool;
 
 } // namespace poac::util::registry::conan::v1::resolver

@@ -8,6 +8,7 @@ add_poac_target(poac_util_registry_conan_v1_resolver
         poac_util_result
         poac_util_rustify
         poac_util_shell
+        poac_util_net # via poac/core/resolver.hpp
 )
 
 add_poac_target(poac_util_registry_conan_v1_manifest
@@ -19,5 +20,4 @@ add_poac_target(poac_util_registry_conan_v1_manifest
         poac_util_format
         poac_util_result
         poac_util_rustify
-        poac_util_net # via poac/core/resolver.hpp
 )

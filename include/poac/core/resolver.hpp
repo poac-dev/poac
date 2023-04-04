@@ -87,7 +87,7 @@ inline Fn convert_to_download_link(StringRef repository)->String {
   // So, find the end of `tree/`.
   const usize end = repository.find('/', start);
   // Retrieve both sides: `https://github.com/tree/tree/`
-  StringRef left = repository.substr(0, start);
+  const StringRef left = repository.substr(0, start);
   // `/tree/v0.1.0`: this side is just a tag.
   // Mostly, we do not include `tree`, but we can.
   StringRef right = repository.substr(end);

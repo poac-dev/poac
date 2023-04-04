@@ -1,5 +1,4 @@
-#ifndef POAC_UTIL_FILE_HPP_
-#define POAC_UTIL_FILE_HPP_
+#pragma once
 
 // internal
 #include "poac/util/result.hpp"
@@ -7,10 +6,8 @@
 
 namespace poac::util::file {
 
-Result<void> write_file(const Path& p, StringRef content) noexcept;
+Fn write_file(const Path& p, StringRef content)->Result<void>;
 
 using WriteFileFailed = Error<"writing `{}` failed", String>;
 
 } // namespace poac::util::file
-
-#endif // POAC_UTIL_FILE_HPP_

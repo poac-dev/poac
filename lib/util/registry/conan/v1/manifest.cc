@@ -11,10 +11,11 @@
 
 namespace poac::util::registry::conan::v1::manifest {
 
-Vec<String> gather_conan_conf(
+Fn gather_conan_conf(
     const boost::property_tree::ptree& pt, const std::string& field,
     const std::string& prefix
-) {
+)
+    ->Vec<String> {
   Vec<String> lines;
 
   for (const auto& s : pt.get_child(field)) {
@@ -24,25 +25,27 @@ Vec<String> gather_conan_conf(
   return lines;
 }
 
-inline Vec<String> gather_conan_defines(const boost::property_tree::ptree& pt) {
+inline Fn gather_conan_defines(const boost::property_tree::ptree& pt)
+    ->Vec<String> {
   return gather_conan_conf(pt, "defines", "-D");
 }
 
-inline Vec<String> gather_conan_includes(const boost::property_tree::ptree& pt
-) {
+inline Fn gather_conan_includes(const boost::property_tree::ptree& pt)
+    ->Vec<String> {
   return gather_conan_conf(pt, "include_paths", "-I");
 }
 
-inline Vec<String> gather_conan_libdirs(const boost::property_tree::ptree& pt) {
+inline Fn gather_conan_libdirs(const boost::property_tree::ptree& pt)
+    ->Vec<String> {
   return gather_conan_conf(pt, "lib_paths", "-L");
 }
 
-inline Vec<String> gather_conan_libraries(const boost::property_tree::ptree& pt
-) {
+inline Fn gather_conan_libraries(const boost::property_tree::ptree& pt)
+    ->Vec<String> {
   return gather_conan_conf(pt, "libs", "-l");
 }
 
-Result<ConanManifest> gather_conan_deps() {
+Fn gather_conan_deps()->Result<ConanManifest> {
   if (!fs::exists(config::conan_deps_file)) {
     return Ok(ConanManifest{});
   }
