@@ -94,6 +94,13 @@ add_poac_target(poac_util_shell
         poac_util_rustify
 )
 
+add_poac_target(poac_util_file
+    SOURCES file.cc
+    LIBRARIES
+      poac_util_result
+      poac_util_rustify
+)
+
 add_poac_target(poac_util_validator
     SOURCES validator.cc
     LIBRARIES
@@ -114,4 +121,5 @@ add_poac_target(poac_util_verbosity
         poac_util_rustify
 )
 
+add_subdirectory(registry)
 add_subdirectory(semver)

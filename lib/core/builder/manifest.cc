@@ -13,6 +13,7 @@
 #include "poac/core/builder/syntax.hpp"
 #include "poac/core/resolver.hpp" // get_extracted_path
 #include "poac/util/cfg.hpp"
+#include "poac/util/registry/conan/v1/manifest.hpp"
 
 namespace poac::core::builder::manifest {
 
@@ -113,7 +114,10 @@ Fn gather_flags(
 
   writer.rule(
       "compile",
-      format("{} $OPTIONS $DEFINES $INCLUDES $LIBRARIES $in -o $out", command),
+      format(
+          "{} $in -o $out $OPTIONS $DEFINES $INCLUDES $LIBDIRS $LIBRARIES",
+          command
+      ),
       syntax::RuleSet{
           .description = "$PACKAGE_NAME v$PACKAGE_VERSION $PACKAGE_PATH",
       }
@@ -130,11 +134,19 @@ Fn gather_flags(
     output_file = (build_dir / source_file).string() + ".o";
     fs::create_directories(output_file.parent_path());
   }
-  const Vec<String> includes = gather_includes(resolved_deps);
 
-  const Vec<String> defines = gather_flags(poac_manifest, "definitions", "-D");
   const Vec<String> options = gather_flags(poac_manifest, "options");
-  const Vec<String> libraries = gather_flags(poac_manifest, "libraries", "-l");
+  Vec<String> includes = gather_includes(resolved_deps);
+  Vec<String> defines = gather_flags(poac_manifest, "definitions", "-D");
+  Vec<String> libraries = gather_flags(poac_manifest, "libraries", "-l");
+  Vec<String> libdirs;
+
+  auto conan_manifest =
+      Try(poac::util::registry::conan::v1::manifest::gather_conan_deps());
+  append(includes, conan_manifest.includes);
+  append(defines, conan_manifest.defines);
+  append(libraries, conan_manifest.libraries);
+  append(libdirs, conan_manifest.libdirs);
 
   writer.build(
       {output_file.string()}, "compile",
@@ -148,6 +160,7 @@ Fn gather_flags(
                   {"OPTIONS", boost::algorithm::join(options, " ")},
                   {"DEFINES", boost::algorithm::join(defines, " ")},
                   {"INCLUDES", boost::algorithm::join(includes, " ")},
+                  {"LIBDIRS", boost::algorithm::join(libdirs, " ")},
                   {"LIBRARIES", boost::algorithm::join(libraries, " ")},
               },
       }

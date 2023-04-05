@@ -12,4 +12,5 @@ add_poac_target(poac_core_resolver
         poac_util_log
         poac_util_result
         poac_util_rustify
+        poac_util_registry_conan_v1_resolver
 )

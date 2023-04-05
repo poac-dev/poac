@@ -37,11 +37,19 @@ using IncorrectSha256sum = Error<
     "issue on GitHub of the package and stopping using this package:\n"
     "  {}: {}",
     String, String, String, String>;
+using RedefinePredefinedRegistryEntry = Error<
+    "Registry entry named `{}` is predefined and can't be overwritten.\n",
+    String>;
+using DuplicateRegistryEntry =
+    Error<"Registry entry named `{}` is duplicated.\n", String>;
+using UnknownRegistryType = Error<
+    "Registry entry named `{}` has unknown registry type `{}`.\n", String,
+    String>;
 using Unknown = Error<"unknown error occurred: {}", String>;
 
 inline Fn get_install_name(const resolve::Package& package)->String {
   return boost::replace_first_copy(package.name, "/", "-") + "-"
-         + package.version_rq;
+         + package.dep_info.version_rq;
 }
 
 inline Fn get_extracted_path(const resolve::Package& package)->Path {
@@ -79,7 +87,7 @@ inline Fn convert_to_download_link(StringRef repository)->String {
   // So, find the end of `tree/`.
   const usize end = repository.find('/', start);
   // Retrieve both sides: `https://github.com/tree/tree/`
-  StringRef left = repository.substr(0, start);
+  const StringRef left = repository.substr(0, start);
   // `/tree/v0.1.0`: this side is just a tag.
   // Mostly, we do not include `tree`, but we can.
   StringRef right = repository.substr(end);
@@ -89,7 +97,7 @@ inline Fn convert_to_download_link(StringRef repository)->String {
 [[nodiscard]] inline Fn get_download_link(const resolve::Package& package)
     ->Result<std::pair<String, String>, String> {
   Let[repository, sha256sum] =
-      Try(util::net::api::repoinfo(package.name, package.version_rq));
+      Try(util::net::api::repoinfo(package.name, package.dep_info.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }
 

@@ -32,6 +32,7 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
+#include "poac/core/resolver/resolve.hpp"
 #include "poac/util/format.hpp"
 #include "poac/util/log.hpp"
 #include "poac/util/meta.hpp"
@@ -95,51 +96,54 @@ public:
   using ConstSelfReference = const MultiPartForm&;
 
 private:
-  String m_crlf = "\r\n";
-  String m_header;
-  String m_boundary;
-  String m_footer;
-  String m_content_disposition = "Content-Disposition: form-data; ";
-  Vec<String> m_form_param;
-  Vec<std::tuple<FileNameType, FilePathType, HeaderType>> m_file_param;
+  // Note: false positive
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+  String _crlf = "\r\n";
+  String _header;
+  String _boundary;
+  String _footer;
+  // Note: false positive
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+  String _content_disposition = "Content-Disposition: form-data; ";
+  Vec<String> _form_param;
+  Vec<std::tuple<FileNameType, FilePathType, HeaderType>> _file_param;
 
 public:
   MultiPartForm()
-      : m_boundary(boost::uuids::to_string(boost::uuids::random_generator{}())),
-        m_footer(format("{}--{}--{}", m_crlf, m_boundary, m_crlf)) {}
+      : _boundary(boost::uuids::to_string(boost::uuids::random_generator{}())),
+        _footer(format("{}--{}--{}", _crlf, _boundary, _crlf)) {}
 
-  [[nodiscard]] inline Fn get_header() const->String { return m_header; }
-  [[nodiscard]] inline Fn get_footer() const->String { return m_footer; }
+  [[nodiscard]] inline Fn get_header() const->String { return _header; }
+  [[nodiscard]] inline Fn get_footer() const->String { return _footer; }
 
   inline void set(const FileNameType& name, const String& value) {
-    m_form_param.emplace_back(format(
+    _form_param.emplace_back(format(
         "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
-        "boundary"_a = m_boundary, "crlf"_a = m_crlf,
-        "cd"_a = m_content_disposition, "name"_a = name, "value"_a = value
+        "boundary"_a = _boundary, "crlf"_a = _crlf,
+        "cd"_a = _content_disposition, "name"_a = name, "value"_a = value
     ));
     generate_header(); // re-generate
   }
   inline void
   set(const FileNameType& name, const FilePathType& value,
       const HeaderType& h) {
-    m_file_param.emplace_back(name, value, h);
+    _file_param.emplace_back(name, value, h);
     generate_header(); // re-generate
   }
   template <typename Request>
   inline void set_req(const Request& req) {
     const std::ostringstream ss;
     ss << req;
-    m_form_param.insert(m_form_param.begin(), ss.str());
+    _form_param.insert(_form_param.begin(), ss.str());
     generate_header(); // re-generate
   }
 
   [[nodiscard]] inline Fn content_type() const->String {
-    return format("multipart/form-data; boundary={}", m_boundary);
+    return format("multipart/form-data; boundary={}", _boundary);
   }
   [[nodiscard]] inline Fn content_length() const->std::uintmax_t {
     return std::accumulate(
-        m_file_param.begin(), m_file_param.end(),
-        m_header.size() + m_footer.size(),
+        _file_param.begin(), _file_param.end(), _header.size() + _footer.size(),
         [](std::uintmax_t acc, Let& f) {
           return acc + fs::file_size(std::get<1>(f));
         }
@@ -439,6 +443,8 @@ private:
 
   void ssl_set_tlsext() const;
 
+  // Note: false positive
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   inline void lookup() const {
     // Look up the domain name
     Let results = resolver->resolve(host, port);
@@ -464,7 +470,8 @@ call(StringRef path, const Option<String>& body = None) noexcept
     ->Result<boost::property_tree::ptree, String>;
 
 [[nodiscard]] Fn deps(StringRef name, StringRef version)
-    ->Result<HashMap<String, String>, String>;
+    ->Result<
+        HashMap<String, poac::core::resolver::resolve::DependencyInfo>, String>;
 
 [[nodiscard]] Fn versions(StringRef name)->Result<Vec<String>, String>;
 

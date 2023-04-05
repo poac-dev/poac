@@ -3,15 +3,21 @@
 #include <stdexcept>
 
 // external
+#include <boost/algorithm/string.hpp>
+#include <boost/predef.h> // NOLINT(build/include_order)
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/map.hpp>
 
 // internal
 #include "poac/core/resolver.hpp"
+#include "poac/core/resolver/registry.hpp"
 #include "poac/data/lockfile.hpp"
 #include "poac/util/archive.hpp"
+#include "poac/util/file.hpp"
 #include "poac/util/meta.hpp"
+#include "poac/util/registry/conan/v1/resolver.hpp"
 #include "poac/util/sha256.hpp"
+#include "poac/util/shell.hpp"
 
 namespace poac::core::resolver {
 
@@ -27,7 +33,7 @@ namespace poac::core::resolver {
   std::error_code ec{};
   fs::rename(temporarily_extracted_path, extracted_path, ec);
   if (ec) {
-    return Err<FailedToRename>(package.name, package.version_rq);
+    return Err<FailedToRename>(package.name, package.dep_info.version_rq);
   }
   return Ok();
 }
@@ -50,10 +56,11 @@ namespace poac::core::resolver {
   } catch (const std::exception& e) {
     return Result<std::pair<Path, String>>(Err<Unknown>(e.what()))
         .with_context([&package] {
-          return Err<FailedToFetch>(package.name, package.version_rq).get();
+          return Err<FailedToFetch>(package.name, package.dep_info.version_rq)
+              .get();
         });
   } catch (...) {
-    return Err<FailedToFetch>(package.name, package.version_rq);
+    return Err<FailedToFetch>(package.name, package.dep_info.version_rq);
   }
 }
 
@@ -61,8 +68,15 @@ using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
 [[nodiscard]] Fn fetch(const UniqDeps<WithoutDeps>& deps)->Result<void> {
-  for (Let & [ name, version_rq ] : deps) {
-    const resolve::Package package{name, version_rq};
+  Vec<resolve::Package> conan_packages;
+
+  for (Let & [ name, dep_info ] : deps) {
+    const resolve::Package package{name, dep_info};
+
+    if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
+      conan_packages.push_back(package);
+      continue;
+    }
 
     Let[installed_path, sha256sum] = Try(fetch_impl(package));
     // Check if sha256sum of the downloaded package is the same with one
@@ -71,7 +85,7 @@ using resolve::WithoutDeps;
         sha256sum != actual_sha256sum) {
       fs::remove(installed_path);
       return Err<IncorrectSha256sum>(
-          sha256sum, actual_sha256sum, package.name, package.version_rq
+          sha256sum, actual_sha256sum, package.name, package.dep_info.version_rq
       );
     }
 
@@ -80,8 +94,23 @@ using resolve::WithoutDeps;
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
 
-    log::status("Downloaded", "{} v{}", package.name, package.version_rq);
+    log::status(
+        "Downloaded", "{} v{}", package.name, package.dep_info.version_rq
+    );
   }
+
+  if (!conan_packages.empty()) {
+    const auto toml_last_modified =
+        data::manifest::poac_toml_last_modified(config::cwd);
+    const auto conan_lockfile = config::conan_deps_dir / "conan.lock";
+    if (!fs::exists(conan_lockfile)
+        || fs::last_write_time(conan_lockfile) < toml_last_modified) {
+      Try(poac::util::registry::conan::v1::resolver::fetch_conan_packages(
+          conan_packages
+      ));
+    }
+  }
+
   return Ok();
 }
 
@@ -94,7 +123,7 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
          | boost::adaptors::filtered(is_not_installed)
          // ref: https://stackoverflow.com/a/42251976
          | boost::adaptors::transformed([](const resolve::Package& package) {
-             return std::make_pair(package.name, package.version_rq);
+             return std::make_pair(package.name, package.dep_info);
            })
          | util::meta::CONTAINERIZED;
 }
@@ -141,13 +170,32 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   }
 }
 
-[[nodiscard]] Fn to_resolvable_deps(const HashMap<String, String>& dependencies
+[[nodiscard]] Fn to_resolvable_deps(
+    const toml::table& dependencies, const registry::Registries& registries
 ) noexcept -> Result<UniqDeps<WithoutDeps>> {
   try {
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
-    for (Let & [ name, version ] : dependencies) {
-      resolvable_deps.emplace(name, version);
+    for (Let & [ name, table ] : dependencies) {
+      poac::core::resolver::resolve::DependencyInfo info = {
+          .index = "poac", .type = "poac"};
+      if (table.is_table()) {
+        const toml::table& entries = table.as_table();
+        for (Let & [ n, v ] : entries) {
+          if (n == "version"sv) {
+            info.version_rq = v.as_string();
+          } else if (n == "registry"sv) {
+            const auto& entry = registries.at(v.as_string());
+            info.index = entry.index;
+            info.type = entry.type;
+          } else {
+            return Err<FailedToParseConfig>();
+          }
+        }
+      } else {
+        info.version_rq = table.as_string();
+      }
+      resolvable_deps.emplace(name, std::move(info));
     }
     return Ok(resolvable_deps);
   } catch (...) {
@@ -155,15 +203,46 @@ Fn get_not_installed_deps(const ResolvedDeps& deps)->UniqDeps<WithoutDeps> {
   }
 }
 
-[[nodiscard]] Fn get_resolved_deps(const toml::value& manifest)
-    ->Result<ResolvedDeps> {
-  auto deps = toml::find<HashMap<String, String>>(manifest, "dependencies");
-  if (manifest.contains("dev-dependencies")) {
-    append(
-        deps, toml::find<HashMap<String, String>>(manifest, "dev-dependencies")
+[[nodiscard]] Fn get_registries(const toml::value& manifest)
+    ->Result<registry::Registries> {
+  registry::Registries regs = {
+      {"poac", {.index = "poac", .type = "poac"}},
+      {"conan-v1", {.index = "conan", .type = "conan-v1"}}};
+  if (!manifest.contains("registries")) {
+    return Ok(regs);
+  }
+  const auto& regs_table = toml::find(manifest, "registries").as_table();
+  for (Let & [ name, table ] : regs_table) {
+    if (regs.contains(name)) {
+      if (name == "poac" || name == "conan-v1") {
+        return Err<RedefinePredefinedRegistryEntry>(name);
+      } else {
+        return Err<DuplicateRegistryEntry>(name);
+      }
+    }
+    String index = toml::find<String>(table, "index");
+    String type = toml::find<String>(table, "type");
+    if (type != "poac" && type != "conan-v1") {
+      return Err<UnknownRegistryType>(name, type);
+    }
+    regs.emplace(
+        name,
+        registry::Registry{.index = std::move(index), .type = std::move(type)}
     );
   }
-  const UniqDeps<WithoutDeps> resolvable_deps = Try(to_resolvable_deps(deps));
+  return Ok(regs);
+}
+
+[[nodiscard]] Fn get_resolved_deps(const toml::value& manifest)
+    ->Result<ResolvedDeps> {
+  const registry::Registries registries = Try(get_registries(manifest));
+
+  auto deps = toml::find(manifest, "dependencies").as_table();
+  if (manifest.contains("dev-dependencies")) {
+    append(deps, toml::find(manifest, "dev-dependencies").as_table());
+  }
+  const UniqDeps<WithoutDeps> resolvable_deps =
+      Try(to_resolvable_deps(deps, registries));
   const ResolvedDeps resolved_deps = Try(do_resolve(resolvable_deps));
   return Ok(resolved_deps);
 }

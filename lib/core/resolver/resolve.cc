@@ -10,6 +10,7 @@
 #include "poac/core/resolver/resolve.hpp"
 #include "poac/core/resolver/sat.hpp"
 #include "poac/util/net.hpp"
+#include "poac/util/registry/conan/v1/resolver.hpp"
 #include "poac/util/semver/semver.hpp"
 #include "poac/util/verbosity.hpp"
 
@@ -69,14 +70,14 @@ create_cnf(const DupDeps<WithDeps>& activated)
       // index ⇒ deps
       if (!activated[i].second.has_value()) {
         clause[0] *= -1;
-        for (Let & [ name, version ] : activated[i].second.value()) {
+        for (Let & [ name, dep_info ] : activated[i].second.value()) {
           // It is guaranteed to exist
           clause.emplace_back(
               util::meta::index_of_if(
                   first, last,
-                  [&n = name, &v = version](Let& d) {
+                  [&n = name, &di = dep_info](Let& d) {
                     return get_package(d).name == n
-                           && get_package(d).version_rq == v;
+                           && get_package(d).dep_info == di;
                   }
               )
               + 1
@@ -104,7 +105,7 @@ create_cnf(const DupDeps<WithDeps>& activated)
                     first, last,
                     [&package](Let& p) {
                       return get_package(p).name == package.name
-                             && get_package(p).version_rq == package.version_rq;
+                             && get_package(p).dep_info == package.dep_info;
                     }
                 )
                 + 1
@@ -146,7 +147,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
       for (i32 l : c) {
         Let& deps = activated[std::abs(l) - 1];
         const Package package = get_package(deps);
-        log::debug("{}-{}: {}, ", package.name, package.version_rq, l);
+        log::debug("{}-{}: {}, ", package.name, package.dep_info.version_rq, l);
       }
       log::debug("");
     }
@@ -161,7 +162,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
     ->Result<Vec<String>, String> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
-  const semver::Interval i(package.version_rq);
+  const semver::Interval i(package.dep_info.version_rq);
   const Vec<String> satisfied_versions =
       Try(util::net::api::versions(package.name))
       | boost::adaptors::filtered([&i](StringRef s) { return i.satisfies(s); })
@@ -170,7 +171,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
   if (satisfied_versions.empty()) {
     return Err(format(
         "`{}: {}` not found; seem dependencies are broken", package.name,
-        package.version_rq
+        package.dep_info.version_rq
     ));
   }
   return Ok(satisfied_versions);
@@ -181,8 +182,8 @@ Fn gather_deps_of_deps(
 )
     ->DupDeps<WithoutDeps> {
   DupDeps<WithoutDeps> cur_deps_deps;
-  for (Let & [ name, version_rq ] : deps_api_res) {
-    const Package package{name, version_rq};
+  for (Let & [ name, dep_info ] : deps_api_res) {
+    const Package package{name, dep_info};
 
     // Check if node package is resolved dependency (by interval)
     Let found_cache =
@@ -217,7 +218,7 @@ void gather_deps(
 
   // Get dependencies of dependencies
   const UniqDeps<WithoutDeps> deps_api_res =
-      util::net::api::deps(package.name, package.version_rq).unwrap();
+      util::net::api::deps(package.name, package.dep_info.version_rq).unwrap();
   if (deps_api_res.empty()) {
     new_deps.emplace_back(package, None);
   } else {
@@ -240,8 +241,14 @@ void gather_deps(
   IntervalCache interval_cache;
 
   // Activate the root of dependencies
-  for (Let & [ name, version_rq ] : deps) {
-    const Package package{name, version_rq};
+  for (Let & [ name, dep_info ] : deps) {
+    const Package package{name, dep_info};
+
+    // We don't resolve deps of conan packages, this is defer to conan itself
+    if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
+      duplicate_deps.emplace_back(package, None);
+      continue;
+    }
 
     // Check whether the packages specified in poac.toml
     //   are already resolved which includes
@@ -258,7 +265,10 @@ void gather_deps(
     interval_cache.emplace(Cache{package, versions});
     for (const String& version : versions) {
       gather_deps(
-          Package{package.name, version}, duplicate_deps, interval_cache
+          Package{
+              package.name,
+              {version, package.dep_info.index, package.dep_info.type}},
+          duplicate_deps, interval_cache
       );
     }
   }

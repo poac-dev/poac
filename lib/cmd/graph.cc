@@ -52,7 +52,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
     const core::resolver::resolve::Package package = dep.value().first;
 
     g[index].name = package.name;
-    g[index].version = package.version_rq;
+    g[index].version = package.dep_info.version_rq;
   }
 
   // Add edge
@@ -79,7 +79,7 @@ Fn create_graph()->Result<std::pair<Graph, Vec<String>>> {
   Vec<String> names;
   for (Let & [ package, deps ] : resolved_deps) {
     static_cast<void>(deps);
-    names.push_back(package.name + ": " + package.version_rq);
+    names.push_back(package.name + ": " + package.dep_info.version_rq);
   }
   return Ok(std::make_pair(g, names));
 }
