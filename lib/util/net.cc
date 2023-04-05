@@ -112,13 +112,9 @@ namespace poac::util::net::api {
 
 [[nodiscard]] Fn search(StringRef query, const u64& count)
     ->Result<boost::property_tree::ptree, String> {
-  boost::property_tree::ptree pt;
-  pt.put("query", query);
-  pt.put("perPage", count);
-
-  std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
-  return call("/packages/search", body.str());
+  const String path =
+      format("/packages/search?query={}&perPage={}", query, count);
+  return call(path);
 }
 
 [[nodiscard]] Fn deps(StringRef name, StringRef version)
