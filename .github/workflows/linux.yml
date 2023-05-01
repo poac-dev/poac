@@ -130,6 +130,6 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: success() && matrix.coverage == 'on'
-        uses: codecov/codecov-action@v3.1.3
+        uses: codecov/codecov-action@v3
         with:
           files: coverage.info
