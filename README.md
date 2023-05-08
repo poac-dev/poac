@@ -228,7 +228,7 @@ We regularly avoid auto updating packages to major versions which bring breaking
 > "boost/bind" = "1.66.0"
 > ```
 
-#### Conan V1 Registry (only on upstream)
+#### Conan V1 Registry
 
 Poac also supports Conan V1 Registry. To use it:
 
