@@ -228,6 +228,21 @@ We regularly avoid auto updating packages to major versions which bring breaking
 > "boost/bind" = "1.66.0"
 > ```
 
+#### Conan V1 Registry
+
+Poac also supports Conan V1 Registry. To use it:
+
+`poac.toml`
+
+```toml
+[dependencies]
+fmt = { version = "9.1.0", registry = "conan-v1" }
+spdlog = { version = "1.10.0", registry = "conan-v1" }
+leveldb = { version = "1.23", registry = "conan-v1" }
+```
+
+*The demo is publised on [wx257osn2/poac-conan-demo](https://github.com/wx257osn2/poac-conan-demo)*
+
 After editing `poac.toml`, executing the `build` command will install the package and its dependencies.
 
 ```console
