@@ -176,9 +176,9 @@ Fn gather_flags(
     const resolver::ResolvedDeps& resolved_deps
 )
     ->Result<void> {
-  // TODO(ken-matsui): `ninja.build` will be constructed from `poac.toml`,
+  // TODO(ken-matsui): `build.ninja` will be constructed from `poac.toml`,
   //   so if `poac.toml` has no change,
-  //   then `ninja.build` is not needed to be updated.
+  //   then `build.ninja` is not needed to be updated.
   //        if (is_outdated(build_dir)) {
   std::ofstream ofs(build_dir / MANIFEST_FILE_NAME, std::ios::out);
   ofs << Try(construct(build_dir, poac_manifest, resolved_deps));
