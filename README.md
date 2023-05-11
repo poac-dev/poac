@@ -61,20 +61,17 @@ Since packages through these providers may not be maintained by Poac owners, ins
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
-Most package providers basically name this `poac`, so the way to install it should be like the following:
+When installing Poac, most package providers refer to it by that name. To install, simply use the command:
 
 ```sh
 $PACKAGE_MANAGER install poac
 ```
 
-However, I highly recommend confirming (and copying) the package name before installation to avoid typosquatting attacks.
-
-To do so, you can follow the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
+Nevertheless, it's important to verify the package name and copy it accurately to prevent typosquatting attacks. You can check the correct name by following the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
 
 ### Build from source
 
-Should your environment is not listed on released packages, you will need to build Poac from source.
-Poac requires the following compilers, tools, and libraries to build:
+If your environment is not included in the released packages, you have to construct Poac from the source. To build Poac, you will require the following compilers, tools, and libraries:
 
 #### compilers
 
@@ -114,7 +111,7 @@ Poac requires the following compilers, tools, and libraries to build:
 <summary>
 
 > **Note**:
-> The following libraries will be automatically installed when configuring with CMake, so generally, you do not need to care about them. (click here to see additional dependencies)
+> When configuring with CMake, the following libraries will be installed automatically. Therefore, there is usually no need to be concerned about them. (click here to view additional dependencies.)
 </summary>
 
 ---
@@ -149,7 +146,7 @@ Poac requires the following compilers, tools, and libraries to build:
 
 </details>
 
-After you prepared these requirements, you can build Poac using the following commands:
+Once you have all the necessary requirements in place, you can proceed to build Poac by executing the following commands:
 
 ```bash
 git clone https://github.com/poac-dev/poac.git
@@ -160,8 +157,7 @@ ninja
 ninja install
 ```
 
-Poac automatically tries to use dependencies installed locally.
-If you want to avoid using local packages, pass `-DCPM_USE_LOCAL_PACKAGES=OFF` as the `cmake` command options.
+Poac attempts to utilize locally installed dependencies by default. To bypass the use of local packages, you can specify `-DCPM_USE_LOCAL_PACKAGES=OFF` as an option for the `cmake` command.
 
 ## Usage
 
@@ -402,34 +398,29 @@ WIP
 
 Poac is still under development and may contain a bunch of bugs.
 
-|                        Feature                        |       Status       |
-|:-----------------------------------------------------:|:------------------:|
-|                 Install dependencies                  | :white_check_mark: |
-|     Build packages with header-only dependencies      | :white_check_mark: |
-|               Support dev-dependencies                | :white_check_mark: |
-| Build packages separated by headers & implementations |                    |
-|                   Publish packages                    |        WIP         |
-|    Build packages with build-required dependencies    |                    |
-|               Build packages with CMake               |                    |
+|                        Feature                      |       Status       |
+|:---------------------------------------------------:|:------------------:|
+|                 Install dependencies                | :white_check_mark: |
+|     Build a project with header-only dependencies   | :white_check_mark: |
+|               Support dev-dependencies              | :white_check_mark: |
+| Build a project including separated headers & impls |                    |
+|                   Publish packages                  |        WIP         |
+|    Build a project with build-required dependencies |                    |
+|               Build a project with CMake            |                    |
 
 ## Why Poac?
 
-C++ is often considered to be a complicated language and shunned unconsciously by most people.
-It is thought that it is hard to construct a C++ environment, no definitive package manager, and the strange syntax of build systems such as [CMake](https://cmake.org) make us feel hesitant.
+C++ is often considered a complex language and unconsciously avoided by many. The absence of a definitive package manager and the unfamiliar syntax of build systems like [CMake](https://cmake.org) make it seem difficult to set up a C++ environment, leaving people hesitant.
 
-By developing a package manager and build system, which have an intuitively easy-to-use interface like [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo) and make users be able to develop applications and libraries without being aware of [CMake](https://cmake.org), developers will be able to focus on learning C++ without stumbling.
-I also plan to implement integration with many other build systems and package managers so that you can seamlessly switch a development environment.
+To simplify the process and allow users to develop applications and libraries without worrying about [CMake](https://cmake.org), I created a package manager and build system with an intuitive interface, similar to [npm](https://www.npmjs.com) and [Cargo](https://github.com/rust-lang/cargo). This allows developers to focus on learning C++ without any hindrances. Additionally, I aim to integrate with other build systems and package managers, providing a seamless transition between development environments.
 
 ### Naming Background
 
-Poac is originated from `cpp` but also designed to emphasize ease of typing and avoiding the burden being placed on only one hand as Poac will be entered many times as a command.
-The ergonomically optimized name prevents you from leading to tenosynovitis.
+Poac is originated from `cpp` but designed to prioritize ease of typing and reduce strain on one hand as it will be frequently used as a command. Its name is ergonomically optimized to prevent the development of tenosynovitis.
 
 <img width="1230" alt="ergo" src="https://user-images.githubusercontent.com/26405363/169741684-ecb8aaad-2599-45ae-a680-a26f11652132.png">
 
-As I mentioned above, C++ is often avoided being selected for product development; however, I would like to disseminate C++ as a fun language through Poac.
-Amemiya and Mizutani argue that the `/p/` sound gives the brightest and softest impression among Japanese consonants (157).[^1]
-Accordingly, I believe Poac would likewise provide a bright and soft impression.
+Despite C++ often being overlooked for product development, I believe that Poac can help to promote it as a fun language. Amemiya and Mizutani argue that the sound of `/p/` is associated with a bright and soft impression among Japanese consonants (157)[^1]. In the same way, I believe that Poac's name can convey a similarly positive impression.
 
 ## Contributing
 
