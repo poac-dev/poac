@@ -51,17 +51,28 @@ Fn rebuild(data::NinjaMain& ninja_main, Status& status, String& err)->bool {
   return true;
 }
 
+Fn construct_includes(Vec<Path>& includes)->Vec<String> {
+  Vec<String> include_flags;
+  for (const Path& inc : includes) {
+    include_flags.emplace_back(format("-I{}", inc.string()));
+  }
+  return include_flags;
+}
+
 Fn gather_includes(const resolver::ResolvedDeps& resolved_deps)->Vec<String> {
-  Vec<String> includes;
+  Vec<Path> includes;
+  if (fs::exists(config::include_dir)) {
+    includes.emplace_back(config::include_dir);
+  }
   for (Let & [ package, inner_deps ] : resolved_deps) {
     static_cast<void>(inner_deps);
 
     const Path include_path = resolver::get_extracted_path(package) / "include";
     if (fs::exists(include_path) && fs::is_directory(include_path)) {
-      includes.emplace_back(format("-I{}", include_path.string()));
+      includes.emplace_back(include_path);
     }
   }
-  return includes;
+  return construct_includes(includes);
 }
 
 Fn get_cfg_profile(const toml::value& poac_manifest)->Vec<toml::table> {
