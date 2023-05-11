@@ -61,7 +61,7 @@ Since packages through these providers may not be maintained by Poac owners, ins
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
-When installing Poac, most package providers refer to it by that name. To install, simply use the command:
+Most package providers refer to Poac by that name. To install, simply use the command:
 
 ```sh
 $PACKAGE_MANAGER install poac
