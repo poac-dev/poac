@@ -20,7 +20,7 @@ using PackageNotFound = Error<"No packages found for `{}`", String>;
   const boost::property_tree::ptree pt =
       Try(util::net::api::search(opts.package_name, 20).map_err(to_anyhow));
   if (util::verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, pt);
+    boost::property_tree::write_json(std::cout, pt);
   }
 
   Let children = pt.get_child("data.results");

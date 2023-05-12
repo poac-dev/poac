@@ -1,7 +1,10 @@
 // std
 #include <cstdlib> // setenv
+#include <fstream> // ofstream
 
 // external
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <ninja/build.h> // NOLINT(build/include_order)
 #include <ninja/graph.h> // NOLINT(build/include_order)
 #include <ninja/manifest_parser.h> // NOLINT(build/include_order)
@@ -85,6 +88,31 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
   }
 }
 
+Fn write_comp_db(const data::NinjaMain& ninja_main, const Edge* const edge) {
+  boost::property_tree::ptree comp_db;
+  comp_db.put("directory", config::cwd);
+  comp_db.put("command", edge->EvaluateCommand());
+  comp_db.put("file", edge->inputs_[0]->path());
+  comp_db.put("output", edge->outputs_[0]->path());
+
+  if (util::verbosity::is_verbose()) {
+    boost::property_tree::write_json(std::cout, comp_db);
+  }
+  boost::property_tree::write_json(
+      ninja_main.build_dir / "compile_commands.json", comp_db
+  );
+}
+
+Fn build_compilation_database(const data::NinjaMain& ninja_main)->Result<void> {
+  for (Edge* e : ninja_main.state.edges_) {
+    if (e->inputs_.empty()) {
+      continue;
+    }
+    write_comp_db(ninja_main, e);
+  }
+  return Ok();
+}
+
 [[nodiscard]] Fn start(
     const toml::value& poac_manifest, const Mode& mode,
     const resolver::ResolvedDeps& resolved_deps
@@ -118,6 +146,8 @@ Fn get_ninja_verbosity()->BuildConfig::Verbosity {
         )) {
       return Err<GeneralError>(err);
     }
+
+    Try(build_compilation_database(ninja_main)); // RUN_AFTER_LOAD
 
     Try(log::load_build_log(ninja_main));
     Try(log::load_deps_log(ninja_main));

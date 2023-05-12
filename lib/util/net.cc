@@ -124,7 +124,7 @@ namespace poac::util::net::api {
   const String path = format("/packages/{}/{}/deps", name, version);
   const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
+    boost::property_tree::write_json(std::cout, res);
   }
   const HashMap<String, String> temp =
       util::meta::to_hash_map<String>(res, "data");
@@ -139,7 +139,7 @@ namespace poac::util::net::api {
   const String path = format("/packages/{}/versions", name);
   const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
+    boost::property_tree::write_json(std::cout, res);
   }
   Let results = util::meta::to_vec<String>(res, "data");
   log::debug(
@@ -154,7 +154,7 @@ namespace poac::util::net::api {
   const String path = format("/packages/{}/{}/repoinfo", name, version);
   const boost::property_tree::ptree res = Try(call(path));
   if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
+    boost::property_tree::write_json(std::cout, res);
   }
   return Ok(std::make_pair(
       res.get<String>("data.repository"), res.get<String>("data.sha256sum")
@@ -166,10 +166,10 @@ namespace poac::util::net::api {
   pt.put("api_token", api_token);
 
   std::ostringstream body;
-  boost::property_tree::json_parser::write_json(body, pt);
+  boost::property_tree::write_json(body, pt);
   const boost::property_tree::ptree res = Try(call("/login", body.str()));
   if (verbosity::is_verbose()) {
-    boost::property_tree::json_parser::write_json(std::cout, res);
+    boost::property_tree::write_json(std::cout, res);
   }
   return Ok(res.get<bool>("data"));
 }
