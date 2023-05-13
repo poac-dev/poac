@@ -3,10 +3,12 @@ name = "poac"
 version = "0.6.0"
 edition = 2020
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
-license = "Apache-2.0"
-homepage = "https://poac.dev"
-repository = "https://github.com/poac-dev/poac"
 description = "Package Manager for C++"
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/poac-dev/poac"
+homepage = "https://poac.dev"
+documentation = "https://doc.poac.dev"
 
 [dependencies]
 "ken-matsui/termcolor2" = ">=0.1.0 and <1.0.0"
