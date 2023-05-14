@@ -64,13 +64,16 @@ using FailedToReadManifest = Error<
   const data::manifest::PartialPackage package =
       Try(util::validator::valid_manifest(manifest).map_err(to_anyhow));
 
-  // if readme is specified, readme exists (and read)
+  // if readme is specified, readme exists (and read it)
 
   // if (allow-dirty is false)
   // no changes from HEAD
   // no changes from tag (using clone?)
 
   // The `repository` key should be installable
+
+  // Check if all dependencies are using Poac's registry
+  // (to prevent unintentional errors)
 
   // Check buildablity
   Try(cmd::build::build(cmd::build::Options{.release = true}, manifest)
