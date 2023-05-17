@@ -25,8 +25,12 @@ inline const Path data_dir(xdg_data_home / "poac");
 inline const Path cred_file(data_dir / "credentials");
 
 inline const Path cache_dir(xdg_cache_home / "poac");
-inline const Path archive_dir(cache_dir / "archive");
-inline const Path extract_dir(cache_dir / "extract");
+inline const Path registry_dir(cache_dir / "registry");
+inline const Path registry_src_dir(registry_dir / "src");
+inline const Path default_registry_dir(registry_src_dir / "poac.dev");
+
+inline const Path git_dir(cache_dir / "git");
+inline const Path git_src_dir(git_dir / "src");
 
 inline const Path state_dir(xdg_state_home / "poac");
 inline const Path log_file(state_dir / "log");

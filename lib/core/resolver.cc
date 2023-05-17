@@ -27,7 +27,7 @@ namespace poac::core::resolver {
 )
     ->Result<void> {
   const Path temporarily_extracted_path =
-      config::extract_dir / extracted_directory_name;
+      config::default_registry_dir / extracted_directory_name;
   const Path extracted_path = get_extracted_path(package);
 
   std::error_code ec{};
@@ -90,7 +90,7 @@ using resolve::WithoutDeps;
     }
 
     const String extracted_directory_name =
-        Try(util::archive::extract(installed_path, config::extract_dir)
+        Try(util::archive::extract(installed_path, config::default_registry_dir)
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
 
