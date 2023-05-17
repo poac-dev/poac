@@ -53,7 +53,7 @@ inline Fn get_install_name(const resolve::Package& package)->String {
 }
 
 inline Fn get_extracted_path(const resolve::Package& package)->Path {
-  return config::extract_dir / get_install_name(package);
+  return config::default_registry_dir / get_install_name(package);
 }
 
 /// Rename unknown extracted directory to easily access when building.
@@ -63,8 +63,8 @@ inline Fn get_extracted_path(const resolve::Package& package)->Path {
     ->Result<void>;
 
 inline Fn get_archive_path(const resolve::Package& package)->Path {
-  fs::create_directories(config::archive_dir);
-  return config::archive_dir / (get_install_name(package) + ".tar.gz");
+  fs::create_directories(config::default_registry_dir);
+  return config::default_registry_dir / (get_install_name(package) + ".tar.gz");
 }
 
 inline Fn convert_to_download_link(StringRef repository)->String {
