@@ -60,5 +60,9 @@ else () # If using local package
     list(APPEND POAC_DEPENDENCIES archive)
 endif ()
 
+# TODO: Move this to the root CMakeLists.txt
+target_include_directories(poac_util_archive PRIVATE ${LIBARCHIVE_INCLUDE_DIR})
+target_link_libraries(poac_util_archive PRIVATE ${LIBARCHIVE_LIBRARY})
+
 message(CHECK_PASS "added")
 list(POP_BACK CMAKE_MESSAGE_INDENT)

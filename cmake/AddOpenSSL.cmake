@@ -23,6 +23,12 @@ if (OPENSSL_FOUND)
     message(STATUS "OpenSSL include directory is ... ${OPENSSL_INCLUDE_DIR}")
     message(STATUS "OpenSSL libraries are ... ${OPENSSL_LIBRARIES}")
 
+    # TODO: Move this to the root CMakeLists.txt
+    target_include_directories(poac_util_sha256 PRIVATE ${OPENSSL_INCLUDE_DIR})
+    target_link_libraries(poac_util_sha256 PRIVATE ${OPENSSL_LIBRARIES})
+    target_include_directories(poac_util_net PRIVATE ${OPENSSL_INCLUDE_DIR})
+    target_link_libraries(poac_util_net PRIVATE ${OPENSSL_LIBRARIES})
+
     target_include_directories(poac PRIVATE ${OPENSSL_INCLUDE_DIR})
     list(APPEND POAC_DEPENDENCIES ${OPENSSL_LIBRARIES})
 else ()
