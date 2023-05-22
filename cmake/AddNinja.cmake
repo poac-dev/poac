@@ -21,6 +21,16 @@ file(CREATE_LINK ${ninja_SOURCE_DIR}/src ${ninja_BINARY_DIR}/include/ninja SYMBO
 set(NINJA_INCLUDE_DIR ${ninja_BINARY_DIR}/include)
 set(NINJA_LIBRARIES libninja libninja-re2c)
 
+# TODO: Move this to the root CMakeLists.txt
+target_include_directories(poac_core_builder_data PRIVATE ${NINJA_INCLUDE_DIR})
+target_link_libraries(poac_core_builder_data PRIVATE ${NINJA_LIBRARIES})
+target_include_directories(poac_core_builder_log PRIVATE ${NINJA_INCLUDE_DIR})
+target_link_libraries(poac_core_builder_log PRIVATE ${NINJA_LIBRARIES})
+target_include_directories(poac_core_builder_manifest PRIVATE ${NINJA_INCLUDE_DIR})
+target_link_libraries(poac_core_builder_manifest PRIVATE ${NINJA_LIBRARIES})
+target_include_directories(poac_core_builder_build PRIVATE ${NINJA_INCLUDE_DIR})
+target_link_libraries(poac_core_builder_build PRIVATE ${NINJA_LIBRARIES})
+
 # Disable clang-tidy
 set_target_properties(
     libninja libninja-re2c

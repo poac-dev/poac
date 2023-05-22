@@ -1,24 +1,35 @@
 // std
 #include <cstdlib>
 #include <exception>
+#include <string_view>
 
 // external
 #include <boost/algorithm/string.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/variadic/to_seq.hpp>
+#include <mitama/anyhow/anyhow.hpp>
 #include <spdlog/sinks/stdout_sinks.h> // NOLINT(build/include_order)
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
+#include <toml.hpp>
 
 // internal
-#include "poac/cmd.hpp"
-#include "poac/util/lev_distance.hpp"
-#include "poac/util/termcolor2/literals_extra.hpp"
+#include "util/result-macros.hpp"
 
 #ifndef POAC_VERSION
 #  error "POAC_VERSION is not defined"
 #endif
+
+import poac.cmd;
+import poac.util.format;
+import poac.util.result;
+import poac.util.rustify;
+import poac.util.levDistance;
+import poac.util.log;
+import termcolor2.color_mode;
+import termcolor2.literals;
+import termcolor2.literals_extra;
 
 using namespace termcolor2::color_literals; // NOLINT(build/namespaces)
 using namespace poac; // NOLINT(build/namespaces)
@@ -79,7 +90,8 @@ struct Commands {
   DECL_CMDS(__VA_ARGS__)
 
 structopt(
-    build, clean, create, fmt, graph, init, lint, login, publish, run, search
+    build, clean, create, fmt, /*graph,*/ init, lint, login, publish, run,
+    search
 );
 
 inline String colorize_structopt_error(String s) {
@@ -163,11 +175,11 @@ exec(const structopt::app& app, const Commands& args) {
 
 int main(const int argc, char* argv[]) {
   spdlog::set_pattern("%v");
-  LetMut err_logger = spdlog::stderr_logger_st("stderr");
+  auto err_logger = spdlog::stderr_logger_st("stderr");
 
   auto app = structopt::app("poac", POAC_VERSION);
   try {
-    Let args = app.parse<Commands>(argc, argv);
+    const auto args = app.parse<Commands>(argc, argv);
 
     // Global options
     if (args.verbose.value()) {
@@ -178,7 +190,7 @@ int main(const int argc, char* argv[]) {
 
     // Subcommands
     return exec(app, args)
-        .map_err([err_logger](Let& e) {
+        .map_err([err_logger](const auto& e) {
           log::error(
               err_logger, colorize_anyhow_error(format("{}", e->what()))
           );
@@ -193,8 +205,8 @@ int main(const int argc, char* argv[]) {
         }
       }
 
-      // try correcting typo
-      if (Let sugg = util::lev_distance::find_similar_str(
+      // try to correct typo
+      if (const auto sugg = util::lev_distance::find_similar_str(
               argv[subcommand_index], command_list
           );
           sugg.has_value() && sugg.value() != argv[subcommand_index]) {

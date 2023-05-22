@@ -27,6 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew install          \
+            llvm                \
             ninja openssl boost \
             fmt libarchive libgit2 spdlog
 
@@ -34,7 +35,10 @@ jobs:
         run: |
           cmake -B build -G Ninja \
             -DPOAC_CLANG_TIDY=OFF \
+            -DPOAC_BUILD_TESTING=OFF \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        env: # TODO: Make POAC_BUILD_TESTING=ON
+          CXX: /usr/local/opt/llvm/bin/clang++
 
       - name: Build Poac
         run: ninja

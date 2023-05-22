@@ -7,15 +7,35 @@ FATAL: In-source builds are not allowed.
 ")
 endif ()
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.26)
 project(poac
     VERSION 0.6.0
     LANGUAGES CXX
 )
 message(STATUS "CMake Version: ${CMAKE_VERSION}")
 message(STATUS "Poac Version: ${CMAKE_PROJECT_VERSION}")
+message(STATUS "Compiler Path: ${CMAKE_CXX_COMPILER}")
 
-include(GNUInstallDirs)
+# C++20 Modules
+set(CMAKE_CXX_STANDARD 20) # turn on the dynamic depends for ninja
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # cf. https://gitlab.kitware.com/cmake/cmake/-/blob/master/.gitlab/ci/cxx_modules_rules_gcc.cmake?ref_type=heads
+    string(CONCAT CMAKE_EXPERIMENTAL_CXX_SCANDEP_SOURCE
+        "<CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS> -E -x c++ <SOURCE>"
+        " -MT <DYNDEP_FILE> -MD -MF <DEP_FILE>"
+        " -fmodules-ts -fdep-file=<DYNDEP_FILE> -fdep-output=<OBJECT> -fdep-format=trtbd"
+        " -o <PREPROCESSED_SOURCE>"
+    )
+    set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FORMAT "gcc")
+    set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FLAG
+        "-fmodules-ts -fmodule-mapper=<MODULE_MAP_FILE> -fdep-format=trtbd -x c++"
+    )
+endif()
+if (APPLE)
+    # export CXX=/opt/homebrew/opt/llvm/bin/clang++
+endif ()
 
 # Set the default build type to Debug
 if (CMAKE_BUILD_TYPE STREQUAL "")
@@ -48,26 +68,37 @@ if (CPM_USE_LOCAL_PACKAGES)
     message(STATUS "CPM_USE_LOCAL_PACKAGES is ON; `${CPM_SUPPORTED_LIBS}` on local will be used if found.")
 endif ()
 
+include(src/mod.cmake)
+
 add_executable(poac src/main.cc)
 target_compile_features(poac PUBLIC cxx_std_20)
-target_include_directories(poac PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+target_link_libraries(poac PRIVATE
+    # Direct dependencies
+
+    poac_cmd
+    poac_util_result_macros
+    poac_util_result
+    poac_util_levDistance
+
+    structopt::structopt
+    termcolor2_literals_extra
+    mitama-cpp-result::mitama-cpp-result
+    toml11::toml11
 )
 
 include(cmake/PoacConfig.cmake)
+target_link_libraries(poac PRIVATE ${STATIC_LINK_FLAG})
+
+include(cmake/Helpers.cmake)
 include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
 endif ()
-
-include(cmake/Helpers.cmake)
-add_subdirectory(lib)
 target_link_libraries(poac PRIVATE
-    ${STATIC_LINK_FLAG}
-    poac_cmd
-    poac_util_lev_distance
-    ${NINJA_LIBRARIES} # TODO: this should be propagated from poac_core_builder
+    # Indirect dependencies
+    # TODO: should be derived from other deps?
+    ${LIBGIT2_LIBRARY}
+    ${NINJA_LIBRARIES}
 )
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
@@ -76,10 +107,7 @@ write_basic_package_version_file(
     ${CONFIG_VERSION_FILE} COMPATIBILITY AnyNewerVersion
 )
 
-install(DIRECTORY include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING PATTERN "*.hpp"
-)
+include(GNUInstallDirs)
 install(TARGETS poac
     EXPORT poac-config
 )
