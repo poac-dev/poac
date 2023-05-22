@@ -48,8 +48,8 @@ jobs:
     env:
 #      CC: ${{ matrix.compiler.cc }}
 #      CXX: ${{ matrix.compiler.cxx }}
-      CC: /home/linuxbrew/.linuxbrew/opt/llvm/bin/clang
-      CXX: /home/linuxbrew/.linuxbrew/opt/llvm/bin/clang++
+      CC: clang-16
+      CXX: clang++-16
     steps:
       - uses: actions/checkout@v3
 
