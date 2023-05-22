@@ -71,6 +71,8 @@ jobs:
 
       - name: Run CMake
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install cmake ninja
           cmake -B build -G Ninja                       \
             -DPOAC_CLANG_TIDY=OFF                       \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
