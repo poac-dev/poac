@@ -61,8 +61,9 @@ jobs:
 #        if: startsWith(matrix.compiler.cc, 'clang')
 #        run: sudo apt-get install -y ${{ matrix.compiler.cc }}
         run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install llvm
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 16
 
       - name: Install dependencies
         run: |
