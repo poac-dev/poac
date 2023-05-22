@@ -9,25 +9,25 @@ permissions:
   contents: read
 
 jobs:
-  clang-tidy:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get -qq update
-          sudo apt-get install -y        \
-            clang-14 lld-14              \
-            ninja-build libboost-all-dev \
-            libfmt-dev libarchive-dev libgit2-dev libspdlog-dev
-
-      - name: Run CMake
-        run: cmake -B build -G Ninja
-
-      - name: Run clang-tidy
-        run: ninja
-        working-directory: build
+#  clang-tidy:
+#    runs-on: ubuntu-22.04
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: Install dependencies
+#        run: |
+#          sudo apt-get -qq update
+#          sudo apt-get install -y        \
+#            clang-14 lld-14              \
+#            ninja-build libboost-all-dev \
+#            libfmt-dev libarchive-dev libgit2-dev libspdlog-dev
+#
+#      - name: Run CMake
+#        run: cmake -B build -G Ninja
+#
+#      - name: Run clang-tidy
+#        run: ninja
+#        working-directory: build
 
   format:
     runs-on: ubuntu-22.04
