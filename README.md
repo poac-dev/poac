@@ -17,7 +17,7 @@
 
 ## Description
 
-Poac (pronounced as `/pəʊək/`) is a package manager for C++ users, inspired by Cargo for Rust.
+Poac (pronounced as `/pəʊək/`) is a package manager and build system for C++ users, inspired by Cargo for Rust.
 
 Poac can download project's dependencies and compile a project.
 Please visit [poac.dev](https://poac.dev) and [The Poac Book](https://doc.poac.dev) for more details.
