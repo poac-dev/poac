@@ -74,18 +74,15 @@ If your environment is not included in the released packages, you have to constr
 
 #### compilers
 
-* Compilers which support [C++20](https://en.cppreference.com/w/cpp/20)
-  * `GCC`: `11` or later
-  * `Clang`: `12` or later
-  * `Apple Clang`: provided by `macOS Big Sur (11)` or later
+* Compilers which support [C++20](https://en.cppreference.com/w/cpp/20) and modules
+  <!-- * `GCC`: `11` or later -->
+  * `Clang`: `16` or later
+  <!-- * `Apple Clang`: provided by `macOS Big Sur (11)` or later -->
 
 #### tools
 
-* [`CMake`](https://gitlab.kitware.com/cmake/cmake): [`3.21`](https://gitlab.kitware.com/cmake/cmake/-/tree/v3.21.6) or later
-* One of the following build systems
-  * [`Ninja`](https://github.com/ninja-build/ninja) (recommended)
-  * [`Make`](https://www.gnu.org/software/make/)
-  * Something else supported by [`CMake Generator`](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
+* [`CMake`](https://gitlab.kitware.com/cmake/cmake): [`3.26`](https://cmake.org/cmake/help/latest/release/3.26.html) or later
+* [`Ninja`](https://github.com/ninja-build/ninja): [`1.11`](https://github.com/ninja-build/ninja/releases/tag/v1.11.0) or later
 
 #### libraries
 
