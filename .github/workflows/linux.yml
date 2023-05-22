@@ -86,7 +86,9 @@ jobs:
           CPPFLAGS: -I/home/linuxbrew/.linuxbrew/llvm/include
 
       - name: Build Poac
-        run: ninja
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          ninja
         working-directory: build
 
       - name: Test Poac
