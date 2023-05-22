@@ -50,7 +50,8 @@ inline auto is_outdated(const Path& build_dir) -> bool {
          < poac_toml_last_modified(config::cwd);
 }
 
-export auto rebuild(data::NinjaMain& ninja_main, Status& status, String& err) -> bool {
+export auto rebuild(data::NinjaMain& ninja_main, Status& status, String& err)
+    -> bool {
   Node* node = ninja_main.state.LookupNode(
       (ninja_main.build_dir / MANIFEST_FILE_NAME).string()
   );

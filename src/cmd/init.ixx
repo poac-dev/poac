@@ -5,8 +5,8 @@ module;
 #include <string>
 
 // external
-#include <structopt/app.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
 
 // internal
 #include "../util/result-macros.hpp"
@@ -34,7 +34,7 @@ export struct Options : structopt::sub_command {
 using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
 
 [[nodiscard]] auto init(const Options& opts, StringRef package_name)
-    ->Result<void> {
+    -> Result<void> {
   using create::ProjectType;
 
   spdlog::trace("Creating ./{}", data::manifest::NAME);
@@ -47,7 +47,7 @@ using AlreadyInitialized = Error<"cannot initialize an existing poac package">;
   return Ok();
 }
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   if (opts.bin.value() && opts.lib.value()) {
     return Err<create::PassingBothBinAndLib>();
   } else if (util::validator::required_config_exists(false).is_ok()) {

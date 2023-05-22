@@ -27,7 +27,8 @@ using FailedToOpenDepsLog = Error<"opening deps log: {}", String>;
 inline constexpr StringRef BUILD_LOG_FILE_NAME = ".ninja_log";
 inline constexpr StringRef DEPS_LOG_FILE_NAME = ".ninja_deps";
 
-export [[nodiscard]] auto load_build_log(data::NinjaMain& ninja_main) -> Result<void> {
+export [[nodiscard]] auto load_build_log(data::NinjaMain& ninja_main)
+    -> Result<void> {
   const Path log_path = ninja_main.build_dir / BUILD_LOG_FILE_NAME;
 
   String err;
@@ -47,7 +48,8 @@ export [[nodiscard]] auto load_build_log(data::NinjaMain& ninja_main) -> Result<
   return Ok();
 }
 
-export [[nodiscard]] auto load_deps_log(data::NinjaMain& ninja_main) -> Result<void> {
+export [[nodiscard]] auto load_deps_log(data::NinjaMain& ninja_main)
+    -> Result<void> {
   const Path log_path = ninja_main.build_dir / DEPS_LOG_FILE_NAME;
 
   String err;

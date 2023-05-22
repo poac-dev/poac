@@ -274,7 +274,7 @@ public:
     }
 
     if (build_set.variables.has_value()) {
-      for (const auto& [ key, val ] : build_set.variables.value()) {
+      for (const auto& [key, val] : build_set.variables.value()) {
         variable(key, val, 1);
       }
     }

@@ -84,7 +84,7 @@ export namespace poac::data::lockfile::inline v1 {
 convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
     -> Result<toml::basic_value<toml::preserve_comments>> {
   Vec<Package> packages;
-  for (const auto& [ pack, inner_deps ] : deps) {
+  for (const auto& [pack, inner_deps] : deps) {
     if (pack.dep_info.type != "poac") {
       continue;
     }
@@ -96,7 +96,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
     if (inner_deps.has_value()) {
       // Extract name from inner dependencies and drop version.
       Vec<String> ideps;
-      for (const auto& [ name, _v ] : inner_deps.value()) {
+      for (const auto& [name, _v] : inner_deps.value()) {
         static_cast<void>(_v);
         ideps.emplace_back(name);
       }

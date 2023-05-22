@@ -6,8 +6,8 @@ module;
 // external
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <structopt/app.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
 
 // internal
 #include "../util/result-macros.hpp"
@@ -31,7 +31,7 @@ export struct Options : structopt::sub_command {
 
 using PackageNotFound = Error<"No packages found for `{}`", String>;
 
-[[nodiscard]] auto search(const Options& opts)->Result<void> {
+[[nodiscard]] auto search(const Options& opts) -> Result<void> {
   const boost::property_tree::ptree pt =
       Try(util::net::api::search(opts.package_name, 20).map_err(to_anyhow));
   if (util::verbosity::is_verbose()) {
@@ -69,7 +69,7 @@ using PackageNotFound = Error<"No packages found for `{}`", String>;
   return Ok();
 }
 
-export [[nodiscard]] inline auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] inline auto exec(const Options& opts) -> Result<void> {
   return search(opts);
 }
 

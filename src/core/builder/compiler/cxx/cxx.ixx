@@ -32,8 +32,8 @@ get_compiler_ident(const String& compiler_command, bool is_macos)
     -> Result<util::cfg::Compiler> {
   if (is_macos) {
     if (const auto res = util::shell::Cmd(compiler_command + " --version")
-                      .stderr_to_stdout()
-                      .exec()) {
+                             .stderr_to_stdout()
+                             .exec()) {
       if (res.output().find("Apple") != None) {
         return Ok(util::cfg::Compiler::apple_clang);
       }

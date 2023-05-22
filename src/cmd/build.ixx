@@ -1,10 +1,10 @@
 module;
 
 // external
-#include <structopt/app.hpp>
-#include <toml.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <spdlog/stopwatch.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
+#include <toml.hpp>
 
 // internal
 #include "../util/result-macros.hpp"
@@ -41,8 +41,7 @@ export using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
 [[nodiscard]] auto build_impl(
     const toml::value& manifest, const Mode& mode,
     const ResolvedDeps& resolved_deps
-)
-    ->Result<Path> {
+) -> Result<Path> {
   const spdlog::stopwatch sw;
   const Path output_path =
       Try(core::builder::build::start(manifest, mode, resolved_deps));
@@ -54,8 +53,9 @@ export using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
   return Ok(output_path);
 }
 
-export [[nodiscard]] auto build(const Options& opts, const toml::value& manifest)
-    ->Result<Option<Path>> {
+export [[nodiscard]] auto
+build(const Options& opts, const toml::value& manifest)
+    -> Result<Option<Path>> {
   const auto resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
         return Err<FailedToInstallDeps>().get();
@@ -68,9 +68,10 @@ export [[nodiscard]] auto build(const Options& opts, const toml::value& manifest
     return Ok(None);
   }
 
-  const auto profile = Try(util::validator::valid_profile(opts.profile, opts.release)
-                        .map_err(to_anyhow))
-                    .value_or("debug");
+  const auto profile =
+      Try(util::validator::valid_profile(opts.profile, opts.release)
+              .map_err(to_anyhow))
+          .value_or("debug");
   if (profile != "debug" && profile != "release") {
     return Err<UnsupportedProfile>(profile);
   }
@@ -80,7 +81,7 @@ export [[nodiscard]] auto build(const Options& opts, const toml::value& manifest
   return Ok(output_path);
 }
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

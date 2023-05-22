@@ -5,8 +5,8 @@ module;
 #include <fstream>
 
 // external
-#include <structopt/app.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
 #include <toml.hpp>
 
 // internal
@@ -54,7 +54,7 @@ using FailedToReadManifest = Error<
 using NotImplemented = Error<
     "failed to publish; `publish` command is currently under development">;
 
-[[nodiscard]] auto get_manifest()->Result<toml::value> {
+[[nodiscard]] auto get_manifest() -> Result<toml::value> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 
@@ -63,7 +63,7 @@ using NotImplemented = Error<
   return Ok(toml::parse(data::manifest::NAME));
 }
 
-[[nodiscard]] auto get_token(const Options& opts)->Result<String> {
+[[nodiscard]] auto get_token(const Options& opts) -> Result<String> {
   if (opts.token.has_value()) {
     Try(login::check_token(opts.token.value()));
     return Ok(opts.token.value());
@@ -83,7 +83,7 @@ using NotImplemented = Error<
   }
 }
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   const String token = Try(get_token(opts));
   const toml::value manifest = Try(get_manifest());
   const data::manifest::PartialPackage package =

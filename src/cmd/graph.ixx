@@ -1,18 +1,18 @@
 module;
 
 // std
-#include <utility>
 #include <algorithm>
 #include <fstream>
 #include <unordered_map>
+#include <utility>
 
 // external
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/range/adaptor/indexed.hpp>
+#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 #include <structopt/app.hpp>
 #include <toml.hpp>
-#include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
 #include "../util/result-macros.hpp"
@@ -51,7 +51,7 @@ struct Vertex {
 using Graph =
     boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, Vertex>;
 
-auto create_resolved_deps()->Result<core::resolver::ResolvedDeps> {
+auto create_resolved_deps() -> Result<core::resolver::ResolvedDeps> {
   spdlog::trace("Parsing the manifest file ...");
   // TODO(ken-matsui): parse as a static type rather than toml::value
   const toml::value manifest = toml::parse(data::manifest::NAME);
@@ -61,7 +61,7 @@ auto create_resolved_deps()->Result<core::resolver::ResolvedDeps> {
   });
 }
 
-auto create_graph()->Result<std::pair<Graph, Vec<String>>> {
+auto create_graph() -> Result<std::pair<Graph, Vec<String>>> {
   const core::resolver::ResolvedDeps resolved_deps =
       Try(create_resolved_deps());
   Graph g;
@@ -84,7 +84,7 @@ auto create_graph()->Result<std::pair<Graph, Vec<String>>> {
     const auto deps = dep.value().second;
 
     if (deps.has_value()) {
-      for (const auto& [ name, version ] : deps.value()) {
+      for (const auto& [name, version] : deps.value()) {
         auto first = resolved_deps.cbegin();
         auto last = resolved_deps.cend();
 
@@ -100,21 +100,21 @@ auto create_graph()->Result<std::pair<Graph, Vec<String>>> {
   }
 
   Vec<String> names;
-  for (const auto& [ package, deps ] : resolved_deps) {
+  for (const auto& [package, deps] : resolved_deps) {
     static_cast<void>(deps);
     names.push_back(package.name + ": " + package.dep_info.version_rq);
   }
   return Ok(std::make_pair(g, names));
 }
 
-[[nodiscard]] auto dot_file_output(const Path& output_path)->Result<void> {
+[[nodiscard]] auto dot_file_output(const Path& output_path) -> Result<void> {
   const auto [g, names] = Try(create_graph());
   std::ofstream file(output_path);
   boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
   return Ok();
 }
 
-[[nodiscard]] auto png_file_output(const Path& output_path)->Result<void> {
+[[nodiscard]] auto png_file_output(const Path& output_path) -> Result<void> {
   if (util::shell::has_command("dot")) {
     const auto [g, names] = Try(create_graph());
 
@@ -133,7 +133,7 @@ auto create_graph()->Result<std::pair<Graph, Vec<String>>> {
   }
 }
 
-[[nodiscard]] auto file_output(const Path& output_path)->Result<void> {
+[[nodiscard]] auto file_output(const Path& output_path) -> Result<void> {
   if (output_path.extension() == ".png") {
     return png_file_output(output_path);
   } else if (output_path.extension() == ".dot") {
@@ -143,7 +143,7 @@ auto create_graph()->Result<std::pair<Graph, Vec<String>>> {
   }
 }
 
-[[nodiscard]] auto console_output()->Result<void> {
+[[nodiscard]] auto console_output() -> Result<void> {
   const auto [g, names] = Try(create_graph());
   static_cast<void>(names); // error: unused variable
   for (auto [itr, end] = edges(g); itr != end; ++itr) {
@@ -155,7 +155,7 @@ auto create_graph()->Result<std::pair<Graph, Vec<String>>> {
   return Ok();
 }
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   if (opts.output_file.has_value()) {
     Try(file_output(opts.output_file.value()));
     log::status("Generated", opts.output_file.value());

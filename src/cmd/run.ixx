@@ -1,8 +1,8 @@
 module;
 
 // external
-#include <structopt/app.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
 #include <toml.hpp>
 
 // internal
@@ -28,7 +28,7 @@ export struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

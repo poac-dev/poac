@@ -4,8 +4,8 @@ module;
 #include <filesystem>
 
 // external
-#include <structopt/app.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
 
 // internal
 #include "../util/result-macros.hpp"
@@ -31,7 +31,7 @@ export struct Options : structopt::sub_command {
   Option<String> profile;
 };
 
-[[nodiscard]] auto clean(const Options& opts)->Result<void> {
+[[nodiscard]] auto clean(const Options& opts) -> Result<void> {
   const Option<String> profile =
       Try(util::validator::valid_profile(opts.profile, opts.release)
               .map_err(to_anyhow));
@@ -53,7 +53,7 @@ export struct Options : structopt::sub_command {
   return Ok();
 }
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   spdlog::trace("Checking if required config exists ...");
   Try(util::validator::required_config_exists().map_err(to_anyhow));
 

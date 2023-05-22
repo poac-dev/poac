@@ -4,8 +4,8 @@ module;
 #include <fstream>
 
 // external
-#include <structopt/app.hpp>
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
+#include <structopt/app.hpp>
 
 // internal
 #include "../util/result-macros.hpp"
@@ -29,7 +29,7 @@ export struct Options : structopt::sub_command {
 using InvalidAPIToken = Error<"invalid API token provided">;
 using FailedToLogIn = Error<"failed to log in; API token might be incorrect">;
 
-export [[nodiscard]] auto check_token(StringRef api_token)->Result<void> {
+export [[nodiscard]] auto check_token(StringRef api_token) -> Result<void> {
   spdlog::trace("Checking if api_token has 32 length");
   if (api_token.size() != 32) {
     return Err<InvalidAPIToken>();
@@ -42,7 +42,7 @@ export [[nodiscard]] auto check_token(StringRef api_token)->Result<void> {
   return Ok();
 }
 
-export [[nodiscard]] auto exec(const Options& opts)->Result<void> {
+export [[nodiscard]] auto exec(const Options& opts) -> Result<void> {
   Try(check_token(opts.api_token));
 
   // Write API Token to `~/.poac/credentials` as TOML

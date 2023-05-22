@@ -127,7 +127,8 @@ void write_comp_db(const data::NinjaMain& ninja_main, const Edge* const edge) {
   );
 }
 
-auto build_compilation_database(const data::NinjaMain& ninja_main)->Result<void> {
+auto build_compilation_database(const data::NinjaMain& ninja_main)
+    -> Result<void> {
   for (Edge* e : ninja_main.state.edges_) {
     if (e->inputs_.empty()) {
       continue;
