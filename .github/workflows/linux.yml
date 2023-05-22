@@ -77,6 +77,8 @@ jobs:
             -DPOAC_CLANG_TIDY=OFF                       \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
+        env:
+          LDFLAGS: -L/home/linuxbrew/.linuxbrew/opt/llvm/lib/c++ -Wl,-rpath,/home/linuxbrew/.linuxbrew/opt/llvm/lib/c++
 
       - name: Build Poac
         run: ninja
