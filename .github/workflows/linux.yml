@@ -20,7 +20,10 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ Debug, Release ]
-#        coverage: [ off ]
+        coverage: [ off ]
+        compiler:
+          - clang-16
+          # TODO: - gcc-13
 #        compiler:
 #          - cc: clang-12
 #            cxx: clang++-12
@@ -79,6 +82,7 @@ jobs:
             -DPOAC_ENABLE_COVERAGE=${{ matrix.coverage }}
         env:
           LDFLAGS: -L/home/linuxbrew/.linuxbrew/opt/llvm/lib/c++ -Wl,-rpath,/home/linuxbrew/.linuxbrew/opt/llvm/lib/c++
+          CPPFLAGS: -I/home/linuxbrew/.linuxbrew/llvm/include
 
       - name: Build Poac
         run: ninja
