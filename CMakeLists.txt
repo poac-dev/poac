@@ -97,6 +97,7 @@ endif ()
 target_link_libraries(poac PRIVATE
     # Indirect dependencies
     # TODO: should be derived from other deps?
+
     ${LIBGIT2_LIBRARY}
     ${NINJA_LIBRARIES}
 )
