@@ -181,13 +181,13 @@ target_link_libraries(poac_core_builder_compiler_cxx_gcc PRIVATE
 
     semver
 )
-add_library(poac_core_builder_compiler_cxx_cxx)
-target_sources(poac_core_builder_compiler_cxx_cxx
+add_library(poac_core_builder_compiler_cxx)
+target_sources(poac_core_builder_compiler_cxx
     PUBLIC
     FILE_SET cxx_modules TYPE CXX_MODULES FILES
-    src/core/builder/compiler/cxx/cxx.ixx
+    src/core/builder/compiler/cxx.ixx
 )
-target_link_libraries(poac_core_builder_compiler_cxx_cxx PRIVATE
+target_link_libraries(poac_core_builder_compiler_cxx PRIVATE
     poac_core_builder_compiler_cxx_apple_clang
     poac_core_builder_compiler_cxx_clang
     poac_core_builder_compiler_cxx_gcc
@@ -388,7 +388,7 @@ target_sources(poac_core_builder_manifest
 )
 target_link_libraries(poac_core_builder_manifest PRIVATE
     poac_core_builder_data
-    poac_core_builder_compiler_cxx_cxx
+    poac_core_builder_compiler_cxx
     poac_core_builder_syntax
     poac_core_resolver
 

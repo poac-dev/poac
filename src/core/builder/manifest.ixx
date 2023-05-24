@@ -16,7 +16,7 @@ module;
 export module poac.core.builder.manifest;
 
 import poac.config;
-import poac.core.builder.compiler.cxx.cxx;
+import poac.core.builder.compiler.cxx;
 import poac.core.builder.data;
 import poac.core.builder.syntax;
 import poac.core.resolver.types; // ResolvedDeps
