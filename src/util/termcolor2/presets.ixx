@@ -4,9 +4,6 @@ module;
 #include <string>
 #include <type_traits>
 
-// internal
-#include "config.hpp"
-
 export module termcolor2.presets;
 
 export namespace termcolor2 {
@@ -17,7 +14,7 @@ namespace detail {
   ::termcolor2::detail::select_type<t>((x), (L##x), (u8##x), (u##x), (U##x))
 
   template <typename CharT, std::size_t N>
-  [[nodiscard]] TERMCOLOR2_CXX20_CONSTEVAL_FN auto select_type(
+  [[nodiscard]] constexpr auto select_type(
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const char (&s1)[N], const wchar_t (&s2)[N], const char8_t (&s3)[N],
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
@@ -51,170 +48,170 @@ namespace detail {
 // Foreground manipulators
 //
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto gray_v() noexcept
+inline constexpr auto gray_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[30m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto gray = gray_v();
+inline const auto gray = gray_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto red_v() noexcept
+inline constexpr auto red_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[31m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto red = red_v();
+inline const auto red = red_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto green_v() noexcept
+inline constexpr auto green_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[32m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto green = green_v();
+inline const auto green = green_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto yellow_v() noexcept
+inline constexpr auto yellow_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[33m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto yellow = yellow_v();
+inline const auto yellow = yellow_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto blue_v() noexcept
+inline constexpr auto blue_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[34m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto blue = blue_v();
+inline const auto blue = blue_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto magenta_v() noexcept
+inline constexpr auto magenta_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[35m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto magenta = magenta_v();
+inline const auto magenta = magenta_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto cyan_v() noexcept
+inline constexpr auto cyan_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[36m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto cyan = cyan_v();
+inline const auto cyan = cyan_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto white_v() noexcept
+inline constexpr auto white_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[37m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto white = white_v();
+inline const auto white = white_v();
 
 //
 // Background manipulators
 //
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_gray_v() noexcept
+inline constexpr auto on_gray_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[40m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_gray = on_gray_v();
+inline const auto on_gray = on_gray_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_red_v() noexcept
+inline constexpr auto on_red_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[41m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_red = on_red_v();
+inline const auto on_red = on_red_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_green_v() noexcept
+inline constexpr auto on_green_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[42m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_green = on_green_v();
+inline const auto on_green = on_green_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_yellow_v() noexcept
+inline constexpr auto on_yellow_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[43m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_yellow = on_yellow_v();
+inline const auto on_yellow = on_yellow_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_blue_v() noexcept
+inline constexpr auto on_blue_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[44m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_blue = on_blue_v();
+inline const auto on_blue = on_blue_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_magenta_v() noexcept
+inline constexpr auto on_magenta_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[45m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_magenta = on_magenta_v();
+inline const auto on_magenta = on_magenta_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_cyan_v() noexcept
+inline constexpr auto on_cyan_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[46m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_cyan = on_cyan_v();
+inline const auto on_cyan = on_cyan_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto on_white_v() noexcept
+inline constexpr auto on_white_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[47m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto on_white = on_white_v();
+inline const auto on_white = on_white_v();
 
 //
 // Attribute manipulators
 //
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto bold_v() noexcept
+inline constexpr auto bold_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[01m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto bold = bold_v();
+inline const auto bold = bold_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto dark_v() noexcept
+inline constexpr auto dark_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[02m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto dark = dark_v();
+inline const auto dark = dark_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto underline_v() noexcept
+inline constexpr auto underline_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[04m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto underline = underline_v();
+inline const auto underline = underline_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto blink_v() noexcept
+inline constexpr auto blink_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[05m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto blink = blink_v();
+inline const auto blink = blink_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto reverse_v() noexcept
+inline constexpr auto reverse_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[07m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto reverse = reverse_v();
+inline const auto reverse = reverse_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto concealed_v() noexcept
+inline constexpr auto concealed_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[08m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto concealed = concealed_v();
+inline const auto concealed = concealed_v();
 
 template <typename CharT = char>
-inline TERMCOLOR2_CXX20_CONSTEVAL_FN auto reset_v() noexcept
+inline constexpr auto reset_v() noexcept
     -> std::basic_string<CharT> {
   return CHAR_LITERAL(CharT, "\033[00m");
 }
-inline TERMCOLOR2_CXX20_CONSTINIT const auto reset = reset_v();
+inline const auto reset = reset_v();
 
 } // end namespace termcolor2
