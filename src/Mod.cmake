@@ -1,6 +1,6 @@
 include_guard(GLOBAL)
 
-include(src/util/mod.cmake)
+include(src/util/Mod.cmake)
 
 add_library(poac_config)
 target_sources(poac_config
@@ -430,7 +430,7 @@ target_link_libraries(poac_core_builder_build PRIVATE
 )
 
 
-include(src/cmd/mod.cmake)
+include(src/cmd/Mod.cmake)
 
 add_library(poac_cmd)
 target_sources(poac_cmd

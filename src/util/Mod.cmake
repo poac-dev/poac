@@ -1,7 +1,7 @@
 include_guard(GLOBAL)
 
-include(src/util/termcolor2/mod.cmake)
-include(src/util/semver/mod.cmake)
+include(src/util/termcolor2/Mod.cmake)
+include(src/util/semver/Mod.cmake)
 
 add_library(poac_util_rustify)
 target_sources(poac_util_rustify
