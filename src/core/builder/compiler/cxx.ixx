@@ -1,14 +1,14 @@
 module;
 
 // internal
-#include "../../../../util/result-macros.hpp"
+#include "../../../util/result-macros.hpp"
 
-export module poac.core.builder.compiler.cxx.cxx;
+export module poac.core.builder.compiler.cxx;
 
-export import poac.core.builder.compiler.cxx.apple_clang;
-export import poac.core.builder.compiler.cxx.clang;
-export import poac.core.builder.compiler.cxx.gcc;
-export import poac.core.builder.compiler.error;
+import poac.core.builder.compiler.cxx.apple_clang;
+import poac.core.builder.compiler.cxx.clang;
+import poac.core.builder.compiler.cxx.gcc;
+import poac.core.builder.compiler.error;
 
 import poac.util.cfg;
 import poac.util.format;
