@@ -16,6 +16,8 @@ message(STATUS "CMake Version: ${CMAKE_VERSION}")
 message(STATUS "Poac Version: ${CMAKE_PROJECT_VERSION}")
 message(STATUS "Compiler Path: ${CMAKE_CXX_COMPILER}")
 
+include(cmake/Helpers.cmake)
+
 # C++20 Modules
 set(CMAKE_CXX_STANDARD 20) # turn on the dynamic depends for ninja
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
@@ -73,8 +75,6 @@ include(src/Mod.cmake)
 add_executable(poac src/main.cc)
 target_compile_features(poac PUBLIC cxx_std_20)
 target_link_libraries(poac PRIVATE
-    # Direct dependencies
-
     poac_cmd
     poac_util_result_macros
     poac_util_result
@@ -95,7 +95,6 @@ endif ()
 include(cmake/PoacConfig.cmake)
 target_link_libraries(poac PRIVATE ${STATIC_LINK_FLAG})
 
-include(cmake/Helpers.cmake)
 include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_link_libraries(poac PRIVATE "-lstdc++fs")

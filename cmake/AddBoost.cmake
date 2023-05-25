@@ -15,33 +15,37 @@ if (Boost_FOUND)
     message(STATUS "Boost library directories are ... ${Boost_LIBRARY_DIRS}")
     message(STATUS "Boost libraries are ... ${Boost_LIBRARIES}")
 
-    # TODO: Move this to the root CMakeLists.txt
-    target_include_directories(poac_util_rustify PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_cfg PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_misc PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_pretty PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_meta PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_archive PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_registry_conan_v1_manifest PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_resolver_sat PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_resolver_registry PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_cmd_lint PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_net PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_util_registry_conan_v1_resolver PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_resolver PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_builder_syntax PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_builder_manifest PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_builder_build PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_core_resolver_types PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_cmd_graph PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_cmd_search PRIVATE ${Boost_INCLUDE_DIRS})
+    set(DEPENDENTS
+        poac_util_rustify
+        poac_util_cfg
+        poac_util_misc
+        poac_util_pretty
+        poac_util_meta
+        poac_util_archive
+        poac_util_registry_conan_v1_manifest
+        poac_core_resolver_sat
+        poac_core_resolver_registry
+        poac_cmd_lint
+        poac_util_net
+        poac_util_registry_conan_v1_resolver
+        poac_core_resolver
+        poac_core_builder_syntax
+        poac_core_builder_manifest
+        poac_core_builder_build
+        poac_core_resolver_types
+        poac_cmd_graph
+        poac_cmd_search
+
+        poac_test_util_cfg
+        poac_test_util_meta
+    )
+    foreach (dependent ${DEPENDENTS})
+        target_include_directories(${dependent} PRIVATE ${Boost_INCLUDE_DIRS})
+    endforeach ()
+    unset(DEPENDENTS)
+
     # mitama-cpp-result depends on Boost internally
     target_include_directories(poac_util_result_macros INTERFACE ${Boost_INCLUDE_DIRS})
-
-    target_include_directories(poac_test_util_cfg PRIVATE ${Boost_INCLUDE_DIRS})
-    target_include_directories(poac_test_util_meta PRIVATE ${Boost_INCLUDE_DIRS})
-
-    target_include_directories(poac PRIVATE ${Boost_INCLUDE_DIRS})
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies boost)
