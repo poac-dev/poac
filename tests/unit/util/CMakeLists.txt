@@ -17,9 +17,7 @@ set(TEST_NAMES
 
 foreach (TEST_NAME ${TEST_NAMES})
     set(TARGET_NAME "poac_test_util_${TEST_NAME}")
-
     add_executable(${TARGET_NAME} "${TEST_NAME_PREFIX}/${TEST_NAME}.cc")
-    target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
 
     if (POAC_ENABLE_COVERAGE)
         target_compile_options(${TARGET_NAME} PRIVATE -g -O0 --coverage)

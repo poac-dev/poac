@@ -3,7 +3,7 @@ include_guard(GLOBAL)
 message(CHECK_START "Adding Boost::ut")
 list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
-set(FETCHCONTENT_UPDATES_DISCONNECTED_ut ON)
+set(FETCHCONTENT_UPDATES_DISCONNECTED_UT ON)
 FetchContent_Declare(
     ut
     GIT_REPOSITORY https://github.com/boost-ext/ut
