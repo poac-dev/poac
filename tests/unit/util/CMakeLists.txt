@@ -29,7 +29,7 @@ foreach (TEST_NAME ${TEST_NAMES})
     target_link_libraries(${TARGET_NAME} PRIVATE Boost::ut "poac_util_${TEST_NAME}")
 
     add_test(
-        NAME "${TEST_NAME_PREFIX}/${TEST_NAME}"
+        NAME ${TARGET_NAME}
         COMMAND ${TARGET_NAME}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
