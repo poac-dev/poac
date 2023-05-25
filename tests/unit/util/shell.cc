@@ -5,7 +5,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/shell.hpp>
+import poac.util.shell;
 
 auto main() -> int {
   using namespace std::literals::string_literals;

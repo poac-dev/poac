@@ -1,0 +1,48 @@
+diff --git a/include/boost/ut.hpp b/include/boost/ut.hpp
+index 47faa56..1efcf32 100644
+--- a/include/boost/ut.hpp
++++ b/include/boost/ut.hpp
+@@ -16,27 +16,6 @@ export import std;
+ #include <iso646.h>  // and, or, not, ...
+ #endif
+ 
+-#if not defined(__cpp_rvalue_references)
+-#error "[Boost::ext].UT requires support for rvalue references";
+-#elif not defined(__cpp_decltype)
+-#error "[Boost::ext].UT requires support for decltype";
+-#elif not defined(__cpp_return_type_deduction)
+-#error "[Boost::ext].UT requires support for return type deduction";
+-#elif not defined(__cpp_deduction_guides)
+-#error "[Boost::ext].UT requires support for return deduction guides";
+-#elif not defined(__cpp_generic_lambdas)
+-#error "[Boost::ext].UT requires support for generic lambdas";
+-#elif not defined(__cpp_constexpr)
+-#error "[Boost::ext].UT requires support for constexpr";
+-#elif not defined(__cpp_alias_templates)
+-#error "[Boost::ext].UT requires support for alias templates";
+-#elif not defined(__cpp_variadic_templates)
+-#error "[Boost::ext].UT requires support for variadic templates";
+-#elif not defined(__cpp_fold_expressions)
+-#error "[Boost::ext].UT requires support for return fold expressions";
+-#elif not defined(__cpp_static_assert)
+-#error "[Boost::ext].UT requires support for static assert";
+-#else
+ #define BOOST_UT_VERSION 1'1'8
+ 
+ #if defined(__has_builtin) and defined(__GNUC__) and (__GNUC__ < 10) and \
+@@ -71,9 +50,6 @@ export import std;
+ #include <source_location>
+ #endif
+ 
+-#if defined(__cpp_modules) && !defined(BOOST_UT_DISABLE_MODULE)
+-export
+-#endif
+     namespace boost::inline ext::ut::inline v1_1_8 {
+ namespace utility {
+ template <class>
+@@ -2388,4 +2364,4 @@ using operators::operator|;
+ using operators::operator/;
+ using operators::operator>>;
+ }  // namespace boost::inline ext::ut::inline v1_1_8
+-#endif
++//#endif

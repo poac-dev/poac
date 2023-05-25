@@ -14,7 +14,7 @@
 // internal
 #include "../../util/ut_helpers/throws_with_msg.hpp"
 
-#include <poac/util/cfg.hpp>
+import poac.util.cfg;
 
 auto main() -> int {
   using namespace std::literals::string_literals;

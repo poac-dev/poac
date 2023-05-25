@@ -86,6 +86,12 @@ target_link_libraries(poac PRIVATE
     toml11::toml11
 )
 
+if (POAC_BUILD_TESTING AND ${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
+    include(CTest)
+    enable_testing()
+    include(tests/CMakeLists.txt)
+endif ()
+
 include(cmake/PoacConfig.cmake)
 target_link_libraries(poac PRIVATE ${STATIC_LINK_FLAG})
 
@@ -122,9 +128,3 @@ install(FILES ${CONFIG_VERSION_FILE}
 install(TARGETS poac
     DESTINATION bin
 )
-
-include(CTest)
-if (POAC_BUILD_TESTING AND ${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
-    enable_testing()
-    add_subdirectory(tests)
-endif ()

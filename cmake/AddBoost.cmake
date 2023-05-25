@@ -33,10 +33,12 @@ if (Boost_FOUND)
     target_include_directories(poac_core_builder_manifest PRIVATE ${Boost_INCLUDE_DIRS})
     target_include_directories(poac_core_builder_build PRIVATE ${Boost_INCLUDE_DIRS})
     target_include_directories(poac_core_resolver_types PRIVATE ${Boost_INCLUDE_DIRS})
-#    target_include_directories(poac_cmd_graph PRIVATE ${Boost_INCLUDE_DIRS})
+    target_include_directories(poac_cmd_graph PRIVATE ${Boost_INCLUDE_DIRS})
     target_include_directories(poac_cmd_search PRIVATE ${Boost_INCLUDE_DIRS})
     # mitama-cpp-result depends on Boost internally
     target_include_directories(poac_util_result_macros INTERFACE ${Boost_INCLUDE_DIRS})
+
+    target_include_directories(poac_test_util_cfg PRIVATE ${Boost_INCLUDE_DIRS})
 
     target_include_directories(poac PRIVATE ${Boost_INCLUDE_DIRS})
     target_link_directories(poac PRIVATE ${Boost_LIBRARY_DIRS})
