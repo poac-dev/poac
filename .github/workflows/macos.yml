@@ -35,9 +35,8 @@ jobs:
         run: |
           cmake -B build -G Ninja \
             -DPOAC_CLANG_TIDY=OFF \
-            -DPOAC_BUILD_TESTING=OFF \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        env: # TODO: Make POAC_BUILD_TESTING=ON
+        env:
           CXX: /usr/local/opt/llvm/bin/clang++
 
       - name: Build Poac
