@@ -17,7 +17,7 @@ set_target_properties(
         CXX_CLANG_TIDY ""
 )
 
-list(APPEND POAC_DEPENDENCIES Glob)
+# target: Glob
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

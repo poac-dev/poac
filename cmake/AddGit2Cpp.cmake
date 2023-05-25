@@ -13,7 +13,7 @@ set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(git2-cpp)
 unset(BUILD_SHARED_LIBS)
 
-list(APPEND POAC_DEPENDENCIES git2-cpp::git2-cpp)
+# target: git2-cpp::git2-cpp
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

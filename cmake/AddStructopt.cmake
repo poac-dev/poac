@@ -9,7 +9,7 @@ FetchContent_Declare(
         GIT_TAG        422c2e293702047b52e420651742f73581ad4677
 )
 FetchContent_MakeAvailable(structopt)
-list(APPEND POAC_DEPENDENCIES structopt::structopt)
+# target: structopt::structopt
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

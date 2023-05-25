@@ -20,7 +20,7 @@ CPMAddPackage(
         "SPDLOG_BUILD_SHARED ${SPDLOG_BUILD_SHARED}"
 )
 
-list(APPEND POAC_DEPENDENCIES spdlog::spdlog)
+# target: spdlog::spdlog
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

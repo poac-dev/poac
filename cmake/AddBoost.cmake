@@ -42,8 +42,6 @@ if (Boost_FOUND)
     target_include_directories(poac_test_util_meta PRIVATE ${Boost_INCLUDE_DIRS})
 
     target_include_directories(poac PRIVATE ${Boost_INCLUDE_DIRS})
-    target_link_directories(poac PRIVATE ${Boost_LIBRARY_DIRS})
-    list(APPEND POAC_DEPENDENCIES ${Boost_LIBRARIES})
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies boost)

@@ -40,7 +40,6 @@ else () # If using local package
     set(LIBGIT2_LIBRARY ${LIBGIT2_LIBRARIES})
 endif ()
 
-list(APPEND POAC_DEPENDENCIES ${LIBGIT2_LIBRARY})
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

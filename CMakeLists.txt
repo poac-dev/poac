@@ -98,7 +98,7 @@ target_link_libraries(poac PRIVATE ${STATIC_LINK_FLAG})
 include(cmake/Helpers.cmake)
 include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    list(APPEND POAC_DEPENDENCIES "-lstdc++fs")
+    target_link_libraries(poac PRIVATE "-lstdc++fs")
 endif ()
 target_link_libraries(poac PRIVATE
     # Indirect dependencies

@@ -13,7 +13,7 @@ set(CMAKE_PROJECT_toml11_INCLUDE_BEFORE "${CMAKE_SOURCE_DIR}/cmake/CMP0077Policy
 set(toml11_BUILD_TEST OFF)
 FetchContent_MakeAvailable(toml11)
 
-list(APPEND POAC_DEPENDENCIES toml11::toml11)
+# target: toml11::toml11
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

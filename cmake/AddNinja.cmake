@@ -38,7 +38,6 @@ set_target_properties(
         CXX_CLANG_TIDY ""
 )
 
-list(APPEND POAC_DEPENDENCIES ${NINJA_LIBRARIES})
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

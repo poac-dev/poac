@@ -47,17 +47,14 @@ if (LibArchive_ADDED) # If using downloaded package
     set(LIBARCHIVE_INCLUDE_DIR "${LibArchive_SOURCE_DIR}/libarchive")
     if (CMAKE_BUILD_TYPE STREQUAL Debug) # -DCMAKE_BUILD_TYPE=Debug
         set(LIBARCHIVE_LIBRARY archive)
-        list(APPEND POAC_DEPENDENCIES archive)
     else ()
         set(LIBARCHIVE_LIBRARY archive_static)
-        list(APPEND POAC_DEPENDENCIES archive_static)
     endif ()
 else () # If using local package
     if (APPLE)
         set(LIBARCHIVE_INCLUDE_DIR ${LibArchive_INCLUDE_DIR})
     endif ()
     set(LIBARCHIVE_LIBRARY archive)
-    list(APPEND POAC_DEPENDENCIES archive)
 endif ()
 
 # TODO: Move this to the root CMakeLists.txt

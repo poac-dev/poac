@@ -30,7 +30,6 @@ if (OPENSSL_FOUND)
     target_link_libraries(poac_util_net PRIVATE ${OPENSSL_LIBRARIES})
 
     target_include_directories(poac PRIVATE ${OPENSSL_INCLUDE_DIR})
-    list(APPEND POAC_DEPENDENCIES ${OPENSSL_LIBRARIES})
 else ()
     message(CHECK_FAIL "not found")
     list(APPEND missingDependencies openssl)

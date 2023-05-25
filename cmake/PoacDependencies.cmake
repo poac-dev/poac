@@ -26,5 +26,3 @@ if (missingDependencies)
 else ()
     message(CHECK_PASS "all dependencies are added")
 endif ()
-
-message(STATUS "dependencies are ... ${POAC_DEPENDENCIES}")
