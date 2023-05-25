@@ -5,7 +5,7 @@ set(TEST_NAME_PREFIX "${TEST_NAME_PREFIX}/util")
 set(TEST_NAMES
     cfg
     levDistance
-#    meta
+    meta
 #    misc
 #    net
 #    pretty

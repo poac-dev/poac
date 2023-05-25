@@ -39,6 +39,7 @@ if (Boost_FOUND)
     target_include_directories(poac_util_result_macros INTERFACE ${Boost_INCLUDE_DIRS})
 
     target_include_directories(poac_test_util_cfg PRIVATE ${Boost_INCLUDE_DIRS})
+    target_include_directories(poac_test_util_meta PRIVATE ${Boost_INCLUDE_DIRS})
 
     target_include_directories(poac PRIVATE ${Boost_INCLUDE_DIRS})
     target_link_directories(poac PRIVATE ${Boost_LIBRARY_DIRS})

@@ -7,9 +7,10 @@
 
 // external
 #include <boost/ut.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 // internal
-#include <poac/util/meta.hpp>
+import poac.util.meta;
 
 auto main() -> int {
   using namespace std::literals::string_literals;
