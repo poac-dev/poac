@@ -94,11 +94,11 @@ endif ()
 
 include(cmake/PoacConfig.cmake)
 target_link_libraries(poac PRIVATE ${STATIC_LINK_FLAG})
-
-include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_link_libraries(poac PRIVATE "-lstdc++fs")
 endif ()
+
+include(cmake/PoacDependencies.cmake)
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
 include(CMakePackageConfigHelpers)
