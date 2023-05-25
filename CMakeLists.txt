@@ -100,13 +100,6 @@ include(cmake/PoacDependencies.cmake)
 if (NOT APPLE AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_link_libraries(poac PRIVATE "-lstdc++fs")
 endif ()
-target_link_libraries(poac PRIVATE
-    # Indirect dependencies
-    # TODO: should be derived from other deps?
-
-    ${LIBGIT2_LIBRARY}
-    ${NINJA_LIBRARIES}
-)
 
 set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/poac-config-version.cmake)
 include(CMakePackageConfigHelpers)

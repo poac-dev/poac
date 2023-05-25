@@ -28,7 +28,7 @@ if (POAC_CLANG_TIDY AND fmt_ADDED) # If using downloaded package
     )
 endif ()
 
-list(APPEND POAC_gDEPENDENCIES fmt::fmt)
+# target: fmt::fmt
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

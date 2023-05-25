@@ -40,6 +40,8 @@ else () # If using local package
     set(LIBGIT2_LIBRARY ${LIBGIT2_LIBRARIES})
 endif ()
 
+target_link_libraries(poac_cmd_create PRIVATE ${LIBGIT2_LIBRARIES})
+
 message(CHECK_PASS "added")
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)
