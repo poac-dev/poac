@@ -6,8 +6,8 @@
 #include <vector>
 
 // external
-#include <boost/ut.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/ut.hpp>
 
 // internal
 import poac.util.meta;

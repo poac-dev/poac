@@ -19,34 +19,34 @@ auto main() -> int {
   using namespace boost::ut;
 
   // TODO: not exported function
-//  "test lev_distance"_test = [] {
-//    using util::lev_distance::calc;
-//
-//    // Test bytelength agnosticity
-//    for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
-//      expect(eq(calc(std::string(1, c), std::string(1, c)), 0));
-//    }
-//
-//    constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
-//    constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
-//    constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
-//    expect(eq(calc(A, B), 2));
-//    expect(eq(calc(B, A), 2));
-//    expect(eq(calc(A, C), 3));
-//    expect(eq(calc(C, A), 3));
-//    expect(eq(calc(B, C), 1));
-//    expect(eq(calc(C, B), 1));
-//
-//    expect(eq(calc("b", "bc"), 1));
-//    expect(eq(calc("ab", "abc"), 1));
-//    expect(eq(calc("aab", "aabc"), 1));
-//    expect(eq(calc("aaab", "aaabc"), 1));
-//
-//    expect(eq(calc("a", "b"), 1));
-//    expect(eq(calc("ab", "ac"), 1));
-//    expect(eq(calc("aab", "aac"), 1));
-//    expect(eq(calc("aaab", "aaac"), 1));
-//  };
+  //  "test lev_distance"_test = [] {
+  //    using util::lev_distance::calc;
+  //
+  //    // Test bytelength agnosticity
+  //    for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
+  //      expect(eq(calc(std::string(1, c), std::string(1, c)), 0));
+  //    }
+  //
+  //    constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
+  //    constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
+  //    constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
+  //    expect(eq(calc(A, B), 2));
+  //    expect(eq(calc(B, A), 2));
+  //    expect(eq(calc(A, C), 3));
+  //    expect(eq(calc(C, A), 3));
+  //    expect(eq(calc(B, C), 1));
+  //    expect(eq(calc(C, B), 1));
+  //
+  //    expect(eq(calc("b", "bc"), 1));
+  //    expect(eq(calc("ab", "abc"), 1));
+  //    expect(eq(calc("aab", "aabc"), 1));
+  //    expect(eq(calc("aaab", "aaabc"), 1));
+  //
+  //    expect(eq(calc("a", "b"), 1));
+  //    expect(eq(calc("ab", "ac"), 1));
+  //    expect(eq(calc("aab", "aac"), 1));
+  //    expect(eq(calc("aaab", "aaac"), 1));
+  //  };
 
   // ref:
   // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
@@ -54,9 +54,9 @@ auto main() -> int {
     using util::lev_distance::find_similar_str;
     using namespace std::literals::string_view_literals;
 
-    constexpr std::array<std::string_view, 8> CANDIDATES{"if",      "ifdef",   "ifndef",
-                                           "elif",    "else",    "endif",
-                                           "elifdef", "elifndef"};
+    constexpr std::array<std::string_view, 8> CANDIDATES{
+        "if",   "ifdef", "ifndef",  "elif",
+        "else", "endif", "elifdef", "elifndef"};
     expect(find_similar_str("id", CANDIDATES) == "if"sv);
     expect(find_similar_str("ifd", CANDIDATES) == "if"sv);
     expect(find_similar_str("ifde", CANDIDATES) == "ifdef"sv);
@@ -70,7 +70,10 @@ auto main() -> int {
     expect(find_similar_str("endi", CANDIDATES) == "endif"sv);
 
     expect(find_similar_str("i", CANDIDATES) == std::nullopt);
-    expect(find_similar_str("special_compiler_directive", CANDIDATES) == std::nullopt);
+    expect(
+        find_similar_str("special_compiler_directive", CANDIDATES)
+        == std::nullopt
+    );
   };
 
   "test find_similar_str 2"_test = [] {
