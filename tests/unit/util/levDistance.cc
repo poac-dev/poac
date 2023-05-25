@@ -18,7 +18,7 @@ auto main() -> int {
   using namespace poac;
   using namespace boost::ut;
 
-  // TODO: not exported function
+  // TODO(ken-matsui): not exported function
   //  "test lev_distance"_test = [] {
   //    using util::lev_distance::calc;
   //
