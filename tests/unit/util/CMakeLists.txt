@@ -9,10 +9,10 @@ set(TEST_NAMES
     misc
     net
     pretty
-#    sha256
+#    sha256 TODO
     shell
-#    validator
-#    verbosity
+#    validator TODO
+#    verbosity TODO
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
