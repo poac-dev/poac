@@ -228,10 +228,10 @@ auto main() -> int {
   };
 
   // TODO: not exported
-//  "test str_to_uint"_test = [] {
-//    using semver::str_to_uint;
-//    expect(constant<str_to_uint("123").value() == 123>);
-//    expect(constant<!str_to_uint("abc").has_value()>);
-//    expect(constant<!str_to_uint("12a").has_value()>);
-//  };
+  //  "test str_to_uint"_test = [] {
+  //    using semver::str_to_uint;
+  //    expect(constant<str_to_uint("123").value() == 123>);
+  //    expect(constant<!str_to_uint("abc").has_value()>);
+  //    expect(constant<!str_to_uint("12a").has_value()>);
+  //  };
 }
