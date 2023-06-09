@@ -7,7 +7,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/pretty.hpp>
+import poac.util.pretty;
 
 auto main() -> int {
   using namespace std::literals::string_literals;

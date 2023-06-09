@@ -6,7 +6,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/validator.hpp>
+import poac.util.validator;
 
 auto main() -> int {
   using namespace std::literals::string_literals;

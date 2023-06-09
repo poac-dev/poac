@@ -2,7 +2,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/verbosity.hpp>
+import poac.util.verbosity;
 
 auto main() -> int {
   using namespace std::literals::string_literals;

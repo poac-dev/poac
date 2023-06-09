@@ -6,9 +6,9 @@ set(TEST_NAMES
     cfg
     levDistance
     meta
-#    misc
-#    net
-#    pretty
+    misc
+    net
+    pretty
 #    sha256
     shell
 #    validator

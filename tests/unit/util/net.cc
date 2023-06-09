@@ -1,5 +1,8 @@
+// external
 #include <boost/ut.hpp>
-#include <poac/util/net.hpp>
+
+// internal
+import poac.util.net;
 
 auto main() -> int {
   using namespace std::literals::string_literals;

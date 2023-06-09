@@ -6,7 +6,7 @@
 #include <boost/ut.hpp>
 
 // internal
-#include <poac/util/misc.hpp>
+import poac.util.misc;
 
 auto main() -> int {
   using namespace std::literals::string_literals;
