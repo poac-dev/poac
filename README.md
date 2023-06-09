@@ -17,6 +17,8 @@
 
 ## Description
 
+> **Note**: Poac is still under development and may contain a bunch of bugs.
+
 Poac (pronounced as `/pəʊək/`) is a package manager and build system for C++ users, inspired by Cargo for Rust.
 
 Poac can download project's dependencies and compile a project.
@@ -48,13 +50,15 @@ you:~/hello_world$ poac run
 Hello, world!
 ```
 
-## Installation
-
-### Supported Operating Systems
+## Supported Operating Systems
 
 |                                                                                   Linux                                                                                    |                                                                                   macOS                                                                                    |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![GitHub Actions Linux Build](https://github.com/poac-dev/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poac-dev/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22macOS%22) |
+
+## Installation
+
+### 3rd Party Installation (recommended)
 
 Since packages through these providers may not be maintained by Poac owners, install them at your own risk.
 
@@ -391,8 +395,6 @@ boost/functional = "1.66.0"             # Boost.org functional module
 WIP
 
 ## Roadmap
-
-Poac is still under development and may contain a bunch of bugs.
 
 |                        Feature                      |       Status       |
 |:---------------------------------------------------:|:------------------:|
