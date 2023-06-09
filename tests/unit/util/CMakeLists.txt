@@ -16,7 +16,7 @@ set(TEST_NAMES
 )
 
 foreach (TEST_NAME ${TEST_NAMES})
-    set(TARGET_NAME "poac_test_util_${TEST_NAME}")
+    set(TARGET_NAME "test_poac_util_${TEST_NAME}")
     add_executable(${TARGET_NAME} "${TEST_NAME_PREFIX}/${TEST_NAME}.cc")
 
     if (POAC_ENABLE_COVERAGE)
@@ -35,5 +35,5 @@ foreach (TEST_NAME ${TEST_NAMES})
     )
 endforeach ()
 
-#add_subdirectory(semver)
+include(${TEST_NAME_PREFIX}/semver/CMakeLists.txt)
 #add_subdirectory(termcolor2)

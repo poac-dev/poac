@@ -36,8 +36,8 @@ if (Boost_FOUND)
         poac_cmd_graph
         poac_cmd_search
 
-        poac_test_util_cfg
-        poac_test_util_meta
+        test_poac_util_cfg
+        test_poac_util_meta
     )
     foreach (dependent ${DEPENDENTS})
         target_include_directories(${dependent} PRIVATE ${Boost_INCLUDE_DIRS})

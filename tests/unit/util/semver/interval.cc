@@ -1,8 +1,11 @@
 #include "../../../util/ut_helpers/throws_with_msg.hpp"
 
+// external
 #include <boost/ut.hpp>
-#include <poac/util/semver/exception.hpp>
-#include <poac/util/semver/interval.hpp>
+
+// internal
+import semver.exception;
+import semver.interval;
 
 auto main() -> int {
   using namespace std::literals::string_literals;
