@@ -64,13 +64,19 @@ Since packages through these providers may not be maintained by Poac owners, ins
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 
-Most package providers refer to Poac by that name. To install, simply use the command:
+It is important to verify the package name and copy it accurately to prevent typosquatting attacks. You can check the correct name by following the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
+
+#### Homebrew (macOS & Linux)
 
 ```sh
-$PACKAGE_MANAGER install poac
+brew install poac
 ```
 
-Nevertheless, it's important to verify the package name and copy it accurately to prevent typosquatting attacks. You can check the correct name by following the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
+#### MacPorts (macOS)
+
+```sh
+sudo port install poac
+```
 
 ### Build from source
 
