@@ -157,7 +157,7 @@ Once you have all the necessary requirements in place, you can proceed to build 
 ```bash
 git clone https://github.com/poac-dev/poac.git
 cd poac
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DPOAC_BUILD_TESTING=OFF
 cd build
 ninja
 ninja install
