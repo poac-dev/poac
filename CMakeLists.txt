@@ -18,7 +18,7 @@ message(STATUS "Compiler Path: ${CMAKE_CXX_COMPILER}")
 
 # C++20 Modules
 set(CMAKE_CXX_STANDARD 20) # turn on the dynamic depends for ninja
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # cf. https://gitlab.kitware.com/cmake/cmake/-/blob/master/.gitlab/ci/cxx_modules_rules_gcc.cmake?ref_type=heads
