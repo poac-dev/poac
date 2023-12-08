@@ -22,7 +22,8 @@ auto main() -> int {
 
     std::vector<std::string> excepted{
         "Lorem ipsum dolor sit amet", " consectetur adipiscing elit",
-        " sed do eiusmod ..."};
+        " sed do eiusmod ..."
+    };
     expect(eq(split(test_case, ","), excepted));
 
     excepted = {"Lorem ",      "psum dolor s", "t amet, consectetur ad",

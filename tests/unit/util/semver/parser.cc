@@ -71,7 +71,8 @@ auto main() -> int {
     Parser parser("1.2.3-pre");
     const auto parsed = parser.version();
     const std::vector<Identifier> expected_pre = {
-        Identifier(Identifier::AlphaNumeric, "pre")};
+        Identifier(Identifier::AlphaNumeric, "pre")
+    };
     expect(expected_pre == parsed.pre);
   };
 
@@ -79,7 +80,8 @@ auto main() -> int {
     Parser parser("1.2.3-alpha1");
     const auto parsed = parser.version();
     const std::vector<Identifier> expected_pre = {
-        Identifier(Identifier::AlphaNumeric, "alpha1")};
+        Identifier(Identifier::AlphaNumeric, "alpha1")
+    };
     expect(expected_pre == parsed.pre);
   };
 
@@ -88,7 +90,8 @@ auto main() -> int {
     const auto parsed = parser.version();
     const std::vector<Identifier> expected_pre = {
         Identifier(Identifier::AlphaNumeric, "pre"),
-        Identifier(Identifier::Numeric, 0)};
+        Identifier(Identifier::Numeric, 0)
+    };
     expect(expected_pre == parsed.pre);
   };
 
@@ -96,7 +99,8 @@ auto main() -> int {
     Parser parser("1.2.3+build");
     const auto parsed = parser.version();
     const std::vector<Identifier> expected_build = {
-        Identifier(Identifier::AlphaNumeric, "build")};
+        Identifier(Identifier::AlphaNumeric, "build")
+    };
     expect(expected_build == parsed.build);
   };
 
@@ -104,7 +108,8 @@ auto main() -> int {
     Parser parser("1.2.3+build5");
     const auto parsed = parser.version();
     const std::vector<Identifier> expected_build = {
-        Identifier(Identifier::AlphaNumeric, "build5")};
+        Identifier(Identifier::AlphaNumeric, "build5")
+    };
     expect(expected_build == parsed.build);
   };
 
@@ -113,11 +118,13 @@ auto main() -> int {
     const auto parsed = parser.version();
 
     const std::vector<Identifier> expected_pre = {
-        Identifier(Identifier::AlphaNumeric, "alpha1")};
+        Identifier(Identifier::AlphaNumeric, "alpha1")
+    };
     expect(expected_pre == parsed.pre);
 
     const std::vector<Identifier> expected_build = {
-        Identifier(Identifier::AlphaNumeric, "build5")};
+        Identifier(Identifier::AlphaNumeric, "build5")
+    };
     expect(expected_build == parsed.build);
   };
 
@@ -128,13 +135,15 @@ auto main() -> int {
     const std::vector<Identifier> expected_pre = {
         Identifier(Identifier::Numeric, 1),
         Identifier(Identifier::AlphaNumeric, "alpha1"),
-        Identifier(Identifier::Numeric, 9)};
+        Identifier(Identifier::Numeric, 9)
+    };
     expect(expected_pre == parsed.pre);
 
     const std::vector<Identifier> expected_build = {
         Identifier(Identifier::AlphaNumeric, "build5"),
         Identifier(Identifier::Numeric, 7),
-        Identifier(Identifier::AlphaNumeric, "3aedf")};
+        Identifier(Identifier::AlphaNumeric, "3aedf")
+    };
     expect(expected_build == parsed.build);
   };
 
@@ -144,11 +153,13 @@ auto main() -> int {
 
     const std::vector<Identifier> expected_pre = {
         Identifier(Identifier::AlphaNumeric, "beta"),
-        Identifier(Identifier::Numeric, 1)};
+        Identifier(Identifier::Numeric, 1)
+    };
     expect(expected_pre == parsed.pre);
 
     const std::vector<Identifier> expected_build = {
-        Identifier(Identifier::AlphaNumeric, "0851523")};
+        Identifier(Identifier::AlphaNumeric, "0851523")
+    };
     expect(expected_build == parsed.build);
   };
 
@@ -161,7 +172,8 @@ auto main() -> int {
     expect(parsed.patch == 0_i);
 
     const std::vector<Identifier> expected_pre = {
-        Identifier(Identifier::AlphaNumeric, "WIP")};
+        Identifier(Identifier::AlphaNumeric, "WIP")
+    };
     expect(expected_pre == parsed.pre);
   };
 }
