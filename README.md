@@ -17,7 +17,8 @@
 
 ## Description
 
-> **Note**: Poac is still under development and may contain a bunch of bugs.
+> [!IMPORTANT]
+> Poac is still under development and may contain a bunch of bugs.
 
 Poac (pronounced as `/pəʊək/`) is a package manager and build system for C++ users, inspired by Cargo for Rust.
 
@@ -116,7 +117,6 @@ If your environment is not included in the released packages, you have to constr
 <details>
 <summary>
 
-> **Note**:
 > When configuring with CMake, the following libraries will be installed automatically. Therefore, there is usually no need to be concerned about them. (click here to view additional dependencies.)
 </summary>
 
@@ -176,7 +176,7 @@ you:~$ poac create hello_world
      Created binary (application) `hello_world` package
 ```
 
-> **Note**:
+> [!TIP]
 > If you want to integrate your existing project with Poac, use the `init` command:
 > 
 > ```console
@@ -222,8 +222,8 @@ You can specify dependencies like:
 
 We regularly avoid auto updating packages to major versions which bring breaking changes, but minor and patch are acceptable.
 
-> **Note**:
-> If you would use a specific version, you can write the version as following:
+> [!TIP]
+> If you would use a specific version, you can write the version like the following:
 >
 > ```toml
 > [dependencies]
@@ -286,7 +286,7 @@ you:~/hello_world$ poac run
 15
 ```
 
-> **Warning**:
+> [!WARNING]
 > We currently support building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
 
@@ -322,7 +322,7 @@ digraph G {
 }
 ```
 
-> **Note**:
+> [!NOTE]
 > When you want to export the graph as a `.png` file, please ensure `graphviz` is installed.
 
 If you omit specifying the output path, then Poac emits the graph to standard output:
@@ -351,7 +351,7 @@ Total errors found: 1
 Error: `cpplint` completed with exit code 1
 ```
 
-> **Note**:
+> [!TIP]
 > If you do not have `cpplint`, install it with the following command:
 >
 > ```bash
@@ -372,7 +372,7 @@ you:~/hello_world$ poac fmt
   Formatting hello_world
 ```
 
-> **Note**:
+> [!NOTE]
 > This command automatically detects what files we need to format to avoid bothering commands like:
 >
 > ```console
@@ -437,7 +437,8 @@ https://dev.poac.dev
 ### Before submitting your PR
 
 Please make sure to follow these steps:
-> **Note**: I expect you to use the latest `clang-tidy` and `clang-format`.
+> [!IMPORTANT]
+> I expect you to use the latest `clang-tidy` and `clang-format`.
 
 #### Run linter (`cpplint`)
 
