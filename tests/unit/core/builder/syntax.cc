@@ -157,7 +157,8 @@ auto main() -> int {
           {"out"}, "cc",
           builder::syntax::BuildSet{
               .inputs = Vec{"in"s},
-              .variables = HashMap<String, String>{{"name", "value"}}}
+              .variables = HashMap<String, String>{{"name", "value"}}
+          }
       );
 
       expect(

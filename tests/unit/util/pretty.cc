@@ -69,7 +69,8 @@ auto main() -> int {
         eq(textwrap(test_case, 15),
            std::vector{
                "This function"s, "does not break"s, "long words and"s,
-               "break on"s, "hyphens."s})
+               "break on"s, "hyphens."s
+           })
     );
   };
 }

@@ -18,7 +18,8 @@ auto main() -> int {
 
     it("test2") = [] {
       const std::vector<std::vector<int>> clauses{
-          {-1, -2, -3}, {-2, -3, -4}, {-2, -2, 3}, {2, 2, 2}};
+          {-1, -2, -3}, {-2, -3, -4}, {-2, -2, 3}, {2, 2, 2}
+      };
       const auto result = solve(clauses, 4);
 
       expect(result.is_ok());
@@ -26,8 +27,9 @@ auto main() -> int {
     };
 
     it("test3") = [] {
-      const std::vector<std::vector<int>> clauses{
-          {1}, {-2, 4, 5}, {-2, 6}, {-3, 5}, {2}, {3}, {4, 5}, {-4, -5}, {6}};
+      const std::vector<std::vector<int>> clauses{{1},     {-2, 4, 5}, {-2, 6},
+                                                  {-3, 5}, {2},        {3},
+                                                  {4, 5},  {-4, -5},   {6}};
       const auto result = solve(clauses, 6);
 
       expect(result.is_ok());
@@ -35,8 +37,9 @@ auto main() -> int {
     };
 
     it("test4") = [] {
-      const std::vector<std::vector<int>> clauses{
-          {1, 2}, {-2, 3}, {-2, 4}, {-4, 5}, {1}, {2}, {3}, {4}, {5}};
+      const std::vector<std::vector<int>> clauses{{1, 2},  {-2, 3}, {-2, 4},
+                                                  {-4, 5}, {1},     {2},
+                                                  {3},     {4},     {5}};
       const auto result = solve(clauses, 5);
 
       expect(result.is_ok());
@@ -45,7 +48,8 @@ auto main() -> int {
 
     it("test5") = [] {
       const std::vector<std::vector<int>> clauses{
-          {1, 2}, {-3, 2}, {-3, 4}, {3}, {4}};
+          {1, 2}, {-3, 2}, {-3, 4}, {3}, {4}
+      };
       const auto result = solve(clauses, 4);
 
       expect(result.is_ok());
@@ -57,7 +61,8 @@ auto main() -> int {
       const std::vector<std::vector<int>> clauses{
           {1},         {-2, 6, 5, 4}, {-3, 6, 4},  {2},
           {3},         {4, 5, 6},     {-4, -5, 6}, {-4, 5, -6},
-          {4, -5, -6}, {-4, -5, -6},  {-4, 6}};
+          {4, -5, -6}, {-4, -5, -6},  {-4, 6}
+      };
       const auto result = solve(clauses, 6);
 
       expect(result.is_ok());
@@ -65,8 +70,9 @@ auto main() -> int {
     };
 
     it("test7") = [] {
-      const std::vector<std::vector<int>> clauses{
-          {1}, {-2, 4, 5}, {-2, 6}, {-3, 5}, {2}, {3}, {4, 5}, {-4, -5}, {6}};
+      const std::vector<std::vector<int>> clauses{{1},     {-2, 4, 5}, {-2, 6},
+                                                  {-3, 5}, {2},        {3},
+                                                  {4, 5},  {-4, -5},   {6}};
       const auto result = solve(clauses, 6);
 
       expect(result.is_ok());
@@ -75,7 +81,8 @@ auto main() -> int {
 
     it("test8") = [] {
       const std::vector<std::vector<int>> clauses{
-          {1}, {2}, {3}, {-2, 4, 5, 6}, {-3, 5}, {4, 5}, {-4, -5}, {6}};
+          {1}, {2}, {3}, {-2, 4, 5, 6}, {-3, 5}, {4, 5}, {-4, -5}, {6}
+      };
       const auto result = solve(clauses, 6);
 
       expect(result.is_ok());
@@ -85,8 +92,9 @@ auto main() -> int {
 
   describe("test solve => UNSAT") = [] {
     it("test1") = [] {
-      const std::vector<std::vector<int>> clauses{
-          {1}, {-2, 4}, {-3, 5}, {4, 5}, {-4, -5}, {2}, {3}};
+      const std::vector<std::vector<int>> clauses{{1},    {-2, 4},  {-3, 5},
+                                                  {4, 5}, {-4, -5}, {2},
+                                                  {3}};
       const auto result = solve(clauses, 5);
 
       expect(result.is_err());
@@ -95,7 +103,8 @@ auto main() -> int {
     // FIXME: Maybe the SAT solver has a bug
     skip / it("test2") = [] {
       const std::vector<std::vector<int>> clauses{
-          {-1, -2, -3}, {-2, -3, -4}, {-2, -2, 3}, {2, 2, 2}, {1, -2, 4}};
+          {-1, -2, -3}, {-2, -3, -4}, {-2, -2, 3}, {2, 2, 2}, {1, -2, 4}
+      };
       const auto result = solve(clauses, 4);
 
       expect(result.is_err());
@@ -153,7 +162,8 @@ auto main() -> int {
           {36, 86, -96},    {-2, 36, 75},    {-59, -71, 89},  {36, -67, 91},
           {36, -60, 63},    {-63, 91, -93},  {25, 87, 92},    {-21, 49, -71},
           {-2, 10, 22},     {6, -18, 41},    {6, 71, -92},    {-53, -69, -71},
-          {-2, -53, -58},   {43, -45, -96},  {34, -45, -69},  {63, -86, -98}};
+          {-2, -53, -58},   {43, -45, -96},  {34, -45, -69},  {63, -86, -98}
+      };
       const auto result = solve(clauses, 100);
 
       expect(result.is_err());
