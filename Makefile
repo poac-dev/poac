@@ -18,19 +18,16 @@ OUT_DIR = build-out
 # Project settings
 PROJ_NAME = $(OUT_DIR)/poac
 
-MAIN = $(SRC_DIR)/main.cc
-MAIN_OBJ = $(OUT_DIR)/main.o
-
 
 all: $(PROJ_NAME)
 
 clean:
 	rm -rf $(OUT_DIR)
 
-$(PROJ_NAME): $(MAIN_OBJ)
+$(PROJ_NAME): $(OUT_DIR)/main.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(MAIN_OBJ): $(MAIN) src/Util/Rustify.hpp src/Util/Algos.hpp | $(OUT_DIR)
+$(OUT_DIR)/main.o: $(SRC_DIR)/main.cc src/Util/Rustify.hpp src/Util/Algos.hpp | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR):

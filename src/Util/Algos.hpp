@@ -7,7 +7,7 @@
 
 template <typename T>
 Vec<String> topoSort(
-    const Map<String, T>& list, const HashMap<String, Vec<String>>& adjList
+    const HashMap<String, T>& list, const HashMap<String, Vec<String>>& adjList
 ) {
   HashMap<String, u32> inDegree;
   for (const auto& var : list) {

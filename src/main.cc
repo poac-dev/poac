@@ -32,9 +32,9 @@ struct Target {
 };
 
 struct BuildConfig {
-  Map<String, String> variables;
+  HashMap<String, String> variables;
   HashMap<String, Vec<String>> varDeps;
-  Map<String, Target> targets;
+  HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
 
   void defineVariable(String name, String value, Vec<String> dependsOn = {}) {
@@ -144,6 +144,7 @@ int main() {
   config.defineVariable("MAIN", "$(SRC_DIR)/main.cc", {"SRC_DIR"});
 
   // Build rules
+  config.defineTarget(".PHONY", {}, {"all"});
   config.defineTarget("all", {}, {"$(PROJ_NAME)"});
 
   const Vec<String> sourceFiles = listSourceFiles("src");
