@@ -12,7 +12,6 @@ AR = ar
 ARFLAGS = rcs
 
 # Directories
-SRC_DIR = src
 OUT_DIR = build-out
 
 # Project settings
@@ -24,10 +23,13 @@ all: $(PROJ_NAME)
 clean:
 	rm -rf $(OUT_DIR)
 
-$(PROJ_NAME): $(OUT_DIR)/main.o
+$(PROJ_NAME): $(OUT_DIR)/main.o $(OUT_DIR)/Build.o | $(OUT_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(OUT_DIR)/main.o: $(SRC_DIR)/main.cc src/Util/Rustify.hpp src/Util/Algos.hpp | $(OUT_DIR)
+$(OUT_DIR)/Build.o: src/Build.cc src/Build.hpp src/Util/Rustify.hpp src/Util/Algos.hpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OUT_DIR)/main.o: src/main.cc src/Build.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR):
