@@ -1,5 +1,7 @@
 #include "Rustify.hpp"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <queue>
 
@@ -94,7 +96,7 @@ struct BuildConfig {
       os << '\n';
 
       for (const auto& cmd : targets[*itr].commands) {
-        std::cout << "\t" << cmd << '\n';
+        os << "\t" << cmd << '\n';
       }
       os << '\n';
     }
@@ -102,6 +104,14 @@ struct BuildConfig {
 };
 
 int main() {
+  if (!std::filesystem::exists("src/main.cc")) {
+    std::cerr << "src/main.cc not found" << '\n';
+    exit(1);
+  }
+  if (!std::filesystem::exists("poac-out")) {
+    std::filesystem::create_directory("poac-out");
+  }
+
   BuildConfig config;
 
   // Compiler settings
@@ -117,24 +127,20 @@ int main() {
   config.defineVariable("AR", "ar");
   config.defineVariable("ARFLAGS", "rcs");
   // Directories
-  config.defineVariable("SRC_DIR", "src");
-  config.defineVariable("OUT_DIR", "poac-out");
+  config.defineVariable("SRC_DIR", "../src");
   // Project settings
-  config.defineVariable("PROJ_NAME", "$(OUT_DIR)/poac", {"OUT_DIR"});
+  config.defineVariable("PROJ_NAME", "poac");
   config.defineVariable("MAIN", "$(SRC_DIR)/main.cc", {"SRC_DIR"});
-  config.defineVariable("MAIN_OBJ", "$(OUT_DIR)/main.o", {"OUT_DIR"});
+  config.defineVariable("MAIN_OBJ", "main.o");
 
   // Build rules
   config.defineTarget("all", {}, {"$(PROJ_NAME)"});
-  config.defineTarget("clean", {"rm -rf $(OUT_DIR)"});
   config.defineTarget(
       "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, {"$(MAIN_OBJ)"}
   );
-  config.defineTarget(
-      "$(MAIN_OBJ)", {"$(CC) $(CFLAGS) -c $< -o $@"}, {"$(OUT_DIR)"}
-  );
-  config.defineTarget("$(OUT_DIR)", {"mkdir -p $(OUT_DIR)"});
+  config.defineTarget("$(MAIN_OBJ)", {"$(CC) $(CFLAGS) -c $(MAIN) -o $@"});
 
-  config.emit();
+  std::ofstream ifs("poac-out/Makefile");
+  config.emit(ifs);
   return 0;
 }
