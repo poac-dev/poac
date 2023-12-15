@@ -1,9 +1,28 @@
 #include "Rustify.hpp"
 
+#include <array>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <queue>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
+std::string exec(const char* cmd) {
+  std::array<char, 128> buffer;
+  std::string result;
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+  if (!pipe) {
+    throw std::runtime_error("popen() failed!");
+  }
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+    result += buffer.data();
+  }
+  return result;
+}
 
 struct Target {
   Vec<String> commands;
@@ -18,7 +37,7 @@ struct BuildConfig {
 
   void defineVariable(String name, String value, Vec<String> dependsOn = {}) {
     variables[name] = value;
-    for (const auto& dep : dependsOn) {
+    for (const String& dep : dependsOn) {
       // reverse dependency
       varDeps[dep].push_back(name);
     }
@@ -28,7 +47,7 @@ struct BuildConfig {
       String name, const Vec<String>& commands, Vec<String> dependsOn = {}
   ) {
     targets[name] = {commands, dependsOn};
-    for (const auto& dep : dependsOn) {
+    for (const String& dep : dependsOn) {
       // reverse dependency
       targetDeps[dep].push_back(name);
     }
@@ -42,6 +61,9 @@ struct BuildConfig {
       inDegree[var.first] = 0;
     }
     for (const auto& edge : adjList) {
+      if (list.count(edge.first) == 0) {
+        continue; // Ignore nodes not in list
+      }
       if (inDegree.count(edge.first) == 0) {
         inDegree[edge.first] = 0;
       }
@@ -103,7 +125,21 @@ struct BuildConfig {
   }
 };
 
+Vec<String> listCCFiles(const String& directory) {
+  Vec<String> ccFiles;
+  for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+    if (entry.path().extension() == ".cc") {
+      ccFiles.push_back(entry.path().string());
+    }
+  }
+  return ccFiles;
+}
+
 int main() {
+  if (!std::filesystem::exists("src")) {
+    std::cerr << "src directory not found" << '\n';
+    exit(1);
+  }
   if (!std::filesystem::exists("src/main.cc")) {
     std::cerr << "src/main.cc not found" << '\n';
     exit(1);
@@ -131,14 +167,39 @@ int main() {
   // Project settings
   config.defineVariable("PROJ_NAME", "poac");
   config.defineVariable("MAIN", "$(SRC_DIR)/main.cc", {"SRC_DIR"});
-  config.defineVariable("MAIN_OBJ", "main.o");
 
   // Build rules
   config.defineTarget("all", {}, {"$(PROJ_NAME)"});
-  config.defineTarget(
-      "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, {"$(MAIN_OBJ)"}
-  );
-  config.defineTarget("$(MAIN_OBJ)", {"$(CC) $(CFLAGS) -c $(MAIN) -o $@"});
+  config.defineTarget("$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, {"main.o"});
+
+  Vec<String> ccFiles = listCCFiles("src");
+  for (String sourceFile : ccFiles) {
+    sourceFile = "../" + sourceFile;
+    std::string command = "cd src && clang++ -MM " + sourceFile;
+    std::string output = exec(command.c_str());
+
+    std::istringstream iss(output);
+    std::string target;
+    std::getline(iss, target, ':');
+    std::cout << target << '\n';
+
+    std::vector<std::string> dependencies;
+    std::string dependency;
+    while (std::getline(iss, dependency, ' ')) {
+      if (!dependency.empty()) {
+        // Remove trailing newline if it exists
+        if (dependency.back() == '\n') {
+          dependency.pop_back();
+        }
+        dependencies.push_back(dependency);
+        std::cout << "'" << dependency << "'" << '\n';
+      }
+    }
+
+    config.defineTarget(
+        target, {"$(CC) $(CFLAGS) -c " + sourceFile + " -o $@"}, dependencies
+    );
+  }
 
   std::ofstream ifs("poac-out/Makefile");
   config.emit(ifs);
