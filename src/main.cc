@@ -4,7 +4,7 @@
 #include <functional>
 #include <iostream>
 
-#define POAC_VERSION "0.1.0"
+#define POAC_VERSION "0.6.0"
 
 void help() {
   std::cout << "poac " << POAC_VERSION << '\n';
@@ -23,7 +23,7 @@ void help() {
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
-    std::cerr << "error: no subcommand provided" << '\n';
+    std::cerr << "Error: no subcommand provided" << '\n';
     help();
     return 1;
   }
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
   StringRef subcommand = argv[1];
   if (cmds.count(subcommand) == 0) {
-    std::cerr << "error: unknown subcommand '" << subcommand << "'" << '\n';
+    std::cerr << "Error: unknown subcommand '" << subcommand << "'" << '\n';
     help();
     return 1;
   }
