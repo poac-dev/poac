@@ -30,7 +30,7 @@ clean:
 $(PROJ_NAME): $(MAIN_OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(MAIN_OBJ): $(MAIN) src/Rustify.hpp | $(OUT_DIR)
+$(MAIN_OBJ): $(MAIN) src/Util/Rustify.hpp src/Util/Algos.hpp | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR):
