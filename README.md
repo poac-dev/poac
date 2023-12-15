@@ -12,7 +12,6 @@
 [![GitHub License](https://img.shields.io/github/license/poac-dev/poac.svg)](LICENSE)
 [![DOI](https://zenodo.org/badge/119684778.svg)](https://zenodo.org/badge/latestdoi/119684778)
 [![codecov](https://codecov.io/gh/poac-dev/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poac-dev/poac)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ac87f6b4a0284a2d8b88f3feb6c19f2b)](https://www.codacy.com/gh/poac-dev/poac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=poac-dev/poac&amp;utm_campaign=Badge_Grade)
 
 ## Description
 
