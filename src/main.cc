@@ -90,6 +90,30 @@ Vec<String> listSourceFiles(const String& directory) {
   return sourceFiles;
 }
 
+void parseMMOutput(
+    const String& sourceFile, String& target, Vec<String>& dependencies
+) {
+  const String command = "cd src && clang++ -MM " + sourceFile;
+  const String output = exec(command.c_str());
+
+  std::istringstream iss(output);
+  std::getline(iss, target, ':');
+  std::cout << target << ':';
+
+  String dependency;
+  while (std::getline(iss, dependency, ' ')) {
+    if (!dependency.empty() && dependency.front() != '\\') {
+      // Remove trailing newline if it exists
+      if (dependency.back() == '\n') {
+        dependency.pop_back();
+      }
+      dependencies.push_back(dependency);
+      std::cout << " '" << dependency << "'";
+    }
+  }
+  std::cout << '\n';
+}
+
 int main() {
   if (!std::filesystem::exists("src")) {
     std::cerr << "src directory not found" << '\n';
@@ -126,29 +150,11 @@ int main() {
   Vec<String> objectFiles;
   for (String sourceFile : sourceFiles) {
     sourceFile = "../" + sourceFile;
-    const String command = "cd src && clang++ -MM " + sourceFile;
-    const String output = exec(command.c_str());
-
-    std::istringstream iss(output);
     String target;
-    std::getline(iss, target, ':');
-    objectFiles.push_back(target);
-    std::cout << target << ':';
-
     Vec<String> dependencies;
-    String dependency;
-    while (std::getline(iss, dependency, ' ')) {
-      if (!dependency.empty() && dependency.front() != '\\') {
-        // Remove trailing newline if it exists
-        if (dependency.back() == '\n') {
-          dependency.pop_back();
-        }
-        dependencies.push_back(dependency);
-        std::cout << " '" << dependency << "'";
-      }
-    }
-    std::cout << '\n';
+    parseMMOutput(sourceFile, target, dependencies);
 
+    objectFiles.push_back(target);
     config.defineTarget(
         target, {"$(CC) $(CFLAGS) -c " + sourceFile + " -o $@"}, dependencies
     );
@@ -159,7 +165,10 @@ int main() {
       "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles
   );
 
-  std::ofstream ifs("poac-out/Makefile");
-  config.emitMakefile(ifs);
+  std::ofstream ofs("poac-out/Makefile");
+  config.emitMakefile(ofs);
+  ofs.close();
+
+  std::system("cd poac-out && make");
   return 0;
 }

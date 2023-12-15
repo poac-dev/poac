@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -24,7 +25,7 @@ using f64 = double;
 // NOLINTEND(readability-identifier-naming)
 
 using String = std::string;
-// using StringRef = String_view;
+using StringRef = std::string_view;
 
 template <typename T>
 using Vec = std::vector<T>;
