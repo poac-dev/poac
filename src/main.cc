@@ -107,13 +107,13 @@ struct BuildConfig {
   }
 
   void emitMakefile(std::ostream& os = std::cout) const {
-    Vec<String> sortedVars = topoSort(variables, varDeps);
+    const Vec<String> sortedVars = topoSort(variables, varDeps);
     for (const auto& var : sortedVars) {
       os << var << " = " << variables.at(var) << '\n';
     }
     os << '\n';
 
-    Vec<String> sortedTargets = topoSort(targets, targetDeps);
+    const Vec<String> sortedTargets = topoSort(targets, targetDeps);
     for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend();
          itr++) {
       os << *itr << ": ";
@@ -173,12 +173,12 @@ int main() {
   // Build rules
   config.defineTarget("all", {}, {"$(PROJ_NAME)"});
 
-  Vec<String> sourceFiles = listSourceFiles("src");
+  const Vec<String> sourceFiles = listSourceFiles("src");
   Vec<String> objectFiles;
   for (String sourceFile : sourceFiles) {
     sourceFile = "../" + sourceFile;
-    String command = "cd src && clang++ -MM " + sourceFile;
-    String output = exec(command.c_str());
+    const String command = "cd src && clang++ -MM " + sourceFile;
+    const String output = exec(command.c_str());
 
     std::istringstream iss(output);
     String target;
