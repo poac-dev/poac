@@ -11,9 +11,9 @@
 #include <stdexcept>
 #include <string>
 
-std::string exec(const char* cmd) {
+String exec(const char* cmd) {
   std::array<char, 128> buffer;
-  std::string result;
+  String result;
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
   if (!pipe) {
     throw std::runtime_error("popen() failed!");
@@ -153,8 +153,7 @@ int main() {
   // Compiler settings
   config.defineVariable("CC", "clang++");
   config.defineVariable(
-      "CFLAGS",
-      "-Wall -Wextra -Werror -fdiagnostics-color -pedantic-errors -std=c++20"
+      "CFLAGS", "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20"
   );
   config.defineVariable("LDFLAGS", "-L.");
   config.defineVariable("DEBUG_FLAGS", "-g -O0 -DDEBUG");
@@ -175,16 +174,16 @@ int main() {
   Vec<String> ccFiles = listCCFiles("src");
   for (String sourceFile : ccFiles) {
     sourceFile = "../" + sourceFile;
-    std::string command = "cd src && clang++ -MM " + sourceFile;
-    std::string output = exec(command.c_str());
+    String command = "cd src && clang++ -MM " + sourceFile;
+    String output = exec(command.c_str());
 
     std::istringstream iss(output);
-    std::string target;
+    String target;
     std::getline(iss, target, ':');
     std::cout << target << '\n';
 
-    std::vector<std::string> dependencies;
-    std::string dependency;
+    Vec<String> dependencies;
+    String dependency;
     while (std::getline(iss, dependency, ' ')) {
       if (!dependency.empty()) {
         // Remove trailing newline if it exists
