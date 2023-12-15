@@ -13,7 +13,7 @@ ARFLAGS = rcs
 
 # Directories
 SRC_DIR = src
-OUT_DIR = poac-out
+OUT_DIR = build-out
 
 # Project settings
 PROJ_NAME = $(OUT_DIR)/poac
@@ -30,7 +30,7 @@ clean:
 $(PROJ_NAME): $(MAIN_OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(MAIN_OBJ): $(MAIN) | $(OUT_DIR)
+$(MAIN_OBJ): $(MAIN) src/Rustify.hpp | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR):
