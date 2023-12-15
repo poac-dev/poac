@@ -26,8 +26,7 @@ using FailedToBuild = Error<"failed to build package `{}`", String>;
 using FailedToInstallDeps = Error<"failed to install dependencies">;
 using UnsupportedProfile = Error<"unsupported profile `{}`", String>;
 
-[[nodiscard]] auto
-build(const Options& opts, const toml::value& manifest)
+[[nodiscard]] auto build(const Options& opts, const toml::value& manifest)
     -> Result<Option<Path>>;
 
 [[nodiscard]] auto exec(const Options& opts) -> Result<void>;

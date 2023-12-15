@@ -343,7 +343,8 @@ void gather_deps(
       gather_deps(
           Package{
               package.name,
-              {version, package.dep_info.index, package.dep_info.type}},
+              {version, package.dep_info.index, package.dep_info.type}
+          },
           duplicate_deps, interval_cache
       );
     }

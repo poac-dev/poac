@@ -250,7 +250,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
     UniqDeps<WithoutDeps> resolvable_deps{};
     for (const auto& [name, table] : dependencies) {
       poac::core::resolver::resolve::DependencyInfo info = {
-          .index = "poac", .type = "poac"};
+          .index = "poac", .type = "poac"
+      };
       if (table.is_table()) {
         const toml::table& entries = table.as_table();
         for (const auto& [n, v] : entries) {
@@ -279,7 +280,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
     -> Result<registry::Registries> {
   registry::Registries regs = {
       {"poac", {.index = "poac", .type = "poac"}},
-      {"conan-v1", {.index = "conan", .type = "conan-v1"}}};
+      {"conan-v1", {.index = "conan", .type = "conan-v1"}}
+  };
   if (!manifest.contains("registries")) {
     return Ok(regs);
   }

@@ -47,7 +47,8 @@ static void fmt_impl(const Path& base_dir, Vec<Path>& targets) {
   }
 }
 
-[[nodiscard]] static auto fmt(const Path& base_dir, StringRef args) -> Result<void> {
+[[nodiscard]] static auto fmt(const Path& base_dir, StringRef args)
+    -> Result<void> {
   Vec<Path> targets;
   fmt_impl(base_dir, targets);
   if (targets.empty()) {

@@ -30,8 +30,7 @@ namespace poac::cmd::build {
   return Ok(output_path);
 }
 
-[[nodiscard]] auto
-build(const Options& opts, const toml::value& manifest)
+[[nodiscard]] auto build(const Options& opts, const toml::value& manifest)
     -> Result<Option<Path>> {
   const auto resolved_deps =
       Try(core::resolver::install_deps(manifest).with_context([] {
@@ -73,4 +72,4 @@ build(const Options& opts, const toml::value& manifest)
   return Ok();
 }
 
-} // end namespace
+} // namespace poac::cmd::build

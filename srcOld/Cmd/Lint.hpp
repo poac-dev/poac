@@ -15,8 +15,7 @@ struct Options : structopt::sub_command {
   // FIXME(ken-matsui): this is structopt limitation; I'd remove this.
 };
 
-[[nodiscard]] auto exec(const Options&)
-    -> Result<void>;
+[[nodiscard]] auto exec(const Options&) -> Result<void>;
 
 } // namespace poac::cmd::lint
 

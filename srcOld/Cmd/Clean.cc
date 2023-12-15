@@ -7,8 +7,8 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include "../Config.hpp"
 #include "../Cmd/Build.hpp"
+#include "../Config.hpp"
 #include "../Data/Manifest.hpp"
 #include "../Util/Format.hpp"
 #include "../Util/Log.hpp"
@@ -46,4 +46,4 @@ namespace poac::cmd::clean {
   return clean(opts);
 }
 
-}
+} // namespace poac::cmd::clean

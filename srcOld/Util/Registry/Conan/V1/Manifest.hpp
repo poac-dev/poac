@@ -70,7 +70,8 @@ auto gather_conan_deps() -> Result<ConanManifest> {
       .defines = gather_conan_defines(pt),
       .includes = gather_conan_includes(pt),
       .libdirs = gather_conan_libdirs(pt),
-      .libraries = gather_conan_libraries(pt)});
+      .libraries = gather_conan_libraries(pt)
+  });
 }
 
 } // namespace poac::util::registry::conan::v1::manifest

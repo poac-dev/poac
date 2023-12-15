@@ -6,13 +6,13 @@
 #include <toml.hpp>
 
 // internal
-#include "./Build.hpp"
 #include "../Data/Manifest.hpp"
 #include "../Util/Format.hpp"
 #include "../Util/Log.hpp"
 #include "../Util/ResultMacros.hpp"
 #include "../Util/Shell.hpp"
 #include "../Util/Validator.hpp"
+#include "./Build.hpp"
 
 namespace poac::cmd::run {
 

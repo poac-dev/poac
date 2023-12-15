@@ -76,7 +76,8 @@ namespace files {
   }
 } // namespace files
 
-static void write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
+static void
+write_to_file(std::ofstream& ofs, const String& fname, StringRef text) {
   ofs.open(fname);
   if (ofs.is_open()) {
     ofs << text;
@@ -85,7 +86,8 @@ static void write_to_file(std::ofstream& ofs, const String& fname, StringRef tex
   ofs.clear();
 }
 
-static auto create_template_files(const ProjectType& type, const String& package_name)
+static auto
+create_template_files(const ProjectType& type, const String& package_name)
     -> Map<Path, String> {
   switch (type) {
     case ProjectType::Bin:
@@ -93,7 +95,8 @@ static auto create_template_files(const ProjectType& type, const String& package
       return {
           {".gitignore", format("/{}", config::POAC_OUT)},
           {data::manifest::NAME, files::poac_toml(package_name)},
-          {"src"_path / "main.cpp", String(files::MAIN_CPP)}};
+          {"src"_path / "main.cpp", String(files::MAIN_CPP)}
+      };
     case ProjectType::Lib:
       fs::create_directories(package_name / "include"_path / package_name);
       return {

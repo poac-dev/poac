@@ -8,13 +8,13 @@
 #include <spdlog/spdlog.h> // NOLINT(build/include_order)
 
 // internal
-#include "./Create.hpp"
+#include "../Config.hpp"
 #include "../Data/Manifest.hpp"
 #include "../Util/Format.hpp"
 #include "../Util/Log.hpp"
 #include "../Util/ResultMacros.hpp"
 #include "../Util/Validator.hpp"
-#include "../Config.hpp"
+#include "./Create.hpp"
 
 namespace poac::cmd::init {
 

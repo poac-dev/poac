@@ -286,7 +286,8 @@ public:
 
   template <
       typename BodyType, typename Ofstream = std::nullptr_t,
-      typename RequestBody = std::conditional_t< std::is_same_v<std::remove_cvref_t<BodyType>, MultiPartForm>,
+      typename RequestBody = std::conditional_t<
+          std::is_same_v<std::remove_cvref_t<BodyType>, MultiPartForm>,
           http::empty_body, http::string_body>,
       typename ResponseBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>,
@@ -511,7 +512,8 @@ private:
         )) {
       const boost::system::error_code error{
           static_cast<i32>(::ERR_get_error()),
-          boost::asio::error::get_ssl_category()};
+          boost::asio::error::get_ssl_category()
+      };
       log::debug(error.message());
       throw boost::system::system_error{error};
     }

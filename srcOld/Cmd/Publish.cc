@@ -10,13 +10,13 @@
 
 // internal
 #include "../Config.hpp"
-#include "./Build.hpp"
-#include "./Login.hpp"
 #include "../Data/Manifest.hpp"
 #include "../Util/Format.hpp"
 #include "../Util/Log.hpp"
 #include "../Util/ResultMacros.hpp"
 #include "../Util/Validator.hpp"
+#include "./Build.hpp"
+#include "./Login.hpp"
 
 namespace poac::cmd::publish {
 

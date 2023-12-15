@@ -1,239 +1,170 @@
-// std
-#include <cstdlib>
-#include <exception>
-#include <string_view>
+#include <iostream>
+#include <map>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-// external
-#include <boost/algorithm/string.hpp>
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/stringize.hpp>
-#include <boost/preprocessor/variadic/to_seq.hpp>
-#include <mitama/anyhow/anyhow.hpp>
-#include <spdlog/sinks/stdout_sinks.h> // NOLINT(build/include_order)
-#include <spdlog/spdlog.h> // NOLINT(build/include_order)
-#include <structopt/app.hpp>
-#include <toml.hpp>
+// NOLINTBEGIN(readability-identifier-naming)
+using u8 = std::uint8_t;
+using u16 = std::uint16_t;
+using u32 = std::uint32_t;
+using u64 = std::uint64_t;
 
-// internal
-#include "util/result-macros.hpp"
+using i8 = std::int8_t;
+using i16 = std::int16_t;
+using i32 = std::int32_t;
+using i64 = std::int64_t;
 
-#ifndef POAC_VERSION
-#  error "POAC_VERSION is not defined"
-#endif
+using usize = std::size_t;
 
-import poac.cmd;
-import poac.util.format;
-import poac.util.result;
-import poac.util.rustify;
-import poac.util.levDistance;
-import poac.util.log;
-import termcolor2.color_mode;
-import termcolor2.literals;
-import termcolor2.literals_extra;
+using f32 = float;
+using f64 = double;
+// NOLINTEND(readability-identifier-naming)
 
-using namespace termcolor2::color_literals; // NOLINT(build/namespaces)
-using namespace poac; // NOLINT(build/namespaces)
-namespace anyhow = mitama::anyhow;
+using String = std::string;
+// using StringRef = String_view;
 
-struct Commands {
-  /// Use verbose output
-  Option<bool> verbose = false;
-  /// Do not print poac log messages
-  Option<bool> quiet = false;
-  /// Coloring: auto, always, never
-  Option<String> color = "auto";
+template <typename T>
+using Vec = std::vector<T>;
 
-  /// Compile a local package and all of its dependencies
-  cmd::build::Options build;
+template <typename K, typename V>
+using Map = std::map<K, V>;
+template <typename K, typename V>
+using HashMap = std::unordered_map<K, V>;
 
-  /// Remove the output directory
-  cmd::clean::Options clean;
-
-  /// Create a new poac package at <package_name>
-  cmd::create::Options create;
-
-  /// Format source code with clang-format (default `LLVM`)
-  cmd::fmt::Options fmt;
-
-  /// Create graph of dependencies
-  cmd::graph::Options graph;
-
-  /// Create a new poac package in an existing directory
-  cmd::init::Options init;
-
-  /// Run cpplint
-  cmd::lint::Options lint;
-
-  /// Log in to poac.dev
-  cmd::login::Options login;
-
-  /// Publish a package to poac.dev
-  cmd::publish::Options publish;
-
-  /// Build and run a binary
-  cmd::run::Options run;
-
-  /// Search a package on poac.dev
-  cmd::search::Options search;
+struct Target {
+  Vec<String> commands;
+  Vec<String> dependsOn;
 };
 
-#define STRINGIFY(r, data, elem) BOOST_PP_STRINGIZE(elem) ,
+struct BuildConfig {
+  Map<String, String> variables;
+  HashMap<String, Vec<String>> varDeps;
+  Map<String, Target> targets;
+  HashMap<String, Vec<String>> targetDeps;
 
-#define TO_STRINGS(...) \
-  BOOST_PP_SEQ_FOR_EACH(STRINGIFY, hoge, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
-
-#define DECL_CMDS(...) \
-  inline constexpr StringRef command_list[] = {TO_STRINGS(__VA_ARGS__)}
-
-#define structopt(...)                                     \
-  STRUCTOPT(Commands, verbose, quiet, color, __VA_ARGS__); \
-  DECL_CMDS(__VA_ARGS__)
-
-structopt(
-    build, clean, create, fmt, /*graph,*/ init, lint, login, publish, run,
-    search
-);
-
-inline String colorize_structopt_error(String s) {
-  boost::replace_all(s, "Error:", "Error:"_bold_red);
-  return s;
-}
-
-inline String colorize_anyhow_error(String s) {
-  // `Caused by:` leaves a trailing newline
-  if (s.find("Caused by:") != None) {
-    boost::replace_all(s, "Caused by:", "Caused by:"_yellow);
-    boost::replace_last(s, "\n", "");
-  }
-  return s;
-}
-
-inline String colorize_help(String s) {
-  boost::replace_all(s, "USAGE:", "USAGE:"_yellow);
-  boost::replace_all(s, "FLAGS:", "FLAGS:"_yellow);
-  boost::replace_all(s, "OPTIONS:", "OPTIONS:"_yellow);
-  boost::replace_all(s, "SUBCOMMANDS:", "SUBCOMMANDS:"_yellow);
-  boost::replace_last(s, "\n", "");
-  return s;
-}
-
-using ColorError = poac::Error<
-    "argument for --color must be `auto`, `always`, or `never`, but found `{}`",
-    StringRef>;
-
-[[nodiscard]] Result<void> set_color_mode(StringRef color_mode) {
-  if (color_mode == "auto") {
-    termcolor2::set_color_mode(spdlog::color_mode::automatic);
-    if (termcolor2::should_color()) {
-      toml::color::enable();
-    } else {
-      toml::color::disable();
+  void defineVariable(String name, String value, Vec<String> dependsOn = {}) {
+    variables[name] = value;
+    for (const auto& dep : dependsOn) {
+      // reverse dependency
+      varDeps[dep].push_back(name);
     }
-  } else if (color_mode == "always") {
-    termcolor2::set_color_mode(spdlog::color_mode::always);
-    toml::color::enable();
-  } else if (color_mode == "never") {
-    termcolor2::set_color_mode(spdlog::color_mode::never);
-    toml::color::disable();
-  } else {
-    return Err<ColorError>(color_mode);
   }
-  return Ok();
-}
 
-[[nodiscard]] Result<void>
-exec(const structopt::app& app, const Commands& args) {
-  Try(set_color_mode(args.color.value()));
-
-  if (args.build.has_value()) {
-    return cmd::build::exec(args.build);
-  } else if (args.clean.has_value()) {
-    return cmd::clean::exec(args.clean);
-  } else if (args.create.has_value()) {
-    return cmd::create::exec(args.create);
-  } else if (args.fmt.has_value()) {
-    return cmd::fmt::exec(args.fmt);
-  } else if (args.graph.has_value()) {
-    return cmd::graph::exec(args.graph);
-  } else if (args.init.has_value()) {
-    return cmd::init::exec(args.init);
-  } else if (args.lint.has_value()) {
-    return cmd::lint::exec(args.lint);
-  } else if (args.login.has_value()) {
-    return cmd::login::exec(args.login);
-  } else if (args.publish.has_value()) {
-    return cmd::publish::exec(args.publish);
-  } else if (args.run.has_value()) {
-    return cmd::run::exec(args.run);
-  } else if (args.search.has_value()) {
-    return cmd::search::exec(args.search);
-  } else {
-    spdlog::info("{}", colorize_help(app.help()));
-    return Ok();
+  void defineTarget(
+      String name, const Vec<String>& commands, Vec<String> dependsOn = {}
+  ) {
+    targets[name] = {commands, dependsOn};
+    for (const auto& dep : dependsOn) {
+      // reverse dependency
+      targetDeps[dep].push_back(name);
+    }
   }
-}
 
-int main(const int argc, char* argv[]) {
-  spdlog::set_pattern("%v");
-  auto err_logger = spdlog::stderr_logger_st("stderr");
-
-  auto app = structopt::app("poac", POAC_VERSION);
-  try {
-    const auto args = app.parse<Commands>(argc, argv);
-
-    // Global options
-    if (args.verbose.value()) {
-      spdlog::set_level(spdlog::level::trace);
-    } else if (args.quiet.value()) {
-      spdlog::set_level(spdlog::level::off);
+  template <typename T>
+  Vec<String>
+  topoSort(const Map<String, T>& list, HashMap<String, Vec<String>>& adjList) {
+    HashMap<String, u32> inDegree;
+    for (const auto& var : list) {
+      inDegree[var.first] = 0;
+    }
+    for (const auto& edge : adjList) {
+      if (inDegree.count(edge.first) == 0) {
+        inDegree[edge.first] = 0;
+      }
+      for (const auto& neighbor : edge.second) {
+        inDegree[neighbor]++;
+      }
     }
 
-    // Subcommands
-    return exec(app, args)
-        .map_err([err_logger](const auto& e) {
-          log::error(
-              err_logger, colorize_anyhow_error(format("{}", e->what()))
-          );
-        })
-        .is_err();
-  } catch (const structopt::exception& e) {
-    if (argc > 1) {
-      i32 subcommand_index = 1;
-      for (; subcommand_index < argc; ++subcommand_index) {
-        if (argv[subcommand_index][0] != '-') {
-          break;
+    std::queue<String> zeroInDegree;
+    for (const auto& var : inDegree) {
+      if (var.second == 0) {
+        zeroInDegree.push(var.first);
+      }
+    }
+
+    Vec<String> res;
+    while (!zeroInDegree.empty()) {
+      const String node = zeroInDegree.front();
+      zeroInDegree.pop();
+      res.push_back(node);
+
+      for (const String& neighbor : adjList[node]) {
+        inDegree[neighbor]--;
+        if (inDegree[neighbor] == 0) {
+          zeroInDegree.push(neighbor);
         }
       }
-
-      // try to correct typo
-      if (const auto sugg = util::lev_distance::find_similar_str(
-              argv[subcommand_index], command_list
-          );
-          sugg.has_value() && sugg.value() != argv[subcommand_index]) {
-        err_logger->error(
-            "{}\n"
-            "  --> Did you mean `{}`?\n\n"
-            "For more information, try {}",
-            colorize_structopt_error(e.what()), sugg.value(), "--help"_green
-        );
-        return EXIT_FAILURE;
-      }
     }
-    err_logger->error(
-        "{}\n\nFor more information, try {}",
-        colorize_structopt_error(e.what()), "--help"_green
-    );
-    return EXIT_FAILURE;
-  } catch (const std::exception& e) {
-    log::error(err_logger, e.what());
-    return EXIT_FAILURE;
-  } catch (...) {
-    err_logger->error(
-        "{} Unknown error occurred\n\n"
-        "Please open an issue with reproducible information at:\n"
-        "https://github.com/poac-dev/poac/issues",
-        "Error:"_bold_red
-    );
-    return EXIT_FAILURE;
+
+    if (res.size() != list.size()) {
+      std::cerr << "Cycle detected" << '\n';
+      exit(1);
+    }
+    return res;
   }
+
+  void emit(std::ostream& os = std::cout) {
+    Vec<String> sortedVars = topoSort(variables, varDeps);
+    for (const auto& var : sortedVars) {
+      os << var << " = " << variables[var] << '\n';
+    }
+    os << '\n';
+
+    Vec<String> sortedTargets = topoSort(targets, targetDeps);
+
+    for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend();
+         itr++) {
+      os << *itr << ": ";
+      for (const auto& dep : targets[*itr].dependsOn) {
+        os << dep << " ";
+      }
+      os << '\n';
+
+      for (const auto& cmd : targets[*itr].commands) {
+        std::cout << "\t" << cmd << '\n';
+      }
+      os << '\n';
+    }
+  }
+};
+
+int main() {
+  BuildConfig config;
+
+  // Compiler settings
+  config.defineVariable("CC", "clang++");
+  config.defineVariable(
+      "CFLAGS",
+      "-Wall -Wextra -Werror -fdiagnostics-color -pedantic-errors -std=c++20"
+  );
+  config.defineVariable("LDFLAGS", "-L.");
+  config.defineVariable("DEBUG_FLAGS", "-g -O0 -DDEBUG");
+  config.defineVariable("RELEASE_FLAGS", "-O3 -DNDEBUG");
+  // Archiver settings
+  config.defineVariable("AR", "ar");
+  config.defineVariable("ARFLAGS", "rcs");
+  // Directories
+  config.defineVariable("SRC_DIR", "src");
+  config.defineVariable("OUT_DIR", "poac-out");
+  // Project settings
+  config.defineVariable("PROJ_NAME", "$(OUT_DIR)/poac", {"OUT_DIR"});
+  config.defineVariable("MAIN", "$(SRC_DIR)/main.cc", {"SRC_DIR"});
+  config.defineVariable("MAIN_OBJ", "$(OUT_DIR)/main.o", {"OUT_DIR"});
+
+  // Build rules
+  config.defineTarget("all", {}, {"$(PROJ_NAME)"});
+  config.defineTarget("clean", {"rm -rf $(OUT_DIR)"});
+  config.defineTarget(
+      "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, {"$(MAIN_OBJ)"}
+  );
+  config.defineTarget(
+      "$(MAIN_OBJ)", {"$(CC) $(CFLAGS) -c $< -o $@"}, {"$(OUT_DIR)"}
+  );
+  config.defineTarget("$(OUT_DIR)", {"mkdir -p $(OUT_DIR)"});
+
+  config.emit();
+  return 0;
 }

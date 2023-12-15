@@ -15,8 +15,8 @@
 
 // internal
 #include "../Cmd/Build.hpp"
-#include "../Core/Resolver.types.hpp" // ResolvedDeps
 #include "../Core/Resolver.hpp" // install_deps
+#include "../Core/Resolver.types.hpp" // ResolvedDeps
 #include "../Data/Manifest.hpp"
 #include "../Util/Format.hpp"
 #include "../Util/Log.hpp"
@@ -95,14 +95,16 @@ static auto create_graph() -> Result<std::pair<Graph, Vec<String>>> {
   return Ok(std::make_pair(g, names));
 }
 
-[[nodiscard]] static auto dot_file_output(const Path& output_path) -> Result<void> {
+[[nodiscard]] static auto dot_file_output(const Path& output_path)
+    -> Result<void> {
   const auto [g, names] = Try(create_graph());
   std::ofstream file(output_path);
   boost::write_graphviz(file, g, boost::make_label_writer(names.data()));
   return Ok();
 }
 
-[[nodiscard]] static auto png_file_output(const Path& output_path) -> Result<void> {
+[[nodiscard]] static auto png_file_output(const Path& output_path)
+    -> Result<void> {
   if (util::shell::has_command("dot")) {
     const auto [g, names] = Try(create_graph());
 

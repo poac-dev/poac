@@ -9,15 +9,15 @@
 #include <toml.hpp>
 
 // internal
-#include "./Fmt.hpp"
 #include "../Config.hpp"
 #include "../Data/Manifest.hpp"
 #include "../Util/Format.hpp"
 #include "../Util/Log.hpp"
-#include "../Util/Shell.hpp"
 #include "../Util/ResultMacros.hpp"
+#include "../Util/Shell.hpp"
 #include "../Util/Validator.hpp"
 #include "../Util/Verbosity.hpp"
+#include "./Fmt.hpp"
 
 namespace poac::cmd::lint {
 
@@ -52,8 +52,7 @@ lint(StringRef name, const Path& base_dir, Option<String> args)
   return Ok();
 }
 
-[[nodiscard]] auto exec(const Options&)
-    -> Result<void> {
+[[nodiscard]] auto exec(const Options&) -> Result<void> {
   spdlog::trace("Checking if `cpplint` command exists ...");
   if (!util::shell::has_command("cpplint")) {
     return Err<CppLintNotFound>();
