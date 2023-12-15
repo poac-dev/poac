@@ -1,3 +1,4 @@
+#include "Build.hpp"
 #include "Rustify.hpp"
 
 #include <array>
@@ -29,6 +30,58 @@ struct Target {
   Vec<String> dependsOn;
 };
 
+template <typename T>
+Vec<String> topoSort(
+    const Map<String, T>& list, const HashMap<String, Vec<String>>& adjList
+) {
+  HashMap<String, u32> inDegree;
+  for (const auto& var : list) {
+    inDegree[var.first] = 0;
+  }
+  for (const auto& edge : adjList) {
+    if (list.count(edge.first) == 0) {
+      continue; // Ignore nodes not in list
+    }
+    if (inDegree.count(edge.first) == 0) {
+      inDegree[edge.first] = 0;
+    }
+    for (const auto& neighbor : edge.second) {
+      inDegree[neighbor]++;
+    }
+  }
+
+  std::queue<String> zeroInDegree;
+  for (const auto& var : inDegree) {
+    if (var.second == 0) {
+      zeroInDegree.push(var.first);
+    }
+  }
+
+  Vec<String> res;
+  while (!zeroInDegree.empty()) {
+    const String node = zeroInDegree.front();
+    zeroInDegree.pop();
+    res.push_back(node);
+
+    if (adjList.count(node) == 0) {
+      // No dependencies
+      continue;
+    }
+    for (const String& neighbor : adjList.at(node)) {
+      inDegree[neighbor]--;
+      if (inDegree[neighbor] == 0) {
+        zeroInDegree.push(neighbor);
+      }
+    }
+  }
+
+  if (res.size() != list.size()) {
+    std::cerr << "Cycle detected" << '\n';
+    exit(1);
+  }
+  return res;
+}
+
 struct BuildConfig {
   Map<String, String> variables;
   HashMap<String, Vec<String>> varDeps;
@@ -53,71 +106,23 @@ struct BuildConfig {
     }
   }
 
-  template <typename T>
-  Vec<String>
-  topoSort(const Map<String, T>& list, HashMap<String, Vec<String>>& adjList) {
-    HashMap<String, u32> inDegree;
-    for (const auto& var : list) {
-      inDegree[var.first] = 0;
-    }
-    for (const auto& edge : adjList) {
-      if (list.count(edge.first) == 0) {
-        continue; // Ignore nodes not in list
-      }
-      if (inDegree.count(edge.first) == 0) {
-        inDegree[edge.first] = 0;
-      }
-      for (const auto& neighbor : edge.second) {
-        inDegree[neighbor]++;
-      }
-    }
-
-    std::queue<String> zeroInDegree;
-    for (const auto& var : inDegree) {
-      if (var.second == 0) {
-        zeroInDegree.push(var.first);
-      }
-    }
-
-    Vec<String> res;
-    while (!zeroInDegree.empty()) {
-      const String node = zeroInDegree.front();
-      zeroInDegree.pop();
-      res.push_back(node);
-
-      for (const String& neighbor : adjList[node]) {
-        inDegree[neighbor]--;
-        if (inDegree[neighbor] == 0) {
-          zeroInDegree.push(neighbor);
-        }
-      }
-    }
-
-    if (res.size() != list.size()) {
-      std::cerr << "Cycle detected" << '\n';
-      exit(1);
-    }
-    return res;
-  }
-
-  void emit(std::ostream& os = std::cout) {
+  void emitMakefile(std::ostream& os = std::cout) const {
     Vec<String> sortedVars = topoSort(variables, varDeps);
     for (const auto& var : sortedVars) {
-      os << var << " = " << variables[var] << '\n';
+      os << var << " = " << variables.at(var) << '\n';
     }
     os << '\n';
 
     Vec<String> sortedTargets = topoSort(targets, targetDeps);
-
     for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend();
          itr++) {
       os << *itr << ": ";
-      for (const auto& dep : targets[*itr].dependsOn) {
+      for (const auto& dep : targets.at(*itr).dependsOn) {
         os << dep << " ";
       }
       os << '\n';
 
-      for (const auto& cmd : targets[*itr].commands) {
+      for (const auto& cmd : targets.at(*itr).commands) {
         os << "\t" << cmd << '\n';
       }
       os << '\n';
@@ -125,14 +130,15 @@ struct BuildConfig {
   }
 };
 
-Vec<String> listCCFiles(const String& directory) {
-  Vec<String> ccFiles;
-  for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+Vec<String> listSourceFiles(const String& directory) {
+  Vec<String> sourceFiles;
+  for (const auto& entry :
+       std::filesystem::recursive_directory_iterator(directory)) {
     if (entry.path().extension() == ".cc") {
-      ccFiles.push_back(entry.path().string());
+      sourceFiles.push_back(entry.path().string());
     }
   }
-  return ccFiles;
+  return sourceFiles;
 }
 
 int main() {
@@ -158,9 +164,6 @@ int main() {
   config.defineVariable("LDFLAGS", "-L.");
   config.defineVariable("DEBUG_FLAGS", "-g -O0 -DDEBUG");
   config.defineVariable("RELEASE_FLAGS", "-O3 -DNDEBUG");
-  // Archiver settings
-  config.defineVariable("AR", "ar");
-  config.defineVariable("ARFLAGS", "rcs");
   // Directories
   config.defineVariable("SRC_DIR", "../src");
   // Project settings
@@ -169,10 +172,10 @@ int main() {
 
   // Build rules
   config.defineTarget("all", {}, {"$(PROJ_NAME)"});
-  config.defineTarget("$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, {"main.o"});
 
-  Vec<String> ccFiles = listCCFiles("src");
-  for (String sourceFile : ccFiles) {
+  Vec<String> sourceFiles = listSourceFiles("src");
+  Vec<String> objectFiles;
+  for (String sourceFile : sourceFiles) {
     sourceFile = "../" + sourceFile;
     String command = "cd src && clang++ -MM " + sourceFile;
     String output = exec(command.c_str());
@@ -180,7 +183,8 @@ int main() {
     std::istringstream iss(output);
     String target;
     std::getline(iss, target, ':');
-    std::cout << target << '\n';
+    objectFiles.push_back(target);
+    std::cout << target << ':';
 
     Vec<String> dependencies;
     String dependency;
@@ -191,16 +195,22 @@ int main() {
           dependency.pop_back();
         }
         dependencies.push_back(dependency);
-        std::cout << "'" << dependency << "'" << '\n';
+        std::cout << ' ' << dependency;
       }
     }
+    std::cout << '\n';
 
     config.defineTarget(
         target, {"$(CC) $(CFLAGS) -c " + sourceFile + " -o $@"}, dependencies
     );
   }
 
+  // The project binary
+  config.defineTarget(
+      "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles
+  );
+
   std::ofstream ifs("poac-out/Makefile");
-  config.emit(ifs);
+  config.emitMakefile(ifs);
   return 0;
 }
