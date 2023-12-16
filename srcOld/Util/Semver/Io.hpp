@@ -23,7 +23,9 @@ namespace fmt {
 
 template <>
 struct formatter<semver::Version> {
-  static constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+  static constexpr auto parse(format_parse_context& ctx) {
+    return ctx.begin();
+  }
 
   template <typename FormatContext>
   inline auto format(const semver::Version& v, FormatContext& ctx) {

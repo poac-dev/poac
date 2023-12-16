@@ -151,7 +151,9 @@ extract(const Path& target_file_path, const Path& extract_path)
   if (!reader) {
     return Err("Cannot archive_read_new");
   }
-  BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_free(reader); };
+  BOOST_SCOPE_EXIT_ALL(&reader) {
+    archive_read_free(reader);
+  };
   read_as_targz(reader);
 
   const Writer writer(archive_write_disk_new());
@@ -163,7 +165,9 @@ extract(const Path& target_file_path, const Path& extract_path)
   archive_write_disk_set_standard_lookup(writer.get());
 
   Try(archive_read_open_filename(reader, target_file_path, 10'240));
-  BOOST_SCOPE_EXIT_ALL(&reader) { archive_read_close(reader); };
+  BOOST_SCOPE_EXIT_ALL(&reader) {
+    archive_read_close(reader);
+  };
 
   return extract_impl(reader, writer, extract_path);
 }

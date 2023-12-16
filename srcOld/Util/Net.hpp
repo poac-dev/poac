@@ -147,8 +147,12 @@ public:
       : _boundary(boost::uuids::to_string(boost::uuids::random_generator{}())),
         _footer(format("{}--{}--{}", _crlf, _boundary, _crlf)) {}
 
-  [[nodiscard]] inline auto get_header() const -> String { return _header; }
-  [[nodiscard]] inline auto get_footer() const -> String { return _footer; }
+  [[nodiscard]] inline auto get_header() const -> String {
+    return _header;
+  }
+  [[nodiscard]] inline auto get_footer() const -> String {
+    return _footer;
+  }
 
   inline void set(const FileNameType& name, const String& value) {
     _form_param.emplace_back(format(
@@ -198,7 +202,9 @@ public:
     return file_info;
   }
 
-  inline auto body() noexcept -> SelfReference { return *this; }
+  inline auto body() noexcept -> SelfReference {
+    return *this;
+  }
   [[nodiscard]] inline auto body() const noexcept -> ConstSelfReference {
     return *this;
   }

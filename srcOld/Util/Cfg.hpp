@@ -847,6 +847,8 @@ void Parser::eat_right_paren() {
   }
 }
 
-inline auto parse(StringRef s) -> CfgExpr { return Parser(s).expr(); }
+inline auto parse(StringRef s) -> CfgExpr {
+  return Parser(s).expr();
+}
 
 } // end namespace poac::util::cfg

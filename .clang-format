@@ -4,6 +4,9 @@ AlignAfterOpenBracket: BlockIndent
 AlignEscapedNewlines: Left
 AlignOperands: Align
 AlignTrailingComments: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBinaryOperators: NonAssignment

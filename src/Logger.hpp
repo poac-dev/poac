@@ -1,11 +1,17 @@
 #pragma once
 
 #include "Rustify.hpp"
+#include "TermColor.hpp"
 
 #include <iostream>
 #include <utility>
 
-enum class LogLevel : u8 { ERROR = 0, WARNING = 1, INFO = 2, DEBUG = 3 };
+enum class LogLevel : u8 {
+  error = 0,
+  warning = 1,
+  status = 2, // default
+  debug = 3 // --verbose
+};
 
 class Logger {
 public:
@@ -14,39 +20,42 @@ public:
 
   template <typename... Args>
   static void error(Args... message) {
-    getInstance().log(LogLevel::ERROR, std::forward<Args>(message)...);
+    getInstance().log(LogLevel::error, std::forward<Args>(message)...);
   }
   template <typename... Args>
   static void warning(Args... message) {
-    getInstance().log(LogLevel::WARNING, std::forward<Args>(message)...);
+    getInstance().log(LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename... Args>
-  static void info(Args... message) {
-    getInstance().log(LogLevel::INFO, std::forward<Args>(message)...);
+  static void status(StringRef header, Args... message) {
+    status(header, std::forward<Args>(message)...);
+  }
+  template <typename... Args>
+  static void status(Args... message) {
+    getInstance().log(LogLevel::status, std::forward<Args>(message)...);
   }
   template <typename... Args>
   static void debug(Args... message) {
-    getInstance().log(LogLevel::DEBUG, std::forward<Args>(message)...);
+    getInstance().log(LogLevel::debug, std::forward<Args>(message)...);
   }
 
   template <typename... Args>
   void log(LogLevel messageLevel, Args... message) {
     if (messageLevel <= level) {
       switch (messageLevel) {
-        case LogLevel::ERROR:
-          std::cerr << "[ERROR] ";
+        case LogLevel::error:
+          std::cerr << bold(red("Error: "));
           (std::cerr << ... << message) << '\n';
           break;
-        case LogLevel::WARNING:
-          std::cout << "[WARNING] ";
+        case LogLevel::warning:
+          std::cout << bold(yellow("Warning: "));
           (std::cout << ... << message) << '\n';
           break;
-        case LogLevel::INFO:
-          std::cout << "[INFO] ";
+        case LogLevel::status:
           (std::cout << ... << message) << '\n';
           break;
-        case LogLevel::DEBUG:
-          std::cout << "[DEBUG] ";
+        case LogLevel::debug:
+          std::cout << "[Poac] ";
           (std::cout << ... << message) << '\n';
           break;
       }
@@ -54,7 +63,7 @@ public:
   }
 
 private:
-  LogLevel level = LogLevel::WARNING;
+  LogLevel level = LogLevel::status;
 
   Logger() {}
 

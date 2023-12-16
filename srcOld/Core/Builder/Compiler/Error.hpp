@@ -38,7 +38,9 @@ namespace fmt {
 
 template <>
 struct formatter<poac::util::cfg::Compiler> {
-  static constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+  static constexpr auto parse(format_parse_context& ctx) {
+    return ctx.begin();
+  }
 
   template <typename FormatContext>
   inline auto format(poac::util::cfg::Compiler c, FormatContext& ctx) {

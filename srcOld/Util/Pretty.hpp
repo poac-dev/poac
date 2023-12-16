@@ -39,7 +39,9 @@ inline auto to_time(const std::chrono::seconds& s) -> String {
   return to_time(s.count());
 }
 
-inline auto to_time(const String& s) -> String { return to_time(std::stod(s)); }
+inline auto to_time(const String& s) -> String {
+  return to_time(std::stod(s));
+}
 
 inline constexpr std::array<StringRef, 9> SIZE_SUFFIXES = {"B",  "KB", "MB",
                                                            "GB", "TB", "PB",

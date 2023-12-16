@@ -57,7 +57,9 @@ inline Cmd move_to_temp(const fs::path& temp_dir) {
   return Cmd("cd " + temp_dir.string());
 }
 
-inline void remove_temp(const fs::path& temp_dir) { fs::remove_all(temp_dir); }
+inline void remove_temp(const fs::path& temp_dir) {
+  fs::remove_all(temp_dir);
+}
 
 inline Cmd mk_cmd(const std::string& cmd, const fs::path& temp_dir) {
   return move_to_temp(temp_dir) && POAC_EXECUTABLE + cmd;

@@ -141,7 +141,9 @@ public:
   }
 
 private:
-  inline void step() noexcept { ++c1_index; }
+  inline void step() noexcept {
+    ++c1_index;
+  }
 
   void step_n(const SizeType& n) noexcept {
     for (SizeType i = 0; i < n; ++i) {

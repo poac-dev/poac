@@ -161,9 +161,13 @@ public:
   explicit Writer(std::ostringstream&& o, usize w = 78)
       : output(std::move(o)), width(w) {}
 
-  inline auto get_value() const -> String { return output.str(); }
+  inline auto get_value() const -> String {
+    return output.str();
+  }
 
-  inline void newline() { output << '\n'; }
+  inline void newline() {
+    output << '\n';
+  }
 
   void comment(const String& text) {
     for (const String& line : util::pretty::textwrap(text, width - 2)) {
@@ -282,9 +286,13 @@ public:
     return outputs;
   }
 
-  inline void include(const Path& path) { line(format("include {}", path)); }
+  inline void include(const Path& path) {
+    line(format("include {}", path));
+  }
 
-  inline void subninja(const Path& path) { line(format("subninja {}", path)); }
+  inline void subninja(const Path& path) {
+    line(format("subninja {}", path));
+  }
 
   inline void defalt(const Vec<String>& paths) {
     line(format("default {}", boost::algorithm::join(paths, " ")));

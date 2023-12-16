@@ -35,7 +35,9 @@ struct Parser {
   }
 
   /// Peek one token.
-  [[nodiscard]] inline auto peek() const noexcept -> Token { return this->c1; }
+  [[nodiscard]] inline auto peek() const noexcept -> Token {
+    return this->c1;
+  }
 
   /// Skip whitespace if present.
   void skip_whitespace() {

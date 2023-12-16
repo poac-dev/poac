@@ -57,7 +57,9 @@ auto calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) -> T {
   return acc;
 }
 
-inline auto literal_to_index(i32 l) -> i32 { return std::abs(l) - 1; }
+inline auto literal_to_index(i32 l) -> i32 {
+  return std::abs(l) - 1;
+}
 
 // Find `1` or `-1` from whole clauses. Variables that have already been
 // assigned have been deleted from the clauses by the `delete_applied_literal`

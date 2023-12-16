@@ -12,7 +12,9 @@ export namespace poac::util::shell {
 
 class Cmd {
 public:
-  [[nodiscard]] inline auto string() const -> std::string { return cmd; }
+  [[nodiscard]] inline auto string() const -> std::string {
+    return cmd;
+  }
 
   Cmd() = default; // NOLINT(bugprone-exception-escape)
   explicit Cmd(std::string c) : cmd(std::move(c)) {}
@@ -42,10 +44,18 @@ public:
     SimpleResult(std::int32_t c, const std::string& r)
         : std::pair<std::int32_t, std::string>({c, r}) {}
 
-    [[nodiscard]] inline auto is_ok() const -> bool { return first == 0; }
-    [[nodiscard]] inline auto is_err() const -> bool { return !is_ok(); }
-    [[nodiscard]] inline auto output() const -> std::string { return second; }
-    explicit inline operator bool() const { return is_ok(); }
+    [[nodiscard]] inline auto is_ok() const -> bool {
+      return first == 0;
+    }
+    [[nodiscard]] inline auto is_err() const -> bool {
+      return !is_ok();
+    }
+    [[nodiscard]] inline auto output() const -> std::string {
+      return second;
+    }
+    explicit inline operator bool() const {
+      return is_ok();
+    }
   };
 
   [[nodiscard]] inline auto exec() const -> SimpleResult {

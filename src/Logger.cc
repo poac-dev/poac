@@ -9,4 +9,6 @@ Logger& Logger::getInstance() {
   return instance;
 }
 
-void Logger::setLevel(LogLevel level) { getInstance().level = level; }
+void Logger::setLevel(LogLevel level) {
+  getInstance().level = level;
+}

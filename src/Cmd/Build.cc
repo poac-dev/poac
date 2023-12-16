@@ -88,13 +88,15 @@ static String exec(const char* cmd) {
   return result;
 }
 
-static void parseMMOutput(
-    const String& sourceFile, String& target, Vec<String>& dependencies
-) {
+static String runMM(const String& sourceFile) {
   const String command = "cd src && clang++ -MM " + sourceFile;
-  const String output = exec(command.c_str());
+  return exec(command.c_str());
+}
 
-  std::istringstream iss(output);
+static void parseMMOutput(
+    const String& mmOutput, String& target, Vec<String>& dependencies
+) {
+  std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
   Logger::debug(target, ':');
 
@@ -149,6 +151,8 @@ void build() {
   Vec<String> objectFiles;
   for (String sourceFile : sourceFiles) {
     sourceFile = "../" + sourceFile;
+    String mmOutput = runMM(sourceFile);
+
     String target;
     Vec<String> dependencies;
     parseMMOutput(sourceFile, target, dependencies);

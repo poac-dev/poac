@@ -41,10 +41,10 @@ int main(int argc, char* argv[]) {
       return 0;
     }
     if (arg == "--verbose") {
-      Logger::setLevel(LogLevel::DEBUG);
+      Logger::setLevel(LogLevel::debug);
     }
     if (arg == "-q" || arg == "--quiet") {
-      Logger::setLevel(LogLevel::ERROR);
+      Logger::setLevel(LogLevel::error);
     }
   }
 

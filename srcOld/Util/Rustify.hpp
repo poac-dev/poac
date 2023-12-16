@@ -68,7 +68,9 @@ struct NoneT : protected std::monostate {
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr operator std::nullopt_t() const { return std::nullopt; }
+  constexpr operator std::nullopt_t() const {
+    return std::nullopt;
+  }
 
   template <typename T>
   constexpr operator Option<T>() const { // NOLINT(google-explicit-constructor)

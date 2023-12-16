@@ -162,7 +162,9 @@ auto get_conan_config() -> String {
 
 auto install_conan_packages() -> Result<void> {
   const Path cwd = fs::current_path();
-  BOOST_SCOPE_EXIT_ALL(&cwd) { fs::current_path(cwd); };
+  BOOST_SCOPE_EXIT_ALL(&cwd) {
+    fs::current_path(cwd);
+  };
 
   fs::current_path(config::conan_deps_dir);
   util::shell::Cmd cmd(
