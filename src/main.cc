@@ -1,4 +1,5 @@
 #include "Cmd/Build.hpp"
+#include "Logger.hpp"
 #include "Rustify.hpp"
 
 #include <iostream>
@@ -10,7 +11,12 @@ void help() {
   std::cout << "A package manager and build system for C++" << '\n';
   std::cout << '\n';
   std::cout << "USAGE:" << '\n';
-  std::cout << "    poac <SUBCOMMAND>" << '\n';
+  std::cout << "    poac <SUBCOMMAND> [OPTIONS]" << '\n';
+  std::cout << '\n';
+  std::cout << "OPTIONS:" << '\n';
+  std::cout << "    -v, --version\tPrint version info and exit" << '\n';
+  std::cout << "    --verbose\t\tUse verbose output" << '\n';
+  std::cout << "    -q, --quiet\t\tNo output printed to stdout" << '\n';
   std::cout << '\n';
   std::cout << "SUBCOMMANDS:" << '\n';
   std::cout << "    build\tCompile a local package and all of its dependencies"
@@ -25,6 +31,21 @@ int main(int argc, char* argv[]) {
     std::cerr << "[ERROR] no subcommand provided" << '\n';
     help();
     return 1;
+  }
+
+  // Parse global options
+  for (int i = 1; i < argc; ++i) {
+    String arg = argv[i];
+    if (arg == "-v" || arg == "--version") {
+      std::cout << "poac " << POAC_VERSION << '\n';
+      return 0;
+    }
+    if (arg == "--verbose") {
+      Logger::setLevel(LogLevel::DEBUG);
+    }
+    if (arg == "-q" || arg == "--quiet") {
+      Logger::setLevel(LogLevel::ERROR);
+    }
   }
 
   HashMap<StringRef, Fn<void()>> cmds;

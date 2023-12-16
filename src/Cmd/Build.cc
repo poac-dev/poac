@@ -1,6 +1,7 @@
 #include "Build.hpp"
 
 #include "../Algos.hpp"
+#include "../Logger.hpp"
 #include "../Rustify.hpp"
 
 #include <array>
@@ -95,7 +96,7 @@ static void parseMMOutput(
 
   std::istringstream iss(output);
   std::getline(iss, target, ':');
-  std::cout << target << ':';
+  Logger::debug(target + ':');
 
   String dependency;
   while (std::getline(iss, dependency, ' ')) {
@@ -105,10 +106,10 @@ static void parseMMOutput(
         dependency.pop_back();
       }
       dependencies.push_back(dependency);
-      std::cout << " '" << dependency << "'";
+      Logger::debug(" '" + dependency + "'");
     }
   }
-  std::cout << '\n';
+  Logger::debug("");
 }
 
 void build() {
