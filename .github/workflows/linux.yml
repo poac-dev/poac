@@ -62,9 +62,7 @@ jobs:
         run: ./poac-out/debug/poac help
 
       - name: Third Generation Build
-        run: |
-          cp ./poac-out/debug/poac ./
-          ./poac build --verbose --release
+        run: ./poac-out/debug/poac build --verbose --release
 
       - name: Test the third generation
         run: ./poac-out/release/poac help
