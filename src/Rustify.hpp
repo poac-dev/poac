@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <functional>
 #include <map>
+#include <set>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -43,6 +44,9 @@ template <typename K, typename V>
 using Map = std::map<K, V>;
 template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
+
+template <typename K>
+using Set = std::set<K>;
 template <typename K>
 using HashSet = std::unordered_set<K>;
 

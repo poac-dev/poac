@@ -16,6 +16,8 @@ OUT_DIR = build-out
 PROJ_NAME = $(OUT_DIR)/poac
 
 
+.PHONY: all clean test
+
 all: $(OUT_DIR) $(OUT_DIR)/Cmd $(PROJ_NAME)
 
 clean:
@@ -60,6 +62,3 @@ $(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o $(OUT_DIR
 
 $(OUT_DIR)/tests/test_BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp
 	$(CC) $(CFLAGS) -DPOAC_TEST -c $< -o $@
-
-
-.PHONY: all clean test

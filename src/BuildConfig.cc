@@ -51,9 +51,28 @@ struct BuildConfig {
       os << '\n';
     }
 
+    if (targets.count(".PHONY") != 0) {
+      os << ".PHONY:";
+      for (const auto& dep : targets.at(".PHONY").dependsOn) {
+        os << " " << dep;
+      }
+      os << '\n';
+    }
+    if (targets.count("all") != 0) {
+      os << "all:";
+      for (const auto& dep : targets.at("all").dependsOn) {
+        os << " " << dep;
+      }
+      os << '\n';
+    }
+
     const Vec<String> sortedTargets = topoSort(targets, targetDeps);
     for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend();
          itr++) {
+      if (*itr == ".PHONY" || *itr == "all") {
+        continue;
+      }
+
       os << *itr << ":";
       for (const auto& dep : targets.at(*itr).dependsOn) {
         os << " " << dep;
@@ -97,9 +116,8 @@ static String runMM(const String& sourceFile) {
   return exec(command.c_str());
 }
 
-static void parseMMOutput(
-    const String& mmOutput, String& target, Vec<String>& dependencies
-) {
+static void
+parseMMOutput(const String& mmOutput, String& target, Vec<String>& deps) {
   std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
   Logger::debug(target, ':');
@@ -111,7 +129,7 @@ static void parseMMOutput(
       if (dependency.back() == '\n') {
         dependency.pop_back();
       }
-      dependencies.push_back(dependency);
+      deps.push_back(dependency);
       Logger::debug(" '", dependency, "'");
     }
   }
@@ -142,15 +160,23 @@ static bool containsTestCode(const String& sourceFile) {
   String line;
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != String::npos) {
+      Logger::debug("contains test code: ", sourceFile);
       return true;
     }
   }
+  Logger::debug("does not contain test code: ", sourceFile);
   return false;
 }
 
 static void addDirectoryTarget(BuildConfig& config, const String& directory) {
   config.defineTarget(directory, {"mkdir -p $@"});
 }
+
+struct ObjTargetInfo {
+  String name;
+  String baseDir;
+  Vec<String> deps;
+};
 
 // Returns the directory where the Makefile is generated.
 String emitMakefile(const Vec<String>& args) {
@@ -185,7 +211,7 @@ String emitMakefile(const Vec<String>& args) {
     return OUT_DIR;
   }
 
-  const String projectName = "poac";
+  const String projectName = "poac"; // TODO: Get from poac.toml
   const String pathFromOutDir = "../../";
 
   BuildConfig config;
@@ -199,47 +225,138 @@ String emitMakefile(const Vec<String>& args) {
   } else {
     config.defineVariable("CFLAGS", baseCflags + "-O3 -DNDEBUG");
   }
-  config.defineVariable("LDFLAGS", "-L.");
 
   // Build rules
-  config.defineTarget(".PHONY", {}, {"all"});
-
   const String buildOutDir = projectName + ".d";
   addDirectoryTarget(config, buildOutDir);
 
+  Vec<String> phonies = {"all"};
   config.defineTarget("all", {}, {buildOutDir, projectName});
 
   const Vec<String> sourceFiles = listSourceFiles("src");
-  Vec<String> objectFiles;
-  for (String sourceFile : sourceFiles) {
-    sourceFile = pathFromOutDir + sourceFile;
+  Vec<String> buildObjTargets;
+
+  // sourceFile.cc -> ObjTargetInfo
+  HashMap<String, ObjTargetInfo> objTargetInfos;
+  for (const String& sourceFileName : sourceFiles) {
+    const String sourceFile = pathFromOutDir + sourceFileName;
     const String mmOutput = runMM(sourceFile);
 
-    String target;
-    Vec<String> dependencies;
-    parseMMOutput(mmOutput, target, dependencies);
-
-    // if (containsTestCode(sourceFile)) {
-    //   addDirectoryTarget(config, "tests");
-    // }
+    String objTarget; // sourceFile.o
+    Vec<String> objTargetDeps;
+    parseMMOutput(mmOutput, objTarget, objTargetDeps);
 
     const String targetBaseDir =
         fs::relative(Path(sourceFile).parent_path(), pathFromOutDir + "src")
             .string();
-    target = buildOutDir + "/" + targetBaseDir + "/" + target;
+    objTargetInfos[sourceFileName] = {objTarget, targetBaseDir, objTargetDeps};
 
-    // Add a target to create the targetBaseDir.
+    const String buildTargetBaseDir = buildOutDir + "/" + targetBaseDir;
+    const String buildObjTarget = buildTargetBaseDir + "/" + objTarget;
+
+    // Add a target to create the buildOutDir and buildTargetBaseDir.
+    Vec<String> buildTargetDeps = objTargetDeps;
+    buildTargetDeps.push_back(buildOutDir);
     if (targetBaseDir != ".") {
-      addDirectoryTarget(config, buildOutDir + "/" + targetBaseDir);
-      dependencies.push_back(buildOutDir + "/" + targetBaseDir);
+      addDirectoryTarget(config, buildTargetBaseDir);
+      buildTargetDeps.push_back(buildTargetBaseDir);
     }
 
-    objectFiles.push_back(target);
-    config.defineTarget(target, {"$(CC) $(CFLAGS) -c $< -o $@"}, dependencies);
+    buildObjTargets.push_back(buildObjTarget);
+    config.defineTarget(
+        buildObjTarget, {"$(CC) $(CFLAGS) -c $< -o $@"}, buildTargetDeps
+    );
+  }
+  config.defineTarget(
+      projectName, {"$(CC) $(CFLAGS) $^ -o $@"}, buildObjTargets
+  );
+
+  // Targets for testing.
+  bool enableTesting = false;
+  Vec<String> testTargets;
+  const HashSet<String> buildObjTargetSet(
+      buildObjTargets.begin(), buildObjTargets.end()
+  );
+  const String testOutDir = "tests";
+  for (auto& [sourceFile, objTargetInfo] : objTargetInfos) {
+    if (containsTestCode(sourceFile)) {
+      enableTesting = true;
+
+      const String testTargetBaseDir = testOutDir + "/" + objTargetInfo.baseDir;
+      const String testObjTarget =
+          testTargetBaseDir + "/test_" + objTargetInfo.name;
+      const String testTarget =
+          testTargetBaseDir + "/test_" + Path(sourceFile).stem().string();
+
+      // NOTE: Since we know that we don't use objTargetInfos for other
+      // targets, we can just update it here instead of creating a copy.
+      objTargetInfo.deps.push_back(testOutDir);
+
+      // Add a target to create the testTargetBaseDir.
+      if (objTargetInfo.baseDir != ".") {
+        addDirectoryTarget(config, testTargetBaseDir);
+        objTargetInfo.deps.push_back(testTargetBaseDir);
+      }
+
+      // Test object target.
+      config.defineTarget(
+          testObjTarget, {"$(CC) $(CFLAGS) -DPOAC_TEST -c $< -o $@"},
+          objTargetInfo.deps
+      );
+
+      // Test binary target.
+      Vec<String> testTargetDeps = {testObjTarget};
+      // This test target depends on the object file corresponding to the header
+      // file included in this source file.
+      for (const String& header : objTargetInfo.deps) {
+        // We shouldn't depend on the original object file (e.g.,
+        // poac.d/path/to/file.o). We should depend on the test object file
+        // (e.g., tests/path/to/test_file.o).
+        if (Path(sourceFile).stem().string() == Path(header).stem().string()) {
+          continue;
+        }
+
+        const Path headerPath = Path(header);
+        if (HEADER_FILE_EXTS.count(headerPath.extension()) == 0) {
+          continue;
+        }
+
+        // headerPath: src/path/to/header.h ->
+        // object target: poac.d/path/to/header.o
+        const String headerObjTarget =
+            buildOutDir + "/"
+            + (fs::relative(headerPath.parent_path(), pathFromOutDir + "src")
+               / headerPath.stem())
+                  .string()
+            + ".o";
+
+        auto itr = buildObjTargetSet.find(headerObjTarget);
+        if (itr == buildObjTargetSet.end()) {
+          continue;
+        }
+        testTargetDeps.push_back(*itr);
+      }
+
+      config.defineTarget(
+          testTarget, {"$(CC) $(CFLAGS) $^ -o $@"}, testTargetDeps
+      );
+      Logger::debug(testTarget, ':');
+      for (const auto& dep : testTargetDeps) {
+        Logger::debug(" '", dep, "'");
+      }
+
+      testTargets.push_back(testTarget);
+    }
+  }
+  if (enableTesting) {
+    // Target to create the tests directory.
+    addDirectoryTarget(config, testOutDir);
+
+    config.defineTarget("test", {}, testTargets);
+    phonies.push_back("test");
   }
 
-  // The project binary
-  config.defineTarget(projectName, {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles);
+  config.defineTarget(".PHONY", {}, phonies);
 
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
