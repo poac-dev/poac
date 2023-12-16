@@ -9,6 +9,7 @@
 #include <fstream>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 
 struct Target {
   Vec<String> commands;
@@ -79,8 +80,7 @@ static String exec(const char* cmd) {
   String result;
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
   if (!pipe) {
-    std::cerr << "popen() failed!" << '\n';
-    exit(1);
+    throw std::runtime_error("popen() failed!");
   }
   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
     result += buffer.data();
@@ -116,12 +116,10 @@ static void parseMMOutput(
 
 void build() {
   if (!std::filesystem::exists("src")) {
-    std::cerr << "src directory not found" << '\n';
-    exit(1);
+    throw std::runtime_error("src directory not found");
   }
   if (!std::filesystem::exists("src/main.cc")) {
-    std::cerr << "src/main.cc not found" << '\n';
-    exit(1);
+    throw std::runtime_error("src/main.cc not found");
   }
   if (!std::filesystem::exists("poac-out")) {
     std::filesystem::create_directory("poac-out");

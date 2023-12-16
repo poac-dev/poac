@@ -3,6 +3,7 @@
 #include "Rustify.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 #define POAC_VERSION "0.6.0"
 
@@ -59,6 +60,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  cmds[subcommand]();
+  try {
+    cmds[subcommand]();
+  } catch (const std::exception& e) {
+    Logger::error(e.what());
+    return 1;
+  }
+
   return 0;
 }

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <queue>
+#include <stdexcept>
 
 template <typename T>
 Vec<String> topoSort(
@@ -51,8 +52,7 @@ Vec<String> topoSort(
   }
 
   if (res.size() != list.size()) {
-    std::cerr << "Cycle detected" << '\n';
-    exit(1);
+    throw std::runtime_error("too complex build graph");
   }
   return res;
 }
