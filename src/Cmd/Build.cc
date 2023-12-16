@@ -253,9 +253,9 @@ void test_simple_vars() {
 
 void test_simple_targets() {
   BuildConfig config;
-  config.defineTarget("c", {"echo c"}, {"b"});
-  config.defineTarget("b", {"echo b"}, {"a"});
   config.defineTarget("a", {"echo a"});
+  config.defineTarget("b", {"echo b"}, {"a"});
+  config.defineTarget("c", {"echo c"}, {"b"});
 
   std::stringstream ss;
   config.emitMakefile(ss);
