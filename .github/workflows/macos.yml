@@ -27,6 +27,9 @@ jobs:
       - name: First Generation Build
         run: make
 
+      - name: Test the first generation
+        run: make test
+
       - name: Second Generation Build
         run: ./build-out/poac build --verbose
 
