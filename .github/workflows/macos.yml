@@ -24,14 +24,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Poac
+      - name: First Generation Build
         run: make
 
-      - name: Self-build Poac
+      - name: Second Generation Build
         run: ./build-out/poac build --verbose
 
-      - name: Test self-built binary
+      - name: Test the second generation
         run: ./poac-out/debug/poac help
+
+      - name: Third Generation Build
+        run: |
+          mv ./poac-out/debug/poac ./
+          rm -rf ./poac-out
+          ./poac build --verbose --release
+
+      - name: Test the third generation
+        run: ./poac help
 
       # - name: Test Poac
       #   run: ctest --output-on-failure --verbose
