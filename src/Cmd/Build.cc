@@ -11,6 +11,8 @@
 #include <sstream>
 #include <stdexcept>
 
+static String OUT_DIR = "poac-out";
+
 struct Target {
   Vec<String> commands;
   Vec<String> dependsOn;
@@ -89,7 +91,7 @@ static String exec(const char* cmd) {
 }
 
 static String runMM(const String& sourceFile) {
-  const String command = "cd src && clang++ -MM " + sourceFile;
+  const String command = "cd " + OUT_DIR + " && clang++ -MM " + sourceFile;
   return exec(command.c_str());
 }
 
@@ -121,16 +123,15 @@ int build(Vec<String> args) {
   if (!std::filesystem::exists("src/main.cc")) {
     throw std::runtime_error("src/main.cc not found");
   }
-  if (!std::filesystem::exists("poac-out")) {
-    std::filesystem::create_directory("poac-out");
-  }
 
   bool debug = true;
   if (!args.empty()) {
     if (args[0] == "-d" || args[0] == "--debug") {
       debug = true;
+      OUT_DIR += "/debug";
     } else if (args[0] == "-r" || args[0] == "--release") {
       debug = false;
+      OUT_DIR += "/release";
     } else {
       Logger::error(
           "invalid option: `", args[0], "`", "\n\n",
@@ -138,6 +139,9 @@ int build(Vec<String> args) {
       );
       return EXIT_FAILURE;
     }
+  }
+  if (!std::filesystem::exists(OUT_DIR)) {
+    std::filesystem::create_directories(OUT_DIR);
   }
 
   BuildConfig config;
@@ -153,7 +157,7 @@ int build(Vec<String> args) {
   }
   config.defineVariable("LDFLAGS", "-L.");
   // Directories
-  config.defineVariable("SRC_DIR", "../src");
+  config.defineVariable("SRC_DIR", "../../src"); // poac-out/debug
   // Project settings
   config.defineVariable("PROJ_NAME", "poac");
   config.defineVariable("MAIN", "$(SRC_DIR)/main.cc", {"SRC_DIR"});
@@ -165,7 +169,7 @@ int build(Vec<String> args) {
   const Vec<String> sourceFiles = listSourceFiles("src");
   Vec<String> objectFiles;
   for (String sourceFile : sourceFiles) {
-    sourceFile = "../" + sourceFile;
+    sourceFile = "../../" + sourceFile;
     String mmOutput = runMM(sourceFile);
 
     String target;
@@ -183,11 +187,11 @@ int build(Vec<String> args) {
       "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles
   );
 
-  std::ofstream ofs("poac-out/Makefile");
+  std::ofstream ofs(OUT_DIR + "/Makefile");
   config.emitMakefile(ofs);
   ofs.close();
 
-  std::system("cd poac-out && make");
+  std::system(("cd " + OUT_DIR + " && make").c_str());
   return EXIT_SUCCESS;
 }
 
