@@ -10,12 +10,11 @@ int test(Vec<String> args) {
 }
 
 void testHelp() {
-  std::cout << "poac-test" << '\n';
+  std::cout << testDesc << '\n';
   std::cout << '\n';
-  std::cout << "USAGE:" << '\n';
-  std::cout << "    poac test [OPTIONS]" << '\n';
+  std::cout << "Usage: poac test [OPTIONS]" << '\n';
   std::cout << '\n';
-  std::cout << "OPTIONS:" << '\n';
+  std::cout << "Options:" << '\n';
   std::cout << "    -d, --debug\t\tTest with debug information (default)"
             << '\n';
   std::cout << "    -r, --release\tTest with optimizations" << '\n';

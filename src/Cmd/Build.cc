@@ -2,7 +2,6 @@
 
 #include "../BuildConfig.hpp"
 
-#include <cstdlib>
 #include <iostream>
 
 int build(Vec<String> args) {
@@ -11,12 +10,11 @@ int build(Vec<String> args) {
 }
 
 void buildHelp() {
-  std::cout << "poac-build" << '\n';
+  std::cout << buildDesc << '\n';
   std::cout << '\n';
-  std::cout << "USAGE:" << '\n';
-  std::cout << "    poac build [OPTIONS]" << '\n';
+  std::cout << "Usage: poac build [OPTIONS]" << '\n';
   std::cout << '\n';
-  std::cout << "OPTIONS:" << '\n';
+  std::cout << "Options:" << '\n';
   std::cout << "    -d, --debug\t\tBuild with debug information (default)"
             << '\n';
   std::cout << "    -r, --release\tBuild with optimizations" << '\n';
