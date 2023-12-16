@@ -18,18 +18,21 @@ OUT_DIR = build-out
 PROJ_NAME = $(OUT_DIR)/poac
 
 
-all: $(PROJ_NAME)
+all: $(OUT_DIR) $(PROJ_NAME)
 
 clean:
 	rm -rf $(OUT_DIR)
 
-$(PROJ_NAME): $(OUT_DIR)/main.o $(OUT_DIR)/Build.o | $(OUT_DIR)
+$(PROJ_NAME): $(OUT_DIR)/main.o $(OUT_DIR)/Build.o $(OUT_DIR)/Logger.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(OUT_DIR)/Build.o: src/Build.cc src/Build.hpp src/Util/Rustify.hpp src/Util/Algos.hpp
+$(OUT_DIR)/Logger.o: src/Logger.cc src/Logger.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OUT_DIR)/main.o: src/main.cc src/Build.hpp
+$(OUT_DIR)/Build.o: src/Cmd/Build.cc src/Cmd/Build.hpp src/Rustify.hpp src/Algos.hpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR):

@@ -1,7 +1,6 @@
-#include "Build.hpp"
-#include "Util/Rustify.hpp"
+#include "Cmd/Build.hpp"
+#include "Rustify.hpp"
 
-#include <functional>
 #include <iostream>
 
 #define POAC_VERSION "0.6.0"
@@ -23,18 +22,18 @@ void help() {
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
-    std::cerr << "Error: no subcommand provided" << '\n';
+    std::cerr << "[ERROR] no subcommand provided" << '\n';
     help();
     return 1;
   }
 
-  HashMap<StringRef, std::function<void()>> cmds;
+  HashMap<StringRef, Fn<void()>> cmds;
   cmds["help"] = help;
   cmds["build"] = build;
 
   StringRef subcommand = argv[1];
   if (cmds.count(subcommand) == 0) {
-    std::cerr << "Error: unknown subcommand '" << subcommand << "'" << '\n';
+    std::cerr << "[ERROR] unknown subcommand '" << subcommand << "'" << '\n';
     help();
     return 1;
   }

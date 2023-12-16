@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <string>
 #include <string_view>
@@ -34,3 +35,6 @@ template <typename K, typename V>
 using Map = std::map<K, V>;
 template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
+
+template <typename T>
+using Fn = std::function<T>;

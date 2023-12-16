@@ -1,7 +1,7 @@
 #include "Build.hpp"
 
-#include "Util/Algos.hpp"
-#include "Util/Rustify.hpp"
+#include "../Algos.hpp"
+#include "../Rustify.hpp"
 
 #include <array>
 #include <filesystem>
