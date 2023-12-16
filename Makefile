@@ -43,17 +43,17 @@ $(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-test: $(OUT_DIR)/tests $(OUT_DIR)/tests/cmd_build
-	$(OUT_DIR)/tests/cmd_build
+test: $(OUT_DIR)/tests $(OUT_DIR)/tests/test_Build
+	$(OUT_DIR)/tests/test_Build
 
 $(OUT_DIR)/tests:
 	mkdir -p $@
 
-$(OUT_DIR)/tests/cmd_build: $(OUT_DIR)/tests/cmd_build.o $(OUT_DIR)/Build.o $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o
+$(OUT_DIR)/tests/test_Build: $(OUT_DIR)/tests/test_Build.o $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(OUT_DIR)/tests/cmd_build.o: tests/cmd_build.cc
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OUT_DIR)/tests/test_Build.o: src/Cmd/Build.cc src/Cmd/Build.hpp src/Rustify.hpp src/Algos.hpp
+	$(CC) $(CFLAGS) -DPOAC_TEST -c $< -o $@
 
 
 .PHONY: all clean test

@@ -31,7 +31,7 @@ int help(Vec<String> args) {
   }
 
   HashMap<StringRef, Fn<void()>> helps;
-  helps["build"] = build_help;
+  helps["build"] = buildHelp;
 
   StringRef subcommand = args[0];
   if (helps.count(subcommand) == 0) {

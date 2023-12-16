@@ -47,14 +47,16 @@ struct BuildConfig {
     for (const auto& var : sortedVars) {
       os << var << " = " << variables.at(var) << '\n';
     }
-    os << '\n';
+    if (!sortedVars.empty()) {
+      os << '\n';
+    }
 
     const Vec<String> sortedTargets = topoSort(targets, targetDeps);
     for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend();
          itr++) {
-      os << *itr << ": ";
+      os << *itr << ":";
       for (const auto& dep : targets.at(*itr).dependsOn) {
-        os << dep << " ";
+        os << " " << dep;
       }
       os << '\n';
 
@@ -201,7 +203,7 @@ int build(Vec<String> args) {
   return EXIT_SUCCESS;
 }
 
-void build_help() {
+void buildHelp() {
   std::cout << "poac-build" << '\n';
   std::cout << '\n';
   std::cout << "USAGE:" << '\n';
@@ -212,3 +214,66 @@ void build_help() {
             << '\n';
   std::cout << "    -r, --release\tBuild with optimizations" << '\n';
 }
+
+#ifdef POAC_TEST
+
+#  include <cassert>
+#  include <sstream>
+#  include <stdexcept>
+
+void test_cycle_vars() {
+  BuildConfig config;
+  config.defineVariable("a", "b", {"b"});
+  config.defineVariable("b", "c", {"c"});
+  config.defineVariable("c", "a", {"a"});
+
+  try {
+    std::stringstream ss;
+    config.emitMakefile(ss);
+  } catch (const std::runtime_error& e) {
+    return;
+  }
+
+  assert(false && "should not reach here");
+}
+
+void test_simple_vars() {
+  BuildConfig config;
+  config.defineVariable("c", "3", {"b"});
+  config.defineVariable("b", "2", {"a"});
+  config.defineVariable("a", "1");
+
+  std::stringstream ss;
+  config.emitMakefile(ss);
+
+  assert(ss.str() == "a = 1\n"
+                      "b = 2\n"
+                      "c = 3\n\n");
+}
+
+void test_simple_targets() {
+  BuildConfig config;
+  config.defineTarget("c", {"echo c"}, {"b"});
+  config.defineTarget("b", {"echo b"}, {"a"});
+  config.defineTarget("a", {"echo a"});
+
+  std::stringstream ss;
+  config.emitMakefile(ss);
+
+  assert(ss.str() == "c: b\n"
+                      "\techo c\n"
+                      "\n"
+                      "b: a\n"
+                      "\techo b\n"
+                      "\n"
+                      "a:\n"
+                      "\techo a\n"
+                      "\n");
+}
+
+int main() {
+  test_cycle_vars();
+  test_simple_vars();
+  test_simple_targets();
+}
+#endif
