@@ -71,9 +71,10 @@ struct BuildConfig {
 static Vec<String> listSourceFiles(const String& directory) {
   Vec<String> sourceFiles;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
-    if (entry.path().extension() == ".cc") {
-      sourceFiles.push_back(entry.path().string());
+    if (SOURCE_FILE_EXTS.count(entry.path().extension()) == 0) {
+      continue;
     }
+    sourceFiles.push_back(entry.path().string());
   }
   return sourceFiles;
 }
@@ -117,6 +118,25 @@ static void parseMMOutput(
   Logger::debug("");
 }
 
+bool isMakefileUpToDate(const String& makefilePath) {
+  if (!fs::exists(makefilePath)) {
+    return false;
+  }
+
+  const fs::file_time_type makefileTime = fs::last_write_time(makefilePath);
+  // Makefile depends on all files in ./src and poac.toml.
+  for (const auto& entry : fs::recursive_directory_iterator("src")) {
+    if (fs::last_write_time(entry.path()) > makefileTime) {
+      return false;
+    }
+  }
+  if (fs::last_write_time("poac.toml") > makefileTime) {
+    return false;
+  }
+
+  return true;
+}
+
 // Returns the directory where the Makefile is generated.
 String emitMakefile(const Vec<String>& args) {
   if (!fs::exists("src")) {
@@ -142,6 +162,12 @@ String emitMakefile(const Vec<String>& args) {
   }
   if (!fs::exists(OUT_DIR)) {
     fs::create_directories(OUT_DIR);
+  }
+
+  const String makefilePath = OUT_DIR + "/Makefile";
+  if (isMakefileUpToDate(makefilePath)) {
+    Logger::debug("Makefile is up to date");
+    return OUT_DIR;
   }
 
   BuildConfig config;
@@ -195,7 +221,7 @@ String emitMakefile(const Vec<String>& args) {
       "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles
   );
 
-  std::ofstream ofs(OUT_DIR + "/Makefile");
+  std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return OUT_DIR;
 }

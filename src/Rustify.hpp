@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -7,6 +8,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -32,6 +34,8 @@ using String = std::string;
 using StringRef = std::string_view;
 using Path = fs::path;
 
+template <typename T, usize N>
+using Arr = std::array<T, N>;
 template <typename T>
 using Vec = std::vector<T>;
 
@@ -39,6 +43,8 @@ template <typename K, typename V>
 using Map = std::map<K, V>;
 template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
+template <typename K>
+using HashSet = std::unordered_set<K>;
 
 template <typename T>
 using Fn = std::function<T>;
