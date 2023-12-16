@@ -179,7 +179,7 @@ struct ObjTargetInfo {
 };
 
 // Returns the directory where the Makefile is generated.
-String emitMakefile(const Vec<String>& args) {
+String emitMakefile(const String& profile) {
   if (!fs::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
@@ -188,18 +188,18 @@ String emitMakefile(const Vec<String>& args) {
   }
 
   bool debug = true;
-  if (!args.empty()) {
-    if (args[0] == "-d" || args[0] == "--debug") {
-      // Do nothing
-    } else if (args[0] == "-r" || args[0] == "--release") {
-      debug = false;
-      OUT_DIR = "poac-out/release";
-    } else {
-      throw std::runtime_error(
-          "invalid option: `" + args[0] + "`\n\n"
+  if (profile == "") {
+    // Do nothing
+  } else if (profile == "-d" || profile == "--debug") {
+    // Do nothing
+  } else if (profile == "-r" || profile == "--release") {
+    debug = false;
+    OUT_DIR = "poac-out/release";
+  } else {
+    throw std::runtime_error(
+          "invalid option: `" + profile + "`\n\n"
           "       run `poac help build` for a list of options"
       );
-    }
   }
   if (!fs::exists(OUT_DIR)) {
     fs::create_directories(OUT_DIR);

@@ -5,7 +5,7 @@
 #include <iostream>
 
 int test(Vec<String> args) {
-  const String outDir = emitMakefile(args);
+  const String outDir = emitMakefile(args.empty() ? "" : args[0]);
   return std::system(("make -C " + outDir + " test").c_str());
 }
 
