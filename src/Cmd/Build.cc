@@ -7,8 +7,7 @@
 
 int build(Vec<String> args) {
   const String outDir = emitMakefile(args);
-  std::system(("make -C " + outDir).c_str());
-  return EXIT_SUCCESS;
+  return std::system(("make -C " + outDir).c_str());
 }
 
 void buildHelp() {

@@ -2,13 +2,11 @@
 
 #include "../BuildConfig.hpp"
 
-#include <cstdlib>
 #include <iostream>
 
 int test(Vec<String> args) {
   const String outDir = emitMakefile(args);
-  std::system(("make -C " + outDir + " test").c_str());
-  return EXIT_SUCCESS;
+  return std::system(("make -C " + outDir + " test").c_str());
 }
 
 void testHelp() {
