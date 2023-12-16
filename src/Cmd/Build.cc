@@ -11,7 +11,7 @@
 #include <sstream>
 #include <stdexcept>
 
-static String OUT_DIR = "poac-out";
+static String OUT_DIR = "poac-out/debug";
 
 struct Target {
   Vec<String> commands;
@@ -128,10 +128,9 @@ int build(Vec<String> args) {
   if (!args.empty()) {
     if (args[0] == "-d" || args[0] == "--debug") {
       debug = true;
-      OUT_DIR += "/debug";
     } else if (args[0] == "-r" || args[0] == "--release") {
       debug = false;
-      OUT_DIR += "/release";
+      OUT_DIR = "poac-out/release";
     } else {
       Logger::error(
           "invalid option: `", args[0], "`", "\n\n",
