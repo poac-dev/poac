@@ -10,6 +10,8 @@
 #include <sstream>
 #include <stdexcept>
 
+static String OUT_DIR = "poac-out/debug";
+
 struct Target {
   Vec<String> commands;
   Vec<String> dependsOn;
@@ -115,7 +117,8 @@ static void parseMMOutput(
   Logger::debug("");
 }
 
-void emitMakefile(const Vec<String>& args) {
+// Returns the directory where the Makefile is generated.
+String emitMakefile(const Vec<String>& args) {
   if (!fs::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
@@ -194,6 +197,7 @@ void emitMakefile(const Vec<String>& args) {
 
   std::ofstream ofs(OUT_DIR + "/Makefile");
   config.emitMakefile(ofs);
+  return OUT_DIR;
 }
 
 #ifdef POAC_TEST

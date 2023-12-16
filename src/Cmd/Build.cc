@@ -6,9 +6,8 @@
 #include <iostream>
 
 int build(Vec<String> args) {
-  emitMakefile(args);
-
-  std::system(("cd " + OUT_DIR + " && make").c_str());
+  const String outDir = emitMakefile(args);
+  std::system(("make -C " + outDir).c_str());
   return EXIT_SUCCESS;
 }
 
