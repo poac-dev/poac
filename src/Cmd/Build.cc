@@ -114,7 +114,7 @@ static void parseMMOutput(
   Logger::debug("");
 }
 
-void build() {
+void build(const Vec<String>& args) {
   if (!std::filesystem::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
@@ -129,12 +129,12 @@ void build() {
 
   // Compiler settings
   config.defineVariable("CC", "clang++");
+  config.defineVariable("DEBUG_FLAGS", "-g -O0 -DDEBUG");
+  config.defineVariable("RELEASE_FLAGS", "-O3 -DNDEBUG");
   config.defineVariable(
       "CFLAGS", "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20"
   );
   config.defineVariable("LDFLAGS", "-L.");
-  config.defineVariable("DEBUG_FLAGS", "-g -O0 -DDEBUG");
-  config.defineVariable("RELEASE_FLAGS", "-O3 -DNDEBUG");
   // Directories
   config.defineVariable("SRC_DIR", "../src");
   // Project settings
@@ -171,4 +171,16 @@ void build() {
   ofs.close();
 
   std::system("cd poac-out && make");
+}
+
+void build_help() {
+  std::cout << "poac-build" << '\n';
+  std::cout << '\n';
+  std::cout << "USAGE:" << '\n';
+  std::cout << "    poac build [OPTIONS]" << '\n';
+  std::cout << '\n';
+  std::cout << "OPTIONS:" << '\n';
+  std::cout << "    -d, --debug\t\tBuild with debug information (default)"
+            << '\n';
+  std::cout << "    -r, --release\tBuild with optimizations" << '\n';
 }
