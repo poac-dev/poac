@@ -61,7 +61,7 @@ struct BuildConfig {
       os << '\n';
 
       for (const auto& cmd : targets.at(*itr).commands) {
-        os << "\t" << cmd << '\n';
+        os << '\t' << cmd << '\n';
       }
       os << '\n';
     }
@@ -118,7 +118,7 @@ static void parseMMOutput(
   Logger::debug("");
 }
 
-bool isMakefileUpToDate(const String& makefilePath) {
+static bool isMakefileUpToDate(const String& makefilePath) {
   if (!fs::exists(makefilePath)) {
     return false;
   }
@@ -137,6 +137,21 @@ bool isMakefileUpToDate(const String& makefilePath) {
   return true;
 }
 
+static bool containsTestCode(const String& sourceFile) {
+  std::ifstream ifs(sourceFile);
+  String line;
+  while (std::getline(ifs, line)) {
+    if (line.find("POAC_TEST") != String::npos) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static void addDirectoryTarget(BuildConfig& config, const String& directory) {
+  config.defineTarget(directory, {"mkdir -p $@"});
+}
+
 // Returns the directory where the Makefile is generated.
 String emitMakefile(const Vec<String>& args) {
   if (!fs::exists("src")) {
@@ -149,7 +164,7 @@ String emitMakefile(const Vec<String>& args) {
   bool debug = true;
   if (!args.empty()) {
     if (args[0] == "-d" || args[0] == "--debug") {
-      debug = true;
+      // Do nothing
     } else if (args[0] == "-r" || args[0] == "--release") {
       debug = false;
       OUT_DIR = "poac-out/release";
@@ -170,6 +185,9 @@ String emitMakefile(const Vec<String>& args) {
     return OUT_DIR;
   }
 
+  const String projectName = "poac";
+  const String pathFromOutDir = "../../";
+
   BuildConfig config;
 
   // Compiler settings
@@ -182,34 +200,38 @@ String emitMakefile(const Vec<String>& args) {
     config.defineVariable("CFLAGS", baseCflags + "-O3 -DNDEBUG");
   }
   config.defineVariable("LDFLAGS", "-L.");
-  // Directories
-  config.defineVariable("SRC_DIR", "../../src"); // poac-out/debug
-  // Project settings
-  config.defineVariable("PROJ_NAME", "poac");
-  config.defineVariable("MAIN", "$(SRC_DIR)/main.cc", {"SRC_DIR"});
 
   // Build rules
   config.defineTarget(".PHONY", {}, {"all"});
-  config.defineTarget("all", {}, {"$(PROJ_NAME)"});
+
+  const String buildOutDir = projectName + ".d";
+  addDirectoryTarget(config, buildOutDir);
+
+  config.defineTarget("all", {}, {buildOutDir, projectName});
 
   const Vec<String> sourceFiles = listSourceFiles("src");
   Vec<String> objectFiles;
   for (String sourceFile : sourceFiles) {
-    sourceFile = "../../" + sourceFile;
-    String mmOutput = runMM(sourceFile);
+    sourceFile = pathFromOutDir + sourceFile;
+    const String mmOutput = runMM(sourceFile);
 
     String target;
     Vec<String> dependencies;
     parseMMOutput(mmOutput, target, dependencies);
 
-    const String targetBaseDir =
-        fs::relative(Path(sourceFile).parent_path(), "../../src").string();
-    target = targetBaseDir + "/" + target;
+    // if (containsTestCode(sourceFile)) {
+    //   addDirectoryTarget(config, "tests");
+    // }
 
-    // Add a target to create the targetBaseDir
+    const String targetBaseDir =
+        fs::relative(Path(sourceFile).parent_path(), pathFromOutDir + "src")
+            .string();
+    target = buildOutDir + "/" + targetBaseDir + "/" + target;
+
+    // Add a target to create the targetBaseDir.
     if (targetBaseDir != ".") {
-      config.defineTarget(targetBaseDir, {"mkdir -p $@"});
-      dependencies.push_back(targetBaseDir);
+      addDirectoryTarget(config, buildOutDir + "/" + targetBaseDir);
+      dependencies.push_back(buildOutDir + "/" + targetBaseDir);
     }
 
     objectFiles.push_back(target);
@@ -217,9 +239,7 @@ String emitMakefile(const Vec<String>& args) {
   }
 
   // The project binary
-  config.defineTarget(
-      "$(PROJ_NAME)", {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles
-  );
+  config.defineTarget(projectName, {"$(CC) $(CFLAGS) $^ -o $@"}, objectFiles);
 
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);

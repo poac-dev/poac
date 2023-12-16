@@ -1,4 +1,5 @@
 #include "Cmd/Build.hpp"
+#include "Cmd/Test.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 
@@ -22,16 +23,18 @@ int help(Vec<String> args) {
     std::cout << '\n';
     std::cout << "SUBCOMMANDS:" << '\n';
     std::cout
-        << "    build\tCompile a local package and all of its dependencies"
-        << '\n';
-    std::cout
         << "    help\tPrints this message or the help of the given subcommand(s)"
         << '\n';
+    std::cout
+        << "    build\tCompile a local package and all of its dependencies"
+        << '\n';
+    std::cout << "    test\tRun the tests of a local package" << '\n';
     return EXIT_SUCCESS;
   }
 
   HashMap<StringRef, Fn<void()>> helps;
   helps["build"] = buildHelp;
+  helps["test"] = testHelp;
 
   StringRef subcommand = args[0];
   if (helps.count(subcommand) == 0) {
@@ -75,6 +78,7 @@ int main(int argc, char* argv[]) {
   HashMap<StringRef, Fn<int(Vec<String>)>> cmds;
   cmds["help"] = help;
   cmds["build"] = build;
+  cmds["test"] = test;
 
   StringRef subcommand = args[0];
   if (cmds.count(subcommand) == 0) {
