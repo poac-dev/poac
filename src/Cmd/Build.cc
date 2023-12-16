@@ -96,7 +96,7 @@ static void parseMMOutput(
 
   std::istringstream iss(output);
   std::getline(iss, target, ':');
-  Logger::debug(target + ':');
+  Logger::debug(target, ':');
 
   String dependency;
   while (std::getline(iss, dependency, ' ')) {
@@ -106,7 +106,7 @@ static void parseMMOutput(
         dependency.pop_back();
       }
       dependencies.push_back(dependency);
-      Logger::debug(" '" + dependency + "'");
+      Logger::debug(" '", dependency, "'");
     }
   }
   Logger::debug("");

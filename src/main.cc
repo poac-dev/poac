@@ -28,7 +28,7 @@ void help() {
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
-    std::cerr << "[ERROR] no subcommand provided" << '\n';
+    Logger::error("no subcommand provided");
     help();
     return 1;
   }
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 
   StringRef subcommand = argv[1];
   if (cmds.count(subcommand) == 0) {
-    std::cerr << "[ERROR] unknown subcommand '" << subcommand << "'" << '\n';
+    Logger::error("unknown subcommand '", subcommand, "'");
     help();
     return 1;
   }
