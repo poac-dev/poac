@@ -34,13 +34,13 @@ jobs:
         run: ./build-out/poac build --verbose
 
       - name: Test the second generation
-        run: ./poac-out/debug/poac help
+        run: ./poac-out/debug/poac test --verbose
 
       - name: Third Generation Build
         run: ./poac-out/debug/poac build --verbose --release
 
       - name: Test the third generation
-        run: ./poac-out/release/poac help
+        run: ./poac-out/release/poac test --verbose --release
 
       # - name: Test Poac
       #   run: ctest --output-on-failure --verbose
