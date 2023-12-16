@@ -125,15 +125,32 @@ void build(const Vec<String>& args) {
     std::filesystem::create_directory("poac-out");
   }
 
+  bool debug = true;
+  if (!args.empty()) {
+    if (args[0] == "-d" || args[0] == "--debug") {
+      debug = true;
+    } else if (args[0] == "-r" || args[0] == "--release") {
+      debug = false;
+    } else {
+      Logger::error(
+          "invalid option: `", args[0], "`", "\n\n",
+          "       run `poac help build` for a list of options"
+      );
+      return;
+    }
+  }
+
   BuildConfig config;
 
   // Compiler settings
   config.defineVariable("CC", "clang++");
-  config.defineVariable("DEBUG_FLAGS", "-g -O0 -DDEBUG");
-  config.defineVariable("RELEASE_FLAGS", "-O3 -DNDEBUG");
-  config.defineVariable(
-      "CFLAGS", "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20"
-  );
+  const String baseCflags =
+      "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 ";
+  if (debug) {
+    config.defineVariable("CFLAGS", baseCflags + "-g -O0 -DDEBUG");
+  } else {
+    config.defineVariable("CFLAGS", baseCflags + "-O3 -DNDEBUG");
+  }
   config.defineVariable("LDFLAGS", "-L.");
   // Directories
   config.defineVariable("SRC_DIR", "../src");

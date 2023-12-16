@@ -35,9 +35,10 @@ void help(const Vec<String>& args) {
 
   StringRef subcommand = args[0];
   if (helps.count(subcommand) == 0) {
-    Logger::error("no such subcommand: `", subcommand, "`");
-    std::cerr << '\n';
-    std::cerr << "       run `poac help` for a list of subcommands" << '\n';
+    Logger::error(
+        "no such subcommand: `", subcommand, "`", "\n\n",
+        "       run `poac help` for a list of subcommands"
+    );
     return;
   }
 
@@ -63,9 +64,10 @@ int main(int argc, char* argv[]) {
   }
 
   if (args.empty()) {
-    Logger::error("no subcommand provided");
-    std::cerr << '\n';
-    std::cerr << "       run `poac help` for a list of commands" << '\n';
+    Logger::error(
+        "no subcommand provided", "\n\n",
+        "       run `poac help` for a list of commands"
+    );
     return 1;
   }
 
@@ -75,9 +77,10 @@ int main(int argc, char* argv[]) {
 
   StringRef subcommand = args[0];
   if (cmds.count(subcommand) == 0) {
-    Logger::error("no such command: `", subcommand, "`");
-    std::cerr << '\n';
-    std::cerr << "       run `poac help` for a list of commands" << '\n';
+    Logger::error(
+        "no such command: `", subcommand, "`", "\n\n",
+        "       run `poac help` for a list of commands"
+    );
     return 1;
   }
 
