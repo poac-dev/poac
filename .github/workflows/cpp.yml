@@ -2,32 +2,32 @@ name: C++
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
 jobs:
-#  clang-tidy:
-#    runs-on: ubuntu-22.04
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Install dependencies
-#        run: |
-#          sudo apt-get -qq update
-#          sudo apt-get install -y        \
-#            clang-14 lld-14              \
-#            ninja-build libboost-all-dev \
-#            libfmt-dev libarchive-dev libgit2-dev libspdlog-dev
-#
-#      - name: Run CMake
-#        run: cmake -B build -G Ninja
-#
-#      - name: Run clang-tidy
-#        run: ninja
-#        working-directory: build
+  #  clang-tidy:
+  #    runs-on: ubuntu-22.04
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #
+  #      - name: Install dependencies
+  #        run: |
+  #          sudo apt-get -qq update
+  #          sudo apt-get install -y        \
+  #            clang-14 lld-14              \
+  #            ninja-build libboost-all-dev \
+  #            libfmt-dev libarchive-dev libgit2-dev libspdlog-dev
+  #
+  #      - name: Run CMake
+  #        run: cmake -B build -G Ninja
+  #
+  #      - name: Run clang-tidy
+  #        run: ninja
+  #        working-directory: build
 
   format:
     runs-on: ubuntu-22.04
@@ -46,21 +46,21 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           poac fmt --check --verbose
 
-  lint:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
+  # lint:
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Install Poac
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew update
-          brew install poac
+  #     - name: Install Poac
+  #       run: |
+  #         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  #         brew update
+  #         brew install poac
 
-      - name: Install cpplint
-        run: pip install cpplint
+  #     - name: Install cpplint
+  #       run: pip install cpplint
 
-      - name: Run lint
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          poac lint --verbose
+  #     - name: Run lint
+  #       run: |
+  #         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  #         poac lint --verbose

@@ -1,0 +1,81 @@
+name: Linux
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: "build & test"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+        coverage: [off]
+        compiler:
+          - cc: clang-12
+            cxx: clang++-12
+          - cc: clang-13
+            cxx: clang++-13
+          - cc: clang-14
+            cxx: clang++-14
+          - cc: gcc-11
+            cxx: g++-11
+          - cc: gcc-12
+            cxx: g++-12
+        include:
+          - build_type: Debug
+            coverage: on
+            compiler:
+              cc: gcc-12
+              cxx: g++-12
+    env:
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cxx }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup GCC
+        if: startsWith(matrix.compiler.cc, 'gcc')
+        run: sudo apt-get install -y ${{ matrix.compiler.cxx }}
+
+      - name: Setup Clang
+        if: startsWith(matrix.compiler.cc, 'clang')
+        run: sudo apt-get install -y ${{ matrix.compiler.cc }}
+
+      - name: Build Poac
+        run: make
+
+      - name: Self-build Poac
+        run: ./build-out/poac build --verbose
+
+      - name: Test self-built binary
+        run: ./poac-out/poac help
+
+      # - name: Test Poac
+      #   run: ctest --output-on-failure --verbose
+      #   working-directory: build
+
+      # - name: Print coverage
+      #   if: success() && matrix.coverage == 'on'
+      #   run: |
+      #     lcov --directory . --capture --output-file coverage.info --gcov-tool "${CC_PATH/gcc/gcov}"
+      #     lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
+      #     lcov --list coverage.info
+      #   env:
+      #     CC_PATH: /usr/bin/${{ env.CC }}
+
+      # - name: Upload coverage to Codecov
+      #   if: success() && matrix.coverage == 'on'
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     files: coverage.info
