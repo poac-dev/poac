@@ -31,7 +31,7 @@ jobs:
         run: ./build-out/poac build --verbose
 
       - name: Test self-built binary
-        run: ./poac-out/poac help
+        run: ./poac-out/debug/poac help
 
       # - name: Test Poac
       #   run: ctest --output-on-failure --verbose
