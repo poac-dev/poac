@@ -7,7 +7,7 @@
 
 #define POAC_VERSION "0.6.0"
 
-void help(Vec<String> args) {
+int help(Vec<String> args) {
   if (args.empty()) {
     std::cout << "poac " << POAC_VERSION << '\n';
     std::cout << "A package manager and build system for C++" << '\n';
@@ -27,7 +27,7 @@ void help(Vec<String> args) {
     std::cout
         << "    help\tPrints this message or the help of the given subcommand(s)"
         << '\n';
-    return;
+    return EXIT_SUCCESS;
   }
 
   HashMap<StringRef, Fn<void()>> helps;
@@ -39,10 +39,11 @@ void help(Vec<String> args) {
         "no such subcommand: `", subcommand, "`", "\n\n",
         "       run `poac help` for a list of subcommands"
     );
-    return;
+    return EXIT_FAILURE;
   }
 
   helps[subcommand]();
+  return EXIT_SUCCESS;
 }
 
 int main(int argc, char* argv[]) {
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
     String arg = argv[i];
     if (arg == "-v" || arg == "--version") {
       std::cout << "poac " << POAC_VERSION << '\n';
-      return 0;
+      return EXIT_SUCCESS;
     }
     if (arg == "--verbose") {
       Logger::setLevel(LogLevel::debug);
@@ -68,10 +69,10 @@ int main(int argc, char* argv[]) {
         "no subcommand provided", "\n\n",
         "       run `poac help` for a list of commands"
     );
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  HashMap<StringRef, Fn<void(Vec<String>)>> cmds;
+  HashMap<StringRef, Fn<int(Vec<String>)>> cmds;
   cmds["help"] = help;
   cmds["build"] = build;
 
@@ -81,15 +82,13 @@ int main(int argc, char* argv[]) {
         "no such command: `", subcommand, "`", "\n\n",
         "       run `poac help` for a list of commands"
     );
-    return 1;
+    return EXIT_FAILURE;
   }
 
   try {
-    cmds[subcommand](Vec<String>(args.begin() + 1, args.end()));
+    return cmds[subcommand](Vec<String>(args.begin() + 1, args.end()));
   } catch (const std::exception& e) {
     Logger::error(e.what());
-    return 1;
+    return EXIT_FAILURE;
   }
-
-  return 0;
 }

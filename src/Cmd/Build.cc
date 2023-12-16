@@ -114,7 +114,7 @@ static void parseMMOutput(
   Logger::debug("");
 }
 
-void build(Vec<String> args) {
+int build(Vec<String> args) {
   if (!std::filesystem::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
@@ -136,7 +136,7 @@ void build(Vec<String> args) {
           "invalid option: `", args[0], "`", "\n\n",
           "       run `poac help build` for a list of options"
       );
-      return;
+      return EXIT_FAILURE;
     }
   }
 
@@ -188,6 +188,7 @@ void build(Vec<String> args) {
   ofs.close();
 
   std::system("cd poac-out && make");
+  return EXIT_SUCCESS;
 }
 
 void build_help() {
