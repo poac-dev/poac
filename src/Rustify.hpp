@@ -1,12 +1,15 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+
+namespace fs = std::filesystem;
 
 // NOLINTBEGIN(readability-identifier-naming)
 using u8 = std::uint8_t;
@@ -27,6 +30,7 @@ using f64 = double;
 
 using String = std::string;
 using StringRef = std::string_view;
+using Path = fs::path;
 
 template <typename T>
 using Vec = std::vector<T>;

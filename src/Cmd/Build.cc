@@ -68,8 +68,7 @@ struct BuildConfig {
 
 static Vec<String> listSourceFiles(const String& directory) {
   Vec<String> sourceFiles;
-  for (const auto& entry :
-       std::filesystem::recursive_directory_iterator(directory)) {
+  for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (entry.path().extension() == ".cc") {
       sourceFiles.push_back(entry.path().string());
     }
@@ -117,10 +116,10 @@ static void parseMMOutput(
 }
 
 int build(Vec<String> args) {
-  if (!std::filesystem::exists("src")) {
+  if (!fs::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
-  if (!std::filesystem::exists("src/main.cc")) {
+  if (!fs::exists("src/main.cc")) {
     throw std::runtime_error("src/main.cc not found");
   }
 
@@ -139,8 +138,8 @@ int build(Vec<String> args) {
       return EXIT_FAILURE;
     }
   }
-  if (!std::filesystem::exists(OUT_DIR)) {
-    std::filesystem::create_directories(OUT_DIR);
+  if (!fs::exists(OUT_DIR)) {
+    fs::create_directories(OUT_DIR);
   }
 
   BuildConfig config;
@@ -175,10 +174,18 @@ int build(Vec<String> args) {
     Vec<String> dependencies;
     parseMMOutput(mmOutput, target, dependencies);
 
+    const String targetBaseDir =
+        fs::relative(Path(sourceFile).parent_path(), "../../src").string();
+    target = targetBaseDir + "/" + target;
+
+    // Add a target to create the targetBaseDir
+    if (targetBaseDir != ".") {
+      config.defineTarget(targetBaseDir, {"mkdir -p $@"});
+      dependencies.push_back(targetBaseDir);
+    }
+
     objectFiles.push_back(target);
-    config.defineTarget(
-        target, {"$(CC) $(CFLAGS) -c " + sourceFile + " -o $@"}, dependencies
-    );
+    config.defineTarget(target, {"$(CC) $(CFLAGS) -c $< -o $@"}, dependencies);
   }
 
   // The project binary
