@@ -52,6 +52,7 @@ Vec<String> topoSort(
   }
 
   if (res.size() != list.size()) {
+    // Cycle detected
     throw std::runtime_error("too complex build graph");
   }
   return res;
