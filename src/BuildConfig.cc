@@ -219,7 +219,10 @@ String emitMakefile(const Vec<String>& args) {
   // Compiler settings
   config.defineVariable("CC", "clang++");
   const String baseCflags =
-      "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 ";
+      "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 "; // TODO:
+                                                                        // Get
+                                                                        // from
+                                                                        // poac.toml
   if (debug) {
     config.defineVariable("CFLAGS", baseCflags + "-g -O0 -DDEBUG");
   } else {
