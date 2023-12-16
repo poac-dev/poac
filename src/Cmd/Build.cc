@@ -155,7 +155,7 @@ void build() {
 
     String target;
     Vec<String> dependencies;
-    parseMMOutput(sourceFile, target, dependencies);
+    parseMMOutput(mmOutput, target, dependencies);
 
     objectFiles.push_back(target);
     config.defineTarget(
