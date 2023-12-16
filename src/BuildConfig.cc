@@ -56,14 +56,14 @@ struct BuildConfig {
       for (const auto& dep : targets.at(".PHONY").dependsOn) {
         os << " " << dep;
       }
-      os << '\n';
+      os << "\n\n";
     }
     if (targets.count("all") != 0) {
       os << "all:";
       for (const auto& dep : targets.at("all").dependsOn) {
         os << " " << dep;
       }
-      os << '\n';
+      os << "\n\n";
     }
 
     const Vec<String> sortedTargets = topoSort(targets, targetDeps);
@@ -256,6 +256,7 @@ String emitMakefile(const Vec<String>& args) {
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
     Vec<String> buildTargetDeps = objTargetDeps;
+    buildTargetDeps.push_back("|"); // order-only dependency
     buildTargetDeps.push_back(buildOutDir);
     if (targetBaseDir != ".") {
       addDirectoryTarget(config, buildTargetBaseDir);
@@ -290,6 +291,7 @@ String emitMakefile(const Vec<String>& args) {
 
       // NOTE: Since we know that we don't use objTargetInfos for other
       // targets, we can just update it here instead of creating a copy.
+      objTargetInfo.deps.push_back("|"); // order-only dependency
       objTargetInfo.deps.push_back(testOutDir);
 
       // Add a target to create the testTargetBaseDir.
@@ -352,7 +354,7 @@ String emitMakefile(const Vec<String>& args) {
     // Target to create the tests directory.
     addDirectoryTarget(config, testOutDir);
 
-    config.defineTarget("test", {}, testTargets);
+    config.defineTarget("test", testTargets, testTargets);
     phonies.push_back("test");
   }
 
