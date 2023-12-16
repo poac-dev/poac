@@ -114,7 +114,7 @@ static void parseMMOutput(
   Logger::debug("");
 }
 
-void build(const Vec<String>& args) {
+void build(Vec<String> args) {
   if (!std::filesystem::exists("src")) {
     throw std::runtime_error("src directory not found");
   }

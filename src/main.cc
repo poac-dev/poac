@@ -7,7 +7,7 @@
 
 #define POAC_VERSION "0.6.0"
 
-void help(const Vec<String>& args) {
+void help(Vec<String> args) {
   if (args.empty()) {
     std::cout << "poac " << POAC_VERSION << '\n';
     std::cout << "A package manager and build system for C++" << '\n';
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  HashMap<StringRef, Fn<void(const Vec<String>&)>> cmds;
+  HashMap<StringRef, Fn<void(Vec<String>)>> cmds;
   cmds["help"] = help;
   cmds["build"] = build;
 
