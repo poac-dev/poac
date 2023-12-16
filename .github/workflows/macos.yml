@@ -36,11 +36,8 @@ jobs:
       - name: Test the second generation
         run: ./poac-out/debug/poac test --verbose
 
-      - name: Third Generation Build
-        run: ./poac-out/debug/poac build --verbose --release
-
-      - name: Test the third generation
-        run: ./poac-out/release/poac test --verbose --release
+      - name: Third Generation Build & Test
+        run: ./poac-out/debug/poac --verbose run --release test --verbose --release
 
       # - name: Test Poac
       #   run: ctest --output-on-failure --verbose

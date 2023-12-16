@@ -52,16 +52,28 @@ int help(Vec<String> args) {
 int main(int argc, char* argv[]) {
   // Parse global options
   Vec<String> args;
+  bool isVerbositySet = false;
   for (int i = 1; i < argc; ++i) {
     String arg = argv[i];
     if (arg == "-v" || arg == "--version") {
       std::cout << "poac " << POAC_VERSION << '\n';
       return EXIT_SUCCESS;
     }
-    if (arg == "--verbose") {
-      Logger::setLevel(LogLevel::debug);
-    } else if (arg == "-q" || arg == "--quiet") {
-      Logger::setLevel(LogLevel::error);
+
+    // This is a bit of a hack to allow the global options to be specified
+    // in poac run, e.g., `poac run --verbose test --verbose`.  This will
+    // remove the first --verbose and execute the run command as verbose,
+    // then run the test command as verbose.
+    if (!isVerbositySet) {
+      if (arg == "--verbose") {
+        Logger::setLevel(LogLevel::debug);
+        isVerbositySet = true;
+      } else if (arg == "-q" || arg == "--quiet") {
+        Logger::setLevel(LogLevel::error);
+        isVerbositySet = true;
+      } else {
+        args.push_back(arg);
+      }
     } else {
       args.push_back(arg);
     }
