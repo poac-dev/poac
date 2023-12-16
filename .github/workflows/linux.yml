@@ -63,12 +63,11 @@ jobs:
 
       - name: Third Generation Build
         run: |
-          mv ./poac-out/debug/poac ./
-          rm -rf ./poac-out
+          cp ./poac-out/debug/poac ./
           ./poac build --verbose --release
 
       - name: Test the third generation
-        run: ./poac help
+        run: ./poac-out/release/poac help
 
       # - name: Test Poac
       #   run: ctest --output-on-failure --verbose
