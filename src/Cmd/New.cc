@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-static inline constexpr StringRef mainCpp =
+static inline constexpr StringRef mainCc =
     "#include <iostream>\n\n"
     "int main(int argc, char** argv) {\n"
     "  std::cout << \"Hello, world!\" << std::endl;\n"
@@ -50,7 +50,7 @@ static void createTemplateFiles(const bool isBin, const Path& projectName) {
     fs::create_directories(projectName / "src");
     writeToFile(ofs, projectName / "poac.toml", getPoacToml(projectName));
     writeToFile(ofs, projectName / ".gitignore", "/poac-out");
-    writeToFile(ofs, projectName / "src" / "main.cpp", mainCpp);
+    writeToFile(ofs, projectName / "src" / "main.cc", mainCc);
 
     Logger::status(
         "Created", "binary (application) `", projectName.string(), "` package"

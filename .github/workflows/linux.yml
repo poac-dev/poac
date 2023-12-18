@@ -59,6 +59,13 @@ jobs:
       - name: Third Generation Build & Test
         run: ./poac-out/debug/poac --verbose run --release test --verbose
 
+      - name: Create a new project with the third generation
+        run: ./poac-out/debug/poac new hello_world
+
+      - name: Run the new project
+        run: ../poac-out/debug/poac --verbose run
+        working-directory: hello_world
+
       # - name: Print coverage
       #   if: success() && matrix.coverage == 'on'
       #   run: |
