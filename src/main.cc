@@ -1,3 +1,4 @@
+#include "Algos.hpp"
 #include "Cmd/Build.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
@@ -95,9 +96,20 @@ int main(int argc, char* argv[]) {
 
   StringRef subcommand = args[0];
   if (cmds.count(subcommand) == 0) {
+    Vec<StringRef> candidates(cmds.size());
+    usize i = 0;
+    for (const auto& cmd : cmds) {
+      candidates[i++] = cmd.first;
+    }
+
+    String suggestion;
+    if (const auto similar = findSimilarStr(subcommand, candidates)) {
+      suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
+    }
+
     Logger::error(
-        "no such command: `", subcommand, "`", "\n\n",
-        "       run `poac help` for a list of commands"
+        "no such command: `", subcommand, "`", "\n\n", suggestion,
+        "       Run `poac help` for a list of commands"
     );
     return EXIT_FAILURE;
   }
