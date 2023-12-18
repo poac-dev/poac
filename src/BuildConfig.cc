@@ -181,7 +181,7 @@ static void defineCompileTarget(
     const bool isTest = false
 ) {
   std::ostringstream oss;
-  Logger::getInstance().log(
+  Logger::log(
       oss, LogLevel::status, "Compiling", deps[0].substr(6) // remove "../../"
   );
 
@@ -199,7 +199,7 @@ static void defineLinkTarget(
     BuildConfig& config, const String& binTarget, const Vec<String>& deps
 ) {
   std::ostringstream oss;
-  Logger::getInstance().log(oss, LogLevel::status, "Linking", binTarget);
+  Logger::log(oss, LogLevel::status, "Linking", binTarget);
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
@@ -378,9 +378,7 @@ String emitMakefile(const bool debug) {
       }
 
       std::ostringstream oss;
-      Logger::getInstance().log(
-          oss, LogLevel::status, "Testing", testTargetName
-      );
+      Logger::log(oss, LogLevel::status, "Testing", testTargetName);
       testCommands.push_back("@echo '" + oss.str() + "'");
       testCommands.push_back('@' + testTarget);
       testTargets.push_back(testTarget);

@@ -21,41 +21,44 @@ public:
 
   template <typename... Args>
   static void error(Args&&... message) {
-    getInstance().logln(
-        std::cerr, LogLevel::error, std::forward<Args>(message)...
-    );
+    logln(std::cerr, LogLevel::error, std::forward<Args>(message)...);
   }
   template <typename... Args>
   static void warn(Args&&... message) {
-    getInstance().logln(
-        std::cout, LogLevel::warning, std::forward<Args>(message)...
-    );
+    logln(std::cout, LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename T, typename... Args>
   static void status(T&& header, Args&&... message) {
-    getInstance().logln(
+    logln(
         std::cout, LogLevel::status, std::forward<T>(header),
         std::forward<Args>(message)...
     );
   }
   template <typename... Args>
   static void debug(Args&&... message) {
-    getInstance().logln(
-        std::cout, LogLevel::debug, std::forward<Args>(message)...
-    );
+    logln(std::cout, LogLevel::debug, std::forward<Args>(message)...);
   }
 
   template <typename T, typename... Args>
-  void logln(
+  static void logln(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) {
     log(os, messageLevel, std::forward<T>(header),
         std::forward<Args>(message)..., '\n');
   }
+  template <typename T, typename... Args>
+  static void
+  log(std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message) {
+    getInstance().logImpl(
+        os, messageLevel, std::forward<T>(header),
+        std::forward<Args>(message)...
+    );
+  }
 
   template <typename T, typename... Args>
-  void
-  log(std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message) {
+  void logImpl(
+      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
+  ) {
     // For other than `status`, header means just the first argument.  For
     // `status`, header means its header.
 
