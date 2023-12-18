@@ -2,17 +2,14 @@
 CC = clang++
 DEBUG_FLAGS = -g -O0 -DDEBUG
 RELEASE_FLAGS = -O3 -DNDEBUG
-CFLAGS = -Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 $(DEBUG_FLAGS)
-LDFLAGS = -L.
+CFLAGS = -Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20
+ifeq ($(RELEASE), 1)
+	CFLAGS += $(RELEASE_FLAGS)
+else
+	CFLAGS += $(DEBUG_FLAGS)
+endif
 
-# Archiver settings
-AR = ar
-ARFLAGS = rcs
-
-# Directories
 OUT_DIR = build-out
-
-# Project settings
 PROJ_NAME = $(OUT_DIR)/poac
 
 
