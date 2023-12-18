@@ -21,51 +21,58 @@ public:
 
   template <typename... Args>
   static void error(Args&&... message) {
-    getInstance().log(LogLevel::error, std::forward<Args>(message)...);
+    getInstance().log(
+        std::cerr, LogLevel::error, std::forward<Args>(message)..., '\n'
+    );
   }
   template <typename... Args>
   static void warn(Args&&... message) {
-    getInstance().log(LogLevel::warning, std::forward<Args>(message)...);
+    getInstance().log(
+        std::cout, LogLevel::warning, std::forward<Args>(message)..., '\n'
+    );
   }
   template <typename T, typename... Args>
   static void status(T&& header, Args&&... message) {
     getInstance().log(
-        LogLevel::status, std::forward<T>(header),
-        std::forward<Args>(message)...
+        std::cout, LogLevel::status, std::forward<T>(header),
+        std::forward<Args>(message)..., '\n'
     );
   }
   template <typename... Args>
   static void debug(Args&&... message) {
-    getInstance().log(LogLevel::debug, std::forward<Args>(message)...);
+    getInstance().log(
+        std::cout, LogLevel::debug, std::forward<Args>(message)..., '\n'
+    );
   }
 
   template <typename T, typename... Args>
-  void log(LogLevel messageLevel, T&& header, Args&&... message) {
+  void
+  log(std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message) {
     // For other than `status`, header means just the first argument.  For
     // `status`, header means its header.
 
     if (messageLevel <= level) {
       switch (messageLevel) {
         case LogLevel::error:
-          std::cerr << bold(red("Error: ")) << std::forward<T>(header);
-          (std::cerr << ... << std::forward<Args>(message)) << '\n';
+          os << bold(red("Error: ")) << std::forward<T>(header);
+          (os << ... << std::forward<Args>(message));
           break;
         case LogLevel::warning:
-          std::cout << bold(yellow("Warning: ")) << std::forward<T>(header);
-          (std::cout << ... << std::forward<Args>(message)) << '\n';
+          os << bold(yellow("Warning: ")) << std::forward<T>(header);
+          (os << ... << std::forward<Args>(message));
           break;
         case LogLevel::status:
           if (should_color()) {
-            std::cout << std::setw(27) << bold(green(std::forward<T>(header)))
-                      << ' ';
+            os << std::right << std::setw(27)
+               << bold(green(std::forward<T>(header))) << ' ';
           } else {
-            std::cout << std::setw(12) << std::forward<T>(header) << ' ';
+            os << std::right << std::setw(12) << std::forward<T>(header) << ' ';
           }
-          (std::cout << ... << std::forward<Args>(message)) << '\n';
+          (os << ... << std::forward<Args>(message));
           break;
         case LogLevel::debug:
-          std::cout << "[Poac] " << std::forward<T>(header);
-          (std::cout << ... << std::forward<Args>(message)) << '\n';
+          os << "[Poac] " << std::forward<T>(header);
+          (os << ... << std::forward<Args>(message));
           break;
       }
     }

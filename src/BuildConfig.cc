@@ -168,8 +168,34 @@ static bool containsTestCode(const String& sourceFile) {
   return false;
 }
 
-static void addDirectoryTarget(BuildConfig& config, const String& directory) {
+static void defineDirTarget(BuildConfig& config, const String& directory) {
   config.defineTarget(directory, {"@mkdir -p $@"});
+}
+
+static void defineCompileTarget(
+    BuildConfig& config, const String& objTarget, const Vec<String>& deps
+) {
+  std::ostringstream oss;
+  Logger::getInstance().log(
+      oss, LogLevel::status, "Compiling", deps[0].substr(6) // remove "../../"
+  );
+
+  Vec<String> commands(2);
+  commands[0] = "@echo '" + oss.str() + "'";
+  commands[1] = "@$(CC) $(CFLAGS) -c $< -o $@";
+  config.defineTarget(objTarget, commands, deps);
+}
+
+static void defineLinkTarget(
+    BuildConfig& config, const String& binTarget, const Vec<String>& deps
+) {
+  std::ostringstream oss;
+  Logger::getInstance().log(oss, LogLevel::status, "Linking", binTarget);
+
+  Vec<String> commands(2);
+  commands[0] = "@echo '" + oss.str() + "'";
+  commands[1] = "@$(CC) $(CFLAGS) $^ -o $@";
+  config.defineTarget(binTarget, commands, deps);
 }
 
 struct ObjTargetInfo {
@@ -231,7 +257,7 @@ String emitMakefile(const bool debug) {
 
   // Build rules
   const String buildOutDir = projectName + ".d";
-  addDirectoryTarget(config, buildOutDir);
+  defineDirTarget(config, buildOutDir);
 
   Vec<String> phonies = {"all"};
   config.defineTarget("all", {}, {buildOutDir, projectName});
@@ -262,18 +288,14 @@ String emitMakefile(const bool debug) {
     buildTargetDeps.push_back("|"); // order-only dependency
     buildTargetDeps.push_back(buildOutDir);
     if (targetBaseDir != ".") {
-      addDirectoryTarget(config, buildTargetBaseDir);
+      defineDirTarget(config, buildTargetBaseDir);
       buildTargetDeps.push_back(buildTargetBaseDir);
     }
 
     buildObjTargets.push_back(buildObjTarget);
-    config.defineTarget(
-        buildObjTarget, {"$(CC) $(CFLAGS) -c $< -o $@"}, buildTargetDeps
-    );
+    defineCompileTarget(config, buildObjTarget, buildTargetDeps);
   }
-  config.defineTarget(
-      projectName, {"$(CC) $(CFLAGS) $^ -o $@"}, buildObjTargets
-  );
+  defineLinkTarget(config, projectName, buildObjTargets);
 
   // Targets for testing.
   bool enableTesting = false;
@@ -299,7 +321,7 @@ String emitMakefile(const bool debug) {
 
       // Add a target to create the testTargetBaseDir.
       if (objTargetInfo.baseDir != ".") {
-        addDirectoryTarget(config, testTargetBaseDir);
+        defineDirTarget(config, testTargetBaseDir);
         objTargetInfo.deps.push_back(testTargetBaseDir);
       }
 
@@ -311,12 +333,12 @@ String emitMakefile(const bool debug) {
 
       // Test binary target.
       Vec<String> testTargetDeps = {testObjTarget};
-      // This test target depends on the object file corresponding to the header
-      // file included in this source file.
+      // This test target depends on the object file corresponding to
+      // the header file included in this source file.
       for (const String& header : objTargetInfo.deps) {
         // We shouldn't depend on the original object file (e.g.,
-        // poac.d/path/to/file.o). We should depend on the test object file
-        // (e.g., tests/path/to/test_file.o).
+        // poac.d/path/to/file.o). We should depend on the test object
+        // file (e.g., tests/path/to/test_file.o).
         if (Path(sourceFile).stem().string() == Path(header).stem().string()) {
           continue;
         }
@@ -355,7 +377,7 @@ String emitMakefile(const bool debug) {
   }
   if (enableTesting) {
     // Target to create the tests directory.
-    addDirectoryTarget(config, testOutDir);
+    defineDirTarget(config, testOutDir);
 
     config.defineTarget("test", testTargets, testTargets);
     phonies.push_back("test");
