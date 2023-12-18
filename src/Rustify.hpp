@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <functional>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -13,6 +14,8 @@
 #include <vector>
 
 namespace fs = std::filesystem;
+using namespace std::literals::string_literals;
+using namespace std::literals::string_view_literals;
 
 // NOLINTBEGIN(readability-identifier-naming)
 using u8 = std::uint8_t;
@@ -52,3 +55,23 @@ using HashSet = std::unordered_set<K>;
 
 template <typename T>
 using Fn = std::function<T>;
+
+template <typename T>
+using Option = std::optional<T>;
+
+struct NoneT : protected std::monostate {
+  constexpr auto operator==(const usize rhs) const -> bool {
+    return String::npos == rhs;
+  }
+
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  constexpr operator std::nullopt_t() const {
+    return std::nullopt;
+  }
+
+  template <typename T>
+  constexpr operator Option<T>() const { // NOLINT(google-explicit-constructor)
+    return std::nullopt;
+  }
+};
+inline constexpr NoneT None; // NOLINT(readability-identifier-naming)

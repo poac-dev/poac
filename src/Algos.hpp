@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <queue>
+#include <span>
 #include <stdexcept>
 
 template <typename T>
@@ -57,3 +58,15 @@ Vec<String> topoSort(
   }
   return res;
 }
+
+// ref: https://reviews.llvm.org/differential/changeset/?ref=3315514
+/// Find a similar string in `candidates`.
+///
+/// \param lhs a string for a similar string in `Candidates`
+///
+/// \param candidates the candidates to find a similar string.
+///
+/// \returns a similar string if exists. If no similar string exists,
+/// returns None.
+Option<StringRef>
+findSimilarStr(StringRef lhs, std::span<const StringRef> candidates);
