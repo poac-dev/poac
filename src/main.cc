@@ -1,5 +1,6 @@
 #include "Algos.hpp"
 #include "Cmd/Build.hpp"
+#include "Cmd/Clean.hpp"
 #include "Cmd/New.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
@@ -31,6 +32,7 @@ int helpCmd(Vec<String> args) {
     std::cout << "    test\t" << testDesc << '\n';
     std::cout << "    run\t" << runDesc << '\n';
     std::cout << "    new\t" << newDesc << '\n';
+    std::cout << "    clean\t" << cleanDesc << '\n';
     return EXIT_SUCCESS;
   }
 
@@ -39,6 +41,7 @@ int helpCmd(Vec<String> args) {
   helps["test"] = testHelp;
   helps["run"] = runHelp;
   helps["new"] = newHelp;
+  helps["clean"] = cleanHelp;
 
   StringRef subcommand = args[0];
   if (!helps.contains(subcommand)) {
@@ -97,6 +100,7 @@ int main(int argc, char* argv[]) {
   cmds["test"] = testCmd;
   cmds["run"] = runCmd;
   cmds["new"] = newCmd;
+  cmds["clean"] = cleanCmd;
 
   StringRef subcommand = args[0];
   if (!cmds.contains(subcommand)) {
