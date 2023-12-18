@@ -11,7 +11,7 @@ static inline constexpr StringRef mainCc =
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
-static String getPoacToml(const String& projectName) {
+String getPoacToml(const String& projectName) {
   return
       "[package]\n"
       "name = \"" + projectName + "\"\n"
@@ -69,7 +69,7 @@ static void createTemplateFiles(const bool isBin, const Path& projectName) {
   }
 }
 
-static bool verifyPackageName(StringRef name) {
+bool verifyPackageName(StringRef name) {
   // Empty
   if (name.empty()) {
     Logger::error("missing package name");
@@ -210,7 +210,7 @@ static bool verifyPackageName(StringRef name) {
   return true;
 }
 
-int newCmd(Vec<String> args) {
+int newMain(Vec<String> args) {
   if (args.empty()) {
     Logger::error("missing package name");
     return EXIT_FAILURE;

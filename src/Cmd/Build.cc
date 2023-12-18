@@ -26,7 +26,7 @@ int buildImpl(const bool isDebug, String& outDir) {
   return exitCode;
 }
 
-int buildCmd(Vec<String> args) {
+int buildMain(Vec<String> args) {
   const bool isDebug = isDebugMode(args.empty() ? "" : args[0]);
   String outDir;
   return buildImpl(isDebug, outDir);

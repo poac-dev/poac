@@ -65,6 +65,8 @@ public:
 
     if (messageLevel <= level) {
       switch (messageLevel) {
+        case LogLevel::off:
+          break;
         case LogLevel::error:
           os << bold(red("Error: ")) << std::forward<T>(header);
           (os << ... << std::forward<Args>(message));

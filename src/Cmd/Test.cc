@@ -6,7 +6,7 @@
 #include <ctime>
 #include <iostream>
 
-int testCmd(Vec<String> args) {
+int testMain(Vec<String> args) {
   const bool isDebug = isDebugMode(args.empty() ? "" : args[0]);
   if (!isDebug) {
     Logger::warn("The `--release` flag can disable assert macros.");

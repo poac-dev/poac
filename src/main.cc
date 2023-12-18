@@ -1,6 +1,7 @@
 #include "Algos.hpp"
 #include "Cmd/Build.hpp"
 #include "Cmd/Clean.hpp"
+#include "Cmd/Init.hpp"
 #include "Cmd/New.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
@@ -12,7 +13,7 @@
 
 #define POAC_VERSION "0.6.0"
 
-int helpCmd(Vec<String> args) {
+int helpMain(Vec<String> args) {
   if (args.empty()) {
     std::cout << "poac " << POAC_VERSION << '\n';
     std::cout << "A package manager and build system for C++" << '\n';
@@ -33,6 +34,7 @@ int helpCmd(Vec<String> args) {
     std::cout << "    run\t" << runDesc << '\n';
     std::cout << "    new\t" << newDesc << '\n';
     std::cout << "    clean\t" << cleanDesc << '\n';
+    std::cout << "    init\t" << initDesc << '\n';
     return EXIT_SUCCESS;
   }
 
@@ -42,6 +44,7 @@ int helpCmd(Vec<String> args) {
   helps["run"] = runHelp;
   helps["new"] = newHelp;
   helps["clean"] = cleanHelp;
+  helps["init"] = initHelp;
 
   StringRef subcommand = args[0];
   if (!helps.contains(subcommand)) {
@@ -95,12 +98,13 @@ int main(int argc, char* argv[]) {
   }
 
   HashMap<StringRef, Fn<int(Vec<String>)>> cmds;
-  cmds["help"] = helpCmd;
-  cmds["build"] = buildCmd;
-  cmds["test"] = testCmd;
-  cmds["run"] = runCmd;
-  cmds["new"] = newCmd;
-  cmds["clean"] = cleanCmd;
+  cmds["help"] = helpMain;
+  cmds["build"] = buildMain;
+  cmds["test"] = testMain;
+  cmds["run"] = runMain;
+  cmds["new"] = newMain;
+  cmds["clean"] = cleanMain;
+  cmds["init"] = initMain;
 
   StringRef subcommand = args[0];
   if (!cmds.contains(subcommand)) {

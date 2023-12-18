@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-int cleanCmd(Vec<String> args) {
+int cleanMain(Vec<String> args) {
   Path outDir = "poac-out";
 
   if (!args.empty()) {

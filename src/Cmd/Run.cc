@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int runCmd(Vec<String> args) {
+int runMain(Vec<String> args) {
   bool isDebug = true;
   usize argsConsumed = 0;
   if (!args.empty()) {
