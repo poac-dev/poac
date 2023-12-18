@@ -8,10 +8,11 @@
 #include <utility>
 
 enum class LogLevel : u8 {
-  error = 0,
-  warning = 1,
-  status = 2, // default
-  debug = 3 // --verbose
+  off = 0,
+  error = 1,
+  warning = 2,
+  status = 3, // default
+  debug = 4 // --verbose
 };
 
 class Logger {

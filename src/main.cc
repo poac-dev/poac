@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
         Logger::setLevel(LogLevel::debug);
         isVerbositySet = true;
       } else if (arg == "-q" || arg == "--quiet") {
-        Logger::setLevel(LogLevel::error);
+        Logger::setLevel(LogLevel::off);
         isVerbositySet = true;
       } else {
         args.push_back(arg);
