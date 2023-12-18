@@ -20,26 +20,28 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - cxx: clang++-13
+          - cxx: clang++
             ver: 13
-          - cxx: clang++-14
+          - cxx: clang++
             ver: 14
-          - cxx: clang++-15
+          - cxx: clang++
             ver: 15
-          - cxx: clang++-16
+          - cxx: clang++
             ver: 16
-          - cxx: clang++-17
+          - cxx: clang++
             ver: 17
-          - cxx: g++-11
-          - cxx: g++-12
+          - cxx: g++
+            ver: 11
+          - cxx: g++
+            ver: 12
     env:
-      CXX: ${{ matrix.compiler.cxx }}
+      CXX: ${{ matrix.compiler.cxx }}-${{ matrix.compiler.ver }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup GCC
         if: ${{ ! startsWith(matrix.compiler.cxx, 'clang') }}
-        run: sudo apt-get install -y ${{ matrix.compiler.cxx }}
+        run: sudo apt-get install -y ${{ env.CXX }}
 
       - name: Setup Clang
         if: startsWith(matrix.compiler.cxx, 'clang')
