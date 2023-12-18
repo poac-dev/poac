@@ -1,10 +1,15 @@
 #include "Test.hpp"
 
 #include "../BuildConfig.hpp"
+#include "../Logger.hpp"
 
 #include <iostream>
 
 int test(Vec<String> args) {
+  if (!args.empty() && (args[0] == "-r" || args[0] == "--release")) {
+    Logger::warn("The `--release` flag can disable assert macros.");
+  }
+
   const String outDir = emitMakefile(args.empty() ? "" : args[0]);
   return std::system(("make -C " + outDir + " test").c_str());
 }

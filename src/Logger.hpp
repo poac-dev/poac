@@ -23,7 +23,7 @@ public:
     getInstance().log(LogLevel::error, std::forward<Args>(message)...);
   }
   template <typename... Args>
-  static void warning(Args... message) {
+  static void warn(Args... message) {
     getInstance().log(LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename... Args>
