@@ -9,4 +9,6 @@ static inline const HashSet<String> HEADER_FILE_EXTS{
     ".h", ".h++", ".hh", ".hpp", ".hxx"
 };
 
-String emitMakefile(const String&);
+bool isDebugMode(StringRef);
+String emitMakefile(const bool);
+String modeString(const bool);

@@ -7,17 +7,18 @@
 #include <iostream>
 
 int runCmd(Vec<String> args) {
-  String profile;
+  bool isDebug = true;
   usize argsConsumed = 0;
   if (!args.empty()) {
-    if (args[0] == "-d" || args[0] == "--debug" || args[0] == "-r"
-        || args[0] == "--release") {
-      profile = args[0];
+    if (args[0] == "-d" || args[0] == "--debug") {
+      ++argsConsumed;
+    } else if (args[0] == "-r" || args[0] == "--release") {
+      isDebug = false;
       ++argsConsumed;
     }
   }
 
-  const String outDir = emitMakefile(profile);
+  const String outDir = emitMakefile(isDebug);
   const int exitCode = std::system(("make -C " + outDir).c_str());
   if (exitCode != EXIT_SUCCESS) {
     Logger::error("Build failed with exit code ", exitCode);

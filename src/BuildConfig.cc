@@ -169,7 +169,7 @@ static bool containsTestCode(const String& sourceFile) {
 }
 
 static void addDirectoryTarget(BuildConfig& config, const String& directory) {
-  config.defineTarget(directory, {"mkdir -p $@"});
+  config.defineTarget(directory, {"@mkdir -p $@"});
 }
 
 struct ObjTargetInfo {
@@ -178,28 +178,28 @@ struct ObjTargetInfo {
   Vec<String> deps;
 };
 
+bool isDebugMode(StringRef profile) {
+  if (profile == "") {
+    return true;
+  } else if (profile == "-d" || profile == "--debug") {
+    return true;
+  } else if (profile == "-r" || profile == "--release") {
+    return false;
+  } else {
+    throw std::runtime_error(
+          "invalid option: `" + String(profile) + "`\n\n"
+          "       run `poac help build` for a list of options"
+      );
+  }
+}
+
 // Returns the directory where the Makefile is generated.
-String emitMakefile(const String& profile) {
+String emitMakefile(const bool debug) {
   if (!fs::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
   if (!fs::exists("src/main.cc")) {
     throw std::runtime_error("src/main.cc not found");
-  }
-
-  bool debug = true;
-  if (profile == "") {
-    // Do nothing
-  } else if (profile == "-d" || profile == "--debug") {
-    // Do nothing
-  } else if (profile == "-r" || profile == "--release") {
-    debug = false;
-    OUT_DIR = "poac-out/release";
-  } else {
-    throw std::runtime_error(
-          "invalid option: `" + profile + "`\n\n"
-          "       run `poac help build` for a list of options"
-      );
   }
   if (!fs::exists(OUT_DIR)) {
     fs::create_directories(OUT_DIR);
@@ -366,6 +366,10 @@ String emitMakefile(const String& profile) {
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return OUT_DIR;
+}
+
+String modeString(const bool debug) {
+  return debug ? "debug" : "release";
 }
 
 #ifdef POAC_TEST
