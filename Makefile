@@ -26,7 +26,7 @@ $(OUT_DIR):
 $(OUT_DIR)/Cmd:
 	mkdir -p $@
 
-$(PROJ_NAME): $(OUT_DIR)/Algos.o $(OUT_DIR)/Cmd/Build.o $(OUT_DIR)/Cmd/Test.o $(OUT_DIR)/Cmd/Run.o $(OUT_DIR)/BuildConfig.o $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/main.o
+$(PROJ_NAME): $(OUT_DIR)/Algos.o $(OUT_DIR)/Cmd/Build.o $(OUT_DIR)/Cmd/Test.o $(OUT_DIR)/Cmd/Run.o $(OUT_DIR)/Cmd/New.o $(OUT_DIR)/BuildConfig.o $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/main.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(OUT_DIR)/Algos.o: src/Algos.cc src/Algos.hpp
@@ -45,6 +45,9 @@ $(OUT_DIR)/Cmd/Test.o: src/Cmd/Test.cc src/Cmd/Test.hpp src/Rustify.hpp src/Algo
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR)/Cmd/Run.o: src/Cmd/Run.cc src/Cmd/Run.hpp src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OUT_DIR)/Cmd/New.o: src/Cmd/New.cc src/Cmd/New.hpp src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR)/BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp

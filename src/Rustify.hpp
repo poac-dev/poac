@@ -76,3 +76,7 @@ struct NoneT : protected std::monostate {
   }
 };
 inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
+
+inline auto operator""_path(const char* str, usize /*unused*/) -> Path {
+  return str;
+}

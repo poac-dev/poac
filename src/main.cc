@@ -1,5 +1,6 @@
 #include "Algos.hpp"
 #include "Cmd/Build.hpp"
+#include "Cmd/New.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
 #include "Logger.hpp"
@@ -10,7 +11,7 @@
 
 #define POAC_VERSION "0.6.0"
 
-int help(Vec<String> args) {
+int helpCmd(Vec<String> args) {
   if (args.empty()) {
     std::cout << "poac " << POAC_VERSION << '\n';
     std::cout << "A package manager and build system for C++" << '\n';
@@ -29,6 +30,7 @@ int help(Vec<String> args) {
     std::cout << "    build\t" << buildDesc << '\n';
     std::cout << "    test\t" << testDesc << '\n';
     std::cout << "    run\t" << runDesc << '\n';
+    std::cout << "    new\t" << newDesc << '\n';
     return EXIT_SUCCESS;
   }
 
@@ -36,6 +38,7 @@ int help(Vec<String> args) {
   helps["build"] = buildHelp;
   helps["test"] = testHelp;
   helps["run"] = runHelp;
+  helps["new"] = newHelp;
 
   StringRef subcommand = args[0];
   if (helps.count(subcommand) == 0) {
@@ -89,10 +92,11 @@ int main(int argc, char* argv[]) {
   }
 
   HashMap<StringRef, Fn<int(Vec<String>)>> cmds;
-  cmds["help"] = help;
-  cmds["build"] = build;
-  cmds["test"] = test;
-  cmds["run"] = run;
+  cmds["help"] = helpCmd;
+  cmds["build"] = buildCmd;
+  cmds["test"] = testCmd;
+  cmds["run"] = runCmd;
+  cmds["new"] = newCmd;
 
   StringRef subcommand = args[0];
   if (cmds.count(subcommand) == 0) {

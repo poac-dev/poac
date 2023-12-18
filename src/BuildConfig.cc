@@ -217,7 +217,7 @@ String emitMakefile(const String& profile) {
   BuildConfig config;
 
   // Compiler settings
-  config.defineVariable("CC", "clang++");
+  config.defineVariable("CC", "clang++"); // TODO: Get somehow
   const String baseCflags =
       "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 "; // TODO:
                                                                         // Get

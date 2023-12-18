@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int run(Vec<String> args) {
+int runCmd(Vec<String> args) {
   String profile;
   usize argsConsumed = 0;
   if (!args.empty()) {
@@ -42,7 +42,7 @@ void runHelp() {
   std::cout << "    [args]...\t\tArguments passed to the program" << '\n';
   std::cout << '\n';
   std::cout << "Options:" << '\n';
-  std::cout << "    -d, --debug\t\tBuild with debug information (default)"
+  std::cout << "    -d, --debug\t\tBuild with debug information [default]"
             << '\n';
   std::cout << "    -r, --release\tBuild with optimizations" << '\n';
 }
