@@ -41,7 +41,7 @@ int helpCmd(Vec<String> args) {
   helps["new"] = newHelp;
 
   StringRef subcommand = args[0];
-  if (helps.count(subcommand) == 0) {
+  if (!helps.contains(subcommand)) {
     Logger::error(
         "no such subcommand: `", subcommand, "`", "\n\n",
         "       run `poac help` for a list of subcommands"
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
   cmds["new"] = newCmd;
 
   StringRef subcommand = args[0];
-  if (cmds.count(subcommand) == 0) {
+  if (!cmds.contains(subcommand)) {
     Vec<StringRef> candidates(cmds.size());
     usize i = 0;
     for (const auto& cmd : cmds) {

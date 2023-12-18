@@ -90,7 +90,7 @@ struct BuildConfig {
 static Vec<String> listSourceFiles(const String& directory) {
   Vec<String> sourceFiles;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
-    if (SOURCE_FILE_EXTS.count(entry.path().extension()) == 0) {
+    if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
     }
     sourceFiles.push_back(entry.path().string());
@@ -322,7 +322,7 @@ String emitMakefile(const String& profile) {
         }
 
         const Path headerPath = Path(header);
-        if (HEADER_FILE_EXTS.count(headerPath.extension()) == 0) {
+        if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
           continue;
         }
 

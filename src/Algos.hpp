@@ -16,10 +16,10 @@ Vec<String> topoSort(
     inDegree[var.first] = 0;
   }
   for (const auto& edge : adjList) {
-    if (list.count(edge.first) == 0) {
+    if (!list.contains(edge.first)) {
       continue; // Ignore nodes not in list
     }
-    if (inDegree.count(edge.first) == 0) {
+    if (!inDegree.contains(edge.first)) {
       inDegree[edge.first] = 0;
     }
     for (const auto& neighbor : edge.second) {
@@ -40,7 +40,7 @@ Vec<String> topoSort(
     zeroInDegree.pop();
     res.push_back(node);
 
-    if (adjList.count(node) == 0) {
+    if (!adjList.contains(node)) {
       // No dependencies
       continue;
     }
