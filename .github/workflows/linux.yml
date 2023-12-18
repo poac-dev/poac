@@ -45,10 +45,10 @@ jobs:
         run: sudo apt-get install -y ${{ matrix.compiler.cc }}
 
       - name: First Generation Build
-        run: make
+        run: CXX=${{ matrix.compiler.cxx }} make
 
       - name: Test the first generation
-        run: make test
+        run: CXX=${{ matrix.compiler.cxx }} make test
 
       - name: Second Generation Build
         run: ./build-out/poac build --verbose
