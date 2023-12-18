@@ -43,8 +43,12 @@ struct BuildConfig {
 
   void emitMakefile(std::ostream& os = std::cout) const {
     const Vec<String> sortedVars = topoSort(variables, varDeps);
-    for (const auto& var : sortedVars) {
-      os << var << " = " << variables.at(var) << '\n';
+    for (const String& var : sortedVars) {
+      if (var == "CXX") {
+        os << var << " ?= " << variables.at(var) << '\n';
+      } else {
+        os << var << " = " << variables.at(var) << '\n';
+      }
     }
 
     if (!sortedVars.empty() && !targets.empty()) {
@@ -184,9 +188,9 @@ static void defineCompileTarget(
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
   if (isTest) {
-    commands[1] = "@$(CC) $(CFLAGS) -DPOAC_TEST -c $< -o $@";
+    commands[1] = "@$(CXX) $(CFLAGS) -DPOAC_TEST -c $< -o $@";
   } else {
-    commands[1] = "@$(CC) $(CFLAGS) -c $< -o $@";
+    commands[1] = "@$(CXX) $(CFLAGS) -c $< -o $@";
   }
   config.defineTarget(objTarget, commands, deps);
 }
@@ -199,7 +203,7 @@ static void defineLinkTarget(
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
-  commands[1] = "@$(CC) $(CFLAGS) $^ -o $@";
+  commands[1] = "@$(CXX) $(CFLAGS) $^ -o $@";
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -248,7 +252,7 @@ String emitMakefile(const bool debug) {
   BuildConfig config;
 
   // Compiler settings
-  config.defineVariable("CC", "clang++"); // TODO: Get somehow
+  config.defineVariable("CXX", "clang++"); // TODO: Get somehow
   const String baseCflags =
       "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 "; // TODO:
                                                                         // Get

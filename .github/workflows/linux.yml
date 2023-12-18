@@ -20,35 +20,41 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - cc: clang-12
-            cxx: clang++-12
-          - cc: clang-13
-            cxx: clang++-13
-          - cc: clang-14
-            cxx: clang++-14
-          - cc: gcc-11
-            cxx: g++-11
-          - cc: gcc-12
-            cxx: g++-12
+          - cxx: clang++-12
+            ver: 12
+          - cxx: clang++-13
+            ver: 13
+          - cxx: clang++-14
+            ver: 14
+          - cxx: clang++-15
+            ver: 15
+          - cxx: clang++-16
+            ver: 16
+          - cxx: clang++-17
+            ver: 17
+          - cxx: g++-11
+          - cxx: g++-12
     env:
-      CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup GCC
-        if: startsWith(matrix.compiler.cc, 'gcc')
+        if: ! startsWith(matrix.compiler.cxx, 'clang')
         run: sudo apt-get install -y ${{ matrix.compiler.cxx }}
 
       - name: Setup Clang
-        if: startsWith(matrix.compiler.cc, 'clang')
-        run: sudo apt-get install -y ${{ matrix.compiler.cc }}
+        if: startsWith(matrix.compiler.cxx, 'clang')
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh ${{ matrix.compiler.ver }}
 
       - name: First Generation Build
-        run: CXX=${{ matrix.compiler.cxx }} make
+        run: make
 
       - name: Test the first generation
-        run: CXX=${{ matrix.compiler.cxx }} make test
+        run: make test
 
       - name: Second Generation Build
         run: ./build-out/poac build --verbose
