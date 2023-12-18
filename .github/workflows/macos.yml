@@ -20,7 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-11, macos-12, macos-13]
-        build_type: [Debug, Release]
     steps:
       - uses: actions/checkout@v4
 
