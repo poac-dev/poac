@@ -2,6 +2,7 @@
 
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "Build.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -18,11 +19,9 @@ int runCmd(Vec<String> args) {
     }
   }
 
-  const String outDir = emitMakefile(isDebug);
-  const int exitCode = std::system(("make -C " + outDir).c_str());
-  if (exitCode != EXIT_SUCCESS) {
-    Logger::error("Build failed with exit code ", exitCode);
-    return exitCode;
+  String outDir;
+  if (buildImpl(isDebug, outDir) != EXIT_SUCCESS) {
+    return EXIT_FAILURE;
   }
 
   String projectArgs;
@@ -31,7 +30,9 @@ int runCmd(Vec<String> args) {
   }
 
   const String projectName = "poac"; // TODO: get from poac.toml
-  return std::system((outDir + "/" + projectName + projectArgs).c_str());
+  const String command = outDir + "/" + projectName + projectArgs;
+  Logger::status("Running", command);
+  return std::system(command.c_str());
 }
 
 void runHelp() {

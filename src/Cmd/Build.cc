@@ -6,13 +6,11 @@
 #include <ctime>
 #include <iostream>
 
-int buildCmd(Vec<String> args) {
-  const bool isDebug = isDebugMode(args.empty() ? "" : args[0]);
-
+int buildImpl(const bool isDebug, String& outDir) {
   struct timespec start, end;
   clock_gettime(CLOCK_MONOTONIC, &start);
 
-  const String outDir = emitMakefile(isDebug);
+  outDir = emitMakefile(isDebug);
   const int exitCode = std::system(("make -C " + outDir).c_str());
 
   clock_gettime(CLOCK_MONOTONIC, &end);
@@ -25,6 +23,12 @@ int buildCmd(Vec<String> args) {
     );
   }
   return exitCode;
+}
+
+int buildCmd(Vec<String> args) {
+  const bool isDebug = isDebugMode(args.empty() ? "" : args[0]);
+  String outDir;
+  return buildImpl(isDebug, outDir);
 }
 
 void buildHelp() {

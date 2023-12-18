@@ -5,5 +5,6 @@
 static inline constexpr StringRef buildDesc =
     "Compile a local package and all of its dependencies";
 
-int buildCmd(Vec<String> args);
+int buildImpl(const bool, String&);
+int buildCmd(Vec<String>);
 void buildHelp();

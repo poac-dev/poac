@@ -4,5 +4,5 @@
 
 static inline constexpr StringRef runDesc = "Build and execute src/main.cc";
 
-int runCmd(Vec<String> args);
+int runCmd(Vec<String>);
 void runHelp();

@@ -68,5 +68,4 @@ Vec<String> topoSort(
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef>
-findSimilarStr(StringRef lhs, std::span<const StringRef> candidates);
+Option<StringRef> findSimilarStr(StringRef, std::span<const StringRef>);

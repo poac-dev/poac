@@ -17,7 +17,7 @@ enum class LogLevel : u8 {
 class Logger {
 public:
   static Logger& getInstance();
-  static void setLevel(LogLevel level);
+  static void setLevel(LogLevel);
 
   template <typename... Args>
   static void error(Args&&... message) {

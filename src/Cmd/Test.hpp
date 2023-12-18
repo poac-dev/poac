@@ -4,5 +4,5 @@
 
 static inline constexpr StringRef testDesc = "Run the tests of a local package";
 
-int testCmd(Vec<String> args);
+int testCmd(Vec<String>);
 void testHelp();
