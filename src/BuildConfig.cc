@@ -173,7 +173,8 @@ static void defineDirTarget(BuildConfig& config, const String& directory) {
 }
 
 static void defineCompileTarget(
-    BuildConfig& config, const String& objTarget, const Vec<String>& deps
+    BuildConfig& config, const String& objTarget, const Vec<String>& deps,
+    const bool isTest = false
 ) {
   std::ostringstream oss;
   Logger::getInstance().log(
@@ -182,7 +183,11 @@ static void defineCompileTarget(
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
-  commands[1] = "@$(CC) $(CFLAGS) -c $< -o $@";
+  if (isTest) {
+    commands[1] = "@$(CC) $(CFLAGS) -DPOAC_TEST -c $< -o $@";
+  } else {
+    commands[1] = "@$(CC) $(CFLAGS) -c $< -o $@";
+  }
   config.defineTarget(objTarget, commands, deps);
 }
 
@@ -299,6 +304,7 @@ String emitMakefile(const bool debug) {
 
   // Targets for testing.
   bool enableTesting = false;
+  Vec<String> testCommands;
   Vec<String> testTargets;
   const HashSet<String> buildObjTargetSet(
       buildObjTargets.begin(), buildObjTargets.end()
@@ -311,8 +317,8 @@ String emitMakefile(const bool debug) {
       const String testTargetBaseDir = testOutDir + "/" + objTargetInfo.baseDir;
       const String testObjTarget =
           testTargetBaseDir + "/test_" + objTargetInfo.name;
-      const String testTarget =
-          testTargetBaseDir + "/test_" + Path(sourceFile).stem().string();
+      const String testTargetName = Path(sourceFile).stem().string();
+      const String testTarget = testTargetBaseDir + "/test_" + testTargetName;
 
       // NOTE: Since we know that we don't use objTargetInfos for other
       // targets, we can just update it here instead of creating a copy.
@@ -326,10 +332,7 @@ String emitMakefile(const bool debug) {
       }
 
       // Test object target.
-      config.defineTarget(
-          testObjTarget, {"$(CC) $(CFLAGS) -DPOAC_TEST -c $< -o $@"},
-          objTargetInfo.deps
-      );
+      defineCompileTarget(config, testObjTarget, objTargetInfo.deps, true);
 
       // Test binary target.
       Vec<String> testTargetDeps = {testObjTarget};
@@ -364,14 +367,18 @@ String emitMakefile(const bool debug) {
         testTargetDeps.push_back(*itr);
       }
 
-      config.defineTarget(
-          testTarget, {"$(CC) $(CFLAGS) $^ -o $@"}, testTargetDeps
-      );
+      defineLinkTarget(config, testTarget, testTargetDeps);
       Logger::debug(testTarget, ':');
       for (const auto& dep : testTargetDeps) {
         Logger::debug(" '", dep, "'");
       }
 
+      std::ostringstream oss;
+      Logger::getInstance().log(
+          oss, LogLevel::status, "Testing", testTargetName
+      );
+      testCommands.push_back("@echo '" + oss.str() + "'");
+      testCommands.push_back('@' + testTarget);
       testTargets.push_back(testTarget);
     }
   }
@@ -379,7 +386,7 @@ String emitMakefile(const bool debug) {
     // Target to create the tests directory.
     defineDirTarget(config, testOutDir);
 
-    config.defineTarget("test", testTargets, testTargets);
+    config.defineTarget("test", testCommands, testTargets);
     phonies.push_back("test");
   }
 
