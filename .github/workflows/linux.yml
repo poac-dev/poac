@@ -19,7 +19,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coverage: [off]
         compiler:
           - cc: clang-12
             cxx: clang++-12
@@ -31,11 +30,6 @@ jobs:
             cxx: g++-11
           - cc: gcc-12
             cxx: g++-12
-        include:
-          - coverage: on
-            compiler:
-              cc: gcc-12
-              cxx: g++-12
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
@@ -65,10 +59,6 @@ jobs:
       - name: Third Generation Build & Test
         run: ./poac-out/debug/poac --verbose run --release test --verbose
 
-      # - name: Test Poac
-      #   run: ctest --output-on-failure --verbose
-      #   working-directory: build
-
       # - name: Print coverage
       #   if: success() && matrix.coverage == 'on'
       #   run: |
@@ -77,9 +67,3 @@ jobs:
       #     lcov --list coverage.info
       #   env:
       #     CC_PATH: /usr/bin/${{ env.CC }}
-
-      # - name: Upload coverage to Codecov
-      #   if: success() && matrix.coverage == 'on'
-      #   uses: codecov/codecov-action@v3
-      #   with:
-      #     files: coverage.info
