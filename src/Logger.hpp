@@ -8,7 +8,7 @@
 #include <utility>
 
 enum class LogLevel : u8 {
-  off = 0,
+  off = 0, // --quiet
   error = 1,
   warning = 2,
   status = 3, // default
