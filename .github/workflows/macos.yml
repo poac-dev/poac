@@ -15,11 +15,11 @@ permissions:
 jobs:
   build-and-test:
     name: "build & test"
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-${{ matrix.osver }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-11, macos-12, macos-13]
+        osver: [11, 12, 13]
     steps:
       - uses: actions/checkout@v4
 
