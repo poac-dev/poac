@@ -20,8 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - cxx: clang++-12
-            ver: 12
           - cxx: clang++-13
             ver: 13
           - cxx: clang++-14
