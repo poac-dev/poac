@@ -7,7 +7,7 @@
 #include <iostream>
 
 int buildImpl(const bool isDebug, String& outDir) {
-  struct timespec start, end;
+  timespec start, end;
   clock_gettime(CLOCK_MONOTONIC, &start);
 
   outDir = emitMakefile(isDebug);

@@ -3,6 +3,7 @@
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 
+#include <ctime>
 #include <iostream>
 
 int testCmd(Vec<String> args) {
@@ -11,8 +12,22 @@ int testCmd(Vec<String> args) {
     Logger::warn("The `--release` flag can disable assert macros.");
   }
 
+  timespec start, end;
+  clock_gettime(CLOCK_MONOTONIC, &start);
+
   const String outDir = emitMakefile(isDebug);
-  return std::system(("make -C " + outDir + " test").c_str());
+  const int exitCode = std::system(("make -C " + outDir + " test").c_str());
+
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  const double elapsed =
+      end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+  if (exitCode == EXIT_SUCCESS) {
+    Logger::status(
+        "Finished", modeString(isDebug), " test(s) in ", elapsed, "s"
+    );
+  }
+  return exitCode;
 }
 
 void testHelp() {
