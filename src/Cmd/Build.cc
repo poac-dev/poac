@@ -3,19 +3,21 @@
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 
-#include <chrono>
+#include <ctime>
 #include <iostream>
 
 int buildCmd(Vec<String> args) {
   const bool isDebug = isDebugMode(args.empty() ? "" : args[0]);
 
-  const auto start = std::chrono::system_clock::now();
+  struct timespec start, end;
+  clock_gettime(CLOCK_MONOTONIC, &start);
 
   const String outDir = emitMakefile(isDebug);
   const int exitCode = std::system(("make -C " + outDir).c_str());
 
-  const auto end = std::chrono::system_clock::now();
-  const auto elapsed = std::chrono::duration<double>(end - start).count();
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  const double elapsed =
+      end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
   if (exitCode == EXIT_SUCCESS) {
     Logger::status(
