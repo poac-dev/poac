@@ -4,11 +4,11 @@
 
 #include <iostream>
 
-Logger& Logger::getInstance() {
+Logger& Logger::getInstance() noexcept {
   static Logger instance;
   return instance;
 }
 
-void Logger::setLevel(LogLevel level) {
+void Logger::setLevel(LogLevel level) noexcept {
   getInstance().level = level;
 }

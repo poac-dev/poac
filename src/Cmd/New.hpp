@@ -4,8 +4,8 @@
 
 static inline constexpr StringRef newDesc = "Create a new poac project";
 
-String getPoacToml(const String&);
+String getPoacToml(const String&) noexcept;
 bool verifyPackageName(StringRef);
 
 int newMain(Vec<String>);
-void newHelp();
+void newHelp() noexcept;

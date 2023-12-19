@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-int cleanMain(Vec<String> args) {
+int cleanMain(Vec<String> args) noexcept {
   Path outDir = "poac-out";
 
   if (!args.empty()) {
@@ -33,7 +33,7 @@ int cleanMain(Vec<String> args) {
   return EXIT_SUCCESS;
 }
 
-void cleanHelp() {
+void cleanHelp() noexcept {
   std::cout << cleanDesc << '\n';
   std::cout << '\n';
   std::cout << "Usage: poac clean [OPTIONS]" << '\n';

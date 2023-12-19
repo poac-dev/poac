@@ -13,7 +13,7 @@
 
 #define POAC_VERSION "0.6.0"
 
-int helpMain(Vec<String> args) {
+int helpMain(Vec<String> args) noexcept {
   if (args.empty()) {
     std::cout << "poac " << POAC_VERSION << '\n';
     std::cout << "A package manager and build system for C++" << '\n';
@@ -118,7 +118,6 @@ int main(int argc, char* argv[]) {
     if (const auto similar = findSimilarStr(subcommand, candidates)) {
       suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
     }
-
     Logger::error(
         "no such command: `", subcommand, "`", "\n\n", suggestion,
         "       Run `poac help` for a list of commands"

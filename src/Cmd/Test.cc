@@ -31,7 +31,7 @@ int testMain(Vec<String> args) {
   return exitCode;
 }
 
-void testHelp() {
+void testHelp() noexcept {
   std::cout << testDesc << '\n';
   std::cout << '\n';
   std::cout << "Usage: poac test [OPTIONS]" << '\n';

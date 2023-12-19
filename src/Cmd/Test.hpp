@@ -5,4 +5,4 @@
 static inline constexpr StringRef testDesc = "Run the tests of a local package";
 
 int testMain(Vec<String>);
-void testHelp();
+void testHelp() noexcept;

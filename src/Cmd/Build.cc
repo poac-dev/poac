@@ -32,7 +32,7 @@ int buildMain(Vec<String> args) {
   return buildImpl(isDebug, outDir);
 }
 
-void buildHelp() {
+void buildHelp() noexcept {
   std::cout << buildDesc << '\n';
   std::cout << '\n';
   std::cout << "Usage: poac build [OPTIONS]" << '\n';

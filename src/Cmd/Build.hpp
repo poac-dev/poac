@@ -7,4 +7,4 @@ static inline constexpr StringRef buildDesc =
 
 int buildImpl(const bool, String&);
 int buildMain(Vec<String>);
-void buildHelp();
+void buildHelp() noexcept;

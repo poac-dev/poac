@@ -17,39 +17,40 @@ enum class LogLevel : u8 {
 
 class Logger {
 public:
-  static Logger& getInstance();
-  static void setLevel(LogLevel);
+  static Logger& getInstance() noexcept;
+  static void setLevel(LogLevel) noexcept;
 
   template <typename... Args>
-  static void error(Args&&... message) {
+  static void error(Args&&... message) noexcept {
     logln(std::cerr, LogLevel::error, std::forward<Args>(message)...);
   }
   template <typename... Args>
-  static void warn(Args&&... message) {
+  static void warn(Args&&... message) noexcept {
     logln(std::cout, LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename T, typename... Args>
-  static void status(T&& header, Args&&... message) {
+  static void status(T&& header, Args&&... message) noexcept {
     logln(
         std::cout, LogLevel::status, std::forward<T>(header),
         std::forward<Args>(message)...
     );
   }
   template <typename... Args>
-  static void debug(Args&&... message) {
+  static void debug(Args&&... message) noexcept {
     logln(std::cout, LogLevel::debug, std::forward<Args>(message)...);
   }
 
   template <typename T, typename... Args>
   static void logln(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) {
+  ) noexcept {
     log(os, messageLevel, std::forward<T>(header),
         std::forward<Args>(message)..., '\n');
   }
   template <typename T, typename... Args>
   static void
-  log(std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message) {
+  log(std::ostream& os, LogLevel messageLevel, T&& header,
+      Args&&... message) noexcept {
     getInstance().logImpl(
         os, messageLevel, std::forward<T>(header),
         std::forward<Args>(message)...
@@ -59,7 +60,7 @@ public:
   template <typename T, typename... Args>
   void logImpl(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) {
+  ) noexcept {
     // For other than `status`, header means just the first argument.  For
     // `status`, header means its header.
 
@@ -95,7 +96,7 @@ public:
 private:
   LogLevel level = LogLevel::status;
 
-  Logger() {}
+  Logger() noexcept {}
 
   // Delete copy constructor and assignment operator to prevent copying
   Logger(const Logger&) = delete;

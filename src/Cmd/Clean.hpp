@@ -4,5 +4,5 @@
 
 static inline constexpr StringRef cleanDesc = "Remove the built directory";
 
-int cleanMain(Vec<String>);
-void cleanHelp();
+int cleanMain(Vec<String>) noexcept;
+void cleanHelp() noexcept;

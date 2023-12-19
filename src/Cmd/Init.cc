@@ -42,7 +42,7 @@ int initMain(Vec<String> args) {
   return EXIT_SUCCESS;
 }
 
-void initHelp() {
+void initHelp() noexcept {
   std::cout << initDesc << std::endl;
   std::cout << std::endl;
   std::cout << "USAGE:" << std::endl;

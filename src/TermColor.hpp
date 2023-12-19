@@ -8,29 +8,29 @@ enum class ColorMode {
   never,
 };
 
-void set_color_mode(ColorMode);
-bool should_color();
+void set_color_mode(ColorMode) noexcept;
+bool should_color() noexcept;
 
-String gray(const String&);
-String red(const String&);
-String green(const String&);
-String yellow(const String&);
-String blue(const String&);
-String magenta(const String&);
-String cyan(const String&);
-String white(const String&);
+String gray(const String&) noexcept;
+String red(const String&) noexcept;
+String green(const String&) noexcept;
+String yellow(const String&) noexcept;
+String blue(const String&) noexcept;
+String magenta(const String&) noexcept;
+String cyan(const String&) noexcept;
+String white(const String&) noexcept;
 
-String on_gray(const String&);
-String on_red(const String&);
-String on_green(const String&);
-String on_yellow(const String&);
-String on_blue(const String&);
-String on_magenta(const String&);
-String on_cyan(const String&);
-String on_white(const String&);
+String on_gray(const String&) noexcept;
+String on_red(const String&) noexcept;
+String on_green(const String&) noexcept;
+String on_yellow(const String&) noexcept;
+String on_blue(const String&) noexcept;
+String on_magenta(const String&) noexcept;
+String on_cyan(const String&) noexcept;
+String on_white(const String&) noexcept;
 
-String bold(const String&);
-String underline(const String&);
-String blink(const String&);
-String reverse(const String&);
-String concealed(const String&);
+String bold(const String&) noexcept;
+String underline(const String&) noexcept;
+String blink(const String&) noexcept;
+String reverse(const String&) noexcept;
+String concealed(const String&) noexcept;

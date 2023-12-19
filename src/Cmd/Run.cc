@@ -35,7 +35,7 @@ int runMain(Vec<String> args) {
   return std::system(command.c_str());
 }
 
-void runHelp() {
+void runHelp() noexcept {
   std::cout << runDesc << '\n';
   std::cout << '\n';
   std::cout << "Usage: poac run [OPTIONS] [args]..." << '\n';

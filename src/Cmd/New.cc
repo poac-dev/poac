@@ -11,7 +11,7 @@ static inline constexpr StringRef mainCc =
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
-String getPoacToml(const String& projectName) {
+String getPoacToml(const String& projectName) noexcept {
   return
       "[package]\n"
       "name = \"" + projectName + "\"\n"
@@ -20,7 +20,7 @@ String getPoacToml(const String& projectName) {
       "edition = 2020\n";
 }
 
-static String getHeader(const String& projectName) {
+static String getHeader(const String& projectName) noexcept {
   String projectNameUpperCased{};
   std::transform(
       projectName.cbegin(), projectName.cend(),
@@ -238,7 +238,7 @@ int newMain(Vec<String> args) {
   return EXIT_SUCCESS;
 }
 
-void newHelp() {
+void newHelp() noexcept {
   std::cout << newDesc << '\n';
   std::cout << '\n';
   std::cout << "Usage: poac new [OPTIONS] <name>" << '\n';
