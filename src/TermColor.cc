@@ -69,9 +69,6 @@ String magenta(const String& str) noexcept {
 String cyan(const String& str) noexcept {
   return colorize(str, "\033[36m");
 }
-String white(const String& str) noexcept {
-  return colorize(str, "\033[37m");
-}
 
 String bold(const String& str) noexcept {
   return colorize(str, "\033[1m");

@@ -18,6 +18,5 @@ String yellow(const String&) noexcept;
 String blue(const String&) noexcept;
 String magenta(const String&) noexcept;
 String cyan(const String&) noexcept;
-String white(const String&) noexcept;
 
 String bold(const String&) noexcept;
