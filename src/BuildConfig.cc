@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 static String OUT_DIR = "poac-out/debug";
+static String CXX = "clang++";
 
 struct Target {
   Vec<String> commands;
@@ -116,7 +117,7 @@ static String exec(const char* cmd) {
 }
 
 static String runMM(const String& sourceFile) {
-  const String command = "cd " + OUT_DIR + " && clang++ -MM " + sourceFile;
+  const String command = "cd " + OUT_DIR + " && " + CXX + " -MM " + sourceFile;
   return exec(command.c_str());
 }
 
@@ -239,6 +240,9 @@ String emitMakefile(const bool debug) {
   if (!fs::exists(OUT_DIR)) {
     fs::create_directories(OUT_DIR);
   }
+  if (const char* cxx = std::getenv("CXX")) {
+    CXX = cxx;
+  }
 
   const String makefilePath = OUT_DIR + "/Makefile";
   if (isMakefileUpToDate(makefilePath)) {
@@ -252,7 +256,7 @@ String emitMakefile(const bool debug) {
   BuildConfig config;
 
   // Compiler settings
-  config.defineVariable("CXX", "clang++"); // TODO: Get somehow
+  config.defineVariable("CXX", CXX);
   const String baseCflags =
       "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 "; // TODO:
                                                                         // Get
