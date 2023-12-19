@@ -73,43 +73,6 @@ String white(const String& str) noexcept {
   return colorize(str, "\033[37m");
 }
 
-String on_gray(const String& str) noexcept {
-  return colorize(str, "\033[40m");
-}
-String on_red(const String& str) noexcept {
-  return colorize(str, "\033[41m");
-}
-String on_green(const String& str) noexcept {
-  return colorize(str, "\033[42m");
-}
-String on_yellow(const String& str) noexcept {
-  return colorize(str, "\033[43m");
-}
-String on_blue(const String& str) noexcept {
-  return colorize(str, "\033[44m");
-}
-String on_magenta(const String& str) noexcept {
-  return colorize(str, "\033[45m");
-}
-String on_cyan(const String& str) noexcept {
-  return colorize(str, "\033[46m");
-}
-String on_white(const String& str) noexcept {
-  return colorize(str, "\033[47m");
-}
-
 String bold(const String& str) noexcept {
   return colorize(str, "\033[1m");
-}
-String underline(const String& str) noexcept {
-  return colorize(str, "\033[4m");
-}
-String blink(const String& str) noexcept {
-  return colorize(str, "\033[5m");
-}
-String reverse(const String& str) noexcept {
-  return colorize(str, "\033[7m");
-}
-String concealed(const String& str) noexcept {
-  return colorize(str, "\033[8m");
 }
