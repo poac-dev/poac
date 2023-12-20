@@ -12,6 +12,7 @@
 #include "Rustify.hpp"
 #include "TermColor.hpp"
 
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -85,6 +86,24 @@ int helpMain(Vec<String> args) noexcept {
 }
 
 int main(int argc, char* argv[]) {
+  // Handle POAC_TERM_COLOR
+  if (const char* color_p = std::getenv("POAC_TERM_COLOR")) {
+    // Construct a string and lowercase it
+    String color(color_p);
+    std::transform(color.begin(), color.end(), color.begin(), ::tolower);
+
+    if (color == "always") {
+      setColorMode(ColorMode::always);
+    } else if (color == "automatic") {
+      setColorMode(ColorMode::automatic);
+    } else if (color == "never") {
+      setColorMode(ColorMode::never);
+    } else {
+      Logger::error("invalid value for POAC_TERM_COLOR: ", color_p);
+      return EXIT_FAILURE;
+    }
+  }
+
   // Parse arguments (options should appear before the subcommand, as the help
   // message shows intuitively)
   for (int i = 1; i < argc; ++i) {
