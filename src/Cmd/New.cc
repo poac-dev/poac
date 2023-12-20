@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 static inline constexpr StringRef mainCc =
     "#include <iostream>\n\n"
@@ -41,6 +42,10 @@ static void writeToFile(std::ofstream& ofs, const Path& fpath, StringRef text) {
     ofs << text;
   }
   ofs.close();
+
+  if (!ofs) {
+    throw std::runtime_error("writing `" + fpath.string() + "` failed");
+  }
   ofs.clear();
 }
 
@@ -70,7 +75,7 @@ static void createTemplateFiles(const bool isBin, const Path& projectName) {
   }
 }
 
-bool verifyPackageName(StringRef name) {
+bool verifyPackageName(StringRef name) noexcept {
   // Empty
   if (name.empty()) {
     Logger::error("missing package name");
