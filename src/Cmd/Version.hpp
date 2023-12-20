@@ -2,7 +2,7 @@
 
 #include "../Rustify.hpp"
 
-#define POAC_VERSION "0.6.0" // TODO: Get from poac.toml
+#define POAC_VERSION "0.6.0"
 
 static inline constexpr StringRef versionDesc = "Show version information";
 
