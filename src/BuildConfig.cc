@@ -24,73 +24,88 @@ struct BuildConfig {
   HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
 
-  void defineVariable(String name, String value, Vec<String> dependsOn = {}) {
-    variables[name] = value;
-    for (const String& dep : dependsOn) {
-      // reverse dependency
-      varDeps[dep].push_back(name);
-    }
-  }
-
+  void defineVariable(String name, String value, Vec<String> dependsOn = {});
   void defineTarget(
       String name, const Vec<String>& commands, Vec<String> dependsOn = {}
-  ) {
-    targets[name] = {commands, dependsOn};
-    for (const String& dep : dependsOn) {
-      // reverse dependency
-      targetDeps[dep].push_back(name);
-    }
-  }
-
-  void emitMakefile(std::ostream& os = std::cout) const {
-    const Vec<String> sortedVars = topoSort(variables, varDeps);
-    for (const String& var : sortedVars) {
-      if (var == "CXX") {
-        os << var << " ?= " << variables.at(var) << '\n';
-      } else {
-        os << var << " = " << variables.at(var) << '\n';
-      }
-    }
-
-    if (!sortedVars.empty() && !targets.empty()) {
-      os << '\n';
-    }
-
-    if (targets.count(".PHONY") != 0) {
-      os << ".PHONY:";
-      for (const auto& dep : targets.at(".PHONY").dependsOn) {
-        os << " " << dep;
-      }
-      os << "\n\n";
-    }
-    if (targets.count("all") != 0) {
-      os << "all:";
-      for (const auto& dep : targets.at("all").dependsOn) {
-        os << " " << dep;
-      }
-      os << "\n\n";
-    }
-
-    const Vec<String> sortedTargets = topoSort(targets, targetDeps);
-    for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend();
-         itr++) {
-      if (*itr == ".PHONY" || *itr == "all") {
-        continue;
-      }
-
-      os << *itr << ":";
-      for (const auto& dep : targets.at(*itr).dependsOn) {
-        os << " " << dep;
-      }
-      os << '\n';
-
-      for (const auto& cmd : targets.at(*itr).commands) {
-        os << '\t' << cmd << '\n';
-      }
-      os << '\n';
-    }
-  }
+  );
+  void emitMakefile(std::ostream& os = std::cout) const;
 };
+
+void BuildConfig::defineVariable(
+    String name, String value, Vec<String> dependsOn
+) {
+  variables[name] = value;
+  for (const String& dep : dependsOn) {
+    // reverse dependency
+    varDeps[dep].push_back(name);
+  }
+}
+
+void BuildConfig::defineTarget(
+    String name, const Vec<String>& commands, Vec<String> dependsOn
+) {
+  targets[name] = {commands, dependsOn};
+  for (const String& dep : dependsOn) {
+    // reverse dependency
+    targetDeps[dep].push_back(name);
+  }
+}
+
+void emitTarget(
+    std::ostream& os, StringRef target, const Vec<String>& dependsOn,
+    const Vec<String>& commands = {}
+) {
+  usize offset = 0;
+
+  os << target << ":";
+  offset += target.size() + 2; // : and space
+
+  for (const String& dep : dependsOn) {
+    if (offset + dep.size() + 2 > 80) { // 2 for space and \.
+      os << " \\\n "; // \ for line continuation
+      offset = 2;
+    }
+    os << " " << dep;
+    offset += dep.size() + 1; // space
+  }
+  os << '\n';
+
+  for (const String& cmd : commands) {
+    os << '\t' << cmd << '\n';
+  }
+  os << '\n';
+}
+
+void BuildConfig::emitMakefile(std::ostream& os) const {
+  const Vec<String> sortedVars = topoSort(variables, varDeps);
+  for (const String& var : sortedVars) {
+    if (var == "CXX") {
+      os << var << " ?= " << variables.at(var) << '\n';
+    } else {
+      os << var << " = " << variables.at(var) << '\n';
+    }
+  }
+
+  if (!sortedVars.empty() && !targets.empty()) {
+    os << '\n';
+  }
+
+  if (targets.contains(".PHONY")) {
+    emitTarget(os, ".PHONY", targets.at(".PHONY").dependsOn);
+  }
+  if (targets.contains("all")) {
+    emitTarget(os, "all", targets.at("all").dependsOn);
+  }
+
+  const Vec<String> sortedTargets = topoSort(targets, targetDeps);
+  for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
+    if (*itr == ".PHONY" || *itr == "all") {
+      continue;
+    }
+
+    emitTarget(os, *itr, targets.at(*itr).dependsOn, targets.at(*itr).commands);
+  }
+}
 
 static Vec<String> listSourceFiles(const String& directory) {
   Vec<String> sourceFiles;
