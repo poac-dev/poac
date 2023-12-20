@@ -13,7 +13,7 @@ int buildImpl(const bool isDebug, String& outDir) {
 
   outDir = emitMakefile(isDebug);
   const int exitCode =
-      std::system(("make -s --no-print-directory -C " + outDir).c_str());
+      std::system((getMakeCommand() + " -C " + outDir).c_str());
 
   clock_gettime(CLOCK_MONOTONIC, &end);
   const double elapsed =

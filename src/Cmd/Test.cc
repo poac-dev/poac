@@ -30,9 +30,8 @@ int testMain(Vec<String> args) {
   clock_gettime(CLOCK_MONOTONIC, &start);
 
   const String outDir = emitMakefile(isDebug);
-  const int exitCode = std::system(
-      ("make -s --no-print-directory -C " + outDir + " test").c_str()
-  );
+  const int exitCode =
+      std::system((getMakeCommand() + " -C " + outDir + " test").c_str());
 
   clock_gettime(CLOCK_MONOTONIC, &end);
   const double elapsed =

@@ -173,8 +173,16 @@ static bool containsTestCode(const String& sourceFile) {
   return false;
 }
 
+static String buildCmd(const String& cmd) noexcept {
+  if (isVerbose()) {
+    return cmd;
+  } else {
+    return "@" + cmd;
+  }
+}
+
 static void defineDirTarget(BuildConfig& config, const String& directory) {
-  config.defineTarget(directory, {"@mkdir -p $@"});
+  config.defineTarget(directory, {buildCmd("mkdir -p $@")});
 }
 
 static void defineCompileTarget(
@@ -189,9 +197,9 @@ static void defineCompileTarget(
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
   if (isTest) {
-    commands[1] = "@$(CXX) $(CFLAGS) -DPOAC_TEST -c $< -o $@";
+    commands[1] = buildCmd("$(CXX) $(CFLAGS) -DPOAC_TEST -c $< -o $@");
   } else {
-    commands[1] = "@$(CXX) $(CFLAGS) -c $< -o $@";
+    commands[1] = buildCmd("$(CXX) $(CFLAGS) -c $< -o $@");
   }
   config.defineTarget(objTarget, commands, deps);
 }
@@ -204,7 +212,7 @@ static void defineLinkTarget(
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
-  commands[1] = "@$(CXX) $(CFLAGS) $^ -o $@";
+  commands[1] = buildCmd("$(CXX) $(CFLAGS) $^ -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -384,7 +392,7 @@ String emitMakefile(const bool debug) {
       std::ostringstream oss;
       Logger::log(oss, LogLevel::status, "Testing", testTargetName);
       testCommands.push_back("@echo '" + oss.str() + "'");
-      testCommands.push_back('@' + testTarget);
+      testCommands.push_back(buildCmd(testTarget));
       testTargets.push_back(testTarget);
     }
   }
@@ -405,6 +413,14 @@ String emitMakefile(const bool debug) {
 
 String modeString(const bool debug) {
   return debug ? "debug" : "release";
+}
+
+String getMakeCommand() {
+  if (isVerbose()) {
+    return "make";
+  } else {
+    return "make -s --no-print-directory";
+  }
 }
 
 #ifdef POAC_TEST

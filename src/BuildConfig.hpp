@@ -12,3 +12,4 @@ static inline const HashSet<String> HEADER_FILE_EXTS{
 bool isDebugMode(StringRef);
 String emitMakefile(const bool);
 String modeString(const bool);
+String getMakeCommand();
