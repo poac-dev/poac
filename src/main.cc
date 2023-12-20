@@ -1,61 +1,85 @@
 #include "Algos.hpp"
 #include "Cmd/Build.hpp"
 #include "Cmd/Clean.hpp"
+#include "Cmd/Help.hpp"
 #include "Cmd/Init.hpp"
 #include "Cmd/New.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
+#include "Cmd/Version.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
+#include "TermColor.hpp"
 
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
-#define POAC_VERSION "0.6.0"
+struct Cmd {
+  Fn<int(Vec<String>)> main;
+  Fn<void()> help;
+  StringRef desc;
+};
+
+#define DEFINE_CMD(name)                 \
+  {                                      \
+    #name, {                             \
+      name##Main, name##Help, name##Desc \
+    }                                    \
+  }
+
+static inline const HashMap<StringRef, Cmd> CMDS = {
+    DEFINE_CMD(help), DEFINE_CMD(build), DEFINE_CMD(test), DEFINE_CMD(run),
+    DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
+};
+
+static inline const HashMap<StringRef, StringRef> LONG_TO_SHORT = {
+    {"build", "b"},      {"run", "r"},      {"test", "t"},
+    {"--verbose", "-v"}, {"--quiet", "-q"}, {"--help", "-h"},
+};
 
 int helpMain(Vec<String> args) noexcept {
   if (args.empty()) {
-    std::cout << "poac " << POAC_VERSION << '\n';
     std::cout << "A package manager and build system for C++" << '\n';
     std::cout << '\n';
-    std::cout << "Usage: poac [OPTIONS] [COMMAND]" << '\n';
+    std::cout << bold(green("Usage:")) << " poac [OPTIONS] [COMMAND]" << '\n';
     std::cout << '\n';
-    std::cout << "Options:" << '\n';
-    std::cout << "    -v, --version\tPrint version info and exit" << '\n';
-    std::cout << "    --verbose\t\tUse verbose output" << '\n';
-    std::cout << "    -q, --quiet\t\tNo output printed to stdout" << '\n';
+    std::cout << bold(green("Options:")) << '\n';
+    std::cout << "  " << std::left << std::setw(15) << "-v, --version"
+              << "Print version info and exit" << '\n';
+    std::cout << "  " << std::left << std::setw(15) << "--verbose"
+              << "Use verbose output" << '\n';
+    std::cout << "  " << std::left << std::setw(15) << "-q, --quiet"
+              << "Do not print poac log messages" << '\n';
     std::cout << '\n';
-    std::cout << "Commands:" << '\n';
-    std::cout
-        << "    help\tPrints this message or the help of the given subcommand(s)"
-        << '\n';
-    std::cout << "    build\t" << buildDesc << '\n';
-    std::cout << "    test\t" << testDesc << '\n';
-    std::cout << "    run\t" << runDesc << '\n';
-    std::cout << "    new\t" << newDesc << '\n';
-    std::cout << "    clean\t" << cleanDesc << '\n';
-    std::cout << "    init\t" << initDesc << '\n';
+    std::cout << bold(green("Commands:")) << '\n';
+    for (const auto& [name, cmd] : CMDS) {
+      std::cout << "  " << std::left << std::setw(10) << name << cmd.desc
+                << '\n';
+    }
     return EXIT_SUCCESS;
   }
 
-  HashMap<StringRef, Fn<void()>> helps;
-  helps["build"] = buildHelp;
-  helps["test"] = testHelp;
-  helps["run"] = runHelp;
-  helps["new"] = newHelp;
-  helps["clean"] = cleanHelp;
-  helps["init"] = initHelp;
-
   StringRef subcommand = args[0];
-  if (!helps.contains(subcommand)) {
+  if (!CMDS.contains(subcommand)) {
+    Vec<StringRef> candidates(CMDS.size());
+    usize i = 0;
+    for (const auto& cmd : CMDS) {
+      candidates[i++] = cmd.first;
+    }
+
+    String suggestion;
+    if (const auto similar = findSimilarStr(subcommand, candidates)) {
+      suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
+    }
     Logger::error(
-        "no such subcommand: `", subcommand, "`", "\n\n",
-        "       run `poac help` for a list of subcommands"
+        "no such command: `", subcommand, "`", "\n\n", suggestion,
+        "       Run `poac help` for a list of commands"
     );
     return EXIT_FAILURE;
   }
 
-  helps[subcommand]();
+  CMDS.at(subcommand).help();
   return EXIT_SUCCESS;
 }
 
@@ -66,8 +90,7 @@ int main(int argc, char* argv[]) {
   for (int i = 1; i < argc; ++i) {
     String arg = argv[i];
     if (arg == "-v" || arg == "--version") {
-      std::cout << "poac " << POAC_VERSION << '\n';
-      return EXIT_SUCCESS;
+      return versionMain({});
     }
 
     // This is a bit of a hack to allow the global options to be specified
@@ -97,20 +120,11 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  HashMap<StringRef, Fn<int(Vec<String>)>> cmds;
-  cmds["help"] = helpMain;
-  cmds["build"] = buildMain;
-  cmds["test"] = testMain;
-  cmds["run"] = runMain;
-  cmds["new"] = newMain;
-  cmds["clean"] = cleanMain;
-  cmds["init"] = initMain;
-
   StringRef subcommand = args[0];
-  if (!cmds.contains(subcommand)) {
-    Vec<StringRef> candidates(cmds.size());
+  if (!CMDS.contains(subcommand)) {
+    Vec<StringRef> candidates(CMDS.size());
     usize i = 0;
-    for (const auto& cmd : cmds) {
+    for (const auto& cmd : CMDS) {
       candidates[i++] = cmd.first;
     }
 
@@ -126,7 +140,8 @@ int main(int argc, char* argv[]) {
   }
 
   try {
-    return cmds[subcommand](Vec<String>(args.begin() + 1, args.end()));
+    const Vec<String> cmd_args(args.begin() + 1, args.end());
+    return CMDS.at(subcommand).main(cmd_args);
   } catch (const std::exception& e) {
     Logger::error(e.what());
     return EXIT_FAILURE;
