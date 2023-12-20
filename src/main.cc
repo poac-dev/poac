@@ -84,66 +84,50 @@ int helpMain(Vec<String> args) noexcept {
 }
 
 int main(int argc, char* argv[]) {
-  // Parse global options
-  Vec<String> args;
-  bool isVerbositySet = false;
+  // Parse arguments (options should appear before the subcommand)
   for (int i = 1; i < argc; ++i) {
-    String arg = argv[i];
-    if (arg == "-v" || arg == "--version") {
+    StringRef arg = argv[i];
+    // Global options
+    if (arg == "--verbose") {
+      Logger::setLevel(LogLevel::debug);
+    } else if (arg == "-q" || arg == "--quiet") {
+      Logger::setLevel(LogLevel::off);
+    }
+
+    // Local options
+    else if (arg == "-v" || arg == "--version") {
       return versionMain({});
     }
 
-    // This is a bit of a hack to allow the global options to be specified
-    // in poac run, e.g., `poac run --verbose test --verbose`.  This will
-    // remove the first --verbose and execute the run command as verbose,
-    // then run the test command as verbose.
-    if (!isVerbositySet) {
-      if (arg == "--verbose") {
-        Logger::setLevel(LogLevel::debug);
-        isVerbositySet = true;
-      } else if (arg == "-q" || arg == "--quiet") {
-        Logger::setLevel(LogLevel::off);
-        isVerbositySet = true;
-      } else {
-        args.push_back(arg);
+    // Subcommands
+    else if (CMDS.contains(arg)) {
+      try {
+        const Vec<String> cmd_args(argv + i + 1, argv + argc);
+        return CMDS.at(arg).main(cmd_args);
+      } catch (const std::exception& e) {
+        Logger::error(e.what());
+        return EXIT_FAILURE;
       }
     } else {
-      args.push_back(arg);
+      Vec<StringRef> candidates(CMDS.size());
+      usize i = 0;
+      for (const auto& cmd : CMDS) {
+        candidates[i++] = cmd.first;
+      }
+
+      String suggestion;
+      if (const auto similar = findSimilarStr(arg, candidates)) {
+        suggestion =
+            "       Did you mean `" + String(similar.value()) + "`?\n\n";
+      }
+      Logger::error(
+          "no such command: `", arg, "`", "\n\n", suggestion,
+          "       Run `poac help` for a list of commands"
+      );
+      return EXIT_FAILURE;
     }
   }
 
-  if (args.empty()) {
-    Logger::error(
-        "no subcommand provided", "\n\n",
-        "       run `poac help` for a list of commands"
-    );
-    return EXIT_FAILURE;
-  }
-
-  StringRef subcommand = args[0];
-  if (!CMDS.contains(subcommand)) {
-    Vec<StringRef> candidates(CMDS.size());
-    usize i = 0;
-    for (const auto& cmd : CMDS) {
-      candidates[i++] = cmd.first;
-    }
-
-    String suggestion;
-    if (const auto similar = findSimilarStr(subcommand, candidates)) {
-      suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
-    }
-    Logger::error(
-        "no such command: `", subcommand, "`", "\n\n", suggestion,
-        "       Run `poac help` for a list of commands"
-    );
-    return EXIT_FAILURE;
-  }
-
-  try {
-    const Vec<String> cmd_args(args.begin() + 1, args.end());
-    return CMDS.at(subcommand).main(cmd_args);
-  } catch (const std::exception& e) {
-    Logger::error(e.what());
-    return EXIT_FAILURE;
-  }
+  helpMain({});
+  return EXIT_SUCCESS;
 }
