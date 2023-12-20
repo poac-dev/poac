@@ -23,7 +23,7 @@ int versionMain(Vec<String> args) noexcept {
 void versionHelp() noexcept {
   std::cout << versionDesc << '\n';
   std::cout << '\n';
-  printUsage("poac version");
+  printUsage("poac version [OPTIONS]");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
