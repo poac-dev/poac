@@ -1,7 +1,5 @@
 #include "Logger.hpp"
 
-#include "Rustify.hpp"
-
 Logger& Logger::getInstance() noexcept {
   static Logger instance;
   return instance;
