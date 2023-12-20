@@ -281,7 +281,7 @@ String emitMakefile(const bool debug) {
   defineDirTarget(config, buildOutDir);
 
   Vec<String> phonies = {"all"};
-  config.defineTarget("all", {}, {buildOutDir, projectName});
+  config.defineTarget("all", {}, {projectName});
 
   const Vec<String> sourceFiles = listSourceFiles("src");
   Vec<String> buildObjTargets;
