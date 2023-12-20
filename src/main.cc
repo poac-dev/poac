@@ -51,6 +51,8 @@ int helpMain(Vec<String> args) noexcept {
               << "Use verbose output" << '\n';
     std::cout << "  " << std::left << std::setw(15) << "-q, --quiet"
               << "Do not print poac log messages" << '\n';
+    std::cout << "  " << std::left << std::setw(15) << "-h, --help"
+              << "Print help" << '\n';
     std::cout << '\n';
     std::cout << bold(green("Commands:")) << '\n';
     for (const auto& [name, cmd] : CMDS) {
@@ -84,11 +86,15 @@ int helpMain(Vec<String> args) noexcept {
 }
 
 int main(int argc, char* argv[]) {
-  // Parse arguments (options should appear before the subcommand)
+  // Parse arguments (options should appear before the subcommand, as the help
+  // message shows intuitively)
   for (int i = 1; i < argc; ++i) {
     StringRef arg = argv[i];
+
     // Global options
-    if (arg == "--verbose") {
+    if (arg == "-h" || arg == "--help") {
+      return helpMain({});
+    } else if (arg == "--verbose") {
       Logger::setLevel(LogLevel::debug);
     } else if (arg == "-q" || arg == "--quiet") {
       Logger::setLevel(LogLevel::off);
