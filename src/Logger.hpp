@@ -104,10 +104,5 @@ private:
   Logger& operator=(const Logger&) = delete;
 };
 
-static inline bool isVerbose() noexcept {
-  return Logger::getLevel() == LogLevel::debug;
-}
-
-static inline bool isQuiet() noexcept {
-  return Logger::getLevel() == LogLevel::off;
-}
+bool isVerbose() noexcept;
+bool isQuiet() noexcept;

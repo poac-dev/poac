@@ -2,8 +2,6 @@
 
 #include "Rustify.hpp"
 
-#include <iostream>
-
 Logger& Logger::getInstance() noexcept {
   static Logger instance;
   return instance;
@@ -15,4 +13,12 @@ void Logger::setLevel(LogLevel level) noexcept {
 
 LogLevel Logger::getLevel() noexcept {
   return getInstance().level;
+}
+
+bool isVerbose() noexcept {
+  return Logger::getLevel() == LogLevel::debug;
+}
+
+bool isQuiet() noexcept {
+  return Logger::getLevel() == LogLevel::off;
 }
