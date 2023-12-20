@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 
     if (color == "always") {
       setColorMode(ColorMode::always);
-    } else if (color == "automatic") {
+    } else if (color == "auto") {
       setColorMode(ColorMode::automatic);
     } else if (color == "never") {
       setColorMode(ColorMode::never);
