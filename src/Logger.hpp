@@ -19,6 +19,7 @@ class Logger {
 public:
   static Logger& getInstance() noexcept;
   static void setLevel(LogLevel) noexcept;
+  static LogLevel getLevel() noexcept;
 
   template <typename... Args>
   static void error(Args&&... message) noexcept {
@@ -102,3 +103,11 @@ private:
   Logger(const Logger&) = delete;
   Logger& operator=(const Logger&) = delete;
 };
+
+static inline bool isVerbose() noexcept {
+  return Logger::getLevel() == LogLevel::debug;
+}
+
+static inline bool isQuiet() noexcept {
+  return Logger::getLevel() == LogLevel::off;
+}

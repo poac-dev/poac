@@ -12,3 +12,7 @@ Logger& Logger::getInstance() noexcept {
 void Logger::setLevel(LogLevel level) noexcept {
   getInstance().level = level;
 }
+
+LogLevel Logger::getLevel() noexcept {
+  return getInstance().level;
+}
