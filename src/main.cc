@@ -88,7 +88,6 @@ int helpMain(Vec<String> args) noexcept {
 int main(int argc, char* argv[]) {
   // Handle POAC_TERM_COLOR
   if (const char* color_p = std::getenv("POAC_TERM_COLOR")) {
-    // Construct a string and lowercase it
     String color(color_p);
     std::transform(color.begin(), color.end(), color.begin(), ::tolower);
 
