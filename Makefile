@@ -75,7 +75,7 @@ $(OUT_DIR)/BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp
 $(OUT_DIR)/Manifest.o: src/Manifest.cc src/Manifest.hpp $(OUT_DIR)/DEPS/toml11
 	$(CXX) $(CFLAGS) -c $< -o $@ -I$(OUT_DIR)/DEPS/toml11
 
-$(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp
+$(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp src/Cmd/Test.hpp src/Cmd/Run.hpp src/Cmd/New.hpp src/Cmd/Clean.hpp src/Cmd/Init.hpp src/Cmd/Version.hpp src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp src/Cmd/Global.hpp
 	$(CXX) $(CFLAGS) -c $< -o $@
 
 

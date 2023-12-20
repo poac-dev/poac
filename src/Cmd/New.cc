@@ -1,6 +1,7 @@
 #include "New.hpp"
 
 #include "../Logger.hpp"
+#include "Global.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -211,43 +212,46 @@ bool verifyPackageName(StringRef name) {
 }
 
 int newMain(Vec<String> args) {
-  if (args.empty()) {
-    Logger::error("missing package name");
-    return EXIT_FAILURE;
-  }
-
-  // Parse options
+  // Parse args
   bool isBin = true;
-  String projectName;
+  String packageName;
   for (usize i = 0; i < args.size(); ++i) {
     String arg = args[i];
-    if (arg == "--bin") {
+    HANDLE_GLOBAL_OPTS({"new"})
+
+    else if (arg == "-b" || arg == "--bin") {
       isBin = true;
-    } else if (arg == "--lib") {
+    }
+    else if (arg == "-l" || arg == "--lib") {
       isBin = false;
-    } else {
-      projectName = arg;
+    }
+    else if (packageName.empty()) {
+      packageName = arg;
+    }
+    else {
+      Logger::error("too many arguments: ", arg);
+      return EXIT_FAILURE;
     }
   }
 
-  if (!verifyPackageName(projectName)) {
+  if (!verifyPackageName(packageName)) {
     return EXIT_FAILURE;
   }
 
-  createTemplateFiles(isBin, projectName);
+  createTemplateFiles(isBin, packageName);
   return EXIT_SUCCESS;
 }
 
 void newHelp() noexcept {
   std::cout << newDesc << '\n';
   std::cout << '\n';
-  std::cout << "Usage: poac new [OPTIONS] <name>" << '\n';
+  printUsage("poac new [OPTIONS] <name>");
   std::cout << '\n';
-  std::cout << "Options:" << '\n';
-  std::cout << "    --bin\t\t\tUse a binary (application) template [default]"
-            << '\n';
-  std::cout << "    --lib\t\t\tUse a library template" << '\n';
+  printHeader("Options:");
+  printGlobalOpts();
+  printOption("-b, --bin", "Use a binary (application) template [default]");
+  printOption("-l, --lib", "Use a library template");
   std::cout << '\n';
-  std::cout << "Args:" << '\n';
-  std::cout << "    <name>\t\t\tName of the package" << '\n';
+  printHeader("Arguments:");
+  std::cout << "  <name>" << '\n';
 }

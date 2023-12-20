@@ -1,30 +1,33 @@
 #include "Init.hpp"
 
 #include "../Logger.hpp"
+#include "Global.hpp"
 #include "New.hpp"
 
 #include <fstream>
 #include <iostream>
 
 int initMain(Vec<String> args) {
+  // Parse args
+  bool isBin = true;
+  for (StringRef arg : args) {
+    HANDLE_GLOBAL_OPTS({"init"})
+
+    else if (arg == "-b" || arg == "--bin") {
+      isBin = true;
+    }
+    else if (arg == "-l" || arg == "--lib") {
+      isBin = false;
+    }
+    else {
+      Logger::error("invalid argument: ", arg);
+      return EXIT_FAILURE;
+    }
+  }
+
   if (fs::exists("poac.toml")) {
     Logger::error("cannot initialize an existing poac package");
     return EXIT_FAILURE;
-  }
-
-  // Parse options
-  bool isBin = true;
-  if (args.empty()) {
-    isBin = true;
-  } else {
-    if (args[0] == "-b" || args[0] == "--bin") {
-      isBin = true;
-    } else if (args[0] == "-l" || args[0] == "--lib") {
-      isBin = false;
-    } else {
-      Logger::error("invalid option: ", args[0]);
-      return EXIT_FAILURE;
-    }
   }
 
   const String packageName = fs::current_path().stem().string();
@@ -43,13 +46,12 @@ int initMain(Vec<String> args) {
 }
 
 void initHelp() noexcept {
-  std::cout << initDesc << std::endl;
-  std::cout << std::endl;
-  std::cout << "USAGE:" << std::endl;
-  std::cout << "    poac init [OPTIONS]" << std::endl;
-  std::cout << std::endl;
-  std::cout << "OPTIONS:" << std::endl;
-  std::cout << "    -b, --bin\tUse a binary (application) template [default]"
-            << std::endl;
-  std::cout << "    -l, --lib\tUse a library template" << std::endl;
+  std::cout << initDesc << '\n';
+  std::cout << '\n';
+  printUsage("poac init [OPTIONS]");
+  std::cout << '\n';
+  printHeader("Options:");
+  printGlobalOpts();
+  printOption("-b, --bin", "Use a binary (application) template [default]");
+  printOption("-l, --lib", "Use a library template");
 }

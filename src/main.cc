@@ -1,6 +1,7 @@
 #include "Algos.hpp"
 #include "Cmd/Build.hpp"
 #include "Cmd/Clean.hpp"
+#include "Cmd/Global.hpp"
 #include "Cmd/Help.hpp"
 #include "Cmd/Init.hpp"
 #include "Cmd/New.hpp"
@@ -33,55 +34,53 @@ static inline const HashMap<StringRef, Cmd> CMDS = {
     DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
 };
 
-static inline const HashMap<StringRef, StringRef> LONG_TO_SHORT = {
-    {"build", "b"},      {"run", "r"},      {"test", "t"},
-    {"--verbose", "-v"}, {"--quiet", "-q"}, {"--help", "-h"},
-};
+void noSuchCommand(StringRef arg) {
+  Vec<StringRef> candidates(CMDS.size());
+  usize i = 0;
+  for (const auto& cmd : CMDS) {
+    candidates[i++] = cmd.first;
+  }
+
+  String suggestion;
+  if (const auto similar = findSimilarStr(arg, candidates)) {
+    suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
+  }
+  Logger::error(
+      "no such command: `", arg, "`", "\n\n", suggestion,
+      "       Run `poac help` for a list of commands"
+  );
+}
 
 int helpMain(Vec<String> args) noexcept {
-  if (args.empty()) {
-    std::cout << "A package manager and build system for C++" << '\n';
-    std::cout << '\n';
-    std::cout << bold(green("Usage:")) << " poac [OPTIONS] [COMMAND]" << '\n';
-    std::cout << '\n';
-    std::cout << bold(green("Options:")) << '\n';
-    std::cout << "  " << std::left << std::setw(15) << "-v, --version"
-              << "Print version info and exit" << '\n';
-    std::cout << "  " << std::left << std::setw(15) << "--verbose"
-              << "Use verbose output" << '\n';
-    std::cout << "  " << std::left << std::setw(15) << "-q, --quiet"
-              << "Do not print poac log messages" << '\n';
-    std::cout << "  " << std::left << std::setw(15) << "-h, --help"
-              << "Print help" << '\n';
-    std::cout << '\n';
-    std::cout << bold(green("Commands:")) << '\n';
-    for (const auto& [name, cmd] : CMDS) {
-      std::cout << "  " << std::left << std::setw(10) << name << cmd.desc
-                << '\n';
+  // Parse args
+  for (StringRef arg : args) {
+    HANDLE_GLOBAL_OPTS({"help"})
+
+    else if (CMDS.contains(arg)) {
+      CMDS.at(arg).help();
+      return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
+    else {
+      noSuchCommand(arg);
+      return EXIT_FAILURE;
+    }
   }
 
-  StringRef subcommand = args[0];
-  if (!CMDS.contains(subcommand)) {
-    Vec<StringRef> candidates(CMDS.size());
-    usize i = 0;
-    for (const auto& cmd : CMDS) {
-      candidates[i++] = cmd.first;
-    }
+  // Print help message for poac itself
+  std::cout << "A package manager and build system for C++" << '\n';
+  std::cout << '\n';
+  printUsage("poac [OPTIONS] [COMMAND]");
+  std::cout << '\n';
 
-    String suggestion;
-    if (const auto similar = findSimilarStr(subcommand, candidates)) {
-      suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
-    }
-    Logger::error(
-        "no such command: `", subcommand, "`", "\n\n", suggestion,
-        "       Run `poac help` for a list of commands"
-    );
-    return EXIT_FAILURE;
+  printHeader("Options:");
+  printGlobalOpts();
+  printOption("-v, --version", "Print version info and exit");
+  std::cout << '\n';
+
+  printHeader("Commands:");
+  for (const auto& [name, cmd] : CMDS) {
+    printCommand(name, cmd.desc);
   }
-
-  CMDS.at(subcommand).help();
   return EXIT_SUCCESS;
 }
 
@@ -91,14 +90,8 @@ int main(int argc, char* argv[]) {
   for (int i = 1; i < argc; ++i) {
     StringRef arg = argv[i];
 
-    // Global options
-    if (arg == "-h" || arg == "--help") {
-      return helpMain({});
-    } else if (arg == "--verbose") {
-      Logger::setLevel(LogLevel::debug);
-    } else if (arg == "-q" || arg == "--quiet") {
-      Logger::setLevel(LogLevel::off);
-    }
+    // Global options (which are not command-specific)
+    HANDLE_GLOBAL_OPTS({})
 
     // Local options
     else if (arg == "-v" || arg == "--version") {
@@ -114,22 +107,9 @@ int main(int argc, char* argv[]) {
         Logger::error(e.what());
         return EXIT_FAILURE;
       }
-    } else {
-      Vec<StringRef> candidates(CMDS.size());
-      usize i = 0;
-      for (const auto& cmd : CMDS) {
-        candidates[i++] = cmd.first;
-      }
-
-      String suggestion;
-      if (const auto similar = findSimilarStr(arg, candidates)) {
-        suggestion =
-            "       Did you mean `" + String(similar.value()) + "`?\n\n";
-      }
-      Logger::error(
-          "no such command: `", arg, "`", "\n\n", suggestion,
-          "       Run `poac help` for a list of commands"
-      );
+    }
+    else {
+      noSuchCommand(arg);
       return EXIT_FAILURE;
     }
   }

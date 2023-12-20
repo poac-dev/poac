@@ -11,12 +11,12 @@ enum class ColorMode {
 void set_color_mode(ColorMode) noexcept;
 bool should_color() noexcept;
 
-String gray(const String&) noexcept;
-String red(const String&) noexcept;
-String green(const String&) noexcept;
-String yellow(const String&) noexcept;
-String blue(const String&) noexcept;
-String magenta(const String&) noexcept;
-String cyan(const String&) noexcept;
+String gray(StringRef) noexcept;
+String red(StringRef) noexcept;
+String green(StringRef) noexcept;
+String yellow(StringRef) noexcept;
+String blue(StringRef) noexcept;
+String magenta(StringRef) noexcept;
+String cyan(StringRef) noexcept;
 
-String bold(const String&) noexcept;
+String bold(StringRef) noexcept;

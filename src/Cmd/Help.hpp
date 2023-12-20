@@ -3,7 +3,7 @@
 #include "../Rustify.hpp"
 
 static inline constexpr StringRef helpDesc =
-    "Prints this message or the help of the given subcommand(s)";
+    "Displays help for a poac subcommand";
 
 int helpMain(Vec<String>) noexcept;
 void helpHelp() noexcept;

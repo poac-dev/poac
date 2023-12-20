@@ -2,6 +2,7 @@
 
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "Global.hpp"
 
 #include <ctime>
 #include <iostream>
@@ -12,7 +13,7 @@ int buildImpl(const bool isDebug, String& outDir) {
 
   outDir = emitMakefile(isDebug);
   const int exitCode =
-      std::system(("make --no-print-directory -C " + outDir).c_str());
+      std::system(("make -s --no-print-directory -C " + outDir).c_str());
 
   clock_gettime(CLOCK_MONOTONIC, &end);
   const double elapsed =
@@ -27,7 +28,23 @@ int buildImpl(const bool isDebug, String& outDir) {
 }
 
 int buildMain(Vec<String> args) {
-  const bool isDebug = isDebugMode(args.empty() ? "" : args[0]);
+  bool isDebug = true;
+  // Parse args
+  for (StringRef arg : args) {
+    HANDLE_GLOBAL_OPTS({"build"})
+
+    else if (arg == "-d" || arg == "--debug") {
+      isDebug = true;
+    }
+    else if (arg == "-r" || arg == "--release") {
+      isDebug = false;
+    }
+    else {
+      Logger::error("Unknown argument: ", arg);
+      return EXIT_FAILURE;
+    }
+  }
+
   String outDir;
   return buildImpl(isDebug, outDir);
 }
@@ -35,10 +52,10 @@ int buildMain(Vec<String> args) {
 void buildHelp() noexcept {
   std::cout << buildDesc << '\n';
   std::cout << '\n';
-  std::cout << "Usage: poac build [OPTIONS]" << '\n';
+  printUsage("poac build [OPTIONS]");
   std::cout << '\n';
-  std::cout << "Options:" << '\n';
-  std::cout << "    -d, --debug\t\tBuild with debug information [default]"
-            << '\n';
-  std::cout << "    -r, --release\tBuild with optimizations" << '\n';
+  printHeader("Options:");
+  printGlobalOpts();
+  printOption("-d, --debug", "Build with debug information [default]");
+  printOption("-r, --release", "Build with optimizations");
 }

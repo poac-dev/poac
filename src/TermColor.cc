@@ -41,35 +41,35 @@ bool should_color() noexcept {
   return ColorState::instance().should_color();
 }
 
-static String colorize(const String& str, const String& color) noexcept {
+static String colorize(StringRef str, StringRef color) noexcept {
   if (!should_color()) {
-    return str;
+    return String(str);
   }
-  return color + str + "\033[0m";
+  return String(color) + String(str) + "\033[0m";
 }
 
-String gray(const String& str) noexcept {
+String gray(StringRef str) noexcept {
   return colorize(str, "\033[30m");
 }
-String red(const String& str) noexcept {
+String red(StringRef str) noexcept {
   return colorize(str, "\033[31m");
 }
-String green(const String& str) noexcept {
+String green(StringRef str) noexcept {
   return colorize(str, "\033[32m");
 }
-String yellow(const String& str) noexcept {
+String yellow(StringRef str) noexcept {
   return colorize(str, "\033[33m");
 }
-String blue(const String& str) noexcept {
+String blue(StringRef str) noexcept {
   return colorize(str, "\033[34m");
 }
-String magenta(const String& str) noexcept {
+String magenta(StringRef str) noexcept {
   return colorize(str, "\033[35m");
 }
-String cyan(const String& str) noexcept {
+String cyan(StringRef str) noexcept {
   return colorize(str, "\033[36m");
 }
 
-String bold(const String& str) noexcept {
+String bold(StringRef str) noexcept {
   return colorize(str, "\033[1m");
 }

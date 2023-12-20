@@ -1,29 +1,37 @@
 #include "Clean.hpp"
 
 #include "../Logger.hpp"
+#include "Global.hpp"
 
 #include <iostream>
 
 int cleanMain(Vec<String> args) noexcept {
   Path outDir = "poac-out";
 
-  if (!args.empty()) {
-    if (!(args[0] == "-p" || args[0] == "--profile")) {
-      Logger::error("Invalid option: ", args[0]);
+  // Parse args
+  for (usize i = 0; i < args.size(); ++i) {
+    StringRef arg = args[i];
+    HANDLE_GLOBAL_OPTS({"clean"})
+
+    else if (arg == "-p" || arg == "--profile") {
+      if (i + 1 >= args.size()) {
+        Logger::error("Missing argument for ", arg);
+        return EXIT_FAILURE;
+      }
+
+      ++i;
+
+      if (!(args[i] == "debug" || args[i] == "release")) {
+        Logger::error("Invalid argument for ", arg, ": ", args[i]);
+        return EXIT_FAILURE;
+      }
+
+      outDir /= args[1];
+    }
+    else {
+      Logger::error("Unknown argument: ", arg);
       return EXIT_FAILURE;
     }
-
-    if (args.size() == 1) {
-      Logger::error("Missing argument for ", args[0]);
-      return EXIT_FAILURE;
-    }
-
-    if (!(args[1] == "debug" || args[1] == "release")) {
-      Logger::error("Invalid argument for ", args[0], ": ", args[1]);
-      return EXIT_FAILURE;
-    }
-
-    outDir /= args[1];
   }
 
   if (fs::exists(outDir)) {
@@ -36,10 +44,11 @@ int cleanMain(Vec<String> args) noexcept {
 void cleanHelp() noexcept {
   std::cout << cleanDesc << '\n';
   std::cout << '\n';
-  std::cout << "Usage: poac clean [OPTIONS]" << '\n';
+  printUsage("poac clean [OPTIONS]");
   std::cout << '\n';
-  std::cout << "Options:" << '\n';
-  std::cout
-      << "    -p, --profile <PROFILE>\tRemove built artifacts in <PROFILE> mode"
-      << '\n';
+  printHeader("Options:");
+  printGlobalOpts();
+  printOption(
+      "-p, --profile <PROFILE>", "Remove built artifacts in <PROFILE> mode"
+  );
 }

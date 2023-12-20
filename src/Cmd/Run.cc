@@ -3,19 +3,27 @@
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 #include "Build.hpp"
+#include "Global.hpp"
 
 #include <cstdlib>
 #include <iostream>
 
 int runMain(Vec<String> args) {
+  // Parse args
   bool isDebug = true;
-  usize argsConsumed = 0;
-  if (!args.empty()) {
-    if (args[0] == "-d" || args[0] == "--debug") {
-      ++argsConsumed;
-    } else if (args[0] == "-r" || args[0] == "--release") {
+  String runArgs;
+  for (usize i = 0; i < args.size(); ++i) {
+    String arg = args[i];
+    HANDLE_GLOBAL_OPTS({"run"})
+
+    else if (arg == "-d" || arg == "--debug") {
+      isDebug = true;
+    }
+    else if (arg == "-r" || arg == "--release") {
       isDebug = false;
-      ++argsConsumed;
+    }
+    else {
+      runArgs += " " + arg;
     }
   }
 
@@ -24,13 +32,8 @@ int runMain(Vec<String> args) {
     return EXIT_FAILURE;
   }
 
-  String projectArgs;
-  for (usize i = argsConsumed; i < args.size(); ++i) {
-    projectArgs += " " + args[i];
-  }
-
   const String projectName = "poac"; // TODO: get from poac.toml
-  const String command = outDir + "/" + projectName + projectArgs;
+  const String command = outDir + "/" + projectName + runArgs;
   Logger::status("Running", command);
   return std::system(command.c_str());
 }
@@ -38,13 +41,13 @@ int runMain(Vec<String> args) {
 void runHelp() noexcept {
   std::cout << runDesc << '\n';
   std::cout << '\n';
-  std::cout << "Usage: poac run [OPTIONS] [args]..." << '\n';
+  printUsage("poac run [OPTIONS] [args]...");
   std::cout << '\n';
-  std::cout << "Arguments:" << '\n';
-  std::cout << "    [args]...\t\tArguments passed to the program" << '\n';
+  printHeader("Options:");
+  printGlobalOpts();
+  printOption("-d, --debug", "Build with debug information [default]");
+  printOption("-r, --release", "Build with optimizations");
   std::cout << '\n';
-  std::cout << "Options:" << '\n';
-  std::cout << "    -d, --debug\t\tBuild with debug information [default]"
-            << '\n';
-  std::cout << "    -r, --release\tBuild with optimizations" << '\n';
+  printHeader("Arguments:");
+  std::cout << "  [args]...\tArguments passed to the program" << '\n';
 }
