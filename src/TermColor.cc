@@ -19,7 +19,7 @@ public:
         return;
     }
   }
-  inline bool should_color() const noexcept {
+  inline bool shouldColor() const noexcept {
     return should_color_;
   }
 
@@ -33,16 +33,16 @@ private:
   bool should_color_ = isTerm();
 };
 
-void set_color_mode(ColorMode cm) noexcept {
+void setColorMode(ColorMode cm) noexcept {
   ColorState::instance().set(cm);
 }
 
-bool should_color() noexcept {
-  return ColorState::instance().should_color();
+bool shouldColor() noexcept {
+  return ColorState::instance().shouldColor();
 }
 
 static String colorize(StringRef str, StringRef color) noexcept {
-  if (!should_color()) {
+  if (!shouldColor()) {
     return String(str);
   }
   return String(color) + String(str) + "\033[0m";

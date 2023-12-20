@@ -77,7 +77,7 @@ public:
           (os << ... << std::forward<Args>(message));
           break;
         case LogLevel::status:
-          if (should_color()) {
+          if (shouldColor()) {
             os << std::right << std::setw(27)
                << bold(green(std::forward<T>(header))) << ' ';
           } else {

@@ -8,8 +8,8 @@ enum class ColorMode {
   never,
 };
 
-void set_color_mode(ColorMode) noexcept;
-bool should_color() noexcept;
+void setColorMode(ColorMode) noexcept;
+bool shouldColor() noexcept;
 
 String gray(StringRef) noexcept;
 String red(StringRef) noexcept;
