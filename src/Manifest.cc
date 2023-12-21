@@ -52,8 +52,12 @@ String getPackageName() {
     return manifest.packageName.value();
   }
 
-  manifest.packageName =
+  const String packageName =
       toml::find<String>(manifest.data.value(), "package", "name");
+  if (packageName.empty()) {
+    throw std::runtime_error("package name is empty");
+  }
+  manifest.packageName = packageName;
   return manifest.packageName.value();
 }
 
@@ -63,7 +67,7 @@ String getPackageEdition() {
     return manifest.packageEdition.value();
   }
 
-  String edition =
+  const String edition =
       toml::find<String>(manifest.data.value(), "package", "edition");
   if (edition.size() == 2 && isdigit(edition[0]) && isalnum(edition[1])) {
     manifest.packageEdition = edition;
