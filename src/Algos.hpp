@@ -3,9 +3,18 @@
 #include "Rustify.hpp"
 
 #include <iostream>
+#include <memory>
 #include <queue>
 #include <span>
 #include <stdexcept>
+
+struct TrieNode {
+  HashMap<char, std::unique_ptr<TrieNode>> children;
+  bool isEndOfWord = false;
+};
+void trieInsert(TrieNode& root, StringRef word);
+bool trieSearch(const TrieNode& root, StringRef word);
+bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word);
 
 template <typename T>
 Vec<String> topoSort(

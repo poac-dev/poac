@@ -1,6 +1,7 @@
 #include "Algos.hpp"
 #include "Cmd/Build.hpp"
 #include "Cmd/Clean.hpp"
+#include "Cmd/Fmt.hpp"
 #include "Cmd/Global.hpp"
 #include "Cmd/Help.hpp"
 #include "Cmd/Init.hpp"
@@ -31,8 +32,9 @@ struct Cmd {
   }
 
 static inline const HashMap<StringRef, Cmd> CMDS = {
-    DEFINE_CMD(help), DEFINE_CMD(build), DEFINE_CMD(test), DEFINE_CMD(run),
-    DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
+    DEFINE_CMD(help), DEFINE_CMD(build),   DEFINE_CMD(test),
+    DEFINE_CMD(run),  DEFINE_CMD(new),     DEFINE_CMD(clean),
+    DEFINE_CMD(init), DEFINE_CMD(version), DEFINE_CMD(fmt),
 };
 
 void noSuchCommand(StringRef arg) {

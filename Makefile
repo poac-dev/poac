@@ -36,8 +36,9 @@ $(OUT_DIR)/Cmd:
 $(PROJ_NAME): $(OUT_DIR)/Cmd/Help.o $(OUT_DIR)/Algos.o $(OUT_DIR)/Cmd/Build.o \
   $(OUT_DIR)/Cmd/Test.o $(OUT_DIR)/Cmd/Run.o $(OUT_DIR)/Cmd/New.o \
   $(OUT_DIR)/Cmd/Clean.o $(OUT_DIR)/Cmd/Init.o $(OUT_DIR)/Cmd/Version.o \
-  $(OUT_DIR)/BuildConfig.o $(OUT_DIR)/Manifest.o $(OUT_DIR)/Logger.o \
-  $(OUT_DIR)/TermColor.o $(OUT_DIR)/Cmd/Global.o $(OUT_DIR)/main.o
+  $(OUT_DIR)/Cmd/Fmt.o $(OUT_DIR)/BuildConfig.o $(OUT_DIR)/Manifest.o \
+  $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Cmd/Global.o \
+  $(OUT_DIR)/main.o
 	$(CXX) $(CFLAGS) $^ -o $@
 
 $(OUT_DIR)/Algos.o: src/Algos.cc src/Algos.hpp
@@ -58,6 +59,10 @@ $(OUT_DIR)/Cmd/Build.o: src/Cmd/Build.cc src/Cmd/Build.hpp src/Rustify.hpp \
 	$(CXX) $(CFLAGS) -c $< -o $@
 
 $(OUT_DIR)/Cmd/Test.o: src/Cmd/Test.cc src/Cmd/Test.hpp src/Rustify.hpp \
+  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+$(OUT_DIR)/Cmd/Fmt.o: src/Cmd/Fmt.cc src/Cmd/Fmt.hpp src/Rustify.hpp \
   src/Algos.hpp src/Logger.hpp src/TermColor.hpp
 	$(CXX) $(CFLAGS) -c $< -o $@
 
