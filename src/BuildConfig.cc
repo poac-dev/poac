@@ -26,15 +26,17 @@ struct BuildConfig {
   HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
 
-  void defineVariable(String name, String value, Vec<String> dependsOn = {});
+  void
+  defineVariable(String name, String value, const Vec<String>& dependsOn = {});
   void defineTarget(
-      String name, const Vec<String>& commands, Vec<String> dependsOn = {}
+      String name, const Vec<String>& commands,
+      const Vec<String>& dependsOn = {}
   );
   void emitMakefile(std::ostream& os = std::cout) const;
 };
 
 void BuildConfig::defineVariable(
-    String name, String value, Vec<String> dependsOn
+    String name, String value, const Vec<String>& dependsOn
 ) {
   variables[name] = value;
   for (const String& dep : dependsOn) {
@@ -44,7 +46,7 @@ void BuildConfig::defineVariable(
 }
 
 void BuildConfig::defineTarget(
-    String name, const Vec<String>& commands, Vec<String> dependsOn
+    String name, const Vec<String>& commands, const Vec<String>& dependsOn
 ) {
   targets[name] = {commands, dependsOn};
   for (const String& dep : dependsOn) {
