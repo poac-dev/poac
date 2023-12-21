@@ -79,7 +79,7 @@ Vec<Path> installGitDependencies() {
     Logger::debug("no dependencies");
     return {};
   }
-  const auto& deps = toml::find<toml::table>(*manifest.data, "dependencies");
+  const auto deps = toml::find<toml::table>(*manifest.data, "dependencies");
 
   Vec<Path> gitDeps;
   for (const auto& dep : deps) {
