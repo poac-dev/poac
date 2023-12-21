@@ -50,10 +50,10 @@ int buildMain(Vec<String> args) {
 void buildHelp() noexcept {
   std::cout << buildDesc << '\n';
   std::cout << '\n';
-  printUsage("poac build [OPTIONS]");
+  printUsage("build", "[OPTIONS]");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
-  printOption("-d, --debug", "Build with debug information [default]");
-  printOption("-r, --release", "Build with optimizations");
+  printOption("--debug", "-d", "Build with debug information [default]");
+  printOption("--release", "-r", "Build with optimizations");
 }

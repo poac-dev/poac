@@ -9,6 +9,7 @@
 #include <set>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <variant>
@@ -59,6 +60,9 @@ using Fn = std::function<T>;
 
 template <typename T>
 using Option = std::optional<T>;
+
+template <typename... Ts>
+using Tuple = std::tuple<Ts...>;
 
 struct NoneT : protected std::monostate {
   constexpr auto operator==(const usize rhs) const -> bool {

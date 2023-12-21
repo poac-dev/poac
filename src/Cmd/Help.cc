@@ -7,7 +7,7 @@
 void helpHelp() noexcept {
   std::cout << helpDesc << '\n';
   std::cout << '\n';
-  printUsage("poac help [OPTIONS] [COMMAND]");
+  printUsage("help", "[OPTIONS] [COMMAND]");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();

@@ -46,10 +46,10 @@ int testMain(Vec<String> args) {
 void testHelp() noexcept {
   std::cout << testDesc << '\n';
   std::cout << '\n';
-  printUsage("poac test [OPTIONS]");
+  printUsage("test", "[OPTIONS]");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
-  printOption("-d, --debug", "Test with debug information [default]");
-  printOption("-r, --release", "Test with optimizations");
+  printOption("--debug", "-d", "Test with debug information [default]");
+  printOption("--release", "-r", "Test with optimizations");
 }

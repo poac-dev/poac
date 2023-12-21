@@ -250,12 +250,12 @@ int newMain(Vec<String> args) {
 void newHelp() noexcept {
   std::cout << newDesc << '\n';
   std::cout << '\n';
-  printUsage("poac new [OPTIONS] <name>");
+  printUsage("new", "[OPTIONS] <name>");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
-  printOption("-b, --bin", "Use a binary (application) template [default]");
-  printOption("-l, --lib", "Use a library template");
+  printOption("--bin", "-b", "Use a binary (application) template [default]");
+  printOption("--lib", "-l", "Use a library template");
   std::cout << '\n';
   printHeader("Arguments:");
   std::cout << "  <name>" << '\n';

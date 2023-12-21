@@ -48,10 +48,10 @@ int initMain(Vec<String> args) {
 void initHelp() noexcept {
   std::cout << initDesc << '\n';
   std::cout << '\n';
-  printUsage("poac init [OPTIONS]");
+  printUsage("init", "[OPTIONS]");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
-  printOption("-b, --bin", "Use a binary (application) template [default]");
-  printOption("-l, --lib", "Use a library template");
+  printOption("--bin", "-b", "Use a binary (application) template [default]");
+  printOption("--lib", "-l", "Use a library template");
 }

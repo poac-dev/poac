@@ -44,11 +44,11 @@ int cleanMain(Vec<String> args) noexcept {
 void cleanHelp() noexcept {
   std::cout << cleanDesc << '\n';
   std::cout << '\n';
-  printUsage("poac clean [OPTIONS]");
+  printUsage("clean", "[OPTIONS]");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption(
-      "-p, --profile <PROFILE>", "Remove built artifacts in <PROFILE> mode"
+      "--profile", "-p", "Remove built artifacts in <PROFILE> mode", "<PROFILE>"
   );
 }

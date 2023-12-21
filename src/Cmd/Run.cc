@@ -42,12 +42,12 @@ int runMain(Vec<String> args) {
 void runHelp() noexcept {
   std::cout << runDesc << '\n';
   std::cout << '\n';
-  printUsage("poac run [OPTIONS] [args]...");
+  printUsage("run", "[OPTIONS] [args]...");
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
-  printOption("-d, --debug", "Build with debug information [default]");
-  printOption("-r, --release", "Build with optimizations");
+  printOption("--debug", "-d", "Build with debug information [default]");
+  printOption("--release", "-r", "Build with optimizations");
   std::cout << '\n';
   printHeader("Arguments:");
   std::cout << "  [args]...\tArguments passed to the program" << '\n';

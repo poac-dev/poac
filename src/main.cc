@@ -70,12 +70,12 @@ int helpMain(Vec<String> args) noexcept {
   // Print help message for poac itself
   std::cout << "A package manager and build system for C++" << '\n';
   std::cout << '\n';
-  printUsage("poac [OPTIONS] [COMMAND]");
+  printUsage("", "[OPTIONS] [COMMAND]");
   std::cout << '\n';
 
   printHeader("Options:");
   printGlobalOpts();
-  printOption("-v, --version", "Print version info and exit");
+  printOption("--version", "-V", "Print version info and exit");
   std::cout << '\n';
 
   printHeader("Commands:");
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     HANDLE_GLOBAL_OPTS({})
 
     // Local options
-    else if (arg == "-v" || arg == "--version") {
+    else if (arg == "-V" || arg == "--version") {
       return versionMain({});
     }
 
