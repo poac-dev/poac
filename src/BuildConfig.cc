@@ -386,12 +386,17 @@ String emitMakefile(const bool debug) {
 
         // headerPath: src/path/to/header.h ->
         // object target: poac.d/path/to/header.o
+        String headerObjTargetBaseDir =
+            fs::relative(headerPath.parent_path(), pathFromOutDir + "src")
+                .string();
+        if (headerObjTargetBaseDir != ".") {
+          headerObjTargetBaseDir = buildOutDir + "/" + headerObjTargetBaseDir;
+        } else {
+          headerObjTargetBaseDir = buildOutDir;
+        }
         const String headerObjTarget =
-            buildOutDir + "/"
-            + (fs::relative(headerPath.parent_path(), pathFromOutDir + "src")
-               / headerPath.stem())
-                  .string()
-            + ".o";
+            headerObjTargetBaseDir + "/" + headerPath.stem().string() + ".o";
+        Logger::debug("headerObjTarget: ", headerObjTarget);
 
         auto itr = buildObjTargetSet.find(headerObjTarget);
         if (itr == buildObjTargetSet.end()) {
