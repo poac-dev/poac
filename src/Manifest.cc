@@ -2,6 +2,7 @@
 
 #include "TermColor.hpp"
 
+#include <cctype>
 #include <memory>
 
 #define TOML11_NO_ERROR_PREFIX
@@ -47,8 +48,8 @@ String getPackageName() {
 String getCppEdition() {
   Manifest& manifest = Manifest::instance();
   String edition = toml::find<String>(*manifest.data, "package", "edition");
-  if (edition.size() != 2) {
-    throw std::runtime_error("invalid edition: " + edition);
+  if (edition.size() == 2 && isdigit(edition[0]) && isalnum(edition[1])) {
+    return edition;
   }
-  return edition;
+  throw std::runtime_error("invalid edition: " + edition);
 }
