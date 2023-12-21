@@ -11,8 +11,8 @@ int buildImpl(const bool isDebug, String& outDir) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
-  const int exitCode =
-      std::system((getMakeCommand() + " -C " + outDir).c_str());
+  const int status = std::system((getMakeCommand() + " -C " + outDir).c_str());
+  const int exitCode = status >> 8;
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

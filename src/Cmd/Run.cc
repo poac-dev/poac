@@ -36,7 +36,9 @@ int runMain(Vec<String> args) {
   const String projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
   Logger::status("Running", command);
-  return std::system(command.c_str());
+  const int status = std::system(command.c_str());
+  const int exitCode = status >> 8;
+  return exitCode;
 }
 
 void runHelp() noexcept {

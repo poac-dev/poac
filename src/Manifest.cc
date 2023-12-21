@@ -70,7 +70,8 @@ static inline const Path CACHE_DIR(getXdgCacheHome() / "poac");
 static inline const Path GIT_DIR(CACHE_DIR / "git");
 static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 
-/// @brief Install git dependencies.  We do not need to resolve dependencies.
+/// @brief Install git dependencies.  We do not need to resolve dependencies
+///        (solve the SAT problem).
 /// @return paths to the source files
 Vec<Path> installGitDependencies() {
   Manifest& manifest = Manifest::instance();
