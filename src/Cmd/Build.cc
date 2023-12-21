@@ -4,24 +4,22 @@
 #include "../Logger.hpp"
 #include "Global.hpp"
 
-#include <ctime>
+#include <chrono>
 #include <iostream>
 
 int buildImpl(const bool isDebug, String& outDir) {
-  timespec start, end;
-  clock_gettime(CLOCK_MONOTONIC, &start);
+  const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
   const int exitCode =
       std::system((getMakeCommand() + " -C " + outDir).c_str());
 
-  clock_gettime(CLOCK_MONOTONIC, &end);
-  const double elapsed =
-      end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+  const auto end = std::chrono::steady_clock::now();
+  const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
     Logger::status(
-        "Finished", modeString(isDebug), " target(s) in ", elapsed, "s"
+        "Finished", modeString(isDebug), " target(s) in ", elapsed.count(), "s"
     );
   }
   return exitCode;
