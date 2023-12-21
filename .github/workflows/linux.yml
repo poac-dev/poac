@@ -33,14 +33,12 @@ jobs:
             ver: 11
           - cxx: g++
             ver: 12
+          - cxx: g++
+            ver: 13
     env:
       CXX: ${{ matrix.compiler.cxx }}-${{ matrix.compiler.ver }}
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup GCC
-        if: ${{ ! startsWith(matrix.compiler.cxx, 'clang') }}
-        run: sudo apt-get install -y ${{ env.CXX }}
 
       - name: Setup Clang
         if: startsWith(matrix.compiler.cxx, 'clang')
