@@ -1,5 +1,7 @@
 #include "Manifest.hpp"
 
+#include "TermColor.hpp"
+
 #include <memory>
 #include <toml.hpp>
 
@@ -15,6 +17,13 @@ public:
     if (data) {
       return;
     }
+
+    if (shouldColor()) {
+      toml::color::enable();
+    } else {
+      toml::color::disable();
+    }
+
     data = std::make_unique<toml::value>(toml::parse("poac.toml"));
   }
 
