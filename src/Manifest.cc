@@ -74,6 +74,11 @@ static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 /// @return paths to the source files
 Vec<Path> installGitDependencies() {
   Manifest& manifest = Manifest::instance();
+  const auto& table = toml::get<toml::table>(*manifest.data);
+  if (!table.contains("dependencies")) {
+    Logger::debug("no dependencies");
+    return {};
+  }
   const auto& deps = toml::find<toml::table>(*manifest.data, "dependencies");
 
   Vec<Path> gitDeps;
@@ -83,15 +88,8 @@ Vec<Path> installGitDependencies() {
       if (info.contains("git")) {
         const auto& gitUrl = info.at("git");
         if (gitUrl.is_string()) {
-          const Path installDir = GIT_SRC_DIR / dep.first;
-          if (fs::exists(installDir) && !fs::is_empty(installDir)) {
-            Logger::debug(dep.first, " is already installed");
-            gitDeps.push_back(installDir);
-            continue;
-          }
-
           // rev, tag, or branch
-          String target;
+          String target = "main";
           for (const String key : {"rev", "tag", "branch"}) {
             if (info.contains(key)) {
               const auto& value = info.at(key);
@@ -100,6 +98,13 @@ Vec<Path> installGitDependencies() {
                 break;
               }
             }
+          }
+
+          const Path installDir = GIT_SRC_DIR / (dep.first + '-' + target);
+          if (fs::exists(installDir) && !fs::is_empty(installDir)) {
+            Logger::debug(dep.first, " is already installed");
+            gitDeps.push_back(installDir);
+            continue;
           }
 
           const String gitUrlStr = gitUrl.as_string();
