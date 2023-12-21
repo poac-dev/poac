@@ -19,7 +19,7 @@ String getPoacToml(const String& projectName) noexcept {
       "name = \"" + projectName + "\"\n"
       "version = \"0.1.0\"\n"
       "authors = []\n"
-      "edition = 2020\n";
+      "edition = \"20\"\n";
 }
 
 static String getHeader(const String& projectName) noexcept {
