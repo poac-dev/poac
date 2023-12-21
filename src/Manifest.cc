@@ -21,7 +21,7 @@ public:
   }
 
   void load() {
-    if (!data.has_value()) {
+    if (data.has_value()) {
       return;
     }
 
