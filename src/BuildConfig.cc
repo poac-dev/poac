@@ -3,6 +3,7 @@
 #include "Algos.hpp"
 #include "Logger.hpp"
 #include "Manifest.hpp"
+#include "TermColor.hpp"
 
 #include <array>
 #include <filesystem>
@@ -281,14 +282,16 @@ String emitMakefile(const bool debug) {
 
   // Compiler settings
   config.defineVariable("CXX", CXX);
-  const String baseCflags =
-      "-Wall -Wextra -pedantic-errors -fdiagnostics-color -std=c++"
-      + getCppEdition();
-  if (debug) {
-    config.defineVariable("CFLAGS", baseCflags + " -g -O0 -DDEBUG");
-  } else {
-    config.defineVariable("CFLAGS", baseCflags + " -O3 -DNDEBUG");
+  String cflags = "-Wall -Wextra -pedantic-errors -std=c++" + getCppEdition();
+  if (shouldColor()) {
+    cflags += " -fcolor-diagnostics";
   }
+  if (debug) {
+    cflags += " -g -O0 -DDEBUG";
+  } else {
+    cflags += " -O3 -DNDEBUG";
+  }
+  config.defineVariable("CFLAGS", cflags);
 
   // Build rules
   const String buildOutDir = projectName + ".d";
