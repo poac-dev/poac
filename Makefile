@@ -103,7 +103,7 @@ $(OUT_DIR)/tests:
 	mkdir -p $@
 
 $(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o \
-  $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o
+  $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Manifest.o
 	$(CXX) $(CFLAGS) $^ -o $@
 
 $(OUT_DIR)/tests/test_BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp \
