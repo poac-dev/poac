@@ -4,3 +4,4 @@
 
 String getPackageName();
 String getCppEdition();
+Vec<Path> installGitDependencies();

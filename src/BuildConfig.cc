@@ -13,7 +13,7 @@
 
 static String OUT_DIR = "poac-out/debug";
 static String CXX = "clang++";
-static String INCLUDES = " -I../../build-out/DEPS/toml11"; // TODO: fix
+static String INCLUDES;
 
 struct Target {
   Vec<String> commands;
@@ -262,6 +262,17 @@ String emitMakefile(const bool debug) {
     Logger::debug("Makefile is up to date");
     return OUT_DIR;
   }
+
+  const Vec<Path> deps = installGitDependencies();
+  for (const Path& dep : deps) {
+    const Path includeDir = dep / "include";
+    if (fs::exists(includeDir) && fs::is_directory(includeDir)) {
+      INCLUDES += " -I" + includeDir.string();
+    } else {
+      INCLUDES += " -I" + dep.string();
+    }
+  }
+  Logger::debug("INCLUDES: ", INCLUDES);
 
   const String projectName = getPackageName();
   const String pathFromOutDir = "../../";

@@ -22,7 +22,7 @@ clean:
 
 $(OUT_DIR)/DEPS/toml11: $(OUT_DIR)/DEPS
 	git clone https://github.com/ToruNiina/toml11.git $@
-	cd $@ && git reset --hard 846abd9a49082fe51440aa07005c360f13a67bbf
+	git -C $@ reset --hard 846abd9a49082fe51440aa07005c360f13a67bbf
 
 $(OUT_DIR)/DEPS:
 	mkdir -p $@
