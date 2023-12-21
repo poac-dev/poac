@@ -3,6 +3,8 @@
 #include "TermColor.hpp"
 
 #include <memory>
+
+#define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
 
 class Manifest {
