@@ -3,5 +3,5 @@
 #include "Rustify.hpp"
 
 String getPackageName();
-String getCppEdition();
+String getPackageEdition();
 Vec<Path> installGitDependencies();

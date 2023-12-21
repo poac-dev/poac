@@ -1,12 +1,12 @@
 #include "Manifest.hpp"
 
 #include "Logger.hpp"
+#include "Rustify.hpp"
 #include "TermColor.hpp"
 
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
-#include <memory>
 #include <stdexcept>
 
 #define TOML11_NO_ERROR_PREFIX
@@ -21,7 +21,7 @@ public:
   }
 
   void load() {
-    if (data) {
+    if (!data.has_value()) {
       return;
     }
 
@@ -31,10 +31,12 @@ public:
       toml::color::disable();
     }
 
-    data = std::make_unique<toml::value>(toml::parse("poac.toml"));
+    data = toml::parse("poac.toml");
   }
 
-  std::unique_ptr<toml::value> data = nullptr;
+  Option<toml::value> data = None;
+  Option<String> packageName = None;
+  Option<String> packageEdition = None;
 
 private:
   Manifest() noexcept = default;
@@ -46,13 +48,25 @@ private:
 
 String getPackageName() {
   Manifest& manifest = Manifest::instance();
-  return toml::find<String>(*manifest.data, "package", "name");
+  if (manifest.packageName.has_value()) {
+    return manifest.packageName.value();
+  }
+
+  manifest.packageName =
+      toml::find<String>(manifest.data.value(), "package", "name");
+  return manifest.packageName.value();
 }
 
-String getCppEdition() {
+String getPackageEdition() {
   Manifest& manifest = Manifest::instance();
-  String edition = toml::find<String>(*manifest.data, "package", "edition");
+  if (manifest.packageEdition.has_value()) {
+    return manifest.packageEdition.value();
+  }
+
+  String edition =
+      toml::find<String>(manifest.data.value(), "package", "edition");
   if (edition.size() == 2 && isdigit(edition[0]) && isalnum(edition[1])) {
+    manifest.packageEdition = edition;
     return edition;
   }
   throw std::runtime_error("invalid edition: " + edition);
