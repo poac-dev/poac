@@ -319,18 +319,18 @@ String emitMakefile(const bool debug) {
             .string();
     objTargetInfos[sourceFileName] = {objTarget, targetBaseDir, objTargetDeps};
 
-    const String buildTargetBaseDir = buildOutDir + "/" + targetBaseDir;
-    const String buildObjTarget = buildTargetBaseDir + "/" + objTarget;
-
     // Add a target to create the buildOutDir and buildTargetBaseDir.
     Vec<String> buildTargetDeps = objTargetDeps;
     buildTargetDeps.push_back("|"); // order-only dependency
     buildTargetDeps.push_back(buildOutDir);
+    String buildTargetBaseDir = buildOutDir;
     if (targetBaseDir != ".") {
+      buildTargetBaseDir += "/" + targetBaseDir;
       defineDirTarget(config, buildTargetBaseDir);
       buildTargetDeps.push_back(buildTargetBaseDir);
     }
 
+    const String buildObjTarget = buildTargetBaseDir + "/" + objTarget;
     buildObjTargets.push_back(buildObjTarget);
     defineCompileTarget(config, buildObjTarget, buildTargetDeps);
   }
@@ -348,22 +348,23 @@ String emitMakefile(const bool debug) {
     if (containsTestCode(sourceFile)) {
       enableTesting = true;
 
-      const String testTargetBaseDir = testOutDir + "/" + objTargetInfo.baseDir;
-      const String testObjTarget =
-          testTargetBaseDir + "/test_" + objTargetInfo.name;
-      const String testTargetName = Path(sourceFile).stem().string();
-      const String testTarget = testTargetBaseDir + "/test_" + testTargetName;
-
       // NOTE: Since we know that we don't use objTargetInfos for other
       // targets, we can just update it here instead of creating a copy.
       objTargetInfo.deps.push_back("|"); // order-only dependency
       objTargetInfo.deps.push_back(testOutDir);
 
       // Add a target to create the testTargetBaseDir.
+      String testTargetBaseDir = testOutDir;
       if (objTargetInfo.baseDir != ".") {
+        testTargetBaseDir += "/" + objTargetInfo.baseDir;
         defineDirTarget(config, testTargetBaseDir);
         objTargetInfo.deps.push_back(testTargetBaseDir);
       }
+
+      const String testObjTarget =
+          testTargetBaseDir + "/test_" + objTargetInfo.name;
+      const String testTargetName = Path(sourceFile).stem().string();
+      const String testTarget = testTargetBaseDir + "/test_" + testTargetName;
 
       // Test object target.
       defineCompileTarget(config, testObjTarget, objTargetInfo.deps, true);
