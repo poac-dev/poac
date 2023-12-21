@@ -24,10 +24,6 @@ jobs:
       matrix:
         compiler:
           - cxx: clang++
-            ver: 13
-          - cxx: clang++
-            ver: 14
-          - cxx: clang++
             ver: 15
           - cxx: clang++
             ver: 16
