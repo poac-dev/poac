@@ -2,6 +2,7 @@
 
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "../Manifest.hpp"
 #include "Build.hpp"
 #include "Global.hpp"
 
@@ -32,7 +33,7 @@ int runMain(Vec<String> args) {
     return EXIT_FAILURE;
   }
 
-  const String projectName = "poac"; // TODO: get from poac.toml
+  const String projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
   Logger::status("Running", command);
   return std::system(command.c_str());

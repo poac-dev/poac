@@ -6,7 +6,7 @@ static bool isTerm() noexcept {
 
 class ColorState {
 public:
-  inline void set(ColorMode mode) noexcept {
+  void set(ColorMode mode) noexcept {
     switch (mode) {
       case ColorMode::always:
         should_color_ = true;
@@ -31,6 +31,12 @@ public:
 private:
   // default: automatic
   bool should_color_ = isTerm();
+
+  ColorState() noexcept = default;
+
+  // Delete copy constructor and assignment operator to prevent copying
+  ColorState(const ColorState&) = delete;
+  ColorState& operator=(const ColorState&) = delete;
 };
 
 void setColorMode(ColorMode cm) noexcept {

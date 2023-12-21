@@ -2,6 +2,7 @@
 
 #include "Algos.hpp"
 #include "Logger.hpp"
+#include "Manifest.hpp"
 
 #include <array>
 #include <filesystem>
@@ -12,6 +13,7 @@
 
 static String OUT_DIR = "poac-out/debug";
 static String CXX = "clang++";
+static String INCLUDES = " -I../../build-out/DEPS/toml11"; // TODO: fix
 
 struct Target {
   Vec<String> commands;
@@ -62,7 +64,8 @@ void emitTarget(
 
   for (const String& dep : dependsOn) {
     if (offset + dep.size() + 2 > 80) { // 2 for space and \.
-      os << " \\\n "; // \ for line continuation
+      // \ for line continuation. \ is the 80th character.
+      os << std::setw(83 - offset) << " \\\n ";
       offset = 2;
     }
     os << " " << dep;
@@ -85,7 +88,6 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
       os << var << " = " << variables.at(var) << '\n';
     }
   }
-
   if (!sortedVars.empty() && !targets.empty()) {
     os << '\n';
   }
@@ -96,13 +98,11 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
   if (targets.contains("all")) {
     emitTarget(os, "all", targets.at("all").dependsOn);
   }
-
   const Vec<String> sortedTargets = topoSort(targets, targetDeps);
   for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
     if (*itr == ".PHONY" || *itr == "all") {
       continue;
     }
-
     emitTarget(os, *itr, targets.at(*itr).dependsOn, targets.at(*itr).commands);
   }
 }
@@ -132,7 +132,8 @@ static String exec(const char* cmd) {
 }
 
 static String runMM(const String& sourceFile) {
-  const String command = "cd " + OUT_DIR + " && " + CXX + " -MM " + sourceFile;
+  const String command =
+      "cd " + OUT_DIR + " && " + CXX + INCLUDES + " -MM " + sourceFile;
   return exec(command.c_str());
 }
 
@@ -211,10 +212,12 @@ static void defineCompileTarget(
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
+
+  const String compileCmd = "$(CXX) $(CFLAGS)" + INCLUDES;
   if (isTest) {
-    commands[1] = buildCmd("$(CXX) $(CFLAGS) -DPOAC_TEST -c $< -o $@");
+    commands[1] = buildCmd(compileCmd + " -DPOAC_TEST -c $< -o $@");
   } else {
-    commands[1] = buildCmd("$(CXX) $(CFLAGS) -c $< -o $@");
+    commands[1] = buildCmd(compileCmd + " -c $< -o $@");
   }
   config.defineTarget(objTarget, commands, deps);
 }
@@ -273,7 +276,7 @@ String emitMakefile(const bool debug) {
     return OUT_DIR;
   }
 
-  const String projectName = "poac"; // TODO: Get from poac.toml
+  const String projectName = getPackageName();
   const String pathFromOutDir = "../../";
 
   BuildConfig config;
@@ -281,14 +284,12 @@ String emitMakefile(const bool debug) {
   // Compiler settings
   config.defineVariable("CXX", CXX);
   const String baseCflags =
-      "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20 "; // TODO:
-                                                                        // Get
-                                                                        // from
-                                                                        // poac.toml
+      "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++"
+      + getCppEdition();
   if (debug) {
-    config.defineVariable("CFLAGS", baseCflags + "-g -O0 -DDEBUG");
+    config.defineVariable("CFLAGS", baseCflags + " -g -O0 -DDEBUG");
   } else {
-    config.defineVariable("CFLAGS", baseCflags + "-O3 -DNDEBUG");
+    config.defineVariable("CFLAGS", baseCflags + " -O3 -DNDEBUG");
   }
 
   // Build rules

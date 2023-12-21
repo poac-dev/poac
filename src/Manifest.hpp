@@ -1,3 +1,6 @@
 #pragma once
 
-#include <toml.hpp>
+#include "Rustify.hpp"
+
+String getPackageName();
+String getCppEdition();

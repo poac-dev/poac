@@ -17,7 +17,7 @@ enum class LogLevel : u8 {
 
 class Logger {
 public:
-  static Logger& getInstance() noexcept;
+  static Logger& instance() noexcept;
   static void setLevel(LogLevel) noexcept;
   static LogLevel getLevel() noexcept;
 
@@ -52,7 +52,7 @@ public:
   static void
   log(std::ostream& os, LogLevel messageLevel, T&& header,
       Args&&... message) noexcept {
-    getInstance().logImpl(
+    instance().logImpl(
         os, messageLevel, std::forward<T>(header),
         std::forward<Args>(message)...
     );
@@ -97,7 +97,7 @@ public:
 private:
   LogLevel level = LogLevel::status;
 
-  Logger() noexcept {}
+  Logger() noexcept = default;
 
   // Delete copy constructor and assignment operator to prevent copying
   Logger(const Logger&) = delete;
