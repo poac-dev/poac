@@ -242,21 +242,6 @@ struct ObjTargetInfo {
   Vec<String> deps;
 };
 
-bool isDebugMode(StringRef profile) {
-  if (profile == "") {
-    return true;
-  } else if (profile == "-d" || profile == "--debug") {
-    return true;
-  } else if (profile == "-r" || profile == "--release") {
-    return false;
-  } else {
-    throw std::runtime_error(
-          "invalid option: `" + String(profile) + "`\n\n"
-          "       run `poac help build` for a list of options"
-      );
-  }
-}
-
 // Returns the directory where the Makefile is generated.
 String emitMakefile(const bool debug) {
   if (!fs::exists("src")) {
@@ -286,7 +271,7 @@ String emitMakefile(const bool debug) {
   // Compiler settings
   config.defineVariable("CXX", CXX);
   const String baseCflags =
-      "-Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++"
+      "-Wall -Wextra -pedantic-errors -fdiagnostics-color -std=c++"
       + getCppEdition();
   if (debug) {
     config.defineVariable("CFLAGS", baseCflags + " -g -O0 -DDEBUG");
@@ -377,11 +362,10 @@ String emitMakefile(const bool debug) {
         // We shouldn't depend on the original object file (e.g.,
         // poac.d/path/to/file.o). We should depend on the test object
         // file (e.g., tests/path/to/test_file.o).
-        if (Path(sourceFile).stem().string() == Path(header).stem().string()) {
+        const Path headerPath(header);
+        if (Path(sourceFile).stem().string() == headerPath.stem().string()) {
           continue;
         }
-
-        const Path headerPath = Path(header);
         if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
           continue;
         }
@@ -404,7 +388,7 @@ String emitMakefile(const bool debug) {
 
       defineLinkTarget(config, testTarget, testTargetDeps);
       Logger::debug(testTarget, ':');
-      for (const auto& dep : testTargetDeps) {
+      for (const String& dep : testTargetDeps) {
         Logger::debug(" '", dep, "'");
       }
 
@@ -418,7 +402,6 @@ String emitMakefile(const bool debug) {
   if (enableTesting) {
     // Target to create the tests directory.
     defineDirTarget(config, testOutDir);
-
     config.defineTarget("test", testCommands, testTargets);
     phonies.push_back("test");
   }
