@@ -284,7 +284,7 @@ String emitMakefile(const bool debug) {
   config.defineVariable("CXX", CXX);
   String cflags = "-Wall -Wextra -pedantic-errors -std=c++" + getCppEdition();
   if (shouldColor()) {
-    cflags += " -fcolor-diagnostics";
+    cflags += " -fdiagnostics-color";
   }
   if (debug) {
     cflags += " -g -O0 -DDEBUG";
