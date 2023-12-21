@@ -58,7 +58,7 @@ String getPackageName() {
     throw std::runtime_error("package name is empty");
   }
   manifest.packageName = packageName;
-  return manifest.packageName.value();
+  return packageName;
 }
 
 String getPackageEdition() {
