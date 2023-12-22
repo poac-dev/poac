@@ -1,85 +1,29 @@
 [package]
-name = "poac"
-version = "0.6.0"
-edition = 2020
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
-description = "Package Manager for C++"
+description = "A package manager and build system for C++"
+documentation = "https://doc.poac.dev"
+edition = "20"
+homepage = "https://poac.dev"
 license = "Apache-2.0"
+name = "poac"
 readme = "README.md"
 repository = "https://github.com/poac-dev/poac"
-homepage = "https://poac.dev"
-documentation = "https://doc.poac.dev"
+version = "0.6.0"
 
 [dependencies]
-"ken-matsui/termcolor2" = ">=0.1.0 and <1.0.0"
-#"ken-matsui/semver" = ">=0.1.0 and <1.0.0"
-#"ken-matsui/git2-cpp" = ">=0.1.0 and <1.0.0"
-#"ken-matsui/tar-cpp" = ">=0.1.0 and <1.0.0"
-#"ken-matsui/url-cpp" = ">=0.1.0 and <1.0.0"
-"boost/predef" = ">=1.64.0 and <2.0.0"
-#"boost/property_tree" = ">=1.64.0 and <2.0.0"
-#"boost/range" = ">=1.64.0 and <2.0.0"
-#"boost/algorithm" = ">=1.64.0 and <2.0.0"
-#"boost/foreach" = ">=1.64.0 and <2.0.0"
-#"boost/dynamic_bitset" = ">=1.64.0 and <2.0.0"
-#"boost/beast" = ">=1.64.0 and <2.0.0"
-#"ToruNiina/toml11" = ">=3.0.0 and <4.0.0"
-
-#[dev-dependencies]
-#"boost/test" = ">=1.64.0 and <2.0.0"
-
-[target.'cfg(os = "linux")'.profile]
-definitions = ["_GNU_SOURCE", "BOOST_ASIO_HAS_STD_STRING_VIEW"]
-
-[target.'cfg(os = "unix")'.profile]
-options = ["-fdiagnostics-color", "-Wall", "-Wextra", "-pthread"]
-libraries = ["dl", "ssl", "crypt"]
-
-[target.'cfg(os = "macos")'.profile]
-include-directories = ["/usr/local/opt/openssl/include"]
-link-directories = ["/usr/local/opt/openssl/lib"]
-
-[target.'cfg(compiler = "msvc")'.profile]
-definitions = ["BOOST_ASIO_HAS_STD_STRING_VIEW"]
-options = ["/W4", "/bigobj"]
-
-[target.'cfg(any(os = "cygwin", platform = "mingw"))'.profile]
-options = ["-Wa,-mbig-obj"]
-
-[target.'cfg(os = "windows")'.profile]
-libraries = ["bcrypt", "ws2_32"]
-
-[target.'cfg(os = "unix")'.profile.dev]
-options = ["-fsanitize=address"]
-
-[target.'cfg(os = "macos")'.profile.release]
-options = ["-mtune=native", "-march=native"]
-
-[target.'cfg(all(os = "macos", os_version < "10.15"))'.profile]
-compiler = "/usr/local/opt/llvm@7/bin/clang++"
-include-directories = ["/usr/local/opt/llvm@7/include"]
-link-directories = ["/usr/local/opt/llvm@7/lib"]
-
-[profile]
-libraries = ["boost_sysytem", "git2"]
+"ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf"}
 
 [profile.release]
 lto = true
 
 [lint.cpplint]
 filters = [
-    "-legal/copyright",
-    "-whitespace",
-    "+whitespace/ending_newline",
-    "-build/c++11",
-    "-build/namespaces_literals",
-    # Didn't work correctly with inline namespaces
-    # `namespace termcolor2::inline color_literals::inline foreground_literals`
-    # suggested to `namespace termcolor2::inline`
-    "-readability/namespace",
-    # Unknown NOLINT error category: bugprone-branch-clone
-    # This is for clang-tidy
-    "-readability/nolint",
-    # I believe non-const reference would be much better than a pointer.
-    "-runtime/references",
+  "-legal/copyright",
+  "-whitespace",
+  "+whitespace/ending_newline",
+  "-build/c++11",
+  "-build/namespaces_literals", # Didn't work correctly with inline namespaces  # `namespace termcolor2::inline color_literals::inline foreground_literals`  # suggested to `namespace termcolor2::inline`
+  "-readability/namespace", # Unknown NOLINT error category: bugprone-branch-clone  # This is for clang-tidy
+  "-readability/nolint", # I believe non-const reference would be much better than a pointer.
+  "-runtime/references",
 ]

@@ -1,0 +1,79 @@
+name: Linux
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  POAC_TERM_COLOR: always
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: "build & test"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - cxx: clang++
+            ver: 15
+          - cxx: clang++
+            ver: 16
+          - cxx: clang++
+            ver: 17
+          - cxx: g++
+            ver: 11
+          - cxx: g++
+            ver: 12
+          - cxx: g++
+            ver: 13
+    env:
+      CXX: ${{ matrix.compiler.cxx }}-${{ matrix.compiler.ver }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Clang
+        if: startsWith(matrix.compiler.cxx, 'clang')
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh ${{ matrix.compiler.ver }}
+
+      - name: First Generation Build
+        run: make
+
+      - name: Test the first generation
+        run: make test
+
+      - name: Second Generation Build
+        run: ./build-out/poac build --verbose
+
+      - name: Test the second generation
+        run: ./poac-out/debug/poac test --verbose
+
+      - name: Third Generation Build & Test
+        run: ./poac-out/debug/poac --verbose run --release test --verbose
+
+      - name: Create a new project with the third generation
+        run: ./poac-out/debug/poac new hello_world
+
+      - name: Run the new project
+        run: ../poac-out/debug/poac --verbose run
+        working-directory: hello_world
+
+      # - name: Print coverage
+      #   if: success() && matrix.coverage == 'on'
+      #   run: |
+      #     lcov --directory . --capture --output-file coverage.info --gcov-tool "${CC_PATH/gcc/gcov}"
+      #     lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
+      #     lcov --list coverage.info
+      #   env:
+      #     CC_PATH: /usr/bin/${{ env.CC }}

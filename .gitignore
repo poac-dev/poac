@@ -3,6 +3,7 @@
 
 # CMake
 build/
+build-out/
 
 # CLion
 .idea/
