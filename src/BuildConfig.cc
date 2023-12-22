@@ -8,13 +8,31 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 
-static String OUT_DIR = "poac-out/debug";
+static String OUT_DIR;
 static String CXX = "clang++";
 static String INCLUDES;
+
+static void setOutDir(const bool debug) {
+  if (debug) {
+    OUT_DIR = "poac-out/debug";
+  } else {
+    OUT_DIR = "poac-out/release";
+  }
+}
+
+static String getOutDir() {
+  if (OUT_DIR.empty()) {
+    throw std::runtime_error("OUT_DIR is not set");
+  }
+  return OUT_DIR;
+}
 
 struct Target {
   Vec<String> commands;
@@ -27,13 +45,10 @@ struct BuildConfig {
   HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
 
-  void
-  defineVariable(String name, String value, const Vec<String>& dependsOn = {});
-  void defineTarget(
-      String name, const Vec<String>& commands,
-      const Vec<String>& dependsOn = {}
-  );
-  void emitMakefile(std::ostream& os = std::cout) const;
+  void defineVariable(String, String, const Vec<String>& = {});
+  void defineTarget(String, const Vec<String>&, const Vec<String>& = {});
+  void emitMakefile(std::ostream& = std::cout) const;
+  void emitCompdb(StringRef, std::ostream& = std::cout) const;
 };
 
 void BuildConfig::defineVariable(
@@ -83,6 +98,11 @@ static void emitTarget(
 }
 
 void BuildConfig::emitMakefile(std::ostream& os) const {
+  // TODO: I guess we can topo-sort when calling defineVariable and
+  // defineTarget.  Then we don't need to sort here.  This way we can
+  // avoid the extra memory usage and possibly improve time complexity.
+  // The current way is simple and bug-free though.
+
   const Vec<String> sortedVars = topoSort(variables, varDeps);
   for (const String& var : sortedVars) {
     if (var == "CXX") {
@@ -108,6 +128,62 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
     }
     emitTarget(os, *itr, targets.at(*itr).dependsOn, targets.at(*itr).commands);
   }
+}
+
+void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
+  const Path baseDirPath = fs::canonical(baseDir);
+  const Vec<String> phony = targets.at(".PHONY").dependsOn;
+  const HashSet<String> phonyDeps(phony.begin(), phony.end());
+  const String firstIdent = String(2, ' ');
+  const String secondIdent = String(4, ' ');
+
+  std::stringstream ss;
+  for (const auto& [target, targetInfo] : targets) {
+    if (target == ".PHONY" || target == "all" || phonyDeps.contains(target)) {
+      // Ignore .PHONY and all targets, and phony dependencies.
+      continue;
+    }
+
+    bool isCompileTarget = false;
+    for (StringRef cmd : targetInfo.commands) {
+      if (!cmd.starts_with("$(CXX)") && !cmd.starts_with("@$(CXX)")) {
+        continue;
+      }
+      if (cmd.find("-c") == String::npos) {
+        // Ignore linking commands.
+        continue;
+      }
+      isCompileTarget = true;
+    }
+    if (!isCompileTarget) {
+      continue;
+    }
+
+    // The first dependency is the source file.
+    const String file = targetInfo.dependsOn[0];
+    // The output is the target.
+    const String output = target;
+    const String cmd = CXX + ' ' + variables.at("CFLAGS") + INCLUDES + " -c "
+                       + file + " -o " + output;
+
+    ss << firstIdent << "{\n";
+    ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
+    ss << secondIdent << "\"file\": " << std::quoted(file) << ",\n";
+    ss << secondIdent << "\"output\": " << std::quoted(output) << ",\n";
+    ss << secondIdent << "\"command\": " << std::quoted(cmd) << "\n";
+    ss << firstIdent << "},\n";
+  }
+
+  String output = ss.str();
+  if (!output.empty()) {
+    // Remove the last comma.
+    output.pop_back();
+    output.pop_back();
+  }
+
+  os << "[\n";
+  os << output << '\n';
+  os << "]\n";
 }
 
 static Vec<String> listSourceFiles(StringRef directory) {
@@ -136,7 +212,7 @@ static String exec(const char* cmd) {
 
 static String runMM(const String& sourceFile) {
   const String command =
-      "cd " + OUT_DIR + " && " + CXX + INCLUDES + " -MM " + sourceFile;
+      "cd " + getOutDir() + " && " + CXX + INCLUDES + " -MM " + sourceFile;
   return exec(command.c_str());
 }
 
@@ -160,7 +236,7 @@ parseMMOutput(const String& mmOutput, String& target, Vec<String>& deps) {
   Logger::debug("");
 }
 
-static bool isMakefileUpToDate(StringRef makefilePath) {
+static bool isUpToDate(StringRef makefilePath) {
   if (!fs::exists(makefilePath)) {
     return false;
   }
@@ -243,25 +319,20 @@ struct ObjTargetInfo {
   Vec<String> deps;
 };
 
-// Returns the directory where the Makefile is generated.
-String emitMakefile(const bool debug) {
+static BuildConfig configureBuild(const bool debug) {
   if (!fs::exists("src")) {
     throw std::runtime_error("src directory not found");
   }
   if (!fs::exists("src/main.cc")) {
     throw std::runtime_error("src/main.cc not found");
   }
-  if (!fs::exists(OUT_DIR)) {
-    fs::create_directories(OUT_DIR);
+
+  const String outDir = getOutDir();
+  if (!fs::exists(outDir)) {
+    fs::create_directories(outDir);
   }
   if (const char* cxx = std::getenv("CXX")) {
     CXX = cxx;
-  }
-
-  const String makefilePath = OUT_DIR + "/Makefile";
-  if (isMakefileUpToDate(makefilePath)) {
-    Logger::debug("Makefile is up to date");
-    return OUT_DIR;
   }
 
   const String projectName = getPackageName();
@@ -430,9 +501,41 @@ String emitMakefile(const bool debug) {
 
   config.defineTarget(".PHONY", {}, phonies);
 
+  return config;
+}
+
+/// @returns the directory where the Makefile is generated.
+String emitMakefile(const bool debug) {
+  setOutDir(debug);
+
+  const String outDir = getOutDir();
+  const String makefilePath = outDir + "/Makefile";
+  if (isUpToDate(makefilePath)) {
+    Logger::debug("Makefile is up to date");
+    return outDir;
+  }
+
+  const BuildConfig config = configureBuild(debug);
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
-  return OUT_DIR;
+  return outDir;
+}
+
+/// @returns the directory where the compilation database is generated.
+String emitCompdb(const bool debug) {
+  setOutDir(debug);
+
+  const String outDir = getOutDir();
+  const String compdbPath = outDir + "/compile_commands.json";
+  if (isUpToDate(compdbPath)) {
+    Logger::debug("compile_commands.json is up to date");
+    return outDir;
+  }
+
+  const BuildConfig config = configureBuild(debug);
+  std::ofstream ofs(compdbPath);
+  config.emitCompdb(outDir, ofs);
+  return outDir;
 }
 
 String modeString(const bool debug) {
