@@ -22,10 +22,9 @@ filters = [
   "-whitespace",
   "+whitespace/ending_newline",
   "-build/c++11",
-  "-build/namespaces_literals", # Didn't work correctly with inline namespaces  # `namespace termcolor2::inline color_literals::inline foreground_literals`  # suggested to `namespace termcolor2::inline`
-  "-readability/namespace", # Unknown NOLINT error category: bugprone-branch-clone  # This is for clang-tidy
-  "-readability/nolint", # I believe non-const reference would be much better than a pointer.
-  "-runtime/references",
+  "-build/namespaces_literals",
+  "-readability/nolint", # Unknown NOLINT error category: bugprone-branch-clone  # This is for clang-tidy
+  "-runtime/references", # non-const reference rather than a pointer
   "-readability/braces", # prioritize clang-format
   "-build/include_order", # prioritize clang-format
   "-build/include_subdir",
