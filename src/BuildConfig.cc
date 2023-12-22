@@ -179,7 +179,7 @@ static bool isMakefileUpToDate(StringRef makefilePath) {
   return true;
 }
 
-static bool containsTestCode(StringRef sourceFile) {
+static bool containsTestCode(const String& sourceFile) {
   std::ifstream ifs(sourceFile);
   String line;
   while (std::getline(ifs, line)) {
