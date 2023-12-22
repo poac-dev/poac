@@ -6,7 +6,9 @@
 #include <iostream>
 #include <span>
 
-#define POAC_VERSION "0.7.0"
+#ifndef POAC_VERSION
+#  define POAC_VERSION "0.7.0"
+#endif
 
 int versionMain(std::span<const StringRef> args) noexcept {
   // Parse args
