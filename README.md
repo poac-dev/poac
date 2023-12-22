@@ -54,7 +54,7 @@ Hello, world!
 
 |                                                                                     Linux                                                                                      |                                                                                     macOS                                                                                      |
 | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [![GitHub Actions Linux Build](https://github.com/poac-dev/poac/workflows/Linux/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22Linux%22) | [![GitHub Actions macOS Build](https://github.com/poac-dev/poac/workflows/macOS/badge.svg?branch=main)](https://github.com/poac-dev/poac/actions?query=workflow%3A%22macOS%22) |
+| [![Linux](https://github.com/poac-dev/poac/actions/workflows/linux.yml/badge.svg)](https://github.com/poac-dev/poac/actions/workflows/linux.yml) | [![macOS](https://github.com/poac-dev/poac/actions/workflows/macos.yml/badge.svg)](https://github.com/poac-dev/poac/actions/workflows/macos.yml) |
 
 ## Installation
 
