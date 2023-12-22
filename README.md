@@ -188,7 +188,7 @@ You can write tests in any source files in the `src` directory. Create files lik
 ```cpp
 #pragma once
 
-int add(int a, int b);
+int add(int, int);
 ```
 
 `src/Lib.cc`
