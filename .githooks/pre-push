@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# Run format
-poac fmt --check || exit 1
-
-# Run lint
-poac lint || exit 1
-
-exit 0
