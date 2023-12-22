@@ -13,7 +13,7 @@
 static int lint(StringRef name, StringRef cpplintArgs) {
   Logger::info("Linting", name);
 
-  String cpplintCmd = "cpplint --recursive .";
+  String cpplintCmd = "cpplint";
   cpplintCmd += cpplintArgs;
   if (!isVerbose()) {
     cpplintCmd += " --quiet";
@@ -32,6 +32,7 @@ static int lint(StringRef name, StringRef cpplintArgs) {
       cpplintCmd += line;
     }
   }
+  cpplintCmd += " --recursive ."; // This should be after `--exclude` options
 
   Logger::debug("Executing ", cpplintCmd);
   const int status = std::system(cpplintCmd.c_str());
@@ -45,9 +46,21 @@ static int lint(StringRef name, StringRef cpplintArgs) {
 
 int lintMain(std::span<const StringRef> args) {
   // Parse args
-  for (StringRef arg : args) {
+  String cpplintArgs;
+  for (usize i = 0; i < args.size(); ++i) {
+    StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({{"lint"}})
 
+    else if (arg == "--exclude") {
+      if (i + 1 >= args.size()) {
+        Logger::error("Missing argument for ", arg);
+        return EXIT_FAILURE;
+      }
+
+      ++i;
+      cpplintArgs += " --exclude=";
+      cpplintArgs += args[i];
+    }
     else {
       Logger::error("invalid argument: ", arg);
       return EXIT_FAILURE;
@@ -66,18 +79,19 @@ int lintMain(std::span<const StringRef> args) {
   const Vec<String> cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
     Logger::debug("Using Poac manifest file for lint ...");
-    String cpplintArgs = " --root=include --filter=";
+    cpplintArgs += " --root=include --filter=";
     for (StringRef filter : cpplintFilters) {
       cpplintArgs += filter;
       cpplintArgs += ',';
     }
+    // Remove last comma
+    cpplintArgs.pop_back();
     return lint(packageName, cpplintArgs);
   } else if (fs::exists("CPPLINT.cfg")) {
     Logger::debug("Using CPPLINT.cfg for lint ...");
-    return lint(packageName, "");
+    return lint(packageName, cpplintArgs);
   } else {
     Logger::debug("Using default arguments for lint ...");
-    String cpplintArgs;
     if (fs::exists("include")) {
       cpplintArgs += " --root=include";
     }
@@ -95,4 +109,5 @@ void lintHelp() noexcept {
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
+  printOption("--exclude", "", "Exclude files from linting");
 }

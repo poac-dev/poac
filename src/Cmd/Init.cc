@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <span>
+#include <string>
 
 int initMain(std::span<const StringRef> args) {
   // Parse args

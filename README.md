@@ -52,8 +52,8 @@ Hello, world!
 
 ## Supported Operating Systems
 
-|                                                                                     Linux                                                                                      |                                                                                     macOS                                                                                      |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|                                                                      Linux                                                                       |                                                                      macOS                                                                       |
+| :----------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![Linux](https://github.com/poac-dev/poac/actions/workflows/linux.yml/badge.svg)](https://github.com/poac-dev/poac/actions/workflows/linux.yml) | [![macOS](https://github.com/poac-dev/poac/actions/workflows/macos.yml/badge.svg)](https://github.com/poac-dev/poac/actions/workflows/macos.yml) |
 
 ## Installation
@@ -106,7 +106,7 @@ Once you have all the necessary requirements in place, you can proceed to build 
 ```bash
 git clone https://github.com/poac-dev/poac.git
 cd poac
-make
+make RELEASE=1
 ```
 
 Poac attempts to utilize locally installed dependencies by default. To bypass the use of local packages, you can download the required dependencies in `build-out/DEPS`.

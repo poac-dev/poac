@@ -5,12 +5,13 @@
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
+#include "./Global.hpp"
 
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <span>
+#include <string>
 
 int fmtMain(std::span<const StringRef> args) {
   bool isCheck = false;

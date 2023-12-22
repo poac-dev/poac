@@ -14,6 +14,7 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 static String OUT_DIR;
 static String CXX = "clang++";
@@ -553,8 +554,6 @@ String getMakeCommand() {
 #ifdef POAC_TEST
 
 #  include <cassert>
-#  include <sstream>
-#  include <stdexcept>
 
 void test_cycle_vars() {
   BuildConfig config;
