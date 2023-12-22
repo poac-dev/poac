@@ -109,8 +109,6 @@ cd poac
 make RELEASE=1 install
 ```
 
-Poac attempts to utilize locally installed dependencies by default. To bypass the use of local packages, you can download the required dependencies in `build-out/DEPS`.
-
 ## Usage
 
 ### Start a new project with Poac
