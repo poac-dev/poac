@@ -46,21 +46,16 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           poac fmt --check --verbose
 
-  # lint:
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - uses: actions/checkout@v4
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Install Poac
-  #       run: |
-  #         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  #         brew update
-  #         brew install poac
+      - name: Build Poac
+        run: make RELEASE=1
 
-  #     - name: Install cpplint
-  #       run: pip install cpplint
+      - name: Install cpplint
+        run: pip install cpplint
 
-  #     - name: Run lint
-  #       run: |
-  #         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  #         poac lint --verbose
+      - name: Run lint
+        run: ./build-out/poac lint --verbose --exclude srcOld --exclude testsOld

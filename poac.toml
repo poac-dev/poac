@@ -26,4 +26,8 @@ filters = [
   "-readability/namespace", # Unknown NOLINT error category: bugprone-branch-clone  # This is for clang-tidy
   "-readability/nolint", # I believe non-const reference would be much better than a pointer.
   "-runtime/references",
+  "-readability/braces", # prioritize clang-format
+  "-build/include_order", # prioritize clang-format
+  "-build/include_subdir",
+  "-readability/todo",
 ]

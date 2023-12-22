@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rustify.hpp"
+#include "./Rustify.hpp"
 
 enum class ColorMode {
   always,

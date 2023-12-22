@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>

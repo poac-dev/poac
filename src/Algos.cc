@@ -2,7 +2,9 @@
 
 #include "Rustify.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <utility>
 
 // O(M) where M is the length of the word.
 void trieInsert(TrieNode& root, StringRef word) {
