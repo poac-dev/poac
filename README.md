@@ -95,7 +95,7 @@ If your environment is not included in the released packages, you have to constr
 
 #### libraries
 
-When running Make, the following libraries will be installed automatically. Therefore, there is usually no need to be concerned about them. (click here to view additional dependencies.)
+When running Make, the following libraries will be installed automatically. There is usually no need to be concerned about these.
 
 * [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
   * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
@@ -178,6 +178,48 @@ Downloaded ToruNiina/toml11 846abd9a49082fe51440aa07005c360f13a67bbf
 > [!WARNING]
 > Poac currently supports building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
+
+### Run tests
+
+You can write tests in any source files in the `src` directory. Create files like:
+
+`src/Lib.hpp`
+
+```cpp
+#pragma once
+
+int add(int a, int b);
+```
+
+`src/Lib.cc`
+
+```cpp
+#include "Lib.hpp"
+
+int add(int a, int b) {
+  return a + b;
+}
+
+#ifdef POAC_TEST
+
+#  include <cassert>
+
+int main() {
+  assert(add(1, 2) == 3);
+}
+
+#endif
+```
+
+Now, with the `test` command, you can run tests defined within `POAC_TEST`:
+
+```console
+you:~/hello_world$ poac test
+ Compiling src/Lib.cc
+   Linking tests/test_Lib
+   Testing Lib
+  Finished debug test(s) in 0.565934s
+```
 
 ### Run linter
 
