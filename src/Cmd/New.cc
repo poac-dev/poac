@@ -1,6 +1,7 @@
 #include "New.hpp"
 
 #include "../Logger.hpp"
+#include "../Rustify.hpp"
 #include "Global.hpp"
 
 #include <fstream>
@@ -14,27 +15,35 @@ static inline constexpr StringRef mainCc =
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
-String getPoacToml(const String& projectName) noexcept {
-  return
+String getPoacToml(StringRef projectName) noexcept {
+  String poacToml =
       "[package]\n"
-      "name = \"" + projectName + "\"\n"
+      "name = \"";
+  poacToml += projectName;
+  poacToml +=
+      "\"\n"
       "version = \"0.1.0\"\n"
       "authors = []\n"
       "edition = \"20\"\n";
+  return poacToml;
 }
 
-static String getHeader(const String& projectName) noexcept {
-  String projectNameUpperCased{};
+static String getHeader(StringRef projectName) noexcept {
+  String projectNameUpper{};
   std::transform(
       projectName.cbegin(), projectName.cend(),
-      std::back_inserter(projectNameUpperCased), ::toupper
+      std::back_inserter(projectNameUpper), ::toupper
   );
 
-  return
-      "#ifndef " + projectNameUpperCased + "_HPP\n"
-      "#define " + projectNameUpperCased + "_HPP\n\n"
-      "namespace " + projectName + " {\n}\n\n"
-      "#endif // !" + projectNameUpperCased + "_HPP\n";
+  String header = "#ifndef " + projectNameUpper + "_HPP\n"
+                  "#define " + projectNameUpper + "_HPP\n\n"
+                  "namespace ";
+  header += projectName;
+  header +=
+      " {\n}\n\n"
+      "#endif // !"
+      + projectNameUpper + "_HPP\n";
+  return header;
 }
 
 static void writeToFile(std::ofstream& ofs, const Path& fpath, StringRef text) {
@@ -50,29 +59,28 @@ static void writeToFile(std::ofstream& ofs, const Path& fpath, StringRef text) {
   ofs.clear();
 }
 
-static void createTemplateFiles(const bool isBin, const Path& projectName) {
+static void createTemplateFiles(const bool isBin, StringRef projectName) {
   std::ofstream ofs;
 
   if (isBin) {
-    fs::create_directories(projectName / "src");
-    writeToFile(ofs, projectName / "poac.toml", getPoacToml(projectName));
-    writeToFile(ofs, projectName / ".gitignore", "/poac-out");
-    writeToFile(ofs, projectName / "src" / "main.cc", mainCc);
+    fs::create_directories(projectName / "src"_path);
+    writeToFile(ofs, projectName / "poac.toml"_path, getPoacToml(projectName));
+    writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out");
+    writeToFile(ofs, projectName / "src"_path / "main.cc", mainCc);
 
-    Logger::info(
-        "Created", "binary (application) `", projectName.string(), "` package"
-    );
+    Logger::info("Created", "binary (application) `", projectName, "` package");
   } else {
-    fs::create_directories(projectName / "include" / projectName);
-    writeToFile(ofs, projectName / "poac.toml", getPoacToml(projectName));
-    writeToFile(ofs, projectName / ".gitignore", "/poac-out\npoac.lock");
+    fs::create_directories(projectName / "include"_path / projectName);
+    writeToFile(ofs, projectName / "poac.toml"_path, getPoacToml(projectName));
+    writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out\npoac.lock");
     writeToFile(
         ofs,
-        (projectName / "include" / projectName / projectName).string() + ".hpp",
+        (projectName / "include"_path / projectName / projectName).string()
+            + ".hpp",
         getHeader(projectName)
     );
 
-    Logger::info("Created", "library `", projectName.string(), "` package");
+    Logger::info("Created", "library `", projectName, "` package");
   }
 }
 

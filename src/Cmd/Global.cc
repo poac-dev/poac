@@ -55,6 +55,9 @@ void printGlobalOpts() noexcept {
   }
 }
 
-bool commandExists(const String& cmd) noexcept {
-  return std::system(("command -v " + cmd + " >/dev/null 2>&1").c_str()) == 0;
+bool commandExists(StringRef cmd) noexcept {
+  String checkCmd = "command -v ";
+  checkCmd += cmd;
+  checkCmd += " >/dev/null 2>&1";
+  return std::system(checkCmd.c_str()) == 0;
 }

@@ -110,7 +110,7 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
   }
 }
 
-static Vec<String> listSourceFiles(const String& directory) {
+static Vec<String> listSourceFiles(StringRef directory) {
   Vec<String> sourceFiles;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
@@ -160,7 +160,7 @@ parseMMOutput(const String& mmOutput, String& target, Vec<String>& deps) {
   Logger::debug("");
 }
 
-static bool isMakefileUpToDate(const String& makefilePath) {
+static bool isMakefileUpToDate(StringRef makefilePath) {
   if (!fs::exists(makefilePath)) {
     return false;
   }
@@ -179,7 +179,7 @@ static bool isMakefileUpToDate(const String& makefilePath) {
   return true;
 }
 
-static bool containsTestCode(const String& sourceFile) {
+static bool containsTestCode(StringRef sourceFile) {
   std::ifstream ifs(sourceFile);
   String line;
   while (std::getline(ifs, line)) {

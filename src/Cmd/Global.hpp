@@ -31,4 +31,4 @@ void printOption(StringRef, StringRef, StringRef, StringRef = "") noexcept;
 void printCommand(StringRef, StringRef) noexcept;
 void printGlobalOpts() noexcept;
 
-bool commandExists(const String&) noexcept;
+bool commandExists(StringRef) noexcept;
