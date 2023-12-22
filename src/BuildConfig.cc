@@ -5,6 +5,7 @@
 #include "Manifest.hpp"
 #include "TermColor.hpp"
 
+#include <algorithm>
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -19,6 +20,7 @@
 static String OUT_DIR;
 static String CXX = "clang++";
 static String INCLUDES;
+static String DEFINES;
 
 static void setOutDir(const bool debug) {
   if (debug) {
@@ -164,8 +166,8 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     const String file = targetInfo.dependsOn[0];
     // The output is the target.
     const String output = target;
-    const String cmd = CXX + ' ' + variables.at("CFLAGS") + INCLUDES + " -c "
-                       + file + " -o " + output;
+    const String cmd = CXX + ' ' + variables.at("CFLAGS") + DEFINES + INCLUDES
+                       + " -c " + file + " -o " + output;
 
     ss << firstIdent << "{\n";
     ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
@@ -212,8 +214,8 @@ static String exec(const char* cmd) {
 }
 
 static String runMM(const String& sourceFile) {
-  const String command =
-      "cd " + getOutDir() + " && " + CXX + INCLUDES + " -MM " + sourceFile;
+  const String command = "cd " + getOutDir() + " && " + CXX + DEFINES + INCLUDES
+                         + " -MM " + sourceFile;
   return exec(command.c_str());
 }
 
@@ -293,7 +295,7 @@ static void defineCompileTarget(
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
 
-  const String compileCmd = "$(CXX) $(CFLAGS) $(INCLUDES)";
+  const String compileCmd = "$(CXX) $(CFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
     commands[1] = buildCmd(compileCmd + " -DPOAC_TEST -c $< -o $@");
   } else {
@@ -336,12 +338,12 @@ static BuildConfig configureBuild(const bool debug) {
     CXX = cxx;
   }
 
-  const String projectName = getPackageName();
+  const String packageName = getPackageName();
   const String pathFromOutDir = "../../";
 
   BuildConfig config;
 
-  // Compiler settings
+  // Variables
   config.defineVariable("CXX", CXX);
   String cflags =
       "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
@@ -354,6 +356,15 @@ static BuildConfig configureBuild(const bool debug) {
     cflags += " -O3 -DNDEBUG";
   }
   config.defineVariable("CFLAGS", cflags);
+
+  String packageNameUpper = packageName;
+  std::transform(
+      packageNameUpper.begin(), packageNameUpper.end(),
+      packageNameUpper.begin(), ::toupper
+  );
+  DEFINES =
+      " -D" + packageNameUpper + "_VERSION='\"" + getPackageVersion() + "\"'";
+  config.defineVariable("DEFINES", DEFINES);
 
   const Vec<Path> deps = installGitDependencies();
   for (const Path& dep : deps) {
@@ -369,11 +380,11 @@ static BuildConfig configureBuild(const bool debug) {
   config.defineVariable("INCLUDES", INCLUDES);
 
   // Build rules
-  const String buildOutDir = projectName + ".d";
+  const String buildOutDir = packageName + ".d";
   defineDirTarget(config, buildOutDir);
 
   Vec<String> phonies = {"all"};
-  config.defineTarget("all", {}, {projectName});
+  config.defineTarget("all", {}, {packageName});
 
   const Vec<String> sourceFiles = listSourceFiles("src");
   Vec<String> buildObjTargets;
@@ -408,7 +419,7 @@ static BuildConfig configureBuild(const bool debug) {
     buildObjTargets.push_back(buildObjTarget);
     defineCompileTarget(config, buildObjTarget, buildTargetDeps);
   }
-  defineLinkTarget(config, projectName, buildObjTargets);
+  defineLinkTarget(config, packageName, buildObjTargets);
 
   // Targets for testing.
   bool enableTesting = false;
