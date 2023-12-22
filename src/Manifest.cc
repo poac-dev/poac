@@ -38,6 +38,7 @@ public:
   Option<toml::value> data = None;
   Option<String> packageName = None;
   Option<String> packageEdition = None;
+  Option<String> packageVersion = None;
 
 private:
   Manifest() noexcept = default;
@@ -96,6 +97,21 @@ u16 editionToYear(StringRef edition) {
     return 2026;
   }
   throw std::runtime_error("invalid edition: " + String(edition));
+}
+
+String getPackageVersion() {
+  Manifest& manifest = Manifest::instance();
+  if (manifest.packageVersion.has_value()) {
+    return manifest.packageVersion.value();
+  }
+
+  const String version =
+      toml::find<String>(manifest.data.value(), "package", "version");
+  if (version.empty()) {
+    throw std::runtime_error("package version is empty");
+  }
+  manifest.packageVersion = version;
+  return version;
 }
 
 Vec<String> getLintCpplintFilters() {

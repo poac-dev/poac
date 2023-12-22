@@ -7,7 +7,7 @@
 #include <span>
 
 #ifndef POAC_VERSION
-#  define POAC_VERSION "0.7.0"
+#  error "POAC_VERSION is not defined"
 #endif
 
 int versionMain(std::span<const StringRef> args) noexcept {
