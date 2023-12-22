@@ -312,12 +312,12 @@ poac lint
 poac fmt
 ```
 
-#### Build with `clang-tidy`
+<!-- #### Build with `clang-tidy`
 
 Follow the instruction at [Build from source](#build-from-source).
 
 These are also done when pre-push as specified in [`.githooks/pre-push`](/.githooks/pre-push).
-In case you would skip these hooks, use the [`--no-verify`](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---no-verify) option.
+In case you would skip these hooks, use the [`--no-verify`](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---no-verify) option. -->
 
 ---
 
