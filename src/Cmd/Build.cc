@@ -27,8 +27,9 @@ int buildImpl(const bool isDebug, String& outDir) {
 }
 
 int buildMain(std::span<const StringRef> args) {
-  bool isDebug = true;
   // Parse args
+  bool isDebug = true;
+  bool buildCompdb = false;
   for (StringRef arg : args) {
     HANDLE_GLOBAL_OPTS({{"build"}}) // workaround for std::span until C++26
 
@@ -38,14 +39,24 @@ int buildMain(std::span<const StringRef> args) {
     else if (arg == "-r" || arg == "--release") {
       isDebug = false;
     }
+    else if (arg == "--compdb") {
+      buildCompdb = true;
+    }
     else {
       Logger::error("Unknown argument: ", arg);
       return EXIT_FAILURE;
     }
   }
 
-  String outDir;
-  return buildImpl(isDebug, outDir);
+  if (!buildCompdb) {
+    String outDir;
+    return buildImpl(isDebug, outDir);
+  }
+
+  // Build compilation database
+  const String outDir = emitCompdb(isDebug);
+  Logger::info("Generated", outDir, "/compile_commands.json");
+  return EXIT_SUCCESS;
 }
 
 void buildHelp() noexcept {
@@ -57,4 +68,7 @@ void buildHelp() noexcept {
   printGlobalOpts();
   printOption("--debug", "-d", "Build with debug information [default]");
   printOption("--release", "-r", "Build with optimizations");
+  printOption(
+      "--compdb", "", "Generate compilation database instead of building"
+  );
 }
