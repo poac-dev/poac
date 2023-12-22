@@ -12,7 +12,7 @@
 
 static inline constexpr StringRef mainCc =
     "#include <iostream>\n\n"
-    "int main(int argc, char** argv) {\n"
+    "int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {\n"
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
