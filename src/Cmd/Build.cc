@@ -68,5 +68,7 @@ void buildHelp() noexcept {
   printGlobalOpts();
   printOption("--debug", "-d", "Build with debug information [default]");
   printOption("--release", "-r", "Build with optimizations");
-  printOption("--compdb", "", "Emit compilation database to stdout");
+  printOption(
+      "--compdb", "", "Generate compilation database instead of building"
+  );
 }
