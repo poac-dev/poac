@@ -37,7 +37,7 @@ static int lint(StringRef name, StringRef cpplintArgs) {
   const int status = std::system(cpplintCmd.c_str());
   const int exitCode = status >> 8;
   if (exitCode != 0) {
-    Logger::error("cpplint exited with status ", exitCode);
+    Logger::error("`cpplint` exited with status ", exitCode);
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
