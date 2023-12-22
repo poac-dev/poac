@@ -4,14 +4,15 @@
 #include "Global.hpp"
 
 #include <iostream>
+#include <span>
 
-int cleanMain(Vec<String> args) noexcept {
+int cleanMain(std::span<const StringRef> args) noexcept {
   Path outDir = "poac-out";
 
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({"clean"})
+    HANDLE_GLOBAL_OPTS({{"clean"}})
 
     else if (arg == "-p" || arg == "--profile") {
       if (i + 1 >= args.size()) {
@@ -35,7 +36,7 @@ int cleanMain(Vec<String> args) noexcept {
   }
 
   if (fs::exists(outDir)) {
-    Logger::status("Removing", fs::canonical(outDir).string());
+    Logger::info("Removing", fs::canonical(outDir).string());
     fs::remove_all(outDir);
   }
   return EXIT_SUCCESS;

@@ -6,12 +6,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <span>
 
-int initMain(Vec<String> args) {
+int initMain(std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
   for (StringRef arg : args) {
-    HANDLE_GLOBAL_OPTS({"init"})
+    HANDLE_GLOBAL_OPTS({{"init"}})
 
     else if (arg == "-b" || arg == "--bin") {
       isBin = true;
@@ -38,7 +39,7 @@ int initMain(Vec<String> args) {
   std::ofstream ofs("poac.toml");
   ofs << getPoacToml(packageName);
 
-  Logger::status(
+  Logger::info(
       "Created", isBin ? "binary (application) `" : "library `", packageName,
       "` package"
   );

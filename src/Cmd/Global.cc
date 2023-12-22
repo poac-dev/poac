@@ -3,6 +3,7 @@
 #include "../Rustify.hpp"
 #include "../TermColor.hpp"
 
+#include <cstdlib>
 #include <iostream>
 
 void printHeader(StringRef header) noexcept {
@@ -52,4 +53,8 @@ void printGlobalOpts() noexcept {
   for (const auto& [lng, shrt, desc] : GLOBAL_OPT_HELPS) {
     printOption(lng, shrt, desc);
   }
+}
+
+bool commandExists(const String& cmd) noexcept {
+  return std::system(("command -v " + cmd + " >/dev/null 2>&1").c_str()) == 0;
 }

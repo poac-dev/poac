@@ -10,16 +10,13 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <span>
 
-bool commandExists(const String& cmd) noexcept {
-  return std::system(("command -v " + cmd + " >/dev/null 2>&1").c_str()) == 0;
-}
-
-int fmtMain(Vec<String> args) {
+int fmtMain(std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
   for (StringRef arg : args) {
-    HANDLE_GLOBAL_OPTS({"fmt"})
+    HANDLE_GLOBAL_OPTS({{"fmt"}})
 
     else if (arg == "--check") {
       isCheck = true;
@@ -47,7 +44,7 @@ int fmtMain(Vec<String> args) {
     clangFormatArgs += " --dry-run";
   } else {
     clangFormatArgs += " -i";
-    Logger::status("Formatting", packageName);
+    Logger::info("Formatting", packageName);
   }
 
   // Read .gitignore if exists
@@ -56,6 +53,10 @@ int fmtMain(Vec<String> args) {
     std::ifstream ifs(".gitignore");
     String line;
     while (std::getline(ifs, line)) {
+      if (line.empty() || line[0] == '#') {
+        continue;
+      }
+
       trieInsert(root, line);
     }
   }

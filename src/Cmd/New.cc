@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <span>
 #include <stdexcept>
 
 static inline constexpr StringRef mainCc =
@@ -58,7 +59,7 @@ static void createTemplateFiles(const bool isBin, const Path& projectName) {
     writeToFile(ofs, projectName / ".gitignore", "/poac-out");
     writeToFile(ofs, projectName / "src" / "main.cc", mainCc);
 
-    Logger::status(
+    Logger::info(
         "Created", "binary (application) `", projectName.string(), "` package"
     );
   } else {
@@ -71,7 +72,7 @@ static void createTemplateFiles(const bool isBin, const Path& projectName) {
         getHeader(projectName)
     );
 
-    Logger::status("Created", "library `", projectName.string(), "` package");
+    Logger::info("Created", "library `", projectName.string(), "` package");
   }
 }
 
@@ -216,13 +217,13 @@ bool verifyPackageName(StringRef name) noexcept {
   return true;
 }
 
-int newMain(Vec<String> args) {
+int newMain(std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
   String packageName;
   for (usize i = 0; i < args.size(); ++i) {
-    String arg = args[i];
-    HANDLE_GLOBAL_OPTS({"new"})
+    StringRef arg = args[i];
+    HANDLE_GLOBAL_OPTS({{"new"}})
 
     else if (arg == "-b" || arg == "--bin") {
       isBin = true;

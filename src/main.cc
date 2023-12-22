@@ -5,6 +5,7 @@
 #include "Cmd/Global.hpp"
 #include "Cmd/Help.hpp"
 #include "Cmd/Init.hpp"
+#include "Cmd/Lint.hpp"
 #include "Cmd/New.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
@@ -16,10 +17,11 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <span>
 #include <stdexcept>
 
 struct Cmd {
-  Fn<int(Vec<String>)> main;
+  Fn<int(std::span<const StringRef>)> main;
   Fn<void()> help;
   StringRef desc;
 };
@@ -32,9 +34,9 @@ struct Cmd {
   }
 
 static inline const HashMap<StringRef, Cmd> CMDS = {
-    DEFINE_CMD(help), DEFINE_CMD(build),   DEFINE_CMD(test),
-    DEFINE_CMD(run),  DEFINE_CMD(new),     DEFINE_CMD(clean),
-    DEFINE_CMD(init), DEFINE_CMD(version), DEFINE_CMD(fmt),
+    DEFINE_CMD(help), DEFINE_CMD(build), DEFINE_CMD(test), DEFINE_CMD(run),
+    DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
+    DEFINE_CMD(fmt),  DEFINE_CMD(lint),
 };
 
 void noSuchCommand(StringRef arg) {
@@ -54,10 +56,10 @@ void noSuchCommand(StringRef arg) {
   );
 }
 
-int helpMain(Vec<String> args) noexcept {
+int helpMain(std::span<const StringRef> args) noexcept {
   // Parse args
   for (StringRef arg : args) {
-    HANDLE_GLOBAL_OPTS({"help"})
+    HANDLE_GLOBAL_OPTS({{"help"}})
 
     else if (CMDS.contains(arg)) {
       CMDS.at(arg).help();
@@ -121,7 +123,7 @@ int main(int argc, char* argv[]) {
     // Subcommands
     else if (CMDS.contains(arg)) {
       try {
-        const Vec<String> cmd_args(argv + i + 1, argv + argc);
+        const Vec<StringRef> cmd_args(argv + i + 1, argv + argc);
         return CMDS.at(arg).main(cmd_args);
       } catch (const std::exception& e) {
         Logger::error(e.what());

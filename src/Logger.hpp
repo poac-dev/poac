@@ -11,7 +11,7 @@ enum class LogLevel : u8 {
   off = 0, // --quiet
   error = 1,
   warning = 2,
-  status = 3, // default
+  info = 3, // default
   debug = 4 // --verbose
 };
 
@@ -30,9 +30,9 @@ public:
     logln(std::cout, LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename T, typename... Args>
-  static void status(T&& header, Args&&... message) noexcept {
+  static void info(T&& header, Args&&... message) noexcept {
     logln(
-        std::cout, LogLevel::status, std::forward<T>(header),
+        std::cout, LogLevel::info, std::forward<T>(header),
         std::forward<Args>(message)...
     );
   }
@@ -62,40 +62,38 @@ public:
   void logImpl(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) noexcept {
-    // For other than `status`, header means just the first argument.  For
-    // `status`, header means its header.
+    // For other than `info`, header means just the first argument.  For
+    // `info`, header means its header.
 
     if (messageLevel <= level) {
       switch (messageLevel) {
         case LogLevel::off:
-          break;
+          return;
         case LogLevel::error:
           os << bold(red("Error: ")) << std::forward<T>(header);
-          (os << ... << std::forward<Args>(message));
           break;
         case LogLevel::warning:
           os << bold(yellow("Warning: ")) << std::forward<T>(header);
-          (os << ... << std::forward<Args>(message));
           break;
-        case LogLevel::status:
+        case LogLevel::info:
           if (shouldColor()) {
             os << std::right << std::setw(27)
                << bold(green(std::forward<T>(header))) << ' ';
           } else {
             os << std::right << std::setw(12) << std::forward<T>(header) << ' ';
           }
-          (os << ... << std::forward<Args>(message));
           break;
         case LogLevel::debug:
           os << "[Poac] " << std::forward<T>(header);
-          (os << ... << std::forward<Args>(message));
           break;
       }
+      (os << ... << std::forward<Args>(message));
+      os << std::flush;
     }
   }
 
 private:
-  LogLevel level = LogLevel::status;
+  LogLevel level = LogLevel::info;
 
   Logger() noexcept = default;
 

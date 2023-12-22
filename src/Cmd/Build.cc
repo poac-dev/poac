@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <span>
 
 int buildImpl(const bool isDebug, String& outDir) {
   const auto start = std::chrono::steady_clock::now();
@@ -18,18 +19,18 @@ int buildImpl(const bool isDebug, String& outDir) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
-    Logger::status(
+    Logger::info(
         "Finished", modeString(isDebug), " target(s) in ", elapsed.count(), "s"
     );
   }
   return exitCode;
 }
 
-int buildMain(Vec<String> args) {
+int buildMain(std::span<const StringRef> args) {
   bool isDebug = true;
   // Parse args
   for (StringRef arg : args) {
-    HANDLE_GLOBAL_OPTS({"build"})
+    HANDLE_GLOBAL_OPTS({{"build"}}) // workaround for std::span until C++26
 
     else if (arg == "-d" || arg == "--debug") {
       isDebug = true;

@@ -56,7 +56,7 @@ void BuildConfig::defineTarget(
   }
 }
 
-void emitTarget(
+static void emitTarget(
     std::ostream& os, StringRef target, const Vec<String>& dependsOn,
     const Vec<String>& commands = {}
 ) {
@@ -210,13 +210,13 @@ static void defineCompileTarget(
 ) {
   std::ostringstream oss;
   Logger::log(
-      oss, LogLevel::status, "Compiling", deps[0].substr(6) // remove "../../"
+      oss, LogLevel::info, "Compiling", deps[0].substr(6) // remove "../../"
   );
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
 
-  const String compileCmd = "$(CXX) $(CFLAGS)" + INCLUDES;
+  const String compileCmd = "$(CXX) $(CFLAGS) $(INCLUDES)";
   if (isTest) {
     commands[1] = buildCmd(compileCmd + " -DPOAC_TEST -c $< -o $@");
   } else {
@@ -229,7 +229,7 @@ static void defineLinkTarget(
     BuildConfig& config, const String& binTarget, const Vec<String>& deps
 ) {
   std::ostringstream oss;
-  Logger::log(oss, LogLevel::status, "Linking", binTarget);
+  Logger::log(oss, LogLevel::info, "Linking", binTarget);
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
@@ -264,17 +264,6 @@ String emitMakefile(const bool debug) {
     return OUT_DIR;
   }
 
-  const Vec<Path> deps = installGitDependencies();
-  for (const Path& dep : deps) {
-    const Path includeDir = dep / "include";
-    if (fs::exists(includeDir) && fs::is_directory(includeDir)) {
-      INCLUDES += " -I" + includeDir.string();
-    } else {
-      INCLUDES += " -I" + dep.string();
-    }
-  }
-  Logger::debug("INCLUDES: ", INCLUDES);
-
   const String projectName = getPackageName();
   const String pathFromOutDir = "../../";
 
@@ -293,6 +282,19 @@ String emitMakefile(const bool debug) {
     cflags += " -O3 -DNDEBUG";
   }
   config.defineVariable("CFLAGS", cflags);
+
+  const Vec<Path> deps = installGitDependencies();
+  for (const Path& dep : deps) {
+    const Path includeDir = dep / "include";
+    if (fs::exists(includeDir) && fs::is_directory(includeDir)
+        && !fs::is_empty(includeDir)) {
+      INCLUDES += " -I" + includeDir.string();
+    } else {
+      INCLUDES += " -I" + dep.string();
+    }
+  }
+  Logger::debug("INCLUDES: ", INCLUDES);
+  config.defineVariable("INCLUDES", INCLUDES);
 
   // Build rules
   const String buildOutDir = projectName + ".d";
@@ -413,7 +415,7 @@ String emitMakefile(const bool debug) {
       }
 
       std::ostringstream oss;
-      Logger::log(oss, LogLevel::status, "Testing", testTargetName);
+      Logger::log(oss, LogLevel::info, "Testing", testTargetName);
       testCommands.push_back("@echo '" + oss.str() + "'");
       testCommands.push_back(buildCmd(testTarget));
       testTargets.push_back(testTarget);

@@ -2,7 +2,9 @@
 
 #include "../Rustify.hpp"
 
+#include <span>
+
 static inline constexpr StringRef cleanDesc = "Remove the built directory";
 
-int cleanMain(Vec<String>) noexcept;
+int cleanMain(std::span<const StringRef>) noexcept;
 void cleanHelp() noexcept;

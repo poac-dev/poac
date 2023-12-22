@@ -8,14 +8,15 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <span>
 
-int runMain(Vec<String> args) {
+int runMain(std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   String runArgs;
   for (usize i = 0; i < args.size(); ++i) {
-    String arg = args[i];
-    HANDLE_GLOBAL_OPTS({"run"})
+    StringRef arg = args[i];
+    HANDLE_GLOBAL_OPTS({{"run"}})
 
     else if (arg == "-d" || arg == "--debug") {
       isDebug = true;
@@ -24,7 +25,7 @@ int runMain(Vec<String> args) {
       isDebug = false;
     }
     else {
-      runArgs += " " + arg;
+      runArgs += " " + String(arg);
     }
   }
 
@@ -35,7 +36,7 @@ int runMain(Vec<String> args) {
 
   const String projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
-  Logger::status("Running", command);
+  Logger::info("Running", command);
   const int status = std::system(command.c_str());
   const int exitCode = status >> 8;
   return exitCode;

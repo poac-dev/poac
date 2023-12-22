@@ -4,11 +4,12 @@
 #include "Global.hpp"
 
 #include <iostream>
+#include <span>
 
-int versionMain(Vec<String> args) noexcept {
+int versionMain(std::span<const StringRef> args) noexcept {
   // Parse args
   for (StringRef arg : args) {
-    HANDLE_GLOBAL_OPTS({"version"})
+    HANDLE_GLOBAL_OPTS({{"version"}})
 
     else {
       Logger::error("invalid argument: ", arg);

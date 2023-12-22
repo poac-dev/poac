@@ -12,9 +12,9 @@ struct TrieNode {
   HashMap<char, std::unique_ptr<TrieNode>> children;
   bool isEndOfWord = false;
 };
-void trieInsert(TrieNode& root, StringRef word);
-bool trieSearch(const TrieNode& root, StringRef word);
-bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word);
+void trieInsert(TrieNode&, StringRef);
+bool trieSearch(const TrieNode&, StringRef);
+bool trieSearchFromAnyPosition(const TrieNode&, StringRef);
 
 template <typename T>
 Vec<String> topoSort(

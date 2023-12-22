@@ -76,6 +76,38 @@ String getPackageEdition() {
   throw std::runtime_error("invalid edition: " + edition);
 }
 
+u16 editionToYear(StringRef edition) {
+  if (edition == "98") {
+    return 1998;
+  } else if (edition == "03") {
+    return 2003;
+  } else if (edition == "0x" || edition == "11") {
+    return 2011;
+  } else if (edition == "1y" || edition == "14") {
+    return 2014;
+  } else if (edition == "1z" || edition == "17") {
+    return 2017;
+  } else if (edition == "2a" || edition == "20") {
+    return 2020;
+  } else if (edition == "2b" || edition == "23") {
+    return 2023;
+  } else if (edition == "2c") {
+    return 2026;
+  }
+  throw std::runtime_error("invalid edition: " + String(edition));
+}
+
+Vec<String> getLintCpplintFilters() {
+  Manifest& manifest = Manifest::instance();
+  const auto& table = toml::get<toml::table>(*manifest.data);
+  if (!table.contains("lint")) {
+    return {};
+  }
+  return toml::find_or<Vec<String>>(
+      *manifest.data, "lint", "cpplint", "filters", Vec<String>{}
+  );
+}
+
 static Path getXdgCacheHome() {
   if (const char* env_p = std::getenv("XDG_CACHE_HOME")) {
     return env_p;
@@ -145,7 +177,7 @@ Vec<Path> installGitDependencies() {
             );
           }
 
-          Logger::status(
+          Logger::info(
               "Downloaded", dep.first, ' ', target.empty() ? gitUrlStr : target
           );
           gitDeps.push_back(installDir);

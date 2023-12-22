@@ -6,12 +6,13 @@
 
 #include <chrono>
 #include <iostream>
+#include <span>
 
-int testMain(Vec<String> args) {
+int testMain(std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   for (StringRef arg : args) {
-    HANDLE_GLOBAL_OPTS({"test"})
+    HANDLE_GLOBAL_OPTS({{"test"}})
 
     else if (arg == "-d" || arg == "--debug") {
       isDebug = true;
@@ -37,7 +38,7 @@ int testMain(Vec<String> args) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
-    Logger::status(
+    Logger::info(
         "Finished", modeString(isDebug), " test(s) in ", elapsed.count(), "s"
     );
   }
