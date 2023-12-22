@@ -106,7 +106,7 @@ Once you have all the necessary requirements in place, you can proceed to build 
 ```bash
 git clone https://github.com/poac-dev/poac.git
 cd poac
-make RELEASE=1
+make RELEASE=1 install
 ```
 
 Poac attempts to utilize locally installed dependencies by default. To bypass the use of local packages, you can download the required dependencies in `build-out/DEPS`.
