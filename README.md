@@ -186,9 +186,12 @@ You can write tests in any source files in the `src` directory. Create files lik
 `src/Lib.hpp`
 
 ```cpp
-#pragma once
+#ifndef HELLO_WORLD_LIB_HPP
+#define HELLO_WORLD_LIB_HPP
 
 int add(int, int);
+
+#endif // HELLO_WORLD_LIB_HPP
 ```
 
 `src/Lib.cc`
