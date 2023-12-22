@@ -27,7 +27,7 @@ Please visit [poac.dev](https://poac.dev) and [The Poac Book](https://doc.poac.d
 
 By using Poac, you can create a C++ project, build sources, and execute an application:
 
-![demo](https://user-images.githubusercontent.com/26405363/169694620-2e3f769e-c6c5-4e6a-a645-e5bae226a8cb.gif)
+![demo](https://github.com/poac-dev/poac/assets/26405363/4486b424-e5a1-435e-a83e-fcd939bdaef0)
 
 ## Hello World
 
