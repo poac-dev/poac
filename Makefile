@@ -1,5 +1,7 @@
-# Compiler settings
 CXX ?= clang++
+PREFIX ?= /usr/local
+INSTALL ?= install
+
 DEBUG_FLAGS = -g -O0 -DDEBUG
 RELEASE_FLAGS = -O3 -DNDEBUG
 CFLAGS = -Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20
@@ -11,14 +13,19 @@ endif
 
 OUT_DIR = build-out
 PROJ_NAME = $(OUT_DIR)/poac
+VERSION = $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 
 
-.PHONY: all clean test
+.PHONY: all clean install test
 
 all: $(OUT_DIR) $(OUT_DIR)/Cmd $(PROJ_NAME)
 
 clean:
 	rm -rf $(OUT_DIR)
+
+install: all
+	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 0755 $(PROJ_NAME) $(DESTDIR)$(PREFIX)/bin
 
 $(OUT_DIR)/DEPS/toml11: $(OUT_DIR)/DEPS
 	git clone https://github.com/ToruNiina/toml11.git $@
@@ -88,7 +95,7 @@ $(OUT_DIR)/Cmd/Lint.o: src/Cmd/Lint.cc src/Cmd/Lint.hpp src/Rustify.hpp \
 
 $(OUT_DIR)/Cmd/Version.o: src/Cmd/Version.cc src/Cmd/Version.hpp \
   src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CFLAGS) -DPOAC_VERSION='"$(VERSION)"' -c $< -o $@
 
 $(OUT_DIR)/Cmd/Global.o: src/Cmd/Global.cc src/Cmd/Global.hpp src/Rustify.hpp \
   src/Algos.hpp src/Logger.hpp src/TermColor.hpp
