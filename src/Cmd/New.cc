@@ -13,6 +13,7 @@
 #include <iterator>
 #include <span>
 #include <stdexcept>
+#include <string>
 
 static inline constexpr StringRef mainCc =
     "#include <iostream>\n\n"
