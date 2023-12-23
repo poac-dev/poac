@@ -10,7 +10,7 @@
 void trieInsert(TrieNode& root, StringRef word) {
   TrieNode* node = &root;
   for (char ch : word) {
-    if (!node->children.count(ch)) {
+    if (!node->children.contains(ch)) {
       node->children[ch] = std::make_unique<TrieNode>();
     }
     node = node->children[ch].get();
@@ -22,7 +22,7 @@ void trieInsert(TrieNode& root, StringRef word) {
 bool trieSearch(const TrieNode& root, StringRef word) {
   const TrieNode* node = &root;
   for (char ch : word) {
-    if (!node->children.count(ch)) {
+    if (!node->children.contains(ch)) {
       return false;
     }
     node = node->children.at(ch).get();
@@ -39,7 +39,7 @@ bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word) {
     const TrieNode* node = &root;
     for (size_t j = i; j < word.size(); ++j) {
       char ch = word[j];
-      if (!node->children.count(ch)) {
+      if (!node->children.contains(ch)) {
         break;
       }
       node = node->children.at(ch).get();
