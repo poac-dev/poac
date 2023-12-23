@@ -8,8 +8,6 @@
 
 ---
 
-[![GitHub Release Version](https://img.shields.io/github/release/poac-dev/poac.svg?style=flat)](https://github.com/poac-dev/poac/releases)
-[![GitHub License](https://img.shields.io/github/license/poac-dev/poac.svg)](LICENSE)
 [![DOI](https://zenodo.org/badge/119684778.svg)](https://zenodo.org/badge/latestdoi/119684778)
 [![codecov](https://codecov.io/gh/poac-dev/poac/branch/main/graph/badge.svg?token=eyNsQ5nugd)](https://codecov.io/gh/poac-dev/poac)
 
