@@ -409,7 +409,7 @@ static BuildConfig configureBuild(const bool debug) {
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
     Vec<String> buildTargetDeps = objTargetDeps;
-    buildTargetDeps.push_back("|"); // order-only dependency
+    buildTargetDeps.emplace_back("|"); // order-only dependency
     buildTargetDeps.push_back(buildOutDir);
     String buildTargetBaseDir = buildOutDir;
     if (targetBaseDir != ".") {
@@ -438,7 +438,7 @@ static BuildConfig configureBuild(const bool debug) {
 
       // NOTE: Since we know that we don't use objTargetInfos for other
       // targets, we can just update it here instead of creating a copy.
-      objTargetInfo.deps.push_back("|"); // order-only dependency
+      objTargetInfo.deps.emplace_back("|"); // order-only dependency
       objTargetInfo.deps.push_back(testOutDir);
 
       // Add a target to create the testTargetBaseDir.
@@ -511,7 +511,7 @@ static BuildConfig configureBuild(const bool debug) {
     // Target to create the tests directory.
     defineDirTarget(config, testOutDir);
     config.defineTarget("test", testCommands, testTargets);
-    phonies.push_back("test");
+    phonies.emplace_back("test");
   }
 
   config.defineTarget(".PHONY", {}, phonies);
