@@ -16,8 +16,6 @@
 #include <vector>
 
 namespace fs = std::filesystem;
-using namespace std::literals::string_literals;
-using namespace std::literals::string_view_literals;
 
 // NOLINTBEGIN(readability-identifier-naming)
 using u8 = std::uint8_t;
@@ -81,6 +79,8 @@ struct NoneT : protected std::monostate {
 };
 inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
 
+using std::literals::string_literals::operator""s;
+using std::literals::string_view_literals::operator""sv;
 inline auto operator""_path(const char* str, usize /*unused*/) -> Path {
   return str;
 }
