@@ -40,20 +40,62 @@ static String getOutDir() {
   return OUT_DIR;
 }
 
+enum class VarType {
+  Recursive, // =
+  Simple, // :=
+  Cond, // ?=
+  Append, // +=
+  Shell, // !=
+};
+
+std::ostream& operator<<(std::ostream& os, VarType type) {
+  switch (type) {
+    case VarType::Recursive:
+      os << "=";
+      break;
+    case VarType::Simple:
+      os << ":=";
+      break;
+    case VarType::Cond:
+      os << "?=";
+      break;
+    case VarType::Append:
+      os << "+=";
+      break;
+    case VarType::Shell:
+      os << "!=";
+      break;
+  }
+  return os;
+}
+
+struct Variable {
+  String value;
+  VarType type;
+};
+
+std::ostream& operator<<(std::ostream& os, const Variable& var) {
+  os << var.type << ' ' << var.value;
+  return os;
+}
+
 struct Target {
   Vec<String> commands;
   Vec<String> dependsOn;
 };
 
 struct BuildConfig {
-  HashMap<String, String> variables;
+  HashMap<String, Variable> variables;
   HashMap<String, Vec<String>> varDeps;
   HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
   Option<Target> phony;
   Option<Target> all;
 
-  void defineVariable(String, String, const Vec<String>& = {});
+  void defineVariable(String, Variable, const Vec<String>& = {});
+  void defineSimpleVariable(String, String, const Vec<String>& = {});
+  void defineCondVariable(String, String, const Vec<String>& = {});
+
   void defineTarget(String, const Vec<String>&, const Vec<String>& = {});
   void setPhony(const Vec<String>&);
   void setAll(const Vec<String>&);
@@ -62,13 +104,25 @@ struct BuildConfig {
 };
 
 void BuildConfig::defineVariable(
-    String name, String value, const Vec<String>& dependsOn
+    String name, Variable value, const Vec<String>& dependsOn
 ) {
   variables[name] = value;
   for (const String& dep : dependsOn) {
     // reverse dependency
     varDeps[dep].push_back(name);
   }
+}
+
+void BuildConfig::defineSimpleVariable(
+    String name, String value, const Vec<String>& dependsOn
+) {
+  defineVariable(name, {value, VarType::Simple}, dependsOn);
+}
+
+void BuildConfig::defineCondVariable(
+    String name, String value, const Vec<String>& dependsOn
+) {
+  defineVariable(name, {value, VarType::Cond}, dependsOn);
 }
 
 void BuildConfig::defineTarget(
@@ -122,12 +176,8 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
   // The current way is simple and bug-free though.
 
   const Vec<String> sortedVars = topoSort(variables, varDeps);
-  for (const String& var : sortedVars) {
-    if (var == "CXX") {
-      os << var << " ?= " << variables.at(var) << '\n';
-    } else {
-      os << var << " = " << variables.at(var) << '\n';
-    }
+  for (const String& varName : sortedVars) {
+    os << varName << ' ' << variables.at(varName) << '\n';
   }
   if (!sortedVars.empty() && !targets.empty()) {
     os << '\n';
@@ -179,8 +229,8 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     const String file = targetInfo.dependsOn[0];
     // The output is the target.
     const String output = target;
-    const String cmd = CXX + ' ' + variables.at("CXXFLAGS") + DEFINES + INCLUDES
-                       + " -c " + file + " -o " + output;
+    const String cmd = CXX + ' ' + variables.at("CXXFLAGS").value + DEFINES
+                       + INCLUDES + " -c " + file + " -o " + output;
 
     ss << firstIdent << "{\n";
     ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
@@ -357,7 +407,7 @@ static BuildConfig configureBuild(const bool debug) {
   BuildConfig config;
 
   // Variables
-  config.defineVariable("CXX", CXX);
+  config.defineCondVariable("CXX", CXX);
   String cxxflags =
       "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
   if (shouldColor()) {
@@ -368,7 +418,7 @@ static BuildConfig configureBuild(const bool debug) {
   } else {
     cxxflags += " -O3 -DNDEBUG";
   }
-  config.defineVariable("CXXFLAGS", cxxflags);
+  config.defineSimpleVariable("CXXFLAGS", cxxflags);
 
   String packageNameUpper = packageName;
   std::transform(
@@ -377,7 +427,7 @@ static BuildConfig configureBuild(const bool debug) {
   );
   DEFINES =
       " -D" + packageNameUpper + "_VERSION='\"" + getPackageVersion() + "\"'";
-  config.defineVariable("DEFINES", DEFINES);
+  config.defineSimpleVariable("DEFINES", DEFINES);
 
   const Vec<Path> deps = installGitDependencies();
   for (const Path& dep : deps) {
@@ -390,7 +440,7 @@ static BuildConfig configureBuild(const bool debug) {
     }
   }
   Logger::debug("INCLUDES: ", INCLUDES);
-  config.defineVariable("INCLUDES", INCLUDES);
+  config.defineSimpleVariable("INCLUDES", INCLUDES);
 
   // Build rules
   const String buildOutDir = packageName + ".d";
@@ -581,9 +631,9 @@ String getMakeCommand() {
 
 void test_cycle_vars() {
   BuildConfig config;
-  config.defineVariable("a", "b", {"b"});
-  config.defineVariable("b", "c", {"c"});
-  config.defineVariable("c", "a", {"a"});
+  config.defineSimpleVariable("a", "b", {"b"});
+  config.defineSimpleVariable("b", "c", {"c"});
+  config.defineSimpleVariable("c", "a", {"a"});
 
   try {
     std::stringstream ss;
@@ -598,26 +648,26 @@ void test_cycle_vars() {
 
 void test_simple_vars() {
   BuildConfig config;
-  config.defineVariable("c", "3", {"b"});
-  config.defineVariable("b", "2", {"a"});
-  config.defineVariable("a", "1");
+  config.defineSimpleVariable("c", "3", {"b"});
+  config.defineSimpleVariable("b", "2", {"a"});
+  config.defineSimpleVariable("a", "1");
 
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a = 1\n"
-                      "b = 2\n"
-                      "c = 3\n");
+  assert(ss.str() == "a := 1\n"
+                      "b := 2\n"
+                      "c := 3\n");
 }
 
 void test_depend_on_unregistered_var() {
   BuildConfig config;
-  config.defineVariable("a", "1", {"b"});
+  config.defineSimpleVariable("a", "1", {"b"});
 
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a = 1\n");
+  assert(ss.str() == "a := 1\n");
 }
 
 void test_cycle_targets() {
