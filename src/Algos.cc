@@ -87,7 +87,7 @@ static usize levDistance(StringRef a, StringRef b) {
   return d[asize][bsize];
 }
 
-static auto equalsInsensitive(StringRef a, StringRef b) -> bool {
+static bool equalsInsensitive(StringRef a, StringRef b) {
   return std::equal(
       a.cbegin(), a.cend(), b.cbegin(), b.cend(),
       [](char a, char b) { return std::tolower(a) == std::tolower(b); }
