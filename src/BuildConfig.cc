@@ -50,9 +50,13 @@ struct BuildConfig {
   HashMap<String, Vec<String>> varDeps;
   HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
+  Option<Target> phony;
+  Option<Target> all;
 
   void defineVariable(String, String, const Vec<String>& = {});
   void defineTarget(String, const Vec<String>&, const Vec<String>& = {});
+  void setPhony(const Vec<String>&);
+  void setAll(const Vec<String>&);
   void emitMakefile(std::ostream& = std::cout) const;
   void emitCompdb(StringRef, std::ostream& = std::cout) const;
 };
@@ -75,6 +79,14 @@ void BuildConfig::defineTarget(
     // reverse dependency
     targetDeps[dep].push_back(name);
   }
+}
+
+void BuildConfig::setPhony(const Vec<String>& dependsOn) {
+  phony = {{}, dependsOn};
+}
+
+void BuildConfig::setAll(const Vec<String>& dependsOn) {
+  all = {{}, dependsOn};
 }
 
 static void emitTarget(
@@ -121,32 +133,30 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
     os << '\n';
   }
 
-  if (targets.contains(".PHONY")) {
-    emitTarget(os, ".PHONY", targets.at(".PHONY").dependsOn);
+  if (phony.has_value()) {
+    emitTarget(os, ".PHONY", phony->dependsOn);
   }
-  if (targets.contains("all")) {
-    emitTarget(os, "all", targets.at("all").dependsOn);
+  if (all.has_value()) {
+    emitTarget(os, "all", all->dependsOn);
   }
   const Vec<String> sortedTargets = topoSort(targets, targetDeps);
   for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
-    if (*itr == ".PHONY" || *itr == "all") {
-      continue;
-    }
     emitTarget(os, *itr, targets.at(*itr).dependsOn, targets.at(*itr).commands);
   }
 }
 
 void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
   const Path baseDirPath = fs::canonical(baseDir);
-  const Vec<String> phony = targets.at(".PHONY").dependsOn;
-  const HashSet<String> phonyDeps(phony.begin(), phony.end());
+  const HashSet<String> phonyDeps(
+      phony->dependsOn.begin(), phony->dependsOn.end()
+  );
   const String firstIdent = String(2, ' ');
   const String secondIdent = String(4, ' ');
 
   std::stringstream ss;
   for (const auto& [target, targetInfo] : targets) {
-    if (target == ".PHONY" || target == "all" || phonyDeps.contains(target)) {
-      // Ignore .PHONY and all targets, and phony dependencies.
+    if (phonyDeps.contains(target)) {
+      // Ignore phony dependencies.
       continue;
     }
 
@@ -183,8 +193,8 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
   String output = ss.str();
   if (!output.empty()) {
     // Remove the last comma.
-    output.pop_back();
-    output.pop_back();
+    output.pop_back(); // \n
+    output.pop_back(); // ,
   }
 
   os << "[\n";
@@ -387,7 +397,7 @@ static BuildConfig configureBuild(const bool debug) {
   defineDirTarget(config, buildOutDir);
 
   Vec<String> phonies = {"all"};
-  config.defineTarget("all", {}, {packageName});
+  config.setAll({packageName});
 
   const Vec<String> sourceFiles = listSourceFiles("src");
   Vec<String> buildObjTargets;
@@ -514,7 +524,7 @@ static BuildConfig configureBuild(const bool debug) {
     phonies.emplace_back("test");
   }
 
-  config.defineTarget(".PHONY", {}, phonies);
+  config.setPhony(phonies);
 
   return config;
 }
