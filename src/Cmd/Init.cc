@@ -4,6 +4,7 @@
 #include "Global.hpp"
 #include "New.hpp"
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <span>

@@ -3,9 +3,9 @@
 #include "../Logger.hpp"
 #include "Global.hpp"
 
+#include <cstdlib>
 #include <iostream>
 #include <span>
-#include <string>
 
 int cleanMain(std::span<const StringRef> args) noexcept {
   Path outDir = "poac-out";

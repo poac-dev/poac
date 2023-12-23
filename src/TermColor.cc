@@ -1,5 +1,7 @@
 #include "TermColor.hpp"
 
+#include <cstdlib>
+
 static bool isTerm() noexcept {
   return std::getenv("TERM") != nullptr;
 }

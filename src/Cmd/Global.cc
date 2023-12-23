@@ -4,6 +4,7 @@
 #include "../TermColor.hpp"
 
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 
 void printHeader(StringRef header) noexcept {
