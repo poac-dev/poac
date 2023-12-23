@@ -169,7 +169,7 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     const String file = targetInfo.dependsOn[0];
     // The output is the target.
     const String output = target;
-    const String cmd = CXX + ' ' + variables.at("CFLAGS") + DEFINES + INCLUDES
+    const String cmd = CXX + ' ' + variables.at("CXXFLAGS") + DEFINES + INCLUDES
                        + " -c " + file + " -o " + output;
 
     ss << firstIdent << "{\n";
@@ -298,7 +298,7 @@ static void defineCompileTarget(
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
 
-  const String compileCmd = "$(CXX) $(CFLAGS) $(DEFINES) $(INCLUDES)";
+  const String compileCmd = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
     commands[1] = buildCmd(compileCmd + " -DPOAC_TEST -c $< -o $@");
   } else {
@@ -315,7 +315,7 @@ static void defineLinkTarget(
 
   Vec<String> commands(2);
   commands[0] = "@echo '" + oss.str() + "'";
-  commands[1] = buildCmd("$(CXX) $(CFLAGS) $^ -o $@");
+  commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $^ -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -348,17 +348,17 @@ static BuildConfig configureBuild(const bool debug) {
 
   // Variables
   config.defineVariable("CXX", CXX);
-  String cflags =
+  String cxxflags =
       "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
   if (shouldColor()) {
-    cflags += " -fdiagnostics-color";
+    cxxflags += " -fdiagnostics-color";
   }
   if (debug) {
-    cflags += " -g -O0 -DDEBUG";
+    cxxflags += " -g -O0 -DDEBUG";
   } else {
-    cflags += " -O3 -DNDEBUG";
+    cxxflags += " -O3 -DNDEBUG";
   }
-  config.defineVariable("CFLAGS", cflags);
+  config.defineVariable("CXXFLAGS", cxxflags);
 
   String packageNameUpper = packageName;
   std::transform(
