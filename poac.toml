@@ -22,7 +22,6 @@ filters = [
   "-whitespace",
   "+whitespace/ending_newline",
   "-build/c++11",
-  "-build/namespaces_literals",
   "-readability/nolint", # Unknown NOLINT error category: bugprone-branch-clone  # This is for clang-tidy
   "-runtime/references", # non-const reference rather than a pointer
   "-readability/braces", # prioritize clang-format
