@@ -62,21 +62,6 @@ String getPackageName() {
   return packageName;
 }
 
-String getPackageEdition() {
-  Manifest& manifest = Manifest::instance();
-  if (manifest.packageEdition.has_value()) {
-    return manifest.packageEdition.value();
-  }
-
-  const String edition =
-      toml::find<String>(manifest.data.value(), "package", "edition");
-  if (edition.size() == 2 && isdigit(edition[0]) && isalnum(edition[1])) {
-    manifest.packageEdition = edition;
-    return edition;
-  }
-  throw std::runtime_error("invalid edition: " + edition);
-}
-
 u16 editionToYear(StringRef edition) {
   if (edition == "98") {
     return 1998;
@@ -96,6 +81,20 @@ u16 editionToYear(StringRef edition) {
     return 2026;
   }
   throw std::runtime_error("invalid edition: " + String(edition));
+}
+
+String getPackageEdition() {
+  Manifest& manifest = Manifest::instance();
+  if (manifest.packageEdition.has_value()) {
+    return manifest.packageEdition.value();
+  }
+
+  const String edition =
+      toml::find<String>(manifest.data.value(), "package", "edition");
+  editionToYear(edition); // verification
+
+  manifest.packageEdition = edition;
+  return edition;
 }
 
 String getPackageVersion() {
