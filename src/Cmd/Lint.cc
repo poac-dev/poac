@@ -76,10 +76,21 @@ int lintMain(std::span<const StringRef> args) {
   }
 
   const String packageName = getPackageName();
+  if (fs::exists("CPPLINT.cfg")) {
+    Logger::debug("Using CPPLINT.cfg for lint ...");
+    return lint(packageName, cpplintArgs);
+  }
+
+  if (fs::exists("include")) {
+    cpplintArgs += " --root=include";
+  } else if (fs::exists("src")) {
+    cpplintArgs += " --root=src";
+  }
+
   const Vec<String> cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
     Logger::debug("Using Poac manifest file for lint ...");
-    cpplintArgs += " --root=include --filter=";
+    cpplintArgs += " --filter=";
     for (StringRef filter : cpplintFilters) {
       cpplintArgs += filter;
       cpplintArgs += ',';
@@ -87,14 +98,8 @@ int lintMain(std::span<const StringRef> args) {
     // Remove last comma
     cpplintArgs.pop_back();
     return lint(packageName, cpplintArgs);
-  } else if (fs::exists("CPPLINT.cfg")) {
-    Logger::debug("Using CPPLINT.cfg for lint ...");
-    return lint(packageName, cpplintArgs);
   } else {
     Logger::debug("Using default arguments for lint ...");
-    if (fs::exists("include")) {
-      cpplintArgs += " --root=include";
-    }
     if (2011 < editionToYear(getPackageEdition())) {
       cpplintArgs += " --filter=-build/c++11";
     }

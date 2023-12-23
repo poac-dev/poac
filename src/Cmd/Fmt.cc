@@ -5,7 +5,7 @@
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
-#include "./Global.hpp"
+#include "Global.hpp"
 
 #include <cstdlib>
 #include <fstream>
