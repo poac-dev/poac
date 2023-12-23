@@ -5,6 +5,7 @@
 #include "Global.hpp"
 
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <span>
 

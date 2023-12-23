@@ -4,9 +4,13 @@
 #include "../Rustify.hpp"
 #include "Global.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>
+#include <ctype.h>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <span>
 #include <stdexcept>
 #include <string>

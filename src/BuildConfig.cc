@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
+#include <ctype.h>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -15,6 +17,7 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <stdio.h>
 #include <string>
 
 static String OUT_DIR;

@@ -14,11 +14,12 @@
 #include "./Rustify.hpp"
 #include "./TermColor.hpp"
 
+#include <algorithm>
 #include <cstdlib>
-#include <iomanip>
+#include <ctype.h>
+#include <exception>
 #include <iostream>
 #include <span>
-#include <stdexcept>
 
 struct Cmd {
   Fn<int(std::span<const StringRef>)> main;

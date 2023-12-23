@@ -3,6 +3,7 @@
 #include "../Logger.hpp"
 #include "Global.hpp"
 
+#include <cstdlib>
 #include <iostream>
 #include <span>
 
