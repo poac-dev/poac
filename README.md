@@ -29,14 +29,14 @@ By using Poac, you can create a C++ project, build sources, and execute an appli
 
 ## Hello World
 
-You can get started with just a few commands as the demo shows. Let's create a new Poac project as follows:
+You can get started with just a few commands as the demo shows. Let's create a new Poac project:
 
 ```console
 you:~$ poac new hello_world
      Created binary (application) `hello_world` package
 ```
 
-Then, you can use the `poac run` command to run your application:
+Now, you can use the `poac run` command to run your application:
 
 ```console
 you:~$ cd hello_world
@@ -78,7 +78,7 @@ sudo port install poac
 
 ### Build from source
 
-If your environment is not included in the released packages, you have to construct Poac from the source. To build Poac, you will require the following compilers, tools, and libraries:
+If your environment is not included in the released packages, you have to build Poac from the source. You will require the following compilers, tools, and libraries:
 
 #### compilers
 
@@ -93,13 +93,13 @@ If your environment is not included in the released packages, you have to constr
 
 #### libraries
 
-When running Make, the following libraries will be installed automatically. There is usually no need to be concerned about these.
+When running Make, the following libraries will be installed automatically.
 
 * [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
   * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
   * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
 
-Once you have all the necessary requirements in place, you can proceed to build Poac by executing the following commands:
+Once you have all the necessary requirements in place, you can build Poac by the following commands:
 
 ```bash
 git clone https://github.com/poac-dev/poac.git
@@ -130,7 +130,7 @@ you:~$ poac new hello_world
 
 ### Build the project
 
-In most cases, you will want to execute a binary as well as build the project—of course, you can.
+In most cases, you want to execute the generated binary as well as build the project.
 
 ```console
 you:~/hello_world$ poac run
@@ -152,13 +152,13 @@ Poac uses a cache since we executed the command with no changes.
 
 ### Install dependencies
 
-Like Cargo for Rust does, Poac installs dependencies at build time. Poac currently only supports Git dependencies. You can specify dependencies like:
+Like Cargo does, Poac installs dependencies at build time.  Poac currently supports only Git dependencies. You can specify dependencies like:
 
 `poac.toml`
 
 ```toml
 [dependencies]
-"ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf"}
+"ToruNiina/toml11" = { git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf" }
 ```
 
 After editing `poac.toml`, executing the `build` command will install the package and its dependencies.
@@ -177,7 +177,7 @@ Downloaded ToruNiina/toml11 846abd9a49082fe51440aa07005c360f13a67bbf
 
 ### Run tests
 
-You can write tests in any source files in the `src` directory. Create files like:
+You can write tests in any source files within the `src` directory.  Create files like:
 
 `src/Lib.hpp`
 
@@ -222,8 +222,7 @@ you:~/hello_world$ poac test
 
 ### Run linter
 
-Linting source code is essential to protect its quality.
-Poac supports linting it by a simple command with `cpplint`:
+Linting source code is essential to protect its quality.  Poac supports linting your project by the `lint` command:
 
 ```console
 you:~/hello_world$ poac lint
@@ -247,8 +246,7 @@ or creating a [`CPPLINT.cfg`](https://github.com/poac-dev/poac/blob/5e7e3792e881
 
 ### Run formatter
 
-Poac also supports formatting your source code with `clang-format`.
-Ensure having installed `clang-format` before running this command.
+Poac also supports formatting your source code with `clang-format`.  Ensure having installed `clang-format` before running this command.
 
 ```console
 you:~/hello_world$ poac fmt
@@ -256,7 +254,7 @@ you:~/hello_world$ poac fmt
 ```
 
 > [!NOTE]
-> This command automatically detects what files we need to format to avoid bothering commands like:
+> This command automatically detects what files we need to format to avoid getting bothered by commands like:
 >
 > ```console
 > $ # We need to avoid the `build` dir and such dirs ...
@@ -270,7 +268,7 @@ To customize the format settings, try creating a [`.clang-format`](/.clang-forma
 
 ## Why Poac?
 
-C++ is often considered a complex language and unconsciously avoided by many. The absence of a definitive package manager and the unfamiliar syntax of build systems like [CMake](https://cmake.org) make it seem difficult to set up a C++ environment, leaving people hesitant.
+C++ is often considered a complex language and unconsciously avoided by many.  The absence of a definitive package manager and the unfamiliar syntax of build systems like [CMake](https://cmake.org) make it seem difficult to set up a C++ environment, leaving people hesitant.
 
 To simplify the process and allow users to develop applications and libraries without worrying about [CMake](https://cmake.org), I created a package manager and build system with an intuitive interface, similar to [Cargo](https://github.com/rust-lang/cargo). This allows developers to focus on learning C++ without any hindrances. Additionally, I aim to integrate with other build systems and package managers, providing a seamless transition between development environments.
 
