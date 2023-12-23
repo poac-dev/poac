@@ -63,7 +63,7 @@ template <typename... Ts>
 using Tuple = std::tuple<Ts...>;
 
 struct NoneT : protected std::monostate {
-  constexpr auto operator==(const usize rhs) const -> bool {
+  constexpr bool operator==(const usize rhs) const {
     return String::npos == rhs;
   }
 
@@ -81,6 +81,6 @@ inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
 
 using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;
-inline auto operator""_path(const char* str, usize /*unused*/) -> Path {
+inline Path operator""_path(const char* str, usize /*unused*/) {
   return str;
 }
