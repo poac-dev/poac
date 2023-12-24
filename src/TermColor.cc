@@ -35,9 +35,15 @@ public:
 
 private:
   // default: automatic
-  bool should_color_ = isTerm();
+  bool should_color_;
 
-  ColorState() noexcept = default;
+  ColorState() noexcept {
+    if (const char* color = std::getenv("POAC_TERM_COLOR")) {
+      setColorMode(color);
+    } else {
+      should_color_ = isTerm();
+    }
+  }
 
   // Delete copy constructor and assignment operator to prevent copying
   ColorState(const ColorState&) = delete;
