@@ -41,8 +41,6 @@ struct OrderedHashSet {
     return list[index];
   }
   // O(1)
-  template <
-      typename T = Value, std::enable_if_t<!std::is_same_v<T, usize>, int> = 0>
   Value& operator[](const Value& value) {
     if (!set.contains(value)) {
       list.push_back(value);
@@ -70,25 +68,12 @@ struct OrderedHashSet {
   ConstIterator begin() const {
     return list.begin();
   }
-  ConstIterator cbegin() const {
-    return list.cbegin();
-  }
 
   Iterator end() {
     return list.end();
   }
   ConstIterator end() const {
     return list.end();
-  }
-  ConstIterator cend() const {
-    return list.cend();
-  }
-
-  operator std::span<Value>() {
-    return std::span<Value>(&*list.begin(), list.size());
-  }
-  operator std::span<const Value>() const {
-    return std::span<const Value>(&*list.begin(), list.size());
   }
 
 private:
