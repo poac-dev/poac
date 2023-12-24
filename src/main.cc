@@ -59,7 +59,8 @@ void noSuchCommand(StringRef arg) {
 
 int helpMain(std::span<const StringRef> args) noexcept {
   // Parse args
-  for (StringRef arg : args) {
+  for (usize i = 0; i < args.size(); ++i) {
+    StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({{"help"}})
 
     else if (CMDS.contains(arg)) {
@@ -97,8 +98,9 @@ int main(int argc, char* argv[]) {
 
   // Parse arguments (options should appear before the subcommand, as the help
   // message shows intuitively)
-  for (int i = 1; i < argc; ++i) {
-    StringRef arg = argv[i];
+  std::span<char* const> args(argv + 1, argv + argc);
+  for (usize i = 0; i < args.size(); ++i) {
+    StringRef arg = args[i];
 
     // Global options (which are not command-specific)
     HANDLE_GLOBAL_OPTS({})
@@ -111,7 +113,7 @@ int main(int argc, char* argv[]) {
     // Subcommands
     else if (CMDS.contains(arg)) {
       try {
-        const Vec<StringRef> cmd_args(argv + i + 1, argv + argc);
+        const Vec<StringRef> cmd_args(argv + i + 2, argv + argc);
         return CMDS.at(arg).main(cmd_args);
       } catch (const std::exception& e) {
         Logger::error(e.what());

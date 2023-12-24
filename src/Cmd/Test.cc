@@ -12,7 +12,8 @@
 int testMain(std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
-  for (StringRef arg : args) {
+  for (usize i = 0; i < args.size(); ++i) {
+    StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({{"test"}})
 
     else if (arg == "-d" || arg == "--debug") {

@@ -51,8 +51,8 @@ void printCommand(StringRef name, StringRef desc) noexcept {
 }
 
 void printGlobalOpts() noexcept {
-  for (const auto& [lng, shrt, desc] : GLOBAL_OPT_HELPS) {
-    printOption(lng, shrt, desc);
+  for (const auto& [shrt, lng, placeholder, desc] : GLOBAL_OPT_HELPS) {
+    printOption(lng, shrt, desc, placeholder);
   }
 }
 

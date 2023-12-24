@@ -31,7 +31,8 @@ int buildMain(std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;
-  for (StringRef arg : args) {
+  for (usize i = 0; i < args.size(); ++i) {
+    StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({{"build"}}) // workaround for std::span until C++26
 
     else if (arg == "-d" || arg == "--debug") {

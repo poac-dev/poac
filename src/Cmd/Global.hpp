@@ -4,25 +4,36 @@
 
 #include "../Logger.hpp"
 #include "../Rustify.hpp"
+#include "../TermColor.hpp"
 #include "Help.hpp"
 
+#include <cstdlib>
 #include <tuple>
 
-#define HANDLE_GLOBAL_OPTS(HELP_ARGS)             \
-  if (arg == "-h" || arg == "--help") {           \
-    return helpMain(HELP_ARGS);                   \
-  } else if (arg == "-v" || arg == "--verbose") { \
-    Logger::setLevel(LogLevel::debug);            \
-  } else if (arg == "-q" || arg == "--quiet") {   \
-    Logger::setLevel(LogLevel::off);              \
+#define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
+  if (arg == "-h" || arg == "--help") {                \
+    return helpMain(HELP_ARGS);                        \
+  } else if (arg == "-v" || arg == "--verbose") {      \
+    Logger::setLevel(LogLevel::debug);                 \
+  } else if (arg == "-q" || arg == "--quiet") {        \
+    Logger::setLevel(LogLevel::off);                   \
+  } else if (arg == "--color") {                       \
+    if (i + 1 < args.size()) {                         \
+      setColorMode(args[++i]);                         \
+    } else {                                           \
+      Logger::error("missing argument for `--color`"); \
+      return EXIT_FAILURE;                             \
+    }                                                  \
   }
 
-// long, short, description
-static inline constexpr Arr<Tuple<StringRef, StringRef, StringRef>, 3>
+// short, long, placeholder, description
+static inline constexpr Arr<
+    Tuple<StringRef, StringRef, StringRef, StringRef>, 4>
     GLOBAL_OPT_HELPS{
-        std::make_tuple("--verbose", "-v", "Use verbose output"),
-        {"--quiet", "-q", "Do not print poac log messages"},
-        {"--help", "-h", "Print help"},
+        std::make_tuple("-v", "--verbose", "", "Use verbose output"),
+        {"-q", "--quiet", "", "Do not print poac log messages"},
+        {"", "--color", "<WHEN>", "Coloring: auto, always, never"},
+        {"-h", "--help", "", "Print help"},
     };
 
 void printHeader(StringRef) noexcept;

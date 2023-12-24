@@ -56,7 +56,7 @@ void setColorMode(StringRef str) noexcept {
   } else if (str == "never") {
     setColorMode(ColorMode::never);
   } else {
-    Logger::warn("unknown color mode: ", str, " falling back to auto");
+    Logger::warn("unknown color mode `", str, "`; falling back to auto");
     setColorMode(ColorMode::automatic);
   }
 }
