@@ -4,6 +4,8 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <optional>
+#include <ostream>
 #include <string>
 
 #define ASSERT_TRUE(cond)                                                     \
@@ -38,9 +40,9 @@
               << #lhs << " != " << #rhs << std::endl;                         \
   }
 
-#define ASSERT_EXCEPTION(expr, exception, msg)                                \
+#define ASSERT_EXCEPTION(statements, exception, msg)                          \
   try {                                                                       \
-    expr;                                                                     \
+    statements;                                                               \
     std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
               << "expected exception `" << #exception << "` not thrown"       \
               << std::endl;                                                   \
@@ -53,7 +55,7 @@
       std::exit(EXIT_FAILURE);                                                \
     } else {                                                                  \
       std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__       \
-                << ": " << #expr << std::endl;                                \
+                << ": " << #statements << std::endl;                          \
     }                                                                         \
   } catch (...) {                                                             \
     std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
@@ -61,3 +63,13 @@
               << std::endl;                                                   \
     std::exit(EXIT_FAILURE);                                                  \
   }
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt) {
+  if (opt.has_value()) {
+    os << opt.value();
+  } else {
+    os << "None";
+  }
+  return os;
+}

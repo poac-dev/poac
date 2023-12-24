@@ -6,6 +6,7 @@
 #include <functional>
 #include <map>
 #include <optional>
+#include <ostream>
 #include <set>
 #include <string>
 #include <string_view>
@@ -78,6 +79,10 @@ struct NoneT : protected std::monostate {
   }
 };
 inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
+
+inline std::ostream& operator<<(std::ostream& os, const NoneT& /*unused*/) {
+  return os << "None";
+}
 
 using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;

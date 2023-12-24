@@ -658,7 +658,7 @@ String getMakeCommand() {
 
 #ifdef POAC_TEST
 
-#  include <cassert>
+#  include "TestUtils.hpp"
 
 void test_cycle_vars() {
   BuildConfig config;
@@ -666,14 +666,9 @@ void test_cycle_vars() {
   config.defineSimpleVariable("b", "c", {"c"});
   config.defineSimpleVariable("c", "a", {"a"});
 
-  try {
-    std::stringstream ss;
-    config.emitMakefile(ss);
-    assert(false && "should not reach here");
-  } catch (const std::runtime_error& e) {
-    assert(std::string(e.what()) == "too complex build graph");
-    return;
-  }
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
+                                         std::runtime_error,
+                                         "too complex build graph");
 }
 
 void test_simple_vars() {
@@ -685,9 +680,12 @@ void test_simple_vars() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a := 1\n"
-                      "b := 2\n"
-                      "c := 3\n");
+  ASSERT_EQ(
+      ss.str(),
+      "a := 1\n"
+      "b := 2\n"
+      "c := 3\n"
+  );
 }
 
 void test_depend_on_unregistered_var() {
@@ -697,7 +695,7 @@ void test_depend_on_unregistered_var() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a := 1\n");
+  ASSERT_EQ(ss.str(), "a := 1\n");
 }
 
 void test_cycle_targets() {
@@ -706,14 +704,9 @@ void test_cycle_targets() {
   config.defineTarget("b", {"echo b"}, {"c"});
   config.defineTarget("c", {"echo c"}, {"a"});
 
-  try {
-    std::stringstream ss;
-    config.emitMakefile(ss);
-    assert(false && "should not reach here");
-  } catch (const std::runtime_error& e) {
-    assert(std::string(e.what()) == "too complex build graph");
-    return;
-  }
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
+                                         std::runtime_error,
+                                         "too complex build graph");
 }
 
 void test_simple_targets() {
@@ -725,15 +718,18 @@ void test_simple_targets() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "c: b\n"
-                      "\techo c\n"
-                      "\n"
-                      "b: a\n"
-                      "\techo b\n"
-                      "\n"
-                      "a:\n"
-                      "\techo a\n"
-                      "\n");
+  ASSERT_EQ(
+      ss.str(),
+      "c: b\n"
+      "\techo c\n"
+      "\n"
+      "b: a\n"
+      "\techo b\n"
+      "\n"
+      "a:\n"
+      "\techo a\n"
+      "\n"
+  );
 }
 
 void test_depend_on_unregistered_target() {
@@ -743,9 +739,12 @@ void test_depend_on_unregistered_target() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a: b\n"
-                      "\techo a\n"
-                      "\n");
+  ASSERT_EQ(
+      ss.str(),
+      "a: b\n"
+      "\techo a\n"
+      "\n"
+  );
 }
 
 int main() {
