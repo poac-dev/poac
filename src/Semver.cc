@@ -27,7 +27,6 @@ bool operator==(const Version& lhs, const Version& rhs) {
          && lhs.patch == rhs.patch && lhs.pre == rhs.pre
          && lhs.build == rhs.build;
 }
-
 bool operator!=(const Version& lhs, const Version& rhs) {
   return !(lhs == rhs);
 }
@@ -48,7 +47,6 @@ bool operator<(const Version& lhs, const Version& rhs) {
     return false;
   }
 
-  // Pre-release versions have lower precedence than normal versions
   if (lhs.pre.has_value() != rhs.pre.has_value()) {
     return lhs.pre.has_value();
   }
@@ -67,15 +65,12 @@ bool operator<(const Version& lhs, const Version& rhs) {
 
   return false;
 }
-
 bool operator>(const Version& lhs, const Version& rhs) {
   return rhs < lhs;
 }
-
 bool operator<=(const Version& lhs, const Version& rhs) {
   return !(rhs < lhs);
 }
-
 bool operator>=(const Version& lhs, const Version& rhs) {
   return !(lhs < rhs);
 }
