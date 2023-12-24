@@ -638,12 +638,11 @@ void test_cycle_vars() {
   try {
     std::stringstream ss;
     config.emitMakefile(ss);
+    assert(false && "should not reach here");
   } catch (const std::runtime_error& e) {
     assert(std::string(e.what()) == "too complex build graph");
     return;
   }
-
-  assert(false && "should not reach here");
 }
 
 void test_simple_vars() {
@@ -679,12 +678,11 @@ void test_cycle_targets() {
   try {
     std::stringstream ss;
     config.emitMakefile(ss);
+    assert(false && "should not reach here");
   } catch (const std::runtime_error& e) {
     assert(std::string(e.what()) == "too complex build graph");
     return;
   }
-
-  assert(false && "should not reach here");
 }
 
 void test_simple_targets() {
