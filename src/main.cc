@@ -116,6 +116,11 @@ int main(int argc, char* argv[]) {
     // Subcommands
     else if (CMDS.contains(arg)) {
       try {
+        // i points to the subcommand name that we don't need anymore.  Since
+        // i starts from 1 from the start pointer of argv, we want to start
+        // with i + 2.  As we know args.size() + 1 == argc and args.size() >=
+        // i + 1, we can write the range as [i + 2, argc), which is not
+        // out-of-range access.
         const Vec<StringRef> cmd_args(argv + i + 2, argv + argc);
         return CMDS.at(arg).main(cmd_args);
       } catch (const std::exception& e) {
