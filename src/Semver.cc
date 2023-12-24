@@ -35,7 +35,7 @@ bool operator==(const Version& lhs, const Version& rhs) {
 
 struct SemverException : public std::exception {
   template <typename... Args>
-  SemverException(Args&&... args) {
+  explicit SemverException(Args&&... args) {
     std::ostringstream oss;
     oss << "invalid semver:\n";
     (oss << ... << std::forward<Args>(args));
@@ -71,7 +71,7 @@ struct Token {
 
   Token(Kind kind, std::variant<std::monostate, u64, StringRef> value)
       : kind(kind), value(std::move(value)) {}
-  Token(Kind kind) : kind(kind), value(std::monostate{}) {}
+  explicit Token(Kind kind) : kind(kind), value(std::monostate{}) {}
 
   usize size() const {
     switch (kind) {
@@ -180,7 +180,7 @@ struct Lexer {
 
   Token next() {
     if (isEof()) {
-      return {Token::Eof};
+      return Token{Token::Eof};
     }
 
     const char c = s[pos];
@@ -190,13 +190,13 @@ struct Lexer {
       return consumeIdent();
     } else if (c == '.') {
       step();
-      return {Token::Dot};
+      return Token{Token::Dot};
     } else if (c == '-') {
       step();
-      return {Token::Dash};
+      return Token{Token::Dash};
     } else if (c == '+') {
       step();
-      return {Token::Plus};
+      return Token{Token::Plus};
     } else {
       throw SemverException(
           s, '\n', String(pos, ' '), "^ unexpected character: `", c, '`'
@@ -222,7 +222,7 @@ struct SemverParseException : public SemverException {
 struct Parser {
   Lexer lexer;
 
-  Parser(StringRef s) : lexer(s) {}
+  explicit Parser(StringRef s) : lexer(s) {}
 
   Version parse() {
     if (lexer.peek().kind == Token::Eof) {
