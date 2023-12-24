@@ -258,6 +258,11 @@ int newMain(std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
+  if (fs::exists(packageName)) {
+    Logger::error("directory `", packageName, "` already exists");
+    return EXIT_FAILURE;
+  }
+
   createTemplateFiles(isBin, packageName);
   return EXIT_SUCCESS;
 }
