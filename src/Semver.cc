@@ -3,6 +3,7 @@
 #include "Rustify.hpp"
 
 #include <cctype>
+#include <iostream>
 #include <limits>
 #include <ostream>
 #include <sstream>
@@ -25,6 +26,51 @@ bool operator==(const Version& lhs, const Version& rhs) {
   return lhs.major == rhs.major && lhs.minor == rhs.minor
          && lhs.patch == rhs.patch && lhs.pre == rhs.pre
          && lhs.build == rhs.build;
+}
+
+bool operator!=(const Version& lhs, const Version& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator<(const Version& lhs, const Version& rhs) {
+  // Compare major, minor, and patch versions
+  if (auto cmp = std::tie(lhs.major, lhs.minor, lhs.patch)
+                 <=> std::tie(rhs.major, rhs.minor, rhs.patch);
+      cmp != 0) {
+    return cmp < 0;
+  }
+
+  // Pre-release versions have lower precedence than normal versions
+  if (lhs.pre.has_value() != rhs.pre.has_value()) {
+    return lhs.pre.has_value();
+  }
+
+  // Compare pre-release versions
+  if (lhs.pre.has_value() && rhs.pre.has_value()) {
+    return lhs.pre.value() < rhs.pre.value();
+  }
+
+  if (lhs.build.has_value() != rhs.build.has_value()) {
+    return lhs.build.has_value();
+  }
+
+  if (lhs.build.has_value() && rhs.build.has_value()) {
+    return lhs.build.value() < rhs.build.value();
+  }
+
+  return false;
+}
+
+bool operator>(const Version& lhs, const Version& rhs) {
+  return rhs < lhs;
+}
+
+bool operator<=(const Version& lhs, const Version& rhs) {
+  return !(rhs < lhs);
+}
+
+bool operator>=(const Version& lhs, const Version& rhs) {
+  return !(lhs < rhs);
 }
 
 struct SemverException : public std::exception {
@@ -457,11 +503,53 @@ void test_display() {
   }
 }
 
+void test_lt() {
+  ASSERT_TRUE(parseSemver("0.0.0") < parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.0.0") < parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.0") < parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha1") < parseSemver("1.2.3"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha1") < parseSemver("1.2.3-alpha2"));
+  ASSERT_FALSE(parseSemver("1.2.3-alpha2") < parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.3+23") < parseSemver("1.2.3+42"));
+}
+
+void test_le() {
+  ASSERT_TRUE(parseSemver("0.0.0") <= parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.0.0") <= parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.0") <= parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha1") <= parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") <= parseSemver("1.2.3-alpha2"));
+  ASSERT_TRUE(parseSemver("1.2.3+23") <= parseSemver("1.2.3+42"));
+}
+
+void test_gt() {
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("0.0.0"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.0.0"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.0"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.3-alpha1"));
+  ASSERT_TRUE(parseSemver("1.2.3") > parseSemver("1.2.3-alpha2"));
+  ASSERT_FALSE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.3-alpha2"));
+  ASSERT_FALSE(parseSemver("1.2.3+23") > parseSemver("1.2.3+42"));
+}
+
+void test_ge() {
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("0.0.0"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.0.0"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.0"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha1"));
+  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha2"));
+  ASSERT_FALSE(parseSemver("1.2.3+23") >= parseSemver("1.2.3+42"));
+}
+
 int main() {
   test_parse();
   test_eq();
   test_ne();
   test_display();
+  test_lt();
+  test_le();
+  test_gt();
+  test_ge();
 }
 
 #endif

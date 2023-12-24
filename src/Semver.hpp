@@ -22,5 +22,10 @@ struct Version {
 };
 std::ostream& operator<<(std::ostream&, const Version&);
 bool operator==(const Version&, const Version&);
+bool operator!=(const Version&, const Version&);
+bool operator<(const Version&, const Version&);
+bool operator>(const Version&, const Version&);
+bool operator<=(const Version&, const Version&);
+bool operator>=(const Version&, const Version&);
 
 Version parseSemver(StringRef);
