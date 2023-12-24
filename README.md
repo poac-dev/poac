@@ -199,7 +199,8 @@ int add(int a, int b) {
 #  include <cassert>
 
 int main() {
-  assert(add(1, 2) == 3);
+  assert(add(1, 2) == 3); // ok
+  assert(add(1, 2) == 4); // fail
 }
 
 #endif
@@ -212,7 +213,8 @@ you:~/hello_world$ poac test
  Compiling src/Lib.cc
    Linking tests/test_Lib
    Testing Lib
-  Finished debug test(s) in 0.565934s
+Assertion failed: (add(1, 2) == 4), function main, file Lib.cc, line 13.
+make: *** [test] Abort trap: 6
 ```
 
 ### Run linter
