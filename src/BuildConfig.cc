@@ -23,7 +23,7 @@
 
 static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
-static const String PATH_FROM_OUT_DIR = "../../";
+static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
 static String INCLUDES = "-Iinclude";
 static String DEFINES;
@@ -55,13 +55,13 @@ static String exec(const char* cmd) {
   return result;
 }
 
-static Vec<String> listSourceFilePaths(StringRef directory) {
-  Vec<String> sourceFilePaths;
+static Vec<Path> listSourceFilePaths(StringRef directory) {
+  Vec<Path> sourceFilePaths;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
     }
-    sourceFilePaths.push_back(entry.path().string());
+    sourceFilePaths.push_back(entry.path());
   }
   return sourceFilePaths;
 }
@@ -107,17 +107,23 @@ std::ostream& operator<<(std::ostream& os, const Variable& var) {
 
 struct Target {
   Vec<String> commands;
-  // Option<String> source;
   OrderedHashSet<String> dependsOn;
 };
 
 struct BuildConfig {
+  const String packageName;
+  const String buildOutDir;
+
   HashMap<String, Variable> variables;
   HashMap<String, Vec<String>> varDeps;
   HashMap<String, Target> targets;
   HashMap<String, Vec<String>> targetDeps;
   Option<Target> phony;
   Option<Target> all;
+
+  BuildConfig() = default;
+  explicit BuildConfig(const String& packageName)
+      : packageName(packageName), buildOutDir(packageName + ".d") {}
 
   void defineVariable(
       const String&, const Variable&, const OrderedHashSet<String>& = {}
@@ -227,15 +233,12 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
 
 void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
   const Path baseDirPath = fs::canonical(baseDir);
-  const HashSet<String> phonyDeps(
-      phony->dependsOn.begin(), phony->dependsOn.end()
-  );
   const String firstIdent(2, ' ');
   const String secondIdent(4, ' ');
 
   std::stringstream ss;
   for (const auto& [target, targetInfo] : targets) {
-    if (phonyDeps.contains(target)) {
+    if (phony->dependsOn.contains(target)) {
       // Ignore phony dependencies.
       continue;
     }
@@ -292,14 +295,14 @@ String runMM(const String& sourceFile, const bool isTest = false) {
   return exec(command.c_str());
 }
 
-static void parseMMOutput(
-    const String& mmOutput, String& target, OrderedHashSet<String>& deps
-) {
+static OrderedHashSet<String>
+parseMMOutput(const String& mmOutput, String& target) {
   std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
   Logger::debug(target, ':');
 
   String dependency;
+  OrderedHashSet<String> deps;
   while (std::getline(iss, dependency, ' ')) {
     if (!dependency.empty() && dependency.front() != '\\') {
       // Remove trailing newline if it exists
@@ -311,6 +314,7 @@ static void parseMMOutput(
     }
   }
   Logger::debug("");
+  return deps;
 }
 
 static bool isUpToDate(StringRef makefilePath) {
@@ -353,8 +357,8 @@ static String buildCmd(const String& cmd) noexcept {
   }
 }
 
-static void defineDirTarget(BuildConfig& config, StringRef directory) {
-  config.defineTarget(String(directory), {buildCmd("mkdir -p $@")});
+static void defineDirTarget(BuildConfig& config, const Path& directory) {
+  config.defineTarget(directory, {buildCmd("mkdir -p $@")});
 }
 
 static String echoCmd(StringRef header, StringRef body) {
@@ -389,21 +393,15 @@ static void defineLinkTarget(
   config.defineTarget(binTarget, commands, deps);
 }
 
-struct ObjTargetInfo {
-  String name;
-  String baseDir;
-};
-
-static void recursiveFindObjDeps(
+static void collectBinDepObjs(
     OrderedHashSet<String>& deps, const OrderedHashSet<String>& objTargetDeps,
-    const String& sourceFile, const String& buildOutDir,
-    const OrderedHashSet<String>& buildObjTargets, BuildConfig& config
+    const Path& sourceFile, const OrderedHashSet<String>& buildObjTargets,
+    const BuildConfig& config
 ) {
   // This test target depends on the object file corresponding to
   // the header file included in this source file.
-  for (const String& header : objTargetDeps) {
-    const Path headerPath(header);
-    if (Path(sourceFile).stem().string() == headerPath.stem().string()) {
+  for (const Path headerPath : objTargetDeps) {
+    if (sourceFile.stem() == headerPath.stem()) {
       // We shouldn't depend on the original object file (e.g.,
       // poac.d/path/to/file.o). We should depend on the test object
       // file (e.g., tests/path/to/test_file.o).
@@ -416,16 +414,15 @@ static void recursiveFindObjDeps(
     // Map headerPath to the corresponding object target.
     // headerPath: src/path/to/header.h ->
     // object target: poac.d/path/to/header.o
-    String headerObjTargetBaseDir =
-        fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR + "src")
-            .string();
+    Path headerObjTargetBaseDir =
+        fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path);
     if (headerObjTargetBaseDir != ".") {
-      headerObjTargetBaseDir = buildOutDir + "/" + headerObjTargetBaseDir;
+      headerObjTargetBaseDir = config.buildOutDir / headerObjTargetBaseDir;
     } else {
-      headerObjTargetBaseDir = buildOutDir;
+      headerObjTargetBaseDir = config.buildOutDir;
     }
     const String headerObjTarget =
-        headerObjTargetBaseDir + "/" + headerPath.stem().string() + ".o";
+        (headerObjTargetBaseDir / headerPath.stem()).string() + ".o";
     Logger::debug("headerObjTarget: ", headerObjTarget);
 
     if (deps.contains(headerObjTarget)) {
@@ -440,48 +437,28 @@ static void recursiveFindObjDeps(
     }
     deps.push_back(headerObjTarget);
     Logger::debug("headerObjTarget: added ", headerObjTarget);
-    recursiveFindObjDeps(
+    collectBinDepObjs(
         deps, config.targets.at(headerObjTarget).dependsOn, sourceFile,
-        buildOutDir, buildObjTargets, config
+        buildObjTargets, config
     );
   }
 }
 
-static BuildConfig configureBuild(const bool debug) {
-  if (!fs::exists("src")) {
-    throw std::runtime_error("src directory not found");
-  }
-  if (!fs::exists("src/main.cc")) {
-    throw std::runtime_error("src/main.cc not found");
-  }
-
-  const String outDir = getOutDir();
-  if (!fs::exists(outDir)) {
-    fs::create_directories(outDir);
-  }
-  if (const char* cxx = std::getenv("CXX")) {
-    CXX = cxx;
-  }
-
-  const String packageName = getPackageName();
-
-  BuildConfig config;
-
-  // Variables
+static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVariable("CXX", CXX);
   String cxxflags =
       "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
   if (shouldColor()) {
     cxxflags += " -fdiagnostics-color";
   }
-  if (debug) {
+  if (isDebug) {
     cxxflags += " -g -O0 -DDEBUG";
   } else {
     cxxflags += " -O3 -DNDEBUG";
   }
   config.defineSimpleVariable("CXXFLAGS", cxxflags);
 
-  String packageNameUpper = packageName;
+  String packageNameUpper = config.packageName;
   std::transform(
       packageNameUpper.begin(), packageNameUpper.end(),
       packageNameUpper.begin(), ::toupper
@@ -502,109 +479,127 @@ static BuildConfig configureBuild(const bool debug) {
   }
   Logger::debug("INCLUDES: ", INCLUDES);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
+}
+
+static BuildConfig configureBuild(const bool isDebug) {
+  if (!fs::exists("src")) {
+    throw std::runtime_error("src directory not found");
+  }
+  if (!fs::exists("src/main.cc")) {
+    throw std::runtime_error("src/main.cc not found");
+  }
+
+  const String outDir = getOutDir();
+  if (!fs::exists(outDir)) {
+    fs::create_directories(outDir);
+  }
+  if (const char* cxx = std::getenv("CXX")) {
+    CXX = cxx;
+  }
+
+  BuildConfig config(getPackageName());
+  setVariables(config, isDebug);
 
   // Build rules
-  const String buildOutDir = packageName + ".d";
-  defineDirTarget(config, buildOutDir);
+  defineDirTarget(config, config.buildOutDir);
+  config.setAll({config.packageName});
 
-  OrderedHashSet<String> phonies = {"all"};
-  config.setAll({packageName});
-
-  const Vec<String> sourceFilePaths = listSourceFilePaths("src");
+  const Vec<Path> sourceFilePaths = listSourceFilePaths("src");
   OrderedHashSet<String> buildObjTargets;
+  for (const Path& sourceFilePath : sourceFilePaths) {
+    const Path sourceFileRelPath = PATH_FROM_OUT_DIR / sourceFilePath;
+    String objTarget; // source.o
+    OrderedHashSet<String> objTargetDeps =
+        parseMMOutput(runMM(sourceFileRelPath), objTarget);
 
-  // sourceFile.cc -> ObjTargetInfo
-  HashMap<String, ObjTargetInfo> objTargetInfos;
-  for (const String& sourceFilePath : sourceFilePaths) {
-    const String sourceFile = PATH_FROM_OUT_DIR + sourceFilePath;
-    const String mmOutput = runMM(sourceFile);
-
-    String objTarget; // sourceFile.o
-    OrderedHashSet<String> objTargetDeps;
-    parseMMOutput(mmOutput, objTarget, objTargetDeps);
-
-    const String targetBaseDir =
-        fs::relative(Path(sourceFile).parent_path(), PATH_FROM_OUT_DIR + "src")
-            .string();
-    objTargetInfos[sourceFilePath] = {objTarget, targetBaseDir};
+    const Path targetBaseDir = fs::relative(
+        sourceFileRelPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+    );
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
     objTargetDeps.push_back("|"); // order-only dependency
-    objTargetDeps.push_back(buildOutDir);
-    String buildTargetBaseDir = buildOutDir;
+    objTargetDeps.push_back(config.buildOutDir);
+    Path buildTargetBaseDir = config.buildOutDir;
     if (targetBaseDir != ".") {
-      buildTargetBaseDir += "/" + targetBaseDir;
+      buildTargetBaseDir /= targetBaseDir;
       defineDirTarget(config, buildTargetBaseDir);
       objTargetDeps.push_back(buildTargetBaseDir);
     }
 
-    const String buildObjTarget = buildTargetBaseDir + "/" + objTarget;
+    const String buildObjTarget = buildTargetBaseDir / objTarget;
     buildObjTargets.push_back(buildObjTarget);
     defineCompileTarget(config, buildObjTarget, objTargetDeps);
   }
-  defineLinkTarget(config, packageName, buildObjTargets);
+  // Project binary target.
+  defineLinkTarget(config, config.packageName, buildObjTargets);
 
-  // Targets for testing.
+  // Targets for tests.
   bool enableTesting = false;
   Vec<String> testCommands;
   OrderedHashSet<String> testTargets;
-  for (auto& [sourceFilePath, objTargetInfo] : objTargetInfos) {
-    if (containsTestCode(sourceFilePath)) {
-      enableTesting = true;
-
-      const String sourceFile = PATH_FROM_OUT_DIR + sourceFilePath;
-      const String mmOutput = runMM(sourceFile, true /* isTest */);
-
-      String objTarget; // sourceFile.o
-      OrderedHashSet<String> objTargetDeps;
-      parseMMOutput(mmOutput, objTarget, objTargetDeps);
-
-      // Add a target to create the testTargetBaseDir.
-      objTargetDeps.push_back("|"); // order-only dependency
-      objTargetDeps.push_back(String(TEST_OUT_DIR));
-      String testTargetBaseDir(TEST_OUT_DIR);
-      if (objTargetInfo.baseDir != ".") {
-        testTargetBaseDir += "/" + objTargetInfo.baseDir;
-        defineDirTarget(config, testTargetBaseDir);
-        objTargetDeps.push_back(testTargetBaseDir);
-      }
-
-      const String testObjTarget =
-          testTargetBaseDir + "/test_" + objTargetInfo.name;
-      const String testTargetName = Path(sourceFile).stem().string();
-      const String testTarget = testTargetBaseDir + "/test_" + testTargetName;
-      Logger::debug("testTarget: ", testTarget);
-
-      // Test object target.
-      defineCompileTarget(
-          config, testObjTarget, objTargetDeps, true /* isTest */
-      );
-
-      // Test binary target.
-      OrderedHashSet<String> testTargetDeps = {testObjTarget};
-      recursiveFindObjDeps(
-          testTargetDeps, objTargetDeps, sourceFile, buildOutDir,
-          buildObjTargets, config
-      );
-      defineLinkTarget(config, testTarget, testTargetDeps);
-      Logger::debug(testTarget, ':');
-      for (StringRef dep : testTargetDeps) {
-        Logger::debug(" '", dep, "'");
-      }
-
-      testCommands.push_back(echoCmd("Testing", testTargetName));
-      testCommands.push_back(buildCmd(testTarget));
-      testTargets.push_back(testTarget);
+  for (const Path& sourceFilePath : sourceFilePaths) {
+    if (!containsTestCode(sourceFilePath)) {
+      continue;
     }
+    enableTesting = true;
+
+    const Path sourceFileRelPath = PATH_FROM_OUT_DIR / Path(sourceFilePath);
+    String objTarget; // source.o
+    OrderedHashSet<String> objTargetDeps =
+        parseMMOutput(runMM(sourceFileRelPath, true /* isTest */), objTarget);
+
+    const Path targetBaseDir = fs::relative(
+        sourceFileRelPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+    );
+
+    // Add a target to create the testTargetBaseDir.
+    objTargetDeps.push_back("|"); // order-only dependency
+    objTargetDeps.push_back(String(TEST_OUT_DIR));
+    Path testTargetBaseDir = TEST_OUT_DIR;
+    if (targetBaseDir != ".") {
+      testTargetBaseDir /= targetBaseDir;
+      defineDirTarget(config, testTargetBaseDir);
+      objTargetDeps.push_back(testTargetBaseDir);
+    }
+
+    const String testObjTarget =
+        (testTargetBaseDir / "test_").string() + objTarget;
+    const String testTargetName = sourceFileRelPath.stem().string();
+    const String testTarget =
+        (testTargetBaseDir / "test_").string() + testTargetName;
+    Logger::debug("testTarget: ", testTarget);
+
+    // Test object target.
+    defineCompileTarget(
+        config, testObjTarget, objTargetDeps, true /* isTest */
+    );
+
+    // Test binary target.
+    OrderedHashSet<String> testTargetDeps = {testObjTarget};
+    collectBinDepObjs(
+        testTargetDeps, objTargetDeps, sourceFileRelPath, buildObjTargets,
+        config
+    );
+    defineLinkTarget(config, testTarget, testTargetDeps);
+    Logger::debug(testTarget, ':');
+    for (StringRef dep : testTargetDeps) {
+      Logger::debug(" '", dep, "'");
+    }
+
+    testCommands.emplace_back(echoCmd("Testing", testTargetName));
+    testCommands.emplace_back(buildCmd(testTarget));
+    testTargets.push_back(testTarget);
   }
+
+  OrderedHashSet<String> phonies = {"all"};
   if (enableTesting) {
     // Target to create the tests directory.
     defineDirTarget(config, TEST_OUT_DIR);
     config.defineTarget("test", testCommands, testTargets);
     phonies.push_back("test");
   }
-
   config.setPhony(phonies);
+
   return config;
 }
 
