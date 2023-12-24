@@ -2,11 +2,99 @@
 
 #include "Rustify.hpp"
 
+#include <initializer_list>
 #include <iostream>
+#include <list>
 #include <memory>
 #include <queue>
 #include <span>
 #include <stdexcept>
+#include <utility>
+
+template <typename Value>
+struct OrderedHashSet {
+  using Iterator = typename Vec<Value>::iterator;
+  using ConstIterator = typename Vec<Value>::const_iterator;
+
+  OrderedHashSet() = default;
+  OrderedHashSet(std::initializer_list<Value> init) {
+    for (const Value& value : init) {
+      push_back(value);
+    }
+  }
+
+  OrderedHashSet(const OrderedHashSet&) = default;
+  OrderedHashSet& operator=(const OrderedHashSet&) = default;
+  OrderedHashSet(OrderedHashSet&&) noexcept = default;
+  OrderedHashSet& operator=(OrderedHashSet&&) noexcept = default;
+
+  // O(1)
+  void push_back(const Value& value) {
+    if (!set.contains(value)) {
+      list.push_back(value);
+      set.insert(value);
+    }
+  }
+
+  // O(1)
+  const Value& operator[](usize index) const {
+    return list[index];
+  }
+  // O(1)
+  template <
+      typename T = Value, std::enable_if_t<!std::is_same_v<T, usize>, int> = 0>
+  Value& operator[](const Value& value) {
+    if (!set.contains(value)) {
+      list.push_back(value);
+    }
+    return set[value];
+  }
+
+  // O(1)
+  const Value& at(const Value& value) const {
+    auto it = set.find(value);
+    if (it == set.end()) {
+      throw std::out_of_range("Value not found");
+    }
+    return *it;
+  }
+
+  // O(1)
+  bool contains(const Value& value) const {
+    return set.contains(value);
+  }
+
+  Iterator begin() {
+    return list.begin();
+  }
+  ConstIterator begin() const {
+    return list.begin();
+  }
+  ConstIterator cbegin() const {
+    return list.cbegin();
+  }
+
+  Iterator end() {
+    return list.end();
+  }
+  ConstIterator end() const {
+    return list.end();
+  }
+  ConstIterator cend() const {
+    return list.cend();
+  }
+
+  operator std::span<Value>() {
+    return std::span<Value>(&*list.begin(), list.size());
+  }
+  operator std::span<const Value>() const {
+    return std::span<const Value>(&*list.begin(), list.size());
+  }
+
+private:
+  Vec<Value> list;
+  HashSet<Value> set;
+};
 
 struct TrieNode {
   HashMap<char, std::unique_ptr<TrieNode>> children;
