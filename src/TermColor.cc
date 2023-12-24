@@ -9,6 +9,19 @@ static bool isTerm() noexcept {
   return std::getenv("TERM") != nullptr;
 }
 
+static ColorMode getColorMode(StringRef str) noexcept {
+  if (str == "always") {
+    return ColorMode::always;
+  } else if (str == "auto") {
+    return ColorMode::automatic;
+  } else if (str == "never") {
+    return ColorMode::never;
+  } else {
+    Logger::warn("unknown color mode `", str, "`; falling back to auto");
+    return ColorMode::automatic;
+  }
+}
+
 class ColorState {
 public:
   void set(ColorMode mode) noexcept {
@@ -39,7 +52,7 @@ private:
 
   ColorState() noexcept {
     if (const char* color = std::getenv("POAC_TERM_COLOR")) {
-      setColorMode(color);
+      set(getColorMode(color));
     } else {
       should_color_ = isTerm();
     }
