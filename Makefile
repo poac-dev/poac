@@ -45,7 +45,7 @@ $(PROJ_NAME): $(OUT_DIR)/Cmd/Help.o $(OUT_DIR)/Algos.o $(OUT_DIR)/Cmd/Build.o \
   $(OUT_DIR)/Cmd/Clean.o $(OUT_DIR)/Cmd/Init.o $(OUT_DIR)/Cmd/Version.o \
   $(OUT_DIR)/Cmd/Fmt.o $(OUT_DIR)/Cmd/Lint.o $(OUT_DIR)/BuildConfig.o \
   $(OUT_DIR)/Manifest.o $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o \
-  $(OUT_DIR)/Cmd/Global.o $(OUT_DIR)/main.o
+  $(OUT_DIR)/Cmd/Global.o $(OUT_DIR)/Semver.o $(OUT_DIR)/main.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(OUT_DIR)/Algos.o: src/Algos.cc src/Algos.hpp
@@ -55,6 +55,9 @@ $(OUT_DIR)/TermColor.o: src/TermColor.cc src/TermColor.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OUT_DIR)/Logger.o: src/Logger.cc src/Logger.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OUT_DIR)/Semver.o: src/Semver.cc src/Semver.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OUT_DIR)/Cmd/Help.o: src/Cmd/Help.cc src/Cmd/Help.hpp src/Rustify.hpp \
@@ -115,9 +118,10 @@ $(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp src/Cmd/Test.hpp \
 
 
 test: $(OUT_DIR)/tests $(OUT_DIR)/tests/test_BuildConfig \
-  $(OUT_DIR)/tests/test_Algos
+  $(OUT_DIR)/tests/test_Algos $(OUT_DIR)/tests/test_Semver
 	$(OUT_DIR)/tests/test_BuildConfig
 	$(OUT_DIR)/tests/test_Algos
+	$(OUT_DIR)/tests/test_Semver
 
 $(OUT_DIR)/tests:
 	mkdir -p $@
@@ -127,7 +131,8 @@ $(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o \
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(OUT_DIR)/tests/test_BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp \
-  src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp
+  src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp \
+  src/TestUtils.hpp
 	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
 
 $(OUT_DIR)/tests/test_Algos: $(OUT_DIR)/tests/test_Algos.o $(OUT_DIR)/Logger.o \
@@ -135,5 +140,13 @@ $(OUT_DIR)/tests/test_Algos: $(OUT_DIR)/tests/test_Algos.o $(OUT_DIR)/Logger.o \
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(OUT_DIR)/tests/test_Algos.o: src/Algos.cc src/Algos.hpp src/Logger.hpp \
-  src/TermColor.hpp
+  src/TermColor.hpp src/TestUtils.hpp
+	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
+
+$(OUT_DIR)/tests/test_Semver: $(OUT_DIR)/tests/test_Semver.o $(OUT_DIR)/Logger.o \
+  $(OUT_DIR)/TermColor.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(OUT_DIR)/tests/test_Semver.o: src/Semver.cc src/Semver.hpp src/Logger.hpp \
+  src/TermColor.hpp src/TestUtils.hpp
 	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
