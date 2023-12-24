@@ -61,7 +61,7 @@ static Vec<Path> listSourceFilePaths(StringRef directory) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
     }
-    sourceFilePaths.push_back(entry.path());
+    sourceFilePaths.emplace_back(entry.path());
   }
   return sourceFilePaths;
 }
@@ -112,7 +112,7 @@ struct Target {
 
 struct BuildConfig {
   const String packageName;
-  const String buildOutDir;
+  const Path buildOutDir;
 
   HashMap<String, Variable> variables;
   HashMap<String, Vec<String>> varDeps;
@@ -486,6 +486,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     throw std::runtime_error("src directory not found");
   }
   if (!fs::exists("src/main.cc")) {
+    // For now, we only support .cc extension only for the main file.
     throw std::runtime_error("src/main.cc not found");
   }
 
@@ -531,7 +532,13 @@ static BuildConfig configureBuild(const bool isDebug) {
     defineCompileTarget(config, buildObjTarget, objTargetDeps);
   }
   // Project binary target.
-  defineLinkTarget(config, config.packageName, buildObjTargets);
+  const String mainObjTarget = config.buildOutDir / "main.o";
+  OrderedHashSet<String> projTargetDeps = {mainObjTarget};
+  collectBinDepObjs(
+      projTargetDeps, config.targets.at(mainObjTarget).dependsOn, "",
+      buildObjTargets, config
+  );
+  defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Targets for tests.
   bool enableTesting = false;
