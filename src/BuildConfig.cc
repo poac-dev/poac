@@ -21,6 +21,8 @@
 #include <string>
 
 static String OUT_DIR;
+static constexpr StringRef TEST_OUT_DIR = "tests";
+static const String PATH_FROM_OUT_DIR = "../../";
 static String CXX = "clang++";
 static String INCLUDES;
 static String DEFINES;
@@ -252,15 +254,15 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
   os << "]\n";
 }
 
-static Vec<String> listSourceFiles(StringRef directory) {
-  Vec<String> sourceFiles;
+static Vec<String> listSourceFilePaths(StringRef directory) {
+  Vec<String> sourceFilePaths;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
     }
-    sourceFiles.push_back(entry.path().string());
+    sourceFilePaths.push_back(entry.path().string());
   }
-  return sourceFiles;
+  return sourceFilePaths;
 }
 
 static String exec(const char* cmd) {
@@ -276,9 +278,13 @@ static String exec(const char* cmd) {
   return result;
 }
 
-static String runMM(const String& sourceFile) {
-  const String command = "cd " + getOutDir() + " && " + CXX + DEFINES + INCLUDES
-                         + " -MM " + sourceFile;
+static String runMM(const String& sourceFile, const bool isTest = false) {
+  String command = "cd " + getOutDir() + " && " + CXX + DEFINES + INCLUDES;
+  if (isTest) {
+    command += " -DPOAC_TEST -MM " + sourceFile;
+  } else {
+    command += " -MM " + sourceFile;
+  }
   return exec(command.c_str());
 }
 
@@ -342,8 +348,8 @@ static String buildCmd(const String& cmd) noexcept {
   }
 }
 
-static void defineDirTarget(BuildConfig& config, const String& directory) {
-  config.defineTarget(directory, {buildCmd("mkdir -p $@")});
+static void defineDirTarget(BuildConfig& config, StringRef directory) {
+  config.defineTarget(String(directory), {buildCmd("mkdir -p $@")});
 }
 
 static void defineCompileTarget(
@@ -382,8 +388,58 @@ static void defineLinkTarget(
 struct ObjTargetInfo {
   String name;
   String baseDir;
-  Vec<String> deps;
 };
+
+static void recursiveFindObjDeps(
+    HashSet<String>& deps, const Vec<String>& objTargetDeps,
+    const String& sourceFile, const String& buildOutDir,
+    const HashSet<String>& buildObjTargetSet, BuildConfig& config
+) {
+  // This test target depends on the object file corresponding to
+  // the header file included in this source file.
+  for (const String& header : objTargetDeps) {
+    const Path headerPath(header);
+    if (Path(sourceFile).stem().string() == headerPath.stem().string()) {
+      // We shouldn't depend on the original object file (e.g.,
+      // poac.d/path/to/file.o). We should depend on the test object
+      // file (e.g., tests/path/to/test_file.o).
+      continue;
+    }
+    if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
+      continue;
+    }
+
+    // Map headerPath to the corresponding object target.
+    // headerPath: src/path/to/header.h ->
+    // object target: poac.d/path/to/header.o
+    String headerObjTargetBaseDir =
+        fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR + "src")
+            .string();
+    if (headerObjTargetBaseDir != ".") {
+      headerObjTargetBaseDir = buildOutDir + "/" + headerObjTargetBaseDir;
+    } else {
+      headerObjTargetBaseDir = buildOutDir;
+    }
+    const String headerObjTarget =
+        headerObjTargetBaseDir + "/" + headerPath.stem().string() + ".o";
+    Logger::debug("headerObjTarget: ", headerObjTarget);
+
+    if (deps.contains(headerObjTarget)) {
+      continue;
+    }
+
+    auto itr = buildObjTargetSet.find(headerObjTarget);
+    if (itr == buildObjTargetSet.end()) {
+      continue;
+    }
+    deps.insert(*itr);
+    Logger::debug("headerObjTarget: added ", *itr);
+    recursiveFindObjDeps(
+        deps, config.targets.at(*itr).dependsOn, sourceFile, buildOutDir,
+        buildObjTargetSet, config
+    );
+  }
+}
 
 static BuildConfig configureBuild(const bool debug) {
   if (!fs::exists("src")) {
@@ -402,7 +458,6 @@ static BuildConfig configureBuild(const bool debug) {
   }
 
   const String packageName = getPackageName();
-  const String pathFromOutDir = "../../";
 
   BuildConfig config;
 
@@ -449,13 +504,13 @@ static BuildConfig configureBuild(const bool debug) {
   Vec<String> phonies = {"all"};
   config.setAll({packageName});
 
-  const Vec<String> sourceFiles = listSourceFiles("src");
+  const Vec<String> sourceFilePaths = listSourceFilePaths("src");
   Vec<String> buildObjTargets;
 
   // sourceFile.cc -> ObjTargetInfo
   HashMap<String, ObjTargetInfo> objTargetInfos;
-  for (const String& sourceFileName : sourceFiles) {
-    const String sourceFile = pathFromOutDir + sourceFileName;
+  for (const String& sourceFilePath : sourceFilePaths) {
+    const String sourceFile = PATH_FROM_OUT_DIR + sourceFilePath;
     const String mmOutput = runMM(sourceFile);
 
     String objTarget; // sourceFile.o
@@ -463,24 +518,23 @@ static BuildConfig configureBuild(const bool debug) {
     parseMMOutput(mmOutput, objTarget, objTargetDeps);
 
     const String targetBaseDir =
-        fs::relative(Path(sourceFile).parent_path(), pathFromOutDir + "src")
+        fs::relative(Path(sourceFile).parent_path(), PATH_FROM_OUT_DIR + "src")
             .string();
-    objTargetInfos[sourceFileName] = {objTarget, targetBaseDir, objTargetDeps};
+    objTargetInfos[sourceFilePath] = {objTarget, targetBaseDir};
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
-    Vec<String> buildTargetDeps = objTargetDeps;
-    buildTargetDeps.emplace_back("|"); // order-only dependency
-    buildTargetDeps.push_back(buildOutDir);
+    objTargetDeps.emplace_back("|"); // order-only dependency
+    objTargetDeps.push_back(buildOutDir);
     String buildTargetBaseDir = buildOutDir;
     if (targetBaseDir != ".") {
       buildTargetBaseDir += "/" + targetBaseDir;
       defineDirTarget(config, buildTargetBaseDir);
-      buildTargetDeps.push_back(buildTargetBaseDir);
+      objTargetDeps.push_back(buildTargetBaseDir);
     }
 
     const String buildObjTarget = buildTargetBaseDir + "/" + objTarget;
     buildObjTargets.push_back(buildObjTarget);
-    defineCompileTarget(config, buildObjTarget, buildTargetDeps);
+    defineCompileTarget(config, buildObjTarget, objTargetDeps);
   }
   defineLinkTarget(config, packageName, buildObjTargets);
 
@@ -491,70 +545,48 @@ static BuildConfig configureBuild(const bool debug) {
   const HashSet<String> buildObjTargetSet(
       buildObjTargets.begin(), buildObjTargets.end()
   );
-  const String testOutDir = "tests";
-  for (auto& [sourceFile, objTargetInfo] : objTargetInfos) {
-    if (containsTestCode(sourceFile)) {
+  for (auto& [sourceFilePath, objTargetInfo] : objTargetInfos) {
+    if (containsTestCode(sourceFilePath)) {
       enableTesting = true;
 
-      // NOTE: Since we know that we don't use objTargetInfos for other
-      // targets, we can just update it here instead of creating a copy.
-      objTargetInfo.deps.emplace_back("|"); // order-only dependency
-      objTargetInfo.deps.push_back(testOutDir);
+      const String sourceFile = PATH_FROM_OUT_DIR + sourceFilePath;
+      const String mmOutput = runMM(sourceFile, true /* isTest */);
+
+      String objTarget; // sourceFile.o
+      Vec<String> objTargetDeps;
+      parseMMOutput(mmOutput, objTarget, objTargetDeps);
 
       // Add a target to create the testTargetBaseDir.
-      String testTargetBaseDir = testOutDir;
+      objTargetDeps.emplace_back("|"); // order-only dependency
+      objTargetDeps.emplace_back(TEST_OUT_DIR);
+      String testTargetBaseDir(TEST_OUT_DIR);
       if (objTargetInfo.baseDir != ".") {
         testTargetBaseDir += "/" + objTargetInfo.baseDir;
         defineDirTarget(config, testTargetBaseDir);
-        objTargetInfo.deps.push_back(testTargetBaseDir);
+        objTargetDeps.push_back(testTargetBaseDir);
       }
 
       const String testObjTarget =
           testTargetBaseDir + "/test_" + objTargetInfo.name;
       const String testTargetName = Path(sourceFile).stem().string();
       const String testTarget = testTargetBaseDir + "/test_" + testTargetName;
+      Logger::debug("testTarget: ", testTarget);
 
       // Test object target.
-      defineCompileTarget(config, testObjTarget, objTargetInfo.deps, true);
+      defineCompileTarget(
+          config, testObjTarget, objTargetDeps, true /* isTest */
+      );
 
       // Test binary target.
-      Vec<String> testTargetDeps = {testObjTarget};
-      // This test target depends on the object file corresponding to
-      // the header file included in this source file.
-      for (const String& header : objTargetInfo.deps) {
-        // We shouldn't depend on the original object file (e.g.,
-        // poac.d/path/to/file.o). We should depend on the test object
-        // file (e.g., tests/path/to/test_file.o).
-        const Path headerPath(header);
-        if (Path(sourceFile).stem().string() == headerPath.stem().string()) {
-          continue;
-        }
-        if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
-          continue;
-        }
-
-        // headerPath: src/path/to/header.h ->
-        // object target: poac.d/path/to/header.o
-        String headerObjTargetBaseDir =
-            fs::relative(headerPath.parent_path(), pathFromOutDir + "src")
-                .string();
-        if (headerObjTargetBaseDir != ".") {
-          headerObjTargetBaseDir = buildOutDir + "/" + headerObjTargetBaseDir;
-        } else {
-          headerObjTargetBaseDir = buildOutDir;
-        }
-        const String headerObjTarget =
-            headerObjTargetBaseDir + "/" + headerPath.stem().string() + ".o";
-        Logger::debug("headerObjTarget: ", headerObjTarget);
-
-        auto itr = buildObjTargetSet.find(headerObjTarget);
-        if (itr == buildObjTargetSet.end()) {
-          continue;
-        }
-        testTargetDeps.push_back(*itr);
-      }
-
-      defineLinkTarget(config, testTarget, testTargetDeps);
+      HashSet<String> testTargetDeps = {testObjTarget};
+      recursiveFindObjDeps(
+          testTargetDeps, objTargetDeps, sourceFile, buildOutDir,
+          buildObjTargetSet, config
+      );
+      Vec<String> testTargetDepsVec(
+          testTargetDeps.begin(), testTargetDeps.end()
+      );
+      defineLinkTarget(config, testTarget, testTargetDepsVec);
       Logger::debug(testTarget, ':');
       for (const String& dep : testTargetDeps) {
         Logger::debug(" '", dep, "'");
@@ -569,13 +601,12 @@ static BuildConfig configureBuild(const bool debug) {
   }
   if (enableTesting) {
     // Target to create the tests directory.
-    defineDirTarget(config, testOutDir);
+    defineDirTarget(config, TEST_OUT_DIR);
     config.defineTarget("test", testCommands, testTargets);
     phonies.emplace_back("test");
   }
 
   config.setPhony(phonies);
-
   return config;
 }
 

@@ -11,13 +11,7 @@
 #include <variant>
 
 std::ostream& operator<<(std::ostream& os, const Version& v) {
-  os << v.major;
-  if (v.minor) {
-    os << '.' << v.minor.value();
-  }
-  if (v.patch) {
-    os << '.' << v.patch.value();
-  }
+  os << v.major << '.' << v.minor << '.' << v.patch;
   if (v.pre) {
     os << '-' << v.pre.value();
   }
