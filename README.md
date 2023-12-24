@@ -177,12 +177,12 @@ You can write tests in any source files within the `src` directory.  Create file
 `src/Lib.hpp`
 
 ```cpp
-#ifndef HELLO_WORLD_LIB_HPP
-#define HELLO_WORLD_LIB_HPP
+#ifndef LIB_HPP
+#define LIB_HPP
 
 int add(int, int);
 
-#endif // HELLO_WORLD_LIB_HPP
+#endif  // LIB_HPP_
 ```
 
 `src/Lib.cc`
@@ -199,8 +199,8 @@ int add(int a, int b) {
 #  include <cassert>
 
 int main() {
-  assert(add(1, 2) == 3); // ok
-  assert(add(1, 2) == 4); // fail
+  assert(add(1, 2) == 3);  // ok
+  assert(add(1, 2) == 4);  // fail
 }
 
 #endif
