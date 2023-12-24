@@ -68,16 +68,7 @@ void setColorMode(ColorMode cm) noexcept {
 }
 
 void setColorMode(StringRef str) noexcept {
-  if (str == "always") {
-    setColorMode(ColorMode::always);
-  } else if (str == "auto") {
-    setColorMode(ColorMode::automatic);
-  } else if (str == "never") {
-    setColorMode(ColorMode::never);
-  } else {
-    Logger::warn("unknown color mode `", str, "`; falling back to auto");
-    setColorMode(ColorMode::automatic);
-  }
+  setColorMode(getColorMode(str));
 }
 
 bool shouldColor() noexcept {
