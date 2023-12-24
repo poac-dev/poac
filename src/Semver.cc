@@ -11,14 +11,20 @@
 #include <string>
 #include <variant>
 
+String Version::to_string() const {
+  String s = std::to_string(major) + '.' + std::to_string(minor) + '.'
+             + std::to_string(patch);
+  if (pre) {
+    s += '-' + pre.value();
+  }
+  if (build) {
+    s += '+' + build.value();
+  }
+  return s;
+}
+
 std::ostream& operator<<(std::ostream& os, const Version& v) {
-  os << v.major << '.' << v.minor << '.' << v.patch;
-  if (v.pre) {
-    os << '-' << v.pre.value();
-  }
-  if (v.build) {
-    os << '+' << v.build.value();
-  }
+  os << v.to_string();
   return os;
 }
 

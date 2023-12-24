@@ -107,6 +107,7 @@ std::ostream& operator<<(std::ostream& os, const Variable& var) {
 
 struct Target {
   Vec<String> commands;
+  // Option<String> source;
   OrderedHashSet<String> dependsOn;
 };
 
@@ -485,8 +486,8 @@ static BuildConfig configureBuild(const bool debug) {
       packageNameUpper.begin(), packageNameUpper.end(),
       packageNameUpper.begin(), ::toupper
   );
-  DEFINES =
-      " -D" + packageNameUpper + "_VERSION='\"" + getPackageVersion() + "\"'";
+  DEFINES = " -D" + packageNameUpper + "_VERSION='\""
+            + getPackageVersion().to_string() + "\"'";
   config.defineSimpleVariable("DEFINES", DEFINES);
 
   const Vec<Path> deps = installGitDependencies();

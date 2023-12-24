@@ -19,6 +19,8 @@ struct Version {
   )
       : major(major), minor(minor), patch(patch), pre(std::move(pre)),
         build(std::move(build)) {}
+
+  String to_string() const;
 };
 std::ostream& operator<<(std::ostream&, const Version&);
 bool operator==(const Version&, const Version&);
