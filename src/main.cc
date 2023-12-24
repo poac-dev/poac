@@ -98,6 +98,9 @@ int main(int argc, char* argv[]) {
 
   // Parse arguments (options should appear before the subcommand, as the help
   // message shows intuitively)
+  // poac --verbose run --release help --color always --verbose
+  // ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // [global]       [run]         [help (under run)]
   std::span<char* const> args(argv + 1, argv + argc);
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
