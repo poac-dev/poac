@@ -9,6 +9,7 @@ enum class ColorMode {
 };
 
 void setColorMode(ColorMode) noexcept;
+void setColorMode(StringRef) noexcept;
 bool shouldColor() noexcept;
 
 String gray(StringRef) noexcept;

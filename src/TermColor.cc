@@ -1,5 +1,8 @@
 #include "TermColor.hpp"
 
+#include "Logger.hpp"
+#include "Rustify.hpp"
+
 #include <cstdlib>
 
 static bool isTerm() noexcept {
@@ -43,6 +46,19 @@ private:
 
 void setColorMode(ColorMode cm) noexcept {
   ColorState::instance().set(cm);
+}
+
+void setColorMode(StringRef str) noexcept {
+  if (str == "always") {
+    setColorMode(ColorMode::always);
+  } else if (str == "auto") {
+    setColorMode(ColorMode::automatic);
+  } else if (str == "never") {
+    setColorMode(ColorMode::never);
+  } else {
+    Logger::warn("unknown color mode: ", str, " falling back to auto");
+    setColorMode(ColorMode::automatic);
+  }
 }
 
 bool shouldColor() noexcept {

@@ -91,21 +91,8 @@ int helpMain(std::span<const StringRef> args) noexcept {
 }
 
 int main(int argc, char* argv[]) {
-  // Handle POAC_TERM_COLOR
-  if (const char* color_p = std::getenv("POAC_TERM_COLOR")) {
-    String color(color_p);
-    std::transform(color.begin(), color.end(), color.begin(), ::tolower);
-
-    if (color == "always") {
-      setColorMode(ColorMode::always);
-    } else if (color == "auto") {
-      setColorMode(ColorMode::automatic);
-    } else if (color == "never") {
-      setColorMode(ColorMode::never);
-    } else {
-      Logger::error("invalid value for POAC_TERM_COLOR: ", color_p);
-      return EXIT_FAILURE;
-    }
+  if (const char* color = std::getenv("POAC_TERM_COLOR")) {
+    setColorMode(color);
   }
 
   // Parse arguments (options should appear before the subcommand, as the help
