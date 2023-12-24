@@ -34,17 +34,24 @@ bool operator!=(const Version& lhs, const Version& rhs) {
 
 bool operator<(const Version& lhs, const Version& rhs) {
   // Compare major, minor, and patch versions
-  if (auto cmp = std::tie(lhs.major, lhs.minor, lhs.patch)
-                 <=> std::tie(rhs.major, rhs.minor, rhs.patch);
-      cmp != 0) {
-    return cmp < 0;
+  if (lhs.major < rhs.major) {
+    return true;
+  } else if (lhs.major > rhs.major) {
+    return false;
+  } else if (lhs.minor < rhs.minor) {
+    return true;
+  } else if (lhs.minor > rhs.minor) {
+    return false;
+  } else if (lhs.patch < rhs.patch) {
+    return true;
+  } else if (lhs.patch > rhs.patch) {
+    return false;
   }
 
   // Pre-release versions have lower precedence than normal versions
   if (lhs.pre.has_value() != rhs.pre.has_value()) {
     return lhs.pre.has_value();
   }
-
   // Compare pre-release versions
   if (lhs.pre.has_value() && rhs.pre.has_value()) {
     return lhs.pre.value() < rhs.pre.value();
@@ -53,7 +60,7 @@ bool operator<(const Version& lhs, const Version& rhs) {
   if (lhs.build.has_value() != rhs.build.has_value()) {
     return lhs.build.has_value();
   }
-
+  // Compare build metadata
   if (lhs.build.has_value() && rhs.build.has_value()) {
     return lhs.build.value() < rhs.build.value();
   }
