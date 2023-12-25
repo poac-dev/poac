@@ -177,12 +177,12 @@ You can write tests in any source files within the `src` directory.  Create file
 `src/Lib.hpp`
 
 ```cpp
-#ifndef HELLO_WORLD_LIB_HPP
-#define HELLO_WORLD_LIB_HPP
+#ifndef LIB_HPP
+#define LIB_HPP
 
 int add(int, int);
 
-#endif // HELLO_WORLD_LIB_HPP
+#endif  // LIB_HPP_
 ```
 
 `src/Lib.cc`
@@ -199,7 +199,8 @@ int add(int a, int b) {
 #  include <cassert>
 
 int main() {
-  assert(add(1, 2) == 3);
+  assert(add(1, 2) == 3);  // ok
+  assert(add(1, 2) == 4);  // fail
 }
 
 #endif
@@ -212,7 +213,8 @@ you:~/hello_world$ poac test
  Compiling src/Lib.cc
    Linking tests/test_Lib
    Testing Lib
-  Finished debug test(s) in 0.565934s
+Assertion failed: (add(1, 2) == 4), function main, file Lib.cc, line 13.
+make: *** [test] Abort trap: 6
 ```
 
 ### Run linter
