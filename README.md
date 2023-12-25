@@ -77,14 +77,14 @@ If your environment is not included in the released packages, you have to build 
 
 #### compilers
 
-* Compilers which support [C++ 20](https://en.cppreference.com/w/cpp/20)
-  * `GCC`: `11` or later
-  * `Clang`: `15` or later
-  * `Apple Clang`: provided by `macOS Big Sur (11)` or later
+* Compilers which support C++20
+  * GCC: `11` or later
+  * Clang: `15` or later
+  * Apple Clang: provided by `macOS Monterey (12)` or later
 
 #### tools
 
-* `Make`
+* Make
 
 #### libraries
 
