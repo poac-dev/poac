@@ -105,7 +105,7 @@ make RELEASE=1 install
 ### Runtime Requirements
 
 * Make
-* GCC or Clang
+* C++ compiler
 * mkdir
 * echo
 * Git (required for Git dependencies)
