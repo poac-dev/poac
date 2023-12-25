@@ -102,6 +102,16 @@ cd poac
 make RELEASE=1 install
 ```
 
+### Runtime Requirements
+
+* Make
+* GCC or Clang
+* mkdir
+* echo
+* Git (required for Git dependencies)
+* cpplint (required for `poac lint`)
+* clang-format (required for `poac fmt`)
+
 ## Usage
 
 ### Start a new project with Poac
