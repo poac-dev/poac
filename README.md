@@ -108,9 +108,9 @@ make RELEASE=1 install
 * C++ compiler
 * mkdir
 * echo
-* Git (required for Git dependencies)
-* cpplint (required for `poac lint`)
-* clang-format (required for `poac fmt`)
+* Git (for Git dependencies)
+* cpplint (for `poac lint`)
+* clang-format (for `poac fmt`)
 
 ## Usage
 
