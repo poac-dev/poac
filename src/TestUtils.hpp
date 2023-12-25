@@ -23,7 +23,7 @@
 #define ASSERT_EQ(lhs, rhs)                                                   \
   if ((lhs) != (rhs)) {                                                       \
     std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << (lhs) << " != " << (rhs) << std::endl;                       \
+              << (lhs) << " == " << (rhs) << std::endl;                       \
     std::exit(EXIT_FAILURE);                                                  \
   } else {                                                                    \
     std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
@@ -33,11 +33,21 @@
 #define ASSERT_NE(lhs, rhs)                                                   \
   if ((lhs) == (rhs)) {                                                       \
     std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << (lhs) << " == " << (rhs) << std::endl;                       \
+              << (lhs) << " != " << (rhs) << std::endl;                       \
     std::exit(EXIT_FAILURE);                                                  \
   } else {                                                                    \
     std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
               << #lhs << " != " << #rhs << std::endl;                         \
+  }
+
+#define ASSERT_LT(lhs, rhs)                                                   \
+  if ((lhs) >= (rhs)) {                                                       \
+    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
+              << (lhs) << " < " << (rhs) << std::endl;                        \
+    std::exit(EXIT_FAILURE);                                                  \
+  } else {                                                                    \
+    std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
+              << #lhs << " < " << #rhs << std::endl;                          \
   }
 
 #define ASSERT_EXCEPTION(statements, exception, msg)                          \
