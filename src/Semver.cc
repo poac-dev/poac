@@ -388,7 +388,7 @@ struct Parser {
     return v;
   }
 
-  // Even if the token can be parsed as an identifier, we try to parse it as a
+  // Even if the token can be parsed as an identifier, try to parse it as a
   // number.
   u64 parseAsNum() {
     if (!std::isdigit(lexer.s[lexer.pos])) {
@@ -435,7 +435,7 @@ struct Parser {
     return BuildMetadata{build};
   }
 
-  // Even if the token can be parsed as a number, we try to parse it as an
+  // Even if the token can be parsed as a number, try to parse it as an
   // identifier.
   Token parseAsIdent() {
     if (!std::isalnum(lexer.s[lexer.pos])) {
