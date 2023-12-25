@@ -15,29 +15,55 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <stdio.h>
 #include <string>
 
 static String OUT_DIR;
+static constexpr StringRef TEST_OUT_DIR = "tests";
+static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
-static String INCLUDES;
+static String INCLUDES = "-Iinclude";
 static String DEFINES;
 
-static void setOutDir(const bool debug) {
-  if (debug) {
+void setOutDir(const bool isDebug) {
+  if (isDebug) {
     OUT_DIR = "poac-out/debug";
   } else {
     OUT_DIR = "poac-out/release";
   }
 }
-
-static String getOutDir() {
+String getOutDir() {
   if (OUT_DIR.empty()) {
-    throw std::runtime_error("OUT_DIR is not set");
+    throw std::runtime_error("outDir is not set");
   }
   return OUT_DIR;
+}
+
+static String exec(const char* cmd) {
+  std::array<char, 128> buffer;
+  String result;
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+  if (!pipe) {
+    throw std::runtime_error("popen() failed!");
+  }
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+    result += buffer.data();
+  }
+  return result;
+}
+
+static Vec<Path> listSourceFilePaths(StringRef directory) {
+  Vec<Path> sourceFilePaths;
+  for (const auto& entry : fs::recursive_directory_iterator(directory)) {
+    if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
+      continue;
+    }
+    sourceFilePaths.emplace_back(entry.path());
+  }
+  return sourceFilePaths;
 }
 
 enum class VarType {
@@ -81,10 +107,13 @@ std::ostream& operator<<(std::ostream& os, const Variable& var) {
 
 struct Target {
   Vec<String> commands;
-  Vec<String> dependsOn;
+  OrderedHashSet<String> dependsOn;
 };
 
 struct BuildConfig {
+  const String packageName;
+  const Path buildOutDir;
+
   HashMap<String, Variable> variables;
   HashMap<String, Vec<String>> varDeps;
   HashMap<String, Target> targets;
@@ -92,19 +121,31 @@ struct BuildConfig {
   Option<Target> phony;
   Option<Target> all;
 
-  void defineVariable(String, Variable, const Vec<String>& = {});
-  void defineSimpleVariable(String, String, const Vec<String>& = {});
-  void defineCondVariable(String, String, const Vec<String>& = {});
+  BuildConfig() = default;
+  explicit BuildConfig(const String& packageName)
+      : packageName(packageName), buildOutDir(packageName + ".d") {}
 
-  void defineTarget(String, const Vec<String>&, const Vec<String>& = {});
-  void setPhony(const Vec<String>&);
-  void setAll(const Vec<String>&);
+  void defineVariable(
+      const String&, const Variable&, const OrderedHashSet<String>& = {}
+  );
+  void defineSimpleVariable(
+      const String&, const String&, const OrderedHashSet<String>& = {}
+  );
+  void defineCondVariable(
+      const String&, const String&, const OrderedHashSet<String>& = {}
+  );
+
+  void
+  defineTarget(String, const Vec<String>&, const OrderedHashSet<String>& = {});
+  void setPhony(const OrderedHashSet<String>&);
+  void setAll(const OrderedHashSet<String>&);
   void emitMakefile(std::ostream& = std::cout) const;
   void emitCompdb(StringRef, std::ostream& = std::cout) const;
 };
 
 void BuildConfig::defineVariable(
-    String name, Variable value, const Vec<String>& dependsOn
+    const String& name, const Variable& value,
+    const OrderedHashSet<String>& dependsOn
 ) {
   variables[name] = value;
   for (const String& dep : dependsOn) {
@@ -112,21 +153,22 @@ void BuildConfig::defineVariable(
     varDeps[dep].push_back(name);
   }
 }
-
 void BuildConfig::defineSimpleVariable(
-    String name, String value, const Vec<String>& dependsOn
+    const String& name, const String& value,
+    const OrderedHashSet<String>& dependsOn
 ) {
   defineVariable(name, {value, VarType::Simple}, dependsOn);
 }
-
 void BuildConfig::defineCondVariable(
-    String name, String value, const Vec<String>& dependsOn
+    const String& name, const String& value,
+    const OrderedHashSet<String>& dependsOn
 ) {
   defineVariable(name, {value, VarType::Cond}, dependsOn);
 }
 
 void BuildConfig::defineTarget(
-    String name, const Vec<String>& commands, const Vec<String>& dependsOn
+    String name, const Vec<String>& commands,
+    const OrderedHashSet<String>& dependsOn
 ) {
   targets[name] = {commands, dependsOn};
   for (const String& dep : dependsOn) {
@@ -135,24 +177,23 @@ void BuildConfig::defineTarget(
   }
 }
 
-void BuildConfig::setPhony(const Vec<String>& dependsOn) {
+void BuildConfig::setPhony(const OrderedHashSet<String>& dependsOn) {
   phony = {{}, dependsOn};
 }
-
-void BuildConfig::setAll(const Vec<String>& dependsOn) {
+void BuildConfig::setAll(const OrderedHashSet<String>& dependsOn) {
   all = {{}, dependsOn};
 }
 
 static void emitTarget(
-    std::ostream& os, StringRef target, const Vec<String>& dependsOn,
-    const Vec<String>& commands = {}
+    std::ostream& os, StringRef target, std::span<const String> dependsOn,
+    std::span<const String> commands = {}
 ) {
   usize offset = 0;
 
   os << target << ":";
   offset += target.size() + 2; // : and space
 
-  for (const String& dep : dependsOn) {
+  for (StringRef dep : dependsOn) {
     if (offset + dep.size() + 2 > 80) { // 2 for space and \.
       // \ for line continuation. \ is the 80th character.
       os << std::setw(83 - offset) << " \\\n ";
@@ -163,18 +204,13 @@ static void emitTarget(
   }
   os << '\n';
 
-  for (const String& cmd : commands) {
+  for (StringRef cmd : commands) {
     os << '\t' << cmd << '\n';
   }
   os << '\n';
 }
 
 void BuildConfig::emitMakefile(std::ostream& os) const {
-  // TODO: I guess we can topo-sort when calling defineVariable and
-  // defineTarget.  Then we don't need to sort here.  This way we can
-  // avoid the extra memory usage and possibly improve time complexity.
-  // The current way is simple and bug-free though.
-
   const Vec<String> sortedVars = topoSort(variables, varDeps);
   for (const String& varName : sortedVars) {
     os << varName << ' ' << variables.at(varName) << '\n';
@@ -197,15 +233,12 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
 
 void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
   const Path baseDirPath = fs::canonical(baseDir);
-  const HashSet<String> phonyDeps(
-      phony->dependsOn.begin(), phony->dependsOn.end()
-  );
-  const String firstIdent = String(2, ' ');
-  const String secondIdent = String(4, ' ');
+  const String firstIdent(2, ' ');
+  const String secondIdent(4, ' ');
 
   std::stringstream ss;
   for (const auto& [target, targetInfo] : targets) {
-    if (phonyDeps.contains(target)) {
+    if (phony->dependsOn.contains(target)) {
       // Ignore phony dependencies.
       continue;
     }
@@ -252,43 +285,24 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
   os << "]\n";
 }
 
-static Vec<String> listSourceFiles(StringRef directory) {
-  Vec<String> sourceFiles;
-  for (const auto& entry : fs::recursive_directory_iterator(directory)) {
-    if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
-      continue;
-    }
-    sourceFiles.push_back(entry.path().string());
+String runMM(const String& sourceFile, const bool isTest = false) {
+  String command = "cd " + getOutDir() + " && " + CXX + DEFINES + INCLUDES;
+  if (isTest) {
+    command += " -DPOAC_TEST -MM " + sourceFile;
+  } else {
+    command += " -MM " + sourceFile;
   }
-  return sourceFiles;
-}
-
-static String exec(const char* cmd) {
-  std::array<char, 128> buffer;
-  String result;
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-  if (!pipe) {
-    throw std::runtime_error("popen() failed!");
-  }
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-    result += buffer.data();
-  }
-  return result;
-}
-
-static String runMM(const String& sourceFile) {
-  const String command = "cd " + getOutDir() + " && " + CXX + DEFINES + INCLUDES
-                         + " -MM " + sourceFile;
   return exec(command.c_str());
 }
 
-static void
-parseMMOutput(const String& mmOutput, String& target, Vec<String>& deps) {
+static OrderedHashSet<String>
+parseMMOutput(const String& mmOutput, String& target) {
   std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
   Logger::debug(target, ':');
 
   String dependency;
+  OrderedHashSet<String> deps;
   while (std::getline(iss, dependency, ' ')) {
     if (!dependency.empty() && dependency.front() != '\\') {
       // Remove trailing newline if it exists
@@ -300,6 +314,7 @@ parseMMOutput(const String& mmOutput, String& target, Vec<String>& deps) {
     }
   }
   Logger::debug("");
+  return deps;
 }
 
 static bool isUpToDate(StringRef makefilePath) {
@@ -342,21 +357,22 @@ static String buildCmd(const String& cmd) noexcept {
   }
 }
 
-static void defineDirTarget(BuildConfig& config, const String& directory) {
+static void defineDirTarget(BuildConfig& config, const Path& directory) {
   config.defineTarget(directory, {buildCmd("mkdir -p $@")});
 }
 
-static void defineCompileTarget(
-    BuildConfig& config, const String& objTarget, const Vec<String>& deps,
-    const bool isTest = false
-) {
+static String echoCmd(StringRef header, StringRef body) {
   std::ostringstream oss;
-  Logger::log(
-      oss, LogLevel::info, "Compiling", deps[0].substr(6) // remove "../../"
-  );
+  Logger::log(oss, LogLevel::info, header, body);
+  return "@echo '" + oss.str() + "'";
+}
 
+static void defineCompileTarget(
+    BuildConfig& config, const String& objTarget,
+    const OrderedHashSet<String>& deps, const bool isTest = false
+) {
   Vec<String> commands(2);
-  commands[0] = "@echo '" + oss.str() + "'";
+  commands[0] = echoCmd("Compiling", deps[0].substr(6)); // remove "../../"
 
   const String compileCmd = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
@@ -368,65 +384,87 @@ static void defineCompileTarget(
 }
 
 static void defineLinkTarget(
-    BuildConfig& config, const String& binTarget, const Vec<String>& deps
+    BuildConfig& config, const String& binTarget,
+    const OrderedHashSet<String>& deps
 ) {
-  std::ostringstream oss;
-  Logger::log(oss, LogLevel::info, "Linking", binTarget);
-
   Vec<String> commands(2);
-  commands[0] = "@echo '" + oss.str() + "'";
+  commands[0] = echoCmd("Linking", binTarget);
   commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $^ -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
-struct ObjTargetInfo {
-  String name;
-  String baseDir;
-  Vec<String> deps;
-};
+static void collectBinDepObjs(
+    OrderedHashSet<String>& deps, const OrderedHashSet<String>& objTargetDeps,
+    const Path& sourceFile, const OrderedHashSet<String>& buildObjTargets,
+    const BuildConfig& config
+) {
+  // This test target depends on the object file corresponding to
+  // the header file included in this source file.
+  for (const Path headerPath : objTargetDeps) {
+    if (sourceFile.stem() == headerPath.stem()) {
+      // We shouldn't depend on the original object file (e.g.,
+      // poac.d/path/to/file.o). We should depend on the test object
+      // file (e.g., tests/path/to/test_file.o).
+      continue;
+    }
+    if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
+      continue;
+    }
 
-static BuildConfig configureBuild(const bool debug) {
-  if (!fs::exists("src")) {
-    throw std::runtime_error("src directory not found");
+    // Map headerPath to the corresponding object target.
+    // headerPath: src/path/to/header.h ->
+    // object target: poac.d/path/to/header.o
+    Path headerObjTargetBaseDir =
+        fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path);
+    if (headerObjTargetBaseDir != ".") {
+      headerObjTargetBaseDir = config.buildOutDir / headerObjTargetBaseDir;
+    } else {
+      headerObjTargetBaseDir = config.buildOutDir;
+    }
+    const String headerObjTarget =
+        (headerObjTargetBaseDir / headerPath.stem()).string() + ".o";
+    Logger::debug("headerObjTarget: ", headerObjTarget);
+
+    if (deps.contains(headerObjTarget)) {
+      continue;
+    }
+
+    if (!buildObjTargets.contains(headerObjTarget)) {
+      // If the header file is not included in the source file, we
+      // should not depend on the object file corresponding to the
+      // header file.
+      continue;
+    }
+    deps.push_back(headerObjTarget);
+    Logger::debug("headerObjTarget: added ", headerObjTarget);
+    collectBinDepObjs(
+        deps, config.targets.at(headerObjTarget).dependsOn, sourceFile,
+        buildObjTargets, config
+    );
   }
-  if (!fs::exists("src/main.cc")) {
-    throw std::runtime_error("src/main.cc not found");
-  }
+}
 
-  const String outDir = getOutDir();
-  if (!fs::exists(outDir)) {
-    fs::create_directories(outDir);
-  }
-  if (const char* cxx = std::getenv("CXX")) {
-    CXX = cxx;
-  }
-
-  const String packageName = getPackageName();
-  const String pathFromOutDir = "../../";
-
-  BuildConfig config;
-
-  // Variables
+static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVariable("CXX", CXX);
   String cxxflags =
       "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
   if (shouldColor()) {
     cxxflags += " -fdiagnostics-color";
   }
-  if (debug) {
+  if (isDebug) {
     cxxflags += " -g -O0 -DDEBUG";
   } else {
     cxxflags += " -O3 -DNDEBUG";
   }
   config.defineSimpleVariable("CXXFLAGS", cxxflags);
 
-  String packageNameUpper = packageName;
+  String packageNameUpper = config.packageName;
   std::transform(
       packageNameUpper.begin(), packageNameUpper.end(),
       packageNameUpper.begin(), ::toupper
   );
-  DEFINES =
-      " -D" + packageNameUpper + "_VERSION='\"" + getPackageVersion() + "\"'";
+  DEFINES = " -D" + packageNameUpper + "_VERSION='\""
+            + getPackageVersion().to_string() + "\"'";
   config.defineSimpleVariable("DEFINES", DEFINES);
 
   const Vec<Path> deps = installGitDependencies();
@@ -441,139 +479,132 @@ static BuildConfig configureBuild(const bool debug) {
   }
   Logger::debug("INCLUDES: ", INCLUDES);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
+}
+
+static BuildConfig configureBuild(const bool isDebug) {
+  if (!fs::exists("src")) {
+    throw std::runtime_error("src directory not found");
+  }
+  if (!fs::exists("src/main.cc")) {
+    // For now, we only support .cc extension only for the main file.
+    throw std::runtime_error("src/main.cc not found");
+  }
+
+  const String outDir = getOutDir();
+  if (!fs::exists(outDir)) {
+    fs::create_directories(outDir);
+  }
+  if (const char* cxx = std::getenv("CXX")) {
+    CXX = cxx;
+  }
+
+  BuildConfig config(getPackageName());
+  setVariables(config, isDebug);
 
   // Build rules
-  const String buildOutDir = packageName + ".d";
-  defineDirTarget(config, buildOutDir);
+  defineDirTarget(config, config.buildOutDir);
+  config.setAll({config.packageName});
 
-  Vec<String> phonies = {"all"};
-  config.setAll({packageName});
+  const Vec<Path> sourceFilePaths = listSourceFilePaths("src");
+  OrderedHashSet<String> buildObjTargets;
+  for (const Path& sourceFilePath : sourceFilePaths) {
+    const Path sourceFileRelPath = PATH_FROM_OUT_DIR / sourceFilePath;
+    String objTarget; // source.o
+    OrderedHashSet<String> objTargetDeps =
+        parseMMOutput(runMM(sourceFileRelPath), objTarget);
 
-  const Vec<String> sourceFiles = listSourceFiles("src");
-  Vec<String> buildObjTargets;
-
-  // sourceFile.cc -> ObjTargetInfo
-  HashMap<String, ObjTargetInfo> objTargetInfos;
-  for (const String& sourceFileName : sourceFiles) {
-    const String sourceFile = pathFromOutDir + sourceFileName;
-    const String mmOutput = runMM(sourceFile);
-
-    String objTarget; // sourceFile.o
-    Vec<String> objTargetDeps;
-    parseMMOutput(mmOutput, objTarget, objTargetDeps);
-
-    const String targetBaseDir =
-        fs::relative(Path(sourceFile).parent_path(), pathFromOutDir + "src")
-            .string();
-    objTargetInfos[sourceFileName] = {objTarget, targetBaseDir, objTargetDeps};
+    const Path targetBaseDir = fs::relative(
+        sourceFileRelPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+    );
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
-    Vec<String> buildTargetDeps = objTargetDeps;
-    buildTargetDeps.emplace_back("|"); // order-only dependency
-    buildTargetDeps.push_back(buildOutDir);
-    String buildTargetBaseDir = buildOutDir;
+    objTargetDeps.push_back("|"); // order-only dependency
+    objTargetDeps.push_back(config.buildOutDir);
+    Path buildTargetBaseDir = config.buildOutDir;
     if (targetBaseDir != ".") {
-      buildTargetBaseDir += "/" + targetBaseDir;
+      buildTargetBaseDir /= targetBaseDir;
       defineDirTarget(config, buildTargetBaseDir);
-      buildTargetDeps.push_back(buildTargetBaseDir);
+      objTargetDeps.push_back(buildTargetBaseDir);
     }
 
-    const String buildObjTarget = buildTargetBaseDir + "/" + objTarget;
+    const String buildObjTarget = buildTargetBaseDir / objTarget;
     buildObjTargets.push_back(buildObjTarget);
-    defineCompileTarget(config, buildObjTarget, buildTargetDeps);
+    defineCompileTarget(config, buildObjTarget, objTargetDeps);
   }
-  defineLinkTarget(config, packageName, buildObjTargets);
+  // Project binary target.
+  const String mainObjTarget = config.buildOutDir / "main.o";
+  OrderedHashSet<String> projTargetDeps = {mainObjTarget};
+  collectBinDepObjs(
+      projTargetDeps, config.targets.at(mainObjTarget).dependsOn, "",
+      buildObjTargets, config
+  );
+  defineLinkTarget(config, config.packageName, projTargetDeps);
 
-  // Targets for testing.
+  // Targets for tests.
   bool enableTesting = false;
   Vec<String> testCommands;
-  Vec<String> testTargets;
-  const HashSet<String> buildObjTargetSet(
-      buildObjTargets.begin(), buildObjTargets.end()
-  );
-  const String testOutDir = "tests";
-  for (auto& [sourceFile, objTargetInfo] : objTargetInfos) {
-    if (containsTestCode(sourceFile)) {
-      enableTesting = true;
-
-      // NOTE: Since we know that we don't use objTargetInfos for other
-      // targets, we can just update it here instead of creating a copy.
-      objTargetInfo.deps.emplace_back("|"); // order-only dependency
-      objTargetInfo.deps.push_back(testOutDir);
-
-      // Add a target to create the testTargetBaseDir.
-      String testTargetBaseDir = testOutDir;
-      if (objTargetInfo.baseDir != ".") {
-        testTargetBaseDir += "/" + objTargetInfo.baseDir;
-        defineDirTarget(config, testTargetBaseDir);
-        objTargetInfo.deps.push_back(testTargetBaseDir);
-      }
-
-      const String testObjTarget =
-          testTargetBaseDir + "/test_" + objTargetInfo.name;
-      const String testTargetName = Path(sourceFile).stem().string();
-      const String testTarget = testTargetBaseDir + "/test_" + testTargetName;
-
-      // Test object target.
-      defineCompileTarget(config, testObjTarget, objTargetInfo.deps, true);
-
-      // Test binary target.
-      Vec<String> testTargetDeps = {testObjTarget};
-      // This test target depends on the object file corresponding to
-      // the header file included in this source file.
-      for (const String& header : objTargetInfo.deps) {
-        // We shouldn't depend on the original object file (e.g.,
-        // poac.d/path/to/file.o). We should depend on the test object
-        // file (e.g., tests/path/to/test_file.o).
-        const Path headerPath(header);
-        if (Path(sourceFile).stem().string() == headerPath.stem().string()) {
-          continue;
-        }
-        if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
-          continue;
-        }
-
-        // headerPath: src/path/to/header.h ->
-        // object target: poac.d/path/to/header.o
-        String headerObjTargetBaseDir =
-            fs::relative(headerPath.parent_path(), pathFromOutDir + "src")
-                .string();
-        if (headerObjTargetBaseDir != ".") {
-          headerObjTargetBaseDir = buildOutDir + "/" + headerObjTargetBaseDir;
-        } else {
-          headerObjTargetBaseDir = buildOutDir;
-        }
-        const String headerObjTarget =
-            headerObjTargetBaseDir + "/" + headerPath.stem().string() + ".o";
-        Logger::debug("headerObjTarget: ", headerObjTarget);
-
-        auto itr = buildObjTargetSet.find(headerObjTarget);
-        if (itr == buildObjTargetSet.end()) {
-          continue;
-        }
-        testTargetDeps.push_back(*itr);
-      }
-
-      defineLinkTarget(config, testTarget, testTargetDeps);
-      Logger::debug(testTarget, ':');
-      for (const String& dep : testTargetDeps) {
-        Logger::debug(" '", dep, "'");
-      }
-
-      std::ostringstream oss;
-      Logger::log(oss, LogLevel::info, "Testing", testTargetName);
-      testCommands.push_back("@echo '" + oss.str() + "'");
-      testCommands.push_back(buildCmd(testTarget));
-      testTargets.push_back(testTarget);
+  OrderedHashSet<String> testTargets;
+  for (const Path& sourceFilePath : sourceFilePaths) {
+    if (!containsTestCode(sourceFilePath)) {
+      continue;
     }
+    enableTesting = true;
+
+    const Path sourceFileRelPath = PATH_FROM_OUT_DIR / Path(sourceFilePath);
+    String objTarget; // source.o
+    OrderedHashSet<String> objTargetDeps =
+        parseMMOutput(runMM(sourceFileRelPath, true /* isTest */), objTarget);
+
+    const Path targetBaseDir = fs::relative(
+        sourceFileRelPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+    );
+
+    // Add a target to create the testTargetBaseDir.
+    objTargetDeps.push_back("|"); // order-only dependency
+    objTargetDeps.push_back(String(TEST_OUT_DIR));
+    Path testTargetBaseDir = TEST_OUT_DIR;
+    if (targetBaseDir != ".") {
+      testTargetBaseDir /= targetBaseDir;
+      defineDirTarget(config, testTargetBaseDir);
+      objTargetDeps.push_back(testTargetBaseDir);
+    }
+
+    const String testObjTarget =
+        (testTargetBaseDir / "test_").string() + objTarget;
+    const String testTargetName = sourceFileRelPath.stem().string();
+    const String testTarget =
+        (testTargetBaseDir / "test_").string() + testTargetName;
+    Logger::debug("testTarget: ", testTarget);
+
+    // Test object target.
+    defineCompileTarget(
+        config, testObjTarget, objTargetDeps, true /* isTest */
+    );
+
+    // Test binary target.
+    OrderedHashSet<String> testTargetDeps = {testObjTarget};
+    collectBinDepObjs(
+        testTargetDeps, objTargetDeps, sourceFileRelPath, buildObjTargets,
+        config
+    );
+    defineLinkTarget(config, testTarget, testTargetDeps);
+    Logger::debug(testTarget, ':');
+    for (StringRef dep : testTargetDeps) {
+      Logger::debug(" '", dep, "'");
+    }
+
+    testCommands.emplace_back(echoCmd("Testing", testTargetName));
+    testCommands.emplace_back(buildCmd(testTarget));
+    testTargets.push_back(testTarget);
   }
+
+  OrderedHashSet<String> phonies = {"all"};
   if (enableTesting) {
     // Target to create the tests directory.
-    defineDirTarget(config, testOutDir);
+    defineDirTarget(config, TEST_OUT_DIR);
     config.defineTarget("test", testCommands, testTargets);
-    phonies.emplace_back("test");
+    phonies.push_back("test");
   }
-
   config.setPhony(phonies);
 
   return config;
@@ -627,7 +658,7 @@ String getMakeCommand() {
 
 #ifdef POAC_TEST
 
-#  include <cassert>
+#  include "TestUtils.hpp"
 
 void test_cycle_vars() {
   BuildConfig config;
@@ -635,14 +666,9 @@ void test_cycle_vars() {
   config.defineSimpleVariable("b", "c", {"c"});
   config.defineSimpleVariable("c", "a", {"a"});
 
-  try {
-    std::stringstream ss;
-    config.emitMakefile(ss);
-    assert(false && "should not reach here");
-  } catch (const std::runtime_error& e) {
-    assert(std::string(e.what()) == "too complex build graph");
-    return;
-  }
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
+                                         std::runtime_error,
+                                         "too complex build graph");
 }
 
 void test_simple_vars() {
@@ -654,9 +680,12 @@ void test_simple_vars() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a := 1\n"
-                      "b := 2\n"
-                      "c := 3\n");
+  ASSERT_EQ(
+      ss.str(),
+      "a := 1\n"
+      "b := 2\n"
+      "c := 3\n"
+  );
 }
 
 void test_depend_on_unregistered_var() {
@@ -666,7 +695,7 @@ void test_depend_on_unregistered_var() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a := 1\n");
+  ASSERT_EQ(ss.str(), "a := 1\n");
 }
 
 void test_cycle_targets() {
@@ -675,14 +704,9 @@ void test_cycle_targets() {
   config.defineTarget("b", {"echo b"}, {"c"});
   config.defineTarget("c", {"echo c"}, {"a"});
 
-  try {
-    std::stringstream ss;
-    config.emitMakefile(ss);
-    assert(false && "should not reach here");
-  } catch (const std::runtime_error& e) {
-    assert(std::string(e.what()) == "too complex build graph");
-    return;
-  }
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
+                                         std::runtime_error,
+                                         "too complex build graph");
 }
 
 void test_simple_targets() {
@@ -694,15 +718,18 @@ void test_simple_targets() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "c: b\n"
-                      "\techo c\n"
-                      "\n"
-                      "b: a\n"
-                      "\techo b\n"
-                      "\n"
-                      "a:\n"
-                      "\techo a\n"
-                      "\n");
+  ASSERT_EQ(
+      ss.str(),
+      "c: b\n"
+      "\techo c\n"
+      "\n"
+      "b: a\n"
+      "\techo b\n"
+      "\n"
+      "a:\n"
+      "\techo a\n"
+      "\n"
+  );
 }
 
 void test_depend_on_unregistered_target() {
@@ -712,9 +739,12 @@ void test_depend_on_unregistered_target() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  assert(ss.str() == "a: b\n"
-                      "\techo a\n"
-                      "\n");
+  ASSERT_EQ(
+      ss.str(),
+      "a: b\n"
+      "\techo a\n"
+      "\n"
+  );
 }
 
 int main() {

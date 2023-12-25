@@ -2,6 +2,7 @@
 
 #include "Logger.hpp"
 #include "Rustify.hpp"
+#include "Semver.hpp"
 #include "TermColor.hpp"
 
 #include <cctype>
@@ -37,7 +38,7 @@ public:
   Option<toml::value> data = None;
   Option<String> packageName = None;
   Option<String> packageEdition = None;
-  Option<String> packageVersion = None;
+  Option<Version> packageVersion = None;
 
 private:
   Manifest() noexcept = default;
@@ -97,17 +98,15 @@ String getPackageEdition() {
   return edition;
 }
 
-String getPackageVersion() {
+Version getPackageVersion() {
   Manifest& manifest = Manifest::instance();
   if (manifest.packageVersion.has_value()) {
     return manifest.packageVersion.value();
   }
 
-  const String version =
+  const String versionStr =
       toml::find<String>(manifest.data.value(), "package", "version");
-  if (version.empty()) {
-    throw std::runtime_error("package version is empty");
-  }
+  const Version version = parseSemver(versionStr);
   manifest.packageVersion = version;
   return version;
 }

@@ -9,6 +9,19 @@ static bool isTerm() noexcept {
   return std::getenv("TERM") != nullptr;
 }
 
+static ColorMode getColorMode(StringRef str) noexcept {
+  if (str == "always") {
+    return ColorMode::always;
+  } else if (str == "auto") {
+    return ColorMode::automatic;
+  } else if (str == "never") {
+    return ColorMode::never;
+  } else {
+    Logger::warn("unknown color mode `", str, "`; falling back to auto");
+    return ColorMode::automatic;
+  }
+}
+
 class ColorState {
 public:
   void set(ColorMode mode) noexcept {
@@ -35,9 +48,15 @@ public:
 
 private:
   // default: automatic
-  bool should_color_ = isTerm();
+  bool should_color_;
 
-  ColorState() noexcept = default;
+  ColorState() noexcept {
+    if (const char* color = std::getenv("POAC_TERM_COLOR")) {
+      set(getColorMode(color));
+    } else {
+      should_color_ = isTerm();
+    }
+  }
 
   // Delete copy constructor and assignment operator to prevent copying
   ColorState(const ColorState&) = delete;
@@ -49,16 +68,7 @@ void setColorMode(ColorMode cm) noexcept {
 }
 
 void setColorMode(StringRef str) noexcept {
-  if (str == "always") {
-    setColorMode(ColorMode::always);
-  } else if (str == "auto") {
-    setColorMode(ColorMode::automatic);
-  } else if (str == "never") {
-    setColorMode(ColorMode::never);
-  } else {
-    Logger::warn("unknown color mode `", str, "`; falling back to auto");
-    setColorMode(ColorMode::automatic);
-  }
+  setColorMode(getColorMode(str));
 }
 
 bool shouldColor() noexcept {

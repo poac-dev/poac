@@ -130,14 +130,15 @@ findSimilarStr(StringRef lhs, std::span<const StringRef> candidates) {
 
 #ifdef POAC_TEST
 
-#  include <cassert>
+#  include "TestUtils.hpp"
+
 #  include <limits>
 
 void test_levDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
     String str = String(1, c);
-    assert(levDistance(str, str) == 0);
+    ASSERT_EQ(levDistance(str, str), 0);
   }
 }
 
@@ -146,22 +147,22 @@ void test_levDistance2() {
   constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
 
-  assert(levDistance(A, B) == 2);
-  assert(levDistance(B, A) == 2);
-  assert(levDistance(A, C) == 3);
-  assert(levDistance(C, A) == 3);
-  assert(levDistance(B, C) == 1);
-  assert(levDistance(C, B) == 1);
+  ASSERT_EQ(levDistance(A, B), 2);
+  ASSERT_EQ(levDistance(B, A), 2);
+  ASSERT_EQ(levDistance(A, C), 3);
+  ASSERT_EQ(levDistance(C, A), 3);
+  ASSERT_EQ(levDistance(B, C), 1);
+  ASSERT_EQ(levDistance(C, B), 1);
 
-  assert(levDistance("b", "bc") == 1);
-  assert(levDistance("ab", "abc") == 1);
-  assert(levDistance("aab", "aabc") == 1);
-  assert(levDistance("aaab", "aaabc") == 1);
+  ASSERT_EQ(levDistance("b", "bc"), 1);
+  ASSERT_EQ(levDistance("ab", "abc"), 1);
+  ASSERT_EQ(levDistance("aab", "aabc"), 1);
+  ASSERT_EQ(levDistance("aaab", "aaabc"), 1);
 
-  assert(levDistance("a", "b") == 1);
-  assert(levDistance("ab", "ac") == 1);
-  assert(levDistance("aab", "aac") == 1);
-  assert(levDistance("aaab", "aaac") == 1);
+  ASSERT_EQ(levDistance("a", "b"), 1);
+  ASSERT_EQ(levDistance("ab", "ac"), 1);
+  ASSERT_EQ(levDistance("aab", "aac"), 1);
+  ASSERT_EQ(levDistance("aaab", "aaac"), 1);
 }
 
 // ref:
@@ -172,29 +173,29 @@ void test_findSimilarStr() {
                                          "elif",    "else",    "endif",
                                          "elifdef", "elifndef"};
 
-  assert(findSimilarStr("id", CANDIDATES) == "if"sv);
-  assert(findSimilarStr("ifd", CANDIDATES) == "if"sv);
-  assert(findSimilarStr("ifde", CANDIDATES) == "ifdef"sv);
-  assert(findSimilarStr("elf", CANDIDATES) == "elif"sv);
-  assert(findSimilarStr("elsif", CANDIDATES) == "elif"sv);
-  assert(findSimilarStr("elseif", CANDIDATES) == "elif"sv);
-  assert(findSimilarStr("elfidef", CANDIDATES) == "elifdef"sv);
-  assert(findSimilarStr("elfindef", CANDIDATES) == "elifdef"sv);
-  assert(findSimilarStr("elfinndef", CANDIDATES) == "elifndef"sv);
-  assert(findSimilarStr("els", CANDIDATES) == "else"sv);
-  assert(findSimilarStr("endi", CANDIDATES) == "endif"sv);
+  ASSERT_EQ(findSimilarStr("id", CANDIDATES), "if"sv);
+  ASSERT_EQ(findSimilarStr("ifd", CANDIDATES), "if"sv);
+  ASSERT_EQ(findSimilarStr("ifde", CANDIDATES), "ifdef"sv);
+  ASSERT_EQ(findSimilarStr("elf", CANDIDATES), "elif"sv);
+  ASSERT_EQ(findSimilarStr("elsif", CANDIDATES), "elif"sv);
+  ASSERT_EQ(findSimilarStr("elseif", CANDIDATES), "elif"sv);
+  ASSERT_EQ(findSimilarStr("elfidef", CANDIDATES), "elifdef"sv);
+  ASSERT_EQ(findSimilarStr("elfindef", CANDIDATES), "elifdef"sv);
+  ASSERT_EQ(findSimilarStr("elfinndef", CANDIDATES), "elifndef"sv);
+  ASSERT_EQ(findSimilarStr("els", CANDIDATES), "else"sv);
+  ASSERT_EQ(findSimilarStr("endi", CANDIDATES), "endif"sv);
 
-  assert(findSimilarStr("i", CANDIDATES) == None);
-  assert(findSimilarStr("special_compiler_directive", CANDIDATES) == None);
+  ASSERT_EQ(findSimilarStr("i", CANDIDATES), None);
+  ASSERT_EQ(findSimilarStr("special_compiler_directive", CANDIDATES), None);
 }
 
 void test_findSimilarStr2() {
   constexpr Arr<StringRef, 2> CANDIDATES{"aaab", "aaabc"};
-  assert(findSimilarStr("aaaa", CANDIDATES) == "aaab"sv);
-  assert(findSimilarStr("1111111111", CANDIDATES) == None);
+  ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES), "aaab"sv);
+  ASSERT_EQ(findSimilarStr("1111111111", CANDIDATES), None);
 
   constexpr Arr<StringRef, 1> CANDIDATES2{"AAAA"};
-  assert(findSimilarStr("aaaa", CANDIDATES2) == "AAAA"sv);
+  ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES2), "AAAA"sv);
 }
 
 int main() {

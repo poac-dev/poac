@@ -92,10 +92,6 @@ int helpMain(std::span<const StringRef> args) noexcept {
 }
 
 int main(int argc, char* argv[]) {
-  if (const char* color = std::getenv("POAC_TERM_COLOR")) {
-    setColorMode(color);
-  }
-
   // Parse arguments (options should appear before the subcommand, as the help
   // message shows intuitively)
   // poac --verbose run --release help --color always --verbose
