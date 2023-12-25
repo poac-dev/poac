@@ -170,26 +170,13 @@ Downloaded ToruNiina/toml11 846abd9a49082fe51440aa07005c360f13a67bbf
 > Poac currently supports building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
 
-### Run tests
+### Unit tests
 
-You can write tests in any source files within the `src` directory.  Create files like:
-
-`src/Lib.hpp`
-
-```cpp
-#ifndef LIB_HPP
-#define LIB_HPP
-
-int add(int, int);
-
-#endif  // LIB_HPP_
-```
+You can write unit tests in any source files within the `src` directory.  Create a new file like:
 
 `src/Lib.cc`
 
 ```cpp
-#include "Lib.hpp"
-
 int add(int a, int b) {
   return a + b;
 }
@@ -216,6 +203,8 @@ you:~/hello_world$ poac test
 Assertion failed: (add(1, 2) == 4), function main, file Lib.cc, line 13.
 make: *** [test] Abort trap: 6
 ```
+
+Unit tests with the `POAC_TEST` macro are useful when testing private functions.  Integration testing with the `tests` directory has not yet been implemented.
 
 ### Run linter
 
