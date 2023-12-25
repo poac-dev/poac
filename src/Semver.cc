@@ -358,11 +358,11 @@ struct Parser {
     }
 
     Version v;
-    v.major = parseAsNum();
+    v.major = parseNum();
     parseDot();
-    v.minor = parseAsNum();
+    v.minor = parseNum();
     parseDot();
-    v.patch = parseAsNum();
+    v.patch = parseNum();
 
     if (lexer.peek().kind == Token::Hyphen) {
       lexer.step();
@@ -390,7 +390,7 @@ struct Parser {
 
   // Even if the token can be parsed as an identifier, try to parse it as a
   // number.
-  u64 parseAsNum() {
+  u64 parseNum() {
     if (!std::isdigit(lexer.s[lexer.pos])) {
       throw SemverParseException(lexer, lexer.peek(), " expected number");
     }
@@ -427,17 +427,17 @@ struct Parser {
   // build ::= ident ("." ident)*
   BuildMetadata parseBuild() {
     Vec<Token> build;
-    build.emplace_back(parseAsIdent());
+    build.emplace_back(parseIdent());
     while (lexer.peek().kind == Token::Dot) {
       lexer.step();
-      build.emplace_back(parseAsIdent());
+      build.emplace_back(parseIdent());
     }
     return BuildMetadata{build};
   }
 
   // Even if the token can be parsed as a number, try to parse it as an
   // identifier.
-  Token parseAsIdent() {
+  Token parseIdent() {
     if (!std::isalnum(lexer.s[lexer.pos])) {
       throw SemverParseException(lexer, lexer.peek(), " expected identifier");
     }
