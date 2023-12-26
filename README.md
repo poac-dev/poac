@@ -155,6 +155,13 @@ you:~/hello_world$ poac build
 
 Poac uses a cache since we executed the command with no changes.
 
+> [!TIP]
+> To use a different compiler, you can export a `CXX` environmental variable:
+>
+> ```shell
+> export CXX=g++-13
+> ```
+
 ### Install dependencies
 
 Like Cargo does, Poac installs dependencies at build time.  Poac currently supports only Git dependencies. You can specify dependencies like:
