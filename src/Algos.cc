@@ -35,9 +35,9 @@ bool trieSearch(const TrieNode& root, StringRef word) {
 
 // O(M^2) where M is the length of the word.
 bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word) {
-  for (size_t i = 0; i < word.size(); ++i) {
+  for (usize i = 0; i < word.size(); ++i) {
     const TrieNode* node = &root;
-    for (size_t j = i; j < word.size(); ++j) {
+    for (usize j = i; j < word.size(); ++j) {
       char ch = word[j];
       if (!node->children.contains(ch)) {
         break;
