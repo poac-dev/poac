@@ -20,7 +20,9 @@ int testMain(std::span<const StringRef> args) {
       isDebug = true;
     }
     else if (arg == "-r" || arg == "--release") {
-      Logger::warn("The `--release` flag can disable assert macros.");
+      Logger::warn(
+          "Tests in release mode could disable assert macros while speeding up the runtime."
+      );
       isDebug = false;
     }
     else {
