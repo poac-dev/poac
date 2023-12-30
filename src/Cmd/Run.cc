@@ -13,6 +13,7 @@
 int runMain(std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
+  bool isParallel = true;
   String runArgs;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
@@ -24,13 +25,16 @@ int runMain(std::span<const StringRef> args) {
     else if (arg == "-r" || arg == "--release") {
       isDebug = false;
     }
+    else if (arg == "--no-parallel") {
+      isParallel = false;
+    }
     else {
       runArgs += " " + String(arg);
     }
   }
 
   String outDir;
-  if (buildImpl(isDebug, outDir) != EXIT_SUCCESS) {
+  if (buildImpl(outDir, isDebug, isParallel) != EXIT_SUCCESS) {
     return EXIT_FAILURE;
   }
 
@@ -51,6 +55,7 @@ void runHelp() noexcept {
   printGlobalOpts();
   printOption("--debug", "-d", "Build with debug information [default]");
   printOption("--release", "-r", "Build with optimizations");
+  printOption("--no-parallel", "", "Disable parallel builds");
   std::cout << '\n';
   printHeader("Arguments:");
   std::cout << "  [args]...\tArguments passed to the program" << '\n';

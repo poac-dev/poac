@@ -8,12 +8,22 @@
 #include <cstdlib>
 #include <iostream>
 #include <span>
+#include <thread>
 
-int buildImpl(const bool isDebug, String& outDir) {
+int buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
-  const int status = std::system((getMakeCommand() + " -C " + outDir).c_str());
+  String makeCommand = getMakeCommand() + " -C " + outDir;
+  if (isParallel) {
+    const unsigned int numThreads = std::thread::hardware_concurrency();
+    if (numThreads > 1) {
+      makeCommand += " -j" + std::to_string(numThreads);
+    }
+  }
+
+  Logger::debug("Running `", makeCommand, '`');
+  const int status = std::system(makeCommand.c_str());
   const int exitCode = status >> 8;
 
   const auto end = std::chrono::steady_clock::now();
@@ -31,6 +41,7 @@ int buildMain(std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;
+  bool isParallel = true;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({{"build"}}) // workaround for std::span until C++26
@@ -44,6 +55,9 @@ int buildMain(std::span<const StringRef> args) {
     else if (arg == "--compdb") {
       buildCompdb = true;
     }
+    else if (arg == "--no-parallel") {
+      isParallel = false;
+    }
     else {
       Logger::error("Unknown argument: ", arg);
       return EXIT_FAILURE;
@@ -52,7 +66,7 @@ int buildMain(std::span<const StringRef> args) {
 
   if (!buildCompdb) {
     String outDir;
-    return buildImpl(isDebug, outDir);
+    return buildImpl(outDir, isDebug, isParallel);
   }
 
   // Build compilation database
@@ -73,4 +87,5 @@ void buildHelp() noexcept {
   printOption(
       "--compdb", "", "Generate compilation database instead of building"
   );
+  printOption("--no-parallel", "", "Disable parallel builds");
 }
