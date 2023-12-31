@@ -156,6 +156,71 @@ static inline const Path CACHE_DIR(getXdgCacheHome() / "poac");
 static inline const Path GIT_DIR(CACHE_DIR / "git");
 static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 
+static void validateGitUrl(StringRef url) {
+  if (url.empty()) {
+    throw std::runtime_error("git url is empty");
+  }
+
+  // start with "https://" for now
+  if (!url.starts_with("https://")) {
+    throw std::runtime_error("git url must start with \"https://\"");
+  }
+  // end with ".git"
+  if (!url.ends_with(".git")) {
+    throw std::runtime_error("git url must end with \".git\"");
+  }
+}
+
+static void validateGitRev(StringRef rev) {
+  if (rev.empty()) {
+    throw std::runtime_error("git rev is empty");
+  }
+
+  // The length of a SHA-1 hash is 40 characters.
+  if (rev.size() != 40) {
+    throw std::runtime_error("git rev must be 40 characters");
+  }
+  // The characters must be in the range of [0-9a-f].
+  for (const char c : rev) {
+    if (!std::isxdigit(c)) {
+      throw std::runtime_error("git rev must be in the range of [0-9a-f]");
+    }
+  }
+}
+
+static void validateGitTagAndBranch(StringRef target) {
+  if (target.empty()) {
+    throw std::runtime_error("git tag or branch is empty");
+  }
+
+  // The length of a tag or branch is less than 256 characters.
+  if (target.size() >= 256) {
+    throw std::runtime_error(
+        "git tag or branch must be less than 256 characters"
+    );
+  }
+
+  // The first character must be an alphabet.
+  if (!std::isalpha(target[0])) {
+    throw std::runtime_error("git tag or branch must start with an alphabet");
+  }
+
+  // The characters must be in the range of [0-9a-zA-Z_-].
+  for (const char c : target) {
+    if (!std::isalnum(c) && c != '_' && c != '-') {
+      throw std::runtime_error(
+          "git tag or branch must be in the range of [0-9a-zA-Z_-]"
+      );
+    }
+  }
+}
+
+static const HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
+    {"rev", validateGitRev},
+    {"tag", validateGitTagAndBranch},
+    {"branch", validateGitTagAndBranch},
+};
+
 /// @brief Install git dependencies.  We do not need to resolve dependencies
 ///        (solve the SAT problem).
 /// @return paths to the source files
@@ -175,6 +240,9 @@ Vec<Path> installGitDependencies() {
       if (info.contains("git")) {
         const auto& gitUrl = info.at("git");
         if (gitUrl.is_string()) {
+          const String gitUrlStr = gitUrl.as_string();
+          validateGitUrl(gitUrlStr);
+
           // rev, tag, or branch
           String target = "main";
           for (const String key : {"rev", "tag", "branch"}) {
@@ -182,6 +250,7 @@ Vec<Path> installGitDependencies() {
               const auto& value = info.at(key);
               if (value.is_string()) {
                 target = value.as_string();
+                gitValidators.at(key)(target);
                 break;
               }
             }
@@ -194,7 +263,6 @@ Vec<Path> installGitDependencies() {
             continue;
           }
 
-          const String gitUrlStr = gitUrl.as_string();
           const String gitCloneCmd =
               "git clone " + gitUrlStr + " " + installDir.string();
           if (std::system((gitCloneCmd + " >/dev/null 2>&1").c_str())
