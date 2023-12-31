@@ -8,70 +8,62 @@
 #include <ostream>
 #include <string>
 
-#define ASSERT_TRUE(cond)                                                     \
-  if (!(cond)) {                                                              \
-    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << #cond << std::endl;                                          \
-    std::exit(EXIT_FAILURE);                                                  \
-  } else {                                                                    \
-    std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
-              << #cond << std::endl;                                          \
+#define DEFINE_TEST(name) \
+  void name() {           \
+    std::cout << "test " << __FILE__ << "::" << __func__ << " ... ";
+
+#define END_TEST                         \
+  std::cout << green("ok") << std::endl; \
+  }
+
+#define TEST_ERROR_HEADER              \
+  std::cerr << red("FAILED") << "\n\n" \
+            << __FILE__ << "::" << __func__ << ':' << __LINE__ << ": "
+
+#define ASSERT_TRUE(cond)                    \
+  if (!(cond)) {                             \
+    TEST_ERROR_HEADER << #cond << std::endl; \
+    std::exit(EXIT_FAILURE);                 \
   }
 
 #define ASSERT_FALSE(cond) ASSERT_TRUE(!(cond))
 
-#define ASSERT_EQ(lhs, rhs)                                                   \
-  if ((lhs) != (rhs)) {                                                       \
-    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << (lhs) << " == " << (rhs) << std::endl;                       \
-    std::exit(EXIT_FAILURE);                                                  \
-  } else {                                                                    \
-    std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
-              << #lhs << " == " << #rhs << std::endl;                         \
+#define ASSERT_EQ(lhs, rhs)                                     \
+  if ((lhs) != (rhs)) {                                         \
+    TEST_ERROR_HEADER << (lhs) << " == " << (rhs) << std::endl; \
+    std::exit(EXIT_FAILURE);                                    \
   }
 
-#define ASSERT_NE(lhs, rhs)                                                   \
-  if ((lhs) == (rhs)) {                                                       \
-    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << (lhs) << " != " << (rhs) << std::endl;                       \
-    std::exit(EXIT_FAILURE);                                                  \
-  } else {                                                                    \
-    std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
-              << #lhs << " != " << #rhs << std::endl;                         \
+#define ASSERT_NE(lhs, rhs)                                     \
+  if ((lhs) == (rhs)) {                                         \
+    TEST_ERROR_HEADER << (lhs) << " != " << (rhs) << std::endl; \
+    std::exit(EXIT_FAILURE);                                    \
   }
 
-#define ASSERT_LT(lhs, rhs)                                                   \
-  if ((lhs) >= (rhs)) {                                                       \
-    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << (lhs) << " < " << (rhs) << std::endl;                        \
-    std::exit(EXIT_FAILURE);                                                  \
-  } else {                                                                    \
-    std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__ << ": " \
-              << #lhs << " < " << #rhs << std::endl;                          \
+#define ASSERT_LT(lhs, rhs)                                    \
+  if ((lhs) >= (rhs)) {                                        \
+    TEST_ERROR_HEADER << (lhs) << " < " << (rhs) << std::endl; \
+    std::exit(EXIT_FAILURE);                                   \
   }
 
-#define ASSERT_EXCEPTION(statements, exception, msg)                          \
-  try {                                                                       \
-    statements;                                                               \
-    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << "expected exception `" << #exception << "` not thrown"       \
-              << std::endl;                                                   \
-    std::exit(EXIT_FAILURE);                                                  \
-  } catch (const exception& e) {                                              \
-    if (e.what() != std::string(msg)) {                                       \
-      std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": " \
-                << "expected exception message `" << msg << "` but got `"     \
-                << e.what() << "`" << std::endl;                              \
-      std::exit(EXIT_FAILURE);                                                \
-    } else {                                                                  \
-      std::cout << bold(green("PASS: ")) << __FILE__ << ":" << __LINE__       \
-                << ": " << #statements << std::endl;                          \
-    }                                                                         \
-  } catch (...) {                                                             \
-    std::cerr << bold(red("FAIL: ")) << __FILE__ << ":" << __LINE__ << ": "   \
-              << "expected exception `" << #exception << "` thrown"           \
-              << std::endl;                                                   \
-    std::exit(EXIT_FAILURE);                                                  \
+#define ASSERT_EXCEPTION(statements, exception, msg)                      \
+  try {                                                                   \
+    statements;                                                           \
+    TEST_ERROR_HEADER << "expected exception `" << #exception             \
+                      << "` not "                                         \
+                         "thrown"                                         \
+                      << std::endl;                                       \
+    std::exit(EXIT_FAILURE);                                              \
+  } catch (const exception& e) {                                          \
+    if (e.what() != std::string(msg)) {                                   \
+      TEST_ERROR_HEADER << "expected exception message `" << msg          \
+                        << "` but got `" << e.what() << "`" << std::endl; \
+      std::exit(EXIT_FAILURE);                                            \
+    }                                                                     \
+  } catch (...) {                                                         \
+    TEST_ERROR_HEADER << "expected exception `" << #exception             \
+                      << "` but got another exception" << std::endl;      \
+    std::exit(EXIT_FAILURE);                                              \
   }
 
 template <typename T>

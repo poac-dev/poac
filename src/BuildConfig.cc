@@ -660,7 +660,7 @@ String getMakeCommand() {
 
 #  include "TestUtils.hpp"
 
-void test_cycle_vars() {
+DEFINE_TEST(test_cycle_vars) {
   BuildConfig config;
   config.defineSimpleVariable("a", "b", {"b"});
   config.defineSimpleVariable("b", "c", {"c"});
@@ -670,8 +670,9 @@ void test_cycle_vars() {
                                          std::runtime_error,
                                          "too complex build graph");
 }
+END_TEST
 
-void test_simple_vars() {
+DEFINE_TEST(test_simple_vars) {
   BuildConfig config;
   config.defineSimpleVariable("c", "3", {"b"});
   config.defineSimpleVariable("b", "2", {"a"});
@@ -687,8 +688,9 @@ void test_simple_vars() {
       "c := 3\n"
   );
 }
+END_TEST
 
-void test_depend_on_unregistered_var() {
+DEFINE_TEST(test_depend_on_unregistered_var) {
   BuildConfig config;
   config.defineSimpleVariable("a", "1", {"b"});
 
@@ -697,8 +699,9 @@ void test_depend_on_unregistered_var() {
 
   ASSERT_EQ(ss.str(), "a := 1\n");
 }
+END_TEST
 
-void test_cycle_targets() {
+DEFINE_TEST(test_cycle_targets) {
   BuildConfig config;
   config.defineTarget("a", {"echo a"}, {"b"});
   config.defineTarget("b", {"echo b"}, {"c"});
@@ -708,8 +711,9 @@ void test_cycle_targets() {
                                          std::runtime_error,
                                          "too complex build graph");
 }
+END_TEST
 
-void test_simple_targets() {
+DEFINE_TEST(test_simple_targets) {
   BuildConfig config;
   config.defineTarget("a", {"echo a"});
   config.defineTarget("b", {"echo b"}, {"a"});
@@ -731,8 +735,9 @@ void test_simple_targets() {
       "\n"
   );
 }
+END_TEST
 
-void test_depend_on_unregistered_target() {
+DEFINE_TEST(test_depend_on_unregistered_target) {
   BuildConfig config;
   config.defineTarget("a", {"echo a"}, {"b"});
 
@@ -746,6 +751,7 @@ void test_depend_on_unregistered_target() {
       "\n"
   );
 }
+END_TEST
 
 int main() {
   test_cycle_vars();
