@@ -215,7 +215,7 @@ static void validateGitTagAndBranch(StringRef target) {
   }
 }
 
-static HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
+static const HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
     {"rev", validateGitRev},
     {"tag", validateGitTagAndBranch},
     {"branch", validateGitTagAndBranch},
