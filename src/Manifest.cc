@@ -13,6 +13,28 @@
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
 
+static Path findManifest() {
+  Path candidate = fs::current_path();
+  while (true) {
+    const Path config_path = candidate / "poac.toml";
+    Logger::debug("Finding manifest: ", config_path);
+    if (fs::exists(config_path)) {
+      return config_path;
+    }
+
+    const Path parent_path = candidate.parent_path();
+    if (candidate.has_parent_path()
+        && parent_path != candidate.root_directory()) {
+      candidate = parent_path;
+    } else {
+      break;
+    }
+  }
+
+  throw std::runtime_error("could not find `poac.toml` here and in its parents"
+  );
+}
+
 class Manifest {
 public:
   static Manifest& instance() noexcept {
@@ -32,7 +54,7 @@ public:
       toml::color::disable();
     }
 
-    data = toml::parse("poac.toml");
+    data = toml::parse(findManifest());
   }
 
   Option<toml::value> data = None;
