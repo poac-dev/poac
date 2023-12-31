@@ -12,4 +12,4 @@ static inline const HashSet<String> HEADER_FILE_EXTS{
 String emitMakefile(const bool);
 String emitCompdb(const bool);
 String modeString(const bool);
-String getMakeCommand();
+String getMakeCommand(const bool);

@@ -44,10 +44,10 @@ jobs:
           sudo ./llvm.sh ${{ matrix.compiler.ver }}
 
       - name: First Generation Build
-        run: make
+        run: make -j4
 
       - name: Test the first generation
-        run: make test
+        run: make test -j4
 
       - name: Second Generation Build
         run: ./build-out/poac build --verbose

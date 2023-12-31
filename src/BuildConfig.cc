@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <stdio.h>
 #include <string>
+#include <thread>
 
 static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
@@ -648,19 +649,29 @@ String modeString(const bool debug) {
   return debug ? "debug" : "release";
 }
 
-String getMakeCommand() {
+String getMakeCommand(const bool isParallel) {
+  String makeCommand;
   if (isVerbose()) {
-    return "make";
+    makeCommand = "make";
   } else {
-    return "make -s --no-print-directory";
+    makeCommand = "make -s --no-print-directory";
   }
+
+  if (isParallel) {
+    const unsigned int numThreads = std::thread::hardware_concurrency();
+    if (numThreads > 1) {
+      makeCommand += " -j" + std::to_string(numThreads);
+    }
+  }
+
+  return makeCommand;
 }
 
 #ifdef POAC_TEST
 
 #  include "TestUtils.hpp"
 
-DEFINE_TEST(test_cycle_vars) {
+void test_cycle_vars() {
   BuildConfig config;
   config.defineSimpleVariable("a", "b", {"b"});
   config.defineSimpleVariable("b", "c", {"c"});
@@ -669,10 +680,11 @@ DEFINE_TEST(test_cycle_vars) {
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
                                          std::runtime_error,
                                          "too complex build graph");
-}
-END_TEST
 
-DEFINE_TEST(test_simple_vars) {
+  TEST_OK;
+}
+
+void test_simple_vars() {
   BuildConfig config;
   config.defineSimpleVariable("c", "3", {"b"});
   config.defineSimpleVariable("b", "2", {"a"});
@@ -687,10 +699,11 @@ DEFINE_TEST(test_simple_vars) {
       "b := 2\n"
       "c := 3\n"
   );
-}
-END_TEST
 
-DEFINE_TEST(test_depend_on_unregistered_var) {
+  TEST_OK;
+}
+
+void test_depend_on_unregistered_var() {
   BuildConfig config;
   config.defineSimpleVariable("a", "1", {"b"});
 
@@ -698,10 +711,11 @@ DEFINE_TEST(test_depend_on_unregistered_var) {
   config.emitMakefile(ss);
 
   ASSERT_EQ(ss.str(), "a := 1\n");
-}
-END_TEST
 
-DEFINE_TEST(test_cycle_targets) {
+  TEST_OK;
+}
+
+void test_cycle_targets() {
   BuildConfig config;
   config.defineTarget("a", {"echo a"}, {"b"});
   config.defineTarget("b", {"echo b"}, {"c"});
@@ -710,10 +724,11 @@ DEFINE_TEST(test_cycle_targets) {
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
                                          std::runtime_error,
                                          "too complex build graph");
-}
-END_TEST
 
-DEFINE_TEST(test_simple_targets) {
+  TEST_OK;
+}
+
+void test_simple_targets() {
   BuildConfig config;
   config.defineTarget("a", {"echo a"});
   config.defineTarget("b", {"echo b"}, {"a"});
@@ -734,10 +749,11 @@ DEFINE_TEST(test_simple_targets) {
       "\techo a\n"
       "\n"
   );
-}
-END_TEST
 
-DEFINE_TEST(test_depend_on_unregistered_target) {
+  TEST_OK;
+}
+
+void test_depend_on_unregistered_target() {
   BuildConfig config;
   config.defineTarget("a", {"echo a"}, {"b"});
 
@@ -750,8 +766,9 @@ DEFINE_TEST(test_depend_on_unregistered_target) {
       "\techo a\n"
       "\n"
   );
+
+  TEST_OK;
 }
-END_TEST
 
 int main() {
   test_cycle_vars();

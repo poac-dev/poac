@@ -14,14 +14,7 @@ int buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
-  String makeCommand = getMakeCommand() + " -C " + outDir;
-  if (isParallel) {
-    const unsigned int numThreads = std::thread::hardware_concurrency();
-    if (numThreads > 1) {
-      makeCommand += " -j" + std::to_string(numThreads);
-    }
-  }
-
+  const String makeCommand = getMakeCommand(isParallel) + " -C " + outDir;
   Logger::debug("Running `", makeCommand, '`');
   const int status = std::system(makeCommand.c_str());
   const int exitCode = status >> 8;

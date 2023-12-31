@@ -467,7 +467,7 @@ Version parseSemver(StringRef s) {
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/55fa2cadd6ec95be02e5a2a87b24355304e44d40/tests/test_version.rs#L13
 
-DEFINE_TEST(test_parse) {
+void test_parse() {
   ASSERT_EXCEPTION(
       parseSemver(""), SemverException,
       "invalid semver:\n"
@@ -585,27 +585,30 @@ DEFINE_TEST(test_parse) {
       parseSemver("1.1.0-beta-10"),
       (Version{1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata()})
   );
-}
-END_TEST
 
-DEFINE_TEST(test_eq) {
+  TEST_OK;
+}
+
+void test_eq() {
   ASSERT_EQ(parseSemver("1.2.3"), parseSemver("1.2.3"));
   ASSERT_EQ(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3-alpha1"));
   ASSERT_EQ(parseSemver("1.2.3+build.42"), parseSemver("1.2.3+build.42"));
   ASSERT_EQ(parseSemver("1.2.3-alpha1+42"), parseSemver("1.2.3-alpha1+42"));
-}
-END_TEST
 
-DEFINE_TEST(test_ne) {
+  TEST_OK;
+}
+
+void test_ne() {
   ASSERT_NE(parseSemver("0.0.0"), parseSemver("0.0.1"));
   ASSERT_NE(parseSemver("0.0.0"), parseSemver("0.1.0"));
   ASSERT_NE(parseSemver("0.0.0"), parseSemver("1.0.0"));
   ASSERT_NE(parseSemver("1.2.3-alpha"), parseSemver("1.2.3-beta"));
   ASSERT_NE(parseSemver("1.2.3+23"), parseSemver("1.2.3+42"));
-}
-END_TEST
 
-DEFINE_TEST(test_display) {
+  TEST_OK;
+}
+
+void test_display() {
   {
     std::ostringstream oss;
     oss << parseSemver("1.2.3");
@@ -626,10 +629,11 @@ DEFINE_TEST(test_display) {
     oss << parseSemver("1.2.3-alpha1+42");
     ASSERT_EQ(oss.str(), "1.2.3-alpha1+42");
   }
-}
-END_TEST
 
-DEFINE_TEST(test_lt) {
+  TEST_OK;
+}
+
+void test_lt() {
   ASSERT_LT(parseSemver("0.0.0"), parseSemver("1.2.3-alpha2"));
   ASSERT_LT(parseSemver("1.0.0"), parseSemver("1.2.3-alpha2"));
   ASSERT_LT(parseSemver("1.2.0"), parseSemver("1.2.3-alpha2"));
@@ -637,20 +641,22 @@ DEFINE_TEST(test_lt) {
   ASSERT_LT(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3-alpha2") < parseSemver("1.2.3-alpha2"));
   ASSERT_LT(parseSemver("1.2.3+23"), parseSemver("1.2.3+42"));
-}
-END_TEST
 
-DEFINE_TEST(test_le) {
+  TEST_OK;
+}
+
+void test_le() {
   ASSERT_TRUE(parseSemver("0.0.0") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.0.0") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.2.0") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha1") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.2.3+23") <= parseSemver("1.2.3+42"));
-}
-END_TEST
 
-DEFINE_TEST(test_gt) {
+  TEST_OK;
+}
+
+void test_gt() {
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("0.0.0"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.0.0"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.0"));
@@ -658,20 +664,22 @@ DEFINE_TEST(test_gt) {
   ASSERT_TRUE(parseSemver("1.2.3") > parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3+23") > parseSemver("1.2.3+42"));
-}
-END_TEST
 
-DEFINE_TEST(test_ge) {
+  TEST_OK;
+}
+
+void test_ge() {
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("0.0.0"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.0.0"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.0"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha1"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3+23") >= parseSemver("1.2.3+42"));
-}
-END_TEST
 
-DEFINE_TEST(test_spec_order) {
+  TEST_OK;
+}
+
+void test_spec_order() {
   const Vec<String> vs = {
       "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
       "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
@@ -679,8 +687,9 @@ DEFINE_TEST(test_spec_order) {
   for (usize i = 1; i < vs.size(); ++i) {
     ASSERT_LT(parseSemver(vs[i - 1]), parseSemver(vs[i]));
   }
+
+  TEST_OK;
 }
-END_TEST
 
 int main() {
   test_parse();
