@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <string>
 
-std::ostream& operator<<(std::ostream& os, const VersionToken& tok) {
+std::ostream& operator<<(std::ostream& os, const VersionToken& tok) noexcept {
   switch (tok.kind) {
     case VersionToken::Num:
       os << std::get<u64>(tok.value);
@@ -32,17 +32,17 @@ std::ostream& operator<<(std::ostream& os, const VersionToken& tok) {
   return os;
 }
 
-String VersionToken::to_string() const {
+String VersionToken::to_string() const noexcept {
   std::ostringstream oss;
   oss << *this;
   return oss.str();
 }
 
-usize VersionToken::size() const {
+usize VersionToken::size() const noexcept {
   return to_string().size();
 }
 
-bool operator==(const VersionToken& lhs, const VersionToken& rhs) {
+bool operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
   if (lhs.kind != rhs.kind) {
     return false;
   }
@@ -60,7 +60,7 @@ bool operator==(const VersionToken& lhs, const VersionToken& rhs) {
   return false;
 }
 
-bool operator<(const VersionToken& lhs, const VersionToken& rhs) {
+bool operator<(const VersionToken& lhs, const VersionToken& rhs) noexcept {
   if (lhs.kind == VersionToken::Num && rhs.kind == VersionToken::Num) {
     return std::get<u64>(lhs.value) < std::get<u64>(rhs.value);
   }
@@ -70,7 +70,7 @@ bool operator>(const VersionToken& lhs, const VersionToken& rhs) {
   return rhs < lhs;
 }
 
-String carets(const VersionToken& tok) {
+static String carets(const VersionToken& tok) noexcept {
   if (tok.kind != VersionToken::Eof) {
     return String(tok.size(), '^');
   } else {
@@ -78,11 +78,11 @@ String carets(const VersionToken& tok) {
   }
 }
 
-bool Prerelease::empty() const {
+bool Prerelease::empty() const noexcept {
   return ident.empty();
 }
 
-String Prerelease::to_string() const {
+String Prerelease::to_string() const noexcept {
   String s;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
@@ -93,10 +93,10 @@ String Prerelease::to_string() const {
   return s;
 }
 
-bool operator==(const Prerelease& lhs, const Prerelease& rhs) {
+bool operator==(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   return lhs.ident == rhs.ident;
 }
-bool operator<(const Prerelease& lhs, const Prerelease& rhs) {
+bool operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   for (usize i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
       return true;
@@ -106,15 +106,15 @@ bool operator<(const Prerelease& lhs, const Prerelease& rhs) {
   }
   return lhs.ident.size() < rhs.ident.size();
 }
-bool operator>(const Prerelease& lhs, const Prerelease& rhs) {
+bool operator>(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   return rhs < lhs;
 }
 
-bool BuildMetadata::empty() const {
+bool BuildMetadata::empty() const noexcept {
   return ident.empty();
 }
 
-String BuildMetadata::to_string() const {
+String BuildMetadata::to_string() const noexcept {
   String s;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
@@ -125,10 +125,10 @@ String BuildMetadata::to_string() const {
   return s;
 }
 
-bool operator==(const BuildMetadata& lhs, const BuildMetadata& rhs) {
+bool operator==(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
   return lhs.ident == rhs.ident;
 }
-bool operator<(const BuildMetadata& lhs, const BuildMetadata& rhs) {
+bool operator<(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
   for (usize i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
       return true;
@@ -138,11 +138,11 @@ bool operator<(const BuildMetadata& lhs, const BuildMetadata& rhs) {
   }
   return lhs.ident.size() < rhs.ident.size();
 }
-bool operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) {
+bool operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
   return rhs < lhs;
 }
 
-String Version::to_string() const {
+String Version::to_string() const noexcept {
   String s = std::to_string(major);
   s += '.' + std::to_string(minor);
   s += '.' + std::to_string(patch);
@@ -157,21 +157,21 @@ String Version::to_string() const {
   return s;
 }
 
-std::ostream& operator<<(std::ostream& os, const Version& v) {
+std::ostream& operator<<(std::ostream& os, const Version& v) noexcept {
   os << v.to_string();
   return os;
 }
 
-bool operator==(const Version& lhs, const Version& rhs) {
+bool operator==(const Version& lhs, const Version& rhs) noexcept {
   return lhs.major == rhs.major && lhs.minor == rhs.minor
          && lhs.patch == rhs.patch && lhs.pre == rhs.pre
          && lhs.build == rhs.build;
 }
-bool operator!=(const Version& lhs, const Version& rhs) {
+bool operator!=(const Version& lhs, const Version& rhs) noexcept {
   return !(lhs == rhs);
 }
 
-bool operator<(const Version& lhs, const Version& rhs) {
+bool operator<(const Version& lhs, const Version& rhs) noexcept {
   if (lhs.major < rhs.major) {
     return true;
   } else if (lhs.major > rhs.major) {
@@ -203,13 +203,13 @@ bool operator<(const Version& lhs, const Version& rhs) {
     return false;
   }
 }
-bool operator>(const Version& lhs, const Version& rhs) {
+bool operator>(const Version& lhs, const Version& rhs) noexcept {
   return rhs < lhs;
 }
-bool operator<=(const Version& lhs, const Version& rhs) {
+bool operator<=(const Version& lhs, const Version& rhs) noexcept {
   return !(rhs < lhs);
 }
-bool operator>=(const Version& lhs, const Version& rhs) {
+bool operator>=(const Version& lhs, const Version& rhs) noexcept {
   return !(lhs < rhs);
 }
 
@@ -236,7 +236,7 @@ private:
   String what_;
 };
 
-bool VersionLexer::isEof() const {
+bool VersionLexer::isEof() const noexcept {
   return pos >= s.size();
 }
 

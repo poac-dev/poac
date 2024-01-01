@@ -1,3 +1,12 @@
+// Semver parser
+//
+// Syntax:
+//   version ::= num "." num "." num ( "-" pre )? ( "+" build )?
+//   pre ::= numOrIdent ("." numOrIdent)*
+//   build ::= ident ("." ident)*
+//   numOrIdent ::= num | ident
+//   num ::= [1-9][0-9]*
+//   ident ::= [a-zA-Z0-9][a-zA-Z0-9-]*
 #pragma once
 
 #include "Rustify.hpp"
@@ -19,28 +28,31 @@ struct VersionToken {
   Kind kind;
   std::variant<std::monostate, u64, StringRef> value;
 
-  VersionToken(Kind kind, std::variant<std::monostate, u64, StringRef> value)
+  VersionToken(
+      Kind kind, std::variant<std::monostate, u64, StringRef> value
+  ) noexcept
       : kind(kind), value(std::move(value)) {}
-  explicit VersionToken(Kind kind) : kind(kind), value(std::monostate{}) {}
+  explicit VersionToken(Kind kind) noexcept
+      : kind(kind), value(std::monostate{}) {}
 
-  String to_string() const;
-  usize size() const;
+  String to_string() const noexcept;
+  usize size() const noexcept;
 };
 
 struct Prerelease {
   Vec<VersionToken> ident;
 
   static Prerelease parse(StringRef);
-  bool empty() const;
-  String to_string() const;
+  bool empty() const noexcept;
+  String to_string() const noexcept;
 };
 
 struct BuildMetadata {
   Vec<VersionToken> ident;
 
   static BuildMetadata parse(StringRef);
-  bool empty() const;
-  String to_string() const;
+  bool empty() const noexcept;
+  String to_string() const noexcept;
 };
 
 struct Version {
@@ -50,15 +62,15 @@ struct Version {
   Prerelease pre;
   BuildMetadata build;
 
-  String to_string() const;
+  String to_string() const noexcept;
 };
-std::ostream& operator<<(std::ostream&, const Version&);
-bool operator==(const Version&, const Version&);
-bool operator!=(const Version&, const Version&);
-bool operator<(const Version&, const Version&);
-bool operator>(const Version&, const Version&);
-bool operator<=(const Version&, const Version&);
-bool operator>=(const Version&, const Version&);
+std::ostream& operator<<(std::ostream&, const Version&) noexcept;
+bool operator==(const Version&, const Version&) noexcept;
+bool operator!=(const Version&, const Version&) noexcept;
+bool operator<(const Version&, const Version&) noexcept;
+bool operator>(const Version&, const Version&) noexcept;
+bool operator<=(const Version&, const Version&) noexcept;
+bool operator>=(const Version&, const Version&) noexcept;
 
 struct VersionLexer {
   StringRef s;
@@ -66,7 +78,7 @@ struct VersionLexer {
 
   explicit VersionLexer(StringRef s) : s(s), pos(0) {}
 
-  bool isEof() const;
+  bool isEof() const noexcept;
   void step();
   VersionToken consumeIdent();
   VersionToken consumeNum();
