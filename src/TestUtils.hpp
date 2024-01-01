@@ -65,6 +65,14 @@
     std::exit(EXIT_FAILURE);                                               \
   }
 
+#define ASSERT_NO_EXCEPTION(statements)                \
+  try {                                                \
+    statements;                                        \
+  } catch (...) {                                      \
+    TEST_ERROR << "unexpected exception" << std::endl; \
+    std::exit(EXIT_FAILURE);                           \
+  }
+
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt) {
   if (opt.has_value()) {
