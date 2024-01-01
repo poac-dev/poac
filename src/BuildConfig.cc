@@ -691,11 +691,11 @@ void test_simple_vars() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  ASSERT_EQ(
+  assertEq(
       ss.str(),
       "a := 1\n"
       "b := 2\n"
-      "c := 3\n"
+      "c := 3"
   );
 }
 

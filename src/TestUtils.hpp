@@ -6,6 +6,7 @@
 #include <iostream>
 #include <optional>
 #include <ostream>
+#include <source_location>
 #include <string>
 
 #define TEST_PREFIX(name) "test " << __FILE__ << "::" << #name << " ... "
@@ -26,6 +27,25 @@
   }
 
 #define ASSERT_FALSE(cond) ASSERT_TRUE(!(cond))
+
+inline void
+reportError(const std::source_location& loc = std::source_location::current()) {
+  std::cerr << "test " << loc.file_name() << ':' << loc.line() << ':'
+            << loc.column() << " ... " << red("FAILED") << "\n\n"
+            << loc.function_name() << ":\n";
+}
+
+template <typename T1, typename T2>
+inline void assertEq(
+    const T1& lhs, const T2& rhs,
+    const std::source_location& loc = std::source_location::current()
+) {
+  if (lhs != rhs) {
+    reportError(loc);
+    std::cerr << '`' << lhs << '`' << " == " << '`' << rhs << '`' << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+}
 
 #define ASSERT_EQ(lhs, rhs)                              \
   if ((lhs) != (rhs)) {                                  \
