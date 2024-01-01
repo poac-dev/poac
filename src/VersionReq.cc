@@ -984,6 +984,51 @@ void test_no_op() {
   );
 }
 
+void test_multiple() {
+  const auto r1 = VersionReq::parse(">0.0.9 && <=2.5.3");
+  ASSERT_EQ(r1.to_string(), ">0.0.9 && <=2.5.3");
+  ASSERT_MATCH_ALL(r1, "0.0.10", "1.0.0", "2.5.3");
+  ASSERT_MATCH_NONE(r1, "0.0.8", "2.5.4");
+
+  const auto r2 = VersionReq::parse("<=0.2.0 && >=0.5.0");
+  ASSERT_EQ(r2.to_string(), "<=0.2.0 && >=0.5.0");
+  ASSERT_MATCH_NONE(r2, "0.0.8", "0.3.0", "0.5.1");
+
+  const auto r3 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
+  ASSERT_EQ(r3.to_string(), ">=0.5.1-alpha3 && <0.6");
+  ASSERT_MATCH_ALL(
+      r3, "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5"
+  );
+  ASSERT_MATCH_NONE(
+      r3, "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre", "0.6.0",
+      "0.6.0-pre"
+  );
+
+  ASSERT_EXCEPTION(
+      VersionReq::parse(">0.3.0 && &&"), VersionReqException,
+      "invalid version requirement:\n"
+      ">0.3.0 && &&\n"
+      "          ^ expected >=, <=, >, or <"
+  );
+
+  const auto r4 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
+  ASSERT_EQ(r4.to_string(), ">=0.5.1-alpha3 && <0.6");
+  ASSERT_MATCH_ALL(
+      r4, "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5"
+  );
+  ASSERT_MATCH_NONE(
+      r4, "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre"
+  );
+  ASSERT_MATCH_NONE(r4, "0.6.0", "0.6.0-pre");
+
+  ASSERT_EXCEPTION(
+      VersionReq::parse(">1.2.3 - <2.3.4"), VersionReqException,
+      "invalid version requirement:\n"
+      ">1.2.3 - <2.3.4\n"
+      "       ^ expected `&&`"
+  );
+}
+
 void test_pre() {
   const auto r = VersionReq::parse("=2.1.1-really.0");
   ASSERT_MATCH_ALL(r, "2.1.1-really.0");
@@ -1286,6 +1331,7 @@ int main() {
   REGISTER_TEST(test_greater_than);
   REGISTER_TEST(test_less_than);
   REGISTER_TEST(test_no_op);
+  REGISTER_TEST(test_multiple);
   REGISTER_TEST(test_pre);
   REGISTER_TEST(test_parse);
   REGISTER_TEST(test_canonicalize_no_op);
