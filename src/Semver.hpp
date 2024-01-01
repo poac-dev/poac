@@ -1,12 +1,12 @@
 // Semver parser
 //
 // Syntax:
-//   version ::= num "." num "." num ("-" pre)? ("+" build)?
-//   pre ::= numOrIdent ("." numOrIdent)*
-//   build ::= ident ("." ident)*
+//   version    ::= num "." num "." num ("-" pre)? ("+" build)?
+//   pre        ::= numOrIdent ("." numOrIdent)*
+//   build      ::= ident ("." ident)*
 //   numOrIdent ::= num | ident
-//   num ::= [1-9][0-9]*
-//   ident ::= [a-zA-Z0-9][a-zA-Z0-9-]*
+//   num        ::= [1-9][0-9]*
+//   ident      ::= [a-zA-Z0-9][a-zA-Z0-9-]*
 #pragma once
 
 #include "Rustify.hpp"
