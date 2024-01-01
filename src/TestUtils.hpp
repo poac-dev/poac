@@ -8,12 +8,15 @@
 #include <ostream>
 #include <string>
 
-#define TEST_PREFIX "test " << __FILE__ << "::" << __func__ << " ... "
+#define TEST_PREFIX(name) "test " << __FILE__ << "::" << #name << " ... "
+#define TEST_PREFIX2 "test " << __FILE__ << "::" << __func__ << " ... "
 
-#define TEST_OK std::cout << TEST_PREFIX << green("ok") << std::endl
+#define REGISTER_TEST(name) \
+  name();                   \
+  std::cout << TEST_PREFIX(name) << green("ok") << std::endl
 
-#define TEST_ERROR                                    \
-  std::cerr << TEST_PREFIX << red("FAILED") << "\n\n" \
+#define TEST_ERROR                                     \
+  std::cerr << TEST_PREFIX2 << red("FAILED") << "\n\n" \
             << __FILE__ << "::" << __func__ << ':' << __LINE__ << ": "
 
 #define ASSERT_TRUE(cond)             \

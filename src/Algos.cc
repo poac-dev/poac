@@ -140,8 +140,6 @@ void test_levDistance() {
     String str = String(1, c);
     ASSERT_EQ(levDistance(str, str), 0);
   }
-
-  TEST_OK;
 }
 
 void test_levDistance2() {
@@ -165,8 +163,6 @@ void test_levDistance2() {
   ASSERT_EQ(levDistance("ab", "ac"), 1);
   ASSERT_EQ(levDistance("aab", "aac"), 1);
   ASSERT_EQ(levDistance("aaab", "aaac"), 1);
-
-  TEST_OK;
 }
 
 // ref:
@@ -191,8 +187,6 @@ void test_findSimilarStr() {
 
   ASSERT_EQ(findSimilarStr("i", CANDIDATES), None);
   ASSERT_EQ(findSimilarStr("special_compiler_directive", CANDIDATES), None);
-
-  TEST_OK;
 }
 
 void test_findSimilarStr2() {
@@ -202,15 +196,13 @@ void test_findSimilarStr2() {
 
   constexpr Arr<StringRef, 1> CANDIDATES2{"AAAA"};
   ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES2), "AAAA"sv);
-
-  TEST_OK;
 }
 
 int main() {
-  test_levDistance();
-  test_levDistance2();
-  test_findSimilarStr();
-  test_findSimilarStr2();
+  REGISTER_TEST(test_levDistance);
+  REGISTER_TEST(test_levDistance2);
+  REGISTER_TEST(test_findSimilarStr);
+  REGISTER_TEST(test_findSimilarStr2);
 }
 
 #endif

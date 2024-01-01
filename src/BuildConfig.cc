@@ -680,8 +680,6 @@ void test_cycle_vars() {
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
                                          std::runtime_error,
                                          "too complex build graph");
-
-  TEST_OK;
 }
 
 void test_simple_vars() {
@@ -699,8 +697,6 @@ void test_simple_vars() {
       "b := 2\n"
       "c := 3\n"
   );
-
-  TEST_OK;
 }
 
 void test_depend_on_unregistered_var() {
@@ -711,8 +707,6 @@ void test_depend_on_unregistered_var() {
   config.emitMakefile(ss);
 
   ASSERT_EQ(ss.str(), "a := 1\n");
-
-  TEST_OK;
 }
 
 void test_cycle_targets() {
@@ -724,8 +718,6 @@ void test_cycle_targets() {
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
                                          std::runtime_error,
                                          "too complex build graph");
-
-  TEST_OK;
 }
 
 void test_simple_targets() {
@@ -749,8 +741,6 @@ void test_simple_targets() {
       "\techo a\n"
       "\n"
   );
-
-  TEST_OK;
 }
 
 void test_depend_on_unregistered_target() {
@@ -766,16 +756,14 @@ void test_depend_on_unregistered_target() {
       "\techo a\n"
       "\n"
   );
-
-  TEST_OK;
 }
 
 int main() {
-  test_cycle_vars();
-  test_simple_vars();
-  test_depend_on_unregistered_var();
-  test_cycle_targets();
-  test_simple_targets();
-  test_depend_on_unregistered_target();
+  REGISTER_TEST(test_cycle_vars);
+  REGISTER_TEST(test_simple_vars);
+  REGISTER_TEST(test_depend_on_unregistered_var);
+  REGISTER_TEST(test_cycle_targets);
+  REGISTER_TEST(test_simple_targets);
+  REGISTER_TEST(test_depend_on_unregistered_target);
 }
 #endif

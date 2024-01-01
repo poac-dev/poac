@@ -585,8 +585,6 @@ void test_parse() {
       parseSemver("1.1.0-beta-10"),
       (Version{1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata()})
   );
-
-  TEST_OK;
 }
 
 void test_eq() {
@@ -594,8 +592,6 @@ void test_eq() {
   ASSERT_EQ(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3-alpha1"));
   ASSERT_EQ(parseSemver("1.2.3+build.42"), parseSemver("1.2.3+build.42"));
   ASSERT_EQ(parseSemver("1.2.3-alpha1+42"), parseSemver("1.2.3-alpha1+42"));
-
-  TEST_OK;
 }
 
 void test_ne() {
@@ -604,8 +600,6 @@ void test_ne() {
   ASSERT_NE(parseSemver("0.0.0"), parseSemver("1.0.0"));
   ASSERT_NE(parseSemver("1.2.3-alpha"), parseSemver("1.2.3-beta"));
   ASSERT_NE(parseSemver("1.2.3+23"), parseSemver("1.2.3+42"));
-
-  TEST_OK;
 }
 
 void test_display() {
@@ -629,8 +623,6 @@ void test_display() {
     oss << parseSemver("1.2.3-alpha1+42");
     ASSERT_EQ(oss.str(), "1.2.3-alpha1+42");
   }
-
-  TEST_OK;
 }
 
 void test_lt() {
@@ -641,8 +633,6 @@ void test_lt() {
   ASSERT_LT(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3-alpha2") < parseSemver("1.2.3-alpha2"));
   ASSERT_LT(parseSemver("1.2.3+23"), parseSemver("1.2.3+42"));
-
-  TEST_OK;
 }
 
 void test_le() {
@@ -652,8 +642,6 @@ void test_le() {
   ASSERT_TRUE(parseSemver("1.2.3-alpha1") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") <= parseSemver("1.2.3-alpha2"));
   ASSERT_TRUE(parseSemver("1.2.3+23") <= parseSemver("1.2.3+42"));
-
-  TEST_OK;
 }
 
 void test_gt() {
@@ -664,8 +652,6 @@ void test_gt() {
   ASSERT_TRUE(parseSemver("1.2.3") > parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3+23") > parseSemver("1.2.3+42"));
-
-  TEST_OK;
 }
 
 void test_ge() {
@@ -675,8 +661,6 @@ void test_ge() {
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha1"));
   ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha2"));
   ASSERT_FALSE(parseSemver("1.2.3+23") >= parseSemver("1.2.3+42"));
-
-  TEST_OK;
 }
 
 void test_spec_order() {
@@ -687,20 +671,18 @@ void test_spec_order() {
   for (usize i = 1; i < vs.size(); ++i) {
     ASSERT_LT(parseSemver(vs[i - 1]), parseSemver(vs[i]));
   }
-
-  TEST_OK;
 }
 
 int main() {
-  test_parse();
-  test_eq();
-  test_ne();
-  test_display();
-  test_lt();
-  test_le();
-  test_gt();
-  test_ge();
-  test_spec_order();
+  REGISTER_TEST(test_parse);
+  REGISTER_TEST(test_eq);
+  REGISTER_TEST(test_ne);
+  REGISTER_TEST(test_display);
+  REGISTER_TEST(test_lt);
+  REGISTER_TEST(test_le);
+  REGISTER_TEST(test_gt);
+  REGISTER_TEST(test_ge);
+  REGISTER_TEST(test_spec_order);
 }
 
 #endif
