@@ -462,7 +462,7 @@ struct VersionReqToken {
       : kind(kind), value(std::monostate{}) {}
 };
 
-constexpr bool startWithComp(const char c) noexcept {
+constexpr bool isCompStart(const char c) noexcept {
   return c == '=' || c == '>' || c == '<';
 }
 
@@ -489,7 +489,7 @@ struct VersionReqLexer {
     }
 
     const char c = s[pos];
-    if (startWithComp(c) || std::isdigit(c)) {
+    if (isCompStart(c) || std::isdigit(c)) {
       ComparatorParser parser(s);
       parser.lexer.pos = pos;
 
@@ -565,7 +565,7 @@ struct VersionReqParser {
     if (lexer.isEof()) {
       compExpected();
     }
-    if (!startWithComp(lexer.s[lexer.pos])) {
+    if (!isCompStart(lexer.s[lexer.pos])) {
       // NoOp cannot chain.
       compExpected();
     }
