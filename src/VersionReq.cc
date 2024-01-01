@@ -806,6 +806,97 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/b6171889ac7e8f47ec6f12003571bdcc7f737b10/tests/test_version_req.rs
 
+void test_canonicalize_no_op() {
+  // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
+  ASSERT_EQ(
+      VersionReq::parse("1.2.3").canonicalize().to_string(),
+      ">=1.2.3 and <2.0.0"
+  );
+
+  // 1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
+  ASSERT_EQ(
+      VersionReq::parse("1.2").canonicalize().to_string(), ">=1.2.0 and <2.0.0"
+  );
+
+  // 1.3. `A` is equivalent to `=A` (i.e., 2.3)
+  ASSERT_EQ(
+      VersionReq::parse("1").canonicalize().to_string(), ">=1.0.0 and <2.0.0"
+  );
+
+  // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+  ASSERT_EQ(
+      VersionReq::parse("0.2.3").canonicalize().to_string(),
+      ">=0.2.3 and <0.3.0"
+  );
+
+  // 1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
+  ASSERT_EQ(VersionReq::parse("0.0.3").canonicalize().to_string(), "=0.0.3");
+
+  // 1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
+  ASSERT_EQ(
+      VersionReq::parse("0.0").canonicalize().to_string(), ">=0.0.0 and <0.1.0"
+  );
+}
+
+void test_canonicalize_exact() {
+  // 2.1. `=A.B.C` is exactly the version `A.B.C`
+  ASSERT_EQ(VersionReq::parse("=1.2.3").canonicalize().to_string(), "=1.2.3");
+
+  // 2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
+  ASSERT_EQ(
+      VersionReq::parse("=1.2").canonicalize().to_string(), ">=1.2.0 and <1.3.0"
+  );
+
+  // 2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+  ASSERT_EQ(
+      VersionReq::parse("=1").canonicalize().to_string(), ">=1.0.0 and <2.0.0"
+  );
+}
+
+void test_canonicalize_gt() {
+  // 3.1. `>A.B.C` is equivalent to `>=A.B.(C+1)`
+  ASSERT_EQ(VersionReq::parse(">1.2.3").canonicalize().to_string(), ">=1.2.4");
+
+  // 3.2. `>A.B` is equivalent to `>=A.(B+1).0`
+  ASSERT_EQ(VersionReq::parse(">1.2").canonicalize().to_string(), ">=1.3.0");
+
+  // 3.3. `>A` is equivalent to `>=(A+1).0.0`
+  ASSERT_EQ(VersionReq::parse(">1").canonicalize().to_string(), ">=2.0.0");
+}
+
+void test_canonicalize_gte() {
+  // 4.1. `>=A.B.C`
+  ASSERT_EQ(VersionReq::parse(">=1.2.3").canonicalize().to_string(), ">=1.2.3");
+
+  // 4.2. `>=A.B` is equivalent to `>=A.B.0`
+  ASSERT_EQ(VersionReq::parse(">=1.2").canonicalize().to_string(), ">=1.2.0");
+
+  // 4.3. `>=A` is equivalent to `>=A.0.0`
+  ASSERT_EQ(VersionReq::parse(">=1").canonicalize().to_string(), ">=1.0.0");
+}
+
+void test_canonicalize_lt() {
+  // 5.1. `<A.B.C`
+  ASSERT_EQ(VersionReq::parse("<1.2.3").canonicalize().to_string(), "<1.2.3");
+
+  // 5.2. `<A.B` is equivalent to `<A.B.0`
+  ASSERT_EQ(VersionReq::parse("<1.2").canonicalize().to_string(), "<1.2.0");
+
+  // 5.3. `<A` is equivalent to `<A.0.0`
+  ASSERT_EQ(VersionReq::parse("<1").canonicalize().to_string(), "<1.0.0");
+}
+
+void test_canonicalize_lte() {
+  // 6.1. `<=A.B.C` is equivalent to `<A.B.(C+1)`
+  ASSERT_EQ(VersionReq::parse("<=1.2.3").canonicalize().to_string(), "<1.2.4");
+
+  // 6.2. `<=A.B` is equivalent to `<A.(B+1).0`
+  ASSERT_EQ(VersionReq::parse("<=1.2").canonicalize().to_string(), "<1.3.0");
+
+  // 6.3. `<=A` is equivalent to `<(A+1).0.0`
+  ASSERT_EQ(VersionReq::parse("<=1").canonicalize().to_string(), "<2.0.0");
+}
+
 void test_basic() {
   const auto req = VersionReq::parse("1.0.0");
   // ASSERT_EQ(req.to_string(), ">=1.0.0 and <2.0.0");
@@ -911,6 +1002,12 @@ void test_leading_digit_in_pre_and_build() {
 }
 
 int main() {
+  REGISTER_TEST(test_canonicalize_no_op);
+  REGISTER_TEST(test_canonicalize_exact);
+  REGISTER_TEST(test_canonicalize_gt);
+  REGISTER_TEST(test_canonicalize_gte);
+  REGISTER_TEST(test_canonicalize_lt);
+  REGISTER_TEST(test_canonicalize_lte);
   REGISTER_TEST(test_basic);
   REGISTER_TEST(test_parse);
   REGISTER_TEST(test_comparator_parse);

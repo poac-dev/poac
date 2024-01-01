@@ -80,8 +80,6 @@ struct VersionReq {
   static VersionReq parse(StringRef);
   bool satisfiedBy(const Version&) const noexcept;
   String to_string() const noexcept;
-
-private:
   VersionReq canonicalize() const noexcept;
 };
 
