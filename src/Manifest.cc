@@ -128,7 +128,7 @@ Version getPackageVersion() {
 
   const String versionStr =
       toml::find<String>(manifest.data.value(), "package", "version");
-  const Version version = parseSemver(versionStr);
+  const Version version = Version::parse(versionStr);
   manifest.packageVersion = version;
   return version;
 }
