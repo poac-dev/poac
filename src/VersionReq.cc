@@ -825,12 +825,15 @@ String VersionReq::to_string() const noexcept {
 }
 
 String VersionReq::to_pkg_config_string(const String& name) const noexcept {
+  // For pkg-config, canonicalization is necessary.
+  const VersionReq req = canonicalize();
+
   String result = name;
   result += ' ';
-  result += left.to_pkg_config_string();
-  if (right.has_value()) {
+  result += req.left.to_pkg_config_string();
+  if (req.right.has_value()) {
     result += ", " + name + ' ';
-    result += right->to_pkg_config_string();
+    result += req.right->to_pkg_config_string();
   }
   return result;
 }
@@ -1321,7 +1324,29 @@ void test_to_string() {
 void test_to_pkg_config_string() {
   ASSERT_EQ(
       VersionReq::parse("  <1.2.3  &&>=1.0 ").to_pkg_config_string("foo"),
-      "foo < 1.2.3, foo >= 1.0"
+      "foo < 1.2.3, foo >= 1.0.0"
+  );
+
+  ASSERT_EQ(
+      VersionReq::parse("1.2.3").to_pkg_config_string("foo"),
+      "foo >= 1.2.3, foo < 2.0.0"
+  );
+
+  ASSERT_EQ(
+      VersionReq::parse(">1.2.3").to_pkg_config_string("foo"), "foo >= 1.2.4"
+  );
+
+  ASSERT_EQ(
+      VersionReq::parse("=1.2.3").to_pkg_config_string("foo"), "foo = 1.2.3"
+  );
+
+  ASSERT_EQ(
+      VersionReq::parse("=1.2").to_pkg_config_string("foo"),
+      "foo >= 1.2.0, foo < 1.3.0"
+  );
+
+  ASSERT_EQ(
+      VersionReq::parse("0.0.1").to_pkg_config_string("foo"), "foo = 0.0.1"
   );
 }
 
