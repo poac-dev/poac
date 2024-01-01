@@ -134,16 +134,15 @@ findSimilarStr(StringRef lhs, std::span<const StringRef> candidates) {
 
 #  include <limits>
 
-DEFINE_TEST(test_levDistance) {
+void test_levDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
     String str = String(1, c);
     ASSERT_EQ(levDistance(str, str), 0);
   }
 }
-END_TEST
 
-DEFINE_TEST(test_levDistance2) {
+void test_levDistance2() {
   constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
@@ -165,12 +164,11 @@ DEFINE_TEST(test_levDistance2) {
   ASSERT_EQ(levDistance("aab", "aac"), 1);
   ASSERT_EQ(levDistance("aaab", "aaac"), 1);
 }
-END_TEST
 
 // ref:
 // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
 
-DEFINE_TEST(test_findSimilarStr) {
+void test_findSimilarStr() {
   constexpr Arr<StringRef, 8> CANDIDATES{"if",      "ifdef",   "ifndef",
                                          "elif",    "else",    "endif",
                                          "elifdef", "elifndef"};
@@ -190,9 +188,8 @@ DEFINE_TEST(test_findSimilarStr) {
   ASSERT_EQ(findSimilarStr("i", CANDIDATES), None);
   ASSERT_EQ(findSimilarStr("special_compiler_directive", CANDIDATES), None);
 }
-END_TEST
 
-DEFINE_TEST(test_findSimilarStr2) {
+void test_findSimilarStr2() {
   constexpr Arr<StringRef, 2> CANDIDATES{"aaab", "aaabc"};
   ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES), "aaab"sv);
   ASSERT_EQ(findSimilarStr("1111111111", CANDIDATES), None);
@@ -200,13 +197,12 @@ DEFINE_TEST(test_findSimilarStr2) {
   constexpr Arr<StringRef, 1> CANDIDATES2{"AAAA"};
   ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES2), "AAAA"sv);
 }
-END_TEST
 
 int main() {
-  test_levDistance();
-  test_levDistance2();
-  test_findSimilarStr();
-  test_findSimilarStr2();
+  REGISTER_TEST(test_levDistance);
+  REGISTER_TEST(test_levDistance2);
+  REGISTER_TEST(test_findSimilarStr);
+  REGISTER_TEST(test_findSimilarStr2);
 }
 
 #endif
