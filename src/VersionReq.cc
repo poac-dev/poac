@@ -486,11 +486,9 @@ struct VersionReqLexer {
       pos = parser.lexer.pos;
 
       return VersionReqToken{VersionReqToken::Comp, comp};
-    } else if (c == 'a' && pos + 2 < s.size()) {
-      if (s[pos + 1] == 'n' && s[pos + 2] == 'd') {
-        pos += 3;
-        return VersionReqToken{VersionReqToken::And};
-      }
+    } else if (c == '&' && pos + 1 < s.size() && s[pos + 1] == '&') {
+      pos += 2;
+      return VersionReqToken{VersionReqToken::And};
     }
 
     return VersionReqToken{VersionReqToken::Unknown};
@@ -523,7 +521,7 @@ struct VersionReqParser {
       return result;
     } else if (token.kind != VersionReqToken::And) {
       throw VersionReqException(
-          lexer.s, '\n', String(lexer.pos, ' '), "^ expected `and`"
+          lexer.s, '\n', String(lexer.pos, ' '), "^ expected `&&`"
       );
     }
 
@@ -619,10 +617,10 @@ bool VersionReq::satisfiedBy(const Version& ver) const noexcept {
 }
 
 // 1. NoOp: (= Caret (^), "compatible" updates)
-//   1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
+//   1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
 //   1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
 //   1.3. `A` is equivalent to `=A` (i.e., 2.3)
-//   1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+//   1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
 //   1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
 //   1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
 static VersionReq canonicalizeNoOp(const VersionReq& target) noexcept {
@@ -654,7 +652,7 @@ static VersionReq canonicalizeNoOp(const VersionReq& target) noexcept {
   if (left.major > 0) { // => {{ A > 0 && B.has_value() }}
     if (left.patch.has_value()) {
       // => {{ A > 0 && B.has_value() && C.has_value() }}
-      // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
+      // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
       VersionReq req;
       req.left.op = Comparator::Gte;
       req.left.major = left.major;
@@ -692,7 +690,7 @@ static VersionReq canonicalizeNoOp(const VersionReq& target) noexcept {
   // => {{ A == 0 && B.has_value() }}
 
   if (left.minor.value() > 0) { // => {{ A == 0 && B > 0 }}
-    // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+    // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
     VersionReq req;
     req.left.op = Comparator::Gte;
     req.left.major = 0;
@@ -743,8 +741,8 @@ static VersionReq canonicalizeNoOp(const VersionReq& target) noexcept {
 
 // 2. Exact:
 //   2.1. `=A.B.C` is exactly the version `A.B.C`
-//   2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
-//   2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+//   2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
+//   2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
 static VersionReq canonicalizeExact(const VersionReq& req) noexcept {
   const Comparator& left = req.left;
 
@@ -752,7 +750,7 @@ static VersionReq canonicalizeExact(const VersionReq& req) noexcept {
     // 2.1. `=A.B.C` is exactly the version A.B.C
     return req;
   } else if (left.minor.has_value()) {
-    // 2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
+    // 2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
     VersionReq req;
     req.left.op = Comparator::Gte;
     req.left.major = left.major;
@@ -769,7 +767,7 @@ static VersionReq canonicalizeExact(const VersionReq& req) noexcept {
 
     return req;
   } else {
-    // 2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+    // 2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
     VersionReq req;
     req.left.op = Comparator::Gte;
     req.left.major = left.major;
@@ -806,7 +804,7 @@ VersionReq VersionReq::canonicalize() const noexcept {
 String VersionReq::to_string() const noexcept {
   String result = left.to_string();
   if (right.has_value()) {
-    result += " and ";
+    result += " && ";
     result += right->to_string();
   }
   return result;
@@ -901,13 +899,13 @@ void test_less_than() {
       r2, "2.1.0", "2.2.0-alpha1", "2.0.0-alpha2", "1.0.0-alpha2"
   );
 
-  const auto r3 = VersionReq::parse(">1.0.0-alpha and <1.0.0");
+  const auto r3 = VersionReq::parse(">1.0.0-alpha && <1.0.0");
   ASSERT_MATCH_ALL(r3, "1.0.0-beta");
 
-  const auto r4 = VersionReq::parse(">1.0.0-alpha and <1.0");
+  const auto r4 = VersionReq::parse(">1.0.0-alpha && <1.0");
   ASSERT_MATCH_NONE(r4, "1.0.0-beta");
 
-  const auto r5 = VersionReq::parse(">1.0.0-alpha and <1");
+  const auto r5 = VersionReq::parse(">1.0.0-alpha && <1");
   ASSERT_MATCH_NONE(r5, "1.0.0-beta");
 }
 
@@ -967,26 +965,24 @@ void test_pre() {
 }
 
 void test_canonicalize_no_op() {
-  // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
+  // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
   ASSERT_EQ(
-      VersionReq::parse("1.2.3").canonicalize().to_string(),
-      ">=1.2.3 and <2.0.0"
+      VersionReq::parse("1.2.3").canonicalize().to_string(), ">=1.2.3 && <2.0.0"
   );
 
   // 1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
   ASSERT_EQ(
-      VersionReq::parse("1.2").canonicalize().to_string(), ">=1.2.0 and <2.0.0"
+      VersionReq::parse("1.2").canonicalize().to_string(), ">=1.2.0 && <2.0.0"
   );
 
   // 1.3. `A` is equivalent to `=A` (i.e., 2.3)
   ASSERT_EQ(
-      VersionReq::parse("1").canonicalize().to_string(), ">=1.0.0 and <2.0.0"
+      VersionReq::parse("1").canonicalize().to_string(), ">=1.0.0 && <2.0.0"
   );
 
-  // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+  // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
   ASSERT_EQ(
-      VersionReq::parse("0.2.3").canonicalize().to_string(),
-      ">=0.2.3 and <0.3.0"
+      VersionReq::parse("0.2.3").canonicalize().to_string(), ">=0.2.3 && <0.3.0"
   );
 
   // 1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
@@ -994,7 +990,7 @@ void test_canonicalize_no_op() {
 
   // 1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
   ASSERT_EQ(
-      VersionReq::parse("0.0").canonicalize().to_string(), ">=0.0.0 and <0.1.0"
+      VersionReq::parse("0.0").canonicalize().to_string(), ">=0.0.0 && <0.1.0"
   );
 }
 
@@ -1002,14 +998,14 @@ void test_canonicalize_exact() {
   // 2.1. `=A.B.C` is exactly the version `A.B.C`
   ASSERT_EQ(VersionReq::parse("=1.2.3").canonicalize().to_string(), "=1.2.3");
 
-  // 2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
+  // 2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
   ASSERT_EQ(
-      VersionReq::parse("=1.2").canonicalize().to_string(), ">=1.2.0 and <1.3.0"
+      VersionReq::parse("=1.2").canonicalize().to_string(), ">=1.2.0 && <1.3.0"
   );
 
-  // 2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+  // 2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
   ASSERT_EQ(
-      VersionReq::parse("=1").canonicalize().to_string(), ">=1.0.0 and <2.0.0"
+      VersionReq::parse("=1").canonicalize().to_string(), ">=1.0.0 && <2.0.0"
   );
 }
 
@@ -1158,10 +1154,10 @@ void test_leading_digit_in_pre_and_build() {
 
 void test_valid_spaces() {
   ASSERT_NO_EXCEPTION(VersionReq::parse("   1.2    "));
-  ASSERT_NO_EXCEPTION(VersionReq::parse(" <1.2.3     and   >1    "));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3and >=1.2.3"));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3  and>=1.2.3"));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3and>=1.2.3"));
+  ASSERT_NO_EXCEPTION(VersionReq::parse(" <1.2.3     &&   >1    "));
+  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3&& >=1.2.3"));
+  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3  &&>=1.2.3"));
+  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3&&>=1.2.3"));
 }
 
 void test_invalid_spaces() {
@@ -1172,77 +1168,77 @@ void test_invalid_spaces() {
       " ^ expected version"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("  <1.2.3 and>= 1.2.3"), ComparatorException,
+      VersionReq::parse("  <1.2.3 &&>= 1.2.3"), ComparatorException,
       "invalid comparator:\n"
-      "  <1.2.3 and>= 1.2.3\n"
-      "              ^ expected version"
+      "  <1.2.3 &&>= 1.2.3\n"
+      "             ^ expected version"
   );
 }
 
 void test_invalid_conjunction() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 and"), VersionReqException,
+      VersionReq::parse("<1.2.3 &&"), VersionReqException,
       "invalid version requirement:\n"
-      "<1.2.3 and\n"
-      "          ^ expected >=, <=, >, or <"
+      "<1.2.3 &&\n"
+      "         ^ expected >=, <=, >, or <"
   );
   ASSERT_EXCEPTION(
       VersionReq::parse("<1.2.3  <1.2.3"), VersionReqException,
       "invalid version requirement:\n"
       "<1.2.3  <1.2.3\n"
-      "              ^ expected `and`"
+      "              ^ expected `&&`"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 and <1.2.3 and"), VersionReqException,
+      VersionReq::parse("<1.2.3 && <1.2.3 &&"), VersionReqException,
       "invalid version requirement:\n"
-      "<1.2.3 and <1.2.3 and\n"
-      "                  ^ expected end of string"
+      "<1.2.3 && <1.2.3 &&\n"
+      "                 ^ expected end of string"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 and <1.2.3 and <1.2.3"), VersionReqException,
+      VersionReq::parse("<1.2.3 && <1.2.3 && <1.2.3"), VersionReqException,
       "invalid version requirement:\n"
-      "<1.2.3 and <1.2.3 and <1.2.3\n"
-      "                  ^ expected end of string"
+      "<1.2.3 && <1.2.3 && <1.2.3\n"
+      "                 ^ expected end of string"
   );
 }
 
 void test_non_comparator_chain() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("1.2.3 and 4.5.6"), VersionReqException,
+      VersionReq::parse("1.2.3 && 4.5.6"), VersionReqException,
       "invalid version requirement:\n"
-      "1.2.3 and 4.5.6\n"
+      "1.2.3 && 4.5.6\n"
       "      ^ NoOp and Exact cannot chain"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("=1.2.3 and =4.5.6"), VersionReqException,
+      VersionReq::parse("=1.2.3 && =4.5.6"), VersionReqException,
       "invalid version requirement:\n"
-      "=1.2.3 and =4.5.6\n"
+      "=1.2.3 && =4.5.6\n"
       "       ^ NoOp and Exact cannot chain"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("1.2.3 and =4.5.6"), VersionReqException,
+      VersionReq::parse("1.2.3 && =4.5.6"), VersionReqException,
       "invalid version requirement:\n"
-      "1.2.3 and =4.5.6\n"
+      "1.2.3 && =4.5.6\n"
       "      ^ NoOp and Exact cannot chain"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("=1.2.3 and 4.5.6"), VersionReqException,
+      VersionReq::parse("=1.2.3 && 4.5.6"), VersionReqException,
       "invalid version requirement:\n"
-      "=1.2.3 and 4.5.6\n"
+      "=1.2.3 && 4.5.6\n"
       "       ^ NoOp and Exact cannot chain"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 and 4.5.6"), VersionReqException,
+      VersionReq::parse("<1.2.3 && 4.5.6"), VersionReqException,
       "invalid version requirement:\n"
-      "<1.2.3 and 4.5.6\n"
-      "           ^ expected >=, <=, >, or <"
+      "<1.2.3 && 4.5.6\n"
+      "          ^ expected >=, <=, >, or <"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 and =4.5.6"), VersionReqException,
+      VersionReq::parse("<1.2.3 && =4.5.6"), VersionReqException,
       "invalid version requirement:\n"
-      "<1.2.3 and =4.5.6\n"
-      "           ^ expected >=, <=, >, or <"
+      "<1.2.3 && =4.5.6\n"
+      "          ^ expected >=, <=, >, or <"
   );
 }
 

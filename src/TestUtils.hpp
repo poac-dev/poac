@@ -17,7 +17,7 @@
 
 #define TEST_ERROR                                     \
   std::cerr << TEST_PREFIX2 << red("FAILED") << "\n\n" \
-            << __FILE__ << "::" << __func__ << ':' << __LINE__ << ": "
+            << __FILE__ << ':' << __LINE__ << " (" << __func__ << "): "
 
 #define ASSERT_TRUE(cond)             \
   if (!(cond)) {                      \

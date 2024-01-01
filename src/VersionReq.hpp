@@ -1,7 +1,7 @@
 // Semver version requirement parser
 //
 // Syntax:
-//   versionReq ::= (("=" | compOp)? optVersion) | (comparator "and" comparator)
+//   versionReq ::= (("=" | compOp)? optVersion) | (comparator "&&" comparator)
 //   comparator ::= compOp optVersion
 //   optVersion ::= num ("." num ("." num ("-" pre)? ("+" build)? )? )?
 //   compOp     ::= ">=" | "<=" | ">" | "<"
@@ -20,17 +20,17 @@
 #include <ostream>
 
 // 1. NoOp: (Caret (^), "compatible" updates)
-//   1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
+//   1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
 //   1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
 //   1.3. `A` is equivalent to `=A` (i.e., 2.3)
-//   1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+//   1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
 //   1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
 //   1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
 //
 // 2. Exact:
 //   2.1. `=A.B.C` is exactly the version `A.B.C`
-//   2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
-//   2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+//   2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
+//   2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
 //
 // 3. Gt:
 //   3.1. `>A.B.C` is equivalent to `>=A.B.(C+1)`
