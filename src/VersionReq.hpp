@@ -67,7 +67,6 @@ struct Comparator {
   Prerelease pre;
 
   static Comparator parse(StringRef);
-  Version to_version() const noexcept;
   String to_string() const noexcept;
   bool satisfiedBy(const Version&) const noexcept;
   Comparator canonicalize() const noexcept;

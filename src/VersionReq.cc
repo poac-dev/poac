@@ -240,17 +240,6 @@ Comparator Comparator::parse(StringRef s) {
   return parser.parse();
 }
 
-// Dangerously convert to Version.  This method can lose the original
-// information.  Do not use unless it makes sense.
-Version Comparator::to_version() const noexcept {
-  Version ver;
-  ver.major = major;
-  ver.minor = minor.value_or(0);
-  ver.patch = patch.value_or(0);
-  ver.pre = pre;
-  return ver;
-}
-
 String Comparator::to_string() const noexcept {
   String result;
   if (op.has_value()) {
