@@ -27,6 +27,7 @@ std::ostream& operator<<(std::ostream& os, const VersionToken& tok) noexcept {
       os << '+';
       break;
     case VersionToken::Eof:
+    case VersionToken::Unknown:
       break;
   }
   return os;
@@ -55,6 +56,7 @@ bool operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
     case VersionToken::Hyphen:
     case VersionToken::Plus:
     case VersionToken::Eof:
+    case VersionToken::Unknown:
       return true;
   }
   return false;
@@ -71,10 +73,12 @@ bool operator>(const VersionToken& lhs, const VersionToken& rhs) {
 }
 
 static String carets(const VersionToken& tok) noexcept {
-  if (tok.kind != VersionToken::Eof) {
-    return String(tok.size(), '^');
-  } else {
-    return "^";
+  switch (tok.kind) {
+    case VersionToken::Eof:
+    case VersionToken::Unknown:
+      return "^";
+    default:
+      return String(tok.size(), '^');
   }
 }
 
@@ -255,17 +259,14 @@ bool VersionLexer::isEof() const noexcept {
   return pos >= s.size();
 }
 
-void VersionLexer::step() {
-  if (isEof()) {
-    throw SemverException(s, '\n', String(pos, ' '), "^ unexpected eof");
-  }
+void VersionLexer::step() noexcept {
   ++pos;
 }
 
-VersionToken VersionLexer::consumeIdent() {
+VersionToken VersionLexer::consumeIdent() noexcept {
   usize len = 0;
   while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
-    ++pos;
+    step();
     ++len;
   }
   return {VersionToken::Ident, StringRef(s.data() + pos - len, len)};
@@ -290,7 +291,7 @@ VersionToken VersionLexer::consumeNum() {
     }
 
     value = value * 10 + digit;
-    ++pos;
+    step();
     ++len;
   }
   return {VersionToken::Num, value};
@@ -304,7 +305,7 @@ VersionToken VersionLexer::consumeNumOrIdent() {
     if (!std::isdigit(s[pos])) {
       isIdent = true;
     }
-    ++pos;
+    step();
   }
 
   pos = oldPos;
@@ -335,9 +336,8 @@ VersionToken VersionLexer::next() {
     step();
     return VersionToken{VersionToken::Plus};
   } else {
-    throw SemverException(
-        s, '\n', String(pos, ' '), "^ unexpected character: `", c, '`'
-    );
+    step();
+    return VersionToken{VersionToken::Unknown};
   }
 }
 
@@ -481,7 +481,7 @@ void test_parse() {
       Version::parse("  "), SemverException,
       "invalid semver:\n"
       "  \n"
-      "^ unexpected character: ` `"
+      "^ expected number"
   );
   ASSERT_EXCEPTION(
       Version::parse("1"), SemverException,

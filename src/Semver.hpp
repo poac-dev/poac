@@ -23,6 +23,7 @@ struct VersionToken {
     Hyphen, // -
     Plus, // +
     Eof,
+    Unknown,
   };
 
   Kind kind;
@@ -86,8 +87,8 @@ struct VersionLexer {
   explicit VersionLexer(StringRef s) : s(s), pos(0) {}
 
   bool isEof() const noexcept;
-  void step();
-  VersionToken consumeIdent();
+  void step() noexcept;
+  VersionToken consumeIdent() noexcept;
   VersionToken consumeNum();
   VersionToken consumeNumOrIdent();
   VersionToken next();
