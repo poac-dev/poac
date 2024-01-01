@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <span>
-#include <thread>
 
 int buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   const auto start = std::chrono::steady_clock::now();
