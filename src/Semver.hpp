@@ -62,6 +62,7 @@ struct Version {
   Prerelease pre;
   BuildMetadata build;
 
+  static Version parse(StringRef);
   String to_string() const noexcept;
 };
 std::ostream& operator<<(std::ostream&, const Version&) noexcept;
@@ -100,5 +101,3 @@ struct VersionParser {
   BuildMetadata parseBuild();
   VersionToken parseIdent();
 };
-
-Version parseSemver(StringRef);

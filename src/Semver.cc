@@ -444,7 +444,7 @@ BuildMetadata BuildMetadata::parse(StringRef s) {
   return parser.parseBuild();
 }
 
-Version parseSemver(StringRef s) {
+Version Version::parse(StringRef s) {
   VersionParser parser(s);
   return parser.parse();
 }
@@ -458,198 +458,200 @@ Version parseSemver(StringRef s) {
 
 void test_parse() {
   ASSERT_EXCEPTION(
-      parseSemver(""), SemverException,
+      Version::parse(""), SemverException,
       "invalid semver:\n"
       "empty string is not a valid semver"
   );
   ASSERT_EXCEPTION(
-      parseSemver("  "), SemverException,
+      Version::parse("  "), SemverException,
       "invalid semver:\n"
       "  \n"
       "^ unexpected character: ` `"
   );
   ASSERT_EXCEPTION(
-      parseSemver("1"), SemverException,
+      Version::parse("1"), SemverException,
       "invalid semver:\n"
       "1\n"
       " ^ expected `.`"
   );
   ASSERT_EXCEPTION(
-      parseSemver("1.2"), SemverException,
+      Version::parse("1.2"), SemverException,
       "invalid semver:\n"
       "1.2\n"
       "   ^ expected `.`"
   );
   ASSERT_EXCEPTION(
-      parseSemver("1.2.3-"), SemverException,
+      Version::parse("1.2.3-"), SemverException,
       "invalid semver:\n"
       "1.2.3-\n"
       "      ^ expected number or identifier"
   );
   ASSERT_EXCEPTION(
-      parseSemver("a.b.c"), SemverException,
+      Version::parse("a.b.c"), SemverException,
       "invalid semver:\n"
       "a.b.c\n"
       "^ expected number"
   );
   ASSERT_EXCEPTION(
-      parseSemver("1.2.3 abc"), SemverException,
+      Version::parse("1.2.3 abc"), SemverException,
       "invalid semver:\n"
       "1.2.3 abc\n"
       "     ^ unexpected character: ` `"
   );
   ASSERT_EXCEPTION(
-      parseSemver("1.2.3-01"), SemverException,
+      Version::parse("1.2.3-01"), SemverException,
       "invalid semver:\n"
       "1.2.3-01\n"
       "      ^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      parseSemver("1.2.3++"), SemverException,
+      Version::parse("1.2.3++"), SemverException,
       "invalid semver:\n"
       "1.2.3++\n"
       "      ^ expected identifier"
   );
   ASSERT_EXCEPTION(
-      parseSemver("07"), SemverException,
+      Version::parse("07"), SemverException,
       "invalid semver:\n"
       "07\n"
       "^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      parseSemver("111111111111111111111.0.0"), SemverException,
+      Version::parse("111111111111111111111.0.0"), SemverException,
       "invalid semver:\n"
       "111111111111111111111.0.0\n"
       "^ number exceeds UINT64_MAX"
   );
   ASSERT_EXCEPTION(
-      parseSemver("8\0"), SemverException,
+      Version::parse("8\0"), SemverException,
       "invalid semver:\n"
       "8\n"
       " ^ expected `.`"
   );
 
   ASSERT_EQ(
-      parseSemver("1.2.3"), (Version{1, 2, 3, Prerelease(), BuildMetadata()})
+      Version::parse("1.2.3"), (Version{1, 2, 3, Prerelease(), BuildMetadata()})
   );
   ASSERT_EQ(
-      parseSemver("1.2.3-alpha1"),
+      Version::parse("1.2.3-alpha1"),
       (Version{1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata()})
   );
   ASSERT_EQ(
-      parseSemver("1.2.3+build5"),
+      Version::parse("1.2.3+build5"),
       (Version{1, 2, 3, Prerelease(), BuildMetadata::parse("build5")})
   );
   ASSERT_EQ(
-      parseSemver("1.2.3+5build"),
+      Version::parse("1.2.3+5build"),
       (Version{1, 2, 3, Prerelease(), BuildMetadata::parse("5build")})
   );
   ASSERT_EQ(
-      parseSemver("1.2.3-alpha1+build5"),
+      Version::parse("1.2.3-alpha1+build5"),
       (Version{
           1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata::parse("build5")
       })
   );
   ASSERT_EQ(
-      parseSemver("1.2.3-1.alpha1.9+build5.7.3aedf"),
+      Version::parse("1.2.3-1.alpha1.9+build5.7.3aedf"),
       (Version{
           1, 2, 3, Prerelease::parse("1.alpha1.9"),
           BuildMetadata::parse("build5.7.3aedf")
       })
   );
   ASSERT_EQ(
-      parseSemver("1.2.3-0a.alpha1.9+05build.7.3aedf"),
+      Version::parse("1.2.3-0a.alpha1.9+05build.7.3aedf"),
       (Version{
           1, 2, 3, Prerelease::parse("0a.alpha1.9"),
           BuildMetadata::parse("05build.7.3aedf")
       })
   );
   ASSERT_EQ(
-      parseSemver("0.4.0-beta.1+0851523"),
+      Version::parse("0.4.0-beta.1+0851523"),
       (Version{
           0, 4, 0, Prerelease::parse("beta.1"), BuildMetadata::parse("0851523")
       })
   );
   ASSERT_EQ(
-      parseSemver("1.1.0-beta-10"),
+      Version::parse("1.1.0-beta-10"),
       (Version{1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata()})
   );
 }
 
 void test_eq() {
-  ASSERT_EQ(parseSemver("1.2.3"), parseSemver("1.2.3"));
-  ASSERT_EQ(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3-alpha1"));
-  ASSERT_EQ(parseSemver("1.2.3+build.42"), parseSemver("1.2.3+build.42"));
-  ASSERT_EQ(parseSemver("1.2.3-alpha1+42"), parseSemver("1.2.3-alpha1+42"));
+  ASSERT_EQ(Version::parse("1.2.3"), Version::parse("1.2.3"));
+  ASSERT_EQ(Version::parse("1.2.3-alpha1"), Version::parse("1.2.3-alpha1"));
+  ASSERT_EQ(Version::parse("1.2.3+build.42"), Version::parse("1.2.3+build.42"));
+  ASSERT_EQ(
+      Version::parse("1.2.3-alpha1+42"), Version::parse("1.2.3-alpha1+42")
+  );
 }
 
 void test_ne() {
-  ASSERT_NE(parseSemver("0.0.0"), parseSemver("0.0.1"));
-  ASSERT_NE(parseSemver("0.0.0"), parseSemver("0.1.0"));
-  ASSERT_NE(parseSemver("0.0.0"), parseSemver("1.0.0"));
-  ASSERT_NE(parseSemver("1.2.3-alpha"), parseSemver("1.2.3-beta"));
-  ASSERT_NE(parseSemver("1.2.3+23"), parseSemver("1.2.3+42"));
+  ASSERT_NE(Version::parse("0.0.0"), Version::parse("0.0.1"));
+  ASSERT_NE(Version::parse("0.0.0"), Version::parse("0.1.0"));
+  ASSERT_NE(Version::parse("0.0.0"), Version::parse("1.0.0"));
+  ASSERT_NE(Version::parse("1.2.3-alpha"), Version::parse("1.2.3-beta"));
+  ASSERT_NE(Version::parse("1.2.3+23"), Version::parse("1.2.3+42"));
 }
 
 void test_display() {
   {
     std::ostringstream oss;
-    oss << parseSemver("1.2.3");
+    oss << Version::parse("1.2.3");
     ASSERT_EQ(oss.str(), "1.2.3");
   }
   {
     std::ostringstream oss;
-    oss << parseSemver("1.2.3-alpha1");
+    oss << Version::parse("1.2.3-alpha1");
     ASSERT_EQ(oss.str(), "1.2.3-alpha1");
   }
   {
     std::ostringstream oss;
-    oss << parseSemver("1.2.3+build.42");
+    oss << Version::parse("1.2.3+build.42");
     ASSERT_EQ(oss.str(), "1.2.3+build.42");
   }
   {
     std::ostringstream oss;
-    oss << parseSemver("1.2.3-alpha1+42");
+    oss << Version::parse("1.2.3-alpha1+42");
     ASSERT_EQ(oss.str(), "1.2.3-alpha1+42");
   }
 }
 
 void test_lt() {
-  ASSERT_LT(parseSemver("0.0.0"), parseSemver("1.2.3-alpha2"));
-  ASSERT_LT(parseSemver("1.0.0"), parseSemver("1.2.3-alpha2"));
-  ASSERT_LT(parseSemver("1.2.0"), parseSemver("1.2.3-alpha2"));
-  ASSERT_LT(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3"));
-  ASSERT_LT(parseSemver("1.2.3-alpha1"), parseSemver("1.2.3-alpha2"));
-  ASSERT_FALSE(parseSemver("1.2.3-alpha2") < parseSemver("1.2.3-alpha2"));
-  ASSERT_LT(parseSemver("1.2.3+23"), parseSemver("1.2.3+42"));
+  ASSERT_LT(Version::parse("0.0.0"), Version::parse("1.2.3-alpha2"));
+  ASSERT_LT(Version::parse("1.0.0"), Version::parse("1.2.3-alpha2"));
+  ASSERT_LT(Version::parse("1.2.0"), Version::parse("1.2.3-alpha2"));
+  ASSERT_LT(Version::parse("1.2.3-alpha1"), Version::parse("1.2.3"));
+  ASSERT_LT(Version::parse("1.2.3-alpha1"), Version::parse("1.2.3-alpha2"));
+  ASSERT_FALSE(Version::parse("1.2.3-alpha2") < Version::parse("1.2.3-alpha2"));
+  ASSERT_LT(Version::parse("1.2.3+23"), Version::parse("1.2.3+42"));
 }
 
 void test_le() {
-  ASSERT_TRUE(parseSemver("0.0.0") <= parseSemver("1.2.3-alpha2"));
-  ASSERT_TRUE(parseSemver("1.0.0") <= parseSemver("1.2.3-alpha2"));
-  ASSERT_TRUE(parseSemver("1.2.0") <= parseSemver("1.2.3-alpha2"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha1") <= parseSemver("1.2.3-alpha2"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") <= parseSemver("1.2.3-alpha2"));
-  ASSERT_TRUE(parseSemver("1.2.3+23") <= parseSemver("1.2.3+42"));
+  ASSERT_TRUE(Version::parse("0.0.0") <= Version::parse("1.2.3-alpha2"));
+  ASSERT_TRUE(Version::parse("1.0.0") <= Version::parse("1.2.3-alpha2"));
+  ASSERT_TRUE(Version::parse("1.2.0") <= Version::parse("1.2.3-alpha2"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha1") <= Version::parse("1.2.3-alpha2"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") <= Version::parse("1.2.3-alpha2"));
+  ASSERT_TRUE(Version::parse("1.2.3+23") <= Version::parse("1.2.3+42"));
 }
 
 void test_gt() {
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("0.0.0"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.0.0"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.0"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.3-alpha1"));
-  ASSERT_TRUE(parseSemver("1.2.3") > parseSemver("1.2.3-alpha2"));
-  ASSERT_FALSE(parseSemver("1.2.3-alpha2") > parseSemver("1.2.3-alpha2"));
-  ASSERT_FALSE(parseSemver("1.2.3+23") > parseSemver("1.2.3+42"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("0.0.0"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("1.0.0"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("1.2.0"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("1.2.3-alpha1"));
+  ASSERT_TRUE(Version::parse("1.2.3") > Version::parse("1.2.3-alpha2"));
+  ASSERT_FALSE(Version::parse("1.2.3-alpha2") > Version::parse("1.2.3-alpha2"));
+  ASSERT_FALSE(Version::parse("1.2.3+23") > Version::parse("1.2.3+42"));
 }
 
 void test_ge() {
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("0.0.0"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.0.0"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.0"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha1"));
-  ASSERT_TRUE(parseSemver("1.2.3-alpha2") >= parseSemver("1.2.3-alpha2"));
-  ASSERT_FALSE(parseSemver("1.2.3+23") >= parseSemver("1.2.3+42"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("0.0.0"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("1.0.0"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("1.2.0"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("1.2.3-alpha1"));
+  ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("1.2.3-alpha2"));
+  ASSERT_FALSE(Version::parse("1.2.3+23") >= Version::parse("1.2.3+42"));
 }
 
 void test_spec_order() {
@@ -658,7 +660,7 @@ void test_spec_order() {
       "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
   };
   for (usize i = 1; i < vs.size(); ++i) {
-    ASSERT_LT(parseSemver(vs[i - 1]), parseSemver(vs[i]));
+    ASSERT_LT(Version::parse(vs[i - 1]), Version::parse(vs[i]));
   }
 }
 
