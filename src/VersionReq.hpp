@@ -1,10 +1,10 @@
 // Semver version requirement parser
 //
 // Syntax:
-//   VersionReq ::= (("=" | CompOp)? OptVersion) | (Comparator "and" Comparator)
-//   Comparator ::= CompOp OptVersion
-//   OptVersion ::= num ("." num ("." num ("-" pre)? ("+" build)? )? )?
-//   CompOp     ::= ">=" | "<=" | ">" | "<"
+//   versionReq ::= (("=" | compOp)? optVersion) | (comparator "and" comparator)
+//   comparator ::= compOp optVersion
+//   optVersion ::= num ("." num ("." num ("-" pre)? ("+" build)? )? )?
+//   compOp     ::= ">=" | "<=" | ">" | "<"
 //   num        ::= <defined in Semver.hpp>
 //   pre        ::= <defined in Semver.hpp>
 //   build      ::= <defined in Semver.hpp>
