@@ -6,7 +6,7 @@
 #include <utility>
 #include <variant>
 
-struct Token {
+struct VersionToken {
   enum Kind {
     Num, // [1-9][0-9]*
     Ident, // [a-zA-Z0-9][a-zA-Z0-9-]*
@@ -19,16 +19,16 @@ struct Token {
   Kind kind;
   std::variant<std::monostate, u64, StringRef> value;
 
-  Token(Kind kind, std::variant<std::monostate, u64, StringRef> value)
+  VersionToken(Kind kind, std::variant<std::monostate, u64, StringRef> value)
       : kind(kind), value(std::move(value)) {}
-  explicit Token(Kind kind) : kind(kind), value(std::monostate{}) {}
+  explicit VersionToken(Kind kind) : kind(kind), value(std::monostate{}) {}
 
   String to_string() const;
   usize size() const;
 };
 
 struct Prerelease {
-  Vec<Token> ident;
+  Vec<VersionToken> ident;
 
   static Prerelease parse(StringRef);
   bool empty() const;
@@ -36,7 +36,7 @@ struct Prerelease {
 };
 
 struct BuildMetadata {
-  Vec<Token> ident;
+  Vec<VersionToken> ident;
 
   static BuildMetadata parse(StringRef);
   bool empty() const;
@@ -59,5 +59,34 @@ bool operator<(const Version&, const Version&);
 bool operator>(const Version&, const Version&);
 bool operator<=(const Version&, const Version&);
 bool operator>=(const Version&, const Version&);
+
+struct VersionLexer {
+  StringRef s;
+  usize pos;
+
+  explicit VersionLexer(StringRef s) : s(s), pos(0) {}
+
+  bool isEof() const;
+  void step();
+  VersionToken consumeIdent();
+  VersionToken consumeNum();
+  VersionToken consumeNumOrIdent();
+  VersionToken next();
+  VersionToken peek();
+};
+
+struct VersionParser {
+  VersionLexer lexer;
+
+  explicit VersionParser(StringRef s) : lexer(s) {}
+
+  Version parse();
+  u64 parseNum();
+  void parseDot();
+  Prerelease parsePre();
+  VersionToken parseNumOrIdent();
+  BuildMetadata parseBuild();
+  VersionToken parseIdent();
+};
 
 Version parseSemver(StringRef);

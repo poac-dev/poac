@@ -9,69 +9,69 @@
 #include <stdexcept>
 #include <string>
 
-std::ostream& operator<<(std::ostream& os, const Token& tok) {
+std::ostream& operator<<(std::ostream& os, const VersionToken& tok) {
   switch (tok.kind) {
-    case Token::Num:
+    case VersionToken::Num:
       os << std::get<u64>(tok.value);
       break;
-    case Token::Ident:
+    case VersionToken::Ident:
       os << std::get<StringRef>(tok.value);
       break;
-    case Token::Dot:
+    case VersionToken::Dot:
       os << '.';
       break;
-    case Token::Hyphen:
+    case VersionToken::Hyphen:
       os << '-';
       break;
-    case Token::Plus:
+    case VersionToken::Plus:
       os << '+';
       break;
-    case Token::Eof:
+    case VersionToken::Eof:
       break;
   }
   return os;
 }
 
-String Token::to_string() const {
+String VersionToken::to_string() const {
   std::ostringstream oss;
   oss << *this;
   return oss.str();
 }
 
-usize Token::size() const {
+usize VersionToken::size() const {
   return to_string().size();
 }
 
-bool operator==(const Token& lhs, const Token& rhs) {
+bool operator==(const VersionToken& lhs, const VersionToken& rhs) {
   if (lhs.kind != rhs.kind) {
     return false;
   }
   switch (lhs.kind) {
-    case Token::Num:
+    case VersionToken::Num:
       return std::get<u64>(lhs.value) == std::get<u64>(rhs.value);
-    case Token::Ident:
+    case VersionToken::Ident:
       return std::get<StringRef>(lhs.value) == std::get<StringRef>(rhs.value);
-    case Token::Dot:
-    case Token::Hyphen:
-    case Token::Plus:
-    case Token::Eof:
+    case VersionToken::Dot:
+    case VersionToken::Hyphen:
+    case VersionToken::Plus:
+    case VersionToken::Eof:
       return true;
   }
   return false;
 }
 
-bool operator<(const Token& lhs, const Token& rhs) {
-  if (lhs.kind == Token::Num && rhs.kind == Token::Num) {
+bool operator<(const VersionToken& lhs, const VersionToken& rhs) {
+  if (lhs.kind == VersionToken::Num && rhs.kind == VersionToken::Num) {
     return std::get<u64>(lhs.value) < std::get<u64>(rhs.value);
   }
   return lhs.to_string() < rhs.to_string();
 }
-bool operator>(const Token& lhs, const Token& rhs) {
+bool operator>(const VersionToken& lhs, const VersionToken& rhs) {
   return rhs < lhs;
 }
 
-String carets(const Token& tok) {
-  if (tok.kind != Token::Eof) {
+String carets(const VersionToken& tok) {
+  if (tok.kind != VersionToken::Eof) {
     return String(tok.size(), '^');
   } else {
     return "^";
@@ -236,227 +236,216 @@ private:
   String what_;
 };
 
-struct Lexer {
-  StringRef s;
-  usize pos;
+bool VersionLexer::isEof() const {
+  return pos >= s.size();
+}
 
-  explicit Lexer(StringRef s) : s(s), pos(0) {}
-
-  bool isEof() const {
-    return pos >= s.size();
+void VersionLexer::step() {
+  if (isEof()) {
+    throw SemverException(s, '\n', String(pos, ' '), "^ unexpected eof");
   }
+  ++pos;
+}
 
-  void step() {
-    if (isEof()) {
-      throw SemverException(s, '\n', String(pos, ' '), "^ unexpected eof");
+VersionToken VersionLexer::consumeIdent() {
+  usize len = 0;
+  while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
+    ++pos;
+    ++len;
+  }
+  return {VersionToken::Ident, StringRef(s.data() + pos - len, len)};
+}
+
+VersionToken VersionLexer::consumeNum() {
+  usize len = 0;
+  u64 value = 0;
+  while (pos < s.size() && std::isdigit(s[pos])) {
+    if (len > 0 && value == 0) {
+      throw SemverException(
+          s, '\n', String(pos - len, ' '), "^ invalid leading zero"
+      );
+    }
+
+    u64 digit = s[pos] - '0';
+    // Check for overflow
+    if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
+      throw SemverException(
+          s, '\n', String(pos - len, ' '), "^ number exceeds UINT64_MAX"
+      );
+    }
+
+    value = value * 10 + digit;
+    ++pos;
+    ++len;
+  }
+  return {VersionToken::Num, value};
+}
+
+// Note that 012 is an invalid number but 012d is a valid identifier.
+VersionToken VersionLexer::consumeNumOrIdent() {
+  const usize oldPos = pos; // we need two passes
+  bool isIdent = false;
+  while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
+    if (!std::isdigit(s[pos])) {
+      isIdent = true;
     }
     ++pos;
   }
 
-  Token consumeIdent() {
-    usize len = 0;
-    while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
-      ++pos;
-      ++len;
-    }
-    return {Token::Ident, StringRef(s.data() + pos - len, len)};
+  pos = oldPos;
+  if (isIdent) {
+    return consumeIdent();
+  } else {
+    return consumeNum();
+  }
+}
+
+VersionToken VersionLexer::next() {
+  if (isEof()) {
+    return VersionToken{VersionToken::Eof};
   }
 
-  Token consumeNum() {
-    usize len = 0;
-    u64 value = 0;
-    while (pos < s.size() && std::isdigit(s[pos])) {
-      if (len > 0 && value == 0) {
-        throw SemverException(
-            s, '\n', String(pos - len, ' '), "^ invalid leading zero"
-        );
-      }
-
-      u64 digit = s[pos] - '0';
-      // Check for overflow
-      if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
-        throw SemverException(
-            s, '\n', String(pos - len, ' '), "^ number exceeds UINT64_MAX"
-        );
-      }
-
-      value = value * 10 + digit;
-      ++pos;
-      ++len;
-    }
-    return {Token::Num, value};
+  const char c = s[pos];
+  if (std::isalpha(c)) {
+    return consumeIdent();
+  } else if (std::isdigit(c)) {
+    return consumeNumOrIdent();
+  } else if (c == '.') {
+    step();
+    return VersionToken{VersionToken::Dot};
+  } else if (c == '-') {
+    step();
+    return VersionToken{VersionToken::Hyphen};
+  } else if (c == '+') {
+    step();
+    return VersionToken{VersionToken::Plus};
+  } else {
+    throw SemverException(
+        s, '\n', String(pos, ' '), "^ unexpected character: `", c, '`'
+    );
   }
+}
 
-  // Note that 012 is an invalid number but 012d is a valid identifier.
-  Token consumeNumOrIdent() {
-    const usize oldPos = pos; // we need two passes
-    bool isIdent = false;
-    while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
-      if (!std::isdigit(s[pos])) {
-        isIdent = true;
-      }
-      ++pos;
-    }
-
-    pos = oldPos;
-    if (isIdent) {
-      return consumeIdent();
-    } else {
-      return consumeNum();
-    }
-  }
-
-  Token next() {
-    if (isEof()) {
-      return Token{Token::Eof};
-    }
-
-    const char c = s[pos];
-    if (std::isalpha(c)) {
-      return consumeIdent();
-    } else if (std::isdigit(c)) {
-      return consumeNumOrIdent();
-    } else if (c == '.') {
-      step();
-      return Token{Token::Dot};
-    } else if (c == '-') {
-      step();
-      return Token{Token::Hyphen};
-    } else if (c == '+') {
-      step();
-      return Token{Token::Plus};
-    } else {
-      throw SemverException(
-          s, '\n', String(pos, ' '), "^ unexpected character: `", c, '`'
-      );
-    }
-  }
-
-  Token peek() {
-    const usize oldPos = pos;
-    const Token tok = next();
-    pos = oldPos;
-    return tok;
-  }
-};
+VersionToken VersionLexer::peek() {
+  const usize oldPos = pos;
+  const VersionToken tok = next();
+  pos = oldPos;
+  return tok;
+}
 
 struct SemverParseException : public SemverException {
-  SemverParseException(const Lexer& lexer, const Token& tok, StringRef msg)
+  SemverParseException(
+      const VersionLexer& lexer, const VersionToken& tok, StringRef msg
+  )
       : SemverException(
           lexer.s, '\n', String(lexer.pos, ' '), carets(tok), msg
       ) {}
 };
 
-struct Parser {
-  Lexer lexer;
-
-  explicit Parser(StringRef s) : lexer(s) {}
-
-  Version parse() {
-    if (lexer.peek().kind == Token::Eof) {
-      throw SemverException("empty string is not a valid semver");
-    }
-
-    Version v;
-    v.major = parseNum();
-    parseDot();
-    v.minor = parseNum();
-    parseDot();
-    v.patch = parseNum();
-
-    if (lexer.peek().kind == Token::Hyphen) {
-      lexer.step();
-      v.pre = parsePre();
-    } else {
-      v.pre = Prerelease();
-    }
-
-    if (lexer.peek().kind == Token::Plus) {
-      lexer.step();
-      v.build = parseBuild();
-    } else {
-      v.build = BuildMetadata();
-    }
-
-    if (!lexer.isEof()) {
-      throw SemverParseException(
-          lexer, lexer.peek(),
-          " unexpected character: `" + String(1, lexer.s[lexer.pos]) + '`'
-      );
-    }
-
-    return v;
+Version VersionParser::parse() {
+  if (lexer.peek().kind == VersionToken::Eof) {
+    throw SemverException("empty string is not a valid semver");
   }
 
-  // Even if the token can be parsed as an identifier, try to parse it as a
-  // number.
-  u64 parseNum() {
-    if (!std::isdigit(lexer.s[lexer.pos])) {
-      throw SemverParseException(lexer, lexer.peek(), " expected number");
-    }
-    return std::get<u64>(lexer.consumeNum().value);
+  Version v;
+  v.major = parseNum();
+  parseDot();
+  v.minor = parseNum();
+  parseDot();
+  v.patch = parseNum();
+
+  if (lexer.peek().kind == VersionToken::Hyphen) {
+    lexer.step();
+    v.pre = parsePre();
+  } else {
+    v.pre = Prerelease();
   }
 
-  void parseDot() {
-    const Token tok = lexer.next();
-    if (tok.kind != Token::Dot) {
-      throw SemverParseException(lexer, tok, " expected `.`");
-    }
+  if (lexer.peek().kind == VersionToken::Plus) {
+    lexer.step();
+    v.build = parseBuild();
+  } else {
+    v.build = BuildMetadata();
   }
 
-  // pre ::= numOrIdent ("." numOrIdent)*
-  Prerelease parsePre() {
-    Vec<Token> pre;
+  if (!lexer.isEof()) {
+    throw SemverParseException(
+        lexer, lexer.peek(),
+        " unexpected character: `" + String(1, lexer.s[lexer.pos]) + '`'
+    );
+  }
+
+  return v;
+}
+
+// Even if the token can be parsed as an identifier, try to parse it as a
+// number.
+u64 VersionParser::parseNum() {
+  if (!std::isdigit(lexer.s[lexer.pos])) {
+    throw SemverParseException(lexer, lexer.peek(), " expected number");
+  }
+  return std::get<u64>(lexer.consumeNum().value);
+}
+
+void VersionParser::parseDot() {
+  const VersionToken tok = lexer.next();
+  if (tok.kind != VersionToken::Dot) {
+    throw SemverParseException(lexer, tok, " expected `.`");
+  }
+}
+
+// pre ::= numOrIdent ("." numOrIdent)*
+Prerelease VersionParser::parsePre() {
+  Vec<VersionToken> pre;
+  pre.emplace_back(parseNumOrIdent());
+  while (lexer.peek().kind == VersionToken::Dot) {
+    lexer.step();
     pre.emplace_back(parseNumOrIdent());
-    while (lexer.peek().kind == Token::Dot) {
-      lexer.step();
-      pre.emplace_back(parseNumOrIdent());
-    }
-    return Prerelease{pre};
   }
+  return Prerelease{pre};
+}
 
-  // numOrIdent ::= num | ident
-  Token parseNumOrIdent() {
-    const Token tok = lexer.next();
-    if (tok.kind != Token::Num && tok.kind != Token::Ident) {
-      throw SemverParseException(lexer, tok, " expected number or identifier");
-    }
-    return tok;
+// numOrIdent ::= num | ident
+VersionToken VersionParser::parseNumOrIdent() {
+  const VersionToken tok = lexer.next();
+  if (tok.kind != VersionToken::Num && tok.kind != VersionToken::Ident) {
+    throw SemverParseException(lexer, tok, " expected number or identifier");
   }
+  return tok;
+}
 
-  // build ::= ident ("." ident)*
-  BuildMetadata parseBuild() {
-    Vec<Token> build;
+// build ::= ident ("." ident)*
+BuildMetadata VersionParser::parseBuild() {
+  Vec<VersionToken> build;
+  build.emplace_back(parseIdent());
+  while (lexer.peek().kind == VersionToken::Dot) {
+    lexer.step();
     build.emplace_back(parseIdent());
-    while (lexer.peek().kind == Token::Dot) {
-      lexer.step();
-      build.emplace_back(parseIdent());
-    }
-    return BuildMetadata{build};
   }
+  return BuildMetadata{build};
+}
 
-  // Even if the token can be parsed as a number, try to parse it as an
-  // identifier.
-  Token parseIdent() {
-    if (!std::isalnum(lexer.s[lexer.pos])) {
-      throw SemverParseException(lexer, lexer.peek(), " expected identifier");
-    }
-    return lexer.consumeIdent();
+// Even if the token can be parsed as a number, try to parse it as an
+// identifier.
+VersionToken VersionParser::parseIdent() {
+  if (!std::isalnum(lexer.s[lexer.pos])) {
+    throw SemverParseException(lexer, lexer.peek(), " expected identifier");
   }
-};
+  return lexer.consumeIdent();
+}
 
 Prerelease Prerelease::parse(StringRef s) {
-  Parser parser(s);
+  VersionParser parser(s);
   return parser.parsePre();
 }
 
 BuildMetadata BuildMetadata::parse(StringRef s) {
-  Parser parser(s);
+  VersionParser parser(s);
   return parser.parseBuild();
 }
 
 Version parseSemver(StringRef s) {
-  Parser parser(s);
+  VersionParser parser(s);
   return parser.parse();
 }
 
