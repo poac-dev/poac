@@ -100,6 +100,12 @@ bool operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   return !(lhs == rhs);
 }
 bool operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
+  if (lhs.ident.empty()) {
+    return false; // lhs is a normal version and is greater
+  }
+  if (rhs.ident.empty()) {
+    return true; // rhs is a normal version and is greater
+  }
   for (usize i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
       return true;
