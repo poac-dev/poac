@@ -820,6 +820,9 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 #  include "TestUtils.hpp"
 
+#  include <string>
+#  include <vector>
+
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/b6171889ac7e8f47ec6f12003571bdcc7f737b10/tests/test_version_req.rs
 
