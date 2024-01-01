@@ -240,26 +240,40 @@ Comparator Comparator::parse(StringRef s) {
   return parser.parse();
 }
 
+void optVersionString(const Comparator& cmp, String& result) noexcept {
+  result += std::to_string(cmp.major);
+  if (cmp.minor.has_value()) {
+    result += ".";
+    result += std::to_string(cmp.minor.value());
+
+    if (cmp.patch.has_value()) {
+      result += ".";
+      result += std::to_string(cmp.patch.value());
+
+      if (!cmp.pre.empty()) {
+        result += "-";
+        result += cmp.pre.to_string();
+      }
+    }
+  }
+}
+
 String Comparator::to_string() const noexcept {
   String result;
   if (op.has_value()) {
     result += ::to_string(op.value());
   }
-  result += std::to_string(major);
-  if (minor.has_value()) {
-    result += ".";
-    result += std::to_string(minor.value());
+  optVersionString(*this, result);
+  return result;
+}
 
-    if (patch.has_value()) {
-      result += ".";
-      result += std::to_string(patch.value());
-
-      if (!pre.empty()) {
-        result += "-";
-        result += pre.to_string();
-      }
-    }
+String Comparator::to_pkg_config_string() const noexcept {
+  String result;
+  if (op.has_value()) {
+    result += ::to_string(op.value());
+    result += ' '; // we just need this space for pkg-config
   }
+  optVersionString(*this, result);
   return result;
 }
 
@@ -810,6 +824,17 @@ String VersionReq::to_string() const noexcept {
   return result;
 }
 
+String VersionReq::to_pkg_config_string(const String& name) const noexcept {
+  String result = name;
+  result += ' ';
+  result += left.to_pkg_config_string();
+  if (right.has_value()) {
+    result += ", " + name + ' ';
+    result += right->to_pkg_config_string();
+  }
+  return result;
+}
+
 std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
   return os << req.to_string();
 }
@@ -1242,6 +1267,19 @@ void test_non_comparator_chain() {
   );
 }
 
+void test_to_string() {
+  ASSERT_EQ(
+      VersionReq::parse("  <1.2.3  &&>=1.0 ").to_string(), "<1.2.3 && >=1.0"
+  );
+}
+
+void test_to_pkg_config_string() {
+  ASSERT_EQ(
+      VersionReq::parse("  <1.2.3  &&>=1.0 ").to_pkg_config_string("foo"),
+      "foo < 1.2.3, foo >= 1.0"
+  );
+}
+
 int main() {
   REGISTER_TEST(test_basic);
   REGISTER_TEST(test_exact);
@@ -1262,6 +1300,8 @@ int main() {
   REGISTER_TEST(test_invalid_spaces);
   REGISTER_TEST(test_invalid_conjunction);
   REGISTER_TEST(test_non_comparator_chain);
+  REGISTER_TEST(test_to_string);
+  REGISTER_TEST(test_to_pkg_config_string);
 }
 
 #endif
