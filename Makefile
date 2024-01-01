@@ -124,10 +124,10 @@ $(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp src/Cmd/Test.hpp \
 test: $(OUT_DIR)/tests $(OUT_DIR)/tests/test_BuildConfig \
   $(OUT_DIR)/tests/test_Algos $(OUT_DIR)/tests/test_Semver \
   $(OUT_DIR)/tests/test_VersionReq
-	$(OUT_DIR)/tests/test_BuildConfig
-	$(OUT_DIR)/tests/test_Algos
-	$(OUT_DIR)/tests/test_Semver
-	$(OUT_DIR)/tests/test_VersionReq
+	@$(OUT_DIR)/tests/test_BuildConfig
+	@$(OUT_DIR)/tests/test_Algos
+	@$(OUT_DIR)/tests/test_Semver
+	@$(OUT_DIR)/tests/test_VersionReq
 
 $(OUT_DIR)/tests:
 	mkdir -p $@

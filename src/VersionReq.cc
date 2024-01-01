@@ -57,6 +57,8 @@ private:
 
 String to_string(const Comparator::Op op) noexcept {
   switch (op) {
+    case Comparator::Exact:
+      return "=";
     case Comparator::Gt:
       return ">";
     case Comparator::Gte:
@@ -77,6 +79,7 @@ struct OptVersion {
 
 struct ComparatorToken {
   enum Kind {
+    Eq, // =
     Gt, // >
     Gte, // >=
     Lt, // <
@@ -118,7 +121,10 @@ struct ComparatorLexer {
     }
 
     const char c = s[pos];
-    if (c == '>') {
+    if (c == '=') {
+      step();
+      return ComparatorToken{ComparatorToken::Eq};
+    } else if (c == '>') {
       step();
       if (isEof()) {
         return ComparatorToken{ComparatorToken::Gt};
@@ -186,7 +192,9 @@ struct ComparatorParser {
     Comparator result;
 
     const auto token = lexer.next();
-    if (token.kind == ComparatorToken::Gt) {
+    if (token.kind == ComparatorToken::Eq) {
+      result.op = Comparator::Exact;
+    } else if (token.kind == ComparatorToken::Gt) {
       result.op = Comparator::Gt;
     } else if (token.kind == ComparatorToken::Gte) {
       result.op = Comparator::Gte;
@@ -202,8 +210,8 @@ struct ComparatorParser {
       result.pre = ver.pre;
     } else {
       throw ComparatorException(
-          lexer.s, '\n',
-          String(lexer.pos, ' ') + "^ expected >=, <=, >, <, or version"
+          lexer.s, '\n', String(lexer.pos, ' '),
+          "^ expected =, >=, <=, >, <, or version"
       );
     }
 
@@ -213,7 +221,7 @@ struct ComparatorParser {
       const auto token2 = lexer.next();
       if (token2.kind != ComparatorToken::Ver) {
         throw ComparatorException(
-            lexer.s, '\n', String(lexer.pos, ' ') + "^ expected version"
+            lexer.s, '\n', String(lexer.pos, ' '), "^ expected version"
         );
       }
       const OptVersion& ver = std::get<OptVersion>(token2.value);
@@ -230,6 +238,40 @@ struct ComparatorParser {
 Comparator Comparator::parse(StringRef s) {
   ComparatorParser parser(s);
   return parser.parse();
+}
+
+// Dangerously convert to Version.  This method can lose the original
+// information.  Do not use unless it makes sense.
+Version Comparator::to_version() const noexcept {
+  Version ver;
+  ver.major = major;
+  ver.minor = minor.value_or(0);
+  ver.patch = patch.value_or(0);
+  ver.pre = pre;
+  return ver;
+}
+
+String Comparator::to_string() const noexcept {
+  String result;
+  if (op.has_value()) {
+    result += ::to_string(op.value());
+  }
+  result += std::to_string(major);
+  if (minor.has_value()) {
+    result += ".";
+    result += std::to_string(minor.value());
+
+    if (patch.has_value()) {
+      result += ".";
+      result += std::to_string(patch.value());
+
+      if (!pre.empty()) {
+        result += "-";
+        result += pre.to_string();
+      }
+    }
+  }
+  return result;
 }
 
 static bool matchesExact(const Comparator& cmp, const Version& ver) noexcept {
@@ -304,46 +346,52 @@ static bool matchesLess(const Comparator& cmp, const Version& ver) noexcept {
   return ver.pre < cmp.pre;
 }
 
-bool Comparator::satisfiedBy(const Version& ver) const noexcept {
-  if (!op.has_value()) {
-    // 1. NoOp:
-    if (minor.has_value() && patch.has_value()) {
-      // 1.1. `A.B.C` is exactly the version A.B.C
-      return matchesExact(*this, ver);
-    } else if (minor.has_value()) {
-      // 1.2. `A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
-      Version v1;
-      v1.major = major;
-      v1.minor = minor.value();
-      v1.patch = 0;
-      v1.pre = pre;
+static bool matchesNoOp(const Comparator& cmp, const Version& ver) noexcept {
+  if (ver.major != cmp.major) {
+    return false;
+  }
 
-      Version v2;
-      v2.major = major;
-      v2.minor = minor.value() + 1;
-      v2.patch = 0;
-      v2.pre = pre;
+  if (!cmp.minor.has_value()) {
+    return true;
+  }
+  const u64 minor = cmp.minor.value();
 
-      return ver >= v1 && ver < v2;
+  if (!cmp.patch.has_value()) {
+    if (cmp.major > 0) {
+      return ver.minor >= minor;
     } else {
-      // 1.3. `A` is equivalent to `>=A.0.0 and <(A+1).0.0`
-      Version v1;
-      v1.major = major;
-      v1.minor = 0;
-      v1.patch = 0;
-      v1.pre = pre;
-
-      Version v2;
-      v2.major = major + 1;
-      v2.minor = 0;
-      v2.patch = 0;
-      v2.pre = pre;
-
-      return ver >= v1 && ver < v2;
+      return ver.minor == minor;
     }
+  }
+  const u64 patch = cmp.patch.value();
+
+  if (cmp.major > 0) {
+    if (ver.minor != minor) {
+      return ver.minor > minor;
+    } else if (ver.patch != patch) {
+      return ver.patch > patch;
+    }
+  } else if (minor > 0) {
+    if (ver.minor != minor) {
+      return false;
+    } else if (ver.patch != patch) {
+      return ver.patch > patch;
+    }
+  } else if (ver.minor != minor || ver.patch != patch) {
+    return false;
+  }
+
+  return ver.pre >= cmp.pre;
+}
+
+bool Comparator::satisfiedBy(const Version& ver) const noexcept {
+  if (!op.has_value()) { // NoOp
+    return matchesNoOp(*this, ver);
   }
 
   switch (op.value()) {
+    case Op::Exact:
+      return matchesExact(*this, ver);
     case Op::Gt:
       return matchesGreater(*this, ver);
     case Op::Gte:
@@ -356,8 +404,8 @@ bool Comparator::satisfiedBy(const Version& ver) const noexcept {
 }
 
 Comparator Comparator::canonicalize() const noexcept {
-  if (!op.has_value()) {
-    // Canonicalization is needed over VersionReq.
+  if (!op.has_value() || op.value() == Op::Exact) {
+    // For NoOp or Exact, canonicalization can be done over VersionReq.
     return *this;
   }
 
@@ -394,15 +442,6 @@ Comparator Comparator::canonicalize() const noexcept {
   return cmp;
 }
 
-Version Comparator::to_version() const noexcept {
-  Version ver;
-  ver.major = major;
-  ver.minor = minor.value_or(0);
-  ver.patch = patch.value_or(0);
-  ver.pre = pre;
-  return ver;
-}
-
 struct VersionReqToken {
   enum Kind {
     Comp,
@@ -423,8 +462,8 @@ struct VersionReqToken {
       : kind(kind), value(std::monostate{}) {}
 };
 
-constexpr bool isCompOp(const char c) noexcept {
-  return c == '>' || c == '<';
+constexpr bool startWithComp(const char c) noexcept {
+  return c == '=' || c == '>' || c == '<';
 }
 
 struct VersionReqLexer {
@@ -450,7 +489,7 @@ struct VersionReqLexer {
     }
 
     const char c = s[pos];
-    if (isCompOp(c) || std::isdigit(c)) {
+    if (startWithComp(c) || std::isdigit(c)) {
       ComparatorParser parser(s);
       parser.lexer.pos = pos;
 
@@ -477,12 +516,14 @@ struct VersionReqParser {
   VersionReq parse() {
     VersionReq result;
 
-    result.left = parseComparatorOrNoOp();
-    if (!result.left.op.has_value()) { // no-op
+    result.left = parseComparatorOrOptVer();
+    if (!result.left.op.has_value()
+        || result.left.op.value() == Comparator::Exact) { // NoOp or Exact
       lexer.skipWs();
       if (!lexer.isEof()) {
         throw VersionReqException(
-            lexer.s, '\n', String(lexer.pos, ' ') + "^ no-op cannot chain"
+            lexer.s, '\n', String(lexer.pos, ' '),
+            "^ NoOp and Exact cannot chain"
         );
       }
       return result;
@@ -493,7 +534,7 @@ struct VersionReqParser {
       return result;
     } else if (token.kind != VersionReqToken::And) {
       throw VersionReqException(
-          lexer.s, '\n', String(lexer.pos, ' ') + "^ expected `and`"
+          lexer.s, '\n', String(lexer.pos, ' '), "^ expected `and`"
       );
     }
 
@@ -501,25 +542,35 @@ struct VersionReqParser {
     return result;
   }
 
-  Comparator parseComparatorOrNoOp() {
+  // Parse `("=" | CompOp)? OptVersion` or `Comparator`.
+  Comparator parseComparatorOrOptVer() {
     const VersionReqToken token = lexer.next();
     if (token.kind != VersionReqToken::Comp) {
       throw VersionReqException(
-          lexer.s, '\n',
-          String(lexer.pos, ' ') + "^ expected >=, <=, >, <, or version"
+          lexer.s, '\n', String(lexer.pos, ' '),
+          "^ expected =, >=, <=, >, <, or version"
       );
     }
     return std::get<Comparator>(token.value);
   }
 
-  // Even if the token can be parsed as a no-op, try to parse it as a
+  // If the token is a NoOp or Exact comparator, throw an exception.  This
+  // is because NoOp and Exact cannot chain, and the Comparator parser
+  // handles both `("=" | CompOp)? OptVersion` and `Comparator` cases for
+  // simplicity. That is, this method literally accepts `Comparator` defined
+  // in the grammar.  Otherwise, return the comparator if the token is a
   // comparator.
   Comparator parseComparator() {
     lexer.skipWs();
     if (lexer.isEof()) {
       compExpected();
     }
-    if (!isCompOp(lexer.s[lexer.pos])) {
+    if (!startWithComp(lexer.s[lexer.pos])) {
+      // NoOp cannot chain.
+      compExpected();
+    }
+    if (lexer.s[lexer.pos] == '=') {
+      // Exact cannot chain.
       compExpected();
     }
 
@@ -532,7 +583,7 @@ struct VersionReqParser {
 
   [[noreturn]] void compExpected() {
     throw VersionReqException(
-        lexer.s, '\n', String(lexer.pos, ' ') + "^ expected >=, <=, >, or <"
+        lexer.s, '\n', String(lexer.pos, ' '), "^ expected >=, <=, >, or <"
     );
   }
 };
@@ -550,34 +601,64 @@ bool VersionReq::satisfiedBy(const Version& ver) const noexcept {
   return left.satisfiedBy(ver) && right->satisfiedBy(ver);
 }
 
-VersionReq VersionReq::canonicalize() const noexcept {
-  if (!left.op.has_value()) { // no-op
-    if (left.minor.has_value() && left.patch.has_value()) {
-      // 1.1. `A.B.C` is exactly the version A.B.C
-      return *this;
-    } else if (left.minor.has_value()) {
-      // 1.2. `A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
+// 1. NoOp: (= Caret (^), "compatible" updates)
+//   1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
+//   1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
+//   1.3. `A` is equivalent to `=A` (i.e., 2.3)
+//   1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+//   1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
+//   1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
+static VersionReq canonicalizeNoOp(const VersionReq& target) noexcept {
+  const Comparator& left = target.left;
+
+  if (!left.minor.has_value() && !left.patch.has_value()) {
+    // {{ !B.has_value() && !C.has_value() }}
+    // 1.3. `A` is equivalent to `=A` (i.e., 2.3)
+    VersionReq req;
+    req.left.op = Comparator::Gte;
+    req.left.major = left.major;
+    req.left.minor = 0;
+    req.left.patch = 0;
+    req.left.pre = left.pre;
+
+    req.right = Comparator();
+    req.right->op = Comparator::Lt;
+    req.right->major = left.major + 1;
+    req.right->minor = 0;
+    req.right->patch = 0;
+    req.right->pre = left.pre;
+
+    return req;
+  }
+  // => {{ B.has_value() || C.has_value() }}
+  // => {{ B.has_value() }} since {{ !B.has_value() && C.has_value() }} is
+  //    impossible as the semver parser rejects it.
+
+  if (left.major > 0) { // => {{ A > 0 && B.has_value() }}
+    if (left.patch.has_value()) {
+      // => {{ A > 0 && B.has_value() && C.has_value() }}
+      // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C and <(A+1).0.0`
       VersionReq req;
       req.left.op = Comparator::Gte;
       req.left.major = left.major;
       req.left.minor = left.minor.value();
-      req.left.patch = 0;
+      req.left.patch = left.patch.value();
       req.left.pre = left.pre;
 
       req.right = Comparator();
       req.right->op = Comparator::Lt;
-      req.right->major = left.major;
-      req.right->minor = left.minor.value() + 1;
+      req.right->major = left.major + 1;
+      req.right->minor = 0;
       req.right->patch = 0;
       req.right->pre = left.pre;
 
       return req;
-    } else {
-      // 1.3. `A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+    } else { // => {{ A > 0 && B.has_value() && !C.has_value() }}
+      // 1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
       VersionReq req;
       req.left.op = Comparator::Gte;
       req.left.major = left.major;
-      req.left.minor = 0;
+      req.left.minor = left.minor.value();
       req.left.patch = 0;
       req.left.pre = left.pre;
 
@@ -591,6 +672,111 @@ VersionReq VersionReq::canonicalize() const noexcept {
       return req;
     }
   }
+  // => {{ A == 0 && B.has_value() }}
+
+  if (left.minor.value() > 0) { // => {{ A == 0 && B > 0 }}
+    // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C and <0.(B+1).0`
+    VersionReq req;
+    req.left.op = Comparator::Gte;
+    req.left.major = 0;
+    req.left.minor = left.minor.value();
+    req.left.patch = left.patch.value_or(0);
+    req.left.pre = left.pre;
+
+    req.right = Comparator();
+    req.right->op = Comparator::Lt;
+    req.right->major = 0;
+    req.right->minor = left.minor.value() + 1;
+    req.right->patch = 0;
+    req.right->pre = left.pre;
+
+    return req;
+  }
+  // => {{ A == 0 && B == 0 }}
+
+  if (left.patch.has_value()) { // => {{ A == 0 && B == 0 && C.has_value() }}
+    // 1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
+    VersionReq req;
+    req.left.op = Comparator::Exact;
+    req.left.major = 0;
+    req.left.minor = 0;
+    req.left.patch = left.patch.value();
+    req.left.pre = left.pre;
+    return req;
+  }
+  // => {{ A == 0 && B == 0 && !C.has_value() }}
+
+  // 1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
+  VersionReq req;
+  req.left.op = Comparator::Gte;
+  req.left.major = 0;
+  req.left.minor = 0;
+  req.left.patch = 0;
+  req.left.pre = left.pre;
+
+  req.right = Comparator();
+  req.right->op = Comparator::Lt;
+  req.right->major = 0;
+  req.right->minor = 1;
+  req.right->patch = 0;
+  req.right->pre = left.pre;
+
+  return req;
+}
+
+// 2. Exact:
+//   2.1. `=A.B.C` is exactly the version `A.B.C`
+//   2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
+//   2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+static VersionReq canonicalizeExact(const VersionReq& req) noexcept {
+  const Comparator& left = req.left;
+
+  if (left.minor.has_value() && left.patch.has_value()) {
+    // 2.1. `=A.B.C` is exactly the version A.B.C
+    return req;
+  } else if (left.minor.has_value()) {
+    // 2.2. `=A.B` is equivalent to `>=A.B.0 and <A.(B+1).0`
+    VersionReq req;
+    req.left.op = Comparator::Gte;
+    req.left.major = left.major;
+    req.left.minor = left.minor.value();
+    req.left.patch = 0;
+    req.left.pre = left.pre;
+
+    req.right = Comparator();
+    req.right->op = Comparator::Lt;
+    req.right->major = left.major;
+    req.right->minor = left.minor.value() + 1;
+    req.right->patch = 0;
+    req.right->pre = left.pre;
+
+    return req;
+  } else {
+    // 2.3. `=A` is equivalent to `>=A.0.0 and <(A+1).0.0`
+    VersionReq req;
+    req.left.op = Comparator::Gte;
+    req.left.major = left.major;
+    req.left.minor = 0;
+    req.left.patch = 0;
+    req.left.pre = left.pre;
+
+    req.right = Comparator();
+    req.right->op = Comparator::Lt;
+    req.right->major = left.major + 1;
+    req.right->minor = 0;
+    req.right->patch = 0;
+    req.right->pre = left.pre;
+
+    return req;
+  }
+}
+
+VersionReq VersionReq::canonicalize() const noexcept {
+  if (!left.op.has_value()) { // NoOp
+    return canonicalizeNoOp(*this);
+  } else if (left.op.value() == Comparator::Exact) {
+    return canonicalizeExact(*this);
+  }
 
   VersionReq req = *this;
   req.left = left.canonicalize();
@@ -601,19 +787,10 @@ VersionReq VersionReq::canonicalize() const noexcept {
 }
 
 String VersionReq::to_string() const noexcept {
-  const VersionReq req = canonicalize();
-
-  // The right always has a comparison operator.  After canonicalization, the
-  // left must have a comparison operator unless A.B.C is specified.
-  String result;
-  if (req.left.op.has_value()) {
-    result += ::to_string(req.left.op.value());
-  }
-  result += req.left.to_version().to_string();
-  if (req.right.has_value()) {
+  String result = left.to_string();
+  if (right.has_value()) {
     result += " and ";
-    result += ::to_string(req.right->op.value());
-    result += req.right->to_version().to_string();
+    result += right->to_string();
   }
   return result;
 }
@@ -639,7 +816,7 @@ void test_parse() {
       VersionReq::parse("\0"), VersionReqException,
       "invalid version requirement:\n"
       "\n"
-      "^ expected >=, <=, >, <, or version"
+      "^ expected =, >=, <=, >, <, or version"
   );
 
   ASSERT_EXCEPTION(
@@ -653,14 +830,14 @@ void test_parse() {
       VersionReq::parse(">== 0.0.2"), ComparatorException,
       "invalid comparator:\n"
       ">== 0.0.2\n"
-      "  ^ expected version"
+      "   ^ expected version"
   );
 
   ASSERT_EXCEPTION(
       VersionReq::parse("a.0.0"), VersionReqException,
       "invalid version requirement:\n"
       "a.0.0\n"
-      "^ expected >=, <=, >, <, or version"
+      "^ expected =, >=, <=, >, <, or version"
   );
 
   ASSERT_EXCEPTION(

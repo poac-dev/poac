@@ -47,8 +47,11 @@ struct Prerelease {
   String to_string() const noexcept;
 };
 bool operator==(const Prerelease& lhs, const Prerelease& rhs) noexcept;
+bool operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 bool operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 bool operator>(const Prerelease& lhs, const Prerelease& rhs) noexcept;
+bool operator<=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
+bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 
 struct BuildMetadata {
   Vec<VersionToken> ident;

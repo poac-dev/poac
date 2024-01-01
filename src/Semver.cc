@@ -96,6 +96,9 @@ String Prerelease::to_string() const noexcept {
 bool operator==(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   return lhs.ident == rhs.ident;
 }
+bool operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
+  return !(lhs == rhs);
+}
 bool operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   for (usize i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
@@ -108,6 +111,12 @@ bool operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
 }
 bool operator>(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   return rhs < lhs;
+}
+bool operator<=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
+  return !(rhs < lhs);
+}
+bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
+  return !(lhs < rhs);
 }
 
 bool BuildMetadata::empty() const noexcept {
