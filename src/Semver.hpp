@@ -1,7 +1,7 @@
 // Semver parser
 //
 // Syntax:
-//   version ::= num "." num "." num ( "-" pre )? ( "+" build )?
+//   version ::= num "." num "." num ("-" pre)? ("+" build)?
 //   pre ::= numOrIdent ("." numOrIdent)*
 //   build ::= ident ("." ident)*
 //   numOrIdent ::= num | ident
