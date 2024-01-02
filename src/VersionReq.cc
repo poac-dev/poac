@@ -6,7 +6,6 @@
 #include <cctype>
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 #include <utility>
 #include <variant>
 
