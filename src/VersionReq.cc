@@ -846,15 +846,12 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 #  include "TestUtils.hpp"
 
-#  include <string>
-#  include <vector>
-
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/b6171889ac7e8f47ec6f12003571bdcc7f737b10/tests/test_version_req.rs
 
 #  define ASSERT_MATCH_ALL(req, ...)                       \
     do {                                                   \
-      std::vector<std::string> versions = {__VA_ARGS__};   \
+      Vec<String> versions = {__VA_ARGS__};                \
       for (const auto& ver : versions) {                   \
         ASSERT_TRUE(req.satisfiedBy(Version::parse(ver))); \
       }                                                    \
@@ -862,7 +859,7 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 #  define ASSERT_MATCH_NONE(req, ...)                       \
     do {                                                    \
-      std::vector<std::string> versions = {__VA_ARGS__};    \
+      Vec<String> versions = {__VA_ARGS__};                 \
       for (const auto& ver : versions) {                    \
         ASSERT_FALSE(req.satisfiedBy(Version::parse(ver))); \
       }                                                     \
