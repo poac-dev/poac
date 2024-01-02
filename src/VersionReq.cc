@@ -1,5 +1,6 @@
 #include "VersionReq.hpp"
 
+#include "Exception.hpp"
 #include "Rustify.hpp"
 
 #include <cctype>
@@ -9,50 +10,18 @@
 #include <utility>
 #include <variant>
 
-struct ComparatorException : public std::exception {
+struct ComparatorError : public PoacError {
   template <typename... Args>
-  explicit ComparatorException(Args&&... args) {
-    std::ostringstream oss;
-    oss << "invalid comparator:\n";
-    (oss << ... << std::forward<Args>(args));
-    what_ = oss.str();
-  }
-
-  ~ComparatorException() noexcept override = default;
-  [[nodiscard]] inline const char* what() const noexcept override {
-    return what_.c_str();
-  }
-
-  ComparatorException(const ComparatorException&) = default;
-  ComparatorException& operator=(const ComparatorException&) = default;
-  ComparatorException(ComparatorException&&) noexcept = default;
-  ComparatorException& operator=(ComparatorException&&) noexcept = default;
-
-private:
-  String what_;
+  explicit ComparatorError(Args&&... args)
+      : PoacError("invalid comparator:\n", std::forward<Args>(args)...) {}
 };
 
-struct VersionReqException : public std::exception {
+struct VersionReqError : public PoacError {
   template <typename... Args>
-  explicit VersionReqException(Args&&... args) {
-    std::ostringstream oss;
-    oss << "invalid version requirement:\n";
-    (oss << ... << std::forward<Args>(args));
-    what_ = oss.str();
-  }
-
-  ~VersionReqException() noexcept override = default;
-  [[nodiscard]] inline const char* what() const noexcept override {
-    return what_.c_str();
-  }
-
-  VersionReqException(const VersionReqException&) = default;
-  VersionReqException& operator=(const VersionReqException&) = default;
-  VersionReqException(VersionReqException&&) noexcept = default;
-  VersionReqException& operator=(VersionReqException&&) noexcept = default;
-
-private:
-  String what_;
+  explicit VersionReqError(Args&&... args)
+      : PoacError(
+          "invalid version requirement:\n", std::forward<Args>(args)...
+      ) {}
 };
 
 String to_string(const Comparator::Op op) noexcept {
@@ -209,7 +178,7 @@ struct ComparatorParser {
       result.patch = ver.patch;
       result.pre = ver.pre;
     } else {
-      throw ComparatorException(
+      throw ComparatorError(
           lexer.s, '\n', String(lexer.pos, ' '),
           "^ expected =, >=, <=, >, <, or version"
       );
@@ -220,7 +189,7 @@ struct ComparatorParser {
     if (token.kind != ComparatorToken::Ver) {
       const auto token2 = lexer.next();
       if (token2.kind != ComparatorToken::Ver) {
-        throw ComparatorException(
+        throw ComparatorError(
             lexer.s, '\n', String(lexer.pos, ' '), "^ expected version"
         );
       }
@@ -522,7 +491,7 @@ struct VersionReqParser {
         || result.left.op.value() == Comparator::Exact) { // NoOp or Exact
       lexer.skipWs();
       if (!lexer.isEof()) {
-        throw VersionReqException(
+        throw VersionReqError(
             lexer.s, '\n', String(lexer.pos, ' '),
             "^ NoOp and Exact cannot chain"
         );
@@ -534,7 +503,7 @@ struct VersionReqParser {
     if (token.kind == VersionReqToken::Eof) {
       return result;
     } else if (token.kind != VersionReqToken::And) {
-      throw VersionReqException(
+      throw VersionReqError(
           lexer.s, '\n', String(lexer.pos, ' '), "^ expected `&&`"
       );
     }
@@ -542,7 +511,7 @@ struct VersionReqParser {
     result.right = parseComparator();
     lexer.skipWs();
     if (!lexer.isEof()) {
-      throw VersionReqException(
+      throw VersionReqError(
           lexer.s, '\n', String(lexer.pos, ' '), "^ expected end of string"
       );
     }
@@ -554,7 +523,7 @@ struct VersionReqParser {
   Comparator parseComparatorOrOptVer() {
     const VersionReqToken token = lexer.next();
     if (token.kind != VersionReqToken::Comp) {
-      throw VersionReqException(
+      throw VersionReqError(
           lexer.s, '\n', String(lexer.pos, ' '),
           "^ expected =, >=, <=, >, <, or version"
       );
@@ -590,7 +559,7 @@ struct VersionReqParser {
   }
 
   [[noreturn]] void compExpected() {
-    throw VersionReqException(
+    throw VersionReqError(
         lexer.s, '\n', String(lexer.pos, ' '), "^ expected >=, <=, >, or <"
     );
   }
@@ -1005,7 +974,7 @@ void test_multiple() {
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse(">0.3.0 && &&"), VersionReqException,
+      VersionReq::parse(">0.3.0 && &&"), VersionReqError,
       "invalid version requirement:\n"
       ">0.3.0 && &&\n"
       "          ^ expected >=, <=, >, or <"
@@ -1022,7 +991,7 @@ void test_multiple() {
   ASSERT_MATCH_NONE(r4, "0.6.0", "0.6.0-pre");
 
   ASSERT_EXCEPTION(
-      VersionReq::parse(">1.2.3 - <2.3.4"), VersionReqException,
+      VersionReq::parse(">1.2.3 - <2.3.4"), VersionReqError,
       "invalid version requirement:\n"
       ">1.2.3 - <2.3.4\n"
       "       ^ expected `&&`"
@@ -1125,42 +1094,42 @@ void test_canonicalize_lte() {
 
 void test_parse() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("\0"), VersionReqException,
+      VersionReq::parse("\0"), VersionReqError,
       "invalid version requirement:\n"
       "\n"
       "^ expected =, >=, <=, >, <, or version"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse(">= >= 0.0.2"), ComparatorException,
+      VersionReq::parse(">= >= 0.0.2"), ComparatorError,
       "invalid comparator:\n"
       ">= >= 0.0.2\n"
       "  ^ expected version"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse(">== 0.0.2"), ComparatorException,
+      VersionReq::parse(">== 0.0.2"), ComparatorError,
       "invalid comparator:\n"
       ">== 0.0.2\n"
       "   ^ expected version"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse("a.0.0"), VersionReqException,
+      VersionReq::parse("a.0.0"), VersionReqError,
       "invalid version requirement:\n"
       "a.0.0\n"
       "^ expected =, >=, <=, >, <, or version"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse("1.0.0-"), std::exception,
+      VersionReq::parse("1.0.0-"), SemverError,
       "invalid semver:\n"
       "1.0.0-\n"
       "      ^ expected number or identifier"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse(">="), ComparatorException,
+      VersionReq::parse(">="), ComparatorError,
       "invalid comparator:\n"
       ">=\n"
       "  ^ expected version"
@@ -1169,35 +1138,35 @@ void test_parse() {
 
 void test_comparator_parse() {
   ASSERT_EXCEPTION(
-      Comparator::parse("1.2.3-01"), std::exception,
+      Comparator::parse("1.2.3-01"), SemverError,
       "invalid semver:\n"
       "1.2.3-01\n"
       "      ^ invalid leading zero"
   );
 
   ASSERT_EXCEPTION(
-      Comparator::parse("1.2.3+4."), std::exception,
+      Comparator::parse("1.2.3+4."), SemverError,
       "invalid semver:\n"
       "1.2.3+4.\n"
       "        ^ expected identifier"
   );
 
   ASSERT_EXCEPTION(
-      Comparator::parse(">"), ComparatorException,
+      Comparator::parse(">"), ComparatorError,
       "invalid comparator:\n"
       ">\n"
       " ^ expected version"
   );
 
   ASSERT_EXCEPTION(
-      Comparator::parse("1."), std::exception,
+      Comparator::parse("1."), SemverError,
       "invalid semver:\n"
       "1.\n"
       "  ^ expected number"
   );
 
   ASSERT_EXCEPTION(
-      Comparator::parse("1.*."), std::exception,
+      Comparator::parse("1.*."), SemverError,
       "invalid semver:\n"
       "1.*.\n"
       "  ^ expected number"
@@ -1232,13 +1201,13 @@ void test_valid_spaces() {
 
 void test_invalid_spaces() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("<   1.2.3"), ComparatorException,
+      VersionReq::parse("<   1.2.3"), ComparatorError,
       "invalid comparator:\n"
       "<   1.2.3\n"
       " ^ expected version"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("  <1.2.3 &&>= 1.2.3"), ComparatorException,
+      VersionReq::parse("  <1.2.3 &&>= 1.2.3"), ComparatorError,
       "invalid comparator:\n"
       "  <1.2.3 &&>= 1.2.3\n"
       "             ^ expected version"
@@ -1247,25 +1216,25 @@ void test_invalid_spaces() {
 
 void test_invalid_conjunction() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 &&"), VersionReqException,
+      VersionReq::parse("<1.2.3 &&"), VersionReqError,
       "invalid version requirement:\n"
       "<1.2.3 &&\n"
       "         ^ expected >=, <=, >, or <"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3  <1.2.3"), VersionReqException,
+      VersionReq::parse("<1.2.3  <1.2.3"), VersionReqError,
       "invalid version requirement:\n"
       "<1.2.3  <1.2.3\n"
       "              ^ expected `&&`"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && <1.2.3 &&"), VersionReqException,
+      VersionReq::parse("<1.2.3 && <1.2.3 &&"), VersionReqError,
       "invalid version requirement:\n"
       "<1.2.3 && <1.2.3 &&\n"
       "                 ^ expected end of string"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && <1.2.3 && <1.2.3"), VersionReqException,
+      VersionReq::parse("<1.2.3 && <1.2.3 && <1.2.3"), VersionReqError,
       "invalid version requirement:\n"
       "<1.2.3 && <1.2.3 && <1.2.3\n"
       "                 ^ expected end of string"
@@ -1274,38 +1243,38 @@ void test_invalid_conjunction() {
 
 void test_non_comparator_chain() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("1.2.3 && 4.5.6"), VersionReqException,
+      VersionReq::parse("1.2.3 && 4.5.6"), VersionReqError,
       "invalid version requirement:\n"
       "1.2.3 && 4.5.6\n"
       "      ^ NoOp and Exact cannot chain"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("=1.2.3 && =4.5.6"), VersionReqException,
+      VersionReq::parse("=1.2.3 && =4.5.6"), VersionReqError,
       "invalid version requirement:\n"
       "=1.2.3 && =4.5.6\n"
       "       ^ NoOp and Exact cannot chain"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("1.2.3 && =4.5.6"), VersionReqException,
+      VersionReq::parse("1.2.3 && =4.5.6"), VersionReqError,
       "invalid version requirement:\n"
       "1.2.3 && =4.5.6\n"
       "      ^ NoOp and Exact cannot chain"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("=1.2.3 && 4.5.6"), VersionReqException,
+      VersionReq::parse("=1.2.3 && 4.5.6"), VersionReqError,
       "invalid version requirement:\n"
       "=1.2.3 && 4.5.6\n"
       "       ^ NoOp and Exact cannot chain"
   );
 
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && 4.5.6"), VersionReqException,
+      VersionReq::parse("<1.2.3 && 4.5.6"), VersionReqError,
       "invalid version requirement:\n"
       "<1.2.3 && 4.5.6\n"
       "          ^ expected >=, <=, >, or <"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && =4.5.6"), VersionReqException,
+      VersionReq::parse("<1.2.3 && =4.5.6"), VersionReqError,
       "invalid version requirement:\n"
       "<1.2.3 && =4.5.6\n"
       "          ^ expected >=, <=, >, or <"

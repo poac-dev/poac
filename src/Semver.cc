@@ -6,7 +6,6 @@
 #include <limits>
 #include <ostream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 std::ostream& operator<<(std::ostream& os, const VersionToken& tok) noexcept {
@@ -232,29 +231,6 @@ bool operator>=(const Version& lhs, const Version& rhs) noexcept {
   return !(lhs < rhs);
 }
 
-struct SemverException : public std::exception {
-  template <typename... Args>
-  explicit SemverException(Args&&... args) {
-    std::ostringstream oss;
-    oss << "invalid semver:\n";
-    (oss << ... << std::forward<Args>(args));
-    what_ = oss.str();
-  }
-
-  ~SemverException() noexcept override = default;
-  [[nodiscard]] inline const char* what() const noexcept override {
-    return what_.c_str();
-  }
-
-  SemverException(const SemverException&) = default;
-  SemverException& operator=(const SemverException&) = default;
-  SemverException(SemverException&&) noexcept = default;
-  SemverException& operator=(SemverException&&) noexcept = default;
-
-private:
-  String what_;
-};
-
 bool VersionLexer::isEof() const noexcept {
   return pos >= s.size();
 }
@@ -277,7 +253,7 @@ VersionToken VersionLexer::consumeNum() {
   u64 value = 0;
   while (pos < s.size() && std::isdigit(s[pos])) {
     if (len > 0 && value == 0) {
-      throw SemverException(
+      throw SemverError(
           s, '\n', String(pos - len, ' '), "^ invalid leading zero"
       );
     }
@@ -285,7 +261,7 @@ VersionToken VersionLexer::consumeNum() {
     u64 digit = s[pos] - '0';
     // Check for overflow
     if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
-      throw SemverException(
+      throw SemverError(
           s, '\n', String(pos - len, ' '), "^ number exceeds UINT64_MAX"
       );
     }
@@ -348,18 +324,16 @@ VersionToken VersionLexer::peek() {
   return tok;
 }
 
-struct SemverParseException : public SemverException {
-  SemverParseException(
+struct SemverParseError : public SemverError {
+  SemverParseError(
       const VersionLexer& lexer, const VersionToken& tok, StringRef msg
   )
-      : SemverException(
-          lexer.s, '\n', String(lexer.pos, ' '), carets(tok), msg
-      ) {}
+      : SemverError(lexer.s, '\n', String(lexer.pos, ' '), carets(tok), msg) {}
 };
 
 Version VersionParser::parse() {
   if (lexer.peek().kind == VersionToken::Eof) {
-    throw SemverException("empty string is not a valid semver");
+    throw SemverError("empty string is not a valid semver");
   }
 
   Version v;
@@ -384,7 +358,7 @@ Version VersionParser::parse() {
   }
 
   if (!lexer.isEof()) {
-    throw SemverParseException(
+    throw SemverParseError(
         lexer, lexer.peek(),
         " unexpected character: `" + String(1, lexer.s[lexer.pos]) + '`'
     );
@@ -397,7 +371,7 @@ Version VersionParser::parse() {
 // number.
 u64 VersionParser::parseNum() {
   if (!std::isdigit(lexer.s[lexer.pos])) {
-    throw SemverParseException(lexer, lexer.peek(), " expected number");
+    throw SemverParseError(lexer, lexer.peek(), " expected number");
   }
   return std::get<u64>(lexer.consumeNum().value);
 }
@@ -405,7 +379,7 @@ u64 VersionParser::parseNum() {
 void VersionParser::parseDot() {
   const VersionToken tok = lexer.next();
   if (tok.kind != VersionToken::Dot) {
-    throw SemverParseException(lexer, tok, " expected `.`");
+    throw SemverParseError(lexer, tok, " expected `.`");
   }
 }
 
@@ -424,7 +398,7 @@ Prerelease VersionParser::parsePre() {
 VersionToken VersionParser::parseNumOrIdent() {
   const VersionToken tok = lexer.next();
   if (tok.kind != VersionToken::Num && tok.kind != VersionToken::Ident) {
-    throw SemverParseException(lexer, tok, " expected number or identifier");
+    throw SemverParseError(lexer, tok, " expected number or identifier");
   }
   return tok;
 }
@@ -444,7 +418,7 @@ BuildMetadata VersionParser::parseBuild() {
 // identifier.
 VersionToken VersionParser::parseIdent() {
   if (!std::isalnum(lexer.s[lexer.pos])) {
-    throw SemverParseException(lexer, lexer.peek(), " expected identifier");
+    throw SemverParseError(lexer, lexer.peek(), " expected identifier");
   }
   return lexer.consumeIdent();
 }
@@ -473,72 +447,72 @@ Version Version::parse(StringRef s) {
 
 void test_parse() {
   ASSERT_EXCEPTION(
-      Version::parse(""), SemverException,
+      Version::parse(""), SemverError,
       "invalid semver:\n"
       "empty string is not a valid semver"
   );
   ASSERT_EXCEPTION(
-      Version::parse("  "), SemverException,
+      Version::parse("  "), SemverError,
       "invalid semver:\n"
       "  \n"
       "^ expected number"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1"), SemverException,
+      Version::parse("1"), SemverError,
       "invalid semver:\n"
       "1\n"
       " ^ expected `.`"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2"), SemverException,
+      Version::parse("1.2"), SemverError,
       "invalid semver:\n"
       "1.2\n"
       "   ^ expected `.`"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3-"), SemverException,
+      Version::parse("1.2.3-"), SemverError,
       "invalid semver:\n"
       "1.2.3-\n"
       "      ^ expected number or identifier"
   );
   ASSERT_EXCEPTION(
-      Version::parse("a.b.c"), SemverException,
+      Version::parse("a.b.c"), SemverError,
       "invalid semver:\n"
       "a.b.c\n"
       "^ expected number"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3 abc"), SemverException,
+      Version::parse("1.2.3 abc"), SemverError,
       "invalid semver:\n"
       "1.2.3 abc\n"
       "     ^ unexpected character: ` `"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3-01"), SemverException,
+      Version::parse("1.2.3-01"), SemverError,
       "invalid semver:\n"
       "1.2.3-01\n"
       "      ^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3++"), SemverException,
+      Version::parse("1.2.3++"), SemverError,
       "invalid semver:\n"
       "1.2.3++\n"
       "      ^ expected identifier"
   );
   ASSERT_EXCEPTION(
-      Version::parse("07"), SemverException,
+      Version::parse("07"), SemverError,
       "invalid semver:\n"
       "07\n"
       "^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      Version::parse("111111111111111111111.0.0"), SemverException,
+      Version::parse("111111111111111111111.0.0"), SemverError,
       "invalid semver:\n"
       "111111111111111111111.0.0\n"
       "^ number exceeds UINT64_MAX"
   );
   ASSERT_EXCEPTION(
-      Version::parse("8\0"), SemverException,
+      Version::parse("8\0"), SemverError,
       "invalid semver:\n"
       "8\n"
       " ^ expected `.`"

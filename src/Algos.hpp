@@ -8,8 +8,14 @@
 #include <memory>
 #include <queue>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
+
+template <typename... Args>
+inline String concat(Args&&... args) {
+  return (std::ostringstream{} << ... << std::forward<Args>(args)).str();
+}
 
 template <typename Value>
 struct OrderedHashSet {

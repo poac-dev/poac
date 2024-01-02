@@ -9,11 +9,18 @@
 //   ident      ::= [a-zA-Z0-9][a-zA-Z0-9-]*
 #pragma once
 
+#include "Exception.hpp"
 #include "Rustify.hpp"
 
 #include <ostream>
 #include <utility>
 #include <variant>
+
+struct SemverError : public PoacError {
+  template <typename... Args>
+  explicit SemverError(Args&&... args)
+      : PoacError("invalid semver:\n", std::forward<Args>(args)...) {}
+};
 
 struct VersionToken {
   enum Kind {
@@ -84,7 +91,7 @@ struct VersionLexer {
   StringRef s;
   usize pos;
 
-  explicit VersionLexer(StringRef s) : s(s), pos(0) {}
+  explicit VersionLexer(StringRef s) noexcept : s(s), pos(0) {}
 
   bool isEof() const noexcept;
   void step() noexcept;
@@ -98,7 +105,7 @@ struct VersionLexer {
 struct VersionParser {
   VersionLexer lexer;
 
-  explicit VersionParser(StringRef s) : lexer(s) {}
+  explicit VersionParser(StringRef s) noexcept : lexer(s) {}
 
   Version parse();
   u64 parseNum();
