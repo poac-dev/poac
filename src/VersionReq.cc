@@ -186,7 +186,7 @@ struct ComparatorLexer {
 struct ComparatorParser {
   ComparatorLexer lexer;
 
-  explicit ComparatorParser(StringRef s) : lexer(s) {}
+  explicit ComparatorParser(StringRef s) noexcept : lexer(s) {}
 
   Comparator parse() {
     Comparator result;
