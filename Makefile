@@ -15,10 +15,24 @@ OUT_DIR = build-out
 PROJ_NAME = $(OUT_DIR)/poac
 VERSION = $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 
+DEFINES = -DPOAC_VERSION='"$(VERSION)"'
+INCLUDES = -I$(OUT_DIR)/DEPS/toml11
+
+SRCS = $(shell find src -name '*.cc')
+OBJS = $(patsubst src/%,$(OUT_DIR)/%,$(SRCS:.cc=.o))
+DEPS = $(OBJS:.o=.d)
+
+UNITTEST_SRCS = src/BuildConfig.cc src/Algos.cc src/Semver.cc src/VersionReq.cc
+UNITTEST_OBJS = $(patsubst src/%,$(OUT_DIR)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
+UNITTEST_BINS = $(UNITTEST_OBJS:.o=)
+UNITTEST_DEPS = $(UNITTEST_OBJS:.o=.d)
+
+OUTSIDE_DEPS = $(OUT_DIR)/DEPS/toml11
+
 
 .PHONY: all clean install test
 
-all: $(OUT_DIR) $(OUT_DIR)/Cmd $(PROJ_NAME)
+all: $(DEPS) $(PROJ_NAME)
 
 clean:
 	rm -rf $(OUT_DIR)
@@ -27,6 +41,13 @@ install: all
 	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -m 0755 $(PROJ_NAME) $(DESTDIR)$(PREFIX)/bin
 
+
+$(OUT_DIR)/%.d: src/%.cc | $(OUTSIDE_DEPS)
+	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $(@:.d=.o) $< -MF $@
+
+-include $(DEPS)
+
+
 $(OUT_DIR)/DEPS/toml11: $(OUT_DIR)/DEPS
 	git clone https://github.com/ToruNiina/toml11.git $@
 	git -C $@ reset --hard 846abd9a49082fe51440aa07005c360f13a67bbf
@@ -34,134 +55,43 @@ $(OUT_DIR)/DEPS/toml11: $(OUT_DIR)/DEPS
 $(OUT_DIR)/DEPS:
 	mkdir -p $@
 
-$(OUT_DIR):
-	mkdir -p $@
 
-$(OUT_DIR)/Cmd:
-	mkdir -p $@
-
-$(PROJ_NAME): $(OUT_DIR)/Cmd/Help.o $(OUT_DIR)/Algos.o $(OUT_DIR)/Cmd/Build.o \
-  $(OUT_DIR)/Cmd/Test.o $(OUT_DIR)/Cmd/Run.o $(OUT_DIR)/Cmd/New.o \
-  $(OUT_DIR)/Cmd/Clean.o $(OUT_DIR)/Cmd/Init.o $(OUT_DIR)/Cmd/Version.o \
-  $(OUT_DIR)/Cmd/Fmt.o $(OUT_DIR)/Cmd/Lint.o $(OUT_DIR)/BuildConfig.o \
-  $(OUT_DIR)/Manifest.o $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o \
-  $(OUT_DIR)/Cmd/Global.o $(OUT_DIR)/Semver.o $(OUT_DIR)/VersionReq.o \
-  $(OUT_DIR)/main.o
+$(PROJ_NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OUT_DIR)/Algos.o: src/Algos.cc src/Algos.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/TermColor.o: src/TermColor.cc src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Logger.o: src/Logger.cc src/Logger.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Semver.o: src/Semver.cc src/Semver.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/VersionReq.o: src/VersionReq.cc src/VersionReq.hpp src/Semver.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Help.o: src/Cmd/Help.cc src/Cmd/Help.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Build.o: src/Cmd/Build.cc src/Cmd/Build.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Test.o: src/Cmd/Test.cc src/Cmd/Test.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Fmt.o: src/Cmd/Fmt.cc src/Cmd/Fmt.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Run.o: src/Cmd/Run.cc src/Cmd/Run.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/New.o: src/Cmd/New.cc src/Cmd/New.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Clean.o: src/Cmd/Clean.cc src/Cmd/Clean.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Init.o: src/Cmd/Init.cc src/Cmd/Init.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Lint.o: src/Cmd/Lint.cc src/Cmd/Lint.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Cmd/Version.o: src/Cmd/Version.cc src/Cmd/Version.hpp \
-  src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -DPOAC_VERSION='"$(VERSION)"' -c $< -o $@
-
-$(OUT_DIR)/Cmd/Global.o: src/Cmd/Global.cc src/Cmd/Global.hpp src/Rustify.hpp \
-  src/Algos.hpp src/Logger.hpp src/TermColor.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OUT_DIR)/Manifest.o: src/Manifest.cc src/Manifest.hpp $(OUT_DIR)/DEPS/toml11
-	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(OUT_DIR)/DEPS/toml11
-
-$(OUT_DIR)/main.o: src/main.cc src/Cmd/Build.hpp src/Cmd/Test.hpp \
-  src/Cmd/Run.hpp src/Cmd/New.hpp src/Cmd/Clean.hpp src/Cmd/Init.hpp \
-  src/Cmd/Version.hpp src/Rustify.hpp src/Algos.hpp src/Logger.hpp \
-  src/TermColor.hpp src/Cmd/Global.hpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(OUT_DIR)/%.o: src/%.cc
+	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 
-test: $(OUT_DIR)/tests $(OUT_DIR)/tests/test_BuildConfig \
-  $(OUT_DIR)/tests/test_Algos $(OUT_DIR)/tests/test_Semver \
-  $(OUT_DIR)/tests/test_VersionReq
+test: $(UNITTEST_DEPS) $(UNITTEST_BINS)
 	@$(OUT_DIR)/tests/test_BuildConfig
 	@$(OUT_DIR)/tests/test_Algos
 	@$(OUT_DIR)/tests/test_Semver
 	@$(OUT_DIR)/tests/test_VersionReq
 
-$(OUT_DIR)/tests:
-	mkdir -p $@
+$(OUT_DIR)/tests/test_%.d: src/%.cc | $(OUTSIDE_DEPS)
+	$(CXX) $(CXXFLAGS) -DPOAC_TEST $(DEFINES) $(INCLUDES) -MM -MT $(@:.d=.o) $< -MF $@
+
+-include $(UNITTEST_DEPS)
+
 
 $(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o \
   $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Manifest.o \
   $(OUT_DIR)/Semver.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OUT_DIR)/tests/test_BuildConfig.o: src/BuildConfig.cc src/BuildConfig.hpp \
-  src/Rustify.hpp src/Algos.hpp src/Logger.hpp src/TermColor.hpp \
-  src/TestUtils.hpp
-	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
-
 $(OUT_DIR)/tests/test_Algos: $(OUT_DIR)/tests/test_Algos.o $(OUT_DIR)/Logger.o \
   $(OUT_DIR)/TermColor.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
-
-$(OUT_DIR)/tests/test_Algos.o: src/Algos.cc src/Algos.hpp src/Logger.hpp \
-  src/TermColor.hpp src/TestUtils.hpp
-	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
 
 $(OUT_DIR)/tests/test_Semver: $(OUT_DIR)/tests/test_Semver.o $(OUT_DIR)/Logger.o \
   $(OUT_DIR)/TermColor.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OUT_DIR)/tests/test_Semver.o: src/Semver.cc src/Semver.hpp src/Logger.hpp \
-  src/TermColor.hpp src/TestUtils.hpp
-	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
-
 $(OUT_DIR)/tests/test_VersionReq: $(OUT_DIR)/tests/test_VersionReq.o \
   $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Semver.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OUT_DIR)/tests/test_VersionReq.o: src/VersionReq.cc src/VersionReq.hpp \
-  src/Semver.hpp src/Logger.hpp src/TermColor.hpp src/TestUtils.hpp
-	$(CXX) $(CXXFLAGS) -DPOAC_TEST -c $< -o $@
+
+$(OUT_DIR)/tests/test_%.o: src/%.cc
+	$(CXX) $(CXXFLAGS) -DPOAC_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
