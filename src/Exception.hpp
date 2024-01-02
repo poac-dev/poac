@@ -4,6 +4,7 @@
 #include "Rustify.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 struct PoacError : public std::runtime_error {
   template <typename... Args>
