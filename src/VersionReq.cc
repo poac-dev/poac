@@ -36,14 +36,8 @@ String to_string(const Comparator::Op op) noexcept {
     case Comparator::Lte:
       return "<=";
   }
+  unreachable();
 }
-
-struct OptVersion {
-  u64 major;
-  Option<u64> minor;
-  Option<u64> patch;
-  Prerelease pre;
-};
 
 struct ComparatorToken {
   enum Kind {
@@ -160,27 +154,30 @@ struct ComparatorParser {
     Comparator result;
 
     const auto token = lexer.next();
-    if (token.kind == ComparatorToken::Eq) {
-      result.op = Comparator::Exact;
-    } else if (token.kind == ComparatorToken::Gt) {
-      result.op = Comparator::Gt;
-    } else if (token.kind == ComparatorToken::Gte) {
-      result.op = Comparator::Gte;
-    } else if (token.kind == ComparatorToken::Lt) {
-      result.op = Comparator::Lt;
-    } else if (token.kind == ComparatorToken::Lte) {
-      result.op = Comparator::Lte;
-    } else if (token.kind == ComparatorToken::Ver) {
-      const OptVersion& ver = std::get<OptVersion>(token.value);
-      result.major = ver.major;
-      result.minor = ver.minor;
-      result.patch = ver.patch;
-      result.pre = ver.pre;
-    } else {
-      throw ComparatorError(
-          lexer.s, '\n', String(lexer.pos, ' '),
-          "^ expected =, >=, <=, >, <, or version"
-      );
+    switch (token.kind) {
+      case ComparatorToken::Eq:
+        result.op = Comparator::Exact;
+        break;
+      case ComparatorToken::Gt:
+        result.op = Comparator::Gt;
+        break;
+      case ComparatorToken::Gte:
+        result.op = Comparator::Gte;
+        break;
+      case ComparatorToken::Lt:
+        result.op = Comparator::Lt;
+        break;
+      case ComparatorToken::Lte:
+        result.op = Comparator::Lte;
+        break;
+      case ComparatorToken::Ver:
+        result.from(std::get<OptVersion>(token.value));
+        break;
+      default:
+        throw ComparatorError(
+            lexer.s, '\n', String(lexer.pos, ' '),
+            "^ expected =, >=, <=, >, <, or version"
+        );
     }
 
     // If the first token was comparison operator, the next token must be
@@ -192,11 +189,7 @@ struct ComparatorParser {
             lexer.s, '\n', String(lexer.pos, ' '), "^ expected version"
         );
       }
-      const OptVersion& ver = std::get<OptVersion>(token2.value);
-      result.major = ver.major;
-      result.minor = ver.minor;
-      result.patch = ver.patch;
-      result.pre = ver.pre;
+      result.from(std::get<OptVersion>(token2.value));
     }
 
     return result;
@@ -206,6 +199,13 @@ struct ComparatorParser {
 Comparator Comparator::parse(StringRef s) {
   ComparatorParser parser(s);
   return parser.parse();
+}
+
+void Comparator::from(const OptVersion& ver) noexcept {
+  major = ver.major;
+  minor = ver.minor;
+  patch = ver.patch;
+  pre = ver.pre;
 }
 
 void optVersionString(const Comparator& cmp, String& result) noexcept {
@@ -372,6 +372,7 @@ bool Comparator::satisfiedBy(const Version& ver) const noexcept {
     case Op::Lte:
       return matchesExact(*this, ver) || matchesLess(*this, ver);
   }
+  unreachable();
 }
 
 Comparator Comparator::canonicalize() const noexcept {

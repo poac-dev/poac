@@ -9,8 +9,8 @@
 //   pre        ::= <defined in Semver.hpp>
 //   build      ::= <defined in Semver.hpp>
 //
-// Note: Whitespace is permitted around VersionReq and Comparator, not
-// OptVersion.  Build metadata will be just ignored but accepted by the
+// Note: Whitespace is permitted around versionReq and comparator, not
+// optVersion.  Build metadata will be just ignored but accepted by the
 // parser.
 #pragma once
 
@@ -18,6 +18,13 @@
 #include "Semver.hpp"
 
 #include <ostream>
+
+struct OptVersion {
+  u64 major;
+  Option<u64> minor;
+  Option<u64> patch;
+  Prerelease pre;
+};
 
 // 1. NoOp: (Caret (^), "compatible" updates)
 //   1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
@@ -67,6 +74,7 @@ struct Comparator {
   Prerelease pre;
 
   static Comparator parse(StringRef);
+  void from(const OptVersion&) noexcept;
   String to_string() const noexcept;
   String to_pkg_config_string() const noexcept;
   bool satisfiedBy(const Version&) const noexcept;

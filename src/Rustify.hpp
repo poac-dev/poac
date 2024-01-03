@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -15,6 +16,12 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+
+#ifdef NDEBUG
+#  define unreachable() __builtin_unreachable()
+#else
+#  define unreachable() assert(false && "unreachable")
+#endif
 
 namespace fs = std::filesystem;
 
