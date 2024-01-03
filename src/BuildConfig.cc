@@ -378,7 +378,7 @@ static void defineLinkTarget(
 ) {
   Vec<String> commands(2);
   commands[0] = echoCmd("Linking", binTarget);
-  commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@");
+  commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
