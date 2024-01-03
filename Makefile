@@ -2,33 +2,33 @@ CXX ?= clang++
 PREFIX ?= /usr/local
 INSTALL ?= install
 
-DEBUG_FLAGS = -g -O0 -DDEBUG
-RELEASE_FLAGS = -O3 -DNDEBUG
-CXXFLAGS = -Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20
+DEBUG_FLAGS := -g -O0 -DDEBUG
+RELEASE_FLAGS := -O3 -DNDEBUG
+CXXFLAGS := -Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20
 ifeq ($(RELEASE), 1)
 	CXXFLAGS += $(RELEASE_FLAGS)
 else
 	CXXFLAGS += $(DEBUG_FLAGS)
 endif
 
-OUT_DIR = build-out
-PROJ_NAME = $(OUT_DIR)/poac
-VERSION = $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
+OUT_DIR := build-out
+PROJ_NAME := $(OUT_DIR)/poac
+VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 
-DEFINES = -DPOAC_VERSION='"$(VERSION)"'
-INCLUDES = -I$(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags libgit2)
-LIBS = $(shell pkg-config --libs libgit2)
+DEFINES := -DPOAC_VERSION='"$(VERSION)"'
+INCLUDES := -I$(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags libgit2)
+LIBS := $(shell pkg-config --libs libgit2)
 
-SRCS = $(shell find src -name '*.cc')
-OBJS = $(patsubst src/%,$(OUT_DIR)/%,$(SRCS:.cc=.o))
-DEPS = $(OBJS:.o=.d)
+SRCS := $(shell find src -name '*.cc')
+OBJS := $(patsubst src/%,$(OUT_DIR)/%,$(SRCS:.cc=.o))
+DEPS := $(OBJS:.o=.d)
 
-UNITTEST_SRCS = src/BuildConfig.cc src/Algos.cc src/Semver.cc src/VersionReq.cc
-UNITTEST_OBJS = $(patsubst src/%,$(OUT_DIR)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
-UNITTEST_BINS = $(UNITTEST_OBJS:.o=)
-UNITTEST_DEPS = $(UNITTEST_OBJS:.o=.d)
+UNITTEST_SRCS := src/BuildConfig.cc src/Algos.cc src/Semver.cc src/VersionReq.cc
+UNITTEST_OBJS := $(patsubst src/%,$(OUT_DIR)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
+UNITTEST_BINS := $(UNITTEST_OBJS:.o=)
+UNITTEST_DEPS := $(UNITTEST_OBJS:.o=.d)
 
-OUTSIDE_DEPS = $(OUT_DIR)/DEPS/toml11
+OUTSIDE_DEPS := $(OUT_DIR)/DEPS/toml11
 
 
 .PHONY: all clean install test
