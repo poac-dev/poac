@@ -12,8 +12,8 @@ private:
 
 public:
   /// Assembles a new revspec from the from/to components.
-  revspec(git_object* from_, git_object* to_, unsigned int mode_)
-      : from_(from_), to_(to_), mode_(mode_) {}
+  revspec(git_object* from, git_object* to, unsigned int mode)
+      : from_(from), to_(to), mode_(mode) {}
   revspec() = delete;
   ~revspec() = default;
 
