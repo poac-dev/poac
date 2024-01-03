@@ -42,7 +42,7 @@ install: all
 	$(INSTALL) -m 0755 $(PROJ_NAME) $(DESTDIR)$(PREFIX)/bin
 
 
-$(OUT_DIR)/%.d: src/%.cc | $(OUTSIDE_DEPS)
+$(OUT_DIR)/%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/Cmd
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $(@:.d=.o) $< -MF $@
 
 -include $(DEPS)
@@ -69,7 +69,7 @@ test: $(UNITTEST_DEPS) $(UNITTEST_BINS)
 	@$(OUT_DIR)/tests/test_Semver
 	@$(OUT_DIR)/tests/test_VersionReq
 
-$(OUT_DIR)/tests/test_%.d: src/%.cc | $(OUTSIDE_DEPS)
+$(OUT_DIR)/tests/test_%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/tests
 	$(CXX) $(CXXFLAGS) -DPOAC_TEST $(DEFINES) $(INCLUDES) -MM -MT $(@:.d=.o) $< -MF $@
 
 -include $(UNITTEST_DEPS)
@@ -95,3 +95,13 @@ $(OUT_DIR)/tests/test_VersionReq: $(OUT_DIR)/tests/test_VersionReq.o \
 
 $(OUT_DIR)/tests/test_%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -DPOAC_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
+
+
+$(OUT_DIR):
+	mkdir -p $@
+
+$(OUT_DIR)/Cmd:
+	mkdir -p $@
+
+$(OUT_DIR)/tests:
+	mkdir -p $@
