@@ -64,12 +64,6 @@ It is important to verify the package name and copy it accurately to prevent typ
 brew install poac
 ```
 
-#### MacPorts (macOS)
-
-```sh
-sudo port install poac
-```
-
 ### Build from source
 
 If your environment is not included in the released packages, you have to build Poac from the source. You will require the following compilers, commands, and libraries:
