@@ -12,9 +12,7 @@ version = "0.7.0"
 
 [dependencies]
 "ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf"}
-
-[profile.release]
-lto = true
+libgit2 = {version = "1.4.3", system = true}
 
 [lint.cpplint]
 filters = [

@@ -1,5 +1,6 @@
 #include "New.hpp"
 
+#include "../Git/Git2.hpp"
 #include "../Logger.hpp"
 #include "../Rustify.hpp"
 #include "Global.hpp"
@@ -168,6 +169,7 @@ int newMain(std::span<const StringRef> args) {
   }
 
   createTemplateFiles(isBin, packageName);
+  git2::repository().init(packageName);
   return EXIT_SUCCESS;
 }
 

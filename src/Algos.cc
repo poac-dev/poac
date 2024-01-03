@@ -6,6 +6,19 @@
 #include <memory>
 #include <utility>
 
+String execShell(StringRef cmd) {
+  std::array<char, 128> buffer;
+  String result;
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
+  if (!pipe) {
+    throw std::runtime_error("popen() failed!");
+  }
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+    result += buffer.data();
+  }
+  return result;
+}
+
 // O(M) where M is the length of the word.
 void trieInsert(TrieNode& root, StringRef word) {
   TrieNode* node = &root;

@@ -16,7 +16,8 @@ PROJ_NAME = $(OUT_DIR)/poac
 VERSION = $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 
 DEFINES = -DPOAC_VERSION='"$(VERSION)"'
-INCLUDES = -I$(OUT_DIR)/DEPS/toml11
+INCLUDES = -I$(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags libgit2)
+LIBS = $(shell pkg-config --libs libgit2)
 
 SRCS = $(shell find src -name '*.cc')
 OBJS = $(patsubst src/%,$(OUT_DIR)/%,$(SRCS:.cc=.o))
@@ -57,7 +58,7 @@ $(OUT_DIR)/DEPS:
 
 
 $(PROJ_NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@
 
 $(OUT_DIR)/%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
@@ -78,19 +79,19 @@ $(OUT_DIR)/tests/test_%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/test
 $(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o \
   $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Manifest.o \
   $(OUT_DIR)/Semver.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@
 
 $(OUT_DIR)/tests/test_Algos: $(OUT_DIR)/tests/test_Algos.o $(OUT_DIR)/Logger.o \
   $(OUT_DIR)/TermColor.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@
 
 $(OUT_DIR)/tests/test_Semver: $(OUT_DIR)/tests/test_Semver.o $(OUT_DIR)/Logger.o \
   $(OUT_DIR)/TermColor.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@
 
 $(OUT_DIR)/tests/test_VersionReq: $(OUT_DIR)/tests/test_VersionReq.o \
   $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Semver.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@
 
 
 $(OUT_DIR)/tests/test_%.o: src/%.cc

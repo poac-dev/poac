@@ -83,6 +83,7 @@ If your environment is not included in the released packages, you have to build 
 #### Commands
 
 * make
+* pkg-config
 * find
 * grep
 * mkdir
@@ -90,9 +91,11 @@ If your environment is not included in the released packages, you have to build 
 
 #### Libraries
 
+* libgit2
+
 When running Make, the following libraries will be installed automatically.
 
-* [`toml11`](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
+* [toml11](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
   * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
   * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
 
@@ -106,8 +109,9 @@ make RELEASE=1 install
 
 ### Runtime Requirements
 
-* Make
 * C++ compiler
+* Make
+* pkg-config
 * mkdir
 * echo
 * Git (for Git dependencies)
