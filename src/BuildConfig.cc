@@ -26,8 +26,9 @@ static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
 static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
-static String INCLUDES = "-Iinclude";
 static String DEFINES;
+static String INCLUDES = " -Iinclude";
+static String LIBS;
 
 void setOutDir(const bool isDebug) {
   if (isDebug) {
@@ -41,19 +42,6 @@ String getOutDir() {
     throw std::runtime_error("outDir is not set");
   }
   return OUT_DIR;
-}
-
-static String exec(const char* cmd) {
-  std::array<char, 128> buffer;
-  String result;
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-  if (!pipe) {
-    throw std::runtime_error("popen() failed!");
-  }
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-    result += buffer.data();
-  }
-  return result;
 }
 
 static Vec<Path> listSourceFilePaths(StringRef directory) {
@@ -293,7 +281,7 @@ String runMM(const String& sourceFile, const bool isTest = false) {
   } else {
     command += " -MM " + sourceFile;
   }
-  return exec(command.c_str());
+  return execShell(command);
 }
 
 static OrderedHashSet<String>
@@ -390,7 +378,7 @@ static void defineLinkTarget(
 ) {
   Vec<String> commands(2);
   commands[0] = echoCmd("Linking", binTarget);
-  commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $^ -o $@");
+  commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -468,18 +456,15 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
             + getPackageVersion().to_string() + "\"'";
   config.defineSimpleVariable("DEFINES", DEFINES);
 
-  const Vec<Path> deps = installGitDependencies();
-  for (const Path& dep : deps) {
-    const Path includeDir = dep / "include";
-    if (fs::exists(includeDir) && fs::is_directory(includeDir)
-        && !fs::is_empty(includeDir)) {
-      INCLUDES += " -I" + includeDir.string();
-    } else {
-      INCLUDES += " -I" + dep.string();
-    }
+  const Vec<DepMetadata> deps = installDependencies();
+  for (const DepMetadata& dep : deps) {
+    INCLUDES += ' ' + dep.includes;
+    LIBS += ' ' + dep.libs;
   }
   Logger::debug("INCLUDES: ", INCLUDES);
+  Logger::debug("LIBS: ", LIBS);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
+  config.defineSimpleVariable("LIBS", LIBS);
 }
 
 static BuildConfig configureBuild(const bool isDebug) {

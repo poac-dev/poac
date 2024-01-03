@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <utility>
 
+String execShell(StringRef);
+
 template <typename... Args>
 inline String concat(Args&&... args) {
   return (std::ostringstream{} << ... << std::forward<Args>(args)).str();

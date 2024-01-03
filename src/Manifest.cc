@@ -1,14 +1,17 @@
 #include "Manifest.hpp"
 
+#include "Algos.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "Semver.hpp"
 #include "TermColor.hpp"
+#include "VersionReq.hpp"
 
 #include <cctype>
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
+#include <variant>
 
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
@@ -35,8 +38,22 @@ static Path findManifest() {
   );
 }
 
-class Manifest {
-public:
+struct GitDependency {
+  String name;
+  String url;
+  Option<String> target;
+
+  DepMetadata install() const;
+};
+
+struct SystemDependency {
+  String name;
+  VersionReq versionReq;
+
+  DepMetadata install() const;
+};
+
+struct Manifest {
   static Manifest& instance() noexcept {
     static Manifest instance;
     instance.load();
@@ -61,6 +78,8 @@ public:
   Option<String> packageName = None;
   Option<String> packageEdition = None;
   Option<Version> packageVersion = None;
+  Option<Vec<std::variant<GitDependency, SystemDependency>>> dependencies =
+      None;
 
 private:
   Manifest() noexcept = default;
@@ -156,6 +175,54 @@ static inline const Path CACHE_DIR(getXdgCacheHome() / "poac");
 static inline const Path GIT_DIR(CACHE_DIR / "git");
 static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 
+// Dependency name can contain alphanumeric characters, and non-leading &
+// non-trailing & non-consecutive `-`, and `_`.  Also, `/` is allowed only
+// once with the same constrains as `-` and `_`.
+static void validateDepName(StringRef name) {
+  if (name.empty()) {
+    throw std::runtime_error("dependency name is empty");
+  }
+
+  // Leading `-`, `_`, and `/` are not allowed.
+  if (!std::isalnum(name[0])) {
+    throw std::runtime_error(
+        "dependency name must start with an alphanumeric character"
+    );
+  }
+  // Trailing `-`, `_`, and `/` are not allowed.
+  if (!std::isalnum(name.back())) {
+    throw std::runtime_error(
+        "dependency name must end with an alphanumeric character"
+    );
+  }
+
+  // Only alphanumeric characters, `-`, `_`, and `/` are allowed.
+  for (const char c : name) {
+    if (!std::isalnum(c) && c != '-' && c != '_' && c != '/') {
+      throw std::runtime_error(
+          "dependency name must be alphanumeric, `-`, `_`, or `/`"
+      );
+    }
+  }
+
+  // Consecutive `-`, `_`, and `/` are not allowed.
+  for (usize i = 1; i < name.size(); ++i) {
+    if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
+      throw std::runtime_error(
+          "dependency name must not contain consecutive non-alphanumeric "
+          "characters"
+      );
+    }
+  }
+
+  // `/` is allowed only once.
+  if (std::count(name.begin(), name.end(), '/') > 1) {
+    throw std::runtime_error(
+        "dependency name must not contain more than one `/`"
+    );
+  }
+}
+
 static void validateGitUrl(StringRef url) {
   if (url.empty()) {
     throw std::runtime_error("git url is empty");
@@ -221,78 +288,148 @@ static const HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
     {"branch", validateGitTagAndBranch},
 };
 
-/// @brief Install git dependencies.  We do not need to resolve dependencies
-///        (solve the SAT problem).
-/// @return paths to the source files
-Vec<Path> installGitDependencies() {
+static GitDependency parseGitDep(const String& name, const toml::table& info) {
+  validateDepName(name);
+  String gitUrlStr;
+  Option<String> target = None;
+
+  const auto& gitUrl = info.at("git");
+  if (gitUrl.is_string()) {
+    gitUrlStr = gitUrl.as_string();
+    validateGitUrl(gitUrlStr);
+
+    // rev, tag, or branch
+    for (const String key : {"rev", "tag", "branch"}) {
+      if (info.contains(key)) {
+        const auto& value = info.at(key);
+        if (value.is_string()) {
+          target = value.as_string();
+          gitValidators.at(key)(target.value());
+          break;
+        }
+      }
+    }
+  }
+  return {name, gitUrlStr, target};
+}
+
+static SystemDependency
+parseSystemDep(const String& name, const toml::table& info) {
+  validateDepName(name);
+  const auto& version = info.at("version");
+  if (!version.is_string()) {
+    throw std::runtime_error("system dependency version must be a string");
+  }
+
+  const String versionReq = version.as_string();
+  return {name, VersionReq::parse(versionReq)};
+}
+
+static void parseDependencies() {
   Manifest& manifest = Manifest::instance();
-  const auto& table = toml::get<toml::table>(*manifest.data);
+  if (manifest.dependencies.has_value()) {
+    return;
+  }
+
+  const auto& table = toml::get<toml::table>(manifest.data.value());
   if (!table.contains("dependencies")) {
     Logger::debug("no dependencies");
-    return {};
+    return;
   }
-  const auto deps = toml::find<toml::table>(*manifest.data, "dependencies");
+  const auto tomlDeps =
+      toml::find<toml::table>(manifest.data.value(), "dependencies");
 
-  Vec<Path> gitDeps;
-  for (const auto& dep : deps) {
+  Vec<std::variant<GitDependency, SystemDependency>> deps;
+  for (const auto& dep : tomlDeps) {
     if (dep.second.is_table()) {
       const auto& info = dep.second.as_table();
       if (info.contains("git")) {
-        const auto& gitUrl = info.at("git");
-        if (gitUrl.is_string()) {
-          const String gitUrlStr = gitUrl.as_string();
-          validateGitUrl(gitUrlStr);
-
-          // rev, tag, or branch
-          String target = "main";
-          for (const String key : {"rev", "tag", "branch"}) {
-            if (info.contains(key)) {
-              const auto& value = info.at(key);
-              if (value.is_string()) {
-                target = value.as_string();
-                gitValidators.at(key)(target);
-                break;
-              }
-            }
-          }
-
-          const Path installDir = GIT_SRC_DIR / (dep.first + '-' + target);
-          if (fs::exists(installDir) && !fs::is_empty(installDir)) {
-            Logger::debug(dep.first, " is already installed");
-            gitDeps.push_back(installDir);
-            continue;
-          }
-
-          const String gitCloneCmd =
-              "git clone " + gitUrlStr + " " + installDir.string();
-          if (std::system((gitCloneCmd + " >/dev/null 2>&1").c_str())
-              != EXIT_SUCCESS) {
-            throw std::runtime_error(
-                "failed to clone " + gitUrlStr + " to " + installDir.string()
-            );
-          }
-
-          const String gitResetCmd =
-              "git -C " + installDir.string() + " reset --hard " + target;
-          if (std::system((gitResetCmd + " >/dev/null 2>&1").c_str())
-              != EXIT_SUCCESS) {
-            throw std::runtime_error(
-                "failed to reset " + gitUrlStr + " to " + target
-            );
-          }
-
-          Logger::info(
-              "Downloaded", dep.first, ' ', target.empty() ? gitUrlStr : target
-          );
-          gitDeps.push_back(installDir);
-          continue;
-        }
+        deps.push_back(parseGitDep(dep.first, info));
+        continue;
+      } else if (info.contains("system") && info.at("system").as_boolean()) {
+        deps.push_back(parseSystemDep(dep.first, info));
+        continue;
       }
     }
 
     throw std::runtime_error(
-        "non-git dependency is not supported yet: " + dep.first
+        "Only Git dependency and system dependency are supported for now: "
+        + dep.first
     );
   }
-  return gitDeps;
+  manifest.dependencies = deps;
+}
+
+DepMetadata GitDependency::install() const {
+  const String target = this->target.value_or("main");
+
+  const Path installDir = GIT_SRC_DIR / (name + '-' + target);
+  if (fs::exists(installDir) && !fs::is_empty(installDir)) {
+    Logger::debug(name, " is already installed");
+  } else {
+    const String gitCloneCmd = "git clone " + url + " " + installDir.string();
+    if (std::system((gitCloneCmd + " >/dev/null 2>&1").c_str())
+        != EXIT_SUCCESS) {
+      throw std::runtime_error(
+          "failed to clone " + url + " to " + installDir.string()
+      );
+    }
+
+    const String gitResetCmd =
+        "git -C " + installDir.string() + " reset --hard " + target;
+    if (std::system((gitResetCmd + " >/dev/null 2>&1").c_str())
+        != EXIT_SUCCESS) {
+      throw std::runtime_error("failed to reset " + url + " to " + target);
+    }
+    Logger::info("Downloaded", name, ' ', target.empty() ? url : target);
+  }
+
+  const Path includeDir = installDir / "include";
+  if (fs::exists(includeDir) && fs::is_directory(includeDir)
+      && !fs::is_empty(includeDir)) {
+    return {"-I" + includeDir.string(), ""};
+  } else {
+    return {"-I" + installDir.string(), ""};
+  }
+  // currently, no libs are supported.
+}
+
+DepMetadata SystemDependency::install() const {
+  const String pkgConfigVer = versionReq.to_pkg_config_string(name);
+  const String cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
+  const String libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
+
+  Logger::debug("cflagsCmd: ", cflagsCmd);
+  String cflags = execShell(cflagsCmd);
+  cflags.pop_back(); // remove '\n'
+
+  Logger::debug("libsCmd: ", libsCmd);
+  String libs = execShell(libsCmd);
+  libs.pop_back(); // remove '\n'
+
+  return {cflags, libs};
+
+  // TODO: do this instead of above.  We need to emit -MM depfile within
+  // the generated Makefile.
+  // return {
+  //     "$(shell pkg-config --cflags '" + pkgConfigVer + "')",
+  //     "$(shell pkg-config --libs '" + pkgConfigVer + "')"
+  // };
+}
+
+Vec<DepMetadata> installDependencies() {
+  parseDependencies();
+
+  Manifest& manifest = Manifest::instance();
+  if (!manifest.dependencies.has_value()) {
+    return {};
+  }
+
+  Vec<DepMetadata> installed;
+  for (const auto& dep : manifest.dependencies.value()) {
+    std::visit(
+        [&installed](auto&& arg) { installed.emplace_back(arg.install()); }, dep
+    );
+  }
+  return installed;
 }

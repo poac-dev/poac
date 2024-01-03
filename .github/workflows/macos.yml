@@ -22,6 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: |
+          brew install \
+            libgit2
+
       - name: First Generation Build
         run: make -j4
 
