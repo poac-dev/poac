@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Exception.hpp"
 #include "Rustify.hpp"
 
 #include <initializer_list>
@@ -9,16 +10,10 @@
 #include <queue>
 #include <span>
 #include <sstream>
-#include <stdexcept>
 #include <utility>
 
 int runCmd(StringRef);
 String getCmdOutput(StringRef);
-
-template <typename... Args>
-inline String concat(Args&&... args) {
-  return (std::ostringstream{} << ... << std::forward<Args>(args)).str();
-}
 
 template <typename Value>
 struct OrderedHashSet {
@@ -152,7 +147,7 @@ Vec<String> topoSort(
 
   if (res.size() != list.size()) {
     // Cycle detected
-    throw std::runtime_error("too complex build graph");
+    throw PoacError("too complex build graph");
   }
   return res;
 }

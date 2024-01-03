@@ -1,6 +1,7 @@
 #include "BuildConfig.hpp"
 
 #include "Algos.hpp"
+#include "Exception.hpp"
 #include "Logger.hpp"
 #include "Manifest.hpp"
 #include "TermColor.hpp"
@@ -17,7 +18,6 @@
 #include <ostream>
 #include <span>
 #include <sstream>
-#include <stdexcept>
 #include <stdio.h>
 #include <string>
 #include <thread>
@@ -39,7 +39,7 @@ void setOutDir(const bool isDebug) {
 }
 String getOutDir() {
   if (OUT_DIR.empty()) {
-    throw std::runtime_error("outDir is not set");
+    throw PoacError("outDir is not set");
   }
   return OUT_DIR;
 }
@@ -469,11 +469,11 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
 
 static BuildConfig configureBuild(const bool isDebug) {
   if (!fs::exists("src")) {
-    throw std::runtime_error("src directory not found");
+    throw PoacError("src directory not found");
   }
   if (!fs::exists("src/main.cc")) {
     // For now, we only support .cc extension only for the main file.
-    throw std::runtime_error("src/main.cc not found");
+    throw PoacError("src/main.cc not found");
   }
 
   const String outDir = getOutDir();
@@ -662,8 +662,7 @@ void test_cycle_vars() {
   config.defineSimpleVariable("b", "c", {"c"});
   config.defineSimpleVariable("c", "a", {"a"});
 
-  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
-                                         std::runtime_error,
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
                                          "too complex build graph");
 }
 
@@ -700,8 +699,7 @@ void test_cycle_targets() {
   config.defineTarget("b", {"echo b"}, {"c"});
   config.defineTarget("c", {"echo c"}, {"a"});
 
-  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
-                                         std::runtime_error,
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
                                          "too complex build graph");
 }
 

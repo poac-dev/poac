@@ -1,5 +1,6 @@
 #include "New.hpp"
 
+#include "../Exception.hpp"
 #include "../Git/Git2.hpp"
 #include "../Logger.hpp"
 #include "../Rustify.hpp"
@@ -13,7 +14,6 @@
 #include <iostream>
 #include <iterator>
 #include <span>
-#include <stdexcept>
 #include <string>
 
 static inline constexpr StringRef mainCc =
@@ -61,7 +61,7 @@ static void writeToFile(std::ofstream& ofs, const Path& fpath, StringRef text) {
   ofs.close();
 
   if (!ofs) {
-    throw std::runtime_error("writing `" + fpath.string() + "` failed");
+    throw PoacError("writing `", fpath.string(), "` failed");
   }
   ofs.clear();
 }

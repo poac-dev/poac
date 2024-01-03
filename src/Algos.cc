@@ -1,5 +1,6 @@
 #include "Algos.hpp"
 
+#include "Exception.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 
@@ -21,7 +22,7 @@ String getCmdOutput(StringRef cmd) {
   Logger::debug("Running `", cmd, '`');
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
   if (!pipe) {
-    throw std::runtime_error("popen() failed!");
+    throw PoacError("popen() failed!");
   }
   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
     result += buffer.data();

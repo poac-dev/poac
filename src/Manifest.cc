@@ -1,6 +1,7 @@
 #include "Manifest.hpp"
 
 #include "Algos.hpp"
+#include "Exception.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "Semver.hpp"
@@ -9,7 +10,6 @@
 
 #include <cctype>
 #include <cstdlib>
-#include <stdexcept>
 #include <string>
 #include <variant>
 
@@ -34,8 +34,7 @@ static Path findManifest() {
     }
   }
 
-  throw std::runtime_error("could not find `poac.toml` here and in its parents"
-  );
+  throw PoacError("could not find `poac.toml` here and in its parents");
 }
 
 struct GitDependency {
@@ -98,7 +97,7 @@ String getPackageName() {
   const String packageName =
       toml::find<String>(manifest.data.value(), "package", "name");
   if (packageName.empty()) {
-    throw std::runtime_error("package name is empty");
+    throw PoacError("package name is empty");
   }
   manifest.packageName = packageName;
   return packageName;
@@ -122,7 +121,7 @@ u16 editionToYear(StringRef edition) {
   } else if (edition == "2c") {
     return 2026;
   }
-  throw std::runtime_error("invalid edition: " + String(edition));
+  throw PoacError("invalid edition: ", edition);
 }
 
 String getPackageEdition() {
@@ -180,35 +179,30 @@ static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 // once with the same constrains as `-` and `_`.
 static void validateDepName(StringRef name) {
   if (name.empty()) {
-    throw std::runtime_error("dependency name is empty");
+    throw PoacError("dependency name is empty");
   }
 
   // Leading `-`, `_`, and `/` are not allowed.
   if (!std::isalnum(name[0])) {
-    throw std::runtime_error(
-        "dependency name must start with an alphanumeric character"
+    throw PoacError("dependency name must start with an alphanumeric character"
     );
   }
   // Trailing `-`, `_`, and `/` are not allowed.
   if (!std::isalnum(name.back())) {
-    throw std::runtime_error(
-        "dependency name must end with an alphanumeric character"
-    );
+    throw PoacError("dependency name must end with an alphanumeric character");
   }
 
   // Only alphanumeric characters, `-`, `_`, and `/` are allowed.
   for (const char c : name) {
     if (!std::isalnum(c) && c != '-' && c != '_' && c != '/') {
-      throw std::runtime_error(
-          "dependency name must be alphanumeric, `-`, `_`, or `/`"
-      );
+      throw PoacError("dependency name must be alphanumeric, `-`, `_`, or `/`");
     }
   }
 
   // Consecutive `-`, `_`, and `/` are not allowed.
   for (usize i = 1; i < name.size(); ++i) {
     if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
-      throw std::runtime_error(
+      throw PoacError(
           "dependency name must not contain consecutive non-alphanumeric "
           "characters"
       );
@@ -217,66 +211,61 @@ static void validateDepName(StringRef name) {
 
   // `/` is allowed only once.
   if (std::count(name.begin(), name.end(), '/') > 1) {
-    throw std::runtime_error(
-        "dependency name must not contain more than one `/`"
-    );
+    throw PoacError("dependency name must not contain more than one `/`");
   }
 }
 
 static void validateGitUrl(StringRef url) {
   if (url.empty()) {
-    throw std::runtime_error("git url is empty");
+    throw PoacError("git url is empty");
   }
 
   // start with "https://" for now
   if (!url.starts_with("https://")) {
-    throw std::runtime_error("git url must start with \"https://\"");
+    throw PoacError("git url must start with \"https://\"");
   }
   // end with ".git"
   if (!url.ends_with(".git")) {
-    throw std::runtime_error("git url must end with \".git\"");
+    throw PoacError("git url must end with \".git\"");
   }
 }
 
 static void validateGitRev(StringRef rev) {
   if (rev.empty()) {
-    throw std::runtime_error("git rev is empty");
+    throw PoacError("git rev is empty");
   }
 
   // The length of a SHA-1 hash is 40 characters.
   if (rev.size() != 40) {
-    throw std::runtime_error("git rev must be 40 characters");
+    throw PoacError("git rev must be 40 characters");
   }
   // The characters must be in the range of [0-9a-f].
   for (const char c : rev) {
     if (!std::isxdigit(c)) {
-      throw std::runtime_error("git rev must be in the range of [0-9a-f]");
+      throw PoacError("git rev must be in the range of [0-9a-f]");
     }
   }
 }
 
 static void validateGitTagAndBranch(StringRef target) {
   if (target.empty()) {
-    throw std::runtime_error("git tag or branch is empty");
+    throw PoacError("git tag or branch is empty");
   }
 
   // The length of a tag or branch is less than 256 characters.
   if (target.size() >= 256) {
-    throw std::runtime_error(
-        "git tag or branch must be less than 256 characters"
-    );
+    throw PoacError("git tag or branch must be less than 256 characters");
   }
 
   // The first character must be an alphabet.
   if (!std::isalpha(target[0])) {
-    throw std::runtime_error("git tag or branch must start with an alphabet");
+    throw PoacError("git tag or branch must start with an alphabet");
   }
 
   // The characters must be in the range of [0-9a-zA-Z_-].
   for (const char c : target) {
     if (!std::isalnum(c) && c != '_' && c != '-') {
-      throw std::runtime_error(
-          "git tag or branch must be in the range of [0-9a-zA-Z_-]"
+      throw PoacError("git tag or branch must be in the range of [0-9a-zA-Z_-]"
       );
     }
   }
@@ -318,7 +307,7 @@ parseSystemDep(const String& name, const toml::table& info) {
   validateDepName(name);
   const auto& version = info.at("version");
   if (!version.is_string()) {
-    throw std::runtime_error("system dependency version must be a string");
+    throw PoacError("system dependency version must be a string");
   }
 
   const String versionReq = version.as_string();
@@ -352,9 +341,9 @@ static void parseDependencies() {
       }
     }
 
-    throw std::runtime_error(
-        "Only Git dependency and system dependency are supported for now: "
-        + dep.first
+    throw PoacError(
+        "Only Git dependency and system dependency are supported for now: ",
+        dep.first
     );
   }
   manifest.dependencies = deps;
@@ -371,9 +360,7 @@ DepMetadata GitDependency::install() const {
   } else {
     const String gitCloneCmd = "git clone " + url + " " + installDir.string();
     if (runCmd(gitCloneCmd + " >/dev/null 2>&1") != EXIT_SUCCESS) {
-      throw std::runtime_error(
-          "failed to clone " + url + " to " + installDir.string()
-      );
+      throw PoacError("failed to clone ", url, " to ", installDir.string());
     }
 
     if (target.has_value()) {
@@ -382,7 +369,7 @@ DepMetadata GitDependency::install() const {
       const String gitResetCmd =
           "git -C " + installDir.string() + " reset --hard " + target;
       if (runCmd(gitResetCmd + " >/dev/null 2>&1") != EXIT_SUCCESS) {
-        throw std::runtime_error("failed to reset " + url + " to " + target);
+        throw PoacError("failed to reset ", url, " to ", target);
       }
     }
 
