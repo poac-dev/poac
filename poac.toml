@@ -11,7 +11,7 @@ repository = "https://github.com/poac-dev/poac"
 version = "0.8.0"
 
 [dependencies]
-"ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf"}
+"ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", rev = "01a0e93e5f9bef09a76d22f3d51a5257e3d923fe"}
 libgit2 = {version = "1.1.0", system = true}
 
 [lint.cpplint]
