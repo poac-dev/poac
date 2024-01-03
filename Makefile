@@ -51,7 +51,7 @@ $(OUT_DIR)/%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/Cmd
 
 $(OUT_DIR)/DEPS/toml11: $(OUT_DIR)/DEPS
 	git clone https://github.com/ToruNiina/toml11.git $@
-	git -C $@ reset --hard 846abd9a49082fe51440aa07005c360f13a67bbf
+	git -C $@ reset --hard 01a0e93e5f9bef09a76d22f3d51a5257e3d923fe
 
 $(OUT_DIR)/DEPS:
 	mkdir -p $@
