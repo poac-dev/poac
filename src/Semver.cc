@@ -476,6 +476,18 @@ void test_parse() {
       "      ^ expected number or identifier"
   );
   ASSERT_EXCEPTION(
+      Version::parse("00"), SemverError,
+      "invalid semver:\n"
+      "00\n"
+      "^ invalid leading zero"
+  );
+  ASSERT_EXCEPTION(
+      Version::parse("0.00.0"), SemverError,
+      "invalid semver:\n"
+      "0.00.0\n"
+      "  ^ invalid leading zero"
+  );
+  ASSERT_EXCEPTION(
       Version::parse("a.b.c"), SemverError,
       "invalid semver:\n"
       "a.b.c\n"
