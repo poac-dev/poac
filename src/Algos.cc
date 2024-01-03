@@ -140,7 +140,7 @@ findSimilarStr(StringRef lhs, std::span<const StringRef> candidates) {
     if (cur_dist <= max_dist) {
       // The first similar string found || More similar string found
       if (!similar_str.has_value() || cur_dist < similar_str->second) {
-        similar_str = {c, cur_dist};
+        similar_str = { c, cur_dist };
       }
     }
   }
@@ -193,9 +193,9 @@ void test_levDistance2() {
 // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
 
 void test_findSimilarStr() {
-  constexpr Arr<StringRef, 8> CANDIDATES{"if",      "ifdef",   "ifndef",
-                                         "elif",    "else",    "endif",
-                                         "elifdef", "elifndef"};
+  constexpr Arr<StringRef, 8> CANDIDATES{
+    "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
+  };
 
   ASSERT_EQ(findSimilarStr("id", CANDIDATES), "if"sv);
   ASSERT_EQ(findSimilarStr("ifd", CANDIDATES), "if"sv);
@@ -214,11 +214,11 @@ void test_findSimilarStr() {
 }
 
 void test_findSimilarStr2() {
-  constexpr Arr<StringRef, 2> CANDIDATES{"aaab", "aaabc"};
+  constexpr Arr<StringRef, 2> CANDIDATES{ "aaab", "aaabc" };
   ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES), "aaab"sv);
   ASSERT_EQ(findSimilarStr("1111111111", CANDIDATES), None);
 
-  constexpr Arr<StringRef, 1> CANDIDATES2{"AAAA"};
+  constexpr Arr<StringRef, 1> CANDIDATES2{ "AAAA" };
   ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES2), "AAAA"sv);
 }
 

@@ -272,9 +272,9 @@ static void validateGitTagAndBranch(StringRef target) {
 }
 
 static const HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
-    {"rev", validateGitRev},
-    {"tag", validateGitTagAndBranch},
-    {"branch", validateGitTagAndBranch},
+  { "rev", validateGitRev },
+  { "tag", validateGitTagAndBranch },
+  { "branch", validateGitTagAndBranch },
 };
 
 static GitDependency parseGitDep(const String& name, const toml::table& info) {
@@ -288,7 +288,7 @@ static GitDependency parseGitDep(const String& name, const toml::table& info) {
     validateGitUrl(gitUrlStr);
 
     // rev, tag, or branch
-    for (const String key : {"rev", "tag", "branch"}) {
+    for (const String key : { "rev", "tag", "branch" }) {
       if (info.contains(key)) {
         const auto& value = info.at(key);
         if (value.is_string()) {
@@ -299,7 +299,7 @@ static GitDependency parseGitDep(const String& name, const toml::table& info) {
       }
     }
   }
-  return {name, gitUrlStr, target};
+  return { name, gitUrlStr, target };
 }
 
 static SystemDependency
@@ -311,7 +311,7 @@ parseSystemDep(const String& name, const toml::table& info) {
   }
 
   const String versionReq = version.as_string();
-  return {name, VersionReq::parse(versionReq)};
+  return { name, VersionReq::parse(versionReq) };
 }
 
 static void parseDependencies() {
@@ -381,9 +381,9 @@ DepMetadata GitDependency::install() const {
   const Path includeDir = installDir / "include";
   if (fs::exists(includeDir) && fs::is_directory(includeDir)
       && !fs::is_empty(includeDir)) {
-    return {"-I" + includeDir.string(), ""};
+    return { "-I" + includeDir.string(), "" };
   } else {
-    return {"-I" + installDir.string(), ""};
+    return { "-I" + installDir.string(), "" };
   }
   // currently, no libs are supported.
 }
@@ -398,7 +398,7 @@ DepMetadata SystemDependency::install() const {
   String libs = getCmdOutput(libsCmd);
   libs.pop_back(); // remove '\n'
 
-  return {cflags, libs};
+  return { cflags, libs };
 
   // TODO: do this instead of above.  We need to emit -MM depfile within
   // the generated Makefile.

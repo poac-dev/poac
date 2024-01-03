@@ -89,9 +89,9 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
       continue;
     }
     Package p{
-        pack.name,
-        pack.dep_info.version_rq,
-        Vec<String>{},
+      pack.name,
+      pack.dep_info.version_rq,
+      Vec<String>{},
     };
     if (inner_deps.has_value()) {
       // Extract name from inner dependencies and drop version.
@@ -106,7 +106,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   }
 
   toml::basic_value<toml::preserve_comments> lock(
-      Lockfile{.package = packages}, {String(LOCKFILE_HEADER)}
+      Lockfile{ .package = packages }, { String(LOCKFILE_HEADER) }
   );
   return Ok(lock);
 }
@@ -140,11 +140,13 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
       // Thus, the version should be restored just as empty string ("").
       resolver::UniqDeps<resolver::WithDeps>::mapped_type::value_type ideps;
       for (const auto& name : package.dependencies) {
-        ideps.push_back({name, ""});
+        ideps.push_back({ name, "" });
       }
       inner_deps = ideps;
     }
-    deps.emplace(resolver::Package{package.name, package.version}, inner_deps);
+    deps.emplace(
+        resolver::Package{ package.name, package.version }, inner_deps
+    );
   }
   return deps;
 }

@@ -335,8 +335,8 @@ auto main() -> int {
   "test struct Token"_test = [] {
     using poac::util::cfg::Token;
 
-    expect(throws<std::invalid_argument>([] { Token{Token::String}; }));
-    expect(throws<std::invalid_argument>([] { Token{Token::Ident}; }));
+    expect(throws<std::invalid_argument>([] { Token{ Token::String }; }));
+    expect(throws<std::invalid_argument>([] { Token{ Token::Ident }; }));
     expect(throws<std::invalid_argument>([] { Token(Token::Comma, "foo"); }));
     expect(throws<std::invalid_argument>([] {
       Token(Token::GtEq, Token::ident::os);
@@ -364,53 +364,53 @@ auto main() -> int {
 
     {
       std::ostringstream output;
-      output << Token{Token::LeftParen};
+      output << Token{ Token::LeftParen };
       expect(eq(output.str(), "left_paren: ("s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::RightParen};
+      output << Token{ Token::RightParen };
       expect(eq(output.str(), "right_paren: )"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Comma};
+      output << Token{ Token::Comma };
       expect(eq(output.str(), "comma: ,"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Equals};
+      output << Token{ Token::Equals };
       expect(eq(output.str(), "equals: ="s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Gt};
+      output << Token{ Token::Gt };
       expect(eq(output.str(), "gt: >"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::GtEq};
+      output << Token{ Token::GtEq };
       expect(eq(output.str(), "gteq: >="s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Lt};
+      output << Token{ Token::Lt };
       expect(eq(output.str(), "lt: <"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::LtEq};
+      output << Token{ Token::LtEq };
       expect(eq(output.str(), "lteq: <="s));
     }
     {
       std::ostringstream output;
       const std::string s = "foo";
-      output << Token{Token::String, s};
+      output << Token{ Token::String, s };
       expect(eq(output.str(), "string: " + s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Ident, Token::ident::os};
+      output << Token{ Token::Ident, Token::ident::os };
       expect(eq(output.str(), "ident: " + to_string(Token::ident::os)));
     }
   };
@@ -531,52 +531,52 @@ auto main() -> int {
     using poac::util::cfg::Token;
     {
       std::ostringstream output;
-      output << Token{Token::LeftParen};
+      output << Token{ Token::LeftParen };
       expect(eq(output.str(), "left_paren: ("s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::RightParen};
+      output << Token{ Token::RightParen };
       expect(eq(output.str(), "right_paren: )"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Comma};
+      output << Token{ Token::Comma };
       expect(eq(output.str(), "comma: ,"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Equals};
+      output << Token{ Token::Equals };
       expect(eq(output.str(), "equals: ="s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Gt};
+      output << Token{ Token::Gt };
       expect(eq(output.str(), "gt: >"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::GtEq};
+      output << Token{ Token::GtEq };
       expect(eq(output.str(), "gteq: >="s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Lt};
+      output << Token{ Token::Lt };
       expect(eq(output.str(), "lt: <"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::LtEq};
+      output << Token{ Token::LtEq };
       expect(eq(output.str(), "lteq: <="s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::String, "test_string"};
+      output << Token{ Token::String, "test_string" };
       expect(eq(output.str(), "string: test_string"s));
     }
     {
       std::ostringstream output;
-      output << Token{Token::Ident, Token::ident::cfg};
+      output << Token{ Token::Ident, Token::ident::cfg };
       expect(eq(output.str(), "ident: cfg"s));
     }
   };

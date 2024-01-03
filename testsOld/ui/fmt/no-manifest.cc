@@ -11,8 +11,9 @@ auto main() -> int {
   using namespace poac::test;
 
   if (has_command("clang-format")) {
-    cfg<override> = {.tag = {"has-cf"}};
+    cfg<override> = { .tag = { "has-cf" } };
   }
 
-  tag("has-cf") / "no manifest"_test = [] { uitest<Target::Stderr>({"fmt"}); };
+  tag("has-cf")
+      / "no manifest"_test = [] { uitest<Target::Stderr>({ "fmt" }); };
 }

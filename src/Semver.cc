@@ -245,7 +245,7 @@ VersionToken VersionLexer::consumeIdent() noexcept {
     step();
     ++len;
   }
-  return {VersionToken::Ident, StringRef(s.data() + pos - len, len)};
+  return { VersionToken::Ident, StringRef(s.data() + pos - len, len) };
 }
 
 VersionToken VersionLexer::consumeNum() {
@@ -270,7 +270,7 @@ VersionToken VersionLexer::consumeNum() {
     step();
     ++len;
   }
-  return {VersionToken::Num, value};
+  return { VersionToken::Num, value };
 }
 
 // Note that 012 is an invalid number but 012d is a valid identifier.
@@ -294,7 +294,7 @@ VersionToken VersionLexer::consumeNumOrIdent() {
 
 VersionToken VersionLexer::next() {
   if (isEof()) {
-    return VersionToken{VersionToken::Eof};
+    return VersionToken{ VersionToken::Eof };
   }
 
   const char c = s[pos];
@@ -304,16 +304,16 @@ VersionToken VersionLexer::next() {
     return consumeNumOrIdent();
   } else if (c == '.') {
     step();
-    return VersionToken{VersionToken::Dot};
+    return VersionToken{ VersionToken::Dot };
   } else if (c == '-') {
     step();
-    return VersionToken{VersionToken::Hyphen};
+    return VersionToken{ VersionToken::Hyphen };
   } else if (c == '+') {
     step();
-    return VersionToken{VersionToken::Plus};
+    return VersionToken{ VersionToken::Plus };
   } else {
     step();
-    return VersionToken{VersionToken::Unknown};
+    return VersionToken{ VersionToken::Unknown };
   }
 }
 
@@ -391,7 +391,7 @@ Prerelease VersionParser::parsePre() {
     lexer.step();
     pre.emplace_back(parseNumOrIdent());
   }
-  return Prerelease{pre};
+  return Prerelease{ pre };
 }
 
 // numOrIdent ::= num | ident
@@ -411,7 +411,7 @@ BuildMetadata VersionParser::parseBuild() {
     lexer.step();
     build.emplace_back(parseIdent());
   }
-  return BuildMetadata{build};
+  return BuildMetadata{ build };
 }
 
 // Even if the token can be parsed as a number, try to parse it as an
@@ -519,49 +519,44 @@ void test_parse() {
   );
 
   ASSERT_EQ(
-      Version::parse("1.2.3"), (Version{1, 2, 3, Prerelease(), BuildMetadata()})
+      Version::parse("1.2.3"),
+      (Version{ 1, 2, 3, Prerelease(), BuildMetadata() })
   );
   ASSERT_EQ(
       Version::parse("1.2.3-alpha1"),
-      (Version{1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata()})
+      (Version{ 1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata() })
   );
   ASSERT_EQ(
       Version::parse("1.2.3+build5"),
-      (Version{1, 2, 3, Prerelease(), BuildMetadata::parse("build5")})
+      (Version{ 1, 2, 3, Prerelease(), BuildMetadata::parse("build5") })
   );
   ASSERT_EQ(
       Version::parse("1.2.3+5build"),
-      (Version{1, 2, 3, Prerelease(), BuildMetadata::parse("5build")})
+      (Version{ 1, 2, 3, Prerelease(), BuildMetadata::parse("5build") })
   );
   ASSERT_EQ(
       Version::parse("1.2.3-alpha1+build5"),
-      (Version{
-          1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata::parse("build5")
-      })
+      (Version{ 1, 2, 3, Prerelease::parse("alpha1"),
+                BuildMetadata::parse("build5") })
   );
   ASSERT_EQ(
       Version::parse("1.2.3-1.alpha1.9+build5.7.3aedf"),
-      (Version{
-          1, 2, 3, Prerelease::parse("1.alpha1.9"),
-          BuildMetadata::parse("build5.7.3aedf")
-      })
+      (Version{ 1, 2, 3, Prerelease::parse("1.alpha1.9"),
+                BuildMetadata::parse("build5.7.3aedf") })
   );
   ASSERT_EQ(
       Version::parse("1.2.3-0a.alpha1.9+05build.7.3aedf"),
-      (Version{
-          1, 2, 3, Prerelease::parse("0a.alpha1.9"),
-          BuildMetadata::parse("05build.7.3aedf")
-      })
+      (Version{ 1, 2, 3, Prerelease::parse("0a.alpha1.9"),
+                BuildMetadata::parse("05build.7.3aedf") })
   );
   ASSERT_EQ(
       Version::parse("0.4.0-beta.1+0851523"),
-      (Version{
-          0, 4, 0, Prerelease::parse("beta.1"), BuildMetadata::parse("0851523")
-      })
+      (Version{ 0, 4, 0, Prerelease::parse("beta.1"),
+                BuildMetadata::parse("0851523") })
   );
   ASSERT_EQ(
       Version::parse("1.1.0-beta-10"),
-      (Version{1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata()})
+      (Version{ 1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata() })
   );
 }
 
@@ -645,8 +640,8 @@ void test_ge() {
 
 void test_spec_order() {
   const Vec<String> vs = {
-      "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
-      "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
+    "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
+    "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
   };
   for (usize i = 1; i < vs.size(); ++i) {
     ASSERT_LT(Version::parse(vs[i - 1]), Version::parse(vs[i]));

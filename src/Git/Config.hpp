@@ -29,7 +29,7 @@ public:
 
   /// Get the value of a string config variable as an owned string.
   std::string get_string(const std::string& name) {
-    git_buf ret = {nullptr, 0, 0};
+    git_buf ret = { nullptr, 0, 0 };
     git2_throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
     return std::string(ret.ptr, ret.size);
   }

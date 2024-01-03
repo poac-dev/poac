@@ -11,6 +11,7 @@ AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBinaryOperators: NonAssignment
 BreakStringLiterals: false
+Cpp11BracedListStyle: false
 IncludeBlocks: Regroup
 IndentCaseLabels: true
 IndentPPDirectives: AfterHash

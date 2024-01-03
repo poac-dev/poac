@@ -136,7 +136,7 @@ struct describe {
   }
 
   std::string format(const describe_format_options& opts) {
-    git_buf ret = {nullptr, 0, 0};
+    git_buf ret = { nullptr, 0, 0 };
     git2_throw(git_describe_format(&ret, this->raw, &opts.raw));
     return std::string(ret.ptr, ret.size);
   }

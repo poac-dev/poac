@@ -146,20 +146,20 @@ void BuildConfig::defineSimpleVariable(
     const String& name, const String& value,
     const OrderedHashSet<String>& dependsOn
 ) {
-  defineVariable(name, {value, VarType::Simple}, dependsOn);
+  defineVariable(name, { value, VarType::Simple }, dependsOn);
 }
 void BuildConfig::defineCondVariable(
     const String& name, const String& value,
     const OrderedHashSet<String>& dependsOn
 ) {
-  defineVariable(name, {value, VarType::Cond}, dependsOn);
+  defineVariable(name, { value, VarType::Cond }, dependsOn);
 }
 
 void BuildConfig::defineTarget(
     String name, const Vec<String>& commands,
     const OrderedHashSet<String>& dependsOn
 ) {
-  targets[name] = {commands, dependsOn};
+  targets[name] = { commands, dependsOn };
   for (const String& dep : dependsOn) {
     // reverse dependency
     targetDeps[dep].push_back(name);
@@ -167,10 +167,10 @@ void BuildConfig::defineTarget(
 }
 
 void BuildConfig::setPhony(const OrderedHashSet<String>& dependsOn) {
-  phony = {{}, dependsOn};
+  phony = { {}, dependsOn };
 }
 void BuildConfig::setAll(const OrderedHashSet<String>& dependsOn) {
-  all = {{}, dependsOn};
+  all = { {}, dependsOn };
 }
 
 static void emitTarget(
@@ -347,7 +347,7 @@ static String buildCmd(const String& cmd) noexcept {
 }
 
 static void defineDirTarget(BuildConfig& config, const Path& directory) {
-  config.defineTarget(directory, {buildCmd("mkdir -p $@")});
+  config.defineTarget(directory, { buildCmd("mkdir -p $@") });
 }
 
 static String echoCmd(StringRef header, StringRef body) {
@@ -489,7 +489,7 @@ static BuildConfig configureBuild(const bool isDebug) {
 
   // Build rules
   defineDirTarget(config, config.buildOutDir);
-  config.setAll({config.packageName});
+  config.setAll({ config.packageName });
 
   const Vec<Path> sourceFilePaths = listSourceFilePaths("src");
   OrderedHashSet<String> buildObjTargets;
@@ -519,7 +519,7 @@ static BuildConfig configureBuild(const bool isDebug) {
   }
   // Project binary target.
   const String mainObjTarget = config.buildOutDir / "main.o";
-  OrderedHashSet<String> projTargetDeps = {mainObjTarget};
+  OrderedHashSet<String> projTargetDeps = { mainObjTarget };
   collectBinDepObjs(
       projTargetDeps, config.targets.at(mainObjTarget).dependsOn, "",
       buildObjTargets, config
@@ -568,7 +568,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     );
 
     // Test binary target.
-    OrderedHashSet<String> testTargetDeps = {testObjTarget};
+    OrderedHashSet<String> testTargetDeps = { testObjTarget };
     collectBinDepObjs(
         testTargetDeps, objTargetDeps, sourceFileRelPath, buildObjTargets,
         config
@@ -584,7 +584,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     testTargets.push_back(testTarget);
   }
 
-  OrderedHashSet<String> phonies = {"all"};
+  OrderedHashSet<String> phonies = { "all" };
   if (enableTesting) {
     // Target to create the tests directory.
     defineDirTarget(config, TEST_OUT_DIR);
@@ -658,9 +658,9 @@ String getMakeCommand(const bool isParallel) {
 
 void test_cycle_vars() {
   BuildConfig config;
-  config.defineSimpleVariable("a", "b", {"b"});
-  config.defineSimpleVariable("b", "c", {"c"});
-  config.defineSimpleVariable("c", "a", {"a"});
+  config.defineSimpleVariable("a", "b", { "b" });
+  config.defineSimpleVariable("b", "c", { "c" });
+  config.defineSimpleVariable("c", "a", { "a" });
 
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
                                          "too complex build graph");
@@ -668,8 +668,8 @@ void test_cycle_vars() {
 
 void test_simple_vars() {
   BuildConfig config;
-  config.defineSimpleVariable("c", "3", {"b"});
-  config.defineSimpleVariable("b", "2", {"a"});
+  config.defineSimpleVariable("c", "3", { "b" });
+  config.defineSimpleVariable("b", "2", { "a" });
   config.defineSimpleVariable("a", "1");
 
   std::stringstream ss;
@@ -685,7 +685,7 @@ void test_simple_vars() {
 
 void test_depend_on_unregistered_var() {
   BuildConfig config;
-  config.defineSimpleVariable("a", "1", {"b"});
+  config.defineSimpleVariable("a", "1", { "b" });
 
   std::stringstream ss;
   config.emitMakefile(ss);
@@ -695,9 +695,9 @@ void test_depend_on_unregistered_var() {
 
 void test_cycle_targets() {
   BuildConfig config;
-  config.defineTarget("a", {"echo a"}, {"b"});
-  config.defineTarget("b", {"echo b"}, {"c"});
-  config.defineTarget("c", {"echo c"}, {"a"});
+  config.defineTarget("a", { "echo a" }, { "b" });
+  config.defineTarget("b", { "echo b" }, { "c" });
+  config.defineTarget("c", { "echo c" }, { "a" });
 
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
                                          "too complex build graph");
@@ -705,9 +705,9 @@ void test_cycle_targets() {
 
 void test_simple_targets() {
   BuildConfig config;
-  config.defineTarget("a", {"echo a"});
-  config.defineTarget("b", {"echo b"}, {"a"});
-  config.defineTarget("c", {"echo c"}, {"b"});
+  config.defineTarget("a", { "echo a" });
+  config.defineTarget("b", { "echo b" }, { "a" });
+  config.defineTarget("c", { "echo c" }, { "b" });
 
   std::stringstream ss;
   config.emitMakefile(ss);
@@ -728,7 +728,7 @@ void test_simple_targets() {
 
 void test_depend_on_unregistered_target() {
   BuildConfig config;
-  config.defineTarget("a", {"echo a"}, {"b"});
+  config.defineTarget("a", { "echo a" }, { "b" });
 
   std::stringstream ss;
   config.emitMakefile(ss);

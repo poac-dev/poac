@@ -266,7 +266,7 @@ struct Lexer {
   using SizeType = usize;
 
   StringRef str;
-  SizeType index{0};
+  SizeType index{ 0 };
 
   explicit Lexer(StringRef str) : str(str) {}
 
@@ -286,12 +286,12 @@ private:
   [[nodiscard]] inline auto
   generate_token(SizeType index_, const Option<Token>& token) const
       -> std::pair<SizeType, Option<Token>> {
-    return {this->diff_step(index_), token};
+    return { this->diff_step(index_), token };
   }
   [[nodiscard]] inline auto
   generate_token(SizeType index_, StringRef kind) const
       -> std::pair<SizeType, Option<Token>> {
-    return generate_token(index_, Token{to_kind(kind)});
+    return generate_token(index_, Token{ to_kind(kind) });
   }
 
   [[nodiscard]] auto analyze_two_phrase(SizeType index_, char kind) const
@@ -325,9 +325,9 @@ auto Lexer::analyze_two_phrase(SizeType index_, const char kind) const
     -> std::pair<Lexer::SizeType, Option<Token>> {
   if (this->one(index_) == '=') {
     this->step(index_);
-    return generate_token(index_, String{kind} + '=');
+    return generate_token(index_, String{ kind } + '=');
   } else {
-    return generate_token(index_, String{kind});
+    return generate_token(index_, String{ kind });
   }
 }
 
@@ -349,7 +349,7 @@ auto Lexer::tokenize(SizeType index_) const
       [[fallthrough]];
     case '=':
       this->step(index_);
-      return generate_token(index_, String{one});
+      return generate_token(index_, String{ one });
     case '>':
       [[fallthrough]];
     case '<':
@@ -389,7 +389,7 @@ auto Lexer::string(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   }
   const StringRef s = this->str.substr(start, index_ - start);
   this->step(index_);
-  return {this->diff_step(index_), Token{Token::String, s}};
+  return { this->diff_step(index_), Token{ Token::String, s } };
 }
 
 auto Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
@@ -407,7 +407,7 @@ auto Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
 
   const StringRef s = this->str.substr(start, index_ - start);
   if (const auto ident = to_ident(s)) {
-    return {this->diff_step(index_), Token{Token::Ident, ident.value()}};
+    return { this->diff_step(index_), Token{ Token::Ident, ident.value() } };
   } else {
     String msg;
     msg += String(start, ' ');
@@ -721,9 +721,9 @@ auto Parser::expr() -> CfgExpr {
         }
       } while (!r_try(Token::RightParen));
       if (token->get_ident() == Token::ident::all) {
-        return CfgExpr{CfgExpr::all, std::move(e)};
+        return CfgExpr{ CfgExpr::all, std::move(e) };
       } else {
-        return CfgExpr{CfgExpr::any, std::move(e)};
+        return CfgExpr{ CfgExpr::any, std::move(e) };
       }
     } else if (token->get_ident() == Token::ident::not_ || token->get_ident() == Token::ident::cfg) {
       this->lexer.next();
@@ -731,13 +731,14 @@ auto Parser::expr() -> CfgExpr {
       CfgExpr&& e = this->expr();
       this->eat_right_paren();
       if (token->get_ident() == Token::ident::not_) {
-        return CfgExpr{CfgExpr::not_, std::make_unique<CfgExpr>(std::move(e))};
+        return CfgExpr{ CfgExpr::not_,
+                        std::make_unique<CfgExpr>(std::move(e)) };
       } else {
-        return CfgExpr{CfgExpr::cfg, std::make_unique<CfgExpr>(std::move(e))};
+        return CfgExpr{ CfgExpr::cfg, std::make_unique<CfgExpr>(std::move(e)) };
       }
     }
   }
-  return CfgExpr{CfgExpr::value, this->cfg()};
+  return CfgExpr{ CfgExpr::value, this->cfg() };
 }
 
 auto Parser::cfg() -> Cfg {
@@ -790,7 +791,7 @@ auto Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
   const usize index = lexer.index;
   if (const auto t = lexer.next()) {
     if (t->kind == Token::String) {
-      return {ident, op, t->get_str()};
+      return { ident, op, t->get_str() };
     } else {
       String msg = String(index + 1, ' ');
       msg += "^";

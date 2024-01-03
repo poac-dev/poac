@@ -16,7 +16,7 @@ int testMain(std::span<const StringRef> args) {
   bool isParallel = true;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({{"test"}})
+    HANDLE_GLOBAL_OPTS({ { "test" } })
 
     else if (arg == "-d" || arg == "--debug") {
       isDebug = true;

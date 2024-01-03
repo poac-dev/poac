@@ -79,32 +79,32 @@ struct ComparatorLexer {
 
   ComparatorToken next() {
     if (isEof()) {
-      return ComparatorToken{ComparatorToken::Eof};
+      return ComparatorToken{ ComparatorToken::Eof };
     }
 
     const char c = s[pos];
     if (c == '=') {
       step();
-      return ComparatorToken{ComparatorToken::Eq};
+      return ComparatorToken{ ComparatorToken::Eq };
     } else if (c == '>') {
       step();
       if (isEof()) {
-        return ComparatorToken{ComparatorToken::Gt};
+        return ComparatorToken{ ComparatorToken::Gt };
       } else if (s[pos] == '=') {
         step();
-        return ComparatorToken{ComparatorToken::Gte};
+        return ComparatorToken{ ComparatorToken::Gte };
       } else {
-        return ComparatorToken{ComparatorToken::Gt};
+        return ComparatorToken{ ComparatorToken::Gt };
       }
     } else if (c == '<') {
       step();
       if (isEof()) {
-        return ComparatorToken{ComparatorToken::Lt};
+        return ComparatorToken{ ComparatorToken::Lt };
       } else if (s[pos] == '=') {
         step();
-        return ComparatorToken{ComparatorToken::Lte};
+        return ComparatorToken{ ComparatorToken::Lte };
       } else {
-        return ComparatorToken{ComparatorToken::Lt};
+        return ComparatorToken{ ComparatorToken::Lt };
       }
     } else if (std::isdigit(c)) {
       VersionParser parser(s);
@@ -114,14 +114,14 @@ struct ComparatorLexer {
       ver.major = parser.parseNum();
       if (parser.lexer.s[parser.lexer.pos] != '.') {
         pos = parser.lexer.pos;
-        return ComparatorToken{ComparatorToken::Ver, std::move(ver)};
+        return ComparatorToken{ ComparatorToken::Ver, std::move(ver) };
       }
 
       parser.parseDot();
       ver.minor = parser.parseNum();
       if (parser.lexer.s[parser.lexer.pos] != '.') {
         pos = parser.lexer.pos;
-        return ComparatorToken{ComparatorToken::Ver, std::move(ver)};
+        return ComparatorToken{ ComparatorToken::Ver, std::move(ver) };
       }
 
       parser.parseDot();
@@ -138,9 +138,9 @@ struct ComparatorLexer {
       }
 
       pos = parser.lexer.pos;
-      return ComparatorToken{ComparatorToken::Ver, std::move(ver)};
+      return ComparatorToken{ ComparatorToken::Ver, std::move(ver) };
     } else {
-      return ComparatorToken{ComparatorToken::Unknown};
+      return ComparatorToken{ ComparatorToken::Unknown };
     }
   }
 };
@@ -457,7 +457,7 @@ struct VersionReqLexer {
   VersionReqToken next() {
     skipWs();
     if (isEof()) {
-      return VersionReqToken{VersionReqToken::Eof};
+      return VersionReqToken{ VersionReqToken::Eof };
     }
 
     const char c = s[pos];
@@ -468,13 +468,13 @@ struct VersionReqLexer {
       const Comparator comp = parser.parse();
       pos = parser.lexer.pos;
 
-      return VersionReqToken{VersionReqToken::Comp, comp};
+      return VersionReqToken{ VersionReqToken::Comp, comp };
     } else if (c == '&' && pos + 1 < s.size() && s[pos + 1] == '&') {
       pos += 2;
-      return VersionReqToken{VersionReqToken::And};
+      return VersionReqToken{ VersionReqToken::And };
     }
 
-    return VersionReqToken{VersionReqToken::Unknown};
+    return VersionReqToken{ VersionReqToken::Unknown };
   }
 };
 
@@ -820,7 +820,7 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 #  define ASSERT_MATCH_ALL(req, ...)                       \
     do {                                                   \
-      Vec<String> versions = {__VA_ARGS__};                \
+      Vec<String> versions = { __VA_ARGS__ };              \
       for (const auto& ver : versions) {                   \
         ASSERT_TRUE(req.satisfiedBy(Version::parse(ver))); \
       }                                                    \
@@ -828,7 +828,7 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 #  define ASSERT_MATCH_NONE(req, ...)                       \
     do {                                                    \
-      Vec<String> versions = {__VA_ARGS__};                 \
+      Vec<String> versions = { __VA_ARGS__ };               \
       for (const auto& ver : versions) {                    \
         ASSERT_FALSE(req.satisfiedBy(Version::parse(ver))); \
       }                                                     \
@@ -1174,7 +1174,7 @@ void test_comparator_parse() {
 }
 
 void test_leading_digit_in_pre_and_build() {
-  for (const auto& cmp : {"", "<", "<=", ">", ">="}) {
+  for (const auto& cmp : { "", "<", "<=", ">", ">=" }) {
     // digit then alpha
     ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-1a"s));
     ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3+1a"s));

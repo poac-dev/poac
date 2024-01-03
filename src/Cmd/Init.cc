@@ -15,7 +15,7 @@ int initMain(std::span<const StringRef> args) {
   bool isBin = true;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({{"init"}})
+    HANDLE_GLOBAL_OPTS({ { "init" } })
 
     else if (arg == "-b" || arg == "--bin") {
       isBin = true;

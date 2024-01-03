@@ -14,7 +14,7 @@ auto main() -> int {
   using namespace poac::test;
 
   if (has_command("clang-format")) {
-    cfg<override> = {.tag = {"has-cf"}};
+    cfg<override> = { .tag = { "has-cf" } };
   }
 
   tag("has-cf") / "no targets"_test = [] {
@@ -23,6 +23,6 @@ auto main() -> int {
     ofs << "[package]\n"
            "name = \"\""; // empty name
     ofs.close();
-    uitest<Target::Stdout>({"fmt"}, temp_dir);
+    uitest<Target::Stdout>({ "fmt" }, temp_dir);
   };
 }

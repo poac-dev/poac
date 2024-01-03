@@ -142,7 +142,7 @@ int newMain(std::span<const StringRef> args) {
   String packageName;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({{"new"}})
+    HANDLE_GLOBAL_OPTS({ { "new" } })
 
     else if (arg == "-b" || arg == "--bin") {
       isBin = true;

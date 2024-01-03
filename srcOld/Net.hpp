@@ -96,7 +96,7 @@ auto create_request(
     const Headers& headers = {}
 ) -> http::request<RequestBody> {
   // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
-  http::request<RequestBody> req{method, String(target), 11};
+  http::request<RequestBody> req{ method, String(target), 11 };
   req.set(
       http::field::host, String(host)
   ); // no matching member function for call to 'set'
@@ -112,7 +112,7 @@ inline auto parse_url(const String& url) -> std::pair<String, String> {
   const String host = util::misc::split(url, "://")[1];
   // https://api.poac.dev/packages/deps -> /packages/deps
   const String target(url, url.find(host) + host.size());
-  return {host, target};
+  return { host, target };
 }
 
 class MultiPartForm {
@@ -197,7 +197,7 @@ public:
     Vec<FileInfo> file_info;
     for (const auto& f : _file_param) {
       const Path file_path = std::get<1>(f);
-      file_info.push_back({file_path.string(), fs::file_size(file_path)});
+      file_info.push_back({ file_path.string(), fs::file_size(file_path) });
     }
     return file_info;
   }
@@ -517,11 +517,11 @@ private:
             stream->native_handle(), String(host).c_str()
         )) {
       const boost::system::error_code error{
-          static_cast<i32>(::ERR_get_error()),
-          boost::asio::error::get_ssl_category()
+        static_cast<i32>(::ERR_get_error()),
+        boost::asio::error::get_ssl_category()
       };
       log::debug(error.message());
-      throw boost::system::system_error{error};
+      throw boost::system::system_error{ error };
     }
   }
 
@@ -548,7 +548,7 @@ export namespace poac::util::net::api {
 call(StringRef path, const Option<String>& body = None) noexcept
     -> Result<boost::property_tree::ptree, String> {
   try {
-    const Requests request{"poac-api.shuttleapp.rs"};
+    const Requests request{ "poac-api.shuttleapp.rs" };
     const String target = format("/v1{}", path);
     const auto response =
         Try(body.has_value() ? request.post(target, body.value())
@@ -585,7 +585,7 @@ call(StringRef path, const Option<String>& body = None) noexcept
       util::meta::to_hash_map<String>(res, "data");
   HashMap<String, poac::core::resolver::resolve::DependencyInfo> ret;
   for (const auto& [name, data] : temp) {
-    ret.emplace(name, poac::core::resolver::resolve::DependencyInfo{data});
+    ret.emplace(name, poac::core::resolver::resolve::DependencyInfo{ data });
   }
   return Ok(std::move(ret));
 }

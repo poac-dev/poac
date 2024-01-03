@@ -30,10 +30,10 @@
 static inline constexpr Arr<
     Tuple<StringRef, StringRef, StringRef, StringRef>, 4>
     GLOBAL_OPT_HELPS{
-        std::make_tuple("-v", "--verbose", "", "Use verbose output"),
-        {"-q", "--quiet", "", "Do not print poac log messages"},
-        {"", "--color", "<WHEN>", "Coloring: auto, always, never"},
-        {"-h", "--help", "", "Print help"},
+      std::make_tuple("-v", "--verbose", "", "Use verbose output"),
+      { "-q", "--quiet", "", "Do not print poac log messages" },
+      { "", "--color", "<WHEN>", "Coloring: auto, always, never" },
+      { "-h", "--help", "", "Print help" },
     };
 
 void printHeader(StringRef) noexcept;

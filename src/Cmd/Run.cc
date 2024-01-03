@@ -18,7 +18,7 @@ int runMain(std::span<const StringRef> args) {
   String runArgs;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({{"run"}})
+    HANDLE_GLOBAL_OPTS({ { "run" } })
 
     else if (arg == "-d" || arg == "--debug") {
       isDebug = true;

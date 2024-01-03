@@ -58,7 +58,7 @@ auto multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
            })
          | boost::adaptors::transformed(
              [&clause](const boost::dynamic_bitset<>& bs) -> Vec<i32> {
-               return boost::irange(usize{0}, bs.size())
+               return boost::irange(usize{ 0 }, bs.size())
                       | boost::adaptors::transformed([&clause,
                                                       &bs](const i32 i) {
                           return bs[i] ? clause[i] * -1 : clause[i];
@@ -259,7 +259,7 @@ auto gather_deps_of_deps(
 ) -> DupDeps<WithoutDeps> {
   DupDeps<WithoutDeps> cur_deps_deps;
   for (const auto& [name, dep_info] : deps_api_res) {
-    const Package package{name, dep_info};
+    const Package package{ name, dep_info };
 
     // Check if node package is resolved dependency (by interval)
     const auto found_cache =
@@ -273,10 +273,10 @@ auto gather_deps_of_deps(
             : get_versions_satisfy_interval(package).unwrap();
     if (found_cache == interval_cache.cend()) {
       // Cache interval and versions pair
-      interval_cache.emplace(Cache{package, dep_versions});
+      interval_cache.emplace(Cache{ package, dep_versions });
     }
     for (const String& dep_version : dep_versions) {
-      cur_deps_deps.emplace_back(Package{package.name, dep_version});
+      cur_deps_deps.emplace_back(Package{ package.name, dep_version });
     }
   }
   return cur_deps_deps;
@@ -318,7 +318,7 @@ void gather_deps(
 
   // Activate the root of dependencies
   for (const auto& [name, dep_info] : deps) {
-    const Package package{name, dep_info};
+    const Package package{ name, dep_info };
 
     // We don't resolve deps of conan packages, this is defer to conan itself
     if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
@@ -338,13 +338,11 @@ void gather_deps(
     // FIXME: versions API and deps API are received the almost same responses
     const Vec<String> versions = Try(get_versions_satisfy_interval(package));
     // Cache interval and versions pair
-    interval_cache.emplace(Cache{package, versions});
+    interval_cache.emplace(Cache{ package, versions });
     for (const String& version : versions) {
       gather_deps(
-          Package{
-              package.name,
-              {version, package.dep_info.index, package.dep_info.type}
-          },
+          Package{ package.name,
+                   { version, package.dep_info.index, package.dep_info.type } },
           duplicate_deps, interval_cache
       );
     }

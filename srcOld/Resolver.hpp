@@ -118,7 +118,7 @@ inline auto convert_to_download_link(StringRef repository) -> String {
 
     std::ofstream archive(archive_path);
     const auto [host, target] = util::net::parse_url(download_link);
-    const util::net::Requests requests{host};
+    const util::net::Requests requests{ host };
     std::ignore = requests.get(target, {}, std::move(archive));
 
     return Ok(std::make_pair(archive_path, sha256sum));
@@ -141,7 +141,7 @@ using resolve::WithoutDeps;
   Vec<resolve::Package> conan_packages;
 
   for (const auto& [name, dep_info] : deps) {
-    const resolve::Package package{name, dep_info};
+    const resolve::Package package{ name, dep_info };
 
     if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
       conan_packages.push_back(package);
@@ -249,9 +249,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
     // TOML tables should guarantee uniqueness.
     UniqDeps<WithoutDeps> resolvable_deps{};
     for (const auto& [name, table] : dependencies) {
-      poac::core::resolver::resolve::DependencyInfo info = {
-          .index = "poac", .type = "poac"
-      };
+      poac::core::resolver::resolve::DependencyInfo info = { .index = "poac",
+                                                             .type = "poac" };
       if (table.is_table()) {
         const toml::table& entries = table.as_table();
         for (const auto& [n, v] : entries) {
@@ -278,10 +277,9 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
 
 [[nodiscard]] auto get_registries(const toml::value& manifest)
     -> Result<registry::Registries> {
-  registry::Registries regs = {
-      {"poac", {.index = "poac", .type = "poac"}},
-      {"conan-v1", {.index = "conan", .type = "conan-v1"}}
-  };
+  registry::Registries regs = { { "poac", { .index = "poac", .type = "poac" } },
+                                { "conan-v1",
+                                  { .index = "conan", .type = "conan-v1" } } };
   if (!manifest.contains("registries")) {
     return Ok(regs);
   }
@@ -301,7 +299,7 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
     }
     regs.emplace(
         name,
-        registry::Registry{.index = std::move(index), .type = std::move(type)}
+        registry::Registry{ .index = std::move(index), .type = std::move(type) }
     );
   }
   return Ok(regs);

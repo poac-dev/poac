@@ -14,7 +14,7 @@ auto main() -> int {
   using namespace poac::test;
 
   if (has_command("clang-format")) {
-    cfg<override> = {.tag = {"has-cf"}};
+    cfg<override> = { .tag = { "has-cf" } };
   }
 
   tag("has-cf") / "invalid manifest"_test = [] {
@@ -22,6 +22,6 @@ auto main() -> int {
     std::ofstream ofs(temp_dir / "poac.toml");
     ofs << "[package]";
     ofs.close();
-    uitest<Target::Stderr>({"fmt"}, temp_dir);
+    uitest<Target::Stderr>({ "fmt" }, temp_dir);
   };
 }

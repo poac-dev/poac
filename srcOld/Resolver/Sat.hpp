@@ -69,7 +69,7 @@ auto maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
   Map<i32, i32> frequency;
   for (const auto& clause : clauses) {
     for (const auto& literal : clause) {
-      auto result = frequency.insert({literal_to_index(literal), 1});
+      auto result = frequency.insert({ literal_to_index(literal), 1 });
       if (!result.second) {
         result.first->second++;
       }

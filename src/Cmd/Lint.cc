@@ -48,7 +48,7 @@ int lintMain(std::span<const StringRef> args) {
   String cpplintArgs;
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({{"lint"}})
+    HANDLE_GLOBAL_OPTS({ { "lint" } })
 
     else if (arg == "--exclude") {
       if (i + 1 >= args.size()) {

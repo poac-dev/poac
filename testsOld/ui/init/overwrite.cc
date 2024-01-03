@@ -16,6 +16,6 @@ auto main() -> int {
     const fs::path temp_dir = get_temp_dir();
     std::ofstream ofs(temp_dir / "poac.toml");
     ofs.close();
-    uitest<Target::Stderr>({"init"}, temp_dir);
+    uitest<Target::Stderr>({ "init" }, temp_dir);
   };
 }

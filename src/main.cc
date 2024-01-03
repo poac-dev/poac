@@ -35,9 +35,9 @@ struct Cmd {
   }
 
 static inline const HashMap<StringRef, Cmd> CMDS = {
-    DEFINE_CMD(help), DEFINE_CMD(build), DEFINE_CMD(test), DEFINE_CMD(run),
-    DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
-    DEFINE_CMD(fmt),  DEFINE_CMD(lint),
+  DEFINE_CMD(help), DEFINE_CMD(build), DEFINE_CMD(test), DEFINE_CMD(run),
+  DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
+  DEFINE_CMD(fmt),  DEFINE_CMD(lint),
 };
 
 void noSuchCommand(StringRef arg) {
@@ -61,7 +61,7 @@ int helpMain(std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({{"help"}})
+    HANDLE_GLOBAL_OPTS({ { "help" } })
 
     else if (CMDS.contains(arg)) {
       CMDS.at(arg).help();
