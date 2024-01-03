@@ -9,7 +9,7 @@
 //   pre        ::= <defined in Semver.hpp>
 //   build      ::= <defined in Semver.hpp>
 //
-// Note: Whitespace is permitted around versionReq and comparator, not
+// Note: Whitespace is permitted around versionReq, comparator, and
 // optVersion.  Build metadata will be just ignored but accepted by the
 // parser.
 #pragma once

@@ -77,6 +77,12 @@ struct ComparatorLexer {
     ++pos;
   }
 
+  void skipWs() noexcept {
+    while (!isEof() && std::isspace(s[pos])) {
+      step();
+    }
+  }
+
   ComparatorToken next() {
     if (isEof()) {
       return ComparatorToken{ ComparatorToken::Eof };
@@ -183,6 +189,7 @@ struct ComparatorParser {
     // If the first token was comparison operator, the next token must be
     // version.
     if (token.kind != ComparatorToken::Ver) {
+      lexer.skipWs();
       const auto token2 = lexer.next();
       if (token2.kind != ComparatorToken::Ver) {
         throw ComparatorError(
@@ -1104,7 +1111,7 @@ void test_parse() {
       VersionReq::parse(">= >= 0.0.2"), ComparatorError,
       "invalid comparator:\n"
       ">= >= 0.0.2\n"
-      "  ^ expected version"
+      "     ^ expected version"
   );
 
   ASSERT_EXCEPTION(
@@ -1193,6 +1200,9 @@ void test_leading_digit_in_pre_and_build() {
 
 void test_valid_spaces() {
   ASSERT_NO_EXCEPTION(VersionReq::parse("   1.2    "));
+  ASSERT_NO_EXCEPTION(VersionReq::parse(">   1.2.3    "));
+  ASSERT_NO_EXCEPTION(VersionReq::parse("  <1.2.3 &&>= 1.2.3"));
+  ASSERT_NO_EXCEPTION(VersionReq::parse("  <  1.2.3  &&   >=   1.2.3   "));
   ASSERT_NO_EXCEPTION(VersionReq::parse(" <1.2.3     &&   >1    "));
   ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3&& >=1.2.3"));
   ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3  &&>=1.2.3"));
@@ -1201,16 +1211,16 @@ void test_valid_spaces() {
 
 void test_invalid_spaces() {
   ASSERT_EXCEPTION(
-      VersionReq::parse("<   1.2.3"), ComparatorError,
+      VersionReq::parse(" <  =   1.2.3"), ComparatorError,
       "invalid comparator:\n"
-      "<   1.2.3\n"
-      " ^ expected version"
+      " <  =   1.2.3\n"
+      "     ^ expected version"
   );
   ASSERT_EXCEPTION(
-      VersionReq::parse("  <1.2.3 &&>= 1.2.3"), ComparatorError,
-      "invalid comparator:\n"
-      "  <1.2.3 &&>= 1.2.3\n"
-      "             ^ expected version"
+      VersionReq::parse("<1.2.3 & & >=1.2.3"), VersionReqError,
+      "invalid version requirement:\n"
+      "<1.2.3 & & >=1.2.3\n"
+      "       ^ expected `&&`"
   );
 }
 
