@@ -35,7 +35,11 @@ String to_string(const Comparator::Op op) noexcept {
       return "<";
     case Comparator::Lte:
       return "<=";
+    // a good solution would be to have a default case here with an assertion that fails in Debug builds
+    // so that we have a warning if a value goes unhandled (the current solution invokes UB)
   }
+  // tells the compiler that the above switch is fully specified, therefore getting to this point is undefined behaviour
+  __builtin_unreachable();
 }
 
 struct OptVersion {
@@ -371,7 +375,10 @@ bool Comparator::satisfiedBy(const Version& ver) const noexcept {
       return matchesLess(*this, ver);
     case Op::Lte:
       return matchesExact(*this, ver) || matchesLess(*this, ver);
+    // a good solution would be to have a default case here with an assertion that fails in Debug builds
+    // so that we have a warning if a value goes unhandled (the current solution invokes UB)
   }
+  __builtin_unreachable(); // tell the compiler that the switch covers all cases
 }
 
 Comparator Comparator::canonicalize() const noexcept {

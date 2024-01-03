@@ -185,7 +185,8 @@ static void emitTarget(
   for (StringRef dep : dependsOn) {
     if (offset + dep.size() + 2 > 80) { // 2 for space and \.
       // \ for line continuation. \ is the 80th character.
-      os << std::setw(83 - offset) << " \\\n ";
+      os << std::setw(static_cast<i32>(83) - offset) << " \\\n ";
+
       offset = 2;
     }
     os << " " << dep;
