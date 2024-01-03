@@ -72,7 +72,7 @@ sudo port install poac
 
 ### Build from source
 
-If your environment is not included in the released packages, you have to build Poac from the source. You will require the following compilers, tools, and libraries:
+If your environment is not included in the released packages, you have to build Poac from the source. You will require the following compilers, commands, and libraries:
 
 #### Compilers (that support C++20)
 
