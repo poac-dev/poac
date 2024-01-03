@@ -281,7 +281,7 @@ String runMM(const String& sourceFile, const bool isTest = false) {
   } else {
     command += " -MM " + sourceFile;
   }
-  return execShell(command);
+  return getCmdOutput(command);
 }
 
 static OrderedHashSet<String>

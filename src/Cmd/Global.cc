@@ -1,5 +1,6 @@
 #include "Global.hpp"
 
+#include "../Algos.hpp"
 #include "../Rustify.hpp"
 #include "../TermColor.hpp"
 
@@ -60,5 +61,5 @@ bool commandExists(StringRef cmd) noexcept {
   String checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";
-  return std::system(checkCmd.c_str()) == 0;
+  return runCmd(checkCmd) == 0;
 }

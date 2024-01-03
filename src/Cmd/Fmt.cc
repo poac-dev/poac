@@ -88,9 +88,7 @@ int fmtMain(std::span<const StringRef> args) {
   }
 
   const String clangFormat = "clang-format " + clangFormatArgs;
-  Logger::debug("Executing `", clangFormat, '`');
-  const int code = std::system(clangFormat.c_str());
-  const int exitCode = code >> 8;
+  const int exitCode = runCmd(clangFormat);
   if (exitCode != 0) {
     Logger::error("clang-format exited with code ", exitCode);
     return exitCode;

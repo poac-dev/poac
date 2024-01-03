@@ -1,5 +1,6 @@
 #include "Run.hpp"
 
+#include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
@@ -40,9 +41,7 @@ int runMain(std::span<const StringRef> args) {
 
   const String projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
-  Logger::info("Running", command);
-  const int status = std::system(command.c_str());
-  const int exitCode = status >> 8;
+  const int exitCode = runCmd(command);
   return exitCode;
 }
 
