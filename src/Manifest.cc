@@ -418,6 +418,10 @@ Vec<DepMetadata> installDependencies() {
   parseDependencies();
 
   Manifest& manifest = Manifest::instance();
+  if (!manifest.dependencies.has_value()) {
+    return {};
+  }
+
   Vec<DepMetadata> installed;
   for (const auto& dep : manifest.dependencies.value()) {
     std::visit(
