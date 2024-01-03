@@ -399,8 +399,11 @@ DepMetadata SystemDependency::install() const {
   const String cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
   const String libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
 
+  Logger::debug("cflagsCmd: ", cflagsCmd);
   String cflags = execShell(cflagsCmd);
   cflags.pop_back(); // remove '\n'
+
+  Logger::debug("libsCmd: ", libsCmd);
   String libs = execShell(libsCmd);
   libs.pop_back(); // remove '\n'
 
