@@ -1,8 +1,8 @@
 #include "Build.hpp"
 
+#include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
-#include "../Algos.hpp"
 #include "Global.hpp"
 
 #include <chrono>
