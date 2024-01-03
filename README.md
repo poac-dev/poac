@@ -74,18 +74,22 @@ sudo port install poac
 
 If your environment is not included in the released packages, you have to build Poac from the source. You will require the following compilers, tools, and libraries:
 
-#### compilers
+#### Compilers
 
 * Compilers which support C++20
   * GCC: `11` or later
   * Clang: `15` or later
   * Apple Clang: provided by `macOS Monterey (12)` or later
 
-#### tools
+#### Commands
 
-* Make
+* make
+* find
+* grep
+* mkdir
+* rm
 
-#### libraries
+#### Libraries
 
 When running Make, the following libraries will be installed automatically.
 
