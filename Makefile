@@ -78,7 +78,7 @@ $(OUT_DIR)/tests/test_%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/test
 
 $(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o \
   $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Manifest.o \
-  $(OUT_DIR)/Semver.o
+  $(OUT_DIR)/Semver.o $(OUT_DIR)/Algos.o $(OUT_DIR)/VersionReq.o
 	$(CXX) $(CXXFLAGS) $(LIBS) $^ -o $@
 
 $(OUT_DIR)/tests/test_Algos: $(OUT_DIR)/tests/test_Algos.o $(OUT_DIR)/Logger.o \
