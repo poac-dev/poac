@@ -12,7 +12,8 @@
 #include <stdexcept>
 #include <utility>
 
-String execShell(StringRef);
+int runCmd(StringRef);
+String getCmdOutput(StringRef);
 
 template <typename... Args>
 inline String concat(Args&&... args) {

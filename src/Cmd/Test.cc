@@ -1,5 +1,6 @@
 #include "Test.hpp"
 
+#include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 #include "Global.hpp"
@@ -38,10 +39,8 @@ int testMain(std::span<const StringRef> args) {
   const auto start = std::chrono::steady_clock::now();
 
   const String outDir = emitMakefile(isDebug);
-  const int status = std::system(
-      (getMakeCommand(isParallel) + " -C " + outDir + " test").c_str()
-  );
-  const int exitCode = status >> 8;
+  const int exitCode =
+      runCmd(getMakeCommand(isParallel) + " -C " + outDir + " test");
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

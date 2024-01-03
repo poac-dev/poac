@@ -1,5 +1,6 @@
 #include "Lint.hpp"
 
+#include "../Algos.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
@@ -34,9 +35,7 @@ static int lint(StringRef name, StringRef cpplintArgs) {
   }
   cpplintCmd += " --recursive ."; // This should be after `--exclude` options
 
-  Logger::debug("Executing ", cpplintCmd);
-  const int status = std::system(cpplintCmd.c_str());
-  const int exitCode = status >> 8;
+  const int exitCode = runCmd(cpplintCmd);
   if (exitCode != 0) {
     Logger::error("`cpplint` exited with status ", exitCode);
     return EXIT_FAILURE;

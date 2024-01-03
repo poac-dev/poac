@@ -1,5 +1,6 @@
 #include "Build.hpp"
 
+#include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 #include "Global.hpp"
@@ -14,9 +15,7 @@ int buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
 
   outDir = emitMakefile(isDebug);
   const String makeCommand = getMakeCommand(isParallel) + " -C " + outDir;
-  Logger::debug("Running `", makeCommand, '`');
-  const int status = std::system(makeCommand.c_str());
-  const int exitCode = status >> 8;
+  const int exitCode = runCmd(makeCommand);
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

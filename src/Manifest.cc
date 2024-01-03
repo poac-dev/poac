@@ -361,27 +361,34 @@ static void parseDependencies() {
 }
 
 DepMetadata GitDependency::install() const {
-  const String target = this->target.value_or("main");
+  Path installDir = GIT_SRC_DIR / name;
+  if (target.has_value()) {
+    installDir += '-' + target.value();
+  }
 
-  const Path installDir = GIT_SRC_DIR / (name + '-' + target);
   if (fs::exists(installDir) && !fs::is_empty(installDir)) {
     Logger::debug(name, " is already installed");
   } else {
     const String gitCloneCmd = "git clone " + url + " " + installDir.string();
-    if (std::system((gitCloneCmd + " >/dev/null 2>&1").c_str())
-        != EXIT_SUCCESS) {
+    if (runCmd(gitCloneCmd + " >/dev/null 2>&1") != EXIT_SUCCESS) {
       throw std::runtime_error(
           "failed to clone " + url + " to " + installDir.string()
       );
     }
 
-    const String gitResetCmd =
-        "git -C " + installDir.string() + " reset --hard " + target;
-    if (std::system((gitResetCmd + " >/dev/null 2>&1").c_str())
-        != EXIT_SUCCESS) {
-      throw std::runtime_error("failed to reset " + url + " to " + target);
+    if (target.has_value()) {
+      const String target = this->target.value();
+
+      const String gitResetCmd =
+          "git -C " + installDir.string() + " reset --hard " + target;
+      if (runCmd(gitResetCmd + " >/dev/null 2>&1") != EXIT_SUCCESS) {
+        throw std::runtime_error("failed to reset " + url + " to " + target);
+      }
     }
-    Logger::info("Downloaded", name, ' ', target.empty() ? url : target);
+
+    Logger::info(
+        "Downloaded", name, ' ', target.has_value() ? target.value() : url
+    );
   }
 
   const Path includeDir = installDir / "include";
@@ -399,12 +406,9 @@ DepMetadata SystemDependency::install() const {
   const String cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
   const String libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
 
-  Logger::debug("cflagsCmd: ", cflagsCmd);
-  String cflags = execShell(cflagsCmd);
+  String cflags = getCmdOutput(cflagsCmd);
   cflags.pop_back(); // remove '\n'
-
-  Logger::debug("libsCmd: ", libsCmd);
-  String libs = execShell(libsCmd);
+  String libs = getCmdOutput(libsCmd);
   libs.pop_back(); // remove '\n'
 
   return {cflags, libs};

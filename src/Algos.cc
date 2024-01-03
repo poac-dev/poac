@@ -1,14 +1,24 @@
 #include "Algos.hpp"
 
+#include "Logger.hpp"
 #include "Rustify.hpp"
 
 #include <algorithm>
 #include <memory>
 #include <utility>
 
-String execShell(StringRef cmd) {
+int runCmd(StringRef cmd) {
+  Logger::debug("Running `", cmd, '`');
+  const int status = std::system(cmd.data());
+  const int exitCode = status >> 8;
+  return exitCode;
+}
+
+String getCmdOutput(StringRef cmd) {
   std::array<char, 128> buffer;
   String result;
+
+  Logger::debug("Running `", cmd, '`');
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
   if (!pipe) {
     throw std::runtime_error("popen() failed!");
