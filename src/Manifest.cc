@@ -171,7 +171,7 @@ static Profile getProfile(Option<String> profileName) {
     return {};
   }
   if (!manifest.data.value().at("profile").is_table()) {
-    throw PoacError("profile must be a table");
+    throw PoacError("[profile] must be a table");
   }
   auto& table = toml::find<toml::table>(manifest.data.value(), "profile");
 
@@ -180,7 +180,7 @@ static Profile getProfile(Option<String> profileName) {
       return {};
     }
     if (!table.at(profileName.value()).is_table()) {
-      throw PoacError("profile must be a table");
+      throw PoacError("[profile.", profileName.value(), "] must be a table");
     }
     table = toml::find<toml::table>(
         manifest.data.value(), "profile", profileName.value()
