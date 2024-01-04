@@ -474,6 +474,8 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineSimpleVariable("DEFINES", DEFINES);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
   config.defineSimpleVariable("LIBS", LIBS);
+
+  Logger::debug("end of setVariables");
 }
 
 static BuildConfig configureBuild(const bool isDebug) {

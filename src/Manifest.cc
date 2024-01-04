@@ -116,7 +116,7 @@ String getPackageName() {
     throw PoacError("[package.name] is empty");
   }
   manifest.packageName = packageName;
-  Logger::debug("[package.name] is set to ", packageName);
+  Logger::debug("[package.name] is set to `", packageName, '`');
   return packageName;
 }
 
