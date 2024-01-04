@@ -105,13 +105,15 @@ private:
 String getPackageName() {
   Manifest& manifest = Manifest::instance();
   if (manifest.packageName.has_value()) {
+    Logger::debug("[package.name] is cached");
     return manifest.packageName.value();
   }
+  Logger::debug("[package.name] is not cached");
 
   const String packageName =
       toml::find<String>(manifest.data.value(), "package", "name");
   if (packageName.empty()) {
-    throw PoacError("package name is empty");
+    throw PoacError("[package.name] is empty");
   }
   manifest.packageName = packageName;
   return packageName;
