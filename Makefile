@@ -16,8 +16,8 @@ PROJ_NAME := $(OUT_DIR)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 
 DEFINES := -DPOAC_VERSION='"$(VERSION)"'
-INCLUDES := -I$(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags libgit2)
-LIBS := $(shell pkg-config --libs libgit2)
+INCLUDES := -I$(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
+LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
 
 SRCS := $(shell find src -name '*.cc')
 OBJS := $(patsubst src/%,$(OUT_DIR)/%,$(SRCS:.cc=.o))
