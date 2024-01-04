@@ -117,8 +117,8 @@ int main(int argc, char* argv[]) {
         // with i + 2.  As we know args.size() + 1 == argc and args.size() >=
         // i + 1, we can write the range as [i + 2, argc), which is not
         // out-of-range access.
-        const Vec<StringRef> cmd_args(argv + i + 2, argv + argc);
-        return CMDS.at(arg).main(cmd_args);
+        const Vec<StringRef> cmdArgs(argv + i + 2, argv + argc);
+        return CMDS.at(arg).main(cmdArgs);
       } catch (const std::exception& e) {
         Logger::error(e.what());
         return EXIT_FAILURE;

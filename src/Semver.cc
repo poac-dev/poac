@@ -258,7 +258,7 @@ VersionToken VersionLexer::consumeNum() {
       );
     }
 
-    u64 digit = s[pos] - '0';
+    const u64 digit = s[pos] - '0';
     // Check for overflow
     if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
       throw SemverError(
