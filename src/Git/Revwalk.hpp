@@ -10,33 +10,33 @@
 
 namespace git2 {
 
-struct revwalk {
+struct Revwalk {
   git_revwalk* raw = nullptr;
 
-  revwalk() = delete;
-  explicit revwalk(const repository& repo) {
-    git2_throw(git_revwalk_new(&this->raw, repo.raw));
+  Revwalk() = delete;
+  explicit Revwalk(const Repository& repo) {
+    git2Throw(git_revwalk_new(&this->raw, repo.raw));
   }
-  ~revwalk() noexcept {
+  ~Revwalk() noexcept {
     git_revwalk_free(this->raw);
   }
 
-  revwalk(const revwalk&) = delete;
-  revwalk& operator=(const revwalk&) = delete;
-  revwalk(revwalk&&) = default;
-  revwalk& operator=(revwalk&&) = default;
+  Revwalk(const Revwalk&) = delete;
+  Revwalk& operator=(const Revwalk&) = delete;
+  Revwalk(Revwalk&&) = default;
+  Revwalk& operator=(Revwalk&&) = default;
 
   /// Reset a revwalk to allow re-configuring it.
   ///
   /// The revwalk is automatically reset when iteration of its commits
   /// completes.
-  revwalk& reset() {
+  Revwalk& reset() {
     git_revwalk_reset(this->raw);
     return *this;
   }
 
   /// Set the order in which commits are visited.
-  revwalk& set_sorting(unsigned int sort_mode) {
+  Revwalk& setSorting(unsigned int sort_mode) {
     git_revwalk_sorting(this->raw, sort_mode);
     return *this;
   }
@@ -44,7 +44,7 @@ struct revwalk {
   /// Simplify the history by first-parent
   ///
   /// No parents other than the first for each commit will be enqueued.
-  revwalk& simplify_first_parent() {
+  Revwalk& simplifyFirstParent() {
     git_revwalk_simplify_first_parent(this->raw);
     return *this;
   }
@@ -56,16 +56,16 @@ struct revwalk {
   /// The given commit will be used as one of the roots when starting the
   /// revision walk. At least one commit must be pushed onto the walker before
   /// a walk can be started.
-  revwalk& push(const oid& oid_) {
-    git2_throw(git_revwalk_push(this->raw, &oid_.raw));
+  Revwalk& push(const Oid& oid_) {
+    git2Throw(git_revwalk_push(this->raw, &oid_.raw));
     return *this;
   }
 
   /// Push the repository's HEAD
   ///
   /// For more information, see `push`.
-  revwalk& push_head() {
-    git2_throw(git_revwalk_push_head(this->raw));
+  Revwalk& pushHead() {
+    git2Throw(git_revwalk_push_head(this->raw));
     return *this;
   }
 
@@ -79,8 +79,8 @@ struct revwalk {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  revwalk& push_glob(const std::string& glob) {
-    git2_throw(git_revwalk_push_glob(this->raw, glob.c_str()));
+  Revwalk& pushGlob(const std::string& glob) {
+    git2Throw(git_revwalk_push_glob(this->raw, glob.c_str()));
     return *this;
   }
 
@@ -89,30 +89,30 @@ struct revwalk {
   /// The range should be of the form `<commit>..<commit>` where each
   /// `<commit>` is in the form accepted by `revparse_single`. The left-hand
   /// commit will be hidden and the right-hand commit pushed.
-  revwalk& push_range(const std::string& range) {
-    git2_throw(git_revwalk_push_range(this->raw, range.c_str()));
+  Revwalk& pushRange(const std::string& range) {
+    git2Throw(git_revwalk_push_range(this->raw, range.c_str()));
     return *this;
   }
 
   /// Push the OID pointed to by a reference
   ///
   /// The reference must point to a committish.
-  revwalk& push_ref(const std::string& reference) {
-    git2_throw(git_revwalk_push_ref(this->raw, reference.c_str()));
+  Revwalk& pushRef(const std::string& reference) {
+    git2Throw(git_revwalk_push_ref(this->raw, reference.c_str()));
     return *this;
   }
 
   /// Mark a commit as not of interest to this revwalk.
-  revwalk& hide(const oid& oid_) {
-    git2_throw(git_revwalk_hide(this->raw, &oid_.raw));
+  Revwalk& hide(const Oid& oid) {
+    git2Throw(git_revwalk_hide(this->raw, &oid.raw));
     return *this;
   }
 
   /// Hide the repository's HEAD
   ///
   /// For more information, see `hide`.
-  revwalk& hide_head() {
-    git2_throw(git_revwalk_hide_head(this->raw));
+  Revwalk& hideHead() {
+    git2Throw(git_revwalk_hide_head(this->raw));
     return *this;
   }
 
@@ -126,24 +126,24 @@ struct revwalk {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  revwalk& hide_glob(const std::string& glob) {
-    git2_throw(git_revwalk_hide_glob(this->raw, glob.c_str()));
+  Revwalk& hideGlob(const std::string& glob) {
+    git2Throw(git_revwalk_hide_glob(this->raw, glob.c_str()));
     return *this;
   }
 
   /// Hide the OID pointed to by a reference.
   ///
   /// The reference must point to a committish.
-  revwalk& hide_ref(const std::string& reference) {
-    git2_throw(git_revwalk_hide_ref(this->raw, reference.c_str()));
+  Revwalk& hideRef(const std::string& reference) {
+    git2Throw(git_revwalk_hide_ref(this->raw, reference.c_str()));
     return *this;
   }
 
   /// Get the next commit from the revision walk.
-  oid next() {
-    git_oid oid_;
-    git2_throw(git_revwalk_next(&oid_, this->raw)); // FIXME
-    return oid(oid_);
+  Oid next() const {
+    git_oid oid;
+    git2Throw(git_revwalk_next(&oid, this->raw)); // FIXME
+    return Oid(oid);
   }
 };
 

@@ -23,7 +23,7 @@ struct OrderedHashSet {
   OrderedHashSet() = default;
   OrderedHashSet(std::initializer_list<Value> init) {
     for (const Value& value : init) {
-      push_back(value);
+      pushBack(value);
     }
   }
 
@@ -33,21 +33,21 @@ struct OrderedHashSet {
   OrderedHashSet& operator=(OrderedHashSet&&) noexcept = default;
 
   // O(1)
-  void push_back(const Value& value) {
+  void pushBack(const Value& value) {
     if (!set.contains(value)) {
-      list.push_back(value);
+      vec.push_back(value);
       set.insert(value);
     }
   }
 
   // O(1)
   const Value& operator[](usize index) const {
-    return list[index];
+    return vec[index];
   }
   // O(1)
   Value& operator[](const Value& value) {
     if (!set.contains(value)) {
-      list.push_back(value);
+      vec.pushBack(value);
     }
     return set[value];
   }
@@ -67,28 +67,30 @@ struct OrderedHashSet {
   }
 
   Iterator begin() {
-    return list.begin();
+    return vec.begin();
   }
   ConstIterator begin() const {
-    return list.begin();
+    return vec.begin();
   }
 
   Iterator end() {
-    return list.end();
+    return vec.end();
   }
   ConstIterator end() const {
-    return list.end();
+    return vec.end();
   }
 
-  explicit operator std::span<Value>() {
-    return std::span<Value>(&*list.begin(), list.size());
+  // NOLINTBEGIN(google-explicit-constructor)
+  operator std::span<Value>() {
+    return std::span<Value>(&*vec.begin(), vec.size());
   }
-  explicit operator std::span<const Value>() const {
-    return std::span<const Value>(&*list.begin(), list.size());
+  operator std::span<const Value>() const {
+    return std::span<const Value>(&*vec.begin(), vec.size());
   }
+  // NOLINTEND(google-explicit-constructor)
 
 private:
-  Vec<Value> list;
+  Vec<Value> vec;
   HashSet<Value> set;
 };
 

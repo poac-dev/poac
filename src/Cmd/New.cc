@@ -169,7 +169,7 @@ int newMain(std::span<const StringRef> args) {
   }
 
   createTemplateFiles(isBin, packageName);
-  git2::repository().init(packageName);
+  git2::Repository().init(packageName);
   return EXIT_SUCCESS;
 }
 

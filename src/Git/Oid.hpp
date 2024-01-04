@@ -10,33 +10,33 @@
 
 namespace git2 {
 
-struct oid {
+struct Oid {
   git_oid raw;
 
-  explicit oid(const git_oid& raw) : raw(raw) {}
+  explicit Oid(const git_oid& raw) : raw(raw) {}
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit oid(const std::string& str) {
+  explicit Oid(const std::string& str) {
     git2::init();
-    git2_throw(git_oid_fromstrn(&this->raw, str.c_str(), str.size()));
+    git2Throw(git_oid_fromstrn(&this->raw, str.c_str(), str.size()));
   }
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit oid(const std::unique_ptr<unsigned char>& bytes) {
+  explicit Oid(const std::unique_ptr<unsigned char>& bytes) {
     git2::init();
     git_oid_fromraw(&this->raw, bytes.get());
   }
 
-  oid() = delete;
-  ~oid() = default;
+  Oid() = delete;
+  ~Oid() = default;
 
-  oid(const oid&) = default;
-  oid& operator=(const oid&) = default;
-  oid(oid&&) = default;
-  oid& operator=(oid&&) = default;
+  Oid(const Oid&) = default;
+  Oid& operator=(const Oid&) = default;
+  Oid(Oid&&) = default;
+  Oid& operator=(Oid&&) = default;
 
   /// Test if this OID is all zeros.
-  bool is_zero() const {
+  bool isZero() const {
 #if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
     return git_oid_iszero(&raw) == 1;
 #else
@@ -44,12 +44,12 @@ struct oid {
 #endif
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const oid& o) {
+  friend std::ostream& operator<<(std::ostream& os, const Oid& o) {
     return (os << git_oid_tostr_s(&o.raw));
   }
 };
 
-bool operator==(const oid& lhs, const oid& rhs) {
+inline bool operator==(const Oid& lhs, const Oid& rhs) {
   return git_oid_equal(&lhs.raw, &rhs.raw) != 0;
 }
 

@@ -17,11 +17,13 @@
 #include <variant>
 #include <vector>
 
+// NOLINTBEGIN(readability-identifier-naming)
 #ifdef NDEBUG
 #  define unreachable() __builtin_unreachable()
 #else
 #  define unreachable() assert(false && "unreachable")
 #endif
+// NOLINTEND(readability-identifier-naming)
 
 namespace fs = std::filesystem;
 
@@ -91,8 +93,11 @@ inline std::ostream& operator<<(std::ostream& os, const NoneT& /*unused*/) {
   return os << "None";
 }
 
+// NOLINTBEGIN(google-global-names-in-headers)
 using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;
+// NOLINTEND(google-global-names-in-headers)
+
 inline Path operator""_path(const char* str, usize /*unused*/) {
   return str;
 }

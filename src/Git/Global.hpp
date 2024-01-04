@@ -8,14 +8,15 @@
 namespace git2 {
 namespace detail {
 
-  void init() {
-    git2_throw(git_libgit2_init());
+  inline void init() {
+    git2Throw(git_libgit2_init());
   }
 
 } // namespace detail
 
 static inline std::once_flag once;
-void init() {
+
+inline void init() {
   std::call_once(once, detail::init);
 }
 

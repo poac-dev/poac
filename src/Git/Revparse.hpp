@@ -4,7 +4,7 @@
 
 namespace git2 {
 
-struct revspec {
+struct Revspec {
 private:
   git_object* from_ = nullptr;
   git_object* to_ = nullptr;
@@ -12,15 +12,15 @@ private:
 
 public:
   /// Assembles a new revspec from the from/to components.
-  revspec(git_object* from, git_object* to, unsigned int mode)
+  Revspec(git_object* from, git_object* to, unsigned int mode)
       : from_(from), to_(to), mode_(mode) {}
-  revspec() = delete;
-  ~revspec() = default;
+  Revspec() = delete;
+  ~Revspec() = default;
 
-  revspec(const revspec&) = delete;
-  revspec& operator=(const revspec&) = delete;
-  revspec(revspec&&) = default;
-  revspec& operator=(revspec&&) = default;
+  Revspec(const Revspec&) = delete;
+  Revspec& operator=(const Revspec&) = delete;
+  Revspec(Revspec&&) = default;
+  Revspec& operator=(Revspec&&) = default;
 
   /// Access the `from` range of this revspec.
   git_object* from() const noexcept {

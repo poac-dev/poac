@@ -307,7 +307,7 @@ parseMMOutput(const String& mmOutput, String& target) {
       if (dependency.back() == '\n') {
         dependency.pop_back();
       }
-      deps.push_back(dependency);
+      deps.pushBack(dependency);
       Logger::debug(" '", dependency, "'");
     }
   }
@@ -429,7 +429,7 @@ static void collectBinDepObjs(
       // header file.
       continue;
     }
-    deps.push_back(headerObjTarget);
+    deps.pushBack(headerObjTarget);
     Logger::debug("headerObjTarget: added ", headerObjTarget);
     collectBinDepObjs(
         deps, config.targets.at(headerObjTarget).dependsOn, sourceFile,
@@ -520,17 +520,17 @@ static BuildConfig configureBuild(const bool isDebug) {
     );
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
-    objTargetDeps.push_back("|"); // order-only dependency
-    objTargetDeps.push_back(config.buildOutDir);
+    objTargetDeps.pushBack("|"); // order-only dependency
+    objTargetDeps.pushBack(config.buildOutDir);
     Path buildTargetBaseDir = config.buildOutDir;
     if (targetBaseDir != ".") {
       buildTargetBaseDir /= targetBaseDir;
       defineDirTarget(config, buildTargetBaseDir);
-      objTargetDeps.push_back(buildTargetBaseDir);
+      objTargetDeps.pushBack(buildTargetBaseDir);
     }
 
     const String buildObjTarget = buildTargetBaseDir / objTarget;
-    buildObjTargets.push_back(buildObjTarget);
+    buildObjTargets.pushBack(buildObjTarget);
     defineCompileTarget(config, buildObjTarget, objTargetDeps);
   }
   // Project binary target.
@@ -562,13 +562,13 @@ static BuildConfig configureBuild(const bool isDebug) {
     );
 
     // Add a target to create the testTargetBaseDir.
-    objTargetDeps.push_back("|"); // order-only dependency
-    objTargetDeps.push_back(String(TEST_OUT_DIR));
+    objTargetDeps.pushBack("|"); // order-only dependency
+    objTargetDeps.pushBack(String(TEST_OUT_DIR));
     Path testTargetBaseDir = TEST_OUT_DIR;
     if (targetBaseDir != ".") {
       testTargetBaseDir /= targetBaseDir;
       defineDirTarget(config, testTargetBaseDir);
-      objTargetDeps.push_back(testTargetBaseDir);
+      objTargetDeps.pushBack(testTargetBaseDir);
     }
 
     const String testObjTarget =
@@ -597,7 +597,7 @@ static BuildConfig configureBuild(const bool isDebug) {
 
     testCommands.emplace_back(echoCmd("Testing", testTargetName));
     testCommands.emplace_back(buildCmd(testTarget));
-    testTargets.push_back(testTarget);
+    testTargets.pushBack(testTarget);
   }
 
   OrderedHashSet<String> phonies = { "all" };
@@ -605,7 +605,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     // Target to create the tests directory.
     defineDirTarget(config, TEST_OUT_DIR);
     config.defineTarget("test", testCommands, testTargets);
-    phonies.push_back("test");
+    phonies.pushBack("test");
   }
   config.setPhony(phonies);
 

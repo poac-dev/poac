@@ -54,15 +54,15 @@ enum git_error_t {
 };
 #endif
 
-struct exception final : public std::exception {
-  exception() : m_category(GIT_ERROR_NONE) {
+struct Exception final : public std::exception {
+  Exception() : m_category(GIT_ERROR_NONE) {
     if (const git_error* error = git_error_last(); error != nullptr) {
       this->m_message += error->message;
       this->m_category = static_cast<git_error_t>(error->klass);
       git_error_clear();
     }
   }
-  ~exception() noexcept override = default;
+  ~Exception() noexcept override = default;
 
   const char* what() const noexcept override {
     return this->m_message.c_str();
@@ -71,19 +71,19 @@ struct exception final : public std::exception {
     return this->m_category;
   }
 
-  exception(const exception&) = default;
-  exception& operator=(const exception&) = delete;
-  exception(exception&&) = default;
-  exception& operator=(exception&&) = delete;
+  Exception(const Exception&) = default;
+  Exception& operator=(const Exception&) = delete;
+  Exception(Exception&&) = default;
+  Exception& operator=(Exception&&) = delete;
 
 private:
   std::string m_message = "git2-cpp: ";
   git_error_t m_category;
 };
 
-inline int git2_throw(const int ret) {
+inline int git2Throw(const int ret) {
   if (ret < 0) {
-    throw exception();
+    throw Exception();
   }
   return ret;
 }
