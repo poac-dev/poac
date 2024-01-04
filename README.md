@@ -85,7 +85,7 @@ If your environment is not included in the released packages, you have to build 
 
 #### Libraries
 
-* libgit2
+* libgit2: `>=1.1.0 && <2.0.0`
 
 When running Make, the following libraries will be installed automatically.
 
