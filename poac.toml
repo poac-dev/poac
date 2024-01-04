@@ -14,6 +14,9 @@ version = "0.8.0"
 "ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", rev = "01a0e93e5f9bef09a76d22f3d51a5257e3d923fe"}
 libgit2 = {version = "1.1.0", system = true}
 
+[profile]
+cxxflags = ["-Wall", "-Wextra", "-Wpedantic", "-pedantic-errors"]
+
 [profile.release]
 lto = true
 

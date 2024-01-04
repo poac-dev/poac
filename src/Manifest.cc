@@ -53,6 +53,7 @@ struct SystemDependency {
 };
 
 void Profile::merge(const Profile& other) {
+  cxxflags.insert(other.cxxflags.begin(), other.cxxflags.end());
   if (!lto) { // false is the default value
     lto = other.lto;
   }
@@ -168,8 +169,38 @@ Version getPackageVersion() {
   return version;
 }
 
+static void validateCxxflag(StringRef cxxflag) {
+  // cxxflag must start with `-`
+  if (cxxflag.empty() || cxxflag[0] != '-') {
+    throw PoacError("cxxflag must start with `-`");
+  }
+
+  // cxxflag only contains alphanumeric characters, `-`, `_`, `=`, `+`, `:`,
+  // or `.`.
+  for (const char c : cxxflag) {
+    if (!std::isalnum(c) && c != '-' && c != '_' && c != '=' && c != '+'
+        && c != ':' && c != '.') {
+      throw PoacError(
+          "cxxflag must only contain alphanumeric characters, `-`, `_`, `=`, "
+          "`+`, `:`, or `.`"
+      );
+    }
+  }
+}
+
 static Profile parseProfile(const toml::table& table) {
   Profile profile;
+  if (table.contains("cxxflags") && table.at("cxxflags").is_array()) {
+    const auto& cxxflags = table.at("cxxflags").as_array();
+    for (const auto& flag : cxxflags) {
+      if (!flag.is_string()) {
+        throw PoacError("[profile.cxxflags] must be an array of strings");
+      }
+      const String flagStr = flag.as_string();
+      validateCxxflag(flagStr);
+      profile.cxxflags.insert(flagStr);
+    }
+  }
   if (table.contains("lto") && table.at("lto").is_boolean()) {
     profile.lto = table.at("lto").as_boolean();
   }
