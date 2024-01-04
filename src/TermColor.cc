@@ -42,8 +42,8 @@ public:
   }
 
   static ColorState& instance() noexcept {
-    static ColorState instance;
-    return instance;
+    static ColorState INSTANCE;
+    return INSTANCE;
   }
 
 private:

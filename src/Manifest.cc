@@ -19,16 +19,16 @@
 static Path findManifest() {
   Path candidate = fs::current_path();
   while (true) {
-    const Path config_path = candidate / "poac.toml";
-    Logger::debug("Finding manifest: ", config_path);
-    if (fs::exists(config_path)) {
-      return config_path;
+    const Path configPath = candidate / "poac.toml";
+    Logger::debug("Finding manifest: ", configPath);
+    if (fs::exists(configPath)) {
+      return configPath;
     }
 
-    const Path parent_path = candidate.parent_path();
+    const Path parentPath = candidate.parent_path();
     if (candidate.has_parent_path()
-        && parent_path != candidate.root_directory()) {
-      candidate = parent_path;
+        && parentPath != candidate.root_directory()) {
+      candidate = parentPath;
     } else {
       break;
     }
@@ -61,9 +61,9 @@ void Profile::merge(const Profile& other) {
 
 struct Manifest {
   static Manifest& instance() noexcept {
-    static Manifest instance;
-    instance.load();
-    return instance;
+    static Manifest INSTANCE;
+    INSTANCE.load();
+    return INSTANCE;
   }
 
   void load() {
@@ -288,8 +288,8 @@ Vec<String> getLintCpplintFilters() {
 }
 
 static Path getXdgCacheHome() {
-  if (const char* env_p = std::getenv("XDG_CACHE_HOME")) {
-    return env_p;
+  if (const char* envP = std::getenv("XDG_CACHE_HOME")) {
+    return envP;
   }
   const Path userDir = std::getenv("HOME");
   return userDir / ".cache";

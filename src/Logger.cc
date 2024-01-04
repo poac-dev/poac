@@ -1,8 +1,8 @@
 #include "Logger.hpp"
 
 Logger& Logger::instance() noexcept {
-  static Logger instance;
-  return instance;
+  static Logger INSTANCE;
+  return INSTANCE;
 }
 
 void Logger::setLevel(LogLevel level) noexcept {
