@@ -16,7 +16,6 @@ Checks: -*
   -cert-dcl03-c
   clang-analyzer-*
   google-*
-  -google-build-using-namespace
   -google-readability-todo
   misc-*
   -misc-no-recursion
