@@ -458,9 +458,7 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   } else {
     CXXFLAGS += " -O3 -DNDEBUG";
   }
-  Logger::debug("getting profile");
   const Profile profile = isDebug ? getDebugProfile() : getReleaseProfile();
-  Logger::debug("get profile");
   if (profile.lto) {
     CXXFLAGS += " -flto";
   }
@@ -476,8 +474,6 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineSimpleVariable("DEFINES", DEFINES);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
   config.defineSimpleVariable("LIBS", LIBS);
-
-  Logger::debug("end of setVariables");
 }
 
 static BuildConfig configureBuild(const bool isDebug) {
