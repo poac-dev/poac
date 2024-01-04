@@ -26,6 +26,7 @@ static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
 static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
+static String CXXFLAGS = " -Wall -Wextra -pedantic-errors -std=c++";
 static String DEFINES;
 static String INCLUDES = " -Iinclude";
 static String LIBS;
@@ -251,8 +252,8 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     const String file = targetInfo.dependsOn[0];
     // The output is the target.
     const String output = target;
-    const String cmd = CXX + ' ' + variables.at("CXXFLAGS").value + DEFINES
-                       + INCLUDES + " -c " + file + " -o " + output;
+    const String cmd = CXX + ' ' + CXXFLAGS + DEFINES + INCLUDES + " -c " + file
+                       + " -o " + output;
 
     ss << firstIdent << "{\n";
     ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
@@ -435,17 +436,21 @@ static void collectBinDepObjs(
 
 static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVariable("CXX", CXX);
-  String cxxflags =
-      "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
+
+  CXXFLAGS += getPackageEdition();
   if (shouldColor()) {
-    cxxflags += " -fdiagnostics-color";
+    CXXFLAGS += " -fdiagnostics-color";
   }
   if (isDebug) {
-    cxxflags += " -g -O0 -DDEBUG";
+    CXXFLAGS += " -g -O0 -DDEBUG";
   } else {
-    cxxflags += " -O3 -DNDEBUG";
+    CXXFLAGS += " -O3 -DNDEBUG";
   }
-  config.defineSimpleVariable("CXXFLAGS", cxxflags);
+  const Profile profile = isDebug ? getDebugProfile() : getReleaseProfile();
+  if (profile.lto) {
+    CXXFLAGS += " -flto";
+  }
+  config.defineSimpleVariable("CXXFLAGS", CXXFLAGS);
 
   String packageNameUpper = config.packageName;
   std::transform(

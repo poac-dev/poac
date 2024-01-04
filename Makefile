@@ -3,7 +3,7 @@ PREFIX ?= /usr/local
 INSTALL ?= install
 
 DEBUG_FLAGS := -g -O0 -DDEBUG
-RELEASE_FLAGS := -O3 -DNDEBUG
+RELEASE_FLAGS := -O3 -DNDEBUG -flto
 CXXFLAGS := -Wall -Wextra -fdiagnostics-color -pedantic-errors -std=c++20
 ifeq ($(RELEASE), 1)
 	CXXFLAGS += $(RELEASE_FLAGS)
