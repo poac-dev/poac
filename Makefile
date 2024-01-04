@@ -1,4 +1,5 @@
 CXX ?= clang++
+CLANG_TIDY ?= clang-tidy
 PREFIX ?= /usr/local
 INSTALL ?= install
 XDG_CACHE_HOME ?= $(HOME)/.cache
@@ -110,4 +111,4 @@ $(OUT_DIR)/tests:
 
 
 tidy:
-	clang-tidy $(SRCS) -- $(CXXFLAGS) $(DEFINES) $(INCLUDES) -isystem $(XDG_CACHE_HOME)/poac
+	$(CLANG_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) $(INCLUDES) -isystem $(XDG_CACHE_HOME)/poac
