@@ -47,7 +47,7 @@ int lintMain(std::span<const StringRef> args) {
   // Parse args
   String cpplintArgs;
   for (usize i = 0; i < args.size(); ++i) {
-    StringRef arg = args[i];
+    const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "lint" } })
 
     else if (arg == "--exclude") {
@@ -90,7 +90,7 @@ int lintMain(std::span<const StringRef> args) {
   if (!cpplintFilters.empty()) {
     Logger::debug("Using Poac manifest file for lint ...");
     cpplintArgs += " --filter=";
-    for (StringRef filter : cpplintFilters) {
+    for (const StringRef filter : cpplintFilters) {
       cpplintArgs += filter;
       cpplintArgs += ',';
     }

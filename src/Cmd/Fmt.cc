@@ -17,7 +17,7 @@ int fmtMain(std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
-    StringRef arg = args[i];
+    const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "fmt" } })
 
     else if (arg == "--check") {

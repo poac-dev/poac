@@ -184,7 +184,7 @@ static void emitTarget(
   os << target << ":";
   offset += target.size() + 2; // : and space
 
-  for (StringRef dep : dependsOn) {
+  for (const StringRef dep : dependsOn) {
     if (offset + dep.size() + 2 > 80) { // 2 for space and \.
       // \ for line continuation. \ is the 80th character.
       os << std::setw(83 - offset) << " \\\n ";
@@ -195,7 +195,7 @@ static void emitTarget(
   }
   os << '\n';
 
-  for (StringRef cmd : commands) {
+  for (const StringRef cmd : commands) {
     os << '\t' << cmd << '\n';
   }
   os << '\n';
@@ -235,7 +235,7 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     }
 
     bool isCompileTarget = false;
-    for (StringRef cmd : targetInfo.commands) {
+    for (const StringRef cmd : targetInfo.commands) {
       if (!cmd.starts_with("$(CXX)") && !cmd.starts_with("@$(CXX)")) {
         continue;
       }
@@ -591,7 +591,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     );
     defineLinkTarget(config, testTarget, testTargetDeps);
     Logger::debug(testTarget, ':');
-    for (StringRef dep : testTargetDeps) {
+    for (const StringRef dep : testTargetDeps) {
       Logger::debug(" '", dep, "'");
     }
 

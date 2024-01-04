@@ -21,7 +21,6 @@ Checks: -*
   -misc-no-recursion
   -misc-use-anonymous-namespace
   -misc-include-cleaner
-  -misc-const-correctness
   -misc-static-assert
   performance-*
   portability-*

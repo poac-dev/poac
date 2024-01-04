@@ -20,7 +20,9 @@ String getCmdOutput(StringRef cmd) {
   String result;
 
   Logger::debug("Running `", cmd, '`');
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
+  const std::unique_ptr<FILE, decltype(&pclose)> pipe(
+      popen(cmd.data(), "r"), pclose
+  );
   if (!pipe) {
     throw PoacError("popen() failed!");
   }
@@ -33,7 +35,7 @@ String getCmdOutput(StringRef cmd) {
 // O(M) where M is the length of the word.
 void trieInsert(TrieNode& root, StringRef word) {
   TrieNode* node = &root;
-  for (char ch : word) {
+  for (const char ch : word) {
     if (!node->children.contains(ch)) {
       node->children[ch] = std::make_unique<TrieNode>();
     }
@@ -45,7 +47,7 @@ void trieInsert(TrieNode& root, StringRef word) {
 // O(M) where M is the length of the word.
 bool trieSearch(const TrieNode& root, StringRef word) {
   const TrieNode* node = &root;
-  for (char ch : word) {
+  for (const char ch : word) {
     if (!node->children.contains(ch)) {
       return false;
     }
@@ -62,7 +64,7 @@ bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word) {
   for (usize i = 0; i < word.size(); ++i) {
     const TrieNode* node = &root;
     for (usize j = i; j < word.size(); ++j) {
-      char ch = word[j];
+      const char ch = word[j];
       if (!node->children.contains(ch)) {
         break;
       }

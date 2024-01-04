@@ -60,7 +60,7 @@ void noSuchCommand(StringRef arg) {
 int helpMain(std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
-    StringRef arg = args[i];
+    const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "help" } })
 
     else if (CMDS.contains(arg)) {
@@ -97,9 +97,9 @@ int main(int argc, char* argv[]) {
   // poac --verbose run --release help --color always --verbose
   // ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // [global]       [run]         [help (under run)]
-  std::span<char* const> args(argv + 1, argv + argc);
+  const std::span<char* const> args(argv + 1, argv + argc);
   for (usize i = 0; i < args.size(); ++i) {
-    StringRef arg = args[i];
+    const StringRef arg = args[i];
 
     // Global options (which are not command-specific)
     HANDLE_GLOBAL_OPTS({})

@@ -14,7 +14,7 @@
 int versionMain(std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
-    StringRef arg = args[i];
+    const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "version" } })
 
     else {
