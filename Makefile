@@ -111,4 +111,4 @@ $(OUT_DIR)/tests:
 
 
 tidy:
-	$(CLANG_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) $(INCLUDES) -isystem $(XDG_CACHE_HOME)/poac
+	$(CLANG_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES) -isystem $(XDG_CACHE_HOME)/poac

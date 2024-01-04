@@ -681,7 +681,7 @@ String getMakeCommand(const bool isParallel) {
 
 #  include "TestUtils.hpp"
 
-void test_cycle_vars() {
+void testCycleVars() {
   BuildConfig config;
   config.defineSimpleVariable("a", "b", { "b" });
   config.defineSimpleVariable("b", "c", { "c" });
@@ -691,7 +691,7 @@ void test_cycle_vars() {
                                          "too complex build graph");
 }
 
-void test_simple_vars() {
+void testSimpleVars() {
   BuildConfig config;
   config.defineSimpleVariable("c", "3", { "b" });
   config.defineSimpleVariable("b", "2", { "a" });
@@ -708,7 +708,7 @@ void test_simple_vars() {
   );
 }
 
-void test_depend_on_unregistered_var() {
+void testDependOnUnregisteredVar() {
   BuildConfig config;
   config.defineSimpleVariable("a", "1", { "b" });
 
@@ -718,7 +718,7 @@ void test_depend_on_unregistered_var() {
   ASSERT_EQ(ss.str(), "a := 1\n");
 }
 
-void test_cycle_targets() {
+void testCycleTargets() {
   BuildConfig config;
   config.defineTarget("a", { "echo a" }, { "b" });
   config.defineTarget("b", { "echo b" }, { "c" });
@@ -728,7 +728,7 @@ void test_cycle_targets() {
                                          "too complex build graph");
 }
 
-void test_simple_targets() {
+void testSimpleTargets() {
   BuildConfig config;
   config.defineTarget("a", { "echo a" });
   config.defineTarget("b", { "echo b" }, { "a" });
@@ -751,7 +751,7 @@ void test_simple_targets() {
   );
 }
 
-void test_depend_on_unregistered_target() {
+void testDependOnUnregisteredTarget() {
   BuildConfig config;
   config.defineTarget("a", { "echo a" }, { "b" });
 
@@ -767,11 +767,11 @@ void test_depend_on_unregistered_target() {
 }
 
 int main() {
-  REGISTER_TEST(test_cycle_vars);
-  REGISTER_TEST(test_simple_vars);
-  REGISTER_TEST(test_depend_on_unregistered_var);
-  REGISTER_TEST(test_cycle_targets);
-  REGISTER_TEST(test_simple_targets);
-  REGISTER_TEST(test_depend_on_unregistered_target);
+  REGISTER_TEST(testCycleVars);
+  REGISTER_TEST(testSimpleVars);
+  REGISTER_TEST(testDependOnUnregisteredVar);
+  REGISTER_TEST(testCycleTargets);
+  REGISTER_TEST(testSimpleTargets);
+  REGISTER_TEST(testDependOnUnregisteredTarget);
 }
 #endif

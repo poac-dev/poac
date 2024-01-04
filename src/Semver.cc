@@ -445,7 +445,7 @@ Version Version::parse(StringRef s) {
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/55fa2cadd6ec95be02e5a2a87b24355304e44d40/tests/test_version.rs#L13
 
-void test_parse() {
+void testParse() {
   ASSERT_EXCEPTION(
       Version::parse(""), SemverError,
       "invalid semver:\n"
@@ -572,7 +572,7 @@ void test_parse() {
   );
 }
 
-void test_eq() {
+void testEq() {
   ASSERT_EQ(Version::parse("1.2.3"), Version::parse("1.2.3"));
   ASSERT_EQ(Version::parse("1.2.3-alpha1"), Version::parse("1.2.3-alpha1"));
   ASSERT_EQ(Version::parse("1.2.3+build.42"), Version::parse("1.2.3+build.42"));
@@ -581,7 +581,7 @@ void test_eq() {
   );
 }
 
-void test_ne() {
+void testNe() {
   ASSERT_NE(Version::parse("0.0.0"), Version::parse("0.0.1"));
   ASSERT_NE(Version::parse("0.0.0"), Version::parse("0.1.0"));
   ASSERT_NE(Version::parse("0.0.0"), Version::parse("1.0.0"));
@@ -589,7 +589,7 @@ void test_ne() {
   ASSERT_NE(Version::parse("1.2.3+23"), Version::parse("1.2.3+42"));
 }
 
-void test_display() {
+void testDisplay() {
   {
     std::ostringstream oss;
     oss << Version::parse("1.2.3");
@@ -612,7 +612,7 @@ void test_display() {
   }
 }
 
-void test_lt() {
+void testLt() {
   ASSERT_LT(Version::parse("0.0.0"), Version::parse("1.2.3-alpha2"));
   ASSERT_LT(Version::parse("1.0.0"), Version::parse("1.2.3-alpha2"));
   ASSERT_LT(Version::parse("1.2.0"), Version::parse("1.2.3-alpha2"));
@@ -622,7 +622,7 @@ void test_lt() {
   ASSERT_LT(Version::parse("1.2.3+23"), Version::parse("1.2.3+42"));
 }
 
-void test_le() {
+void testLe() {
   ASSERT_TRUE(Version::parse("0.0.0") <= Version::parse("1.2.3-alpha2"));
   ASSERT_TRUE(Version::parse("1.0.0") <= Version::parse("1.2.3-alpha2"));
   ASSERT_TRUE(Version::parse("1.2.0") <= Version::parse("1.2.3-alpha2"));
@@ -631,7 +631,7 @@ void test_le() {
   ASSERT_TRUE(Version::parse("1.2.3+23") <= Version::parse("1.2.3+42"));
 }
 
-void test_gt() {
+void testGt() {
   ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("0.0.0"));
   ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("1.0.0"));
   ASSERT_TRUE(Version::parse("1.2.3-alpha2") > Version::parse("1.2.0"));
@@ -641,7 +641,7 @@ void test_gt() {
   ASSERT_FALSE(Version::parse("1.2.3+23") > Version::parse("1.2.3+42"));
 }
 
-void test_ge() {
+void testGe() {
   ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("0.0.0"));
   ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("1.0.0"));
   ASSERT_TRUE(Version::parse("1.2.3-alpha2") >= Version::parse("1.2.0"));
@@ -650,7 +650,7 @@ void test_ge() {
   ASSERT_FALSE(Version::parse("1.2.3+23") >= Version::parse("1.2.3+42"));
 }
 
-void test_spec_order() {
+void testSpecOrder() {
   const Vec<String> vs = {
     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
     "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
@@ -661,15 +661,15 @@ void test_spec_order() {
 }
 
 int main() {
-  REGISTER_TEST(test_parse);
-  REGISTER_TEST(test_eq);
-  REGISTER_TEST(test_ne);
-  REGISTER_TEST(test_display);
-  REGISTER_TEST(test_lt);
-  REGISTER_TEST(test_le);
-  REGISTER_TEST(test_gt);
-  REGISTER_TEST(test_ge);
-  REGISTER_TEST(test_spec_order);
+  REGISTER_TEST(testParse);
+  REGISTER_TEST(testEq);
+  REGISTER_TEST(testNe);
+  REGISTER_TEST(testDisplay);
+  REGISTER_TEST(testLt);
+  REGISTER_TEST(testLe);
+  REGISTER_TEST(testGt);
+  REGISTER_TEST(testGe);
+  REGISTER_TEST(testSpecOrder);
 }
 
 #endif

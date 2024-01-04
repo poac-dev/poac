@@ -160,15 +160,15 @@ findSimilarStr(StringRef lhs, std::span<const StringRef> candidates) {
 
 #  include <limits>
 
-void test_levDistance() {
+void testLevDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
-    String str = String(1, c);
+    const String str(1, c);
     ASSERT_EQ(levDistance(str, str), 0);
   }
 }
 
-void test_levDistance2() {
+void testLevDistance2() {
   constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
@@ -194,7 +194,7 @@ void test_levDistance2() {
 // ref:
 // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
 
-void test_findSimilarStr() {
+void testFindSimilarStr() {
   constexpr Arr<StringRef, 8> CANDIDATES{
     "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
   };
@@ -215,7 +215,7 @@ void test_findSimilarStr() {
   ASSERT_EQ(findSimilarStr("special_compiler_directive", CANDIDATES), None);
 }
 
-void test_findSimilarStr2() {
+void testFindSimilarStr2() {
   constexpr Arr<StringRef, 2> CANDIDATES{ "aaab", "aaabc" };
   ASSERT_EQ(findSimilarStr("aaaa", CANDIDATES), "aaab"sv);
   ASSERT_EQ(findSimilarStr("1111111111", CANDIDATES), None);
@@ -225,10 +225,10 @@ void test_findSimilarStr2() {
 }
 
 int main() {
-  REGISTER_TEST(test_levDistance);
-  REGISTER_TEST(test_levDistance2);
-  REGISTER_TEST(test_findSimilarStr);
-  REGISTER_TEST(test_findSimilarStr2);
+  REGISTER_TEST(testLevDistance);
+  REGISTER_TEST(testLevDistance2);
+  REGISTER_TEST(testFindSimilarStr);
+  REGISTER_TEST(testFindSimilarStr2);
 }
 
 #endif
