@@ -75,8 +75,8 @@ struct Comparator {
 
   static Comparator parse(StringRef);
   void from(const OptVersion&) noexcept;
-  String to_string() const noexcept;
-  String to_pkg_config_string() const noexcept;
+  String toString() const noexcept;
+  String toPkgConfigString() const noexcept;
   bool satisfiedBy(const Version&) const noexcept;
   Comparator canonicalize() const noexcept;
 };
@@ -87,8 +87,8 @@ struct VersionReq {
 
   static VersionReq parse(StringRef);
   bool satisfiedBy(const Version&) const noexcept;
-  String to_string() const noexcept;
-  String to_pkg_config_string(const String&) const noexcept;
+  String toString() const noexcept;
+  String toPkgConfigString(const String&) const noexcept;
   VersionReq canonicalize() const noexcept;
 };
 

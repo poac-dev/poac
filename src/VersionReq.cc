@@ -23,7 +23,7 @@ struct VersionReqError : public PoacError {
       ) {}
 };
 
-String to_string(const Comparator::Op op) noexcept {
+String toString(const Comparator::Op op) noexcept {
   switch (op) {
     case Comparator::Exact:
       return "=";
@@ -227,25 +227,25 @@ void optVersionString(const Comparator& cmp, String& result) noexcept {
 
       if (!cmp.pre.empty()) {
         result += "-";
-        result += cmp.pre.to_string();
+        result += cmp.pre.toString();
       }
     }
   }
 }
 
-String Comparator::to_string() const noexcept {
+String Comparator::toString() const noexcept {
   String result;
   if (op.has_value()) {
-    result += ::to_string(op.value());
+    result += ::toString(op.value());
   }
   optVersionString(*this, result);
   return result;
 }
 
-String Comparator::to_pkg_config_string() const noexcept {
+String Comparator::toPkgConfigString() const noexcept {
   String result;
   if (op.has_value()) {
-    result += ::to_string(op.value());
+    result += ::toString(op.value());
     result += ' '; // we just need this space for pkg-config
   }
   optVersionString(*this, result);
@@ -791,31 +791,31 @@ VersionReq VersionReq::canonicalize() const noexcept {
   return req;
 }
 
-String VersionReq::to_string() const noexcept {
-  String result = left.to_string();
+String VersionReq::toString() const noexcept {
+  String result = left.toString();
   if (right.has_value()) {
     result += " && ";
-    result += right->to_string();
+    result += right->toString();
   }
   return result;
 }
 
-String VersionReq::to_pkg_config_string(const String& name) const noexcept {
+String VersionReq::toPkgConfigString(const String& name) const noexcept {
   // For pkg-config, canonicalization is necessary.
   const VersionReq req = canonicalize();
 
   String result = name;
   result += ' ';
-  result += req.left.to_pkg_config_string();
+  result += req.left.toPkgConfigString();
   if (req.right.has_value()) {
     result += ", " + name + ' ';
-    result += req.right->to_pkg_config_string();
+    result += req.right->toPkgConfigString();
   }
   return result;
 }
 
 std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
-  return os << req.to_string();
+  return os << req.toString();
 }
 
 #ifdef POAC_TEST
@@ -843,45 +843,45 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 void test_basic() {
   const auto req = VersionReq::parse("1.0.0");
-  ASSERT_EQ(req.to_string(), "1.0.0");
+  ASSERT_EQ(req.toString(), "1.0.0");
   ASSERT_MATCH_ALL(req, "1.0.0", "1.1.0", "1.0.1");
   ASSERT_MATCH_NONE(req, "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre", "1.0.1-pre");
 }
 
 void test_exact() {
   const auto r1 = VersionReq::parse("=1.0.0");
-  ASSERT_EQ(r1.to_string(), "=1.0.0");
+  ASSERT_EQ(r1.toString(), "=1.0.0");
   ASSERT_MATCH_ALL(r1, "1.0.0");
   ASSERT_MATCH_NONE(r1, "1.0.1", "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre");
 
   const auto r2 = VersionReq::parse("=0.9.0");
-  ASSERT_EQ(r2.to_string(), "=0.9.0");
+  ASSERT_EQ(r2.toString(), "=0.9.0");
   ASSERT_MATCH_ALL(r2, "0.9.0");
   ASSERT_MATCH_NONE(r2, "0.9.1", "1.9.0", "0.0.9", "0.9.0-pre");
 
   const auto r3 = VersionReq::parse("=0.0.2");
-  ASSERT_EQ(r3.to_string(), "=0.0.2");
+  ASSERT_EQ(r3.toString(), "=0.0.2");
   ASSERT_MATCH_ALL(r3, "0.0.2");
   ASSERT_MATCH_NONE(r3, "0.0.1", "0.0.3", "0.0.2-pre");
 
   const auto r4 = VersionReq::parse("=0.1.0-beta2.a");
-  ASSERT_EQ(r4.to_string(), "=0.1.0-beta2.a");
+  ASSERT_EQ(r4.toString(), "=0.1.0-beta2.a");
   ASSERT_MATCH_ALL(r4, "0.1.0-beta2.a");
   ASSERT_MATCH_NONE(r4, "0.9.1", "0.1.0", "0.1.1-beta2.a", "0.1.0-beta2");
 
   const auto r5 = VersionReq::parse("=0.1.0+meta");
-  ASSERT_EQ(r5.to_string(), "=0.1.0");
+  ASSERT_EQ(r5.toString(), "=0.1.0");
   ASSERT_MATCH_ALL(r5, "0.1.0", "0.1.0+meta", "0.1.0+any");
 }
 
 void test_greater_than() {
   const auto r1 = VersionReq::parse(">=1.0.0");
-  ASSERT_EQ(r1.to_string(), ">=1.0.0");
+  ASSERT_EQ(r1.toString(), ">=1.0.0");
   ASSERT_MATCH_ALL(r1, "1.0.0", "2.0.0");
   ASSERT_MATCH_NONE(r1, "0.1.0", "0.0.1", "1.0.0-pre", "2.0.0-pre");
 
   const auto r2 = VersionReq::parse(">=2.1.0-alpha2");
-  ASSERT_EQ(r2.to_string(), ">=2.1.0-alpha2");
+  ASSERT_EQ(r2.toString(), ">=2.1.0-alpha2");
   ASSERT_MATCH_ALL(r2, "2.1.0-alpha2", "2.1.0-alpha3", "2.1.0", "3.0.0");
   ASSERT_MATCH_NONE(
       r2, "2.0.0", "2.1.0-alpha1", "2.0.0-alpha2", "3.0.0-alpha2"
@@ -890,7 +890,7 @@ void test_greater_than() {
 
 void test_less_than() {
   const auto r1 = VersionReq::parse("<1.0.0");
-  ASSERT_EQ(r1.to_string(), "<1.0.0");
+  ASSERT_EQ(r1.toString(), "<1.0.0");
   ASSERT_MATCH_ALL(r1, "0.1.0", "0.0.1");
   ASSERT_MATCH_NONE(r1, "1.0.0", "1.0.0-beta", "1.0.1", "0.9.9-alpha");
 
@@ -962,16 +962,16 @@ void test_no_op() {
 
 void test_multiple() {
   const auto r1 = VersionReq::parse(">0.0.9 && <=2.5.3");
-  ASSERT_EQ(r1.to_string(), ">0.0.9 && <=2.5.3");
+  ASSERT_EQ(r1.toString(), ">0.0.9 && <=2.5.3");
   ASSERT_MATCH_ALL(r1, "0.0.10", "1.0.0", "2.5.3");
   ASSERT_MATCH_NONE(r1, "0.0.8", "2.5.4");
 
   const auto r2 = VersionReq::parse("<=0.2.0 && >=0.5.0");
-  ASSERT_EQ(r2.to_string(), "<=0.2.0 && >=0.5.0");
+  ASSERT_EQ(r2.toString(), "<=0.2.0 && >=0.5.0");
   ASSERT_MATCH_NONE(r2, "0.0.8", "0.3.0", "0.5.1");
 
   const auto r3 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
-  ASSERT_EQ(r3.to_string(), ">=0.5.1-alpha3 && <0.6");
+  ASSERT_EQ(r3.toString(), ">=0.5.1-alpha3 && <0.6");
   ASSERT_MATCH_ALL(
       r3, "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5"
   );
@@ -988,7 +988,7 @@ void test_multiple() {
   );
 
   const auto r4 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
-  ASSERT_EQ(r4.to_string(), ">=0.5.1-alpha3 && <0.6");
+  ASSERT_EQ(r4.toString(), ">=0.5.1-alpha3 && <0.6");
   ASSERT_MATCH_ALL(
       r4, "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5"
   );
@@ -1013,90 +1013,90 @@ void test_pre() {
 void test_canonicalize_no_op() {
   // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
   ASSERT_EQ(
-      VersionReq::parse("1.2.3").canonicalize().to_string(), ">=1.2.3 && <2.0.0"
+      VersionReq::parse("1.2.3").canonicalize().toString(), ">=1.2.3 && <2.0.0"
   );
 
   // 1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
   ASSERT_EQ(
-      VersionReq::parse("1.2").canonicalize().to_string(), ">=1.2.0 && <2.0.0"
+      VersionReq::parse("1.2").canonicalize().toString(), ">=1.2.0 && <2.0.0"
   );
 
   // 1.3. `A` is equivalent to `=A` (i.e., 2.3)
   ASSERT_EQ(
-      VersionReq::parse("1").canonicalize().to_string(), ">=1.0.0 && <2.0.0"
+      VersionReq::parse("1").canonicalize().toString(), ">=1.0.0 && <2.0.0"
   );
 
   // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
   ASSERT_EQ(
-      VersionReq::parse("0.2.3").canonicalize().to_string(), ">=0.2.3 && <0.3.0"
+      VersionReq::parse("0.2.3").canonicalize().toString(), ">=0.2.3 && <0.3.0"
   );
 
   // 1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
-  ASSERT_EQ(VersionReq::parse("0.0.3").canonicalize().to_string(), "=0.0.3");
+  ASSERT_EQ(VersionReq::parse("0.0.3").canonicalize().toString(), "=0.0.3");
 
   // 1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
   ASSERT_EQ(
-      VersionReq::parse("0.0").canonicalize().to_string(), ">=0.0.0 && <0.1.0"
+      VersionReq::parse("0.0").canonicalize().toString(), ">=0.0.0 && <0.1.0"
   );
 }
 
 void test_canonicalize_exact() {
   // 2.1. `=A.B.C` is exactly the version `A.B.C`
-  ASSERT_EQ(VersionReq::parse("=1.2.3").canonicalize().to_string(), "=1.2.3");
+  ASSERT_EQ(VersionReq::parse("=1.2.3").canonicalize().toString(), "=1.2.3");
 
   // 2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
   ASSERT_EQ(
-      VersionReq::parse("=1.2").canonicalize().to_string(), ">=1.2.0 && <1.3.0"
+      VersionReq::parse("=1.2").canonicalize().toString(), ">=1.2.0 && <1.3.0"
   );
 
   // 2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
   ASSERT_EQ(
-      VersionReq::parse("=1").canonicalize().to_string(), ">=1.0.0 && <2.0.0"
+      VersionReq::parse("=1").canonicalize().toString(), ">=1.0.0 && <2.0.0"
   );
 }
 
 void test_canonicalize_gt() {
   // 3.1. `>A.B.C` is equivalent to `>=A.B.(C+1)`
-  ASSERT_EQ(VersionReq::parse(">1.2.3").canonicalize().to_string(), ">=1.2.4");
+  ASSERT_EQ(VersionReq::parse(">1.2.3").canonicalize().toString(), ">=1.2.4");
 
   // 3.2. `>A.B` is equivalent to `>=A.(B+1).0`
-  ASSERT_EQ(VersionReq::parse(">1.2").canonicalize().to_string(), ">=1.3.0");
+  ASSERT_EQ(VersionReq::parse(">1.2").canonicalize().toString(), ">=1.3.0");
 
   // 3.3. `>A` is equivalent to `>=(A+1).0.0`
-  ASSERT_EQ(VersionReq::parse(">1").canonicalize().to_string(), ">=2.0.0");
+  ASSERT_EQ(VersionReq::parse(">1").canonicalize().toString(), ">=2.0.0");
 }
 
 void test_canonicalize_gte() {
   // 4.1. `>=A.B.C`
-  ASSERT_EQ(VersionReq::parse(">=1.2.3").canonicalize().to_string(), ">=1.2.3");
+  ASSERT_EQ(VersionReq::parse(">=1.2.3").canonicalize().toString(), ">=1.2.3");
 
   // 4.2. `>=A.B` is equivalent to `>=A.B.0`
-  ASSERT_EQ(VersionReq::parse(">=1.2").canonicalize().to_string(), ">=1.2.0");
+  ASSERT_EQ(VersionReq::parse(">=1.2").canonicalize().toString(), ">=1.2.0");
 
   // 4.3. `>=A` is equivalent to `>=A.0.0`
-  ASSERT_EQ(VersionReq::parse(">=1").canonicalize().to_string(), ">=1.0.0");
+  ASSERT_EQ(VersionReq::parse(">=1").canonicalize().toString(), ">=1.0.0");
 }
 
 void test_canonicalize_lt() {
   // 5.1. `<A.B.C`
-  ASSERT_EQ(VersionReq::parse("<1.2.3").canonicalize().to_string(), "<1.2.3");
+  ASSERT_EQ(VersionReq::parse("<1.2.3").canonicalize().toString(), "<1.2.3");
 
   // 5.2. `<A.B` is equivalent to `<A.B.0`
-  ASSERT_EQ(VersionReq::parse("<1.2").canonicalize().to_string(), "<1.2.0");
+  ASSERT_EQ(VersionReq::parse("<1.2").canonicalize().toString(), "<1.2.0");
 
   // 5.3. `<A` is equivalent to `<A.0.0`
-  ASSERT_EQ(VersionReq::parse("<1").canonicalize().to_string(), "<1.0.0");
+  ASSERT_EQ(VersionReq::parse("<1").canonicalize().toString(), "<1.0.0");
 }
 
 void test_canonicalize_lte() {
   // 6.1. `<=A.B.C` is equivalent to `<A.B.(C+1)`
-  ASSERT_EQ(VersionReq::parse("<=1.2.3").canonicalize().to_string(), "<1.2.4");
+  ASSERT_EQ(VersionReq::parse("<=1.2.3").canonicalize().toString(), "<1.2.4");
 
   // 6.2. `<=A.B` is equivalent to `<A.(B+1).0`
-  ASSERT_EQ(VersionReq::parse("<=1.2").canonicalize().to_string(), "<1.3.0");
+  ASSERT_EQ(VersionReq::parse("<=1.2").canonicalize().toString(), "<1.3.0");
 
   // 6.3. `<=A` is equivalent to `<(A+1).0.0`
-  ASSERT_EQ(VersionReq::parse("<=1").canonicalize().to_string(), "<2.0.0");
+  ASSERT_EQ(VersionReq::parse("<=1").canonicalize().toString(), "<2.0.0");
 }
 
 void test_parse() {
@@ -1291,39 +1291,37 @@ void test_non_comparator_chain() {
   );
 }
 
-void test_to_string() {
+void test_toString() {
   ASSERT_EQ(
-      VersionReq::parse("  <1.2.3  &&>=1.0 ").to_string(), "<1.2.3 && >=1.0"
+      VersionReq::parse("  <1.2.3  &&>=1.0 ").toString(), "<1.2.3 && >=1.0"
   );
 }
 
-void test_to_pkg_config_string() {
+void test_toPkgConfigString() {
   ASSERT_EQ(
-      VersionReq::parse("  <1.2.3  &&>=1.0 ").to_pkg_config_string("foo"),
+      VersionReq::parse("  <1.2.3  &&>=1.0 ").toPkgConfigString("foo"),
       "foo < 1.2.3, foo >= 1.0.0"
   );
 
   ASSERT_EQ(
-      VersionReq::parse("1.2.3").to_pkg_config_string("foo"),
+      VersionReq::parse("1.2.3").toPkgConfigString("foo"),
       "foo >= 1.2.3, foo < 2.0.0"
   );
 
   ASSERT_EQ(
-      VersionReq::parse(">1.2.3").to_pkg_config_string("foo"), "foo >= 1.2.4"
+      VersionReq::parse(">1.2.3").toPkgConfigString("foo"), "foo >= 1.2.4"
   );
 
   ASSERT_EQ(
-      VersionReq::parse("=1.2.3").to_pkg_config_string("foo"), "foo = 1.2.3"
+      VersionReq::parse("=1.2.3").toPkgConfigString("foo"), "foo = 1.2.3"
   );
 
   ASSERT_EQ(
-      VersionReq::parse("=1.2").to_pkg_config_string("foo"),
+      VersionReq::parse("=1.2").toPkgConfigString("foo"),
       "foo >= 1.2.0, foo < 1.3.0"
   );
 
-  ASSERT_EQ(
-      VersionReq::parse("0.0.1").to_pkg_config_string("foo"), "foo = 0.0.1"
-  );
+  ASSERT_EQ(VersionReq::parse("0.0.1").toPkgConfigString("foo"), "foo = 0.0.1");
 }
 
 int main() {
@@ -1347,8 +1345,8 @@ int main() {
   REGISTER_TEST(test_invalid_spaces);
   REGISTER_TEST(test_invalid_conjunction);
   REGISTER_TEST(test_non_comparator_chain);
-  REGISTER_TEST(test_to_string);
-  REGISTER_TEST(test_to_pkg_config_string);
+  REGISTER_TEST(test_toString);
+  REGISTER_TEST(test_toPkgConfigString);
 }
 
 #endif

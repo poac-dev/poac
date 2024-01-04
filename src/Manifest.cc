@@ -514,7 +514,7 @@ DepMetadata GitDependency::install() const {
 }
 
 DepMetadata SystemDependency::install() const {
-  const String pkgConfigVer = versionReq.to_pkg_config_string(name);
+  const String pkgConfigVer = versionReq.toPkgConfigString(name);
   const String cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
   const String libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
 

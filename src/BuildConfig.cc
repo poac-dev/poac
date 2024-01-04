@@ -125,8 +125,9 @@ struct BuildConfig {
       const String&, const String&, const OrderedHashSet<String>& = {}
   );
 
-  void
-  defineTarget(String, const Vec<String>&, const OrderedHashSet<String>& = {});
+  void defineTarget(
+      const String&, const Vec<String>&, const OrderedHashSet<String>& = {}
+  );
   void setPhony(const OrderedHashSet<String>&);
   void setAll(const OrderedHashSet<String>&);
   void emitMakefile(std::ostream& = std::cout) const;
@@ -157,7 +158,7 @@ void BuildConfig::defineCondVariable(
 }
 
 void BuildConfig::defineTarget(
-    String name, const Vec<String>& commands,
+    const String& name, const Vec<String>& commands,
     const OrderedHashSet<String>& dependsOn
 ) {
   targets[name] = { commands, dependsOn };
@@ -252,8 +253,15 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     const String file = targetInfo.dependsOn[0];
     // The output is the target.
     const String output = target;
-    const String cmd = CXX + ' ' + CXXFLAGS + DEFINES + INCLUDES + " -c " + file
-                       + " -o " + output;
+    String cmd = CXX;
+    cmd += ' ';
+    cmd += CXXFLAGS;
+    cmd += DEFINES;
+    cmd += INCLUDES;
+    cmd += " -c ";
+    cmd += file;
+    cmd += " -o ";
+    cmd += output;
 
     ss << firstIdent << "{\n";
     ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
@@ -319,11 +327,7 @@ static bool isUpToDate(StringRef makefilePath) {
       return false;
     }
   }
-  if (fs::last_write_time("poac.toml") > makefileTime) {
-    return false;
-  }
-
-  return true;
+  return fs::last_write_time("poac.toml") <= makefileTime;
 }
 
 static bool containsTestCode(const String& sourceFile) {
@@ -473,7 +477,7 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
       packageNameUpper.begin(), ::toupper
   );
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
-            + getPackageVersion().to_string() + "\"'";
+            + getPackageVersion().toString() + "\"'";
   config.defineSimpleVariable("DEFINES", DEFINES);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
   config.defineSimpleVariable("LIBS", LIBS);

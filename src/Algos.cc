@@ -99,11 +99,11 @@ static usize levDistance(StringRef a, StringRef b) {
 
   for (usize i = 1; i <= asize; ++i) {
     for (usize j = 1; j <= bsize; ++j) {
-      const usize subst_cost = a[i - 1] == b[j - 1] ? 0 : 1;
+      const usize substCost = a[i - 1] == b[j - 1] ? 0 : 1;
       d[i][j] = std::min({
           d[i - 1][j] + 1, // deletion
           d[i][j - 1] + 1, // insertion
-          d[i - 1][j - 1] + subst_cost // substitution
+          d[i - 1][j - 1] + substCost // substitution
       });
     }
   }
@@ -132,21 +132,21 @@ findSimilarStr(StringRef lhs, std::span<const StringRef> candidates) {
   // If the LHS size is less than 3, use the LHS size minus 1 and if not,
   // use the LHS size divided by 3.
   const usize length = lhs.size();
-  const usize max_dist = length < 3 ? length - 1 : length / 3;
+  const usize maxDist = length < 3 ? length - 1 : length / 3;
 
-  Option<std::pair<StringRef, usize>> similar_str = None;
+  Option<std::pair<StringRef, usize>> similarStr = None;
   for (const StringRef c : candidates) {
-    const usize cur_dist = levDistance(lhs, c);
-    if (cur_dist <= max_dist) {
+    const usize curDist = levDistance(lhs, c);
+    if (curDist <= maxDist) {
       // The first similar string found || More similar string found
-      if (!similar_str.has_value() || cur_dist < similar_str->second) {
-        similar_str = { c, cur_dist };
+      if (!similarStr.has_value() || curDist < similarStr->second) {
+        similarStr = { c, curDist };
       }
     }
   }
 
-  if (similar_str.has_value()) {
-    return similar_str->first;
+  if (similarStr.has_value()) {
+    return similarStr->first;
   } else {
     return None;
   }

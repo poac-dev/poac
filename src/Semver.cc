@@ -32,14 +32,14 @@ std::ostream& operator<<(std::ostream& os, const VersionToken& tok) noexcept {
   return os;
 }
 
-String VersionToken::to_string() const noexcept {
+String VersionToken::toString() const noexcept {
   std::ostringstream oss;
   oss << *this;
   return oss.str();
 }
 
 usize VersionToken::size() const noexcept {
-  return to_string().size();
+  return toString().size();
 }
 
 bool operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
@@ -65,7 +65,7 @@ bool operator<(const VersionToken& lhs, const VersionToken& rhs) noexcept {
   if (lhs.kind == VersionToken::Num && rhs.kind == VersionToken::Num) {
     return std::get<u64>(lhs.value) < std::get<u64>(rhs.value);
   }
-  return lhs.to_string() < rhs.to_string();
+  return lhs.toString() < rhs.toString();
 }
 bool operator>(const VersionToken& lhs, const VersionToken& rhs) {
   return rhs < lhs;
@@ -85,13 +85,13 @@ bool Prerelease::empty() const noexcept {
   return ident.empty();
 }
 
-String Prerelease::to_string() const noexcept {
+String Prerelease::toString() const noexcept {
   String s;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
       s += '.';
     }
-    s += ident[i].to_string();
+    s += ident[i].toString();
   }
   return s;
 }
@@ -132,13 +132,13 @@ bool BuildMetadata::empty() const noexcept {
   return ident.empty();
 }
 
-String BuildMetadata::to_string() const noexcept {
+String BuildMetadata::toString() const noexcept {
   String s;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
       s += '.';
     }
-    s += ident[i].to_string();
+    s += ident[i].toString();
   }
   return s;
 }
@@ -160,23 +160,23 @@ bool operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
   return rhs < lhs;
 }
 
-String Version::to_string() const noexcept {
+String Version::toString() const noexcept {
   String s = std::to_string(major);
   s += '.' + std::to_string(minor);
   s += '.' + std::to_string(patch);
   if (!pre.empty()) {
     s += '-';
-    s += pre.to_string();
+    s += pre.toString();
   }
   if (!build.empty()) {
     s += '+';
-    s += build.to_string();
+    s += build.toString();
   }
   return s;
 }
 
 std::ostream& operator<<(std::ostream& os, const Version& v) noexcept {
-  os << v.to_string();
+  os << v.toString();
   return os;
 }
 

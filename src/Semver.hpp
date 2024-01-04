@@ -37,13 +37,13 @@ struct VersionToken {
   std::variant<std::monostate, u64, StringRef> value;
 
   VersionToken(
-      Kind kind, std::variant<std::monostate, u64, StringRef> value
+      Kind kind, const std::variant<std::monostate, u64, StringRef>& value
   ) noexcept
-      : kind(kind), value(std::move(value)) {}
+      : kind(kind), value(value) {}
   explicit VersionToken(Kind kind) noexcept
       : kind(kind), value(std::monostate{}) {}
 
-  String to_string() const noexcept;
+  String toString() const noexcept;
   usize size() const noexcept;
 };
 
@@ -52,7 +52,7 @@ struct Prerelease {
 
   static Prerelease parse(StringRef);
   bool empty() const noexcept;
-  String to_string() const noexcept;
+  String toString() const noexcept;
 };
 bool operator==(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 bool operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
@@ -66,7 +66,7 @@ struct BuildMetadata {
 
   static BuildMetadata parse(StringRef);
   bool empty() const noexcept;
-  String to_string() const noexcept;
+  String toString() const noexcept;
 };
 
 struct Version {
@@ -77,7 +77,7 @@ struct Version {
   BuildMetadata build;
 
   static Version parse(StringRef);
-  String to_string() const noexcept;
+  String toString() const noexcept;
 };
 std::ostream& operator<<(std::ostream&, const Version&) noexcept;
 bool operator==(const Version&, const Version&) noexcept;
