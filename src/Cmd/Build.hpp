@@ -4,6 +4,7 @@
 
 #include <span>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 static inline constexpr StringRef buildDesc =
     "Compile a local package and all of its dependencies";
 

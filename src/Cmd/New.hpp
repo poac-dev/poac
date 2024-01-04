@@ -4,6 +4,7 @@
 
 #include <span>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 static inline constexpr StringRef newDesc = "Create a new poac project";
 
 String getPoacToml(StringRef) noexcept;

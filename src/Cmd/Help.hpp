@@ -4,6 +4,7 @@
 
 #include <span>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 static inline constexpr StringRef helpDesc =
     "Displays help for a poac subcommand";
 

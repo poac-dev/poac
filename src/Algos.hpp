@@ -80,10 +80,10 @@ struct OrderedHashSet {
     return list.end();
   }
 
-  operator std::span<Value>() {
+  explicit operator std::span<Value>() {
     return std::span<Value>(&*list.begin(), list.size());
   }
-  operator std::span<const Value>() const {
+  explicit operator std::span<const Value>() const {
     return std::span<const Value>(&*list.begin(), list.size());
   }
 
