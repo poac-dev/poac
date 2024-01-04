@@ -434,6 +434,18 @@ static void collectBinDepObjs(
   }
 }
 
+// TODO: Naming is not good, but using different namespaces for installDeps
+// and installDependencies is not good either.
+void installDeps() {
+  const Vec<DepMetadata> deps = installDependencies();
+  for (const DepMetadata& dep : deps) {
+    INCLUDES += ' ' + dep.includes;
+    LIBS += ' ' + dep.libs;
+  }
+  Logger::debug("INCLUDES: ", INCLUDES);
+  Logger::debug("LIBS: ", LIBS);
+}
+
 static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVariable("CXX", CXX);
 
@@ -460,14 +472,6 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().to_string() + "\"'";
   config.defineSimpleVariable("DEFINES", DEFINES);
-
-  const Vec<DepMetadata> deps = installDependencies();
-  for (const DepMetadata& dep : deps) {
-    INCLUDES += ' ' + dep.includes;
-    LIBS += ' ' + dep.libs;
-  }
-  Logger::debug("INCLUDES: ", INCLUDES);
-  Logger::debug("LIBS: ", LIBS);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
   config.defineSimpleVariable("LIBS", LIBS);
 }
@@ -604,6 +608,10 @@ static BuildConfig configureBuild(const bool isDebug) {
 /// @returns the directory where the Makefile is generated.
 String emitMakefile(const bool debug) {
   setOutDir(debug);
+
+  // When emitting Makefile, we also build the project.  So, we need to
+  // make sure the dependencies are installed.
+  installDeps();
 
   const String outDir = getOutDir();
   const String makefilePath = outDir + "/Makefile";
