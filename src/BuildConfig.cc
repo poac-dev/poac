@@ -634,6 +634,9 @@ String emitMakefile(const bool debug) {
 String emitCompdb(const bool debug) {
   setOutDir(debug);
 
+  // compile_commands.json also needs INCLUDES, but not LIBS.
+  installDeps();
+
   const String outDir = getOutDir();
   const String compdbPath = outDir + "/compile_commands.json";
   if (isUpToDate(compdbPath)) {
