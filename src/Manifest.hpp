@@ -9,6 +9,7 @@ struct DepMetadata {
 };
 
 struct Profile {
+  HashSet<String> cxxflags;
   bool lto = false;
 
   // Merges this profile with another profile. If a field in this profile is

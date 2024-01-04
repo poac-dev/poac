@@ -26,7 +26,7 @@ static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
 static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
-static String CXXFLAGS = " -Wall -Wextra -pedantic-errors -std=c++";
+static String CXXFLAGS = " -std=c++";
 static String DEFINES;
 static String INCLUDES = " -Iinclude";
 static String LIBS;
@@ -461,6 +461,9 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   const Profile profile = isDebug ? getDebugProfile() : getReleaseProfile();
   if (profile.lto) {
     CXXFLAGS += " -flto";
+  }
+  for (const String& flag : profile.cxxflags) {
+    CXXFLAGS += ' ' + flag;
   }
   config.defineSimpleVariable("CXXFLAGS", CXXFLAGS);
 
