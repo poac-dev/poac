@@ -1,6 +1,7 @@
 CXX ?= clang++
 PREFIX ?= /usr/local
 INSTALL ?= install
+XDG_CACHE_HOME ?= $(HOME)/.cache
 
 DEBUG_FLAGS := -g -O0 -DDEBUG
 RELEASE_FLAGS := -O3 -DNDEBUG -flto
@@ -31,7 +32,7 @@ UNITTEST_DEPS := $(UNITTEST_OBJS:.o=.d)
 OUTSIDE_DEPS := $(OUT_DIR)/DEPS/toml11
 
 
-.PHONY: all clean install test
+.PHONY: all clean install test tidy
 
 all: $(DEPS) $(PROJ_NAME)
 
@@ -106,3 +107,7 @@ $(OUT_DIR)/Cmd:
 
 $(OUT_DIR)/tests:
 	mkdir -p $@
+
+
+tidy:
+	clang-tidy $(SRCS) -- $(CXXFLAGS) $(DEFINES) $(INCLUDES) -isystem $(XDG_CACHE_HOME)/poac

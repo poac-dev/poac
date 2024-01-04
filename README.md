@@ -299,8 +299,6 @@ Despite C++ often being overlooked for product development, I believe that Poac 
 ### Before submitting your PR
 
 Please make sure to follow these steps:
-<!-- > [!IMPORTANT]
-> I expect you to use the latest `clang-tidy` and `clang-format`. -->
 
 #### Run linter (`cpplint`)
 
@@ -312,6 +310,12 @@ poac lint
 
 ```bash
 poac fmt
+```
+
+#### Run `clang-tidy`
+
+```bash
+make tidy
 ```
 
 ---
