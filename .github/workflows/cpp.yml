@@ -9,25 +9,28 @@ permissions:
   contents: read
 
 jobs:
-  #  clang-tidy:
-  #    runs-on: ubuntu-22.04
-  #    steps:
-  #      - uses: actions/checkout@v4
-  #
-  #      - name: Install dependencies
-  #        run: |
-  #          sudo apt-get -qq update
-  #          sudo apt-get install -y        \
-  #            clang-14 lld-14              \
-  #            ninja-build libboost-all-dev \
-  #            libfmt-dev libarchive-dev libgit2-dev libspdlog-dev
-  #
-  #      - name: Run CMake
-  #        run: cmake -B build -G Ninja
-  #
-  #      - name: Run clang-tidy
-  #        run: ninja
-  #        working-directory: build
+  clang-tidy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup clang-tidy
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get install -y clang-tidy-17
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgit2-dev
+
+      - name: Run clang-tidy
+        run: make tidy
+        env:
+          CLANG_TIDY: clang-tidy-17
 
   format:
     runs-on: ubuntu-22.04

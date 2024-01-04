@@ -1,34 +1,43 @@
 ---
 UseColor: true
 WarningsAsErrors: true,*
-HeaderFilterRegex: include/poac/
+HeaderFilterRegex: "src/"
 Checks: -*
   boost-*
   bugprone-*
-    -bugprone-unchecked-optional-access
-    -bugprone-easily-swappable-parameters
-    -bugprone-narrowing-conversions
-    -bugprone-branch-clone
+  -bugprone-unchecked-optional-access
+  -bugprone-easily-swappable-parameters
+  -bugprone-narrowing-conversions
+  -bugprone-branch-clone
+  -bugprone-exception-escape
   cert-*
-    -cert-err58-cpp
+  -cert-err58-cpp
+  -cert-env33-c
+  -cert-dcl03-c
   clang-analyzer-*
   google-*
-    -google-build-using-namespace
+  -google-build-using-namespace
+  -google-readability-todo
   misc-*
-    -misc-no-recursion
-  modernize-*
+  -misc-no-recursion
+  -misc-use-anonymous-namespace
+  -misc-include-cleaner
+  -misc-const-correctness
+  -misc-static-assert
   performance-*
   portability-*
   readability-*
-    -readability-else-after-return
-    -readability-identifier-length
-    -readability-implicit-bool-conversion
-    -readability-magic-numbers
+  -readability-else-after-return
+  -readability-identifier-length
+  -readability-implicit-bool-conversion
+  -readability-magic-numbers
+  -readability-function-cognitive-complexity
+  -readability-named-parameter
+  -readability-avoid-const-params-in-decls
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true
 
-  # ref: https://rust-lang.github.io/api-guidelines/naming.html
   # ref: https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
   - key: readability-identifier-naming.AbstractClassCase
     value: CamelCase
@@ -44,13 +53,13 @@ CheckOptions:
     value: CamelCase
 
   - key: readability-identifier-naming.FunctionCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.MethodCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
   - key: readability-identifier-naming.LocalVariableCase
-    value: lower_case
+    value: camelBack
 
   - key: readability-identifier-naming.StaticVariableCase
     value: UPPER_CASE
