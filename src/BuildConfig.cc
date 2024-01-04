@@ -619,6 +619,7 @@ String emitMakefile(const bool debug) {
     Logger::debug("Makefile is up to date");
     return outDir;
   }
+  Logger::debug("Makefile is NOT up to date");
 
   const BuildConfig config = configureBuild(debug);
   std::ofstream ofs(makefilePath);
@@ -636,6 +637,7 @@ String emitCompdb(const bool debug) {
     Logger::debug("compile_commands.json is up to date");
     return outDir;
   }
+  Logger::debug("compile_commands.json is NOT up to date");
 
   const BuildConfig config = configureBuild(debug);
   std::ofstream ofs(compdbPath);
