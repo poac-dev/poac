@@ -52,6 +52,12 @@ struct SystemDependency {
   DepMetadata install() const;
 };
 
+void Profile::merge(const Profile& other) {
+  if (!lto) { // false is the default value
+    lto = other.lto;
+  }
+}
+
 struct Manifest {
   static Manifest& instance() noexcept {
     static Manifest instance;
@@ -74,11 +80,19 @@ struct Manifest {
   }
 
   Option<toml::value> data = None;
+
   Option<String> packageName = None;
   Option<String> packageEdition = None;
   Option<Version> packageVersion = None;
+
   Option<Vec<std::variant<GitDependency, SystemDependency>>> dependencies =
       None;
+
+  Option<Profile> profile = None;
+  Option<Profile> debugProfile = None;
+  Option<Profile> releaseProfile = None;
+
+  Option<Vec<String>> cpplintFilters = None;
 
 private:
   Manifest() noexcept = default;
@@ -91,15 +105,18 @@ private:
 String getPackageName() {
   Manifest& manifest = Manifest::instance();
   if (manifest.packageName.has_value()) {
+    Logger::debug("[package.name] is cached");
     return manifest.packageName.value();
   }
+  Logger::debug("[package.name] is not cached");
 
   const String packageName =
       toml::find<String>(manifest.data.value(), "package", "name");
   if (packageName.empty()) {
-    throw PoacError("package name is empty");
+    throw PoacError("[package.name] is empty");
   }
   manifest.packageName = packageName;
+  Logger::debug("[package.name] is set to `", packageName, '`');
   return packageName;
 }
 
@@ -151,15 +168,92 @@ Version getPackageVersion() {
   return version;
 }
 
-Vec<String> getLintCpplintFilters() {
+static Profile parseProfile(const toml::table& table) {
+  Profile profile;
+  if (table.contains("lto") && table.at("lto").is_boolean()) {
+    profile.lto = table.at("lto").as_boolean();
+  }
+  return profile;
+}
+
+static Profile getProfile(Option<String> profileName) {
   Manifest& manifest = Manifest::instance();
-  const auto& table = toml::get<toml::table>(*manifest.data);
-  if (!table.contains("lint")) {
+  if (!manifest.data.value().contains("profile")) {
     return {};
   }
-  return toml::find_or<Vec<String>>(
-      *manifest.data, "lint", "cpplint", "filters", Vec<String>{}
-  );
+  if (!manifest.data.value().at("profile").is_table()) {
+    throw PoacError("[profile] must be a table");
+  }
+  const auto& table = toml::find<toml::table>(manifest.data.value(), "profile");
+
+  if (profileName.has_value()) {
+    if (!table.contains(profileName.value())) {
+      return {};
+    }
+    if (!table.at(profileName.value()).is_table()) {
+      throw PoacError("[profile.", profileName.value(), "] must be a table");
+    }
+    const auto& profileTable = toml::find<toml::table>(
+        manifest.data.value(), "profile", profileName.value()
+    );
+    return parseProfile(profileTable);
+  } else {
+    return parseProfile(table);
+  }
+}
+
+static Profile getBaseProfile() {
+  Manifest& manifest = Manifest::instance();
+  if (manifest.profile.has_value()) {
+    return manifest.profile.value();
+  }
+
+  const Profile baseProfile = getProfile(None);
+  manifest.profile = baseProfile;
+  return baseProfile;
+}
+
+Profile getDebugProfile() {
+  Manifest& manifest = Manifest::instance();
+  if (manifest.debugProfile.has_value()) {
+    return manifest.debugProfile.value();
+  }
+
+  Profile debugProfile = getProfile("debug");
+  debugProfile.merge(getBaseProfile());
+  manifest.debugProfile = debugProfile;
+  return debugProfile;
+}
+
+Profile getReleaseProfile() {
+  Manifest& manifest = Manifest::instance();
+  if (manifest.releaseProfile.has_value()) {
+    return manifest.releaseProfile.value();
+  }
+
+  Profile releaseProfile = getProfile("release");
+  releaseProfile.merge(getBaseProfile());
+  manifest.releaseProfile = releaseProfile;
+  return releaseProfile;
+}
+
+Vec<String> getLintCpplintFilters() {
+  Manifest& manifest = Manifest::instance();
+  if (manifest.cpplintFilters.has_value()) {
+    return manifest.cpplintFilters.value();
+  }
+
+  const auto& table = toml::get<toml::table>(*manifest.data);
+  Vec<String> filters;
+  if (!table.contains("lint")) {
+    filters = {};
+  } else {
+    filters = toml::find_or<Vec<String>>(
+        *manifest.data, "lint", "cpplint", "filters", Vec<String>{}
+    );
+  }
+  manifest.cpplintFilters = filters;
+  return filters;
 }
 
 static Path getXdgCacheHome() {

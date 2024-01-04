@@ -26,6 +26,7 @@ static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
 static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
+static String CXXFLAGS = " -Wall -Wextra -pedantic-errors -std=c++";
 static String DEFINES;
 static String INCLUDES = " -Iinclude";
 static String LIBS;
@@ -251,8 +252,8 @@ void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
     const String file = targetInfo.dependsOn[0];
     // The output is the target.
     const String output = target;
-    const String cmd = CXX + ' ' + variables.at("CXXFLAGS").value + DEFINES
-                       + INCLUDES + " -c " + file + " -o " + output;
+    const String cmd = CXX + ' ' + CXXFLAGS + DEFINES + INCLUDES + " -c " + file
+                       + " -o " + output;
 
     ss << firstIdent << "{\n";
     ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
@@ -433,19 +434,35 @@ static void collectBinDepObjs(
   }
 }
 
+// TODO: Naming is not good, but using different namespaces for installDeps
+// and installDependencies is not good either.
+void installDeps() {
+  const Vec<DepMetadata> deps = installDependencies();
+  for (const DepMetadata& dep : deps) {
+    INCLUDES += ' ' + dep.includes;
+    LIBS += ' ' + dep.libs;
+  }
+  Logger::debug("INCLUDES: ", INCLUDES);
+  Logger::debug("LIBS: ", LIBS);
+}
+
 static void setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVariable("CXX", CXX);
-  String cxxflags =
-      "-Wall -Wextra -pedantic-errors -std=c++" + getPackageEdition();
+
+  CXXFLAGS += getPackageEdition();
   if (shouldColor()) {
-    cxxflags += " -fdiagnostics-color";
+    CXXFLAGS += " -fdiagnostics-color";
   }
   if (isDebug) {
-    cxxflags += " -g -O0 -DDEBUG";
+    CXXFLAGS += " -g -O0 -DDEBUG";
   } else {
-    cxxflags += " -O3 -DNDEBUG";
+    CXXFLAGS += " -O3 -DNDEBUG";
   }
-  config.defineSimpleVariable("CXXFLAGS", cxxflags);
+  const Profile profile = isDebug ? getDebugProfile() : getReleaseProfile();
+  if (profile.lto) {
+    CXXFLAGS += " -flto";
+  }
+  config.defineSimpleVariable("CXXFLAGS", CXXFLAGS);
 
   String packageNameUpper = config.packageName;
   std::transform(
@@ -455,14 +472,6 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().to_string() + "\"'";
   config.defineSimpleVariable("DEFINES", DEFINES);
-
-  const Vec<DepMetadata> deps = installDependencies();
-  for (const DepMetadata& dep : deps) {
-    INCLUDES += ' ' + dep.includes;
-    LIBS += ' ' + dep.libs;
-  }
-  Logger::debug("INCLUDES: ", INCLUDES);
-  Logger::debug("LIBS: ", LIBS);
   config.defineSimpleVariable("INCLUDES", INCLUDES);
   config.defineSimpleVariable("LIBS", LIBS);
 }
@@ -600,12 +609,17 @@ static BuildConfig configureBuild(const bool isDebug) {
 String emitMakefile(const bool debug) {
   setOutDir(debug);
 
+  // When emitting Makefile, we also build the project.  So, we need to
+  // make sure the dependencies are installed.
+  installDeps();
+
   const String outDir = getOutDir();
   const String makefilePath = outDir + "/Makefile";
   if (isUpToDate(makefilePath)) {
     Logger::debug("Makefile is up to date");
     return outDir;
   }
+  Logger::debug("Makefile is NOT up to date");
 
   const BuildConfig config = configureBuild(debug);
   std::ofstream ofs(makefilePath);
@@ -623,6 +637,7 @@ String emitCompdb(const bool debug) {
     Logger::debug("compile_commands.json is up to date");
     return outDir;
   }
+  Logger::debug("compile_commands.json is NOT up to date");
 
   const BuildConfig config = configureBuild(debug);
   std::ofstream ofs(compdbPath);
