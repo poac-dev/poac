@@ -168,6 +168,14 @@ Version getPackageVersion() {
   return version;
 }
 
+static Profile parseProfile(const toml::table& table) {
+  Profile profile;
+  if (table.contains("lto") && table.at("lto").is_boolean()) {
+    profile.lto = table.at("lto").as_boolean();
+  }
+  return profile;
+}
+
 static Profile getProfile(Option<String> profileName) {
   Manifest& manifest = Manifest::instance();
   if (!manifest.data.value().contains("profile")) {
@@ -176,7 +184,7 @@ static Profile getProfile(Option<String> profileName) {
   if (!manifest.data.value().at("profile").is_table()) {
     throw PoacError("[profile] must be a table");
   }
-  auto& table = toml::find<toml::table>(manifest.data.value(), "profile");
+  const auto& table = toml::find<toml::table>(manifest.data.value(), "profile");
 
   if (profileName.has_value()) {
     if (!table.contains(profileName.value())) {
@@ -185,16 +193,13 @@ static Profile getProfile(Option<String> profileName) {
     if (!table.at(profileName.value()).is_table()) {
       throw PoacError("[profile.", profileName.value(), "] must be a table");
     }
-    table = toml::find<toml::table>(
+    const auto& profileTable = toml::find<toml::table>(
         manifest.data.value(), "profile", profileName.value()
     );
+    return parseProfile(profileTable);
+  } else {
+    return parseProfile(table);
   }
-
-  Profile profile;
-  if (table.contains("lto") && table.at("lto").is_boolean()) {
-    profile.lto = table.at("lto").as_boolean();
-  }
-  return profile;
 }
 
 static Profile getBaseProfile() {
@@ -203,7 +208,7 @@ static Profile getBaseProfile() {
     return manifest.profile.value();
   }
 
-  Profile baseProfile = getProfile(None);
+  const Profile baseProfile = getProfile(None);
   manifest.profile = baseProfile;
   return baseProfile;
 }
