@@ -199,8 +199,18 @@ static void emitTarget(
   }
   os << '\n';
 
-  for (const StringRef cmd : commands) {
-    os << '\t' << cmd << '\n';
+  if (isVerbose()) {
+    for (const StringRef cmd : commands) {
+      os << '\t' << cmd << '\n';
+    }
+  } else {
+    for (const StringRef cmd : commands) {
+      os << '\t';
+      if (!cmd.starts_with('@')) {
+        os << '@';
+      }
+      os << cmd << '\n';
+    }
   }
   os << '\n';
 }
@@ -343,16 +353,8 @@ static bool containsTestCode(const String& sourceFile) {
   return false;
 }
 
-static String buildCmd(const String& cmd) noexcept {
-  if (isVerbose()) {
-    return cmd;
-  } else {
-    return "@" + cmd;
-  }
-}
-
 static void defineDirTarget(BuildConfig& config, const Path& directory) {
-  config.defineTarget(directory, { buildCmd("mkdir -p $@") });
+  config.defineTarget(directory, { "mkdir -p $@" });
 }
 
 static String echoCmd(const StringRef header, const StringRef body) {
@@ -370,9 +372,9 @@ static void defineCompileTarget(
 
   const String compileCmd = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
-    commands[1] = buildCmd(compileCmd + " -DPOAC_TEST -c $< -o $@");
+    commands[1] = compileCmd + " -DPOAC_TEST -c $< -o $@";
   } else {
-    commands[1] = buildCmd(compileCmd + " -c $< -o $@");
+    commands[1] = compileCmd + " -c $< -o $@";
   }
   config.defineTarget(objTarget, commands, deps);
 }
@@ -383,7 +385,7 @@ static void defineLinkTarget(
 ) {
   Vec<String> commands(2);
   commands[0] = echoCmd("Linking", binTarget);
-  commands[1] = buildCmd("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
+  commands[1] = "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -596,7 +598,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     defineLinkTarget(config, testTarget, testTargetDeps);
 
     testCommands.emplace_back(echoCmd("Testing", testTargetName));
-    testCommands.emplace_back(buildCmd(testTarget));
+    testCommands.emplace_back(testTarget);
     testTargets.pushBack(testTarget);
   }
   if (enableTesting) {
@@ -609,8 +611,8 @@ static BuildConfig configureBuild(const bool isDebug) {
   // Tidy Pass
   config.defineCondVariable("POAC_TIDY", "clang-tidy");
   config.defineTarget(
-      "tidy", { buildCmd("$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) "
-                         "-DPOAC_TEST $(INCLUDES)") }
+      "tidy", { "$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) "
+                "-DPOAC_TEST $(INCLUDES)" }
   );
   config.addPhony("tidy");
 
