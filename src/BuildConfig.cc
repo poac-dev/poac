@@ -115,13 +115,12 @@ struct BuildConfig {
   explicit BuildConfig(const String& packageName)
       : packageName(packageName), buildOutDir(packageName + ".d") {}
 
-  void defineVariable(
-      const String&, const Variable&, const OrderedHashSet<String>& = {}
-  );
-  void defineSimpleVariable(
+  void
+  defineVar(const String&, const Variable&, const OrderedHashSet<String>& = {});
+  void defineSimpleVar(
       const String&, const String&, const OrderedHashSet<String>& = {}
   );
-  void defineCondVariable(
+  void defineCondVar(
       const String&, const String&, const OrderedHashSet<String>& = {}
   );
 
@@ -134,7 +133,7 @@ struct BuildConfig {
   void emitCompdb(const StringRef, std::ostream& = std::cout) const;
 };
 
-void BuildConfig::defineVariable(
+void BuildConfig::defineVar(
     const String& name, const Variable& value,
     const OrderedHashSet<String>& dependsOn
 ) {
@@ -144,17 +143,17 @@ void BuildConfig::defineVariable(
     varDeps[dep].push_back(name);
   }
 }
-void BuildConfig::defineSimpleVariable(
+void BuildConfig::defineSimpleVar(
     const String& name, const String& value,
     const OrderedHashSet<String>& dependsOn
 ) {
-  defineVariable(name, { value, VarType::Simple }, dependsOn);
+  defineVar(name, { value, VarType::Simple }, dependsOn);
 }
-void BuildConfig::defineCondVariable(
+void BuildConfig::defineCondVar(
     const String& name, const String& value,
     const OrderedHashSet<String>& dependsOn
 ) {
-  defineVariable(name, { value, VarType::Cond }, dependsOn);
+  defineVar(name, { value, VarType::Cond }, dependsOn);
 }
 
 void BuildConfig::defineTarget(
@@ -199,18 +198,12 @@ static void emitTarget(
   }
   os << '\n';
 
-  if (isVerbose()) {
-    for (const StringRef cmd : commands) {
-      os << '\t' << cmd << '\n';
+  for (const StringRef cmd : commands) {
+    os << '\t';
+    if (!cmd.starts_with('@')) {
+      os << "$(Q)";
     }
-  } else {
-    for (const StringRef cmd : commands) {
-      os << '\t';
-      if (!cmd.starts_with('@')) {
-        os << '@';
-      }
-      os << cmd << '\n';
-    }
+    os << cmd << '\n';
   }
   os << '\n';
 }
@@ -346,15 +339,11 @@ static bool containsTestCode(const String& sourceFile) {
   String line;
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != String::npos) {
-      Logger::debug("contains test code: ", sourceFile);
+      Logger::debug("Contains test code: ", sourceFile);
       return true;
     }
   }
   return false;
-}
-
-static void defineDirTarget(BuildConfig& config, const Path& directory) {
-  config.defineTarget(directory, { "mkdir -p $@" });
 }
 
 static String echoCmd(const StringRef header, const StringRef body) {
@@ -367,15 +356,14 @@ static void defineCompileTarget(
     BuildConfig& config, const String& objTarget,
     const OrderedHashSet<String>& deps, const bool isTest = false
 ) {
-  Vec<String> commands(2);
-  commands[0] = echoCmd("Compiling", deps[0].substr(6)); // remove "../../"
-
-  const String compileCmd = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
+  Vec<String> commands(3);
+  commands[0] = "@mkdir -p $(@D)";
+  commands[1] = echoCmd("Compiling", deps[0].substr(6)); // remove "../../"
+  commands[2] = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
-    commands[1] = compileCmd + " -DPOAC_TEST -c $< -o $@";
-  } else {
-    commands[1] = compileCmd + " -c $< -o $@";
+    commands[2] += " -DPOAC_TEST";
   }
+  commands[2] += " -c $< -o $@";
   config.defineTarget(objTarget, commands, deps);
 }
 
@@ -451,7 +439,7 @@ void installDeps() {
 }
 
 static void setVariables(BuildConfig& config, const bool isDebug) {
-  config.defineCondVariable("CXX", CXX);
+  config.defineCondVar("CXX", CXX);
 
   CXXFLAGS += getPackageEdition();
   if (shouldColor()) {
@@ -469,7 +457,7 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   for (const String& flag : profile.cxxflags) {
     CXXFLAGS += ' ' + flag;
   }
-  config.defineSimpleVariable("CXXFLAGS", CXXFLAGS);
+  config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
   String packageNameUpper = config.packageName;
   std::transform(
@@ -478,9 +466,9 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   );
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().toString() + "\"'";
-  config.defineSimpleVariable("DEFINES", DEFINES);
-  config.defineSimpleVariable("INCLUDES", INCLUDES);
-  config.defineSimpleVariable("LIBS", LIBS);
+  config.defineSimpleVar("DEFINES", DEFINES);
+  config.defineSimpleVar("INCLUDES", INCLUDES);
+  config.defineSimpleVar("LIBS", LIBS);
 }
 
 static BuildConfig configureBuild(const bool isDebug) {
@@ -504,7 +492,6 @@ static BuildConfig configureBuild(const bool isDebug) {
   setVariables(config, isDebug);
 
   // Build rules
-  defineDirTarget(config, config.buildOutDir);
   config.setAll({ config.packageName });
   config.addPhony("all");
 
@@ -514,27 +501,21 @@ static BuildConfig configureBuild(const bool isDebug) {
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
   }
-  config.defineSimpleVariable("SRCS", srcs);
+  config.defineSimpleVar("SRCS", srcs);
 
   // Source Pass
   OrderedHashSet<String> buildObjTargets;
   for (const Path& sourceFilePath : sourceFilePaths) {
     String objTarget; // source.o
-    OrderedHashSet<String> objTargetDeps =
+    const OrderedHashSet<String> objTargetDeps =
         parseMMOutput(runMM(sourceFilePath), objTarget);
 
     const Path targetBaseDir = fs::relative(
         sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
     );
-
-    // Add a target to create the buildOutDir and buildTargetBaseDir.
-    objTargetDeps.pushBack("|"); // order-only dependency
-    objTargetDeps.pushBack(config.buildOutDir);
     Path buildTargetBaseDir = config.buildOutDir;
     if (targetBaseDir != ".") {
       buildTargetBaseDir /= targetBaseDir;
-      defineDirTarget(config, buildTargetBaseDir);
-      objTargetDeps.pushBack(buildTargetBaseDir);
     }
 
     const String buildObjTarget = buildTargetBaseDir / objTarget;
@@ -562,21 +543,15 @@ static BuildConfig configureBuild(const bool isDebug) {
     enableTesting = true;
 
     String objTarget; // source.o
-    OrderedHashSet<String> objTargetDeps =
+    const OrderedHashSet<String> objTargetDeps =
         parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
 
     const Path targetBaseDir = fs::relative(
         sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
     );
-
-    // Add a target to create the testTargetBaseDir.
-    objTargetDeps.pushBack("|"); // order-only dependency
-    objTargetDeps.pushBack(String(TEST_OUT_DIR));
     Path testTargetBaseDir = TEST_OUT_DIR;
     if (targetBaseDir != ".") {
       testTargetBaseDir /= targetBaseDir;
-      defineDirTarget(config, testTargetBaseDir);
-      objTargetDeps.pushBack(testTargetBaseDir);
     }
 
     const String testObjTarget =
@@ -602,14 +577,12 @@ static BuildConfig configureBuild(const bool isDebug) {
     testTargets.pushBack(testTarget);
   }
   if (enableTesting) {
-    // Target to create the tests directory.
-    defineDirTarget(config, TEST_OUT_DIR);
     config.defineTarget("test", testCommands, testTargets);
     config.addPhony("test");
   }
 
   // Tidy Pass
-  config.defineCondVariable("POAC_TIDY", "clang-tidy");
+  config.defineCondVar("POAC_TIDY", "clang-tidy");
   config.defineTarget(
       "tidy", { "$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) "
                 "-DPOAC_TEST $(INCLUDES)" }
@@ -671,7 +644,7 @@ String getMakeCommand(const bool isParallel) {
   if (isVerbose()) {
     makeCommand = "make";
   } else {
-    makeCommand = "make -s --no-print-directory";
+    makeCommand = "make -s --no-print-directory Q=@";
   }
 
   if (isParallel) {
@@ -690,9 +663,9 @@ String getMakeCommand(const bool isParallel) {
 
 void testCycleVars() {
   BuildConfig config;
-  config.defineSimpleVariable("a", "b", { "b" });
-  config.defineSimpleVariable("b", "c", { "c" });
-  config.defineSimpleVariable("c", "a", { "a" });
+  config.defineSimpleVar("a", "b", { "b" });
+  config.defineSimpleVar("b", "c", { "c" });
+  config.defineSimpleVar("c", "a", { "a" });
 
   ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
                                          "too complex build graph");
@@ -700,9 +673,9 @@ void testCycleVars() {
 
 void testSimpleVars() {
   BuildConfig config;
-  config.defineSimpleVariable("c", "3", { "b" });
-  config.defineSimpleVariable("b", "2", { "a" });
-  config.defineSimpleVariable("a", "1");
+  config.defineSimpleVar("c", "3", { "b" });
+  config.defineSimpleVar("b", "2", { "a" });
+  config.defineSimpleVar("a", "1");
 
   std::stringstream ss;
   config.emitMakefile(ss);
@@ -717,7 +690,7 @@ void testSimpleVars() {
 
 void testDependOnUnregisteredVar() {
   BuildConfig config;
-  config.defineSimpleVariable("a", "1", { "b" });
+  config.defineSimpleVar("a", "1", { "b" });
 
   std::stringstream ss;
   config.emitMakefile(ss);
@@ -747,13 +720,13 @@ void testSimpleTargets() {
   ASSERT_EQ(
       ss.str(),
       "c: b\n"
-      "\t@echo c\n"
+      "\t$(Q)echo c\n"
       "\n"
       "b: a\n"
-      "\t@echo b\n"
+      "\t$(Q)echo b\n"
       "\n"
       "a:\n"
-      "\t@echo a\n"
+      "\t$(Q)echo a\n"
       "\n"
   );
 }
@@ -768,7 +741,7 @@ void testDependOnUnregisteredTarget() {
   ASSERT_EQ(
       ss.str(),
       "a: b\n"
-      "\t@echo a\n"
+      "\t$(Q)echo a\n"
       "\n"
   );
 }

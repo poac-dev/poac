@@ -12,102 +12,85 @@ else
 	CXXFLAGS += $(DEBUG_FLAGS)
 endif
 
-OUT_DIR := build-out
-PROJ_NAME := $(OUT_DIR)/poac
+O := build-out
+PROJECT := $(O)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
+MKDIR_P := @mkdir -p
 
 DEFINES := -DPOAC_VERSION='"$(VERSION)"'
-INCLUDES := -isystem $(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
+INCLUDES := -isystem $(O)/DEPS/toml11 $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
 LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
 
 SRCS := $(shell find src -name '*.cc')
-OBJS := $(patsubst src/%,$(OUT_DIR)/%,$(SRCS:.cc=.o))
+OBJS := $(patsubst src/%,$(O)/%,$(SRCS:.cc=.o))
 DEPS := $(OBJS:.o=.d)
 
 UNITTEST_SRCS := src/BuildConfig.cc src/Algos.cc src/Semver.cc src/VersionReq.cc
-UNITTEST_OBJS := $(patsubst src/%,$(OUT_DIR)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
+UNITTEST_OBJS := $(patsubst src/%,$(O)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
 UNITTEST_BINS := $(UNITTEST_OBJS:.o=)
 UNITTEST_DEPS := $(UNITTEST_OBJS:.o=.d)
 
-OUTSIDE_DEPS := $(OUT_DIR)/DEPS/toml11
+OUTSIDE_DEPS := $(O)/DEPS/toml11
 
 
 .PHONY: all clean install test tidy
 
-all: $(DEPS) $(PROJ_NAME)
 
-clean:
-	rm -rf $(OUT_DIR)
+all: $(OUTSIDE_DEPS) $(PROJECT)
 
-install: all
-	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin
-	$(INSTALL) -m 0755 $(PROJ_NAME) $(DESTDIR)$(PREFIX)/bin
+$(PROJECT): $(OBJS)
+	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
-
-$(OUT_DIR)/%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/Cmd
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $(@:.d=.o) $< -MF $@
+$(O)/%.o: src/%.cc
+	$(MKDIR_P) $(@D)
+	$(CXX) $(CXXFLAGS) -MMD $(DEFINES) $(INCLUDES) -c $< -o $@
 
 -include $(DEPS)
 
 
-$(OUT_DIR)/DEPS/toml11: $(OUT_DIR)/DEPS
-	git clone https://github.com/ToruNiina/toml11.git $@
-	git -C $@ reset --hard 01a0e93e5f9bef09a76d22f3d51a5257e3d923fe
+test: $(OUTSIDE_DEPS) $(UNITTEST_BINS)
+	@$(O)/tests/test_BuildConfig
+	@$(O)/tests/test_Algos
+	@$(O)/tests/test_Semver
+	@$(O)/tests/test_VersionReq
 
-$(OUT_DIR)/DEPS:
-	mkdir -p $@
-
-
-$(PROJ_NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
-
-$(OUT_DIR)/%.o: src/%.cc
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
-
-
-test: $(UNITTEST_DEPS) $(UNITTEST_BINS)
-	@$(OUT_DIR)/tests/test_BuildConfig
-	@$(OUT_DIR)/tests/test_Algos
-	@$(OUT_DIR)/tests/test_Semver
-	@$(OUT_DIR)/tests/test_VersionReq
-
-$(OUT_DIR)/tests/test_%.d: src/%.cc | $(OUTSIDE_DEPS) $(OUT_DIR) $(OUT_DIR)/tests
-	$(CXX) $(CXXFLAGS) -DPOAC_TEST $(DEFINES) $(INCLUDES) -MM -MT $(@:.d=.o) $< -MF $@
+$(O)/tests/test_%.o: src/%.cc
+	$(MKDIR_P) $(@D)
+	$(CXX) $(CXXFLAGS) -MMD -DPOAC_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
 
 -include $(UNITTEST_DEPS)
 
-
-$(OUT_DIR)/tests/test_BuildConfig: $(OUT_DIR)/tests/test_BuildConfig.o \
-  $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Manifest.o \
-  $(OUT_DIR)/Semver.o $(OUT_DIR)/Algos.o $(OUT_DIR)/VersionReq.o
+$(O)/tests/test_BuildConfig: $(O)/tests/test_BuildConfig.o \
+  $(O)/Logger.o $(O)/TermColor.o $(O)/Manifest.o \
+  $(O)/Semver.o $(O)/Algos.o $(O)/VersionReq.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
-$(OUT_DIR)/tests/test_Algos: $(OUT_DIR)/tests/test_Algos.o $(OUT_DIR)/Logger.o \
-  $(OUT_DIR)/TermColor.o
+$(O)/tests/test_Algos: $(O)/tests/test_Algos.o $(O)/Logger.o \
+  $(O)/TermColor.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
-$(OUT_DIR)/tests/test_Semver: $(OUT_DIR)/tests/test_Semver.o $(OUT_DIR)/Logger.o \
-  $(OUT_DIR)/TermColor.o
+$(O)/tests/test_Semver: $(O)/tests/test_Semver.o $(O)/Logger.o \
+  $(O)/TermColor.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
-$(OUT_DIR)/tests/test_VersionReq: $(OUT_DIR)/tests/test_VersionReq.o \
-  $(OUT_DIR)/Logger.o $(OUT_DIR)/TermColor.o $(OUT_DIR)/Semver.o
+$(O)/tests/test_VersionReq: $(O)/tests/test_VersionReq.o \
+  $(O)/Logger.o $(O)/TermColor.o $(O)/Semver.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
-
-
-$(OUT_DIR)/tests/test_%.o: src/%.cc
-	$(CXX) $(CXXFLAGS) -DPOAC_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
-
-
-$(OUT_DIR):
-	mkdir -p $@
-
-$(OUT_DIR)/Cmd:
-	mkdir -p $@
-
-$(OUT_DIR)/tests:
-	mkdir -p $@
 
 
 tidy:
 	$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
+
+install: all
+	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 0755 $(PROJECT) $(DESTDIR)$(PREFIX)/bin
+
+clean:
+	-rm -rf $(O)
+
+
+# Outside dependencies
+$(O)/DEPS/toml11:
+	$(MKDIR_P) $(@D)
+	git clone https://github.com/ToruNiina/toml11.git $@
+	git -C $@ reset --hard 01a0e93e5f9bef09a76d22f3d51a5257e3d923fe
