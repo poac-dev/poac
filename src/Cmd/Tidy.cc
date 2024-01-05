@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 int tidyMain(const std::span<const StringRef> args) {
   // Parse args
