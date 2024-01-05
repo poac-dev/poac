@@ -60,24 +60,17 @@ void Profile::merge(const Profile& other) {
 }
 
 struct Manifest {
+  // Manifest is a singleton
+  Manifest(const Manifest&) = delete;
+  Manifest& operator=(const Manifest&) = delete;
+  Manifest(Manifest&&) noexcept = delete;
+  Manifest& operator=(Manifest&&) noexcept = delete;
+  ~Manifest() noexcept = default;
+
   static Manifest& instance() noexcept {
     static Manifest INSTANCE;
     INSTANCE.load();
     return INSTANCE;
-  }
-
-  void load() {
-    if (data.has_value()) {
-      return;
-    }
-
-    if (shouldColor()) {
-      toml::color::enable();
-    } else {
-      toml::color::disable();
-    }
-
-    data = toml::parse(findManifest());
   }
 
   Option<toml::value> data = None;
@@ -98,9 +91,19 @@ struct Manifest {
 private:
   Manifest() noexcept = default;
 
-  // Delete copy constructor and assignment operator to prevent copying
-  Manifest(const Manifest&) = delete;
-  Manifest& operator=(const Manifest&) = delete;
+  void load() {
+    if (data.has_value()) {
+      return;
+    }
+
+    if (shouldColor()) {
+      toml::color::enable();
+    } else {
+      toml::color::disable();
+    }
+
+    data = toml::parse(findManifest());
+  }
 };
 
 const String& getPackageName() {
@@ -458,10 +461,10 @@ static void parseDependencies() {
     if (dep.second.is_table()) {
       const auto& info = dep.second.as_table();
       if (info.contains("git")) {
-        deps.push_back(parseGitDep(dep.first, info));
+        deps.emplace_back(parseGitDep(dep.first, info));
         continue;
       } else if (info.contains("system") && info.at("system").as_boolean()) {
-        deps.push_back(parseSystemDep(dep.first, info));
+        deps.emplace_back(parseSystemDep(dep.first, info));
         continue;
       }
     }

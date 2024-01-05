@@ -89,9 +89,9 @@ bool operator>=(const Version&, const Version&) noexcept;
 
 struct VersionLexer {
   StringRef s;
-  usize pos;
+  usize pos{ 0 };
 
-  explicit VersionLexer(const StringRef s) noexcept : s(s), pos(0) {}
+  explicit VersionLexer(const StringRef s) noexcept : s(s) {}
 
   bool isEof() const noexcept;
   void step() noexcept;

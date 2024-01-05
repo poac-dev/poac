@@ -5,33 +5,47 @@ HeaderFilterRegex: "src/"
 Checks: -*
   boost-*
   bugprone-*
-  -bugprone-unchecked-optional-access
-  -bugprone-easily-swappable-parameters
-  -bugprone-narrowing-conversions
   -bugprone-branch-clone
+  -bugprone-easily-swappable-parameters
   -bugprone-exception-escape
+  -bugprone-narrowing-conversions
+  -bugprone-unchecked-optional-access
   cert-*
   -cert-err58-cpp
   -cert-env33-c
   -cert-dcl03-c
   clang-analyzer-*
+  cppcoreguidelines-*
+  -cppcoreguidelines-avoid-const-or-ref-data-members
+  -cppcoreguidelines-avoid-do-while
+  -cppcoreguidelines-avoid-magic-numbers
+  -cppcoreguidelines-avoid-non-const-global-variables
+  -cppcoreguidelines-macro-usage
+  -cppcoreguidelines-narrowing-conversions
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+  -cppcoreguidelines-pro-type-member-init
   google-*
   -google-readability-todo
   misc-*
-  -misc-no-recursion
-  -misc-use-anonymous-namespace
   -misc-include-cleaner
+  -misc-no-recursion
   -misc-static-assert
+  -misc-use-anonymous-namespace
+  modernize-*
+  -modernize-deprecated-headers
+  -modernize-return-braced-init-list
+  -modernize-use-nodiscard
+  -modernize-use-trailing-return-type
   performance-*
   portability-*
   readability-*
+  -readability-avoid-const-params-in-decls
   -readability-else-after-return
+  -readability-function-cognitive-complexity
   -readability-identifier-length
   -readability-implicit-bool-conversion
   -readability-magic-numbers
-  -readability-function-cognitive-complexity
   -readability-named-parameter
-  -readability-avoid-const-params-in-decls
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true
