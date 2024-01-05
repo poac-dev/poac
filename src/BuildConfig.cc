@@ -462,7 +462,7 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
   } else {
     CXXFLAGS += " -O3 -DNDEBUG";
   }
-  const Profile profile = isDebug ? getDebugProfile() : getReleaseProfile();
+  const Profile& profile = isDebug ? getDebugProfile() : getReleaseProfile();
   if (profile.lto) {
     CXXFLAGS += " -flto";
   }

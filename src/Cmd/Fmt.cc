@@ -37,7 +37,7 @@ int fmtMain(std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const String packageName = getPackageName();
+  const String& packageName = getPackageName();
   String clangFormatArgs = "--style=file --fallback-style=LLVM -Werror";
   if (isVerbose()) {
     clangFormatArgs += " --verbose";
