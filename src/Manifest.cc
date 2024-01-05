@@ -506,9 +506,9 @@ DepMetadata GitDependency::install() const {
   const Path includeDir = installDir / "include";
   if (fs::exists(includeDir) && fs::is_directory(includeDir)
       && !fs::is_empty(includeDir)) {
-    return { "-I" + includeDir.string(), "" };
+    return { "-isystem " + includeDir.string(), "" };
   } else {
-    return { "-I" + installDir.string(), "" };
+    return { "-isystem " + installDir.string(), "" };
   }
   // currently, no libs are supported.
 }
