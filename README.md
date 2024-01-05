@@ -289,6 +289,8 @@ you:~/hello_world$ poac tidy
   Running clang-tidy
 ```
 
+You can customize the tidy settings by creating a [`.clang-tidy`](/.clang-tidy) file to the repository root.
+
 ## Why Poac?
 
 C++ is often considered a complex language and unconsciously avoided by many.  The absence of a definitive package manager and the unfamiliar syntax of build systems like [CMake](https://cmake.org) make it seem difficult to set up a C++ environment, leaving people hesitant.
