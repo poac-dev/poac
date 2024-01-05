@@ -45,7 +45,7 @@ String getOutDir() {
   return OUT_DIR;
 }
 
-static Vec<Path> listSourceFilePaths(StringRef directory) {
+static Vec<Path> listSourceFilePaths(const StringRef directory) {
   Vec<Path> sourceFilePaths;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
@@ -131,7 +131,7 @@ struct BuildConfig {
   void setPhony(const OrderedHashSet<String>&);
   void setAll(const OrderedHashSet<String>&);
   void emitMakefile(std::ostream& = std::cout) const;
-  void emitCompdb(StringRef, std::ostream& = std::cout) const;
+  void emitCompdb(const StringRef, std::ostream& = std::cout) const;
 };
 
 void BuildConfig::defineVariable(
@@ -176,8 +176,9 @@ void BuildConfig::setAll(const OrderedHashSet<String>& dependsOn) {
 }
 
 static void emitTarget(
-    std::ostream& os, StringRef target, std::span<const String> dependsOn,
-    std::span<const String> commands = {}
+    std::ostream& os, const StringRef target,
+    const std::span<const String> dependsOn,
+    const std::span<const String> commands = {}
 ) {
   usize offset = 0;
 
@@ -222,7 +223,7 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
   }
 }
 
-void BuildConfig::emitCompdb(StringRef baseDir, std::ostream& os) const {
+void BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
   const Path baseDirPath = fs::canonical(baseDir);
   const String firstIdent(2, ' ');
   const String secondIdent(4, ' ');
@@ -315,7 +316,7 @@ parseMMOutput(const String& mmOutput, String& target) {
   return deps;
 }
 
-static bool isUpToDate(StringRef makefilePath) {
+static bool isUpToDate(const StringRef makefilePath) {
   if (!fs::exists(makefilePath)) {
     return false;
   }
@@ -355,7 +356,7 @@ static void defineDirTarget(BuildConfig& config, const Path& directory) {
   config.defineTarget(directory, { buildCmd("mkdir -p $@") });
 }
 
-static String echoCmd(StringRef header, StringRef body) {
+static String echoCmd(const StringRef header, const StringRef body) {
   std::ostringstream oss;
   Logger::log(oss, LogLevel::info, header, body);
   return "@echo '" + oss.str() + "'";

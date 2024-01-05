@@ -36,10 +36,12 @@ static inline constexpr Arr<
       { "-h", "--help", "", "Print help" },
     };
 
-void printHeader(StringRef) noexcept;
-void printUsage(StringRef, StringRef) noexcept;
-void printOption(StringRef, StringRef, StringRef, StringRef = "") noexcept;
-void printCommand(StringRef, StringRef) noexcept;
+void printHeader(const StringRef) noexcept;
+void printUsage(const StringRef, const StringRef) noexcept;
+void printOption(
+    const StringRef, const StringRef, const StringRef, const StringRef = ""
+) noexcept;
+void printCommand(const StringRef, const StringRef) noexcept;
 void printGlobalOpts() noexcept;
 
-bool commandExists(StringRef) noexcept;
+bool commandExists(const StringRef) noexcept;

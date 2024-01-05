@@ -121,7 +121,7 @@ const String& getPackageName() {
   return manifest.packageName.value();
 }
 
-u16 editionToYear(StringRef edition) {
+u16 editionToYear(const StringRef edition) {
   if (edition == "98") {
     return 1998;
   } else if (edition == "03") {
@@ -169,7 +169,7 @@ const Version& getPackageVersion() {
   return manifest.packageVersion.value();
 }
 
-static void validateCxxflag(StringRef cxxflag) {
+static void validateCxxflag(const StringRef cxxflag) {
   // cxxflag must start with `-`
   if (cxxflag.empty() || cxxflag[0] != '-') {
     throw PoacError("cxxflag must start with `-`");
@@ -302,7 +302,7 @@ static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 // Dependency name can contain alphanumeric characters, and non-leading &
 // non-trailing & non-consecutive `-`, and `_`.  Also, `/` is allowed only
 // once with the same constrains as `-` and `_`.
-static void validateDepName(StringRef name) {
+static void validateDepName(const StringRef name) {
   if (name.empty()) {
     throw PoacError("dependency name is empty");
   }
@@ -340,7 +340,7 @@ static void validateDepName(StringRef name) {
   }
 }
 
-static void validateGitUrl(StringRef url) {
+static void validateGitUrl(const StringRef url) {
   if (url.empty()) {
     throw PoacError("git url is empty");
   }
@@ -355,7 +355,7 @@ static void validateGitUrl(StringRef url) {
   }
 }
 
-static void validateGitRev(StringRef rev) {
+static void validateGitRev(const StringRef rev) {
   if (rev.empty()) {
     throw PoacError("git rev is empty");
   }
@@ -372,7 +372,7 @@ static void validateGitRev(StringRef rev) {
   }
 }
 
-static void validateGitTagAndBranch(StringRef target) {
+static void validateGitTagAndBranch(const StringRef target) {
   if (target.empty()) {
     throw PoacError("git tag or branch is empty");
   }

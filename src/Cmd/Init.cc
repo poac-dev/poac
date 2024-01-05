@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-int initMain(std::span<const StringRef> args) {
+int initMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
   for (usize i = 0; i < args.size(); ++i) {

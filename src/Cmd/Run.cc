@@ -11,7 +11,7 @@
 #include <iostream>
 #include <span>
 
-int runMain(std::span<const StringRef> args) {
+int runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool isParallel = true;

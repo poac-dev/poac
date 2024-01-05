@@ -326,7 +326,7 @@ VersionToken VersionLexer::peek() {
 
 struct SemverParseError : public SemverError {
   SemverParseError(
-      const VersionLexer& lexer, const VersionToken& tok, StringRef msg
+      const VersionLexer& lexer, const VersionToken& tok, const StringRef msg
   )
       : SemverError(lexer.s, '\n', String(lexer.pos, ' '), carets(tok), msg) {}
 };
@@ -423,17 +423,17 @@ VersionToken VersionParser::parseIdent() {
   return lexer.consumeIdent();
 }
 
-Prerelease Prerelease::parse(StringRef s) {
+Prerelease Prerelease::parse(const StringRef s) {
   VersionParser parser(s);
   return parser.parsePre();
 }
 
-BuildMetadata BuildMetadata::parse(StringRef s) {
+BuildMetadata BuildMetadata::parse(const StringRef s) {
   VersionParser parser(s);
   return parser.parseBuild();
 }
 
-Version Version::parse(StringRef s) {
+Version Version::parse(const StringRef s) {
   VersionParser parser(s);
   return parser.parse();
 }

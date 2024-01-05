@@ -8,7 +8,7 @@
 #include <span>
 #include <string>
 
-int cleanMain(std::span<const StringRef> args) noexcept {
+int cleanMain(const std::span<const StringRef> args) noexcept {
   Path outDir = "poac-out";
 
   // Parse args

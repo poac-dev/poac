@@ -13,7 +13,7 @@
 #include <span>
 #include <string>
 
-int fmtMain(std::span<const StringRef> args) {
+int fmtMain(const std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {

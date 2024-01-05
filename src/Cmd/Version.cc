@@ -11,7 +11,7 @@
 #  error "POAC_VERSION is not defined"
 #endif
 
-int versionMain(std::span<const StringRef> args) noexcept {
+int versionMain(const std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];

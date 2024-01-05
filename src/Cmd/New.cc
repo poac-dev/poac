@@ -22,7 +22,7 @@ static inline constexpr StringRef MAIN_CC =
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
-String getPoacToml(StringRef projectName) noexcept {
+String getPoacToml(const StringRef projectName) noexcept {
   String poacToml =
       "[package]\n"
       "name = \"";
@@ -35,7 +35,7 @@ String getPoacToml(StringRef projectName) noexcept {
   return poacToml;
 }
 
-static String getHeader(StringRef projectName) noexcept {
+static String getHeader(const StringRef projectName) noexcept {
   String projectNameUpper{};
   std::transform(
       projectName.cbegin(), projectName.cend(),
@@ -53,7 +53,8 @@ static String getHeader(StringRef projectName) noexcept {
   return header;
 }
 
-static void writeToFile(std::ofstream& ofs, const Path& fpath, StringRef text) {
+static void
+writeToFile(std::ofstream& ofs, const Path& fpath, const StringRef text) {
   ofs.open(fpath);
   if (ofs.is_open()) {
     ofs << text;
@@ -66,7 +67,7 @@ static void writeToFile(std::ofstream& ofs, const Path& fpath, StringRef text) {
   ofs.clear();
 }
 
-static void createTemplateFiles(const bool isBin, StringRef projectName) {
+static void createTemplateFiles(const bool isBin, const StringRef projectName) {
   std::ofstream ofs;
 
   if (isBin) {
@@ -91,7 +92,7 @@ static void createTemplateFiles(const bool isBin, StringRef projectName) {
   }
 }
 
-bool verifyPackageName(StringRef name) noexcept {
+bool verifyPackageName(const StringRef name) noexcept {
   // Empty
   if (name.empty()) {
     Logger::error("missing package name");
@@ -136,7 +137,7 @@ bool verifyPackageName(StringRef name) noexcept {
   return true;
 }
 
-int newMain(std::span<const StringRef> args) {
+int newMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
   String packageName;

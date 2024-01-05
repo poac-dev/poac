@@ -67,7 +67,7 @@ struct ComparatorLexer {
   StringRef s;
   usize pos;
 
-  explicit ComparatorLexer(StringRef s) noexcept : s(s), pos(0) {}
+  explicit ComparatorLexer(const StringRef s) noexcept : s(s), pos(0) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -154,7 +154,7 @@ struct ComparatorLexer {
 struct ComparatorParser {
   ComparatorLexer lexer;
 
-  explicit ComparatorParser(StringRef s) noexcept : lexer(s) {}
+  explicit ComparatorParser(const StringRef s) noexcept : lexer(s) {}
 
   Comparator parse() {
     Comparator result;
@@ -203,7 +203,7 @@ struct ComparatorParser {
   }
 };
 
-Comparator Comparator::parse(StringRef s) {
+Comparator Comparator::parse(const StringRef s) {
   ComparatorParser parser(s);
   return parser.parse();
 }
@@ -449,7 +449,7 @@ struct VersionReqLexer {
   StringRef s;
   usize pos;
 
-  explicit VersionReqLexer(StringRef s) noexcept : s(s), pos(0) {}
+  explicit VersionReqLexer(const StringRef s) noexcept : s(s), pos(0) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -488,7 +488,7 @@ struct VersionReqLexer {
 struct VersionReqParser {
   VersionReqLexer lexer;
 
-  explicit VersionReqParser(StringRef s) noexcept : lexer(s) {}
+  explicit VersionReqParser(const StringRef s) noexcept : lexer(s) {}
 
   VersionReq parse() {
     VersionReq result;
@@ -572,7 +572,7 @@ struct VersionReqParser {
   }
 };
 
-VersionReq VersionReq::parse(StringRef s) {
+VersionReq VersionReq::parse(const StringRef s) {
   VersionReqParser parser(s);
   return parser.parse();
 }
