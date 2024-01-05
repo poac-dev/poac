@@ -15,8 +15,14 @@ enum class LogLevel : u8 {
   debug = 4 // --verbose
 };
 
-class Logger {
-public:
+struct Logger {
+  // Logger is a singleton
+  Logger(const Logger&) = delete;
+  Logger& operator=(const Logger&) = delete;
+  Logger(Logger&&) noexcept = delete;
+  Logger& operator=(Logger&&) noexcept = delete;
+  ~Logger() noexcept = default;
+
   static Logger& instance() noexcept;
   static void setLevel(LogLevel) noexcept;
   static LogLevel getLevel() noexcept;
@@ -96,10 +102,6 @@ private:
   LogLevel level = LogLevel::info;
 
   Logger() noexcept = default;
-
-  // Delete copy constructor and assignment operator to prevent copying
-  Logger(const Logger&) = delete;
-  Logger& operator=(const Logger&) = delete;
 };
 
 bool isVerbose() noexcept;

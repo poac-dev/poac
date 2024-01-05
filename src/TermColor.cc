@@ -22,8 +22,14 @@ static ColorMode getColorMode(const StringRef str) noexcept {
   }
 }
 
-class ColorState {
-public:
+struct ColorState {
+  // ColorState is a singleton
+  ColorState(const ColorState&) = delete;
+  ColorState& operator=(const ColorState&) = delete;
+  ColorState(ColorState&&) noexcept = delete;
+  ColorState& operator=(ColorState&&) noexcept = delete;
+  ~ColorState() noexcept = default;
+
   void set(const ColorMode mode) noexcept {
     switch (mode) {
       case ColorMode::always:
@@ -57,10 +63,6 @@ private:
       should_color_ = isTerm();
     }
   }
-
-  // Delete copy constructor and assignment operator to prevent copying
-  ColorState(const ColorState&) = delete;
-  ColorState& operator=(const ColorState&) = delete;
 };
 
 void setColorMode(const ColorMode cm) noexcept {

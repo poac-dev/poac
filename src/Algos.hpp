@@ -31,6 +31,7 @@ struct OrderedHashSet {
   OrderedHashSet& operator=(const OrderedHashSet&) = default;
   OrderedHashSet(OrderedHashSet&&) noexcept = default;
   OrderedHashSet& operator=(OrderedHashSet&&) noexcept = default;
+  ~OrderedHashSet() noexcept = default;
 
   // O(1)
   void pushBack(const Value& value) {

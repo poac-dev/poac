@@ -15,7 +15,7 @@ version = "0.8.0"
 libgit2 = {version = "1.1.0", system = true}
 
 [profile]
-cxxflags = ["-Wall", "-Wextra", "-Wpedantic", "-pedantic-errors"]
+cxxflags = ["-pedantic-errors", "-Wall", "-Wextra", "-Wpedantic"]
 
 [profile.release]
 lto = true

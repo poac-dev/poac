@@ -55,7 +55,7 @@ enum git_error_t {
 #endif
 
 struct Exception final : public std::exception {
-  Exception() : m_category(GIT_ERROR_NONE) {
+  Exception() {
     if (const git_error* error = git_error_last(); error != nullptr) {
       this->m_message += error->message;
       this->m_category = static_cast<git_error_t>(error->klass);
@@ -78,7 +78,7 @@ struct Exception final : public std::exception {
 
 private:
   std::string m_message = "git2-cpp: ";
-  git_error_t m_category;
+  git_error_t m_category{ GIT_ERROR_NONE };
 };
 
 inline int git2Throw(const int ret) {

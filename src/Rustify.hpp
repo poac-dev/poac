@@ -38,6 +38,7 @@ using i16 = std::int16_t;
 using i32 = std::int32_t;
 using i64 = std::int64_t;
 
+using isize = std::ptrdiff_t;
 using usize = std::size_t;
 
 using f32 = float;

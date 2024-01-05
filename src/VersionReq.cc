@@ -65,9 +65,9 @@ struct ComparatorToken {
 
 struct ComparatorLexer {
   StringRef s;
-  usize pos;
+  usize pos{ 0 };
 
-  explicit ComparatorLexer(const StringRef s) noexcept : s(s), pos(0) {}
+  explicit ComparatorLexer(const StringRef s) noexcept : s(s) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -447,9 +447,9 @@ constexpr bool isCompStart(const char c) noexcept {
 
 struct VersionReqLexer {
   StringRef s;
-  usize pos;
+  usize pos{ 0 };
 
-  explicit VersionReqLexer(const StringRef s) noexcept : s(s), pos(0) {}
+  explicit VersionReqLexer(const StringRef s) noexcept : s(s) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
