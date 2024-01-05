@@ -16,7 +16,6 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
-#include <ranges>
 #include <span>
 #include <sstream>
 #include <stdio.h>
@@ -222,9 +221,8 @@ void BuildConfig::emitMakefile(std::ostream& os) const {
     emitTarget(os, "all", all->dependsOn);
   }
   const Vec<String> sortedTargets = topoSort(targets, targetDeps);
-  for (const auto& sortedTarget : std::ranges::reverse_view(sortedTargets)) {
-    const Target& target = targets.at(sortedTarget);
-    emitTarget(os, sortedTarget, target.dependsOn, target.commands);
+  for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
+    emitTarget(os, *itr, targets.at(*itr).dependsOn, targets.at(*itr).commands);
   }
 }
 
