@@ -747,13 +747,13 @@ void testSimpleTargets() {
   ASSERT_EQ(
       ss.str(),
       "c: b\n"
-      "\techo c\n"
+      "\t@echo c\n"
       "\n"
       "b: a\n"
-      "\techo b\n"
+      "\t@echo b\n"
       "\n"
       "a:\n"
-      "\techo a\n"
+      "\t@echo a\n"
       "\n"
   );
 }
@@ -768,7 +768,7 @@ void testDependOnUnregisteredTarget() {
   ASSERT_EQ(
       ss.str(),
       "a: b\n"
-      "\techo a\n"
+      "\t@echo a\n"
       "\n"
   );
 }
