@@ -38,8 +38,10 @@ String getPoacToml(const StringRef projectName) noexcept {
 static String getHeader(const StringRef projectName) noexcept {
   String projectNameUpper{};
   std::transform(
-      projectName.cbegin(), projectName.cend(),
-      std::back_inserter(projectNameUpper), ::toupper
+      projectName.cbegin(),
+      projectName.cend(),
+      std::back_inserter(projectNameUpper),
+      ::toupper
   );
 
   String header = "#ifndef " + projectNameUpper + "_HPP\n"

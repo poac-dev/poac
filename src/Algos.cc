@@ -115,7 +115,10 @@ static usize levDistance(const StringRef a, const StringRef b) {
 
 static bool equalsInsensitive(const StringRef a, const StringRef b) {
   return std::equal(
-      a.cbegin(), a.cend(), b.cbegin(), b.cend(),
+      a.cbegin(),
+      a.cend(),
+      b.cbegin(),
+      b.cend(),
       [](char a, char b) { return std::tolower(a) == std::tolower(b); }
   );
 }

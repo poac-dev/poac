@@ -21,7 +21,9 @@ void printUsage(const StringRef cmd, const StringRef usage) noexcept {
 }
 
 void printOption(
-    const StringRef lng, const StringRef shrt, const StringRef desc,
+    const StringRef lng,
+    const StringRef shrt,
+    const StringRef desc,
     const StringRef placeholder
 ) noexcept {
   String option;

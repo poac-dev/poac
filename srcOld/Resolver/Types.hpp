@@ -90,7 +90,8 @@ struct DuplicateDeps<WithDeps> {
 
 template <typename W>
 using UniqDeps = std::conditional_t<
-    W::value, HashMap<Package, Deps>,
+    W::value,
+    HashMap<Package, Deps>,
     // <name, ver_req>
     HashMap<String, DependencyInfo>>;
 
@@ -117,14 +118,18 @@ using IncorrectSha256sum = Error<
     "was removed from this PC. We highly recommend submitting an "
     "issue on GitHub of the package and stopping using this package:\n"
     "  {}: {}",
-    String, String, String, String>;
+    String,
+    String,
+    String,
+    String>;
 using RedefinePredefinedRegistryEntry = Error<
     "Registry entry named `{}` is predefined and can't be overwritten.\n",
     String>;
 using DuplicateRegistryEntry =
     Error<"Registry entry named `{}` is duplicated.\n", String>;
 using UnknownRegistryType = Error<
-    "Registry entry named `{}` has unknown registry type `{}`.\n", String,
+    "Registry entry named `{}` has unknown registry type `{}`.\n",
+    String,
     String>;
 using Unknown = Error<"unknown error occurred: {}", String>;
 

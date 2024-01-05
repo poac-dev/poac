@@ -69,11 +69,16 @@ struct Lockfile {
 
 // NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::lockfile::v1::Package, name, version, dependencies
+    poac::data::lockfile::v1::Package,
+    name,
+    version,
+    dependencies
 )
 // NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::lockfile::v1::Lockfile, version, package
+    poac::data::lockfile::v1::Lockfile,
+    version,
+    package
 )
 
 export namespace poac::data::lockfile::inline v1 {

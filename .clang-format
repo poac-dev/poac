@@ -9,12 +9,16 @@ AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
+AllowAllParametersOfDeclarationOnNextLine: false
 BreakBeforeBinaryOperators: NonAssignment
 BreakStringLiterals: true
+BinPackArguments: false
+BinPackParameters: false
 Cpp11BracedListStyle: false
 IncludeBlocks: Regroup
 IndentCaseLabels: true
 IndentPPDirectives: AfterHash
+InsertTrailingCommas: Wrapped
 NamespaceIndentation: Inner
 PointerAlignment: Left
 QualifierAlignment: Left

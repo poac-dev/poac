@@ -43,7 +43,9 @@ int initMain(const std::span<const StringRef> args) {
   ofs << getPoacToml(packageName);
 
   Logger::info(
-      "Created", isBin ? "binary (application) `" : "library `", packageName,
+      "Created",
+      isBin ? "binary (application) `" : "library `",
+      packageName,
       "` package"
   );
   return EXIT_SUCCESS;

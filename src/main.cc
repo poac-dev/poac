@@ -53,7 +53,10 @@ void noSuchCommand(const StringRef arg) {
     suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
   }
   Logger::error(
-      "no such command: `", arg, "`", "\n\n", suggestion,
+      "no such command: `",
+      arg,
+      "`\n\n",
+      suggestion,
       "       Run `poac help` for a list of commands"
   );
 }

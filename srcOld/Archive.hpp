@@ -32,7 +32,10 @@ struct ArchiveWriteDelete {
 using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 
 [[nodiscard]] auto archive_write_data_block(
-    const Writer& writer, const void* buffer, usize size, i64 offset
+    const Writer& writer,
+    const void* buffer,
+    usize size,
+    i64 offset
 ) noexcept -> Result<void, String> {
   const la_ssize_t res =
       archive_write_data_block(writer.get(), buffer, size, offset);
@@ -71,7 +74,9 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 }
 
 [[nodiscard]] auto archive_write_header(
-    Archive* reader, const Writer& writer, archive_entry* entry
+    Archive* reader,
+    const Writer& writer,
+    archive_entry* entry
 ) noexcept -> Result<void, String> {
   if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
@@ -124,7 +129,9 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
 }
 
 [[nodiscard]] auto archive_read_open_filename(
-    Archive* reader, const Path& file_path, usize block_size
+    Archive* reader,
+    const Path& file_path,
+    usize block_size
 ) noexcept -> Result<void, String> {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
     return Err("Cannot archive_read_open_filename");

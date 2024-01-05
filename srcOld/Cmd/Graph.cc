@@ -138,7 +138,8 @@ static auto create_graph() -> Result<std::pair<Graph, Vec<String>>> {
   static_cast<void>(names); // error: unused variable
   for (auto [itr, end] = edges(g); itr != end; ++itr) {
     spdlog::info(
-        "{} -> {}", boost::get(&Vertex::name, g)[source(*itr, g)],
+        "{} -> {}",
+        boost::get(&Vertex::name, g)[source(*itr, g)],
         boost::get(&Vertex::name, g)[target(*itr, g)]
     );
   }

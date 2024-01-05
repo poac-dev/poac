@@ -12,7 +12,8 @@ auto main() -> int {
   "simple case"_test = [] {
     const fs::path temp_dir = get_temp_dir();
     uitest<Target::Stdout>(
-        { "create", "hello_world" }, temp_dir,
+        { "create", "hello_world" },
+        temp_dir,
         [](const fs::path& temp_dir) {
           expect(fs::exists(temp_dir / "hello_world"));
           expect(fs::is_directory(temp_dir / "hello_world"));

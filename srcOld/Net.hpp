@@ -81,8 +81,10 @@ auto to_byte_progress(const i32& max_count, i32 now_count) -> String {
     now_count = max_count;
   }
   return format(
-      "{} {}/{}", to_progress(max_count, now_count),
-      util::pretty::to_byte(now_count), util::pretty::to_byte(max_count)
+      "{} {}/{}",
+      to_progress(max_count, now_count),
+      util::pretty::to_byte(now_count),
+      util::pretty::to_byte(max_count)
   );
 }
 
@@ -92,7 +94,9 @@ using Headers =
 
 template <typename RequestBody>
 auto create_request(
-    http::verb method, const StringRef target, const StringRef host,
+    http::verb method,
+    const StringRef target,
+    const StringRef host,
     const Headers& headers = {}
 ) -> http::request<RequestBody> {
   // Set up an HTTP request message, 10 -> HTTP/1.0, 11 -> HTTP/1.1
@@ -157,14 +161,17 @@ public:
   inline void set(const FileNameType& name, const String& value) {
     _form_param.emplace_back(format(
         "--{boundary}{crlf}{cd}name=\"{name}\"{crlf}{crlf}{value}",
-        "boundary"_a = _boundary, "crlf"_a = _crlf,
-        "cd"_a = _content_disposition, "name"_a = name, "value"_a = value
+        "boundary"_a = _boundary,
+        "crlf"_a = _crlf,
+        "cd"_a = _content_disposition,
+        "name"_a = name,
+        "value"_a = value
     ));
     generate_header(); // re-generate
   }
   inline void
-  set(const FileNameType& name, const FilePathType& value,
-      const HeaderType& h) {
+  set(const FileNameType& name, const FilePathType& value, const HeaderType& h
+  ) {
     _file_param.emplace_back(name, value, h);
     generate_header(); // re-generate
   }
@@ -181,7 +188,9 @@ public:
   }
   [[nodiscard]] inline auto content_length() const -> std::uintmax_t {
     return std::accumulate(
-        _file_param.begin(), _file_param.end(), _header.size() + _footer.size(),
+        _file_param.begin(),
+        _file_param.end(),
+        _header.size() + _footer.size(),
         [](std::uintmax_t acc, const auto& f) {
           return acc + fs::file_size(std::get<1>(f));
         }
@@ -218,8 +227,12 @@ private:
     _header = format("{}{}", _crlf, fmt::join(_form_param, ""));
     for (const auto& [name, filename, header] : _file_param) {
       String h = format(
-          R"(--{}{}{}name="{}"; filename="{}")", _boundary, _crlf,
-          _content_disposition, name, filename.filename().string()
+          R"(--{}{}{}name="{}"; filename="{}")",
+          _boundary,
+          _crlf,
+          _content_disposition,
+          name,
+          filename.filename().string()
       );
       for (const auto& [field, content] : header) {
         // NOLINTNEXTLINE(google-readability-casting)
@@ -251,11 +264,14 @@ public:
         resolver(std::make_unique<boost::asio::ip::tcp::resolver>(*ioc)),
         stream(std::make_unique<
                boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>(
-            *ioc, *ctx
+            *ioc,
+            *ctx
         )) {}
 
   template <
-      http::verb method, typename ResponseBody, typename Request,
+      http::verb method,
+      typename ResponseBody,
+      typename Request,
       typename Ofstream>
   [[nodiscard]] auto request(Request&& req, Ofstream&& ofs) const
       -> Result<typename ResponseBody::value_type, String> {
@@ -271,9 +287,11 @@ public:
       typename Ofstream = std::nullptr_t,
       typename ResponseBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>,
-          http::vector_body<unsigned char>, http::string_body>>
+          http::vector_body<unsigned char>,
+          http::string_body>>
   [[nodiscard]] auto
-  get(const StringRef target, const Headers& headers = {},
+  get(const StringRef target,
+      const Headers& headers = {},
       Ofstream&& ofs = nullptr) const
       -> Result<typename ResponseBody::value_type, String> {
     const auto req =
@@ -291,21 +309,26 @@ public:
   }
 
   template <
-      typename BodyType, typename Ofstream = std::nullptr_t,
+      typename BodyType,
+      typename Ofstream = std::nullptr_t,
       typename RequestBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<BodyType>, MultiPartForm>,
-          http::empty_body, http::string_body>,
+          http::empty_body,
+          http::string_body>,
       typename ResponseBody = std::conditional_t<
           std::is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>,
-          http::vector_body<unsigned char>, http::string_body>>
+          http::vector_body<unsigned char>,
+          http::string_body>>
   [[nodiscard]] auto post(
-      const StringRef target, BodyType&& body, const Headers& headers = {},
+      const StringRef target,
+      BodyType&& body,
+      const Headers& headers = {},
       Ofstream&& ofs = nullptr
   ) const -> Result<typename ResponseBody::value_type, String> {
     auto req =
         create_request<RequestBody>(http::verb::post, target, host, headers);
-    if constexpr (!std::is_same_v<
-                      std::remove_cvref_t<BodyType>, MultiPartForm>) {
+    if constexpr (!std::
+                      is_same_v<std::remove_cvref_t<BodyType>, MultiPartForm>) {
       req.set(http::field::content_type, "application/json");
       req.body() = body;
       req.prepare_payload();
@@ -336,10 +359,11 @@ private:
       stream;
 
   template <
-      typename Request, std::enable_if_t<
-                            std::negation_v<std::is_same<
-                                std::remove_cvref_t<Request>, MultiPartForm>>,
-                            std::nullptr_t> = nullptr>
+      typename Request,
+      std::enable_if_t<
+          std::negation_v<
+              std::is_same<std::remove_cvref_t<Request>, MultiPartForm>>,
+          std::nullptr_t> = nullptr>
   void write_request(const Request& req) const {
     log::debug("[util::net::requests] write type: string");
     // Send the HTTP request to the remote host
@@ -386,7 +410,9 @@ private:
   }
 
   template <
-      http::verb method, typename ResponseBody, typename Request,
+      http::verb method,
+      typename ResponseBody,
+      typename Request,
       typename Ofstream>
   [[nodiscard]] auto read_response(Request&& old_req, Ofstream&& ofs) const
       -> Result<typename ResponseBody::value_type, String> {
@@ -398,13 +424,17 @@ private:
     http::read(*stream, buffer, res);
     // Handle HTTP status code
     return handle_status<method>(
-        std::forward<Request>(old_req), std::move(res),
+        std::forward<Request>(old_req),
+        std::move(res),
         std::forward<Ofstream>(ofs)
     );
   }
 
   template <
-      http::verb method, typename Request, typename Response, typename Ofstream,
+      http::verb method,
+      typename Request,
+      typename Response,
+      typename Ofstream,
       typename ResponseBody = typename Response::body_type>
   [[nodiscard]] auto
   handle_status(Request&& old_req, Response&& res, Ofstream&& ofs) const
@@ -418,15 +448,18 @@ private:
         ));
       case 3:
         return redirect<method>(
-            std::forward<Request>(old_req), std::forward<Response>(res),
+            std::forward<Request>(old_req),
+            std::forward<Response>(res),
             std::forward<Ofstream>(ofs)
         );
       default:
         if constexpr (!std::is_same_v<
-                          std::remove_cvref_t<Ofstream>, std::ofstream>) {
+                          std::remove_cvref_t<Ofstream>,
+                          std::ofstream>) {
           return Err(format(
               "util::net received a bad response code: {}\n{}",
-              res.base().result_int(), res.body()
+              res.base().result_int(),
+              res.body()
           ));
         } else {
           throw Err(format(
@@ -438,12 +471,13 @@ private:
   }
 
   template <
-      typename Response, typename Ofstream,
+      typename Response,
+      typename Ofstream,
       typename ResponseBody = typename Response::body_type>
   auto parse_response(Response&& res, Ofstream&& ofs) const ->
       typename ResponseBody::value_type {
-    if constexpr (!std::is_same_v<
-                      std::remove_cvref_t<Ofstream>, std::ofstream>) {
+    if constexpr (!std::
+                      is_same_v<std::remove_cvref_t<Ofstream>, std::ofstream>) {
       log::debug("[util::net::requests] read type: string");
       return res.body();
     } else {
@@ -472,7 +506,10 @@ private:
   }
 
   template <
-      http::verb method, typename Request, typename Response, typename Ofstream,
+      http::verb method,
+      typename Request,
+      typename Response,
+      typename Ofstream,
       typename ResponseBody = typename Response::body_type>
   [[nodiscard]] auto
   redirect(Request&& old_req, Response&& res, Ofstream&& ofs) const
@@ -574,7 +611,8 @@ call(StringRef path, const Option<String>& body = None) noexcept
 }
 
 [[nodiscard]] auto deps(
-    StringRef name, StringRef version
+    StringRef name,
+    StringRef version
 ) -> Result<HashMap<String, core::resolver::resolve::DependencyInfo>, String> {
   const String path = format("/packages/{}/{}/deps", name, version);
   const boost::property_tree::ptree res = Try(call(path));
@@ -598,7 +636,8 @@ call(StringRef path, const Option<String>& body = None) noexcept
   }
   const auto results = util::meta::to_vec<String>(res, "data");
   log::debug(
-      "[util::net::api::versions] versions of {} are [{}]", name,
+      "[util::net::api::versions] versions of {} are [{}]",
+      name,
       fmt::join(results, ", ")
   );
   return Ok(results);

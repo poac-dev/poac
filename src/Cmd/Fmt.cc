@@ -65,7 +65,8 @@ int fmtMain(const std::span<const StringRef> args) {
 
   // Automatically collects format-target files
   for (auto entry = fs::recursive_directory_iterator(".");
-       entry != fs::recursive_directory_iterator(); ++entry) {
+       entry != fs::recursive_directory_iterator();
+       ++entry) {
     if (entry->is_directory()) {
       const String path = entry->path().string();
       if (trieSearchFromAnyPosition(root, path)) {

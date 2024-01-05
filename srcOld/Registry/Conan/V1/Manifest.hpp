@@ -18,7 +18,8 @@ import poac.util.format;
 export namespace poac::util::registry::conan::v1::manifest {
 
 auto gather_conan_conf(
-    const boost::property_tree::ptree& pt, const std::string& field,
+    const boost::property_tree::ptree& pt,
+    const std::string& field,
     const std::string& prefix
 ) -> Vec<String> {
   Vec<String> lines;

@@ -54,7 +54,8 @@ export inline auto get_extracted_path(const resolve::Package& package) -> Path {
 
 /// Rename unknown extracted directory to easily access when building.
 [[nodiscard]] auto rename_extracted_directory(
-    const resolve::Package& package, StringRef extracted_directory_name
+    const resolve::Package& package,
+    StringRef extracted_directory_name
 ) -> Result<void> {
   const Path temporarily_extracted_path =
       config::default_registry_dir / extracted_directory_name;
@@ -243,7 +244,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
 }
 
 [[nodiscard]] auto to_resolvable_deps(
-    const toml::table& dependencies, const registry::Registries& registries
+    const toml::table& dependencies,
+    const registry::Registries& registries
 ) noexcept -> Result<resolve::UniqDeps<resolve::WithoutDeps>> {
   try {
     // TOML tables should guarantee uniqueness.

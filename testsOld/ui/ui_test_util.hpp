@@ -67,7 +67,8 @@ inline Cmd mk_cmd(const std::string& cmd, const fs::path& temp_dir) {
 
 template <Target target>
 Cmd::SimpleResult dispatch(
-    std::initializer_list<std::string_view> args, const fs::path& temp_dir
+    std::initializer_list<std::string_view> args,
+    const fs::path& temp_dir
 ) {
   std::string cmd_args = " --color never"; // Disable color on tests
   for (std::string_view a : args) {

@@ -118,14 +118,20 @@ struct BuildConfig {
   void
   defineVar(const String&, const Variable&, const OrderedHashSet<String>& = {});
   void defineSimpleVar(
-      const String&, const String&, const OrderedHashSet<String>& = {}
+      const String&,
+      const String&,
+      const OrderedHashSet<String>& = {}
   );
   void defineCondVar(
-      const String&, const String&, const OrderedHashSet<String>& = {}
+      const String&,
+      const String&,
+      const OrderedHashSet<String>& = {}
   );
 
   void defineTarget(
-      const String&, const Vec<String>&, const OrderedHashSet<String>& = {}
+      const String&,
+      const Vec<String>&,
+      const OrderedHashSet<String>& = {}
   );
   void addPhony(const String&);
   void setAll(const OrderedHashSet<String>&);
@@ -134,7 +140,8 @@ struct BuildConfig {
 };
 
 void BuildConfig::defineVar(
-    const String& name, const Variable& value,
+    const String& name,
+    const Variable& value,
     const OrderedHashSet<String>& dependsOn
 ) {
   variables[name] = value;
@@ -144,20 +151,23 @@ void BuildConfig::defineVar(
   }
 }
 void BuildConfig::defineSimpleVar(
-    const String& name, const String& value,
+    const String& name,
+    const String& value,
     const OrderedHashSet<String>& dependsOn
 ) {
   defineVar(name, { value, VarType::Simple }, dependsOn);
 }
 void BuildConfig::defineCondVar(
-    const String& name, const String& value,
+    const String& name,
+    const String& value,
     const OrderedHashSet<String>& dependsOn
 ) {
   defineVar(name, { value, VarType::Cond }, dependsOn);
 }
 
 void BuildConfig::defineTarget(
-    const String& name, const Vec<String>& commands,
+    const String& name,
+    const Vec<String>& commands,
     const OrderedHashSet<String>& dependsOn
 ) {
   targets[name] = { commands, dependsOn };
@@ -178,7 +188,8 @@ void BuildConfig::setAll(const OrderedHashSet<String>& dependsOn) {
 }
 
 static void emitTarget(
-    std::ostream& os, const StringRef target,
+    std::ostream& os,
+    const StringRef target,
     const std::span<const String> dependsOn,
     const std::span<const String> commands = {}
 ) {
@@ -353,8 +364,10 @@ static String echoCmd(const StringRef header, const StringRef body) {
 }
 
 static void defineCompileTarget(
-    BuildConfig& config, const String& objTarget,
-    const OrderedHashSet<String>& deps, const bool isTest = false
+    BuildConfig& config,
+    const String& objTarget,
+    const OrderedHashSet<String>& deps,
+    const bool isTest = false
 ) {
   Vec<String> commands(3);
   commands[0] = "@mkdir -p $(@D)";
@@ -368,7 +381,8 @@ static void defineCompileTarget(
 }
 
 static void defineLinkTarget(
-    BuildConfig& config, const String& binTarget,
+    BuildConfig& config,
+    const String& binTarget,
     const OrderedHashSet<String>& deps
 ) {
   Vec<String> commands(2);
@@ -378,8 +392,10 @@ static void defineLinkTarget(
 }
 
 static void collectBinDepObjs(
-    OrderedHashSet<String>& deps, const OrderedHashSet<String>& objTargetDeps,
-    const Path& sourceFile, const OrderedHashSet<String>& buildObjTargets,
+    OrderedHashSet<String>& deps,
+    const OrderedHashSet<String>& objTargetDeps,
+    const Path& sourceFile,
+    const OrderedHashSet<String>& buildObjTargets,
     const BuildConfig& config
 ) {
   // This test target depends on the object file corresponding to
@@ -420,8 +436,11 @@ static void collectBinDepObjs(
     }
     deps.pushBack(headerObjTarget);
     collectBinDepObjs(
-        deps, config.targets.at(headerObjTarget).dependsOn, sourceFile,
-        buildObjTargets, config
+        deps,
+        config.targets.at(headerObjTarget).dependsOn,
+        sourceFile,
+        buildObjTargets,
+        config
     );
   }
 }
@@ -461,8 +480,10 @@ static void setVariables(BuildConfig& config, const bool isDebug) {
 
   String packageNameUpper = config.packageName;
   std::transform(
-      packageNameUpper.begin(), packageNameUpper.end(),
-      packageNameUpper.begin(), ::toupper
+      packageNameUpper.begin(),
+      packageNameUpper.end(),
+      packageNameUpper.begin(),
+      ::toupper
   );
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().toString() + "\"'";
@@ -526,8 +547,11 @@ static BuildConfig configureBuild(const bool isDebug) {
   const String mainObjTarget = config.buildOutDir / "main.o";
   OrderedHashSet<String> projTargetDeps = { mainObjTarget };
   collectBinDepObjs(
-      projTargetDeps, config.targets.at(mainObjTarget).dependsOn, "",
-      buildObjTargets, config
+      projTargetDeps,
+      config.targets.at(mainObjTarget).dependsOn,
+      "",
+      buildObjTargets,
+      config
   );
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
@@ -584,8 +608,9 @@ static BuildConfig configureBuild(const bool isDebug) {
   // Tidy Pass
   config.defineCondVar("POAC_TIDY", "clang-tidy");
   config.defineTarget(
-      "tidy", { "$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) "
-                "-DPOAC_TEST $(INCLUDES)" }
+      "tidy",
+      { "$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) "
+        "-DPOAC_TEST $(INCLUDES)" }
   );
   config.addPhony("tidy");
 
@@ -667,7 +692,8 @@ void testCycleVars() {
   config.defineSimpleVar("b", "c", { "c" });
   config.defineSimpleVar("c", "a", { "a" });
 
-  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
+                                         PoacError,
                                          "too complex build graph");
 }
 
@@ -704,7 +730,8 @@ void testCycleTargets() {
   config.defineTarget("b", { "echo b" }, { "c" });
   config.defineTarget("c", { "echo c" }, { "a" });
 
-  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss), PoacError,
+  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
+                                         PoacError,
                                          "too complex build graph");
 }
 

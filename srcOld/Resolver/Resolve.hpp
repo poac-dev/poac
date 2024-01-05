@@ -97,7 +97,8 @@ auto create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
           // It is guaranteed to exist
           clause.emplace_back(
               util::meta::index_of_if(
-                  first, last,
+                  first,
+                  last,
                   [&n = name, &di = dep_info](const auto& d) {
                     return get_package(d).name == n
                            && get_package(d).dep_info == di;
@@ -125,7 +126,8 @@ auto create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
             // It is guaranteed to exist
             new_clause.emplace_back(
                 util::meta::index_of_if(
-                    first, last,
+                    first,
+                    last,
                     [&package](const auto& p) {
                       return get_package(p).name == package.name
                              && get_package(p).dep_info == package.dep_info;
@@ -183,10 +185,12 @@ auto duplicate_loose(const SinglePassRange& rng) -> bool {
   const auto first = std::begin(rng);
   const auto last = std::end(rng);
   return std::find_if(
-             first, last,
+             first,
+             last,
              [&](const auto& x) {
                return std::count_if(
-                          first, last,
+                          first,
+                          last,
                           [&](const auto& y) {
                             return get_package(x).name == get_package(y).name;
                           }
@@ -212,7 +216,8 @@ auto duplicate_loose(const SinglePassRange& rng) -> bool {
 
   if (satisfied_versions.empty()) {
     return Err(format(
-        "`{}: {}` not found; seem dependencies are broken", package.name,
+        "`{}: {}` not found; seem dependencies are broken",
+        package.name,
         package.dep_info.version_rq
     ));
   }
@@ -255,7 +260,8 @@ inline auto cache_exists(const DupDeps<WithDeps>& deps, const Package& package)
 }
 
 auto gather_deps_of_deps(
-    const UniqDeps<WithoutDeps>& deps_api_res, IntervalCache& interval_cache
+    const UniqDeps<WithoutDeps>& deps_api_res,
+    IntervalCache& interval_cache
 ) -> DupDeps<WithoutDeps> {
   DupDeps<WithoutDeps> cur_deps_deps;
   for (const auto& [name, dep_info] : deps_api_res) {
@@ -283,7 +289,8 @@ auto gather_deps_of_deps(
 }
 
 void gather_deps(
-    const Package& package, DupDeps<WithDeps>& new_deps,
+    const Package& package,
+    DupDeps<WithDeps>& new_deps,
     IntervalCache& interval_cache
 ) {
   // Check if root package resolved dependency (whether the specific version is
@@ -343,7 +350,8 @@ void gather_deps(
       gather_deps(
           Package{ package.name,
                    { version, package.dep_info.index, package.dep_info.type } },
-          duplicate_deps, interval_cache
+          duplicate_deps,
+          interval_cache
       );
     }
   }

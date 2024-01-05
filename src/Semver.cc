@@ -326,7 +326,9 @@ VersionToken VersionLexer::peek() {
 
 struct SemverParseError : public SemverError {
   SemverParseError(
-      const VersionLexer& lexer, const VersionToken& tok, const StringRef msg
+      const VersionLexer& lexer,
+      const VersionToken& tok,
+      const StringRef msg
   )
       : SemverError(lexer.s, '\n', String(lexer.pos, ' '), carets(tok), msg) {}
 };
@@ -359,7 +361,8 @@ Version VersionParser::parse() {
 
   if (!lexer.isEof()) {
     throw SemverParseError(
-        lexer, lexer.peek(),
+        lexer,
+        lexer.peek(),
         " unexpected character: `" + String(1, lexer.s[lexer.pos]) + '`'
     );
   }
@@ -447,84 +450,98 @@ Version Version::parse(const StringRef s) {
 
 void testParse() {
   ASSERT_EXCEPTION(
-      Version::parse(""), SemverError,
+      Version::parse(""),
+      SemverError,
       "invalid semver:\n"
       "empty string is not a valid semver"
   );
   ASSERT_EXCEPTION(
-      Version::parse("  "), SemverError,
+      Version::parse("  "),
+      SemverError,
       "invalid semver:\n"
       "  \n"
       "^ expected number"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1"), SemverError,
+      Version::parse("1"),
+      SemverError,
       "invalid semver:\n"
       "1\n"
       " ^ expected `.`"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2"), SemverError,
+      Version::parse("1.2"),
+      SemverError,
       "invalid semver:\n"
       "1.2\n"
       "   ^ expected `.`"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3-"), SemverError,
+      Version::parse("1.2.3-"),
+      SemverError,
       "invalid semver:\n"
       "1.2.3-\n"
       "      ^ expected number or identifier"
   );
   ASSERT_EXCEPTION(
-      Version::parse("00"), SemverError,
+      Version::parse("00"),
+      SemverError,
       "invalid semver:\n"
       "00\n"
       "^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      Version::parse("0.00.0"), SemverError,
+      Version::parse("0.00.0"),
+      SemverError,
       "invalid semver:\n"
       "0.00.0\n"
       "  ^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      Version::parse("a.b.c"), SemverError,
+      Version::parse("a.b.c"),
+      SemverError,
       "invalid semver:\n"
       "a.b.c\n"
       "^ expected number"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3 abc"), SemverError,
+      Version::parse("1.2.3 abc"),
+      SemverError,
       "invalid semver:\n"
       "1.2.3 abc\n"
       "     ^ unexpected character: ` `"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3-01"), SemverError,
+      Version::parse("1.2.3-01"),
+      SemverError,
       "invalid semver:\n"
       "1.2.3-01\n"
       "      ^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      Version::parse("1.2.3++"), SemverError,
+      Version::parse("1.2.3++"),
+      SemverError,
       "invalid semver:\n"
       "1.2.3++\n"
       "      ^ expected identifier"
   );
   ASSERT_EXCEPTION(
-      Version::parse("07"), SemverError,
+      Version::parse("07"),
+      SemverError,
       "invalid semver:\n"
       "07\n"
       "^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
-      Version::parse("111111111111111111111.0.0"), SemverError,
+      Version::parse("111111111111111111111.0.0"),
+      SemverError,
       "invalid semver:\n"
       "111111111111111111111.0.0\n"
       "^ number exceeds UINT64_MAX"
   );
   ASSERT_EXCEPTION(
-      Version::parse("8\0"), SemverError,
+      Version::parse("8\0"),
+      SemverError,
       "invalid semver:\n"
       "8\n"
       " ^ expected `.`"
@@ -548,22 +565,32 @@ void testParse() {
   );
   ASSERT_EQ(
       Version::parse("1.2.3-alpha1+build5"),
-      (Version{ 1, 2, 3, Prerelease::parse("alpha1"),
-                BuildMetadata::parse("build5") })
+      (Version{
+          1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata::parse("build5") }
+      )
   );
   ASSERT_EQ(
       Version::parse("1.2.3-1.alpha1.9+build5.7.3aedf"),
-      (Version{ 1, 2, 3, Prerelease::parse("1.alpha1.9"),
+      (Version{ 1,
+                2,
+                3,
+                Prerelease::parse("1.alpha1.9"),
                 BuildMetadata::parse("build5.7.3aedf") })
   );
   ASSERT_EQ(
       Version::parse("1.2.3-0a.alpha1.9+05build.7.3aedf"),
-      (Version{ 1, 2, 3, Prerelease::parse("0a.alpha1.9"),
+      (Version{ 1,
+                2,
+                3,
+                Prerelease::parse("0a.alpha1.9"),
                 BuildMetadata::parse("05build.7.3aedf") })
   );
   ASSERT_EQ(
       Version::parse("0.4.0-beta.1+0851523"),
-      (Version{ 0, 4, 0, Prerelease::parse("beta.1"),
+      (Version{ 0,
+                4,
+                0,
+                Prerelease::parse("beta.1"),
                 BuildMetadata::parse("0851523") })
   );
   ASSERT_EQ(
