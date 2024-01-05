@@ -103,7 +103,7 @@ private:
   Manifest& operator=(const Manifest&) = delete;
 };
 
-String getPackageName() {
+const String& getPackageName() {
   Manifest& manifest = Manifest::instance();
   if (manifest.packageName.has_value()) {
     Logger::debug("[package.name] is cached");
@@ -118,7 +118,7 @@ String getPackageName() {
   }
   manifest.packageName = packageName;
   Logger::debug("[package.name] is set to `", packageName, '`');
-  return packageName;
+  return manifest.packageName.value();
 }
 
 u16 editionToYear(StringRef edition) {
@@ -142,7 +142,7 @@ u16 editionToYear(StringRef edition) {
   throw PoacError("invalid edition: ", edition);
 }
 
-String getPackageEdition() {
+const String& getPackageEdition() {
   Manifest& manifest = Manifest::instance();
   if (manifest.packageEdition.has_value()) {
     return manifest.packageEdition.value();
@@ -153,10 +153,10 @@ String getPackageEdition() {
   editionToYear(edition); // verification
 
   manifest.packageEdition = edition;
-  return edition;
+  return manifest.packageEdition.value();
 }
 
-Version getPackageVersion() {
+const Version& getPackageVersion() {
   Manifest& manifest = Manifest::instance();
   if (manifest.packageVersion.has_value()) {
     return manifest.packageVersion.value();
@@ -166,7 +166,7 @@ Version getPackageVersion() {
       toml::find<String>(manifest.data.value(), "package", "version");
   const Version version = Version::parse(versionStr);
   manifest.packageVersion = version;
-  return version;
+  return manifest.packageVersion.value();
 }
 
 static void validateCxxflag(StringRef cxxflag) {
@@ -233,7 +233,7 @@ static Profile getProfile(Option<String> profileName) {
   }
 }
 
-static Profile getBaseProfile() {
+static const Profile& getBaseProfile() {
   Manifest& manifest = Manifest::instance();
   if (manifest.profile.has_value()) {
     return manifest.profile.value();
@@ -241,10 +241,10 @@ static Profile getBaseProfile() {
 
   const Profile baseProfile = getProfile(None);
   manifest.profile = baseProfile;
-  return baseProfile;
+  return manifest.profile.value();
 }
 
-Profile getDebugProfile() {
+const Profile& getDebugProfile() {
   Manifest& manifest = Manifest::instance();
   if (manifest.debugProfile.has_value()) {
     return manifest.debugProfile.value();
@@ -253,10 +253,10 @@ Profile getDebugProfile() {
   Profile debugProfile = getProfile("debug");
   debugProfile.merge(getBaseProfile());
   manifest.debugProfile = debugProfile;
-  return debugProfile;
+  return manifest.debugProfile.value();
 }
 
-Profile getReleaseProfile() {
+const Profile& getReleaseProfile() {
   Manifest& manifest = Manifest::instance();
   if (manifest.releaseProfile.has_value()) {
     return manifest.releaseProfile.value();
@@ -265,10 +265,10 @@ Profile getReleaseProfile() {
   Profile releaseProfile = getProfile("release");
   releaseProfile.merge(getBaseProfile());
   manifest.releaseProfile = releaseProfile;
-  return releaseProfile;
+  return manifest.releaseProfile.value();
 }
 
-Vec<String> getLintCpplintFilters() {
+const Vec<String>& getLintCpplintFilters() {
   Manifest& manifest = Manifest::instance();
   if (manifest.cpplintFilters.has_value()) {
     return manifest.cpplintFilters.value();
@@ -284,7 +284,7 @@ Vec<String> getLintCpplintFilters() {
     );
   }
   manifest.cpplintFilters = filters;
-  return filters;
+  return manifest.cpplintFilters.value();
 }
 
 static Path getXdgCacheHome() {

@@ -18,11 +18,11 @@ struct Profile {
   void merge(const Profile& other);
 };
 
-String getPackageName();
+const String& getPackageName();
 u16 editionToYear(StringRef);
-String getPackageEdition();
-Version getPackageVersion();
-Profile getDebugProfile();
-Profile getReleaseProfile();
-Vec<String> getLintCpplintFilters();
+const String& getPackageEdition();
+const Version& getPackageVersion();
+const Profile& getDebugProfile();
+const Profile& getReleaseProfile();
+const Vec<String>& getLintCpplintFilters();
 Vec<DepMetadata> installDependencies();

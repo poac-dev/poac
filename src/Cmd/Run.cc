@@ -39,7 +39,7 @@ int runMain(std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const String projectName = getPackageName();
+  const String& projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
   const int exitCode = runCmd(command);
   return exitCode;

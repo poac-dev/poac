@@ -74,7 +74,7 @@ int lintMain(std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const String packageName = getPackageName();
+  const String& packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     Logger::debug("Using CPPLINT.cfg for lint ...");
     return lint(packageName, cpplintArgs);
@@ -86,7 +86,7 @@ int lintMain(std::span<const StringRef> args) {
     cpplintArgs += " --root=src";
   }
 
-  const Vec<String> cpplintFilters = getLintCpplintFilters();
+  const Vec<String>& cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
     Logger::debug("Using Poac manifest file for lint ...");
     cpplintArgs += " --filter=";
