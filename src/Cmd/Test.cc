@@ -23,7 +23,8 @@ int testMain(const std::span<const StringRef> args) {
     }
     else if (arg == "-r" || arg == "--release") {
       Logger::warn(
-          "Tests in release mode could disable assert macros while speeding up the runtime."
+          "Tests in release mode could disable assert macros while speeding up "
+          "the runtime."
       );
       isDebug = false;
     }

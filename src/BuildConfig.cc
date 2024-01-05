@@ -609,10 +609,8 @@ static BuildConfig configureBuild(const bool isDebug) {
   // Tidy Pass
   config.defineCondVariable("POAC_TIDY", "clang-tidy");
   config.defineTarget(
-      "tidy",
-      { buildCmd(
-          "$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)"
-      ) }
+      "tidy", { buildCmd("$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) "
+                         "-DPOAC_TEST $(INCLUDES)") }
   );
   config.addPhony("tidy");
 

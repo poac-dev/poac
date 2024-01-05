@@ -10,7 +10,7 @@ AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBinaryOperators: NonAssignment
-BreakStringLiterals: false
+BreakStringLiterals: true
 Cpp11BracedListStyle: false
 IncludeBlocks: Regroup
 IndentCaseLabels: true
