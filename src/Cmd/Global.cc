@@ -8,11 +8,11 @@
 #include <iomanip>
 #include <iostream>
 
-void printHeader(StringRef header) noexcept {
+void printHeader(const StringRef header) noexcept {
   std::cout << bold(green(header)) << '\n';
 }
 
-void printUsage(StringRef cmd, StringRef usage) noexcept {
+void printUsage(const StringRef cmd, const StringRef usage) noexcept {
   std::cout << bold(green("Usage: ")) << bold(cyan("poac "));
   if (!cmd.empty()) {
     std::cout << bold(cyan(cmd)) << ' ';
@@ -21,7 +21,8 @@ void printUsage(StringRef cmd, StringRef usage) noexcept {
 }
 
 void printOption(
-    StringRef lng, StringRef shrt, StringRef desc, StringRef placeholder
+    const StringRef lng, const StringRef shrt, const StringRef desc,
+    const StringRef placeholder
 ) noexcept {
   String option;
   if (!shrt.empty()) {
@@ -42,7 +43,7 @@ void printOption(
   }
 }
 
-void printCommand(StringRef name, StringRef desc) noexcept {
+void printCommand(const StringRef name, const StringRef desc) noexcept {
   if (shouldColor()) {
     std::cout << "  " << std::left << std::setw(27) << bold(cyan(name)) << desc
               << '\n';
@@ -57,7 +58,7 @@ void printGlobalOpts() noexcept {
   }
 }
 
-bool commandExists(StringRef cmd) noexcept {
+bool commandExists(const StringRef cmd) noexcept {
   String checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";

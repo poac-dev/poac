@@ -12,8 +12,8 @@
 #include <sstream>
 #include <utility>
 
-int runCmd(StringRef) noexcept;
-String getCmdOutput(StringRef);
+int runCmd(const StringRef) noexcept;
+String getCmdOutput(const StringRef);
 
 template <typename Value>
 struct OrderedHashSet {
@@ -41,7 +41,7 @@ struct OrderedHashSet {
   }
 
   // O(1)
-  const Value& operator[](usize index) const {
+  const Value& operator[](const usize index) const {
     return vec[index];
   }
   // O(1)
@@ -98,9 +98,9 @@ struct TrieNode {
   HashMap<char, std::unique_ptr<TrieNode>> children;
   bool isEndOfWord = false;
 };
-void trieInsert(TrieNode&, StringRef);
-bool trieSearch(const TrieNode&, StringRef);
-bool trieSearchFromAnyPosition(const TrieNode&, StringRef);
+void trieInsert(TrieNode&, const StringRef);
+bool trieSearch(const TrieNode&, const StringRef);
+bool trieSearchFromAnyPosition(const TrieNode&, const StringRef);
 
 template <typename T>
 Vec<String> topoSort(
@@ -163,4 +163,4 @@ Vec<String> topoSort(
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef> findSimilarStr(StringRef, std::span<const StringRef>);
+Option<StringRef> findSimilarStr(const StringRef, std::span<const StringRef>);

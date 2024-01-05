@@ -22,7 +22,7 @@
 #include <span>
 
 struct Cmd {
-  Fn<int(std::span<const StringRef>)> main;
+  Fn<int(const std::span<const StringRef>)> main;
   Fn<void()> help;
   StringRef desc;
 };
@@ -40,7 +40,7 @@ static inline const HashMap<StringRef, Cmd> CMDS = {
   DEFINE_CMD(fmt),  DEFINE_CMD(lint),
 };
 
-void noSuchCommand(StringRef arg) {
+void noSuchCommand(const StringRef arg) {
   Vec<StringRef> candidates(CMDS.size());
   usize i = 0;
   for (const auto& cmd : CMDS) {
@@ -57,7 +57,7 @@ void noSuchCommand(StringRef arg) {
   );
 }
 
-int helpMain(std::span<const StringRef> args) noexcept {
+int helpMain(const std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];

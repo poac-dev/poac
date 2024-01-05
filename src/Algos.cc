@@ -8,14 +8,14 @@
 #include <memory>
 #include <utility>
 
-int runCmd(StringRef cmd) noexcept {
+int runCmd(const StringRef cmd) noexcept {
   Logger::debug("Running `", cmd, '`');
   const int status = std::system(cmd.data());
   const int exitCode = status >> 8;
   return exitCode;
 }
 
-String getCmdOutput(StringRef cmd) {
+String getCmdOutput(const StringRef cmd) {
   std::array<char, 128> buffer;
   String result;
 
@@ -33,7 +33,7 @@ String getCmdOutput(StringRef cmd) {
 }
 
 // O(M) where M is the length of the word.
-void trieInsert(TrieNode& root, StringRef word) {
+void trieInsert(TrieNode& root, const StringRef word) {
   TrieNode* node = &root;
   for (const char ch : word) {
     if (!node->children.contains(ch)) {
@@ -45,7 +45,7 @@ void trieInsert(TrieNode& root, StringRef word) {
 }
 
 // O(M) where M is the length of the word.
-bool trieSearch(const TrieNode& root, StringRef word) {
+bool trieSearch(const TrieNode& root, const StringRef word) {
   const TrieNode* node = &root;
   for (const char ch : word) {
     if (!node->children.contains(ch)) {
@@ -60,7 +60,7 @@ bool trieSearch(const TrieNode& root, StringRef word) {
 }
 
 // O(M^2) where M is the length of the word.
-bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word) {
+bool trieSearchFromAnyPosition(const TrieNode& root, const StringRef word) {
   for (usize i = 0; i < word.size(); ++i) {
     const TrieNode* node = &root;
     for (usize j = i; j < word.size(); ++j) {
@@ -78,7 +78,7 @@ bool trieSearchFromAnyPosition(const TrieNode& root, StringRef word) {
 }
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-static usize levDistance(StringRef a, StringRef b) {
+static usize levDistance(const StringRef a, const StringRef b) {
   const usize asize = a.size();
   const usize bsize = b.size();
 
@@ -113,7 +113,7 @@ static usize levDistance(StringRef a, StringRef b) {
   return d[asize][bsize];
 }
 
-static bool equalsInsensitive(StringRef a, StringRef b) {
+static bool equalsInsensitive(const StringRef a, const StringRef b) {
   return std::equal(
       a.cbegin(), a.cend(), b.cbegin(), b.cend(),
       [](char a, char b) { return std::tolower(a) == std::tolower(b); }
@@ -121,10 +121,10 @@ static bool equalsInsensitive(StringRef a, StringRef b) {
 }
 
 Option<StringRef>
-findSimilarStr(StringRef lhs, std::span<const StringRef> candidates) {
+findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
   // We need to check if `Candidates` has the exact case-insensitive string
   // because the Levenshtein distance match does not care about it.
-  for (StringRef c : candidates) {
+  for (const StringRef c : candidates) {
     if (equalsInsensitive(lhs, c)) {
       return c;
     }

@@ -19,7 +19,7 @@ struct Profile {
 };
 
 const String& getPackageName();
-u16 editionToYear(StringRef);
+u16 editionToYear(const StringRef);
 const String& getPackageEdition();
 const Version& getPackageVersion();
 const Profile& getDebugProfile();
