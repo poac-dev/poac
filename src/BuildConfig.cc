@@ -339,7 +339,7 @@ static bool containsTestCode(const String& sourceFile) {
   String line;
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != String::npos) {
-      Logger::debug("contains test code: ", sourceFile);
+      Logger::debug("Contains test code: ", sourceFile);
       return true;
     }
   }
@@ -507,7 +507,7 @@ static BuildConfig configureBuild(const bool isDebug) {
   OrderedHashSet<String> buildObjTargets;
   for (const Path& sourceFilePath : sourceFilePaths) {
     String objTarget; // source.o
-    OrderedHashSet<String> objTargetDeps =
+    const OrderedHashSet<String> objTargetDeps =
         parseMMOutput(runMM(sourceFilePath), objTarget);
 
     const Path targetBaseDir = fs::relative(
@@ -543,7 +543,7 @@ static BuildConfig configureBuild(const bool isDebug) {
     enableTesting = true;
 
     String objTarget; // source.o
-    OrderedHashSet<String> objTargetDeps =
+    const OrderedHashSet<String> objTargetDeps =
         parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
 
     const Path targetBaseDir = fs::relative(
