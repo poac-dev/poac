@@ -12,7 +12,7 @@
 #include <sstream>
 #include <utility>
 
-int runCmd(StringRef);
+int runCmd(StringRef) noexcept;
 String getCmdOutput(StringRef);
 
 template <typename Value>

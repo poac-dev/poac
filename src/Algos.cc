@@ -8,7 +8,7 @@
 #include <memory>
 #include <utility>
 
-int runCmd(StringRef cmd) {
+int runCmd(StringRef cmd) noexcept {
   Logger::debug("Running `", cmd, '`');
   const int status = std::system(cmd.data());
   const int exitCode = status >> 8;

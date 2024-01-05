@@ -61,5 +61,5 @@ bool commandExists(StringRef cmd) noexcept {
   String checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";
-  return runCmd(checkCmd) == 0;
+  return runCmd(checkCmd) == EXIT_SUCCESS;
 }
