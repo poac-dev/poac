@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  POAC_TERM_COLOR: always
+
 permissions:
   contents: read
 
@@ -14,12 +17,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup clang-tidy
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgit2-dev
+
+      - name: Build Poac
+        run: make RELEASE=1
+
+      - name: Install clang-tidy
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
           sudo ./llvm.sh 17
           sudo apt-get install -y clang-tidy-17
+
+      - name: poac tidy
+        run: ./build-out/poac tidy --verbose
+        env:
+          POAC_TIDY: clang-tidy-17
+
+  format:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -27,27 +49,20 @@ jobs:
           sudo apt-get install -y \
             libgit2-dev
 
-      - name: Run clang-tidy
-        run: make tidy
+      - name: Build Poac
+        run: make RELEASE=1
+
+      - name: Install clang-format
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get install -y clang-format-17
+
+      - name: poac fmt
+        run: ./build-out/poac fmt --verbose
         env:
-          CLANG_TIDY: clang-tidy-17
-
-  format:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Poac & clang-format
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew update
-          brew install poac clang-format
-          echo "$(brew --prefix clang-format)/bin" >> "$GITHUB_PATH"
-
-      - name: Check format
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          poac fmt --check --verbose
+          POAC_FMT: clang-format-17
 
   lint:
     runs-on: ubuntu-22.04
@@ -66,5 +81,5 @@ jobs:
       - name: Install cpplint
         run: pip install cpplint
 
-      - name: Run lint
+      - name: poac lint
         run: ./build-out/poac lint --verbose --exclude srcOld --exclude testsOld

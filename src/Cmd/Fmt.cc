@@ -69,7 +69,7 @@ int fmtMain(const std::span<const StringRef> args) {
     if (entry->is_directory()) {
       const String path = entry->path().string();
       if (trieSearchFromAnyPosition(root, path)) {
-        Logger::debug("ignore: ", path);
+        Logger::debug("Ignore: ", path);
         entry.disable_recursion_pending();
         continue;
       }
@@ -87,7 +87,7 @@ int fmtMain(const std::span<const StringRef> args) {
     }
   }
 
-  const String clangFormat = "clang-format " + clangFormatArgs;
+  const String clangFormat = "${POAC_FMT:-clang-format} " + clangFormatArgs;
   const int exitCode = runCmd(clangFormat);
   if (exitCode != 0) {
     Logger::error("clang-format exited with code ", exitCode);

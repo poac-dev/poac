@@ -1,8 +1,7 @@
 CXX ?= clang++
-CLANG_TIDY ?= clang-tidy
+POAC_TIDY ?= clang-tidy
 PREFIX ?= /usr/local
 INSTALL ?= install
-XDG_CACHE_HOME ?= $(HOME)/.cache
 
 DEBUG_FLAGS := -g -O0 -DDEBUG
 RELEASE_FLAGS := -O3 -DNDEBUG -flto
@@ -18,7 +17,7 @@ PROJ_NAME := $(OUT_DIR)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 
 DEFINES := -DPOAC_VERSION='"$(VERSION)"'
-INCLUDES := -I$(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
+INCLUDES := -isystem $(OUT_DIR)/DEPS/toml11 $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
 LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
 
 SRCS := $(shell find src -name '*.cc')
@@ -111,4 +110,4 @@ $(OUT_DIR)/tests:
 
 
 tidy:
-	$(CLANG_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES) -isystem $(XDG_CACHE_HOME)/poac
+	$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)

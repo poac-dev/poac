@@ -280,6 +280,15 @@ you:~/hello_world$ poac fmt
 
 To customize the format settings, try creating a [`.clang-format`](/.clang-format) file to the repository root.
 
+### Run `clang-tidy`
+
+Poac also supports running `clang-tidy` on your source code.  Ensure having installed `clang-tidy` before running this command.
+
+```console
+you:~/hello_world$ poac tidy
+  Running clang-tidy
+```
+
 ## Why Poac?
 
 C++ is often considered a complex language and unconsciously avoided by many.  The absence of a definitive package manager and the unfamiliar syntax of build systems like [CMake](https://cmake.org) make it seem difficult to set up a C++ environment, leaving people hesitant.
@@ -315,7 +324,7 @@ poac fmt
 #### Run `clang-tidy`
 
 ```bash
-make tidy
+poac tidy
 ```
 
 ---

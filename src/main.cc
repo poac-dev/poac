@@ -9,6 +9,7 @@
 #include "Cmd/New.hpp"
 #include "Cmd/Run.hpp"
 #include "Cmd/Test.hpp"
+#include "Cmd/Tidy.hpp"
 #include "Cmd/Version.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
@@ -35,9 +36,9 @@ struct Cmd {
   }
 
 static inline const HashMap<StringRef, Cmd> CMDS = {
-  DEFINE_CMD(help), DEFINE_CMD(build), DEFINE_CMD(test), DEFINE_CMD(run),
-  DEFINE_CMD(new),  DEFINE_CMD(clean), DEFINE_CMD(init), DEFINE_CMD(version),
-  DEFINE_CMD(fmt),  DEFINE_CMD(lint),
+  DEFINE_CMD(build), DEFINE_CMD(clean), DEFINE_CMD(fmt),     DEFINE_CMD(help),
+  DEFINE_CMD(init),  DEFINE_CMD(lint),  DEFINE_CMD(new),     DEFINE_CMD(run),
+  DEFINE_CMD(test),  DEFINE_CMD(tidy),  DEFINE_CMD(version),
 };
 
 void noSuchCommand(const StringRef arg) {

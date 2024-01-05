@@ -128,7 +128,7 @@ struct BuildConfig {
   void defineTarget(
       const String&, const Vec<String>&, const OrderedHashSet<String>& = {}
   );
-  void setPhony(const OrderedHashSet<String>&);
+  void addPhony(const String&);
   void setAll(const OrderedHashSet<String>&);
   void emitMakefile(std::ostream& = std::cout) const;
   void emitCompdb(const StringRef, std::ostream& = std::cout) const;
@@ -168,8 +168,11 @@ void BuildConfig::defineTarget(
   }
 }
 
-void BuildConfig::setPhony(const OrderedHashSet<String>& dependsOn) {
-  phony = { {}, dependsOn };
+void BuildConfig::addPhony(const String& target) {
+  if (!phony.has_value()) {
+    phony = { {}, {} };
+  }
+  phony->dependsOn.pushBack(target);
 }
 void BuildConfig::setAll(const OrderedHashSet<String>& dependsOn) {
   all = { {}, dependsOn };
@@ -298,7 +301,6 @@ static OrderedHashSet<String>
 parseMMOutput(const String& mmOutput, String& target) {
   std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
-  Logger::debug(target, ':');
 
   String dependency;
   OrderedHashSet<String> deps;
@@ -309,10 +311,8 @@ parseMMOutput(const String& mmOutput, String& target) {
         dependency.pop_back();
       }
       deps.pushBack(dependency);
-      Logger::debug(" '", dependency, "'");
     }
   }
-  Logger::debug("");
   return deps;
 }
 
@@ -340,7 +340,6 @@ static bool containsTestCode(const String& sourceFile) {
       return true;
     }
   }
-  Logger::debug("does not contain test code: ", sourceFile);
   return false;
 }
 
@@ -418,7 +417,6 @@ static void collectBinDepObjs(
     }
     const String headerObjTarget =
         (headerObjTargetBaseDir / headerPath.stem()).string() + ".o";
-    Logger::debug("headerObjTarget: ", headerObjTarget);
 
     if (deps.contains(headerObjTarget)) {
       continue;
@@ -431,7 +429,6 @@ static void collectBinDepObjs(
       continue;
     }
     deps.pushBack(headerObjTarget);
-    Logger::debug("headerObjTarget: added ", headerObjTarget);
     collectBinDepObjs(
         deps, config.targets.at(headerObjTarget).dependsOn, sourceFile,
         buildObjTargets, config
@@ -507,17 +504,25 @@ static BuildConfig configureBuild(const bool isDebug) {
   // Build rules
   defineDirTarget(config, config.buildOutDir);
   config.setAll({ config.packageName });
+  config.addPhony("all");
 
-  const Vec<Path> sourceFilePaths = listSourceFilePaths("src");
+  Vec<Path> sourceFilePaths = listSourceFilePaths("src");
+  String srcs;
+  for (Path& sourceFilePath : sourceFilePaths) {
+    sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
+    srcs += ' ' + sourceFilePath.string();
+  }
+  config.defineSimpleVariable("SRCS", srcs);
+
+  // Source Pass
   OrderedHashSet<String> buildObjTargets;
   for (const Path& sourceFilePath : sourceFilePaths) {
-    const Path sourceFileRelPath = PATH_FROM_OUT_DIR / sourceFilePath;
     String objTarget; // source.o
     OrderedHashSet<String> objTargetDeps =
-        parseMMOutput(runMM(sourceFileRelPath), objTarget);
+        parseMMOutput(runMM(sourceFilePath), objTarget);
 
     const Path targetBaseDir = fs::relative(
-        sourceFileRelPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+        sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
     );
 
     // Add a target to create the buildOutDir and buildTargetBaseDir.
@@ -543,23 +548,23 @@ static BuildConfig configureBuild(const bool isDebug) {
   );
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
-  // Targets for tests.
+  // Test Pass
   bool enableTesting = false;
   Vec<String> testCommands;
   OrderedHashSet<String> testTargets;
   for (const Path& sourceFilePath : sourceFilePaths) {
-    if (!containsTestCode(sourceFilePath)) {
+    if (!containsTestCode(sourceFilePath.string().substr(6)
+                          /* remove "../../" */)) {
       continue;
     }
     enableTesting = true;
 
-    const Path sourceFileRelPath = PATH_FROM_OUT_DIR / Path(sourceFilePath);
     String objTarget; // source.o
     OrderedHashSet<String> objTargetDeps =
-        parseMMOutput(runMM(sourceFileRelPath, true /* isTest */), objTarget);
+        parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
 
     const Path targetBaseDir = fs::relative(
-        sourceFileRelPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+        sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
     );
 
     // Add a target to create the testTargetBaseDir.
@@ -574,10 +579,9 @@ static BuildConfig configureBuild(const bool isDebug) {
 
     const String testObjTarget =
         (testTargetBaseDir / "test_").string() + objTarget;
-    const String testTargetName = sourceFileRelPath.stem().string();
+    const String testTargetName = sourceFilePath.stem().string();
     const String testTarget =
         (testTargetBaseDir / "test_").string() + testTargetName;
-    Logger::debug("testTarget: ", testTarget);
 
     // Test object target.
     defineCompileTarget(
@@ -587,28 +591,30 @@ static BuildConfig configureBuild(const bool isDebug) {
     // Test binary target.
     OrderedHashSet<String> testTargetDeps = { testObjTarget };
     collectBinDepObjs(
-        testTargetDeps, objTargetDeps, sourceFileRelPath, buildObjTargets,
-        config
+        testTargetDeps, objTargetDeps, sourceFilePath, buildObjTargets, config
     );
     defineLinkTarget(config, testTarget, testTargetDeps);
-    Logger::debug(testTarget, ':');
-    for (const StringRef dep : testTargetDeps) {
-      Logger::debug(" '", dep, "'");
-    }
 
     testCommands.emplace_back(echoCmd("Testing", testTargetName));
     testCommands.emplace_back(buildCmd(testTarget));
     testTargets.pushBack(testTarget);
   }
-
-  OrderedHashSet<String> phonies = { "all" };
   if (enableTesting) {
     // Target to create the tests directory.
     defineDirTarget(config, TEST_OUT_DIR);
     config.defineTarget("test", testCommands, testTargets);
-    phonies.pushBack("test");
+    config.addPhony("test");
   }
-  config.setPhony(phonies);
+
+  // Tidy Pass
+  config.defineCondVariable("POAC_TIDY", "clang-tidy");
+  config.defineTarget(
+      "tidy",
+      { buildCmd(
+          "$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)"
+      ) }
+  );
+  config.addPhony("tidy");
 
   return config;
 }
