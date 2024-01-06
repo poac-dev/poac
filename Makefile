@@ -18,8 +18,12 @@ VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
 DEFINES := -DPOAC_VERSION='"$(VERSION)"'
-INCLUDES := -isystem $(O)/DEPS/toml11 $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
-LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0')
+INCLUDES := -isystem $(O)/DEPS/toml11 \
+  $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
+  $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 8.0.0') \
+  $(shell pkg-config --cflags 'nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0')
+LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
+  $(shell pkg-config --libs 'libcurl >= 7.79.1, libcurl < 8.0.0')
 
 SRCS := $(shell find src -name '*.cc')
 OBJS := $(patsubst src/%,$(O)/%,$(SRCS:.cc=.o))
@@ -30,13 +34,13 @@ UNITTEST_OBJS := $(patsubst src/%,$(O)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
 UNITTEST_BINS := $(UNITTEST_OBJS:.o=)
 UNITTEST_DEPS := $(UNITTEST_OBJS:.o=.d)
 
-OUTSIDE_DEPS := $(O)/DEPS/toml11
+GIT_DEPS := $(O)/DEPS/toml11
 
 
 .PHONY: all clean install test tidy
 
 
-all: $(OUTSIDE_DEPS) $(PROJECT)
+all: $(GIT_DEPS) $(PROJECT)
 
 $(PROJECT): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
@@ -48,7 +52,7 @@ $(O)/%.o: src/%.cc
 -include $(DEPS)
 
 
-test: $(OUTSIDE_DEPS) $(UNITTEST_BINS)
+test: $(GIT_DEPS) $(UNITTEST_BINS)
 	@$(O)/tests/test_BuildConfig
 	@$(O)/tests/test_Algos
 	@$(O)/tests/test_Semver
@@ -89,7 +93,7 @@ clean:
 	-rm -rf $(O)
 
 
-# Outside dependencies
+# Git dependencies
 $(O)/DEPS/toml11:
 	$(MKDIR_P) $(@D)
 	git clone https://github.com/ToruNiina/toml11.git $@
