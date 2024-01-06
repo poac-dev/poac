@@ -262,7 +262,11 @@ VersionToken VersionLexer::consumeNum() {
     // Check for overflow
     if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
       throw SemverError(
-          s, '\n', String(pos - len, ' '), "^ number exceeds UINT64_MAX"
+          s,
+          '\n',
+          String(pos - len, ' '),
+          String(len, '^'),
+          " number exceeds UINT64_MAX"
       );
     }
 
@@ -498,6 +502,13 @@ void testParse() {
       "  ^ invalid leading zero"
   );
   ASSERT_EXCEPTION(
+      Version::parse("0.0.0.0"),
+      SemverError,
+      "invalid semver:\n"
+      "0.0.0.0\n"
+      "     ^ unexpected character: `.`"
+  );
+  ASSERT_EXCEPTION(
       Version::parse("a.b.c"),
       SemverError,
       "invalid semver:\n"
@@ -537,7 +548,14 @@ void testParse() {
       SemverError,
       "invalid semver:\n"
       "111111111111111111111.0.0\n"
-      "^ number exceeds UINT64_MAX"
+      "^^^^^^^^^^^^^^^^^^^^ number exceeds UINT64_MAX"
+  );
+  ASSERT_EXCEPTION(
+      Version::parse("0.99999999999999999999999.0"),
+      SemverError,
+      "invalid semver:\n"
+      "0.99999999999999999999999.0\n"
+      "  ^^^^^^^^^^^^^^^^^^^ number exceeds UINT64_MAX"
   );
   ASSERT_EXCEPTION(
       Version::parse("8\0"),
