@@ -16,6 +16,33 @@
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
 
+struct Package {
+  String name;
+  String edition;
+  Version version;
+};
+
+// NOLINTBEGIN(readability-identifier-naming)
+namespace toml {
+template <>
+struct from<Version> {
+  static Version from_toml(const value& v) {
+    const String& versionStr = toml::get<toml::string>(v);
+    return Version::parse(versionStr);
+  }
+};
+
+template <>
+struct into<Version> {
+  static toml::string into_toml(const Version& v) {
+    return v.toString();
+  }
+};
+} // namespace toml
+// NOLINTEND(readability-identifier-naming)
+
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Package, name, edition, version);
+
 static Path findManifest() {
   Path candidate = fs::current_path();
   while (true) {
@@ -75,10 +102,7 @@ struct Manifest {
 
   Option<toml::value> data = None;
 
-  Option<String> packageName = None;
-  Option<String> packageEdition = None;
-  Option<Version> packageVersion = None;
-
+  Option<Package> package = None;
   Option<Vec<std::variant<GitDependency, SystemDependency>>> dependencies =
       None;
 
@@ -106,24 +130,6 @@ private:
   }
 };
 
-const String& getPackageName() {
-  Manifest& manifest = Manifest::instance();
-  if (manifest.packageName.has_value()) {
-    Logger::debug("[package.name] is cached");
-    return manifest.packageName.value();
-  }
-  Logger::debug("[package.name] is not cached");
-
-  const String packageName =
-      toml::find<String>(manifest.data.value(), "package", "name");
-  if (packageName.empty()) {
-    throw PoacError("[package.name] is empty");
-  }
-  manifest.packageName = packageName;
-  Logger::debug("[package.name] is set to `", packageName, '`');
-  return manifest.packageName.value();
-}
-
 u16 editionToYear(const StringRef edition) {
   if (edition == "98") {
     return 1998;
@@ -145,31 +151,33 @@ u16 editionToYear(const StringRef edition) {
   throw PoacError("invalid edition: ", edition);
 }
 
-const String& getPackageEdition() {
+static Package& parsePackage() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.packageEdition.has_value()) {
-    return manifest.packageEdition.value();
+  if (manifest.package.has_value()) {
+    return manifest.package.value();
   }
 
-  const String edition =
-      toml::find<String>(manifest.data.value(), "package", "edition");
-  editionToYear(edition); // verification
+  const toml::value& data = manifest.data.value();
+  const auto package = toml::find<Package>(data, "package");
+  if (package.name.empty()) {
+    throw PoacError(toml::format_error(
+        "invalid name", data.at("package.name"), "must not be empty"
+    ));
+  }
+  editionToYear(package.edition); // verification
 
-  manifest.packageEdition = edition;
-  return manifest.packageEdition.value();
+  manifest.package = package;
+  return manifest.package.value();
 }
 
+const String& getPackageName() {
+  return parsePackage().name;
+}
+const String& getPackageEdition() {
+  return parsePackage().edition;
+}
 const Version& getPackageVersion() {
-  Manifest& manifest = Manifest::instance();
-  if (manifest.packageVersion.has_value()) {
-    return manifest.packageVersion.value();
-  }
-
-  const String versionStr =
-      toml::find<String>(manifest.data.value(), "package", "version");
-  const Version version = Version::parse(versionStr);
-  manifest.packageVersion = version;
-  return manifest.packageVersion.value();
+  return parsePackage().version;
 }
 
 static void validateCxxflag(const StringRef cxxflag) {
