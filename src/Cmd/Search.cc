@@ -58,17 +58,8 @@ int searchMain(const std::span<const StringRef> args) {
 
   nlohmann::json req;
   req["query"] =
-      R"(query searchPackages($name: String!, $limit: Int!, $offset: Int!) @cached(ttl: 600) {
-  packages(where: { name : { _like : $name } }, limit: $limit, offset: $offset, distinct_on: name){
-    name
-    version
-    description
-  } packages_aggregate(where: { name : { _like : $name } }) {
-    aggregate {
-      count(distinct : true)
-    }
-  }
-})";
+#include "../GraphQL/SearchPackages.gql"
+      ;
   req["variables"]["name"] = "%" + packageName + "%";
   req["variables"]["limit"] = perPage;
   req["variables"]["offset"] = (page - 1) * perPage;
