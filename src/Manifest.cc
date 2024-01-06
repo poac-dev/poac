@@ -528,13 +528,6 @@ DepMetadata SystemDependency::install() const {
   libs.pop_back(); // remove '\n'
 
   return { cflags, libs };
-
-  // TODO: do this instead of above.  We need to emit -MM depfile within
-  // the generated Makefile.
-  // return {
-  //     "$(shell pkg-config --cflags '" + pkgConfigVer + "')",
-  //     "$(shell pkg-config --libs '" + pkgConfigVer + "')"
-  // };
 }
 
 Vec<DepMetadata> installDependencies() {
