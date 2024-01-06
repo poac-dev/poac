@@ -88,7 +88,7 @@ If your environment is not included in the released packages, you have to build 
 * libgit2: `>=1.1.0 && <2.0.0`
     * `libgit2-dev` on APT
     * `libgit2` on Homebrew
-* libcurl: `>=7.79.1 && <8.0.0`
+* libcurl: `>=7.79.1 && <9.0.0`
     * `libcurl4-openssl-dev` on APT
     * `curl` on Homebrew
 * nlohmann_json: `>=3.10.5 && <4.0.0`
