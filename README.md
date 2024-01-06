@@ -86,13 +86,13 @@ If your environment is not included in the released packages, you have to build 
 #### Libraries
 
 * libgit2: `>=1.1.0 && <2.0.0`
-    * `libgit2-dev` on Ubuntu
+    * `libgit2-dev` on APT
     * `libgit2` on Homebrew
 * libcurl: `>=7.79.1 && <8.0.0`
-    * `libcurl4-openssl-dev` on Ubuntu
+    * `libcurl4-openssl-dev` on APT
     * `curl` on Homebrew
 * nlohmann_json: `>=3.10.5 && <4.0.0`
-    * `nlohmann-json3-dev` on Ubuntu
+    * `nlohmann-json3-dev` on APT
     * `nlohmann-json` on Homebrew
 
 When running Make, the following libraries will be installed automatically.
