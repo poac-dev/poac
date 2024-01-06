@@ -25,7 +25,9 @@ jobs:
       - name: Install dependencies
         run: |
           brew install \
-            libgit2
+            curl \
+            libgit2 \
+            nlohmann-json
 
       - name: First Generation Build
         run: make -j4

@@ -21,7 +21,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libgit2-dev
+            libcurl4-openssl-dev \
+            libgit2-dev \
+            nlohmann-json3-dev
 
       - name: Build Poac
         run: make RELEASE=1
@@ -47,7 +49,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libgit2-dev
+            libcurl4-openssl-dev \
+            libgit2-dev \
+            nlohmann-json3-dev
 
       - name: Build Poac
         run: make RELEASE=1
@@ -73,7 +77,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libgit2-dev
+            libcurl4-openssl-dev \
+            libgit2-dev \
+            nlohmann-json3-dev
 
       - name: Build Poac
         run: make RELEASE=1
