@@ -89,9 +89,7 @@ If your environment is not included in the released packages, you have to build 
 
 When running Make, the following libraries will be installed automatically.
 
-* [toml11](https://github.com/ToruNiina/toml11): [`9086b11`](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02) or later
-  * requires [this commit](https://github.com/ToruNiina/toml11/commit/9086b1114f39a8fb10d08ca704771c2f9f247d02)
-  * awaiting the next release above [`v3.7.1`](https://github.com/ToruNiina/toml11/releases/tag/v3.7.1)
+* [toml11](https://github.com/ToruNiina/toml11): [`v3.8.0`](https://github.com/ToruNiina/toml11/releases/tag/v3.8.0)
 
 Once you have all the necessary requirements in place, you can build Poac by the following commands:
 
