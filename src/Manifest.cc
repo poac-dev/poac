@@ -363,10 +363,11 @@ static void validateGitRev(const StringRef rev) {
     throw PoacError("git rev is empty");
   }
 
-  // The length of a SHA-1 hash is 40 characters.
-  if (rev.size() != 40) {
-    throw PoacError("git rev must be 40 characters");
+  // The length of a SHA-1 hash is between 4 and 40 characters.
+  if (rev.size() < 4 || rev.size() > 40) {
+    throw PoacError("git rev must be between 4 and 40 characters");
   }
+
   // The characters must be in the range of [0-9a-f].
   for (const char c : rev) {
     if (!std::isxdigit(c)) {
@@ -390,10 +391,10 @@ static void validateGitTagAndBranch(const StringRef target) {
     throw PoacError("git tag or branch must start with an alphabet");
   }
 
-  // The characters must be in the range of [0-9a-zA-Z_-].
+  // The characters must be in the range of [0-9a-zA-Z_-.].
   for (const char c : target) {
-    if (!std::isalnum(c) && c != '_' && c != '-') {
-      throw PoacError("git tag or branch must be in the range of [0-9a-zA-Z_-]"
+    if (!std::isalnum(c) && c != '_' && c != '-' && c != '.') {
+      throw PoacError("git tag or branch must be in the range of [0-9a-zA-Z_-.]"
       );
     }
   }

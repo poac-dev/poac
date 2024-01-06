@@ -93,4 +93,4 @@ clean:
 $(O)/DEPS/toml11:
 	$(MKDIR_P) $(@D)
 	git clone https://github.com/ToruNiina/toml11.git $@
-	git -C $@ reset --hard 01a0e93e5f9bef09a76d22f3d51a5257e3d923fe
+	git -C $@ reset --hard v3.8.0
