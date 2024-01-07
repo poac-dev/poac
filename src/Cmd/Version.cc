@@ -64,6 +64,7 @@ secondMonthChar(const char m1, const char m2, const char m3) noexcept {
   }
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 static inline constexpr char DATE[] = {
   // Year
   __DATE__[7],
