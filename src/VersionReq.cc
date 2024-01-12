@@ -1197,45 +1197,35 @@ void testComparatorParse() {
 void testLeadingDigitInPreAndBuild() {
   for (const auto& cmp : { "", "<", "<=", ">", ">=" }) {
     // digit then alpha
-    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3-1a"s); }
-    );
-    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3+1a"s); }
-    );
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3-1a"s); });
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3+1a"s); });
 
     // digit then alpha (leading zero)
-    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3-01a"s); }
-    );
-    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3+01"s); }
-    );
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3-01a"s); });
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3+01"s); });
 
     // multiple
-    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3-1+1"s); }
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3-1+1"s); });
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3-1-1+1-1-1"s); }
     );
+    assertNoException([&cmp]() { VersionReq::parse(cmp + "1.2.3-1a+1a"s); });
     assertNoException([&cmp]() {
-      return VersionReq::parse(cmp + "1.2.3-1-1+1-1-1"s);
-    });
-    assertNoException([&cmp]() {
-      return VersionReq::parse(cmp + "1.2.3-1a+1a"s);
-    });
-    assertNoException([&cmp]() {
-      return VersionReq::parse(cmp + "1.2.3-1a-1a+1a-1a-1a"s);
+      VersionReq::parse(cmp + "1.2.3-1a-1a+1a-1a-1a"s);
     });
   }
 }
 
 void testValidSpaces() {
-  assertNoException([]() { return VersionReq::parse("   1.2    "); });
-  assertNoException([]() { return VersionReq::parse(">   1.2.3    "); });
-  assertNoException([]() { return VersionReq::parse("  <1.2.3 &&>= 1.2.3"); });
+  assertNoException([]() { VersionReq::parse("   1.2    "); });
+  assertNoException([]() { VersionReq::parse(">   1.2.3    "); });
+  assertNoException([]() { VersionReq::parse("  <1.2.3 &&>= 1.2.3"); });
   assertNoException([]() {
-    return VersionReq::parse("  <  1.2.3  &&   >=   1.2.3   ");
+    VersionReq::parse("  <  1.2.3  &&   >=   1.2.3   ");
   });
-  assertNoException([]() {
-    return VersionReq::parse(" <1.2.3     &&   >1    ");
-  });
-  assertNoException([]() { return VersionReq::parse("<1.2.3&& >=1.2.3"); });
-  assertNoException([]() { return VersionReq::parse("<1.2.3  &&>=1.2.3"); });
-  assertNoException([]() { return VersionReq::parse("<1.2.3&&>=1.2.3"); });
+  assertNoException([]() { VersionReq::parse(" <1.2.3     &&   >1    "); });
+  assertNoException([]() { VersionReq::parse("<1.2.3&& >=1.2.3"); });
+  assertNoException([]() { VersionReq::parse("<1.2.3  &&>=1.2.3"); });
+  assertNoException([]() { VersionReq::parse("<1.2.3&&>=1.2.3"); });
 }
 
 void testInvalidSpaces() {
