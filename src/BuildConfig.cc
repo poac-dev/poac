@@ -718,7 +718,11 @@ void testCycleVars() {
   config.defineSimpleVar("c", "a", { "a" });
 
   assertException<PoacError>(
-      [&config]() { config.emitMakefile(); }, "too complex build graph"
+      [&config]() {
+        std::stringstream ss;
+        config.emitMakefile(ss);
+      },
+      "too complex build graph"
   );
 }
 
