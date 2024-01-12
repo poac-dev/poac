@@ -1,10 +1,11 @@
 #pragma once
 
 #include <array>
-#include <cassert>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <ostream>
@@ -16,14 +17,6 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
-
-// NOLINTBEGIN(readability-identifier-naming)
-#ifdef NDEBUG
-#  define unreachable() __builtin_unreachable()
-#else
-#  define unreachable() assert(false && "unreachable")
-#endif
-// NOLINTEND(readability-identifier-naming)
 
 namespace fs = std::filesystem;
 
@@ -101,4 +94,26 @@ using std::literals::string_view_literals::operator""sv;
 
 inline Path operator""_path(const char* str, usize /*unused*/) {
   return str;
+}
+
+[[noreturn]] inline void panic(
+    const StringRef msg,
+    const StringRef f = __builtin_FILE(),
+    const int l = __builtin_LINE()
+) noexcept {
+  std::cerr << "panicked at '" << msg << "', " << f << ':' << l << '\n';
+  std::exit(EXIT_FAILURE);
+
+  // TODO: throw an exception instead?
+}
+
+[[noreturn]] inline void unreachable(
+    const StringRef f = __builtin_FILE(),
+    const int l = __builtin_LINE()
+) noexcept {
+#ifdef NDEBUG
+  __builtin_unreachable();
+#else
+  panic("unreachable", f, l);
+#endif
 }
