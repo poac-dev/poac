@@ -834,63 +834,63 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/b6171889ac7e8f47ec6f12003571bdcc7f737b10/tests/test_version_req.rs
 
-#  define ASSERT_MATCH_ALL(req, ...)                       \
+#  define ASSERT_MATCH_ALL(req, ...)                      \
+    do {                                                  \
+      const Vec<String> versions = { __VA_ARGS__ };       \
+      for (const auto& ver : versions) {                  \
+        assertTrue(req.satisfiedBy(Version::parse(ver))); \
+      }                                                   \
+    } while (false)
+
+#  define ASSERT_MATCH_NONE(req, ...)                      \
     do {                                                   \
       const Vec<String> versions = { __VA_ARGS__ };        \
       for (const auto& ver : versions) {                   \
-        ASSERT_TRUE(req.satisfiedBy(Version::parse(ver))); \
+        assertFalse(req.satisfiedBy(Version::parse(ver))); \
       }                                                    \
-    } while (false)
-
-#  define ASSERT_MATCH_NONE(req, ...)                       \
-    do {                                                    \
-      const Vec<String> versions = { __VA_ARGS__ };         \
-      for (const auto& ver : versions) {                    \
-        ASSERT_FALSE(req.satisfiedBy(Version::parse(ver))); \
-      }                                                     \
     } while (false)
 
 void testBasic() {
   const auto req = VersionReq::parse("1.0.0");
-  ASSERT_EQ(req.toString(), "1.0.0");
+  assertEq(req.toString(), "1.0.0");
   ASSERT_MATCH_ALL(req, "1.0.0", "1.1.0", "1.0.1");
   ASSERT_MATCH_NONE(req, "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre", "1.0.1-pre");
 }
 
 void testExact() {
   const auto r1 = VersionReq::parse("=1.0.0");
-  ASSERT_EQ(r1.toString(), "=1.0.0");
+  assertEq(r1.toString(), "=1.0.0");
   ASSERT_MATCH_ALL(r1, "1.0.0");
   ASSERT_MATCH_NONE(r1, "1.0.1", "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre");
 
   const auto r2 = VersionReq::parse("=0.9.0");
-  ASSERT_EQ(r2.toString(), "=0.9.0");
+  assertEq(r2.toString(), "=0.9.0");
   ASSERT_MATCH_ALL(r2, "0.9.0");
   ASSERT_MATCH_NONE(r2, "0.9.1", "1.9.0", "0.0.9", "0.9.0-pre");
 
   const auto r3 = VersionReq::parse("=0.0.2");
-  ASSERT_EQ(r3.toString(), "=0.0.2");
+  assertEq(r3.toString(), "=0.0.2");
   ASSERT_MATCH_ALL(r3, "0.0.2");
   ASSERT_MATCH_NONE(r3, "0.0.1", "0.0.3", "0.0.2-pre");
 
   const auto r4 = VersionReq::parse("=0.1.0-beta2.a");
-  ASSERT_EQ(r4.toString(), "=0.1.0-beta2.a");
+  assertEq(r4.toString(), "=0.1.0-beta2.a");
   ASSERT_MATCH_ALL(r4, "0.1.0-beta2.a");
   ASSERT_MATCH_NONE(r4, "0.9.1", "0.1.0", "0.1.1-beta2.a", "0.1.0-beta2");
 
   const auto r5 = VersionReq::parse("=0.1.0+meta");
-  ASSERT_EQ(r5.toString(), "=0.1.0");
+  assertEq(r5.toString(), "=0.1.0");
   ASSERT_MATCH_ALL(r5, "0.1.0", "0.1.0+meta", "0.1.0+any");
 }
 
 void testGreaterThan() {
   const auto r1 = VersionReq::parse(">=1.0.0");
-  ASSERT_EQ(r1.toString(), ">=1.0.0");
+  assertEq(r1.toString(), ">=1.0.0");
   ASSERT_MATCH_ALL(r1, "1.0.0", "2.0.0");
   ASSERT_MATCH_NONE(r1, "0.1.0", "0.0.1", "1.0.0-pre", "2.0.0-pre");
 
   const auto r2 = VersionReq::parse(">=2.1.0-alpha2");
-  ASSERT_EQ(r2.toString(), ">=2.1.0-alpha2");
+  assertEq(r2.toString(), ">=2.1.0-alpha2");
   ASSERT_MATCH_ALL(r2, "2.1.0-alpha2", "2.1.0-alpha3", "2.1.0", "3.0.0");
   ASSERT_MATCH_NONE(
       r2, "2.0.0", "2.1.0-alpha1", "2.0.0-alpha2", "3.0.0-alpha2"
@@ -899,7 +899,7 @@ void testGreaterThan() {
 
 void testLessThan() {
   const auto r1 = VersionReq::parse("<1.0.0");
-  ASSERT_EQ(r1.toString(), "<1.0.0");
+  assertEq(r1.toString(), "<1.0.0");
   ASSERT_MATCH_ALL(r1, "0.1.0", "0.0.1");
   ASSERT_MATCH_NONE(r1, "1.0.0", "1.0.0-beta", "1.0.1", "0.9.9-alpha");
 
@@ -971,16 +971,16 @@ void testNoOp() {
 
 void testMultiple() {
   const auto r1 = VersionReq::parse(">0.0.9 && <=2.5.3");
-  ASSERT_EQ(r1.toString(), ">0.0.9 && <=2.5.3");
+  assertEq(r1.toString(), ">0.0.9 && <=2.5.3");
   ASSERT_MATCH_ALL(r1, "0.0.10", "1.0.0", "2.5.3");
   ASSERT_MATCH_NONE(r1, "0.0.8", "2.5.4");
 
   const auto r2 = VersionReq::parse("<=0.2.0 && >=0.5.0");
-  ASSERT_EQ(r2.toString(), "<=0.2.0 && >=0.5.0");
+  assertEq(r2.toString(), "<=0.2.0 && >=0.5.0");
   ASSERT_MATCH_NONE(r2, "0.0.8", "0.3.0", "0.5.1");
 
   const auto r3 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
-  ASSERT_EQ(r3.toString(), ">=0.5.1-alpha3 && <0.6");
+  assertEq(r3.toString(), ">=0.5.1-alpha3 && <0.6");
   ASSERT_MATCH_ALL(
       r3, "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5"
   );
@@ -994,16 +994,15 @@ void testMultiple() {
       "0.6.0-pre"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse(">0.3.0 && &&"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse(">0.3.0 && &&"); },
       "invalid version requirement:\n"
       ">0.3.0 && &&\n"
       "          ^ expected >=, <=, >, or <"
   );
 
   const auto r4 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
-  ASSERT_EQ(r4.toString(), ">=0.5.1-alpha3 && <0.6");
+  assertEq(r4.toString(), ">=0.5.1-alpha3 && <0.6");
   ASSERT_MATCH_ALL(
       r4, "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5"
   );
@@ -1012,9 +1011,8 @@ void testMultiple() {
   );
   ASSERT_MATCH_NONE(r4, "0.6.0", "0.6.0-pre");
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse(">1.2.3 - <2.3.4"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse(">1.2.3 - <2.3.4"); },
       "invalid version requirement:\n"
       ">1.2.3 - <2.3.4\n"
       "       ^ expected `&&`"
@@ -1028,137 +1026,131 @@ void testPre() {
 
 void testCanonicalizeNoOp() {
   // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("1.2.3").canonicalize().toString(), ">=1.2.3 && <2.0.0"
   );
 
   // 1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("1.2").canonicalize().toString(), ">=1.2.0 && <2.0.0"
   );
 
   // 1.3. `A` is equivalent to `=A` (i.e., 2.3)
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("1").canonicalize().toString(), ">=1.0.0 && <2.0.0"
   );
 
   // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("0.2.3").canonicalize().toString(), ">=0.2.3 && <0.3.0"
   );
 
   // 1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
-  ASSERT_EQ(VersionReq::parse("0.0.3").canonicalize().toString(), "=0.0.3");
+  assertEq(VersionReq::parse("0.0.3").canonicalize().toString(), "=0.0.3");
 
   // 1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("0.0").canonicalize().toString(), ">=0.0.0 && <0.1.0"
   );
 }
 
 void testCanonicalizeExact() {
   // 2.1. `=A.B.C` is exactly the version `A.B.C`
-  ASSERT_EQ(VersionReq::parse("=1.2.3").canonicalize().toString(), "=1.2.3");
+  assertEq(VersionReq::parse("=1.2.3").canonicalize().toString(), "=1.2.3");
 
   // 2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("=1.2").canonicalize().toString(), ">=1.2.0 && <1.3.0"
   );
 
   // 2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("=1").canonicalize().toString(), ">=1.0.0 && <2.0.0"
   );
 }
 
 void testCanonicalizeGt() {
   // 3.1. `>A.B.C` is equivalent to `>=A.B.(C+1)`
-  ASSERT_EQ(VersionReq::parse(">1.2.3").canonicalize().toString(), ">=1.2.4");
+  assertEq(VersionReq::parse(">1.2.3").canonicalize().toString(), ">=1.2.4");
 
   // 3.2. `>A.B` is equivalent to `>=A.(B+1).0`
-  ASSERT_EQ(VersionReq::parse(">1.2").canonicalize().toString(), ">=1.3.0");
+  assertEq(VersionReq::parse(">1.2").canonicalize().toString(), ">=1.3.0");
 
   // 3.3. `>A` is equivalent to `>=(A+1).0.0`
-  ASSERT_EQ(VersionReq::parse(">1").canonicalize().toString(), ">=2.0.0");
+  assertEq(VersionReq::parse(">1").canonicalize().toString(), ">=2.0.0");
 }
 
 void testCanonicalizeGte() {
   // 4.1. `>=A.B.C`
-  ASSERT_EQ(VersionReq::parse(">=1.2.3").canonicalize().toString(), ">=1.2.3");
+  assertEq(VersionReq::parse(">=1.2.3").canonicalize().toString(), ">=1.2.3");
 
   // 4.2. `>=A.B` is equivalent to `>=A.B.0`
-  ASSERT_EQ(VersionReq::parse(">=1.2").canonicalize().toString(), ">=1.2.0");
+  assertEq(VersionReq::parse(">=1.2").canonicalize().toString(), ">=1.2.0");
 
   // 4.3. `>=A` is equivalent to `>=A.0.0`
-  ASSERT_EQ(VersionReq::parse(">=1").canonicalize().toString(), ">=1.0.0");
+  assertEq(VersionReq::parse(">=1").canonicalize().toString(), ">=1.0.0");
 }
 
 void testCanonicalizeLt() {
   // 5.1. `<A.B.C`
-  ASSERT_EQ(VersionReq::parse("<1.2.3").canonicalize().toString(), "<1.2.3");
+  assertEq(VersionReq::parse("<1.2.3").canonicalize().toString(), "<1.2.3");
 
   // 5.2. `<A.B` is equivalent to `<A.B.0`
-  ASSERT_EQ(VersionReq::parse("<1.2").canonicalize().toString(), "<1.2.0");
+  assertEq(VersionReq::parse("<1.2").canonicalize().toString(), "<1.2.0");
 
   // 5.3. `<A` is equivalent to `<A.0.0`
-  ASSERT_EQ(VersionReq::parse("<1").canonicalize().toString(), "<1.0.0");
+  assertEq(VersionReq::parse("<1").canonicalize().toString(), "<1.0.0");
 }
 
 void testCanonicalizeLte() {
   // 6.1. `<=A.B.C` is equivalent to `<A.B.(C+1)`
-  ASSERT_EQ(VersionReq::parse("<=1.2.3").canonicalize().toString(), "<1.2.4");
+  assertEq(VersionReq::parse("<=1.2.3").canonicalize().toString(), "<1.2.4");
 
   // 6.2. `<=A.B` is equivalent to `<A.(B+1).0`
-  ASSERT_EQ(VersionReq::parse("<=1.2").canonicalize().toString(), "<1.3.0");
+  assertEq(VersionReq::parse("<=1.2").canonicalize().toString(), "<1.3.0");
 
   // 6.3. `<=A` is equivalent to `<(A+1).0.0`
-  ASSERT_EQ(VersionReq::parse("<=1").canonicalize().toString(), "<2.0.0");
+  assertEq(VersionReq::parse("<=1").canonicalize().toString(), "<2.0.0");
 }
 
 void testParse() {
-  ASSERT_EXCEPTION(
-      VersionReq::parse("\0"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("\0"); },
       "invalid version requirement:\n"
       "\n"
       "^ expected =, >=, <=, >, <, or version"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse(">= >= 0.0.2"),
-      ComparatorError,
+  assertException<ComparatorError>(
+      []() { VersionReq::parse(">= >= 0.0.2"); },
       "invalid comparator:\n"
       ">= >= 0.0.2\n"
       "     ^ expected version"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse(">== 0.0.2"),
-      ComparatorError,
+  assertException<ComparatorError>(
+      []() { VersionReq::parse(">== 0.0.2"); },
       "invalid comparator:\n"
       ">== 0.0.2\n"
       "   ^ expected version"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse("a.0.0"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("a.0.0"); },
       "invalid version requirement:\n"
       "a.0.0\n"
       "^ expected =, >=, <=, >, <, or version"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse("1.0.0-"),
-      SemverError,
+  assertException<SemverError>(
+      []() { VersionReq::parse("1.0.0-"); },
       "invalid semver:\n"
       "1.0.0-\n"
       "      ^ expected number or identifier"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse(">="),
-      ComparatorError,
+  assertException<ComparatorError>(
+      []() { VersionReq::parse(">="); },
       "invalid comparator:\n"
       ">=\n"
       "  ^ expected version"
@@ -1166,41 +1158,36 @@ void testParse() {
 }
 
 void testComparatorParse() {
-  ASSERT_EXCEPTION(
-      Comparator::parse("1.2.3-01"),
-      SemverError,
+  assertException<SemverError>(
+      []() { Comparator::parse("1.2.3-01"); },
       "invalid semver:\n"
       "1.2.3-01\n"
       "      ^ invalid leading zero"
   );
 
-  ASSERT_EXCEPTION(
-      Comparator::parse("1.2.3+4."),
-      SemverError,
+  assertException<SemverError>(
+      []() { Comparator::parse("1.2.3+4."); },
       "invalid semver:\n"
       "1.2.3+4.\n"
       "        ^ expected identifier"
   );
 
-  ASSERT_EXCEPTION(
-      Comparator::parse(">"),
-      ComparatorError,
+  assertException<ComparatorError>(
+      []() { Comparator::parse(">"); },
       "invalid comparator:\n"
       ">\n"
       " ^ expected version"
   );
 
-  ASSERT_EXCEPTION(
-      Comparator::parse("1."),
-      SemverError,
+  assertException<SemverError>(
+      []() { Comparator::parse("1."); },
       "invalid semver:\n"
       "1.\n"
       "  ^ expected number"
   );
 
-  ASSERT_EXCEPTION(
-      Comparator::parse("1.*."),
-      SemverError,
+  assertException<SemverError>(
+      []() { Comparator::parse("1.*."); },
       "invalid semver:\n"
       "1.*.\n"
       "  ^ expected number"
@@ -1210,43 +1197,56 @@ void testComparatorParse() {
 void testLeadingDigitInPreAndBuild() {
   for (const auto& cmp : { "", "<", "<=", ">", ">=" }) {
     // digit then alpha
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-1a"s));
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3+1a"s));
+    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3-1a"s); }
+    );
+    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3+1a"s); }
+    );
 
     // digit then alpha (leading zero)
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-01a"s));
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3+01"s));
+    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3-01a"s); }
+    );
+    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3+01"s); }
+    );
 
     // multiple
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-1+1"s));
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-1-1+1-1-1"s));
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-1a+1a"s));
-    ASSERT_NO_EXCEPTION(VersionReq::parse(cmp + "1.2.3-1a-1a+1a-1a-1a"s));
+    assertNoException([&cmp]() { return VersionReq::parse(cmp + "1.2.3-1+1"s); }
+    );
+    assertNoException([&cmp]() {
+      return VersionReq::parse(cmp + "1.2.3-1-1+1-1-1"s);
+    });
+    assertNoException([&cmp]() {
+      return VersionReq::parse(cmp + "1.2.3-1a+1a"s);
+    });
+    assertNoException([&cmp]() {
+      return VersionReq::parse(cmp + "1.2.3-1a-1a+1a-1a-1a"s);
+    });
   }
 }
 
 void testValidSpaces() {
-  ASSERT_NO_EXCEPTION(VersionReq::parse("   1.2    "));
-  ASSERT_NO_EXCEPTION(VersionReq::parse(">   1.2.3    "));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("  <1.2.3 &&>= 1.2.3"));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("  <  1.2.3  &&   >=   1.2.3   "));
-  ASSERT_NO_EXCEPTION(VersionReq::parse(" <1.2.3     &&   >1    "));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3&& >=1.2.3"));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3  &&>=1.2.3"));
-  ASSERT_NO_EXCEPTION(VersionReq::parse("<1.2.3&&>=1.2.3"));
+  assertNoException([]() { return VersionReq::parse("   1.2    "); });
+  assertNoException([]() { return VersionReq::parse(">   1.2.3    "); });
+  assertNoException([]() { return VersionReq::parse("  <1.2.3 &&>= 1.2.3"); });
+  assertNoException([]() {
+    return VersionReq::parse("  <  1.2.3  &&   >=   1.2.3   ");
+  });
+  assertNoException([]() {
+    return VersionReq::parse(" <1.2.3     &&   >1    ");
+  });
+  assertNoException([]() { return VersionReq::parse("<1.2.3&& >=1.2.3"); });
+  assertNoException([]() { return VersionReq::parse("<1.2.3  &&>=1.2.3"); });
+  assertNoException([]() { return VersionReq::parse("<1.2.3&&>=1.2.3"); });
 }
 
 void testInvalidSpaces() {
-  ASSERT_EXCEPTION(
-      VersionReq::parse(" <  =   1.2.3"),
-      ComparatorError,
+  assertException<ComparatorError>(
+      []() { VersionReq::parse(" <  =   1.2.3"); },
       "invalid comparator:\n"
       " <  =   1.2.3\n"
       "     ^ expected version"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 & & >=1.2.3"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3 & & >=1.2.3"); },
       "invalid version requirement:\n"
       "<1.2.3 & & >=1.2.3\n"
       "       ^ expected `&&`"
@@ -1254,30 +1254,26 @@ void testInvalidSpaces() {
 }
 
 void testInvalidConjunction() {
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 &&"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3 &&"); },
       "invalid version requirement:\n"
       "<1.2.3 &&\n"
       "         ^ expected >=, <=, >, or <"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3  <1.2.3"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3  <1.2.3"); },
       "invalid version requirement:\n"
       "<1.2.3  <1.2.3\n"
       "              ^ expected `&&`"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && <1.2.3 &&"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3 && <1.2.3 &&"); },
       "invalid version requirement:\n"
       "<1.2.3 && <1.2.3 &&\n"
       "                 ^ expected end of string"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && <1.2.3 && <1.2.3"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3 && <1.2.3 && <1.2.3"); },
       "invalid version requirement:\n"
       "<1.2.3 && <1.2.3 && <1.2.3\n"
       "                 ^ expected end of string"
@@ -1285,45 +1281,39 @@ void testInvalidConjunction() {
 }
 
 void testNonComparatorChain() {
-  ASSERT_EXCEPTION(
-      VersionReq::parse("1.2.3 && 4.5.6"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("1.2.3 && 4.5.6"); },
       "invalid version requirement:\n"
       "1.2.3 && 4.5.6\n"
       "      ^ NoOp and Exact cannot chain"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("=1.2.3 && =4.5.6"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("=1.2.3 && =4.5.6"); },
       "invalid version requirement:\n"
       "=1.2.3 && =4.5.6\n"
       "       ^ NoOp and Exact cannot chain"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("1.2.3 && =4.5.6"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("1.2.3 && =4.5.6"); },
       "invalid version requirement:\n"
       "1.2.3 && =4.5.6\n"
       "      ^ NoOp and Exact cannot chain"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("=1.2.3 && 4.5.6"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("=1.2.3 && 4.5.6"); },
       "invalid version requirement:\n"
       "=1.2.3 && 4.5.6\n"
       "       ^ NoOp and Exact cannot chain"
   );
 
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && 4.5.6"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3 && 4.5.6"); },
       "invalid version requirement:\n"
       "<1.2.3 && 4.5.6\n"
       "          ^ expected >=, <=, >, or <"
   );
-  ASSERT_EXCEPTION(
-      VersionReq::parse("<1.2.3 && =4.5.6"),
-      VersionReqError,
+  assertException<VersionReqError>(
+      []() { VersionReq::parse("<1.2.3 && =4.5.6"); },
       "invalid version requirement:\n"
       "<1.2.3 && =4.5.6\n"
       "          ^ expected >=, <=, >, or <"
@@ -1331,36 +1321,34 @@ void testNonComparatorChain() {
 }
 
 void testToString() {
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("  <1.2.3  &&>=1.0 ").toString(), "<1.2.3 && >=1.0"
   );
 }
 
 void testToPkgConfigString() {
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("  <1.2.3  &&>=1.0 ").toPkgConfigString("foo"),
       "foo < 1.2.3, foo >= 1.0.0"
   );
 
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("1.2.3").toPkgConfigString("foo"),
       "foo >= 1.2.3, foo < 2.0.0"
   );
 
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse(">1.2.3").toPkgConfigString("foo"), "foo >= 1.2.4"
   );
 
-  ASSERT_EQ(
-      VersionReq::parse("=1.2.3").toPkgConfigString("foo"), "foo = 1.2.3"
-  );
+  assertEq(VersionReq::parse("=1.2.3").toPkgConfigString("foo"), "foo = 1.2.3");
 
-  ASSERT_EQ(
+  assertEq(
       VersionReq::parse("=1.2").toPkgConfigString("foo"),
       "foo >= 1.2.0, foo < 1.3.0"
   );
 
-  ASSERT_EQ(VersionReq::parse("0.0.1").toPkgConfigString("foo"), "foo = 0.0.1");
+  assertEq(VersionReq::parse("0.0.1").toPkgConfigString("foo"), "foo = 0.0.1");
 }
 
 int main() {
