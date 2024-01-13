@@ -23,19 +23,13 @@ public:
   Revspec& operator=(Revspec&&) = default;
 
   /// Access the `from` range of this revspec.
-  git_object* from() const noexcept {
-    return this->from_;
-  }
+  git_object* from() const noexcept;
 
   /// Access the `to` range of this revspec.
-  git_object* to() const noexcept {
-    return this->to_;
-  }
+  git_object* to() const noexcept;
 
   /// Returns the intent of the revspec.
-  unsigned int mode() const noexcept {
-    return this->mode_;
-  }
+  unsigned int mode() const noexcept;
 };
 
 } // end namespace git2
