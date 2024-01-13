@@ -18,6 +18,7 @@ struct Profile {
   void merge(const Profile& other);
 };
 
+const Path& getManifestPath();
 const String& getPackageName();
 u16 editionToYear(const StringRef);
 const String& getPackageEdition();

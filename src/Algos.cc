@@ -32,51 +32,6 @@ String getCmdOutput(const StringRef cmd) {
   return result;
 }
 
-// O(M) where M is the length of the word.
-void trieInsert(TrieNode& root, const StringRef word) {
-  TrieNode* node = &root;
-  for (const char ch : word) {
-    if (!node->children.contains(ch)) {
-      node->children[ch] = std::make_unique<TrieNode>();
-    }
-    node = node->children[ch].get();
-  }
-  node->isEndOfWord = true;
-}
-
-// O(M) where M is the length of the word.
-bool trieSearch(const TrieNode& root, const StringRef word) {
-  const TrieNode* node = &root;
-  for (const char ch : word) {
-    if (!node->children.contains(ch)) {
-      return false;
-    }
-    node = node->children.at(ch).get();
-    if (node->isEndOfWord) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// O(M^2) where M is the length of the word.
-bool trieSearchFromAnyPosition(const TrieNode& root, const StringRef word) {
-  for (usize i = 0; i < word.size(); ++i) {
-    const TrieNode* node = &root;
-    for (usize j = i; j < word.size(); ++j) {
-      const char ch = word[j];
-      if (!node->children.contains(ch)) {
-        break;
-      }
-      node = node->children.at(ch).get();
-      if (node->isEndOfWord) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
 static usize levDistance(const StringRef a, const StringRef b) {
   const usize asize = a.size();
