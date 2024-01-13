@@ -712,6 +712,8 @@ String getMakeCommand(const bool isParallel) {
 
 #  include "TestUtils.hpp"
 
+namespace tests {
+
 void testCycleVars() {
   BuildConfig config;
   config.defineSimpleVar("a", "b", { "b" });
@@ -725,6 +727,8 @@ void testCycleVars() {
       },
       "too complex build graph"
   );
+
+  pass();
 }
 
 void testSimpleVars() {
@@ -742,6 +746,8 @@ void testSimpleVars() {
       "b := 2\n"
       "c := 3\n"
   );
+
+  pass();
 }
 
 void testDependOnUnregisteredVar() {
@@ -752,6 +758,8 @@ void testDependOnUnregisteredVar() {
   config.emitMakefile(ss);
 
   assertEq(ss.str(), "a := 1\n");
+
+  pass();
 }
 
 void testCycleTargets() {
@@ -767,6 +775,8 @@ void testCycleTargets() {
       },
       "too complex build graph"
   );
+
+  pass();
 }
 
 void testSimpleTargets() {
@@ -790,6 +800,8 @@ void testSimpleTargets() {
       "\t$(Q)echo a\n"
       "\n"
   );
+
+  pass();
 }
 
 void testDependOnUnregisteredTarget() {
@@ -805,14 +817,18 @@ void testDependOnUnregisteredTarget() {
       "\t$(Q)echo a\n"
       "\n"
   );
+
+  pass();
 }
 
+} // namespace tests
+
 int main() {
-  REGISTER_TEST(testCycleVars);
-  REGISTER_TEST(testSimpleVars);
-  REGISTER_TEST(testDependOnUnregisteredVar);
-  REGISTER_TEST(testCycleTargets);
-  REGISTER_TEST(testSimpleTargets);
-  REGISTER_TEST(testDependOnUnregisteredTarget);
+  tests::testCycleVars();
+  tests::testSimpleVars();
+  tests::testDependOnUnregisteredVar();
+  tests::testCycleTargets();
+  tests::testSimpleTargets();
+  tests::testDependOnUnregisteredTarget();
 }
 #endif

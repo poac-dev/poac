@@ -15,12 +15,6 @@
 #include <typeinfo>
 #include <utility>
 
-#define REGISTER_TEST(name)                                                   \
-  name();                                                                     \
-  std::cout << "test " << __FILE__ << "::" << #name << " ... " << green("ok") \
-            << '\n'                                                           \
-            << std::flush
-
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt) {
   if (opt.has_value()) {
@@ -30,6 +24,8 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt) {
   }
   return os;
 }
+
+namespace tests {
 
 template <typename T>
 concept Printable = requires(T a, std::ostream& os) {
@@ -51,9 +47,17 @@ concept Lt = requires(T a, U b) {
   { a < b } -> std::convertible_to<bool>;
 };
 
+inline void pass(
+    const StringRef f = __builtin_FILE(),
+    const StringRef fn = __builtin_FUNCTION()
+) noexcept {
+  std::cout << "test " << f << "::" << fn << " ... " << green("ok") << '\n'
+            << std::flush;
+}
+
 template <typename... Ts>
   requires(Printable<Ts> && ...)
-inline void reportError(
+inline void error(
     const StringRef f,
     const int l,
     const StringRef fn,
@@ -77,9 +81,9 @@ inline void assertTrue(
   }
 
   if (msg.empty()) {
-    reportError(f, l, fn, "expected true: `", cond, '`');
+    error(f, l, fn, "expected true: `", cond, '`');
   } else {
-    reportError(f, l, fn, msg);
+    error(f, l, fn, msg);
   }
   std::exit(EXIT_FAILURE);
 }
@@ -96,9 +100,9 @@ inline void assertFalse(
   }
 
   if (msg.empty()) {
-    reportError(f, l, fn, "expected false: `", cond, '`');
+    error(f, l, fn, "expected false: `", cond, '`');
   } else {
-    reportError(f, l, fn, msg);
+    error(f, l, fn, msg);
   }
   std::exit(EXIT_FAILURE);
 }
@@ -118,7 +122,7 @@ inline void assertEq(
   }
 
   if (msg.empty()) {
-    reportError(
+    error(
         f,
         l,
         fn,
@@ -131,7 +135,7 @@ inline void assertEq(
         "`\n"
     );
   } else {
-    reportError(f, l, fn, msg);
+    error(f, l, fn, msg);
   }
   std::exit(EXIT_FAILURE);
 }
@@ -151,7 +155,7 @@ inline void assertNe(
   }
 
   if (msg.empty()) {
-    reportError(
+    error(
         f,
         l,
         fn,
@@ -164,7 +168,7 @@ inline void assertNe(
         "`\n"
     );
   } else {
-    reportError(f, l, fn, msg);
+    error(f, l, fn, msg);
   }
   std::exit(EXIT_FAILURE);
 }
@@ -184,7 +188,7 @@ inline void assertLt(
   }
 
   if (msg.empty()) {
-    reportError(
+    error(
         f,
         l,
         fn,
@@ -197,7 +201,7 @@ inline void assertLt(
         "`\n"
     );
   } else {
-    reportError(f, l, fn, msg);
+    error(f, l, fn, msg);
   }
   std::exit(EXIT_FAILURE);
 }
@@ -213,7 +217,7 @@ inline void assertException(
 ) noexcept {
   try {
     std::forward<Fn>(fn)();
-    reportError(
+    error(
         f, l, fnName, "expected exception `", typeid(E).name(), "` not thrown"
     );
     std::exit(EXIT_FAILURE);
@@ -222,7 +226,7 @@ inline void assertException(
       return; // OK
     }
 
-    reportError(
+    error(
         f,
         l,
         fnName,
@@ -234,7 +238,7 @@ inline void assertException(
     );
     std::exit(EXIT_FAILURE);
   } catch (...) {
-    reportError(
+    error(
         f,
         l,
         fnName,
@@ -260,7 +264,7 @@ inline void assertNoException(
     std::forward<Fn>(fn)();
     // OK
   } catch (...) {
-    reportError(
+    error(
         f,
         l,
         fnName,
@@ -271,3 +275,5 @@ inline void assertNoException(
     std::exit(EXIT_FAILURE);
   }
 }
+
+} // namespace tests

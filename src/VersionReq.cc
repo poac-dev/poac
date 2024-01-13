@@ -833,6 +833,8 @@ std::ostream& operator<<(std::ostream& os, const VersionReq& req) {
 
 #  include <span>
 
+namespace tests {
+
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/b6171889ac7e8f47ec6f12003571bdcc7f737b10/tests/test_version_req.rs
 
@@ -867,6 +869,8 @@ void testBasic() {
   assertMatchNone(
       req, { { "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre", "1.0.1-pre" } }
   );
+
+  pass();
 }
 
 void testExact() {
@@ -893,6 +897,8 @@ void testExact() {
   const auto r5 = VersionReq::parse("=0.1.0+meta");
   assertEq(r5.toString(), "=0.1.0");
   assertMatchAll(r5, { { "0.1.0", "0.1.0+meta", "0.1.0+any" } });
+
+  pass();
 }
 
 void testGreaterThan() {
@@ -907,6 +913,8 @@ void testGreaterThan() {
   assertMatchNone(
       r2, { { "2.0.0", "2.1.0-alpha1", "2.0.0-alpha2", "3.0.0-alpha2" } }
   );
+
+  pass();
 }
 
 void testLessThan() {
@@ -929,6 +937,8 @@ void testLessThan() {
 
   const auto r5 = VersionReq::parse(">1.0.0-alpha && <1");
   assertMatchNone(r5, { { "1.0.0-beta" } });
+
+  pass();
 }
 
 // same as caret
@@ -981,6 +991,8 @@ void testNoOp() {
       r9,
       { { "0.9.9", "2.0.0", "1.4.2-alpha", "1.4.2-beta.4", "1.4.3-beta.5" } }
   );
+
+  pass();
 }
 
 void testMultiple() {
@@ -1031,11 +1043,15 @@ void testMultiple() {
       ">1.2.3 - <2.3.4\n"
       "       ^ expected `&&`"
   );
+
+  pass();
 }
 
 void testPre() {
   const auto r = VersionReq::parse("=2.1.1-really.0");
   assertMatchAll(r, { { "2.1.1-really.0" } });
+
+  pass();
 }
 
 void testCanonicalizeNoOp() {
@@ -1066,6 +1082,8 @@ void testCanonicalizeNoOp() {
   assertEq(
       VersionReq::parse("0.0").canonicalize().toString(), ">=0.0.0 && <0.1.0"
   );
+
+  pass();
 }
 
 void testCanonicalizeExact() {
@@ -1081,6 +1099,8 @@ void testCanonicalizeExact() {
   assertEq(
       VersionReq::parse("=1").canonicalize().toString(), ">=1.0.0 && <2.0.0"
   );
+
+  pass();
 }
 
 void testCanonicalizeGt() {
@@ -1092,6 +1112,8 @@ void testCanonicalizeGt() {
 
   // 3.3. `>A` is equivalent to `>=(A+1).0.0`
   assertEq(VersionReq::parse(">1").canonicalize().toString(), ">=2.0.0");
+
+  pass();
 }
 
 void testCanonicalizeGte() {
@@ -1103,6 +1125,8 @@ void testCanonicalizeGte() {
 
   // 4.3. `>=A` is equivalent to `>=A.0.0`
   assertEq(VersionReq::parse(">=1").canonicalize().toString(), ">=1.0.0");
+
+  pass();
 }
 
 void testCanonicalizeLt() {
@@ -1114,6 +1138,8 @@ void testCanonicalizeLt() {
 
   // 5.3. `<A` is equivalent to `<A.0.0`
   assertEq(VersionReq::parse("<1").canonicalize().toString(), "<1.0.0");
+
+  pass();
 }
 
 void testCanonicalizeLte() {
@@ -1125,6 +1151,8 @@ void testCanonicalizeLte() {
 
   // 6.3. `<=A` is equivalent to `<(A+1).0.0`
   assertEq(VersionReq::parse("<=1").canonicalize().toString(), "<2.0.0");
+
+  pass();
 }
 
 void testParse() {
@@ -1169,6 +1197,8 @@ void testParse() {
       ">=\n"
       "  ^ expected version"
   );
+
+  pass();
 }
 
 void testComparatorParse() {
@@ -1206,6 +1236,8 @@ void testComparatorParse() {
       "1.*.\n"
       "  ^ expected number"
   );
+
+  pass();
 }
 
 void testLeadingDigitInPreAndBuild() {
@@ -1227,6 +1259,8 @@ void testLeadingDigitInPreAndBuild() {
       VersionReq::parse(cmp + "1.2.3-1a-1a+1a-1a-1a"s);
     });
   }
+
+  pass();
 }
 
 void testValidSpaces() {
@@ -1240,6 +1274,8 @@ void testValidSpaces() {
   assertNoException([]() { VersionReq::parse("<1.2.3&& >=1.2.3"); });
   assertNoException([]() { VersionReq::parse("<1.2.3  &&>=1.2.3"); });
   assertNoException([]() { VersionReq::parse("<1.2.3&&>=1.2.3"); });
+
+  pass();
 }
 
 void testInvalidSpaces() {
@@ -1255,6 +1291,8 @@ void testInvalidSpaces() {
       "<1.2.3 & & >=1.2.3\n"
       "       ^ expected `&&`"
   );
+
+  pass();
 }
 
 void testInvalidConjunction() {
@@ -1282,6 +1320,8 @@ void testInvalidConjunction() {
       "<1.2.3 && <1.2.3 && <1.2.3\n"
       "                 ^ expected end of string"
   );
+
+  pass();
 }
 
 void testNonComparatorChain() {
@@ -1322,12 +1362,16 @@ void testNonComparatorChain() {
       "<1.2.3 && =4.5.6\n"
       "          ^ expected >=, <=, >, or <"
   );
+
+  pass();
 }
 
 void testToString() {
   assertEq(
       VersionReq::parse("  <1.2.3  &&>=1.0 ").toString(), "<1.2.3 && >=1.0"
   );
+
+  pass();
 }
 
 void testToPkgConfigString() {
@@ -1353,31 +1397,35 @@ void testToPkgConfigString() {
   );
 
   assertEq(VersionReq::parse("0.0.1").toPkgConfigString("foo"), "foo = 0.0.1");
+
+  pass();
 }
 
+} // namespace tests
+
 int main() {
-  REGISTER_TEST(testBasic);
-  REGISTER_TEST(testExact);
-  REGISTER_TEST(testGreaterThan);
-  REGISTER_TEST(testLessThan);
-  REGISTER_TEST(testNoOp);
-  REGISTER_TEST(testMultiple);
-  REGISTER_TEST(testPre);
-  REGISTER_TEST(testParse);
-  REGISTER_TEST(testCanonicalizeNoOp);
-  REGISTER_TEST(testCanonicalizeExact);
-  REGISTER_TEST(testCanonicalizeGt);
-  REGISTER_TEST(testCanonicalizeGte);
-  REGISTER_TEST(testCanonicalizeLt);
-  REGISTER_TEST(testCanonicalizeLte);
-  REGISTER_TEST(testComparatorParse);
-  REGISTER_TEST(testLeadingDigitInPreAndBuild);
-  REGISTER_TEST(testValidSpaces);
-  REGISTER_TEST(testInvalidSpaces);
-  REGISTER_TEST(testInvalidConjunction);
-  REGISTER_TEST(testNonComparatorChain);
-  REGISTER_TEST(testToString);
-  REGISTER_TEST(testToPkgConfigString);
+  tests::testBasic();
+  tests::testExact();
+  tests::testGreaterThan();
+  tests::testLessThan();
+  tests::testNoOp();
+  tests::testMultiple();
+  tests::testPre();
+  tests::testParse();
+  tests::testCanonicalizeNoOp();
+  tests::testCanonicalizeExact();
+  tests::testCanonicalizeGt();
+  tests::testCanonicalizeGte();
+  tests::testCanonicalizeLt();
+  tests::testCanonicalizeLte();
+  tests::testComparatorParse();
+  tests::testLeadingDigitInPreAndBuild();
+  tests::testValidSpaces();
+  tests::testInvalidSpaces();
+  tests::testInvalidConjunction();
+  tests::testNonComparatorChain();
+  tests::testToString();
+  tests::testToPkgConfigString();
 }
 
 #endif

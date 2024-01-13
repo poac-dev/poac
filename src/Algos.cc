@@ -118,12 +118,16 @@ findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
 
 #  include <limits>
 
+namespace tests {
+
 void testLevDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
     const String str(1, c);
     assertEq(levDistance(str, str), 0UL);
   }
+
+  pass();
 }
 
 void testLevDistance2() {
@@ -147,6 +151,8 @@ void testLevDistance2() {
   assertEq(levDistance("ab", "ac"), 1UL);
   assertEq(levDistance("aab", "aac"), 1UL);
   assertEq(levDistance("aaab", "aaac"), 1UL);
+
+  pass();
 }
 
 // ref:
@@ -171,6 +177,8 @@ void testFindSimilarStr() {
 
   assertEq(findSimilarStr("i", CANDIDATES), None);
   assertEq(findSimilarStr("special_compiler_directive", CANDIDATES), None);
+
+  pass();
 }
 
 void testFindSimilarStr2() {
@@ -180,13 +188,17 @@ void testFindSimilarStr2() {
 
   constexpr Arr<StringRef, 1> CANDIDATES2{ "AAAA" };
   assertEq(findSimilarStr("aaaa", CANDIDATES2), "AAAA"sv);
+
+  pass();
 }
 
+} // namespace tests
+
 int main() {
-  REGISTER_TEST(testLevDistance);
-  REGISTER_TEST(testLevDistance2);
-  REGISTER_TEST(testFindSimilarStr);
-  REGISTER_TEST(testFindSimilarStr2);
+  tests::testLevDistance();
+  tests::testLevDistance2();
+  tests::testFindSimilarStr();
+  tests::testFindSimilarStr2();
 }
 
 #endif

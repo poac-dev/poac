@@ -449,6 +449,8 @@ Version Version::parse(const StringRef s) {
 
 #  include "TestUtils.hpp"
 
+namespace tests {
+
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/55fa2cadd6ec95be02e5a2a87b24355304e44d40/tests/test_version.rs#L13
 
@@ -599,6 +601,8 @@ void testParse() {
       Version::parse("1.1.0-beta-10"),
       (Version{ 1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata() })
   );
+
+  pass();
 }
 
 void testEq() {
@@ -608,6 +612,8 @@ void testEq() {
   assertEq(
       Version::parse("1.2.3-alpha1+42"), Version::parse("1.2.3-alpha1+42")
   );
+
+  pass();
 }
 
 void testNe() {
@@ -616,6 +622,8 @@ void testNe() {
   assertNe(Version::parse("0.0.0"), Version::parse("1.0.0"));
   assertNe(Version::parse("1.2.3-alpha"), Version::parse("1.2.3-beta"));
   assertNe(Version::parse("1.2.3+23"), Version::parse("1.2.3+42"));
+
+  pass();
 }
 
 void testDisplay() {
@@ -639,6 +647,8 @@ void testDisplay() {
     oss << Version::parse("1.2.3-alpha1+42");
     assertEq(oss.str(), "1.2.3-alpha1+42");
   }
+
+  pass();
 }
 
 void testLt() {
@@ -649,6 +659,8 @@ void testLt() {
   assertLt(Version::parse("1.2.3-alpha1"), Version::parse("1.2.3-alpha2"));
   assertFalse(Version::parse("1.2.3-alpha2") < Version::parse("1.2.3-alpha2"));
   assertLt(Version::parse("1.2.3+23"), Version::parse("1.2.3+42"));
+
+  pass();
 }
 
 void testLe() {
@@ -658,6 +670,8 @@ void testLe() {
   assertTrue(Version::parse("1.2.3-alpha1") <= Version::parse("1.2.3-alpha2"));
   assertTrue(Version::parse("1.2.3-alpha2") <= Version::parse("1.2.3-alpha2"));
   assertTrue(Version::parse("1.2.3+23") <= Version::parse("1.2.3+42"));
+
+  pass();
 }
 
 void testGt() {
@@ -668,6 +682,8 @@ void testGt() {
   assertTrue(Version::parse("1.2.3") > Version::parse("1.2.3-alpha2"));
   assertFalse(Version::parse("1.2.3-alpha2") > Version::parse("1.2.3-alpha2"));
   assertFalse(Version::parse("1.2.3+23") > Version::parse("1.2.3+42"));
+
+  pass();
 }
 
 void testGe() {
@@ -677,6 +693,8 @@ void testGe() {
   assertTrue(Version::parse("1.2.3-alpha2") >= Version::parse("1.2.3-alpha1"));
   assertTrue(Version::parse("1.2.3-alpha2") >= Version::parse("1.2.3-alpha2"));
   assertFalse(Version::parse("1.2.3+23") >= Version::parse("1.2.3+42"));
+
+  pass();
 }
 
 void testSpecOrder() {
@@ -687,18 +705,22 @@ void testSpecOrder() {
   for (usize i = 1; i < vs.size(); ++i) {
     assertLt(Version::parse(vs[i - 1]), Version::parse(vs[i]));
   }
+
+  pass();
 }
 
+} // namespace tests
+
 int main() {
-  REGISTER_TEST(testParse);
-  REGISTER_TEST(testEq);
-  REGISTER_TEST(testNe);
-  REGISTER_TEST(testDisplay);
-  REGISTER_TEST(testLt);
-  REGISTER_TEST(testLe);
-  REGISTER_TEST(testGt);
-  REGISTER_TEST(testGe);
-  REGISTER_TEST(testSpecOrder);
+  tests::testParse();
+  tests::testEq();
+  tests::testNe();
+  tests::testDisplay();
+  tests::testLt();
+  tests::testLe();
+  tests::testGt();
+  tests::testGe();
+  tests::testSpecOrder();
 }
 
 #endif
