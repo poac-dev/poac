@@ -4,6 +4,7 @@
 #include "Config.hpp"
 #include "Exception.hpp"
 
+#include <git2/ignore.h>
 #include <git2/repository.h>
 #include <string>
 
@@ -58,11 +59,20 @@ struct Repository {
     return *this;
   }
 
+  /// Check if path is ignored by the ignore rules.
+  bool isIgnored(const StringRef path) const {
+    git2::init();
+
+    int ignored = 0;
+    git2Throw(git_ignore_path_is_ignored(&ignored, this->raw, path.data()));
+    return static_cast<bool>(ignored);
+  }
+
   /// Get the configuration file for this repository.
   ///
-  /// If a configuration file has not been set, the default config set for the
-  /// repository will be returned, including global and system configurations
-  /// (if they are available).
+  /// If a configuration file has not been set, the default config set for
+  /// the repository will be returned, including global and system
+  /// configurations (if they are available).
   git2::Config config() const {
     git_config* cfg = nullptr;
     git2Throw(git_repository_config(&cfg, this->raw));

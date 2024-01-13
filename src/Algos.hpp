@@ -15,14 +15,6 @@
 int runCmd(const StringRef) noexcept;
 String getCmdOutput(const StringRef);
 
-struct TrieNode {
-  HashMap<char, std::unique_ptr<TrieNode>> children;
-  bool isEndOfWord = false;
-};
-void trieInsert(TrieNode&, const StringRef);
-bool trieSearch(const TrieNode&, const StringRef);
-bool trieSearchFromAnyPosition(const TrieNode&, const StringRef);
-
 template <typename T>
 Vec<String> topoSort(
     const HashMap<String, T>& list,

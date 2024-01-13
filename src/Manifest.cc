@@ -100,6 +100,8 @@ struct Manifest {
     return INSTANCE;
   }
 
+  Option<Path> manifestPath = None;
+
   Option<toml::value> data = None;
 
   Option<Package> package = None;
@@ -126,9 +128,14 @@ private:
       toml::color::disable();
     }
 
-    data = toml::parse(findManifest());
+    manifestPath = findManifest();
+    data = toml::parse(manifestPath.value());
   }
 };
+
+const Path& getManifestPath() {
+  return Manifest::instance().manifestPath.value();
+}
 
 u16 editionToYear(const StringRef edition) {
   if (edition == "98") {

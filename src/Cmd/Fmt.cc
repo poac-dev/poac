@@ -2,6 +2,8 @@
 
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
+#include "../Git/Exception.hpp"
+#include "../Git/Repository.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
@@ -49,34 +51,31 @@ int fmtMain(const std::span<const StringRef> args) {
     Logger::info("Formatting", packageName);
   }
 
-  // Read .gitignore if exists
-  TrieNode root;
-  if (fs::exists(".gitignore")) {
-    std::ifstream ifs(".gitignore");
-    String line;
-    while (std::getline(ifs, line)) {
-      if (line.empty() || line[0] == '#') {
-        continue;
-      }
-
-      trieInsert(root, line);
-    }
+  // Read git repository if exists
+  const Path& manifestDir = getManifestPath().parent_path();
+  git2::Repository repo = git2::Repository();
+  bool isGitRepo = false;
+  try {
+    repo.open(manifestDir.string());
+    isGitRepo = true;
+  } catch (const git2::Exception& e) {
+    Logger::debug("No git repository found");
   }
 
   // Automatically collects format-target files
-  for (auto entry = fs::recursive_directory_iterator(".");
+  for (auto entry = fs::recursive_directory_iterator(manifestDir);
        entry != fs::recursive_directory_iterator();
        ++entry) {
     if (entry->is_directory()) {
-      const String path = entry->path().string();
-      if (trieSearchFromAnyPosition(root, path)) {
+      const String path = fs::relative(entry->path(), manifestDir).string();
+      if (isGitRepo && repo.isIgnored(path)) {
         Logger::debug("Ignore: ", path);
         entry.disable_recursion_pending();
         continue;
       }
     } else if (entry->is_regular_file()) {
-      const Path path = entry->path();
-      if (trieSearchFromAnyPosition(root, path.string())) {
+      const Path path = fs::relative(entry->path(), manifestDir);
+      if (isGitRepo && repo.isIgnored(path.string())) {
         Logger::debug("Ignore: ", path.string());
         continue;
       }
@@ -88,7 +87,9 @@ int fmtMain(const std::span<const StringRef> args) {
     }
   }
 
-  const String clangFormat = "${POAC_FMT:-clang-format} " + clangFormatArgs;
+  const String clangFormat = "cd " + manifestDir.string()
+                             + " && ${POAC_FMT:-clang-format} "
+                             + clangFormatArgs;
   const int exitCode = runCmd(clangFormat);
   if (exitCode != 0) {
     Logger::error("clang-format exited with code ", exitCode);
