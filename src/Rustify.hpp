@@ -108,8 +108,8 @@ inline Path operator""_path(const char* str, usize /*unused*/) {
 }
 
 [[noreturn]] inline void unreachable(
-    const StringRef f = __builtin_FILE(),
-    const int l = __builtin_LINE()
+    [[maybe_unused]] const StringRef f = __builtin_FILE(),
+    [[maybe_unused]] const int l = __builtin_LINE()
 ) noexcept {
 #ifdef NDEBUG
   __builtin_unreachable();
