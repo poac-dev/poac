@@ -15,6 +15,12 @@
 #include <typeinfo>
 #include <utility>
 
+#define REGISTER_TEST(name)                                                   \
+  name();                                                                     \
+  std::cout << "test " << __FILE__ << "::" << #name << " ... " << green("ok") \
+            << '\n'                                                           \
+            << std::flush
+
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt) {
   if (opt.has_value()) {
@@ -44,12 +50,6 @@ template <typename T, typename U>
 concept Lt = requires(T a, U b) {
   { a < b } -> std::convertible_to<bool>;
 };
-
-#define REGISTER_TEST(name)                                                   \
-  name();                                                                     \
-  std::cout << "test " << __FILE__ << "::" << #name << " ... " << green("ok") \
-            << '\n'                                                           \
-            << std::flush
 
 template <typename... Ts>
   requires(Printable<Ts> && ...)
