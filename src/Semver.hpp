@@ -37,8 +37,7 @@ struct VersionToken {
   std::variant<std::monostate, u64, StringRef> value;
 
   VersionToken(
-      Kind kind,
-      const std::variant<std::monostate, u64, StringRef>& value
+      Kind kind, const std::variant<std::monostate, u64, StringRef>& value
   ) noexcept
       : kind(kind), value(value) {}
   explicit VersionToken(Kind kind) noexcept

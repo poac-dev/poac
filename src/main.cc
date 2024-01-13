@@ -42,7 +42,8 @@ static inline const HashMap<StringRef, Cmd> CMDS = {
   DEFINE_CMD(search), DEFINE_CMD(test),  DEFINE_CMD(tidy), DEFINE_CMD(version),
 };
 
-void noSuchCommand(const StringRef arg) {
+void
+noSuchCommand(const StringRef arg) {
   Vec<StringRef> candidates(CMDS.size());
   usize i = 0;
   for (const auto& cmd : CMDS) {
@@ -54,15 +55,13 @@ void noSuchCommand(const StringRef arg) {
     suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
   }
   Logger::error(
-      "no such command: `",
-      arg,
-      "`\n\n",
-      suggestion,
+      "no such command: `", arg, "`\n\n", suggestion,
       "       Run `poac help` for a list of commands"
   );
 }
 
-int helpMain(const std::span<const StringRef> args) noexcept {
+int
+helpMain(const std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
@@ -96,7 +95,8 @@ int helpMain(const std::span<const StringRef> args) noexcept {
   return EXIT_SUCCESS;
 }
 
-int main(int argc, char* argv[]) {
+int
+main(int argc, char* argv[]) {
   // Parse arguments (options should appear before the subcommand, as the help
   // message shows intuitively)
   // poac --verbose run --release help --color always --verbose

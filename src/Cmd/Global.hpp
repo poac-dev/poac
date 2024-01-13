@@ -28,8 +28,7 @@
 
 // short, long, placeholder, description
 static inline constexpr Arr<
-    Tuple<StringRef, StringRef, StringRef, StringRef>,
-    4>
+    Tuple<StringRef, StringRef, StringRef, StringRef>, 4>
     GLOBAL_OPT_HELPS{
       std::make_tuple("-v", "--verbose", "", "Use verbose output"),
       { "-q", "--quiet", "", "Do not print poac log messages" },
@@ -40,10 +39,7 @@ static inline constexpr Arr<
 void printHeader(const StringRef) noexcept;
 void printUsage(const StringRef, const StringRef) noexcept;
 void printOption(
-    const StringRef,
-    const StringRef,
-    const StringRef,
-    const StringRef = ""
+    const StringRef, const StringRef, const StringRef, const StringRef = ""
 ) noexcept;
 void printCommand(const StringRef, const StringRef) noexcept;
 void printGlobalOpts() noexcept;

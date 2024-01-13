@@ -26,7 +26,8 @@ enum class Status {
   normal, // Successful completion OR unsolved
 };
 
-auto to_assignments(const Vec<i32>& literals) -> Vec<i32> {
+auto
+to_assignments(const Vec<i32>& literals) -> Vec<i32> {
   Vec<i32> assignments;
   for (auto&& l : literals | boost::adaptors::indexed()) {
     const i32 literal = l.index() + 1;
@@ -42,13 +43,11 @@ auto to_assignments(const Vec<i32>& literals) -> Vec<i32> {
 
 // the difference in number of occurrences
 template <
-    template <class T, class = std::allocator<T>>
-    typename TwoDim,
-    template <class T, class = std::allocator<T>>
-    typename OneDim,
-    typename T,
+    template <class T, class = std::allocator<T>> typename TwoDim,
+    template <class T, class = std::allocator<T>> typename OneDim, typename T,
     typename U>
-auto calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) -> T {
+auto
+calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) -> T {
   T acc = 0;
   for (const auto& rn : rng) {
     for (const auto& r : rn) {
@@ -60,7 +59,8 @@ auto calc_literal_polarity(const TwoDim<OneDim<T>>& rng, const U& i) -> T {
   return acc;
 }
 
-inline auto literal_to_index(i32 l) -> i32 {
+inline auto
+literal_to_index(i32 l) -> i32 {
   return std::abs(l) - 1;
 }
 
@@ -68,7 +68,8 @@ inline auto literal_to_index(i32 l) -> i32 {
 // assigned have been deleted from the clauses by the `delete_applied_literal`
 // function, so the index of the variable with the highest number of variables
 // is returned from the variables in the current clauses.
-auto maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
+auto
+maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
   Map<i32, i32> frequency;
   for (const auto& clause : clauses) {
     for (const auto& literal : clause) {
@@ -79,8 +80,7 @@ auto maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
     }
   }
   auto x = std::max_element(
-      frequency.begin(),
-      frequency.end(),
+      frequency.begin(), frequency.end(),
       [](const auto& p1, const auto& p2) { return p1.second > p2.second; }
   );
   return x->first;
@@ -88,11 +88,9 @@ auto maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
 
 // Delete variables from the clauses for which variable assignment has been
 // determined.
-auto delete_set_literal(
-    Vec<Vec<i32>>& clauses,
-    const i32& index,
-    const i32& set_val
-) -> Status {
+auto
+delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val)
+    -> Status {
   for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
     for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
       // set_val -> unassigned(-1) -> always false
@@ -122,7 +120,8 @@ auto delete_set_literal(
 }
 
 // unit resolution
-auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
+auto
+unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
   bool unit_clause_found = true;
   while (unit_clause_found) {
     unit_clause_found = false;
@@ -153,8 +152,8 @@ auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
 }
 
 // recursive DPLL algorithm
-[[nodiscard]] auto dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals)
-    -> Result<Vec<i32>, String> {
+[[nodiscard]] auto
+dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Result<Vec<i32>, String> {
   // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));
@@ -200,8 +199,8 @@ auto unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
   );
 }
 
-[[nodiscard]] inline auto solve(Vec<Vec<i32>> clauses, const u32& variables)
-    -> Result<Vec<i32>, String> {
+[[nodiscard]] inline auto
+solve(Vec<Vec<i32>> clauses, const u32& variables) -> Result<Vec<i32>, String> {
   // Express the assignment status of the literal value corresponding to index.
   // a vector that stores the value assigned to each variable, where
   // -1 - unassigned, 0 - true, 1 - false.

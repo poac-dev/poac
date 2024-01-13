@@ -11,7 +11,8 @@
 #include <iostream>
 #include <span>
 
-int runMain(const std::span<const StringRef> args) {
+int
+runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool isParallel = true;
@@ -45,7 +46,8 @@ int runMain(const std::span<const StringRef> args) {
   return exitCode;
 }
 
-void runHelp() noexcept {
+void
+runHelp() noexcept {
   std::cout << runDesc << '\n';
   std::cout << '\n';
   printUsage("run", "[OPTIONS] [args]...");

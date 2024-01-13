@@ -11,7 +11,8 @@
 #  error "POAC_VERSION is not defined"
 #endif
 
-static constexpr char firstMonthChar(const char m1) noexcept {
+static constexpr char
+firstMonthChar(const char m1) noexcept {
   return (m1 == 'O' || m1 == 'N' || m1 == 'D') ? '1' : '0';
 }
 static constexpr char
@@ -67,10 +68,7 @@ secondMonthChar(const char m1, const char m2, const char m3) noexcept {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 static inline constexpr char DATE[] = {
   // Year
-  __DATE__[7],
-  __DATE__[8],
-  __DATE__[9],
-  __DATE__[10],
+  __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10],
 
   '-',
 
@@ -81,13 +79,13 @@ static inline constexpr char DATE[] = {
   '-',
 
   // Day
-  __DATE__[4] == ' ' ? '0' : __DATE__[4],
-  __DATE__[5],
+  __DATE__[4] == ' ' ? '0' : __DATE__[4], __DATE__[5],
 
   '\0'
 };
 
-int versionMain(const std::span<const StringRef> args) noexcept {
+int
+versionMain(const std::span<const StringRef> args) noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
@@ -103,7 +101,8 @@ int versionMain(const std::span<const StringRef> args) noexcept {
   return EXIT_SUCCESS;
 }
 
-void versionHelp() noexcept {
+void
+versionHelp() noexcept {
   std::cout << versionDesc << '\n';
   std::cout << '\n';
   printUsage("version", "[OPTIONS]");

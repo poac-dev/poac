@@ -31,11 +31,9 @@ struct ArchiveWriteDelete {
 };
 using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 
-[[nodiscard]] auto archive_write_data_block(
-    const Writer& writer,
-    const void* buffer,
-    usize size,
-    i64 offset
+[[nodiscard]] auto
+archive_write_data_block(
+    const Writer& writer, const void* buffer, usize size, i64 offset
 ) noexcept -> Result<void, String> {
   const la_ssize_t res =
       archive_write_data_block(writer.get(), buffer, size, offset);
@@ -45,7 +43,8 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
   return Ok();
 }
 
-[[nodiscard]] auto copy_data(Archive* reader, const Writer& writer) noexcept
+[[nodiscard]] auto
+copy_data(Archive* reader, const Writer& writer) noexcept
     -> Result<void, String> {
   usize size{};
   const void* buff = nullptr;
@@ -62,7 +61,8 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
   }
 }
 
-[[nodiscard]] auto archive_write_finish_entry(const Writer& writer) noexcept
+[[nodiscard]] auto
+archive_write_finish_entry(const Writer& writer) noexcept
     -> Result<void, String> {
   const i32 res = archive_write_finish_entry(writer.get());
   if (res < ARCHIVE_OK) {
@@ -73,10 +73,9 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
   return Ok();
 }
 
-[[nodiscard]] auto archive_write_header(
-    Archive* reader,
-    const Writer& writer,
-    archive_entry* entry
+[[nodiscard]] auto
+archive_write_header(
+    Archive* reader, const Writer& writer, archive_entry* entry
 ) noexcept -> Result<void, String> {
   if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
@@ -86,8 +85,8 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
   return Ok();
 }
 
-auto set_extract_path(archive_entry* entry, const Path& extract_path)
-    -> String {
+auto
+set_extract_path(archive_entry* entry, const Path& extract_path) -> String {
   String current_file = archive_entry_pathname(entry);
   const Path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
@@ -128,10 +127,9 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
   return Ok(extracted_directory_name);
 }
 
-[[nodiscard]] auto archive_read_open_filename(
-    Archive* reader,
-    const Path& file_path,
-    usize block_size
+[[nodiscard]] auto
+archive_read_open_filename(
+    Archive* reader, const Path& file_path, usize block_size
 ) noexcept -> Result<void, String> {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
     return Err("Cannot archive_read_open_filename");
@@ -139,14 +137,16 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
   return Ok();
 }
 
-inline auto make_flags() noexcept -> i32 {
+inline auto
+make_flags() noexcept -> i32 {
   // Select which attributes we want to restore.
   // int
   return ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_UNLINK
          | ARCHIVE_EXTRACT_SECURE_NODOTDOT;
 }
 
-inline void read_as_targz(Archive* reader) noexcept {
+inline void
+read_as_targz(Archive* reader) noexcept {
   archive_read_support_format_tar(reader);
   archive_read_support_filter_gzip(reader);
 }

@@ -21,7 +21,8 @@ Oid::Oid(const std::unique_ptr<unsigned char>& bytes) {
 }
 
 /// Test if this OID is all zeros.
-bool Oid::isZero() const {
+bool
+Oid::isZero() const {
 #if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
   return git_oid_iszero(&raw) == 1;
 #else
@@ -29,11 +30,13 @@ bool Oid::isZero() const {
 #endif
 }
 
-std::ostream& operator<<(std::ostream& os, const Oid& o) {
+std::ostream&
+operator<<(std::ostream& os, const Oid& o) {
   return (os << git_oid_tostr_s(&o.raw));
 }
 
-inline bool operator==(const Oid& lhs, const Oid& rhs) {
+inline bool
+operator==(const Oid& lhs, const Oid& rhs) {
   return git_oid_equal(&lhs.raw, &rhs.raw) != 0;
 }
 

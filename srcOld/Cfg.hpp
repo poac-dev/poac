@@ -99,11 +99,13 @@ public:
   auto operator=(SyntaxError&&) noexcept -> SyntaxError& = default;
 };
 
-constexpr auto is_ident_start(const char c) noexcept -> bool {
+constexpr auto
+is_ident_start(const char c) noexcept -> bool {
   return (c == '_') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 }
 
-constexpr auto is_ident_rest(const char c) noexcept -> bool {
+constexpr auto
+is_ident_rest(const char c) noexcept -> bool {
   return is_ident_start(c) || ('0' <= c && c <= '9');
 }
 
@@ -185,7 +187,8 @@ struct Token {
   friend auto operator<<(std::ostream& os, const Token& token) -> std::ostream&;
 };
 
-constexpr auto to_kind(StringRef kind) -> Token::Kind {
+constexpr auto
+to_kind(StringRef kind) -> Token::Kind {
   if (kind == "(") {
     return Token::LeftParen;
   } else if (kind == ")") {
@@ -207,7 +210,8 @@ constexpr auto to_kind(StringRef kind) -> Token::Kind {
   }
 }
 
-auto to_string(Token::ident ident) -> String {
+auto
+to_string(Token::ident ident) -> String {
   switch (ident) {
     case Token::ident::cfg:
       return "cfg";
@@ -234,7 +238,8 @@ auto to_string(Token::ident ident) -> String {
   }
 }
 
-auto operator<<(std::ostream& os, const Token& token) -> std::ostream& {
+auto
+operator<<(std::ostream& os, const Token& token) -> std::ostream& {
   switch (token.kind) {
     case Token::LeftParen:
       return (os << "left_paren: (");
@@ -321,7 +326,8 @@ private:
   static auto to_ident(StringRef s) noexcept -> Option<Token::ident>;
 };
 
-auto Lexer::analyze_two_phrase(SizeType index_, const char kind) const
+auto
+Lexer::analyze_two_phrase(SizeType index_, const char kind) const
     -> std::pair<Lexer::SizeType, Option<Token>> {
   if (this->one(index_) == '=') {
     this->step(index_);
@@ -331,7 +337,8 @@ auto Lexer::analyze_two_phrase(SizeType index_, const char kind) const
   }
 }
 
-auto Lexer::tokenize(SizeType index_) const
+auto
+Lexer::tokenize(SizeType index_) const
     -> std::pair<Lexer::SizeType, Option<Token>> {
   if (index_ >= this->str.size()) {
     return generate_token(index_, None);
@@ -362,18 +369,21 @@ auto Lexer::tokenize(SizeType index_) const
   }
 }
 
-void Lexer::step(SizeType& index_) const noexcept {
+void
+Lexer::step(SizeType& index_) const noexcept {
   if (index_ < this->str.size()) {
     ++index_;
   }
 }
-void Lexer::step_n(const SizeType n) noexcept {
+void
+Lexer::step_n(const SizeType n) noexcept {
   for (SizeType i = 0; i < n; ++i) {
     this->step(this->index);
   }
 }
 
-auto Lexer::string(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
+auto
+Lexer::string(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   this->step(index_);
   const SizeType start = index_;
   while (this->one(index_) != '"') {
@@ -392,7 +402,8 @@ auto Lexer::string(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   return { this->diff_step(index_), Token{ Token::String, s } };
 }
 
-auto Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
+auto
+Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   if (!is_ident_start(this->one(index_))) {
     String msg;
     msg += String(index_, ' ');
@@ -418,7 +429,8 @@ auto Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   }
 }
 
-auto Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
+auto
+Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
   if (s == "cfg") {
     return Token::ident::cfg;
   } else if (s == "not") {
@@ -539,7 +551,8 @@ private:
   static auto match(const Cfg& c) -> bool;
 };
 
-auto Cfg::from_token_ident(Token::ident ident) -> Cfg::Ident {
+auto
+Cfg::from_token_ident(Token::ident ident) -> Cfg::Ident {
   switch (ident) {
     case Token::ident::compiler:
       return Ident::compiler;
@@ -558,7 +571,8 @@ auto Cfg::from_token_ident(Token::ident ident) -> Cfg::Ident {
   }
 }
 
-auto CfgExpr::match() const -> bool {
+auto
+CfgExpr::match() const -> bool {
   switch (this->kind) {
     case Kind::cfg:
       return std::get<ExprType>(this->expr)->match();
@@ -585,7 +599,8 @@ auto CfgExpr::match() const -> bool {
   }
 }
 
-auto CfgExpr::match(const Cfg& c) -> bool {
+auto
+CfgExpr::match(const Cfg& c) -> bool {
   switch (c.key) {
     case Cfg::Ident::compiler:
       return false;
@@ -704,7 +719,8 @@ private:
   void eat_right_paren();
 };
 
-auto Parser::expr() -> CfgExpr {
+auto
+Parser::expr() -> CfgExpr {
   if (const auto token = lexer.peek(); !token.has_value()) {
     throw cfg::ExpressionError("expected start of a cfg expression");
   } else if (token->kind == Token::Ident) {
@@ -741,7 +757,8 @@ auto Parser::expr() -> CfgExpr {
   return CfgExpr{ CfgExpr::value, this->cfg() };
 }
 
-auto Parser::cfg() -> Cfg {
+auto
+Parser::cfg() -> Cfg {
   const usize index = lexer.index;
   if (const auto token = lexer.next(); !token.has_value()) {
     String msg = String(index + 1, ' ');
@@ -779,7 +796,8 @@ Parser::throw_operator_error(const usize index, Cfg::Op op) const {
   throw cfg::OperatorError(String(lexer.str) + "\n" + msg);
 }
 
-auto Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op) -> Cfg {
+auto
+Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op) -> Cfg {
   const Cfg c = this->cfg_str(ident, op);
   if (ident != Token::ident::os_version) {
     this->throw_operator_error(index, op);
@@ -787,7 +805,8 @@ auto Parser::cfg_str(const usize index, Token::ident ident, Cfg::Op op) -> Cfg {
   return c;
 }
 
-auto Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
+auto
+Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
   const usize index = lexer.index;
   if (const auto t = lexer.next()) {
     if (t->kind == Token::String) {
@@ -807,7 +826,8 @@ auto Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
   }
 }
 
-auto Parser::r_try(Token::Kind kind) -> bool {
+auto
+Parser::r_try(Token::Kind kind) -> bool {
   if (const auto token = lexer.peek()) {
     if (token->kind == kind) {
       this->lexer.next();
@@ -817,7 +837,8 @@ auto Parser::r_try(Token::Kind kind) -> bool {
   return false;
 }
 
-void Parser::eat_left_paren(Token::ident prev) {
+void
+Parser::eat_left_paren(Token::ident prev) {
   const usize index = lexer.index;
   if (const auto token = lexer.next()) {
     if (token->kind != Token::LeftParen) {
@@ -831,7 +852,8 @@ void Parser::eat_left_paren(Token::ident prev) {
     throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
   }
 }
-void Parser::eat_right_paren() {
+void
+Parser::eat_right_paren() {
   const usize index = lexer.index;
   if (const auto token = lexer.next()) {
     if (token->kind != Token::RightParen) {
@@ -848,7 +870,8 @@ void Parser::eat_right_paren() {
   }
 }
 
-inline auto parse(StringRef s) -> CfgExpr {
+inline auto
+parse(StringRef s) -> CfgExpr {
   return Parser(s).expr();
 }
 

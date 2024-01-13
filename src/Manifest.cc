@@ -43,7 +43,8 @@ struct into<Version> {
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Package, name, edition, version);
 
-static Path findManifest() {
+static Path
+findManifest() {
   Path candidate = fs::current_path();
   while (true) {
     const Path configPath = candidate / "poac.toml";
@@ -79,7 +80,8 @@ struct SystemDependency {
   DepMetadata install() const;
 };
 
-void Profile::merge(const Profile& other) {
+void
+Profile::merge(const Profile& other) {
   cxxflags.insert(other.cxxflags.begin(), other.cxxflags.end());
   if (!lto) { // false is the default value
     lto = other.lto;
@@ -133,11 +135,13 @@ private:
   }
 };
 
-const Path& getManifestPath() {
+const Path&
+getManifestPath() {
   return Manifest::instance().manifestPath.value();
 }
 
-u16 editionToYear(const StringRef edition) {
+u16
+editionToYear(const StringRef edition) {
   if (edition == "98") {
     return 1998;
   } else if (edition == "03") {
@@ -158,7 +162,8 @@ u16 editionToYear(const StringRef edition) {
   throw PoacError("invalid edition: ", edition);
 }
 
-static Package& parsePackage() {
+static Package&
+parsePackage() {
   Manifest& manifest = Manifest::instance();
   if (manifest.package.has_value()) {
     return manifest.package.value();
@@ -177,17 +182,21 @@ static Package& parsePackage() {
   return manifest.package.value();
 }
 
-const String& getPackageName() {
+const String&
+getPackageName() {
   return parsePackage().name;
 }
-const String& getPackageEdition() {
+const String&
+getPackageEdition() {
   return parsePackage().edition;
 }
-const Version& getPackageVersion() {
+const Version&
+getPackageVersion() {
   return parsePackage().version;
 }
 
-static void validateCxxflag(const StringRef cxxflag) {
+static void
+validateCxxflag(const StringRef cxxflag) {
   // cxxflag must start with `-`
   if (cxxflag.empty() || cxxflag[0] != '-') {
     throw PoacError("cxxflag must start with `-`");
@@ -206,7 +215,8 @@ static void validateCxxflag(const StringRef cxxflag) {
   }
 }
 
-static Profile parseProfile(const toml::table& table) {
+static Profile
+parseProfile(const toml::table& table) {
   Profile profile;
   if (table.contains("cxxflags") && table.at("cxxflags").is_array()) {
     const auto& cxxflags = table.at("cxxflags").as_array();
@@ -225,7 +235,8 @@ static Profile parseProfile(const toml::table& table) {
   return profile;
 }
 
-static Profile getProfile(Option<String> profileName) {
+static Profile
+getProfile(Option<String> profileName) {
   Manifest& manifest = Manifest::instance();
   if (!manifest.data.value().contains("profile")) {
     return {};
@@ -251,7 +262,8 @@ static Profile getProfile(Option<String> profileName) {
   }
 }
 
-static const Profile& getBaseProfile() {
+static const Profile&
+getBaseProfile() {
   Manifest& manifest = Manifest::instance();
   if (manifest.profile.has_value()) {
     return manifest.profile.value();
@@ -262,7 +274,8 @@ static const Profile& getBaseProfile() {
   return manifest.profile.value();
 }
 
-const Profile& getDebugProfile() {
+const Profile&
+getDebugProfile() {
   Manifest& manifest = Manifest::instance();
   if (manifest.debugProfile.has_value()) {
     return manifest.debugProfile.value();
@@ -274,7 +287,8 @@ const Profile& getDebugProfile() {
   return manifest.debugProfile.value();
 }
 
-const Profile& getReleaseProfile() {
+const Profile&
+getReleaseProfile() {
   Manifest& manifest = Manifest::instance();
   if (manifest.releaseProfile.has_value()) {
     return manifest.releaseProfile.value();
@@ -286,7 +300,8 @@ const Profile& getReleaseProfile() {
   return manifest.releaseProfile.value();
 }
 
-const Vec<String>& getLintCpplintFilters() {
+const Vec<String>&
+getLintCpplintFilters() {
   Manifest& manifest = Manifest::instance();
   if (manifest.cpplintFilters.has_value()) {
     return manifest.cpplintFilters.value();
@@ -305,7 +320,8 @@ const Vec<String>& getLintCpplintFilters() {
   return manifest.cpplintFilters.value();
 }
 
-static Path getXdgCacheHome() {
+static Path
+getXdgCacheHome() {
   if (const char* envP = std::getenv("XDG_CACHE_HOME")) {
     return envP;
   }
@@ -320,7 +336,8 @@ static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
 // Dependency name can contain alphanumeric characters, and non-leading &
 // non-trailing & non-consecutive `-`, and `_`.  Also, `/` is allowed only
 // once with the same constrains as `-` and `_`.
-static void validateDepName(const StringRef name) {
+static void
+validateDepName(const StringRef name) {
   if (name.empty()) {
     throw PoacError("dependency name is empty");
   }
@@ -358,7 +375,8 @@ static void validateDepName(const StringRef name) {
   }
 }
 
-static void validateGitUrl(const StringRef url) {
+static void
+validateGitUrl(const StringRef url) {
   if (url.empty()) {
     throw PoacError("git url is empty");
   }
@@ -373,7 +391,8 @@ static void validateGitUrl(const StringRef url) {
   }
 }
 
-static void validateGitRev(const StringRef rev) {
+static void
+validateGitRev(const StringRef rev) {
   if (rev.empty()) {
     throw PoacError("git rev is empty");
   }
@@ -391,7 +410,8 @@ static void validateGitRev(const StringRef rev) {
   }
 }
 
-static void validateGitTagAndBranch(const StringRef target) {
+static void
+validateGitTagAndBranch(const StringRef target) {
   if (target.empty()) {
     throw PoacError("git tag or branch is empty");
   }
@@ -421,7 +441,8 @@ static const HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
   { "branch", validateGitTagAndBranch },
 };
 
-static GitDependency parseGitDep(const String& name, const toml::table& info) {
+static GitDependency
+parseGitDep(const String& name, const toml::table& info) {
   validateDepName(name);
   String gitUrlStr;
   Option<String> target = None;
@@ -458,7 +479,8 @@ parseSystemDep(const String& name, const toml::table& info) {
   return { name, VersionReq::parse(versionReq) };
 }
 
-static void parseDependencies() {
+static void
+parseDependencies() {
   Manifest& manifest = Manifest::instance();
   if (manifest.dependencies.has_value()) {
     return;
@@ -493,7 +515,8 @@ static void parseDependencies() {
   manifest.dependencies = deps;
 }
 
-DepMetadata GitDependency::install() const {
+DepMetadata
+GitDependency::install() const {
   Path installDir = GIT_SRC_DIR / name;
   if (target.has_value()) {
     installDir += '-' + target.value();
@@ -532,7 +555,8 @@ DepMetadata GitDependency::install() const {
   // currently, no libs are supported.
 }
 
-DepMetadata SystemDependency::install() const {
+DepMetadata
+SystemDependency::install() const {
   const String pkgConfigVer = versionReq.toPkgConfigString(name);
   const String cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
   const String libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
@@ -545,7 +569,8 @@ DepMetadata SystemDependency::install() const {
   return { cflags, libs };
 }
 
-Vec<DepMetadata> installDependencies() {
+Vec<DepMetadata>
+installDependencies() {
   parseDependencies();
 
   Manifest& manifest = Manifest::instance();

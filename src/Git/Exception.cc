@@ -9,11 +9,13 @@ namespace git2 {
 
 #if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 28)
 // NOLINTBEGIN(readability-identifier-naming)
-const git_error* git_error_last() {
+const git_error*
+git_error_last() {
   return giterr_last();
 }
 
-void git_error_clear() {
+void
+git_error_clear() {
   giterr_clear();
 }
 // NOLINTEND(readability-identifier-naming)
@@ -27,14 +29,17 @@ Exception::Exception() {
   }
 }
 
-const char* Exception::what() const noexcept {
+const char*
+Exception::what() const noexcept {
   return this->m_message.c_str();
 }
-git_error_t Exception::category() const noexcept {
+git_error_t
+Exception::category() const noexcept {
   return this->m_category;
 }
 
-int git2Throw(const int ret) {
+int
+git2Throw(const int ret) {
   if (ret < 0) {
     throw Exception();
   }

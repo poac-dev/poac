@@ -10,7 +10,8 @@
 #include <iostream>
 #include <span>
 
-int testMain(const std::span<const StringRef> args) {
+int
+testMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool isParallel = true;
@@ -54,7 +55,8 @@ int testMain(const std::span<const StringRef> args) {
   return exitCode;
 }
 
-void testHelp() noexcept {
+void
+testHelp() noexcept {
   std::cout << testDesc << '\n';
   std::cout << '\n';
   printUsage("test", "[OPTIONS]");

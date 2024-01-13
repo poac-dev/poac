@@ -83,7 +83,8 @@ struct NoneT : protected std::monostate {
 };
 inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
 
-inline std::ostream& operator<<(std::ostream& os, const NoneT& /*unused*/) {
+inline std::ostream&
+operator<<(std::ostream& os, const NoneT& /*unused*/) {
   return os << "None";
 }
 
@@ -92,13 +93,14 @@ using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;
 // NOLINTEND(google-global-names-in-headers)
 
-inline Path operator""_path(const char* str, usize /*unused*/) {
+inline Path
+operator""_path(const char* str, usize /*unused*/) {
   return str;
 }
 
-[[noreturn]] inline void panic(
-    const StringRef msg,
-    const StringRef f = __builtin_FILE(),
+[[noreturn]] inline void
+panic(
+    const StringRef msg, const StringRef f = __builtin_FILE(),
     const int l = __builtin_LINE()
 ) noexcept {
   std::cerr << "panicked at '" << msg << "', " << f << ':' << l << '\n';
@@ -107,7 +109,8 @@ inline Path operator""_path(const char* str, usize /*unused*/) {
   // TODO: throw an exception instead?
 }
 
-[[noreturn]] inline void unreachable(
+[[noreturn]] inline void
+unreachable(
     [[maybe_unused]] const StringRef f = __builtin_FILE(),
     [[maybe_unused]] const int l = __builtin_LINE()
 ) noexcept {

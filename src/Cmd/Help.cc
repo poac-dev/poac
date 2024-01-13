@@ -4,7 +4,8 @@
 
 #include <iostream>
 
-void helpHelp() noexcept {
+void
+helpHelp() noexcept {
   std::cout << helpDesc << '\n';
   std::cout << '\n';
   printUsage("help", "[OPTIONS] [COMMAND]");

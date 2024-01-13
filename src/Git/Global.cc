@@ -16,7 +16,8 @@ namespace detail {
 
 static inline std::once_flag once;
 
-void init() {
+void
+init() {
   std::call_once(once, detail::init);
 }
 

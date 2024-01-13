@@ -8,7 +8,8 @@
 #include <iostream>
 #include <string>
 
-int tidyMain(const std::span<const StringRef> args) {
+int
+tidyMain(const std::span<const StringRef> args) {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
@@ -44,7 +45,8 @@ int tidyMain(const std::span<const StringRef> args) {
   return runCmd(makeCmd);
 }
 
-void tidyHelp() noexcept {
+void
+tidyHelp() noexcept {
   std::cout << tidyDesc << '\n';
   std::cout << '\n';
   printUsage("tidy", "[OPTIONS]");

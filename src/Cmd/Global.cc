@@ -8,11 +8,13 @@
 #include <iomanip>
 #include <iostream>
 
-void printHeader(const StringRef header) noexcept {
+void
+printHeader(const StringRef header) noexcept {
   std::cout << bold(green(header)) << '\n';
 }
 
-void printUsage(const StringRef cmd, const StringRef usage) noexcept {
+void
+printUsage(const StringRef cmd, const StringRef usage) noexcept {
   std::cout << bold(green("Usage: ")) << bold(cyan("poac "));
   if (!cmd.empty()) {
     std::cout << bold(cyan(cmd)) << ' ';
@@ -20,10 +22,9 @@ void printUsage(const StringRef cmd, const StringRef usage) noexcept {
   std::cout << cyan(usage) << '\n';
 }
 
-void printOption(
-    const StringRef lng,
-    const StringRef shrt,
-    const StringRef desc,
+void
+printOption(
+    const StringRef lng, const StringRef shrt, const StringRef desc,
     const StringRef placeholder
 ) noexcept {
   String option;
@@ -45,7 +46,8 @@ void printOption(
   }
 }
 
-void printCommand(const StringRef name, const StringRef desc) noexcept {
+void
+printCommand(const StringRef name, const StringRef desc) noexcept {
   if (shouldColor()) {
     std::cout << "  " << std::left << std::setw(27) << bold(cyan(name)) << desc
               << '\n';
@@ -54,13 +56,15 @@ void printCommand(const StringRef name, const StringRef desc) noexcept {
   }
 }
 
-void printGlobalOpts() noexcept {
+void
+printGlobalOpts() noexcept {
   for (const auto& [shrt, lng, placeholder, desc] : GLOBAL_OPT_HELPS) {
     printOption(lng, shrt, desc, placeholder);
   }
 }
 
-bool commandExists(const StringRef cmd) noexcept {
+bool
+commandExists(const StringRef cmd) noexcept {
   String checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";

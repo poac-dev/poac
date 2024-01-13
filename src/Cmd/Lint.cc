@@ -11,7 +11,8 @@
 #include <iostream>
 #include <span>
 
-static int lint(const StringRef name, const StringRef cpplintArgs) {
+static int
+lint(const StringRef name, const StringRef cpplintArgs) {
   Logger::info("Linting", name);
 
   String cpplintCmd = "cpplint";
@@ -43,7 +44,8 @@ static int lint(const StringRef name, const StringRef cpplintArgs) {
   return EXIT_SUCCESS;
 }
 
-int lintMain(const std::span<const StringRef> args) {
+int
+lintMain(const std::span<const StringRef> args) {
   // Parse args
   String cpplintArgs;
   for (usize i = 0; i < args.size(); ++i) {
@@ -106,7 +108,8 @@ int lintMain(const std::span<const StringRef> args) {
   }
 }
 
-void lintHelp() noexcept {
+void
+lintHelp() noexcept {
   std::cout << lintDesc << '\n';
   std::cout << '\n';
   printUsage("lint", "[OPTIONS]");

@@ -10,7 +10,8 @@
 #include <iostream>
 #include <span>
 
-int buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
+int
+buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
@@ -28,7 +29,8 @@ int buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   return exitCode;
 }
 
-int buildMain(const std::span<const StringRef> args) {
+int
+buildMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;
@@ -66,7 +68,8 @@ int buildMain(const std::span<const StringRef> args) {
   return EXIT_SUCCESS;
 }
 
-void buildHelp() noexcept {
+void
+buildHelp() noexcept {
   std::cout << buildDesc << '\n';
   std::cout << '\n';
   printUsage("build", "[OPTIONS]");

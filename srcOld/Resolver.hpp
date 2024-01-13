@@ -43,19 +43,21 @@ namespace poac::core::resolver {
 
 using namespace std::literals::string_view_literals;
 
-inline auto get_install_name(const resolve::Package& package) -> String {
+inline auto
+get_install_name(const resolve::Package& package) -> String {
   return boost::replace_first_copy(package.name, "/", "-") + "-"
          + package.dep_info.version_rq;
 }
 
-export inline auto get_extracted_path(const resolve::Package& package) -> Path {
+export inline auto
+get_extracted_path(const resolve::Package& package) -> Path {
   return config::default_registry_dir / get_install_name(package);
 }
 
 /// Rename unknown extracted directory to easily access when building.
-[[nodiscard]] auto rename_extracted_directory(
-    const resolve::Package& package,
-    StringRef extracted_directory_name
+[[nodiscard]] auto
+rename_extracted_directory(
+    const resolve::Package& package, StringRef extracted_directory_name
 ) -> Result<void> {
   const Path temporarily_extracted_path =
       config::default_registry_dir / extracted_directory_name;
@@ -69,12 +71,14 @@ export inline auto get_extracted_path(const resolve::Package& package) -> Path {
   return Ok();
 }
 
-inline auto get_archive_path(const resolve::Package& package) -> Path {
+inline auto
+get_archive_path(const resolve::Package& package) -> Path {
   fs::create_directories(config::default_registry_dir);
   return config::default_registry_dir / (get_install_name(package) + ".tar.gz");
 }
 
-inline auto convert_to_download_link(StringRef repository) -> String {
+inline auto
+convert_to_download_link(StringRef repository) -> String {
   // repository should be like =>
   //   https://github.com/boostorg/winapi/tree/boost-1.66.0
   // convert it to =>
@@ -101,14 +105,16 @@ inline auto convert_to_download_link(StringRef repository) -> String {
   return format("{}archive{}.tar.gz", left, right);
 }
 
-[[nodiscard]] inline auto get_download_link(const resolve::Package& package)
+[[nodiscard]] inline auto
+get_download_link(const resolve::Package& package)
     -> Result<std::pair<String, String>, String> {
   const auto [repository, sha256sum] =
       Try(util::net::api::repoinfo(package.name, package.dep_info.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }
 
-[[nodiscard]] auto fetch_impl(const resolve::Package& package) noexcept
+[[nodiscard]] auto
+fetch_impl(const resolve::Package& package) noexcept
     -> Result<std::pair<Path, String>> {
   try {
     const auto [download_link, sha256sum] =
@@ -137,8 +143,8 @@ inline auto convert_to_download_link(StringRef repository) -> String {
 using resolve::UniqDeps;
 using resolve::WithoutDeps;
 
-[[nodiscard]] auto fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps)
-    -> Result<void> {
+[[nodiscard]] auto
+fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) -> Result<void> {
   Vec<resolve::Package> conan_packages;
 
   for (const auto& [name, dep_info] : deps) {
@@ -185,11 +191,13 @@ using resolve::WithoutDeps;
   return Ok();
 }
 
-auto is_not_installed(const resolve::Package& package) -> bool {
+auto
+is_not_installed(const resolve::Package& package) -> bool {
   return !fs::exists(get_archive_path(package));
 }
 
-auto get_not_installed_deps(const ResolvedDeps& deps)
+auto
+get_not_installed_deps(const ResolvedDeps& deps)
     -> resolve::UniqDeps<resolve::WithoutDeps> {
   return deps | boost::adaptors::map_keys
          | boost::adaptors::filtered(is_not_installed)
@@ -200,7 +208,8 @@ auto get_not_installed_deps(const ResolvedDeps& deps)
          | util::meta::CONTAINERIZED;
 }
 
-[[nodiscard]] auto download_deps(const ResolvedDeps& deps) -> Result<void> {
+[[nodiscard]] auto
+download_deps(const ResolvedDeps& deps) -> Result<void> {
   const UniqDeps<WithoutDeps> not_installed_deps = get_not_installed_deps(deps);
   if (not_installed_deps.empty()) {
     // all resolved packages already have been installed
@@ -243,9 +252,9 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
   }
 }
 
-[[nodiscard]] auto to_resolvable_deps(
-    const toml::table& dependencies,
-    const registry::Registries& registries
+[[nodiscard]] auto
+to_resolvable_deps(
+    const toml::table& dependencies, const registry::Registries& registries
 ) noexcept -> Result<resolve::UniqDeps<resolve::WithoutDeps>> {
   try {
     // TOML tables should guarantee uniqueness.
@@ -277,8 +286,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
   }
 }
 
-[[nodiscard]] auto get_registries(const toml::value& manifest)
-    -> Result<registry::Registries> {
+[[nodiscard]] auto
+get_registries(const toml::value& manifest) -> Result<registry::Registries> {
   registry::Registries regs = { { "poac", { .index = "poac", .type = "poac" } },
                                 { "conan-v1",
                                   { .index = "conan", .type = "conan-v1" } } };
@@ -307,8 +316,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
   return Ok(regs);
 }
 
-[[nodiscard]] auto get_resolved_deps(const toml::value& manifest)
-    -> Result<ResolvedDeps> {
+[[nodiscard]] auto
+get_resolved_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
   const registry::Registries registries = Try(get_registries(manifest));
 
   auto deps = toml::find(manifest, "dependencies").as_table();
@@ -322,7 +331,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
 }
 
 // If lockfile is not outdated, read it.
-[[nodiscard]] auto try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
+[[nodiscard]] auto
+try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
   if (!data::lockfile::is_outdated(config::cwd)) {
     return data::lockfile::read(config::cwd);
   } else {
@@ -330,8 +340,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
   }
 }
 
-[[nodiscard]] auto resolve_deps(const toml::value& manifest)
-    -> Result<ResolvedDeps> {
+[[nodiscard]] auto
+resolve_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
   const Option<ResolvedDeps> locked_deps = Try(try_to_read_lockfile());
   if (locked_deps.has_value()) {
     // Lockfile exists and is not outdated.
@@ -343,8 +353,8 @@ do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
   }
 }
 
-export [[nodiscard]] auto install_deps(const toml::value& manifest)
-    -> Result<ResolvedDeps> {
+export [[nodiscard]] auto
+install_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
   if (!manifest.contains("dependencies")
       && !manifest.contains("dev-dependencies")) {
     const ResolvedDeps empty_deps{};
