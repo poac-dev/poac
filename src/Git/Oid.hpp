@@ -1,32 +1,23 @@
 #pragma once
 
 #include "../Rustify.hpp"
-#include "Exception.hpp"
-#include "Global.hpp"
 
 #include <git2/oid.h>
-#include <iostream>
 #include <memory>
-#include <string>
+#include <ostream>
 
 namespace git2 {
 
 struct Oid {
   git_oid raw;
 
-  explicit Oid(const git_oid& raw) : raw(raw) {}
+  explicit Oid(const git_oid& oid) : raw(oid) {}
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(const StringRef str) {
-    git2::init();
-    git2Throw(git_oid_fromstrn(&this->raw, str.data(), str.size()));
-  }
+  explicit Oid(const StringRef);
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(const std::unique_ptr<unsigned char>& bytes) {
-    git2::init();
-    git_oid_fromraw(&this->raw, bytes.get());
-  }
+  explicit Oid(const std::unique_ptr<unsigned char>&);
 
   Oid() = delete;
   ~Oid() = default;
@@ -37,21 +28,10 @@ struct Oid {
   Oid& operator=(Oid&&) = default;
 
   /// Test if this OID is all zeros.
-  bool isZero() const {
-#if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
-    return git_oid_iszero(&raw) == 1;
-#else
-    return git_oid_is_zero(&raw) == 1;
-#endif
-  }
-
-  friend std::ostream& operator<<(std::ostream& os, const Oid& o) {
-    return (os << git_oid_tostr_s(&o.raw));
-  }
+  bool isZero() const;
 };
 
-inline bool operator==(const Oid& lhs, const Oid& rhs) {
-  return git_oid_equal(&lhs.raw, &rhs.raw) != 0;
-}
+std::ostream& operator<<(std::ostream&, const Oid&);
+bool operator==(const Oid&, const Oid&);
 
 } // end namespace git2
