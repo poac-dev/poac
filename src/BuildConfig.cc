@@ -305,7 +305,8 @@ void BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
 }
 
 String runMM(const String& sourceFile, const bool isTest = false) {
-  String command = "cd " + getOutDir() + " && " + CXX + DEFINES + INCLUDES;
+  String command =
+      "cd " + getOutDir() + " && " + CXX + CXXFLAGS + DEFINES + INCLUDES;
   if (isTest) {
     command += " -DPOAC_TEST -MM " + sourceFile;
   } else {
