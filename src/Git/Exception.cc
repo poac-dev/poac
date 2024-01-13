@@ -4,7 +4,6 @@
 
 #include <git2/errors.h>
 #include <git2/version.h>
-#include <stdexcept>
 
 namespace git2 {
 
