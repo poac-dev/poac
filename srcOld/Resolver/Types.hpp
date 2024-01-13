@@ -43,13 +43,14 @@ struct DependencyInfo {
   String type;
 };
 
-inline auto operator==(const DependencyInfo& lhs, const DependencyInfo& rhs)
-    -> bool {
+inline auto
+operator==(const DependencyInfo& lhs, const DependencyInfo& rhs) -> bool {
   return lhs.version_rq == rhs.version_rq && lhs.index == rhs.index
          && lhs.type == rhs.type;
 }
 
-inline auto hash_value(const DependencyInfo& d) -> usize {
+inline auto
+hash_value(const DependencyInfo& d) -> usize {
   usize seed = 0;
   boost::hash_combine(seed, d.version_rq);
   boost::hash_combine(seed, d.index);
@@ -65,11 +66,13 @@ struct Package {
   DependencyInfo dep_info;
 };
 
-inline auto operator==(const Package& lhs, const Package& rhs) -> bool {
+inline auto
+operator==(const Package& lhs, const Package& rhs) -> bool {
   return lhs.name == rhs.name && lhs.dep_info == rhs.dep_info;
 }
 
-inline auto hash_value(const Package& p) -> usize {
+inline auto
+hash_value(const Package& p) -> usize {
   usize seed = 0;
   boost::hash_combine(seed, p.name);
   boost::hash_combine(seed, p.dep_info);
@@ -90,8 +93,7 @@ struct DuplicateDeps<WithDeps> {
 
 template <typename W>
 using UniqDeps = std::conditional_t<
-    W::value,
-    HashMap<Package, Deps>,
+    W::value, HashMap<Package, Deps>,
     // <name, ver_req>
     HashMap<String, DependencyInfo>>;
 
@@ -118,18 +120,14 @@ using IncorrectSha256sum = Error<
     "was removed from this PC. We highly recommend submitting an "
     "issue on GitHub of the package and stopping using this package:\n"
     "  {}: {}",
-    String,
-    String,
-    String,
-    String>;
+    String, String, String, String>;
 using RedefinePredefinedRegistryEntry = Error<
     "Registry entry named `{}` is predefined and can't be overwritten.\n",
     String>;
 using DuplicateRegistryEntry =
     Error<"Registry entry named `{}` is duplicated.\n", String>;
 using UnknownRegistryType = Error<
-    "Registry entry named `{}` has unknown registry type `{}`.\n",
-    String,
+    "Registry entry named `{}` has unknown registry type `{}`.\n", String,
     String>;
 using Unknown = Error<"unknown error occurred: {}", String>;
 

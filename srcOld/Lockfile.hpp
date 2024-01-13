@@ -29,12 +29,13 @@ inline constexpr StringRef LOCKFILE_HEADER =
 using InvalidLockfileVersion = Error<"invalid lockfile version found: {}", i64>;
 using FailedToReadLockfile = Error<"failed to read lockfile:\n{}", String>;
 
-inline auto poac_lock_last_modified(const Path& base_dir)
-    -> fs::file_time_type {
+inline auto
+poac_lock_last_modified(const Path& base_dir) -> fs::file_time_type {
   return fs::last_write_time(base_dir / LOCKFILE_NAME);
 }
 
-inline auto is_outdated(const Path& base_dir) -> bool {
+inline auto
+is_outdated(const Path& base_dir) -> bool {
   if (!fs::exists(base_dir / LOCKFILE_NAME)) {
     return true;
   }
@@ -69,16 +70,11 @@ struct Lockfile {
 
 // NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::lockfile::v1::Package,
-    name,
-    version,
-    dependencies
+    poac::data::lockfile::v1::Package, name, version, dependencies
 )
 // NOLINTNEXTLINE(modernize-use-trailing-return-type)
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-    poac::data::lockfile::v1::Lockfile,
-    version,
-    package
+    poac::data::lockfile::v1::Lockfile, version, package
 )
 
 export namespace poac::data::lockfile::inline v1 {
@@ -116,16 +112,16 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   return Ok(lock);
 }
 
-[[nodiscard]] auto overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps)
-    -> Result<void> {
+[[nodiscard]] auto
+overwrite(const resolver::UniqDeps<resolver::WithDeps>& deps) -> Result<void> {
   const auto lock = Try(convert_to_lock(deps));
   std::ofstream lockfile(config::cwd / LOCKFILE_NAME, std::ios::out);
   lockfile << lock;
   return Ok();
 }
 
-[[nodiscard]] auto generate(const resolver::UniqDeps<resolver::WithDeps>& deps)
-    -> Result<void> {
+[[nodiscard]] auto
+generate(const resolver::UniqDeps<resolver::WithDeps>& deps) -> Result<void> {
   if (is_outdated(config::cwd)) {
     return overwrite(deps);
   }
@@ -134,7 +130,8 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
 
 // -------------------- FROM LOCKFILE --------------------
 
-[[nodiscard]] auto convert_to_deps(const Lockfile& lock)
+[[nodiscard]] auto
+convert_to_deps(const Lockfile& lock)
     -> resolver::UniqDeps<resolver::WithDeps> {
   resolver::UniqDeps<resolver::WithDeps> deps;
   for (const auto& package : lock.package) {
@@ -156,7 +153,8 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
   return deps;
 }
 
-[[nodiscard]] auto read(const Path& base_dir)
+[[nodiscard]] auto
+read(const Path& base_dir)
     -> Result<Option<resolver::UniqDeps<resolver::WithDeps>>> {
   if (!fs::exists(base_dir / LOCKFILE_NAME)) {
     return Ok(None);

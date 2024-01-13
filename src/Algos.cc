@@ -8,14 +8,16 @@
 #include <memory>
 #include <utility>
 
-int runCmd(const StringRef cmd) noexcept {
+int
+runCmd(const StringRef cmd) noexcept {
   Logger::debug("Running `", cmd, '`');
   const int status = std::system(cmd.data());
   const int exitCode = status >> 8;
   return exitCode;
 }
 
-String getCmdOutput(const StringRef cmd) {
+String
+getCmdOutput(const StringRef cmd) {
   std::array<char, 128> buffer;
   String result;
 
@@ -33,7 +35,8 @@ String getCmdOutput(const StringRef cmd) {
 }
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-static usize levDistance(const StringRef a, const StringRef b) {
+static usize
+levDistance(const StringRef a, const StringRef b) {
   const usize asize = a.size();
   const usize bsize = b.size();
 
@@ -68,12 +71,10 @@ static usize levDistance(const StringRef a, const StringRef b) {
   return d[asize][bsize];
 }
 
-static bool equalsInsensitive(const StringRef a, const StringRef b) {
+static bool
+equalsInsensitive(const StringRef a, const StringRef b) {
   return std::equal(
-      a.cbegin(),
-      a.cend(),
-      b.cbegin(),
-      b.cend(),
+      a.cbegin(), a.cend(), b.cbegin(), b.cend(),
       [](char a, char b) { return std::tolower(a) == std::tolower(b); }
   );
 }
@@ -120,7 +121,8 @@ findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
 
 namespace tests {
 
-void testLevDistance() {
+void
+testLevDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
     const String str(1, c);
@@ -130,7 +132,8 @@ void testLevDistance() {
   pass();
 }
 
-void testLevDistance2() {
+void
+testLevDistance2() {
   constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
@@ -158,7 +161,8 @@ void testLevDistance2() {
 // ref:
 // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
 
-void testFindSimilarStr() {
+void
+testFindSimilarStr() {
   constexpr Arr<StringRef, 8> CANDIDATES{
     "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
   };
@@ -181,7 +185,8 @@ void testFindSimilarStr() {
   pass();
 }
 
-void testFindSimilarStr2() {
+void
+testFindSimilarStr2() {
   constexpr Arr<StringRef, 2> CANDIDATES{ "aaab", "aaabc" };
   assertEq(findSimilarStr("aaaa", CANDIDATES), "aaab"sv);
   assertEq(findSimilarStr("1111111111", CANDIDATES), None);
@@ -194,7 +199,8 @@ void testFindSimilarStr2() {
 
 } // namespace tests
 
-int main() {
+int
+main() {
   tests::testLevDistance();
   tests::testLevDistance2();
   tests::testFindSimilarStr();

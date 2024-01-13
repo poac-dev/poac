@@ -16,11 +16,13 @@ struct Registry {
   String type;
 };
 
-inline auto operator==(const Registry& lhs, const Registry& rhs) -> bool {
+inline auto
+operator==(const Registry& lhs, const Registry& rhs) -> bool {
   return lhs.index == rhs.index && lhs.type == rhs.type;
 }
 
-inline auto hash_value(const Registry& r) -> usize {
+inline auto
+hash_value(const Registry& r) -> usize {
   usize seed = 0;
   boost::hash_combine(seed, r.index);
   boost::hash_combine(seed, r.type);

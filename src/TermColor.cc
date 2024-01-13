@@ -5,11 +5,13 @@
 
 #include <cstdlib>
 
-static bool isTerm() noexcept {
+static bool
+isTerm() noexcept {
   return std::getenv("TERM") != nullptr;
 }
 
-static ColorMode getColorMode(const StringRef str) noexcept {
+static ColorMode
+getColorMode(const StringRef str) noexcept {
   if (str == "always") {
     return ColorMode::always;
   } else if (str == "auto") {
@@ -65,47 +67,59 @@ private:
   }
 };
 
-void setColorMode(const ColorMode cm) noexcept {
+void
+setColorMode(const ColorMode cm) noexcept {
   ColorState::instance().set(cm);
 }
 
-void setColorMode(const StringRef str) noexcept {
+void
+setColorMode(const StringRef str) noexcept {
   setColorMode(getColorMode(str));
 }
 
-bool shouldColor() noexcept {
+bool
+shouldColor() noexcept {
   return ColorState::instance().shouldColor();
 }
 
-static String colorize(const StringRef str, const StringRef color) noexcept {
+static String
+colorize(const StringRef str, const StringRef color) noexcept {
   if (!shouldColor()) {
     return String(str);
   }
   return String(color) + String(str) + "\033[0m";
 }
 
-String gray(const StringRef str) noexcept {
+String
+gray(const StringRef str) noexcept {
   return colorize(str, "\033[30m");
 }
-String red(const StringRef str) noexcept {
+String
+red(const StringRef str) noexcept {
   return colorize(str, "\033[31m");
 }
-String green(const StringRef str) noexcept {
+String
+green(const StringRef str) noexcept {
   return colorize(str, "\033[32m");
 }
-String yellow(const StringRef str) noexcept {
+String
+yellow(const StringRef str) noexcept {
   return colorize(str, "\033[33m");
 }
-String blue(const StringRef str) noexcept {
+String
+blue(const StringRef str) noexcept {
   return colorize(str, "\033[34m");
 }
-String magenta(const StringRef str) noexcept {
+String
+magenta(const StringRef str) noexcept {
   return colorize(str, "\033[35m");
 }
-String cyan(const StringRef str) noexcept {
+String
+cyan(const StringRef str) noexcept {
   return colorize(str, "\033[36m");
 }
 
-String bold(const StringRef str) noexcept {
+String
+bold(const StringRef str) noexcept {
   return colorize(str, "\033[1m");
 }

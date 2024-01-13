@@ -17,7 +17,8 @@ writeCallback(void* contents, usize size, usize nmemb, String* userp) {
   return size * nmemb;
 }
 
-int searchMain(const std::span<const StringRef> args) {
+int
+searchMain(const std::span<const StringRef> args) {
   // Parse args
   String packageName;
   usize perPage = 10;
@@ -105,7 +106,8 @@ int searchMain(const std::span<const StringRef> args) {
   return EXIT_SUCCESS;
 }
 
-void searchHelp() noexcept {
+void
+searchHelp() noexcept {
   std::cout << searchDesc << '\n';
   std::cout << '\n';
   printUsage("search", "[OPTIONS] <name>");
@@ -113,9 +115,7 @@ void searchHelp() noexcept {
   printHeader("Options:");
   printGlobalOpts();
   printOption(
-      "--per-page",
-      "",
-      "Number of results to show per page [default: 10]",
+      "--per-page", "", "Number of results to show per page [default: 10]",
       "<NUM>"
   );
   printOption(

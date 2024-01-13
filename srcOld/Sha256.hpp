@@ -24,7 +24,8 @@ inline constexpr i32 BUF_SIZE = 32768;
 inline constexpr i32 HASH_SIZE = 65;
 
 // ref: https://stackoverflow.com/a/2458382
-auto hash_string(const Vec<unsigned char>& hash) -> String {
+auto
+hash_string(const Vec<unsigned char>& hash) -> String {
   String output;
   for (const unsigned char h : hash) {
     // ref: https://stackoverflow.com/a/64311447
@@ -34,7 +35,8 @@ auto hash_string(const Vec<unsigned char>& hash) -> String {
 }
 
 // ref: https://stackoverflow.com/a/34289358
-export [[nodiscard]] auto sum(const Path& path) -> Result<String> {
+export [[nodiscard]] auto
+sum(const Path& path) -> Result<String> {
   std::ifstream file(path, std::ios::binary);
   if (!file) {
     return Err<FailedToReadFile>(path.string());

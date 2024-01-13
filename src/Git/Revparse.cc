@@ -4,15 +4,18 @@
 
 namespace git2 {
 
-git_object* Revspec::from() const noexcept {
+git_object*
+Revspec::from() const noexcept {
   return this->from_;
 }
 
-git_object* Revspec::to() const noexcept {
+git_object*
+Revspec::to() const noexcept {
   return this->to_;
 }
 
-unsigned int Revspec::mode() const noexcept {
+unsigned int
+Revspec::mode() const noexcept {
   return this->mode_;
 }
 

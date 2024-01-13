@@ -15,7 +15,8 @@
 #include <span>
 #include <string>
 
-int fmtMain(const std::span<const StringRef> args) {
+int
+fmtMain(const std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
@@ -64,8 +65,7 @@ int fmtMain(const std::span<const StringRef> args) {
 
   // Automatically collects format-target files
   for (auto entry = fs::recursive_directory_iterator(manifestDir);
-       entry != fs::recursive_directory_iterator();
-       ++entry) {
+       entry != fs::recursive_directory_iterator(); ++entry) {
     if (entry->is_directory()) {
       const String path = fs::relative(entry->path(), manifestDir).string();
       if (isGitRepo && repo.isIgnored(path)) {
@@ -98,7 +98,8 @@ int fmtMain(const std::span<const StringRef> args) {
   return EXIT_SUCCESS;
 }
 
-void fmtHelp() noexcept {
+void
+fmtHelp() noexcept {
   std::cout << fmtDesc << '\n';
   std::cout << '\n';
   printUsage("fmt", "[OPTIONS]");

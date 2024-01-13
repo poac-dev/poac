@@ -10,7 +10,8 @@
 #include <span>
 #include <string>
 
-int initMain(const std::span<const StringRef> args) {
+int
+initMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
   for (usize i = 0; i < args.size(); ++i) {
@@ -43,15 +44,14 @@ int initMain(const std::span<const StringRef> args) {
   ofs << getPoacToml(packageName);
 
   Logger::info(
-      "Created",
-      isBin ? "binary (application) `" : "library `",
-      packageName,
+      "Created", isBin ? "binary (application) `" : "library `", packageName,
       "` package"
   );
   return EXIT_SUCCESS;
 }
 
-void initHelp() noexcept {
+void
+initHelp() noexcept {
   std::cout << initDesc << '\n';
   std::cout << '\n';
   printUsage("init", "[OPTIONS]");

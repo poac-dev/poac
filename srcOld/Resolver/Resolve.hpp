@@ -33,12 +33,14 @@ import poac.util.verbosity;
 
 export namespace poac::core::resolver::resolve {
 
-inline auto get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept
+inline auto
+get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept
     -> const Package& {
   return deps.first;
 }
 
-inline auto to_binary_numbers(const i32& x, const usize& digit) -> String {
+inline auto
+to_binary_numbers(const i32& x, const usize& digit) -> String {
   return format("{:0{}b}", x, digit);
 }
 
@@ -47,7 +49,8 @@ inline auto to_binary_numbers(const i32& x, const usize& digit) -> String {
 // ¬A ∨ B ∨ ¬C
 // ¬A ∨ ¬B ∨ C
 // ¬A ∨ ¬B ∨ ¬C
-auto multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
+auto
+multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
   return boost::irange(0, 1 << clause.size()) // number of combinations
          | boost::adaptors::transformed([&clause](const i32 i) {
              return boost::dynamic_bitset<>(to_binary_numbers(i, clause.size())
@@ -69,7 +72,8 @@ auto multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
          | util::meta::CONTAINERIZED;
 }
 
-auto create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
+auto
+create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
   Vec<Vec<i32>> clauses;
   Vec<i32> already_added;
 
@@ -97,8 +101,7 @@ auto create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
           // It is guaranteed to exist
           clause.emplace_back(
               util::meta::index_of_if(
-                  first,
-                  last,
+                  first, last,
                   [&n = name, &di = dep_info](const auto& d) {
                     return get_package(d).name == n
                            && get_package(d).dep_info == di;
@@ -126,8 +129,7 @@ auto create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
             // It is guaranteed to exist
             new_clause.emplace_back(
                 util::meta::index_of_if(
-                    first,
-                    last,
+                    first, last,
                     [&package](const auto& p) {
                       return get_package(p).name == package.name
                              && get_package(p).dep_info == package.dep_info;
@@ -164,7 +166,8 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
   return Ok(resolved_deps);
 }
 
-[[nodiscard]] auto backtrack_loop(const DupDeps<WithDeps>& activated)
+[[nodiscard]] auto
+backtrack_loop(const DupDeps<WithDeps>& activated)
     -> Result<UniqDeps<WithDeps>, String> {
   const Vec<Vec<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
@@ -181,16 +184,15 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
 }
 
 template <typename SinglePassRange>
-auto duplicate_loose(const SinglePassRange& rng) -> bool {
+auto
+duplicate_loose(const SinglePassRange& rng) -> bool {
   const auto first = std::begin(rng);
   const auto last = std::end(rng);
   return std::find_if(
-             first,
-             last,
+             first, last,
              [&](const auto& x) {
                return std::count_if(
-                          first,
-                          last,
+                          first, last,
                           [&](const auto& y) {
                             return get_package(x).name == get_package(y).name;
                           }
@@ -204,7 +206,8 @@ auto duplicate_loose(const SinglePassRange& rng) -> bool {
 // Interval to multiple versions
 // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
 // name is boost/config, no boost-config
-[[nodiscard]] auto get_versions_satisfy_interval(const Package& package)
+[[nodiscard]] auto
+get_versions_satisfy_interval(const Package& package)
     -> Result<Vec<String>, String> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
@@ -216,8 +219,7 @@ auto duplicate_loose(const SinglePassRange& rng) -> bool {
 
   if (satisfied_versions.empty()) {
     return Err(format(
-        "`{}: {}` not found; seem dependencies are broken",
-        package.name,
+        "`{}: {}` not found; seem dependencies are broken", package.name,
         package.dep_info.version_rq
     ));
   }
@@ -232,11 +234,13 @@ struct Cache {
   Vec<String> versions;
 };
 
-inline auto operator==(const Cache& lhs, const Cache& rhs) -> bool {
+inline auto
+operator==(const Cache& lhs, const Cache& rhs) -> bool {
   return lhs.package == rhs.package && lhs.versions == rhs.versions;
 }
 
-inline auto hash_value(const Cache& i) -> usize {
+inline auto
+hash_value(const Cache& i) -> usize {
   usize seed = 0;
   boost::hash_combine(seed, i.package);
   boost::hash_range(seed, i.versions.begin(), i.versions.end());
@@ -245,23 +249,23 @@ inline auto hash_value(const Cache& i) -> usize {
 
 using IntervalCache = HashSet<Cache>;
 
-inline auto cache_exists(const IntervalCache& cache, const Package& package)
-    -> bool {
+inline auto
+cache_exists(const IntervalCache& cache, const Package& package) -> bool {
   return util::meta::find_if(cache, [&package](const Cache& c) {
     return c.package == package;
   });
 }
 
-inline auto cache_exists(const DupDeps<WithDeps>& deps, const Package& package)
-    -> bool {
+inline auto
+cache_exists(const DupDeps<WithDeps>& deps, const Package& package) -> bool {
   return util::meta::find_if(deps, [&package](const auto& c) {
     return get_package(c) == package;
   });
 }
 
-auto gather_deps_of_deps(
-    const UniqDeps<WithoutDeps>& deps_api_res,
-    IntervalCache& interval_cache
+auto
+gather_deps_of_deps(
+    const UniqDeps<WithoutDeps>& deps_api_res, IntervalCache& interval_cache
 ) -> DupDeps<WithoutDeps> {
   DupDeps<WithoutDeps> cur_deps_deps;
   for (const auto& [name, dep_info] : deps_api_res) {
@@ -288,9 +292,9 @@ auto gather_deps_of_deps(
   return cur_deps_deps;
 }
 
-void gather_deps(
-    const Package& package,
-    DupDeps<WithDeps>& new_deps,
+void
+gather_deps(
+    const Package& package, DupDeps<WithDeps>& new_deps,
     IntervalCache& interval_cache
 ) {
   // Check if root package resolved dependency (whether the specific version is
@@ -318,7 +322,8 @@ void gather_deps(
   }
 }
 
-[[nodiscard]] auto gather_all_deps(const UniqDeps<WithoutDeps>& deps)
+[[nodiscard]] auto
+gather_all_deps(const UniqDeps<WithoutDeps>& deps)
     -> Result<DupDeps<WithDeps>, String> {
   DupDeps<WithDeps> duplicate_deps;
   IntervalCache interval_cache;
@@ -350,8 +355,7 @@ void gather_deps(
       gather_deps(
           Package{ package.name,
                    { version, package.dep_info.index, package.dep_info.type } },
-          duplicate_deps,
-          interval_cache
+          duplicate_deps, interval_cache
       );
     }
   }

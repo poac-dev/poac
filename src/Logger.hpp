@@ -38,9 +38,7 @@ struct Logger {
   template <typename T, typename... Args>
   static void info(T&& header, Args&&... message) noexcept {
     logln(
-        std::cout,
-        LogLevel::info,
-        std::forward<T>(header),
+        std::cout, LogLevel::info, std::forward<T>(header),
         std::forward<Args>(message)...
     );
   }
@@ -51,35 +49,24 @@ struct Logger {
 
   template <typename T, typename... Args>
   static void logln(
-      std::ostream& os,
-      LogLevel messageLevel,
-      T&& header,
-      Args&&... message
+      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) noexcept {
-    log(os,
-        messageLevel,
-        std::forward<T>(header),
-        std::forward<Args>(message)...,
-        '\n');
+    log(os, messageLevel, std::forward<T>(header),
+        std::forward<Args>(message)..., '\n');
   }
   template <typename T, typename... Args>
   static void
-  log(std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) noexcept {
+  log(std::ostream& os, LogLevel messageLevel, T&& header,
+      Args&&... message) noexcept {
     instance().logImpl(
-        os,
-        messageLevel,
-        std::forward<T>(header),
+        os, messageLevel, std::forward<T>(header),
         std::forward<Args>(message)...
     );
   }
 
   template <typename T, typename... Args>
   void logImpl(
-      std::ostream& os,
-      LogLevel messageLevel,
-      T&& header,
-      Args&&... message
+      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) noexcept {
     // For other than `info`, header means just the first argument.  For
     // `info`, header means its header.

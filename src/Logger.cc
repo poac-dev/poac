@@ -1,22 +1,27 @@
 #include "Logger.hpp"
 
-Logger& Logger::instance() noexcept {
+Logger&
+Logger::instance() noexcept {
   static Logger INSTANCE;
   return INSTANCE;
 }
 
-void Logger::setLevel(LogLevel level) noexcept {
+void
+Logger::setLevel(LogLevel level) noexcept {
   instance().level = level;
 }
 
-LogLevel Logger::getLevel() noexcept {
+LogLevel
+Logger::getLevel() noexcept {
   return instance().level;
 }
 
-bool isVerbose() noexcept {
+bool
+isVerbose() noexcept {
   return Logger::getLevel() == LogLevel::debug;
 }
 
-bool isQuiet() noexcept {
+bool
+isQuiet() noexcept {
   return Logger::getLevel() == LogLevel::off;
 }
