@@ -3,6 +3,7 @@
 #include "../Rustify.hpp"
 #include "Config.hpp"
 #include "Exception.hpp"
+#include "Global.hpp"
 
 #include <git2/ignore.h>
 #include <git2/repository.h>
