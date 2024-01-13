@@ -717,9 +717,13 @@ void testCycleVars() {
   config.defineSimpleVar("b", "c", { "c" });
   config.defineSimpleVar("c", "a", { "a" });
 
-  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
-                                         PoacError,
-                                         "too complex build graph");
+  assertException<PoacError>(
+      [&config]() {
+        std::stringstream ss;
+        config.emitMakefile(ss);
+      },
+      "too complex build graph"
+  );
 }
 
 void testSimpleVars() {
@@ -731,7 +735,7 @@ void testSimpleVars() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  ASSERT_EQ(
+  assertEq(
       ss.str(),
       "a := 1\n"
       "b := 2\n"
@@ -746,7 +750,7 @@ void testDependOnUnregisteredVar() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  ASSERT_EQ(ss.str(), "a := 1\n");
+  assertEq(ss.str(), "a := 1\n");
 }
 
 void testCycleTargets() {
@@ -755,9 +759,13 @@ void testCycleTargets() {
   config.defineTarget("b", { "echo b" }, { "c" });
   config.defineTarget("c", { "echo c" }, { "a" });
 
-  ASSERT_EXCEPTION(std::stringstream ss; config.emitMakefile(ss),
-                                         PoacError,
-                                         "too complex build graph");
+  assertException<PoacError>(
+      [&config]() {
+        std::stringstream ss;
+        config.emitMakefile(ss);
+      },
+      "too complex build graph"
+  );
 }
 
 void testSimpleTargets() {
@@ -769,7 +777,7 @@ void testSimpleTargets() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  ASSERT_EQ(
+  assertEq(
       ss.str(),
       "c: b\n"
       "\t$(Q)echo c\n"
@@ -790,7 +798,7 @@ void testDependOnUnregisteredTarget() {
   std::stringstream ss;
   config.emitMakefile(ss);
 
-  ASSERT_EQ(
+  assertEq(
       ss.str(),
       "a: b\n"
       "\t$(Q)echo a\n"
