@@ -1,20 +1,16 @@
 #pragma once
 
+#include "../Rustify.hpp"
+
 #include <git2/errors.h>
 #include <git2/version.h>
 #include <stdexcept>
-#include <string>
 
 namespace git2 {
 
 #if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 28)
-inline const git_error* git_error_last() {
-  return giterr_last();
-}
-
-inline void git_error_clear() {
-  giterr_clear();
-}
+const git_error* git_error_last();
+void git_error_clear();
 
 enum git_error_t {
   GIT_ERROR_NONE = 0,
@@ -55,21 +51,11 @@ enum git_error_t {
 #endif
 
 struct Exception final : public std::exception {
-  Exception() {
-    if (const git_error* error = git_error_last(); error != nullptr) {
-      this->m_message += error->message;
-      this->m_category = static_cast<git_error_t>(error->klass);
-      git_error_clear();
-    }
-  }
+  Exception();
   ~Exception() noexcept override = default;
 
-  const char* what() const noexcept override {
-    return this->m_message.c_str();
-  }
-  git_error_t category() const noexcept {
-    return this->m_category;
-  }
+  const char* what() const noexcept override;
+  git_error_t category() const noexcept;
 
   Exception(const Exception&) = default;
   Exception& operator=(const Exception&) = delete;
@@ -77,15 +63,10 @@ struct Exception final : public std::exception {
   Exception& operator=(Exception&&) = delete;
 
 private:
-  std::string m_message = "git2-cpp: ";
+  String m_message = "git2-cpp: ";
   git_error_t m_category{ GIT_ERROR_NONE };
 };
 
-inline int git2Throw(const int ret) {
-  if (ret < 0) {
-    throw Exception();
-  }
-  return ret;
-}
+int git2Throw(const int);
 
 } // namespace git2
