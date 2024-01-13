@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Global.hpp"
 
@@ -16,9 +17,9 @@ struct Oid {
   explicit Oid(const git_oid& raw) : raw(raw) {}
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(const std::string& str) {
+  explicit Oid(const StringRef str) {
     git2::init();
-    git2Throw(git_oid_fromstrn(&this->raw, str.c_str(), str.size()));
+    git2Throw(git_oid_fromstrn(&this->raw, str.data(), str.size()));
   }
 
   /// Parse a hex-formatted object id into an oid structure.

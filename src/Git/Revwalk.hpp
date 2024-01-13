@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Global.hpp"
 #include "Oid.hpp"
@@ -79,8 +80,8 @@ struct Revwalk {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& pushGlob(const std::string& glob) {
-    git2Throw(git_revwalk_push_glob(this->raw, glob.c_str()));
+  Revwalk& pushGlob(const StringRef glob) {
+    git2Throw(git_revwalk_push_glob(this->raw, glob.data()));
     return *this;
   }
 
@@ -89,16 +90,16 @@ struct Revwalk {
   /// The range should be of the form `<commit>..<commit>` where each
   /// `<commit>` is in the form accepted by `revparse_single`. The left-hand
   /// commit will be hidden and the right-hand commit pushed.
-  Revwalk& pushRange(const std::string& range) {
-    git2Throw(git_revwalk_push_range(this->raw, range.c_str()));
+  Revwalk& pushRange(const StringRef range) {
+    git2Throw(git_revwalk_push_range(this->raw, range.data()));
     return *this;
   }
 
   /// Push the OID pointed to by a reference
   ///
   /// The reference must point to a committish.
-  Revwalk& pushRef(const std::string& reference) {
-    git2Throw(git_revwalk_push_ref(this->raw, reference.c_str()));
+  Revwalk& pushRef(const StringRef reference) {
+    git2Throw(git_revwalk_push_ref(this->raw, reference.data()));
     return *this;
   }
 
@@ -126,16 +127,16 @@ struct Revwalk {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& hideGlob(const std::string& glob) {
-    git2Throw(git_revwalk_hide_glob(this->raw, glob.c_str()));
+  Revwalk& hideGlob(const StringRef glob) {
+    git2Throw(git_revwalk_hide_glob(this->raw, glob.data()));
     return *this;
   }
 
   /// Hide the OID pointed to by a reference.
   ///
   /// The reference must point to a committish.
-  Revwalk& hideRef(const std::string& reference) {
-    git2Throw(git_revwalk_hide_ref(this->raw, reference.c_str()));
+  Revwalk& hideRef(const StringRef reference) {
+    git2Throw(git_revwalk_hide_ref(this->raw, reference.data()));
     return *this;
   }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Global.hpp"
 #include "Repository.hpp"
@@ -66,8 +67,8 @@ struct DescribeOptions {
     return *this;
   }
 
-  DescribeOptions& pattern(const std::string& pattern) {
-    this->raw.pattern = pattern.c_str();
+  DescribeOptions& pattern(const StringRef pattern) {
+    this->raw.pattern = pattern.data();
     return *this;
   }
 };
@@ -111,8 +112,8 @@ struct DescribeFormatOptions {
 
   /// If the workdir is dirty and this is set, this string will be appended to
   /// the description string.
-  DescribeFormatOptions& dirtySuffix(const std::string& suffix) {
-    this->raw.dirty_suffix = suffix.c_str();
+  DescribeFormatOptions& dirtySuffix(const StringRef suffix) {
+    this->raw.dirty_suffix = suffix.data();
     return *this;
   }
 };
