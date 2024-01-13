@@ -167,7 +167,7 @@ void testLevDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
     const String str(1, c);
-    assertEq(levDistance(str, str), 0ul);
+    assertEq(levDistance(str, str), 0UL);
   }
 }
 
@@ -176,22 +176,22 @@ void testLevDistance2() {
   constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
   constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
 
-  assertEq(levDistance(A, B), 2ul);
-  assertEq(levDistance(B, A), 2ul);
-  assertEq(levDistance(A, C), 3ul);
-  assertEq(levDistance(C, A), 3ul);
-  assertEq(levDistance(B, C), 1ul);
-  assertEq(levDistance(C, B), 1ul);
+  assertEq(levDistance(A, B), 2UL);
+  assertEq(levDistance(B, A), 2UL);
+  assertEq(levDistance(A, C), 3UL);
+  assertEq(levDistance(C, A), 3UL);
+  assertEq(levDistance(B, C), 1UL);
+  assertEq(levDistance(C, B), 1UL);
 
-  assertEq(levDistance("b", "bc"), 1ul);
-  assertEq(levDistance("ab", "abc"), 1ul);
-  assertEq(levDistance("aab", "aabc"), 1ul);
-  assertEq(levDistance("aaab", "aaabc"), 1ul);
+  assertEq(levDistance("b", "bc"), 1UL);
+  assertEq(levDistance("ab", "abc"), 1UL);
+  assertEq(levDistance("aab", "aabc"), 1UL);
+  assertEq(levDistance("aaab", "aaabc"), 1UL);
 
-  assertEq(levDistance("a", "b"), 1ul);
-  assertEq(levDistance("ab", "ac"), 1ul);
-  assertEq(levDistance("aab", "aac"), 1ul);
-  assertEq(levDistance("aaab", "aaac"), 1ul);
+  assertEq(levDistance("a", "b"), 1UL);
+  assertEq(levDistance("ab", "ac"), 1UL);
+  assertEq(levDistance("aab", "aac"), 1UL);
+  assertEq(levDistance("aaab", "aaac"), 1UL);
 }
 
 // ref:
