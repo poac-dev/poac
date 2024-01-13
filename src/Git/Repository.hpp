@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Rustify.hpp"
 #include "Config.hpp"
 #include "Exception.hpp"
 
@@ -24,17 +25,17 @@ struct Repository {
   /// Attempt to open an already-existing repository at `path`.
   ///
   /// The path can point to either a normal or bare repository.
-  Repository& open(const std::string& path) {
+  Repository& open(const StringRef path) {
     git2::init();
-    git2Throw(git_repository_open(&this->raw, path.c_str()));
+    git2Throw(git_repository_open(&this->raw, path.data()));
     return *this;
   }
   /// Attempt to open an already-existing bare repository at `path`.
   ///
   /// The path can point to only a bare repository.
-  Repository& openBare(const std::string& path) {
+  Repository& openBare(const StringRef path) {
     git2::init();
-    git2Throw(git_repository_open_bare(&this->raw, path.c_str()));
+    git2Throw(git_repository_open_bare(&this->raw, path.data()));
     return *this;
   }
 
@@ -43,17 +44,17 @@ struct Repository {
   /// This by default will create any necessary directories to create the
   /// repository, and it will read any user-specified templates when creating
   /// the repository. This behavior can be configured through `init_opts`.
-  Repository& init(const std::string& path) {
+  Repository& init(const StringRef path) {
     git2::init();
-    git2Throw(git_repository_init(&this->raw, path.c_str(), false));
+    git2Throw(git_repository_init(&this->raw, path.data(), false));
     return *this;
   }
   /// Creates a new `--bare` repository in the specified folder.
   ///
   /// The folder must exist prior to invoking this function.
-  Repository& initBare(const std::string& path) {
+  Repository& initBare(const StringRef path) {
     git2::init();
-    git2Throw(git_repository_init(&this->raw, path.c_str(), true));
+    git2Throw(git_repository_init(&this->raw, path.data(), true));
     return *this;
   }
 

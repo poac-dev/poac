@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Global.hpp"
 
@@ -28,9 +29,9 @@ public:
   Config& operator=(Config&&) = default;
 
   /// Get the value of a string config variable as an owned string.
-  std::string getString(const std::string& name) {
+  std::string getString(const StringRef name) {
     git_buf ret = { nullptr, 0, 0 };
-    git2Throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
+    git2Throw(git_config_get_string_buf(&ret, this->raw, name.data()));
     return std::string(ret.ptr, ret.size);
   }
 };
