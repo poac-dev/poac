@@ -1491,7 +1491,7 @@ testCanSimplify() {
   assertTrue(VersionReq::parse("<=1 && <2").canSimplify());
   assertTrue(VersionReq::parse("<=1 && <=2").canSimplify());
 
-  // 1 and 1 are the same, but we have to handle 1.0 and 1 as the same.
+  // TODO: 1 and 1 are the same, but we have to handle 1.0 and 1 as the same.
   // Currently, there is no way to do this.
   assertFalse(VersionReq::parse(">=1 && <=1").canSimplify());
   assertFalse(VersionReq::parse(">=1.0 && <=1").canSimplify());
