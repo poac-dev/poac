@@ -66,7 +66,9 @@ $(O)/tests/test_%.o: src/%.cc
 
 $(O)/tests/test_BuildConfig: $(O)/tests/test_BuildConfig.o \
   $(O)/Logger.o $(O)/TermColor.o $(O)/Manifest.o \
-  $(O)/Semver.o $(O)/Algos.o $(O)/VersionReq.o
+  $(O)/Semver.o $(O)/Algos.o $(O)/VersionReq.o $(O)/Git/Repository.o \
+  $(O)/Git/Object.o $(O)/Git/Oid.o $(O)/Git/Global.o $(O)/Git/Config.o \
+  $(O)/Git/Exception.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
 $(O)/tests/test_Algos: $(O)/tests/test_Algos.o $(O)/Logger.o \

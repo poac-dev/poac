@@ -3,7 +3,6 @@
 #include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Global.hpp"
-#include "Oid.hpp"
 #include "Repository.hpp"
 
 #include <git2/revwalk.h>
@@ -37,7 +36,7 @@ Revwalk::simplifyFirstParent() {
 
 Revwalk&
 Revwalk::push(const Oid& oid_) {
-  git2Throw(git_revwalk_push(this->raw, &oid_.raw));
+  git2Throw(git_revwalk_push(this->raw, oid_.raw));
   return *this;
 }
 
@@ -67,7 +66,7 @@ Revwalk::pushRef(const StringRef reference) {
 
 Revwalk&
 Revwalk::hide(const Oid& oid) {
-  git2Throw(git_revwalk_hide(this->raw, &oid.raw));
+  git2Throw(git_revwalk_hide(this->raw, oid.raw));
   return *this;
 }
 
@@ -87,13 +86,6 @@ Revwalk&
 Revwalk::hideRef(const StringRef reference) {
   git2Throw(git_revwalk_hide_ref(this->raw, reference.data()));
   return *this;
-}
-
-Oid
-Revwalk::next() const {
-  git_oid oid;
-  git2Throw(git_revwalk_next(&oid, this->raw)); // FIXME
-  return Oid(oid);
 }
 
 } // end namespace git2

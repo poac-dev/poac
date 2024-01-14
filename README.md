@@ -114,7 +114,6 @@ make RELEASE=1 install
 * pkg-config
 * mkdir
 * echo
-* Git (for Git dependencies)
 * cpplint (for `poac lint`)
 * clang-format (for `poac fmt`)
 

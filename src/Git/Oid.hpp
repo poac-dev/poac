@@ -3,22 +3,22 @@
 #include "../Rustify.hpp"
 
 #include <git2/oid.h>
-#include <memory>
 #include <ostream>
 
 namespace git2 {
 
 struct Oid {
-  git_oid raw;
+  git_oid* raw = nullptr;
 
-  explicit Oid(const git_oid& oid) : raw(oid) {}
+  explicit Oid(git_oid*);
+
+  explicit Oid(const git_oid*);
 
   /// Parse a hex-formatted object id into an oid structure.
   explicit Oid(const StringRef);
 
-  /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(const std::unique_ptr<unsigned char>&);
-
+  // Since Oid would not be constructed by itself, the destructor is not
+  // responsible for freeing the raw pointer.
   Oid() = delete;
   ~Oid() = default;
 

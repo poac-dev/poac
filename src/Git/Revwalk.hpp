@@ -96,9 +96,6 @@ struct Revwalk {
   ///
   /// The reference must point to a committish.
   Revwalk& hideRef(const StringRef reference);
-
-  /// Get the next commit from the revision walk.
-  Oid next() const;
 };
 
 } // end namespace git2

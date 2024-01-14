@@ -2,6 +2,7 @@
 
 #include "Algos.hpp"
 #include "Exception.hpp"
+#include "Git/Git2.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "Semver.hpp"
@@ -375,72 +376,6 @@ validateDepName(const StringRef name) {
   }
 }
 
-static void
-validateGitUrl(const StringRef url) {
-  if (url.empty()) {
-    throw PoacError("git url is empty");
-  }
-
-  // start with "https://" for now
-  if (!url.starts_with("https://")) {
-    throw PoacError("git url must start with \"https://\"");
-  }
-  // end with ".git"
-  if (!url.ends_with(".git")) {
-    throw PoacError("git url must end with \".git\"");
-  }
-}
-
-static void
-validateGitRev(const StringRef rev) {
-  if (rev.empty()) {
-    throw PoacError("git rev is empty");
-  }
-
-  // The length of a SHA-1 hash is between 4 and 40 characters.
-  if (rev.size() < 4 || rev.size() > 40) {
-    throw PoacError("git rev must be between 4 and 40 characters");
-  }
-
-  // The characters must be in the range of [0-9a-f].
-  for (const char c : rev) {
-    if (!std::isxdigit(c)) {
-      throw PoacError("git rev must be in the range of [0-9a-f]");
-    }
-  }
-}
-
-static void
-validateGitTagAndBranch(const StringRef target) {
-  if (target.empty()) {
-    throw PoacError("git tag or branch is empty");
-  }
-
-  // The length of a tag or branch is less than 256 characters.
-  if (target.size() >= 256) {
-    throw PoacError("git tag or branch must be less than 256 characters");
-  }
-
-  // The first character must be an alphabet.
-  if (!std::isalpha(target[0])) {
-    throw PoacError("git tag or branch must start with an alphabet");
-  }
-
-  // The characters must be in the range of [0-9a-zA-Z_-.].
-  for (const char c : target) {
-    if (!std::isalnum(c) && c != '_' && c != '-' && c != '.') {
-      throw PoacError("git tag or branch must be in the range of [0-9a-zA-Z_-.]"
-      );
-    }
-  }
-}
-
-static const HashMap<StringRef, Fn<void(StringRef)>> gitValidators = {
-  { "rev", validateGitRev },
-  { "tag", validateGitTagAndBranch },
-  { "branch", validateGitTagAndBranch },
-};
-
 static GitDependency
 parseGitDep(const String& name, const toml::table& info) {
   validateDepName(name);
@@ -450,7 +385,6 @@ parseGitDep(const String& name, const toml::table& info) {
   const auto& gitUrl = info.at("git");
   if (gitUrl.is_string()) {
     gitUrlStr = gitUrl.as_string();
-    validateGitUrl(gitUrlStr);
 
     // rev, tag, or branch
     for (const String key : { "rev", "tag", "branch" }) {
@@ -458,7 +392,6 @@ parseGitDep(const String& name, const toml::table& info) {
         const auto& value = info.at(key);
         if (value.is_string()) {
           target = value.as_string();
-          gitValidators.at(key)(target.value());
           break;
         }
       }
@@ -525,19 +458,14 @@ GitDependency::install() const {
   if (fs::exists(installDir) && !fs::is_empty(installDir)) {
     Logger::debug(name, " is already installed");
   } else {
-    const String gitCloneCmd = "git clone " + url + " " + installDir.string();
-    if (runCmd(gitCloneCmd + " >/dev/null 2>&1") != EXIT_SUCCESS) {
-      throw PoacError("failed to clone ", url, " to ", installDir.string());
-    }
+    git2::Repository repo;
+    repo.clone(url, installDir.string());
 
     if (target.has_value()) {
+      // Checkout to target.
       const String target = this->target.value();
-
-      const String gitResetCmd =
-          "git -C " + installDir.string() + " reset --hard " + target;
-      if (runCmd(gitResetCmd + " >/dev/null 2>&1") != EXIT_SUCCESS) {
-        throw PoacError("failed to reset ", url, " to ", target);
-      }
+      const git2::Object obj = repo.revparseSingle(target);
+      repo.setHeadDetached(obj.id());
     }
 
     Logger::info(
@@ -546,13 +474,17 @@ GitDependency::install() const {
   }
 
   const Path includeDir = installDir / "include";
+  String includes = "-isystem ";
+
   if (fs::exists(includeDir) && fs::is_directory(includeDir)
       && !fs::is_empty(includeDir)) {
-    return { "-isystem " + includeDir.string(), "" };
+    includes += includeDir.string();
   } else {
-    return { "-isystem " + installDir.string(), "" };
+    includes += installDir.string();
   }
-  // currently, no libs are supported.
+
+  // Currently, no libs are supported.
+  return { includes, "" };
 }
 
 DepMetadata
