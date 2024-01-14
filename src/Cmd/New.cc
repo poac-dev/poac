@@ -18,7 +18,7 @@
 
 static inline constexpr StringRef MAIN_CC =
     "#include <iostream>\n\n"
-    "int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {\n"
+    "int main() {\n"
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
