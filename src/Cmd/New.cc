@@ -23,15 +23,20 @@ static inline constexpr StringRef MAIN_CC =
     "}\n";
 
 static String
-getAuthor() {
-  git2::Config config = git2::Config();
-  config.openDefault();
-  return config.getString("user.name") + " <" + config.getString("user.email")
-         + ">";
+getAuthor() noexcept {
+  try {
+    git2::Config config = git2::Config();
+    config.openDefault();
+    return config.getString("user.name") + " <" + config.getString("user.email")
+           + ">";
+  } catch (const git2::Exception& e) {
+    Logger::debug(e.what());
+    return "";
+  }
 }
 
 String
-createPoacToml(const StringRef projectName) {
+createPoacToml(const StringRef projectName) noexcept {
   String poacToml =
       "[package]\n"
       "name = \"";

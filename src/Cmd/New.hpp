@@ -7,7 +7,7 @@
 // NOLINTNEXTLINE(readability-identifier-naming)
 static inline constexpr StringRef newDesc = "Create a new poac project";
 
-String createPoacToml(const StringRef);
+String createPoacToml(const StringRef) noexcept;
 bool verifyPackageName(const StringRef) noexcept;
 
 int newMain(const std::span<const StringRef>);
