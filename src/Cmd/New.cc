@@ -22,8 +22,16 @@ static inline constexpr StringRef MAIN_CC =
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
+static String
+getAuthor() {
+  git2::Config config = git2::Config();
+  config.openDefault();
+  return config.getString("user.name") + " <" + config.getString("user.email")
+         + ">";
+}
+
 String
-getPoacToml(const StringRef projectName) noexcept {
+createPoacToml(const StringRef projectName) {
   String poacToml =
       "[package]\n"
       "name = \"";
@@ -31,7 +39,10 @@ getPoacToml(const StringRef projectName) noexcept {
   poacToml +=
       "\"\n"
       "version = \"0.1.0\"\n"
-      "authors = []\n"
+      "authors = [\"";
+  poacToml += getAuthor();
+  poacToml +=
+      "\"]\n"
       "edition = \"20\"\n";
   return poacToml;
 }
@@ -75,14 +86,18 @@ createTemplateFiles(const bool isBin, const StringRef projectName) {
 
   if (isBin) {
     fs::create_directories(projectName / "src"_path);
-    writeToFile(ofs, projectName / "poac.toml"_path, getPoacToml(projectName));
+    writeToFile(
+        ofs, projectName / "poac.toml"_path, createPoacToml(projectName)
+    );
     writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out");
     writeToFile(ofs, projectName / "src"_path / "main.cc", MAIN_CC);
 
     Logger::info("Created", "binary (application) `", projectName, "` package");
   } else {
     fs::create_directories(projectName / "include"_path / projectName);
-    writeToFile(ofs, projectName / "poac.toml"_path, getPoacToml(projectName));
+    writeToFile(
+        ofs, projectName / "poac.toml"_path, createPoacToml(projectName)
+    );
     writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out\npoac.lock");
     writeToFile(
         ofs,

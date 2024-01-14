@@ -41,7 +41,7 @@ initMain(const std::span<const StringRef> args) {
   }
 
   std::ofstream ofs("poac.toml");
-  ofs << getPoacToml(packageName);
+  ofs << createPoacToml(packageName);
 
   Logger::info(
       "Created", isBin ? "binary (application) `" : "library `", packageName,
