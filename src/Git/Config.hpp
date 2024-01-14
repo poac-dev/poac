@@ -20,6 +20,9 @@ public:
   Config(Config&&) = default;
   Config& operator=(Config&&) = default;
 
+  /// Open the global, XDG and system configuration files.
+  Config& openDefault();
+
   /// Get the value of a string config variable as an owned string.
   String getString(const StringRef);
 };
