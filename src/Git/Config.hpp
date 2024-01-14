@@ -1,19 +1,21 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <git2/config.h>
 
 namespace git2 {
 
-class Config {
+struct Config {
+private:
   git_config* raw;
 
 public:
   Config();
   ~Config();
 
-  explicit Config(git_config* raw) : raw(raw) {}
+  explicit Config(git_config*);
 
   Config(const Config&) = delete;
   Config& operator=(const Config&) = delete;

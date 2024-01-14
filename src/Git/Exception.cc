@@ -40,7 +40,7 @@ Exception::category() const noexcept {
 
 int
 git2Throw(const int ret) {
-  if (ret < 0) {
+  if (ret < GIT_OK) {
     throw Exception();
   }
   return ret;

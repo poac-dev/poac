@@ -2,7 +2,10 @@
 
 #include "../Rustify.hpp"
 #include "Config.hpp"
+#include "Object.hpp"
+#include "Oid.hpp"
 
+#include <git2/clone.h>
 #include <git2/repository.h>
 
 namespace git2 {
@@ -10,7 +13,7 @@ namespace git2 {
 struct Repository {
   git_repository* raw = nullptr;
 
-  Repository() = default;
+  Repository();
   ~Repository();
 
   Repository(const Repository&) = delete;
@@ -40,6 +43,16 @@ struct Repository {
 
   /// Check if path is ignored by the ignore rules.
   bool isIgnored(const StringRef) const;
+
+  /// Clone a remote repository.
+  Repository&
+  clone(const StringRef, const StringRef, const git_clone_options* = nullptr);
+
+  /// Find a single object, as specified by a revision string.
+  Object revparseSingle(const StringRef) const;
+
+  /// Make the repository HEAD directly point to the Commit.
+  Repository& setHeadDetached(const Oid&);
 
   /// Get the configuration file for this repository.
   ///
