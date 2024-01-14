@@ -90,6 +90,7 @@ struct VersionReq {
   String toString() const noexcept;
   String toPkgConfigString(const String&) const noexcept;
   VersionReq canonicalize() const noexcept;
+  bool canSimplify() const noexcept;
 };
 
 std::ostream& operator<<(std::ostream&, const VersionReq&);

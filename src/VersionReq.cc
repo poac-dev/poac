@@ -834,6 +834,54 @@ VersionReq::toPkgConfigString(const String& name) const noexcept {
   return result;
 }
 
+bool
+VersionReq::canSimplify() const noexcept {
+  // NoOp and Exact will not have two comparators, so they cannot be
+  // simplified.
+  if (!left.op.has_value()) { // NoOp
+    return false;
+  } else if (left.op.value() == Comparator::Exact) {
+    return false;
+  }
+
+  if (!right.has_value()) {
+    // If we have only one comparator, it cannot be simplified.
+    return false;
+  }
+
+  // When we have two comparators, the right operator must not be NoOp or
+  // Exact.
+  if (left.op.value() == right->op.value()) {
+    // If the left and right comparators have the same operator, they can
+    // be merged into one comparator.
+    return true;
+  }
+
+  // < and <= can be merged into one comparator.
+  if (left.op.value() == Comparator::Lt
+      && right->op.value() == Comparator::Lte) {
+    return true;
+  }
+  // <= and < can be merged into one comparator.
+  if (left.op.value() == Comparator::Lte
+      && right->op.value() == Comparator::Lt) {
+    return true;
+  }
+
+  // > and >= can be merged into one comparator.
+  if (left.op.value() == Comparator::Gt
+      && right->op.value() == Comparator::Gte) {
+    return true;
+  }
+  // >= and > can be merged into one comparator.
+  if (left.op.value() == Comparator::Gte
+      && right->op.value() == Comparator::Gt) {
+    return true;
+  }
+
+  return false;
+}
+
 std::ostream&
 operator<<(std::ostream& os, const VersionReq& req) {
   return os << req.toString();
@@ -1428,6 +1476,37 @@ testToPkgConfigString() {
   pass();
 }
 
+void
+testCanSimplify() {
+  assertFalse(VersionReq::parse("1.2.3").canSimplify());
+  assertFalse(VersionReq::parse("=1.2.3").canSimplify());
+
+  assertTrue(VersionReq::parse(">1 && >2").canSimplify());
+  assertTrue(VersionReq::parse(">1 && >=2").canSimplify());
+  assertTrue(VersionReq::parse(">=1 && >2").canSimplify());
+  assertTrue(VersionReq::parse(">=1 && >=2").canSimplify());
+
+  assertTrue(VersionReq::parse("<1 && <2").canSimplify());
+  assertTrue(VersionReq::parse("<1 && <=2").canSimplify());
+  assertTrue(VersionReq::parse("<=1 && <2").canSimplify());
+  assertTrue(VersionReq::parse("<=1 && <=2").canSimplify());
+
+  // 1 and 1 are the same, but we have to handle 1.0 and 1 as the same.
+  // Currently, there is no way to do this.
+  assertFalse(VersionReq::parse(">=1 && <=1").canSimplify());
+  assertFalse(VersionReq::parse(">=1.0 && <=1").canSimplify());
+  assertFalse(VersionReq::parse(">=1.0.0 && <=1").canSimplify());
+
+  assertFalse(VersionReq::parse("<=1 && >=1").canSimplify());
+  assertFalse(VersionReq::parse("<=1.0 && >=1").canSimplify());
+  assertFalse(VersionReq::parse("<=1.0.0 && >=1").canSimplify());
+
+  assertFalse(VersionReq::parse(">1 && <1").canSimplify());
+  assertFalse(VersionReq::parse("<1 && >1").canSimplify());
+
+  pass();
+}
+
 } // namespace tests
 
 int
@@ -1454,6 +1533,7 @@ main() {
   tests::testNonComparatorChain();
   tests::testToString();
   tests::testToPkgConfigString();
+  tests::testCanSimplify();
 }
 
 #endif
