@@ -70,10 +70,10 @@ buildMain(const std::span<const StringRef> args) {
 
 void
 buildHelp() noexcept {
-  std::cout << buildDesc << '\n';
-  std::cout << '\n';
+  std::cerr << buildDesc << '\n';
+  std::cerr << '\n';
   printUsage("build", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--debug", "-d", "Build with debug information [default]");

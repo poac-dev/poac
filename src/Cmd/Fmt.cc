@@ -100,10 +100,10 @@ fmtMain(const std::span<const StringRef> args) {
 
 void
 fmtHelp() noexcept {
-  std::cout << fmtDesc << '\n';
-  std::cout << '\n';
+  std::cerr << fmtDesc << '\n';
+  std::cerr << '\n';
   printUsage("fmt", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--check", "", "Run clang-format in check mode");

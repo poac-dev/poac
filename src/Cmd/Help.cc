@@ -6,13 +6,13 @@
 
 void
 helpHelp() noexcept {
-  std::cout << helpDesc << '\n';
-  std::cout << '\n';
+  std::cerr << helpDesc << '\n';
+  std::cerr << '\n';
   printUsage("help", "[OPTIONS] [COMMAND]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Arguments:");
-  std::cout << "  [COMMAND]" << '\n';
+  std::cerr << "  [COMMAND]" << '\n';
 }

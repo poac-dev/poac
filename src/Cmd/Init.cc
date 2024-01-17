@@ -52,10 +52,10 @@ initMain(const std::span<const StringRef> args) {
 
 void
 initHelp() noexcept {
-  std::cout << initDesc << '\n';
-  std::cout << '\n';
+  std::cerr << initDesc << '\n';
+  std::cerr << '\n';
   printUsage("init", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--bin", "-b", "Use a binary (application) template [default]");

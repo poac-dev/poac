@@ -57,10 +57,10 @@ testMain(const std::span<const StringRef> args) {
 
 void
 testHelp() noexcept {
-  std::cout << testDesc << '\n';
-  std::cout << '\n';
+  std::cerr << testDesc << '\n';
+  std::cerr << '\n';
   printUsage("test", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--debug", "-d", "Test with debug information [default]");

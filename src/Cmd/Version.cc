@@ -97,16 +97,16 @@ versionMain(const std::span<const StringRef> args) noexcept {
     }
   }
 
-  std::cout << "poac " << POAC_VERSION << " (" << DATE << ")\n";
+  std::cerr << "poac " << POAC_VERSION << " (" << DATE << ")\n";
   return EXIT_SUCCESS;
 }
 
 void
 versionHelp() noexcept {
-  std::cout << versionDesc << '\n';
-  std::cout << '\n';
+  std::cerr << versionDesc << '\n';
+  std::cerr << '\n';
   printUsage("version", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
 }

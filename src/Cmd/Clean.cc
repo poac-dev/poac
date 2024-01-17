@@ -47,10 +47,10 @@ cleanMain(const std::span<const StringRef> args) noexcept {
 
 void
 cleanHelp() noexcept {
-  std::cout << cleanDesc << '\n';
-  std::cout << '\n';
+  std::cerr << cleanDesc << '\n';
+  std::cerr << '\n';
   printUsage("clean", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption(

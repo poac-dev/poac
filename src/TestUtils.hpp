@@ -53,7 +53,7 @@ pass(
     const StringRef f = __builtin_FILE(),
     const StringRef fn = __builtin_FUNCTION()
 ) noexcept {
-  std::cout << "test " << f << "::" << fn << " ... " << green("ok") << '\n'
+  std::cerr << "test " << f << "::" << fn << " ... " << green("ok") << '\n'
             << std::flush;
 }
 

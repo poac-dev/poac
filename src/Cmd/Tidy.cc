@@ -47,10 +47,10 @@ tidyMain(const std::span<const StringRef> args) {
 
 void
 tidyHelp() noexcept {
-  std::cout << tidyDesc << '\n';
-  std::cout << '\n';
+  std::cerr << tidyDesc << '\n';
+  std::cerr << '\n';
   printUsage("tidy", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
 }

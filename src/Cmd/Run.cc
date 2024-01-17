@@ -48,16 +48,16 @@ runMain(const std::span<const StringRef> args) {
 
 void
 runHelp() noexcept {
-  std::cout << runDesc << '\n';
-  std::cout << '\n';
+  std::cerr << runDesc << '\n';
+  std::cerr << '\n';
   printUsage("run", "[OPTIONS] [args]...");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--debug", "-d", "Build with debug information [default]");
   printOption("--release", "-r", "Build with optimizations");
   printOption("--no-parallel", "", "Disable parallel builds");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Arguments:");
-  std::cout << "  [args]...\tArguments passed to the program" << '\n';
+  std::cerr << "  [args]...\tArguments passed to the program" << '\n';
 }

@@ -19,7 +19,7 @@
 static inline constexpr StringRef MAIN_CC =
     "#include <iostream>\n\n"
     "int main() {\n"
-    "  std::cout << \"Hello, world!\" << std::endl;\n"
+    "  std::cerr << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
 static String
@@ -201,15 +201,15 @@ newMain(const std::span<const StringRef> args) {
 
 void
 newHelp() noexcept {
-  std::cout << newDesc << '\n';
-  std::cout << '\n';
+  std::cerr << newDesc << '\n';
+  std::cerr << '\n';
   printUsage("new", "[OPTIONS] <name>");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--bin", "-b", "Use a binary (application) template [default]");
   printOption("--lib", "-l", "Use a library template");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Arguments:");
-  std::cout << "  <name>" << '\n';
+  std::cerr << "  <name>" << '\n';
 }

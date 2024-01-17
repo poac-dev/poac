@@ -91,15 +91,15 @@ searchMain(const std::span<const StringRef> args) {
     return EXIT_SUCCESS;
   }
 
-  std::cout << std::left << std::setw(30) << "Name" << std::setw(10)
+  std::cerr << std::left << std::setw(30) << "Name" << std::setw(10)
             << "Version" << std::setw(50) << "Description" << '\n';
-  std::cout << String(80, '-') << '\n';
+  std::cerr << String(80, '-') << '\n';
   for (const auto& package : packages) {
     const String name = package["name"];
     const String version = package["version"];
     const String description = package["description"];
 
-    std::cout << std::left << std::setw(30) << name << std::setw(10) << version
+    std::cerr << std::left << std::setw(30) << name << std::setw(10) << version
               << std::setw(50) << description << '\n';
   }
 
@@ -108,10 +108,10 @@ searchMain(const std::span<const StringRef> args) {
 
 void
 searchHelp() noexcept {
-  std::cout << searchDesc << '\n';
-  std::cout << '\n';
+  std::cerr << searchDesc << '\n';
+  std::cerr << '\n';
   printUsage("search", "[OPTIONS] <name>");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption(
@@ -121,7 +121,7 @@ searchHelp() noexcept {
   printOption(
       "--page", "", "Page number of results to show [default: 1]", "<NUM>"
   );
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Arguments:");
-  std::cout << "  <name>" << '\n';
+  std::cerr << "  <name>" << '\n';
 }

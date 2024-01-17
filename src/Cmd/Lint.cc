@@ -110,10 +110,10 @@ lintMain(const std::span<const StringRef> args) {
 
 void
 lintHelp() noexcept {
-  std::cout << lintDesc << '\n';
-  std::cout << '\n';
+  std::cerr << lintDesc << '\n';
+  std::cerr << '\n';
   printUsage("lint", "[OPTIONS]");
-  std::cout << '\n';
+  std::cerr << '\n';
   printHeader("Options:");
   printGlobalOpts();
   printOption("--exclude", "", "Exclude files from linting");

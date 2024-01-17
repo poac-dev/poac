@@ -10,16 +10,16 @@
 
 void
 printHeader(const StringRef header) noexcept {
-  std::cout << bold(green(header)) << '\n';
+  std::cerr << bold(green(header)) << '\n';
 }
 
 void
 printUsage(const StringRef cmd, const StringRef usage) noexcept {
-  std::cout << bold(green("Usage: ")) << bold(cyan("poac "));
+  std::cerr << bold(green("Usage: ")) << bold(cyan("poac "));
   if (!cmd.empty()) {
-    std::cout << bold(cyan(cmd)) << ' ';
+    std::cerr << bold(cyan(cmd)) << ' ';
   }
-  std::cout << cyan(usage) << '\n';
+  std::cerr << cyan(usage) << '\n';
 }
 
 void
@@ -40,19 +40,19 @@ printOption(
   option += cyan(placeholder);
 
   if (shouldColor()) {
-    std::cout << "  " << std::left << std::setw(69) << option << desc << '\n';
+    std::cerr << "  " << std::left << std::setw(69) << option << desc << '\n';
   } else {
-    std::cout << "  " << std::left << std::setw(26) << option << desc << '\n';
+    std::cerr << "  " << std::left << std::setw(26) << option << desc << '\n';
   }
 }
 
 void
 printCommand(const StringRef name, const StringRef desc) noexcept {
   if (shouldColor()) {
-    std::cout << "  " << std::left << std::setw(27) << bold(cyan(name)) << desc
+    std::cerr << "  " << std::left << std::setw(27) << bold(cyan(name)) << desc
               << '\n';
   } else {
-    std::cout << "  " << std::left << std::setw(10) << name << desc << '\n';
+    std::cerr << "  " << std::left << std::setw(10) << name << desc << '\n';
   }
 }
 
