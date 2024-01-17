@@ -41,7 +41,7 @@ void printUsage(const StringRef, const StringRef) noexcept;
 void printOption(
     const StringRef, const StringRef, const StringRef, const StringRef = ""
 ) noexcept;
-void printCommand(const StringRef, const StringRef) noexcept;
+void printCommand(const StringRef, const StringRef, const bool) noexcept;
 void printGlobalOpts() noexcept;
 
 bool commandExists(const StringRef) noexcept;
