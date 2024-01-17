@@ -58,7 +58,7 @@ printCommand(
     cmd += bold(cyan(StringRef(name.data(), 1)));
   } else {
     // This coloring is for the alignment with std::setw later.
-    cmd += bold(cyan("    "));
+    cmd += bold(cyan("   "));
   }
 
   std::cout << "  " << std::left;
