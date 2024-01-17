@@ -24,9 +24,11 @@
 #include <span>
 
 struct Cmd {
-  Fn<int(const std::span<const StringRef>)> main;
-  Fn<void()> help;
-  StringRef desc;
+  const Fn<int(const std::span<const StringRef>)> main;
+  const Fn<void()> help;
+  const StringRef desc;
+  const bool hasShort = false;
+  const bool isShort = false;
 };
 
 #define DEFINE_CMD(name)                 \
@@ -36,10 +38,30 @@ struct Cmd {
     }                                    \
   }
 
+#define DEFINE_SHORT_CMD(name)                        \
+  {                                                   \
+    StringRef(&#name[0], 1), {                        \
+      name##Main, name##Help, name##Desc, false, true \
+    }                                                 \
+  }
+
+#define DEFINE_CMD_WITH_SHORT(name)                        \
+  { #name, { name##Main, name##Help, name##Desc, true } }, \
+      DEFINE_SHORT_CMD(name)
+
 static inline const HashMap<StringRef, Cmd> CMDS = {
-  DEFINE_CMD(build),  DEFINE_CMD(clean), DEFINE_CMD(fmt),  DEFINE_CMD(help),
-  DEFINE_CMD(init),   DEFINE_CMD(lint),  DEFINE_CMD(new),  DEFINE_CMD(run),
-  DEFINE_CMD(search), DEFINE_CMD(test),  DEFINE_CMD(tidy), DEFINE_CMD(version),
+  DEFINE_CMD_WITH_SHORT(build),
+  DEFINE_CMD(clean),
+  DEFINE_CMD(fmt),
+  DEFINE_CMD(help),
+  DEFINE_CMD(init),
+  DEFINE_CMD(lint),
+  DEFINE_CMD(new),
+  DEFINE_CMD_WITH_SHORT(run),
+  DEFINE_CMD(search),
+  DEFINE_CMD_WITH_SHORT(test),
+  DEFINE_CMD(tidy),
+  DEFINE_CMD(version),
 };
 
 void
@@ -90,7 +112,10 @@ helpMain(const std::span<const StringRef> args) noexcept {
 
   printHeader("Commands:");
   for (const auto& [name, cmd] : CMDS) {
-    printCommand(name, cmd.desc);
+    if (cmd.isShort) {
+      continue;
+    }
+    printCommand(name, cmd.desc, cmd.hasShort);
   }
   return EXIT_SUCCESS;
 }

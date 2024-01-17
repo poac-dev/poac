@@ -39,21 +39,35 @@ printOption(
   option += ' ';
   option += cyan(placeholder);
 
+  std::cout << "  " << std::left;
   if (shouldColor()) {
-    std::cout << "  " << std::left << std::setw(69) << option << desc << '\n';
+    std::cout << std::setw(69);
   } else {
-    std::cout << "  " << std::left << std::setw(26) << option << desc << '\n';
+    std::cout << std::setw(26);
   }
+  std::cout << option << desc << '\n';
 }
 
 void
-printCommand(const StringRef name, const StringRef desc) noexcept {
-  if (shouldColor()) {
-    std::cout << "  " << std::left << std::setw(27) << bold(cyan(name)) << desc
-              << '\n';
+printCommand(
+    const StringRef name, const StringRef desc, const bool hasShort
+) noexcept {
+  String cmd = bold(cyan(name));
+  if (hasShort) {
+    cmd += ", ";
+    cmd += bold(cyan(StringRef(name.data(), 1)));
   } else {
-    std::cout << "  " << std::left << std::setw(10) << name << desc << '\n';
+    // This coloring is for the alignment with std::setw later.
+    cmd += bold(cyan("    "));
   }
+
+  std::cout << "  " << std::left;
+  if (shouldColor()) {
+    std::cout << std::setw(44);
+  } else {
+    std::cout << std::setw(10);
+  }
+  std::cout << cmd << desc << '\n';
 }
 
 void
