@@ -89,12 +89,13 @@ struct Logger {
           os << bold(yellow("Warning: ")) << std::forward<T>(header);
           break;
         case LogLevel::info:
+          os << std::right;
           if (shouldColor()) {
-            os << std::right << std::setw(27)
-               << bold(green(std::forward<T>(header))) << ' ';
+            os << std::setw(27) << bold(green(std::forward<T>(header)));
           } else {
-            os << std::right << std::setw(12) << std::forward<T>(header) << ' ';
+            os << std::setw(12) << std::forward<T>(header);
           }
+          os << ' ';
           break;
         case LogLevel::debug:
           os << "[Poac] " << std::forward<T>(header);
