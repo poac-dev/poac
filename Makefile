@@ -37,7 +37,7 @@ UNITTEST_DEPS := $(UNITTEST_OBJS:.o=.d)
 GIT_DEPS := $(O)/DEPS/toml11
 
 
-.PHONY: all clean install test tidy
+.PHONY: all clean install test tidy versions
 
 
 all: $(GIT_DEPS) $(PROJECT)
@@ -94,6 +94,9 @@ install: all
 clean:
 	-rm -rf $(O)
 
+versions:
+	$(MAKE) -v
+	$(CXX) --version
 
 # Git dependencies
 $(O)/DEPS/toml11:
