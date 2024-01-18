@@ -16,13 +16,47 @@ inline constexpr StringRef GREEN = "\033[32m";
 inline constexpr StringRef RED = "\033[31m";
 inline constexpr StringRef RESET = "\033[0m";
 
+// Returns the module name from a file path.  There are two cases:
+//
+// 1. src/Rustify/Tests.cc -> Rustify/Tests
+//    (when we run `make test` from the root directory)
+// 2. ../../src/Rustify/Tests.cc -> Rustify/Tests
+//    (when we run `poac test`)
+//
+// We first should remove `../../` if it exists, then remove the first
+// directory name since it can be either `src` or `tests`.  Finally, we remove
+// the file extension, which is basically any of C++ source file extensions.
+inline StringRef
+modName(StringRef f) noexcept {
+  if (f.empty()) {
+    return f;
+  }
+
+  if (f.starts_with("..")) {
+    f = f.substr(7);
+  }
+
+  usize start = f.find_first_of('/');
+  if (start == StringRef::npos) {
+    return f;
+  }
+  ++start;
+
+  const usize end = f.find_last_of('.');
+  if (end == StringRef::npos) {
+    return f;
+  }
+
+  return f.substr(start, end - start);
+}
+
 inline void
 pass(
     const StringRef f = __builtin_FILE(),
     const StringRef fn = __builtin_FUNCTION()
 ) noexcept {
-  std::cout << "test " << f << "::" << fn << " ... " << GREEN << "ok" << RESET
-            << '\n'
+  std::cout << "test " << modName(f) << "::" << fn << " ... " << GREEN << "ok"
+            << RESET << '\n'
             << std::flush;
 }
 
@@ -32,8 +66,8 @@ template <typename... Ts>
 error(
     const StringRef f, const int l, const StringRef fn, Ts&&... msgs
 ) noexcept {
-  std::cerr << "test " << f << "::" << fn << " ... " << RED << "FAILED" << RESET
-            << "\n\n"
+  std::cerr << "test " << modName(f) << "::" << fn << " ... " << RED << "FAILED"
+            << RESET << "\n\n"
             << '\'' << fn << "' failed at '" << std::boolalpha;
   (std::cerr << ... << std::forward<Ts>(msgs))
       << "', " << f << ':' << l << '\n';
