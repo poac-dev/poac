@@ -5,7 +5,7 @@ INSTALL ?= install
 
 DEBUG_FLAGS := -g -O0 -DDEBUG
 RELEASE_FLAGS := -O3 -DNDEBUG -flto
-CXXFLAGS := -std=c++20 -fdiagnostics-color -pedantic-errors -Wall -Wextra -Wpedantic
+CXXFLAGS := -std=c++2b -fdiagnostics-color -pedantic-errors -Wall -Wextra -Wpedantic
 ifeq ($(RELEASE), 1)
 	CXXFLAGS += $(RELEASE_FLAGS)
 else

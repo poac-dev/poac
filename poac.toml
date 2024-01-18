@@ -2,7 +2,7 @@
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
 description = "A package manager and build system for C++"
 documentation = "https://docs.poac.dev"
-edition = "20"
+edition = "2b"
 homepage = "https://poac.dev"
 license = "Apache-2.0"
 name = "poac"
