@@ -16,8 +16,6 @@
 #include "Rustify.hpp"
 #include "TermColor.hpp"
 
-#include <algorithm>
-#include <cctype>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
