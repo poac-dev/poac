@@ -77,6 +77,7 @@ If your environment is not included in the released packages, you have to build 
 #### Commands
 
 * make
+* git
 * pkg-config
 * find
 * grep
