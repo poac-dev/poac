@@ -1,69 +1,39 @@
 #pragma once
 
-#include "Rustify.hpp"
-#include "TermColor.hpp"
+#include "Aliases.hpp"
+#include "Traits.hpp"
 
-#include <concepts>
 #include <cstdlib>
 #include <exception>
-#include <ios>
 #include <iostream>
-#include <optional>
-#include <ostream>
-#include <string>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
 
-template <typename T>
-std::ostream&
-operator<<(std::ostream& os, const std::optional<T>& opt) {
-  if (opt.has_value()) {
-    os << opt.value();
-  } else {
-    os << "None";
-  }
-  return os;
-}
-
 namespace tests {
 
-template <typename T>
-concept Printable = requires(T a, std::ostream& os) {
-  { os << a } -> std::convertible_to<std::ostream&>;
-};
-
-template <typename T, typename U>
-concept Eq = requires(T a, U b) {
-  { a == b } -> std::convertible_to<bool>;
-};
-
-template <typename T, typename U>
-concept Ne = requires(T a, U b) {
-  { a != b } -> std::convertible_to<bool>;
-};
-
-template <typename T, typename U>
-concept Lt = requires(T a, U b) {
-  { a < b } -> std::convertible_to<bool>;
-};
+inline constexpr StringRef GREEN = "\033[32m";
+inline constexpr StringRef RED = "\033[31m";
+inline constexpr StringRef RESET = "\033[0m";
 
 inline void
 pass(
     const StringRef f = __builtin_FILE(),
     const StringRef fn = __builtin_FUNCTION()
 ) noexcept {
-  std::cout << "test " << f << "::" << fn << " ... " << green("ok") << '\n'
+  std::cout << "test " << f << "::" << fn << " ... " << GREEN << "ok" << RESET
+            << '\n'
             << std::flush;
 }
 
 template <typename... Ts>
-  requires(Printable<Ts> && ...)
+  requires(Display<Ts> && ...)
 [[noreturn]] inline void
 error(
     const StringRef f, const int l, const StringRef fn, Ts&&... msgs
 ) noexcept {
-  std::cerr << "test " << f << "::" << fn << " ... " << red("FAILED") << "\n\n"
+  std::cerr << "test " << f << "::" << fn << " ... " << RED << "FAILED" << RESET
+            << "\n\n"
             << '\'' << fn << "' failed at '" << std::boolalpha;
   (std::cerr << ... << std::forward<Ts>(msgs))
       << "', " << f << ':' << l << '\n';
@@ -81,7 +51,7 @@ assertTrue(
   }
 
   if (msg.empty()) {
-    error(f, l, fn, "expected true: `", cond, '`');
+    error(f, l, fn, "expected `true` but got `false`");
   } else {
     error(f, l, fn, msg);
   }
@@ -98,14 +68,14 @@ assertFalse(
   }
 
   if (msg.empty()) {
-    error(f, l, fn, "expected false: `", cond, '`');
+    error(f, l, fn, "expected `false` but got `true`");
   } else {
     error(f, l, fn, msg);
   }
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Eq<Lhs, Rhs> && Printable<Lhs> && Printable<Rhs>)
+  requires(Eq<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertEq(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
@@ -128,7 +98,7 @@ assertEq(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Ne<Lhs, Rhs> && Printable<Lhs> && Printable<Rhs>)
+  requires(Ne<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertNe(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
@@ -151,7 +121,7 @@ assertNe(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Lt<Lhs, Rhs> && Printable<Lhs> && Printable<Rhs>)
+  requires(Lt<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertLt(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",

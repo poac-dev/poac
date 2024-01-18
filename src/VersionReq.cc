@@ -889,8 +889,6 @@ operator<<(std::ostream& os, const VersionReq& req) {
 
 #ifdef POAC_TEST
 
-#  include "TestUtils.hpp"
-
 #  include <span>
 
 namespace tests {

@@ -115,8 +115,6 @@ findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
 
 #ifdef POAC_TEST
 
-#  include "TestUtils.hpp"
-
 #  include <limits>
 
 namespace tests {

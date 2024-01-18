@@ -486,8 +486,6 @@ Version::parse(const StringRef s) {
 
 #ifdef POAC_TEST
 
-#  include "TestUtils.hpp"
-
 namespace tests {
 
 // Thanks to:

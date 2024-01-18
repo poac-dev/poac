@@ -708,8 +708,6 @@ getMakeCommand(const bool isParallel) {
 
 #ifdef POAC_TEST
 
-#  include "TestUtils.hpp"
-
 namespace tests {
 
 void
