@@ -17,8 +17,8 @@
 #include "TermColor.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdlib>
-#include <ctype.h>
 #include <exception>
 #include <iostream>
 #include <span>

@@ -8,8 +8,9 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
+#include <cstdio>
 #include <cstdlib>
-#include <ctype.h>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -18,7 +19,6 @@
 #include <ostream>
 #include <span>
 #include <sstream>
-#include <stdio.h>
 #include <string>
 #include <thread>
 
@@ -501,11 +501,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  String packageNameUpper = config.packageName;
-  std::transform(
-      packageNameUpper.begin(), packageNameUpper.end(),
-      packageNameUpper.begin(), ::toupper
-  );
+  const String packageNameUpper = toUpper(config.packageName);
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().toString() + "\"'";
   config.defineSimpleVar("DEFINES", DEFINES);
