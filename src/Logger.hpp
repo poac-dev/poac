@@ -35,20 +35,20 @@ struct Logger {
   template <typename... Args>
     requires(Display<Args> && ...)
   static void warn(Args&&... message) noexcept {
-    logln(std::cout, LogLevel::warning, std::forward<Args>(message)...);
+    logln(std::cerr, LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename T, typename... Args>
     requires(Display<T> && (Display<Args> && ...))
   static void info(T&& header, Args&&... message) noexcept {
     logln(
-        std::cout, LogLevel::info, std::forward<T>(header),
+        std::cerr, LogLevel::info, std::forward<T>(header),
         std::forward<Args>(message)...
     );
   }
   template <typename... Args>
     requires(Display<Args> && ...)
   static void debug(Args&&... message) noexcept {
-    logln(std::cout, LogLevel::debug, std::forward<Args>(message)...);
+    logln(std::cerr, LogLevel::debug, std::forward<Args>(message)...);
   }
 
   template <typename T, typename... Args>

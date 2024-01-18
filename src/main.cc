@@ -100,15 +100,15 @@ helpMain(const std::span<const StringRef> args) noexcept {
   }
 
   // Print help message for poac itself
-  std::cout << "A package manager and build system for C++" << '\n';
-  std::cout << '\n';
+  std::cerr << "A package manager and build system for C++" << '\n';
+  std::cerr << '\n';
   printUsage("", "[OPTIONS] [COMMAND]");
-  std::cout << '\n';
+  std::cerr << '\n';
 
   printHeader("Options:");
   printGlobalOpts();
   printOption("--version", "-V", "Print version info and exit");
-  std::cout << '\n';
+  std::cerr << '\n';
 
   printHeader("Commands:");
   for (const auto& [name, cmd] : CMDS) {
