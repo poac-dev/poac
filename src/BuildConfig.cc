@@ -374,7 +374,7 @@ static String
 echoCmd(const StringRef header, const StringRef body) {
   std::ostringstream oss;
   Logger::log(oss, LogLevel::info, header, body);
-  return "@echo '" + oss.str() + "'";
+  return "@echo '" + oss.str() + "' >&2";
 }
 
 static void
