@@ -17,7 +17,6 @@ Checks: -*
   clang-analyzer-*
   cppcoreguidelines-*
   -cppcoreguidelines-avoid-const-or-ref-data-members
-  -cppcoreguidelines-avoid-do-while
   -cppcoreguidelines-avoid-magic-numbers
   -cppcoreguidelines-avoid-non-const-global-variables
   -cppcoreguidelines-macro-usage
