@@ -51,7 +51,7 @@ assertTrue(
   }
 
   if (msg.empty()) {
-    error(f, l, fn, "expected true: `", cond, '`');
+    error(f, l, fn, "expected `true` but got `", cond, '`');
   } else {
     error(f, l, fn, msg);
   }
@@ -68,7 +68,7 @@ assertFalse(
   }
 
   if (msg.empty()) {
-    error(f, l, fn, "expected false: `", cond, '`');
+    error(f, l, fn, "expected `false` but got `", cond, '`');
   } else {
     error(f, l, fn, msg);
   }
