@@ -101,8 +101,7 @@ struct Logger {
           os << "[Poac] " << std::forward<T>(header);
           break;
       }
-      (os << ... << std::forward<Args>(message));
-      os << std::flush;
+      (os << ... << std::forward<Args>(message)) << std::flush;
     }
   }
 
