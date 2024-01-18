@@ -28,14 +28,17 @@ struct Logger {
   static LogLevel getLevel() noexcept;
 
   template <typename... Args>
+    requires(Printable<Args> && ...)
   static void error(Args&&... message) noexcept {
     logln(std::cerr, LogLevel::error, std::forward<Args>(message)...);
   }
   template <typename... Args>
+    requires(Printable<Args> && ...)
   static void warn(Args&&... message) noexcept {
     logln(std::cout, LogLevel::warning, std::forward<Args>(message)...);
   }
   template <typename T, typename... Args>
+    requires(Printable<T> && (Printable<Args> && ...))
   static void info(T&& header, Args&&... message) noexcept {
     logln(
         std::cout, LogLevel::info, std::forward<T>(header),
@@ -43,11 +46,13 @@ struct Logger {
     );
   }
   template <typename... Args>
+    requires(Printable<Args> && ...)
   static void debug(Args&&... message) noexcept {
     logln(std::cout, LogLevel::debug, std::forward<Args>(message)...);
   }
 
   template <typename T, typename... Args>
+    requires(Printable<T> && (Printable<Args> && ...))
   static void logln(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) noexcept {
@@ -55,6 +60,7 @@ struct Logger {
         std::forward<Args>(message)..., '\n');
   }
   template <typename T, typename... Args>
+    requires(Printable<T> && (Printable<Args> && ...))
   static void
   log(std::ostream& os, LogLevel messageLevel, T&& header,
       Args&&... message) noexcept {
@@ -65,6 +71,7 @@ struct Logger {
   }
 
   template <typename T, typename... Args>
+    requires(Printable<T> && (Printable<Args> && ...))
   void logImpl(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) noexcept {
