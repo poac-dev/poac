@@ -180,7 +180,7 @@ static void
 emitDep(std::ostream& os, usize& offset, const StringRef dep) {
   if (offset + dep.size() + 2 > 80) { // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
-    os << std::setw(83 - offset) << " \\\n ";
+    os << std::setw(83 - static_cast<int>(offset)) << " \\\n ";
     offset = 2;
   }
   os << " " << dep;
