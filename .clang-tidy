@@ -28,7 +28,6 @@ Checks: -*
   misc-*
   -misc-include-cleaner
   -misc-no-recursion
-  -misc-static-assert
   -misc-use-anonymous-namespace
   modernize-*
   -modernize-deprecated-headers
