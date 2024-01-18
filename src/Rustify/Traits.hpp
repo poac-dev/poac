@@ -16,7 +16,7 @@ operator<<(std::ostream& os, const std::optional<T>& opt) {
 }
 
 template <typename T>
-concept Printable = requires(T a, std::ostream& os) {
+concept Display = requires(T a, std::ostream& os) {
   { os << a } -> std::convertible_to<std::ostream&>;
 };
 

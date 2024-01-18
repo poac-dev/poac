@@ -27,7 +27,7 @@ pass(
 }
 
 template <typename... Ts>
-  requires(Printable<Ts> && ...)
+  requires(Display<Ts> && ...)
 [[noreturn]] inline void
 error(
     const StringRef f, const int l, const StringRef fn, Ts&&... msgs
@@ -75,7 +75,7 @@ assertFalse(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Eq<Lhs, Rhs> && Printable<Lhs> && Printable<Rhs>)
+  requires(Eq<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertEq(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
@@ -98,7 +98,7 @@ assertEq(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Ne<Lhs, Rhs> && Printable<Lhs> && Printable<Rhs>)
+  requires(Ne<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertNe(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
@@ -121,7 +121,7 @@ assertNe(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Lt<Lhs, Rhs> && Printable<Lhs> && Printable<Rhs>)
+  requires(Lt<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertLt(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",

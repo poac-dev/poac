@@ -8,7 +8,7 @@
 
 struct PoacError : public std::runtime_error {
   template <typename... Args>
-    requires(Printable<Args> && ...)
+    requires(Display<Args> && ...)
   explicit PoacError(Args&&... args)
       : std::runtime_error(
           (std::ostringstream{} << ... << std::forward<Args>(args)).str()
