@@ -1,59 +1,28 @@
 #pragma once
 
-#include "Rustify.hpp"
-#include "TermColor.hpp"
+#include "Aliases.hpp"
+#include "Traits.hpp"
 
-#include <concepts>
 #include <cstdlib>
 #include <exception>
-#include <ios>
 #include <iostream>
-#include <optional>
-#include <ostream>
-#include <string>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
 
-template <typename T>
-std::ostream&
-operator<<(std::ostream& os, const std::optional<T>& opt) {
-  if (opt.has_value()) {
-    os << opt.value();
-  } else {
-    os << "None";
-  }
-  return os;
-}
-
 namespace tests {
 
-template <typename T>
-concept Printable = requires(T a, std::ostream& os) {
-  { os << a } -> std::convertible_to<std::ostream&>;
-};
-
-template <typename T, typename U>
-concept Eq = requires(T a, U b) {
-  { a == b } -> std::convertible_to<bool>;
-};
-
-template <typename T, typename U>
-concept Ne = requires(T a, U b) {
-  { a != b } -> std::convertible_to<bool>;
-};
-
-template <typename T, typename U>
-concept Lt = requires(T a, U b) {
-  { a < b } -> std::convertible_to<bool>;
-};
+inline constexpr StringRef GREEN = "\033[32m";
+inline constexpr StringRef RED = "\033[31m";
+inline constexpr StringRef RESET = "\033[0m";
 
 inline void
 pass(
     const StringRef f = __builtin_FILE(),
     const StringRef fn = __builtin_FUNCTION()
 ) noexcept {
-  std::cout << "test " << f << "::" << fn << " ... " << green("ok") << '\n'
+  std::cout << "test " << f << "::" << fn << " ... " << GREEN << "ok" << RESET
+            << '\n'
             << std::flush;
 }
 
@@ -63,7 +32,8 @@ template <typename... Ts>
 error(
     const StringRef f, const int l, const StringRef fn, Ts&&... msgs
 ) noexcept {
-  std::cerr << "test " << f << "::" << fn << " ... " << red("FAILED") << "\n\n"
+  std::cerr << "test " << f << "::" << fn << " ... " << RED << "FAILED" << RESET
+            << "\n\n"
             << '\'' << fn << "' failed at '" << std::boolalpha;
   (std::cerr << ... << std::forward<Ts>(msgs))
       << "', " << f << ':' << l << '\n';
