@@ -29,6 +29,9 @@ jobs:
             libgit2 \
             nlohmann-json
 
+      - name: Print versions
+        run: make versions
+
       - name: First Generation Build
         run: make -j4
 
