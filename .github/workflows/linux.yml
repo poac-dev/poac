@@ -70,7 +70,7 @@ jobs:
         run: ./poac-out/debug/poac --verbose run --release test --verbose
 
       - name: Print Poac version
-        run: ../poac-out/release/poac version --verbose
+        run: ../poac-out/debug/poac version --verbose
 
       - name: Create a new project with the third generation
         run: ./poac-out/debug/poac new hello_world
