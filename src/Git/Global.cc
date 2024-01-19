@@ -14,6 +14,7 @@ namespace detail {
 
 } // namespace detail
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static inline std::once_flag once;
 
 void

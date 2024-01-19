@@ -22,6 +22,7 @@
 #include <string>
 #include <thread>
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 static String OUT_DIR;
 static constexpr StringRef TEST_OUT_DIR = "tests";
 static const String PATH_FROM_OUT_DIR = "../..";
@@ -30,6 +31,7 @@ static String CXXFLAGS = " -std=c++";
 static String DEFINES;
 static String INCLUDES = " -Iinclude";
 static String LIBS;
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 void
 setOutDir(const bool isDebug) {
