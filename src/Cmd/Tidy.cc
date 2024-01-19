@@ -11,10 +11,14 @@
 int
 tidyMain(const std::span<const StringRef> args) {
   // Parse args
+  bool fix = false;
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "tidy" } })
 
+    else if (arg == "--fix") {
+      fix = true;
+    }
     else {
       Logger::error("invalid argument: ", arg);
       return EXIT_FAILURE;
@@ -28,16 +32,22 @@ tidyMain(const std::span<const StringRef> args) {
 
   const Path outDir = emitMakefile(true /* isDebug */);
 
+  String tidyFlags = " POAC_TIDY_FLAGS='";
+  if (fs::exists(".clang-tidy")) {
+    // clang-tidy will run within the poac-out/debug directory.
+    tidyFlags += "--config-file=../../.clang-tidy";
+  }
+  if (fix) {
+    tidyFlags += " -fix";
+  }
+  tidyFlags += '\'';
+
   // `poac tidy` invokes only one clang-tidy command, so parallelism over
   // Make does not make sense.
   String makeCmd = getMakeCommand(false /* isParallel */);
   makeCmd += " -C ";
   makeCmd += outDir.string();
-  if (fs::exists(".clang-tidy")) {
-    // clang-tidy will run within the poac-out/debug directory.
-    makeCmd += " POAC_TIDY_FLAGS=";
-    makeCmd += "'--config-file=../../.clang-tidy'";
-  }
+  makeCmd += tidyFlags;
   makeCmd += " tidy";
 
   Logger::info("Running", "clang-tidy");
@@ -52,4 +62,5 @@ tidyHelp() noexcept {
   std::cout << '\n';
   printHeader("Options:");
   printGlobalOpts();
+  printOption("--fix", "", "Automatically apply lint suggestions");
 }
