@@ -506,6 +506,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
   const String packageNameUpper = toUpper(config.packageName);
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().toString() + "\"'";
+
   config.defineSimpleVar("DEFINES", DEFINES);
   config.defineSimpleVar("INCLUDES", INCLUDES);
   config.defineSimpleVar("LIBS", LIBS);
