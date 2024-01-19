@@ -28,17 +28,16 @@ tidyMain(const std::span<const StringRef> args) {
 
   const Path outDir = emitMakefile(true /* isDebug */);
 
-  // clang-tidy will run within the poac-out/debug directory.  So, we need
-  // to symlink the .clang-tidy file to the poac-out/debug directory.
-  if (fs::exists(".clang-tidy") && !fs::is_symlink(outDir / ".clang-tidy")) {
-    fs::create_symlink("../../.clang-tidy", outDir / ".clang-tidy");
-  }
-
   // `poac tidy` invokes only one clang-tidy command, so parallelism over
   // Make does not make sense.
   String makeCmd = getMakeCommand(false /* isParallel */);
   makeCmd += " -C ";
   makeCmd += outDir.string();
+  if (fs::exists(".clang-tidy")) {
+    // clang-tidy will run within the poac-out/debug directory.
+    makeCmd += " POAC_TIDY_FLAGS=";
+    makeCmd += "'--config-file=../../.clang-tidy'";
+  }
   makeCmd += " tidy";
 
   Logger::info("Running", "clang-tidy");
