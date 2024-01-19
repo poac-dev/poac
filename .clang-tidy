@@ -17,7 +17,6 @@ Checks: -*
   cppcoreguidelines-*
   -cppcoreguidelines-avoid-const-or-ref-data-members
   -cppcoreguidelines-avoid-magic-numbers
-  -cppcoreguidelines-avoid-non-const-global-variables
   -cppcoreguidelines-macro-usage
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay
   -cppcoreguidelines-pro-type-member-init
