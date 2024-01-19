@@ -7,8 +7,8 @@
 #include <iostream>
 #include <span>
 
-#ifndef POAC_VERSION
-#  error "POAC_VERSION is not defined"
+#ifndef POAC_PKG_VERSION
+#  error "POAC_PKG_VERSION is not defined"
 #endif
 #ifndef POAC_COMMIT_SHORT_HASH
 #  error "POAC_COMMIT_SHORT_HASH is not defined"
@@ -100,8 +100,8 @@ versionMain(const std::span<const StringRef> args) noexcept {
     }
   }
 
-  std::cout << "poac " << POAC_VERSION << " (" << POAC_COMMIT_SHORT_HASH << ' '
-            << DATE << ")\n";
+  std::cout << "poac " << POAC_PKG_VERSION << " (" << POAC_COMMIT_SHORT_HASH
+            << ' ' << DATE << ")\n";
   return EXIT_SUCCESS;
 }
 

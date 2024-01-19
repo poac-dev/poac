@@ -483,6 +483,11 @@ installDeps() {
 }
 
 static void
+addDefine(const String& name, const String& value) {
+  DEFINES += " -D" + name + "='\"" + value + "\"'";
+}
+
+static void
 setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVar("CXX", CXX);
 
@@ -504,18 +509,20 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  const String packageNameUpper = toUpper(config.packageName);
-  DEFINES = " -D" + packageNameUpper + "_VERSION='\""
-            + getPackageVersion().toString() + "\"'";
-
+  // Variables Poac sets for the user.
+  const String pkgName = toUpper(config.packageName);
+  const Version& pkgVersion = getPackageVersion();
+  addDefine(pkgName + "_PKG_NAME", config.packageName);
+  addDefine(pkgName + "_PKG_VERSION", pkgVersion.toString());
+  addDefine(pkgName + "_PKG_VERSION_MAJOR", std::to_string(pkgVersion.major));
+  addDefine(pkgName + "_PKG_VERSION_MINOR", std::to_string(pkgVersion.minor));
+  addDefine(pkgName + "_PKG_VERSION_PATCH", std::to_string(pkgVersion.patch));
+  addDefine(pkgName + "_PKG_VERSION_PRE", pkgVersion.pre.toString());
   try {
     const String commitHash =
         git2::Repository().open(".").refNameToId("HEAD").toString();
-
-    DEFINES +=
-        " -D" + packageNameUpper + "_COMMIT_HASH='\"" + commitHash + "\"'";
-    DEFINES += " -D" + packageNameUpper + "_COMMIT_SHORT_HASH='\""
-               + commitHash.substr(0, 8) + "\"'";
+    addDefine(pkgName + "_COMMIT_HASH", commitHash);
+    addDefine(pkgName + "_COMMIT_SHORT_HASH", commitHash.substr(0, 8));
   } catch (const git2::Exception& e) {
     Logger::debug("No git repository found");
   }
