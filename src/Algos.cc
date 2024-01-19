@@ -5,8 +5,18 @@
 #include "Rustify.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <memory>
 #include <utility>
+
+String
+toUpper(const StringRef str) noexcept {
+  String res;
+  for (const unsigned char c : str) {
+    res += static_cast<char>(std::toupper(c));
+  }
+  return res;
+}
 
 int
 runCmd(const StringRef cmd) noexcept {

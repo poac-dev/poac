@@ -12,6 +12,8 @@
 #include <sstream>
 #include <utility>
 
+String toUpper(const StringRef) noexcept;
+
 int runCmd(const StringRef) noexcept;
 String getCmdOutput(const StringRef);
 

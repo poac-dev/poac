@@ -1,5 +1,6 @@
 #include "New.hpp"
 
+#include "../Algos.hpp"
 #include "../Exception.hpp"
 #include "../Git/Git2.hpp"
 #include "../Logger.hpp"
@@ -9,7 +10,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
-#include <ctype.h>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -54,12 +54,7 @@ createPoacToml(const StringRef projectName) noexcept {
 
 static String
 getHeader(const StringRef projectName) noexcept {
-  String projectNameUpper{};
-  std::transform(
-      projectName.cbegin(), projectName.cend(),
-      std::back_inserter(projectNameUpper), ::toupper
-  );
-
+  const String projectNameUpper = toUpper(projectName);
   String header = "#ifndef " + projectNameUpper + "_HPP\n"
                   "#define " + projectNameUpper + "_HPP\n\n"
                   "namespace ";

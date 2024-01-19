@@ -28,7 +28,6 @@ Checks: -*
   -misc-no-recursion
   -misc-use-anonymous-namespace
   modernize-*
-  -modernize-deprecated-headers
   -modernize-loop-convert
   -modernize-return-braced-init-list
   -modernize-use-nodiscard
