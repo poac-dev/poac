@@ -35,9 +35,10 @@ Oid::isZero() const {
 
 String
 Oid::toString() const {
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
   char buf[GIT_OID_MAX_HEXSIZE + 1];
   git_oid_tostr(buf, sizeof(buf), raw);
-  return String(buf, GIT_OID_MAX_HEXSIZE);
+  return { buf, static_cast<usize>(GIT_OID_MAX_HEXSIZE) };
 }
 
 std::ostream&
