@@ -29,6 +29,10 @@ Oid::isZero() const {
 #endif
 }
 
+#if !defined(GIT_OID_MAX_HEXSIZE) && defined(GIT_OID_HEXSZ)
+#  define GIT_OID_MAX_HEXSIZE GIT_OID_HEXSZ
+#endif
+
 String
 Oid::toString() const {
   char buf[GIT_OID_MAX_HEXSIZE + 1];
