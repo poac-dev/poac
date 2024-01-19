@@ -2,7 +2,7 @@
 
 #include "Algos.hpp"
 #include "Exception.hpp"
-#include "Git/Git2.hpp"
+#include "Git2/Git2.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "Semver.hpp"
