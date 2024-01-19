@@ -38,9 +38,7 @@ static inline constexpr Arr<
 
 void printHeader(StringRef) noexcept;
 void printUsage(StringRef, StringRef) noexcept;
-void printOption(
-    StringRef, StringRef, StringRef, StringRef = ""
-) noexcept;
+void printOption(StringRef, StringRef, StringRef, StringRef = "") noexcept;
 void printCommand(StringRef, StringRef, bool) noexcept;
 void printGlobalOpts() noexcept;
 
