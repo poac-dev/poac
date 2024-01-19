@@ -26,7 +26,7 @@ public:
   Config& openDefault();
 
   /// Get the value of a string config variable as an owned string.
-  String getString(const StringRef);
+  String getString(StringRef);
 };
 
 } // end namespace git2

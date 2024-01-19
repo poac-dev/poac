@@ -18,7 +18,7 @@ struct DescribeOptions {
   DescribeOptions(DescribeOptions&&) = default;
   DescribeOptions& operator=(DescribeOptions&&) = default;
 
-  DescribeOptions& maxCandidatesTags(const unsigned int);
+  DescribeOptions& maxCandidatesTags(unsigned int);
 
   /// Sets the reference lookup strategy
   ///
@@ -32,14 +32,14 @@ struct DescribeOptions {
 
   /// Indicates when calculating the distance from the matching tag or
   /// reference whether to only walk down the first-parent ancestry.
-  DescribeOptions& onlyFollowFirstParent(const bool);
+  DescribeOptions& onlyFollowFirstParent(bool);
 
   /// If no matching tag or reference is found whether a describe option would
   /// normally fail. This option indicates, however, that it will instead fall
   /// back to showing the full id of the commit.
-  DescribeOptions& showCommitOidAsFallback(const bool);
+  DescribeOptions& showCommitOidAsFallback(bool);
 
-  DescribeOptions& pattern(const StringRef);
+  DescribeOptions& pattern(StringRef);
 };
 
 struct DescribeFormatOptions {
@@ -57,15 +57,15 @@ struct DescribeFormatOptions {
   ///
   /// The value is the lower bound for the length of the abbreviated string,
   /// and the default is 7.
-  DescribeFormatOptions& abbreviatedSize(const unsigned int);
+  DescribeFormatOptions& abbreviatedSize(unsigned int);
 
   /// Sets whether or not the long format is used even when a shorter name
   /// could be used.
-  DescribeFormatOptions& alwaysUseLongFormat(const bool);
+  DescribeFormatOptions& alwaysUseLongFormat(bool);
 
   /// If the workdir is dirty and this is set, this string will be appended to
   /// the description string.
-  DescribeFormatOptions& dirtySuffix(const StringRef);
+  DescribeFormatOptions& dirtySuffix(StringRef);
 };
 
 struct Describe {

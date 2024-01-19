@@ -73,7 +73,7 @@ struct Comparator {
   Option<u64> patch;
   Prerelease pre;
 
-  static Comparator parse(const StringRef);
+  static Comparator parse(StringRef);
   void from(const OptVersion&) noexcept;
   String toString() const noexcept;
   String toPkgConfigString() const noexcept;
@@ -85,7 +85,7 @@ struct VersionReq {
   Comparator left;
   Option<Comparator> right;
 
-  static VersionReq parse(const StringRef);
+  static VersionReq parse(StringRef);
   bool satisfiedBy(const Version&) const noexcept;
   String toString() const noexcept;
   String toPkgConfigString(const String&) const noexcept;

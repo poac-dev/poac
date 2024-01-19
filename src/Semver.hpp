@@ -50,7 +50,7 @@ struct VersionToken {
 struct Prerelease {
   Vec<VersionToken> ident;
 
-  static Prerelease parse(const StringRef);
+  static Prerelease parse(StringRef);
   bool empty() const noexcept;
   String toString() const noexcept;
 };
@@ -64,7 +64,7 @@ bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 struct BuildMetadata {
   Vec<VersionToken> ident;
 
-  static BuildMetadata parse(const StringRef);
+  static BuildMetadata parse(StringRef);
   bool empty() const noexcept;
   String toString() const noexcept;
 };
@@ -76,7 +76,7 @@ struct Version {
   Prerelease pre;
   BuildMetadata build;
 
-  static Version parse(const StringRef);
+  static Version parse(StringRef);
   String toString() const noexcept;
 };
 std::ostream& operator<<(std::ostream&, const Version&) noexcept;

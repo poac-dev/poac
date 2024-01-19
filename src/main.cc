@@ -22,7 +22,7 @@
 #include <span>
 
 struct Cmd {
-  const Fn<int(const std::span<const StringRef>)> main;
+  const Fn<int(std::span<const StringRef>)> main;
   const Fn<void()> help;
   const StringRef desc;
   const bool hasShort = false;

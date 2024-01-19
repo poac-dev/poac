@@ -58,19 +58,19 @@ struct Revwalk {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& pushGlob(const StringRef glob);
+  Revwalk& pushGlob(StringRef glob);
 
   /// Push and hide the respective endpoints of the given range.
   ///
   /// The range should be of the form `<commit>..<commit>` where each
   /// `<commit>` is in the form accepted by `revparse_single`. The left-hand
   /// commit will be hidden and the right-hand commit pushed.
-  Revwalk& pushRange(const StringRef range);
+  Revwalk& pushRange(StringRef range);
 
   /// Push the OID pointed to by a reference
   ///
   /// The reference must point to a committish.
-  Revwalk& pushRef(const StringRef reference);
+  Revwalk& pushRef(StringRef reference);
 
   /// Mark a commit as not of interest to this revwalk.
   Revwalk& hide(const Oid& oid);
@@ -90,12 +90,12 @@ struct Revwalk {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& hideGlob(const StringRef glob);
+  Revwalk& hideGlob(StringRef glob);
 
   /// Hide the OID pointed to by a reference.
   ///
   /// The reference must point to a committish.
-  Revwalk& hideRef(const StringRef reference);
+  Revwalk& hideRef(StringRef reference);
 };
 
 } // end namespace git2

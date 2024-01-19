@@ -67,6 +67,5 @@ private:
   git_error_t m_category{ GIT_ERROR_NONE };
 };
 
-int git2Throw(const int);
-
+int git2Throw(int);
 } // namespace git2

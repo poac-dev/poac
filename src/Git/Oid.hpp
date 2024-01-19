@@ -15,7 +15,7 @@ struct Oid {
   explicit Oid(const git_oid*);
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(const StringRef);
+  explicit Oid(StringRef);
 
   // Since Oid would not be constructed by itself, the destructor is not
   // responsible for freeing the raw pointer.

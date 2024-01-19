@@ -8,6 +8,6 @@
 static inline constexpr StringRef buildDesc =
     "Compile a local package and all of its dependencies";
 
-int buildImpl(String&, const bool, const bool);
-int buildMain(const std::span<const StringRef>);
+int buildImpl(String&, bool, bool);
+int buildMain(std::span<const StringRef>);
 void buildHelp() noexcept;

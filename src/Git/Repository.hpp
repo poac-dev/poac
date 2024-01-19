@@ -24,32 +24,31 @@ struct Repository {
   /// Attempt to open an already-existing repository at `path`.
   ///
   /// The path can point to either a normal or bare repository.
-  Repository& open(const StringRef);
+  Repository& open(StringRef);
   /// Attempt to open an already-existing bare repository at `path`.
   ///
   /// The path can point to only a bare repository.
-  Repository& openBare(const StringRef);
+  Repository& openBare(StringRef);
 
   /// Creates a new repository in the specified folder.
   ///
   /// This by default will create any necessary directories to create the
   /// repository, and it will read any user-specified templates when creating
   /// the repository. This behavior can be configured through `init_opts`.
-  Repository& init(const StringRef);
+  Repository& init(StringRef);
   /// Creates a new `--bare` repository in the specified folder.
   ///
   /// The folder must exist prior to invoking this function.
-  Repository& initBare(const StringRef);
+  Repository& initBare(StringRef);
 
   /// Check if path is ignored by the ignore rules.
-  bool isIgnored(const StringRef) const;
+  bool isIgnored(StringRef) const;
 
   /// Clone a remote repository.
-  Repository&
-  clone(const StringRef, const StringRef, const git_clone_options* = nullptr);
+  Repository& clone(StringRef, StringRef, const git_clone_options* = nullptr);
 
   /// Find a single object, as specified by a revision string.
-  Object revparseSingle(const StringRef) const;
+  Object revparseSingle(StringRef) const;
 
   /// Make the repository HEAD directly point to the Commit.
   Repository& setHeadDetached(const Oid&);
