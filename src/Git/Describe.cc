@@ -101,7 +101,7 @@ String
 Describe::format(const DescribeFormatOptions& opts) const {
   git_buf ret = { nullptr, 0, 0 };
   git2Throw(git_describe_format(&ret, this->raw, &opts.raw));
-  return String(ret.ptr, ret.size);
+  return { ret.ptr, ret.size };
 }
 
 } // namespace git2

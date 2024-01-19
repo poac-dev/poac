@@ -28,7 +28,7 @@ String
 Config::getString(const StringRef name) {
   git_buf ret = { nullptr, 0, 0 };
   git2Throw(git_config_get_string_buf(&ret, this->raw, name.data()));
-  return String(ret.ptr, ret.size);
+  return { ret.ptr, ret.size };
 }
 
 } // end namespace git2
