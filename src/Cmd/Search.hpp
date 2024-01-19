@@ -8,5 +8,5 @@
 static inline constexpr StringRef searchDesc =
     "Search for packages in the registry";
 
-int searchMain(const std::span<const StringRef>);
+int searchMain(std::span<const StringRef>);
 void searchHelp() noexcept;

@@ -33,7 +33,6 @@ Checks: -*
   performance-*
   portability-*
   readability-*
-  -readability-avoid-const-params-in-decls
   -readability-else-after-return
   -readability-function-cognitive-complexity
   -readability-identifier-length

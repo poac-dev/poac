@@ -20,7 +20,7 @@ struct Profile {
 
 const Path& getManifestPath();
 const String& getPackageName();
-u16 editionToYear(const StringRef);
+u16 editionToYear(StringRef);
 const String& getPackageEdition();
 const Version& getPackageVersion();
 const Profile& getDebugProfile();

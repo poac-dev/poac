@@ -8,5 +8,5 @@
 static inline constexpr StringRef helpDesc =
     "Displays help for a poac subcommand";
 
-int helpMain(const std::span<const StringRef>) noexcept;
+int helpMain(std::span<const StringRef>) noexcept;
 void helpHelp() noexcept;
