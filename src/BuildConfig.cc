@@ -2,6 +2,7 @@
 
 #include "Algos.hpp"
 #include "Exception.hpp"
+#include "Git2.hpp"
 #include "Logger.hpp"
 #include "Manifest.hpp"
 #include "TermColor.hpp"
@@ -506,6 +507,18 @@ setVariables(BuildConfig& config, const bool isDebug) {
   const String packageNameUpper = toUpper(config.packageName);
   DEFINES = " -D" + packageNameUpper + "_VERSION='\""
             + getPackageVersion().toString() + "\"'";
+
+  try {
+    const String commitHash =
+        git2::Repository().open(".").refNameToId("HEAD").toString();
+
+    DEFINES +=
+        " -D" + packageNameUpper + "_COMMIT_HASH='\"" + commitHash + "\"'";
+    DEFINES += " -D" + packageNameUpper + "_COMMIT_SHORT_HASH='\""
+               + commitHash.substr(0, 8) + "\"'";
+  } catch (const git2::Exception& e) {
+    Logger::debug("No git repository found");
+  }
 
   config.defineSimpleVar("DEFINES", DEFINES);
   config.defineSimpleVar("INCLUDES", INCLUDES);

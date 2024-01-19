@@ -9,6 +9,8 @@
 
 namespace git2 {
 
+Oid::Oid(git_oid oid) : oid(oid), raw(&this->oid) {}
+
 Oid::Oid(git_oid* oid) : raw(oid) {}
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
@@ -18,7 +20,6 @@ Oid::Oid(const StringRef str) {
   git2Throw(git_oid_fromstrn(raw, str.data(), str.size()));
 }
 
-/// Test if this OID is all zeros.
 bool
 Oid::isZero() const {
 #if (LIBGIT2_VER_MAJOR < 1) && (LIBGIT2_VER_MINOR < 99)
@@ -26,6 +27,13 @@ Oid::isZero() const {
 #else
   return git_oid_is_zero(raw) == 1;
 #endif
+}
+
+String
+Oid::toString() const {
+  char buf[GIT_OID_MAX_HEXSIZE + 1];
+  git_oid_tostr(buf, sizeof(buf), raw);
+  return String(buf, GIT_OID_MAX_HEXSIZE);
 }
 
 std::ostream&

@@ -10,6 +10,9 @@
 #ifndef POAC_VERSION
 #  error "POAC_VERSION is not defined"
 #endif
+#ifndef POAC_COMMIT_SHORT_HASH
+#  error "POAC_COMMIT_SHORT_HASH is not defined"
+#endif
 
 static constexpr char
 firstMonthChar(const char m1) noexcept {
@@ -97,7 +100,8 @@ versionMain(const std::span<const StringRef> args) noexcept {
     }
   }
 
-  std::cout << "poac " << POAC_VERSION << " (" << DATE << ")\n";
+  std::cout << "poac " << POAC_VERSION << " (" << POAC_COMMIT_SHORT_HASH << ' '
+            << DATE << ")\n";
   return EXIT_SUCCESS;
 }
 

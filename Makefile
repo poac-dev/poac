@@ -17,7 +17,8 @@ PROJECT := $(O)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
-DEFINES := -DPOAC_VERSION='"$(VERSION)"'
+DEFINES := -DPOAC_VERSION='"$(VERSION)"' \
+  -DPOAC_COMMIT_SHORT_HASH='"$(shell git rev-parse --short HEAD)"'
 INCLUDES := -isystem $(O)/DEPS/toml11 \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
   $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
