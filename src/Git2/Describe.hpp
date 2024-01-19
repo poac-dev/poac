@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 #include "Repository.hpp"
 
 #include <git2/describe.h>
 
 namespace git2 {
 
-struct DescribeOptions {
+struct DescribeOptions : public GlobalState {
   git_describe_options raw;
 
   DescribeOptions();
@@ -42,7 +43,7 @@ struct DescribeOptions {
   DescribeOptions& pattern(StringRef);
 };
 
-struct DescribeFormatOptions {
+struct DescribeFormatOptions : public GlobalState {
   git_describe_format_options raw;
 
   DescribeFormatOptions();
@@ -68,7 +69,7 @@ struct DescribeFormatOptions {
   DescribeFormatOptions& dirtySuffix(StringRef);
 };
 
-struct Describe {
+struct Describe : public GlobalState {
   git_describe_result* raw = nullptr;
 
   Describe() = default;

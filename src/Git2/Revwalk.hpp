@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 #include "Oid.hpp"
 #include "Repository.hpp"
 
@@ -8,7 +9,7 @@
 
 namespace git2 {
 
-struct Revwalk {
+struct Revwalk : public GlobalState {
   git_revwalk* raw = nullptr;
 
   Revwalk() = delete;

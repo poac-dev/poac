@@ -7,7 +7,7 @@
 
 namespace git2 {
 
-struct Config {
+struct Config : public GlobalState {
 private:
   git_config* raw;
 

@@ -2,7 +2,6 @@
 
 #include "../Rustify.hpp"
 #include "Exception.hpp"
-#include "Global.hpp"
 #include "Repository.hpp"
 
 #include <git2/revwalk.h>
