@@ -11,7 +11,7 @@
 
 namespace git2 {
 
-struct Repository {
+struct Repository : public GlobalState {
   git_repository* raw = nullptr;
 
   Repository() = default;
