@@ -2,8 +2,8 @@
 
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
-#include "../Git/Exception.hpp"
-#include "../Git/Repository.hpp"
+#include "../Git2/Exception.hpp"
+#include "../Git2/Repository.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
