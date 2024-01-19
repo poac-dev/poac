@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <git2/oid.h>
 #include <ostream>
 
 namespace git2 {
 
-struct Oid {
+struct Oid : public GlobalState {
   git_oid* raw = nullptr;
 
   explicit Oid(git_oid*);

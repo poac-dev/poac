@@ -2,7 +2,6 @@
 
 #include "../Rustify.hpp"
 #include "Exception.hpp"
-#include "Global.hpp"
 
 #include <cstring>
 #include <git2/oid.h>
@@ -10,15 +9,12 @@
 
 namespace git2 {
 
-Oid::Oid(git_oid* oid) : raw(oid) {
-  git2::init();
-}
+Oid::Oid(git_oid* oid) : raw(oid) {}
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
 Oid::Oid(const git_oid* oid) : Oid(const_cast<git_oid*>(oid)) {}
 
 Oid::Oid(const StringRef str) {
-  git2::init();
   git2Throw(git_oid_fromstrn(raw, str.data(), str.size()));
 }
 

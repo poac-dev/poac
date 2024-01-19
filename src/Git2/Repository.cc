@@ -3,7 +3,6 @@
 #include "../Rustify.hpp"
 #include "Config.hpp"
 #include "Exception.hpp"
-#include "Global.hpp"
 #include "Oid.hpp"
 
 #include <git2/ignore.h>
@@ -12,9 +11,6 @@
 
 namespace git2 {
 
-Repository::Repository() {
-  git2::init();
-}
 Repository::~Repository() {
   git_repository_free(this->raw);
 }

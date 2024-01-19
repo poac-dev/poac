@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Global.hpp"
+
 #include <git2/revparse.h>
 
 namespace git2 {
 
-struct Revspec {
+struct Revspec : public GlobalState {
 private:
   git_object* from_ = nullptr;
   git_object* to_ = nullptr;

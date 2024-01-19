@@ -1,15 +1,16 @@
 #pragma once
 
+#include "Global.hpp"
 #include "Oid.hpp"
 
 #include <git2/types.h>
 
 namespace git2 {
 
-struct Object {
+struct Object : public GlobalState {
   git_object* raw = nullptr;
 
-  Object();
+  Object() = default;
   ~Object();
 
   Object(const Object&) = delete;

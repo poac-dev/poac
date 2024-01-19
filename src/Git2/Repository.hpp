@@ -2,6 +2,7 @@
 
 #include "../Rustify.hpp"
 #include "Config.hpp"
+#include "Global.hpp"
 #include "Object.hpp"
 #include "Oid.hpp"
 
@@ -13,7 +14,7 @@ namespace git2 {
 struct Repository {
   git_repository* raw = nullptr;
 
-  Repository();
+  Repository() = default;
   ~Repository();
 
   Repository(const Repository&) = delete;
