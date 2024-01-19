@@ -84,6 +84,7 @@ carets(const VersionToken& tok) noexcept {
     case VersionToken::Unknown:
       return "^";
     default:
+      // NOLINTNEXTLINE(modernize-return-braced-init-list)
       return String(tok.size(), '^');
   }
 }
