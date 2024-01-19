@@ -509,23 +509,26 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  // Variables Poac sets for the user.
   const String pkgName = toUpper(config.packageName);
   const Version& pkgVersion = getPackageVersion();
+  String commitHash;
+  String commitShortHash;
+  try {
+    commitHash = git2::Repository().open(".").refNameToId("HEAD").toString();
+    commitShortHash = commitHash.substr(0, 8);
+  } catch (const git2::Exception& e) {
+    Logger::debug("No git repository found");
+  }
+
+  // Variables Poac sets for the user.
   addDefine(pkgName + "_PKG_NAME", config.packageName);
   addDefine(pkgName + "_PKG_VERSION", pkgVersion.toString());
   addDefine(pkgName + "_PKG_VERSION_MAJOR", std::to_string(pkgVersion.major));
   addDefine(pkgName + "_PKG_VERSION_MINOR", std::to_string(pkgVersion.minor));
   addDefine(pkgName + "_PKG_VERSION_PATCH", std::to_string(pkgVersion.patch));
   addDefine(pkgName + "_PKG_VERSION_PRE", pkgVersion.pre.toString());
-  try {
-    const String commitHash =
-        git2::Repository().open(".").refNameToId("HEAD").toString();
-    addDefine(pkgName + "_COMMIT_HASH", commitHash);
-    addDefine(pkgName + "_COMMIT_SHORT_HASH", commitHash.substr(0, 8));
-  } catch (const git2::Exception& e) {
-    Logger::debug("No git repository found");
-  }
+  addDefine(pkgName + "_COMMIT_HASH", commitHash);
+  addDefine(pkgName + "_COMMIT_SHORT_HASH", commitShortHash);
 
   config.defineSimpleVar("DEFINES", DEFINES);
   config.defineSimpleVar("INCLUDES", INCLUDES);
