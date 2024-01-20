@@ -11,7 +11,7 @@ namespace git2 {
 
 Oid::Oid(git_oid oid) : oid(oid), raw(&this->oid) {}
 
-Oid::Oid(git_oid* oid) : raw(oid) {}
+Oid::Oid(git_oid* oid) : oid(*oid), raw(oid) {}
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
 Oid::Oid(const git_oid* oid) : Oid(const_cast<git_oid*>(oid)) {}

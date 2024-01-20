@@ -513,9 +513,15 @@ setVariables(BuildConfig& config, const bool isDebug) {
   const Version& pkgVersion = getPackageVersion();
   String commitHash;
   String commitShortHash;
+  String commitDate;
   try {
-    commitHash = git2::Repository().open(".").refNameToId("HEAD").toString();
+    git2::Repository repo{};
+    repo.open(".");
+
+    const git2::Oid oid = repo.refNameToId("HEAD");
+    commitHash = oid.toString();
     commitShortHash = commitHash.substr(0, 8);
+    commitDate = git2::Commit().lookup(repo, oid).time().toString();
   } catch (const git2::Exception& e) {
     Logger::debug("No git repository found");
   }
@@ -529,6 +535,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
   addDefine(pkgName + "_PKG_VERSION_PRE", pkgVersion.pre.toString());
   addDefine(pkgName + "_COMMIT_HASH", commitHash);
   addDefine(pkgName + "_COMMIT_SHORT_HASH", commitShortHash);
+  addDefine(pkgName + "_COMMIT_DATE", commitDate);
 
   config.defineSimpleVar("DEFINES", DEFINES);
   config.defineSimpleVar("INCLUDES", INCLUDES);

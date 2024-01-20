@@ -18,6 +18,9 @@
 #ifndef POAC_COMMIT_HASH
 #  error "POAC_COMMIT_HASH is not defined"
 #endif
+#ifndef POAC_COMMIT_DATE
+#  error "POAC_COMMIT_DATE is not defined"
+#endif
 
 static constexpr char
 firstMonthChar(const char m1) noexcept {
@@ -106,19 +109,19 @@ versionMain(const std::span<const StringRef> args) noexcept {
   }
 
   std::cout << "poac " << POAC_PKG_VERSION << " (" << POAC_COMMIT_SHORT_HASH
-            << ' ' << COMPILE_DATE << ")\n";
+            << ' ' << POAC_COMMIT_DATE << ")\n";
 
   if (isVerbose()) {
     std::cout << "compile-date: " << COMPILE_DATE << '\n'
               << "commit-hash: " << POAC_COMMIT_HASH << '\n'
+              << "commit-date: " << POAC_COMMIT_DATE << '\n'
               << "libgit2: " << git2::Version() << '\n';
 
-    const curl_version_info_data* curl_data =
-        curl_version_info(CURLVERSION_NOW);
-    if (curl_data) {
-      std::cout << "libcurl: " << curl_data->version << " (ssl: ";
-      if (curl_data->ssl_version) {
-        std::cout << curl_data->ssl_version;
+    const curl_version_info_data* curlData = curl_version_info(CURLVERSION_NOW);
+    if (curlData) {
+      std::cout << "libcurl: " << curlData->version << " (ssl: ";
+      if (curlData->ssl_version) {
+        std::cout << curlData->ssl_version;
       } else {
         std::cout << "none";
       }
