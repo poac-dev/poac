@@ -65,6 +65,13 @@ Repository::setHeadDetached(const Oid& oid) {
   return *this;
 }
 
+Oid
+Repository::refNameToId(const StringRef refname) const {
+  git_oid oid;
+  git2Throw(git_reference_name_to_id(&oid, this->raw, refname.data()));
+  return Oid(oid);
+}
+
 git2::Config
 Repository::config() const {
   git_config* cfg = nullptr;

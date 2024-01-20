@@ -17,7 +17,10 @@ PROJECT := $(O)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
-DEFINES := -DPOAC_VERSION='"$(VERSION)"'
+DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
+  -DPOAC_COMMIT_HASH='"$(shell git rev-parse HEAD)"' \
+  -DPOAC_COMMIT_SHORT_HASH='"$(shell git rev-parse --short HEAD)"' \
+  -DPOAC_COMMIT_DATE='"$(shell git show -s --date=short --format=%cd HEAD)"'
 INCLUDES := -isystem $(O)/DEPS/toml11 \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
   $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
@@ -68,7 +71,7 @@ $(O)/tests/test_BuildConfig: $(O)/tests/test_BuildConfig.o \
   $(O)/Logger.o $(O)/TermColor.o $(O)/Manifest.o \
   $(O)/Semver.o $(O)/Algos.o $(O)/VersionReq.o $(O)/Git2/Repository.o \
   $(O)/Git2/Object.o $(O)/Git2/Oid.o $(O)/Git2/Global.o $(O)/Git2/Config.o \
-  $(O)/Git2/Exception.o
+  $(O)/Git2/Exception.o $(O)/Git2/Commit.o $(O)/Git2/Time.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
 $(O)/tests/test_Algos: $(O)/tests/test_Algos.o $(O)/Logger.o \

@@ -2,6 +2,7 @@
 
 #include "Algos.hpp"
 #include "Exception.hpp"
+#include "Git2.hpp"
 #include "Logger.hpp"
 #include "Manifest.hpp"
 #include "TermColor.hpp"
@@ -482,6 +483,11 @@ installDeps() {
 }
 
 static void
+addDefine(const String& name, const String& value) {
+  DEFINES += " -D" + name + "='\"" + value + "\"'";
+}
+
+static void
 setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVar("CXX", CXX);
 
@@ -503,9 +509,33 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  const String packageNameUpper = toUpper(config.packageName);
-  DEFINES = " -D" + packageNameUpper + "_VERSION='\""
-            + getPackageVersion().toString() + "\"'";
+  const String pkgName = toUpper(config.packageName);
+  const Version& pkgVersion = getPackageVersion();
+  String commitHash;
+  String commitShortHash;
+  String commitDate;
+  try {
+    git2::Repository repo{};
+    repo.open(".");
+
+    const git2::Oid oid = repo.refNameToId("HEAD");
+    commitHash = oid.toString();
+    commitShortHash = commitHash.substr(0, 8);
+    commitDate = git2::Commit().lookup(repo, oid).time().toString();
+  } catch (const git2::Exception& e) {
+    Logger::debug("No git repository found");
+  }
+
+  // Variables Poac sets for the user.
+  addDefine(pkgName + "_PKG_NAME", config.packageName);
+  addDefine(pkgName + "_PKG_VERSION", pkgVersion.toString());
+  addDefine(pkgName + "_PKG_VERSION_MAJOR", std::to_string(pkgVersion.major));
+  addDefine(pkgName + "_PKG_VERSION_MINOR", std::to_string(pkgVersion.minor));
+  addDefine(pkgName + "_PKG_VERSION_PATCH", std::to_string(pkgVersion.patch));
+  addDefine(pkgName + "_PKG_VERSION_PRE", pkgVersion.pre.toString());
+  addDefine(pkgName + "_COMMIT_HASH", commitHash);
+  addDefine(pkgName + "_COMMIT_SHORT_HASH", commitShortHash);
+  addDefine(pkgName + "_COMMIT_DATE", commitDate);
 
   config.defineSimpleVar("DEFINES", DEFINES);
   config.defineSimpleVar("INCLUDES", INCLUDES);

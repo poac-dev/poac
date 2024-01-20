@@ -9,7 +9,11 @@
 namespace git2 {
 
 struct Oid : public GlobalState {
+  // TODO: ideally, use one of the following:
+  git_oid oid;
   git_oid* raw = nullptr;
+
+  explicit Oid(git_oid);
 
   explicit Oid(git_oid*);
 
@@ -30,6 +34,9 @@ struct Oid : public GlobalState {
 
   /// Test if this OID is all zeros.
   bool isZero() const;
+
+  /// Format a git_oid into a buffer as a hex string.
+  String toString() const;
 };
 
 std::ostream& operator<<(std::ostream&, const Oid&);

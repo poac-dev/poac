@@ -1,14 +1,25 @@
 #include "Version.hpp"
 
+#include "../Git2/Version.hpp"
 #include "../Logger.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
+#include <curl/curl.h>
 #include <iostream>
 #include <span>
 
-#ifndef POAC_VERSION
-#  error "POAC_VERSION is not defined"
+#ifndef POAC_PKG_VERSION
+#  error "POAC_PKG_VERSION is not defined"
+#endif
+#ifndef POAC_COMMIT_SHORT_HASH
+#  error "POAC_COMMIT_SHORT_HASH is not defined"
+#endif
+#ifndef POAC_COMMIT_HASH
+#  error "POAC_COMMIT_HASH is not defined"
+#endif
+#ifndef POAC_COMMIT_DATE
+#  error "POAC_COMMIT_DATE is not defined"
 #endif
 
 static constexpr char
@@ -66,7 +77,7 @@ secondMonthChar(const char m1, const char m2, const char m3) noexcept {
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-static inline constexpr char DATE[] = {
+static inline constexpr char COMPILE_DATE[] = {
   // Year
   __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10],
 
@@ -97,7 +108,27 @@ versionMain(const std::span<const StringRef> args) noexcept {
     }
   }
 
-  std::cout << "poac " << POAC_VERSION << " (" << DATE << ")\n";
+  std::cout << "poac " << POAC_PKG_VERSION << " (" << POAC_COMMIT_SHORT_HASH
+            << ' ' << POAC_COMMIT_DATE << ")\n";
+
+  if (isVerbose()) {
+    std::cout << "compile-date: " << COMPILE_DATE << '\n'
+              << "commit-hash: " << POAC_COMMIT_HASH << '\n'
+              << "commit-date: " << POAC_COMMIT_DATE << '\n'
+              << "libgit2: " << git2::Version() << '\n';
+
+    const curl_version_info_data* curlData = curl_version_info(CURLVERSION_NOW);
+    if (curlData) {
+      std::cout << "libcurl: " << curlData->version << " (ssl: ";
+      if (curlData->ssl_version) {
+        std::cout << curlData->ssl_version;
+      } else {
+        std::cout << "none";
+      }
+      std::cout << ")\n";
+    }
+  }
+
   return EXIT_SUCCESS;
 }
 
