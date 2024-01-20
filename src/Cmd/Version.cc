@@ -1,5 +1,6 @@
 #include "Version.hpp"
 
+#include "../Git2/Version.hpp"
 #include "../Logger.hpp"
 #include "Global.hpp"
 
@@ -12,6 +13,9 @@
 #endif
 #ifndef POAC_COMMIT_SHORT_HASH
 #  error "POAC_COMMIT_SHORT_HASH is not defined"
+#endif
+#ifndef POAC_COMMIT_HASH
+#  error "POAC_COMMIT_HASH is not defined"
 #endif
 
 static constexpr char
@@ -69,7 +73,7 @@ secondMonthChar(const char m1, const char m2, const char m3) noexcept {
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-static inline constexpr char DATE[] = {
+static inline constexpr char COMPILE_DATE[] = {
   // Year
   __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10],
 
@@ -101,7 +105,13 @@ versionMain(const std::span<const StringRef> args) noexcept {
   }
 
   std::cout << "poac " << POAC_PKG_VERSION << " (" << POAC_COMMIT_SHORT_HASH
-            << ' ' << DATE << ")\n";
+            << ' ' << COMPILE_DATE << ")\n";
+
+  if (isVerbose()) {
+    std::cout << "commit-hash: " << POAC_COMMIT_HASH << '\n';
+    std::cout << "libgit2: " << git2::Version() << '\n';
+  }
+
   return EXIT_SUCCESS;
 }
 

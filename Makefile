@@ -18,6 +18,7 @@ VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
 DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
+  -DPOAC_COMMIT_HASH='"$(shell git rev-parse HEAD)"' \
   -DPOAC_COMMIT_SHORT_HASH='"$(shell git rev-parse --short HEAD)"'
 INCLUDES := -isystem $(O)/DEPS/toml11 \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
