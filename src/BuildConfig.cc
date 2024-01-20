@@ -486,8 +486,10 @@ static String
 toMacroName(StringRef name) {
   String macroName;
   for (const unsigned char c : name) {
-    if (std::isalnum(c)) {
+    if (std::isalpha(c)) {
       macroName += static_cast<char>(std::toupper(c));
+    } else if (std::isdigit(c)) {
+      macroName += static_cast<char>(c);
     } else {
       macroName += '_';
     }
