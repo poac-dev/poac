@@ -112,9 +112,11 @@ versionMain(const std::span<const StringRef> args) noexcept {
             << ' ' << POAC_COMMIT_DATE << ")\n";
 
   if (isVerbose()) {
-    std::cout << "compile-date: " << COMPILE_DATE << '\n'
+    std::cout << "release: " << POAC_PKG_VERSION << '\n'
               << "commit-hash: " << POAC_COMMIT_HASH << '\n'
               << "commit-date: " << POAC_COMMIT_DATE << '\n'
+              << "compiler: " << __VERSION__ << '\n'
+              << "compile-date: " << COMPILE_DATE << '\n'
               << "libgit2: " << git2::Version() << '\n';
 
     const curl_version_info_data* curlData = curl_version_info(CURLVERSION_NOW);
