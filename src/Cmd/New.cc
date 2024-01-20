@@ -4,6 +4,7 @@
 #include "../Exception.hpp"
 #include "../Git2.hpp"
 #include "../Logger.hpp"
+#include "../Manifest.hpp"
 #include "../Rustify.hpp"
 #include "Global.hpp"
 
@@ -110,52 +111,6 @@ createTemplateFiles(const bool isBin, const StringRef projectName) {
   }
 }
 
-bool
-verifyPackageName(const StringRef name) noexcept {
-  // Empty
-  if (name.empty()) {
-    Logger::error("missing package name");
-    return false;
-  }
-
-  // Only one character
-  if (name.size() == 1) {
-    Logger::error("only one character in package name: ", name);
-    return false;
-  }
-
-  // Only lowercase letters, numbers, dashes, and underscores
-  for (const char& c : name) {
-    if (!std::islower(c) && !std::isdigit(c) && c != '-' && c != '_') {
-      Logger::error("invalid character in package name: ", name);
-      return false;
-    }
-  }
-
-  // Start with a letter
-  if (!std::isalpha(name[0])) {
-    Logger::error("package names must start with a letter: ", name);
-    return false;
-  }
-
-  // End with a letter or digit
-  if (!std::isalnum(name[name.size() - 1])) {
-    Logger::error("package names must end with a letter or digit: ", name);
-    return false;
-  }
-
-  // Using C++ keywords
-  const HashSet<StringRef> keywords = {
-#include "../Keywords.def"
-  };
-  if (keywords.contains(name)) {
-    Logger::error("package names cannot be a C++ keyword: ", name);
-    return false;
-  }
-
-  return true;
-}
-
 int
 newMain(const std::span<const StringRef> args) {
   // Parse args
@@ -180,7 +135,8 @@ newMain(const std::span<const StringRef> args) {
     }
   }
 
-  if (!verifyPackageName(packageName)) {
+  if (const auto err = validatePackageName(packageName)) {
+    Logger::error("package names ", err.value(), ": `", packageName, '`');
     return EXIT_FAILURE;
   }
 

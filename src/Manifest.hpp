@@ -19,6 +19,7 @@ struct Profile {
 };
 
 const Path& getManifestPath();
+Option<String> validatePackageName(StringRef) noexcept;
 const String& getPackageName();
 u16 editionToYear(StringRef);
 const String& getPackageEdition();

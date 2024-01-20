@@ -1,6 +1,7 @@
 #include "Init.hpp"
 
 #include "../Logger.hpp"
+#include "../Manifest.hpp"
 #include "Global.hpp"
 #include "New.hpp"
 
@@ -36,7 +37,8 @@ initMain(const std::span<const StringRef> args) {
   }
 
   const String packageName = fs::current_path().stem().string();
-  if (!verifyPackageName(packageName)) {
+  if (const auto err = validatePackageName(packageName)) {
+    Logger::error("package names ", err.value(), ": `", packageName, '`');
     return EXIT_FAILURE;
   }
 
