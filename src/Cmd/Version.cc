@@ -5,6 +5,7 @@
 #include "Global.hpp"
 
 #include <cstdlib>
+#include <curl/curl.h>
 #include <iostream>
 #include <span>
 
@@ -108,8 +109,21 @@ versionMain(const std::span<const StringRef> args) noexcept {
             << ' ' << COMPILE_DATE << ")\n";
 
   if (isVerbose()) {
-    std::cout << "commit-hash: " << POAC_COMMIT_HASH << '\n';
-    std::cout << "libgit2: " << git2::Version() << '\n';
+    std::cout << "compile-date: " << COMPILE_DATE << '\n'
+              << "commit-hash: " << POAC_COMMIT_HASH << '\n'
+              << "libgit2: " << git2::Version() << '\n';
+
+    const curl_version_info_data* curl_data =
+        curl_version_info(CURLVERSION_NOW);
+    if (curl_data) {
+      std::cout << "libcurl: " << curl_data->version << " (ssl: ";
+      if (curl_data->ssl_version) {
+        std::cout << curl_data->ssl_version;
+      } else {
+        std::cout << "none";
+      }
+      std::cout << ")\n";
+    }
   }
 
   return EXIT_SUCCESS;
