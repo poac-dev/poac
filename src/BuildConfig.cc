@@ -482,6 +482,19 @@ installDeps() {
   Logger::debug("LIBS: ", LIBS);
 }
 
+static String
+toMacroName(StringRef name) {
+  String macroName;
+  for (const unsigned char c : name) {
+    if (std::isalnum(c)) {
+      macroName += static_cast<char>(std::toupper(c));
+    } else {
+      macroName += '_';
+    }
+  }
+  return macroName;
+}
+
 static void
 addDefine(const String& name, const String& value) {
   DEFINES += " -D" + name + "='\"" + value + "\"'";
@@ -509,7 +522,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  const String pkgName = toUpper(config.packageName);
+  const String pkgName = toMacroName(config.packageName);
   const Version& pkgVersion = getPackageVersion();
   String commitHash;
   String commitShortHash;
