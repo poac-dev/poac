@@ -20,7 +20,7 @@ MKDIR_P := @mkdir -p
 DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
   -DPOAC_COMMIT_HASH='"$(shell git rev-parse HEAD)"' \
   -DPOAC_COMMIT_SHORT_HASH='"$(shell git rev-parse --short HEAD)"' \
-  -DPOAC_COMMIT_DATE='"$(shell git show -s --date=short --format=%cd HEAD)"'
+  -DPOAC_COMMIT_DATE='"$(shell git show -s --date=format-local:'%Y-%m-%d' --format=%cd)"'
 INCLUDES := -isystem $(O)/DEPS/toml11 \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
   $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
