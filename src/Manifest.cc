@@ -163,6 +163,48 @@ editionToYear(const StringRef edition) {
   throw PoacError("invalid edition: ", edition);
 }
 
+// Returns an error message if the package name is invalid.
+Option<String>
+validatePackageName(const StringRef name) noexcept {
+  // Empty
+  if (name.empty()) {
+    return "must not be empty";
+  }
+
+  // Only one character
+  if (name.size() == 1) {
+    return "must be more than one character";
+  }
+
+  // Only lowercase letters, numbers, dashes, and underscores
+  for (const char c : name) {
+    if (!std::islower(c) && !std::isdigit(c) && c != '-' && c != '_') {
+      return "must only contain lowercase letters, numbers, dashes, and "
+             "underscores";
+    }
+  }
+
+  // Start with a letter
+  if (!std::isalpha(name[0])) {
+    return "must start with a letter";
+  }
+
+  // End with a letter or digit
+  if (!std::isalnum(name[name.size() - 1])) {
+    return "must end with a letter or digit";
+  }
+
+  // Using C++ keywords
+  const HashSet<StringRef> keywords = {
+#include "Keywords.def"
+  };
+  if (keywords.contains(name)) {
+    return "must not be a C++ keyword";
+  }
+
+  return None;
+}
+
 static Package&
 parsePackage() {
   Manifest& manifest = Manifest::instance();
@@ -172,12 +214,13 @@ parsePackage() {
 
   const toml::value& data = manifest.data.value();
   const auto package = toml::find<Package>(data, "package");
-  if (package.name.empty()) {
-    throw PoacError(toml::format_error(
-        "invalid name", data.at("package.name"), "must not be empty"
-    ));
+
+  if (const auto err = validatePackageName(package.name)) {
+    throw PoacError(
+        toml::format_error("invalid name", data.at("package.name"), err.value())
+    );
   }
-  editionToYear(package.edition); // verification
+  editionToYear(package.edition); // validation
 
   manifest.package = package;
   return manifest.package.value();
