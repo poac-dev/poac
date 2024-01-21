@@ -67,17 +67,17 @@ template <typename... Ts>
 using Tuple = std::tuple<Ts...>;
 
 struct NoneT : protected std::monostate {
-  consteval bool operator==(const usize rhs) const {
+  constexpr bool operator==(const usize rhs) const {
     return String::npos == rhs;
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
-  consteval operator std::nullopt_t() const {
+  constexpr operator std::nullopt_t() const {
     return std::nullopt;
   }
 
   template <typename T>
-  consteval operator Option<T>() const { // NOLINT(google-explicit-constructor)
+  constexpr operator Option<T>() const { // NOLINT(google-explicit-constructor)
     return std::nullopt;
   }
 };
