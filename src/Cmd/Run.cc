@@ -10,20 +10,19 @@
 #include <cstdlib>
 #include <span>
 
-static constexpr auto runCli =
+static constexpr auto RUN_CLI =
     Subcmd<3>("run")
         .setDesc(runDesc)
-        .setUsage("[OPTIONS] [args]...")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"
         ))
         .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
-        .setArgs("[args]...\tArguments passed to the program");
+        .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"));
 
 void
 runHelp() noexcept {
-  runCli.printHelp();
+  RUN_CLI.printHelp();
 }
 
 int

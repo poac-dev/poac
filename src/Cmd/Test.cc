@@ -9,10 +9,9 @@
 #include <cstdlib>
 #include <span>
 
-static constexpr auto testCli =
+static constexpr auto TEST_CLI =
     Subcmd<3>("test")
         .setDesc(testDesc)
-        .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Test with debug information [default]"
         ))
@@ -22,7 +21,7 @@ static constexpr auto testCli =
 
 void
 testHelp() noexcept {
-  testCli.printHelp();
+  TEST_CLI.printHelp();
 }
 
 int
@@ -48,7 +47,7 @@ testMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return testCli.noSuchArg(arg);
+      return TEST_CLI.noSuchArg(arg);
     }
   }
 

@@ -7,15 +7,13 @@
 #include <cstdlib>
 #include <string>
 
-static constexpr auto tidyCli =
-    Subcmd<1>("tidy")
-        .setDesc(tidyDesc)
-        .setUsage("[OPTIONS]")
-        .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"));
+static constexpr auto TIDY_CLI = Subcmd<1>("tidy").setDesc(tidyDesc).addOpt(
+    Opt{ "--fix" }.setDesc("Automatically apply lint suggestions")
+);
 
 void
 tidyHelp() noexcept {
-  tidyCli.printHelp();
+  TIDY_CLI.printHelp();
 }
 
 int
@@ -30,7 +28,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     }
     else {
-      return tidyCli.noSuchArg(arg);
+      return TIDY_CLI.noSuchArg(arg);
     }
   }
 

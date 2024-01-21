@@ -10,10 +10,9 @@
 #include <span>
 #include <string>
 
-static constexpr auto searchCli =
+static constexpr auto SEARCH_CLI =
     Subcmd<2>("search")
         .setDesc(searchDesc)
-        .setUsage("[OPTIONS] <name>")
         .addOpt(Opt{ "--per-page" }
                     .setDesc("Number of results to show per page")
                     .setPlaceholder("<NUM>")
@@ -22,11 +21,11 @@ static constexpr auto searchCli =
                     .setDesc("Page number of results to show")
                     .setPlaceholder("<NUM>")
                     .setDefault("1"))
-        .setArgs("<name>");
+        .setArg(Arg{ "<name>" });
 
 void
 searchHelp() noexcept {
-  searchCli.printHelp();
+  SEARCH_CLI.printHelp();
 }
 
 static usize
@@ -65,7 +64,7 @@ searchMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return searchCli.noSuchArg(arg);
+      return SEARCH_CLI.noSuchArg(arg);
     }
   }
 

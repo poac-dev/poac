@@ -22,12 +22,11 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-static constexpr auto versionCli =
-    Subcmd<0>("version").setDesc(versionDesc).setUsage("[OPTIONS]");
+static constexpr auto VERSION_CLI = Subcmd<0>("version").setDesc(versionDesc);
 
 void
 versionHelp() noexcept {
-  versionCli.printHelp();
+  VERSION_CLI.printHelp();
 }
 
 static consteval StringRef
@@ -123,7 +122,7 @@ versionMain(const std::span<const StringRef> args) noexcept {
     HANDLE_GLOBAL_OPTS({ { "version" } })
 
     else {
-      return versionCli.noSuchArg(arg);
+      return VERSION_CLI.noSuchArg(arg);
     }
   }
 

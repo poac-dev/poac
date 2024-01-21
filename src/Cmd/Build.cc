@@ -9,10 +9,9 @@
 #include <cstdlib>
 #include <span>
 
-static constexpr auto buildCli =
+static constexpr auto BUILD_CLI =
     Subcmd<4>("build")
         .setDesc(buildDesc)
-        .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"
         ))
@@ -24,7 +23,7 @@ static constexpr auto buildCli =
 
 void
 buildHelp() noexcept {
-  buildCli.printHelp();
+  BUILD_CLI.printHelp();
 }
 
 int
@@ -69,7 +68,7 @@ buildMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return buildCli.noSuchArg(arg);
+      return BUILD_CLI.noSuchArg(arg);
     }
   }
 

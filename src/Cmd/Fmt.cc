@@ -14,15 +14,13 @@
 #include <span>
 #include <string>
 
-static constexpr auto fmtCli =
-    Subcmd<1>("fmt")
-        .setDesc(fmtDesc)
-        .setUsage("[OPTIONS]")
-        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"));
+static constexpr auto FMT_CLI = Subcmd<1>("fmt").setDesc(fmtDesc).addOpt(
+    Opt{ "--check" }.setDesc("Run clang-format in check mode")
+);
 
 void
 fmtHelp() noexcept {
-  fmtCli.printHelp();
+  FMT_CLI.printHelp();
 }
 
 int
@@ -37,7 +35,7 @@ fmtMain(const std::span<const StringRef> args) {
       isCheck = true;
     }
     else {
-      return fmtCli.noSuchArg(arg);
+      return FMT_CLI.noSuchArg(arg);
     }
   }
 

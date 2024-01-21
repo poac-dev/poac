@@ -10,10 +10,9 @@
 #include <span>
 #include <string>
 
-static constexpr auto initCli =
+static constexpr auto INIT_CLI =
     Subcmd<2>("init")
         .setDesc(initDesc)
-        .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"
         ))
@@ -21,7 +20,7 @@ static constexpr auto initCli =
 
 void
 initHelp() noexcept {
-  initCli.printHelp();
+  INIT_CLI.printHelp();
 }
 
 int
@@ -39,7 +38,7 @@ initMain(const std::span<const StringRef> args) {
       isBin = false;
     }
     else {
-      return initCli.noSuchArg(arg);
+      return INIT_CLI.noSuchArg(arg);
     }
   }
 

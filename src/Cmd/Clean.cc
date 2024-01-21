@@ -7,17 +7,15 @@
 #include <span>
 #include <string>
 
-static constexpr auto cleanCli =
-    Subcmd<1>("clean")
-        .setDesc(cleanDesc)
-        .setUsage("[OPTIONS]")
-        .addOpt(Opt{ "--profile", "-p" }
-                    .setDesc("Disable parallel builds")
-                    .setPlaceholder("<PROFILE>"));
+static constexpr auto CLEAN_CLI = Subcmd<1>("clean").setDesc(cleanDesc).addOpt(
+    Opt{ "--profile", "-p" }
+        .setDesc("Disable parallel builds")
+        .setPlaceholder("<PROFILE>")
+);
 
 void
 cleanHelp() noexcept {
-  cleanCli.printHelp();
+  CLEAN_CLI.printHelp();
 }
 
 int
@@ -45,7 +43,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
       outDir /= args[1];
     }
     else {
-      return cleanCli.noSuchArg(arg);
+      return CLEAN_CLI.noSuchArg(arg);
     }
   }
 

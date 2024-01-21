@@ -88,7 +88,7 @@ $(O)/tests/test_VersionReq: $(O)/tests/test_VersionReq.o \
 
 
 tidy:
-	$(POAC_TIDY) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
+	$(POAC_TIDY) $(POAC_TIDY_FLAGS) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
 
 install: all
 	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin

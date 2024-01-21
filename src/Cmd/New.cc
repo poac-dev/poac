@@ -16,19 +16,18 @@
 #include <span>
 #include <string>
 
-static constexpr auto newCli =
+static constexpr auto NEW_CLI =
     Subcmd<2>("new")
         .setDesc(newDesc)
-        .setUsage("[OPTIONS] <name>")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"
         ))
         .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"))
-        .setArgs("<name>");
+        .setArg(Arg{ "<name>" });
 
 void
 newHelp() noexcept {
-  newCli.printHelp();
+  NEW_CLI.printHelp();
 }
 
 static inline constexpr StringRef MAIN_CC =
@@ -144,7 +143,7 @@ newMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return newCli.noSuchArg(arg);
+      return NEW_CLI.noSuchArg(arg);
     }
   }
 

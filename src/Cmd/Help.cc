@@ -2,12 +2,10 @@
 
 #include "Global.hpp"
 
-static constexpr auto helpCli = Subcmd<1>("help")
-                                    .setDesc(helpDesc)
-                                    .setUsage("[OPTIONS] [COMMAND]")
-                                    .setArgs("[COMMAND]");
+static constexpr auto HELP_CLI =
+    Subcmd<0>("help").setDesc(helpDesc).setArg(Arg{ "[COMMAND]" });
 
 void
 helpHelp() noexcept {
-  helpCli.printHelp();
+  HELP_CLI.printHelp();
 }

@@ -19,7 +19,10 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
   if (!cmd.empty()) {
     std::cout << bold(cyan(cmd)) << ' ';
   }
-  std::cout << cyan(usage) << '\n';
+  std::cout << cyan("[OPTIONS]");
+  if (!usage.empty()) {
+    std::cout << " " << cyan(usage) << '\n';
+  }
 }
 
 void

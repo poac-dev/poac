@@ -76,14 +76,32 @@ static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
   Opt{ "--help", "-h" }.setDesc("Print help"),
 };
 
+struct Arg {
+  StringRef name;
+  StringRef desc;
+
+  constexpr Arg() noexcept = default;
+  constexpr ~Arg() noexcept = default;
+  constexpr Arg(const Arg&) noexcept = default;
+  constexpr Arg(Arg&&) noexcept = default;
+  constexpr Arg& operator=(const Arg&) noexcept = default;
+  constexpr Arg& operator=(Arg&&) noexcept = default;
+
+  explicit constexpr Arg(StringRef name) noexcept : name(name) {}
+
+  inline constexpr Arg setDesc(StringRef desc) noexcept {
+    this->desc = desc;
+    return *this;
+  }
+};
+
 template <usize NumOpts>
 struct Subcmd {
   StringRef name;
   StringRef desc;
-  StringRef usage;
   Arr<Opt, NumOpts> opts{};
   usize optPos = 0;
-  StringRef args;
+  Arg arg;
 
   constexpr Subcmd() noexcept = delete;
   constexpr ~Subcmd() noexcept = default;
@@ -98,16 +116,12 @@ struct Subcmd {
     this->desc = desc;
     return *this;
   }
-  inline constexpr Subcmd setUsage(StringRef usage) noexcept {
-    this->usage = usage;
-    return *this;
-  }
   inline constexpr Subcmd addOpt(Opt opt) noexcept {
     opts.at(optPos++) = opt;
     return *this;
   }
-  inline constexpr Subcmd setArgs(StringRef args) noexcept {
-    this->args = args;
+  inline constexpr Subcmd setArg(Arg arg) noexcept {
+    this->arg = arg;
     return *this;
   }
 
@@ -140,17 +154,21 @@ struct Subcmd {
   inline void printHelp() const noexcept {
     std::cout << desc << '\n';
     std::cout << '\n';
-    printUsage(name, usage);
+    printUsage(name, arg.name);
     std::cout << '\n';
     printHeader("Options:");
     printGlobalOpts();
     for (const auto& opt : opts) {
       std::cout << opt;
     }
-    if (!args.empty()) {
+    if (!arg.name.empty()) {
       std::cout << '\n';
       printHeader("Arguments:");
-      std::cout << "  " << args << '\n';
+      std::cout << "  " << arg.name;
+      if (!arg.desc.empty()) {
+        std::cout << '\t' << arg.desc;
+      }
+      std::cout << '\n';
     }
   }
 };

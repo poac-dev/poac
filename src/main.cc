@@ -100,7 +100,7 @@ helpMain(const std::span<const StringRef> args) noexcept {
   // Print help message for poac itself
   std::cout << "A package manager and build system for C++" << '\n';
   std::cout << '\n';
-  printUsage("", "[OPTIONS] [COMMAND]");
+  printUsage("", "[COMMAND]");
   std::cout << '\n';
 
   printHeader("Options:");
