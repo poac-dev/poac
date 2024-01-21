@@ -1,5 +1,6 @@
 #include "Version.hpp"
 
+#include "../CurlVersion.hpp"
 #include "../Git2/Version.hpp"
 #include "../Logger.hpp"
 #include "Global.hpp"
@@ -21,6 +22,16 @@
 #ifndef POAC_COMMIT_DATE
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
+
+static constexpr StringRef
+checkAvailability(const StringRef str) noexcept {
+  return str.empty() ? "unavailable" : str;
+}
+
+static constexpr StringRef COMMIT_SHORT_HASH =
+    checkAvailability(POAC_COMMIT_SHORT_HASH);
+static constexpr StringRef COMMIT_HASH = checkAvailability(POAC_COMMIT_HASH);
+static constexpr StringRef COMMIT_DATE = checkAvailability(POAC_COMMIT_DATE);
 
 static constexpr char
 firstMonthChar(const char m1) noexcept {
@@ -108,27 +119,25 @@ versionMain(const std::span<const StringRef> args) noexcept {
     }
   }
 
-  std::cout << "poac " << POAC_PKG_VERSION << " (" << POAC_COMMIT_SHORT_HASH
-            << ' ' << POAC_COMMIT_DATE << ")\n";
+  std::cout << "poac " << POAC_PKG_VERSION;
+  if (COMMIT_SHORT_HASH == "unavailable" && COMMIT_DATE == "unavailable") {
+    std::cout << '\n';
+  } else if (COMMIT_SHORT_HASH == "unavailable") {
+    std::cout << " (" << COMMIT_DATE << ")\n";
+  } else if (COMMIT_DATE == "unavailable") {
+    std::cout << " (" << COMMIT_SHORT_HASH << ")\n";
+  } else {
+    std::cout << " (" << COMMIT_SHORT_HASH << ' ' << COMMIT_DATE << ")\n";
+  }
 
   if (isVerbose()) {
     std::cout << "release: " << POAC_PKG_VERSION << '\n'
-              << "commit-hash: " << POAC_COMMIT_HASH << '\n'
-              << "commit-date: " << POAC_COMMIT_DATE << '\n'
+              << "commit-hash: " << COMMIT_HASH << '\n'
+              << "commit-date: " << COMMIT_DATE << '\n'
               << "compiler: " << __VERSION__ << '\n'
               << "compile-date: " << COMPILE_DATE << '\n'
-              << "libgit2: " << git2::Version() << '\n';
-
-    const curl_version_info_data* curlData = curl_version_info(CURLVERSION_NOW);
-    if (curlData) {
-      std::cout << "libcurl: " << curlData->version << " (ssl: ";
-      if (curlData->ssl_version) {
-        std::cout << curlData->ssl_version;
-      } else {
-        std::cout << "none";
-      }
-      std::cout << ")\n";
-    }
+              << "libgit2: " << git2::Version() << '\n'
+              << "libcurl: " << curl::Version() << '\n';
   }
 
   return EXIT_SUCCESS;
