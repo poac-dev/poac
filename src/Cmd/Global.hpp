@@ -28,13 +28,6 @@
     }                                                  \
   }
 
-void printHeader(StringRef header) noexcept;
-void printUsage(StringRef cmd, StringRef usage) noexcept;
-void printCommand(StringRef name, StringRef desc, bool hasShort) noexcept;
-void printGlobalOpts() noexcept;
-
-bool commandExists(StringRef cmd) noexcept;
-
 struct Opt {
   StringRef lng;
   StringRef shrt;
@@ -117,3 +110,9 @@ struct Subcmd {
   [[nodiscard]] int noSuchArg(StringRef arg) const;
   void printHelp() const noexcept;
 };
+
+void printHeader(StringRef header) noexcept;
+void printUsage(StringRef cmd, StringRef usage) noexcept;
+void printCommand(StringRef name, StringRef desc, bool hasShort) noexcept;
+void printGlobalOpts() noexcept;
+bool commandExists(StringRef cmd) noexcept;
