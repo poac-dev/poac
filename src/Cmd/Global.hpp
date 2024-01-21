@@ -90,13 +90,14 @@ struct Arg {
   }
 };
 
-struct Subcmd {
+class Subcmd {
   StringRef name;
   StringRef desc;
   Vec<Opt> opts;
   Arg arg;
   usize maxOptLen = 0;
 
+public:
   Subcmd() noexcept = delete;
   ~Subcmd() noexcept = default;
   Subcmd(const Subcmd&) noexcept = default;
