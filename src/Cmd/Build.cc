@@ -10,7 +10,7 @@
 #include <span>
 
 static constexpr auto buildCli =
-    Subcommand<4>("build")
+    Subcmd<4>("build")
         .setDesc(buildDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(

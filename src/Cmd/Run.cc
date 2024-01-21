@@ -11,7 +11,7 @@
 #include <span>
 
 static constexpr auto runCli =
-    Subcommand<3>("run")
+    Subcmd<3>("run")
         .setDesc(runDesc)
         .setUsage("[OPTIONS] [args]...")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(

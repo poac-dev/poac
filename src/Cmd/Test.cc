@@ -10,7 +10,7 @@
 #include <span>
 
 static constexpr auto testCli =
-    Subcommand<3>("test")
+    Subcmd<3>("test")
         .setDesc(testDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(

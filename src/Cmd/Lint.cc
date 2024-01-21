@@ -11,7 +11,7 @@
 #include <span>
 
 static constexpr auto lintCli =
-    Subcommand<1>("lint")
+    Subcmd<1>("lint")
         .setDesc(lintDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"));

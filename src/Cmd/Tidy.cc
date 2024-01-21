@@ -8,7 +8,7 @@
 #include <string>
 
 static constexpr auto tidyCli =
-    Subcommand<1>("tidy")
+    Subcmd<1>("tidy")
         .setDesc(tidyDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"));

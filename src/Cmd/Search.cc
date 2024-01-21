@@ -11,7 +11,7 @@
 #include <string>
 
 static constexpr auto searchCli =
-    Subcommand<2>("search")
+    Subcmd<2>("search")
         .setDesc(searchDesc)
         .setUsage("[OPTIONS] <name>")
         .addOpt(Opt{ "--per-page" }

@@ -77,7 +77,7 @@ static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
 };
 
 template <usize NumOpts>
-struct Subcommand {
+struct Subcmd {
   StringRef name;
   StringRef desc;
   StringRef usage;
@@ -85,28 +85,28 @@ struct Subcommand {
   usize optPos = 0;
   StringRef args;
 
-  constexpr Subcommand() noexcept = delete;
-  constexpr ~Subcommand() noexcept = default;
-  constexpr Subcommand(const Subcommand&) noexcept = default;
-  constexpr Subcommand(Subcommand&&) noexcept = default;
-  constexpr Subcommand& operator=(const Subcommand&) noexcept = default;
-  constexpr Subcommand& operator=(Subcommand&&) noexcept = default;
+  constexpr Subcmd() noexcept = delete;
+  constexpr ~Subcmd() noexcept = default;
+  constexpr Subcmd(const Subcmd&) noexcept = default;
+  constexpr Subcmd(Subcmd&&) noexcept = default;
+  constexpr Subcmd& operator=(const Subcmd&) noexcept = default;
+  constexpr Subcmd& operator=(Subcmd&&) noexcept = default;
 
-  explicit constexpr Subcommand(StringRef name) noexcept : name(name) {}
+  explicit constexpr Subcmd(StringRef name) noexcept : name(name) {}
 
-  inline constexpr Subcommand setDesc(StringRef desc) noexcept {
+  inline constexpr Subcmd setDesc(StringRef desc) noexcept {
     this->desc = desc;
     return *this;
   }
-  inline constexpr Subcommand setUsage(StringRef usage) noexcept {
+  inline constexpr Subcmd setUsage(StringRef usage) noexcept {
     this->usage = usage;
     return *this;
   }
-  inline constexpr Subcommand addOpt(Opt opt) noexcept {
+  inline constexpr Subcmd addOpt(Opt opt) noexcept {
     opts.at(optPos++) = opt;
     return *this;
   }
-  inline constexpr Subcommand setArgs(StringRef args) noexcept {
+  inline constexpr Subcmd setArgs(StringRef args) noexcept {
     this->args = args;
     return *this;
   }

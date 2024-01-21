@@ -8,7 +8,7 @@
 #include <string>
 
 static constexpr auto cleanCli =
-    Subcommand<1>("clean")
+    Subcmd<1>("clean")
         .setDesc(cleanDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--profile", "-p" }

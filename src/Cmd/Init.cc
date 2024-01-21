@@ -11,7 +11,7 @@
 #include <string>
 
 static constexpr auto initCli =
-    Subcommand<2>("init")
+    Subcmd<2>("init")
         .setDesc(initDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(

@@ -17,7 +17,7 @@
 #include <string>
 
 static constexpr auto newCli =
-    Subcommand<2>("new")
+    Subcmd<2>("new")
         .setDesc(newDesc)
         .setUsage("[OPTIONS] <name>")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(

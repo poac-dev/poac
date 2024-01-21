@@ -23,7 +23,7 @@
 #endif
 
 static constexpr auto versionCli =
-    Subcommand<0>("version").setDesc(versionDesc).setUsage("[OPTIONS]");
+    Subcmd<0>("version").setDesc(versionDesc).setUsage("[OPTIONS]");
 
 void
 versionHelp() noexcept {
