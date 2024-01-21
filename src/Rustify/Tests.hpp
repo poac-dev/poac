@@ -12,9 +12,9 @@
 
 namespace tests {
 
-inline constexpr StringRef GREEN = "\033[32m";
-inline constexpr StringRef RED = "\033[31m";
-inline constexpr StringRef RESET = "\033[0m";
+inline constinit const StringRef GREEN = "\033[32m";
+inline constinit const StringRef RED = "\033[31m";
+inline constinit const StringRef RESET = "\033[0m";
 
 // Returns the module name from a file path.  There are two cases:
 //

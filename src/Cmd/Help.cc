@@ -2,17 +2,10 @@
 
 #include "Global.hpp"
 
-#include <iostream>
+static constexpr auto HELP_CLI =
+    Subcmd<0>("help").setDesc(helpDesc).setArg(Arg{ "[COMMAND]" });
 
 void
 helpHelp() noexcept {
-  std::cout << helpDesc << '\n';
-  std::cout << '\n';
-  printUsage("help", "[OPTIONS] [COMMAND]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  std::cout << '\n';
-  printHeader("Arguments:");
-  std::cout << "  [COMMAND]" << '\n';
+  HELP_CLI.printHelp();
 }

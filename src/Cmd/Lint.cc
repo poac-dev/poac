@@ -8,8 +8,16 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 #include <span>
+
+static constexpr auto LINT_CLI = Subcmd<1>("lint").setDesc(lintDesc).addOpt(
+    Opt{ "--exclude" }.setDesc("Exclude files from linting")
+);
+
+void
+lintHelp() noexcept {
+  LINT_CLI.printHelp();
+}
 
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
@@ -63,8 +71,7 @@ lintMain(const std::span<const StringRef> args) {
       cpplintArgs += args[i];
     }
     else {
-      Logger::error("invalid argument: ", arg);
-      return EXIT_FAILURE;
+      return LINT_CLI.noSuchArg(arg);
     }
   }
 
@@ -106,15 +113,4 @@ lintMain(const std::span<const StringRef> args) {
     }
     return lint(packageName, cpplintArgs);
   }
-}
-
-void
-lintHelp() noexcept {
-  std::cout << lintDesc << '\n';
-  std::cout << '\n';
-  printUsage("lint", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--exclude", "", "Exclude files from linting");
 }

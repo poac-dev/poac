@@ -7,5 +7,5 @@
 // NOLINTNEXTLINE(readability-identifier-naming)
 static inline constexpr StringRef fmtDesc = "Format codes using clang-format";
 
-int fmtMain(std::span<const StringRef> args);
 void fmtHelp() noexcept;
+int fmtMain(std::span<const StringRef> args);

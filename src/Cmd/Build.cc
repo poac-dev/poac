@@ -7,8 +7,24 @@
 
 #include <chrono>
 #include <cstdlib>
-#include <iostream>
 #include <span>
+
+static constexpr auto BUILD_CLI =
+    Subcmd<4>("build")
+        .setDesc(buildDesc)
+        .addOpt(Opt{ "--debug", "-d" }.setDesc(
+            "Build with debug information [default]"
+        ))
+        .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
+        .addOpt(Opt{ "--compdb" }.setDesc(
+            "Generate compilation database instead of building"
+        ))
+        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"));
+
+void
+buildHelp() noexcept {
+  BUILD_CLI.printHelp();
+}
 
 int
 buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
@@ -52,8 +68,7 @@ buildMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      Logger::error("Unknown argument: ", arg);
-      return EXIT_FAILURE;
+      return BUILD_CLI.noSuchArg(arg);
     }
   }
 
@@ -66,20 +81,4 @@ buildMain(const std::span<const StringRef> args) {
   const String outDir = emitCompdb(isDebug);
   Logger::info("Generated", outDir, "/compile_commands.json");
   return EXIT_SUCCESS;
-}
-
-void
-buildHelp() noexcept {
-  std::cout << buildDesc << '\n';
-  std::cout << '\n';
-  printUsage("build", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--debug", "-d", "Build with debug information [default]");
-  printOption("--release", "-r", "Build with optimizations");
-  printOption(
-      "--compdb", "", "Generate compilation database instead of building"
-  );
-  printOption("--no-parallel", "", "Disable parallel builds");
 }

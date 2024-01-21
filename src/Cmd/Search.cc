@@ -6,10 +6,27 @@
 #include <cstdlib>
 #include <curl/curl.h>
 #include <iomanip>
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <span>
 #include <string>
+
+static constexpr auto SEARCH_CLI =
+    Subcmd<2>("search")
+        .setDesc(searchDesc)
+        .addOpt(Opt{ "--per-page" }
+                    .setDesc("Number of results to show per page")
+                    .setPlaceholder("<NUM>")
+                    .setDefault("10"))
+        .addOpt(Opt{ "--page" }
+                    .setDesc("Page number of results to show")
+                    .setPlaceholder("<NUM>")
+                    .setDefault("1"))
+        .setArg(Arg{ "<name>" });
+
+void
+searchHelp() noexcept {
+  SEARCH_CLI.printHelp();
+}
 
 static usize
 writeCallback(void* contents, usize size, usize nmemb, String* userp) {
@@ -47,8 +64,7 @@ searchMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      Logger::error("too many arguments: ", arg);
-      return EXIT_FAILURE;
+      return SEARCH_CLI.noSuchArg(arg);
     }
   }
 
@@ -104,24 +120,4 @@ searchMain(const std::span<const StringRef> args) {
   }
 
   return EXIT_SUCCESS;
-}
-
-void
-searchHelp() noexcept {
-  std::cout << searchDesc << '\n';
-  std::cout << '\n';
-  printUsage("search", "[OPTIONS] <name>");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption(
-      "--per-page", "", "Number of results to show per page [default: 10]",
-      "<NUM>"
-  );
-  printOption(
-      "--page", "", "Page number of results to show [default: 1]", "<NUM>"
-  );
-  std::cout << '\n';
-  printHeader("Arguments:");
-  std::cout << "  <name>" << '\n';
 }

@@ -81,7 +81,7 @@ struct NoneT : protected std::monostate {
     return std::nullopt;
   }
 };
-inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
+inline constinit const NoneT None; // NOLINT(readability-identifier-naming)
 
 inline std::ostream&
 operator<<(std::ostream& os, const NoneT& /*unused*/) {

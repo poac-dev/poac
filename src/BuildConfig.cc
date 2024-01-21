@@ -25,7 +25,7 @@
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 static String OUT_DIR;
-static constexpr StringRef TEST_OUT_DIR = "tests";
+static constinit const StringRef TEST_OUT_DIR = "tests";
 static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
 static String CXXFLAGS = " -std=c++";
@@ -501,21 +501,6 @@ installDeps() {
   }
   Logger::debug("INCLUDES: ", INCLUDES);
   Logger::debug("LIBS: ", LIBS);
-}
-
-static String
-toMacroName(StringRef name) {
-  String macroName;
-  for (const unsigned char c : name) {
-    if (std::isalpha(c)) {
-      macroName += static_cast<char>(std::toupper(c));
-    } else if (std::isdigit(c)) {
-      macroName += static_cast<char>(c);
-    } else {
-      macroName += '_';
-    }
-  }
-  return macroName;
 }
 
 static void

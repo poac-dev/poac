@@ -7,5 +7,5 @@
 // NOLINTNEXTLINE(readability-identifier-naming)
 static inline constexpr StringRef testDesc = "Run the tests of a local package";
 
-int testMain(std::span<const StringRef> args);
 void testHelp() noexcept;
+int testMain(std::span<const StringRef> args);

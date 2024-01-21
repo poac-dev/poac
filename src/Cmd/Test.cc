@@ -7,8 +7,22 @@
 
 #include <chrono>
 #include <cstdlib>
-#include <iostream>
 #include <span>
+
+static constexpr auto TEST_CLI =
+    Subcmd<3>("test")
+        .setDesc(testDesc)
+        .addOpt(Opt{ "--debug", "-d" }.setDesc(
+            "Test with debug information [default]"
+        ))
+        .addOpt(Opt{ "--release", "-r" }.setDesc("Test with optimizations"))
+        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds & tests"
+        ));
+
+void
+testHelp() noexcept {
+  TEST_CLI.printHelp();
+}
 
 int
 testMain(const std::span<const StringRef> args) {
@@ -33,8 +47,7 @@ testMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      Logger::error("invalid argument: ", arg);
-      return EXIT_FAILURE;
+      return TEST_CLI.noSuchArg(arg);
     }
   }
 
@@ -53,17 +66,4 @@ testMain(const std::span<const StringRef> args) {
     );
   }
   return exitCode;
-}
-
-void
-testHelp() noexcept {
-  std::cout << testDesc << '\n';
-  std::cout << '\n';
-  printUsage("test", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--debug", "-d", "Test with debug information [default]");
-  printOption("--release", "-r", "Test with optimizations");
-  printOption("--no-parallel", "", "Disable parallel builds & tests");
 }

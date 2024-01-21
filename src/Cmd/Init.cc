@@ -7,9 +7,21 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 #include <span>
 #include <string>
+
+static constexpr auto INIT_CLI =
+    Subcmd<2>("init")
+        .setDesc(initDesc)
+        .addOpt(Opt{ "--bin", "-b" }.setDesc(
+            "Use a binary (application) template [default]"
+        ))
+        .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"));
+
+void
+initHelp() noexcept {
+  INIT_CLI.printHelp();
+}
 
 int
 initMain(const std::span<const StringRef> args) {
@@ -26,8 +38,7 @@ initMain(const std::span<const StringRef> args) {
       isBin = false;
     }
     else {
-      Logger::error("invalid argument: ", arg);
-      return EXIT_FAILURE;
+      return INIT_CLI.noSuchArg(arg);
     }
   }
 
@@ -50,16 +61,4 @@ initMain(const std::span<const StringRef> args) {
       "` package"
   );
   return EXIT_SUCCESS;
-}
-
-void
-initHelp() noexcept {
-  std::cout << initDesc << '\n';
-  std::cout << '\n';
-  printUsage("init", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--bin", "-b", "Use a binary (application) template [default]");
-  printOption("--lib", "-l", "Use a library template");
 }
