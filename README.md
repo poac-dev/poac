@@ -64,6 +64,15 @@ It is important to verify the package name and copy it accurately to prevent typ
 brew install poac
 ```
 
+#### AUR (Arch Linux)
+Poac is available in the AUR thanks to the [poac](https://aur.archlinux.org/packages/poac) package.
+
+It can be installed with the AUR helper of your choice.
+
+```sh
+paru -S poac
+```
+
 ### Build from source
 
 If your environment is not included in the released packages, you have to build Poac from the source. You will require the following compilers, commands, and libraries:
