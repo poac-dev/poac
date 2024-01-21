@@ -11,7 +11,7 @@
 
 static constinit const auto buildCli =
     Subcommand<4>("build")
-        .setDesc("Compile a local package and all of its dependencies")
+        .setDesc(buildDesc)
         .setUsage("[OPTIONS]")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"

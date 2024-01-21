@@ -85,10 +85,6 @@ struct Subcommand {
     this->desc = desc;
     return *this;
   }
-  inline consteval StringRef getDesc() const noexcept {
-    return desc;
-  }
-
   inline consteval Subcommand setUsage(StringRef usage) noexcept {
     this->usage = usage;
     return *this;

@@ -5,7 +5,7 @@
 #include <span>
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-static inline constinit const StringRef buildDesc =
+static inline constexpr StringRef buildDesc =
     "Compile a local package and all of its dependencies";
 
 void buildHelp() noexcept;
