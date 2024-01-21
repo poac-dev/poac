@@ -16,8 +16,8 @@
 #include <span>
 #include <string>
 
-static constexpr auto NEW_CLI =
-    Subcmd<2>("new")
+static const auto NEW_CLI =
+    Subcmd("new")
         .setDesc(newDesc)
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"

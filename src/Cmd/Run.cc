@@ -10,8 +10,8 @@
 #include <cstdlib>
 #include <span>
 
-static constexpr auto RUN_CLI =
-    Subcmd<3>("run")
+static const auto RUN_CLI =
+    Subcmd("run")
         .setDesc(runDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"
