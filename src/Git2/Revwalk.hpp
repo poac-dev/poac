@@ -13,7 +13,7 @@ struct Revwalk : public GlobalState {
   git_revwalk* raw = nullptr;
 
   Revwalk() = delete;
-  explicit Revwalk(const Repository&);
+  explicit Revwalk(const Repository& repo);
   ~Revwalk() noexcept;
 
   Revwalk(const Revwalk&) = delete;
@@ -42,7 +42,7 @@ struct Revwalk : public GlobalState {
   /// The given commit will be used as one of the roots when starting the
   /// revision walk. At least one commit must be pushed onto the walker before
   /// a walk can be started.
-  Revwalk& push(const Oid&);
+  Revwalk& push(const Oid& oid);
 
   /// Push the repository's HEAD
   ///

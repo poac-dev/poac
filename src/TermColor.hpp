@@ -8,16 +8,16 @@ enum class ColorMode {
   never,
 };
 
-void setColorMode(ColorMode) noexcept;
-void setColorMode(StringRef) noexcept;
+void setColorMode(ColorMode cm) noexcept;
+void setColorMode(StringRef str) noexcept;
 bool shouldColor() noexcept;
 
-String gray(StringRef) noexcept;
-String red(StringRef) noexcept;
-String green(StringRef) noexcept;
-String yellow(StringRef) noexcept;
-String blue(StringRef) noexcept;
-String magenta(StringRef) noexcept;
-String cyan(StringRef) noexcept;
+String gray(StringRef str) noexcept;
+String red(StringRef str) noexcept;
+String green(StringRef str) noexcept;
+String yellow(StringRef str) noexcept;
+String blue(StringRef str) noexcept;
+String magenta(StringRef str) noexcept;
+String cyan(StringRef str) noexcept;
 
-String bold(StringRef) noexcept;
+String bold(StringRef str) noexcept;

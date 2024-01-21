@@ -37,7 +37,6 @@ Checks: -*
   -readability-identifier-length
   -readability-implicit-bool-conversion
   -readability-magic-numbers
-  -readability-named-parameter
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true

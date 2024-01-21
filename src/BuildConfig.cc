@@ -175,8 +175,8 @@ struct BuildConfig {
     all = dependsOn;
   }
 
-  void emitMakefile(std::ostream&) const;
-  void emitCompdb(StringRef, std::ostream&) const;
+  void emitMakefile(std::ostream& os) const;
+  void emitCompdb(StringRef baseDir, std::ostream& os) const;
 };
 
 static void

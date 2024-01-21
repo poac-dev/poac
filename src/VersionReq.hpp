@@ -73,11 +73,11 @@ struct Comparator {
   Option<u64> patch;
   Prerelease pre;
 
-  static Comparator parse(StringRef);
-  void from(const OptVersion&) noexcept;
+  static Comparator parse(StringRef s);
+  void from(const OptVersion& ver) noexcept;
   String toString() const noexcept;
   String toPkgConfigString() const noexcept;
-  bool satisfiedBy(const Version&) const noexcept;
+  bool satisfiedBy(const Version& ver) const noexcept;
   Comparator canonicalize() const noexcept;
 };
 
@@ -85,12 +85,12 @@ struct VersionReq {
   Comparator left;
   Option<Comparator> right;
 
-  static VersionReq parse(StringRef);
-  bool satisfiedBy(const Version&) const noexcept;
+  static VersionReq parse(StringRef s);
+  bool satisfiedBy(const Version& ver) const noexcept;
   String toString() const noexcept;
-  String toPkgConfigString(const String&) const noexcept;
+  String toPkgConfigString(const String& name) const noexcept;
   VersionReq canonicalize() const noexcept;
   bool canSimplify() const noexcept;
 };
 
-std::ostream& operator<<(std::ostream&, const VersionReq&);
+std::ostream& operator<<(std::ostream& os, const VersionReq& req);

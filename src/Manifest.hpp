@@ -19,9 +19,9 @@ struct Profile {
 };
 
 const Path& getManifestPath();
-Option<String> validatePackageName(StringRef) noexcept;
+Option<String> validatePackageName(StringRef name) noexcept;
 const String& getPackageName();
-u16 editionToYear(StringRef);
+u16 editionToYear(StringRef edition);
 const String& getPackageEdition();
 const Version& getPackageVersion();
 const Profile& getDebugProfile();

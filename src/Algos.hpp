@@ -12,10 +12,10 @@
 #include <sstream>
 #include <utility>
 
-String toUpper(StringRef) noexcept;
+String toUpper(StringRef str) noexcept;
 
-int runCmd(StringRef) noexcept;
-String getCmdOutput(StringRef);
+int runCmd(StringRef cmd) noexcept;
+String getCmdOutput(StringRef cmd);
 
 template <typename T>
 Vec<String>
@@ -79,4 +79,5 @@ topoSort(
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef> findSimilarStr(StringRef, std::span<const StringRef>);
+Option<StringRef>
+findSimilarStr(StringRef lhs, std::span<const StringRef> candidates);
