@@ -27,7 +27,6 @@ Checks: -*
   -misc-no-recursion
   -misc-use-anonymous-namespace
   modernize-*
-  -modernize-loop-convert
   -modernize-use-nodiscard
   -modernize-use-trailing-return-type
   performance-*
