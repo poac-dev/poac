@@ -12,10 +12,24 @@
 #include <cctype>
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 #include <iterator>
 #include <span>
 #include <string>
+
+static constinit const auto newCli =
+    Subcommand<2>("new")
+        .setDesc(newDesc)
+        .setUsage("[OPTIONS] <name>")
+        .addOpt(Opt{ "--bin", "-b" }.setDesc(
+            "Use a binary (application) template [default]"
+        ))
+        .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"))
+        .setArgs("<name>");
+
+void
+newHelp() noexcept {
+  newCli.printHelp();
+}
 
 static inline constexpr StringRef MAIN_CC =
     "#include <iostream>\n\n"
@@ -55,7 +69,7 @@ createPoacToml(const StringRef projectName) noexcept {
 
 static String
 getHeader(const StringRef projectName) noexcept {
-  const String projectNameUpper = toUpper(projectName);
+  const String projectNameUpper = toMacroName(projectName);
   String header = "#ifndef " + projectNameUpper + "_HPP\n"
                   "#define " + projectNameUpper + "_HPP\n\n"
                   "namespace ";
@@ -130,8 +144,7 @@ newMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      Logger::error("too many arguments: ", arg);
-      return EXIT_FAILURE;
+      return newCli.noSuchArg(arg);
     }
   }
 
@@ -148,19 +161,4 @@ newMain(const std::span<const StringRef> args) {
   createTemplateFiles(isBin, packageName);
   git2::Repository().init(packageName);
   return EXIT_SUCCESS;
-}
-
-void
-newHelp() noexcept {
-  std::cout << newDesc << '\n';
-  std::cout << '\n';
-  printUsage("new", "[OPTIONS] <name>");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--bin", "-b", "Use a binary (application) template [default]");
-  printOption("--lib", "-l", "Use a library template");
-  std::cout << '\n';
-  printHeader("Arguments:");
-  std::cout << "  <name>" << '\n';
 }

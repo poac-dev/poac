@@ -8,8 +8,23 @@
 #include "Global.hpp"
 
 #include <cstdlib>
-#include <iostream>
 #include <span>
+
+static constinit const auto runCli =
+    Subcommand<3>("run")
+        .setDesc(runDesc)
+        .setUsage("[OPTIONS] [args]...")
+        .addOpt(Opt{ "--debug", "-d" }.setDesc(
+            "Build with debug information [default]"
+        ))
+        .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
+        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .setArgs("[args]...\tArguments passed to the program");
+
+void
+runHelp() noexcept {
+  runCli.printHelp();
+}
 
 int
 runMain(const std::span<const StringRef> args) {
@@ -44,20 +59,4 @@ runMain(const std::span<const StringRef> args) {
   const String command = outDir + "/" + projectName + runArgs;
   const int exitCode = runCmd(command);
   return exitCode;
-}
-
-void
-runHelp() noexcept {
-  std::cout << runDesc << '\n';
-  std::cout << '\n';
-  printUsage("run", "[OPTIONS] [args]...");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--debug", "-d", "Build with debug information [default]");
-  printOption("--release", "-r", "Build with optimizations");
-  printOption("--no-parallel", "", "Disable parallel builds");
-  std::cout << '\n';
-  printHeader("Arguments:");
-  std::cout << "  [args]...\tArguments passed to the program" << '\n';
 }

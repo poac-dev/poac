@@ -23,32 +23,6 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
 }
 
 void
-printOption(
-    const StringRef lng, const StringRef shrt, const StringRef desc,
-    const StringRef placeholder
-) noexcept {
-  String option;
-  if (!shrt.empty()) {
-    option += bold(cyan(shrt));
-    option += ", ";
-  } else {
-    // This coloring is for the alignment with std::setw later.
-    option += bold(cyan("    "));
-  }
-  option += bold(cyan(lng));
-  option += ' ';
-  option += cyan(placeholder);
-
-  std::cout << "  " << std::left;
-  if (shouldColor()) {
-    std::cout << std::setw(69);
-  } else {
-    std::cout << std::setw(26);
-  }
-  std::cout << option << desc << '\n';
-}
-
-void
 printCommand(
     const StringRef name, const StringRef desc, const bool hasShort
 ) noexcept {
@@ -72,9 +46,37 @@ printCommand(
 
 void
 printGlobalOpts() noexcept {
-  for (const auto& [shrt, lng, placeholder, desc] : GLOBAL_OPT_HELPS) {
-    printOption(lng, shrt, desc, placeholder);
+  for (const auto& opt : GLOBAL_OPTS) {
+    std::cout << opt;
   }
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Opt& opt) noexcept {
+  String option;
+  if (!opt.shrt.empty()) {
+    option += bold(cyan(opt.shrt));
+    option += ", ";
+  } else {
+    // This coloring is for the alignment with std::setw later.
+    option += bold(cyan("    "));
+  }
+  option += bold(cyan(opt.lng));
+  option += ' ';
+  option += cyan(opt.placeholder);
+
+  os << "  " << std::left;
+  if (shouldColor()) {
+    os << std::setw(69);
+  } else {
+    os << std::setw(26);
+  }
+  os << option << opt.desc;
+  if (!opt.defaultVal.empty()) {
+    os << " [default: " << opt.defaultVal << ']';
+  }
+  os << '\n';
+  return os;
 }
 
 bool

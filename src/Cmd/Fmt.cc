@@ -11,9 +11,19 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 #include <span>
 #include <string>
+
+static constinit const auto fmtCli =
+    Subcommand<1>("fmt")
+        .setDesc(fmtDesc)
+        .setUsage("[OPTIONS]")
+        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"));
+
+void
+fmtHelp() noexcept {
+  fmtCli.printHelp();
+}
 
 int
 fmtMain(const std::span<const StringRef> args) {
@@ -27,8 +37,7 @@ fmtMain(const std::span<const StringRef> args) {
       isCheck = true;
     }
     else {
-      Logger::error("invalid argument: ", arg);
-      return EXIT_FAILURE;
+      return fmtCli.noSuchArg(arg);
     }
   }
 
@@ -96,15 +105,4 @@ fmtMain(const std::span<const StringRef> args) {
     return exitCode;
   }
   return EXIT_SUCCESS;
-}
-
-void
-fmtHelp() noexcept {
-  std::cout << fmtDesc << '\n';
-  std::cout << '\n';
-  printUsage("fmt", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--check", "", "Run clang-format in check mode");
 }

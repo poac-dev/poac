@@ -5,8 +5,18 @@
 #include "Global.hpp"
 
 #include <cstdlib>
-#include <iostream>
 #include <string>
+
+static constinit const auto tidyCli =
+    Subcommand<1>("tidy")
+        .setDesc(tidyDesc)
+        .setUsage("[OPTIONS]")
+        .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"));
+
+void
+tidyHelp() noexcept {
+  tidyCli.printHelp();
+}
 
 int
 tidyMain(const std::span<const StringRef> args) {
@@ -20,8 +30,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     }
     else {
-      Logger::error("invalid argument: ", arg);
-      return EXIT_FAILURE;
+      return tidyCli.noSuchArg(arg);
     }
   }
 
@@ -52,15 +61,4 @@ tidyMain(const std::span<const StringRef> args) {
 
   Logger::info("Running", "clang-tidy");
   return runCmd(makeCmd);
-}
-
-void
-tidyHelp() noexcept {
-  std::cout << tidyDesc << '\n';
-  std::cout << '\n';
-  printUsage("tidy", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption("--fix", "", "Automatically apply lint suggestions");
 }

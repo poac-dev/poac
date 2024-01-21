@@ -4,9 +4,21 @@
 #include "Global.hpp"
 
 #include <cstdlib>
-#include <iostream>
 #include <span>
 #include <string>
+
+static constinit const auto cleanCli =
+    Subcommand<1>("clean")
+        .setDesc(cleanDesc)
+        .setUsage("[OPTIONS]")
+        .addOpt(Opt{ "--profile", "-p" }
+                    .setDesc("Disable parallel builds")
+                    .setPlaceholder("<PROFILE>"));
+
+void
+cleanHelp() noexcept {
+  cleanCli.printHelp();
+}
 
 int
 cleanMain(const std::span<const StringRef> args) noexcept {
@@ -33,8 +45,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
       outDir /= args[1];
     }
     else {
-      Logger::error("Unknown argument: ", arg);
-      return EXIT_FAILURE;
+      return cleanCli.noSuchArg(arg);
     }
   }
 
@@ -43,17 +54,4 @@ cleanMain(const std::span<const StringRef> args) noexcept {
     fs::remove_all(outDir);
   }
   return EXIT_SUCCESS;
-}
-
-void
-cleanHelp() noexcept {
-  std::cout << cleanDesc << '\n';
-  std::cout << '\n';
-  printUsage("clean", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
-  printOption(
-      "--profile", "-p", "Remove built artifacts in <PROFILE> mode", "<PROFILE>"
-  );
 }

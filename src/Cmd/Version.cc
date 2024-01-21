@@ -7,7 +7,6 @@
 
 #include <cstdlib>
 #include <curl/curl.h>
-#include <iostream>
 #include <span>
 
 #ifndef POAC_PKG_VERSION
@@ -23,21 +22,31 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-static constexpr StringRef
+static constinit const auto versionCli =
+    Subcommand<0>("version").setDesc(versionDesc).setUsage("[OPTIONS]");
+
+void
+versionHelp() noexcept {
+  versionCli.printHelp();
+}
+
+static consteval StringRef
 checkAvailability(const StringRef str) noexcept {
   return str.empty() ? "unavailable" : str;
 }
 
-static constexpr StringRef COMMIT_SHORT_HASH =
+static constinit const StringRef COMMIT_SHORT_HASH =
     checkAvailability(POAC_COMMIT_SHORT_HASH);
-static constexpr StringRef COMMIT_HASH = checkAvailability(POAC_COMMIT_HASH);
-static constexpr StringRef COMMIT_DATE = checkAvailability(POAC_COMMIT_DATE);
+static constinit const StringRef COMMIT_HASH =
+    checkAvailability(POAC_COMMIT_HASH);
+static constinit const StringRef COMMIT_DATE =
+    checkAvailability(POAC_COMMIT_DATE);
 
-static constexpr char
+static consteval char
 firstMonthChar(const char m1) noexcept {
   return (m1 == 'O' || m1 == 'N' || m1 == 'D') ? '1' : '0';
 }
-static constexpr char
+static consteval char
 secondMonthChar(const char m1, const char m2, const char m3) noexcept {
   if (m1 == 'J') {
     if (m2 == 'a') {
@@ -88,7 +97,7 @@ secondMonthChar(const char m1, const char m2, const char m3) noexcept {
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-static inline constexpr char COMPILE_DATE[] = {
+static inline constinit const char COMPILE_DATE[] = {
   // Year
   __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10],
 
@@ -114,8 +123,7 @@ versionMain(const std::span<const StringRef> args) noexcept {
     HANDLE_GLOBAL_OPTS({ { "version" } })
 
     else {
-      Logger::error("invalid argument: ", arg);
-      return EXIT_FAILURE;
+      return versionCli.noSuchArg(arg);
     }
   }
 
@@ -141,14 +149,4 @@ versionMain(const std::span<const StringRef> args) noexcept {
   }
 
   return EXIT_SUCCESS;
-}
-
-void
-versionHelp() noexcept {
-  std::cout << versionDesc << '\n';
-  std::cout << '\n';
-  printUsage("version", "[OPTIONS]");
-  std::cout << '\n';
-  printHeader("Options:");
-  printGlobalOpts();
 }

@@ -67,21 +67,21 @@ template <typename... Ts>
 using Tuple = std::tuple<Ts...>;
 
 struct NoneT : protected std::monostate {
-  constexpr bool operator==(const usize rhs) const {
+  consteval bool operator==(const usize rhs) const {
     return String::npos == rhs;
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr operator std::nullopt_t() const {
+  consteval operator std::nullopt_t() const {
     return std::nullopt;
   }
 
   template <typename T>
-  constexpr operator Option<T>() const { // NOLINT(google-explicit-constructor)
+  consteval operator Option<T>() const { // NOLINT(google-explicit-constructor)
     return std::nullopt;
   }
 };
-inline constexpr NoneT None; // NOLINT(readability-identifier-naming)
+inline constinit const NoneT None; // NOLINT(readability-identifier-naming)
 
 inline std::ostream&
 operator<<(std::ostream& os, const NoneT& /*unused*/) {

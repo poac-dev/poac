@@ -18,6 +18,21 @@ toUpper(const StringRef str) noexcept {
   return res;
 }
 
+String
+toMacroName(StringRef name) noexcept {
+  String macroName;
+  for (const unsigned char c : name) {
+    if (std::isalpha(c)) {
+      macroName += static_cast<char>(std::toupper(c));
+    } else if (std::isdigit(c)) {
+      macroName += static_cast<char>(c);
+    } else {
+      macroName += '_';
+    }
+  }
+  return macroName;
+}
+
 int
 runCmd(const StringRef cmd) noexcept {
   Logger::debug("Running `", cmd, '`');

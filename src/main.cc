@@ -105,7 +105,7 @@ helpMain(const std::span<const StringRef> args) noexcept {
 
   printHeader("Options:");
   printGlobalOpts();
-  printOption("--version", "-V", "Print version info and exit");
+  std::cout << Opt{ "--version", "-V" }.setDesc("Print version info and exit");
   std::cout << '\n';
 
   printHeader("Commands:");
