@@ -23,7 +23,8 @@ static const auto NEW_CLI =
             "Use a binary (application) template [default]"
         ))
         .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"))
-        .setArg(Arg{ "<name>" });
+        .setArg(Arg{ "<name>" })
+        .finalize();
 
 void
 newHelp() noexcept {

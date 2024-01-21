@@ -10,9 +10,11 @@
 #include <fstream>
 #include <span>
 
-static const auto LINT_CLI = Subcmd("lint").setDesc(lintDesc).addOpt(
-    Opt{ "--exclude" }.setDesc("Exclude files from linting")
-);
+static const auto LINT_CLI =
+    Subcmd("lint")
+        .setDesc(lintDesc)
+        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
+        .finalize();
 
 void
 lintHelp() noexcept {

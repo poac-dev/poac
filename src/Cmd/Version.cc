@@ -22,7 +22,8 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-static const auto VERSION_CLI = Subcmd("version").setDesc(versionDesc);
+static const auto VERSION_CLI =
+    Subcmd("version").setDesc(versionDesc).finalize();
 
 void
 versionHelp() noexcept {

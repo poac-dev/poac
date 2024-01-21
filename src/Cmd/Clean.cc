@@ -7,11 +7,13 @@
 #include <span>
 #include <string>
 
-static const auto CLEAN_CLI = Subcmd("clean").setDesc(cleanDesc).addOpt(
-    Opt{ "--profile", "-p" }
-        .setDesc("Disable parallel builds")
-        .setPlaceholder("<PROFILE>")
-);
+static const auto CLEAN_CLI =
+    Subcmd("clean")
+        .setDesc(cleanDesc)
+        .addOpt(Opt{ "--profile", "-p" }
+                    .setDesc("Disable parallel builds")
+                    .setPlaceholder("<PROFILE>"))
+        .finalize();
 
 void
 cleanHelp() noexcept {

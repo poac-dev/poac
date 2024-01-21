@@ -16,7 +16,8 @@ static const auto INIT_CLI =
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"
         ))
-        .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"));
+        .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"))
+        .finalize();
 
 void
 initHelp() noexcept {
