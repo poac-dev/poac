@@ -2,8 +2,8 @@
 
 #include "Global.hpp"
 
-static constexpr auto HELP_CLI =
-    Subcmd<0>("help").setDesc(helpDesc).setArg(Arg{ "[COMMAND]" });
+static const auto HELP_CLI =
+    Subcmd("help").setDesc(helpDesc).setArg(Arg{ "[COMMAND]" });
 
 void
 helpHelp() noexcept {

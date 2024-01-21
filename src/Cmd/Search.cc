@@ -10,8 +10,8 @@
 #include <span>
 #include <string>
 
-static constexpr auto SEARCH_CLI =
-    Subcmd<2>("search")
+static const auto SEARCH_CLI =
+    Subcmd("search")
         .setDesc(searchDesc)
         .addOpt(Opt{ "--per-page" }
                     .setDesc("Number of results to show per page")

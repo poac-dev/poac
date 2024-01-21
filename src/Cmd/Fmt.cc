@@ -14,7 +14,7 @@
 #include <span>
 #include <string>
 
-static constexpr auto FMT_CLI = Subcmd<1>("fmt").setDesc(fmtDesc).addOpt(
+static const auto FMT_CLI = Subcmd("fmt").setDesc(fmtDesc).addOpt(
     Opt{ "--check" }.setDesc("Run clang-format in check mode")
 );
 

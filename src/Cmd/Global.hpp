@@ -95,80 +95,25 @@ struct Arg {
   }
 };
 
-template <usize NumOpts>
 struct Subcmd {
   StringRef name;
   StringRef desc;
-  Arr<Opt, NumOpts> opts{};
-  usize optPos = 0;
+  Vec<Opt> opts;
   Arg arg;
 
-  constexpr Subcmd() noexcept = delete;
-  constexpr ~Subcmd() noexcept = default;
-  constexpr Subcmd(const Subcmd&) noexcept = default;
-  constexpr Subcmd(Subcmd&&) noexcept = default;
-  constexpr Subcmd& operator=(const Subcmd&) noexcept = default;
-  constexpr Subcmd& operator=(Subcmd&&) noexcept = default;
+  Subcmd() noexcept = delete;
+  ~Subcmd() noexcept = default;
+  Subcmd(const Subcmd&) noexcept = default;
+  Subcmd(Subcmd&&) noexcept = default;
+  Subcmd& operator=(const Subcmd&) noexcept = default;
+  Subcmd& operator=(Subcmd&&) noexcept = default;
 
-  explicit constexpr Subcmd(StringRef name) noexcept : name(name) {}
+  explicit Subcmd(StringRef name) noexcept : name(name) {}
 
-  inline constexpr Subcmd setDesc(StringRef desc) noexcept {
-    this->desc = desc;
-    return *this;
-  }
-  inline constexpr Subcmd addOpt(Opt opt) noexcept {
-    opts.at(optPos++) = opt;
-    return *this;
-  }
-  inline constexpr Subcmd setArg(Arg arg) noexcept {
-    this->arg = arg;
-    return *this;
-  }
+  Subcmd& setDesc(StringRef desc) noexcept;
+  Subcmd& addOpt(Opt opt) noexcept;
+  Subcmd& setArg(Arg arg) noexcept;
 
-  [[nodiscard]] inline int noSuchArg(StringRef arg) const {
-    Vec<StringRef> candidates;
-    for (const auto& opt : GLOBAL_OPTS) {
-      candidates.push_back(opt.lng);
-      if (!opt.shrt.empty()) {
-        candidates.push_back(opt.shrt);
-      }
-    }
-    for (const auto& opt : opts) {
-      candidates.push_back(opt.lng);
-      if (!opt.shrt.empty()) {
-        candidates.push_back(opt.shrt);
-      }
-    }
-
-    String suggestion;
-    if (const auto similar = findSimilarStr(arg, candidates)) {
-      suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
-    }
-    Logger::error(
-        "no such argument: `", arg, "`\n\n", suggestion,
-        "       Run `poac help ", name, "` for a list of arguments"
-    );
-    return EXIT_FAILURE;
-  }
-
-  inline void printHelp() const noexcept {
-    std::cout << desc << '\n';
-    std::cout << '\n';
-    printUsage(name, arg.name);
-    std::cout << '\n';
-    printHeader("Options:");
-    printGlobalOpts();
-    for (const auto& opt : opts) {
-      std::cout << opt;
-    }
-    if (!arg.name.empty()) {
-      std::cout << '\n';
-      printHeader("Arguments:");
-      std::cout << "  " << arg.name;
-      if (!arg.desc.empty()) {
-        std::cout << '\t' << arg.desc;
-      }
-      std::cout << '\n';
-    }
-  }
+  [[nodiscard]] int noSuchArg(StringRef arg) const;
+  void printHelp() const noexcept;
 };

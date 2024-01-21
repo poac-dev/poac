@@ -9,8 +9,8 @@
 #include <cstdlib>
 #include <span>
 
-static constexpr auto BUILD_CLI =
-    Subcmd<4>("build")
+static const auto BUILD_CLI =
+    Subcmd("build")
         .setDesc(buildDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"

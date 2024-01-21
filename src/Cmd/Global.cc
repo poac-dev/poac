@@ -89,3 +89,68 @@ commandExists(const StringRef cmd) noexcept {
   checkCmd += " >/dev/null 2>&1";
   return runCmd(checkCmd) == EXIT_SUCCESS;
 }
+
+Subcmd&
+Subcmd::setDesc(StringRef desc) noexcept {
+  this->desc = desc;
+  return *this;
+}
+Subcmd&
+Subcmd::addOpt(Opt opt) noexcept {
+  opts.emplace_back(opt);
+  return *this;
+}
+Subcmd&
+Subcmd::setArg(Arg arg) noexcept {
+  this->arg = arg;
+  return *this;
+}
+
+[[nodiscard]] int
+Subcmd::noSuchArg(StringRef arg) const {
+  Vec<StringRef> candidates;
+  for (const auto& opt : GLOBAL_OPTS) {
+    candidates.push_back(opt.lng);
+    if (!opt.shrt.empty()) {
+      candidates.push_back(opt.shrt);
+    }
+  }
+  for (const auto& opt : opts) {
+    candidates.push_back(opt.lng);
+    if (!opt.shrt.empty()) {
+      candidates.push_back(opt.shrt);
+    }
+  }
+
+  String suggestion;
+  if (const auto similar = findSimilarStr(arg, candidates)) {
+    suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
+  }
+  Logger::error(
+      "no such argument: `", arg, "`\n\n", suggestion, "       Run `poac help ",
+      name, "` for a list of arguments"
+  );
+  return EXIT_FAILURE;
+}
+
+void
+Subcmd::printHelp() const noexcept {
+  std::cout << desc << '\n';
+  std::cout << '\n';
+  printUsage(name, arg.name);
+  std::cout << '\n';
+  printHeader("Options:");
+  printGlobalOpts();
+  for (const auto& opt : opts) {
+    std::cout << opt;
+  }
+  if (!arg.name.empty()) {
+    std::cout << '\n';
+    printHeader("Arguments:");
+    std::cout << "  " << arg.name;
+    if (!arg.desc.empty()) {
+      std::cout << '\t' << arg.desc;
+    }
+    std::cout << '\n';
+  }
+}

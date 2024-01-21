@@ -10,8 +10,8 @@
 #include <span>
 #include <string>
 
-static constexpr auto INIT_CLI =
-    Subcmd<2>("init")
+static const auto INIT_CLI =
+    Subcmd("init")
         .setDesc(initDesc)
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"

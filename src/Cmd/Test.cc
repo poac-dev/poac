@@ -9,8 +9,8 @@
 #include <cstdlib>
 #include <span>
 
-static constexpr auto TEST_CLI =
-    Subcmd<3>("test")
+static const auto TEST_CLI =
+    Subcmd("test")
         .setDesc(testDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Test with debug information [default]"
