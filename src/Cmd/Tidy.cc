@@ -7,9 +7,11 @@
 #include <cstdlib>
 #include <string>
 
-static const auto TIDY_CLI = Subcmd("tidy").setDesc(tidyDesc).addOpt(
-    Opt{ "--fix" }.setDesc("Automatically apply lint suggestions")
-);
+static const auto TIDY_CLI =
+    Subcmd("tidy")
+        .setDesc(tidyDesc)
+        .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"))
+        .finalize();
 
 void
 tidyHelp() noexcept {

@@ -103,9 +103,12 @@ helpMain(const std::span<const StringRef> args) noexcept {
   printUsage("", "[COMMAND]");
   std::cout << '\n';
 
+  const usize maxOptLen = GLOBAL_OPTS[2].toString(true).size(); // --color
   printHeader("Options:");
-  printGlobalOpts();
-  std::cout << Opt{ "--version", "-V" }.setDesc("Print version info and exit");
+  printGlobalOpts(maxOptLen);
+  Opt{ "--version", "-V" }
+      .setDesc("Print version info and exit")
+      .print(maxOptLen);
   std::cout << '\n';
 
   printHeader("Commands:");

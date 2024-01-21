@@ -18,7 +18,8 @@ static const auto RUN_CLI =
         ))
         .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
-        .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"));
+        .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"))
+        .finalize();
 
 void
 runHelp() noexcept {

@@ -57,8 +57,10 @@ struct Opt {
     this->defaultVal = defaultVal;
     return *this;
   }
+
+  String toString(bool forceColor = false) const noexcept;
+  void print(usize maxOptLen) const noexcept;
 };
-std::ostream& operator<<(std::ostream& os, const Opt& opt) noexcept;
 
 static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
   Opt{ "--verbose", "-v" }.setDesc("Use verbose output"),
@@ -93,6 +95,7 @@ struct Subcmd {
   StringRef desc;
   Vec<Opt> opts;
   Arg arg;
+  usize maxOptLen = 0;
 
   Subcmd() noexcept = delete;
   ~Subcmd() noexcept = default;
@@ -104,15 +107,16 @@ struct Subcmd {
   explicit Subcmd(StringRef name) noexcept : name(name) {}
 
   Subcmd& setDesc(StringRef desc) noexcept;
-  Subcmd& addOpt(Opt opt) noexcept;
-  Subcmd& setArg(Arg arg) noexcept;
+  Subcmd& addOpt(const Opt& opt) noexcept;
+  Subcmd& setArg(const Arg& arg) noexcept;
+  Subcmd& finalize() noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
   void printHelp() const noexcept;
 };
 
+bool commandExists(StringRef cmd) noexcept;
 void printHeader(StringRef header) noexcept;
 void printUsage(StringRef cmd, StringRef usage) noexcept;
 void printCommand(StringRef name, StringRef desc, bool hasShort) noexcept;
-void printGlobalOpts() noexcept;
-bool commandExists(StringRef cmd) noexcept;
+void printGlobalOpts(usize maxOptLen) noexcept;

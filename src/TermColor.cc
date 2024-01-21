@@ -83,43 +83,45 @@ shouldColor() noexcept {
 }
 
 static String
-colorize(const StringRef str, const StringRef color) noexcept {
-  if (!shouldColor()) {
-    return String(str);
+colorize(
+    const StringRef str, const StringRef color, const bool force
+) noexcept {
+  if (force || shouldColor()) {
+    return String(color) + String(str) + "\033[0m";
   }
-  return String(color) + String(str) + "\033[0m";
+  return String(str);
 }
 
 String
-gray(const StringRef str) noexcept {
-  return colorize(str, "\033[30m");
+gray(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[30m", force);
 }
 String
-red(const StringRef str) noexcept {
-  return colorize(str, "\033[31m");
+red(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[31m", force);
 }
 String
-green(const StringRef str) noexcept {
-  return colorize(str, "\033[32m");
+green(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[32m", force);
 }
 String
-yellow(const StringRef str) noexcept {
-  return colorize(str, "\033[33m");
+yellow(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[33m", force);
 }
 String
-blue(const StringRef str) noexcept {
-  return colorize(str, "\033[34m");
+blue(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[34m", force);
 }
 String
-magenta(const StringRef str) noexcept {
-  return colorize(str, "\033[35m");
+magenta(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[35m", force);
 }
 String
-cyan(const StringRef str) noexcept {
-  return colorize(str, "\033[36m");
+cyan(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[36m", force);
 }
 
 String
-bold(const StringRef str) noexcept {
-  return colorize(str, "\033[1m");
+bold(const StringRef str, const bool force) noexcept {
+  return colorize(str, "\033[1m", force);
 }

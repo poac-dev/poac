@@ -8,6 +8,14 @@
 #include <iomanip>
 #include <iostream>
 
+bool
+commandExists(const StringRef cmd) noexcept {
+  String checkCmd = "command -v ";
+  checkCmd += cmd;
+  checkCmd += " >/dev/null 2>&1";
+  return runCmd(checkCmd) == EXIT_SUCCESS;
+}
+
 void
 printHeader(const StringRef header) noexcept {
   std::cout << bold(green(header)) << '\n';
@@ -21,8 +29,9 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
   }
   std::cout << cyan("[OPTIONS]");
   if (!usage.empty()) {
-    std::cout << " " << cyan(usage) << '\n';
+    std::cout << " " << cyan(usage);
   }
+  std::cout << '\n';
 }
 
 void
@@ -48,46 +57,43 @@ printCommand(
 }
 
 void
-printGlobalOpts() noexcept {
+printGlobalOpts(const usize maxOptLen) noexcept {
   for (const auto& opt : GLOBAL_OPTS) {
-    std::cout << opt;
+    opt.print(maxOptLen);
   }
 }
 
-std::ostream&
-operator<<(std::ostream& os, const Opt& opt) noexcept {
-  String option;
-  if (!opt.shrt.empty()) {
-    option += bold(cyan(opt.shrt));
-    option += ", ";
+String
+Opt::toString(const bool forceColor) const noexcept {
+  String str;
+  if (!shrt.empty()) {
+    str += bold(cyan(shrt, forceColor), forceColor);
+    str += ", ";
   } else {
     // This coloring is for the alignment with std::setw later.
-    option += bold(cyan("    "));
+    str += bold(cyan("    ", forceColor), forceColor);
   }
-  option += bold(cyan(opt.lng));
-  option += ' ';
-  option += cyan(opt.placeholder);
-
-  os << "  " << std::left;
-  if (shouldColor()) {
-    os << std::setw(69);
-  } else {
-    os << std::setw(26);
-  }
-  os << option << opt.desc;
-  if (!opt.defaultVal.empty()) {
-    os << " [default: " << opt.defaultVal << ']';
-  }
-  os << '\n';
-  return os;
+  str += bold(cyan(lng, forceColor), forceColor);
+  str += ' ';
+  str += cyan(placeholder, forceColor);
+  return str;
 }
 
-bool
-commandExists(const StringRef cmd) noexcept {
-  String checkCmd = "command -v ";
-  checkCmd += cmd;
-  checkCmd += " >/dev/null 2>&1";
-  return runCmd(checkCmd) == EXIT_SUCCESS;
+void
+Opt::print(usize maxOptLen) const noexcept {
+  // TODO: Redundant toString call here and in Subcmd::finalize.
+  const String option = toString();
+  std::cout << "  " << std::left;
+  if (shouldColor()) {
+    std::cout << std::setw(static_cast<int>(maxOptLen) + 2);
+  } else {
+    std::cout << std::setw(static_cast<int>(maxOptLen) - 41);
+  }
+  std::cout << option << desc;
+  if (!defaultVal.empty()) {
+    std::cout << " [default: " << defaultVal << ']';
+  }
+  std::cout << '\n';
 }
 
 Subcmd&
@@ -96,13 +102,30 @@ Subcmd::setDesc(StringRef desc) noexcept {
   return *this;
 }
 Subcmd&
-Subcmd::addOpt(Opt opt) noexcept {
+Subcmd::addOpt(const Opt& opt) noexcept {
   opts.emplace_back(opt);
   return *this;
 }
 Subcmd&
-Subcmd::setArg(Arg arg) noexcept {
+Subcmd::setArg(const Arg& arg) noexcept {
   this->arg = arg;
+  return *this;
+}
+Subcmd&
+Subcmd::finalize() noexcept {
+  // We do forceColor here to get consistent maxOptLen regardless of the
+  // value of ColorState.  This is because this function can be called
+  // when we initialize cli objects, such as BUILD_CLI, meaning that
+  // this function will be called before ColorState is initialized through
+  // the main function.  But with POAC_TERM_COLOR, the ColorState will be
+  // set to an arbitrary value, so this can cause inconsistent maxOptLen.
+  // TODO: Can't we streamline this?
+  for (const auto& opt : GLOBAL_OPTS) {
+    maxOptLen = std::max(maxOptLen, opt.toString(true).size());
+  }
+  for (const auto& opt : opts) {
+    maxOptLen = std::max(maxOptLen, opt.toString(true).size());
+  }
   return *this;
 }
 
@@ -137,13 +160,16 @@ void
 Subcmd::printHelp() const noexcept {
   std::cout << desc << '\n';
   std::cout << '\n';
+
   printUsage(name, arg.name);
   std::cout << '\n';
+
   printHeader("Options:");
-  printGlobalOpts();
+  printGlobalOpts(maxOptLen);
   for (const auto& opt : opts) {
-    std::cout << opt;
+    opt.print(maxOptLen);
   }
+
   if (!arg.name.empty()) {
     std::cout << '\n';
     printHeader("Arguments:");

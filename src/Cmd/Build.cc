@@ -19,7 +19,8 @@ static const auto BUILD_CLI =
         .addOpt(Opt{ "--compdb" }.setDesc(
             "Generate compilation database instead of building"
         ))
-        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"));
+        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .finalize();
 
 void
 buildHelp() noexcept {
