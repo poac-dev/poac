@@ -65,6 +65,7 @@ brew install poac
 ```
 
 #### AUR (Arch Linux)
+
 Poac is available in the AUR thanks to the [poac](https://aur.archlinux.org/packages/poac) package.
 
 It can be installed with the AUR helper of your choice.
@@ -331,13 +332,19 @@ Please make sure to follow these steps:
 #### Run linter (`cpplint`)
 
 ```bash
-poac lint
+poac lint --exclude srcOld --exclude testsOld
 ```
 
 #### Run formatter (`clang-format`)
 
 ```bash
 poac fmt
+```
+
+#### Run tests
+
+```bash
+poac test
 ```
 
 #### Run `clang-tidy`
