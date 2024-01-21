@@ -16,7 +16,7 @@
 #include <span>
 #include <string>
 
-static constinit const auto newCli =
+static constexpr auto newCli =
     Subcommand<2>("new")
         .setDesc(newDesc)
         .setUsage("[OPTIONS] <name>")

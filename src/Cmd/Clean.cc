@@ -7,7 +7,7 @@
 #include <span>
 #include <string>
 
-static constinit const auto cleanCli =
+static constexpr auto cleanCli =
     Subcommand<1>("clean")
         .setDesc(cleanDesc)
         .setUsage("[OPTIONS]")

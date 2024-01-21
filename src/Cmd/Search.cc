@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-static constinit const auto searchCli =
+static constexpr auto searchCli =
     Subcommand<2>("search")
         .setDesc(searchDesc)
         .setUsage("[OPTIONS] <name>")

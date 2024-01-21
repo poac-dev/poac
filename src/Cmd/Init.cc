@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-static constinit const auto initCli =
+static constexpr auto initCli =
     Subcommand<2>("init")
         .setDesc(initDesc)
         .setUsage("[OPTIONS]")

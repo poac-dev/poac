@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <span>
 
-static constinit const auto testCli =
+static constexpr auto testCli =
     Subcommand<3>("test")
         .setDesc(testDesc)
         .setUsage("[OPTIONS]")

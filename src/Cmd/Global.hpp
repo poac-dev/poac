@@ -42,19 +42,25 @@ struct Opt {
   StringRef placeholder;
   StringRef defaultVal;
 
-  consteval Opt() noexcept = default;
-  explicit consteval Opt(StringRef lng, StringRef shrt = "") noexcept
+  constexpr Opt() noexcept = default;
+  constexpr ~Opt() noexcept = default;
+  constexpr Opt(const Opt&) noexcept = default;
+  constexpr Opt(Opt&&) noexcept = default;
+  constexpr Opt& operator=(const Opt&) noexcept = default;
+  constexpr Opt& operator=(Opt&&) noexcept = default;
+
+  explicit constexpr Opt(StringRef lng, StringRef shrt = "") noexcept
       : lng(lng), shrt(shrt) {}
 
-  inline consteval Opt setDesc(StringRef desc) noexcept {
+  inline constexpr Opt setDesc(StringRef desc) noexcept {
     this->desc = desc;
     return *this;
   }
-  inline consteval Opt setPlaceholder(StringRef placeholder) noexcept {
+  inline constexpr Opt setPlaceholder(StringRef placeholder) noexcept {
     this->placeholder = placeholder;
     return *this;
   }
-  inline consteval Opt setDefault(StringRef defaultVal) noexcept {
+  inline constexpr Opt setDefault(StringRef defaultVal) noexcept {
     this->defaultVal = defaultVal;
     return *this;
   }
@@ -79,21 +85,28 @@ struct Subcommand {
   usize optPos = 0;
   StringRef args;
 
-  explicit consteval Subcommand(StringRef name) noexcept : name(name) {}
+  constexpr Subcommand() noexcept = delete;
+  constexpr ~Subcommand() noexcept = default;
+  constexpr Subcommand(const Subcommand&) noexcept = default;
+  constexpr Subcommand(Subcommand&&) noexcept = default;
+  constexpr Subcommand& operator=(const Subcommand&) noexcept = default;
+  constexpr Subcommand& operator=(Subcommand&&) noexcept = default;
 
-  inline consteval Subcommand setDesc(StringRef desc) noexcept {
+  explicit constexpr Subcommand(StringRef name) noexcept : name(name) {}
+
+  inline constexpr Subcommand setDesc(StringRef desc) noexcept {
     this->desc = desc;
     return *this;
   }
-  inline consteval Subcommand setUsage(StringRef usage) noexcept {
+  inline constexpr Subcommand setUsage(StringRef usage) noexcept {
     this->usage = usage;
     return *this;
   }
-  inline consteval Subcommand addOpt(Opt opt) noexcept {
+  inline constexpr Subcommand addOpt(Opt opt) noexcept {
     opts.at(optPos++) = opt;
     return *this;
   }
-  inline consteval Subcommand setArgs(StringRef args) noexcept {
+  inline constexpr Subcommand setArgs(StringRef args) noexcept {
     this->args = args;
     return *this;
   }

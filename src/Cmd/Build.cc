@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <span>
 
-static constinit const auto buildCli =
+static constexpr auto buildCli =
     Subcommand<4>("build")
         .setDesc(buildDesc)
         .setUsage("[OPTIONS]")

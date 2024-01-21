@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <span>
 
-static constinit const auto runCli =
+static constexpr auto runCli =
     Subcommand<3>("run")
         .setDesc(runDesc)
         .setUsage("[OPTIONS] [args]...")

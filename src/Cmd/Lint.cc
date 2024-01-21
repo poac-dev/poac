@@ -10,7 +10,7 @@
 #include <fstream>
 #include <span>
 
-static constinit const auto lintCli =
+static constexpr auto lintCli =
     Subcommand<1>("lint")
         .setDesc(lintDesc)
         .setUsage("[OPTIONS]")

@@ -14,7 +14,7 @@
 #include <span>
 #include <string>
 
-static constinit const auto fmtCli =
+static constexpr auto fmtCli =
     Subcommand<1>("fmt")
         .setDesc(fmtDesc)
         .setUsage("[OPTIONS]")

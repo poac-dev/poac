@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <string>
 
-static constinit const auto tidyCli =
+static constexpr auto tidyCli =
     Subcommand<1>("tidy")
         .setDesc(tidyDesc)
         .setUsage("[OPTIONS]")
