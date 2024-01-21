@@ -235,6 +235,7 @@ BuildConfig::emitMakefile(std::ostream& os) const {
     emitTarget(os, "all", all.value());
   }
   const Vec<String> sortedTargets = topoSort(targets, targetDeps);
+  // NOLINTNEXTLINE(modernize-loop-convert)
   for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
     emitTarget(
         os, *itr, targets.at(*itr).remDeps, targets.at(*itr).sourceFile,
