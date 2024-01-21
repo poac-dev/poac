@@ -13,14 +13,14 @@ struct Oid : public GlobalState {
   git_oid oid;
   git_oid* raw = nullptr;
 
-  explicit Oid(git_oid);
+  explicit Oid(git_oid oid);
 
-  explicit Oid(git_oid*);
+  explicit Oid(git_oid* oid);
 
-  explicit Oid(const git_oid*);
+  explicit Oid(const git_oid* oid);
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(StringRef);
+  explicit Oid(StringRef str);
 
   // Since Oid would not be constructed by itself, the destructor is not
   // responsible for freeing the raw pointer.
@@ -39,7 +39,7 @@ struct Oid : public GlobalState {
   String toString() const;
 };
 
-std::ostream& operator<<(std::ostream&, const Oid&);
-bool operator==(const Oid&, const Oid&);
+std::ostream& operator<<(std::ostream& os, const Oid& o);
+bool operator==(const Oid& lhs, const Oid& rhs);
 
 } // end namespace git2

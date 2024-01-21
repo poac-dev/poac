@@ -15,7 +15,7 @@ public:
   Config();
   ~Config();
 
-  explicit Config(git_config*);
+  explicit Config(git_config* raw);
 
   Config(const Config&) = delete;
   Config& operator=(const Config&) = delete;
@@ -26,7 +26,7 @@ public:
   Config& openDefault();
 
   /// Get the value of a string config variable as an owned string.
-  String getString(StringRef);
+  String getString(StringRef name);
 };
 
 } // end namespace git2

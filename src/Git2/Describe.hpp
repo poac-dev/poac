@@ -19,7 +19,7 @@ struct DescribeOptions : public GlobalState {
   DescribeOptions(DescribeOptions&&) = default;
   DescribeOptions& operator=(DescribeOptions&&) = default;
 
-  DescribeOptions& maxCandidatesTags(unsigned int);
+  DescribeOptions& maxCandidatesTags(unsigned int max);
 
   /// Sets the reference lookup strategy
   ///
@@ -33,14 +33,14 @@ struct DescribeOptions : public GlobalState {
 
   /// Indicates when calculating the distance from the matching tag or
   /// reference whether to only walk down the first-parent ancestry.
-  DescribeOptions& onlyFollowFirstParent(bool);
+  DescribeOptions& onlyFollowFirstParent(bool follow);
 
   /// If no matching tag or reference is found whether a describe option would
   /// normally fail. This option indicates, however, that it will instead fall
   /// back to showing the full id of the commit.
-  DescribeOptions& showCommitOidAsFallback(bool);
+  DescribeOptions& showCommitOidAsFallback(bool show);
 
-  DescribeOptions& pattern(StringRef);
+  DescribeOptions& pattern(StringRef pattern);
 };
 
 struct DescribeFormatOptions : public GlobalState {
@@ -58,15 +58,15 @@ struct DescribeFormatOptions : public GlobalState {
   ///
   /// The value is the lower bound for the length of the abbreviated string,
   /// and the default is 7.
-  DescribeFormatOptions& abbreviatedSize(unsigned int);
+  DescribeFormatOptions& abbreviatedSize(unsigned int size);
 
   /// Sets whether or not the long format is used even when a shorter name
   /// could be used.
-  DescribeFormatOptions& alwaysUseLongFormat(bool);
+  DescribeFormatOptions& alwaysUseLongFormat(bool long_f);
 
   /// If the workdir is dirty and this is set, this string will be appended to
   /// the description string.
-  DescribeFormatOptions& dirtySuffix(StringRef);
+  DescribeFormatOptions& dirtySuffix(StringRef suffix);
 };
 
 struct Describe : public GlobalState {
@@ -80,9 +80,9 @@ struct Describe : public GlobalState {
   Describe(Describe&&) = default;
   Describe& operator=(Describe&&) = default;
 
-  Describe& workdir(const Repository&, DescribeOptions&);
+  Describe& workdir(const Repository& repo, DescribeOptions& opts);
 
-  String format(const DescribeFormatOptions&) const;
+  String format(const DescribeFormatOptions& opts) const;
 };
 
 } // namespace git2

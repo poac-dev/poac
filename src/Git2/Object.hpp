@@ -18,7 +18,7 @@ struct Object : public GlobalState {
   Object(Object&&) = default;
   Object& operator=(Object&&) = default;
 
-  explicit Object(git_object*);
+  explicit Object(git_object* obj);
 
   /// Get the id (SHA1) of a repository object.
   Oid id() const;

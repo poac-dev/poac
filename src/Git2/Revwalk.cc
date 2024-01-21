@@ -34,8 +34,8 @@ Revwalk::simplifyFirstParent() {
 }
 
 Revwalk&
-Revwalk::push(const Oid& oid_) {
-  git2Throw(git_revwalk_push(this->raw, oid_.raw));
+Revwalk::push(const Oid& oid) {
+  git2Throw(git_revwalk_push(this->raw, oid.raw));
   return *this;
 }
 

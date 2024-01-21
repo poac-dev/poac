@@ -24,7 +24,7 @@ struct Logger {
   ~Logger() noexcept = default;
 
   static Logger& instance() noexcept;
-  static void setLevel(LogLevel) noexcept;
+  static void setLevel(LogLevel level) noexcept;
   static LogLevel getLevel() noexcept;
 
   template <typename... Args>
