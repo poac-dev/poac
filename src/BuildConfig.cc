@@ -312,10 +312,9 @@ runMM(const String& sourceFile, const bool isTest = false) {
   String command =
       "cd " + getOutDir() + " && " + CXX + CXXFLAGS + DEFINES + INCLUDES;
   if (isTest) {
-    command += " -DPOAC_TEST -MM " + sourceFile;
-  } else {
-    command += " -MM " + sourceFile;
+    command += " -DPOAC_TEST";
   }
+  command += " -MM " + sourceFile;
   return getCmdOutput(command);
 }
 
@@ -367,8 +366,29 @@ containsTestCode(const String& sourceFile) {
   String line;
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != String::npos) {
-      Logger::debug("Contains test code: ", sourceFile);
-      return true;
+      // TODO: Can't we somehow elegantly make the compiler command sharable?
+      String command = CXX;
+      command += " -E ";
+      command += CXXFLAGS;
+      command += DEFINES;
+      command += INCLUDES;
+      command += " " + sourceFile;
+
+      const String src = getCmdOutput(command);
+
+      command += " -DPOAC_TEST";
+      const String testSrc = getCmdOutput(command);
+
+      // If the source file contains POAC_TEST, by processing the source
+      // file with -E, we can check if the source file contains POAC_TEST
+      // or not semantically.  If the source file contains POAC_TEST, the
+      // test source file should be different from the original source
+      // file.
+      const bool containsTest = src != testSrc;
+      if (containsTest) {
+        Logger::debug("Found test code: ", sourceFile);
+      }
+      return containsTest;
     }
   }
   return false;
