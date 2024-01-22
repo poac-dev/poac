@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <span>
 
-static const auto RUN_CLI =
+static const auto RUN_CMD =
     Subcmd("run")
         .setDesc(runDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
@@ -23,7 +23,7 @@ static const auto RUN_CLI =
 
 void
 runHelp() noexcept {
-  RUN_CLI.printHelp();
+  RUN_CMD.printHelp();
 }
 
 int

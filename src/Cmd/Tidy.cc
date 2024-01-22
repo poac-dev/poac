@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <string>
 
-static const auto TIDY_CLI =
+static const auto TIDY_CMD =
     Subcmd("tidy")
         .setDesc(tidyDesc)
         .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"))
@@ -15,7 +15,7 @@ static const auto TIDY_CLI =
 
 void
 tidyHelp() noexcept {
-  TIDY_CLI.printHelp();
+  TIDY_CMD.printHelp();
 }
 
 int
@@ -30,7 +30,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     }
     else {
-      return TIDY_CLI.noSuchArg(arg);
+      return TIDY_CMD.noSuchArg(arg);
     }
   }
 

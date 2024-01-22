@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <span>
 
-static const auto TEST_CLI =
+static const auto TEST_CMD =
     Subcmd("test")
         .setDesc(testDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
@@ -22,7 +22,7 @@ static const auto TEST_CLI =
 
 void
 testHelp() noexcept {
-  TEST_CLI.printHelp();
+  TEST_CMD.printHelp();
 }
 
 int
@@ -48,7 +48,7 @@ testMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return TEST_CLI.noSuchArg(arg);
+      return TEST_CMD.noSuchArg(arg);
     }
   }
 

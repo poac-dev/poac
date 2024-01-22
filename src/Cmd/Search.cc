@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-static const auto SEARCH_CLI =
+static const auto SEARCH_CMD =
     Subcmd("search")
         .setDesc(searchDesc)
         .addOpt(Opt{ "--per-page" }
@@ -26,7 +26,7 @@ static const auto SEARCH_CLI =
 
 void
 searchHelp() noexcept {
-  SEARCH_CLI.printHelp();
+  SEARCH_CMD.printHelp();
 }
 
 static usize
@@ -65,7 +65,7 @@ searchMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return SEARCH_CLI.noSuchArg(arg);
+      return SEARCH_CMD.noSuchArg(arg);
     }
   }
 

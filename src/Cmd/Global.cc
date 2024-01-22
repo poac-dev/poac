@@ -4,7 +4,6 @@
 #include "../Rustify.hpp"
 #include "../TermColor.hpp"
 
-#include <algorithm>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -116,7 +115,7 @@ Subcmd&
 Subcmd::finalize() noexcept {
   // We do forceColor here to get consistent maxOptLen regardless of the
   // value of ColorState.  This is because this function can be called
-  // when we initialize cli objects, such as BUILD_CLI, meaning that
+  // when we initialize Subcmd objects, such as BUILD_CMD, meaning that
   // this function will be called before ColorState is initialized through
   // the main function.  But with POAC_TERM_COLOR, the ColorState will be
   // set to an arbitrary value, so this can cause inconsistent maxOptLen.
@@ -181,3 +180,4 @@ Subcmd::printHelp() const noexcept {
     std::cout << '\n';
   }
 }
+#include <algorithm>
