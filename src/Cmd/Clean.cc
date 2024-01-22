@@ -7,7 +7,7 @@
 #include <span>
 #include <string>
 
-static const auto CLEAN_CLI =
+static const auto CLEAN_CMD =
     Subcmd("clean")
         .setDesc(cleanDesc)
         .addOpt(Opt{ "--profile", "-p" }
@@ -17,7 +17,7 @@ static const auto CLEAN_CLI =
 
 void
 cleanHelp() noexcept {
-  CLEAN_CLI.printHelp();
+  CLEAN_CMD.printHelp();
 }
 
 int
@@ -45,7 +45,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
       outDir /= args[1];
     }
     else {
-      return CLEAN_CLI.noSuchArg(arg);
+      return CLEAN_CMD.noSuchArg(arg);
     }
   }
 

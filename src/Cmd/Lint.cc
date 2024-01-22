@@ -10,7 +10,7 @@
 #include <fstream>
 #include <span>
 
-static const auto LINT_CLI =
+static const auto LINT_CMD =
     Subcmd("lint")
         .setDesc(lintDesc)
         .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
@@ -18,7 +18,7 @@ static const auto LINT_CLI =
 
 void
 lintHelp() noexcept {
-  LINT_CLI.printHelp();
+  LINT_CMD.printHelp();
 }
 
 static int
@@ -73,7 +73,7 @@ lintMain(const std::span<const StringRef> args) {
       cpplintArgs += args[i];
     }
     else {
-      return LINT_CLI.noSuchArg(arg);
+      return LINT_CMD.noSuchArg(arg);
     }
   }
 

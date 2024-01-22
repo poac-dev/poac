@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <span>
 
-static const auto BUILD_CLI =
+static const auto BUILD_CMD =
     Subcmd("build")
         .setDesc(buildDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
@@ -24,7 +24,7 @@ static const auto BUILD_CLI =
 
 void
 buildHelp() noexcept {
-  BUILD_CLI.printHelp();
+  BUILD_CMD.printHelp();
 }
 
 int
@@ -69,7 +69,7 @@ buildMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return BUILD_CLI.noSuchArg(arg);
+      return BUILD_CMD.noSuchArg(arg);
     }
   }
 

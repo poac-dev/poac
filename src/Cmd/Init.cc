@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-static const auto INIT_CLI =
+static const auto INIT_CMD =
     Subcmd("init")
         .setDesc(initDesc)
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
@@ -21,7 +21,7 @@ static const auto INIT_CLI =
 
 void
 initHelp() noexcept {
-  INIT_CLI.printHelp();
+  INIT_CMD.printHelp();
 }
 
 int
@@ -39,7 +39,7 @@ initMain(const std::span<const StringRef> args) {
       isBin = false;
     }
     else {
-      return INIT_CLI.noSuchArg(arg);
+      return INIT_CMD.noSuchArg(arg);
     }
   }
 

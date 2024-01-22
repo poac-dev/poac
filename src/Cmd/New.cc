@@ -16,7 +16,7 @@
 #include <span>
 #include <string>
 
-static const auto NEW_CLI =
+static const auto NEW_CMD =
     Subcmd("new")
         .setDesc(newDesc)
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
@@ -28,7 +28,7 @@ static const auto NEW_CLI =
 
 void
 newHelp() noexcept {
-  NEW_CLI.printHelp();
+  NEW_CMD.printHelp();
 }
 
 static inline constexpr StringRef MAIN_CC =
@@ -144,7 +144,7 @@ newMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return NEW_CLI.noSuchArg(arg);
+      return NEW_CMD.noSuchArg(arg);
     }
   }
 

@@ -14,7 +14,7 @@
 #include <span>
 #include <string>
 
-static const auto FMT_CLI =
+static const auto FMT_CMD =
     Subcmd("fmt")
         .setDesc(fmtDesc)
         .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
@@ -22,7 +22,7 @@ static const auto FMT_CLI =
 
 void
 fmtHelp() noexcept {
-  FMT_CLI.printHelp();
+  FMT_CMD.printHelp();
 }
 
 int
@@ -37,7 +37,7 @@ fmtMain(const std::span<const StringRef> args) {
       isCheck = true;
     }
     else {
-      return FMT_CLI.noSuchArg(arg);
+      return FMT_CMD.noSuchArg(arg);
     }
   }
 
