@@ -4,6 +4,7 @@
 #include "../Rustify.hpp"
 #include "../TermColor.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -180,4 +181,3 @@ Subcmd::printHelp() const noexcept {
     std::cout << '\n';
   }
 }
-#include <algorithm>
