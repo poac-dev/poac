@@ -23,7 +23,7 @@ struct SemverError : public PoacError {
 };
 
 struct VersionToken {
-  enum Kind {
+  enum class Kind {
     Num, // [1-9][0-9]*
     Ident, // [a-zA-Z0-9][a-zA-Z0-9-]*
     Dot, // .
@@ -32,6 +32,7 @@ struct VersionToken {
     Eof,
     Unknown,
   };
+  using enum Kind;
 
   Kind kind;
   std::variant<std::monostate, u64, StringRef> value;

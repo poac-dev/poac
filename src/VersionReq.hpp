@@ -59,13 +59,14 @@ struct OptVersion {
 //   6.2. `<=A.B` is equivalent to `<A.(B+1).0`
 //   6.3. `<=A` is equivalent to `<(A+1).0.0`
 struct Comparator {
-  enum Op {
+  enum class Op {
     Exact, // =
     Gt, // >
     Gte, // >=
     Lt, // <
     Lte, // <=
   };
+  using enum Op;
 
   Option<Op> op;
   u64 major{};
