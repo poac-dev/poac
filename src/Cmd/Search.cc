@@ -10,9 +10,9 @@
 #include <span>
 #include <string>
 
-static const auto SEARCH_CMD =
+const auto searchCmd =
     Subcmd{ "search" }
-        .setDesc(searchDesc)
+        .setDesc("Search for packages in the registry")
         .addOpt(Opt{ "--per-page" }
                     .setDesc("Number of results to show per page")
                     .setPlaceholder("<NUM>")
@@ -22,11 +22,6 @@ static const auto SEARCH_CMD =
                     .setPlaceholder("<NUM>")
                     .setDefault("1"))
         .setArg(Arg{ "<name>" });
-
-void
-searchHelp() noexcept {
-  SEARCH_CMD.printHelp();
-}
 
 static usize
 writeCallback(void* contents, usize size, usize nmemb, String* userp) {
@@ -64,7 +59,7 @@ searchMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return SEARCH_CMD.noSuchArg(arg);
+      return searchCmd.noSuchArg(arg);
     }
   }
 

@@ -34,7 +34,7 @@ toMacroName(StringRef name) noexcept {
 }
 
 int
-runCmd(const StringRef cmd) noexcept {
+execCmd(const StringRef cmd) noexcept {
   Logger::debug("Running `", cmd, '`');
   const int status = std::system(cmd.data());
   const int exitCode = status >> 8;

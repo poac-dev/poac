@@ -7,14 +7,10 @@
 #include <cstdlib>
 #include <string>
 
-static const auto TIDY_CMD = Subcmd{ "tidy" }.setDesc(tidyDesc).addOpt(
-    Opt{ "--fix" }.setDesc("Automatically apply lint suggestions")
-);
-
-void
-tidyHelp() noexcept {
-  TIDY_CMD.printHelp();
-}
+const auto tidyCmd =
+    Subcmd{ "tidy" }
+        .setDesc("Run clang-tidy")
+        .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"));
 
 int
 tidyMain(const std::span<const StringRef> args) {
@@ -28,7 +24,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     }
     else {
-      return TIDY_CMD.noSuchArg(arg);
+      return tidyCmd.noSuchArg(arg);
     }
   }
 
@@ -58,5 +54,5 @@ tidyMain(const std::span<const StringRef> args) {
   makeCmd += " tidy";
 
   Logger::info("Running", "clang-tidy");
-  return runCmd(makeCmd);
+  return execCmd(makeCmd);
 }

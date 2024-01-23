@@ -10,20 +10,16 @@
 #include <cstdlib>
 #include <span>
 
-static const auto RUN_CMD =
+const auto runCmd =
     Subcmd{ "run" }
-        .setDesc(runDesc)
+        .setShort("r")
+        .setDesc("Build and execute src/main.cc")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"
         ))
         .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
         .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"));
-
-void
-runHelp() noexcept {
-  RUN_CMD.printHelp();
-}
 
 int
 runMain(const std::span<const StringRef> args) {
@@ -61,6 +57,6 @@ runMain(const std::span<const StringRef> args) {
 
   const String& projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
-  const int exitCode = runCmd(command);
+  const int exitCode = execCmd(command);
   return exitCode;
 }

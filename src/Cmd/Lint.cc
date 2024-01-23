@@ -10,14 +10,10 @@
 #include <fstream>
 #include <span>
 
-static const auto LINT_CMD = Subcmd{ "lint" }.setDesc(lintDesc).addOpt(
-    Opt{ "--exclude" }.setDesc("Exclude files from linting")
-);
-
-void
-lintHelp() noexcept {
-  LINT_CMD.printHelp();
-}
+const auto lintCmd =
+    Subcmd{ "lint" }
+        .setDesc("Lint codes using cpplint")
+        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"));
 
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
@@ -44,7 +40,7 @@ lint(const StringRef name, const StringRef cpplintArgs) {
   }
   cpplintCmd += " --recursive ."; // This should be after `--exclude` options
 
-  const int exitCode = runCmd(cpplintCmd);
+  const int exitCode = execCmd(cpplintCmd);
   if (exitCode != 0) {
     Logger::error("`cpplint` exited with status ", exitCode);
     return EXIT_FAILURE;
@@ -71,7 +67,7 @@ lintMain(const std::span<const StringRef> args) {
       cpplintArgs += args[i];
     }
     else {
-      return LINT_CMD.noSuchArg(arg);
+      return lintCmd.noSuchArg(arg);
     }
   }
 

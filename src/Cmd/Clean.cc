@@ -7,16 +7,11 @@
 #include <span>
 #include <string>
 
-static const auto CLEAN_CMD = Subcmd{ "clean" }.setDesc(cleanDesc).addOpt(
-    Opt{ "--profile", "-p" }
-        .setDesc("Disable parallel builds")
-        .setPlaceholder("<PROFILE>")
-);
-
-void
-cleanHelp() noexcept {
-  CLEAN_CMD.printHelp();
-}
+const auto cleanCmd = Subcmd{ "clean" }
+                          .setDesc("Remove the built directory")
+                          .addOpt(Opt{ "--profile", "-p" }
+                                      .setDesc("Disable parallel builds")
+                                      .setPlaceholder("<PROFILE>"));
 
 int
 cleanMain(const std::span<const StringRef> args) noexcept {
@@ -43,7 +38,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
       outDir /= args[1];
     }
     else {
-      return CLEAN_CMD.noSuchArg(arg);
+      return cleanCmd.noSuchArg(arg);
     }
   }
 

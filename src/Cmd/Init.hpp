@@ -1,12 +1,10 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef initDesc =
-    "Create a new poac package in an existing directory";
+extern const Subcmd initCmd;
 
-void initHelp() noexcept;
 int initMain(std::span<const StringRef> args);

@@ -3,15 +3,15 @@
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
-#include "Global.hpp"
 
 #include <chrono>
 #include <cstdlib>
 #include <span>
 
-static const auto BUILD_CMD =
+const auto buildCmd =
     Subcmd{ "build" }
-        .setDesc(buildDesc)
+        .setShort("b")
+        .setDesc("Compile a local package and all of its dependencies")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"
         ))
@@ -21,18 +21,13 @@ static const auto BUILD_CMD =
         ))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"));
 
-void
-buildHelp() noexcept {
-  BUILD_CMD.printHelp();
-}
-
 int
 buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
   const String makeCommand = getMakeCommand(isParallel) + " -C " + outDir;
-  const int exitCode = runCmd(makeCommand);
+  const int exitCode = execCmd(makeCommand);
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;
@@ -68,7 +63,7 @@ buildMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return BUILD_CMD.noSuchArg(arg);
+      return buildCmd.noSuchArg(arg);
     }
   }
 

@@ -14,14 +14,10 @@
 #include <span>
 #include <string>
 
-static const auto FMT_CMD = Subcmd{ "fmt" }.setDesc(fmtDesc).addOpt(
-    Opt{ "--check" }.setDesc("Run clang-format in check mode")
-);
-
-void
-fmtHelp() noexcept {
-  FMT_CMD.printHelp();
-}
+const auto fmtCmd =
+    Subcmd{ "fmt" }
+        .setDesc("Format codes using clang-format")
+        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"));
 
 int
 fmtMain(const std::span<const StringRef> args) {
@@ -35,7 +31,7 @@ fmtMain(const std::span<const StringRef> args) {
       isCheck = true;
     }
     else {
-      return FMT_CMD.noSuchArg(arg);
+      return fmtCmd.noSuchArg(arg);
     }
   }
 
@@ -97,7 +93,7 @@ fmtMain(const std::span<const StringRef> args) {
   const String clangFormat = "cd " + manifestDir.string()
                              + " && ${POAC_FMT:-clang-format} "
                              + clangFormatArgs;
-  const int exitCode = runCmd(clangFormat);
+  const int exitCode = execCmd(clangFormat);
   if (exitCode != 0) {
     Logger::error("clang-format exited with code ", exitCode);
     return exitCode;

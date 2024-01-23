@@ -10,18 +10,13 @@
 #include <span>
 #include <string>
 
-static const auto INIT_CMD =
+const auto initCmd =
     Subcmd{ "init" }
-        .setDesc(initDesc)
+        .setDesc("Create a new poac package in an existing directory")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"
         ))
         .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"));
-
-void
-initHelp() noexcept {
-  INIT_CMD.printHelp();
-}
 
 int
 initMain(const std::span<const StringRef> args) {
@@ -38,7 +33,7 @@ initMain(const std::span<const StringRef> args) {
       isBin = false;
     }
     else {
-      return INIT_CMD.noSuchArg(arg);
+      return initCmd.noSuchArg(arg);
     }
   }
 

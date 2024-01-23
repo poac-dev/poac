@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef cleanDesc = "Remove the built directory";
+extern const Subcmd cleanCmd;
 
-void cleanHelp() noexcept;
 int cleanMain(std::span<const StringRef> args) noexcept;

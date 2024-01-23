@@ -97,6 +97,7 @@ struct Arg {
 
 class Subcmd {
   StringRef name;
+  StringRef shortName;
   StringRef desc;
   Vec<Opt> opts;
   Arg arg;
@@ -112,14 +113,19 @@ public:
   explicit Subcmd(StringRef name) noexcept : name(name) {}
 
   Subcmd& setDesc(StringRef desc) noexcept;
+  StringRef getDesc() const noexcept;
+  Subcmd& setShort(StringRef shortName) noexcept;
+  bool hasShort() const noexcept;
   Subcmd& addOpt(const Opt& opt) noexcept;
   Subcmd& setArg(const Arg& arg) noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
+  void printHelp() const noexcept;
+
+private:
   /// Calculate the maximum length of the left side of the helps to align the
   /// descriptions with 2 spaces.
   usize calcMaxOffset() const noexcept;
-  void printHelp() const noexcept;
 };
 
 bool commandExists(StringRef cmd) noexcept;

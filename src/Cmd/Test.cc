@@ -9,20 +9,16 @@
 #include <cstdlib>
 #include <span>
 
-static const auto TEST_CMD =
+const auto testCmd =
     Subcmd{ "test" }
-        .setDesc(testDesc)
+        .setShort("t")
+        .setDesc("Run the tests of a local package")
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Test with debug information [default]"
         ))
         .addOpt(Opt{ "--release", "-r" }.setDesc("Test with optimizations"))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds & tests"
         ));
-
-void
-testHelp() noexcept {
-  TEST_CMD.printHelp();
-}
 
 int
 testMain(const std::span<const StringRef> args) {
@@ -47,7 +43,7 @@ testMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return TEST_CMD.noSuchArg(arg);
+      return testCmd.noSuchArg(arg);
     }
   }
 
@@ -55,7 +51,7 @@ testMain(const std::span<const StringRef> args) {
 
   const String outDir = emitMakefile(isDebug);
   const int exitCode =
-      runCmd(getMakeCommand(isParallel) + " -C " + outDir + " test");
+      execCmd(getMakeCommand(isParallel) + " -C " + outDir + " test");
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

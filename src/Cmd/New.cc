@@ -16,21 +16,16 @@
 #include <span>
 #include <string>
 
-static const auto NEW_CMD =
+const auto newCmd =
     Subcmd{ "new" }
-        .setDesc(newDesc)
+        .setDesc("Create a new poac project")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"
         ))
         .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"))
         .setArg(Arg{ "<name>" });
 
-void
-newHelp() noexcept {
-  NEW_CMD.printHelp();
-}
-
-static inline constexpr StringRef MAIN_CC =
+static constexpr StringRef MAIN_CC =
     "#include <iostream>\n\n"
     "int main() {\n"
     "  std::cout << \"Hello, world!\" << std::endl;\n"
@@ -143,7 +138,7 @@ newMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return NEW_CMD.noSuchArg(arg);
+      return newCmd.noSuchArg(arg);
     }
   }
 

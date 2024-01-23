@@ -14,7 +14,7 @@ commandExists(const StringRef cmd) noexcept {
   String checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";
-  return runCmd(checkCmd) == EXIT_SUCCESS;
+  return execCmd(checkCmd) == EXIT_SUCCESS;
 }
 
 static void
@@ -112,6 +112,19 @@ Subcmd&
 Subcmd::setDesc(StringRef desc) noexcept {
   this->desc = desc;
   return *this;
+}
+StringRef
+Subcmd::getDesc() const noexcept {
+  return desc;
+}
+Subcmd&
+Subcmd::setShort(StringRef shortName) noexcept {
+  this->shortName = shortName;
+  return *this;
+}
+bool
+Subcmd::hasShort() const noexcept {
+  return !shortName.empty();
 }
 Subcmd&
 Subcmd::addOpt(const Opt& opt) noexcept {
