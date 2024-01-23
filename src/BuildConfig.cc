@@ -247,8 +247,8 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 void
 BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
   const Path baseDirPath = fs::canonical(baseDir);
-  const String firstIdent(2, ' ');
-  const String secondIdent(4, ' ');
+  const String indent1(2, ' ');
+  const String indent2(4, ' ');
 
   std::stringstream ss;
   for (const auto& [target, targetInfo] : targets) {
@@ -287,12 +287,12 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
     cmd += " -o ";
     cmd += output;
 
-    ss << firstIdent << "{\n";
-    ss << secondIdent << "\"directory\": " << baseDirPath << ",\n";
-    ss << secondIdent << "\"file\": " << std::quoted(file) << ",\n";
-    ss << secondIdent << "\"output\": " << std::quoted(output) << ",\n";
-    ss << secondIdent << "\"command\": " << std::quoted(cmd) << "\n";
-    ss << firstIdent << "},\n";
+    ss << indent1 << "{\n";
+    ss << indent2 << "\"directory\": " << baseDirPath << ",\n";
+    ss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
+    ss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
+    ss << indent2 << "\"command\": " << std::quoted(cmd) << "\n";
+    ss << indent1 << "},\n";
   }
 
   String output = ss.str();
