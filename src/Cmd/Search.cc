@@ -21,8 +21,7 @@ static const auto SEARCH_CMD =
                     .setDesc("Page number of results to show")
                     .setPlaceholder("<NUM>")
                     .setDefault("1"))
-        .setArg(Arg{ "<name>" })
-        .finalize();
+        .setArg(Arg{ "<name>" });
 
 void
 searchHelp() noexcept {

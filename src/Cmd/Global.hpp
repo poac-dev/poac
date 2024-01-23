@@ -58,8 +58,10 @@ struct Opt {
     return *this;
   }
 
-  String toString(bool forceColor = false) const noexcept;
-  void print(usize maxOptLen) const noexcept;
+  /// Size of `-c, --color <WHEN>` without color.  shrt size should always
+  /// be 2.
+  usize leftSize() const noexcept;
+  void print(usize maxOffset) const noexcept;
 };
 
 static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
@@ -88,6 +90,9 @@ struct Arg {
     this->desc = desc;
     return *this;
   }
+
+  /// Size of left side of the help message.
+  usize leftSize() const noexcept;
 };
 
 class Subcmd {
@@ -95,7 +100,6 @@ class Subcmd {
   StringRef desc;
   Vec<Opt> opts;
   Arg arg;
-  usize maxOptLen = 0;
 
 public:
   Subcmd() noexcept = delete;
@@ -110,14 +114,18 @@ public:
   Subcmd& setDesc(StringRef desc) noexcept;
   Subcmd& addOpt(const Opt& opt) noexcept;
   Subcmd& setArg(const Arg& arg) noexcept;
-  Subcmd& finalize() noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
+  /// Calculate the maximum length of the left side of the helps to align the
+  /// descriptions with 2 spaces.
+  usize calcMaxOffset() const noexcept;
   void printHelp() const noexcept;
 };
 
 bool commandExists(StringRef cmd) noexcept;
 void printHeader(StringRef header) noexcept;
 void printUsage(StringRef cmd, StringRef usage) noexcept;
-void printCommand(StringRef name, StringRef desc, bool hasShort) noexcept;
-void printGlobalOpts(usize maxOptLen) noexcept;
+void printCommand(
+    StringRef name, StringRef desc, bool hasShort, usize maxOffset
+) noexcept;
+void printGlobalOpts(usize maxOffset) noexcept;

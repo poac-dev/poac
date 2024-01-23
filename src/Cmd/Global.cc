@@ -37,7 +37,8 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
 
 void
 printCommand(
-    const StringRef name, const StringRef desc, const bool hasShort
+    const StringRef name, const StringRef desc, const bool hasShort,
+    usize maxOffset
 ) noexcept {
   String cmd = bold(cyan(name));
   if (hasShort) {
@@ -48,53 +49,58 @@ printCommand(
     cmd += bold(cyan("   "));
   }
 
-  std::cout << "  " << std::left;
   if (shouldColor()) {
-    std::cout << std::setw(44);
-  } else {
-    std::cout << std::setw(10);
+    maxOffset += 34; // invisible color escape sequences.
   }
-  std::cout << cmd << desc << '\n';
+  std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
+            << cmd << desc << '\n';
 }
 
 void
-printGlobalOpts(const usize maxOptLen) noexcept {
+printGlobalOpts(const usize maxOffset) noexcept {
   for (const auto& opt : GLOBAL_OPTS) {
-    opt.print(maxOptLen);
+    opt.print(maxOffset);
   }
 }
 
-String
-Opt::toString(const bool forceColor) const noexcept {
-  String str;
+usize
+Opt::leftSize() const noexcept {
+  // shrt.size() = 2
+  // `, `.size() = 2
+  // lng.size() = ?
+  // ` `.size() = 1
+  // placeholder.size() = ?
+  return 5 + lng.size() + placeholder.size();
+}
+
+void
+Opt::print(usize maxOffset) const noexcept {
+  String option;
   if (!shrt.empty()) {
-    str += bold(cyan(shrt, forceColor), forceColor);
-    str += ", ";
+    option += bold(cyan(shrt));
+    option += ", ";
   } else {
     // This coloring is for the alignment with std::setw later.
-    str += bold(cyan("    ", forceColor), forceColor);
+    option += bold(cyan("    "));
   }
-  str += bold(cyan(lng, forceColor), forceColor);
-  str += ' ';
-  str += cyan(placeholder, forceColor);
-  return str;
-}
+  option += bold(cyan(lng));
+  option += ' ';
+  option += cyan(placeholder);
 
-void
-Opt::print(usize maxOptLen) const noexcept {
-  // TODO: Redundant toString call here and in Subcmd::finalize.
-  const String option = toString();
-  std::cout << "  " << std::left;
   if (shouldColor()) {
-    std::cout << std::setw(static_cast<int>(maxOptLen) + 2);
-  } else {
-    std::cout << std::setw(static_cast<int>(maxOptLen) - 41);
+    maxOffset += 43; // invisible color escape sequences.
   }
-  std::cout << option << desc;
+  std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
+            << option << desc;
   if (!defaultVal.empty()) {
     std::cout << " [default: " << defaultVal << ']';
   }
   std::cout << '\n';
+}
+
+usize
+Arg::leftSize() const noexcept {
+  return name.size();
 }
 
 Subcmd&
@@ -110,23 +116,6 @@ Subcmd::addOpt(const Opt& opt) noexcept {
 Subcmd&
 Subcmd::setArg(const Arg& arg) noexcept {
   this->arg = arg;
-  return *this;
-}
-Subcmd&
-Subcmd::finalize() noexcept {
-  // We do forceColor here to get consistent maxOptLen regardless of the
-  // value of ColorState.  This is because this function can be called
-  // when we initialize Subcmd objects, such as BUILD_CMD, meaning that
-  // this function will be called before ColorState is initialized through
-  // the main function.  But with POAC_TERM_COLOR, the ColorState will be
-  // set to an arbitrary value, so this can cause inconsistent maxOptLen.
-  // TODO: Can't we streamline this?
-  for (const auto& opt : GLOBAL_OPTS) {
-    maxOptLen = std::max(maxOptLen, opt.toString(true).size());
-  }
-  for (const auto& opt : opts) {
-    maxOptLen = std::max(maxOptLen, opt.toString(true).size());
-  }
   return *this;
 }
 
@@ -157,8 +146,27 @@ Subcmd::noSuchArg(StringRef arg) const {
   return EXIT_FAILURE;
 }
 
+usize
+Subcmd::calcMaxOffset() const noexcept {
+  usize maxOffset = 0;
+  for (const auto& opt : GLOBAL_OPTS) {
+    maxOffset = std::max(maxOffset, opt.leftSize());
+  }
+  for (const auto& opt : opts) {
+    maxOffset = std::max(maxOffset, opt.leftSize());
+  }
+  if (!arg.desc.empty()) {
+    // If args does not have a description, it is not necessary to consider
+    // its length.
+    maxOffset = std::max(maxOffset, arg.leftSize());
+  }
+  return maxOffset + 2; // padding between left and desc.
+}
+
 void
 Subcmd::printHelp() const noexcept {
+  const usize maxOffset = calcMaxOffset();
+
   std::cout << desc << '\n';
   std::cout << '\n';
 
@@ -166,17 +174,18 @@ Subcmd::printHelp() const noexcept {
   std::cout << '\n';
 
   printHeader("Options:");
-  printGlobalOpts(maxOptLen);
+  printGlobalOpts(maxOffset);
   for (const auto& opt : opts) {
-    opt.print(maxOptLen);
+    opt.print(maxOffset);
   }
 
   if (!arg.name.empty()) {
     std::cout << '\n';
     printHeader("Arguments:");
-    std::cout << "  " << arg.name;
+    std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
+              << arg.name;
     if (!arg.desc.empty()) {
-      std::cout << '\t' << arg.desc;
+      std::cout << arg.desc;
     }
     std::cout << '\n';
   }

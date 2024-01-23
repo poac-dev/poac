@@ -17,8 +17,7 @@ static const auto TEST_CMD =
         ))
         .addOpt(Opt{ "--release", "-r" }.setDesc("Test with optimizations"))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds & tests"
-        ))
-        .finalize();
+        ));
 
 void
 testHelp() noexcept {

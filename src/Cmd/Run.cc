@@ -18,8 +18,7 @@ static const auto RUN_CMD =
         ))
         .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
-        .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"))
-        .finalize();
+        .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"));
 
 void
 runHelp() noexcept {
@@ -31,8 +30,8 @@ runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool isParallel = true;
-  String runArgs;
-  for (usize i = 0; i < args.size(); ++i) {
+  usize i = 0;
+  for (i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "run" } })
 
@@ -46,8 +45,13 @@ runMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      runArgs += " " + String(arg);
+      break;
     }
+  }
+
+  String runArgs;
+  for (; i < args.size(); ++i) {
+    runArgs += ' ' + String(args[i]);
   }
 
   String outDir;
