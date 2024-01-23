@@ -37,7 +37,8 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
 
 void
 printCommand(
-    const StringRef name, const StringRef desc, const bool hasShort
+    const StringRef name, const StringRef desc, const bool hasShort,
+    usize maxOffset
 ) noexcept {
   String cmd = bold(cyan(name));
   if (hasShort) {
@@ -50,17 +51,15 @@ printCommand(
 
   std::cout << "  " << std::left;
   if (shouldColor()) {
-    std::cout << std::setw(44);
-  } else {
-    std::cout << std::setw(10);
+    maxOffset += 34; // invisible color escape sequences.
   }
-  std::cout << cmd << desc << '\n';
+  std::cout << std::setw(static_cast<int>(maxOffset)) << cmd << desc << '\n';
 }
 
 void
-printGlobalOpts(const usize maxOptLen) noexcept {
+printGlobalOpts(const usize maxOffset) noexcept {
   for (const auto& opt : GLOBAL_OPTS) {
-    opt.print(maxOptLen);
+    opt.print(maxOffset);
   }
 }
 
@@ -75,7 +74,7 @@ Opt::leftSize() const noexcept {
 }
 
 void
-Opt::print(usize maxLeftSize) const noexcept {
+Opt::print(usize maxOffset) const noexcept {
   String option;
   if (!shrt.empty()) {
     option += bold(cyan(shrt));
@@ -89,11 +88,10 @@ Opt::print(usize maxLeftSize) const noexcept {
   option += cyan(placeholder);
 
   std::cout << "  " << std::left;
-  maxLeftSize += 2; // spaces between left and desc.
   if (shouldColor()) {
-    maxLeftSize += 43; // invisible color escape sequences.
+    maxOffset += 43; // invisible color escape sequences.
   }
-  std::cout << std::setw(static_cast<int>(maxLeftSize)) << option << desc;
+  std::cout << std::setw(static_cast<int>(maxOffset)) << option << desc;
   if (!defaultVal.empty()) {
     std::cout << " [default: " << defaultVal << ']';
   }
@@ -143,36 +141,46 @@ Subcmd::noSuchArg(StringRef arg) const {
   return EXIT_FAILURE;
 }
 
+usize
+Subcmd::calcMaxOffset() const noexcept {
+  usize maxOffset = 0;
+  for (const auto& opt : GLOBAL_OPTS) {
+    maxOffset = std::max(maxOffset, opt.leftSize());
+  }
+  for (const auto& opt : opts) {
+    maxOffset = std::max(maxOffset, opt.leftSize());
+  }
+  if (!arg.desc.empty()) {
+    // If args does not have a description, it is not necessary to consider
+    // its length.
+    maxOffset = std::max(maxOffset, arg.name.size());
+  }
+  return maxOffset + 2; // padding between left and desc.
+}
+
 void
 Subcmd::printHelp() const noexcept {
+  const usize maxOffset = calcMaxOffset();
+
   std::cout << desc << '\n';
   std::cout << '\n';
 
   printUsage(name, arg.name);
   std::cout << '\n';
 
-  // Calculate the maximum length of the left side of the options to align the
-  // descriptions with 2 spaces.
-  usize maxLeftSize = 0;
-  for (const auto& opt : GLOBAL_OPTS) {
-    maxLeftSize = std::max(maxLeftSize, opt.leftSize());
-  }
-  for (const auto& opt : opts) {
-    maxLeftSize = std::max(maxLeftSize, opt.leftSize());
-  }
-
   printHeader("Options:");
-  printGlobalOpts(maxLeftSize);
+  printGlobalOpts(maxOffset);
   for (const auto& opt : opts) {
-    opt.print(maxLeftSize);
+    opt.print(maxOffset);
   }
 
   if (!arg.name.empty()) {
     std::cout << '\n';
     printHeader("Arguments:");
-    std::cout << "  " << arg.name;
+    std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
+              << arg.name;
     if (!arg.desc.empty()) {
-      std::cout << '\t' << arg.desc;
+      std::cout << arg.desc;
     }
     std::cout << '\n';
   }

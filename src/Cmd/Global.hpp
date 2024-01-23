@@ -61,7 +61,7 @@ struct Opt {
   /// Size of `-c, --color <WHEN>` without color.  shrt size should always
   /// be 2.
   usize leftSize() const noexcept;
-  void print(usize maxLeftSize) const noexcept;
+  void print(usize maxOffset) const noexcept;
 };
 
 static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
@@ -113,11 +113,16 @@ public:
   Subcmd& setArg(const Arg& arg) noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
+  /// Calculate the maximum length of the left side of the helps to align the
+  /// descriptions with 2 spaces.
+  usize calcMaxOffset() const noexcept;
   void printHelp() const noexcept;
 };
 
 bool commandExists(StringRef cmd) noexcept;
 void printHeader(StringRef header) noexcept;
 void printUsage(StringRef cmd, StringRef usage) noexcept;
-void printCommand(StringRef name, StringRef desc, bool hasShort) noexcept;
-void printGlobalOpts(usize maxOptLen) noexcept;
+void printCommand(
+    StringRef name, StringRef desc, bool hasShort, usize maxOffset
+) noexcept;
+void printGlobalOpts(usize maxOffset) noexcept;

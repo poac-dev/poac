@@ -103,12 +103,12 @@ helpMain(const std::span<const StringRef> args) noexcept {
   printUsage("", "[COMMAND]");
   std::cout << '\n';
 
-  const usize maxOptLen = GLOBAL_OPTS[2].leftSize(); // --color
+  const usize maxOffset = GLOBAL_OPTS[2].leftSize() + 2; // --color
   printHeader("Options:");
-  printGlobalOpts(maxOptLen);
+  printGlobalOpts(maxOffset);
   Opt{ "--version", "-V" }
       .setDesc("Print version info and exit")
-      .print(maxOptLen);
+      .print(maxOffset);
   std::cout << '\n';
 
   printHeader("Commands:");
@@ -116,7 +116,8 @@ helpMain(const std::span<const StringRef> args) noexcept {
     if (cmd.isShort) {
       continue;
     }
-    printCommand(name, cmd.desc, cmd.hasShort);
+    // TODO: currently, we assume options are longer than commands.
+    printCommand(name, cmd.desc, cmd.hasShort, maxOffset);
   }
   return EXIT_SUCCESS;
 }
