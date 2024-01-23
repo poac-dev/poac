@@ -40,7 +40,7 @@ toString(const Comparator::Op op) noexcept {
 }
 
 struct ComparatorToken {
-  enum Kind {
+  enum class Kind {
     Eq, // =
     Gt, // >
     Gte, // >=
@@ -50,6 +50,7 @@ struct ComparatorToken {
     Eof,
     Unknown,
   };
+  using enum Kind;
 
   Kind kind;
   std::variant<std::monostate, OptVersion> value;
@@ -433,12 +434,13 @@ Comparator::canonicalize() const noexcept {
 }
 
 struct VersionReqToken {
-  enum Kind {
+  enum class Kind {
     Comp,
     And,
     Eof,
     Unknown,
   };
+  using enum Kind;
 
   Kind kind;
   std::variant<std::monostate, Comparator> value;
