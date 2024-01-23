@@ -13,6 +13,7 @@
 const Subcmd runCmd =
     Subcmd{ "run" }
         .setShort("r")
+        .setDesc("Build and execute src/main.cc")
         .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
             "Build with debug information [default]"
         ))
