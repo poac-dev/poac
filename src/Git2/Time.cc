@@ -1,6 +1,5 @@
 #include "Time.hpp"
 
-#include <array>
 #include <ctime>
 #include <iomanip>
 
