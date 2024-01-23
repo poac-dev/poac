@@ -64,7 +64,7 @@ struct Opt {
   void print(usize maxOffset) const noexcept;
 };
 
-static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
+inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
   Opt{ "--verbose", "-v" }.setDesc("Use verbose output"),
   Opt{ "--quiet", "-q" }.setDesc("Do not print poac log messages"),
   Opt{ "--color" }

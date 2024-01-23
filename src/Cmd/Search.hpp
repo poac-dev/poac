@@ -5,8 +5,7 @@
 #include <span>
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-static inline constexpr StringRef searchDesc =
-    "Search for packages in the registry";
+inline constexpr StringRef searchDesc = "Search for packages in the registry";
 
 void searchHelp() noexcept;
 int searchMain(std::span<const StringRef> args);

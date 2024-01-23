@@ -5,7 +5,7 @@
 #include <span>
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-static inline constexpr StringRef cleanDesc = "Remove the built directory";
+inline constexpr StringRef cleanDesc = "Remove the built directory";
 
 void cleanHelp() noexcept;
 int cleanMain(std::span<const StringRef> args) noexcept;

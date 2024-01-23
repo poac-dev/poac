@@ -5,7 +5,7 @@
 #include <span>
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-static inline constexpr StringRef initDesc =
+inline constexpr StringRef initDesc =
     "Create a new poac package in an existing directory";
 
 void initHelp() noexcept;

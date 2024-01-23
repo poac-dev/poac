@@ -5,7 +5,7 @@
 #include <span>
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-static inline constexpr StringRef versionDesc = "Show version information";
+inline constexpr StringRef versionDesc = "Show version information";
 
 void versionHelp() noexcept;
 int versionMain(std::span<const StringRef> args) noexcept;
