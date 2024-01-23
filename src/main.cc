@@ -116,7 +116,7 @@ helpMain(const std::span<const StringRef> args) noexcept {
     if (cmd.isShort) {
       continue;
     }
-    // TODO: currently, we assume options are longer than commands.
+    // TODO: currently, we assume commands aren't longer than options.
     printCommand(name, cmd.cmd.getDesc(), cmd.cmd.hasShort(), maxOffset);
   }
   return EXIT_SUCCESS;
