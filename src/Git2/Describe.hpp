@@ -9,7 +9,7 @@
 namespace git2 {
 
 struct DescribeOptions : public GlobalState {
-  git_describe_options raw;
+  git_describe_options raw{};
 
   DescribeOptions();
   ~DescribeOptions() noexcept = default;
@@ -44,7 +44,7 @@ struct DescribeOptions : public GlobalState {
 };
 
 struct DescribeFormatOptions : public GlobalState {
-  git_describe_format_options raw;
+  git_describe_format_options raw{};
 
   DescribeFormatOptions();
   ~DescribeFormatOptions() = default;

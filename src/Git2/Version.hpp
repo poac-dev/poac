@@ -6,9 +6,9 @@
 namespace git2 {
 
 struct Version {
-  int major;
-  int minor;
-  int rev;
+  int major{};
+  int minor{};
+  int rev{};
   int features;
 
   Version();

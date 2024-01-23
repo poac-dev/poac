@@ -20,7 +20,7 @@
 #include <ostream>
 
 struct OptVersion {
-  u64 major;
+  u64 major{};
   Option<u64> minor;
   Option<u64> patch;
   Prerelease pre;
@@ -68,7 +68,7 @@ struct Comparator {
   };
 
   Option<Op> op;
-  u64 major;
+  u64 major{};
   Option<u64> minor;
   Option<u64> patch;
   Prerelease pre;

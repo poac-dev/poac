@@ -70,9 +70,9 @@ struct BuildMetadata {
 };
 
 struct Version {
-  u64 major;
-  u64 minor;
-  u64 patch;
+  u64 major{};
+  u64 minor{};
+  u64 patch{};
   Prerelease pre;
   BuildMetadata build;
 

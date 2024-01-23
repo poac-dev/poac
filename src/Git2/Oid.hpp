@@ -10,7 +10,7 @@ namespace git2 {
 
 struct Oid : public GlobalState {
   // TODO: ideally, use one of the following:
-  git_oid oid;
+  git_oid oid{};
   git_oid* raw = nullptr;
 
   explicit Oid(git_oid oid);
