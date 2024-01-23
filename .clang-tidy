@@ -12,7 +12,6 @@ Checks: -*
   cert-*
   -cert-err58-cpp
   -cert-env33-c
-  -cert-dcl03-c
   clang-analyzer-*
   cppcoreguidelines-*
   -cppcoreguidelines-avoid-const-or-ref-data-members
