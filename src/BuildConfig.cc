@@ -94,7 +94,7 @@ operator<<(std::ostream& os, VarType type) {
 
 struct Variable {
   String value;
-  VarType type;
+  VarType type = VarType::Simple;
 };
 
 std::ostream&
