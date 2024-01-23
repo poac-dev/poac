@@ -14,11 +14,9 @@
 #include <span>
 #include <string>
 
-static const auto FMT_CMD =
-    Subcmd("fmt")
-        .setDesc(fmtDesc)
-        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
-        .finalize();
+static const auto FMT_CMD = Subcmd("fmt").setDesc(fmtDesc).addOpt(
+    Opt{ "--check" }.setDesc("Run clang-format in check mode")
+);
 
 void
 fmtHelp() noexcept {

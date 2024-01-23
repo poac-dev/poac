@@ -64,33 +64,36 @@ printGlobalOpts(const usize maxOptLen) noexcept {
   }
 }
 
-String
-Opt::toString(const bool forceColor) const noexcept {
-  String str;
-  if (!shrt.empty()) {
-    str += bold(cyan(shrt, forceColor), forceColor);
-    str += ", ";
-  } else {
-    // This coloring is for the alignment with std::setw later.
-    str += bold(cyan("    ", forceColor), forceColor);
-  }
-  str += bold(cyan(lng, forceColor), forceColor);
-  str += ' ';
-  str += cyan(placeholder, forceColor);
-  return str;
+usize
+Opt::leftSize() const noexcept {
+  // shrt.size() = 2
+  // `, `.size() = 2
+  // lng.size() = ?
+  // ` `.size() = 1
+  // placeholder.size() = ?
+  return 5 + lng.size() + placeholder.size();
 }
 
 void
-Opt::print(usize maxOptLen) const noexcept {
-  // TODO: Redundant toString call here and in Subcmd::finalize.
-  const String option = toString();
-  std::cout << "  " << std::left;
-  if (shouldColor()) {
-    std::cout << std::setw(static_cast<int>(maxOptLen) + 2);
+Opt::print(usize maxLeftSize) const noexcept {
+  String option;
+  if (!shrt.empty()) {
+    option += bold(cyan(shrt));
+    option += ", ";
   } else {
-    std::cout << std::setw(static_cast<int>(maxOptLen) - 41);
+    // This coloring is for the alignment with std::setw later.
+    option += bold(cyan("    "));
   }
-  std::cout << option << desc;
+  option += bold(cyan(lng));
+  option += ' ';
+  option += cyan(placeholder);
+
+  std::cout << "  " << std::left;
+  maxLeftSize += 2; // spaces between left and desc.
+  if (shouldColor()) {
+    maxLeftSize += 43; // invisible color escape sequences.
+  }
+  std::cout << std::setw(static_cast<int>(maxLeftSize)) << option << desc;
   if (!defaultVal.empty()) {
     std::cout << " [default: " << defaultVal << ']';
   }
@@ -110,23 +113,6 @@ Subcmd::addOpt(const Opt& opt) noexcept {
 Subcmd&
 Subcmd::setArg(const Arg& arg) noexcept {
   this->arg = arg;
-  return *this;
-}
-Subcmd&
-Subcmd::finalize() noexcept {
-  // We do forceColor here to get consistent maxOptLen regardless of the
-  // value of ColorState.  This is because this function can be called
-  // when we initialize Subcmd objects, such as BUILD_CMD, meaning that
-  // this function will be called before ColorState is initialized through
-  // the main function.  But with POAC_TERM_COLOR, the ColorState will be
-  // set to an arbitrary value, so this can cause inconsistent maxOptLen.
-  // TODO: Can't we streamline this?
-  for (const auto& opt : GLOBAL_OPTS) {
-    maxOptLen = std::max(maxOptLen, opt.toString(true).size());
-  }
-  for (const auto& opt : opts) {
-    maxOptLen = std::max(maxOptLen, opt.toString(true).size());
-  }
   return *this;
 }
 
@@ -165,10 +151,20 @@ Subcmd::printHelp() const noexcept {
   printUsage(name, arg.name);
   std::cout << '\n';
 
-  printHeader("Options:");
-  printGlobalOpts(maxOptLen);
+  // Calculate the maximum length of the left side of the options to align the
+  // descriptions with 2 spaces.
+  usize maxLeftSize = 0;
+  for (const auto& opt : GLOBAL_OPTS) {
+    maxLeftSize = std::max(maxLeftSize, opt.leftSize());
+  }
   for (const auto& opt : opts) {
-    opt.print(maxOptLen);
+    maxLeftSize = std::max(maxLeftSize, opt.leftSize());
+  }
+
+  printHeader("Options:");
+  printGlobalOpts(maxLeftSize);
+  for (const auto& opt : opts) {
+    opt.print(maxLeftSize);
   }
 
   if (!arg.name.empty()) {

@@ -3,7 +3,7 @@
 #include "Global.hpp"
 
 static const auto HELP_CMD =
-    Subcmd("help").setDesc(helpDesc).setArg(Arg{ "[COMMAND]" }).finalize();
+    Subcmd("help").setDesc(helpDesc).setArg(Arg{ "[COMMAND]" });
 
 void
 helpHelp() noexcept {

@@ -23,8 +23,7 @@ static const auto NEW_CMD =
             "Use a binary (application) template [default]"
         ))
         .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"))
-        .setArg(Arg{ "<name>" })
-        .finalize();
+        .setArg(Arg{ "<name>" });
 
 void
 newHelp() noexcept {

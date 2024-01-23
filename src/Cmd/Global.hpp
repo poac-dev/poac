@@ -58,8 +58,10 @@ struct Opt {
     return *this;
   }
 
-  String toString(bool forceColor = false) const noexcept;
-  void print(usize maxOptLen) const noexcept;
+  /// Size of `-c, --color <WHEN>` without color.  shrt size should always
+  /// be 2.
+  usize leftSize() const noexcept;
+  void print(usize maxLeftSize) const noexcept;
 };
 
 static inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
@@ -95,7 +97,6 @@ class Subcmd {
   StringRef desc;
   Vec<Opt> opts;
   Arg arg;
-  usize maxOptLen = 0;
 
 public:
   Subcmd() noexcept = delete;
@@ -110,7 +111,6 @@ public:
   Subcmd& setDesc(StringRef desc) noexcept;
   Subcmd& addOpt(const Opt& opt) noexcept;
   Subcmd& setArg(const Arg& arg) noexcept;
-  Subcmd& finalize() noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
   void printHelp() const noexcept;
