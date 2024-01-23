@@ -10,7 +10,7 @@
 #include <span>
 
 static const auto BUILD_CMD =
-    Subcmd("build")
+    Subcmd{ "build" }
         .setDesc(buildDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"

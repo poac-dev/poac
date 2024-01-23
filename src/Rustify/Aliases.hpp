@@ -100,10 +100,10 @@ operator""_path(const char* str, usize /*unused*/) {
 
 [[noreturn]] inline void
 panic(
-    const StringRef msg, const StringRef f = __builtin_FILE(),
-    const int l = __builtin_LINE()
+    const StringRef msg, const StringRef file = __builtin_FILE(),
+    const int line = __builtin_LINE()
 ) noexcept {
-  std::cerr << "panicked at '" << msg << "', " << f << ':' << l << '\n';
+  std::cerr << "panicked at '" << msg << "', " << file << ':' << line << '\n';
   std::exit(EXIT_FAILURE);
 
   // TODO: throw an exception instead?
@@ -111,12 +111,12 @@ panic(
 
 [[noreturn]] inline void
 unreachable(
-    [[maybe_unused]] const StringRef f = __builtin_FILE(),
-    [[maybe_unused]] const int l = __builtin_LINE()
+    [[maybe_unused]] const StringRef file = __builtin_FILE(),
+    [[maybe_unused]] const int line = __builtin_LINE()
 ) noexcept {
 #ifdef NDEBUG
   __builtin_unreachable();
 #else
-  panic("unreachable", f, l);
+  panic("unreachable", file, line);
 #endif
 }

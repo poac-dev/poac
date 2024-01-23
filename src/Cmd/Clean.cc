@@ -7,7 +7,7 @@
 #include <span>
 #include <string>
 
-static const auto CLEAN_CMD = Subcmd("clean").setDesc(cleanDesc).addOpt(
+static const auto CLEAN_CMD = Subcmd{ "clean" }.setDesc(cleanDesc).addOpt(
     Opt{ "--profile", "-p" }
         .setDesc("Disable parallel builds")
         .setPlaceholder("<PROFILE>")

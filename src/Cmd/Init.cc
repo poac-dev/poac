@@ -11,7 +11,7 @@
 #include <string>
 
 static const auto INIT_CMD =
-    Subcmd("init")
+    Subcmd{ "init" }
         .setDesc(initDesc)
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"

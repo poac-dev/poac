@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <string>
 
-static const auto TIDY_CMD = Subcmd("tidy").setDesc(tidyDesc).addOpt(
+static const auto TIDY_CMD = Subcmd{ "tidy" }.setDesc(tidyDesc).addOpt(
     Opt{ "--fix" }.setDesc("Automatically apply lint suggestions")
 );
 

@@ -17,7 +17,7 @@
 #include <string>
 
 static const auto NEW_CMD =
-    Subcmd("new")
+    Subcmd{ "new" }
         .setDesc(newDesc)
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
             "Use a binary (application) template [default]"

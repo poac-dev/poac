@@ -10,7 +10,7 @@
 #include <span>
 
 static const auto TEST_CMD =
-    Subcmd("test")
+    Subcmd{ "test" }
         .setDesc(testDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Test with debug information [default]"

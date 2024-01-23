@@ -68,8 +68,8 @@ private:
 };
 
 void
-setColorMode(const ColorMode cm) noexcept {
-  ColorState::instance().set(cm);
+setColorMode(const ColorMode mode) noexcept {
+  ColorState::instance().set(mode);
 }
 
 void

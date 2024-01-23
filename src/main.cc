@@ -65,9 +65,9 @@ static inline const HashMap<StringRef, Cmd> CMDS = {
 void
 noSuchCommand(const StringRef arg) {
   Vec<StringRef> candidates(CMDS.size());
-  usize i = 0;
+  usize idx = 0;
   for (const auto& cmd : CMDS) {
-    candidates[i++] = cmd.first;
+    candidates[idx++] = cmd.first;
   }
 
   String suggestion;

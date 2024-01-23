@@ -11,7 +11,7 @@
 #include <string>
 
 static const auto SEARCH_CMD =
-    Subcmd("search")
+    Subcmd{ "search" }
         .setDesc(searchDesc)
         .addOpt(Opt{ "--per-page" }
                     .setDesc("Number of results to show per page")

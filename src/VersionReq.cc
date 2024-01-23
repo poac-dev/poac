@@ -204,8 +204,8 @@ struct ComparatorParser {
 };
 
 Comparator
-Comparator::parse(const StringRef s) {
-  ComparatorParser parser(s);
+Comparator::parse(const StringRef str) {
+  ComparatorParser parser(str);
   return parser.parse();
 }
 
@@ -585,8 +585,8 @@ struct VersionReqParser {
 };
 
 VersionReq
-VersionReq::parse(const StringRef s) {
-  VersionReqParser parser(s);
+VersionReq::parse(const StringRef str) {
+  VersionReqParser parser(str);
   return parser.parse();
 }
 
@@ -898,22 +898,22 @@ namespace tests {
 inline void
 assertMatchAll(
     const VersionReq& req, const std::span<const StringRef> versions,
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) {
   for (const StringRef ver : versions) {
-    assertTrue(req.satisfiedBy(Version::parse(ver)), "", f, l, fn);
+    assertTrue(req.satisfiedBy(Version::parse(ver)), "", file, line, func);
   }
 }
 
 inline void
 assertMatchNone(
     const VersionReq& req, const std::span<const StringRef> versions,
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) {
   for (const StringRef ver : versions) {
-    assertFalse(req.satisfiedBy(Version::parse(ver)), "", f, l, fn);
+    assertFalse(req.satisfiedBy(Version::parse(ver)), "", file, line, func);
   }
 }
 

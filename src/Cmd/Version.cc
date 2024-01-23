@@ -22,7 +22,7 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-static const auto VERSION_CMD = Subcmd("version").setDesc(versionDesc);
+static const auto VERSION_CMD = Subcmd{ "version" }.setDesc(versionDesc);
 
 void
 versionHelp() noexcept {

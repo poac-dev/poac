@@ -10,7 +10,7 @@
 #include <fstream>
 #include <span>
 
-static const auto LINT_CMD = Subcmd("lint").setDesc(lintDesc).addOpt(
+static const auto LINT_CMD = Subcmd{ "lint" }.setDesc(lintDesc).addOpt(
     Opt{ "--exclude" }.setDesc("Exclude files from linting")
 );
 

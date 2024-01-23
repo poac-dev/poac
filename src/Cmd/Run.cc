@@ -11,7 +11,7 @@
 #include <span>
 
 static const auto RUN_CMD =
-    Subcmd("run")
+    Subcmd{ "run" }
         .setDesc(runDesc)
         .addOpt(Opt{ "--debug", "-d" }.setDesc(
             "Build with debug information [default]"

@@ -27,36 +27,36 @@ inline constinit const StringRef RESET = "\033[0m";
 // directory name since it can be either `src` or `tests`.  Finally, we remove
 // the file extension, which is basically any of C++ source file extensions.
 inline StringRef
-modName(StringRef f) noexcept {
-  if (f.empty()) {
-    return f;
+modName(StringRef file) noexcept {
+  if (file.empty()) {
+    return file;
   }
 
-  if (f.starts_with("..")) {
-    f = f.substr(7);
+  if (file.starts_with("..")) {
+    file = file.substr(7);
   }
 
-  usize start = f.find_first_of('/');
+  usize start = file.find_first_of('/');
   if (start == StringRef::npos) {
-    return f;
+    return file;
   }
   ++start;
 
-  const usize end = f.find_last_of('.');
+  const usize end = file.find_last_of('.');
   if (end == StringRef::npos) {
-    return f;
+    return file;
   }
 
-  return f.substr(start, end - start);
+  return file.substr(start, end - start);
 }
 
 inline void
 pass(
-    const StringRef f = __builtin_FILE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(),
+    const StringRef func = __builtin_FUNCTION()
 ) noexcept {
-  std::cout << "test " << modName(f) << "::" << fn << " ... " << GREEN << "ok"
-            << RESET << '\n'
+  std::cout << "test " << modName(file) << "::" << func << " ... " << GREEN
+            << "ok" << RESET << '\n'
             << std::flush;
 }
 
@@ -64,47 +64,47 @@ template <typename... Ts>
   requires(Display<Ts> && ...)
 [[noreturn]] inline void
 error(
-    const StringRef f, const int l, const StringRef fn, Ts&&... msgs
+    const StringRef file, const int line, const StringRef func, Ts&&... msgs
 ) noexcept {
-  std::cerr << "test " << modName(f) << "::" << fn << " ... " << RED << "FAILED"
-            << RESET << "\n\n"
-            << '\'' << fn << "' failed at '" << std::boolalpha;
+  std::cerr << "test " << modName(file) << "::" << func << " ... " << RED
+            << "FAILED" << RESET << "\n\n"
+            << '\'' << func << "' failed at '" << std::boolalpha;
   (std::cerr << ... << std::forward<Ts>(msgs))
-      << "', " << f << ':' << l << '\n';
+      << "', " << file << ':' << line << '\n';
   std::exit(EXIT_FAILURE);
 }
 
 inline void
 assertTrue(
     const bool cond, const StringRef msg = "",
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) noexcept {
   if (cond) {
     return; // OK
   }
 
   if (msg.empty()) {
-    error(f, l, fn, "expected `true` but got `false`");
+    error(file, line, func, "expected `true` but got `false`");
   } else {
-    error(f, l, fn, msg);
+    error(file, line, func, msg);
   }
 }
 
 inline void
 assertFalse(
     const bool cond, const StringRef msg = "",
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) noexcept {
   if (!cond) {
     return; // OK
   }
 
   if (msg.empty()) {
-    error(f, l, fn, "expected `false` but got `true`");
+    error(file, line, func, "expected `false` but got `true`");
   } else {
-    error(f, l, fn, msg);
+    error(file, line, func, msg);
   }
 }
 
@@ -113,8 +113,8 @@ template <typename Lhs, typename Rhs>
 inline void
 assertEq(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) noexcept {
   if (lhs == rhs) {
     return; // OK
@@ -122,12 +122,12 @@ assertEq(
 
   if (msg.empty()) {
     error(
-        f, l, fn, "assertion failed: `(left == right)`\n", "  left: `",
+        file, line, func, "assertion failed: `(left == right)`\n", "  left: `",
         std::forward<Lhs>(lhs), "`\n", " right: `", std::forward<Rhs>(rhs),
         "`\n"
     );
   } else {
-    error(f, l, fn, msg);
+    error(file, line, func, msg);
   }
 }
 
@@ -136,8 +136,8 @@ template <typename Lhs, typename Rhs>
 inline void
 assertNe(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) noexcept {
   if (lhs != rhs) {
     return; // OK
@@ -145,12 +145,12 @@ assertNe(
 
   if (msg.empty()) {
     error(
-        f, l, fn, "assertion failed: `(left != right)`\n", "  left: `",
+        file, line, func, "assertion failed: `(left != right)`\n", "  left: `",
         std::forward<Lhs>(lhs), "`\n", " right: `", std::forward<Rhs>(rhs),
         "`\n"
     );
   } else {
-    error(f, l, fn, msg);
+    error(file, line, func, msg);
   }
 }
 
@@ -159,8 +159,8 @@ template <typename Lhs, typename Rhs>
 inline void
 assertLt(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const StringRef f = __builtin_FILE(), const int l = __builtin_LINE(),
-    const StringRef fn = __builtin_FUNCTION()
+    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
+    const StringRef func = __builtin_FUNCTION()
 ) noexcept {
   if (lhs < rhs) {
     return; // OK
@@ -168,12 +168,12 @@ assertLt(
 
   if (msg.empty()) {
     error(
-        f, l, fn, "assertion failed: `(left < right)`\n", "  left: `",
+        file, line, func, "assertion failed: `(left < right)`\n", "  left: `",
         std::forward<Lhs>(lhs), "`\n", " right: `", std::forward<Rhs>(rhs),
         "`\n"
     );
   } else {
-    error(f, l, fn, msg);
+    error(file, line, func, msg);
   }
 }
 
@@ -181,14 +181,15 @@ template <typename E, typename Fn>
   requires(std::is_invocable_v<Fn>)
 inline void
 assertException(
-    Fn&& fn, const StringRef msg, const StringRef f = __builtin_FILE(),
-    const int l = __builtin_LINE(),
-    const StringRef fnName = __builtin_FUNCTION()
+    Fn&& func, const StringRef msg, const StringRef file = __builtin_FILE(),
+    const int line = __builtin_LINE(),
+    const StringRef funcName = __builtin_FUNCTION()
 ) noexcept {
   try {
-    std::forward<Fn>(fn)();
+    std::forward<Fn>(func)();
     error(
-        f, l, fnName, "expected exception `", typeid(E).name(), "` not thrown"
+        file, line, funcName, "expected exception `", typeid(E).name(),
+        "` not thrown"
     );
   } catch (const E& e) {
     if (e.what() == String(msg)) {
@@ -196,13 +197,13 @@ assertException(
     }
 
     error(
-        f, l, fnName, "expected exception message `", msg, "` but got `",
-        e.what(), '`'
+        file, line, funcName, "expected exception message `", msg,
+        "` but got `", e.what(), '`'
     );
   } catch (...) {
     error(
-        f, l, fnName, "expected exception `", typeid(E).name(), "` but got `",
-        typeid(std::current_exception()).name(), '`'
+        file, line, funcName, "expected exception `", typeid(E).name(),
+        "` but got `", typeid(std::current_exception()).name(), '`'
     );
   }
 }
@@ -211,16 +212,16 @@ template <typename Fn>
   requires(std::is_invocable_v<Fn>)
 inline void
 assertNoException(
-    Fn&& fn, const StringRef f = __builtin_FILE(),
-    const int l = __builtin_LINE(),
-    const StringRef fnName = __builtin_FUNCTION()
+    Fn&& func, const StringRef file = __builtin_FILE(),
+    const int line = __builtin_LINE(),
+    const StringRef funcName = __builtin_FUNCTION()
 ) noexcept {
   try {
-    std::forward<Fn>(fn)();
+    std::forward<Fn>(func)();
     // OK
   } catch (...) {
     error(
-        f, l, fnName, "unexpected exception `",
+        file, line, funcName, "unexpected exception `",
         typeid(std::current_exception()).name(), '`'
     );
   }
