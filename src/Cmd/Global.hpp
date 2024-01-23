@@ -90,6 +90,9 @@ struct Arg {
     this->desc = desc;
     return *this;
   }
+
+  /// Size of left side of the help message.
+  usize leftSize() const noexcept;
 };
 
 class Subcmd {

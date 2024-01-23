@@ -98,6 +98,11 @@ Opt::print(usize maxOffset) const noexcept {
   std::cout << '\n';
 }
 
+usize
+Arg::leftSize() const noexcept {
+  return name.size();
+}
+
 Subcmd&
 Subcmd::setDesc(StringRef desc) noexcept {
   this->desc = desc;
@@ -153,7 +158,7 @@ Subcmd::calcMaxOffset() const noexcept {
   if (!arg.desc.empty()) {
     // If args does not have a description, it is not necessary to consider
     // its length.
-    maxOffset = std::max(maxOffset, arg.name.size());
+    maxOffset = std::max(maxOffset, arg.leftSize());
   }
   return maxOffset + 2; // padding between left and desc.
 }
