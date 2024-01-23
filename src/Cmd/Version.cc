@@ -22,12 +22,8 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-static const auto VERSION_CMD = Subcmd{ "version" }.setDesc(versionDesc);
-
-void
-versionHelp() noexcept {
-  VERSION_CMD.printHelp();
-}
+const Subcmd versionCmd =
+    Subcmd{ "version" }.setDesc("Show version information");
 
 static consteval StringRef
 checkAvailability(const StringRef str) noexcept {
@@ -96,7 +92,7 @@ secondMonthChar(const char m1, const char m2, const char m3) noexcept {
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-static inline constinit const char COMPILE_DATE[] = {
+static constinit const char COMPILE_DATE[] = {
   // Year
   __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10],
 
@@ -122,7 +118,7 @@ versionMain(const std::span<const StringRef> args) noexcept {
     HANDLE_GLOBAL_OPTS({ { "version" } })
 
     else {
-      return VERSION_CMD.noSuchArg(arg);
+      return versionCmd.noSuchArg(arg);
     }
   }
 

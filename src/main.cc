@@ -23,50 +23,50 @@
 
 struct Cmd {
   const Fn<int(std::span<const StringRef>)> main;
-  const Fn<void()> help;
-  const StringRef desc;
-  const bool hasShort = false;
+  const Subcmd& cmd;
   const bool isShort = false;
 };
 
-#define DEFINE_CMD(name)                 \
-  {                                      \
-    #name, {                             \
-      name##Main, name##Help, name##Desc \
-    }                                    \
+#define DEFINE_CMD(name)    \
+  {                         \
+    #name, {                \
+      name##Main, name##Cmd \
+    }                       \
   }
 
-#define DEFINE_SHORT_CMD(name)                        \
-  {                                                   \
-    StringRef(&#name[0], 1), {                        \
-      name##Main, name##Help, name##Desc, false, true \
-    }                                                 \
+#define DEFINE_SHORT_CMD(name)    \
+  {                               \
+    StringRef(&#name[0], 1), {    \
+      name##Main, name##Cmd, true \
+    }                             \
   }
 
-#define DEFINE_CMD_WITH_SHORT(name)                        \
-  { #name, { name##Main, name##Help, name##Desc, true } }, \
-      DEFINE_SHORT_CMD(name)
+#define DEFINE_CMD_WITH_SHORT(name) DEFINE_CMD(name), DEFINE_SHORT_CMD(name)
 
-static inline const HashMap<StringRef, Cmd> CMDS = {
-  DEFINE_CMD_WITH_SHORT(build),
-  DEFINE_CMD(clean),
-  DEFINE_CMD(fmt),
-  DEFINE_CMD(help),
-  DEFINE_CMD(init),
-  DEFINE_CMD(lint),
-  DEFINE_CMD(new),
-  DEFINE_CMD_WITH_SHORT(run),
-  DEFINE_CMD(search),
-  DEFINE_CMD_WITH_SHORT(test),
-  DEFINE_CMD(tidy),
-  DEFINE_CMD(version),
-};
+static const HashMap<StringRef, Cmd>&
+getCmds() noexcept {
+  static const HashMap<StringRef, Cmd> CMDS = {
+    DEFINE_CMD_WITH_SHORT(build),
+    DEFINE_CMD(clean),
+    DEFINE_CMD(fmt),
+    DEFINE_CMD(help),
+    DEFINE_CMD(init),
+    DEFINE_CMD(lint),
+    DEFINE_CMD(new),
+    DEFINE_CMD_WITH_SHORT(run),
+    DEFINE_CMD(search),
+    DEFINE_CMD_WITH_SHORT(test),
+    DEFINE_CMD(tidy),
+    DEFINE_CMD(version),
+  };
+  return CMDS;
+}
 
 void
 noSuchCommand(const StringRef arg) {
-  Vec<StringRef> candidates(CMDS.size());
+  Vec<StringRef> candidates(getCmds().size());
   usize idx = 0;
-  for (const auto& cmd : CMDS) {
+  for (const auto& cmd : getCmds()) {
     candidates[idx++] = cmd.first;
   }
 
@@ -87,8 +87,8 @@ helpMain(const std::span<const StringRef> args) noexcept {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "help" } })
 
-    else if (CMDS.contains(arg)) {
-      CMDS.at(arg).help();
+    else if (getCmds().contains(arg)) {
+      getCmds().at(arg).cmd.printHelp();
       return EXIT_SUCCESS;
     }
     else {
@@ -112,12 +112,12 @@ helpMain(const std::span<const StringRef> args) noexcept {
   std::cout << '\n';
 
   printHeader("Commands:");
-  for (const auto& [name, cmd] : CMDS) {
+  for (const auto& [name, cmd] : getCmds()) {
     if (cmd.isShort) {
       continue;
     }
     // TODO: currently, we assume options are longer than commands.
-    printCommand(name, cmd.desc, cmd.hasShort, maxOffset);
+    printCommand(name, cmd.cmd.getDesc(), cmd.cmd.hasShort(), maxOffset);
   }
   return EXIT_SUCCESS;
 }
@@ -142,7 +142,7 @@ main(int argc, char* argv[]) {
     }
 
     // Subcommands
-    else if (CMDS.contains(arg)) {
+    else if (getCmds().contains(arg)) {
       try {
         // i points to the subcommand name that we don't need anymore.  Since
         // i starts from 1 from the start pointer of argv, we want to start
@@ -150,7 +150,7 @@ main(int argc, char* argv[]) {
         // i + 1, we can write the range as [i + 2, argc), which is not
         // out-of-range access.
         const Vec<StringRef> cmdArgs(argv + i + 2, argv + argc);
-        return CMDS.at(arg).main(cmdArgs);
+        return getCmds().at(arg).main(cmdArgs);
       } catch (const std::exception& e) {
         Logger::error(e.what());
         return EXIT_FAILURE;

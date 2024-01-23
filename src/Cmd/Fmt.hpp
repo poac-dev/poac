@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef fmtDesc = "Format codes using clang-format";
+extern const Subcmd fmtCmd;
 
-void fmtHelp() noexcept;
 int fmtMain(std::span<const StringRef> args);

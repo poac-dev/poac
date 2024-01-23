@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef lintDesc = "Lint codes using cpplint";
+extern const Subcmd lintCmd;
 
-void lintHelp() noexcept;
 int lintMain(std::span<const StringRef> args);

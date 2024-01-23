@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef tidyDesc = "Run clang-tidy";
+extern const Subcmd tidyCmd;
 
-void tidyHelp() noexcept;
 int tidyMain(std::span<const StringRef> args);

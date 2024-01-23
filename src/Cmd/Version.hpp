@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef versionDesc = "Show version information";
+extern const Subcmd versionCmd;
 
-void versionHelp() noexcept;
 int versionMain(std::span<const StringRef> args) noexcept;

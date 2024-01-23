@@ -2,10 +2,6 @@
 
 #include "Global.hpp"
 
-static const auto HELP_CMD =
-    Subcmd{ "help" }.setDesc(helpDesc).setArg(Arg{ "[COMMAND]" });
-
-void
-helpHelp() noexcept {
-  HELP_CMD.printHelp();
-}
+const Subcmd helpCmd = Subcmd{ "help" }
+                           .setDesc("Displays help for a poac subcommand")
+                           .setArg(Arg{ "[COMMAND]" });

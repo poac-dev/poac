@@ -373,9 +373,9 @@ getXdgCacheHome() {
   return userDir / ".cache";
 }
 
-static inline const Path CACHE_DIR(getXdgCacheHome() / "poac");
-static inline const Path GIT_DIR(CACHE_DIR / "git");
-static inline const Path GIT_SRC_DIR(GIT_DIR / "src");
+static const Path CACHE_DIR(getXdgCacheHome() / "poac");
+static const Path GIT_DIR(CACHE_DIR / "git");
+static const Path GIT_SRC_DIR(GIT_DIR / "src");
 
 // Dependency name can contain alphanumeric characters, and non-leading &
 // non-trailing & non-consecutive `-`, and `_`.  Also, `/` is allowed only

@@ -1,13 +1,11 @@
 #pragma once
 
 #include "../Rustify.hpp"
+#include "Global.hpp"
 
 #include <span>
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-inline constexpr StringRef newDesc = "Create a new poac project";
+extern const Subcmd newCmd;
 
 String createPoacToml(StringRef projectName) noexcept;
-
-void newHelp() noexcept;
 int newMain(std::span<const StringRef> args);

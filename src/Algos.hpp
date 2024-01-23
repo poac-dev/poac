@@ -15,7 +15,7 @@
 String toUpper(StringRef str) noexcept;
 String toMacroName(StringRef name) noexcept;
 
-int runCmd(StringRef cmd) noexcept;
+int execCmd(StringRef cmd) noexcept;
 String getCmdOutput(StringRef cmd);
 
 template <typename T>
