@@ -63,6 +63,11 @@ printGlobalOpts(const usize maxOffset) noexcept {
   }
 }
 
+static void
+setOffset(const usize offset) noexcept {
+  std::cout << "  " << std::left << std::setw(static_cast<int>(offset));
+}
+
 usize
 Opt::leftSize() const noexcept {
   // shrt.size() = 2
@@ -90,8 +95,8 @@ Opt::print(usize maxOffset) const noexcept {
   if (shouldColor()) {
     maxOffset += 43; // invisible color escape sequences.
   }
-  std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
-            << option << desc;
+  setOffset(maxOffset);
+  std::cout << option << desc;
   if (!defaultVal.empty()) {
     std::cout << " [default: " << defaultVal << ']';
   }
@@ -182,8 +187,8 @@ Subcmd::printHelp() const noexcept {
   if (!arg.name.empty()) {
     std::cout << '\n';
     printHeader("Arguments:");
-    std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
-              << arg.name;
+    setOffset(maxOffset);
+    std::cout << arg.name;
     if (!arg.desc.empty()) {
       std::cout << arg.desc;
     }
