@@ -17,6 +17,11 @@ commandExists(const StringRef cmd) noexcept {
   return runCmd(checkCmd) == EXIT_SUCCESS;
 }
 
+static void
+setOffset(const usize offset) noexcept {
+  std::cout << "  " << std::left << std::setw(static_cast<int>(offset));
+}
+
 void
 printHeader(const StringRef header) noexcept {
   std::cout << bold(green(header)) << '\n';
@@ -52,8 +57,8 @@ printCommand(
   if (shouldColor()) {
     maxOffset += 34; // invisible color escape sequences.
   }
-  std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
-            << cmd << desc << '\n';
+  setOffset(maxOffset);
+  std::cout << cmd << desc << '\n';
 }
 
 void
@@ -61,11 +66,6 @@ printGlobalOpts(const usize maxOffset) noexcept {
   for (const auto& opt : GLOBAL_OPTS) {
     opt.print(maxOffset);
   }
-}
-
-static void
-setOffset(const usize offset) noexcept {
-  std::cout << "  " << std::left << std::setw(static_cast<int>(offset));
 }
 
 usize
