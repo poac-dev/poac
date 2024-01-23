@@ -49,11 +49,11 @@ printCommand(
     cmd += bold(cyan("   "));
   }
 
-  std::cout << "  " << std::left;
   if (shouldColor()) {
     maxOffset += 34; // invisible color escape sequences.
   }
-  std::cout << std::setw(static_cast<int>(maxOffset)) << cmd << desc << '\n';
+  std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
+            << cmd << desc << '\n';
 }
 
 void
@@ -87,11 +87,11 @@ Opt::print(usize maxOffset) const noexcept {
   option += ' ';
   option += cyan(placeholder);
 
-  std::cout << "  " << std::left;
   if (shouldColor()) {
     maxOffset += 43; // invisible color escape sequences.
   }
-  std::cout << std::setw(static_cast<int>(maxOffset)) << option << desc;
+  std::cout << "  " << std::left << std::setw(static_cast<int>(maxOffset))
+            << option << desc;
   if (!defaultVal.empty()) {
     std::cout << " [default: " << defaultVal << ']';
   }
