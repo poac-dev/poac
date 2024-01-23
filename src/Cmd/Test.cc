@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <span>
 
-const auto testCmd =
+const Subcmd testCmd =
     Subcmd{ "test" }
         .setShort("t")
         .setDesc("Run the tests of a local package")

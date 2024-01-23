@@ -14,7 +14,7 @@
 #include <span>
 #include <string>
 
-const auto fmtCmd =
+const Subcmd fmtCmd =
     Subcmd{ "fmt" }
         .setDesc("Format codes using clang-format")
         .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"));

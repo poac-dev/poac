@@ -16,7 +16,7 @@
 #include <span>
 #include <string>
 
-const auto newCmd =
+const Subcmd newCmd =
     Subcmd{ "new" }
         .setDesc("Create a new poac project")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(

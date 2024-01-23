@@ -22,7 +22,8 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-const auto versionCmd = Subcmd{ "version" }.setDesc("Show version information");
+const Subcmd versionCmd =
+    Subcmd{ "version" }.setDesc("Show version information");
 
 static consteval StringRef
 checkAvailability(const StringRef str) noexcept {

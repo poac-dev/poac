@@ -2,6 +2,6 @@
 
 #include "Global.hpp"
 
-const auto helpCmd = Subcmd{ "help" }
-                         .setDesc("Displays help for a poac subcommand")
-                         .setArg(Arg{ "[COMMAND]" });
+const Subcmd helpCmd = Subcmd{ "help" }
+                           .setDesc("Displays help for a poac subcommand")
+                           .setArg(Arg{ "[COMMAND]" });

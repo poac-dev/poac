@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-const auto searchCmd =
+const Subcmd searchCmd =
     Subcmd{ "search" }
         .setDesc("Search for packages in the registry")
         .addOpt(Opt{ "--per-page" }

@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <string>
 
-const auto tidyCmd =
+const Subcmd tidyCmd =
     Subcmd{ "tidy" }
         .setDesc("Run clang-tidy")
         .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"));

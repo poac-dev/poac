@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <span>
 
-const auto runCmd =
+const Subcmd runCmd =
     Subcmd{ "run" }
         .setShort("r")
         .setDesc("Build and execute src/main.cc")

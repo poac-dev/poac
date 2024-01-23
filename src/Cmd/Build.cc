@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <span>
 
-const auto buildCmd =
+const Subcmd buildCmd =
     Subcmd{ "build" }
         .setShort("b")
         .setDesc("Compile a local package and all of its dependencies")

@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-const auto initCmd =
+const Subcmd initCmd =
     Subcmd{ "init" }
         .setDesc("Create a new poac package in an existing directory")
         .addOpt(Opt{ "--bin", "-b" }.setDesc(
