@@ -137,6 +137,20 @@ Subcmd::setArg(const Arg& arg) noexcept {
   return *this;
 }
 
+String
+Subcmd::getUsage() const noexcept {
+  String str = bold(green("Usage: "));
+  str += bold(cyan("poac "));
+  str += bold(cyan(name));
+  str += ' ';
+  str += cyan("[OPTIONS]");
+  if (!arg.name.empty()) {
+    str += ' ';
+    str += cyan(arg.name);
+  }
+  return str;
+}
+
 [[nodiscard]] int
 Subcmd::noSuchArg(StringRef arg) const {
   Vec<StringRef> candidates;
@@ -155,11 +169,13 @@ Subcmd::noSuchArg(StringRef arg) const {
 
   String suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
-    suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
+    suggestion = bold(cyan("  Tip:")) + " did you mean '"
+                 + bold(yellow(similar.value())) + "'?\n\n";
   }
   Logger::error(
-      "no such argument: `", arg, "`\n\n", suggestion, "       Run `poac help ",
-      name, "` for a list of arguments"
+      "unexpected argument '", bold(yellow(arg)), "' found\n\n", suggestion,
+      getUsage(), "\n\n", "For more information, try '", bold(cyan("--help")),
+      '\''
   );
   return EXIT_FAILURE;
 }

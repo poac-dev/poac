@@ -122,6 +122,7 @@ public:
   Subcmd& addOpt(const Opt& opt) noexcept;
   Subcmd& setArg(const Arg& arg) noexcept;
 
+  String getUsage() const noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
   void printHelp() const noexcept;
 

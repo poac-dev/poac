@@ -72,11 +72,12 @@ noSuchCommand(const StringRef arg) {
 
   String suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
-    suggestion = "       Did you mean `" + String(similar.value()) + "`?\n\n";
+    suggestion = bold(cyan("  Tip:")) + " did you mean '"
+                 + bold(yellow(similar.value())) + "'?\n\n";
   }
   Logger::error(
-      "no such command: `", arg, "`\n\n", suggestion,
-      "       Run `poac help` for a list of commands"
+      "no such command: '", bold(yellow(arg)), "'\n\n", suggestion,
+      "For a list of commands, try '", bold(cyan("poac help")), '\''
   );
 }
 
