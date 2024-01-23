@@ -9,7 +9,8 @@
 
 const Subcmd cleanCmd = Subcmd{ "clean" }
                             .setDesc("Remove the built directory")
-                            .addOpt(Opt{ "--profile", "-p" }
+                            .addOpt(Opt{ "--profile" }
+                                        .setShort("-p")
                                         .setDesc("Disable parallel builds")
                                         .setPlaceholder("<PROFILE>"));
 

@@ -42,9 +42,12 @@ struct Opt {
   constexpr Opt& operator=(const Opt&) noexcept = default;
   constexpr Opt& operator=(Opt&&) noexcept = default;
 
-  explicit constexpr Opt(StringRef lng, StringRef shrt = "") noexcept
-      : lng(lng), shrt(shrt) {}
+  explicit constexpr Opt(StringRef lng) noexcept : lng(lng) {}
 
+  inline constexpr Opt setShort(StringRef shortName) noexcept {
+    this->shrt = shortName;
+    return *this;
+  }
   inline constexpr Opt setDesc(StringRef desc) noexcept {
     this->desc = desc;
     return *this;
@@ -65,12 +68,12 @@ struct Opt {
 };
 
 inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
-  Opt{ "--verbose", "-v" }.setDesc("Use verbose output"),
-  Opt{ "--quiet", "-q" }.setDesc("Do not print poac log messages"),
+  Opt{ "--verbose" }.setShort("-v").setDesc("Use verbose output"),
+  Opt{ "--quiet" }.setShort("-q").setDesc("Do not print poac log messages"),
   Opt{ "--color" }
       .setDesc("Coloring: auto, always, never")
       .setPlaceholder("<WHEN>"),
-  Opt{ "--help", "-h" }.setDesc("Print help"),
+  Opt{ "--help" }.setShort("-h").setDesc("Print help"),
 };
 
 struct Arg {

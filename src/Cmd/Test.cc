@@ -13,10 +13,12 @@ const Subcmd testCmd =
     Subcmd{ "test" }
         .setShort("t")
         .setDesc("Run the tests of a local package")
-        .addOpt(Opt{ "--debug", "-d" }.setDesc(
+        .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
             "Test with debug information [default]"
         ))
-        .addOpt(Opt{ "--release", "-r" }.setDesc("Test with optimizations"))
+        .addOpt(
+            Opt{ "--release" }.setShort("-r").setDesc("Test with optimizations")
+        )
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds & tests"
         ));
 

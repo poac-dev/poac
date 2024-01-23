@@ -12,10 +12,12 @@ const Subcmd buildCmd =
     Subcmd{ "build" }
         .setShort("b")
         .setDesc("Compile a local package and all of its dependencies")
-        .addOpt(Opt{ "--debug", "-d" }.setDesc(
+        .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
             "Build with debug information [default]"
         ))
-        .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
+        .addOpt(Opt{ "--release" }.setShort("-r").setDesc(
+            "Build with optimizations"
+        ))
         .addOpt(Opt{ "--compdb" }.setDesc(
             "Generate compilation database instead of building"
         ))

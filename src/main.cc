@@ -106,7 +106,8 @@ helpMain(const std::span<const StringRef> args) noexcept {
   const usize maxOffset = GLOBAL_OPTS[2].leftSize() + 2; // --color
   printHeader("Options:");
   printGlobalOpts(maxOffset);
-  Opt{ "--version", "-V" }
+  Opt{ "--version" }
+      .setShort("-V")
       .setDesc("Print version info and exit")
       .print(maxOffset);
   std::cout << '\n';

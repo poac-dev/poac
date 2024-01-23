@@ -13,11 +13,12 @@
 const Subcmd runCmd =
     Subcmd{ "run" }
         .setShort("r")
-        .setDesc("Build and execute src/main.cc")
-        .addOpt(Opt{ "--debug", "-d" }.setDesc(
+        .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
             "Build with debug information [default]"
         ))
-        .addOpt(Opt{ "--release", "-r" }.setDesc("Build with optimizations"))
+        .addOpt(Opt{ "--release" }.setShort("-r").setDesc(
+            "Build with optimizations"
+        ))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
         .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"));
 

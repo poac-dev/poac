@@ -13,10 +13,11 @@
 const Subcmd initCmd =
     Subcmd{ "init" }
         .setDesc("Create a new poac package in an existing directory")
-        .addOpt(Opt{ "--bin", "-b" }.setDesc(
+        .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
             "Use a binary (application) template [default]"
         ))
-        .addOpt(Opt{ "--lib", "-l" }.setDesc("Use a library template"));
+        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template")
+        );
 
 int
 initMain(const std::span<const StringRef> args) {
