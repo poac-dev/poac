@@ -1,9 +1,9 @@
 #include "../Algos.hpp"
+#include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
 #include "Cmd.hpp"
-#include "Global.hpp"
 
 #include <cstdlib>
 #include <fstream>

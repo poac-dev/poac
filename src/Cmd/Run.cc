@@ -1,9 +1,9 @@
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
+#include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "Cmd.hpp"
-#include "Global.hpp"
 
 #include <cstdlib>
 #include <span>

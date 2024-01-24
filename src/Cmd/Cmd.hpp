@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../Cli.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
 
 // Poac pragma: Cmd/Build.cc
 extern const Subcmd buildCmd;

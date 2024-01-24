@@ -1,7 +1,7 @@
-#include "Global.hpp"
+#include "Cli.hpp"
 
-#include "../Rustify.hpp"
-#include "../TermColor.hpp"
+#include "Rustify.hpp"
+#include "TermColor.hpp"
 
 #include <algorithm>
 #include <cstdlib>
@@ -240,7 +240,6 @@ Subcmd::calcMaxShortSize() const noexcept {
   }
   return maxShortSize;
 }
-
 usize
 Subcmd::calcMaxOffset(const usize maxShortSize) const noexcept {
   usize maxOffset = 0;

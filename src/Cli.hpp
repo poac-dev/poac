@@ -1,12 +1,10 @@
-// Global options and helper functions for commands.
-
 #pragma once
 
-#include "../Algos.hpp"
-#include "../Logger.hpp"
-#include "../Rustify.hpp"
-#include "../TermColor.hpp"
-#include "Help.hpp"
+#include "Algos.hpp"
+#include "Cmd/Help.hpp"
+#include "Logger.hpp"
+#include "Rustify.hpp"
+#include "TermColor.hpp"
 
 #include <cstdlib>
 #include <ostream>

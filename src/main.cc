@@ -1,6 +1,6 @@
 #include "Algos.hpp"
+#include "Cli.hpp"
 #include "Cmd/Cmd.hpp"
-#include "Cmd/Global.hpp"
 #include "Cmd/Help.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
@@ -51,7 +51,7 @@ getCmd() noexcept {
   return CMD;
 }
 
-// TODO: Should be in Global.  Also, remove Cmd/Help.  It should be
+// TODO: Should be in Cli.  Also, remove Cmd/Help.  It should be
 // automatically generated.
 int
 helpMain(const std::span<const StringRef> args) noexcept {
