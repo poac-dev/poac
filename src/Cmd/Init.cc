@@ -1,14 +1,14 @@
-#include "Init.hpp"
-
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
-#include "New.hpp"
 
 #include <cstdlib>
 #include <fstream>
 #include <span>
 #include <string>
+
+static int initMain(std::span<const StringRef> args);
 
 const Subcmd initCmd =
     Subcmd{ "init" }
@@ -16,10 +16,10 @@ const Subcmd initCmd =
         .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
             "Use a binary (application) template [default]"
         ))
-        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template")
-        );
+        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template"))
+        .setMainFn(initMain);
 
-int
+static int
 initMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;

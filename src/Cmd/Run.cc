@@ -1,14 +1,14 @@
-#include "Run.hpp"
-
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
-#include "Build.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
 #include <span>
+
+static int runMain(std::span<const StringRef> args);
 
 const Subcmd runCmd =
     Subcmd{ "run" }
@@ -21,9 +21,13 @@ const Subcmd runCmd =
             "Build with optimizations"
         ))
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
-        .setArg(Arg{ "[args]..." }.setDesc("Arguments passed to the program"));
+        .setArg(Arg{ "args" }
+                    .setDesc("Arguments passed to the program")
+                    .setVariadic(true)
+                    .setRequired(false))
+        .setMainFn(runMain);
 
-int
+static int
 runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;

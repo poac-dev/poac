@@ -1,5 +1,3 @@
-#include "Fmt.hpp"
-
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Git2/Exception.hpp"
@@ -7,6 +5,7 @@
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
@@ -14,12 +13,15 @@
 #include <span>
 #include <string>
 
+static int fmtMain(std::span<const StringRef> args);
+
 const Subcmd fmtCmd =
     Subcmd{ "fmt" }
         .setDesc("Format codes using clang-format")
-        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"));
+        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
+        .setMainFn(fmtMain);
 
-int
+static int
 fmtMain(const std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args

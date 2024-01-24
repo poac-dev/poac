@@ -4,7 +4,7 @@
 
 #include <span>
 
-class Subcmd; // forward decl for Global.hpp
+struct Subcmd; // forward decl for Global.hpp
 extern const Subcmd helpCmd;
 
 int helpMain(std::span<const StringRef> args) noexcept;

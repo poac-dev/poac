@@ -1,6 +1,5 @@
 #include "Global.hpp"
 
-#include "../Algos.hpp"
 #include "../Rustify.hpp"
 #include "../TermColor.hpp"
 
@@ -9,17 +8,12 @@
 #include <iomanip>
 #include <iostream>
 
-bool
-commandExists(const StringRef cmd) noexcept {
-  String checkCmd = "command -v ";
-  checkCmd += cmd;
-  checkCmd += " >/dev/null 2>&1";
-  return execCmd(checkCmd) == EXIT_SUCCESS;
-}
+static constinit const StringRef PADDING = "  ";
 
 static void
 setOffset(const usize offset) noexcept {
-  std::cout << "  " << std::left << std::setw(static_cast<int>(offset));
+  std::cout << PADDING << std::left
+            << std::setw(static_cast<int>(offset + PADDING.size()));
 }
 
 void
@@ -35,7 +29,7 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
   }
   std::cout << cyan("[OPTIONS]");
   if (!usage.empty()) {
-    std::cout << " " << cyan(usage);
+    std::cout << " " << usage;
   }
   std::cout << '\n';
 }
@@ -62,31 +56,35 @@ printCommand(
 }
 
 void
-printGlobalOpts(const usize maxOffset) noexcept {
+printGlobalOpts(const usize maxShortSize, const usize maxOffset) noexcept {
   for (const auto& opt : GLOBAL_OPTS) {
-    opt.print(maxOffset);
+    opt.print(maxShortSize, maxOffset);
   }
 }
 
 usize
-Opt::leftSize() const noexcept {
-  // shrt.size() = 2
+Opt::leftSize(const usize maxShortSize) const noexcept {
+  // shrt.size() = ?
   // `, `.size() = 2
   // lng.size() = ?
   // ` `.size() = 1
   // placeholder.size() = ?
-  return 5 + lng.size() + placeholder.size();
+  return 3 + maxShortSize + lng.size() + placeholder.size();
 }
 
 void
-Opt::print(usize maxOffset) const noexcept {
+Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
   String option;
   if (!shrt.empty()) {
     option += bold(cyan(shrt));
     option += ", ";
+    if (maxShortSize > shrt.size()) {
+      option += String(maxShortSize - shrt.size(), ' ');
+    }
   } else {
     // This coloring is for the alignment with std::setw later.
-    option += bold(cyan("    "));
+    option += bold(cyan(String(maxShortSize, ' ')));
+    option += "  "; // ", "
   }
   option += bold(cyan(lng));
   option += ' ';
@@ -106,6 +104,42 @@ Opt::print(usize maxOffset) const noexcept {
 usize
 Arg::leftSize() const noexcept {
   return name.size();
+}
+String
+Arg::getLeft() const noexcept {
+  if (name.empty()) {
+    return "";
+  }
+
+  String left;
+  if (required) {
+    left += '<';
+  } else {
+    left += '[';
+  }
+  left += name;
+  if (required) {
+    left += '>';
+  } else {
+    left += ']';
+  }
+  if (variadic) {
+    left += "...";
+  }
+  return cyan(left);
+}
+void
+Arg::print(usize maxOffset) const noexcept {
+  const String left = getLeft();
+  if (shouldColor()) {
+    maxOffset += 9; // invisible color escape sequences.
+  }
+  setOffset(maxOffset);
+  std::cout << left;
+  if (!desc.empty()) {
+    std::cout << desc;
+  }
+  std::cout << '\n';
 }
 
 Subcmd&
@@ -134,6 +168,11 @@ Subcmd::addOpt(const Opt& opt) noexcept {
 Subcmd&
 Subcmd::setArg(const Arg& arg) noexcept {
   this->arg = arg;
+  return *this;
+}
+Subcmd&
+Subcmd::setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept {
+  this->mainFn = std::move(mainFn);
   return *this;
 }
 
@@ -181,46 +220,112 @@ Subcmd::noSuchArg(StringRef arg) const {
 }
 
 usize
-Subcmd::calcMaxOffset() const noexcept {
-  usize maxOffset = 0;
+Subcmd::calcMaxShortSize() const noexcept {
+  usize maxShortSize = 0;
   for (const auto& opt : GLOBAL_OPTS) {
-    maxOffset = std::max(maxOffset, opt.leftSize());
+    maxShortSize = std::max(maxShortSize, opt.shrt.size());
   }
   for (const auto& opt : opts) {
-    maxOffset = std::max(maxOffset, opt.leftSize());
+    maxShortSize = std::max(maxShortSize, opt.shrt.size());
+  }
+  return maxShortSize;
+}
+
+usize
+Subcmd::calcMaxOffset(const usize maxShortSize) const noexcept {
+  usize maxOffset = 0;
+  for (const auto& opt : GLOBAL_OPTS) {
+    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
+  }
+  for (const auto& opt : opts) {
+    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
   }
   if (!arg.desc.empty()) {
     // If args does not have a description, it is not necessary to consider
     // its length.
     maxOffset = std::max(maxOffset, arg.leftSize());
   }
-  return maxOffset + 2; // padding between left and desc.
+  return maxOffset;
 }
 
 void
 Subcmd::printHelp() const noexcept {
-  const usize maxOffset = calcMaxOffset();
+  const usize maxShortSize = calcMaxShortSize();
+  const usize maxOffset = calcMaxOffset(maxShortSize);
 
   std::cout << desc << '\n';
   std::cout << '\n';
 
-  printUsage(name, arg.name);
+  printUsage(name, arg.getLeft());
   std::cout << '\n';
 
   printHeader("Options:");
-  printGlobalOpts(maxOffset);
+  printGlobalOpts(maxShortSize, maxOffset);
   for (const auto& opt : opts) {
-    opt.print(maxOffset);
+    opt.print(maxShortSize, maxOffset);
   }
 
   if (!arg.name.empty()) {
     std::cout << '\n';
     printHeader("Arguments:");
-    setOffset(maxOffset);
-    std::cout << arg.name;
-    if (!arg.desc.empty()) {
-      std::cout << arg.desc;
-    }
-    std::cout << '\n';
+    arg.print(maxOffset);
   }
+}
+
+Command&
+Command::setDesc(StringRef desc) noexcept {
+  this->desc = desc;
+  return *this;
+}
+Command&
+Command::addSubcmd(const Subcmd& subcmd) noexcept {
+  subcmds.emplace(subcmd.name, subcmd);
+  if (subcmd.hasShort()) {
+    subcmds.emplace(subcmd.shortName, subcmd);
+  }
+  return *this;
+}
+Command&
+Command::addOpt(const Opt& opt) noexcept {
+  opts.emplace_back(opt);
+  return *this;
+}
+
+bool
+Command::hasSubcmd(StringRef subcmd) const noexcept {
+  return subcmds.contains(subcmd);
+}
+
+[[nodiscard]] int
+Command::noSuchArg(StringRef arg) const {
+  Vec<StringRef> candidates;
+  for (const auto& subcmd : subcmds) {
+    candidates.push_back(subcmd.second.name);
+    if (!subcmd.second.shortName.empty()) {
+      candidates.push_back(subcmd.second.shortName);
+    }
+  }
+  for (const auto& opt : opts) {
+    candidates.push_back(opt.lng);
+    if (!opt.shrt.empty()) {
+      candidates.push_back(opt.shrt);
+    }
+  }
+  // TODO: name & shortName vs. lng & shrt
+
+  String suggestion;
+  if (const auto similar = findSimilarStr(arg, candidates)) {
+    suggestion = bold(cyan("  Tip:")) + " did you mean '"
+                 + bold(yellow(similar.value())) + "'?\n\n";
+  }
+  Logger::error(
+      "unexpected argument '", bold(yellow(arg)), "' found\n\n", suggestion,
+      "For a list of commands, try '", bold(cyan("poac help")), '\''
+  );
+  return EXIT_FAILURE;
+}
+
+[[nodiscard]] int
+Command::exec(StringRef subcmd, std::span<const StringRef> args) const {
+  return subcmds.at(subcmd).mainFn(args);
 }

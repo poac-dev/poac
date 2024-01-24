@@ -17,6 +17,7 @@ String toMacroName(StringRef name) noexcept;
 
 int execCmd(StringRef cmd) noexcept;
 String getCmdOutput(StringRef cmd);
+bool commandExists(StringRef cmd) noexcept;
 
 template <typename T>
 Vec<String>

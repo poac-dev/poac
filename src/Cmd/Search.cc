@@ -1,14 +1,17 @@
-#include "Search.hpp"
-
+#include "../Logger.hpp"
 #include "../Rustify.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
 #include <curl/curl.h>
 #include <iomanip>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <span>
 #include <string>
+
+static int searchMain(std::span<const StringRef> args);
 
 const Subcmd searchCmd =
     Subcmd{ "search" }
@@ -21,7 +24,8 @@ const Subcmd searchCmd =
                     .setDesc("Page number of results to show")
                     .setPlaceholder("<NUM>")
                     .setDefault("1"))
-        .setArg(Arg{ "<name>" });
+        .setArg(Arg{ "name" })
+        .setMainFn(searchMain);
 
 static usize
 writeCallback(void* contents, usize size, usize nmemb, String* userp) {
@@ -29,7 +33,7 @@ writeCallback(void* contents, usize size, usize nmemb, String* userp) {
   return size * nmemb;
 }
 
-int
+static int
 searchMain(const std::span<const StringRef> args) {
   // Parse args
   String packageName;

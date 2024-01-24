@@ -1,20 +1,22 @@
-#include "Clean.hpp"
-
 #include "../Logger.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
 #include <span>
 #include <string>
 
+static int cleanMain(std::span<const StringRef> args) noexcept;
+
 const Subcmd cleanCmd = Subcmd{ "clean" }
                             .setDesc("Remove the built directory")
                             .addOpt(Opt{ "--profile" }
                                         .setShort("-p")
                                         .setDesc("Disable parallel builds")
-                                        .setPlaceholder("<PROFILE>"));
+                                        .setPlaceholder("<PROFILE>"))
+                            .setMainFn(cleanMain);
 
-int
+static int
 cleanMain(const std::span<const StringRef> args) noexcept {
   Path outDir = "poac-out";
 

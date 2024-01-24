@@ -59,6 +59,14 @@ getCmdOutput(const StringRef cmd) {
   return result;
 }
 
+bool
+commandExists(const StringRef cmd) noexcept {
+  String checkCmd = "command -v ";
+  checkCmd += cmd;
+  checkCmd += " >/dev/null 2>&1";
+  return execCmd(checkCmd) == EXIT_SUCCESS;
+}
+
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
 static usize
 levDistance(const StringRef a, const StringRef b) {

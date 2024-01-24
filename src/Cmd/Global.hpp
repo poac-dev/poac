@@ -34,6 +34,7 @@ struct Opt {
   StringRef desc;
   StringRef placeholder;
   StringRef defaultVal;
+  bool isGlobal = false;
 
   constexpr Opt() noexcept = default;
   constexpr ~Opt() noexcept = default;
@@ -60,11 +61,14 @@ struct Opt {
     this->defaultVal = defaultVal;
     return *this;
   }
+  inline constexpr Opt setGlobal(const bool isGlobal) noexcept {
+    this->isGlobal = isGlobal;
+    return *this;
+  }
 
-  /// Size of `-c, --color <WHEN>` without color.  shrt size should always
-  /// be 2.
-  usize leftSize() const noexcept;
-  void print(usize maxOffset) const noexcept;
+  /// Size of `-c, --color <WHEN>` without color.
+  usize leftSize(usize maxShortSize) const noexcept;
+  void print(usize maxShortSize, usize maxOffset) const noexcept;
 };
 
 inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
@@ -79,6 +83,8 @@ inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
 struct Arg {
   StringRef name;
   StringRef desc;
+  bool required = true;
+  bool variadic = false;
 
   constexpr Arg() noexcept = default;
   constexpr ~Arg() noexcept = default;
@@ -87,25 +93,35 @@ struct Arg {
   constexpr Arg& operator=(const Arg&) noexcept = default;
   constexpr Arg& operator=(Arg&&) noexcept = default;
 
-  explicit constexpr Arg(StringRef name) noexcept : name(name) {}
+  explicit constexpr Arg(const StringRef name) noexcept : name(name) {}
 
-  inline constexpr Arg setDesc(StringRef desc) noexcept {
+  inline constexpr Arg setDesc(const StringRef desc) noexcept {
     this->desc = desc;
+    return *this;
+  }
+  inline constexpr Arg setRequired(const bool required) noexcept {
+    this->required = required;
+    return *this;
+  }
+  inline constexpr Arg setVariadic(const bool variadic) noexcept {
+    this->variadic = variadic;
     return *this;
   }
 
   /// Size of left side of the help message.
   usize leftSize() const noexcept;
+  String getLeft() const noexcept;
+  void print(usize maxOffset) const noexcept;
 };
 
-class Subcmd {
+struct Subcmd {
   StringRef name;
   StringRef shortName;
   StringRef desc;
   Vec<Opt> opts;
   Arg arg;
+  Fn<int(std::span<const StringRef>)> mainFn;
 
-public:
   Subcmd() noexcept = delete;
   ~Subcmd() noexcept = default;
   Subcmd(const Subcmd&) noexcept = default;
@@ -113,7 +129,7 @@ public:
   Subcmd& operator=(const Subcmd&) noexcept = default;
   Subcmd& operator=(Subcmd&&) noexcept = default;
 
-  explicit Subcmd(StringRef name) noexcept : name(name) {}
+  explicit Subcmd(const StringRef name) noexcept : name(name) {}
 
   Subcmd& setDesc(StringRef desc) noexcept;
   StringRef getDesc() const noexcept;
@@ -121,21 +137,55 @@ public:
   bool hasShort() const noexcept;
   Subcmd& addOpt(const Opt& opt) noexcept;
   Subcmd& setArg(const Arg& arg) noexcept;
+  Subcmd& setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept;
 
   String getUsage() const noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
   void printHelp() const noexcept;
 
 private:
+  usize calcMaxShortSize() const noexcept;
   /// Calculate the maximum length of the left side of the helps to align the
   /// descriptions with 2 spaces.
-  usize calcMaxOffset() const noexcept;
+  usize calcMaxOffset(usize maxShortSize) const noexcept;
 };
 
-bool commandExists(StringRef cmd) noexcept;
+class Command {
+public:
+  StringRef name;
+  StringRef desc;
+  HashMap<StringRef, Subcmd> subcmds; // TODO: should not expose
+  Vec<Opt> opts;
+
+  Command() noexcept = delete;
+  ~Command() noexcept = default;
+  Command(const Command&) noexcept = default;
+  Command(Command&&) noexcept = default;
+  Command& operator=(const Command&) noexcept = default;
+  Command& operator=(Command&&) noexcept = default;
+
+  explicit Command(const StringRef name) noexcept : name(name) {}
+
+  Command& setDesc(StringRef desc) noexcept;
+  //   StringRef getDesc() const noexcept;
+  Command& addSubcmd(const Subcmd& subcmd) noexcept;
+  Command& addOpt(const Opt& opt) noexcept;
+
+  bool hasSubcmd(StringRef subcmd) const noexcept;
+  //   String getUsage() const noexcept;
+  [[nodiscard]] int noSuchArg(StringRef arg) const;
+  //   void printHelp() const noexcept;
+  [[nodiscard]] int
+  exec(StringRef subcmd, std::span<const StringRef> args) const;
+
+private:
+  //   usize calcMaxShortSize() const noexcept;
+  //   usize calcMaxOffset(usize maxShortSize) const noexcept;
+};
+
 void printHeader(StringRef header) noexcept;
 void printUsage(StringRef cmd, StringRef usage) noexcept;
 void printCommand(
     StringRef name, StringRef desc, bool hasShort, usize maxOffset
 ) noexcept;
-void printGlobalOpts(usize maxOffset) noexcept;
+void printGlobalOpts(usize maxShortSize, usize maxOffset) noexcept;

@@ -1,6 +1,11 @@
 #include "Commit.hpp"
 
 #include "Exception.hpp"
+#include "Oid.hpp"
+#include "Repository.hpp"
+#include "Time.hpp"
+
+#include <git2/commit.h>
 
 namespace git2 {
 

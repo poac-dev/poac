@@ -1,18 +1,22 @@
-#include "Tidy.hpp"
-
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
+#include "../Rustify.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
+#include <span>
 #include <string>
+
+static int tidyMain(std::span<const StringRef> args);
 
 const Subcmd tidyCmd =
     Subcmd{ "tidy" }
         .setDesc("Run clang-tidy")
-        .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"));
+        .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"))
+        .setMainFn(tidyMain);
 
-int
+static int
 tidyMain(const std::span<const StringRef> args) {
   // Parse args
   bool fix = false;

@@ -1,13 +1,15 @@
-#include "Test.hpp"
-
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "../Rustify.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <chrono>
 #include <cstdlib>
 #include <span>
+
+static int testMain(std::span<const StringRef> args);
 
 const Subcmd testCmd =
     Subcmd{ "test" }
@@ -20,9 +22,10 @@ const Subcmd testCmd =
             Opt{ "--release" }.setShort("-r").setDesc("Test with optimizations")
         )
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds & tests"
-        ));
+        ))
+        .setMainFn(testMain);
 
-int
+static int
 testMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;

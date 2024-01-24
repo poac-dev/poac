@@ -1,19 +1,21 @@
-#include "Lint.hpp"
-
 #include "../Algos.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
 #include <fstream>
 #include <span>
 
+static int lintMain(std::span<const StringRef> args);
+
 const Subcmd lintCmd =
     Subcmd{ "lint" }
         .setDesc("Lint codes using cpplint")
-        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"));
+        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
+        .setMainFn(lintMain);
 
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
@@ -48,7 +50,7 @@ lint(const StringRef name, const StringRef cpplintArgs) {
   return EXIT_SUCCESS;
 }
 
-int
+static int
 lintMain(const std::span<const StringRef> args) {
   // Parse args
   String cpplintArgs;

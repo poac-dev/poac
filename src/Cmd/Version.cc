@@ -1,12 +1,13 @@
-#include "Version.hpp"
+#include "../Git2/Version.hpp"
 
 #include "../CurlVersion.hpp"
-#include "../Git2/Version.hpp"
 #include "../Logger.hpp"
+#include "../Rustify.hpp"
+#include "Cmd.hpp"
 #include "Global.hpp"
 
 #include <cstdlib>
-#include <curl/curl.h>
+#include <iostream>
 #include <span>
 
 #ifndef POAC_PKG_VERSION
@@ -22,8 +23,9 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-const Subcmd versionCmd =
-    Subcmd{ "version" }.setDesc("Show version information");
+const Subcmd versionCmd = Subcmd{ "version" }
+                              .setDesc("Show version information")
+                              .setMainFn(versionMain);
 
 static consteval StringRef
 checkAvailability(const StringRef str) noexcept {

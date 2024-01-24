@@ -1,12 +1,13 @@
-#include "Build.hpp"
-
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "Cmd.hpp"
 
 #include <chrono>
 #include <cstdlib>
 #include <span>
+
+static int buildMain(std::span<const StringRef> args);
 
 const Subcmd buildCmd =
     Subcmd{ "build" }
@@ -21,7 +22,8 @@ const Subcmd buildCmd =
         .addOpt(Opt{ "--compdb" }.setDesc(
             "Generate compilation database instead of building"
         ))
-        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"));
+        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .setMainFn(buildMain);
 
 int
 buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
@@ -42,7 +44,7 @@ buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   return exitCode;
 }
 
-int
+static int
 buildMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;

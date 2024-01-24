@@ -1,5 +1,7 @@
 #include "CurlVersion.hpp"
 
+#include <ostream>
+
 namespace curl {
 
 std::ostream&
