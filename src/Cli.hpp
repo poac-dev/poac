@@ -3,7 +3,6 @@
 #include "Rustify.hpp"
 
 #include <cstdlib>
-#include <ostream>
 #include <span>
 #include <tuple>
 
@@ -23,6 +22,13 @@
     }                                                  \
   }
 
+struct Subcmd;
+
+void printHeader(StringRef header) noexcept;
+void printUsage(StringRef cmd, StringRef usage) noexcept;
+void printCommand(StringRef name, const Subcmd& cmd, usize maxOffset) noexcept;
+void printGlobalOpts(usize maxShortSize, usize maxOffset) noexcept;
+
 struct Opt {
   StringRef name;
   StringRef shortName;
@@ -40,23 +46,23 @@ struct Opt {
 
   explicit constexpr Opt(const StringRef name) noexcept : name(name) {}
 
-  inline constexpr Opt setShort(const StringRef shortName) noexcept {
+  constexpr Opt setShort(const StringRef shortName) noexcept {
     this->shortName = shortName;
     return *this;
   }
-  inline constexpr Opt setDesc(const StringRef desc) noexcept {
+  constexpr Opt setDesc(const StringRef desc) noexcept {
     this->desc = desc;
     return *this;
   }
-  inline constexpr Opt setPlaceholder(const StringRef placeholder) noexcept {
+  constexpr Opt setPlaceholder(const StringRef placeholder) noexcept {
     this->placeholder = placeholder;
     return *this;
   }
-  inline constexpr Opt setDefault(const StringRef defaultVal) noexcept {
+  constexpr Opt setDefault(const StringRef defaultVal) noexcept {
     this->defaultVal = defaultVal;
     return *this;
   }
-  inline constexpr Opt setGlobal(const bool isGlobal) noexcept {
+  constexpr Opt setGlobal(const bool isGlobal) noexcept {
     this->isGlobal = isGlobal;
     return *this;
   }
@@ -76,8 +82,6 @@ inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
   Opt{ "--help" }.setShort("-h").setDesc("Print help"),
 };
 
-struct Subcmd; // forward decl
-
 class Arg {
   friend struct Subcmd;
 
@@ -96,15 +100,15 @@ public:
 
   explicit constexpr Arg(const StringRef name) noexcept : name(name) {}
 
-  inline constexpr Arg setDesc(const StringRef desc) noexcept {
+  constexpr Arg setDesc(const StringRef desc) noexcept {
     this->desc = desc;
     return *this;
   }
-  inline constexpr Arg setRequired(const bool required) noexcept {
+  constexpr Arg setRequired(const bool required) noexcept {
     this->required = required;
     return *this;
   }
-  inline constexpr Arg setVariadic(const bool variadic) noexcept {
+  constexpr Arg setVariadic(const bool variadic) noexcept {
     this->variadic = variadic;
     return *this;
   }
@@ -185,8 +189,3 @@ private:
   //   usize calcMaxShortSize() const noexcept;
   //   usize calcMaxOffset(usize maxShortSize) const noexcept;
 };
-
-void printHeader(StringRef header) noexcept;
-void printUsage(StringRef cmd, StringRef usage) noexcept;
-void printCommand(StringRef name, const Subcmd& cmd, usize maxOffset) noexcept;
-void printGlobalOpts(usize maxShortSize, usize maxOffset) noexcept;
