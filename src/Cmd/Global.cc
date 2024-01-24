@@ -75,24 +75,24 @@ Opt::leftSize(const usize maxShortSize) const noexcept {
   // lng.size() = ?
   // ` `.size() = 1
   // placeholder.size() = ?
-  return 3 + maxShortSize + lng.size() + placeholder.size();
+  return 3 + maxShortSize + name.size() + placeholder.size();
 }
 
 void
 Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
   String option;
-  if (!shrt.empty()) {
-    option += bold(cyan(shrt));
+  if (!shortName.empty()) {
+    option += bold(cyan(shortName));
     option += ", ";
-    if (maxShortSize > shrt.size()) {
-      option += String(maxShortSize - shrt.size(), ' ');
+    if (maxShortSize > shortName.size()) {
+      option += String(maxShortSize - shortName.size(), ' ');
     }
   } else {
     // This coloring is for the alignment with std::setw later.
     option += bold(cyan(String(maxShortSize, ' ')));
     option += "  "; // ", "
   }
-  option += bold(cyan(lng));
+  option += bold(cyan(name));
   option += ' ';
   option += cyan(placeholder);
 
@@ -204,15 +204,15 @@ Subcmd::getUsage() const noexcept {
 Subcmd::noSuchArg(StringRef arg) const {
   Vec<StringRef> candidates;
   for (const auto& opt : GLOBAL_OPTS) {
-    candidates.push_back(opt.lng);
-    if (!opt.shrt.empty()) {
-      candidates.push_back(opt.shrt);
+    candidates.push_back(opt.name);
+    if (!opt.shortName.empty()) {
+      candidates.push_back(opt.shortName);
     }
   }
   for (const auto& opt : opts) {
-    candidates.push_back(opt.lng);
-    if (!opt.shrt.empty()) {
-      candidates.push_back(opt.shrt);
+    candidates.push_back(opt.name);
+    if (!opt.shortName.empty()) {
+      candidates.push_back(opt.shortName);
     }
   }
 
@@ -233,10 +233,10 @@ usize
 Subcmd::calcMaxShortSize() const noexcept {
   usize maxShortSize = 0;
   for (const auto& opt : GLOBAL_OPTS) {
-    maxShortSize = std::max(maxShortSize, opt.shrt.size());
+    maxShortSize = std::max(maxShortSize, opt.shortName.size());
   }
   for (const auto& opt : opts) {
-    maxShortSize = std::max(maxShortSize, opt.shrt.size());
+    maxShortSize = std::max(maxShortSize, opt.shortName.size());
   }
   return maxShortSize;
 }
@@ -316,12 +316,11 @@ Command::noSuchArg(StringRef arg) const {
     }
   }
   for (const auto& opt : opts) {
-    candidates.push_back(opt.lng);
-    if (!opt.shrt.empty()) {
-      candidates.push_back(opt.shrt);
+    candidates.push_back(opt.name);
+    if (!opt.shortName.empty()) {
+      candidates.push_back(opt.shortName);
     }
   }
-  // TODO: name & shortName vs. lng & shrt
 
   String suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {

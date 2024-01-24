@@ -29,8 +29,8 @@
   }
 
 struct Opt {
-  StringRef lng;
-  StringRef shrt;
+  StringRef name;
+  StringRef shortName;
   StringRef desc;
   StringRef placeholder;
   StringRef defaultVal;
@@ -43,21 +43,21 @@ struct Opt {
   constexpr Opt& operator=(const Opt&) noexcept = default;
   constexpr Opt& operator=(Opt&&) noexcept = default;
 
-  explicit constexpr Opt(StringRef lng) noexcept : lng(lng) {}
+  explicit constexpr Opt(const StringRef name) noexcept : name(name) {}
 
-  inline constexpr Opt setShort(StringRef shortName) noexcept {
-    this->shrt = shortName;
+  inline constexpr Opt setShort(const StringRef shortName) noexcept {
+    this->shortName = shortName;
     return *this;
   }
-  inline constexpr Opt setDesc(StringRef desc) noexcept {
+  inline constexpr Opt setDesc(const StringRef desc) noexcept {
     this->desc = desc;
     return *this;
   }
-  inline constexpr Opt setPlaceholder(StringRef placeholder) noexcept {
+  inline constexpr Opt setPlaceholder(const StringRef placeholder) noexcept {
     this->placeholder = placeholder;
     return *this;
   }
-  inline constexpr Opt setDefault(StringRef defaultVal) noexcept {
+  inline constexpr Opt setDefault(const StringRef defaultVal) noexcept {
     this->defaultVal = defaultVal;
     return *this;
   }
