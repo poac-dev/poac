@@ -4,4 +4,5 @@
 
 const Subcmd helpCmd = Subcmd{ "help" }
                            .setDesc("Displays help for a poac subcommand")
-                           .setArg(Arg{ "COMMAND" }.setRequired(false));
+                           .setArg(Arg{ "COMMAND" }.setRequired(false))
+                           .setMainFn(helpMain);

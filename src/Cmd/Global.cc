@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 static constinit const StringRef PADDING = "  ";
 
@@ -34,25 +35,30 @@ printUsage(const StringRef cmd, const StringRef usage) noexcept {
   std::cout << '\n';
 }
 
+// TODO: currently, we assume commands aren't longer than options.
 void
 printCommand(
-    const StringRef name, const StringRef desc, const bool hasShort,
-    usize maxOffset
+    const StringRef name, const Subcmd& cmd, usize maxOffset
 ) noexcept {
-  String cmd = bold(cyan(name));
-  if (hasShort) {
-    cmd += ", ";
-    cmd += bold(cyan(StringRef(name.data(), 1)));
+  if (cmd.hasShort() && name == cmd.getShort()) {
+    // We don't print an abbreviation.
+    return;
+  }
+
+  String cmdStr = bold(cyan(name));
+  if (cmd.hasShort()) {
+    cmdStr += ", ";
+    cmdStr += bold(cyan(StringRef(name.data(), 1)));
   } else {
     // This coloring is for the alignment with std::setw later.
-    cmd += bold(cyan("   "));
+    cmdStr += bold(cyan("   "));
   }
 
   if (shouldColor()) {
     maxOffset += 34; // invisible color escape sequences.
   }
   setOffset(maxOffset);
-  std::cout << cmd << desc << '\n';
+  std::cout << cmdStr << cmd.getDesc() << '\n';
 }
 
 void
@@ -155,6 +161,10 @@ Subcmd&
 Subcmd::setShort(StringRef shortName) noexcept {
   this->shortName = shortName;
   return *this;
+}
+StringRef
+Subcmd::getShort() const noexcept {
+  return shortName;
 }
 bool
 Subcmd::hasShort() const noexcept {

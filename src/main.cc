@@ -87,17 +87,14 @@ helpMain(const std::span<const StringRef> args) noexcept {
 
   printHeader("Commands:");
   for (const auto& [name, cmd] : getCmd().subcmds) {
-    //     if (cmd.isShort) {
-    // TODO: Correctly handle short name. It's possible that we have longer
-    // short.
-    if (name.size() == 1) {
-      continue;
-    }
-    // TODO: currently, we assume commands aren't longer than options.
-    printCommand(name, cmd.getDesc(), cmd.hasShort(), maxOffset);
+    printCommand(name, cmd, maxOffset);
   }
   return EXIT_SUCCESS;
 }
+
+// TODO: Before Poac pragma parser, we need to update getCmdOutput to fail
+// because we want to fail if the C++ files are invalid (uncompilable).
+// After this, we can easily parse the files without any exception.
 
 int
 main(int argc, char* argv[]) {

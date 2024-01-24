@@ -134,6 +134,7 @@ struct Subcmd {
   Subcmd& setDesc(StringRef desc) noexcept;
   StringRef getDesc() const noexcept;
   Subcmd& setShort(StringRef shortName) noexcept;
+  StringRef getShort() const noexcept;
   bool hasShort() const noexcept;
   Subcmd& addOpt(const Opt& opt) noexcept;
   Subcmd& setArg(const Arg& arg) noexcept;
@@ -185,7 +186,5 @@ private:
 
 void printHeader(StringRef header) noexcept;
 void printUsage(StringRef cmd, StringRef usage) noexcept;
-void printCommand(
-    StringRef name, StringRef desc, bool hasShort, usize maxOffset
-) noexcept;
+void printCommand(StringRef name, const Subcmd& cmd, usize maxOffset) noexcept;
 void printGlobalOpts(usize maxShortSize, usize maxOffset) noexcept;
