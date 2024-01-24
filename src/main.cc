@@ -1,7 +1,6 @@
 #include "Algos.hpp"
 #include "Cli.hpp"
 #include "Cmd/Cmd.hpp"
-#include "Cmd/Help.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "TermColor.hpp"
@@ -51,8 +50,7 @@ getCmd() noexcept {
   return CMD;
 }
 
-// TODO: Should be in Cli.  Also, remove Cmd/Help.  It should be
-// automatically generated.
+// TODO: Should be in Cli.  It should be automatically generated.
 int
 helpMain(const std::span<const StringRef> args) noexcept {
   // Parse args

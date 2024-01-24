@@ -1,5 +1,7 @@
 #include "Cli.hpp"
 
+#include "Algos.hpp"
+#include "Logger.hpp"
 #include "Rustify.hpp"
 #include "TermColor.hpp"
 

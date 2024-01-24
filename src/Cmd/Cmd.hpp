@@ -3,6 +3,8 @@
 #include "../Cli.hpp"
 #include "../Rustify.hpp"
 
+#include <span>
+
 // Poac pragma: Cmd/Build.cc
 extern const Subcmd buildCmd;
 int buildImpl(String& outDir, bool isDebug, bool isParallel);
@@ -12,6 +14,10 @@ extern const Subcmd cleanCmd;
 
 // Poac pragma: Cmd/Fmt.cc
 extern const Subcmd fmtCmd;
+
+// Poac pragma: Cmd/Help.cc
+extern const Subcmd helpCmd;
+int helpMain(std::span<const StringRef> args) noexcept;
 
 // Poac pragma: Cmd/Init.cc
 extern const Subcmd initCmd;

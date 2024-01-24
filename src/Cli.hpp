@@ -1,13 +1,10 @@
 #pragma once
 
-#include "Algos.hpp"
-#include "Cmd/Help.hpp"
-#include "Logger.hpp"
 #include "Rustify.hpp"
-#include "TermColor.hpp"
 
 #include <cstdlib>
 #include <ostream>
+#include <span>
 #include <tuple>
 
 #define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
@@ -69,6 +66,7 @@ struct Opt {
   void print(usize maxShortSize, usize maxOffset) const noexcept;
 };
 
+// TODO: Delete this.
 inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
   Opt{ "--verbose" }.setShort("-v").setDesc("Use verbose output"),
   Opt{ "--quiet" }.setShort("-q").setDesc("Do not print poac log messages"),
@@ -78,12 +76,17 @@ inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
   Opt{ "--help" }.setShort("-h").setDesc("Print help"),
 };
 
-struct Arg {
+struct Subcmd; // forward decl
+
+class Arg {
+  friend struct Subcmd;
+
   StringRef name;
   StringRef desc;
   bool required = true;
   bool variadic = false;
 
+public:
   constexpr Arg() noexcept = default;
   constexpr ~Arg() noexcept = default;
   constexpr Arg(const Arg&) noexcept = default;
@@ -106,6 +109,7 @@ struct Arg {
     return *this;
   }
 
+private:
   /// Size of left side of the help message.
   usize leftSize() const noexcept;
   String getLeft() const noexcept;
