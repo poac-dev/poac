@@ -175,7 +175,7 @@ public:
   bool hasSubcmd(StringRef subcmd) const noexcept;
   //   String getUsage() const noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
-  //   void printHelp() const noexcept;
+  void printHelp(StringRef subcmd) const noexcept;
   [[nodiscard]] int
   exec(StringRef subcmd, std::span<const StringRef> args) const;
 

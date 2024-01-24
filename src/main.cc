@@ -61,11 +61,11 @@ helpMain(const std::span<const StringRef> args) noexcept {
     HANDLE_GLOBAL_OPTS({ { "help" } })
 
     else if (getCmd().hasSubcmd(arg)) {
-      getCmd().subcmds.at(arg).printHelp();
+      getCmd().printHelp(arg);
       return EXIT_SUCCESS;
     }
     else {
-      // TODO: should take a list of commands
+      // TODO: should take a list of commands as well
       return helpCmd.noSuchArg(arg);
     }
   }
@@ -76,7 +76,8 @@ helpMain(const std::span<const StringRef> args) noexcept {
   printUsage("", cyan("[COMMAND]"));
   std::cout << '\n';
 
-  const usize maxOffset = GLOBAL_OPTS[2].leftSize(2); // --color
+  const usize maxOffset =
+      GLOBAL_OPTS[2].leftSize(2); // --color // TODO: call calcMaxOffset
   printHeader("Options:");
   printGlobalOpts(2, maxOffset);
   Opt{ "--version" }

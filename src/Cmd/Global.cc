@@ -334,7 +334,13 @@ Command::noSuchArg(StringRef arg) const {
   return EXIT_FAILURE;
 }
 
+void
+Command::printHelp(const StringRef subcmd) const noexcept {
+  subcmds.at(subcmd).printHelp();
+}
+
 [[nodiscard]] int
-Command::exec(StringRef subcmd, std::span<const StringRef> args) const {
+Command::exec(const StringRef subcmd, const std::span<const StringRef> args)
+    const {
   return subcmds.at(subcmd).mainFn(args);
 }
