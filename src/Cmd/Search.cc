@@ -94,7 +94,7 @@ searchMain(const std::span<const StringRef> args) {
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resStr);
   curl_easy_setopt(curl, CURLOPT_POST, 1L);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, reqStr.c_str());
-  curl_easy_perform(curl);
+  curl_easy_perform(curl); // TODO: Handle CURLCode
 
   curl_easy_cleanup(curl);
 

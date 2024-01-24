@@ -50,7 +50,8 @@ getCmd() noexcept {
   return CMD;
 }
 
-// TODO: Should be in Cli.  It should be automatically generated.
+// TODO: Should be in Cli.  It should be automatically generated.  After this,
+// maybe we can simply define CMD in the main function.
 int
 helpMain(const std::span<const StringRef> args) noexcept {
   // Parse args

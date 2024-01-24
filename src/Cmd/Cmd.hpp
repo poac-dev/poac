@@ -17,6 +17,8 @@ extern const Subcmd fmtCmd;
 
 // Poac pragma: Cmd/Help.cc
 extern const Subcmd helpCmd;
+// NOTE: helpMain is defined in main.cc but we don't need Poac pragma since
+// it's main.cc.
 int helpMain(std::span<const StringRef> args) noexcept;
 
 // Poac pragma: Cmd/Init.cc

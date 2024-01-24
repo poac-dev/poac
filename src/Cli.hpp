@@ -22,14 +22,18 @@
     }                                                  \
   }
 
-struct Subcmd;
+class Opt;
+class Arg;
+class Subcmd;
+class Command;
 
 void printHeader(StringRef header) noexcept;
 void printUsage(StringRef cmd, StringRef usage) noexcept;
 void printCommand(StringRef name, const Subcmd& cmd, usize maxOffset) noexcept;
 void printGlobalOpts(usize maxShortSize, usize maxOffset) noexcept;
 
-struct Opt {
+class Opt {
+public:
   StringRef name;
   StringRef shortName;
   StringRef desc;
@@ -72,18 +76,8 @@ struct Opt {
   void print(usize maxShortSize, usize maxOffset) const noexcept;
 };
 
-// TODO: Delete this.
-inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
-  Opt{ "--verbose" }.setShort("-v").setDesc("Use verbose output"),
-  Opt{ "--quiet" }.setShort("-q").setDesc("Do not print poac log messages"),
-  Opt{ "--color" }
-      .setDesc("Coloring: auto, always, never")
-      .setPlaceholder("<WHEN>"),
-  Opt{ "--help" }.setShort("-h").setDesc("Print help"),
-};
-
 class Arg {
-  friend struct Subcmd;
+  friend class Subcmd;
 
   StringRef name;
   StringRef desc;
@@ -120,7 +114,8 @@ private:
   void print(usize maxOffset) const noexcept;
 };
 
-struct Subcmd {
+class Subcmd {
+public:
   StringRef name;
   StringRef shortName;
   StringRef desc;
@@ -188,4 +183,14 @@ public:
 private:
   //   usize calcMaxShortSize() const noexcept;
   //   usize calcMaxOffset(usize maxShortSize) const noexcept;
+};
+
+// TODO: Delete this.
+inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
+  Opt{ "--verbose" }.setShort("-v").setDesc("Use verbose output"),
+  Opt{ "--quiet" }.setShort("-q").setDesc("Do not print poac log messages"),
+  Opt{ "--color" }
+      .setDesc("Coloring: auto, always, never")
+      .setPlaceholder("<WHEN>"),
+  Opt{ "--help" }.setShort("-h").setDesc("Print help"),
 };

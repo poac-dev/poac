@@ -50,7 +50,7 @@ printCommand(
   String cmdStr = bold(cyan(name));
   if (cmd.hasShort()) {
     cmdStr += ", ";
-    cmdStr += bold(cyan(StringRef(name.data(), 1)));
+    cmdStr += bold(cyan(cmd.getShort()));
   } else {
     // This coloring is for the alignment with std::setw later.
     cmdStr += bold(cyan("   "));

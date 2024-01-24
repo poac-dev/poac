@@ -38,7 +38,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
         return EXIT_FAILURE;
       }
 
-      outDir /= args[1];
+      outDir /= args[i];
     }
     else {
       return cleanCmd.noSuchArg(arg);
