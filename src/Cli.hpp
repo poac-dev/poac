@@ -22,18 +22,21 @@
     }                                                  \
   }
 
+int helpMain(std::span<const StringRef> args) noexcept;
+
 class Opt;
 class Arg;
 class Subcmd;
 class Command;
 
-void printHeader(StringRef header) noexcept;
-void printUsage(StringRef cmd, StringRef usage) noexcept;
-void printCommand(StringRef name, const Subcmd& cmd, usize maxOffset) noexcept;
-void printGlobalOpts(usize maxShortSize, usize maxOffset) noexcept;
+// Poac pragma: Cmd/Help.cc
+extern const Subcmd helpCmd;
+const Command& getCmd() noexcept; // definition in main.cc
 
 class Opt {
-public:
+  friend class Subcmd;
+  friend class Command;
+
   StringRef name;
   StringRef shortName;
   StringRef desc;
@@ -41,6 +44,7 @@ public:
   StringRef defaultVal;
   bool isGlobal = false;
 
+public:
   constexpr Opt() noexcept = default;
   constexpr ~Opt() noexcept = default;
   constexpr Opt(const Opt&) noexcept = default;
@@ -71,6 +75,7 @@ public:
     return *this;
   }
 
+private:
   /// Size of `-c, --color <WHEN>` without color.
   usize leftSize(usize maxShortSize) const noexcept;
   void print(usize maxShortSize, usize maxOffset) const noexcept;
@@ -115,14 +120,17 @@ private:
 };
 
 class Subcmd {
-public:
+  friend class Command;
+
   StringRef name;
   StringRef shortName;
   StringRef desc;
-  Vec<Opt> opts;
+  Vec<Opt>* globalOpts = nullptr;
+  Vec<Opt> localOpts;
   Arg arg;
   Fn<int(std::span<const StringRef>)> mainFn;
 
+public:
   Subcmd() noexcept = delete;
   ~Subcmd() noexcept = default;
   Subcmd(const Subcmd&) noexcept = default;
@@ -133,19 +141,19 @@ public:
   explicit Subcmd(const StringRef name) noexcept : name(name) {}
 
   Subcmd& setDesc(StringRef desc) noexcept;
-  StringRef getDesc() const noexcept;
   Subcmd& setShort(StringRef shortName) noexcept;
-  StringRef getShort() const noexcept;
-  bool hasShort() const noexcept;
-  Subcmd& addOpt(const Opt& opt) noexcept;
-  Subcmd& setArg(const Arg& arg) noexcept;
+  Subcmd& addOpt(Opt opt) noexcept;
+  Subcmd& setArg(Arg arg) noexcept;
   Subcmd& setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept;
-
-  String getUsage() const noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
-  void printHelp() const noexcept;
 
 private:
+  Subcmd& setGlobalOpts(Vec<Opt>* globalOpts) noexcept;
+  bool hasShort() const noexcept;
+  String getUsage() const noexcept;
+  void printHelp() const noexcept;
+  void print(usize maxOffset) const noexcept;
+
   usize calcMaxShortSize() const noexcept;
   /// Calculate the maximum length of the left side of the helps to align the
   /// descriptions with 2 spaces.
@@ -153,12 +161,13 @@ private:
 };
 
 class Command {
-public:
   StringRef name;
   StringRef desc;
-  HashMap<StringRef, Subcmd> subcmds; // TODO: should not expose
-  Vec<Opt> opts;
+  HashMap<StringRef, Subcmd> subcmds;
+  Vec<Opt> globalOpts;
+  Vec<Opt> localOpts;
 
+public:
   Command() noexcept = delete;
   ~Command() noexcept = default;
   Command(const Command&) noexcept = default;
@@ -169,28 +178,17 @@ public:
   explicit Command(const StringRef name) noexcept : name(name) {}
 
   Command& setDesc(StringRef desc) noexcept;
-  //   StringRef getDesc() const noexcept;
-  Command& addSubcmd(const Subcmd& subcmd) noexcept;
-  Command& addOpt(const Opt& opt) noexcept;
-
+  Command& addSubcmd(Subcmd subcmd) noexcept;
+  Command& addOpt(Opt opt) noexcept;
   bool hasSubcmd(StringRef subcmd) const noexcept;
-  //   String getUsage() const noexcept;
+
   [[nodiscard]] int noSuchArg(StringRef arg) const;
-  void printHelp(StringRef subcmd) const noexcept;
   [[nodiscard]] int
   exec(StringRef subcmd, std::span<const StringRef> args) const;
+  void printSubcmdHelp(StringRef subcmd) const noexcept;
+  void printHelp() const noexcept;
 
 private:
-  //   usize calcMaxShortSize() const noexcept;
-  //   usize calcMaxOffset(usize maxShortSize) const noexcept;
-};
-
-// TODO: Delete this.
-inline constinit const Arr<Opt, 4> GLOBAL_OPTS{
-  Opt{ "--verbose" }.setShort("-v").setDesc("Use verbose output"),
-  Opt{ "--quiet" }.setShort("-q").setDesc("Do not print poac log messages"),
-  Opt{ "--color" }
-      .setDesc("Coloring: auto, always, never")
-      .setPlaceholder("<WHEN>"),
-  Opt{ "--help" }.setShort("-h").setDesc("Print help"),
+  usize calcMaxShortSize() const noexcept;
+  usize calcMaxOffset(usize maxShortSize) const noexcept;
 };

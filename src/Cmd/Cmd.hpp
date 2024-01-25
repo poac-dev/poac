@@ -10,16 +10,10 @@ extern const Subcmd buildCmd;
 int buildImpl(String& outDir, bool isDebug, bool isParallel);
 
 // Poac pragma: Cmd/Clean.cc
-extern const Subcmd cleanCmd;
+extern const Subcmd cleanCmd; // TODO: should be CLEAN_CMD case
 
 // Poac pragma: Cmd/Fmt.cc
 extern const Subcmd fmtCmd;
-
-// Poac pragma: Cmd/Help.cc
-extern const Subcmd helpCmd;
-// NOTE: helpMain is defined in main.cc but we don't need Poac pragma since
-// it's main.cc.
-int helpMain(std::span<const StringRef> args) noexcept;
 
 // Poac pragma: Cmd/Init.cc
 extern const Subcmd initCmd;

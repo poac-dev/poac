@@ -8,13 +8,14 @@
 
 static int cleanMain(std::span<const StringRef> args) noexcept;
 
-const Subcmd cleanCmd = Subcmd{ "clean" }
-                            .setDesc("Remove the built directory")
-                            .addOpt(Opt{ "--profile" }
-                                        .setShort("-p")
-                                        .setDesc("Disable parallel builds")
-                                        .setPlaceholder("<PROFILE>"))
-                            .setMainFn(cleanMain);
+const Subcmd cleanCmd = // for better format
+    Subcmd{ "clean" }
+        .setDesc("Remove the built directory")
+        .addOpt(Opt{ "--profile" }
+                    .setShort("-p")
+                    .setDesc("Disable parallel builds")
+                    .setPlaceholder("<PROFILE>"))
+        .setMainFn(cleanMain);
 
 static int
 cleanMain(const std::span<const StringRef> args) noexcept {

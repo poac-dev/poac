@@ -1,4 +1,3 @@
-#include "Algos.hpp"
 #include "Cli.hpp"
 #include "Cmd/Cmd.hpp"
 #include "Logger.hpp"
@@ -7,12 +6,11 @@
 
 #include <cstdlib>
 #include <exception>
-#include <iostream>
 #include <span>
 
-static const Command&
+const Command&
 getCmd() noexcept {
-  static const Command CMD =
+  static const Command CMD = // for better format
       Command{ "poac" }
           .setDesc("A package manager and build system for C++")
           .addOpt(Opt{ "--verbose" }
@@ -27,7 +25,7 @@ getCmd() noexcept {
                       .setDesc("Coloring: auto, always, never")
                       .setPlaceholder("<WHEN>")
                       .setGlobal(true))
-          .addOpt(Opt{ "--help" }
+          .addOpt(Opt{ "--help" } // for better format
                       .setShort("-h")
                       .setDesc("Print help")
                       .setGlobal(true))
@@ -49,52 +47,6 @@ getCmd() noexcept {
           .addSubcmd(versionCmd);
   return CMD;
 }
-
-// TODO: Should be in Cli.  It should be automatically generated.  After this,
-// maybe we can simply define CMD in the main function.
-int
-helpMain(const std::span<const StringRef> args) noexcept {
-  // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "help" } })
-
-    else if (getCmd().hasSubcmd(arg)) {
-      getCmd().printHelp(arg);
-      return EXIT_SUCCESS;
-    }
-    else {
-      // TODO: should take a list of commands as well
-      return helpCmd.noSuchArg(arg);
-    }
-  }
-
-  // Print help message for poac itself
-  std::cout << "A package manager and build system for C++" << '\n';
-  std::cout << '\n';
-  printUsage("", cyan("[COMMAND]"));
-  std::cout << '\n';
-
-  const usize maxOffset =
-      GLOBAL_OPTS[2].leftSize(2); // --color // TODO: call calcMaxOffset
-  printHeader("Options:");
-  printGlobalOpts(2, maxOffset);
-  Opt{ "--version" }
-      .setShort("-V")
-      .setDesc("Print version info and exit")
-      .print(2, maxOffset);
-  std::cout << '\n';
-
-  printHeader("Commands:");
-  for (const auto& [name, cmd] : getCmd().subcmds) {
-    printCommand(name, cmd, maxOffset);
-  }
-  return EXIT_SUCCESS;
-}
-
-// TODO: Before Poac pragma parser, we need to update getCmdOutput to fail
-// because we want to fail if the C++ files are invalid (uncompilable).
-// After this, we can easily parse the files without any exception.
 
 int
 main(int argc, char* argv[]) {

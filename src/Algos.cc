@@ -47,14 +47,23 @@ getCmdOutput(const StringRef cmd) {
   String result;
 
   Logger::debug("Running `", cmd, '`');
-  const std::unique_ptr<FILE, decltype(&pclose)> pipe(
-      popen(cmd.data(), "r"), pclose
-  );
+  FILE* pipe = popen(cmd.data(), "r");
   if (!pipe) {
     throw PoacError("popen() failed!");
   }
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+
+  while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
     result += buffer.data();
+  }
+
+  const int status = pclose(pipe);
+  if (status == -1) {
+    throw PoacError("pclose() failed!");
+  }
+  const int exitCode = status >> 8;
+  if (exitCode != EXIT_SUCCESS) {
+    std::cerr << result;
+    throw PoacError("Command failed with exit code ", exitCode);
   }
   return result;
 }
