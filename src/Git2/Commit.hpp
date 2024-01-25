@@ -15,9 +15,9 @@ struct Commit : public GlobalState {
   Commit() = default;
   ~Commit();
 
-  Commit(const Commit&) = delete;
-  Commit& operator=(const Commit&) = delete;
+  Commit(const Commit&) = default;
   Commit(Commit&&) noexcept = default;
+  Commit& operator=(const Commit&) = default;
   Commit& operator=(Commit&&) noexcept = default;
 
   /// Lookup a commit object from a repository.

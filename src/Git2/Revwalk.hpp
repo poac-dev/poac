@@ -16,10 +16,10 @@ struct Revwalk : public GlobalState {
   explicit Revwalk(const Repository& repo);
   ~Revwalk() noexcept;
 
-  Revwalk(const Revwalk&) = delete;
-  Revwalk& operator=(const Revwalk&) = delete;
-  Revwalk(Revwalk&&) = default;
-  Revwalk& operator=(Revwalk&&) = default;
+  Revwalk(const Revwalk&) = default;
+  Revwalk(Revwalk&&) noexcept = default;
+  Revwalk& operator=(const Revwalk&) = default;
+  Revwalk& operator=(Revwalk&&) noexcept = default;
 
   /// Reset a revwalk to allow re-configuring it.
   ///

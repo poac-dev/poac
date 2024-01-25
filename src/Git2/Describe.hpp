@@ -75,10 +75,10 @@ struct Describe : public GlobalState {
   Describe() = default;
   ~Describe();
 
-  Describe(const Describe&) = delete;
-  Describe& operator=(const Describe&) = delete;
-  Describe(Describe&&) = default;
-  Describe& operator=(Describe&&) = default;
+  Describe(const Describe&) = default;
+  Describe(Describe&&) noexcept = default;
+  Describe& operator=(const Describe&) = default;
+  Describe& operator=(Describe&&) noexcept = default;
 
   Describe& workdir(const Repository& repo, DescribeOptions& opts);
 

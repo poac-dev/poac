@@ -17,10 +17,10 @@ public:
 
   explicit Config(git_config* raw);
 
-  Config(const Config&) = delete;
-  Config& operator=(const Config&) = delete;
-  Config(Config&&) = default;
-  Config& operator=(Config&&) = default;
+  Config(const Config&) = default;
+  Config(Config&&) noexcept = default;
+  Config& operator=(const Config&) = default;
+  Config& operator=(Config&&) noexcept = default;
 
   /// Open the global, XDG and system configuration files.
   Config& openDefault();

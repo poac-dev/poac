@@ -28,9 +28,9 @@ struct Oid : public GlobalState {
   ~Oid() = default;
 
   Oid(const Oid&) = default;
+  Oid(Oid&&) noexcept = default;
   Oid& operator=(const Oid&) = default;
-  Oid(Oid&&) = default;
-  Oid& operator=(Oid&&) = default;
+  Oid& operator=(Oid&&) noexcept = default;
 
   /// Test if this OID is all zeros.
   bool isZero() const;

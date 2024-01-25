@@ -19,10 +19,10 @@ public:
   Revspec() = delete;
   ~Revspec() = default;
 
-  Revspec(const Revspec&) = delete;
-  Revspec& operator=(const Revspec&) = delete;
-  Revspec(Revspec&&) = default;
-  Revspec& operator=(Revspec&&) = default;
+  Revspec(const Revspec&) = default;
+  Revspec(Revspec&&) noexcept = default;
+  Revspec& operator=(const Revspec&) = default;
+  Revspec& operator=(Revspec&&) noexcept = default;
 
   /// Access the `from` range of this revspec.
   git_object* from() const noexcept;

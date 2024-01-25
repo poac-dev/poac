@@ -17,10 +17,10 @@ struct Repository : public GlobalState {
   Repository() = default;
   ~Repository();
 
-  Repository(const Repository&) = delete;
-  Repository& operator=(const Repository&) = delete;
-  Repository(Repository&&) = default;
-  Repository& operator=(Repository&&) = default;
+  Repository(const Repository&) = default;
+  Repository(Repository&&) noexcept = default;
+  Repository& operator=(const Repository&) = default;
+  Repository& operator=(Repository&&) noexcept = default;
 
   /// Attempt to open an already-existing repository at `path`.
   ///

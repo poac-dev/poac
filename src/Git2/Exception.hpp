@@ -58,9 +58,9 @@ struct Exception final : public std::exception {
   git_error_t category() const noexcept;
 
   Exception(const Exception&) = default;
-  Exception& operator=(const Exception&) = delete;
-  Exception(Exception&&) = default;
-  Exception& operator=(Exception&&) = delete;
+  Exception(Exception&&) noexcept = default;
+  Exception& operator=(const Exception&) = default;
+  Exception& operator=(Exception&&) noexcept = default;
 
 private:
   String m_message = "git2-cpp: ";

@@ -13,10 +13,10 @@ struct Object : public GlobalState {
   Object() = default;
   ~Object();
 
-  Object(const Object&) = delete;
-  Object& operator=(const Object&) = delete;
-  Object(Object&&) = default;
-  Object& operator=(Object&&) = default;
+  Object(const Object&) = default;
+  Object(Object&&) noexcept = default;
+  Object& operator=(const Object&) = default;
+  Object& operator=(Object&&) noexcept = default;
 
   explicit Object(git_object* obj);
 
