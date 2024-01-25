@@ -10,7 +10,7 @@
 
 static int runMain(std::span<const StringRef> args);
 
-const Subcmd runCmd =
+const Subcmd RUN_CMD =
     Subcmd{ "run" }
         .setShort("r")
         .setDesc("Build and execute src/main.cc")

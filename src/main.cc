@@ -33,18 +33,18 @@ getCmd() noexcept {
                       .setShort("-V")
                       .setDesc("Print version info and exit")
                       .setGlobal(false))
-          .addSubcmd(buildCmd)
-          .addSubcmd(cleanCmd)
-          .addSubcmd(fmtCmd)
-          .addSubcmd(helpCmd)
-          .addSubcmd(initCmd)
-          .addSubcmd(lintCmd)
-          .addSubcmd(newCmd)
-          .addSubcmd(runCmd)
-          .addSubcmd(searchCmd)
-          .addSubcmd(testCmd)
-          .addSubcmd(tidyCmd)
-          .addSubcmd(versionCmd);
+          .addSubcmd(BUILD_CMD)
+          .addSubcmd(CLEAN_CMD)
+          .addSubcmd(FMT_CMD)
+          .addSubcmd(HELP_CMD)
+          .addSubcmd(INIT_CMD)
+          .addSubcmd(LINT_CMD)
+          .addSubcmd(NEW_CMD)
+          .addSubcmd(RUN_CMD)
+          .addSubcmd(SEARCH_CMD)
+          .addSubcmd(TEST_CMD)
+          .addSubcmd(TIDY_CMD)
+          .addSubcmd(VERSION_CMD);
   return CMD;
 }
 
@@ -89,6 +89,5 @@ main(int argc, char* argv[]) {
     }
   }
 
-  helpMain({});
-  return EXIT_SUCCESS;
+  return getCmd().printHelp({});
 }

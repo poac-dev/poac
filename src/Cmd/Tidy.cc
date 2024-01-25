@@ -11,7 +11,7 @@
 
 static int tidyMain(std::span<const StringRef> args);
 
-const Subcmd tidyCmd =
+const Subcmd TIDY_CMD =
     Subcmd{ "tidy" }
         .setDesc("Run clang-tidy")
         .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"))
@@ -29,7 +29,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     }
     else {
-      return tidyCmd.noSuchArg(arg);
+      return TIDY_CMD.noSuchArg(arg);
     }
   }
 

@@ -13,7 +13,7 @@
 
 static int searchMain(std::span<const StringRef> args);
 
-const Subcmd searchCmd =
+const Subcmd SEARCH_CMD =
     Subcmd{ "search" }
         .setDesc("Search for packages in the registry")
         .addOpt(Opt{ "--per-page" }
@@ -63,7 +63,7 @@ searchMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return searchCmd.noSuchArg(arg);
+      return SEARCH_CMD.noSuchArg(arg);
     }
   }
 

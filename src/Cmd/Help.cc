@@ -1,8 +1,18 @@
 #include "../Cli.hpp"
+#include "../Rustify.hpp"
+#include "Cmd.hpp"
 
-// TODO: should be in Cli.cc?
-const Subcmd helpCmd = // for better format
+#include <span>
+
+static int helpMain(std::span<const StringRef> args) noexcept;
+
+const Subcmd HELP_CMD = // for better format
     Subcmd{ "help" }
         .setDesc("Displays help for a poac subcommand")
         .setArg(Arg{ "COMMAND" }.setRequired(false))
         .setMainFn(helpMain);
+
+static int
+helpMain(const std::span<const StringRef> args) noexcept {
+  return getCmd().printHelp(args);
+}

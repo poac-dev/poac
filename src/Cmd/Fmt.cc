@@ -15,7 +15,7 @@
 
 static int fmtMain(std::span<const StringRef> args);
 
-const Subcmd fmtCmd =
+const Subcmd FMT_CMD =
     Subcmd{ "fmt" }
         .setDesc("Format codes using clang-format")
         .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
@@ -33,7 +33,7 @@ fmtMain(const std::span<const StringRef> args) {
       isCheck = true;
     }
     else {
-      return fmtCmd.noSuchArg(arg);
+      return FMT_CMD.noSuchArg(arg);
     }
   }
 

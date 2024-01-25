@@ -9,7 +9,7 @@
 
 static int buildMain(std::span<const StringRef> args);
 
-const Subcmd buildCmd =
+const Subcmd BUILD_CMD =
     Subcmd{ "build" }
         .setShort("b")
         .setDesc("Compile a local package and all of its dependencies")
@@ -67,7 +67,7 @@ buildMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return buildCmd.noSuchArg(arg);
+      return BUILD_CMD.noSuchArg(arg);
     }
   }
 

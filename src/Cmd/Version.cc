@@ -23,7 +23,7 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-const Subcmd versionCmd = // for better format
+const Subcmd VERSION_CMD = // for better format
     Subcmd{ "version" }
         .setDesc("Show version information")
         .setMainFn(versionMain);
@@ -121,7 +121,7 @@ versionMain(const std::span<const StringRef> args) noexcept {
     HANDLE_GLOBAL_OPTS({ { "version" } })
 
     else {
-      return versionCmd.noSuchArg(arg);
+      return VERSION_CMD.noSuchArg(arg);
     }
   }
 

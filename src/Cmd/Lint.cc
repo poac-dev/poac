@@ -11,7 +11,7 @@
 
 static int lintMain(std::span<const StringRef> args);
 
-const Subcmd lintCmd =
+const Subcmd LINT_CMD =
     Subcmd{ "lint" }
         .setDesc("Lint codes using cpplint")
         .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
@@ -69,7 +69,7 @@ lintMain(const std::span<const StringRef> args) {
       cpplintArgs += args[i];
     }
     else {
-      return lintCmd.noSuchArg(arg);
+      return LINT_CMD.noSuchArg(arg);
     }
   }
 

@@ -148,7 +148,7 @@ Subcmd::setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept {
 }
 
 Subcmd&
-Subcmd::setGlobalOpts(Vec<Opt>* globalOpts) noexcept {
+Subcmd::setGlobalOpts(const Vec<Opt>& globalOpts) noexcept {
   this->globalOpts = globalOpts;
   return *this;
 }
@@ -200,8 +200,8 @@ Subcmd::noSuchArg(StringRef arg) const {
 usize
 Subcmd::calcMaxShortSize() const noexcept {
   usize maxShortSize = 0;
-  if (globalOpts) {
-    for (const auto& opt : *globalOpts) {
+  if (globalOpts.has_value()) {
+    for (const auto& opt : globalOpts.value()) {
       maxShortSize = std::max(maxShortSize, opt.shortName.size());
     }
   }
@@ -213,8 +213,8 @@ Subcmd::calcMaxShortSize() const noexcept {
 usize
 Subcmd::calcMaxOffset(const usize maxShortSize) const noexcept {
   usize maxOffset = 0;
-  if (globalOpts) {
-    for (const auto& opt : *globalOpts) {
+  if (globalOpts.has_value()) {
+    for (const auto& opt : globalOpts.value()) {
       maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
     }
   }
@@ -241,8 +241,8 @@ Subcmd::printHelp() const noexcept {
   std::cout << '\n';
 
   printHeader("Options:");
-  if (globalOpts) {
-    for (const auto& opt : *globalOpts) {
+  if (globalOpts.has_value()) {
+    for (const auto& opt : globalOpts.value()) {
       opt.print(maxShortSize, maxOffset);
     }
   }
@@ -282,11 +282,11 @@ Command::setDesc(StringRef desc) noexcept {
 }
 Command&
 Command::addSubcmd(Subcmd subcmd) noexcept {
-  subcmd.setGlobalOpts(&globalOpts);
+  subcmd.setGlobalOpts(globalOpts);
 
-  subcmds.emplace(subcmd.name, subcmd);
+  subcmds.insert_or_assign(subcmd.name, subcmd);
   if (subcmd.hasShort()) {
-    subcmds.emplace(subcmd.shortName, subcmd);
+    subcmds.insert_or_assign(subcmd.shortName, subcmd);
   }
   return *this;
 }
@@ -352,6 +352,9 @@ Command::printSubcmdHelp(const StringRef subcmd) const noexcept {
 
 usize
 Command::calcMaxShortSize() const noexcept {
+  // This is for printing the help message of the poac command itself.  So,
+  // we don't need to consider the length of the subcommands' options.
+
   usize maxShortSize = 0;
   for (const auto& opt : globalOpts) {
     maxShortSize = std::max(maxShortSize, opt.shortName.size());
@@ -365,16 +368,28 @@ Command::calcMaxShortSize() const noexcept {
 usize
 Command::calcMaxOffset(const usize maxShortSize) const noexcept {
   usize maxOffset = 0;
+  for (const auto& opt : globalOpts) {
+    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
+  }
+  for (const auto& opt : localOpts) {
+    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
+  }
   for (const auto& [name, cmd] : subcmds) {
-    maxOffset = std::max(maxOffset, cmd.calcMaxOffset(maxShortSize));
+    usize offset = name.size(); // "build"
+    if (!cmd.shortName.empty()) {
+      offset += 2; // ", "
+      offset += cmd.shortName.size(); // "b"
+    }
+    maxOffset = std::max(maxOffset, offset);
   }
   return maxOffset;
 }
 
 void
-Command::printHelp() const noexcept {
-  const usize maxShortSize = 0; // TODO: calcMaxShortSize();
-  const usize maxOffset = 0; // TODO: calcMaxOffset(maxShortSize);
+Command::printCmdHelp() const noexcept {
+  // Print help message for poac itself
+  const usize maxShortSize = calcMaxShortSize();
+  const usize maxOffset = calcMaxOffset(maxShortSize);
 
   std::cout << desc << '\n';
   std::cout << '\n';
@@ -394,31 +409,32 @@ Command::printHelp() const noexcept {
   for (const auto& [name, cmd] : subcmds) {
     if (cmd.hasShort() && name == cmd.shortName) {
       // We don't print an abbreviation.
-      return;
+      continue;
     }
     cmd.print(maxOffset);
   }
 }
 
-// TODO: This should be automatically generated.
-int
-helpMain(const std::span<const StringRef> args) noexcept {
+[[nodiscard]] int
+Command::printHelp(const std::span<const StringRef> args) const noexcept {
   // Parse args
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "help" } })
 
-    else if (getCmd().hasSubcmd(arg)) {
-      getCmd().printSubcmdHelp(arg);
+    else if (hasSubcmd(arg)) {
+      printSubcmdHelp(arg);
       return EXIT_SUCCESS;
     }
     else {
-      // TODO: should take a list of commands as well
-      return helpCmd.noSuchArg(arg);
+      // TODO: Currently assumes that `help` does not implement any additional
+      // options since we are using `noSuchArg` instead of `helpCmd.noSuchArg`.
+      // But we want to consider subcommands as well for suggestion.
+      return noSuchArg(arg);
     }
   }
 
   // Print help message for poac itself
-  getCmd().printHelp();
+  printCmdHelp();
   return EXIT_SUCCESS;
 }

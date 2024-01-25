@@ -17,7 +17,7 @@
 
 static int newMain(std::span<const StringRef> args);
 
-const Subcmd newCmd =
+const Subcmd NEW_CMD =
     Subcmd{ "new" }
         .setDesc("Create a new poac project")
         .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
@@ -140,7 +140,7 @@ newMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return newCmd.noSuchArg(arg);
+      return NEW_CMD.noSuchArg(arg);
     }
   }
 

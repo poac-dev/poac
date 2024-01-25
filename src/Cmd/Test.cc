@@ -11,7 +11,7 @@
 
 static int testMain(std::span<const StringRef> args);
 
-const Subcmd testCmd =
+const Subcmd TEST_CMD =
     Subcmd{ "test" }
         .setShort("t")
         .setDesc("Run the tests of a local package")
@@ -48,7 +48,7 @@ testMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return testCmd.noSuchArg(arg);
+      return TEST_CMD.noSuchArg(arg);
     }
   }
 

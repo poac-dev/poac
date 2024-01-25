@@ -10,7 +10,7 @@
 
 static int initMain(std::span<const StringRef> args);
 
-const Subcmd initCmd =
+const Subcmd INIT_CMD =
     Subcmd{ "init" }
         .setDesc("Create a new poac package in an existing directory")
         .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
@@ -34,7 +34,7 @@ initMain(const std::span<const StringRef> args) {
       isBin = false;
     }
     else {
-      return initCmd.noSuchArg(arg);
+      return INIT_CMD.noSuchArg(arg);
     }
   }
 

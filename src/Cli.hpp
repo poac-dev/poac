@@ -8,7 +8,7 @@
 
 #define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
   if (arg == "-h" || arg == "--help") {                \
-    return helpMain(HELP_ARGS);                        \
+    return getCmd().printHelp(HELP_ARGS);              \
   } else if (arg == "-v" || arg == "--verbose") {      \
     Logger::setLevel(LogLevel::debug);                 \
   } else if (arg == "-q" || arg == "--quiet") {        \
@@ -22,16 +22,13 @@
     }                                                  \
   }
 
-int helpMain(std::span<const StringRef> args) noexcept;
-
 class Opt;
 class Arg;
 class Subcmd;
 class Command;
 
-// Poac pragma: Cmd/Help.cc
-extern const Subcmd helpCmd;
-const Command& getCmd() noexcept; // definition in main.cc
+// Defined in main.cc
+const Command& getCmd() noexcept;
 
 class Opt {
   friend class Subcmd;
@@ -125,7 +122,7 @@ class Subcmd {
   StringRef name;
   StringRef shortName;
   StringRef desc;
-  Vec<Opt>* globalOpts = nullptr;
+  Option<Vec<Opt>> globalOpts = None;
   Vec<Opt> localOpts;
   Arg arg;
   Fn<int(std::span<const StringRef>)> mainFn;
@@ -148,7 +145,7 @@ public:
   [[nodiscard]] int noSuchArg(StringRef arg) const;
 
 private:
-  Subcmd& setGlobalOpts(Vec<Opt>* globalOpts) noexcept;
+  Subcmd& setGlobalOpts(const Vec<Opt>& globalOpts) noexcept;
   bool hasShort() const noexcept;
   String getUsage() const noexcept;
   void printHelp() const noexcept;
@@ -186,9 +183,11 @@ public:
   [[nodiscard]] int
   exec(StringRef subcmd, std::span<const StringRef> args) const;
   void printSubcmdHelp(StringRef subcmd) const noexcept;
-  void printHelp() const noexcept;
+  [[nodiscard]] int printHelp(std::span<const StringRef> args) const noexcept;
 
 private:
+  /// Print help message for poac itself.
+  void printCmdHelp() const noexcept;
   usize calcMaxShortSize() const noexcept;
   usize calcMaxOffset(usize maxShortSize) const noexcept;
 };
