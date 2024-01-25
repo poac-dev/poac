@@ -16,7 +16,6 @@ Checks: -*
   cppcoreguidelines-*
   -cppcoreguidelines-avoid-const-or-ref-data-members
   -cppcoreguidelines-avoid-magic-numbers
-  -cppcoreguidelines-macro-usage
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay
   google-*
   -google-readability-todo

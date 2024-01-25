@@ -6,6 +6,7 @@
 #include <span>
 #include <tuple>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
   if (arg == "-h" || arg == "--help") {                \
     return getCmd().printHelp(HELP_ARGS);              \
