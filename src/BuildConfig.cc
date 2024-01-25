@@ -110,8 +110,8 @@ struct Target {
 };
 
 struct BuildConfig {
-  const String packageName;
-  const Path buildOutDir;
+  String packageName;
+  Path buildOutDir;
 
   HashMap<String, Variable> variables;
   HashMap<String, Vec<String>> varDeps;
