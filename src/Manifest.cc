@@ -27,16 +27,16 @@ struct Package {
 namespace toml {
 template <>
 struct from<Version> {
-  static Version from_toml(const value& v) {
-    const String& versionStr = toml::get<toml::string>(v);
+  static Version from_toml(const value& val) {
+    const String& versionStr = toml::get<toml::string>(val);
     return Version::parse(versionStr);
   }
 };
 
 template <>
 struct into<Version> {
-  static toml::string into_toml(const Version& v) {
-    return v.toString();
+  static toml::string into_toml(const Version& ver) {
+    return ver.toString();
   }
 };
 } // namespace toml

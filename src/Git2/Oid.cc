@@ -41,8 +41,8 @@ Oid::toString() const {
 }
 
 std::ostream&
-operator<<(std::ostream& os, const Oid& o) {
-  return (os << git_oid_tostr_s(o.raw));
+operator<<(std::ostream& os, const Oid& oid) {
+  return (os << git_oid_tostr_s(oid.raw));
 }
 
 inline bool

@@ -39,7 +39,7 @@ struct Oid : public GlobalState {
   String toString() const;
 };
 
-std::ostream& operator<<(std::ostream& os, const Oid& o);
+std::ostream& operator<<(std::ostream& os, const Oid& oid);
 bool operator==(const Oid& lhs, const Oid& rhs);
 
 } // end namespace git2

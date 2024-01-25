@@ -30,21 +30,24 @@ Checks: -*
   readability-*
   -readability-else-after-return
   -readability-function-cognitive-complexity
-  -readability-identifier-length
   -readability-implicit-bool-conversion
   -readability-magic-numbers
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true
 
-  # ref: https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
-  - key: readability-identifier-naming.AbstractClassCase
-    value: CamelCase
+  # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-length.html
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: ^(c|op|i)$
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: ^(c|op|os)$
+  - key: readability-identifier-length.IgnoredLoopCounterNames
+    value: ^[cij]$
+
+  # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   - key: readability-identifier-naming.StructCase
-    value: CamelCase
-  - key: readability-identifier-naming.UnionCase
     value: CamelCase
   - key: readability-identifier-naming.EnumCase
     value: CamelCase

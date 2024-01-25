@@ -78,46 +78,46 @@ commandExists(const StringRef cmd) noexcept {
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
 static usize
-levDistance(const StringRef a, const StringRef b) {
-  const usize asize = a.size();
-  const usize bsize = b.size();
+levDistance(const StringRef lhs, const StringRef rhs) {
+  const usize lhsSize = lhs.size();
+  const usize rhsSize = rhs.size();
 
   // for all i and j, d[i,j] will hold the Levenshtein distance between the
   // first i characters of s and the first j characters of t
-  Vec<Vec<usize>> d(asize + 1, Vec<usize>(bsize + 1));
-  d[0][0] = 0;
+  Vec<Vec<usize>> dist(lhsSize + 1, Vec<usize>(rhsSize + 1));
+  dist[0][0] = 0;
 
   // source prefixes can be transformed into empty string by dropping all
   // characters
-  for (usize i = 1; i <= asize; ++i) {
-    d[i][0] = i;
+  for (usize i = 1; i <= lhsSize; ++i) {
+    dist[i][0] = i;
   }
 
   // target prefixes can be reached from empty source prefix by inserting every
   // character
-  for (usize j = 1; j <= bsize; ++j) {
-    d[0][j] = j;
+  for (usize j = 1; j <= rhsSize; ++j) {
+    dist[0][j] = j;
   }
 
-  for (usize i = 1; i <= asize; ++i) {
-    for (usize j = 1; j <= bsize; ++j) {
-      const usize substCost = a[i - 1] == b[j - 1] ? 0 : 1;
-      d[i][j] = std::min({
-          d[i - 1][j] + 1, // deletion
-          d[i][j - 1] + 1, // insertion
-          d[i - 1][j - 1] + substCost // substitution
+  for (usize i = 1; i <= lhsSize; ++i) {
+    for (usize j = 1; j <= rhsSize; ++j) {
+      const usize substCost = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
+      dist[i][j] = std::min({
+          dist[i - 1][j] + 1, // deletion
+          dist[i][j - 1] + 1, // insertion
+          dist[i - 1][j - 1] + substCost // substitution
       });
     }
   }
 
-  return d[asize][bsize];
+  return dist[lhsSize][rhsSize];
 }
 
 static bool
-equalsInsensitive(const StringRef a, const StringRef b) {
+equalsInsensitive(const StringRef lhs, const StringRef rhs) {
   return std::equal(
-      a.cbegin(), a.cend(), b.cbegin(), b.cend(),
-      [](char a, char b) { return std::tolower(a) == std::tolower(b); }
+      lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(),
+      [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }
   );
 }
 
@@ -125,9 +125,9 @@ Option<StringRef>
 findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
   // We need to check if `Candidates` has the exact case-insensitive string
   // because the Levenshtein distance match does not care about it.
-  for (const StringRef c : candidates) {
-    if (equalsInsensitive(lhs, c)) {
-      return c;
+  for (const StringRef str : candidates) {
+    if (equalsInsensitive(lhs, str)) {
+      return str;
     }
   }
 
@@ -138,12 +138,12 @@ findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
   const usize maxDist = length < 3 ? length - 1 : length / 3;
 
   Option<std::pair<StringRef, usize>> similarStr = None;
-  for (const StringRef c : candidates) {
-    const usize curDist = levDistance(lhs, c);
+  for (const StringRef str : candidates) {
+    const usize curDist = levDistance(lhs, str);
     if (curDist <= maxDist) {
       // The first similar string found || More similar string found
       if (!similarStr.has_value() || curDist < similarStr->second) {
-        similarStr = { c, curDist };
+        similarStr = { str, curDist };
       }
     }
   }
@@ -174,16 +174,16 @@ testLevDistance() {
 
 void
 testLevDistance2() {
-  constexpr StringRef A = "\nMäry häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef B = "\nMary häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef C = "Mary häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef STR1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef STR2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef STR3 = "Mary häd ä little lämb\n\nLittle lämb\n";
 
-  assertEq(levDistance(A, B), 2UL);
-  assertEq(levDistance(B, A), 2UL);
-  assertEq(levDistance(A, C), 3UL);
-  assertEq(levDistance(C, A), 3UL);
-  assertEq(levDistance(B, C), 1UL);
-  assertEq(levDistance(C, B), 1UL);
+  assertEq(levDistance(STR1, STR2), 2UL);
+  assertEq(levDistance(STR2, STR1), 2UL);
+  assertEq(levDistance(STR1, STR3), 3UL);
+  assertEq(levDistance(STR3, STR1), 3UL);
+  assertEq(levDistance(STR2, STR3), 1UL);
+  assertEq(levDistance(STR3, STR2), 1UL);
 
   assertEq(levDistance("b", "bc"), 1UL);
   assertEq(levDistance("ab", "abc"), 1UL);

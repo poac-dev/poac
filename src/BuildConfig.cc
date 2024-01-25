@@ -250,7 +250,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
   const String indent1(2, ' ');
   const String indent2(4, ' ');
 
-  std::stringstream ss;
+  std::ostringstream oss;
   for (const auto& [target, targetInfo] : targets) {
     if (phony->contains(target)) {
       // Ignore phony dependencies.
@@ -287,15 +287,15 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
     cmd += " -o ";
     cmd += output;
 
-    ss << indent1 << "{\n";
-    ss << indent2 << "\"directory\": " << baseDirPath << ",\n";
-    ss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
-    ss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
-    ss << indent2 << "\"command\": " << std::quoted(cmd) << "\n";
-    ss << indent1 << "},\n";
+    oss << indent1 << "{\n";
+    oss << indent2 << "\"directory\": " << baseDirPath << ",\n";
+    oss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
+    oss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
+    oss << indent2 << "\"command\": " << std::quoted(cmd) << "\n";
+    oss << indent1 << "},\n";
   }
 
-  String output = ss.str();
+  String output = oss.str();
   if (!output.empty()) {
     // Remove the last comma.
     output.pop_back(); // \n
@@ -769,8 +769,8 @@ testCycleVars() {
 
   assertException<PoacError>(
       [&config]() {
-        std::stringstream ss;
-        config.emitMakefile(ss);
+        std::ostringstream oss;
+        config.emitMakefile(oss);
       },
       "too complex build graph"
   );
@@ -785,11 +785,11 @@ testSimpleVars() {
   config.defineSimpleVar("b", "2", { "a" });
   config.defineSimpleVar("a", "1");
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
   assertEq(
-      ss.str(),
+      oss.str(),
       "a := 1\n"
       "b := 2\n"
       "c := 3\n"
@@ -803,10 +803,10 @@ testDependOnUnregisteredVar() {
   BuildConfig config;
   config.defineSimpleVar("a", "1", { "b" });
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
-  assertEq(ss.str(), "a := 1\n");
+  assertEq(oss.str(), "a := 1\n");
 
   pass();
 }
@@ -820,8 +820,8 @@ testCycleTargets() {
 
   assertException<PoacError>(
       [&config]() {
-        std::stringstream ss;
-        config.emitMakefile(ss);
+        std::ostringstream oss;
+        config.emitMakefile(oss);
       },
       "too complex build graph"
   );
@@ -836,11 +836,11 @@ testSimpleTargets() {
   config.defineTarget("b", { "echo b" }, { "a" });
   config.defineTarget("c", { "echo c" }, { "b" });
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
   assertEq(
-      ss.str(),
+      oss.str(),
       "c: b\n"
       "\t$(Q)echo c\n"
       "\n"
@@ -860,11 +860,11 @@ testDependOnUnregisteredTarget() {
   BuildConfig config;
   config.defineTarget("a", { "echo a" }, { "b" });
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
   assertEq(
-      ss.str(),
+      oss.str(),
       "a: b\n"
       "\t$(Q)echo a\n"
       "\n"
