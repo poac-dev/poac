@@ -698,7 +698,7 @@ configureBuild(const bool isDebug) {
       "$(TIDY_TARGETS)",
       { "$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) "
         "$(DEFINES) -DPOAC_TEST $(INCLUDES)" },
-      { "tidy_%:", "%" }
+      { "tidy_%: %" }
   );
   config.addPhony("tidy");
   config.addPhony("$(TIDY_TARGETS)");
