@@ -29,7 +29,6 @@ Checks: -*
   portability-*
   readability-*
   -readability-else-after-return
-  -readability-function-cognitive-complexity
   -readability-implicit-bool-conversion
   -readability-magic-numbers
 CheckOptions:

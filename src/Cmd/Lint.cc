@@ -17,6 +17,33 @@ const Subcmd LINT_CMD =
         .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
         .setMainFn(lintMain);
 
+struct LintArgs {
+  String excludes;
+};
+
+static int
+parseArgs(const std::span<const StringRef> args, LintArgs& lintArgs) {
+  for (usize i = 0; i < args.size(); ++i) {
+    const StringRef arg = args[i];
+    HANDLE_GLOBAL_OPTS({ { "lint" } })
+
+    else if (arg == "--exclude") {
+      if (i + 1 >= args.size()) {
+        Logger::error("Missing argument for ", arg);
+        return EXIT_FAILURE;
+      }
+
+      ++i;
+      lintArgs.excludes += " --exclude=";
+      lintArgs.excludes += args[i];
+    }
+    else {
+      return LINT_CMD.noSuchArg(arg);
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
   Logger::info("Linting", name);
@@ -52,25 +79,9 @@ lint(const StringRef name, const StringRef cpplintArgs) {
 
 static int
 lintMain(const std::span<const StringRef> args) {
-  // Parse args
-  String cpplintArgs;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "lint" } })
-
-    else if (arg == "--exclude") {
-      if (i + 1 >= args.size()) {
-        Logger::error("Missing argument for ", arg);
-        return EXIT_FAILURE;
-      }
-
-      ++i;
-      cpplintArgs += " --exclude=";
-      cpplintArgs += args[i];
-    }
-    else {
-      return LINT_CMD.noSuchArg(arg);
-    }
+  LintArgs lintArgs;
+  if (parseArgs(args, lintArgs) != EXIT_SUCCESS) {
+    return EXIT_FAILURE;
   }
 
   if (!commandExists("cpplint")) {
@@ -81,6 +92,7 @@ lintMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
+  String cpplintArgs = lintArgs.excludes;
   const String& packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     Logger::debug("Using CPPLINT.cfg for lint ...");

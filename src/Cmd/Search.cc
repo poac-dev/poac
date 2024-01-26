@@ -27,6 +27,44 @@ const Subcmd SEARCH_CMD =
         .setArg(Arg{ "name" })
         .setMainFn(searchMain);
 
+struct SearchArgs {
+  String name;
+  usize perPage = 10;
+  usize page = 1;
+};
+
+static int
+parseArgs(const std::span<const StringRef> args, SearchArgs& searchArgs) {
+  for (usize i = 0; i < args.size(); ++i) {
+    const StringRef arg = args[i];
+    HANDLE_GLOBAL_OPTS({ { "search" } })
+
+    else if (arg == "--per-page") {
+      if (i + 1 < args.size()) {
+        searchArgs.perPage = std::stoul(String(args[++i]));
+      } else {
+        Logger::error("missing argument for `--per-page`");
+        return EXIT_FAILURE;
+      }
+    }
+    else if (arg == "--page") {
+      if (i + 1 < args.size()) {
+        searchArgs.page = std::stoul(String(args[++i]));
+      } else {
+        Logger::error("missing argument for `--page`");
+        return EXIT_FAILURE;
+      }
+    }
+    else if (searchArgs.name.empty()) {
+      searchArgs.name = arg;
+    }
+    else {
+      return SEARCH_CMD.noSuchArg(arg);
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
 static usize
 writeCallback(void* contents, usize size, usize nmemb, String* userp) {
   userp->append(static_cast<char*>(contents), size * nmemb);
@@ -35,39 +73,12 @@ writeCallback(void* contents, usize size, usize nmemb, String* userp) {
 
 static int
 searchMain(const std::span<const StringRef> args) {
-  // Parse args
-  String packageName;
-  usize perPage = 10;
-  usize page = 1;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "search" } })
-
-    else if (arg == "--per-page") {
-      if (i + 1 < args.size()) {
-        perPage = std::stoul(String(args[++i]));
-      } else {
-        Logger::error("missing argument for `--per-page`");
-        return EXIT_FAILURE;
-      }
-    }
-    else if (arg == "--page") {
-      if (i + 1 < args.size()) {
-        page = std::stoul(String(args[++i]));
-      } else {
-        Logger::error("missing argument for `--page`");
-        return EXIT_FAILURE;
-      }
-    }
-    else if (packageName.empty()) {
-      packageName = arg;
-    }
-    else {
-      return SEARCH_CMD.noSuchArg(arg);
-    }
+  SearchArgs searchArgs;
+  if (parseArgs(args, searchArgs) != EXIT_SUCCESS) {
+    return EXIT_FAILURE;
   }
 
-  if (packageName.empty()) {
+  if (searchArgs.name.empty()) {
     Logger::error("missing package name");
     return EXIT_FAILURE;
   }
@@ -76,9 +87,9 @@ searchMain(const std::span<const StringRef> args) {
   req["query"] =
 #include "../GraphQL/SearchPackages.gql"
       ;
-  req["variables"]["name"] = "%" + packageName + "%";
-  req["variables"]["limit"] = perPage;
-  req["variables"]["offset"] = (page - 1) * perPage;
+  req["variables"]["name"] = "%" + searchArgs.name + "%";
+  req["variables"]["limit"] = searchArgs.perPage;
+  req["variables"]["offset"] = (searchArgs.page - 1) * searchArgs.perPage;
 
   const String reqStr = req.dump();
   String resStr;
