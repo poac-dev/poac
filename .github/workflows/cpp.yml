@@ -41,7 +41,7 @@ jobs:
           POAC_TIDY: clang-tidy-17
 
       - if: failure()
-        run: cat ./poac-out/release/Makefile
+        run: cat ./poac-out/debug/Makefile
 
   format:
     runs-on: ubuntu-22.04
