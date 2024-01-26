@@ -35,47 +35,47 @@ public:
   static void setLevel(LogLevel level) noexcept;
   static LogLevel getLevel() noexcept;
 
-  template <typename... Args>
-  static void error(Args&&... msgs) noexcept {
-    logln(LogLevel::error, std::forward<Args>(msgs)...);
+  template <typename... Ts>
+  static void error(Ts&&... msgs) noexcept {
+    logln(LogLevel::error, std::forward<Ts>(msgs)...);
   }
-  template <typename... Args>
-  static void warn(Args&&... msgs) noexcept {
-    logln(LogLevel::warning, std::forward<Args>(msgs)...);
+  template <typename... Ts>
+  static void warn(Ts&&... msgs) noexcept {
+    logln(LogLevel::warning, std::forward<Ts>(msgs)...);
   }
-  template <typename... Args>
-  static void info(Args&&... msgs) noexcept {
-    logln(LogLevel::info, std::forward<Args>(msgs)...);
+  template <typename... Ts>
+  static void info(Ts&&... msgs) noexcept {
+    logln(LogLevel::info, std::forward<Ts>(msgs)...);
   }
-  template <typename... Args>
-  static void debug(Args&&... msgs) noexcept {
-    logln(LogLevel::debug, std::forward<Args>(msgs)...);
+  template <typename... Ts>
+  static void debug(Ts&&... msgs) noexcept {
+    logln(LogLevel::debug, std::forward<Ts>(msgs)...);
   }
 
 private:
-  template <typename T, typename... Args>
-    requires(((Writer<T> || Display<T>) && Display<Args>) && ...)
-  static void logln(LogLevel level, T&& val, Args&&... msgs) noexcept {
+  template <typename T, typename... Ts>
+    requires(((Writer<T> || Display<T>) && Display<Ts>) && ...)
+  static void logln(LogLevel level, T&& val, Ts&&... msgs) noexcept {
     if constexpr (Writer<T>) {
-      loglnImpl(std::forward<T>(val), level, std::forward<Args>(msgs)...);
+      loglnImpl(std::forward<T>(val), level, std::forward<Ts>(msgs)...);
     } else {
       loglnImpl(
-          std::cerr, level, std::forward<T>(val), std::forward<Args>(msgs)...
+          std::cerr, level, std::forward<T>(val), std::forward<Ts>(msgs)...
       );
     }
   }
 
-  template <typename... Args>
-    requires(Display<Args> && ...)
+  template <typename... Ts>
+    requires(Display<Ts> && ...)
   static void
-  loglnImpl(std::ostream& os, LogLevel level, Args&&... msgs) noexcept {
-    instance().log(os, level, std::forward<Args>(msgs)..., '\n');
+  loglnImpl(std::ostream& os, LogLevel level, Ts&&... msgs) noexcept {
+    instance().log(os, level, std::forward<Ts>(msgs)..., '\n');
   }
 
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
+  template <typename T, typename... Ts>
+    requires(Display<T> && (Display<Ts> && ...))
   void
-  log(std::ostream& os, LogLevel level, T&& header, Args&&... msgs) noexcept {
+  log(std::ostream& os, LogLevel level, T&& header, Ts&&... msgs) noexcept {
     // For other than `info`, header means just the first argument.
 
     if (level <= this->level) {
@@ -103,7 +103,7 @@ private:
           os << "[Poac] " << std::forward<T>(header);
           break;
       }
-      (os << ... << std::forward<Args>(msgs)) << std::flush;
+      (os << ... << std::forward<Ts>(msgs)) << std::flush;
     }
   }
 };
