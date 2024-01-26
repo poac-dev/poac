@@ -18,8 +18,8 @@ enum class LogLevel : u8 {
 };
 
 class Logger {
-  LogLevel level = LogLevel::info;
   static constexpr int INFO_OFFSET = 12;
+  LogLevel level = LogLevel::info;
 
   // Logger is a singleton
   Logger() noexcept = default;
@@ -53,46 +53,33 @@ public:
   }
 
 private:
-  template <typename Sink, typename... Args>
-    requires(
-        ((std::is_base_of_v<std::ostream, std::remove_reference_t<Sink>>
-          || Display<Sink>)
-         && Display<Args>)
-        && ...
-    )
-  static void logln(LogLevel level, Sink&& sink, Args&&... msgs) noexcept {
-    if constexpr (std::is_base_of_v<
-                      std::ostream, std::remove_reference_t<Sink>>) {
-      loglnImpl(std::forward<Sink>(sink), level, std::forward<Args>(msgs)...);
+  template <typename T, typename... Args>
+    requires(((Writer<T> || Display<T>) && Display<Args>) && ...)
+  static void logln(LogLevel level, T&& val, Args&&... msgs) noexcept {
+    if constexpr (Writer<T>) {
+      loglnImpl(std::forward<T>(val), level, std::forward<Args>(msgs)...);
     } else {
       loglnImpl(
-          std::cerr, level, std::forward<Sink>(sink),
-          std::forward<Args>(msgs)...
+          std::cerr, level, std::forward<T>(val), std::forward<Args>(msgs)...
       );
     }
   }
 
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
-  static void loglnImpl(
-      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) noexcept {
-    instance().log(
-        os, messageLevel, std::forward<T>(header),
-        std::forward<Args>(message)..., '\n'
-    );
+  template <typename... Args>
+    requires(Display<Args> && ...)
+  static void
+  loglnImpl(std::ostream& os, LogLevel level, Args&&... msgs) noexcept {
+    instance().log(os, level, std::forward<Args>(msgs)..., '\n');
   }
 
   template <typename T, typename... Args>
     requires(Display<T> && (Display<Args> && ...))
   void
-  log(std::ostream& os, LogLevel messageLevel, T&& header,
-      Args&&... message) noexcept {
-    // For other than `info`, header means just the first argument.  For
-    // `info`, header means its header.
+  log(std::ostream& os, LogLevel level, T&& header, Args&&... msgs) noexcept {
+    // For other than `info`, header means just the first argument.
 
-    if (messageLevel <= level) {
-      switch (messageLevel) {
+    if (level <= this->level) {
+      switch (level) {
         case LogLevel::off:
           return;
         case LogLevel::error:
@@ -116,7 +103,7 @@ private:
           os << "[Poac] " << std::forward<T>(header);
           break;
       }
-      (os << ... << std::forward<Args>(message)) << std::flush;
+      (os << ... << std::forward<Args>(msgs)) << std::flush;
     }
   }
 };
