@@ -690,11 +690,18 @@ configureBuild(const bool isDebug) {
 
   // Tidy Pass
   config.defineCondVar("POAC_TIDY", "clang-tidy");
+  config.defineSimpleVar(
+      "TIDY_TARGETS", "$(patsubst %,tidy_%,$(SRCS))", { "SRCS" }
+  );
+  config.defineTarget("tidy", {}, { "$(TIDY_TARGETS)" });
   config.defineTarget(
-      "tidy", { "$(POAC_TIDY) $(POAC_TIDY_FLAGS) $(SRCS) -- $(CXXFLAGS) "
-                "$(DEFINES) -DPOAC_TEST $(INCLUDES)" }
+      "$(TIDY_TARGETS)",
+      { "$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) "
+        "$(DEFINES) -DPOAC_TEST $(INCLUDES)" },
+      { "tidy_%:", "%" }
   );
   config.addPhony("tidy");
+  config.addPhony("$(TIDY_TARGETS)");
 
   return config;
 }
