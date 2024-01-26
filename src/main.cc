@@ -33,6 +33,10 @@ getCmd() noexcept {
                       .setShort("-V")
                       .setDesc("Print version info and exit")
                       .setGlobal(false))
+          .addOpt(Opt{ "--list" } // for better format
+                      .setDesc("List all subcommands")
+                      .setGlobal(false)
+                      .setHidden(true))
           .addSubcmd(BUILD_CMD)
           .addSubcmd(CLEAN_CMD)
           .addSubcmd(FMT_CMD)
@@ -66,6 +70,10 @@ main(int argc, char* argv[]) {
     else if (arg == "-V" || arg == "--version") {
       const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
       return versionMain(remArgs);
+    }
+    else if (arg == "--list") {
+      getCmd().printAllSubcmds(true);
+      return EXIT_SUCCESS;
     }
 
     // Subcommands

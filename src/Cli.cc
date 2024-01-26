@@ -25,8 +25,10 @@ printHeader(const StringRef header) noexcept {
 }
 
 static void
-printUsage(const StringRef cmd, const StringRef usage) noexcept {
-  std::cout << bold(green("Usage: ")) << bold(cyan("poac "));
+printUsage(
+    const StringRef name, const StringRef cmd, const StringRef usage
+) noexcept {
+  std::cout << bold(green("Usage: ")) << bold(cyan(name)) << ' ';
   if (!cmd.empty()) {
     std::cout << bold(cyan(cmd)) << ' ';
   }
@@ -45,6 +47,55 @@ Opt::leftSize(const usize maxShortSize) const noexcept {
   // ` `.size() = 1
   // placeholder.size() = ?
   return 3 + maxShortSize + name.size() + placeholder.size();
+}
+
+void
+addOptCandidates(Vec<StringRef>& candidates, const Vec<Opt>& opts) noexcept {
+  for (const auto& opt : opts) {
+    candidates.push_back(opt.name);
+    if (!opt.shortName.empty()) {
+      candidates.push_back(opt.shortName);
+    }
+  }
+}
+
+usize
+calcOptMaxShortSize(const Vec<Opt>& opts) noexcept {
+  usize maxShortSize = 0;
+  for (const auto& opt : opts) {
+    if (opt.isHidden) {
+      // Hidden option should not affect maxShortSize.
+      continue;
+    }
+    maxShortSize = std::max(maxShortSize, opt.shortName.size());
+  }
+  return maxShortSize;
+}
+
+usize
+calcOptMaxOffset(const Vec<Opt>& opts, const usize maxShortSize) noexcept {
+  usize maxOffset = 0;
+  for (const auto& opt : opts) {
+    if (opt.isHidden) {
+      // Hidden option should not affect maxOffset.
+      continue;
+    }
+    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
+  }
+  return maxOffset;
+}
+
+void
+printOpts(
+    const Vec<Opt>& opts, const usize maxShortSize, const usize maxOffset
+) noexcept {
+  for (const auto& opt : opts) {
+    if (opt.isHidden) {
+      // We don't print hidden options.
+      continue;
+    }
+    opt.print(maxShortSize, maxOffset);
+  }
 }
 
 void
@@ -121,16 +172,6 @@ Arg::print(usize maxOffset) const noexcept {
   std::cout << '\n';
 }
 
-Subcmd&
-Subcmd::setDesc(StringRef desc) noexcept {
-  this->desc = desc;
-  return *this;
-}
-Subcmd&
-Subcmd::setShort(StringRef shortName) noexcept {
-  this->shortName = shortName;
-  return *this;
-}
 bool
 Subcmd::hasShort() const noexcept {
   return !shortName.empty();
@@ -150,7 +191,11 @@ Subcmd::setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept {
   this->mainFn = std::move(mainFn);
   return *this;
 }
-
+Subcmd&
+Subcmd::setCmdName(StringRef cmdName) noexcept {
+  this->cmdName = cmdName;
+  return *this;
+}
 Subcmd&
 Subcmd::setGlobalOpts(const Vec<Opt>& globalOpts) noexcept {
   this->globalOpts = globalOpts;
@@ -159,13 +204,14 @@ Subcmd::setGlobalOpts(const Vec<Opt>& globalOpts) noexcept {
 String
 Subcmd::getUsage() const noexcept {
   String str = bold(green("Usage: "));
-  str += bold(cyan("poac "));
+  str += bold(cyan(cmdName));
+  str += ' ';
   str += bold(cyan(name));
   str += ' ';
   str += cyan("[OPTIONS]");
   if (!arg.name.empty()) {
     str += ' ';
-    str += cyan(arg.name);
+    str += cyan(arg.getLeft());
   }
   return str;
 }
@@ -173,20 +219,10 @@ Subcmd::getUsage() const noexcept {
 [[nodiscard]] int
 Subcmd::noSuchArg(StringRef arg) const {
   Vec<StringRef> candidates;
-  if (globalOpts) {
-    for (const auto& opt : *globalOpts) {
-      candidates.push_back(opt.name);
-      if (!opt.shortName.empty()) {
-        candidates.push_back(opt.shortName);
-      }
-    }
+  if (globalOpts.has_value()) {
+    addOptCandidates(candidates, globalOpts.value());
   }
-  for (const auto& opt : localOpts) {
-    candidates.push_back(opt.name);
-    if (!opt.shortName.empty()) {
-      candidates.push_back(opt.shortName);
-    }
-  }
+  addOptCandidates(candidates, localOpts);
 
   String suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
@@ -205,26 +241,21 @@ usize
 Subcmd::calcMaxShortSize() const noexcept {
   usize maxShortSize = 0;
   if (globalOpts.has_value()) {
-    for (const auto& opt : globalOpts.value()) {
-      maxShortSize = std::max(maxShortSize, opt.shortName.size());
-    }
+    maxShortSize =
+        std::max(maxShortSize, calcOptMaxShortSize(globalOpts.value()));
   }
-  for (const auto& opt : localOpts) {
-    maxShortSize = std::max(maxShortSize, opt.shortName.size());
-  }
+  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(localOpts));
   return maxShortSize;
 }
 usize
 Subcmd::calcMaxOffset(const usize maxShortSize) const noexcept {
   usize maxOffset = 0;
   if (globalOpts.has_value()) {
-    for (const auto& opt : globalOpts.value()) {
-      maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
-    }
+    maxOffset =
+        std::max(maxOffset, calcOptMaxOffset(globalOpts.value(), maxShortSize));
   }
-  for (const auto& opt : localOpts) {
-    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
-  }
+  maxOffset = std::max(maxOffset, calcOptMaxOffset(localOpts, maxShortSize));
+
   if (!arg.desc.empty()) {
     // If args does not have a description, it is not necessary to consider
     // its length.
@@ -240,19 +271,13 @@ Subcmd::printHelp() const noexcept {
 
   std::cout << desc << '\n';
   std::cout << '\n';
-
-  printUsage(name, arg.getLeft());
-  std::cout << '\n';
+  std::cout << getUsage() << "\n\n";
 
   printHeader("Options:");
   if (globalOpts.has_value()) {
-    for (const auto& opt : globalOpts.value()) {
-      opt.print(maxShortSize, maxOffset);
-    }
+    printOpts(globalOpts.value(), maxShortSize, maxOffset);
   }
-  for (const auto& opt : localOpts) {
-    opt.print(maxShortSize, maxOffset);
-  }
+  printOpts(localOpts, maxShortSize, maxOffset);
 
   if (!arg.name.empty()) {
     std::cout << '\n';
@@ -282,13 +307,9 @@ Subcmd::print(usize maxOffset) const noexcept {
 }
 
 Command&
-Command::setDesc(StringRef desc) noexcept {
-  this->desc = desc;
-  return *this;
-}
-Command&
-Command::addSubcmd(Subcmd subcmd) noexcept {
-  subcmd.setGlobalOpts(globalOpts);
+Command::addSubcmd(const Subcmd& subcmd) noexcept {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+  const_cast<Subcmd&>(subcmd).setCmdName(name).setGlobalOpts(globalOpts);
 
   subcmds.insert_or_assign(subcmd.name, subcmd);
   if (subcmd.hasShort()) {
@@ -320,18 +341,8 @@ Command::noSuchArg(StringRef arg) const {
       candidates.push_back(cmd.second.shortName);
     }
   }
-  for (const auto& opt : globalOpts) {
-    candidates.push_back(opt.name);
-    if (!opt.shortName.empty()) {
-      candidates.push_back(opt.shortName);
-    }
-  }
-  for (const auto& opt : localOpts) {
-    candidates.push_back(opt.name);
-    if (!opt.shortName.empty()) {
-      candidates.push_back(opt.shortName);
-    }
-  }
+  addOptCandidates(candidates, globalOpts);
+  addOptCandidates(candidates, localOpts);
 
   String suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
@@ -362,25 +373,23 @@ Command::calcMaxShortSize() const noexcept {
   // we don't need to consider the length of the subcommands' options.
 
   usize maxShortSize = 0;
-  for (const auto& opt : globalOpts) {
-    maxShortSize = std::max(maxShortSize, opt.shortName.size());
-  }
-  for (const auto& opt : localOpts) {
-    maxShortSize = std::max(maxShortSize, opt.shortName.size());
-  }
+  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(globalOpts));
+  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(localOpts));
   return maxShortSize;
 }
 
 usize
 Command::calcMaxOffset(const usize maxShortSize) const noexcept {
   usize maxOffset = 0;
-  for (const auto& opt : globalOpts) {
-    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
-  }
-  for (const auto& opt : localOpts) {
-    maxOffset = std::max(maxOffset, opt.leftSize(maxShortSize));
-  }
+  maxOffset = std::max(maxOffset, calcOptMaxOffset(globalOpts, maxShortSize));
+  maxOffset = std::max(maxOffset, calcOptMaxOffset(localOpts, maxShortSize));
+
   for (const auto& [name, cmd] : subcmds) {
+    if (cmd.isHidden) {
+      // Hidden command should not affect maxOffset.
+      continue;
+    }
+
     usize offset = name.size(); // "build"
     if (!cmd.shortName.empty()) {
       offset += 2; // ", "
@@ -392,6 +401,36 @@ Command::calcMaxOffset(const usize maxShortSize) const noexcept {
 }
 
 void
+Command::printAllSubcmds(const bool showHidden, usize maxOffset)
+    const noexcept {
+  for (const auto& [name, cmd] : subcmds) {
+    if (!showHidden && cmd.isHidden) {
+      // Hidden command should not affect maxOffset if `showHidden` is false.
+      continue;
+    }
+
+    usize offset = name.size(); // "build"
+    if (!cmd.shortName.empty()) {
+      offset += 2; // ", "
+      offset += cmd.shortName.size(); // "b"
+    }
+    maxOffset = std::max(maxOffset, offset);
+  }
+
+  for (const auto& [name, cmd] : subcmds) {
+    if (!showHidden && cmd.isHidden) {
+      // We don't print hidden subcommands if `showHidden` is false.
+      continue;
+    }
+    if (cmd.hasShort() && name == cmd.shortName) {
+      // We don't print an abbreviation.
+      continue;
+    }
+    cmd.print(maxOffset);
+  }
+}
+
+void
 Command::printCmdHelp() const noexcept {
   // Print help message for poac itself
   const usize maxShortSize = calcMaxShortSize();
@@ -399,26 +438,24 @@ Command::printCmdHelp() const noexcept {
 
   std::cout << desc << '\n';
   std::cout << '\n';
-  printUsage("", cyan("[COMMAND]"));
+  printUsage(name, "", cyan("[COMMAND]"));
   std::cout << '\n';
 
   printHeader("Options:");
-  for (const auto& opt : globalOpts) {
-    opt.print(maxShortSize, maxOffset);
-  }
-  for (const auto& opt : localOpts) {
-    opt.print(maxShortSize, maxOffset);
-  }
+  printOpts(globalOpts, maxShortSize, maxOffset);
+  printOpts(localOpts, maxShortSize, maxOffset);
   std::cout << '\n';
 
   printHeader("Commands:");
-  for (const auto& [name, cmd] : subcmds) {
-    if (cmd.hasShort() && name == cmd.shortName) {
-      // We don't print an abbreviation.
-      continue;
-    }
-    cmd.print(maxOffset);
-  }
+  printAllSubcmds(false, maxOffset);
+
+  const String dummyDesc = "See all commands with " + bold(cyan("--list"));
+  Subcmd{ "..." }.setDesc(dummyDesc).print(maxOffset);
+
+  std::cout << '\n'
+            << "See '" << bold(cyan(name)) << ' ' << bold(cyan("help")) << ' '
+            << cyan("<command>")
+            << "' for more information on a specific command.\n";
 }
 
 [[nodiscard]] int

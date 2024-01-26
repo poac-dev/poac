@@ -31,35 +31,67 @@ class Command;
 // Defined in main.cc
 const Command& getCmd() noexcept;
 
-class Opt {
+template <typename Derived>
+class CliBase {
+protected:
+  // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
+  StringRef name;
+  StringRef desc;
+  // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
+
+public:
+  constexpr CliBase() noexcept = default;
+  constexpr ~CliBase() noexcept = default;
+  constexpr CliBase(const CliBase&) noexcept = default;
+  constexpr CliBase(CliBase&&) noexcept = default;
+  constexpr CliBase& operator=(const CliBase&) noexcept = default;
+  constexpr CliBase& operator=(CliBase&&) noexcept = default;
+
+  explicit CliBase(const StringRef name) noexcept : name(name) {}
+  constexpr Derived& setDesc(const StringRef desc) noexcept {
+    this->desc = desc;
+    return static_cast<Derived&>(*this);
+  }
+};
+
+template <typename Derived>
+class ShortAndHidden {
+protected:
+  // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
+  StringRef shortName;
+  bool isHidden = false;
+  // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
+
+public:
+  constexpr Derived& setShort(const StringRef shortName) noexcept {
+    this->shortName = shortName;
+    return static_cast<Derived&>(*this);
+  }
+  constexpr Derived& setHidden(const bool isHidden) noexcept {
+    this->isHidden = isHidden;
+    return static_cast<Derived&>(*this);
+  }
+};
+
+class Opt : public CliBase<Opt>, public ShortAndHidden<Opt> {
   friend class Subcmd;
   friend class Command;
 
-  StringRef name;
-  StringRef shortName;
-  StringRef desc;
   StringRef placeholder;
   StringRef defaultVal;
   bool isGlobal = false;
 
 public:
-  constexpr Opt() noexcept = default;
-  constexpr ~Opt() noexcept = default;
-  constexpr Opt(const Opt&) noexcept = default;
-  constexpr Opt(Opt&&) noexcept = default;
-  constexpr Opt& operator=(const Opt&) noexcept = default;
-  constexpr Opt& operator=(Opt&&) noexcept = default;
+  using CliBase::CliBase;
 
-  explicit constexpr Opt(const StringRef name) noexcept : name(name) {}
+  friend void
+  addOptCandidates(Vec<StringRef>& candidates, const Vec<Opt>& opts) noexcept;
+  friend usize calcOptMaxShortSize(const Vec<Opt>& opts) noexcept;
+  friend usize
+  calcOptMaxOffset(const Vec<Opt>& opts, usize maxShortSize) noexcept;
+  friend void
+  printOpts(const Vec<Opt>& opts, usize maxShortSize, usize maxOffset) noexcept;
 
-  constexpr Opt setShort(const StringRef shortName) noexcept {
-    this->shortName = shortName;
-    return *this;
-  }
-  constexpr Opt setDesc(const StringRef desc) noexcept {
-    this->desc = desc;
-    return *this;
-  }
   constexpr Opt setPlaceholder(const StringRef placeholder) noexcept {
     this->placeholder = placeholder;
     return *this;
@@ -79,28 +111,15 @@ private:
   void print(usize maxShortSize, usize maxOffset) const noexcept;
 };
 
-class Arg {
+class Arg : public CliBase<Arg> {
   friend class Subcmd;
 
-  StringRef name;
-  StringRef desc;
   bool required = true;
   bool variadic = false;
 
 public:
-  constexpr Arg() noexcept = default;
-  constexpr ~Arg() noexcept = default;
-  constexpr Arg(const Arg&) noexcept = default;
-  constexpr Arg(Arg&&) noexcept = default;
-  constexpr Arg& operator=(const Arg&) noexcept = default;
-  constexpr Arg& operator=(Arg&&) noexcept = default;
+  using CliBase::CliBase;
 
-  explicit constexpr Arg(const StringRef name) noexcept : name(name) {}
-
-  constexpr Arg setDesc(const StringRef desc) noexcept {
-    this->desc = desc;
-    return *this;
-  }
   constexpr Arg setRequired(const bool required) noexcept {
     this->required = required;
     return *this;
@@ -117,35 +136,25 @@ private:
   void print(usize maxOffset) const noexcept;
 };
 
-class Subcmd {
+class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
   friend class Command;
 
-  StringRef name;
-  StringRef shortName;
-  StringRef desc;
+  StringRef cmdName;
   Option<Vec<Opt>> globalOpts = None;
   Vec<Opt> localOpts;
   Arg arg;
   Fn<int(std::span<const StringRef>)> mainFn;
 
 public:
-  Subcmd() noexcept = delete;
-  ~Subcmd() noexcept = default;
-  Subcmd(const Subcmd&) noexcept = default;
-  Subcmd(Subcmd&&) noexcept = default;
-  Subcmd& operator=(const Subcmd&) noexcept = default;
-  Subcmd& operator=(Subcmd&&) noexcept = default;
+  using CliBase::CliBase;
 
-  explicit Subcmd(const StringRef name) noexcept : name(name) {}
-
-  Subcmd& setDesc(StringRef desc) noexcept;
-  Subcmd& setShort(StringRef shortName) noexcept;
   Subcmd& addOpt(Opt opt) noexcept;
   Subcmd& setArg(Arg arg) noexcept;
   Subcmd& setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
 
 private:
+  Subcmd& setCmdName(StringRef cmdName) noexcept;
   Subcmd& setGlobalOpts(const Vec<Opt>& globalOpts) noexcept;
   bool hasShort() const noexcept;
   String getUsage() const noexcept;
@@ -158,25 +167,15 @@ private:
   usize calcMaxOffset(usize maxShortSize) const noexcept;
 };
 
-class Command {
-  StringRef name;
-  StringRef desc;
+class Command : public CliBase<Command> {
   HashMap<StringRef, Subcmd> subcmds;
   Vec<Opt> globalOpts;
   Vec<Opt> localOpts;
 
 public:
-  Command() noexcept = delete;
-  ~Command() noexcept = default;
-  Command(const Command&) noexcept = default;
-  Command(Command&&) noexcept = default;
-  Command& operator=(const Command&) noexcept = default;
-  Command& operator=(Command&&) noexcept = default;
+  using CliBase::CliBase;
 
-  explicit Command(const StringRef name) noexcept : name(name) {}
-
-  Command& setDesc(StringRef desc) noexcept;
-  Command& addSubcmd(Subcmd subcmd) noexcept;
+  Command& addSubcmd(const Subcmd& subcmd) noexcept;
   Command& addOpt(Opt opt) noexcept;
   bool hasSubcmd(StringRef subcmd) const noexcept;
 
@@ -185,10 +184,14 @@ public:
   exec(StringRef subcmd, std::span<const StringRef> args) const;
   void printSubcmdHelp(StringRef subcmd) const noexcept;
   [[nodiscard]] int printHelp(std::span<const StringRef> args) const noexcept;
+  usize calcMaxOffset(usize maxShortSize) const noexcept;
+
+  /// Print all subcommands.
+  void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
 
 private:
+  usize calcMaxShortSize() const noexcept;
+
   /// Print help message for poac itself.
   void printCmdHelp() const noexcept;
-  usize calcMaxShortSize() const noexcept;
-  usize calcMaxOffset(usize maxShortSize) const noexcept;
 };

@@ -22,29 +22,6 @@ struct LintArgs {
 };
 
 static int
-parseArgs(const std::span<const StringRef> args, LintArgs& lintArgs) {
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "lint" } })
-
-    else if (arg == "--exclude") {
-      if (i + 1 >= args.size()) {
-        Logger::error("Missing argument for ", arg);
-        return EXIT_FAILURE;
-      }
-
-      ++i;
-      lintArgs.excludes += " --exclude=";
-      lintArgs.excludes += args[i];
-    }
-    else {
-      return LINT_CMD.noSuchArg(arg);
-    }
-  }
-  return EXIT_SUCCESS;
-}
-
-static int
 lint(const StringRef name, const StringRef cpplintArgs) {
   Logger::info("Linting", name);
 
@@ -80,8 +57,23 @@ lint(const StringRef name, const StringRef cpplintArgs) {
 static int
 lintMain(const std::span<const StringRef> args) {
   LintArgs lintArgs;
-  if (parseArgs(args, lintArgs) != EXIT_SUCCESS) {
-    return EXIT_FAILURE;
+  for (usize i = 0; i < args.size(); ++i) {
+    const StringRef arg = args[i];
+    HANDLE_GLOBAL_OPTS({ { "lint" } })
+
+    else if (arg == "--exclude") {
+      if (i + 1 >= args.size()) {
+        Logger::error("Missing argument for ", arg);
+        return EXIT_FAILURE;
+      }
+
+      ++i;
+      lintArgs.excludes += " --exclude=";
+      lintArgs.excludes += args[i];
+    }
+    else {
+      return LINT_CMD.noSuchArg(arg);
+    }
   }
 
   if (!commandExists("cpplint")) {

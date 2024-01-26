@@ -33,6 +33,9 @@ CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true
 
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: true
+
   # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-length.html
   - key: readability-identifier-length.IgnoredVariableNames
     value: ^(c|op|i)$
@@ -42,6 +45,8 @@ CheckOptions:
     value: ^[cij]$
 
   # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
+  - key: readability-identifier-naming.AbstractClassCase
+    value: CamelCase
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   - key: readability-identifier-naming.StructCase
