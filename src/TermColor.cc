@@ -83,43 +83,65 @@ shouldColor() noexcept {
 }
 
 static String
-colorize(const StringRef str, const StringRef color) noexcept {
+colorize(const StringRef str, const StringRef code) noexcept {
   if (shouldColor()) {
-    return String(color) + String(str) + "\033[0m";
+    String res;
+    if (str.starts_with("\033[")) {
+      const usize end = str.find('m');
+      if (end == String::npos) {
+        // Invalid color escape sequence
+        return String(str);
+      }
+
+      res = str.substr(0, end);
+      res += ";";
+      res += code;
+      res += str.substr(end);
+    } else {
+      res = "\033[";
+      res += code;
+      res += 'm';
+      res += str;
+    }
+
+    if (!res.ends_with("\033[0m")) {
+      res += "\033[0m";
+    }
+    return res;
   }
   return String(str);
 }
 
 String
 gray(const StringRef str) noexcept {
-  return colorize(str, "\033[30m");
+  return colorize(str, "30");
 }
 String
 red(const StringRef str) noexcept {
-  return colorize(str, "\033[31m");
+  return colorize(str, "31");
 }
 String
 green(const StringRef str) noexcept {
-  return colorize(str, "\033[32m");
+  return colorize(str, "32");
 }
 String
 yellow(const StringRef str) noexcept {
-  return colorize(str, "\033[33m");
+  return colorize(str, "33");
 }
 String
 blue(const StringRef str) noexcept {
-  return colorize(str, "\033[34m");
+  return colorize(str, "34");
 }
 String
 magenta(const StringRef str) noexcept {
-  return colorize(str, "\033[35m");
+  return colorize(str, "35");
 }
 String
 cyan(const StringRef str) noexcept {
-  return colorize(str, "\033[36m");
+  return colorize(str, "36");
 }
 
 String
 bold(const StringRef str) noexcept {
-  return colorize(str, "\033[1m");
+  return colorize(str, "1");
 }

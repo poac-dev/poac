@@ -92,7 +92,7 @@ private:
           os << std::right;
           if (shouldColor()) {
             // Color escape sequences are not visible but affect std::setw.
-            constexpr int COLOR_ESCAPE_SEQ_LEN = 15;
+            constexpr int COLOR_ESCAPE_SEQ_LEN = 9;
             os << std::setw(INFO_OFFSET + COLOR_ESCAPE_SEQ_LEN);
           } else {
             os << std::setw(INFO_OFFSET);

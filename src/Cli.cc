@@ -67,7 +67,7 @@ Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize COLOR_ESCAPE_SEQ_LEN = 43;
+    constexpr usize COLOR_ESCAPE_SEQ_LEN = 31;
     maxOffset += COLOR_ESCAPE_SEQ_LEN;
   }
   setOffset(maxOffset);
@@ -274,7 +274,7 @@ Subcmd::print(usize maxOffset) const noexcept {
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize COLOR_ESCAPE_SEQ_LEN = 34;
+    constexpr usize COLOR_ESCAPE_SEQ_LEN = 22;
     maxOffset += COLOR_ESCAPE_SEQ_LEN;
   }
   setOffset(maxOffset);
