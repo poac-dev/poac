@@ -43,7 +43,8 @@ execCmd(const StringRef cmd) noexcept {
 
 String
 getCmdOutput(const StringRef cmd) {
-  std::array<char, 128> buffer{};
+  constexpr usize BUFFER_SIZE = 128;
+  std::array<char, BUFFER_SIZE> buffer{};
   String result;
 
   Logger::debug("Running `", cmd, '`');

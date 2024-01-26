@@ -14,7 +14,6 @@ Checks: -*
   -cert-env33-c
   clang-analyzer-*
   cppcoreguidelines-*
-  -cppcoreguidelines-avoid-magic-numbers
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay
   google-*
   -google-readability-todo
@@ -30,7 +29,6 @@ Checks: -*
   readability-*
   -readability-else-after-return
   -readability-implicit-bool-conversion
-  -readability-magic-numbers
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true

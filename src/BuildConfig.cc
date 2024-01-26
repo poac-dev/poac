@@ -23,12 +23,13 @@
 #include <string>
 #include <thread>
 
+static constinit const StringRef TEST_OUT_DIR = "tests";
+static constinit const StringRef PATH_FROM_OUT_DIR = "../../";
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 static String OUT_DIR;
-static constinit const StringRef TEST_OUT_DIR = "tests";
-static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
-static String CXXFLAGS = " -std=c++";
+static String CXXFLAGS;
 static String DEFINES;
 static String INCLUDES = " -Iinclude";
 static String LIBS;
@@ -181,9 +182,10 @@ struct BuildConfig {
 
 static void
 emitDep(std::ostream& os, usize& offset, const StringRef dep) {
-  if (offset + dep.size() + 2 > 80) { // 2 for space and \.
+  constexpr usize MAX_LINE_LEN = 80;
+  if (offset + dep.size() + 2 > MAX_LINE_LEN) { // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
-    os << std::setw(83 - static_cast<int>(offset)) << " \\\n ";
+    os << std::setw(static_cast<int>(MAX_LINE_LEN + 3 - offset)) << " \\\n ";
     offset = 2;
   }
   os << " " << dep;
@@ -408,7 +410,8 @@ defineCompileTarget(
 ) {
   Vec<String> commands(3);
   commands[0] = "@mkdir -p $(@D)";
-  commands[1] = echoCmd("Compiling", sourceFile.substr(6)); // remove "../../"
+  commands[1] =
+      echoCmd("Compiling", sourceFile.substr(PATH_FROM_OUT_DIR.size()));
   commands[2] = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
     commands[2] += " -DPOAC_TEST";
@@ -512,7 +515,7 @@ static void
 setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVar("CXX", CXX);
 
-  CXXFLAGS += getPackageEdition();
+  CXXFLAGS += " -std=c++" + getPackageEdition().getString();
   if (shouldColor()) {
     CXXFLAGS += " -fdiagnostics-color";
   }
@@ -541,7 +544,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
 
     const git2::Oid oid = repo.refNameToId("HEAD");
     commitHash = oid.toString();
-    commitShortHash = commitHash.substr(0, 8);
+    commitShortHash = commitHash.substr(0, git2::SHORT_HASH_LEN);
     commitDate = git2::Commit().lookup(repo, oid).time().toString();
   } catch (const git2::Exception& e) {
     Logger::debug("No git repository found");
@@ -630,8 +633,8 @@ configureBuild(const bool isDebug) {
   Vec<String> testCommands;
   HashSet<String> testTargets;
   for (const Path& sourceFilePath : sourceFilePaths) {
-    if (!containsTestCode(sourceFilePath.string().substr(6)
-                          /* remove "../../" */)) {
+    if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size(
+        )))) {
       continue;
     }
     enableTesting = true;

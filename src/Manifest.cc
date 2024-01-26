@@ -17,14 +17,62 @@
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
 
+Edition::Edition(const String& str) : str(str) {
+  if (str == "98") {
+    edition = Cpp98;
+    return;
+  } else if (str == "03") {
+    edition = Cpp03;
+    return;
+  } else if (str == "0x" || str == "11") {
+    edition = Cpp11;
+    return;
+  } else if (str == "1y" || str == "14") {
+    edition = Cpp14;
+    return;
+  } else if (str == "1z" || str == "17") {
+    edition = Cpp17;
+    return;
+  } else if (str == "2a" || str == "20") {
+    edition = Cpp20;
+    return;
+  } else if (str == "2b" || str == "23") {
+    edition = Cpp23;
+    return;
+  } else if (str == "2c") {
+    edition = Cpp26;
+    return;
+  }
+  throw PoacError("invalid edition: ", str);
+}
+
+String
+Edition::getString() const noexcept {
+  return str;
+}
+
 struct Package {
   String name;
-  String edition;
+  Edition edition;
   Version version;
 };
 
 // NOLINTBEGIN(readability-identifier-naming)
 namespace toml {
+template <>
+struct from<Edition> {
+  static Edition from_toml(const value& val) {
+    const String& editionStr = toml::get<toml::string>(val);
+    return Edition(editionStr);
+  }
+};
+template <>
+struct into<Edition> {
+  static toml::value into_toml(const Edition& edition) {
+    return edition.getString();
+  }
+};
+
 template <>
 struct from<Version> {
   static Version from_toml(const value& val) {
@@ -32,7 +80,6 @@ struct from<Version> {
     return Version::parse(versionStr);
   }
 };
-
 template <>
 struct into<Version> {
   static toml::string into_toml(const Version& ver) {
@@ -92,8 +139,8 @@ Profile::merge(const Profile& other) {
 struct Manifest {
   // Manifest is a singleton
   Manifest(const Manifest&) = delete;
-  Manifest& operator=(const Manifest&) = delete;
   Manifest(Manifest&&) noexcept = delete;
+  Manifest& operator=(const Manifest&) = delete;
   Manifest& operator=(Manifest&&) noexcept = delete;
   ~Manifest() noexcept = default;
 
@@ -139,28 +186,6 @@ private:
 const Path&
 getManifestPath() {
   return Manifest::instance().manifestPath.value();
-}
-
-u16
-editionToYear(const StringRef edition) {
-  if (edition == "98") {
-    return 1998;
-  } else if (edition == "03") {
-    return 2003;
-  } else if (edition == "0x" || edition == "11") {
-    return 2011;
-  } else if (edition == "1y" || edition == "14") {
-    return 2014;
-  } else if (edition == "1z" || edition == "17") {
-    return 2017;
-  } else if (edition == "2a" || edition == "20") {
-    return 2020;
-  } else if (edition == "2b" || edition == "23") {
-    return 2023;
-  } else if (edition == "2c") {
-    return 2026;
-  }
-  throw PoacError("invalid edition: ", edition);
 }
 
 // Returns an error message if the package name is invalid.
@@ -220,7 +245,6 @@ parsePackage() {
         toml::format_error("invalid name", data.at("package.name"), err.value())
     );
   }
-  editionToYear(package.edition); // validation
 
   manifest.package = package;
   return manifest.package.value();
@@ -230,7 +254,7 @@ const String&
 getPackageName() {
   return parsePackage().name;
 }
-const String&
+const Edition&
 getPackageEdition() {
   return parsePackage().edition;
 }

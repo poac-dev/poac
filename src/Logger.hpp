@@ -91,11 +91,13 @@ struct Logger {
         case LogLevel::info:
           os << std::right;
           if (shouldColor()) {
-            os << std::setw(27) << bold(green(std::forward<T>(header)));
+            // Color escape sequences are not visible but affect std::setw.
+            constexpr int COLOR_ESCAPE_SEQ_LEN = 15;
+            os << std::setw(INFO_OFFSET + COLOR_ESCAPE_SEQ_LEN);
           } else {
-            os << std::setw(12) << std::forward<T>(header);
+            os << std::setw(INFO_OFFSET);
           }
-          os << ' ';
+          os << bold(green(std::forward<T>(header))) << ' ';
           break;
         case LogLevel::debug:
           os << "[Poac] " << std::forward<T>(header);
@@ -107,6 +109,7 @@ struct Logger {
 
 private:
   LogLevel level = LogLevel::info;
+  static constexpr int INFO_OFFSET = 12;
 
   Logger() noexcept = default;
 };

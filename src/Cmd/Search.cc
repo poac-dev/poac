@@ -117,16 +117,21 @@ searchMain(const std::span<const StringRef> args) {
     return EXIT_SUCCESS;
   }
 
-  std::cout << std::left << std::setw(30) << "Name" << std::setw(10)
-            << "Version" << std::setw(50) << "Description" << '\n';
-  std::cout << String(80, '-') << '\n';
+  constexpr int TABLE_WIDTH = 80;
+  constexpr int NAME_WIDTH = 30;
+  constexpr int VER_WIDTH = 10;
+
+  std::cout << std::left << std::setw(NAME_WIDTH) << "Name"
+            << std::setw(VER_WIDTH) << "Version"
+            << "Description" << '\n';
+  std::cout << String(TABLE_WIDTH, '-') << '\n';
   for (const auto& package : packages) {
     const String name = package["name"];
     const String version = package["version"];
     const String description = package["description"];
 
-    std::cout << std::left << std::setw(30) << name << std::setw(10) << version
-              << std::setw(50) << description << '\n';
+    std::cout << std::left << std::setw(NAME_WIDTH) << name
+              << std::setw(VER_WIDTH) << version << description << '\n';
   }
 
   return EXIT_SUCCESS;

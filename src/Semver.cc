@@ -292,15 +292,16 @@ VersionLexer::consumeNum() {
     }
 
     const u64 digit = s[pos] - '0';
+    constexpr u64 BASE = 10;
     // Check for overflow
-    if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
+    if (value > (std::numeric_limits<u64>::max() - digit) / BASE) {
       throw SemverError(
           s, '\n', String(pos - len, ' '), String(len, '^'),
           " number exceeds UINT64_MAX"
       );
     }
 
-    value = value * 10 + digit;
+    value = value * BASE + digit;
     step();
     ++len;
   }

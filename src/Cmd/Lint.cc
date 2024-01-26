@@ -118,7 +118,7 @@ lintMain(const std::span<const StringRef> args) {
     return lint(packageName, cpplintArgs);
   } else {
     Logger::debug("Using default arguments for lint ...");
-    if (2011 < editionToYear(getPackageEdition())) {
+    if (getPackageEdition() <= Edition::Cpp11) {
       cpplintArgs += " --filter=-build/c++11";
     }
     return lint(packageName, cpplintArgs);
