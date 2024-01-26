@@ -35,6 +35,10 @@ jobs:
           sudo ./llvm.sh 17
           sudo apt-get install -y clang-tidy-17
 
+      - run: make tidy
+        env:
+          POAC_TIDY: clang-tidy-17
+
       - name: poac tidy
         run: ./build-out/poac tidy --verbose
         env:
