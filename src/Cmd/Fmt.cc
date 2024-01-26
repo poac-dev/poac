@@ -21,36 +21,31 @@ const Subcmd FMT_CMD =
         .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
         .setMainFn(fmtMain);
 
-static Option<git2::Repository>
-openRepo(const Path& manifestDir) noexcept {
-  git2::Repository repo = git2::Repository();
-  try {
-    repo.open(manifestDir.string());
-    return repo;
-  } catch (const git2::Exception& e) {
-    Logger::debug("No git repository found");
-    return None;
-  }
-}
-
 static void
 collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
   // Read git repository if exists
-  const Option<git2::Repository> repo = openRepo(manifestDir);
+  git2::Repository repo = git2::Repository();
+  bool hasGitRepo = false;
+  try {
+    repo.open(manifestDir.string());
+    hasGitRepo = true;
+  } catch (const git2::Exception& e) {
+    Logger::debug("No git repository found");
+  }
 
   // Automatically collects format-target files
   for (auto entry = fs::recursive_directory_iterator(manifestDir);
        entry != fs::recursive_directory_iterator(); ++entry) {
     if (entry->is_directory()) {
       const String path = fs::relative(entry->path(), manifestDir).string();
-      if (repo.has_value() && repo->isIgnored(path)) {
+      if (hasGitRepo && repo.isIgnored(path)) {
         Logger::debug("Ignore: ", path);
         entry.disable_recursion_pending();
         continue;
       }
     } else if (entry->is_regular_file()) {
       const Path path = fs::relative(entry->path(), manifestDir);
-      if (repo.has_value() && repo->isIgnored(path.string())) {
+      if (hasGitRepo && repo.isIgnored(path.string())) {
         Logger::debug("Ignore: ", path.string());
         continue;
       }
