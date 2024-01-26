@@ -397,10 +397,19 @@ containsTestCode(const String& sourceFile) {
 }
 
 static String
-echoCmd(const StringRef header, const StringRef body) {
+printfCmd(const StringRef header, const StringRef body) {
   std::ostringstream oss;
-  Logger::log(oss, LogLevel::info, header, body);
-  return "@echo '" + oss.str() + "' >&2";
+  Logger::info(oss, header, body);
+  String msg = oss.str();
+
+  // Replace all occurrences of '\n' with "\\n" to escape newlines
+  size_t pos = 0;
+  while ((pos = msg.find('\n', pos)) != String::npos) {
+    msg.replace(pos, 1, "\\n");
+    pos += 2; // Move past the replacement
+  }
+
+  return "@printf '" + msg + "' >&2";
 }
 
 static void
@@ -411,7 +420,7 @@ defineCompileTarget(
   Vec<String> commands(3);
   commands[0] = "@mkdir -p $(@D)";
   commands[1] =
-      echoCmd("Compiling", sourceFile.substr(PATH_FROM_OUT_DIR.size()));
+      printfCmd("Compiling", sourceFile.substr(PATH_FROM_OUT_DIR.size()));
   commands[2] = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
     commands[2] += " -DPOAC_TEST";
@@ -425,7 +434,7 @@ defineLinkTarget(
     BuildConfig& config, const String& binTarget, const HashSet<String>& deps
 ) {
   Vec<String> commands(2);
-  commands[0] = echoCmd("Linking", binTarget);
+  commands[0] = printfCmd("Linking", binTarget);
   commands[1] = "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
   config.defineTarget(binTarget, commands, deps);
 }
@@ -670,7 +679,7 @@ configureBuild(const bool isDebug) {
     );
     defineLinkTarget(config, testTarget, testTargetDeps);
 
-    testCommands.emplace_back(echoCmd("Testing", testTargetName));
+    testCommands.emplace_back(printfCmd("Testing", testTargetName));
     testCommands.emplace_back(testTarget);
     testTargets.insert(testTarget);
   }

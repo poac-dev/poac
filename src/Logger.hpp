@@ -5,6 +5,8 @@
 
 #include <iomanip>
 #include <iostream>
+#include <ostream>
+#include <type_traits>
 #include <utility>
 
 enum class LogLevel : u8 {
@@ -15,8 +17,14 @@ enum class LogLevel : u8 {
   debug = 4 // --verbose
 };
 
-struct Logger {
+class Logger {
+  LogLevel level = LogLevel::info;
+  static constexpr int INFO_OFFSET = 12;
+
   // Logger is a singleton
+  Logger() noexcept = default;
+
+public:
   Logger(const Logger&) = delete;
   Logger& operator=(const Logger&) = delete;
   Logger(Logger&&) noexcept = delete;
@@ -28,53 +36,58 @@ struct Logger {
   static LogLevel getLevel() noexcept;
 
   template <typename... Args>
-    requires(Display<Args> && ...)
-  static void error(Args&&... message) noexcept {
-    logln(std::cerr, LogLevel::error, std::forward<Args>(message)...);
+  static void error(Args&&... msgs) noexcept {
+    logln(LogLevel::error, std::forward<Args>(msgs)...);
   }
   template <typename... Args>
-    requires(Display<Args> && ...)
-  static void warn(Args&&... message) noexcept {
-    logln(std::cerr, LogLevel::warning, std::forward<Args>(message)...);
-  }
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
-  static void info(T&& header, Args&&... message) noexcept {
-    logln(
-        std::cerr, LogLevel::info, std::forward<T>(header),
-        std::forward<Args>(message)...
-    );
+  static void warn(Args&&... msgs) noexcept {
+    logln(LogLevel::warning, std::forward<Args>(msgs)...);
   }
   template <typename... Args>
-    requires(Display<Args> && ...)
-  static void debug(Args&&... message) noexcept {
-    logln(std::cerr, LogLevel::debug, std::forward<Args>(message)...);
+  static void info(Args&&... msgs) noexcept {
+    logln(LogLevel::info, std::forward<Args>(msgs)...);
+  }
+  template <typename... Args>
+  static void debug(Args&&... msgs) noexcept {
+    logln(LogLevel::debug, std::forward<Args>(msgs)...);
+  }
+
+private:
+  template <typename Sink, typename... Args>
+    requires(
+        ((std::is_base_of_v<std::ostream, std::remove_reference_t<Sink>>
+          || Display<Sink>)
+         && Display<Args>)
+        && ...
+    )
+  static void logln(LogLevel level, Sink&& sink, Args&&... msgs) noexcept {
+    if constexpr (std::is_base_of_v<
+                      std::ostream, std::remove_reference_t<Sink>>) {
+      loglnImpl(std::forward<Sink>(sink), level, std::forward<Args>(msgs)...);
+    } else {
+      loglnImpl(
+          std::cerr, level, std::forward<Sink>(sink),
+          std::forward<Args>(msgs)...
+      );
+    }
   }
 
   template <typename T, typename... Args>
     requires(Display<T> && (Display<Args> && ...))
-  static void logln(
+  static void loglnImpl(
       std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
   ) noexcept {
-    log(os, messageLevel, std::forward<T>(header),
-        std::forward<Args>(message)..., '\n');
+    instance().log(
+        os, messageLevel, std::forward<T>(header),
+        std::forward<Args>(message)..., '\n'
+    );
   }
+
   template <typename T, typename... Args>
     requires(Display<T> && (Display<Args> && ...))
-  static void
+  void
   log(std::ostream& os, LogLevel messageLevel, T&& header,
       Args&&... message) noexcept {
-    instance().logImpl(
-        os, messageLevel, std::forward<T>(header),
-        std::forward<Args>(message)...
-    );
-  }
-
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
-  void logImpl(
-      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) noexcept {
     // For other than `info`, header means just the first argument.  For
     // `info`, header means its header.
 
@@ -106,12 +119,6 @@ struct Logger {
       (os << ... << std::forward<Args>(message)) << std::flush;
     }
   }
-
-private:
-  LogLevel level = LogLevel::info;
-  static constexpr int INFO_OFFSET = 12;
-
-  Logger() noexcept = default;
 };
 
 bool isVerbose() noexcept;
