@@ -5,41 +5,41 @@
 
 #include <span>
 
-// Poac pragma: Cmd/Build.cc
+// Poac pragma: defined in Cmd/Build.cc
 extern const Subcmd BUILD_CMD;
 int buildImpl(String& outDir, bool isDebug, bool isParallel);
 
-// Poac pragma: Cmd/Clean.cc
-extern const Subcmd CLEAN_CMD; // TODO: should be CLEAN_CMD case
+// Poac pragma: defined in Cmd/Clean.cc
+extern const Subcmd CLEAN_CMD;
 
-// Poac pragma: Cmd/Fmt.cc
+// Poac pragma: defined in Cmd/Fmt.cc
 extern const Subcmd FMT_CMD;
 
-// Poac pragma: Cmd/Help.cc
+// Poac pragma: defined in Cmd/Help.cc
 extern const Subcmd HELP_CMD;
 
-// Poac pragma: Cmd/Init.cc
+// Poac pragma: defined in Cmd/Init.cc
 extern const Subcmd INIT_CMD;
 
-// Poac pragma: Cmd/Lint.cc
+// Poac pragma: defined in Cmd/Lint.cc
 extern const Subcmd LINT_CMD;
 
-// Poac pragma: Cmd/New.cc
+// Poac pragma: defined in Cmd/New.cc
 extern const Subcmd NEW_CMD;
 String createPoacToml(StringRef projectName) noexcept;
 
-// Poac pragma: Cmd/Run.cc
+// Poac pragma: defined in Cmd/Run.cc
 extern const Subcmd RUN_CMD;
 
-// Poac pragma: Cmd/Search.cc
+// Poac pragma: defined in Cmd/Search.cc
 extern const Subcmd SEARCH_CMD;
 
-// Poac pragma: Cmd/Test.cc
+// Poac pragma: defined in Cmd/Test.cc
 extern const Subcmd TEST_CMD;
 
-// Poac pragma: Cmd/Tidy.cc
+// Poac pragma: defined in Cmd/Tidy.cc
 extern const Subcmd TIDY_CMD;
 
-// Poac pragma: Cmd/Version.cc
+// Poac pragma: defined in Cmd/Version.cc
 extern const Subcmd VERSION_CMD;
 int versionMain(std::span<const StringRef> args) noexcept;
