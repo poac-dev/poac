@@ -39,16 +39,6 @@ printUsage(
   std::cout << '\n';
 }
 
-usize
-Opt::leftSize(const usize maxShortSize) const noexcept {
-  // shrt.size() = ?
-  // `, `.size() = 2
-  // lng.size() = ?
-  // ` `.size() = 1
-  // placeholder.size() = ?
-  return 3 + maxShortSize + name.size() + placeholder.size();
-}
-
 void
 addOptCandidates(Vec<StringRef>& candidates, const Vec<Opt>& opts) noexcept {
   for (const auto& opt : opts) {
@@ -129,10 +119,6 @@ Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
   std::cout << '\n';
 }
 
-usize
-Arg::leftSize() const noexcept {
-  return name.size();
-}
 String
 Arg::getLeft() const noexcept {
   if (name.empty()) {
@@ -172,28 +158,14 @@ Arg::print(usize maxOffset) const noexcept {
   std::cout << '\n';
 }
 
-bool
-Subcmd::hasShort() const noexcept {
-  return !shortName.empty();
-}
 Subcmd&
 Subcmd::addOpt(Opt opt) noexcept {
   localOpts.emplace_back(opt);
   return *this;
 }
 Subcmd&
-Subcmd::setArg(Arg arg) noexcept {
-  this->arg = arg;
-  return *this;
-}
-Subcmd&
 Subcmd::setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept {
   this->mainFn = std::move(mainFn);
-  return *this;
-}
-Subcmd&
-Subcmd::setCmdName(StringRef cmdName) noexcept {
-  this->cmdName = cmdName;
   return *this;
 }
 Subcmd&

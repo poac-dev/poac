@@ -47,7 +47,7 @@ public:
   constexpr CliBase& operator=(const CliBase&) noexcept = default;
   constexpr CliBase& operator=(CliBase&&) noexcept = default;
 
-  explicit CliBase(const StringRef name) noexcept : name(name) {}
+  constexpr explicit CliBase(const StringRef name) noexcept : name(name) {}
   constexpr Derived& setDesc(const StringRef desc) noexcept {
     this->desc = desc;
     return static_cast<Derived&>(*this);
@@ -107,7 +107,15 @@ public:
 
 private:
   /// Size of `-c, --color <WHEN>` without color.
-  usize leftSize(usize maxShortSize) const noexcept;
+  constexpr usize leftSize(usize maxShortSize) const noexcept {
+    // shrt.size() = ?
+    // `, `.size() = 2
+    // lng.size() = ?
+    // ` `.size() = 1
+    // placeholder.size() = ?
+    return 3 + maxShortSize + name.size() + placeholder.size();
+  }
+
   void print(usize maxShortSize, usize maxOffset) const noexcept;
 };
 
@@ -131,7 +139,10 @@ public:
 
 private:
   /// Size of left side of the help message.
-  usize leftSize() const noexcept;
+  constexpr usize leftSize() const noexcept {
+    return name.size();
+  }
+
   String getLeft() const noexcept;
   void print(usize maxOffset) const noexcept;
 };
@@ -148,15 +159,25 @@ class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
 public:
   using CliBase::CliBase;
 
+  constexpr Subcmd& setArg(Arg arg) noexcept {
+    this->arg = arg;
+    return *this;
+  }
+
   Subcmd& addOpt(Opt opt) noexcept;
-  Subcmd& setArg(Arg arg) noexcept;
   Subcmd& setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
 
 private:
-  Subcmd& setCmdName(StringRef cmdName) noexcept;
+  constexpr bool hasShort() const noexcept {
+    return !shortName.empty();
+  }
+  constexpr Subcmd& setCmdName(StringRef cmdName) noexcept {
+    this->cmdName = cmdName;
+    return *this;
+  }
+
   Subcmd& setGlobalOpts(const Vec<Opt>& globalOpts) noexcept;
-  bool hasShort() const noexcept;
   String getUsage() const noexcept;
   void printHelp() const noexcept;
   void print(usize maxOffset) const noexcept;
