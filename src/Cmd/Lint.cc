@@ -44,7 +44,8 @@ lint(const StringRef name, const StringRef cpplintArgs) {
       cpplintCmd += line;
     }
   }
-  cpplintCmd += " --recursive ."; // This should be after `--exclude` options
+  // NOTE: This should come after the `--exclude` options.
+  cpplintCmd += " --recursive .";
 
   const int exitCode = execCmd(cpplintCmd);
   if (exitCode != 0) {
