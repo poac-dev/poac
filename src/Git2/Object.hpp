@@ -13,9 +13,9 @@ struct Object : public GlobalState {
   Object() = default;
   ~Object();
 
-  Object(const Object&) = default;
+  Object(const Object&) = delete;
   Object(Object&&) noexcept = default;
-  Object& operator=(const Object&) = default;
+  Object& operator=(const Object&) = delete;
   Object& operator=(Object&&) noexcept = default;
 
   explicit Object(git_object* obj);

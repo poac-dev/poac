@@ -19,9 +19,9 @@ public:
   Revspec() = delete;
   ~Revspec() = default;
 
-  Revspec(const Revspec&) = default;
+  Revspec(const Revspec&) = delete;
   Revspec(Revspec&&) noexcept = default;
-  Revspec& operator=(const Revspec&) = default;
+  Revspec& operator=(const Revspec&) = delete;
   Revspec& operator=(Revspec&&) noexcept = default;
 
   /// Access the `from` range of this revspec.
