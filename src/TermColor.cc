@@ -84,32 +84,33 @@ shouldColor() noexcept {
 
 static String
 colorize(const StringRef str, const StringRef code) noexcept {
-  if (shouldColor()) {
-    String res;
-    if (str.starts_with("\033[")) {
-      const usize end = str.find('m');
-      if (end == String::npos) {
-        // Invalid color escape sequence
-        return String(str);
-      }
-
-      res = str.substr(0, end);
-      res += ";";
-      res += code;
-      res += str.substr(end);
-    } else {
-      res = "\033[";
-      res += code;
-      res += 'm';
-      res += str;
-    }
-
-    if (!res.ends_with("\033[0m")) {
-      res += "\033[0m";
-    }
-    return res;
+  if (!shouldColor()) {
+    return String(str);
   }
-  return String(str);
+
+  String res;
+  if (str.starts_with("\033[")) {
+    const usize end = str.find('m');
+    if (end == String::npos) {
+      // Invalid color escape sequence
+      return String(str);
+    }
+
+    res = str.substr(0, end);
+    res += ";";
+    res += code;
+    res += str.substr(end);
+  } else {
+    res = "\033[";
+    res += code;
+    res += 'm';
+    res += str;
+  }
+
+  if (!res.ends_with("\033[0m")) {
+    res += "\033[0m";
+  }
+  return res;
 }
 
 String
