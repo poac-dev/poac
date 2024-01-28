@@ -1,16 +1,12 @@
 # macOS
 .DS_Store
 
-# CMake
-build/
-build-out/
-
-# CLion
+# IDE
 .idea/
-cmake-build-debug/
-
-# VSCode
 .vscode/
+
+# Make
+/build-out
 
 # Poac
 /poac-out
