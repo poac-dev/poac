@@ -6,10 +6,10 @@
 .vscode/
 
 # Make
-/build-out
+build-out/
 
 # Poac
-/poac-out
+poac-out/
 
 # Gcov
 *.gcno
