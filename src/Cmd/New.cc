@@ -1,12 +1,12 @@
 #include "New.hpp"
 
 #include "../Algos.hpp"
+#include "../Cli.hpp"
 #include "../Exception.hpp"
 #include "../Git2.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -16,14 +16,17 @@
 #include <span>
 #include <string>
 
-const Subcmd newCmd =
+static int newMain(std::span<const StringRef> args);
+
+const Subcmd NEW_CMD =
     Subcmd{ "new" }
         .setDesc("Create a new poac project")
         .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
             "Use a binary (application) template [default]"
         ))
         .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template"))
-        .setArg(Arg{ "<name>" });
+        .setArg(Arg{ "name" })
+        .setMainFn(newMain);
 
 static constexpr StringRef MAIN_CC =
     "#include <iostream>\n\n"
@@ -119,7 +122,7 @@ createTemplateFiles(const bool isBin, const StringRef projectName) {
   }
 }
 
-int
+static int
 newMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
@@ -138,7 +141,7 @@ newMain(const std::span<const StringRef> args) {
       packageName = arg;
     }
     else {
-      return newCmd.noSuchArg(arg);
+      return NEW_CMD.noSuchArg(arg);
     }
   }
 

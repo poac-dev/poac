@@ -68,7 +68,7 @@ struct ComparatorLexer {
   StringRef s;
   usize pos{ 0 };
 
-  explicit ComparatorLexer(const StringRef s) noexcept : s(s) {}
+  explicit ComparatorLexer(const StringRef str) noexcept : s(str) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -155,7 +155,7 @@ struct ComparatorLexer {
 struct ComparatorParser {
   ComparatorLexer lexer;
 
-  explicit ComparatorParser(const StringRef s) noexcept : lexer(s) {}
+  explicit ComparatorParser(const StringRef str) noexcept : lexer(str) {}
 
   Comparator parse() {
     Comparator result;
@@ -463,7 +463,7 @@ struct VersionReqLexer {
   StringRef s;
   usize pos{ 0 };
 
-  explicit VersionReqLexer(const StringRef s) noexcept : s(s) {}
+  explicit VersionReqLexer(const StringRef str) noexcept : s(str) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -502,7 +502,7 @@ struct VersionReqLexer {
 struct VersionReqParser {
   VersionReqLexer lexer;
 
-  explicit VersionReqParser(const StringRef s) noexcept : lexer(s) {}
+  explicit VersionReqParser(const StringRef str) noexcept : lexer(str) {}
 
   VersionReq parse() {
     VersionReq result;
@@ -931,45 +931,51 @@ testBasic() {
 
 void
 testExact() {
-  const auto r1 = VersionReq::parse("=1.0.0");
-  assertEq(r1.toString(), "=1.0.0");
-  assertMatchAll(r1, { { "1.0.0" } });
-  assertMatchNone(r1, { { "1.0.1", "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre" } });
+  const auto ver1 = VersionReq::parse("=1.0.0");
+  assertEq(ver1.toString(), "=1.0.0");
+  assertMatchAll(ver1, { { "1.0.0" } });
+  assertMatchNone(
+      ver1, { { "1.0.1", "0.9.9", "0.10.0", "0.1.0", "1.0.0-pre" } }
+  );
 
-  const auto r2 = VersionReq::parse("=0.9.0");
-  assertEq(r2.toString(), "=0.9.0");
-  assertMatchAll(r2, { { "0.9.0" } });
-  assertMatchNone(r2, { { "0.9.1", "1.9.0", "0.0.9", "0.9.0-pre" } });
+  const auto ver2 = VersionReq::parse("=0.9.0");
+  assertEq(ver2.toString(), "=0.9.0");
+  assertMatchAll(ver2, { { "0.9.0" } });
+  assertMatchNone(ver2, { { "0.9.1", "1.9.0", "0.0.9", "0.9.0-pre" } });
 
-  const auto r3 = VersionReq::parse("=0.0.2");
-  assertEq(r3.toString(), "=0.0.2");
-  assertMatchAll(r3, { { "0.0.2" } });
-  assertMatchNone(r3, { { "0.0.1", "0.0.3", "0.0.2-pre" } });
+  const auto ver3 = VersionReq::parse("=0.0.2");
+  assertEq(ver3.toString(), "=0.0.2");
+  assertMatchAll(ver3, { { "0.0.2" } });
+  assertMatchNone(ver3, { { "0.0.1", "0.0.3", "0.0.2-pre" } });
 
-  const auto r4 = VersionReq::parse("=0.1.0-beta2.a");
-  assertEq(r4.toString(), "=0.1.0-beta2.a");
-  assertMatchAll(r4, { { "0.1.0-beta2.a" } });
-  assertMatchNone(r4, { { "0.9.1", "0.1.0", "0.1.1-beta2.a", "0.1.0-beta2" } });
+  const auto ver4 = VersionReq::parse("=0.1.0-beta2.a");
+  assertEq(ver4.toString(), "=0.1.0-beta2.a");
+  assertMatchAll(ver4, { { "0.1.0-beta2.a" } });
+  assertMatchNone(
+      ver4, { { "0.9.1", "0.1.0", "0.1.1-beta2.a", "0.1.0-beta2" } }
+  );
 
-  const auto r5 = VersionReq::parse("=0.1.0+meta");
-  assertEq(r5.toString(), "=0.1.0");
-  assertMatchAll(r5, { { "0.1.0", "0.1.0+meta", "0.1.0+any" } });
+  const auto ver5 = VersionReq::parse("=0.1.0+meta");
+  assertEq(ver5.toString(), "=0.1.0");
+  assertMatchAll(ver5, { { "0.1.0", "0.1.0+meta", "0.1.0+any" } });
 
   pass();
 }
 
 void
 testGreaterThan() {
-  const auto r1 = VersionReq::parse(">=1.0.0");
-  assertEq(r1.toString(), ">=1.0.0");
-  assertMatchAll(r1, { { "1.0.0", "2.0.0" } });
-  assertMatchNone(r1, { { "0.1.0", "0.0.1", "1.0.0-pre", "2.0.0-pre" } });
+  const auto ver1 = VersionReq::parse(">=1.0.0");
+  assertEq(ver1.toString(), ">=1.0.0");
+  assertMatchAll(ver1, { { "1.0.0", "2.0.0" } });
+  assertMatchNone(ver1, { { "0.1.0", "0.0.1", "1.0.0-pre", "2.0.0-pre" } });
 
-  const auto r2 = VersionReq::parse(">=2.1.0-alpha2");
-  assertEq(r2.toString(), ">=2.1.0-alpha2");
-  assertMatchAll(r2, { { "2.1.0-alpha2", "2.1.0-alpha3", "2.1.0", "3.0.0" } });
+  const auto ver2 = VersionReq::parse(">=2.1.0-alpha2");
+  assertEq(ver2.toString(), ">=2.1.0-alpha2");
+  assertMatchAll(
+      ver2, { { "2.1.0-alpha2", "2.1.0-alpha3", "2.1.0", "3.0.0" } }
+  );
   assertMatchNone(
-      r2, { { "2.0.0", "2.1.0-alpha1", "2.0.0-alpha2", "3.0.0-alpha2" } }
+      ver2, { { "2.0.0", "2.1.0-alpha1", "2.0.0-alpha2", "3.0.0-alpha2" } }
   );
 
   pass();
@@ -977,25 +983,27 @@ testGreaterThan() {
 
 void
 testLessThan() {
-  const auto r1 = VersionReq::parse("<1.0.0");
-  assertEq(r1.toString(), "<1.0.0");
-  assertMatchAll(r1, { { "0.1.0", "0.0.1" } });
-  assertMatchNone(r1, { { "1.0.0", "1.0.0-beta", "1.0.1", "0.9.9-alpha" } });
+  const auto ver1 = VersionReq::parse("<1.0.0");
+  assertEq(ver1.toString(), "<1.0.0");
+  assertMatchAll(ver1, { { "0.1.0", "0.0.1" } });
+  assertMatchNone(ver1, { { "1.0.0", "1.0.0-beta", "1.0.1", "0.9.9-alpha" } });
 
-  const auto r2 = VersionReq::parse("<=2.1.0-alpha2");
-  assertMatchAll(r2, { { "2.1.0-alpha2", "2.1.0-alpha1", "2.0.0", "1.0.0" } });
+  const auto ver2 = VersionReq::parse("<=2.1.0-alpha2");
+  assertMatchAll(
+      ver2, { { "2.1.0-alpha2", "2.1.0-alpha1", "2.0.0", "1.0.0" } }
+  );
   assertMatchNone(
-      r2, { { "2.1.0", "2.2.0-alpha1", "2.0.0-alpha2", "1.0.0-alpha2" } }
+      ver2, { { "2.1.0", "2.2.0-alpha1", "2.0.0-alpha2", "1.0.0-alpha2" } }
   );
 
-  const auto r3 = VersionReq::parse(">1.0.0-alpha && <1.0.0");
-  assertMatchAll(r3, { { "1.0.0-beta" } });
+  const auto ver3 = VersionReq::parse(">1.0.0-alpha && <1.0.0");
+  assertMatchAll(ver3, { { "1.0.0-beta" } });
 
-  const auto r4 = VersionReq::parse(">1.0.0-alpha && <1.0");
-  assertMatchNone(r4, { { "1.0.0-beta" } });
+  const auto ver4 = VersionReq::parse(">1.0.0-alpha && <1.0");
+  assertMatchNone(ver4, { { "1.0.0-beta" } });
 
-  const auto r5 = VersionReq::parse(">1.0.0-alpha && <1");
-  assertMatchNone(r5, { { "1.0.0-beta" } });
+  const auto ver5 = VersionReq::parse(">1.0.0-alpha && <1");
+  assertMatchNone(ver5, { { "1.0.0-beta" } });
 
   pass();
 }
@@ -1003,52 +1011,53 @@ testLessThan() {
 // same as caret
 void
 testNoOp() {
-  const auto r1 = VersionReq::parse("1");
-  assertMatchAll(r1, { { "1.1.2", "1.1.0", "1.2.1", "1.0.1" } });
-  assertMatchNone(r1, { { "0.9.1", "2.9.0", "0.1.4" } });
-  assertMatchNone(r1, { { "1.0.0-beta1", "0.1.0-alpha", "1.0.1-pre" } });
+  const auto ver1 = VersionReq::parse("1");
+  assertMatchAll(ver1, { { "1.1.2", "1.1.0", "1.2.1", "1.0.1" } });
+  assertMatchNone(ver1, { { "0.9.1", "2.9.0", "0.1.4" } });
+  assertMatchNone(ver1, { { "1.0.0-beta1", "0.1.0-alpha", "1.0.1-pre" } });
 
-  const auto r2 = VersionReq::parse("1.1");
-  assertMatchAll(r2, { { "1.1.2", "1.1.0", "1.2.1" } });
-  assertMatchNone(r2, { { "0.9.1", "2.9.0", "1.0.1", "0.1.4" } });
+  const auto ver2 = VersionReq::parse("1.1");
+  assertMatchAll(ver2, { { "1.1.2", "1.1.0", "1.2.1" } });
+  assertMatchNone(ver2, { { "0.9.1", "2.9.0", "1.0.1", "0.1.4" } });
 
-  const auto r3 = VersionReq::parse("1.1.2");
-  assertMatchAll(r3, { { "1.1.2", "1.1.4", "1.2.1" } });
-  assertMatchNone(r3, { { "0.9.1", "2.9.0", "1.1.1", "0.0.1" } });
-  assertMatchNone(r3, { { "1.1.2-alpha1", "1.1.3-alpha1", "2.9.0-alpha1" } });
+  const auto ver3 = VersionReq::parse("1.1.2");
+  assertMatchAll(ver3, { { "1.1.2", "1.1.4", "1.2.1" } });
+  assertMatchNone(ver3, { { "0.9.1", "2.9.0", "1.1.1", "0.0.1" } });
+  assertMatchNone(ver3, { { "1.1.2-alpha1", "1.1.3-alpha1", "2.9.0-alpha1" } });
 
-  const auto r4 = VersionReq::parse("0.1.2");
-  assertMatchAll(r4, { { "0.1.2", "0.1.4" } });
-  assertMatchNone(r4, { { "0.9.1", "2.9.0", "1.1.1", "0.0.1" } });
-  assertMatchNone(r4, { { "0.1.2-beta", "0.1.3-alpha", "0.2.0-pre" } });
+  const auto ver4 = VersionReq::parse("0.1.2");
+  assertMatchAll(ver4, { { "0.1.2", "0.1.4" } });
+  assertMatchNone(ver4, { { "0.9.1", "2.9.0", "1.1.1", "0.0.1" } });
+  assertMatchNone(ver4, { { "0.1.2-beta", "0.1.3-alpha", "0.2.0-pre" } });
 
-  const auto r5 = VersionReq::parse("0.5.1-alpha3");
+  const auto ver5 = VersionReq::parse("0.5.1-alpha3");
   assertMatchAll(
-      r5, { { "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5" } }
+      ver5,
+      { { "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5" } }
   );
   assertMatchNone(
-      r5,
+      ver5,
       { { "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre", "0.6.0" } }
   );
 
-  const auto r6 = VersionReq::parse("0.0.2");
-  assertMatchAll(r6, { { "0.0.2" } });
-  assertMatchNone(r6, { { "0.9.1", "2.9.0", "1.1.1", "0.0.1", "0.1.4" } });
+  const auto ver6 = VersionReq::parse("0.0.2");
+  assertMatchAll(ver6, { { "0.0.2" } });
+  assertMatchNone(ver6, { { "0.9.1", "2.9.0", "1.1.1", "0.0.1", "0.1.4" } });
 
-  const auto r7 = VersionReq::parse("0.0");
-  assertMatchAll(r7, { { "0.0.2", "0.0.0" } });
-  assertMatchNone(r7, { { "0.9.1", "2.9.0", "1.1.1", "0.1.4" } });
+  const auto ver7 = VersionReq::parse("0.0");
+  assertMatchAll(ver7, { { "0.0.2", "0.0.0" } });
+  assertMatchNone(ver7, { { "0.9.1", "2.9.0", "1.1.1", "0.1.4" } });
 
-  const auto r8 = VersionReq::parse("0");
-  assertMatchAll(r8, { { "0.9.1", "0.0.2", "0.0.0" } });
-  assertMatchNone(r8, { { "2.9.0", "1.1.1" } });
+  const auto ver8 = VersionReq::parse("0");
+  assertMatchAll(ver8, { { "0.9.1", "0.0.2", "0.0.0" } });
+  assertMatchNone(ver8, { { "2.9.0", "1.1.1" } });
 
-  const auto r9 = VersionReq::parse("1.4.2-beta.5");
+  const auto ver9 = VersionReq::parse("1.4.2-beta.5");
   assertMatchAll(
-      r9, { { "1.4.2", "1.4.3", "1.4.2-beta.5", "1.4.2-beta.6", "1.4.2-c" } }
+      ver9, { { "1.4.2", "1.4.3", "1.4.2-beta.5", "1.4.2-beta.6", "1.4.2-c" } }
   );
   assertMatchNone(
-      r9,
+      ver9,
       { { "0.9.9", "2.0.0", "1.4.2-alpha", "1.4.2-beta.4", "1.4.3-beta.5" } }
   );
 
@@ -1057,23 +1066,24 @@ testNoOp() {
 
 void
 testMultiple() {
-  const auto r1 = VersionReq::parse(">0.0.9 && <=2.5.3");
-  assertEq(r1.toString(), ">0.0.9 && <=2.5.3");
-  assertMatchAll(r1, { { "0.0.10", "1.0.0", "2.5.3" } });
-  assertMatchNone(r1, { { "0.0.8", "2.5.4" } });
+  const auto ver1 = VersionReq::parse(">0.0.9 && <=2.5.3");
+  assertEq(ver1.toString(), ">0.0.9 && <=2.5.3");
+  assertMatchAll(ver1, { { "0.0.10", "1.0.0", "2.5.3" } });
+  assertMatchNone(ver1, { { "0.0.8", "2.5.4" } });
 
-  const auto r2 = VersionReq::parse("<=0.2.0 && >=0.5.0");
-  assertEq(r2.toString(), "<=0.2.0 && >=0.5.0");
-  assertMatchNone(r2, { { "0.0.8", "0.3.0", "0.5.1" } });
+  const auto ver2 = VersionReq::parse("<=0.2.0 && >=0.5.0");
+  assertEq(ver2.toString(), "<=0.2.0 && >=0.5.0");
+  assertMatchNone(ver2, { { "0.0.8", "0.3.0", "0.5.1" } });
 
-  const auto r3 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
-  assertEq(r3.toString(), ">=0.5.1-alpha3 && <0.6");
+  const auto ver3 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
+  assertEq(ver3.toString(), ">=0.5.1-alpha3 && <0.6");
   assertMatchAll(
-      r3, { { "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5" } }
+      ver3,
+      { { "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5" } }
   );
   assertMatchNone(
-      r3, { { "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre", "0.6.0",
-              "0.6.0-pre" } }
+      ver3, { { "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre",
+                "0.6.0", "0.6.0-pre" } }
   );
 
   assertException<VersionReqError>(
@@ -1083,15 +1093,16 @@ testMultiple() {
       "          ^ expected >=, <=, >, or <"
   );
 
-  const auto r4 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
-  assertEq(r4.toString(), ">=0.5.1-alpha3 && <0.6");
+  const auto ver4 = VersionReq::parse(">=0.5.1-alpha3 && <0.6");
+  assertEq(ver4.toString(), ">=0.5.1-alpha3 && <0.6");
   assertMatchAll(
-      r4, { { "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5" } }
+      ver4,
+      { { "0.5.1-alpha3", "0.5.1-alpha4", "0.5.1-beta", "0.5.1", "0.5.5" } }
   );
   assertMatchNone(
-      r4, { { "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre" } }
+      ver4, { { "0.5.1-alpha1", "0.5.2-alpha3", "0.5.5-pre", "0.5.0-pre" } }
   );
-  assertMatchNone(r4, { { "0.6.0", "0.6.0-pre" } });
+  assertMatchNone(ver4, { { "0.6.0", "0.6.0-pre" } });
 
   assertException<VersionReqError>(
       []() { VersionReq::parse(">1.2.3 - <2.3.4"); },
@@ -1105,8 +1116,8 @@ testMultiple() {
 
 void
 testPre() {
-  const auto r = VersionReq::parse("=2.1.1-really.0");
-  assertMatchAll(r, { { "2.1.1-really.0" } });
+  const auto ver = VersionReq::parse("=2.1.1-really.0");
+  assertMatchAll(ver, { { "2.1.1-really.0" } });
 
   pass();
 }

@@ -8,7 +8,9 @@
 #include <cstdlib>
 #include <span>
 
-const Subcmd buildCmd =
+static int buildMain(std::span<const StringRef> args);
+
+const Subcmd BUILD_CMD =
     Subcmd{ "build" }
         .setShort("b")
         .setDesc("Compile a local package and all of its dependencies")
@@ -21,7 +23,8 @@ const Subcmd buildCmd =
         .addOpt(Opt{ "--compdb" }.setDesc(
             "Generate compilation database instead of building"
         ))
-        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"));
+        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .setMainFn(buildMain);
 
 int
 buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
@@ -42,7 +45,7 @@ buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   return exitCode;
 }
 
-int
+static int
 buildMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
@@ -65,7 +68,7 @@ buildMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return buildCmd.noSuchArg(arg);
+      return BUILD_CMD.noSuchArg(arg);
     }
   }
 

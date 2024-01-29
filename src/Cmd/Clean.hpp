@@ -1,10 +1,5 @@
 #pragma once
 
-#include "../Rustify.hpp"
-#include "Global.hpp"
+#include "../Cli.hpp"
 
-#include <span>
-
-extern const Subcmd cleanCmd;
-
-int cleanMain(std::span<const StringRef> args) noexcept;
+extern const Subcmd CLEAN_CMD;

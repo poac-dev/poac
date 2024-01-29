@@ -1,8 +1,8 @@
 #include "Init.hpp"
 
+#include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
-#include "Global.hpp"
 #include "New.hpp"
 
 #include <cstdlib>
@@ -10,16 +10,18 @@
 #include <span>
 #include <string>
 
-const Subcmd initCmd =
+static int initMain(std::span<const StringRef> args);
+
+const Subcmd INIT_CMD =
     Subcmd{ "init" }
         .setDesc("Create a new poac package in an existing directory")
         .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
             "Use a binary (application) template [default]"
         ))
-        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template")
-        );
+        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template"))
+        .setMainFn(initMain);
 
-int
+static int
 initMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
@@ -34,7 +36,7 @@ initMain(const std::span<const StringRef> args) {
       isBin = false;
     }
     else {
-      return initCmd.noSuchArg(arg);
+      return INIT_CMD.noSuchArg(arg);
     }
   }
 

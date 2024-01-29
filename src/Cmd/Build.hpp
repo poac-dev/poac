@@ -1,11 +1,7 @@
 #pragma once
 
+#include "../Cli.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
 
-#include <span>
-
-extern const Subcmd buildCmd;
-
+extern const Subcmd BUILD_CMD;
 int buildImpl(String& outDir, bool isDebug, bool isParallel);
-int buildMain(std::span<const StringRef> args);

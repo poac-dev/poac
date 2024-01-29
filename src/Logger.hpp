@@ -5,6 +5,8 @@
 
 #include <iomanip>
 #include <iostream>
+#include <ostream>
+#include <type_traits>
 #include <utility>
 
 enum class LogLevel : u8 {
@@ -15,8 +17,14 @@ enum class LogLevel : u8 {
   debug = 4 // --verbose
 };
 
-struct Logger {
+class Logger {
+  static constexpr int INFO_OFFSET = 12;
+  LogLevel level = LogLevel::info;
+
   // Logger is a singleton
+  Logger() noexcept = default;
+
+public:
   Logger(const Logger&) = delete;
   Logger& operator=(const Logger&) = delete;
   Logger(Logger&&) noexcept = delete;
@@ -27,59 +35,51 @@ struct Logger {
   static void setLevel(LogLevel level) noexcept;
   static LogLevel getLevel() noexcept;
 
-  template <typename... Args>
-    requires(Display<Args> && ...)
-  static void error(Args&&... message) noexcept {
-    logln(std::cerr, LogLevel::error, std::forward<Args>(message)...);
+  template <typename... Ts>
+  static void error(Ts&&... msgs) noexcept {
+    logln(LogLevel::error, std::forward<Ts>(msgs)...);
   }
-  template <typename... Args>
-    requires(Display<Args> && ...)
-  static void warn(Args&&... message) noexcept {
-    logln(std::cerr, LogLevel::warning, std::forward<Args>(message)...);
+  template <typename... Ts>
+  static void warn(Ts&&... msgs) noexcept {
+    logln(LogLevel::warning, std::forward<Ts>(msgs)...);
   }
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
-  static void info(T&& header, Args&&... message) noexcept {
-    logln(
-        std::cerr, LogLevel::info, std::forward<T>(header),
-        std::forward<Args>(message)...
-    );
+  template <typename... Ts>
+  static void info(Ts&&... msgs) noexcept {
+    logln(LogLevel::info, std::forward<Ts>(msgs)...);
   }
-  template <typename... Args>
-    requires(Display<Args> && ...)
-  static void debug(Args&&... message) noexcept {
-    logln(std::cerr, LogLevel::debug, std::forward<Args>(message)...);
+  template <typename... Ts>
+  static void debug(Ts&&... msgs) noexcept {
+    logln(LogLevel::debug, std::forward<Ts>(msgs)...);
   }
 
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
-  static void logln(
-      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) noexcept {
-    log(os, messageLevel, std::forward<T>(header),
-        std::forward<Args>(message)..., '\n');
+private:
+  template <typename T, typename... Ts>
+    requires(((Writer<T> || Display<T>) && Display<Ts>) && ...)
+  static void logln(LogLevel level, T&& val, Ts&&... msgs) noexcept {
+    if constexpr (Writer<T>) {
+      loglnImpl(std::forward<T>(val), level, std::forward<Ts>(msgs)...);
+    } else {
+      loglnImpl(
+          std::cerr, level, std::forward<T>(val), std::forward<Ts>(msgs)...
+      );
+    }
   }
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
+
+  template <typename... Ts>
+    requires(Display<Ts> && ...)
   static void
-  log(std::ostream& os, LogLevel messageLevel, T&& header,
-      Args&&... message) noexcept {
-    instance().logImpl(
-        os, messageLevel, std::forward<T>(header),
-        std::forward<Args>(message)...
-    );
+  loglnImpl(std::ostream& os, LogLevel level, Ts&&... msgs) noexcept {
+    instance().log(os, level, std::forward<Ts>(msgs)..., '\n');
   }
 
-  template <typename T, typename... Args>
-    requires(Display<T> && (Display<Args> && ...))
-  void logImpl(
-      std::ostream& os, LogLevel messageLevel, T&& header, Args&&... message
-  ) noexcept {
-    // For other than `info`, header means just the first argument.  For
-    // `info`, header means its header.
+  template <typename T, typename... Ts>
+    requires(Display<T> && (Display<Ts> && ...))
+  void
+  log(std::ostream& os, LogLevel level, T&& header, Ts&&... msgs) noexcept {
+    // For other than `info`, header means just the first argument.
 
-    if (messageLevel <= level) {
-      switch (messageLevel) {
+    if (level <= this->level) {
+      switch (level) {
         case LogLevel::off:
           return;
         case LogLevel::error:
@@ -91,24 +91,21 @@ struct Logger {
         case LogLevel::info:
           os << std::right;
           if (shouldColor()) {
-            os << std::setw(27) << bold(green(std::forward<T>(header)));
+            // Color escape sequences are not visible but affect std::setw.
+            constexpr int COLOR_ESCAPE_SEQ_LEN = 9;
+            os << std::setw(INFO_OFFSET + COLOR_ESCAPE_SEQ_LEN);
           } else {
-            os << std::setw(12) << std::forward<T>(header);
+            os << std::setw(INFO_OFFSET);
           }
-          os << ' ';
+          os << bold(green(std::forward<T>(header))) << ' ';
           break;
         case LogLevel::debug:
           os << "[Poac] " << std::forward<T>(header);
           break;
       }
-      (os << ... << std::forward<Args>(message)) << std::flush;
+      (os << ... << std::forward<Ts>(msgs)) << std::flush;
     }
   }
-
-private:
-  LogLevel level = LogLevel::info;
-
-  Logger() noexcept = default;
 };
 
 bool isVerbose() noexcept;

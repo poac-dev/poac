@@ -17,9 +17,9 @@ struct Revwalk : public GlobalState {
   ~Revwalk() noexcept;
 
   Revwalk(const Revwalk&) = delete;
+  Revwalk(Revwalk&&) noexcept = default;
   Revwalk& operator=(const Revwalk&) = delete;
-  Revwalk(Revwalk&&) = default;
-  Revwalk& operator=(Revwalk&&) = default;
+  Revwalk& operator=(Revwalk&&) noexcept = default;
 
   /// Reset a revwalk to allow re-configuring it.
   ///

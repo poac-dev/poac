@@ -1,127 +1,55 @@
-#include "Algos.hpp"
-#include "Cmd/Build.hpp"
-#include "Cmd/Clean.hpp"
-#include "Cmd/Fmt.hpp"
-#include "Cmd/Global.hpp"
-#include "Cmd/Help.hpp"
-#include "Cmd/Init.hpp"
-#include "Cmd/Lint.hpp"
-#include "Cmd/New.hpp"
-#include "Cmd/Run.hpp"
-#include "Cmd/Search.hpp"
-#include "Cmd/Test.hpp"
-#include "Cmd/Tidy.hpp"
-#include "Cmd/Version.hpp"
+#include "Cli.hpp"
+#include "Cmd/Cmd.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "TermColor.hpp"
 
 #include <cstdlib>
 #include <exception>
-#include <iostream>
 #include <span>
 
-struct Cmd {
-  const Fn<int(std::span<const StringRef>)> main;
-  const Subcmd& cmd;
-  const bool isShort = false;
-};
-
-#define DEFINE_CMD(name)    \
-  {                         \
-    #name, {                \
-      name##Main, name##Cmd \
-    }                       \
-  }
-
-#define DEFINE_SHORT_CMD(name)    \
-  {                               \
-    StringRef(&#name[0], 1), {    \
-      name##Main, name##Cmd, true \
-    }                             \
-  }
-
-#define DEFINE_CMD_WITH_SHORT(name) DEFINE_CMD(name), DEFINE_SHORT_CMD(name)
-
-static const HashMap<StringRef, Cmd>&
-getCmds() noexcept {
-  static const HashMap<StringRef, Cmd> CMDS = {
-    DEFINE_CMD_WITH_SHORT(build),
-    DEFINE_CMD(clean),
-    DEFINE_CMD(fmt),
-    DEFINE_CMD(help),
-    DEFINE_CMD(init),
-    DEFINE_CMD(lint),
-    DEFINE_CMD(new),
-    DEFINE_CMD_WITH_SHORT(run),
-    DEFINE_CMD(search),
-    DEFINE_CMD_WITH_SHORT(test),
-    DEFINE_CMD(tidy),
-    DEFINE_CMD(version),
-  };
-  return CMDS;
-}
-
-void
-noSuchCommand(const StringRef arg) {
-  Vec<StringRef> candidates(getCmds().size());
-  usize idx = 0;
-  for (const auto& cmd : getCmds()) {
-    candidates[idx++] = cmd.first;
-  }
-
-  String suggestion;
-  if (const auto similar = findSimilarStr(arg, candidates)) {
-    suggestion = bold(cyan("  Tip:")) + " did you mean '"
-                 + bold(yellow(similar.value())) + "'?\n\n";
-  }
-  Logger::error(
-      "no such command: '", bold(yellow(arg)), "'\n\n", suggestion,
-      "For a list of commands, try '", bold(cyan("poac help")), '\''
-  );
-}
-
-int
-helpMain(const std::span<const StringRef> args) noexcept {
-  // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "help" } })
-
-    else if (getCmds().contains(arg)) {
-      getCmds().at(arg).cmd.printHelp();
-      return EXIT_SUCCESS;
-    }
-    else {
-      noSuchCommand(arg);
-      return EXIT_FAILURE;
-    }
-  }
-
-  // Print help message for poac itself
-  std::cout << "A package manager and build system for C++" << '\n';
-  std::cout << '\n';
-  printUsage("", "[COMMAND]");
-  std::cout << '\n';
-
-  const usize maxOffset = GLOBAL_OPTS[2].leftSize() + 2; // --color
-  printHeader("Options:");
-  printGlobalOpts(maxOffset);
-  Opt{ "--version" }
-      .setShort("-V")
-      .setDesc("Print version info and exit")
-      .print(maxOffset);
-  std::cout << '\n';
-
-  printHeader("Commands:");
-  for (const auto& [name, cmd] : getCmds()) {
-    if (cmd.isShort) {
-      continue;
-    }
-    // TODO: currently, we assume commands aren't longer than options.
-    printCommand(name, cmd.cmd.getDesc(), cmd.cmd.hasShort(), maxOffset);
-  }
-  return EXIT_SUCCESS;
+const Command&
+getCmd() noexcept {
+  static const Command CMD = // for better format
+      Command{ "poac" }
+          .setDesc("A package manager and build system for C++")
+          .addOpt(Opt{ "--verbose" }
+                      .setShort("-v")
+                      .setDesc("Use verbose output")
+                      .setGlobal(true))
+          .addOpt(Opt{ "--quiet" }
+                      .setShort("-q")
+                      .setDesc("Do not print poac log messages")
+                      .setGlobal(true))
+          .addOpt(Opt{ "--color" }
+                      .setDesc("Coloring: auto, always, never")
+                      .setPlaceholder("<WHEN>")
+                      .setGlobal(true))
+          .addOpt(Opt{ "--help" } // for better format
+                      .setShort("-h")
+                      .setDesc("Print help")
+                      .setGlobal(true))
+          .addOpt(Opt{ "--version" }
+                      .setShort("-V")
+                      .setDesc("Print version info and exit")
+                      .setGlobal(false))
+          .addOpt(Opt{ "--list" } // for better format
+                      .setDesc("List all subcommands")
+                      .setGlobal(false)
+                      .setHidden(true))
+          .addSubcmd(BUILD_CMD)
+          .addSubcmd(CLEAN_CMD)
+          .addSubcmd(FMT_CMD)
+          .addSubcmd(HELP_CMD)
+          .addSubcmd(INIT_CMD)
+          .addSubcmd(LINT_CMD)
+          .addSubcmd(NEW_CMD)
+          .addSubcmd(RUN_CMD)
+          .addSubcmd(SEARCH_CMD)
+          .addSubcmd(TEST_CMD)
+          .addSubcmd(TIDY_CMD)
+          .addSubcmd(VERSION_CMD);
+  return CMD;
 }
 
 int
@@ -140,30 +68,34 @@ main(int argc, char* argv[]) {
 
     // Local options
     else if (arg == "-V" || arg == "--version") {
-      return versionMain({});
+      const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
+      return versionMain(remArgs);
+    }
+    else if (arg == "--list") {
+      getCmd().printAllSubcmds(true);
+      return EXIT_SUCCESS;
     }
 
     // Subcommands
-    else if (getCmds().contains(arg)) {
+    else if (getCmd().hasSubcmd(arg)) {
       try {
         // i points to the subcommand name that we don't need anymore.  Since
         // i starts from 1 from the start pointer of argv, we want to start
         // with i + 2.  As we know args.size() + 1 == argc and args.size() >=
-        // i + 1, we can write the range as [i + 2, argc), which is not
+        // i + 1, we can write the range as [i + 2, argc), which is never
         // out-of-range access.
-        const Vec<StringRef> cmdArgs(argv + i + 2, argv + argc);
-        return getCmds().at(arg).main(cmdArgs);
+        const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
+        return getCmd().exec(arg, remArgs);
       } catch (const std::exception& e) {
         Logger::error(e.what());
         return EXIT_FAILURE;
       }
     }
+
     else {
-      noSuchCommand(arg);
-      return EXIT_FAILURE;
+      return getCmd().noSuchArg(arg);
     }
   }
 
-  helpMain({});
-  return EXIT_SUCCESS;
+  return getCmd().printHelp({});
 }

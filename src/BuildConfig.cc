@@ -23,12 +23,13 @@
 #include <string>
 #include <thread>
 
+static constinit const StringRef TEST_OUT_DIR = "tests";
+static constinit const StringRef PATH_FROM_OUT_DIR = "../../";
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 static String OUT_DIR;
-static constinit const StringRef TEST_OUT_DIR = "tests";
-static const String PATH_FROM_OUT_DIR = "../..";
 static String CXX = "clang++";
-static String CXXFLAGS = " -std=c++";
+static String CXXFLAGS;
 static String DEFINES;
 static String INCLUDES = " -Iinclude";
 static String LIBS;
@@ -110,8 +111,8 @@ struct Target {
 };
 
 struct BuildConfig {
-  const String packageName;
-  const Path buildOutDir;
+  String packageName;
+  Path buildOutDir;
 
   HashMap<String, Variable> variables;
   HashMap<String, Vec<String>> varDeps;
@@ -181,9 +182,10 @@ struct BuildConfig {
 
 static void
 emitDep(std::ostream& os, usize& offset, const StringRef dep) {
-  if (offset + dep.size() + 2 > 80) { // 2 for space and \.
+  constexpr usize MAX_LINE_LEN = 80;
+  if (offset + dep.size() + 2 > MAX_LINE_LEN) { // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
-    os << std::setw(83 - static_cast<int>(offset)) << " \\\n ";
+    os << std::setw(static_cast<int>(MAX_LINE_LEN + 3 - offset)) << " \\\n ";
     offset = 2;
   }
   os << " " << dep;
@@ -250,7 +252,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
   const String indent1(2, ' ');
   const String indent2(4, ' ');
 
-  std::stringstream ss;
+  std::ostringstream oss;
   for (const auto& [target, targetInfo] : targets) {
     if (phony->contains(target)) {
       // Ignore phony dependencies.
@@ -287,15 +289,15 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
     cmd += " -o ";
     cmd += output;
 
-    ss << indent1 << "{\n";
-    ss << indent2 << "\"directory\": " << baseDirPath << ",\n";
-    ss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
-    ss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
-    ss << indent2 << "\"command\": " << std::quoted(cmd) << "\n";
-    ss << indent1 << "},\n";
+    oss << indent1 << "{\n";
+    oss << indent2 << "\"directory\": " << baseDirPath << ",\n";
+    oss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
+    oss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
+    oss << indent2 << "\"command\": " << std::quoted(cmd) << "\n";
+    oss << indent1 << "},\n";
   }
 
-  String output = ss.str();
+  String output = oss.str();
   if (!output.empty()) {
     // Remove the last comma.
     output.pop_back(); // \n
@@ -395,10 +397,19 @@ containsTestCode(const String& sourceFile) {
 }
 
 static String
-echoCmd(const StringRef header, const StringRef body) {
+printfCmd(const StringRef header, const StringRef body) {
   std::ostringstream oss;
-  Logger::log(oss, LogLevel::info, header, body);
-  return "@echo '" + oss.str() + "' >&2";
+  Logger::info(oss, header, body);
+  String msg = oss.str();
+
+  // Replace all occurrences of '\n' with "\\n" to escape newlines
+  size_t pos = 0;
+  while ((pos = msg.find('\n', pos)) != String::npos) {
+    msg.replace(pos, 1, "\\n");
+    pos += 2; // Move past the replacement
+  }
+
+  return "@printf '" + msg + "' >&2";
 }
 
 static void
@@ -408,7 +419,8 @@ defineCompileTarget(
 ) {
   Vec<String> commands(3);
   commands[0] = "@mkdir -p $(@D)";
-  commands[1] = echoCmd("Compiling", sourceFile.substr(6)); // remove "../../"
+  commands[1] =
+      printfCmd("Compiling", sourceFile.substr(PATH_FROM_OUT_DIR.size()));
   commands[2] = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
   if (isTest) {
     commands[2] += " -DPOAC_TEST";
@@ -422,7 +434,7 @@ defineLinkTarget(
     BuildConfig& config, const String& binTarget, const HashSet<String>& deps
 ) {
   Vec<String> commands(2);
-  commands[0] = echoCmd("Linking", binTarget);
+  commands[0] = printfCmd("Linking", binTarget);
   commands[1] = "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
   config.defineTarget(binTarget, commands, deps);
 }
@@ -512,7 +524,7 @@ static void
 setVariables(BuildConfig& config, const bool isDebug) {
   config.defineCondVar("CXX", CXX);
 
-  CXXFLAGS += getPackageEdition();
+  CXXFLAGS += " -std=c++" + getPackageEdition().getString();
   if (shouldColor()) {
     CXXFLAGS += " -fdiagnostics-color";
   }
@@ -541,7 +553,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
 
     const git2::Oid oid = repo.refNameToId("HEAD");
     commitHash = oid.toString();
-    commitShortHash = commitHash.substr(0, 8);
+    commitShortHash = commitHash.substr(0, git2::SHORT_HASH_LEN);
     commitDate = git2::Commit().lookup(repo, oid).time().toString();
   } catch (const git2::Exception& e) {
     Logger::debug("No git repository found");
@@ -630,8 +642,8 @@ configureBuild(const bool isDebug) {
   Vec<String> testCommands;
   HashSet<String> testTargets;
   for (const Path& sourceFilePath : sourceFilePaths) {
-    if (!containsTestCode(sourceFilePath.string().substr(6)
-                          /* remove "../../" */)) {
+    if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size(
+        )))) {
       continue;
     }
     enableTesting = true;
@@ -667,7 +679,7 @@ configureBuild(const bool isDebug) {
     );
     defineLinkTarget(config, testTarget, testTargetDeps);
 
-    testCommands.emplace_back(echoCmd("Testing", testTargetName));
+    testCommands.emplace_back(printfCmd("Testing", testTargetName));
     testCommands.emplace_back(testTarget);
     testTargets.insert(testTarget);
   }
@@ -678,11 +690,18 @@ configureBuild(const bool isDebug) {
 
   // Tidy Pass
   config.defineCondVar("POAC_TIDY", "clang-tidy");
+  config.defineSimpleVar(
+      "TIDY_TARGETS", "$(patsubst %,tidy_%,$(SRCS))", { "SRCS" }
+  );
+  config.defineTarget("tidy", {}, { "$(TIDY_TARGETS)" });
   config.defineTarget(
-      "tidy", { "$(POAC_TIDY) $(POAC_TIDY_FLAGS) $(SRCS) -- $(CXXFLAGS) "
-                "$(DEFINES) -DPOAC_TEST $(INCLUDES)" }
+      "$(TIDY_TARGETS)",
+      { "$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) "
+        "$(DEFINES) -DPOAC_TEST $(INCLUDES)" },
+      { "tidy_%: %" }
   );
   config.addPhony("tidy");
+  config.addPhony("$(TIDY_TARGETS)");
 
   return config;
 }
@@ -769,8 +788,8 @@ testCycleVars() {
 
   assertException<PoacError>(
       [&config]() {
-        std::stringstream ss;
-        config.emitMakefile(ss);
+        std::ostringstream oss;
+        config.emitMakefile(oss);
       },
       "too complex build graph"
   );
@@ -785,11 +804,11 @@ testSimpleVars() {
   config.defineSimpleVar("b", "2", { "a" });
   config.defineSimpleVar("a", "1");
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
   assertEq(
-      ss.str(),
+      oss.str(),
       "a := 1\n"
       "b := 2\n"
       "c := 3\n"
@@ -803,10 +822,10 @@ testDependOnUnregisteredVar() {
   BuildConfig config;
   config.defineSimpleVar("a", "1", { "b" });
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
-  assertEq(ss.str(), "a := 1\n");
+  assertEq(oss.str(), "a := 1\n");
 
   pass();
 }
@@ -820,8 +839,8 @@ testCycleTargets() {
 
   assertException<PoacError>(
       [&config]() {
-        std::stringstream ss;
-        config.emitMakefile(ss);
+        std::ostringstream oss;
+        config.emitMakefile(oss);
       },
       "too complex build graph"
   );
@@ -836,11 +855,11 @@ testSimpleTargets() {
   config.defineTarget("b", { "echo b" }, { "a" });
   config.defineTarget("c", { "echo c" }, { "b" });
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
   assertEq(
-      ss.str(),
+      oss.str(),
       "c: b\n"
       "\t$(Q)echo c\n"
       "\n"
@@ -860,11 +879,11 @@ testDependOnUnregisteredTarget() {
   BuildConfig config;
   config.defineTarget("a", { "echo a" }, { "b" });
 
-  std::stringstream ss;
-  config.emitMakefile(ss);
+  std::ostringstream oss;
+  config.emitMakefile(oss);
 
   assertEq(
-      ss.str(),
+      oss.str(),
       "a: b\n"
       "\t$(Q)echo a\n"
       "\n"

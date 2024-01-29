@@ -14,15 +14,15 @@ private:
 
 public:
   /// Assembles a new revspec from the from/to components.
-  Revspec(git_object* from, git_object* to, unsigned int mode)
-      : from_(from), to_(to), mode_(mode) {}
+  Revspec(git_object* fromObj, git_object* toObj, unsigned int mode)
+      : from_(fromObj), to_(toObj), mode_(mode) {}
   Revspec() = delete;
   ~Revspec() = default;
 
   Revspec(const Revspec&) = delete;
+  Revspec(Revspec&&) noexcept = default;
   Revspec& operator=(const Revspec&) = delete;
-  Revspec(Revspec&&) = default;
-  Revspec& operator=(Revspec&&) = default;
+  Revspec& operator=(Revspec&&) noexcept = default;
 
   /// Access the `from` range of this revspec.
   git_object* from() const noexcept;

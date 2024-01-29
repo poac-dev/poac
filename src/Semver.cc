@@ -96,14 +96,14 @@ Prerelease::empty() const noexcept {
 
 String
 Prerelease::toString() const noexcept {
-  String s;
+  String str;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
-      s += '.';
+      str += '.';
     }
-    s += ident[i].toString();
+    str += ident[i].toString();
   }
-  return s;
+  return str;
 }
 
 bool
@@ -151,14 +151,14 @@ BuildMetadata::empty() const noexcept {
 
 String
 BuildMetadata::toString() const noexcept {
-  String s;
+  String str;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
-      s += '.';
+      str += '.';
     }
-    s += ident[i].toString();
+    str += ident[i].toString();
   }
-  return s;
+  return str;
 }
 
 bool
@@ -183,23 +183,23 @@ operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
 
 String
 Version::toString() const noexcept {
-  String s = std::to_string(major);
-  s += '.' + std::to_string(minor);
-  s += '.' + std::to_string(patch);
+  String str = std::to_string(major);
+  str += '.' + std::to_string(minor);
+  str += '.' + std::to_string(patch);
   if (!pre.empty()) {
-    s += '-';
-    s += pre.toString();
+    str += '-';
+    str += pre.toString();
   }
   if (!build.empty()) {
-    s += '+';
-    s += build.toString();
+    str += '+';
+    str += build.toString();
   }
-  return s;
+  return str;
 }
 
 std::ostream&
-operator<<(std::ostream& os, const Version& v) noexcept {
-  os << v.toString();
+operator<<(std::ostream& os, const Version& ver) noexcept {
+  os << ver.toString();
   return os;
 }
 
@@ -292,15 +292,16 @@ VersionLexer::consumeNum() {
     }
 
     const u64 digit = s[pos] - '0';
+    constexpr u64 BASE = 10;
     // Check for overflow
-    if (value > (std::numeric_limits<u64>::max() - digit) / 10) {
+    if (value > (std::numeric_limits<u64>::max() - digit) / BASE) {
       throw SemverError(
           s, '\n', String(pos - len, ' '), String(len, '^'),
           " number exceeds UINT64_MAX"
       );
     }
 
-    value = value * 10 + digit;
+    value = value * BASE + digit;
     step();
     ++len;
   }
@@ -374,25 +375,25 @@ VersionParser::parse() {
     throw SemverError("empty string is not a valid semver");
   }
 
-  Version v;
-  v.major = parseNum();
+  Version ver;
+  ver.major = parseNum();
   parseDot();
-  v.minor = parseNum();
+  ver.minor = parseNum();
   parseDot();
-  v.patch = parseNum();
+  ver.patch = parseNum();
 
   if (lexer.peek().kind == VersionToken::Hyphen) {
     lexer.step();
-    v.pre = parsePre();
+    ver.pre = parsePre();
   } else {
-    v.pre = Prerelease();
+    ver.pre = Prerelease();
   }
 
   if (lexer.peek().kind == VersionToken::Plus) {
     lexer.step();
-    v.build = parseBuild();
+    ver.build = parseBuild();
   } else {
-    v.build = BuildMetadata();
+    ver.build = BuildMetadata();
   }
 
   if (!lexer.isEof()) {
@@ -402,7 +403,7 @@ VersionParser::parse() {
     );
   }
 
-  return v;
+  return ver;
 }
 
 // Even if the token can be parsed as an identifier, try to parse it as a
@@ -468,20 +469,20 @@ VersionParser::parseIdent() {
 }
 
 Prerelease
-Prerelease::parse(const StringRef s) {
-  VersionParser parser(s);
+Prerelease::parse(const StringRef str) {
+  VersionParser parser(str);
   return parser.parsePre();
 }
 
 BuildMetadata
-BuildMetadata::parse(const StringRef s) {
-  VersionParser parser(s);
+BuildMetadata::parse(const StringRef str) {
+  VersionParser parser(str);
   return parser.parseBuild();
 }
 
 Version
-Version::parse(const StringRef s) {
-  VersionParser parser(s);
+Version::parse(const StringRef str) {
+  VersionParser parser(str);
   return parser.parse();
 }
 
@@ -735,12 +736,12 @@ testGe() {
 
 void
 testSpecOrder() {
-  const Vec<String> vs = {
+  const Vec<String> vers = {
     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
     "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
   };
-  for (usize i = 1; i < vs.size(); ++i) {
-    assertLt(Version::parse(vs[i - 1]), Version::parse(vs[i]));
+  for (usize i = 1; i < vers.size(); ++i) {
+    assertLt(Version::parse(vers[i - 1]), Version::parse(vers[i]));
   }
 
   pass();

@@ -1,12 +1,13 @@
 #include "Version.hpp"
 
+#include "../Cli.hpp"
 #include "../CurlVersion.hpp"
 #include "../Git2/Version.hpp"
 #include "../Logger.hpp"
-#include "Global.hpp"
+#include "../Rustify.hpp"
 
 #include <cstdlib>
-#include <curl/curl.h>
+#include <iostream>
 #include <span>
 
 #ifndef POAC_PKG_VERSION
@@ -22,8 +23,10 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-const Subcmd versionCmd =
-    Subcmd{ "version" }.setDesc("Show version information");
+const Subcmd VERSION_CMD = // for better format
+    Subcmd{ "version" }
+        .setDesc("Show version information")
+        .setMainFn(versionMain);
 
 static consteval StringRef
 checkAvailability(const StringRef str) noexcept {
@@ -38,51 +41,51 @@ static constinit const StringRef COMMIT_DATE =
     checkAvailability(POAC_COMMIT_DATE);
 
 static consteval char
-firstMonthChar(const char m1) noexcept {
-  return (m1 == 'O' || m1 == 'N' || m1 == 'D') ? '1' : '0';
+firstMonthChar(const StringRef month) noexcept {
+  return (month[0] == 'O' || month[0] == 'N' || month[0] == 'D') ? '1' : '0';
 }
 static consteval char
-secondMonthChar(const char m1, const char m2, const char m3) noexcept {
-  if (m1 == 'J') {
-    if (m2 == 'a') {
+secondMonthChar(const StringRef month) noexcept {
+  if (month[0] == 'J') {
+    if (month[1] == 'a') {
       // Jan
       return '1';
-    } else if (m3 == 'n') {
+    } else if (month[2] == 'n') {
       // Jun
       return '6';
     } else {
       // Jul
       return '7';
     }
-  } else if (m1 == 'F') {
+  } else if (month[1] == 'F') {
     // Feb
     return '2';
-  } else if (m1 == 'M') {
-    if (m2 == 'a') {
+  } else if (month[0] == 'M') {
+    if (month[1] == 'a') {
       // Mar
       return '3';
     } else {
       // May
       return '5';
     }
-  } else if (m1 == 'A') {
-    if (m2 == 'p') {
+  } else if (month[0] == 'A') {
+    if (month[1] == 'p') {
       // Apr
       return '4';
     } else {
       // Aug
       return '8';
     }
-  } else if (m1 == 'S') {
+  } else if (month[0] == 'S') {
     // Sep
     return '9';
-  } else if (m1 == 'O') {
+  } else if (month[0] == 'O') {
     // Oct
     return '0';
-  } else if (m1 == 'N') {
+  } else if (month[0] == 'N') {
     // Nov
     return '1';
-  } else if (m1 == 'D') {
+  } else if (month[0] == 'D') {
     // Dec
     return '2';
   } else {
@@ -99,8 +102,7 @@ static constinit const char COMPILE_DATE[] = {
   '-',
 
   // Month
-  firstMonthChar(__DATE__[0]),
-  secondMonthChar(__DATE__[0], __DATE__[1], __DATE__[2]),
+  firstMonthChar(__DATE__), secondMonthChar(__DATE__),
 
   '-',
 
@@ -118,7 +120,7 @@ versionMain(const std::span<const StringRef> args) noexcept {
     HANDLE_GLOBAL_OPTS({ { "version" } })
 
     else {
-      return versionCmd.noSuchArg(arg);
+      return VERSION_CMD.noSuchArg(arg);
     }
   }
 

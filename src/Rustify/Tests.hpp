@@ -16,6 +16,8 @@ inline constinit const StringRef GREEN = "\033[32m";
 inline constinit const StringRef RED = "\033[31m";
 inline constinit const StringRef RESET = "\033[0m";
 
+inline constinit const usize SRC_REL_PATH_LEN = 6; // `../../`
+
 // NOLINTBEGIN(readability-identifier-naming)
 struct source_location {
   constexpr source_location() noexcept = delete;
@@ -71,7 +73,7 @@ modName(StringRef file) noexcept {
   }
 
   if (file.starts_with("..")) {
-    file = file.substr(7);
+    file = file.substr(SRC_REL_PATH_LEN + 1);
   }
 
   usize start = file.find_first_of('/');

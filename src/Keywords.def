@@ -2,7 +2,7 @@
 // ref: https://en.cppreference.com/w/cpp/keyword
 
 #ifndef DEFKEYWORD
-#define DEFKEYWORD(name) #name,
+#define DEFKEYWORD(name) #name, // NOLINT(cppcoreguidelines-macro-usage)
 #define DEFKEYWORD_DEFAULTED
 #endif
 

@@ -2,24 +2,64 @@
 
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
+#include "../Cli.hpp"
 #include "../Git2/Exception.hpp"
 #include "../Git2/Repository.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
 
 #include <cstdlib>
 #include <fstream>
 #include <span>
 #include <string>
 
-const Subcmd fmtCmd =
+static int fmtMain(std::span<const StringRef> args);
+
+const Subcmd FMT_CMD =
     Subcmd{ "fmt" }
         .setDesc("Format codes using clang-format")
-        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"));
+        .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
+        .setMainFn(fmtMain);
 
-int
+static void
+collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
+  // Read git repository if exists
+  git2::Repository repo = git2::Repository();
+  bool hasGitRepo = false;
+  try {
+    repo.open(manifestDir.string());
+    hasGitRepo = true;
+  } catch (const git2::Exception& e) {
+    Logger::debug("No git repository found");
+  }
+
+  // Automatically collects format-target files
+  for (auto entry = fs::recursive_directory_iterator(manifestDir);
+       entry != fs::recursive_directory_iterator(); ++entry) {
+    if (entry->is_directory()) {
+      const String path = fs::relative(entry->path(), manifestDir).string();
+      if (hasGitRepo && repo.isIgnored(path)) {
+        Logger::debug("Ignore: ", path);
+        entry.disable_recursion_pending();
+        continue;
+      }
+    } else if (entry->is_regular_file()) {
+      const Path path = fs::relative(entry->path(), manifestDir);
+      if (hasGitRepo && repo.isIgnored(path.string())) {
+        Logger::debug("Ignore: ", path.string());
+        continue;
+      }
+
+      const String ext = path.extension().string();
+      if (SOURCE_FILE_EXTS.contains(ext) || HEADER_FILE_EXTS.contains(ext)) {
+        clangFormatArgs += " " + path.string();
+      }
+    }
+  }
+}
+
+static int
 fmtMain(const std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
@@ -31,7 +71,7 @@ fmtMain(const std::span<const StringRef> args) {
       isCheck = true;
     }
     else {
-      return fmtCmd.noSuchArg(arg);
+      return FMT_CMD.noSuchArg(arg);
     }
   }
 
@@ -55,40 +95,8 @@ fmtMain(const std::span<const StringRef> args) {
     Logger::info("Formatting", packageName);
   }
 
-  // Read git repository if exists
   const Path& manifestDir = getManifestPath().parent_path();
-  git2::Repository repo = git2::Repository();
-  bool isGitRepo = false;
-  try {
-    repo.open(manifestDir.string());
-    isGitRepo = true;
-  } catch (const git2::Exception& e) {
-    Logger::debug("No git repository found");
-  }
-
-  // Automatically collects format-target files
-  for (auto entry = fs::recursive_directory_iterator(manifestDir);
-       entry != fs::recursive_directory_iterator(); ++entry) {
-    if (entry->is_directory()) {
-      const String path = fs::relative(entry->path(), manifestDir).string();
-      if (isGitRepo && repo.isIgnored(path)) {
-        Logger::debug("Ignore: ", path);
-        entry.disable_recursion_pending();
-        continue;
-      }
-    } else if (entry->is_regular_file()) {
-      const Path path = fs::relative(entry->path(), manifestDir);
-      if (isGitRepo && repo.isIgnored(path.string())) {
-        Logger::debug("Ignore: ", path.string());
-        continue;
-      }
-
-      const String ext = path.extension().string();
-      if (SOURCE_FILE_EXTS.contains(ext) || HEADER_FILE_EXTS.contains(ext)) {
-        clangFormatArgs += " " + path.string();
-      }
-    }
-  }
+  collectFormatTargetFiles(manifestDir, clangFormatArgs);
 
   const String clangFormat = "cd " + manifestDir.string()
                              + " && ${POAC_FMT:-clang-format} "

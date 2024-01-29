@@ -1,5 +1,6 @@
 #include "Config.hpp"
 
+#include "../Rustify.hpp"
 #include "Exception.hpp"
 
 namespace git2 {

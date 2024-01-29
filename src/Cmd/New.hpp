@@ -1,11 +1,7 @@
 #pragma once
 
+#include "../Cli.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
 
-#include <span>
-
-extern const Subcmd newCmd;
-
+extern const Subcmd NEW_CMD;
 String createPoacToml(StringRef projectName) noexcept;
-int newMain(std::span<const StringRef> args);

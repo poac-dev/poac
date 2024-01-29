@@ -18,9 +18,9 @@ struct Repository : public GlobalState {
   ~Repository();
 
   Repository(const Repository&) = delete;
+  Repository(Repository&&) noexcept = default;
   Repository& operator=(const Repository&) = delete;
-  Repository(Repository&&) = default;
-  Repository& operator=(Repository&&) = default;
+  Repository& operator=(Repository&&) noexcept = default;
 
   /// Attempt to open an already-existing repository at `path`.
   ///

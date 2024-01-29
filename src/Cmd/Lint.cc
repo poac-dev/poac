@@ -1,19 +1,26 @@
 #include "Lint.hpp"
 
 #include "../Algos.hpp"
+#include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
-#include "Global.hpp"
 
 #include <cstdlib>
 #include <fstream>
 #include <span>
 
-const Subcmd lintCmd =
+static int lintMain(std::span<const StringRef> args);
+
+const Subcmd LINT_CMD =
     Subcmd{ "lint" }
         .setDesc("Lint codes using cpplint")
-        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"));
+        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
+        .setMainFn(lintMain);
+
+struct LintArgs {
+  String excludes;
+};
 
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
@@ -38,7 +45,8 @@ lint(const StringRef name, const StringRef cpplintArgs) {
       cpplintCmd += line;
     }
   }
-  cpplintCmd += " --recursive ."; // This should be after `--exclude` options
+  // NOTE: This should come after the `--exclude` options.
+  cpplintCmd += " --recursive .";
 
   const int exitCode = execCmd(cpplintCmd);
   if (exitCode != 0) {
@@ -48,10 +56,9 @@ lint(const StringRef name, const StringRef cpplintArgs) {
   return EXIT_SUCCESS;
 }
 
-int
+static int
 lintMain(const std::span<const StringRef> args) {
-  // Parse args
-  String cpplintArgs;
+  LintArgs lintArgs;
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "lint" } })
@@ -63,11 +70,11 @@ lintMain(const std::span<const StringRef> args) {
       }
 
       ++i;
-      cpplintArgs += " --exclude=";
-      cpplintArgs += args[i];
+      lintArgs.excludes += " --exclude=";
+      lintArgs.excludes += args[i];
     }
     else {
-      return lintCmd.noSuchArg(arg);
+      return LINT_CMD.noSuchArg(arg);
     }
   }
 
@@ -79,6 +86,7 @@ lintMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
+  String cpplintArgs = lintArgs.excludes;
   const String& packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     Logger::debug("Using CPPLINT.cfg for lint ...");
@@ -104,7 +112,8 @@ lintMain(const std::span<const StringRef> args) {
     return lint(packageName, cpplintArgs);
   } else {
     Logger::debug("Using default arguments for lint ...");
-    if (2011 < editionToYear(getPackageEdition())) {
+    if (Edition::Cpp11 < getPackageEdition()) {
+      // Disable C++11-related lints
       cpplintArgs += " --filter=-build/c++11";
     }
     return lint(packageName, cpplintArgs);

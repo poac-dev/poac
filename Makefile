@@ -37,10 +37,12 @@ UNITTEST_OBJS := $(patsubst src/%,$(O)/tests/test_%,$(UNITTEST_SRCS:.cc=.o))
 UNITTEST_BINS := $(UNITTEST_OBJS:.o=)
 UNITTEST_DEPS := $(UNITTEST_OBJS:.o=.d)
 
+TIDY_TARGETS := $(patsubst src/%,tidy_%,$(SRCS))
+
 GIT_DEPS := $(O)/DEPS/toml11
 
 
-.PHONY: all clean install test tidy versions
+.PHONY: all clean install test versions tidy $(TIDY_TARGETS)
 
 
 all: $(GIT_DEPS) $(PROJECT)
@@ -87,8 +89,10 @@ $(O)/tests/test_VersionReq: $(O)/tests/test_VersionReq.o \
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
 
-tidy:
-	$(POAC_TIDY) $(POAC_TIDY_FLAGS) $(SRCS) -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
+tidy: $(TIDY_TARGETS)
+
+$(TIDY_TARGETS): tidy_%: src/%
+	$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
 
 install: all
 	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin

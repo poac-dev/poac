@@ -8,6 +8,8 @@
 
 namespace git2 {
 
+inline constexpr usize SHORT_HASH_LEN = 8;
+
 struct Oid : public GlobalState {
   // TODO: ideally, use one of the following:
   git_oid oid{};
@@ -27,10 +29,10 @@ struct Oid : public GlobalState {
   Oid() = delete;
   ~Oid() = default;
 
-  Oid(const Oid&) = default;
-  Oid& operator=(const Oid&) = default;
-  Oid(Oid&&) = default;
-  Oid& operator=(Oid&&) = default;
+  Oid(const Oid&) = delete;
+  Oid(Oid&&) noexcept = default;
+  Oid& operator=(const Oid&) = delete;
+  Oid& operator=(Oid&&) noexcept = default;
 
   /// Test if this OID is all zeros.
   bool isZero() const;
@@ -39,7 +41,7 @@ struct Oid : public GlobalState {
   String toString() const;
 };
 
-std::ostream& operator<<(std::ostream& os, const Oid& o);
+std::ostream& operator<<(std::ostream& os, const Oid& oid);
 bool operator==(const Oid& lhs, const Oid& rhs);
 
 } // end namespace git2

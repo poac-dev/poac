@@ -3,6 +3,7 @@
 #include <concepts>
 #include <optional>
 #include <ostream>
+#include <type_traits>
 
 template <typename T>
 std::ostream&
@@ -16,21 +17,24 @@ operator<<(std::ostream& os, const std::optional<T>& opt) {
 }
 
 template <typename T>
-concept Display = requires(T a, std::ostream& os) {
-  { os << a } -> std::convertible_to<std::ostream&>;
+concept Writer = std::is_base_of_v<std::ostream, std::remove_reference_t<T>>;
+
+template <typename T>
+concept Display = requires(T val, std::ostream& os) {
+  { os << val } -> std::convertible_to<std::ostream&>;
 };
 
 template <typename T, typename U>
-concept Eq = requires(T a, U b) {
-  { a == b } -> std::convertible_to<bool>;
+concept Eq = requires(T lhs, U rhs) {
+  { lhs == rhs } -> std::convertible_to<bool>;
 };
 
 template <typename T, typename U>
-concept Ne = requires(T a, U b) {
-  { a != b } -> std::convertible_to<bool>;
+concept Ne = requires(T lhs, U rhs) {
+  { lhs != rhs } -> std::convertible_to<bool>;
 };
 
 template <typename T, typename U>
-concept Lt = requires(T a, U b) {
-  { a < b } -> std::convertible_to<bool>;
+concept Lt = requires(T lhs, U rhs) {
+  { lhs < rhs } -> std::convertible_to<bool>;
 };

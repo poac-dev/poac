@@ -124,7 +124,7 @@ make RELEASE=1 install
 * Make
 * pkg-config
 * mkdir
-* echo
+* printf
 * cpplint (for `poac lint`)
 * clang-format (for `poac fmt`)
 

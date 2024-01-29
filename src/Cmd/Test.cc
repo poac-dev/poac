@@ -2,14 +2,17 @@
 
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
+#include "../Cli.hpp"
 #include "../Logger.hpp"
-#include "Global.hpp"
+#include "../Rustify.hpp"
 
 #include <chrono>
 #include <cstdlib>
 #include <span>
 
-const Subcmd testCmd =
+static int testMain(std::span<const StringRef> args);
+
+const Subcmd TEST_CMD =
     Subcmd{ "test" }
         .setShort("t")
         .setDesc("Run the tests of a local package")
@@ -20,9 +23,10 @@ const Subcmd testCmd =
             Opt{ "--release" }.setShort("-r").setDesc("Test with optimizations")
         )
         .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds & tests"
-        ));
+        ))
+        .setMainFn(testMain);
 
-int
+static int
 testMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
@@ -45,7 +49,7 @@ testMain(const std::span<const StringRef> args) {
       isParallel = false;
     }
     else {
-      return testCmd.noSuchArg(arg);
+      return TEST_CMD.noSuchArg(arg);
     }
   }
 

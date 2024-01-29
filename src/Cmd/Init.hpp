@@ -1,10 +1,5 @@
 #pragma once
 
-#include "../Rustify.hpp"
-#include "Global.hpp"
+#include "../Cli.hpp"
 
-#include <span>
-
-extern const Subcmd initCmd;
-
-int initMain(std::span<const StringRef> args);
+extern const Subcmd INIT_CMD;

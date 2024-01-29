@@ -37,11 +37,11 @@ struct VersionToken {
   Kind kind;
   std::variant<std::monostate, u64, StringRef> value;
 
-  VersionToken(
+  constexpr VersionToken(
       Kind kind, const std::variant<std::monostate, u64, StringRef>& value
   ) noexcept
       : kind(kind), value(value) {}
-  explicit VersionToken(Kind kind) noexcept
+  constexpr explicit VersionToken(Kind kind) noexcept
       : kind(kind), value(std::monostate{}) {}
 
   String toString() const noexcept;
@@ -51,7 +51,7 @@ struct VersionToken {
 struct Prerelease {
   Vec<VersionToken> ident;
 
-  static Prerelease parse(StringRef s);
+  static Prerelease parse(StringRef str);
   bool empty() const noexcept;
   String toString() const noexcept;
 };
@@ -65,7 +65,7 @@ bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 struct BuildMetadata {
   Vec<VersionToken> ident;
 
-  static BuildMetadata parse(StringRef s);
+  static BuildMetadata parse(StringRef str);
   bool empty() const noexcept;
   String toString() const noexcept;
 };
@@ -77,10 +77,10 @@ struct Version {
   Prerelease pre;
   BuildMetadata build;
 
-  static Version parse(StringRef s);
+  static Version parse(StringRef str);
   String toString() const noexcept;
 };
-std::ostream& operator<<(std::ostream& os, const Version& v) noexcept;
+std::ostream& operator<<(std::ostream& os, const Version& ver) noexcept;
 bool operator==(const Version& lhs, const Version& rhs) noexcept;
 bool operator!=(const Version& lhs, const Version& rhs) noexcept;
 bool operator<(const Version& lhs, const Version& rhs) noexcept;
@@ -92,7 +92,7 @@ struct VersionLexer {
   StringRef s;
   usize pos{ 0 };
 
-  explicit VersionLexer(const StringRef s) noexcept : s(s) {}
+  explicit VersionLexer(const StringRef str) noexcept : s(str) {}
 
   bool isEof() const noexcept;
   void step() noexcept;
@@ -106,7 +106,7 @@ struct VersionLexer {
 struct VersionParser {
   VersionLexer lexer;
 
-  explicit VersionParser(const StringRef s) noexcept : lexer(s) {}
+  explicit VersionParser(const StringRef str) noexcept : lexer(str) {}
 
   Version parse();
   u64 parseNum();

@@ -1,10 +1,5 @@
 #pragma once
 
-#include "../Rustify.hpp"
-#include "Global.hpp"
+#include "../Cli.hpp"
 
-#include <span>
-
-extern const Subcmd fmtCmd;
-
-int fmtMain(std::span<const StringRef> args);
+extern const Subcmd FMT_CMD;
