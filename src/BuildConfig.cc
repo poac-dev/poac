@@ -598,16 +598,14 @@ processSrc(
   const String buildObjTarget = buildTargetBaseDir / objTarget;
 
   if (mtx) {
-    const tbb::spin_mutex::scoped_lock lock(*mtx);
-    buildObjTargets.insert(buildObjTarget);
-    defineCompileTarget(
-        config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
-    );
-  } else {
-    buildObjTargets.insert(buildObjTarget);
-    defineCompileTarget(
-        config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
-    );
+    mtx->lock();
+  }
+  buildObjTargets.insert(buildObjTarget);
+  defineCompileTarget(
+      config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
+  );
+  if (mtx) {
+    mtx->unlock();
   }
 }
 
