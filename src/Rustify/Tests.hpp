@@ -18,6 +18,44 @@ inline constinit const StringRef RESET = "\033[0m";
 
 inline constinit const usize SRC_REL_PATH_LEN = 6; // `../../`
 
+// NOLINTBEGIN(readability-identifier-naming)
+struct source_location {
+  constexpr source_location() noexcept = delete;
+  constexpr ~source_location() noexcept = default;
+  constexpr source_location(const source_location&) noexcept = default;
+  constexpr source_location(source_location&&) noexcept = default;
+  constexpr source_location&
+  operator=(const source_location&) noexcept = default;
+  constexpr source_location& operator=(source_location&&) noexcept = default;
+
+  constexpr source_location(
+      const char* file, int line, const char* func
+  ) noexcept
+      : file_(file), line_(line), func_(func) {}
+
+  static constexpr source_location current(
+      const char* file = __builtin_FILE(), const int line = __builtin_LINE(),
+      const char* func = __builtin_FUNCTION()
+  ) noexcept {
+    return { file, line, func };
+  }
+  constexpr StringRef file_name() const noexcept {
+    return file_;
+  }
+  constexpr int line() const noexcept {
+    return line_;
+  }
+  constexpr StringRef function_name() const noexcept {
+    return func_;
+  }
+
+private:
+  const char* file_;
+  int line_{};
+  const char* func_;
+};
+// NOLINTEND(readability-identifier-naming)
+
 // Returns the module name from a file path.  There are two cases:
 //
 // 1. src/Rustify/Tests.cc -> Rustify/Tests
@@ -53,60 +91,55 @@ modName(StringRef file) noexcept {
 }
 
 inline void
-pass(
-    const StringRef file = __builtin_FILE(),
-    const StringRef func = __builtin_FUNCTION()
-) noexcept {
-  std::cout << "test " << modName(file) << "::" << func << " ... " << GREEN
-            << "ok" << RESET << '\n'
+pass(const source_location loc = source_location::current()) noexcept {
+  std::cout << "test " << modName(loc.file_name())
+            << "::" << loc.function_name() << " ... " << GREEN << "ok" << RESET
+            << '\n'
             << std::flush;
 }
 
 template <typename... Ts>
   requires(Display<Ts> && ...)
 [[noreturn]] inline void
-error(
-    const StringRef file, const int line, const StringRef func, Ts&&... msgs
-) noexcept {
-  std::cerr << "test " << modName(file) << "::" << func << " ... " << RED
-            << "FAILED" << RESET << "\n\n"
-            << '\'' << func << "' failed at '" << std::boolalpha;
+error(const source_location loc, Ts&&... msgs) noexcept {
+  std::cerr << "test " << modName(loc.file_name())
+            << "::" << loc.function_name() << " ... " << RED << "FAILED"
+            << RESET << "\n\n"
+            << '\'' << loc.function_name() << "' failed at '" << std::boolalpha;
   (std::cerr << ... << std::forward<Ts>(msgs))
-      << "', " << file << ':' << line << '\n';
+      << "', " << loc.file_name() << ':' << loc.line() << '\n';
   std::exit(EXIT_FAILURE);
 }
 
 inline void
 assertTrue(
     const bool cond, const StringRef msg = "",
-    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
-    const StringRef func = __builtin_FUNCTION()
+    const source_location loc = source_location::current()
 ) noexcept {
   if (cond) {
     return; // OK
   }
 
   if (msg.empty()) {
-    error(file, line, func, "expected `true` but got `false`");
+    error(loc, "expected `true` but got `false`");
   } else {
-    error(file, line, func, msg);
+    error(loc, msg);
   }
 }
 
 inline void
 assertFalse(
     const bool cond, const StringRef msg = "",
-    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
-    const StringRef func = __builtin_FUNCTION()
+    const source_location loc = source_location::current()
 ) noexcept {
   if (!cond) {
     return; // OK
   }
 
   if (msg.empty()) {
-    error(file, line, func, "expected `false` but got `true`");
+    error(loc, "expected `false` but got `true`");
   } else {
-    error(file, line, func, msg);
+    error(loc, msg);
   }
 }
 
@@ -115,8 +148,7 @@ template <typename Lhs, typename Rhs>
 inline void
 assertEq(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
-    const StringRef func = __builtin_FUNCTION()
+    const source_location loc = source_location::current()
 ) noexcept {
   if (lhs == rhs) {
     return; // OK
@@ -124,12 +156,12 @@ assertEq(
 
   if (msg.empty()) {
     error(
-        file, line, func, "assertion failed: `(left == right)`\n", "  left: `",
+        loc, "assertion failed: `(left == right)`\n", "  left: `",
         std::forward<Lhs>(lhs), "`\n", " right: `", std::forward<Rhs>(rhs),
         "`\n"
     );
   } else {
-    error(file, line, func, msg);
+    error(loc, msg);
   }
 }
 
@@ -138,8 +170,7 @@ template <typename Lhs, typename Rhs>
 inline void
 assertNe(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
-    const StringRef func = __builtin_FUNCTION()
+    const source_location loc = source_location::current()
 ) noexcept {
   if (lhs != rhs) {
     return; // OK
@@ -147,12 +178,12 @@ assertNe(
 
   if (msg.empty()) {
     error(
-        file, line, func, "assertion failed: `(left != right)`\n", "  left: `",
+        loc, "assertion failed: `(left != right)`\n", "  left: `",
         std::forward<Lhs>(lhs), "`\n", " right: `", std::forward<Rhs>(rhs),
         "`\n"
     );
   } else {
-    error(file, line, func, msg);
+    error(loc, msg);
   }
 }
 
@@ -161,8 +192,7 @@ template <typename Lhs, typename Rhs>
 inline void
 assertLt(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const StringRef file = __builtin_FILE(), const int line = __builtin_LINE(),
-    const StringRef func = __builtin_FUNCTION()
+    const source_location loc = source_location::current()
 ) noexcept {
   if (lhs < rhs) {
     return; // OK
@@ -170,12 +200,12 @@ assertLt(
 
   if (msg.empty()) {
     error(
-        file, line, func, "assertion failed: `(left < right)`\n", "  left: `",
+        loc, "assertion failed: `(left < right)`\n", "  left: `",
         std::forward<Lhs>(lhs), "`\n", " right: `", std::forward<Rhs>(rhs),
         "`\n"
     );
   } else {
-    error(file, line, func, msg);
+    error(loc, msg);
   }
 }
 
@@ -183,29 +213,24 @@ template <typename E, typename Fn>
   requires(std::is_invocable_v<Fn>)
 inline void
 assertException(
-    Fn&& func, const StringRef msg, const StringRef file = __builtin_FILE(),
-    const int line = __builtin_LINE(),
-    const StringRef funcName = __builtin_FUNCTION()
+    Fn&& func, const StringRef msg,
+    const source_location loc = source_location::current()
 ) noexcept {
   try {
     std::forward<Fn>(func)();
-    error(
-        file, line, funcName, "expected exception `", typeid(E).name(),
-        "` not thrown"
-    );
+    error(loc, "expected exception `", typeid(E).name(), "` not thrown");
   } catch (const E& e) {
     if (e.what() == String(msg)) {
       return; // OK
     }
 
     error(
-        file, line, funcName, "expected exception message `", msg,
-        "` but got `", e.what(), '`'
+        loc, "expected exception message `", msg, "` but got `", e.what(), '`'
     );
   } catch (...) {
     error(
-        file, line, funcName, "expected exception `", typeid(E).name(),
-        "` but got `", typeid(std::current_exception()).name(), '`'
+        loc, "expected exception `", typeid(E).name(), "` but got `",
+        typeid(std::current_exception()).name(), '`'
     );
   }
 }
@@ -214,17 +239,15 @@ template <typename Fn>
   requires(std::is_invocable_v<Fn>)
 inline void
 assertNoException(
-    Fn&& func, const StringRef file = __builtin_FILE(),
-    const int line = __builtin_LINE(),
-    const StringRef funcName = __builtin_FUNCTION()
+    Fn&& func, const source_location loc = source_location::current()
 ) noexcept {
   try {
     std::forward<Fn>(func)();
     // OK
   } catch (...) {
     error(
-        file, line, funcName, "unexpected exception `",
-        typeid(std::current_exception()).name(), '`'
+        loc, "unexpected exception `", typeid(std::current_exception()).name(),
+        '`'
     );
   }
 }
