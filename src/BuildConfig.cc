@@ -21,6 +21,9 @@
 #include <span>
 #include <sstream>
 #include <string>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#include <tbb/spin_mutex.h>
 #include <thread>
 
 static constinit const StringRef TEST_OUT_DIR = "tests";
@@ -575,8 +578,66 @@ setVariables(BuildConfig& config, const bool isDebug) {
   config.defineSimpleVar("LIBS", LIBS);
 }
 
+static void
+processSrc(
+    const usize idx, BuildConfig& config, const Vec<Path>& sourceFilePaths,
+    HashSet<String>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
+) {
+  String objTarget; // source.o
+  const HashSet<String> objTargetDeps =
+      parseMMOutput(runMM(sourceFilePaths[idx]), objTarget);
+
+  const Path targetBaseDir = fs::relative(
+      sourceFilePaths[idx].parent_path(), PATH_FROM_OUT_DIR / "src"_path
+  );
+  Path buildTargetBaseDir = config.buildOutDir;
+  if (targetBaseDir != ".") {
+    buildTargetBaseDir /= targetBaseDir;
+  }
+
+  const String buildObjTarget = buildTargetBaseDir / objTarget;
+
+  if (mtx) {
+    const tbb::spin_mutex::scoped_lock lock(*mtx);
+    buildObjTargets.insert(buildObjTarget);
+    defineCompileTarget(
+        config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
+    );
+  } else {
+    buildObjTargets.insert(buildObjTarget);
+    defineCompileTarget(
+        config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
+    );
+  }
+}
+
+static HashSet<String>
+processSources(
+    BuildConfig& config, const Vec<Path>& sourceFilePaths, const bool isParallel
+) {
+  HashSet<String> buildObjTargets;
+
+  if (isParallel) {
+    tbb::spin_mutex mtx;
+    tbb::parallel_for(
+        tbb::blocked_range<usize>(0, sourceFilePaths.size()),
+        [&](const tbb::blocked_range<usize>& rng) {
+          for (usize i = rng.begin(); i != rng.end(); ++i) {
+            processSrc(i, config, sourceFilePaths, buildObjTargets, &mtx);
+          }
+        }
+    );
+  } else {
+    for (usize i = 0; i < sourceFilePaths.size(); ++i) {
+      processSrc(i, config, sourceFilePaths, buildObjTargets);
+    }
+  }
+
+  return buildObjTargets;
+}
+
 static BuildConfig
-configureBuild(const bool isDebug) {
+configureBuild(const bool isDebug, const bool isParallel) {
   if (!fs::exists("src")) {
     throw PoacError("src directory not found");
   }
@@ -608,25 +669,9 @@ configureBuild(const bool isDebug) {
   }
   config.defineSimpleVar("SRCS", srcs);
 
-  // Source Pass
-  HashSet<String> buildObjTargets;
-  for (const Path& sourceFilePath : sourceFilePaths) {
-    String objTarget; // source.o
-    const HashSet<String> objTargetDeps =
-        parseMMOutput(runMM(sourceFilePath), objTarget);
+  const HashSet<String> buildObjTargets =
+      processSources(config, sourceFilePaths, isParallel);
 
-    const Path targetBaseDir = fs::relative(
-        sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
-    );
-    Path buildTargetBaseDir = config.buildOutDir;
-    if (targetBaseDir != ".") {
-      buildTargetBaseDir /= targetBaseDir;
-    }
-
-    const String buildObjTarget = buildTargetBaseDir / objTarget;
-    buildObjTargets.insert(buildObjTarget);
-    defineCompileTarget(config, buildObjTarget, sourceFilePath, objTargetDeps);
-  }
   // Project binary target.
   const String mainObjTarget = config.buildOutDir / "main.o";
   HashSet<String> projTargetDeps = { mainObjTarget };
@@ -708,8 +753,8 @@ configureBuild(const bool isDebug) {
 
 /// @returns the directory where the Makefile is generated.
 String
-emitMakefile(const bool debug) {
-  setOutDir(debug);
+emitMakefile(const bool isDebug, const bool isParallel) {
+  setOutDir(isDebug);
 
   // When emitting Makefile, we also build the project.  So, we need to
   // make sure the dependencies are installed.
@@ -723,7 +768,7 @@ emitMakefile(const bool debug) {
   }
   Logger::debug("Makefile is NOT up to date");
 
-  const BuildConfig config = configureBuild(debug);
+  const BuildConfig config = configureBuild(isDebug, isParallel);
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return outDir;
@@ -731,8 +776,8 @@ emitMakefile(const bool debug) {
 
 /// @returns the directory where the compilation database is generated.
 String
-emitCompdb(const bool debug) {
-  setOutDir(debug);
+emitCompdb(const bool isDebug, const bool isParallel) {
+  setOutDir(isDebug);
 
   // compile_commands.json also needs INCLUDES, but not LIBS.
   installDeps();
@@ -745,15 +790,15 @@ emitCompdb(const bool debug) {
   }
   Logger::debug("compile_commands.json is NOT up to date");
 
-  const BuildConfig config = configureBuild(debug);
+  const BuildConfig config = configureBuild(isDebug, isParallel);
   std::ofstream ofs(compdbPath);
   config.emitCompdb(outDir, ofs);
   return outDir;
 }
 
 String
-modeString(const bool debug) {
-  return debug ? "debug" : "release";
+modeString(const bool isDebug) {
+  return isDebug ? "debug" : "release";
 }
 
 String

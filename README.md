@@ -105,6 +105,9 @@ If your environment is not included in the released packages, you have to build 
 * nlohmann_json: `>=3.10.5 && <4`
     * `nlohmann-json3-dev` on APT
     * `nlohmann-json` on Homebrew
+* oneTBB: `>=2021.5.0 && <2022`
+    * `libtbb-dev` on APT
+    * `tbb` on Homebrew
 
 When running Make, the following libraries will be installed automatically.
 

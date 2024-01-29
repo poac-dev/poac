@@ -13,6 +13,8 @@ Checks: -*
   -cert-err58-cpp
   -cert-env33-c
   clang-analyzer-*
+  concurrency-*
+  -concurrency-mt-unsafe
   cppcoreguidelines-*
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay
   google-*

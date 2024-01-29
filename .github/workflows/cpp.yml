@@ -23,7 +23,8 @@ jobs:
           sudo apt-get install -y \
             libcurl4-openssl-dev \
             libgit2-dev \
-            nlohmann-json3-dev
+            nlohmann-json3-dev \
+            libtbb-dev
 
       - name: Build Poac
         run: make RELEASE=1
@@ -51,7 +52,8 @@ jobs:
           sudo apt-get install -y \
             libcurl4-openssl-dev \
             libgit2-dev \
-            nlohmann-json3-dev
+            nlohmann-json3-dev \
+            libtbb-dev
 
       - name: Build Poac
         run: make RELEASE=1
@@ -79,7 +81,8 @@ jobs:
           sudo apt-get install -y \
             libcurl4-openssl-dev \
             libgit2-dev \
-            nlohmann-json3-dev
+            nlohmann-json3-dev \
+            libtbb-dev
 
       - name: Build Poac
         run: make RELEASE=1

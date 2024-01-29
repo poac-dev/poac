@@ -27,7 +27,8 @@ jobs:
           brew install \
             curl \
             libgit2 \
-            nlohmann-json
+            nlohmann-json \
+            tbb
 
       - name: Print versions
         run: make versions

@@ -30,7 +30,7 @@ int
 buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
   const auto start = std::chrono::steady_clock::now();
 
-  outDir = emitMakefile(isDebug);
+  outDir = emitMakefile(isDebug, isParallel);
   const String makeCommand = getMakeCommand(isParallel) + " -C " + outDir;
   const int exitCode = execCmd(makeCommand);
 
@@ -78,7 +78,7 @@ buildMain(const std::span<const StringRef> args) {
   }
 
   // Build compilation database
-  const String outDir = emitCompdb(isDebug);
+  const String outDir = emitCompdb(isDebug, isParallel);
   Logger::info("Generated", outDir, "/compile_commands.json");
   return EXIT_SUCCESS;
 }

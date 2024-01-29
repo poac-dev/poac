@@ -60,7 +60,7 @@ tidyMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const Path outDir = emitMakefile(true /* isDebug */);
+  const Path outDir = emitMakefile(true /* isDebug */, isParallel);
 
   String tidyFlags = " POAC_TIDY_FLAGS='";
   if (!isVerbose()) {
