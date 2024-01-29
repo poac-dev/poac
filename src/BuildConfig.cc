@@ -580,15 +580,15 @@ setVariables(BuildConfig& config, const bool isDebug) {
 
 static void
 processSrc(
-    const usize idx, BuildConfig& config, const Vec<Path>& sourceFilePaths,
+    BuildConfig& config, const Path& sourceFilePath,
     HashSet<String>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
 ) {
   String objTarget; // source.o
   const HashSet<String> objTargetDeps =
-      parseMMOutput(runMM(sourceFilePaths[idx]), objTarget);
+      parseMMOutput(runMM(sourceFilePath), objTarget);
 
   const Path targetBaseDir = fs::relative(
-      sourceFilePaths[idx].parent_path(), PATH_FROM_OUT_DIR / "src"_path
+      sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
   );
   Path buildTargetBaseDir = config.buildOutDir;
   if (targetBaseDir != ".") {
@@ -601,9 +601,7 @@ processSrc(
     mtx->lock();
   }
   buildObjTargets.insert(buildObjTarget);
-  defineCompileTarget(
-      config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
-  );
+  defineCompileTarget(config, buildObjTarget, sourceFilePath, objTargetDeps);
   if (mtx) {
     mtx->unlock();
   }
@@ -621,13 +619,13 @@ processSources(
         tbb::blocked_range<usize>(0, sourceFilePaths.size()),
         [&](const tbb::blocked_range<usize>& rng) {
           for (usize i = rng.begin(); i != rng.end(); ++i) {
-            processSrc(i, config, sourceFilePaths, buildObjTargets, &mtx);
+            processSrc(config, sourceFilePaths[i], buildObjTargets, &mtx);
           }
         }
     );
   } else {
-    for (usize i = 0; i < sourceFilePaths.size(); ++i) {
-      processSrc(i, config, sourceFilePaths, buildObjTargets);
+    for (const Path& sourceFilePath : sourceFilePaths) {
+      processSrc(config, sourceFilePath, buildObjTargets);
     }
   }
 
@@ -636,22 +634,21 @@ processSources(
 
 static void
 processTestSrc(
-    const usize idx, BuildConfig& config, const Vec<Path>& sourceFilePaths,
+    BuildConfig& config, const Path& sourceFilePath,
     const HashSet<String>& buildObjTargets, Vec<String>& testCommands,
     HashSet<String>& testTargets, tbb::spin_mutex* mtx = nullptr
 ) {
-  if (!containsTestCode(
-          sourceFilePaths[idx].string().substr(PATH_FROM_OUT_DIR.size())
+  if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
       )) {
     return;
   }
 
   String objTarget; // source.o
   const HashSet<String> objTargetDeps =
-      parseMMOutput(runMM(sourceFilePaths[idx], true /* isTest */), objTarget);
+      parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
 
   const Path targetBaseDir = fs::relative(
-      sourceFilePaths[idx].parent_path(), PATH_FROM_OUT_DIR / "src"_path
+      sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
   );
   Path testTargetBaseDir = TEST_OUT_DIR;
   if (targetBaseDir != ".") {
@@ -660,14 +657,14 @@ processTestSrc(
 
   const String testObjTarget =
       (testTargetBaseDir / "test_").string() + objTarget;
-  const String testTargetName = sourceFilePaths[idx].stem().string();
+  const String testTargetName = sourceFilePath.stem().string();
   const String testTarget =
       (testTargetBaseDir / "test_").string() + testTargetName;
 
   // Test binary target.
   HashSet<String> testTargetDeps = { testObjTarget };
   collectBinDepObjs(
-      testTargetDeps, sourceFilePaths[idx].stem().string(), objTargetDeps,
+      testTargetDeps, sourceFilePath.stem().string(), objTargetDeps,
       buildObjTargets, config
   );
 
@@ -676,8 +673,7 @@ processTestSrc(
   }
   // Test object target.
   defineCompileTarget(
-      config, testObjTarget, sourceFilePaths[idx], objTargetDeps,
-      true /* isTest */
+      config, testObjTarget, sourceFilePath, objTargetDeps, true /* isTest */
   );
 
   // Test binary target.
@@ -748,16 +744,16 @@ configureBuild(const bool isDebug, const bool isParallel) {
         [&](const tbb::blocked_range<usize>& rng) {
           for (usize i = rng.begin(); i != rng.end(); ++i) {
             processTestSrc(
-                i, config, sourceFilePaths, buildObjTargets, testCommands,
+                config, sourceFilePaths[i], buildObjTargets, testCommands,
                 testTargets, &mtx
             );
           }
         }
     );
   } else {
-    for (usize i = 0; i < sourceFilePaths.size(); ++i) {
+    for (const Path& sourceFilePath : sourceFilePaths) {
       processTestSrc(
-          i, config, sourceFilePaths, buildObjTargets, testCommands, testTargets
+          config, sourceFilePath, buildObjTargets, testCommands, testTargets
       );
     }
   }
