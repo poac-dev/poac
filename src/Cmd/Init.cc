@@ -1,7 +1,9 @@
+#include "Init.hpp"
+
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
-#include "Cmd.hpp"
+#include "New.hpp"
 
 #include <cstdlib>
 #include <fstream>

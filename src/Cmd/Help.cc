@@ -1,6 +1,7 @@
+#include "Help.hpp"
+
 #include "../Cli.hpp"
 #include "../Rustify.hpp"
-#include "Cmd.hpp"
 
 #include <span>
 

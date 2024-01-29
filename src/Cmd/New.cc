@@ -1,3 +1,5 @@
+#include "New.hpp"
+
 #include "../Algos.hpp"
 #include "../Cli.hpp"
 #include "../Exception.hpp"
@@ -5,7 +7,6 @@
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
-#include "Cmd.hpp"
 
 #include <algorithm>
 #include <cctype>

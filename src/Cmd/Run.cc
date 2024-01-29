@@ -1,9 +1,12 @@
+#include "Run.hpp"
+
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
-#include "Cmd.hpp"
+#include "../Rustify.hpp"
+#include "Build.hpp"
 
 #include <cstdlib>
 #include <span>

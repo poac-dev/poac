@@ -1,9 +1,10 @@
+#include "Tidy.hpp"
+
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Rustify.hpp"
-#include "Cmd.hpp"
 
 #include <chrono>
 #include <cstdlib>

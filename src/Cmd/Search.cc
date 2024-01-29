@@ -1,7 +1,8 @@
+#include "Search.hpp"
+
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Rustify.hpp"
-#include "Cmd.hpp"
 
 #include <cstdlib>
 #include <curl/curl.h>
