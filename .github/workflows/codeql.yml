@@ -65,7 +65,8 @@ jobs:
           sudo apt-get install -y \
             libcurl4-openssl-dev \
             libgit2-dev \
-            nlohmann-json3-dev
+            nlohmann-json3-dev \
+            libtbb-dev
 
       # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
       # If this step fails, then you should remove it and run the build manually (see below)

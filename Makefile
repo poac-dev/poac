@@ -24,9 +24,11 @@ DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
 INCLUDES := -isystem $(O)/DEPS/toml11 \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
   $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
-  $(shell pkg-config --cflags 'nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0')
+  $(shell pkg-config --cflags 'nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0') \
+  $(shell pkg-config --cflags 'tbb >= 2021.11.0, tbb < 2022.0.0')
 LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
-  $(shell pkg-config --libs 'libcurl >= 7.79.1, libcurl < 9.0.0')
+  $(shell pkg-config --libs 'libcurl >= 7.79.1, libcurl < 9.0.0') \
+  $(shell pkg-config --libs 'tbb >= 2021.11.0, tbb < 2022.0.0')
 
 SRCS := $(shell find src -name '*.cc')
 OBJS := $(patsubst src/%,$(O)/%,$(SRCS:.cc=.o))

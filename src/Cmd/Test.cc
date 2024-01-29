@@ -55,7 +55,7 @@ testMain(const std::span<const StringRef> args) {
 
   const auto start = std::chrono::steady_clock::now();
 
-  const String outDir = emitMakefile(isDebug);
+  const String outDir = emitMakefile(isDebug, isParallel);
   const int exitCode =
       execCmd(getMakeCommand(isParallel) + " -C " + outDir + " test");
 
