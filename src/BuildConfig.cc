@@ -580,15 +580,15 @@ setVariables(BuildConfig& config, const bool isDebug) {
 
 static void
 processSrc(
-    const usize idx, BuildConfig& config, const Vec<Path>& sourceFilePaths,
+    BuildConfig& config, const Path& sourceFilePath,
     HashSet<String>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
 ) {
   String objTarget; // source.o
   const HashSet<String> objTargetDeps =
-      parseMMOutput(runMM(sourceFilePaths[idx]), objTarget);
+      parseMMOutput(runMM(sourceFilePath), objTarget);
 
   const Path targetBaseDir = fs::relative(
-      sourceFilePaths[idx].parent_path(), PATH_FROM_OUT_DIR / "src"_path
+      sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
   );
   Path buildTargetBaseDir = config.buildOutDir;
   if (targetBaseDir != ".") {
@@ -601,9 +601,7 @@ processSrc(
     mtx->lock();
   }
   buildObjTargets.insert(buildObjTarget);
-  defineCompileTarget(
-      config, buildObjTarget, sourceFilePaths[idx], objTargetDeps
-  );
+  defineCompileTarget(config, buildObjTarget, sourceFilePath, objTargetDeps);
   if (mtx) {
     mtx->unlock();
   }
@@ -621,17 +619,72 @@ processSources(
         tbb::blocked_range<usize>(0, sourceFilePaths.size()),
         [&](const tbb::blocked_range<usize>& rng) {
           for (usize i = rng.begin(); i != rng.end(); ++i) {
-            processSrc(i, config, sourceFilePaths, buildObjTargets, &mtx);
+            processSrc(config, sourceFilePaths[i], buildObjTargets, &mtx);
           }
         }
     );
   } else {
-    for (usize i = 0; i < sourceFilePaths.size(); ++i) {
-      processSrc(i, config, sourceFilePaths, buildObjTargets);
+    for (const Path& sourceFilePath : sourceFilePaths) {
+      processSrc(config, sourceFilePath, buildObjTargets);
     }
   }
 
   return buildObjTargets;
+}
+
+static void
+processTestSrc(
+    BuildConfig& config, const Path& sourceFilePath,
+    const HashSet<String>& buildObjTargets, Vec<String>& testCommands,
+    HashSet<String>& testTargets, tbb::spin_mutex* mtx = nullptr
+) {
+  if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
+      )) {
+    return;
+  }
+
+  String objTarget; // source.o
+  const HashSet<String> objTargetDeps =
+      parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
+
+  const Path targetBaseDir = fs::relative(
+      sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+  );
+  Path testTargetBaseDir = TEST_OUT_DIR;
+  if (targetBaseDir != ".") {
+    testTargetBaseDir /= targetBaseDir;
+  }
+
+  const String testObjTarget =
+      (testTargetBaseDir / "test_").string() + objTarget;
+  const String testTargetName = sourceFilePath.stem().string();
+  const String testTarget =
+      (testTargetBaseDir / "test_").string() + testTargetName;
+
+  // Test binary target.
+  HashSet<String> testTargetDeps = { testObjTarget };
+  collectBinDepObjs(
+      testTargetDeps, sourceFilePath.stem().string(), objTargetDeps,
+      buildObjTargets, config
+  );
+
+  if (mtx) {
+    mtx->lock();
+  }
+  // Test object target.
+  defineCompileTarget(
+      config, testObjTarget, sourceFilePath, objTargetDeps, true /* isTest */
+  );
+
+  // Test binary target.
+  defineLinkTarget(config, testTarget, testTargetDeps);
+
+  testCommands.emplace_back(printfCmd("Testing", testTargetName));
+  testCommands.emplace_back(testTarget);
+  testTargets.insert(testTarget);
+  if (mtx) {
+    mtx->unlock();
+  }
 }
 
 static BuildConfig
@@ -667,6 +720,7 @@ configureBuild(const bool isDebug, const bool isParallel) {
   }
   config.defineSimpleVar("SRCS", srcs);
 
+  // Source Pass
   const HashSet<String> buildObjTargets =
       processSources(config, sourceFilePaths, isParallel);
 
@@ -681,52 +735,29 @@ configureBuild(const bool isDebug, const bool isParallel) {
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Test Pass
-  bool enableTesting = false;
   Vec<String> testCommands;
   HashSet<String> testTargets;
-  for (const Path& sourceFilePath : sourceFilePaths) {
-    if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size(
-        )))) {
-      continue;
+  if (isParallel) {
+    tbb::spin_mutex mtx;
+    tbb::parallel_for(
+        tbb::blocked_range<usize>(0, sourceFilePaths.size()),
+        [&](const tbb::blocked_range<usize>& rng) {
+          for (usize i = rng.begin(); i != rng.end(); ++i) {
+            processTestSrc(
+                config, sourceFilePaths[i], buildObjTargets, testCommands,
+                testTargets, &mtx
+            );
+          }
+        }
+    );
+  } else {
+    for (const Path& sourceFilePath : sourceFilePaths) {
+      processTestSrc(
+          config, sourceFilePath, buildObjTargets, testCommands, testTargets
+      );
     }
-    enableTesting = true;
-
-    String objTarget; // source.o
-    const HashSet<String> objTargetDeps =
-        parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
-
-    const Path targetBaseDir = fs::relative(
-        sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
-    );
-    Path testTargetBaseDir = TEST_OUT_DIR;
-    if (targetBaseDir != ".") {
-      testTargetBaseDir /= targetBaseDir;
-    }
-
-    const String testObjTarget =
-        (testTargetBaseDir / "test_").string() + objTarget;
-    const String testTargetName = sourceFilePath.stem().string();
-    const String testTarget =
-        (testTargetBaseDir / "test_").string() + testTargetName;
-
-    // Test object target.
-    defineCompileTarget(
-        config, testObjTarget, sourceFilePath, objTargetDeps, true /* isTest */
-    );
-
-    // Test binary target.
-    HashSet<String> testTargetDeps = { testObjTarget };
-    collectBinDepObjs(
-        testTargetDeps, sourceFilePath.stem().string(), objTargetDeps,
-        buildObjTargets, config
-    );
-    defineLinkTarget(config, testTarget, testTargetDeps);
-
-    testCommands.emplace_back(printfCmd("Testing", testTargetName));
-    testCommands.emplace_back(testTarget);
-    testTargets.insert(testTarget);
   }
-  if (enableTesting) {
+  if (!testCommands.empty()) {
     config.defineTarget("test", testCommands, testTargets);
     config.addPhony("test");
   }
