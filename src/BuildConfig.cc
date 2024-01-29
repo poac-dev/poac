@@ -637,9 +637,8 @@ processSources(
 static void
 processTestSrc(
     const usize idx, BuildConfig& config, const Vec<Path>& sourceFilePaths,
-    const HashSet<String>& buildObjTargets, bool& enableTesting,
-    Vec<String>& testCommands, HashSet<String>& testTargets,
-    tbb::spin_mutex* mtx = nullptr
+    const HashSet<String>& buildObjTargets, Vec<String>& testCommands,
+    HashSet<String>& testTargets, tbb::spin_mutex* mtx = nullptr
 ) {
   if (!containsTestCode(
           sourceFilePaths[idx].string().substr(PATH_FROM_OUT_DIR.size())
@@ -687,8 +686,6 @@ processTestSrc(
   testCommands.emplace_back(printfCmd("Testing", testTargetName));
   testCommands.emplace_back(testTarget);
   testTargets.insert(testTarget);
-
-  enableTesting = true;
   if (mtx) {
     mtx->unlock();
   }
@@ -742,7 +739,6 @@ configureBuild(const bool isDebug, const bool isParallel) {
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Test Pass
-  bool enableTesting = false;
   Vec<String> testCommands;
   HashSet<String> testTargets;
   if (isParallel) {
@@ -752,8 +748,8 @@ configureBuild(const bool isDebug, const bool isParallel) {
         [&](const tbb::blocked_range<usize>& rng) {
           for (usize i = rng.begin(); i != rng.end(); ++i) {
             processTestSrc(
-                i, config, sourceFilePaths, buildObjTargets, enableTesting,
-                testCommands, testTargets, &mtx
+                i, config, sourceFilePaths, buildObjTargets, testCommands,
+                testTargets, &mtx
             );
           }
         }
@@ -761,12 +757,11 @@ configureBuild(const bool isDebug, const bool isParallel) {
   } else {
     for (usize i = 0; i < sourceFilePaths.size(); ++i) {
       processTestSrc(
-          i, config, sourceFilePaths, buildObjTargets, enableTesting,
-          testCommands, testTargets
+          i, config, sourceFilePaths, buildObjTargets, testCommands, testTargets
       );
     }
   }
-  if (enableTesting) {
+  if (!testCommands.empty()) {
     config.defineTarget("test", testCommands, testTargets);
     config.addPhony("test");
   }
