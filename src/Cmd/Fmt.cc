@@ -101,10 +101,5 @@ fmtMain(const std::span<const StringRef> args) {
   const String clangFormat = "cd " + manifestDir.string()
                              + " && ${POAC_FMT:-clang-format} "
                              + clangFormatArgs;
-  const int exitCode = execCmd(clangFormat);
-  if (exitCode != 0) {
-    Logger::error("clang-format exited with code ", exitCode);
-    return exitCode;
-  }
-  return EXIT_SUCCESS;
+  return execCmd(clangFormat);
 }
