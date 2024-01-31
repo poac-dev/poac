@@ -90,8 +90,8 @@ main(int argc, char* argv[]) {
           Logger::error(
               "'poac ", arg, "' failed with exit code `", exitCode, '`'
           );
-          return exitCode;
         }
+        return exitCode;
       } catch (const std::exception& e) {
         Logger::error(e.what());
         return EXIT_FAILURE;
