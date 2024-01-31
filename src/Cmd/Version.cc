@@ -23,7 +23,7 @@
 #  error "POAC_COMMIT_DATE is not defined"
 #endif
 
-const Subcmd VERSION_CMD = // for better format
+const Subcmd VERSION_CMD = //
     Subcmd{ "version" }
         .setDesc("Show version information")
         .setMainFn(versionMain);

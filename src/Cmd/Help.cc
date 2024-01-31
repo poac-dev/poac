@@ -7,7 +7,7 @@
 
 static int helpMain(std::span<const StringRef> args) noexcept;
 
-const Subcmd HELP_CMD = // for better format
+const Subcmd HELP_CMD = //
     Subcmd{ "help" }
         .setDesc("Displays help for a poac subcommand")
         .setArg(Arg{ "COMMAND" }.setRequired(false))

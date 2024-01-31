@@ -10,7 +10,7 @@
 
 const Command&
 getCmd() noexcept {
-  static const Command CMD = // for better format
+  static const Command CMD = //
       Command{ "poac" }
           .setDesc("A package manager and build system for C++")
           .addOpt(Opt{ "--verbose" }
@@ -25,7 +25,7 @@ getCmd() noexcept {
                       .setDesc("Coloring: auto, always, never")
                       .setPlaceholder("<WHEN>")
                       .setGlobal(true))
-          .addOpt(Opt{ "--help" } // for better format
+          .addOpt(Opt{ "--help" } //
                       .setShort("-h")
                       .setDesc("Print help")
                       .setGlobal(true))
@@ -33,7 +33,7 @@ getCmd() noexcept {
                       .setShort("-V")
                       .setDesc("Print version info and exit")
                       .setGlobal(false))
-          .addOpt(Opt{ "--list" } // for better format
+          .addOpt(Opt{ "--list" } //
                       .setDesc("List all subcommands")
                       .setGlobal(false)
                       .setHidden(true))

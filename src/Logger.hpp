@@ -21,10 +21,10 @@ class Logger {
   static constexpr int INFO_OFFSET = 12;
   LogLevel level = LogLevel::info;
 
-  // Logger is a singleton
   Logger() noexcept = default;
 
 public:
+  // Logger is a singleton
   Logger(const Logger&) = delete;
   Logger& operator=(const Logger&) = delete;
   Logger(Logger&&) noexcept = delete;
