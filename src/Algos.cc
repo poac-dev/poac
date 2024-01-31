@@ -48,7 +48,6 @@ getCmdOutputImpl(const StringRef cmd) {
   std::array<char, BUFFER_SIZE> buffer{};
   String output;
 
-  Logger::debug("Running `", cmd, '`');
   FILE* pipe = popen(cmd.data(), "r");
   if (!pipe) {
     throw PoacError("popen() failed!");
@@ -68,6 +67,8 @@ getCmdOutputImpl(const StringRef cmd) {
 
 String
 getCmdOutput(const StringRef cmd, const usize retry) {
+  Logger::debug("Running `", cmd, '`');
+
   int exitCode = EXIT_SUCCESS;
   for (usize i = 0; i < retry; ++i) {
     const auto result = getCmdOutputImpl(cmd);
