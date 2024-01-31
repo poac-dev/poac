@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cctype>
 #include <memory>
+#include <thread>
 #include <utility>
 
 String
@@ -41,11 +42,11 @@ execCmd(const StringRef cmd) noexcept {
   return exitCode;
 }
 
-String
-getCmdOutput(const StringRef cmd) {
+static std::pair<String, int>
+getCmdOutputImpl(const StringRef cmd) {
   constexpr usize BUFFER_SIZE = 128;
   std::array<char, BUFFER_SIZE> buffer{};
-  String result;
+  String output;
 
   Logger::debug("Running `", cmd, '`');
   FILE* pipe = popen(cmd.data(), "r");
@@ -54,7 +55,7 @@ getCmdOutput(const StringRef cmd) {
   }
 
   while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-    result += buffer.data();
+    output += buffer.data();
   }
 
   const int status = pclose(pipe);
@@ -62,11 +63,23 @@ getCmdOutput(const StringRef cmd) {
     throw PoacError("pclose() failed!");
   }
   const int exitCode = status >> 8;
-  if (exitCode != EXIT_SUCCESS) {
-    std::cerr << result;
-    throw PoacError("Command failed with exit code ", exitCode);
+  return { output, exitCode };
+}
+
+String
+getCmdOutput(const StringRef cmd, const usize retry) {
+  int exitCode = EXIT_SUCCESS;
+  for (usize i = 0; i < retry; ++i) {
+    const auto result = getCmdOutputImpl(cmd);
+    if (result.second == EXIT_SUCCESS) {
+      return result.first;
+    }
+    exitCode = result.second;
+
+    // Sleep for 1 second
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  return result;
+  throw PoacError("Command `", cmd, "` failed with exit code ", exitCode);
 }
 
 bool
