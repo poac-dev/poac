@@ -47,13 +47,7 @@ lint(const StringRef name, const StringRef cpplintArgs) {
   }
   // NOTE: This should come after the `--exclude` options.
   cpplintCmd += " --recursive .";
-
-  const int exitCode = execCmd(cpplintCmd);
-  if (exitCode != 0) {
-    Logger::error("`cpplint` exited with status ", exitCode);
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  return execCmd(cpplintCmd);
 }
 
 static int

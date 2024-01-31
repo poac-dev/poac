@@ -85,7 +85,13 @@ main(int argc, char* argv[]) {
         // i + 1, we can write the range as [i + 2, argc), which is never
         // out-of-range access.
         const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
-        return getCmd().exec(arg, remArgs);
+        const int exitCode = getCmd().exec(arg, remArgs);
+        if (exitCode != EXIT_SUCCESS) {
+          Logger::error(
+              "'poac ", arg, "' failed with exit code `", exitCode, '`'
+          );
+        }
+        return exitCode;
       } catch (const std::exception& e) {
         Logger::error(e.what());
         return EXIT_FAILURE;

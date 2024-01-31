@@ -66,6 +66,5 @@ runMain(const std::span<const StringRef> args) {
 
   const String& projectName = getPackageName();
   const String command = outDir + "/" + projectName + runArgs;
-  const int exitCode = execCmd(command);
-  return exitCode;
+  return execCmd(command);
 }
