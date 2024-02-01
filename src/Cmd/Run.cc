@@ -5,6 +5,7 @@
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
+#include "../Parallel.hpp"
 #include "../Rustify.hpp"
 #include "Build.hpp"
 
@@ -34,7 +35,6 @@ static int
 runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
-  bool isParallel = true;
   usize i = 0;
   for (i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
@@ -47,7 +47,7 @@ runMain(const std::span<const StringRef> args) {
       isDebug = false;
     }
     else if (arg == "--no-parallel") {
-      isParallel = false;
+      setParallel(false);
     }
     else {
       break;
@@ -60,7 +60,7 @@ runMain(const std::span<const StringRef> args) {
   }
 
   String outDir;
-  if (buildImpl(outDir, isDebug, isParallel) != EXIT_SUCCESS) {
+  if (buildImpl(outDir, isDebug) != EXIT_SUCCESS) {
     return EXIT_FAILURE;
   }
 

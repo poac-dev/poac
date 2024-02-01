@@ -11,7 +11,7 @@ inline const HashSet<String> HEADER_FILE_EXTS{
 };
 // clang-format on
 
-String emitMakefile(bool isDebug, bool isParallel);
-String emitCompdb(bool isDebug, bool isParallel);
+String emitMakefile(bool isDebug);
+String emitCompdb(bool isDebug);
 String modeString(bool isDebug);
-String getMakeCommand(bool isParallel);
+String getMakeCommand();
