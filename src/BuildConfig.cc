@@ -179,6 +179,7 @@ struct BuildConfig {
     all = dependsOn;
   }
 
+  void emitVariable(std::ostream& os, const String& varName) const;
   void emitMakefile(std::ostream& os) const;
   void emitCompdb(StringRef baseDir, std::ostream& os) const;
 };
@@ -191,7 +192,7 @@ emitDep(std::ostream& os, usize& offset, const StringRef dep) {
     os << std::setw(static_cast<int>(MAX_LINE_LEN + 3 - offset)) << " \\\n ";
     offset = 2;
   }
-  os << " " << dep;
+  os << ' ' << dep;
   offset += dep.size() + 1; // space
 }
 
@@ -202,7 +203,7 @@ emitTarget(
 ) {
   usize offset = 0;
 
-  os << target << ":";
+  os << target << ':';
   offset += target.size() + 2; // : and space
 
   if (sourceFile.has_value()) {
@@ -224,10 +225,42 @@ emitTarget(
 }
 
 void
+BuildConfig::emitVariable(std::ostream& os, const String& varName) const {
+  std::ostringstream oss; // TODO: implement an elegant way to get type size.
+  oss << varName << ' ' << variables.at(varName).type;
+  const String left = oss.str();
+  os << left << ' ';
+
+  constexpr usize MAX_LINE_LEN = 80; // TODO: share across sources?
+  usize offset = left.size() + 1; // space
+  String value;
+  for (const char c : variables.at(varName).value) {
+    if (c == ' ') {
+      // Emit value
+      if (offset + value.size() + 2 > MAX_LINE_LEN) { // 2 for space and '\'
+        os << std::setw(static_cast<int>(MAX_LINE_LEN + 3 - offset))
+           << "\\\n  ";
+        offset = 2;
+      }
+      os << value << ' ';
+      offset += value.size() + 1;
+      value.clear();
+    } else {
+      value.push_back(c);
+    }
+  }
+
+  if (!value.empty()) {
+    os << value;
+  }
+  os << '\n';
+}
+
+void
 BuildConfig::emitMakefile(std::ostream& os) const {
   const Vec<String> sortedVars = topoSort(variables, varDeps);
   for (const String& varName : sortedVars) {
-    os << varName << ' ' << variables.at(varName) << '\n';
+    emitVariable(os, varName);
   }
   if (!sortedVars.empty() && !targets.empty()) {
     os << '\n';
