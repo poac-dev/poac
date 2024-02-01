@@ -35,18 +35,18 @@ struct ColorState {
   void set(const ColorMode mode) noexcept {
     switch (mode) {
       case ColorMode::always:
-        should_color_ = true;
+        state = true;
         return;
       case ColorMode::automatic:
-        should_color_ = isTerm();
+        state = isTerm();
         return;
       case ColorMode::never:
-        should_color_ = false;
+        state = false;
         return;
     }
   }
   inline bool shouldColor() const noexcept {
-    return should_color_;
+    return state;
   }
 
   static ColorState& instance() noexcept {
@@ -56,13 +56,13 @@ struct ColorState {
 
 private:
   // default: automatic
-  bool should_color_;
+  bool state;
 
   ColorState() noexcept {
     if (const char* color = std::getenv("POAC_TERM_COLOR")) {
       set(getColorMode(color));
     } else {
-      should_color_ = isTerm();
+      state = isTerm();
     }
   }
 };

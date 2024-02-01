@@ -8,14 +8,14 @@ namespace git2 {
 
 struct Revspec : public GlobalState {
 private:
-  git_object* from_ = nullptr;
-  git_object* to_ = nullptr;
-  unsigned int mode_; // git_revparse_mode_t
+  git_object* fromObj = nullptr;
+  git_object* toObj = nullptr;
+  unsigned int modeVal; // git_revparse_mode_t
 
 public:
   /// Assembles a new revspec from the from/to components.
-  Revspec(git_object* fromObj, git_object* toObj, unsigned int mode)
-      : from_(fromObj), to_(toObj), mode_(mode) {}
+  Revspec(git_object* from, git_object* toO, unsigned int mode)
+      : fromObj(from), toObj(toO), modeVal(mode) {}
   Revspec() = delete;
   ~Revspec() = default;
 

@@ -63,8 +63,8 @@ struct Exception final : public std::exception {
   Exception& operator=(Exception&&) noexcept = default;
 
 private:
-  String m_message = "git2-cpp: ";
-  git_error_t m_category{ GIT_ERROR_NONE };
+  String msg = "git2-cpp: ";
+  git_error_t cat{ GIT_ERROR_NONE };
 };
 
 int git2Throw(int ret);

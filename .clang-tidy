@@ -66,6 +66,8 @@ CheckOptions:
     value: camelBack
   - key: readability-identifier-naming.LocalVariableCase
     value: camelBack
+  - key: readability-identifier-naming.MemberCase
+    value: camelBack
 
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
