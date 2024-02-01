@@ -8,11 +8,11 @@ struct ParallelState {
   ParallelState& operator=(ParallelState&&) noexcept = delete;
   ~ParallelState() noexcept = default;
 
-  void set(const bool val) noexcept {
-    isParallel = val;
+  void set(const bool isParallel) noexcept {
+    state = isParallel;
   }
   bool get() const noexcept {
-    return isParallel;
+    return state;
   }
 
   static ParallelState& instance() noexcept {
@@ -21,7 +21,7 @@ struct ParallelState {
   }
 
 private:
-  bool isParallel = true;
+  bool state = true;
 
   ParallelState() noexcept = default;
 };
