@@ -60,6 +60,11 @@ tidyMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
+  if (fix && isParallel()) {
+    Logger::warn("--fix automatically implies --no-parallel");
+    setParallel(false);
+  }
+
   const Path outDir = emitMakefile(true /* isDebug */);
 
   String tidyFlags = " POAC_TIDY_FLAGS='";

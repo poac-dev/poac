@@ -10,16 +10,16 @@
 #include <utility>
 
 enum class LogLevel : u8 {
-  off = 0, // --quiet
-  error = 1,
-  warning = 2,
-  info = 3, // default
-  debug = 4 // --verbose
+  Off = 0, // --quiet
+  Error = 1,
+  Warning = 2,
+  Info = 3, // default
+  Debug = 4 // --verbose
 };
 
 class Logger {
   static constexpr int INFO_OFFSET = 12;
-  LogLevel level = LogLevel::info;
+  LogLevel level = LogLevel::Info;
 
   Logger() noexcept = default;
 
@@ -37,19 +37,19 @@ public:
 
   template <typename... Ts>
   static void error(Ts&&... msgs) noexcept {
-    logln(LogLevel::error, std::forward<Ts>(msgs)...);
+    logln(LogLevel::Error, std::forward<Ts>(msgs)...);
   }
   template <typename... Ts>
   static void warn(Ts&&... msgs) noexcept {
-    logln(LogLevel::warning, std::forward<Ts>(msgs)...);
+    logln(LogLevel::Warning, std::forward<Ts>(msgs)...);
   }
   template <typename... Ts>
   static void info(Ts&&... msgs) noexcept {
-    logln(LogLevel::info, std::forward<Ts>(msgs)...);
+    logln(LogLevel::Info, std::forward<Ts>(msgs)...);
   }
   template <typename... Ts>
   static void debug(Ts&&... msgs) noexcept {
-    logln(LogLevel::debug, std::forward<Ts>(msgs)...);
+    logln(LogLevel::Debug, std::forward<Ts>(msgs)...);
   }
 
 private:
@@ -80,15 +80,15 @@ private:
 
     if (level <= this->level) {
       switch (level) {
-        case LogLevel::off:
+        case LogLevel::Off:
           return;
-        case LogLevel::error:
+        case LogLevel::Error:
           os << bold(red("Error: ")) << std::forward<T>(header);
           break;
-        case LogLevel::warning:
+        case LogLevel::Warning:
           os << bold(yellow("Warning: ")) << std::forward<T>(header);
           break;
-        case LogLevel::info:
+        case LogLevel::Info:
           os << std::right;
           if (shouldColor()) {
             // Color escape sequences are not visible but affect std::setw.
@@ -99,7 +99,7 @@ private:
           }
           os << bold(green(std::forward<T>(header))) << ' ';
           break;
-        case LogLevel::debug:
+        case LogLevel::Debug:
           os << "[Poac] " << std::forward<T>(header);
           break;
       }

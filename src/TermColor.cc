@@ -13,14 +13,14 @@ isTerm() noexcept {
 static ColorMode
 getColorMode(const StringRef str) noexcept {
   if (str == "always") {
-    return ColorMode::always;
+    return ColorMode::Always;
   } else if (str == "auto") {
-    return ColorMode::automatic;
+    return ColorMode::Auto;
   } else if (str == "never") {
-    return ColorMode::never;
+    return ColorMode::Never;
   } else {
     Logger::warn("unknown color mode `", str, "`; falling back to auto");
-    return ColorMode::automatic;
+    return ColorMode::Auto;
   }
 }
 
@@ -34,13 +34,13 @@ struct ColorState {
 
   void set(const ColorMode mode) noexcept {
     switch (mode) {
-      case ColorMode::always:
+      case ColorMode::Always:
         state = true;
         return;
-      case ColorMode::automatic:
+      case ColorMode::Auto:
         state = isTerm();
         return;
-      case ColorMode::never:
+      case ColorMode::Never:
         state = false;
         return;
     }

@@ -59,14 +59,20 @@ CheckOptions:
     value: CamelCase
   - key: readability-identifier-naming.ConceptCase
     value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
 
   - key: readability-identifier-naming.FunctionCase
     value: camelBack
   - key: readability-identifier-naming.MethodCase
     value: camelBack
-  - key: readability-identifier-naming.LocalVariableCase
+  - key: readability-identifier-naming.VariableCase
     value: camelBack
   - key: readability-identifier-naming.MemberCase
+    value: camelBack
+  - key: readability-identifier-naming.NamespaceCase
     value: camelBack
 
   - key: readability-identifier-naming.MacroDefinitionCase
