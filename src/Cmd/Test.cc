@@ -4,6 +4,7 @@
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
+#include "../Parallel.hpp"
 #include "../Rustify.hpp"
 
 #include <chrono>
@@ -30,7 +31,6 @@ static int
 testMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
-  bool isParallel = true;
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "test" } })
@@ -46,7 +46,7 @@ testMain(const std::span<const StringRef> args) {
       isDebug = false;
     }
     else if (arg == "--no-parallel") {
-      isParallel = false;
+      setParallel(false);
     }
     else {
       return TEST_CMD.noSuchArg(arg);
@@ -55,9 +55,8 @@ testMain(const std::span<const StringRef> args) {
 
   const auto start = std::chrono::steady_clock::now();
 
-  const String outDir = emitMakefile(isDebug, isParallel);
-  const int exitCode =
-      execCmd(getMakeCommand(isParallel) + " -C " + outDir + " test");
+  const String outDir = emitMakefile(isDebug);
+  const int exitCode = execCmd(getMakeCommand() + " -C " + outDir + " test");
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

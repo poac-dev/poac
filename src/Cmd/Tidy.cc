@@ -4,6 +4,7 @@
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
+#include "../Parallel.hpp"
 #include "../Rustify.hpp"
 
 #include <chrono>
@@ -39,7 +40,6 @@ static int
 tidyMain(const std::span<const StringRef> args) {
   // Parse args
   bool fix = false;
-  bool isParallel = true;
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "tidy" } })
@@ -48,7 +48,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     }
     else if (arg == "--no-parallel") {
-      isParallel = false;
+      setParallel(false);
     }
     else {
       return TIDY_CMD.noSuchArg(arg);
@@ -60,7 +60,7 @@ tidyMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const Path outDir = emitMakefile(true /* isDebug */, isParallel);
+  const Path outDir = emitMakefile(true /* isDebug */);
 
   String tidyFlags = " POAC_TIDY_FLAGS='";
   if (!isVerbose()) {
@@ -75,7 +75,7 @@ tidyMain(const std::span<const StringRef> args) {
   }
   tidyFlags += '\'';
 
-  String makeCmd = getMakeCommand(isParallel);
+  String makeCmd = getMakeCommand();
   makeCmd += " -C ";
   makeCmd += outDir.string();
   makeCmd += tidyFlags;

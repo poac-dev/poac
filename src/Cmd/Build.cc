@@ -3,6 +3,7 @@
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "../Parallel.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -27,11 +28,11 @@ const Subcmd BUILD_CMD =
         .setMainFn(buildMain);
 
 int
-buildImpl(String& outDir, const bool isDebug, const bool isParallel) {
+buildImpl(String& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
-  outDir = emitMakefile(isDebug, isParallel);
-  const String makeCommand = getMakeCommand(isParallel) + " -C " + outDir;
+  outDir = emitMakefile(isDebug);
+  const String makeCommand = getMakeCommand() + " -C " + outDir;
   const int exitCode = execCmd(makeCommand);
 
   const auto end = std::chrono::steady_clock::now();
@@ -50,7 +51,6 @@ buildMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;
-  bool isParallel = true;
   for (usize i = 0; i < args.size(); ++i) {
     const StringRef arg = args[i];
     HANDLE_GLOBAL_OPTS({ { "build" } }) // workaround for std::span until C++26
@@ -65,7 +65,7 @@ buildMain(const std::span<const StringRef> args) {
       buildCompdb = true;
     }
     else if (arg == "--no-parallel") {
-      isParallel = false;
+      setParallel(false);
     }
     else {
       return BUILD_CMD.noSuchArg(arg);
@@ -74,11 +74,11 @@ buildMain(const std::span<const StringRef> args) {
 
   if (!buildCompdb) {
     String outDir;
-    return buildImpl(outDir, isDebug, isParallel);
+    return buildImpl(outDir, isDebug);
   }
 
   // Build compilation database
-  const String outDir = emitCompdb(isDebug, isParallel);
+  const String outDir = emitCompdb(isDebug);
   Logger::info("Generated", outDir, "/compile_commands.json");
   return EXIT_SUCCESS;
 }

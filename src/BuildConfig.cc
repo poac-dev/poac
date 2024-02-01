@@ -5,6 +5,7 @@
 #include "Git2.hpp"
 #include "Logger.hpp"
 #include "Manifest.hpp"
+#include "Parallel.hpp"
 #include "TermColor.hpp"
 
 #include <algorithm>
@@ -641,12 +642,10 @@ processSrc(
 }
 
 static HashSet<String>
-processSources(
-    BuildConfig& config, const Vec<Path>& sourceFilePaths, const bool isParallel
-) {
+processSources(BuildConfig& config, const Vec<Path>& sourceFilePaths) {
   HashSet<String> buildObjTargets;
 
-  if (isParallel) {
+  if (isParallel()) {
     tbb::spin_mutex mtx;
     tbb::parallel_for(
         tbb::blocked_range<usize>(0, sourceFilePaths.size()),
@@ -721,7 +720,7 @@ processTestSrc(
 }
 
 static BuildConfig
-configureBuild(const bool isDebug, const bool isParallel) {
+configureBuild(const bool isDebug) {
   if (!fs::exists("src")) {
     throw PoacError("src directory not found");
   }
@@ -755,7 +754,7 @@ configureBuild(const bool isDebug, const bool isParallel) {
 
   // Source Pass
   const HashSet<String> buildObjTargets =
-      processSources(config, sourceFilePaths, isParallel);
+      processSources(config, sourceFilePaths);
 
   // Project binary target.
   const String mainObjTarget = config.buildOutDir / "main.o";
@@ -770,7 +769,7 @@ configureBuild(const bool isDebug, const bool isParallel) {
   // Test Pass
   Vec<String> testCommands;
   HashSet<String> testTargets;
-  if (isParallel) {
+  if (isParallel()) {
     tbb::spin_mutex mtx;
     tbb::parallel_for(
         tbb::blocked_range<usize>(0, sourceFilePaths.size()),
@@ -815,7 +814,7 @@ configureBuild(const bool isDebug, const bool isParallel) {
 
 /// @returns the directory where the Makefile is generated.
 String
-emitMakefile(const bool isDebug, const bool isParallel) {
+emitMakefile(const bool isDebug) {
   setOutDir(isDebug);
 
   // When emitting Makefile, we also build the project.  So, we need to
@@ -830,7 +829,7 @@ emitMakefile(const bool isDebug, const bool isParallel) {
   }
   Logger::debug("Makefile is NOT up to date");
 
-  const BuildConfig config = configureBuild(isDebug, isParallel);
+  const BuildConfig config = configureBuild(isDebug);
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return outDir;
@@ -838,7 +837,7 @@ emitMakefile(const bool isDebug, const bool isParallel) {
 
 /// @returns the directory where the compilation database is generated.
 String
-emitCompdb(const bool isDebug, const bool isParallel) {
+emitCompdb(const bool isDebug) {
   setOutDir(isDebug);
 
   // compile_commands.json also needs INCLUDES, but not LIBS.
@@ -852,7 +851,7 @@ emitCompdb(const bool isDebug, const bool isParallel) {
   }
   Logger::debug("compile_commands.json is NOT up to date");
 
-  const BuildConfig config = configureBuild(isDebug, isParallel);
+  const BuildConfig config = configureBuild(isDebug);
   std::ofstream ofs(compdbPath);
   config.emitCompdb(outDir, ofs);
   return outDir;
@@ -864,7 +863,7 @@ modeString(const bool isDebug) {
 }
 
 String
-getMakeCommand(const bool isParallel) {
+getMakeCommand() {
   String makeCommand;
   if (isVerbose()) {
     makeCommand = "make";
@@ -872,7 +871,7 @@ getMakeCommand(const bool isParallel) {
     makeCommand = "make -s --no-print-directory Q=@";
   }
 
-  if (isParallel) {
+  if (isParallel()) {
     const unsigned int numThreads = std::thread::hardware_concurrency();
     if (numThreads > 1) {
       makeCommand += " -j" + std::to_string(numThreads);

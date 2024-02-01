@@ -4,4 +4,4 @@
 #include "../Rustify.hpp"
 
 extern const Subcmd BUILD_CMD;
-int buildImpl(String& outDir, bool isDebug, bool isParallel);
+int buildImpl(String& outDir, bool isDebug);
