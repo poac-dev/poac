@@ -260,16 +260,6 @@ operator>=(const Version& lhs, const Version& rhs) noexcept {
   return !(lhs < rhs);
 }
 
-bool
-VersionLexer::isEof() const noexcept {
-  return pos >= s.size();
-}
-
-void
-VersionLexer::step() noexcept {
-  ++pos;
-}
-
 VersionToken
 VersionLexer::consumeIdent() noexcept {
   usize len = 0;

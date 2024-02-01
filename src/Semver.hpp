@@ -92,10 +92,14 @@ struct VersionLexer {
   StringRef s;
   usize pos{ 0 };
 
-  explicit VersionLexer(const StringRef str) noexcept : s(str) {}
+  constexpr explicit VersionLexer(const StringRef str) noexcept : s(str) {}
 
-  bool isEof() const noexcept;
-  void step() noexcept;
+  constexpr bool isEof() const noexcept {
+    return pos >= s.size();
+  }
+  constexpr void step() noexcept {
+    ++pos;
+  }
   VersionToken consumeIdent() noexcept;
   VersionToken consumeNum();
   VersionToken consumeNumOrIdent();
@@ -106,7 +110,7 @@ struct VersionLexer {
 struct VersionParser {
   VersionLexer lexer;
 
-  explicit VersionParser(const StringRef str) noexcept : lexer(str) {}
+  constexpr explicit VersionParser(const StringRef str) noexcept : lexer(str) {}
 
   Version parse();
   u64 parseNum();
