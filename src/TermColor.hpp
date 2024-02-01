@@ -3,9 +3,9 @@
 #include "Rustify.hpp"
 
 enum class ColorMode {
-  always,
-  automatic,
-  never,
+  Always,
+  Auto,
+  Never,
 };
 
 void setColorMode(ColorMode mode) noexcept;

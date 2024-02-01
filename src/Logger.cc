@@ -18,10 +18,10 @@ Logger::getLevel() noexcept {
 
 bool
 isVerbose() noexcept {
-  return Logger::getLevel() == LogLevel::debug;
+  return Logger::getLevel() == LogLevel::Debug;
 }
 
 bool
 isQuiet() noexcept {
-  return Logger::getLevel() == LogLevel::off;
+  return Logger::getLevel() == LogLevel::Off;
 }
