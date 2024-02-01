@@ -23,19 +23,19 @@ git_error_clear() {
 
 Exception::Exception() {
   if (const git_error* error = git_error_last(); error != nullptr) {
-    this->m_message += error->message;
-    this->m_category = static_cast<git_error_t>(error->klass);
+    this->msg += error->message;
+    this->cat = static_cast<git_error_t>(error->klass);
     git_error_clear();
   }
 }
 
 const char*
 Exception::what() const noexcept {
-  return this->m_message.c_str();
+  return this->msg.c_str();
 }
 git_error_t
 Exception::category() const noexcept {
-  return this->m_category;
+  return this->cat;
 }
 
 int
