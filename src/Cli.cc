@@ -201,7 +201,7 @@ Subcmd::noSuchArg(StringRef arg) const {
     suggestion = bold(cyan("  Tip:")) + " did you mean '"
                  + bold(yellow(similar.value())) + "'?\n\n";
   }
-  Logger::error(
+  logger::error(
       "unexpected argument '", bold(yellow(arg)), "' found\n\n", suggestion,
       getUsage(), "\n\n", "For more information, try '", bold(cyan("--help")),
       '\''
@@ -321,7 +321,7 @@ Command::noSuchArg(StringRef arg) const {
     suggestion = bold(cyan("  Tip:")) + " did you mean '"
                  + bold(yellow(similar.value())) + "'?\n\n";
   }
-  Logger::error(
+  logger::error(
       "unexpected argument '", bold(yellow(arg)), "' found\n\n", suggestion,
       "For a list of commands, try '", bold(cyan("poac help")), '\''
   );

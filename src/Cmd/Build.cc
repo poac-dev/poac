@@ -39,7 +39,7 @@ buildImpl(String& outDir, const bool isDebug) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
-    Logger::info(
+    logger::info(
         "Finished", modeString(isDebug), " target(s) in ", elapsed.count(), "s"
     );
   }
@@ -79,6 +79,6 @@ buildMain(const std::span<const StringRef> args) {
 
   // Build compilation database
   const String outDir = emitCompdb(isDebug);
-  Logger::info("Generated", outDir, "/compile_commands.json");
+  logger::info("Generated", outDir, "/compile_commands.json");
   return EXIT_SUCCESS;
 }

@@ -138,7 +138,7 @@ private:
 
 [[noreturn]] inline void
 panic(
-    const StringRef msg, const source_location loc = source_location::current()
+    const StringRef msg, const source_location& loc = source_location::current()
 ) noexcept {
   std::cerr << "panicked at '" << msg << "', " << loc.file_name() << ':'
             << loc.line() << '\n';
@@ -149,7 +149,7 @@ panic(
 
 [[noreturn]] inline void
 unreachable(
-    [[maybe_unused]] const source_location loc = source_location::current()
+    [[maybe_unused]] const source_location& loc = source_location::current()
 ) noexcept {
 #ifdef NDEBUG
   __builtin_unreachable();

@@ -900,7 +900,7 @@ namespace tests {
 inline void
 assertMatchAll(
     const VersionReq& req, const std::span<const StringRef> versions,
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) {
   for (const StringRef ver : versions) {
     assertTrue(req.satisfiedBy(Version::parse(ver)), "", loc);
@@ -910,7 +910,7 @@ assertMatchAll(
 inline void
 assertMatchNone(
     const VersionReq& req, const std::span<const StringRef> versions,
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) {
   for (const StringRef ver : versions) {
     assertFalse(req.satisfiedBy(Version::parse(ver)), "", loc);

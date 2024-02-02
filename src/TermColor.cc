@@ -19,7 +19,7 @@ getColorMode(const StringRef str) noexcept {
   } else if (str == "never") {
     return ColorMode::Never;
   } else {
-    Logger::warn("unknown color mode `", str, "`; falling back to auto");
+    logger::warn("unknown color mode `", str, "`; falling back to auto");
     return ColorMode::Auto;
   }
 }

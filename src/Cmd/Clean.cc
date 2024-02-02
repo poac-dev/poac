@@ -29,14 +29,14 @@ cleanMain(const std::span<const StringRef> args) noexcept {
 
     else if (arg == "-p" || arg == "--profile") {
       if (i + 1 >= args.size()) {
-        Logger::error("Missing argument for ", arg);
+        logger::error("Missing argument for ", arg);
         return EXIT_FAILURE;
       }
 
       ++i;
 
       if (!(args[i] == "debug" || args[i] == "release")) {
-        Logger::error("Invalid argument for ", arg, ": ", args[i]);
+        logger::error("Invalid argument for ", arg, ": ", args[i]);
         return EXIT_FAILURE;
       }
 
@@ -48,7 +48,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
   }
 
   if (fs::exists(outDir)) {
-    Logger::info("Removing", fs::canonical(outDir).string());
+    logger::info("Removing", fs::canonical(outDir).string());
     fs::remove_all(outDir);
   }
   return EXIT_SUCCESS;

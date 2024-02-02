@@ -42,7 +42,7 @@ getAuthor() noexcept {
     return config.getString("user.name") + " <" + config.getString("user.email")
            + ">";
   } catch (const git2::Exception& e) {
-    Logger::debug(e.what());
+    logger::debug(e.what());
     return "";
   }
 }
@@ -104,7 +104,7 @@ createTemplateFiles(const bool isBin, const StringRef projectName) {
     writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out");
     writeToFile(ofs, projectName / "src"_path / "main.cc", MAIN_CC);
 
-    Logger::info("Created", "binary (application) `", projectName, "` package");
+    logger::info("Created", "binary (application) `", projectName, "` package");
   } else {
     fs::create_directories(projectName / "include"_path / projectName);
     writeToFile(
@@ -118,7 +118,7 @@ createTemplateFiles(const bool isBin, const StringRef projectName) {
         getHeader(projectName)
     );
 
-    Logger::info("Created", "library `", projectName, "` package");
+    logger::info("Created", "library `", projectName, "` package");
   }
 }
 
@@ -146,12 +146,12 @@ newMain(const std::span<const StringRef> args) {
   }
 
   if (const auto err = validatePackageName(packageName)) {
-    Logger::error("package names ", err.value(), ": `", packageName, '`');
+    logger::error("package names ", err.value(), ": `", packageName, '`');
     return EXIT_FAILURE;
   }
 
   if (fs::exists(packageName)) {
-    Logger::error("directory `", packageName, "` already exists");
+    logger::error("directory `", packageName, "` already exists");
     return EXIT_FAILURE;
   }
 

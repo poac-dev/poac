@@ -31,7 +31,7 @@ tidyImpl(const String& makeCmd) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
-    Logger::info("Finished", "clang-tidy in ", elapsed.count(), "s");
+    logger::info("Finished", "clang-tidy in ", elapsed.count(), "s");
   }
   return exitCode;
 }
@@ -56,12 +56,12 @@ tidyMain(const std::span<const StringRef> args) {
   }
 
   if (!commandExists("clang-tidy")) {
-    Logger::error("clang-tidy not found");
+    logger::error("clang-tidy not found");
     return EXIT_FAILURE;
   }
 
   if (fix && isParallel()) {
-    Logger::warn("--fix automatically implies --no-parallel");
+    logger::warn("--fix automatically implies --no-parallel");
     setParallel(false);
   }
 
@@ -86,6 +86,6 @@ tidyMain(const std::span<const StringRef> args) {
   makeCmd += tidyFlags;
   makeCmd += " tidy";
 
-  Logger::info("Running", "clang-tidy");
+  logger::info("Running", "clang-tidy");
   return tidyImpl(makeCmd);
 }
