@@ -7,20 +7,20 @@
 #include <tuple>
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
-  if (arg == "-h" || arg == "--help") {                \
-    return getCmd().printHelp(HELP_ARGS);              \
-  } else if (arg == "-v" || arg == "--verbose") {      \
-    Logger::setLevel(LogLevel::Debug);                 \
-  } else if (arg == "-q" || arg == "--quiet") {        \
-    Logger::setLevel(LogLevel::Off);                   \
-  } else if (arg == "--color") {                       \
-    if (i + 1 < args.size()) {                         \
-      setColorMode(args[++i]);                         \
-    } else {                                           \
-      Logger::error("missing argument for `--color`"); \
-      return EXIT_FAILURE;                             \
-    }                                                  \
+#define HANDLE_GLOBAL_OPTS(HELP_ARGS)               \
+  if (arg == "-h" || arg == "--help") {             \
+    return getCmd().printHelp(HELP_ARGS);           \
+  } else if (arg == "-v" || arg == "--verbose") {   \
+    Logger::setLevel(LogLevel::Debug);              \
+  } else if (arg == "-q" || arg == "--quiet") {     \
+    Logger::setLevel(LogLevel::Off);                \
+  } else if (arg == "--color") {                    \
+    if (i + 1 < args.size()) {                      \
+      setColorMode(args[++i]);                      \
+    } else {                                        \
+      log::error("missing argument for `--color`"); \
+      return EXIT_FAILURE;                          \
+    }                                               \
   }
 
 class Opt;

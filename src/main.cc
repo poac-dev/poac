@@ -87,13 +87,13 @@ main(int argc, char* argv[]) {
         const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
         const int exitCode = getCmd().exec(arg, remArgs);
         if (exitCode != EXIT_SUCCESS) {
-          Logger::error(
+          log::error(
               "'poac ", arg, "' failed with exit code `", exitCode, '`'
           );
         }
         return exitCode;
       } catch (const std::exception& e) {
-        Logger::error(e.what());
+        log::error(e.what());
         return EXIT_FAILURE;
       }
     }

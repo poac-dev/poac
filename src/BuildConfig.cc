@@ -425,7 +425,7 @@ containsTestCode(const String& sourceFile) {
       // file.
       const bool containsTest = src != testSrc;
       if (containsTest) {
-        Logger::debug("Found test code: ", sourceFile);
+        log::debug("Found test code: ", sourceFile);
       }
       return containsTest;
     }
@@ -436,7 +436,7 @@ containsTestCode(const String& sourceFile) {
 static String
 printfCmd(const StringRef header, const StringRef body) {
   std::ostringstream oss;
-  Logger::info(oss, header, body);
+  log::info(oss, header, body);
   String msg = oss.str();
 
   // Replace all occurrences of '\n' with "\\n" to escape newlines
@@ -548,8 +548,8 @@ installDeps() {
     INCLUDES += ' ' + dep.includes;
     LIBS += ' ' + dep.libs;
   }
-  Logger::debug("INCLUDES: ", INCLUDES);
-  Logger::debug("LIBS: ", LIBS);
+  log::debug("INCLUDES: ", INCLUDES);
+  log::debug("LIBS: ", LIBS);
 }
 
 static void
@@ -593,7 +593,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
     commitShortHash = commitHash.substr(0, git2::SHORT_HASH_LEN);
     commitDate = git2::Commit().lookup(repo, oid).time().toString();
   } catch (const git2::Exception& e) {
-    Logger::debug("No git repository found");
+    log::debug("No git repository found");
   }
 
   // Variables Poac sets for the user.
@@ -824,10 +824,10 @@ emitMakefile(const bool isDebug) {
   const String outDir = getOutDir();
   const String makefilePath = outDir + "/Makefile";
   if (isUpToDate(makefilePath)) {
-    Logger::debug("Makefile is up to date");
+    log::debug("Makefile is up to date");
     return outDir;
   }
-  Logger::debug("Makefile is NOT up to date");
+  log::debug("Makefile is NOT up to date");
 
   const BuildConfig config = configureBuild(isDebug);
   std::ofstream ofs(makefilePath);
@@ -846,10 +846,10 @@ emitCompdb(const bool isDebug) {
   const String outDir = getOutDir();
   const String compdbPath = outDir + "/compile_commands.json";
   if (isUpToDate(compdbPath)) {
-    Logger::debug("compile_commands.json is up to date");
+    log::debug("compile_commands.json is up to date");
     return outDir;
   }
-  Logger::debug("compile_commands.json is NOT up to date");
+  log::debug("compile_commands.json is NOT up to date");
 
   const BuildConfig config = configureBuild(isDebug);
   std::ofstream ofs(compdbPath);

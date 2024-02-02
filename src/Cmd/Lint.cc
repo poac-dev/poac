@@ -24,7 +24,7 @@ struct LintArgs {
 
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
-  Logger::info("Linting", name);
+  log::info("Linting", name);
 
   String cpplintCmd = "cpplint";
   cpplintCmd += cpplintArgs;
@@ -59,7 +59,7 @@ lintMain(const std::span<const StringRef> args) {
 
     else if (arg == "--exclude") {
       if (i + 1 >= args.size()) {
-        Logger::error("Missing argument for ", arg);
+        log::error("Missing argument for ", arg);
         return EXIT_FAILURE;
       }
 
@@ -73,7 +73,7 @@ lintMain(const std::span<const StringRef> args) {
   }
 
   if (!commandExists("cpplint")) {
-    Logger::error(
+    log::error(
         "lint command requires cpplint; try installing it by:\n"
         "  pip install cpplint"
     );
@@ -83,7 +83,7 @@ lintMain(const std::span<const StringRef> args) {
   String cpplintArgs = lintArgs.excludes;
   const String& packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
-    Logger::debug("Using CPPLINT.cfg for lint ...");
+    log::debug("Using CPPLINT.cfg for lint ...");
     return lint(packageName, cpplintArgs);
   }
 
@@ -95,7 +95,7 @@ lintMain(const std::span<const StringRef> args) {
 
   const Vec<String>& cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
-    Logger::debug("Using Poac manifest file for lint ...");
+    log::debug("Using Poac manifest file for lint ...");
     cpplintArgs += " --filter=";
     for (const StringRef filter : cpplintFilters) {
       cpplintArgs += filter;
@@ -105,7 +105,7 @@ lintMain(const std::span<const StringRef> args) {
     cpplintArgs.pop_back();
     return lint(packageName, cpplintArgs);
   } else {
-    Logger::debug("Using default arguments for lint ...");
+    log::debug("Using default arguments for lint ...");
     if (Edition::Cpp11 < getPackageEdition()) {
       // Disable C++11-related lints
       cpplintArgs += " --filter=-build/c++11";

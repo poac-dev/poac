@@ -41,20 +41,20 @@ initMain(const std::span<const StringRef> args) {
   }
 
   if (fs::exists("poac.toml")) {
-    Logger::error("cannot initialize an existing poac package");
+    log::error("cannot initialize an existing poac package");
     return EXIT_FAILURE;
   }
 
   const String packageName = fs::current_path().stem().string();
   if (const auto err = validatePackageName(packageName)) {
-    Logger::error("package names ", err.value(), ": `", packageName, '`');
+    log::error("package names ", err.value(), ": `", packageName, '`');
     return EXIT_FAILURE;
   }
 
   std::ofstream ofs("poac.toml");
   ofs << createPoacToml(packageName);
 
-  Logger::info(
+  log::info(
       "Created", isBin ? "binary (application) `" : "library `", packageName,
       "` package"
   );

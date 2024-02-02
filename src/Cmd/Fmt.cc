@@ -31,7 +31,7 @@ collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
     repo.open(manifestDir.string());
     hasGitRepo = true;
   } catch (const git2::Exception& e) {
-    Logger::debug("No git repository found");
+    log::debug("No git repository found");
   }
 
   // Automatically collects format-target files
@@ -40,14 +40,14 @@ collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
     if (entry->is_directory()) {
       const String path = fs::relative(entry->path(), manifestDir).string();
       if (hasGitRepo && repo.isIgnored(path)) {
-        Logger::debug("Ignore: ", path);
+        log::debug("Ignore: ", path);
         entry.disable_recursion_pending();
         continue;
       }
     } else if (entry->is_regular_file()) {
       const Path path = fs::relative(entry->path(), manifestDir);
       if (hasGitRepo && repo.isIgnored(path.string())) {
-        Logger::debug("Ignore: ", path.string());
+        log::debug("Ignore: ", path.string());
         continue;
       }
 
@@ -76,7 +76,7 @@ fmtMain(const std::span<const StringRef> args) {
   }
 
   if (!commandExists("clang-format")) {
-    Logger::error(
+    log::error(
         "fmt command requires clang-format; try installing it by:\n"
         "  apt/brew install clang-format"
     );
@@ -92,7 +92,7 @@ fmtMain(const std::span<const StringRef> args) {
     clangFormatArgs += " --dry-run";
   } else {
     clangFormatArgs += " -i";
-    Logger::info("Formatting", packageName);
+    log::info("Formatting", packageName);
   }
 
   const Path& manifestDir = getManifestPath().parent_path();

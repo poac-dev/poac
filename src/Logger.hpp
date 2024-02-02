@@ -47,17 +47,10 @@ public:
   static void info(Ts&&... msgs) noexcept {
     logln(LogLevel::Info, std::forward<Ts>(msgs)...);
   }
-
   template <typename... Ts>
-  struct debug { // NOLINT(readability-identifier-naming)
-    explicit debug(
-        Ts&&... msgs, const source_location& loc = source_location::current()
-    ) noexcept {
-      logln(LogLevel::Debug, loc.function_name(), std::forward<Ts>(msgs)...);
-    }
-  };
-  template <typename... Ts>
-  debug(Ts&&...) -> debug<Ts...>;
+  static void debug(Ts&&... msgs) noexcept {
+    logln(LogLevel::Debug, std::forward<Ts>(msgs)...);
+  }
 
 private:
   template <typename T, typename... Ts>
@@ -114,6 +107,37 @@ private:
     }
   }
 };
+
+namespace log {
+
+template <typename... Ts>
+void
+error(Ts&&... msgs) noexcept {
+  Logger::error(std::forward<Ts>(msgs)...);
+}
+template <typename... Ts>
+void
+warn(Ts&&... msgs) noexcept {
+  Logger::warn(std::forward<Ts>(msgs)...);
+}
+template <typename... Ts>
+void
+info(Ts&&... msgs) noexcept {
+  Logger::info(std::forward<Ts>(msgs)...);
+}
+
+template <typename... Ts>
+struct debug { // NOLINT(readability-identifier-naming)
+  explicit debug(
+      Ts&&... msgs, const source_location& loc = source_location::current()
+  ) noexcept {
+    Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
+  }
+};
+template <typename... Ts>
+debug(Ts&&...) -> debug<Ts...>;
+
+} // namespace log
 
 bool isVerbose() noexcept;
 bool isQuiet() noexcept;
