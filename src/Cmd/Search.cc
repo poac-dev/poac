@@ -55,7 +55,7 @@ searchPackages(const SearchArgs& args) {
 
   CURL* curl = curl_easy_init();
   if (!curl) {
-    log::error("curl_easy_init() failed");
+    logger::error("curl_easy_init() failed");
     return EXIT_FAILURE;
   }
 
@@ -104,7 +104,7 @@ searchMain(const std::span<const StringRef> args) {
       if (i + 1 < args.size()) {
         searchArgs.perPage = std::stoul(String(args[++i]));
       } else {
-        log::error("missing argument for `--per-page`");
+        logger::error("missing argument for `--per-page`");
         return EXIT_FAILURE;
       }
     }
@@ -112,7 +112,7 @@ searchMain(const std::span<const StringRef> args) {
       if (i + 1 < args.size()) {
         searchArgs.page = std::stoul(String(args[++i]));
       } else {
-        log::error("missing argument for `--page`");
+        logger::error("missing argument for `--page`");
         return EXIT_FAILURE;
       }
     }
@@ -125,13 +125,13 @@ searchMain(const std::span<const StringRef> args) {
   }
 
   if (searchArgs.name.empty()) {
-    log::error("missing package name");
+    logger::error("missing package name");
     return EXIT_FAILURE;
   }
 
   const nlohmann::json packages = searchPackages(searchArgs);
   if (packages.empty()) {
-    log::warn("no packages found");
+    logger::warn("no packages found");
     return EXIT_SUCCESS;
   }
 

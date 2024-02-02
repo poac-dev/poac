@@ -108,7 +108,7 @@ private:
   }
 };
 
-namespace log {
+namespace logger {
 
 template <typename... Ts>
 void
@@ -137,7 +137,7 @@ struct debug { // NOLINT(readability-identifier-naming)
 template <typename... Ts>
 debug(Ts&&...) -> debug<Ts...>;
 
-} // namespace log
+} // namespace logger
 
 bool isVerbose() noexcept;
 bool isQuiet() noexcept;

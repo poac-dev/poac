@@ -39,7 +39,7 @@ testMain(const std::span<const StringRef> args) {
       isDebug = true;
     }
     else if (arg == "-r" || arg == "--release") {
-      log::warn(
+      logger::warn(
           "Tests in release mode could disable assert macros while speeding up "
           "the runtime."
       );
@@ -62,7 +62,7 @@ testMain(const std::span<const StringRef> args) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
-    log::info(
+    logger::info(
         "Finished", modeString(isDebug), " test(s) in ", elapsed.count(), "s"
     );
   }
