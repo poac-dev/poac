@@ -22,7 +22,7 @@ const Subcmd TIDY_CMD =
         .setMainFn(tidyMain);
 
 static int
-tidyImpl(const String& makeCmd) {
+tidyImpl(const StringRef makeCmd) {
   const auto start = std::chrono::steady_clock::now();
 
   const int exitCode = execCmd(makeCmd);

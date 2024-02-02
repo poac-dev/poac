@@ -821,15 +821,17 @@ VersionReq::toString() const noexcept {
 }
 
 String
-VersionReq::toPkgConfigString(const String& name) const noexcept {
+VersionReq::toPkgConfigString(const StringRef name) const noexcept {
   // For pkg-config, canonicalization is necessary.
   const VersionReq req = canonicalize();
 
-  String result = name;
+  String result(name);
   result += ' ';
   result += req.left.toPkgConfigString();
   if (req.right.has_value()) {
-    result += ", " + name + ' ';
+    result += ", ";
+    result += name;
+    result += ' ';
     result += req.right->toPkgConfigString();
   }
   return result;

@@ -89,7 +89,7 @@ struct VersionReq {
   static VersionReq parse(StringRef str);
   bool satisfiedBy(const Version& ver) const noexcept;
   String toString() const noexcept;
-  String toPkgConfigString(const String& name) const noexcept;
+  String toPkgConfigString(StringRef name) const noexcept;
   VersionReq canonicalize() const noexcept;
   bool canSimplify() const noexcept;
 };
