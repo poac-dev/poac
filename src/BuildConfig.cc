@@ -501,7 +501,7 @@ mapHeaderToObj(const Path& headerPath, const Path& buildOutDir) {
 // for each source file.  So, we need objTargetDeps, which is the
 // depending header files for the source file.
 static void
-collectBinDepObjs(
+collectBinDepObjs( // NOLINT(misc-no-recursion)
     HashSet<String>& deps, const String& sourceFileName,
     const HashSet<String>& objTargetDeps,
     const HashSet<String>& buildObjTargets, const BuildConfig& config
