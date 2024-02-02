@@ -1,27 +1,42 @@
 #include "Logger.hpp"
 
-Logger&
-Logger::instance() noexcept {
-  static Logger INSTANCE;
-  return INSTANCE;
-}
+namespace logger {
+
+namespace detail {
+
+  Logger& Logger::instance() noexcept {
+    static Logger INSTANCE;
+    return INSTANCE;
+  }
+
+  void Logger::setLevel(Level level) noexcept {
+    instance().level = level;
+  }
+
+  Level Logger::getLevel() noexcept {
+    return instance().level;
+  }
+
+} // namespace detail
 
 void
-Logger::setLevel(LogLevel level) noexcept {
-  instance().level = level;
+setLevel(Level level) noexcept {
+  detail::Logger::setLevel(level);
 }
 
-LogLevel
-Logger::getLevel() noexcept {
-  return instance().level;
+Level
+getLevel() noexcept {
+  return detail::Logger::getLevel();
 }
+
+} // namespace logger
 
 bool
 isVerbose() noexcept {
-  return Logger::getLevel() == LogLevel::Debug;
+  return logger::getLevel() == logger::Level::Debug;
 }
 
 bool
 isQuiet() noexcept {
-  return Logger::getLevel() == LogLevel::Off;
+  return logger::getLevel() == logger::Level::Off;
 }
