@@ -348,12 +348,18 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
 
 String
 runMM(const String& sourceFile, const bool isTest = false) {
-  String command =
-      "cd " + getOutDir() + " && " + CXX + CXXFLAGS + DEFINES + INCLUDES;
+  String command = "cd ";
+  command += getOutDir();
+  command += " && ";
+  command += CXX;
+  command += CXXFLAGS;
+  command += DEFINES;
+  command += INCLUDES;
   if (isTest) {
     command += " -DPOAC_TEST";
   }
-  command += " -MM " + sourceFile;
+  command += " -MM ";
+  command += sourceFile;
   return getCmdOutput(command);
 }
 
@@ -411,7 +417,8 @@ containsTestCode(const String& sourceFile) {
       command += CXXFLAGS;
       command += DEFINES;
       command += INCLUDES;
-      command += " " + sourceFile;
+      command += ' ';
+      command += sourceFile;
 
       const String src = getCmdOutput(command);
 
