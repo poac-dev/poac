@@ -14,7 +14,7 @@ namespace logger {
 enum class Level : u8 {
   Off = 0, // --quiet
   Error = 1,
-  Warning = 2,
+  Warn = 2,
   Info = 3, // default
   Debug = 4 // --verbose
 };
@@ -45,7 +45,7 @@ namespace detail {
     }
     template <typename... Ts>
     static void warn(Ts&&... msgs) noexcept {
-      logln(Level::Warning, std::forward<Ts>(msgs)...);
+      logln(Level::Warn, std::forward<Ts>(msgs)...);
     }
     template <typename... Ts>
     static void info(Ts&&... msgs) noexcept {
@@ -88,7 +88,7 @@ namespace detail {
           case Level::Error:
             os << bold(red("Error: ")) << std::forward<T>(head);
             break;
-          case Level::Warning:
+          case Level::Warn:
             os << bold(yellow("Warning: ")) << std::forward<T>(head);
             break;
           case Level::Info:
