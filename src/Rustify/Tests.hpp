@@ -53,7 +53,7 @@ modName(StringRef file) noexcept {
 }
 
 inline void
-pass(const source_location loc = source_location::current()) noexcept {
+pass(const source_location& loc = source_location::current()) noexcept {
   std::cout << "test " << modName(loc.file_name())
             << "::" << loc.function_name() << " ... " << GREEN << "ok" << RESET
             << '\n'
@@ -63,7 +63,7 @@ pass(const source_location loc = source_location::current()) noexcept {
 template <typename... Ts>
   requires(Display<Ts> && ...)
 [[noreturn]] inline void
-error(const source_location loc, Ts&&... msgs) noexcept {
+error(const source_location& loc, Ts&&... msgs) noexcept {
   std::cerr << "test " << modName(loc.file_name())
             << "::" << loc.function_name() << " ... " << RED << "FAILED"
             << RESET << "\n\n"
@@ -76,7 +76,7 @@ error(const source_location loc, Ts&&... msgs) noexcept {
 inline void
 assertTrue(
     const bool cond, const StringRef msg = "",
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) noexcept {
   if (cond) {
     return; // OK
@@ -92,7 +92,7 @@ assertTrue(
 inline void
 assertFalse(
     const bool cond, const StringRef msg = "",
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) noexcept {
   if (!cond) {
     return; // OK
@@ -110,7 +110,7 @@ template <typename Lhs, typename Rhs>
 inline void
 assertEq(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) noexcept {
   if (lhs == rhs) {
     return; // OK
@@ -132,7 +132,7 @@ template <typename Lhs, typename Rhs>
 inline void
 assertNe(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) noexcept {
   if (lhs != rhs) {
     return; // OK
@@ -154,7 +154,7 @@ template <typename Lhs, typename Rhs>
 inline void
 assertLt(
     Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) noexcept {
   if (lhs < rhs) {
     return; // OK
@@ -176,7 +176,7 @@ template <typename E, typename Fn>
 inline void
 assertException(
     Fn&& func, const StringRef msg,
-    const source_location loc = source_location::current()
+    const source_location& loc = source_location::current()
 ) noexcept {
   try {
     std::forward<Fn>(func)();
@@ -201,7 +201,7 @@ template <typename Fn>
   requires(std::is_invocable_v<Fn>)
 inline void
 assertNoException(
-    Fn&& func, const source_location loc = source_location::current()
+    Fn&& func, const source_location& loc = source_location::current()
 ) noexcept {
   try {
     std::forward<Fn>(func)();

@@ -47,10 +47,17 @@ public:
   static void info(Ts&&... msgs) noexcept {
     logln(LogLevel::Info, std::forward<Ts>(msgs)...);
   }
+
   template <typename... Ts>
-  static void debug(Ts&&... msgs) noexcept {
-    logln(LogLevel::Debug, std::forward<Ts>(msgs)...);
-  }
+  struct debug { // NOLINT(readability-identifier-naming)
+    explicit debug(
+        Ts&&... msgs, const source_location& loc = source_location::current()
+    ) noexcept {
+      logln(LogLevel::Debug, loc.function_name(), std::forward<Ts>(msgs)...);
+    }
+  };
+  template <typename... Ts>
+  debug(Ts&&...) -> debug<Ts...>;
 
 private:
   template <typename T, typename... Ts>
@@ -74,8 +81,7 @@ private:
 
   template <typename T, typename... Ts>
     requires(Display<T> && (Display<Ts> && ...))
-  void
-  log(std::ostream& os, LogLevel level, T&& header, Ts&&... msgs) noexcept {
+  void log(std::ostream& os, LogLevel level, T&& head, Ts&&... msgs) noexcept {
     // For other than `info`, header means just the first argument.
 
     if (level <= this->level) {
@@ -83,10 +89,10 @@ private:
         case LogLevel::Off:
           return;
         case LogLevel::Error:
-          os << bold(red("Error: ")) << std::forward<T>(header);
+          os << bold(red("Error: ")) << std::forward<T>(head);
           break;
         case LogLevel::Warning:
-          os << bold(yellow("Warning: ")) << std::forward<T>(header);
+          os << bold(yellow("Warning: ")) << std::forward<T>(head);
           break;
         case LogLevel::Info:
           os << std::right;
@@ -97,10 +103,11 @@ private:
           } else {
             os << std::setw(INFO_OFFSET);
           }
-          os << bold(green(std::forward<T>(header))) << ' ';
+          os << bold(green(std::forward<T>(head))) << ' ';
           break;
         case LogLevel::Debug:
-          os << "[Poac] " << std::forward<T>(header);
+          os << gray("[") << "Poac " << blue("DEBUG") << ' '
+             << std::forward<T>(head) << gray("] ");
           break;
       }
       (os << ... << std::forward<Ts>(msgs)) << std::flush;
