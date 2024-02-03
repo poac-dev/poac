@@ -63,11 +63,14 @@ namespace detail {
     template <typename... Ts>
       requires((Writer<Ts> || Display<Ts>) && ...)
     static void info(Ts&&... msgs) noexcept {
-      constexpr auto processHead = [](const StringRef head) noexcept -> String {
-        const StringRef fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
-        return fmt::format(fmt::runtime(fmtStr), bold(green(head)));
-      };
-      logln(Level::Info, processHead, std::forward<Ts>(msgs)...);
+      logln(
+          Level::Info,
+          [](const StringRef head) noexcept -> String {
+            const StringRef fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
+            return fmt::format(fmt::runtime(fmtStr), bold(green(head)));
+          },
+          std::forward<Ts>(msgs)...
+      );
     }
 
     template <typename... Ts>
@@ -87,13 +90,15 @@ namespace detail {
       requires((Writer<Ts> || Display<Ts>) && ...)
     static void
     debuglike(Level level, const StringRef lvlStr, Ts&&... msgs) noexcept {
-      const auto processHead = //
+      logln(
+          level,
           [&lvlStr](const StringRef func) noexcept -> String {
-        return fmt::format(
-            "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
-        );
-      };
-      logln(level, processHead, std::forward<Ts>(msgs)...);
+            return fmt::format(
+                "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
+            );
+          },
+          std::forward<Ts>(msgs)...
+      );
     }
 
     template <typename Fn, typename T, typename U, typename... Ts>

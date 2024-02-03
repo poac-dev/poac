@@ -5,8 +5,8 @@ namespace logger {
 namespace detail {
 
   Logger& Logger::instance() noexcept {
-    static Logger INSTANCE;
-    return INSTANCE;
+    static Logger instance;
+    return instance;
   }
 
   void Logger::setLevel(Level level) noexcept {
