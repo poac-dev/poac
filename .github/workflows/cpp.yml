@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up dependencies
+      - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
       - name: Build Poac
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up dependencies
+      - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
       - name: Build Poac
@@ -63,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up dependencies
+      - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
       - name: Build Poac

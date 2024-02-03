@@ -43,7 +43,7 @@ jobs:
           chmod +x ./llvm.sh
           sudo ./llvm.sh ${{ matrix.compiler.ver }}
 
-      - name: Set up dependencies
+      - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
       - name: Print versions

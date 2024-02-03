@@ -1,10 +1,10 @@
-name: "Set up macOS dependencies"
-description: "Set up macOS dependencies"
+name: "Setup macOS dependencies"
+description: "Setup macOS dependencies"
 
 runs:
   using: "composite"
   steps:
-    - name: "Install dependencies"
+    - name: "Setup dependencies"
       run: |
         brew install \
           curl \

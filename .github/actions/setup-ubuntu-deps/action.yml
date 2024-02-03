@@ -1,10 +1,10 @@
-name: "Set up Ubuntu dependencies"
-description: "Set up Ubuntu dependencies"
+name: "Setup Ubuntu dependencies"
+description: "Setup Ubuntu dependencies"
 
 runs:
   using: "composite"
   steps:
-    - name: "Install dependencies"
+    - name: "Setup dependencies"
       run: |
         sudo apt-get update
         sudo apt-get install -y \
