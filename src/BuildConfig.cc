@@ -239,8 +239,7 @@ BuildConfig::emitVariable(std::ostream& os, const String& varName) const {
     if (c == ' ') {
       // Emit value
       if (offset + value.size() + 2 > maxLineLen) { // 2 for space and '\'
-        os << std::setw(static_cast<int>(maxLineLen + 3 - offset))
-           << "\\\n  ";
+        os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << "\\\n  ";
         offset = 2;
       }
       os << value << ' ';
@@ -302,7 +301,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
         continue;
       }
       if (cmd.find("-c") == String::npos) {
-        // Ignore linking commands.
+        // Ignore link commands.
         continue;
       }
       isCompileTarget = true;
