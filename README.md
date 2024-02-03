@@ -96,6 +96,9 @@ If your environment is not included in the released packages, you have to build 
 
 #### Libraries
 
+* fmt: `>=8.1.1 && <11`
+    * `libfmt-dev` on APT
+    * `fmt` on Homebrew
 * libgit2: `>=1.1.0 && <2`
     * `libgit2-dev` on APT
     * `libgit2` on Homebrew
