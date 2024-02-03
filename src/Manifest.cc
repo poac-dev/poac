@@ -145,9 +145,9 @@ struct Manifest {
   ~Manifest() noexcept = default;
 
   static Manifest& instance() noexcept {
-    static Manifest INSTANCE;
-    INSTANCE.load();
-    return INSTANCE;
+    static Manifest instance;
+    instance.load();
+    return instance;
   }
 
   Option<Path> manifestPath = None;

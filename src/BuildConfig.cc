@@ -187,10 +187,10 @@ struct BuildConfig {
 
 static void
 emitDep(std::ostream& os, usize& offset, const StringRef dep) {
-  constexpr usize MAX_LINE_LEN = 80;
-  if (offset + dep.size() + 2 > MAX_LINE_LEN) { // 2 for space and \.
+  constexpr usize maxLineLen = 80;
+  if (offset + dep.size() + 2 > maxLineLen) { // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
-    os << std::setw(static_cast<int>(MAX_LINE_LEN + 3 - offset)) << " \\\n ";
+    os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << " \\\n ";
     offset = 2;
   }
   os << ' ' << dep;
@@ -232,15 +232,14 @@ BuildConfig::emitVariable(std::ostream& os, const String& varName) const {
   const String left = oss.str();
   os << left << ' ';
 
-  constexpr usize MAX_LINE_LEN = 80; // TODO: share across sources?
+  constexpr usize maxLineLen = 80; // TODO: share across sources?
   usize offset = left.size() + 1; // space
   String value;
   for (const char c : variables.at(varName).value) {
     if (c == ' ') {
       // Emit value
-      if (offset + value.size() + 2 > MAX_LINE_LEN) { // 2 for space and '\'
-        os << std::setw(static_cast<int>(MAX_LINE_LEN + 3 - offset))
-           << "\\\n  ";
+      if (offset + value.size() + 2 > maxLineLen) { // 2 for space and '\'
+        os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << "\\\n  ";
         offset = 2;
       }
       os << value << ' ';
@@ -302,7 +301,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
         continue;
       }
       if (cmd.find("-c") == String::npos) {
-        // Ignore linking commands.
+        // Ignore link commands.
         continue;
       }
       isCompileTarget = true;

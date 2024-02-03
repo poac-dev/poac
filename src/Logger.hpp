@@ -3,6 +3,7 @@
 #include "Rustify.hpp"
 #include "TermColor.hpp"
 
+#include <fmt/core.h>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -12,17 +13,17 @@
 namespace logger {
 
 enum class Level : u8 {
-  Off = 0, // --quiet
+  Off = 0, // --quiet, -q
   Error = 1,
   Warn = 2,
   Info = 3, // default
-  Debug = 4 // --verbose
+  Debug = 4, // --verbose, -v
+  Trace = 5, // -vv
 };
 
 namespace detail {
 
   class Logger {
-    static constexpr int INFO_OFFSET = 12;
     Level level = Level::Info;
 
     Logger() noexcept = default;
@@ -40,31 +41,86 @@ namespace detail {
     static Level getLevel() noexcept;
 
     template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
     static void error(Ts&&... msgs) noexcept {
-      logln(Level::Error, std::forward<Ts>(msgs)...);
+      logln(
+          Level::Error,
+          [](const StringRef head) noexcept { return String(head); },
+          bold(red("Error: ")), std::forward<Ts>(msgs)...
+      );
     }
+
     template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
     static void warn(Ts&&... msgs) noexcept {
-      logln(Level::Warn, std::forward<Ts>(msgs)...);
+      logln(
+          Level::Warn,
+          [](const StringRef head) noexcept { return String(head); },
+          bold(yellow("Warning: ")), std::forward<Ts>(msgs)...
+      );
     }
+
     template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
     static void info(Ts&&... msgs) noexcept {
-      logln(Level::Info, std::forward<Ts>(msgs)...);
+      logln(
+          Level::Info,
+          [](const StringRef head) noexcept -> String {
+            const StringRef fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
+            return fmt::format(fmt::runtime(fmtStr), bold(green(head)));
+          },
+          std::forward<Ts>(msgs)...
+      );
     }
+
     template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
     static void debug(Ts&&... msgs) noexcept {
-      logln(Level::Debug, std::forward<Ts>(msgs)...);
+      debuglike(Level::Debug, blue("DEBUG"), std::forward<Ts>(msgs)...);
+    }
+
+    template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
+    static void trace(Ts&&... msgs) noexcept {
+      debuglike(Level::Trace, cyan("TRACE"), std::forward<Ts>(msgs)...);
     }
 
   private:
-    template <typename T, typename... Ts>
-      requires(((Writer<T> || Display<T>) && Display<Ts>) && ...)
-    static void logln(Level level, T&& val, Ts&&... msgs) noexcept {
+    template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
+    static void
+    debuglike(Level level, const StringRef lvlStr, Ts&&... msgs) noexcept {
+      logln(
+          level,
+          [&lvlStr](const StringRef func) noexcept -> String {
+            return fmt::format(
+                "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
+            );
+          },
+          std::forward<Ts>(msgs)...
+      );
+    }
+
+    template <typename Fn, typename T, typename U, typename... Ts>
+      requires(
+          std::is_nothrow_invocable_r_v<String, Fn, StringRef>
+          && (Writer<T> || Display<T>) && Display<U> && (Display<Ts> && ...)
+      )
+    static void logln(
+        Level level, Fn&& processHead, T&& writerOrHead, U&& headOrMsg,
+        Ts&&... msgs
+    ) noexcept {
       if constexpr (Writer<T>) {
-        loglnImpl(std::forward<T>(val), level, std::forward<Ts>(msgs)...);
+        loglnImpl(
+            std::forward<T>(writerOrHead), level,
+            std::forward<Fn>(processHead)(std::forward<U>(headOrMsg)),
+            std::forward<Ts>(msgs)...
+        );
       } else {
         loglnImpl(
-            std::cerr, level, std::forward<T>(val), std::forward<Ts>(msgs)...
+            std::cerr, level,
+            std::forward<Fn>(processHead)(std::forward<T>(writerOrHead)),
+            std::forward<U>(headOrMsg), std::forward<Ts>(msgs)...
         );
       }
     }
@@ -76,37 +132,10 @@ namespace detail {
       instance().log(os, level, std::forward<Ts>(msgs)..., '\n');
     }
 
-    template <typename T, typename... Ts>
-      requires(Display<T> && (Display<Ts> && ...))
-    void log(std::ostream& os, Level level, T&& head, Ts&&... msgs) noexcept {
-      // For other than `info`, header means just the first argument.
-
+    template <typename... Ts>
+      requires(Display<Ts> && ...)
+    void log(std::ostream& os, Level level, Ts&&... msgs) noexcept {
       if (level <= this->level) {
-        switch (level) {
-          case Level::Off:
-            return;
-          case Level::Error:
-            os << bold(red("Error: ")) << std::forward<T>(head);
-            break;
-          case Level::Warn:
-            os << bold(yellow("Warning: ")) << std::forward<T>(head);
-            break;
-          case Level::Info:
-            os << std::right;
-            if (shouldColor()) {
-              // Color escape sequences are not visible but affect std::setw.
-              constexpr int COLOR_ESCAPE_SEQ_LEN = 9;
-              os << std::setw(INFO_OFFSET + COLOR_ESCAPE_SEQ_LEN);
-            } else {
-              os << std::setw(INFO_OFFSET);
-            }
-            os << bold(green(std::forward<T>(head))) << ' ';
-            break;
-          case Level::Debug:
-            os << gray("[") << "Poac " << blue("DEBUG") << ' '
-               << std::forward<T>(head) << gray("] ");
-            break;
-        }
         (os << ... << std::forward<Ts>(msgs)) << std::flush;
       }
     }
@@ -115,22 +144,28 @@ namespace detail {
 } // namespace detail
 
 template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
 void
 error(Ts&&... msgs) noexcept {
   detail::Logger::error(std::forward<Ts>(msgs)...);
 }
+
 template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
 void
 warn(Ts&&... msgs) noexcept {
   detail::Logger::warn(std::forward<Ts>(msgs)...);
 }
+
 template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
 void
 info(Ts&&... msgs) noexcept {
   detail::Logger::info(std::forward<Ts>(msgs)...);
 }
 
 template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
 struct debug { // NOLINT(readability-identifier-naming)
   explicit debug(
       Ts&&... msgs, const source_location& loc = source_location::current()
@@ -139,7 +174,21 @@ struct debug { // NOLINT(readability-identifier-naming)
   }
 };
 template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
 debug(Ts&&...) -> debug<Ts...>;
+
+template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
+struct trace { // NOLINT(readability-identifier-naming)
+  explicit trace(
+      Ts&&... msgs, const source_location& loc = source_location::current()
+  ) noexcept {
+    detail::Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
+  }
+};
+template <typename... Ts>
+  requires((Writer<Ts> || Display<Ts>) && ...)
+trace(Ts&&...) -> trace<Ts...>;
 
 void setLevel(Level level) noexcept;
 Level getLevel() noexcept;

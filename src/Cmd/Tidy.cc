@@ -61,7 +61,7 @@ tidyMain(const std::span<const StringRef> args) {
   }
 
   if (fix && isParallel()) {
-    logger::warn("--fix automatically implies --no-parallel");
+    logger::warn("`--fix` automatically implies `--no-parallel`");
     setParallel(false);
   }
 

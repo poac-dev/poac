@@ -12,6 +12,8 @@
     return getCmd().printHelp(HELP_ARGS);              \
   } else if (arg == "-v" || arg == "--verbose") {      \
     logger::setLevel(logger::Level::Debug);            \
+  } else if (arg == "-vv") {                           \
+    logger::setLevel(logger::Level::Trace);            \
   } else if (arg == "-q" || arg == "--quiet") {        \
     logger::setLevel(logger::Level::Off);              \
   } else if (arg == "--color") {                       \

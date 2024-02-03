@@ -22,13 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          brew install \
-            curl \
-            libgit2 \
-            nlohmann-json \
-            tbb
+      - name: Setup dependencies
+        uses: ./.github/actions/setup-macos-deps
 
       - name: Print versions
         run: make versions

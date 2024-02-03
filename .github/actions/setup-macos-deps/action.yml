@@ -1,0 +1,15 @@
+name: "Setup macOS dependencies"
+description: "Setup macOS dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Setup dependencies"
+      run: |
+        brew install \
+          curl \
+          fmt \
+          libgit2 \
+          nlohmann-json \
+          tbb
+      shell: "bash"
