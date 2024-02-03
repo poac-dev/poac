@@ -189,16 +189,16 @@ testLevDistance() {
 
 void
 testLevDistance2() {
-  constexpr StringRef stR1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef stR2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef stR3 = "Mary häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef str1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef str2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef str3 = "Mary häd ä little lämb\n\nLittle lämb\n";
 
-  assertEq(levDistance(stR1, stR2), 2UL);
-  assertEq(levDistance(stR2, stR1), 2UL);
-  assertEq(levDistance(stR1, stR3), 3UL);
-  assertEq(levDistance(stR3, stR1), 3UL);
-  assertEq(levDistance(stR2, stR3), 1UL);
-  assertEq(levDistance(stR3, stR2), 1UL);
+  assertEq(levDistance(str1, str2), 2UL);
+  assertEq(levDistance(str2, str1), 2UL);
+  assertEq(levDistance(str1, str3), 3UL);
+  assertEq(levDistance(str3, str1), 3UL);
+  assertEq(levDistance(str2, str3), 1UL);
+  assertEq(levDistance(str3, str2), 1UL);
 
   assertEq(levDistance("b", "bc"), 1UL);
   assertEq(levDistance("ab", "abc"), 1UL);
