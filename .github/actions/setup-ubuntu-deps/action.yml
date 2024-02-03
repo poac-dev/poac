@@ -1,0 +1,16 @@
+name: "Set up Ubuntu dependencies"
+description: "Set up Ubuntu dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Install dependencies"
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libcurl4-openssl-dev \
+          libfmt-dev \
+          libgit2-dev \
+          nlohmann-json3-dev \
+          libtbb-dev
+      shell: "bash"
