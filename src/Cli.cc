@@ -108,8 +108,8 @@ Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize COLOR_ESCAPE_SEQ_LEN = 31;
-    maxOffset += COLOR_ESCAPE_SEQ_LEN;
+    constexpr usize colorEscapeSeqLen = 31;
+    maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
   std::cout << option << desc;
@@ -147,8 +147,8 @@ Arg::print(usize maxOffset) const noexcept {
   const String left = getLeft();
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize COLOR_ESCAPE_SEQ_LEN = 9;
-    maxOffset += COLOR_ESCAPE_SEQ_LEN;
+    constexpr usize colorEscapeSeqLen = 9;
+    maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
   std::cout << left;
@@ -271,8 +271,8 @@ Subcmd::print(usize maxOffset) const noexcept {
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize COLOR_ESCAPE_SEQ_LEN = 22;
-    maxOffset += COLOR_ESCAPE_SEQ_LEN;
+    constexpr usize colorEscapeSeqLen = 22;
+    maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
   std::cout << cmdStr << desc << '\n';

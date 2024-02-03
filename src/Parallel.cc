@@ -16,8 +16,8 @@ struct ParallelState {
   }
 
   static ParallelState& instance() noexcept {
-    static ParallelState INSTANCE;
-    return INSTANCE;
+    static ParallelState instance;
+    return instance;
   }
 
 private:

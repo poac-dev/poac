@@ -75,21 +75,21 @@ searchPackages(const SearchArgs& args) {
 
 static void
 printTable(const nlohmann::json& packages) {
-  constexpr int TABLE_WIDTH = 80;
-  constexpr int NAME_WIDTH = 30;
-  constexpr int VER_WIDTH = 10;
+  constexpr int tableWidth = 80;
+  constexpr int nameWidth = 30;
+  constexpr int verWidth = 10;
 
-  std::cout << std::left << std::setw(NAME_WIDTH) << "Name"
-            << std::setw(VER_WIDTH) << "Version"
+  std::cout << std::left << std::setw(nameWidth) << "Name"
+            << std::setw(verWidth) << "Version"
             << "Description" << '\n';
-  std::cout << String(TABLE_WIDTH, '-') << '\n';
+  std::cout << String(tableWidth, '-') << '\n';
   for (const auto& package : packages) {
     const String name = package["name"];
     const String version = package["version"];
     const String description = package["description"];
 
-    std::cout << std::left << std::setw(NAME_WIDTH) << name
-              << std::setw(VER_WIDTH) << version << description << '\n';
+    std::cout << std::left << std::setw(nameWidth) << name
+              << std::setw(verWidth) << version << description << '\n';
   }
 }
 

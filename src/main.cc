@@ -10,13 +10,17 @@
 
 const Command&
 getCmd() noexcept {
-  static const Command CMD = //
+  static const Command cmd = //
       Command{ "poac" }
           .setDesc("A package manager and build system for C++")
           .addOpt(Opt{ "--verbose" }
                       .setShort("-v")
-                      .setDesc("Use verbose output")
+                      .setDesc("Use verbose output (-vv very verbose output)")
                       .setGlobal(true))
+          .addOpt(Opt{ "-vv" }
+                      .setDesc("Very verbose output")
+                      .setGlobal(true)
+                      .setHidden(true))
           .addOpt(Opt{ "--quiet" }
                       .setShort("-q")
                       .setDesc("Do not print poac log messages")
@@ -49,7 +53,7 @@ getCmd() noexcept {
           .addSubcmd(TEST_CMD)
           .addSubcmd(TIDY_CMD)
           .addSubcmd(VERSION_CMD);
-  return CMD;
+  return cmd;
 }
 
 int
