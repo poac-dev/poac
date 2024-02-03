@@ -20,7 +20,7 @@ toUpper(const StringRef str) noexcept {
 }
 
 String
-toMacroName(StringRef name) noexcept {
+toMacroName(const StringRef name) noexcept {
   String macroName;
   for (const unsigned char c : name) {
     if (std::isalpha(c)) {
