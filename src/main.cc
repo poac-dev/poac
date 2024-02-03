@@ -18,7 +18,7 @@ getCmd() noexcept {
                       .setDesc("Use verbose output (-vv very verbose output)")
                       .setGlobal(true))
           .addOpt(Opt{ "-vv" }
-                      .setDesc("Very verbose output")
+                      .setDesc("Use very verbose output")
                       .setGlobal(true)
                       .setHidden(true))
           .addOpt(Opt{ "--quiet" }

@@ -50,8 +50,8 @@ struct ColorState {
   }
 
   static ColorState& instance() noexcept {
-    static ColorState INSTANCE;
-    return INSTANCE;
+    static ColorState instance;
+    return instance;
   }
 
 private:
