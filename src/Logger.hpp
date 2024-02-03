@@ -84,6 +84,7 @@ namespace detail {
 
   private:
     template <typename... Ts>
+      requires((Writer<Ts> || Display<Ts>) && ...)
     static void
     debuglike(Level level, const StringRef lvlStr, Ts&&... msgs) noexcept {
       const auto processHead = //
