@@ -44,8 +44,8 @@ execCmd(const StringRef cmd) noexcept {
 
 static std::pair<String, int>
 getCmdOutputImpl(const StringRef cmd) {
-  constexpr usize BUFFER_SIZE = 128;
-  std::array<char, BUFFER_SIZE> buffer{};
+  constexpr usize bufferSize = 128;
+  std::array<char, bufferSize> buffer{};
   String output;
 
   FILE* pipe = popen(cmd.data(), "r");
@@ -189,16 +189,16 @@ testLevDistance() {
 
 void
 testLevDistance2() {
-  constexpr StringRef STR1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef STR2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef STR3 = "Mary häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef stR1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef stR2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
+  constexpr StringRef stR3 = "Mary häd ä little lämb\n\nLittle lämb\n";
 
-  assertEq(levDistance(STR1, STR2), 2UL);
-  assertEq(levDistance(STR2, STR1), 2UL);
-  assertEq(levDistance(STR1, STR3), 3UL);
-  assertEq(levDistance(STR3, STR1), 3UL);
-  assertEq(levDistance(STR2, STR3), 1UL);
-  assertEq(levDistance(STR3, STR2), 1UL);
+  assertEq(levDistance(stR1, stR2), 2UL);
+  assertEq(levDistance(stR2, stR1), 2UL);
+  assertEq(levDistance(stR1, stR3), 3UL);
+  assertEq(levDistance(stR3, stR1), 3UL);
+  assertEq(levDistance(stR2, stR3), 1UL);
+  assertEq(levDistance(stR3, stR2), 1UL);
 
   assertEq(levDistance("b", "bc"), 1UL);
   assertEq(levDistance("ab", "abc"), 1UL);
@@ -218,36 +218,36 @@ testLevDistance2() {
 
 void
 testFindSimilarStr() {
-  constexpr Arr<StringRef, 8> CANDIDATES{
+  constexpr Arr<StringRef, 8> candidates{
     "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
   };
 
-  assertEq(findSimilarStr("id", CANDIDATES), "if"sv);
-  assertEq(findSimilarStr("ifd", CANDIDATES), "if"sv);
-  assertEq(findSimilarStr("ifde", CANDIDATES), "ifdef"sv);
-  assertEq(findSimilarStr("elf", CANDIDATES), "elif"sv);
-  assertEq(findSimilarStr("elsif", CANDIDATES), "elif"sv);
-  assertEq(findSimilarStr("elseif", CANDIDATES), "elif"sv);
-  assertEq(findSimilarStr("elfidef", CANDIDATES), "elifdef"sv);
-  assertEq(findSimilarStr("elfindef", CANDIDATES), "elifdef"sv);
-  assertEq(findSimilarStr("elfinndef", CANDIDATES), "elifndef"sv);
-  assertEq(findSimilarStr("els", CANDIDATES), "else"sv);
-  assertEq(findSimilarStr("endi", CANDIDATES), "endif"sv);
+  assertEq(findSimilarStr("id", candidates), "if"sv);
+  assertEq(findSimilarStr("ifd", candidates), "if"sv);
+  assertEq(findSimilarStr("ifde", candidates), "ifdef"sv);
+  assertEq(findSimilarStr("elf", candidates), "elif"sv);
+  assertEq(findSimilarStr("elsif", candidates), "elif"sv);
+  assertEq(findSimilarStr("elseif", candidates), "elif"sv);
+  assertEq(findSimilarStr("elfidef", candidates), "elifdef"sv);
+  assertEq(findSimilarStr("elfindef", candidates), "elifdef"sv);
+  assertEq(findSimilarStr("elfinndef", candidates), "elifndef"sv);
+  assertEq(findSimilarStr("els", candidates), "else"sv);
+  assertEq(findSimilarStr("endi", candidates), "endif"sv);
 
-  assertEq(findSimilarStr("i", CANDIDATES), None);
-  assertEq(findSimilarStr("special_compiler_directive", CANDIDATES), None);
+  assertEq(findSimilarStr("i", candidates), None);
+  assertEq(findSimilarStr("special_compiler_directive", candidates), None);
 
   pass();
 }
 
 void
 testFindSimilarStr2() {
-  constexpr Arr<StringRef, 2> CANDIDATES{ "aaab", "aaabc" };
-  assertEq(findSimilarStr("aaaa", CANDIDATES), "aaab"sv);
-  assertEq(findSimilarStr("1111111111", CANDIDATES), None);
+  constexpr Arr<StringRef, 2> candidates{ "aaab", "aaabc" };
+  assertEq(findSimilarStr("aaaa", candidates), "aaab"sv);
+  assertEq(findSimilarStr("1111111111", candidates), None);
 
-  constexpr Arr<StringRef, 1> CANDIDATES2{ "AAAA" };
-  assertEq(findSimilarStr("aaaa", CANDIDATES2), "AAAA"sv);
+  constexpr Arr<StringRef, 1> candidateS2{ "AAAA" };
+  assertEq(findSimilarStr("aaaa", candidateS2), "AAAA"sv);
 
   pass();
 }
