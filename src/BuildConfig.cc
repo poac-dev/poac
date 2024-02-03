@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fmt/core.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -452,7 +453,7 @@ printfCmd(const StringRef header, const StringRef body) {
     pos += 2; // Move past the replacement
   }
 
-  return "@printf '" + msg + "' >&2";
+  return fmt::format("@printf '{}' >&2", msg);
 }
 
 static void
@@ -508,7 +509,7 @@ mapHeaderToObj(const Path& headerPath, const Path& buildOutDir) {
 // depending header files for the source file.
 static void
 collectBinDepObjs( // NOLINT(misc-no-recursion)
-    HashSet<String>& deps, const String& sourceFileName,
+    HashSet<String>& deps, const StringRef sourceFileName,
     const HashSet<String>& objTargetDeps,
     const HashSet<String>& buildObjTargets, const BuildConfig& config
 ) {
@@ -559,8 +560,8 @@ installDeps() {
 }
 
 static void
-addDefine(const String& name, const String& value) {
-  DEFINES += " -D" + name + "='\"" + value + "\"'";
+addDefine(const StringRef name, const StringRef value) {
+  DEFINES += fmt::format(" -D{}='\"{}\"'", name, value);
 }
 
 static void
@@ -580,8 +581,9 @@ setVariables(BuildConfig& config, const bool isDebug) {
   if (profile.lto) {
     CXXFLAGS += " -flto";
   }
-  for (const String& flag : profile.cxxflags) {
-    CXXFLAGS += ' ' + flag;
+  for (const StringRef flag : profile.cxxflags) {
+    CXXFLAGS += ' ';
+    CXXFLAGS += flag;
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 

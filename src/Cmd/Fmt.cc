@@ -53,7 +53,7 @@ collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
 
       const String ext = path.extension().string();
       if (SOURCE_FILE_EXTS.contains(ext) || HEADER_FILE_EXTS.contains(ext)) {
-        clangFormatArgs += " " + path.string();
+        clangFormatArgs += ' ' + path.string();
       }
     }
   }
@@ -83,7 +83,7 @@ fmtMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const String& packageName = getPackageName();
+  const StringRef packageName = getPackageName();
   String clangFormatArgs = "--style=file --fallback-style=LLVM -Werror";
   if (isVerbose()) {
     clangFormatArgs += " --verbose";

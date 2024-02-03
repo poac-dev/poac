@@ -81,7 +81,7 @@ lintMain(const std::span<const StringRef> args) {
   }
 
   String cpplintArgs = lintArgs.excludes;
-  const String& packageName = getPackageName();
+  const StringRef packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     logger::debug("Using CPPLINT.cfg for lint ...");
     return lint(packageName, cpplintArgs);
