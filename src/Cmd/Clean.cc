@@ -30,7 +30,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
       } else {
         return res.value();
       }
-    } else if (*itr == "-p"sv || *itr == "--profile") {
+    } else if (*itr == "-p" || *itr == "--profile") {
       if (itr + 1 >= args.end()) {
         logger::error("Missing argument for ", *itr);
         return EXIT_FAILURE;
