@@ -129,7 +129,7 @@ levDistance(const StringRef lhs, const StringRef rhs) {
 }
 
 static bool
-equalsInsensitive(const StringRef lhs, const StringRef rhs) {
+equalsInsensitive(const StringRef lhs, const StringRef rhs) noexcept {
   return std::equal(
       lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(),
       [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }

@@ -17,9 +17,8 @@
 #include <variant>
 
 struct SemverError : public PoacError {
-  template <typename... Args>
-  explicit SemverError(Args&&... args)
-      : PoacError("invalid semver:\n", std::forward<Args>(args)...) {}
+  explicit SemverError(auto&&... args)
+      : PoacError("invalid semver:\n", std::forward<decltype(args)>(args)...) {}
 };
 
 struct VersionToken {

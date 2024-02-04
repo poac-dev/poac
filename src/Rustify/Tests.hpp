@@ -60,15 +60,13 @@ pass(const source_location& loc = source_location::current()) noexcept {
             << std::flush;
 }
 
-template <typename... Ts>
-  requires(Display<Ts> && ...)
 [[noreturn]] inline void
-error(const source_location& loc, Ts&&... msgs) noexcept {
+error(const source_location& loc, Display auto&&... msgs) noexcept {
   std::cerr << "test " << modName(loc.file_name())
             << "::" << loc.function_name() << " ... " << RED << "FAILED"
             << RESET << "\n\n"
             << '\'' << loc.function_name() << "' failed at '" << std::boolalpha;
-  (std::cerr << ... << std::forward<Ts>(msgs))
+  (std::cerr << ... << std::forward<decltype(msgs)>(msgs))
       << "', " << loc.file_name() << ':' << loc.line() << '\n';
   std::exit(EXIT_FAILURE);
 }

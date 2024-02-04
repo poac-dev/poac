@@ -9,16 +9,17 @@
 #include <variant>
 
 struct ComparatorError : public PoacError {
-  template <typename... Args>
-  explicit ComparatorError(Args&&... args)
-      : PoacError("invalid comparator:\n", std::forward<Args>(args)...) {}
+  explicit ComparatorError(auto&&... args)
+      : PoacError(
+          "invalid comparator:\n", std::forward<decltype(args)>(args)...
+      ) {}
 };
 
 struct VersionReqError : public PoacError {
-  template <typename... Args>
-  explicit VersionReqError(Args&&... args)
+  explicit VersionReqError(auto&&... args)
       : PoacError(
-          "invalid version requirement:\n", std::forward<Args>(args)...
+          "invalid version requirement:\n",
+          std::forward<decltype(args)>(args)...
       ) {}
 };
 

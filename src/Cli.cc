@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <fmt/core.h>
 #include <iomanip>
 #include <iostream>
 #include <utility>
@@ -422,10 +423,12 @@ Cli::printCmdHelp() const noexcept {
   const String dummyDesc = "See all commands with " + bold(cyan("--list"));
   Subcmd{ "..." }.setDesc(dummyDesc).print(maxOffset);
 
-  std::cout << '\n'
-            << "See '" << bold(cyan(name)) << ' ' << bold(cyan("help")) << ' '
-            << cyan("<command>")
-            << "' for more information on a specific command.\n";
+  std::cout
+      << '\n'
+      << fmt::format(
+             "See '{} {} {}' for more information on a specific command.\n",
+             bold(cyan(name)), bold(cyan("help")), cyan("<command>")
+         );
 }
 
 [[nodiscard]] int
