@@ -101,42 +101,36 @@ namespace detail {
       );
     }
 
-    template <typename Fn, typename T, typename U, typename... Ts>
-      requires(
-          std::is_nothrow_invocable_r_v<String, Fn, StringRef>
-          && (Writer<T> || Display<T>) && Display<U> && (Display<Ts> && ...)
-      )
+    template <typename Fn, typename T, typename U>
+      requires(std::is_nothrow_invocable_r_v<String, Fn, StringRef> && (Writer<T> || Display<T>) && Display<U>)
     static void logln(
         Level level, Fn&& processHead, T&& writerOrHead, U&& headOrMsg,
-        Ts&&... msgs
+        Display auto&&... msgs
     ) noexcept {
       if constexpr (Writer<T>) {
         loglnImpl(
             std::forward<T>(writerOrHead), level,
             std::forward<Fn>(processHead)(std::forward<U>(headOrMsg)),
-            std::forward<Ts>(msgs)...
+            std::forward<decltype(msgs)>(msgs)...
         );
       } else {
         loglnImpl(
             std::cerr, level,
             std::forward<Fn>(processHead)(std::forward<T>(writerOrHead)),
-            std::forward<U>(headOrMsg), std::forward<Ts>(msgs)...
+            std::forward<U>(headOrMsg), std::forward<decltype(msgs)>(msgs)...
         );
       }
     }
 
-    template <typename... Ts>
-      requires(Display<Ts> && ...)
-    static void
-    loglnImpl(std::ostream& os, Level level, Ts&&... msgs) noexcept {
-      instance().log(os, level, std::forward<Ts>(msgs)..., '\n');
+    static inline void
+    loglnImpl(std::ostream& os, Level level, Display auto&&... msgs) noexcept {
+      instance().log(os, level, std::forward<decltype(msgs)>(msgs)..., '\n');
     }
 
-    template <typename... Ts>
-      requires(Display<Ts> && ...)
-    void log(std::ostream& os, Level level, Ts&&... msgs) noexcept {
+    inline void
+    log(std::ostream& os, Level level, Display auto&&... msgs) noexcept {
       if (level <= this->level) {
-        (os << ... << std::forward<Ts>(msgs)) << std::flush;
+        (os << ... << std::forward<decltype(msgs)>(msgs)) << std::flush;
       }
     }
   };
