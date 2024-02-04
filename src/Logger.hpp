@@ -27,15 +27,15 @@ concept MaybeWriter = Writer<T> || Display<T>;
 class Logger {
   Level level = Level::Info;
 
-  Logger() noexcept = default;
+  constexpr Logger() noexcept = default;
 
 public:
   // Logger is a singleton
-  Logger(const Logger&) = delete;
-  Logger& operator=(const Logger&) = delete;
-  Logger(Logger&&) noexcept = delete;
-  Logger& operator=(Logger&&) noexcept = delete;
-  ~Logger() noexcept = default;
+  constexpr Logger(const Logger&) = delete;
+  constexpr Logger& operator=(const Logger&) = delete;
+  constexpr Logger(Logger&&) noexcept = delete;
+  constexpr Logger& operator=(Logger&&) noexcept = delete;
+  constexpr ~Logger() noexcept = default;
 
   static inline Logger& instance() noexcept {
     static Logger instance;
