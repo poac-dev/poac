@@ -38,7 +38,7 @@ runMain(const std::span<const StringRef> args) {
   auto itr = args.begin();
   for (; itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "run")) {
-      if (res.value() == -1) {
+      if (res.value() == Cli::HANDLED) {
         continue;
       } else {
         return res.value();

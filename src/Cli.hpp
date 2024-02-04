@@ -192,6 +192,8 @@ public:
   usize calcMaxOffset(usize maxShortSize) const noexcept;
   void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
 
+  static constexpr int HANDLED = -1;
+
   // Returns the exit code if the global option was handled, otherwise None.
   // Returns -1 if the caller should not propagate the exit code.
   // TODO: -1 is not a good idea.
@@ -209,17 +211,17 @@ public:
       }
     } else if (*itr == "-v"sv || *itr == "--verbose"sv) {
       logger::setLevel(logger::Level::Debug);
-      return -1;
+      return HANDLED;
     } else if (*itr == "-vv"sv) {
       logger::setLevel(logger::Level::Trace);
-      return -1;
+      return HANDLED;
     } else if (*itr == "-q"sv || *itr == "--quiet"sv) {
       logger::setLevel(logger::Level::Off);
-      return -1;
+      return HANDLED;
     } else if (*itr == "--color"sv) {
       if (itr + 1 < end) {
         setColorMode(*++itr);
-        return -1;
+        return HANDLED;
       } else {
         logger::error("missing argument for `--color`");
         return EXIT_FAILURE;

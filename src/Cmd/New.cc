@@ -129,7 +129,7 @@ newMain(const std::span<const StringRef> args) {
   String packageName;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "new")) {
-      if (res.value() == -1) {
+      if (res.value() == Cli::HANDLED) {
         continue;
       } else {
         return res.value();

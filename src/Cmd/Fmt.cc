@@ -65,7 +65,7 @@ fmtMain(const std::span<const StringRef> args) {
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "fmt")) {
-      if (res.value() == -1) {
+      if (res.value() == Cli::HANDLED) {
         continue;
       } else {
         return res.value();

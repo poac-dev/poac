@@ -27,7 +27,7 @@ initMain(const std::span<const StringRef> args) {
   bool isBin = true;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "init")) {
-      if (res.value() == -1) {
+      if (res.value() == Cli::HANDLED) {
         continue;
       } else {
         return res.value();

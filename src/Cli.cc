@@ -433,7 +433,7 @@ Cli::printHelp(const std::span<const StringRef> args) const noexcept {
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = handleGlobalOpts(itr, args.end(), "help")) {
-      if (res.value() == -1) {
+      if (res.value() == Cli::HANDLED) {
         continue;
       } else {
         return res.value();
