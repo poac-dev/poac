@@ -57,7 +57,7 @@ secondMonthChar(const StringRef month) noexcept {
       // Jul
       return '7';
     }
-  } else if (month[1] == 'F') {
+  } else if (month[0] == 'F') {
     // Feb
     return '2';
   } else if (month[0] == 'M') {
