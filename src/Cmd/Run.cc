@@ -35,8 +35,8 @@ static int
 runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
-  usize i = 0;
-  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+  auto itr = args.begin();
+  for (; itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "run")) {
       if (res.value() == -1) {
         continue;
@@ -55,8 +55,8 @@ runMain(const std::span<const StringRef> args) {
   }
 
   String runArgs;
-  for (; i < args.size(); ++i) {
-    runArgs += ' ' + String(args[i]);
+  for (; itr != args.end(); ++itr) {
+    runArgs += ' ' + String(*itr);
   }
 
   String outDir;

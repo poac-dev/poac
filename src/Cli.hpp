@@ -194,6 +194,7 @@ public:
 
   // Returns the exit code if the global option was handled, otherwise None.
   // Returns -1 if the caller should not propagate the exit code.
+  // TODO: -1 is not a good idea.
   // TODO: result-like types make more sense.
   [[nodiscard]] static inline Option<int> handleGlobalOpts(
       std::forward_iterator auto& itr, std::forward_iterator auto end,
