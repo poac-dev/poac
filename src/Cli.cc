@@ -433,19 +433,18 @@ Command::printCmdHelp() const noexcept {
 [[nodiscard]] int
 Command::printHelp(const std::span<const StringRef> args) const noexcept {
   // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "help" } })
-
-    else if (hasSubcmd(arg)) {
-      printSubcmdHelp(arg);
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = handleGlobalOpts(itr, args.end(), "help")) {
+      return res.value();
+    } else if (hasSubcmd(*itr)) {
+      printSubcmdHelp(*itr);
       return EXIT_SUCCESS;
-    }
-    else {
+    } else {
       // TODO: Currently assumes that `help` does not implement any additional
-      // options since we are using `noSuchArg` instead of `helpCmd.noSuchArg`.
-      // But we want to consider subcommands as well for suggestion.
-      return noSuchArg(arg);
+      // options since we are using `noSuchArg` instead of
+      // `helpCmd.noSuchArg`. But we want to consider subcommands as well for
+      // suggestion.
+      return noSuchArg(*itr);
     }
   }
 

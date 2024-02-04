@@ -53,22 +53,19 @@ lint(const StringRef name, const StringRef cpplintArgs) {
 static int
 lintMain(const std::span<const StringRef> args) {
   LintArgs lintArgs;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "lint" } })
-
-    else if (arg == "--exclude") {
-      if (i + 1 >= args.size()) {
-        logger::error("Missing argument for ", arg);
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "lint")) {
+      return res.value();
+    } else if (*itr == "--exclude") {
+      if (itr + 1 >= args.end()) {
+        logger::error("Missing argument for ", *itr);
         return EXIT_FAILURE;
       }
 
-      ++i;
       lintArgs.excludes += " --exclude=";
-      lintArgs.excludes += args[i];
-    }
-    else {
-      return LINT_CMD.noSuchArg(arg);
+      lintArgs.excludes += *++itr;
+    } else {
+      return LINT_CMD.noSuchArg(*itr);
     }
   }
 

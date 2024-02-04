@@ -20,30 +20,27 @@ const Subcmd CLEAN_CMD = //
 
 static int
 cleanMain(const std::span<const StringRef> args) noexcept {
-  Path outDir = "poac-out";
+  Path outDir = "poac-out"; // TODO: share across sources
 
   // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "clean" } })
-
-    else if (arg == "-p" || arg == "--profile") {
-      if (i + 1 >= args.size()) {
-        logger::error("Missing argument for ", arg);
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "clean")) {
+      return res.value();
+    } else if (*itr == "-p"sv || *itr == "--profile") {
+      if (itr + 1 >= args.end()) {
+        logger::error("Missing argument for ", *itr);
         return EXIT_FAILURE;
       }
 
-      ++i;
-
-      if (!(args[i] == "debug" || args[i] == "release")) {
-        logger::error("Invalid argument for ", arg, ": ", args[i]);
+      ++itr;
+      if (!(*itr == "debug" || *itr == "release")) {
+        logger::error("Invalid argument for ", *(itr - 1), ": ", *itr);
         return EXIT_FAILURE;
       }
 
-      outDir /= args[i];
-    }
-    else {
-      return CLEAN_CMD.noSuchArg(arg);
+      outDir /= *itr;
+    } else {
+      return CLEAN_CMD.noSuchArg(*itr);
     }
   }
 

@@ -51,24 +51,19 @@ buildMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "build" } }) // workaround for std::span until C++26
-
-    else if (arg == "-d" || arg == "--debug") {
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "build")) {
+      return res.value();
+    } else if (*itr == "-d" || *itr == "--debug") {
       isDebug = true;
-    }
-    else if (arg == "-r" || arg == "--release") {
+    } else if (*itr == "-r" || *itr == "--release") {
       isDebug = false;
-    }
-    else if (arg == "--compdb") {
+    } else if (*itr == "--compdb") {
       buildCompdb = true;
-    }
-    else if (arg == "--no-parallel") {
+    } else if (*itr == "--no-parallel") {
       setParallel(false);
-    }
-    else {
-      return BUILD_CMD.noSuchArg(arg);
+    } else {
+      return BUILD_CMD.noSuchArg(*itr);
     }
   }
 

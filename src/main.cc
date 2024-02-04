@@ -64,35 +64,28 @@ main(int argc, char* argv[]) {
   // ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // [global]       [run]         [help (under run)]
   const std::span<char* const> args(argv + 1, argv + argc);
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-
-    // Global options (which are not command-specific)
-    HANDLE_GLOBAL_OPTS({})
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "")) {
+      return res.value();
+    }
 
     // Local options
-    else if (arg == "-V" || arg == "--version") {
-      const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
+    else if (*itr == "-V"sv || *itr == "--version"sv) {
+      const Vec<StringRef> remArgs(itr + 1, args.end());
       return versionMain(remArgs);
-    }
-    else if (arg == "--list") {
+    } else if (*itr == "--list"sv) {
       getCmd().printAllSubcmds(true);
       return EXIT_SUCCESS;
     }
 
     // Subcommands
-    else if (getCmd().hasSubcmd(arg)) {
+    else if (getCmd().hasSubcmd(*itr)) {
       try {
-        // i points to the subcommand name that we don't need anymore.  Since
-        // i starts from 1 from the start pointer of argv, we want to start
-        // with i + 2.  As we know args.size() + 1 == argc and args.size() >=
-        // i + 1, we can write the range as [i + 2, argc), which is never
-        // out-of-range access.
-        const Vec<StringRef> remArgs(argv + i + 2, argv + argc);
-        const int exitCode = getCmd().exec(arg, remArgs);
+        const Vec<StringRef> remArgs(itr + 1, args.end());
+        const int exitCode = getCmd().exec(*itr, remArgs);
         if (exitCode != EXIT_SUCCESS) {
           logger::error(
-              "'poac ", arg, "' failed with exit code `", exitCode, '`'
+              "'poac ", *itr, "' failed with exit code `", exitCode, '`'
           );
         }
         return exitCode;
@@ -103,7 +96,7 @@ main(int argc, char* argv[]) {
     }
 
     else {
-      return getCmd().noSuchArg(arg);
+      return getCmd().noSuchArg(*itr);
     }
   }
 

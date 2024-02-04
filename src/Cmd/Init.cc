@@ -25,18 +25,15 @@ static int
 initMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "init" } })
-
-    else if (arg == "-b" || arg == "--bin") {
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "init")) {
+      return res.value();
+    } else if (*itr == "-b" || *itr == "--bin") {
       isBin = true;
-    }
-    else if (arg == "-l" || arg == "--lib") {
+    } else if (*itr == "-l" || *itr == "--lib") {
       isBin = false;
-    }
-    else {
-      return INIT_CMD.noSuchArg(arg);
+    } else {
+      return INIT_CMD.noSuchArg(*itr);
     }
   }
 

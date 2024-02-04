@@ -63,15 +63,13 @@ static int
 fmtMain(const std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "fmt" } })
-
-    else if (arg == "--check") {
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "fmt")) {
+      return res.value();
+    } else if (*itr == "--check") {
       isCheck = true;
-    }
-    else {
-      return FMT_CMD.noSuchArg(arg);
+    } else {
+      return FMT_CMD.noSuchArg(*itr);
     }
   }
 

@@ -1,29 +1,11 @@
 #pragma once
 
+#include "Logger.hpp"
 #include "Rustify.hpp"
 
 #include <cstdlib>
+#include <iterator>
 #include <span>
-#include <tuple>
-
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
-  if (arg == "-h" || arg == "--help") {                \
-    return getCmd().printHelp(HELP_ARGS);              \
-  } else if (arg == "-v" || arg == "--verbose") {      \
-    logger::setLevel(logger::Level::Debug);            \
-  } else if (arg == "-vv") {                           \
-    logger::setLevel(logger::Level::Trace);            \
-  } else if (arg == "-q" || arg == "--quiet") {        \
-    logger::setLevel(logger::Level::Off);              \
-  } else if (arg == "--color") {                       \
-    if (i + 1 < args.size()) {                         \
-      setColorMode(args[++i]);                         \
-    } else {                                           \
-      logger::error("missing argument for `--color`"); \
-      return EXIT_FAILURE;                             \
-    }                                                  \
-  }
 
 class Opt;
 class Arg;
@@ -209,8 +191,38 @@ public:
   [[nodiscard]] int printHelp(std::span<const StringRef> args) const noexcept;
   usize calcMaxOffset(usize maxShortSize) const noexcept;
 
-  /// Print all subcommands.
   void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
+
+  // Returns the exit code if the global option was handled and needs to be
+  // terminated, otherwise None.
+  // TODO: result-like types make more sense.
+  [[nodiscard]] static inline Option<int> handleGlobalOpts(
+      std::forward_iterator auto& itr, std::forward_iterator auto end,
+      StringRef subcmd
+  ) {
+    if (*itr == "-h"sv || *itr == "--help"sv) {
+      if (!subcmd.empty()) {
+        // {{ }} is a workaround for std::span until C++26
+        return getCmd().printHelp({ { subcmd } });
+      } else {
+        return getCmd().printHelp({});
+      }
+    } else if (*itr == "-v"sv || *itr == "--verbose"sv) {
+      logger::setLevel(logger::Level::Debug);
+    } else if (*itr == "-vv"sv) {
+      logger::setLevel(logger::Level::Trace);
+    } else if (*itr == "-q"sv || *itr == "--quiet"sv) {
+      logger::setLevel(logger::Level::Off);
+    } else if (*itr == "--color"sv) {
+      if (itr + 1 < end) {
+        setColorMode(*++itr);
+      } else {
+        logger::error("missing argument for `--color`");
+        return EXIT_FAILURE;
+      }
+    }
+    return None;
+  }
 
 private:
   usize calcMaxShortSize() const noexcept;
