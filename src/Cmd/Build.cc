@@ -52,8 +52,12 @@ buildMain(const std::span<const StringRef> args) {
   bool isDebug = true;
   bool buildCompdb = false;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "build")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "build")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else if (*itr == "-d" || *itr == "--debug") {
       isDebug = true;
     } else if (*itr == "-r" || *itr == "--release") {

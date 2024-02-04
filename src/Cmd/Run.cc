@@ -37,8 +37,12 @@ runMain(const std::span<const StringRef> args) {
   bool isDebug = true;
   usize i = 0;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "run")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "run")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else if (*itr == "-d" || *itr == "--debug") {
       isDebug = true;
     } else if (*itr == "-r" || *itr == "--release") {

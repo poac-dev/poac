@@ -64,8 +64,12 @@ fmtMain(const std::span<const StringRef> args) {
   bool isCheck = false;
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "fmt")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "fmt")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else if (*itr == "--check") {
       isCheck = true;
     } else {

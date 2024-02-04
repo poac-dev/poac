@@ -8,10 +8,10 @@
 #include <exception>
 #include <span>
 
-const Command&
-getCmd() noexcept {
-  static const Command cmd = //
-      Command{ "poac" }
+const Cli&
+getCli() noexcept {
+  static const Cli cli = //
+      Cli{ "poac" }
           .setDesc("A package manager and build system for C++")
           .addOpt(Opt{ "--verbose" }
                       .setShort("-v")
@@ -53,7 +53,7 @@ getCmd() noexcept {
           .addSubcmd(TEST_CMD)
           .addSubcmd(TIDY_CMD)
           .addSubcmd(VERSION_CMD);
-  return cmd;
+  return cli;
 }
 
 int
@@ -65,8 +65,12 @@ main(int argc, char* argv[]) {
   // [global]       [run]         [help (under run)]
   const std::span<char* const> args(argv + 1, argv + argc);
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     }
 
     // Local options
@@ -74,15 +78,15 @@ main(int argc, char* argv[]) {
       const Vec<StringRef> remArgs(itr + 1, args.end());
       return versionMain(remArgs);
     } else if (*itr == "--list"sv) {
-      getCmd().printAllSubcmds(true);
+      getCli().printAllSubcmds(true);
       return EXIT_SUCCESS;
     }
 
     // Subcommands
-    else if (getCmd().hasSubcmd(*itr)) {
+    else if (getCli().hasSubcmd(*itr)) {
       try {
         const Vec<StringRef> remArgs(itr + 1, args.end());
-        const int exitCode = getCmd().exec(*itr, remArgs);
+        const int exitCode = getCli().exec(*itr, remArgs);
         if (exitCode != EXIT_SUCCESS) {
           logger::error(
               "'poac ", *itr, "' failed with exit code `", exitCode, '`'
@@ -96,9 +100,9 @@ main(int argc, char* argv[]) {
     }
 
     else {
-      return getCmd().noSuchArg(*itr);
+      return getCli().noSuchArg(*itr);
     }
   }
 
-  return getCmd().printHelp({});
+  return getCli().printHelp({});
 }

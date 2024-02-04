@@ -41,8 +41,12 @@ tidyMain(const std::span<const StringRef> args) {
   // Parse args
   bool fix = false;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "tidy")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "tidy")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else if (*itr == "--fix") {
       fix = true;
     } else if (*itr == "--no-parallel") {

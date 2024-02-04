@@ -15,5 +15,5 @@ const Subcmd HELP_CMD = //
 
 static int
 helpMain(const std::span<const StringRef> args) noexcept {
-  return getCmd().printHelp(args);
+  return getCli().printHelp(args);
 }

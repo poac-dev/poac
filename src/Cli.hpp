@@ -10,10 +10,10 @@
 class Opt;
 class Arg;
 class Subcmd;
-class Command;
+class Cli;
 
 // Defined in main.cc
-const Command& getCmd() noexcept;
+const Cli& getCli() noexcept;
 
 template <typename Derived>
 class CliBase {
@@ -59,7 +59,7 @@ public:
 
 class Opt : public CliBase<Opt>, public ShortAndHidden<Opt> {
   friend class Subcmd;
-  friend class Command;
+  friend class Cli;
 
   StringRef placeholder;
   StringRef defaultVal;
@@ -132,7 +132,7 @@ private:
 };
 
 class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
-  friend class Command;
+  friend class Cli;
 
   StringRef cmdName;
   Option<Vec<Opt>> globalOpts = None;
@@ -172,7 +172,7 @@ private:
   usize calcMaxOffset(usize maxShortSize) const noexcept;
 };
 
-class Command : public CliBase<Command> {
+class Cli : public CliBase<Cli> {
   HashMap<StringRef, Subcmd> subcmds;
   Vec<Opt> globalOpts;
   Vec<Opt> localOpts;
@@ -180,8 +180,8 @@ class Command : public CliBase<Command> {
 public:
   using CliBase::CliBase;
 
-  Command& addSubcmd(const Subcmd& subcmd) noexcept;
-  Command& addOpt(Opt opt) noexcept;
+  Cli& addSubcmd(const Subcmd& subcmd) noexcept;
+  Cli& addOpt(Opt opt) noexcept;
   bool hasSubcmd(StringRef subcmd) const noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
@@ -190,11 +190,10 @@ public:
   void printSubcmdHelp(StringRef subcmd) const noexcept;
   [[nodiscard]] int printHelp(std::span<const StringRef> args) const noexcept;
   usize calcMaxOffset(usize maxShortSize) const noexcept;
-
   void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
 
-  // Returns the exit code if the global option was handled and needs to be
-  // terminated, otherwise None.
+  // Returns the exit code if the global option was handled, otherwise None.
+  // Returns -1 if the caller should not propagate the exit code.
   // TODO: result-like types make more sense.
   [[nodiscard]] static inline Option<int> handleGlobalOpts(
       std::forward_iterator auto& itr, std::forward_iterator auto end,
@@ -203,19 +202,23 @@ public:
     if (*itr == "-h"sv || *itr == "--help"sv) {
       if (!subcmd.empty()) {
         // {{ }} is a workaround for std::span until C++26
-        return getCmd().printHelp({ { subcmd } });
+        return getCli().printHelp({ { subcmd } });
       } else {
-        return getCmd().printHelp({});
+        return getCli().printHelp({});
       }
     } else if (*itr == "-v"sv || *itr == "--verbose"sv) {
       logger::setLevel(logger::Level::Debug);
+      return -1;
     } else if (*itr == "-vv"sv) {
       logger::setLevel(logger::Level::Trace);
+      return -1;
     } else if (*itr == "-q"sv || *itr == "--quiet"sv) {
       logger::setLevel(logger::Level::Off);
+      return -1;
     } else if (*itr == "--color"sv) {
       if (itr + 1 < end) {
         setColorMode(*++itr);
+        return -1;
       } else {
         logger::error("missing argument for `--color`");
         return EXIT_FAILURE;

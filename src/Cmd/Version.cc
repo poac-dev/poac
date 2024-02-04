@@ -116,9 +116,12 @@ int
 versionMain(const std::span<const StringRef> args) noexcept {
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res =
-            Command::handleGlobalOpts(itr, args.end(), "version")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "version")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else {
       return VERSION_CMD.noSuchArg(*itr);
     }

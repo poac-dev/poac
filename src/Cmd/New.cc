@@ -128,8 +128,12 @@ newMain(const std::span<const StringRef> args) {
   bool isBin = true;
   String packageName;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "new")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "new")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else if (*itr == "-b" || *itr == "--bin") {
       isBin = true;
     } else if (*itr == "-l" || *itr == "--lib") {

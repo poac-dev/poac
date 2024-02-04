@@ -24,8 +24,12 @@ cleanMain(const std::span<const StringRef> args) noexcept {
 
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
-    if (const auto res = Command::handleGlobalOpts(itr, args.end(), "clean")) {
-      return res.value();
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "clean")) {
+      if (res.value() == -1) {
+        continue;
+      } else {
+        return res.value();
+      }
     } else if (*itr == "-p"sv || *itr == "--profile") {
       if (itr + 1 >= args.end()) {
         logger::error("Missing argument for ", *itr);
