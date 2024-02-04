@@ -66,7 +66,7 @@ main(int argc, char* argv[]) {
   const std::span<char* const> args(argv + 1, argv + argc);
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "")) {
-      if (res.value() == Cli::HANDLED) {
+      if (res.value() == Cli::CONTINUE) {
         continue;
       } else {
         return res.value();

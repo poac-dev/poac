@@ -192,10 +192,10 @@ public:
   usize calcMaxOffset(usize maxShortSize) const noexcept;
   void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
 
-  static constexpr int HANDLED = -1;
+  static constexpr int CONTINUE = -1;
 
   // Returns the exit code if the global option was handled, otherwise None.
-  // Returns -1 if the caller should not propagate the exit code.
+  // Returns HANDLED if the caller should not propagate the exit code.
   // TODO: -1 is not a good idea.
   // TODO: result-like types make more sense.
   [[nodiscard]] static inline Option<int> handleGlobalOpts(
@@ -204,24 +204,24 @@ public:
   ) {
     if (*itr == "-h"sv || *itr == "--help"sv) {
       if (!subcmd.empty()) {
-        // {{ }} is a workaround for std::span until C++26
+        // {{ }} is a workaround for std::span until C++26.
         return getCli().printHelp({ { subcmd } });
       } else {
         return getCli().printHelp({});
       }
     } else if (*itr == "-v"sv || *itr == "--verbose"sv) {
       logger::setLevel(logger::Level::Debug);
-      return HANDLED;
+      return CONTINUE;
     } else if (*itr == "-vv"sv) {
       logger::setLevel(logger::Level::Trace);
-      return HANDLED;
+      return CONTINUE;
     } else if (*itr == "-q"sv || *itr == "--quiet"sv) {
       logger::setLevel(logger::Level::Off);
-      return HANDLED;
+      return CONTINUE;
     } else if (*itr == "--color"sv) {
       if (itr + 1 < end) {
         setColorMode(*++itr);
-        return HANDLED;
+        return CONTINUE;
       } else {
         logger::error("missing argument for `--color`");
         return EXIT_FAILURE;

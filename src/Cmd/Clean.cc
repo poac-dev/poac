@@ -25,7 +25,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "clean")) {
-      if (res.value() == Cli::HANDLED) {
+      if (res.value() == Cli::CONTINUE) {
         continue;
       } else {
         return res.value();
