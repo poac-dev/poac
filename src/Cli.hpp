@@ -195,7 +195,7 @@ public:
   static constexpr int CONTINUE = -1;
 
   // Returns the exit code if the global option was handled, otherwise None.
-  // Returns HANDLED if the caller should not propagate the exit code.
+  // Returns CONTINUE if the caller should not propagate the exit code.
   // TODO: -1 is not a good idea.
   // TODO: result-like types make more sense.
   [[nodiscard]] static inline Option<int> handleGlobalOpts(
