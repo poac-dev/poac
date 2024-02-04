@@ -45,8 +45,8 @@ namespace detail {
     static void error(Ts&&... msgs) noexcept {
       logln(
           Level::Error,
-          [](const StringRef head) noexcept { return String(head); },
-          bold(red("Error: ")), std::forward<Ts>(msgs)...
+          [](const StringRef head) noexcept { return bold(red(head)); },
+          "Error: ", std::forward<Ts>(msgs)...
       );
     }
 
@@ -55,8 +55,8 @@ namespace detail {
     static void warn(Ts&&... msgs) noexcept {
       logln(
           Level::Warn,
-          [](const StringRef head) noexcept { return String(head); },
-          bold(yellow("Warning: ")), std::forward<Ts>(msgs)...
+          [](const StringRef head) noexcept { return bold(yellow(head)); },
+          "Warning: ", std::forward<Ts>(msgs)...
       );
     }
 
