@@ -278,8 +278,8 @@ Subcmd::print(usize maxOffset) const noexcept {
   std::cout << cmdStr << desc << '\n';
 }
 
-Command&
-Command::addSubcmd(const Subcmd& subcmd) noexcept {
+Cli&
+Cli::addSubcmd(const Subcmd& subcmd) noexcept {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   const_cast<Subcmd&>(subcmd).setCmdName(name).setGlobalOpts(globalOpts);
 
@@ -289,8 +289,8 @@ Command::addSubcmd(const Subcmd& subcmd) noexcept {
   }
   return *this;
 }
-Command&
-Command::addOpt(Opt opt) noexcept {
+Cli&
+Cli::addOpt(Opt opt) noexcept {
   if (opt.isGlobal) {
     globalOpts.emplace_back(opt);
   } else {
@@ -300,12 +300,12 @@ Command::addOpt(Opt opt) noexcept {
 }
 
 bool
-Command::hasSubcmd(StringRef subcmd) const noexcept {
+Cli::hasSubcmd(StringRef subcmd) const noexcept {
   return subcmds.contains(subcmd);
 }
 
 [[nodiscard]] int
-Command::noSuchArg(StringRef arg) const {
+Cli::noSuchArg(StringRef arg) const {
   Vec<StringRef> candidates;
   for (const auto& cmd : subcmds) {
     candidates.push_back(cmd.second.name);
@@ -329,18 +329,17 @@ Command::noSuchArg(StringRef arg) const {
 }
 
 [[nodiscard]] int
-Command::exec(const StringRef subcmd, const std::span<const StringRef> args)
-    const {
+Cli::exec(const StringRef subcmd, const std::span<const StringRef> args) const {
   return subcmds.at(subcmd).mainFn(args);
 }
 
 void
-Command::printSubcmdHelp(const StringRef subcmd) const noexcept {
+Cli::printSubcmdHelp(const StringRef subcmd) const noexcept {
   subcmds.at(subcmd).printHelp();
 }
 
 usize
-Command::calcMaxShortSize() const noexcept {
+Cli::calcMaxShortSize() const noexcept {
   // This is for printing the help message of the poac command itself.  So,
   // we don't need to consider the length of the subcommands' options.
 
@@ -351,7 +350,7 @@ Command::calcMaxShortSize() const noexcept {
 }
 
 usize
-Command::calcMaxOffset(const usize maxShortSize) const noexcept {
+Cli::calcMaxOffset(const usize maxShortSize) const noexcept {
   usize maxOffset = 0;
   maxOffset = std::max(maxOffset, calcOptMaxOffset(globalOpts, maxShortSize));
   maxOffset = std::max(maxOffset, calcOptMaxOffset(localOpts, maxShortSize));
@@ -373,8 +372,7 @@ Command::calcMaxOffset(const usize maxShortSize) const noexcept {
 }
 
 void
-Command::printAllSubcmds(const bool showHidden, usize maxOffset)
-    const noexcept {
+Cli::printAllSubcmds(const bool showHidden, usize maxOffset) const noexcept {
   for (const auto& [name, cmd] : subcmds) {
     if (!showHidden && cmd.isHidden) {
       // Hidden command should not affect maxOffset if `showHidden` is false.
@@ -403,7 +401,7 @@ Command::printAllSubcmds(const bool showHidden, usize maxOffset)
 }
 
 void
-Command::printCmdHelp() const noexcept {
+Cli::printCmdHelp() const noexcept {
   // Print help message for poac itself
   const usize maxShortSize = calcMaxShortSize();
   const usize maxOffset = calcMaxOffset(maxShortSize);
@@ -431,21 +429,24 @@ Command::printCmdHelp() const noexcept {
 }
 
 [[nodiscard]] int
-Command::printHelp(const std::span<const StringRef> args) const noexcept {
+Cli::printHelp(const std::span<const StringRef> args) const noexcept {
   // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "help" } })
-
-    else if (hasSubcmd(arg)) {
-      printSubcmdHelp(arg);
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = handleGlobalOpts(itr, args.end(), "help")) {
+      if (res.value() == Cli::CONTINUE) {
+        continue;
+      } else {
+        return res.value();
+      }
+    } else if (hasSubcmd(*itr)) {
+      printSubcmdHelp(*itr);
       return EXIT_SUCCESS;
-    }
-    else {
+    } else {
       // TODO: Currently assumes that `help` does not implement any additional
-      // options since we are using `noSuchArg` instead of `helpCmd.noSuchArg`.
-      // But we want to consider subcommands as well for suggestion.
-      return noSuchArg(arg);
+      // options since we are using `noSuchArg` instead of
+      // `helpCmd.noSuchArg`. But we want to consider subcommands as well for
+      // suggestion.
+      return noSuchArg(*itr);
     }
   }
 

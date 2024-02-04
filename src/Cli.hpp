@@ -1,37 +1,19 @@
 #pragma once
 
+#include "Logger.hpp"
 #include "Rustify.hpp"
 
 #include <cstdlib>
+#include <iterator>
 #include <span>
-#include <tuple>
-
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define HANDLE_GLOBAL_OPTS(HELP_ARGS)                  \
-  if (arg == "-h" || arg == "--help") {                \
-    return getCmd().printHelp(HELP_ARGS);              \
-  } else if (arg == "-v" || arg == "--verbose") {      \
-    logger::setLevel(logger::Level::Debug);            \
-  } else if (arg == "-vv") {                           \
-    logger::setLevel(logger::Level::Trace);            \
-  } else if (arg == "-q" || arg == "--quiet") {        \
-    logger::setLevel(logger::Level::Off);              \
-  } else if (arg == "--color") {                       \
-    if (i + 1 < args.size()) {                         \
-      setColorMode(args[++i]);                         \
-    } else {                                           \
-      logger::error("missing argument for `--color`"); \
-      return EXIT_FAILURE;                             \
-    }                                                  \
-  }
 
 class Opt;
 class Arg;
 class Subcmd;
-class Command;
+class Cli;
 
 // Defined in main.cc
-const Command& getCmd() noexcept;
+const Cli& getCli() noexcept;
 
 template <typename Derived>
 class CliBase {
@@ -77,7 +59,7 @@ public:
 
 class Opt : public CliBase<Opt>, public ShortAndHidden<Opt> {
   friend class Subcmd;
-  friend class Command;
+  friend class Cli;
 
   StringRef placeholder;
   StringRef defaultVal;
@@ -150,7 +132,7 @@ private:
 };
 
 class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
-  friend class Command;
+  friend class Cli;
 
   StringRef cmdName;
   Option<Vec<Opt>> globalOpts = None;
@@ -190,7 +172,7 @@ private:
   usize calcMaxOffset(usize maxShortSize) const noexcept;
 };
 
-class Command : public CliBase<Command> {
+class Cli : public CliBase<Cli> {
   HashMap<StringRef, Subcmd> subcmds;
   Vec<Opt> globalOpts;
   Vec<Opt> localOpts;
@@ -198,8 +180,8 @@ class Command : public CliBase<Command> {
 public:
   using CliBase::CliBase;
 
-  Command& addSubcmd(const Subcmd& subcmd) noexcept;
-  Command& addOpt(Opt opt) noexcept;
+  Cli& addSubcmd(const Subcmd& subcmd) noexcept;
+  Cli& addOpt(Opt opt) noexcept;
   bool hasSubcmd(StringRef subcmd) const noexcept;
 
   [[nodiscard]] int noSuchArg(StringRef arg) const;
@@ -208,9 +190,45 @@ public:
   void printSubcmdHelp(StringRef subcmd) const noexcept;
   [[nodiscard]] int printHelp(std::span<const StringRef> args) const noexcept;
   usize calcMaxOffset(usize maxShortSize) const noexcept;
-
-  /// Print all subcommands.
   void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
+
+  static constexpr int CONTINUE = -1;
+
+  // Returns the exit code if the global option was handled, otherwise None.
+  // Returns CONTINUE if the caller should not propagate the exit code.
+  // TODO: -1 is not a good idea.
+  // TODO: result-like types make more sense.
+  [[nodiscard]] static inline Option<int> handleGlobalOpts(
+      std::forward_iterator auto& itr, std::forward_iterator auto end,
+      StringRef subcmd
+  ) {
+    if (*itr == "-h"sv || *itr == "--help"sv) {
+      if (!subcmd.empty()) {
+        // {{ }} is a workaround for std::span until C++26.
+        return getCli().printHelp({ { subcmd } });
+      } else {
+        return getCli().printHelp({});
+      }
+    } else if (*itr == "-v"sv || *itr == "--verbose"sv) {
+      logger::setLevel(logger::Level::Debug);
+      return CONTINUE;
+    } else if (*itr == "-vv"sv) {
+      logger::setLevel(logger::Level::Trace);
+      return CONTINUE;
+    } else if (*itr == "-q"sv || *itr == "--quiet"sv) {
+      logger::setLevel(logger::Level::Off);
+      return CONTINUE;
+    } else if (*itr == "--color"sv) {
+      if (itr + 1 < end) {
+        setColorMode(*++itr);
+        return CONTINUE;
+      } else {
+        logger::error("missing argument for `--color`");
+        return EXIT_FAILURE;
+      }
+    }
+    return None;
+  }
 
 private:
   usize calcMaxShortSize() const noexcept;

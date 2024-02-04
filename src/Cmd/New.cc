@@ -127,21 +127,21 @@ newMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
   String packageName;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "new" } })
-
-    else if (arg == "-b" || arg == "--bin") {
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "new")) {
+      if (res.value() == Cli::CONTINUE) {
+        continue;
+      } else {
+        return res.value();
+      }
+    } else if (*itr == "-b" || *itr == "--bin") {
       isBin = true;
-    }
-    else if (arg == "-l" || arg == "--lib") {
+    } else if (*itr == "-l" || *itr == "--lib") {
       isBin = false;
-    }
-    else if (packageName.empty()) {
-      packageName = arg;
-    }
-    else {
-      return NEW_CMD.noSuchArg(arg);
+    } else if (packageName.empty()) {
+      packageName = *itr;
+    } else {
+      return NEW_CMD.noSuchArg(*itr);
     }
   }
 

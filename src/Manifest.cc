@@ -189,7 +189,7 @@ getManifestPath() {
 }
 
 // Returns an error message if the package name is invalid.
-Option<String>
+Option<String> // TODO: result-like types make more sense.
 validatePackageName(const StringRef name) noexcept {
   // Empty
   if (name.empty()) {

@@ -31,25 +31,25 @@ static int
 testMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "test" } })
-
-    else if (arg == "-d" || arg == "--debug") {
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "test")) {
+      if (res.value() == Cli::CONTINUE) {
+        continue;
+      } else {
+        return res.value();
+      }
+    } else if (*itr == "-d" || *itr == "--debug") {
       isDebug = true;
-    }
-    else if (arg == "-r" || arg == "--release") {
+    } else if (*itr == "-r" || *itr == "--release") {
       logger::warn(
           "Tests in release mode could disable assert macros while speeding up "
           "the runtime."
       );
       isDebug = false;
-    }
-    else if (arg == "--no-parallel") {
+    } else if (*itr == "--no-parallel") {
       setParallel(false);
-    }
-    else {
-      return TEST_CMD.noSuchArg(arg);
+    } else {
+      return TEST_CMD.noSuchArg(*itr);
     }
   }
 

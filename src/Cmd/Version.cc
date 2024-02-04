@@ -57,7 +57,7 @@ secondMonthChar(const StringRef month) noexcept {
       // Jul
       return '7';
     }
-  } else if (month[1] == 'F') {
+  } else if (month[0] == 'F') {
     // Feb
     return '2';
   } else if (month[0] == 'M') {
@@ -115,12 +115,15 @@ static constinit const char COMPILE_DATE[] = {
 int
 versionMain(const std::span<const StringRef> args) noexcept {
   // Parse args
-  for (usize i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "version" } })
-
-    else {
-      return VERSION_CMD.noSuchArg(arg);
+  for (auto itr = args.begin(); itr != args.end(); ++itr) {
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "version")) {
+      if (res.value() == Cli::CONTINUE) {
+        continue;
+      } else {
+        return res.value();
+      }
+    } else {
+      return VERSION_CMD.noSuchArg(*itr);
     }
   }
 

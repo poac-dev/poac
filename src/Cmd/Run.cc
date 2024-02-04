@@ -35,28 +35,28 @@ static int
 runMain(const std::span<const StringRef> args) {
   // Parse args
   bool isDebug = true;
-  usize i = 0;
-  for (i = 0; i < args.size(); ++i) {
-    const StringRef arg = args[i];
-    HANDLE_GLOBAL_OPTS({ { "run" } })
-
-    else if (arg == "-d" || arg == "--debug") {
+  auto itr = args.begin();
+  for (; itr != args.end(); ++itr) {
+    if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "run")) {
+      if (res.value() == Cli::CONTINUE) {
+        continue;
+      } else {
+        return res.value();
+      }
+    } else if (*itr == "-d" || *itr == "--debug") {
       isDebug = true;
-    }
-    else if (arg == "-r" || arg == "--release") {
+    } else if (*itr == "-r" || *itr == "--release") {
       isDebug = false;
-    }
-    else if (arg == "--no-parallel") {
+    } else if (*itr == "--no-parallel") {
       setParallel(false);
-    }
-    else {
+    } else {
       break;
     }
   }
 
   String runArgs;
-  for (; i < args.size(); ++i) {
-    runArgs += ' ' + String(args[i]);
+  for (; itr != args.end(); ++itr) {
+    runArgs += ' ' + String(*itr);
   }
 
   String outDir;
