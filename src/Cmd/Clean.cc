@@ -31,7 +31,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
         return res.value();
       }
     } else if (*itr == "-p" || *itr == "--profile") {
-      if (itr + 1 >= args.end()) {
+      if (itr + 1 == args.end()) {
         logger::error("Missing argument for ", *itr);
         return EXIT_FAILURE;
       }

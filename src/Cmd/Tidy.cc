@@ -4,7 +4,7 @@
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
-#include "../Parallel.hpp"
+#include "../Parallelism.hpp"
 #include "../Rustify.hpp"
 
 #include <chrono>
@@ -18,7 +18,10 @@ const Subcmd TIDY_CMD =
     Subcmd{ "tidy" }
         .setDesc("Run clang-tidy")
         .addOpt(Opt{ "--fix" }.setDesc("Automatically apply lint suggestions"))
-        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .addOpt(Opt{ "--jobs" }
+                    .setShort("-j")
+                    .setDesc("Set the number of jobs to run in parallel")
+                    .setDefault(NUM_DEFAULT_THREADS))
         .setMainFn(tidyMain);
 
 static int
@@ -49,8 +52,12 @@ tidyMain(const std::span<const StringRef> args) {
       }
     } else if (*itr == "--fix") {
       fix = true;
-    } else if (*itr == "--no-parallel") {
-      setParallel(false);
+    } else if (*itr == "-j" || *itr == "--jobs") {
+      if (itr + 1 == args.end()) {
+        logger::error("Missing argument for ", *itr);
+        return EXIT_FAILURE;
+      }
+      setParallelism(std::stoul((++itr)->data()));
     } else {
       return TIDY_CMD.noSuchArg(*itr);
     }
@@ -62,8 +69,8 @@ tidyMain(const std::span<const StringRef> args) {
   }
 
   if (fix && isParallel()) {
-    logger::warn("`--fix` automatically implies `--no-parallel`");
-    setParallel(false);
+    logger::warn("`--fix` implies `--jobs 1` to avoid race conditions");
+    setParallelism(1);
   }
 
   const Path outDir = emitMakefile(true /* isDebug */);

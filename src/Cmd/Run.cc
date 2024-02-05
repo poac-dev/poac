@@ -5,7 +5,7 @@
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
-#include "../Parallel.hpp"
+#include "../Parallelism.hpp"
 #include "../Rustify.hpp"
 #include "Build.hpp"
 
@@ -24,7 +24,10 @@ const Subcmd RUN_CMD =
         .addOpt(Opt{ "--release" }.setShort("-r").setDesc(
             "Build with optimizations"
         ))
-        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .addOpt(Opt{ "--jobs" }
+                    .setShort("-j")
+                    .setDesc("Set the number of jobs to run in parallel")
+                    .setDefault(NUM_DEFAULT_THREADS))
         .setArg(Arg{ "args" }
                     .setDesc("Arguments passed to the program")
                     .setVariadic(true)
@@ -47,8 +50,12 @@ runMain(const std::span<const StringRef> args) {
       isDebug = true;
     } else if (*itr == "-r" || *itr == "--release") {
       isDebug = false;
-    } else if (*itr == "--no-parallel") {
-      setParallel(false);
+    } else if (*itr == "-j" || *itr == "--jobs") {
+      if (itr + 1 == args.end()) {
+        logger::error("Missing argument for ", *itr);
+        return EXIT_FAILURE;
+      }
+      setParallelism(std::stoul((++itr)->data()));
     } else {
       break;
     }
