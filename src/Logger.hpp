@@ -148,8 +148,7 @@ info(MaybeWriter auto&&... msgs) noexcept {
   Logger::info(std::forward<decltype(msgs)>(msgs)...);
 }
 
-template <typename... Ts>
-  requires(MaybeWriter<Ts> && ...)
+template <MaybeWriter... Ts>
 struct debug { // NOLINT(readability-identifier-naming)
   explicit debug(
       Ts&&... msgs, const source_location& loc = source_location::current()
@@ -157,12 +156,10 @@ struct debug { // NOLINT(readability-identifier-naming)
     Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
   }
 };
-template <typename... Ts>
-  requires(MaybeWriter<Ts> && ...)
+template <MaybeWriter... Ts>
 debug(Ts&&...) -> debug<Ts...>;
 
-template <typename... Ts>
-  requires(MaybeWriter<Ts> && ...)
+template <MaybeWriter... Ts>
 struct trace { // NOLINT(readability-identifier-naming)
   explicit trace(
       Ts&&... msgs, const source_location& loc = source_location::current()
@@ -170,8 +167,7 @@ struct trace { // NOLINT(readability-identifier-naming)
     Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
   }
 };
-template <typename... Ts>
-  requires(MaybeWriter<Ts> && ...)
+template <MaybeWriter... Ts>
 trace(Ts&&...) -> trace<Ts...>;
 
 inline void
