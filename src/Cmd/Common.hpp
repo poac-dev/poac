@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Cli.hpp"
 #include "../Parallelism.hpp"
 
