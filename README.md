@@ -133,6 +133,7 @@ make RELEASE=1 install
 * printf
 * cpplint (for `poac lint`)
 * clang-format (for `poac fmt`)
+* clang-tidy (for `poac tidy`)
 
 ## Usage
 
