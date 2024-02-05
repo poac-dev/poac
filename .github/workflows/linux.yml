@@ -26,8 +26,6 @@ jobs:
           - cxx: clang++
             ver: 17
           - cxx: g++
-            ver: 11
-          - cxx: g++
             ver: 12
           - cxx: g++
             ver: 13

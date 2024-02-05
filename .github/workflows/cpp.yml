@@ -7,6 +7,7 @@ on:
 
 env:
   POAC_TERM_COLOR: always
+  CXX: g++-13
 
 permissions:
   contents: read
