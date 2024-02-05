@@ -32,9 +32,10 @@ public:
   constexpr CliBase& operator=(CliBase&&) noexcept = default;
 
   constexpr explicit CliBase(const StringRef name) noexcept : name(name) {}
-  constexpr Derived& setDesc(const StringRef desc) noexcept {
-    this->desc = desc;
-    return static_cast<Derived&>(*this);
+  constexpr Derived setDesc(const StringRef desc) noexcept {
+    Derived derived = static_cast<Derived&>(*this);
+    derived.desc = desc;
+    return derived;
   }
 };
 
@@ -47,13 +48,15 @@ protected:
   // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
 
 public:
-  constexpr Derived& setShort(const StringRef shortName) noexcept {
-    this->shortName = shortName;
+  constexpr Derived setShort(const StringRef shortName) noexcept {
+    Derived derived = static_cast<Derived&>(*this);
+    derived.shortName = shortName;
     return static_cast<Derived&>(*this);
   }
-  constexpr Derived& setHidden(const bool isHidden) noexcept {
-    this->isHidden = isHidden;
-    return static_cast<Derived&>(*this);
+  constexpr Derived setHidden(const bool isHidden) noexcept {
+    Derived derived = static_cast<Derived&>(*this);
+    derived.isHidden = isHidden;
+    return derived;
   }
 };
 
@@ -77,16 +80,19 @@ public:
   printOpts(const Vec<Opt>& opts, usize maxShortSize, usize maxOffset) noexcept;
 
   constexpr Opt setPlaceholder(const StringRef placeholder) noexcept {
-    this->placeholder = placeholder;
-    return *this;
+    Opt opt = *this;
+    opt.placeholder = placeholder;
+    return opt;
   }
   constexpr Opt setDefault(const StringRef defaultVal) noexcept {
-    this->defaultVal = defaultVal;
-    return *this;
+    Opt opt = *this;
+    opt.defaultVal = defaultVal;
+    return opt;
   }
   constexpr Opt setGlobal(const bool isGlobal) noexcept {
-    this->isGlobal = isGlobal;
-    return *this;
+    Opt opt = *this;
+    opt.isGlobal = isGlobal;
+    return opt;
   }
 
 private:
@@ -113,12 +119,14 @@ public:
   using CliBase::CliBase;
 
   constexpr Arg setRequired(const bool required) noexcept {
-    this->required = required;
-    return *this;
+    Arg arg = *this;
+    arg.required = required;
+    return arg;
   }
   constexpr Arg setVariadic(const bool variadic) noexcept {
-    this->variadic = variadic;
-    return *this;
+    Arg arg = *this;
+    arg.variadic = variadic;
+    return arg;
   }
 
 private:
