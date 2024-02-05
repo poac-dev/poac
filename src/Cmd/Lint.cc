@@ -61,7 +61,7 @@ lintMain(const std::span<const StringRef> args) {
         return res.value();
       }
     } else if (*itr == "--exclude") {
-      if (itr + 1 >= args.end()) {
+      if (itr + 1 == args.end()) {
         logger::error("Missing argument for ", *itr);
         return EXIT_FAILURE;
       }

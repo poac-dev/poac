@@ -3,7 +3,7 @@
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
-#include "../Parallel.hpp"
+#include "../Parallelism.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -24,7 +24,10 @@ const Subcmd BUILD_CMD =
         .addOpt(Opt{ "--compdb" }.setDesc(
             "Generate compilation database instead of building"
         ))
-        .addOpt(Opt{ "--no-parallel" }.setDesc("Disable parallel builds"))
+        .addOpt(Opt{ "--jobs" }
+                    .setShort("-j")
+                    .setDesc("Set the number of jobs to run in parallel")
+                    .setDefault(NUM_DEFAULT_THREADS))
         .setMainFn(buildMain);
 
 int
@@ -64,8 +67,12 @@ buildMain(const std::span<const StringRef> args) {
       isDebug = false;
     } else if (*itr == "--compdb") {
       buildCompdb = true;
-    } else if (*itr == "--no-parallel") {
-      setParallel(false);
+    } else if (*itr == "-j" || *itr == "--jobs") {
+      if (itr + 1 == args.end()) {
+        logger::error("Missing argument for ", *itr);
+        return EXIT_FAILURE;
+      }
+      setParallelism(std::stoul((++itr)->data()));
     } else {
       return BUILD_CMD.noSuchArg(*itr);
     }

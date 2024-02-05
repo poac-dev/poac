@@ -5,7 +5,7 @@
 #include "Git2.hpp"
 #include "Logger.hpp"
 #include "Manifest.hpp"
-#include "Parallel.hpp"
+#include "Parallelism.hpp"
 #include "TermColor.hpp"
 
 #include <algorithm>
@@ -879,11 +879,9 @@ getMakeCommand() {
     makeCommand = "make -s --no-print-directory Q=@";
   }
 
-  if (isParallel()) {
-    const unsigned int numThreads = std::thread::hardware_concurrency();
-    if (numThreads > 1) {
-      makeCommand += " -j" + std::to_string(numThreads);
-    }
+  const usize numThreads = getParallelism();
+  if (numThreads > 1) {
+    makeCommand += " -j" + std::to_string(numThreads);
   }
 
   return makeCommand;
