@@ -65,7 +65,7 @@ public:
   static void info(MaybeWriter auto&&... msgs) noexcept {
     logln(
         Level::Info,
-        [](const StringRef head) noexcept -> String {
+        [](const StringRef head) noexcept {
           const StringRef fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
           return fmt::format(fmt::runtime(fmtStr), bold(green(head)));
         },
@@ -85,15 +85,28 @@ public:
 
 private:
   static void debuglike(
-      Level level, const StringRef lvlStr, MaybeWriter auto&&... msgs
+      Level level, const StringRef lvlStr, const StringRef func,
+      Writer auto&& writer, Display auto&&... msgs
+  ) noexcept {
+    // Swap func and writer, since for logln, writer should appear first for
+    // the msgs parameter pack.  In this case, func will be recognized as
+    // head.
+    debuglike(
+        level, lvlStr, writer, func, std::forward<decltype(msgs)>(msgs)...
+    );
+  }
+  static void debuglike(
+      Level level, const StringRef lvlStr, MaybeWriter auto&& maybeWriter,
+      Display auto&&... msgs
   ) noexcept {
     logln(
         level,
-        [&lvlStr](const StringRef func) noexcept -> String {
+        [&lvlStr](const StringRef func) noexcept {
           return fmt::format(
               "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
           );
         },
+        std::forward<decltype(maybeWriter)>(maybeWriter),
         std::forward<decltype(msgs)>(msgs)...
     );
   }
@@ -164,7 +177,7 @@ struct trace { // NOLINT(readability-identifier-naming)
   explicit trace(
       Ts&&... msgs, const source_location& loc = source_location::current()
   ) noexcept {
-    Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
+    Logger::trace(loc.function_name(), std::forward<Ts>(msgs)...);
   }
 };
 template <MaybeWriter... Ts>
