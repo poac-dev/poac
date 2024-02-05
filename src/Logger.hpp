@@ -187,7 +187,7 @@ getLevel() noexcept {
 
 inline bool
 isVerbose() noexcept {
-  return logger::getLevel() == logger::Level::Debug;
+  return logger::getLevel() >= logger::Level::Debug;
 }
 inline bool
 isQuiet() noexcept {
