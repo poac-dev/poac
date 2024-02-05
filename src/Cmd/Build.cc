@@ -4,6 +4,7 @@
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
 #include "../Parallelism.hpp"
+#include "Common.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -15,19 +16,12 @@ const Subcmd BUILD_CMD =
     Subcmd{ "build" }
         .setShort("b")
         .setDesc("Compile a local package and all of its dependencies")
-        .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
-            "Build with debug information [default]"
-        ))
-        .addOpt(Opt{ "--release" }.setShort("-r").setDesc(
-            "Build with optimizations"
-        ))
+        .addOpt(OPT_DEBUG)
+        .addOpt(OPT_RELEASE)
         .addOpt(Opt{ "--compdb" }.setDesc(
             "Generate compilation database instead of building"
         ))
-        .addOpt(Opt{ "--jobs" }
-                    .setShort("-j")
-                    .setDesc("Set the number of jobs to run in parallel")
-                    .setDefault(NUM_DEFAULT_THREADS))
+        .addOpt(OPT_JOBS)
         .setMainFn(buildMain);
 
 int

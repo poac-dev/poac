@@ -3,6 +3,7 @@
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
+#include "Common.hpp"
 #include "New.hpp"
 
 #include <cstdlib>
@@ -15,10 +16,8 @@ static int initMain(std::span<const StringRef> args);
 const Subcmd INIT_CMD =
     Subcmd{ "init" }
         .setDesc("Create a new poac package in an existing directory")
-        .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
-            "Use a binary (application) template [default]"
-        ))
-        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template"))
+        .addOpt(OPT_BIN)
+        .addOpt(OPT_LIB)
         .setMainFn(initMain);
 
 static int
