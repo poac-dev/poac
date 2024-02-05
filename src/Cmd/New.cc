@@ -7,6 +7,7 @@
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
+#include "Common.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -18,13 +19,11 @@
 
 static int newMain(std::span<const StringRef> args);
 
-const Subcmd NEW_CMD =
+const Subcmd NEW_CMD = //
     Subcmd{ "new" }
         .setDesc("Create a new poac project")
-        .addOpt(Opt{ "--bin" }.setShort("-b").setDesc(
-            "Use a binary (application) template [default]"
-        ))
-        .addOpt(Opt{ "--lib" }.setShort("-l").setDesc("Use a library template"))
+        .addOpt(OPT_BIN)
+        .addOpt(OPT_LIB)
         .setArg(Arg{ "name" })
         .setMainFn(newMain);
 

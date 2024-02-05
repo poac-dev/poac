@@ -6,6 +6,7 @@
 #include "../Logger.hpp"
 #include "../Parallelism.hpp"
 #include "../Rustify.hpp"
+#include "Common.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -13,20 +14,13 @@
 
 static int testMain(std::span<const StringRef> args);
 
-const Subcmd TEST_CMD =
+const Subcmd TEST_CMD = //
     Subcmd{ "test" }
         .setShort("t")
         .setDesc("Run the tests of a local package")
-        .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
-            "Test with debug information [default]"
-        ))
-        .addOpt(
-            Opt{ "--release" }.setShort("-r").setDesc("Test with optimizations")
-        )
-        .addOpt(Opt{ "--jobs" }
-                    .setShort("-j")
-                    .setDesc("Set the number of jobs to run in parallel")
-                    .setDefault(NUM_DEFAULT_THREADS))
+        .addOpt(OPT_DEBUG)
+        .addOpt(OPT_RELEASE)
+        .addOpt(OPT_JOBS)
         .setMainFn(testMain);
 
 static int

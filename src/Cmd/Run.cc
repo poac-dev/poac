@@ -8,6 +8,7 @@
 #include "../Parallelism.hpp"
 #include "../Rustify.hpp"
 #include "Build.hpp"
+#include "Common.hpp"
 
 #include <cstdlib>
 #include <span>
@@ -18,16 +19,9 @@ const Subcmd RUN_CMD =
     Subcmd{ "run" }
         .setShort("r")
         .setDesc("Build and execute src/main.cc")
-        .addOpt(Opt{ "--debug" }.setShort("-d").setDesc(
-            "Build with debug information [default]"
-        ))
-        .addOpt(Opt{ "--release" }.setShort("-r").setDesc(
-            "Build with optimizations"
-        ))
-        .addOpt(Opt{ "--jobs" }
-                    .setShort("-j")
-                    .setDesc("Set the number of jobs to run in parallel")
-                    .setDefault(NUM_DEFAULT_THREADS))
+        .addOpt(OPT_DEBUG)
+        .addOpt(OPT_RELEASE)
+        .addOpt(OPT_JOBS)
         .setArg(Arg{ "args" }
                     .setDesc("Arguments passed to the program")
                     .setVariadic(true)

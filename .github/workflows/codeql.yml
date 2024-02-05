@@ -19,6 +19,9 @@ on:
   schedule:
     - cron: "27 11 * * 2"
 
+env:
+  CXX: g++-13
+
 jobs:
   analyze:
     name: Analyze

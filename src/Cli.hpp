@@ -76,15 +76,15 @@ public:
   friend void
   printOpts(const Vec<Opt>& opts, usize maxShortSize, usize maxOffset) noexcept;
 
-  constexpr Opt setPlaceholder(const StringRef placeholder) noexcept {
+  constexpr Opt& setPlaceholder(const StringRef placeholder) noexcept {
     this->placeholder = placeholder;
     return *this;
   }
-  constexpr Opt setDefault(const StringRef defaultVal) noexcept {
+  constexpr Opt& setDefault(const StringRef defaultVal) noexcept {
     this->defaultVal = defaultVal;
     return *this;
   }
-  constexpr Opt setGlobal(const bool isGlobal) noexcept {
+  constexpr Opt& setGlobal(const bool isGlobal) noexcept {
     this->isGlobal = isGlobal;
     return *this;
   }
@@ -112,11 +112,11 @@ class Arg : public CliBase<Arg> {
 public:
   using CliBase::CliBase;
 
-  constexpr Arg setRequired(const bool required) noexcept {
+  constexpr Arg& setRequired(const bool required) noexcept {
     this->required = required;
     return *this;
   }
-  constexpr Arg setVariadic(const bool variadic) noexcept {
+  constexpr Arg& setVariadic(const bool variadic) noexcept {
     this->variadic = variadic;
     return *this;
   }
