@@ -24,6 +24,9 @@ enum class Level : u8 {
 template <typename T>
 concept MaybeWriter = Writer<T> || Display<T>;
 
+template <typename Fn>
+concept HeadProcessor = std::is_nothrow_invocable_r_v<String, Fn, StringRef>;
+
 class Logger {
   Level level = Level::Info;
 
@@ -111,38 +114,42 @@ private:
     );
   }
 
-  template <typename Fn>
-    requires(std::is_nothrow_invocable_r_v<String, Fn, StringRef>)
   static void logln(
-      Level level, Fn&& processHead, Writer auto&& writer, Display auto&& head,
+      Level level, HeadProcessor auto&& processHead, Writer auto&& writer,
       Display auto&&... msgs
   ) noexcept {
     loglnImpl(
         std::forward<decltype(writer)>(writer), level,
-        std::forward<Fn>(processHead)(std::forward<decltype(head)>(head)),
+        std::forward<decltype(processHead)>(processHead),
         std::forward<decltype(msgs)>(msgs)...
     );
   }
-  template <typename Fn>
-    requires(std::is_nothrow_invocable_r_v<String, Fn, StringRef>)
   static void logln(
-      Level level, Fn&& processHead, Display auto&& head, Display auto&&... msgs
+      Level level, HeadProcessor auto&& processHead, Display auto&&... msgs
   ) noexcept {
     loglnImpl(
-        std::cerr, level,
-        std::forward<Fn>(processHead)(std::forward<decltype(head)>(head)),
+        std::cerr, level, std::forward<decltype(processHead)>(processHead),
         std::forward<decltype(msgs)>(msgs)...
     );
   }
 
-  static inline void
-  loglnImpl(std::ostream& os, Level level, Display auto&&... msgs) noexcept {
-    instance().log(os, level, std::forward<decltype(msgs)>(msgs)..., '\n');
+  static inline void loglnImpl(
+      std::ostream& os, Level level, HeadProcessor auto&& processHead,
+      Display auto&&... msgs
+  ) noexcept {
+    instance().log(
+        os, level, std::forward<decltype(processHead)>(processHead),
+        std::forward<decltype(msgs)>(msgs)..., '\n'
+    );
   }
 
   inline void
-  log(std::ostream& os, Level level, Display auto&&... msgs) noexcept {
+  log(std::ostream& os, Level level, HeadProcessor auto&& processHead,
+      Display auto&& head, Display auto&&... msgs) noexcept {
     if (level <= this->level) {
+      os << std::forward<decltype(processHead)>(processHead)(
+          std::forward<decltype(head)>(head)
+      );
       (os << ... << std::forward<decltype(msgs)>(msgs)) << std::flush;
     }
   }
