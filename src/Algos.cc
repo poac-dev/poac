@@ -70,6 +70,7 @@ getCmdOutput(const StringRef cmd, const usize retry) {
   logger::debug("Running `", cmd, '`');
 
   int exitCode = EXIT_SUCCESS;
+  int waitTime = 1;
   for (usize i = 0; i < retry; ++i) {
     const auto result = getCmdOutputImpl(cmd);
     if (result.second == EXIT_SUCCESS) {
@@ -77,8 +78,9 @@ getCmdOutput(const StringRef cmd, const usize retry) {
     }
     exitCode = result.second;
 
-    // Sleep for 1 second
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // Sleep for an exponential backoff.
+    std::this_thread::sleep_for(std::chrono::seconds(waitTime));
+    waitTime *= 2;
   }
   throw PoacError("Command `", cmd, "` failed with exit code ", exitCode);
 }
