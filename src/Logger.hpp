@@ -25,7 +25,8 @@ template <typename T>
 concept MaybeWriter = Writer<T> || Display<T>;
 
 template <typename Fn>
-concept HeadProcessor = std::is_nothrow_invocable_r_v<String, Fn, StringRef>;
+concept HeadProcessor = std::is_nothrow_invocable_v<Fn, StringRef>
+                        && Display<std::invoke_result_t<Fn, StringRef>>;
 
 class Logger {
   Level level = Level::Info;
