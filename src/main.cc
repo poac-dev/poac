@@ -1,5 +1,5 @@
 #include "Cli.hpp"
-#include "Cmd/Cmd.hpp"
+#include "Cmd.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
 #include "TermColor.hpp"
