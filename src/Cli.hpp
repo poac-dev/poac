@@ -199,8 +199,8 @@ public:
   // TODO: -1 is not a good idea.
   // TODO: result-like types make more sense.
   [[nodiscard]] static inline Option<int> handleGlobalOpts(
-      std::forward_iterator auto& itr, std::forward_iterator auto end,
-      StringRef subcmd
+      std::forward_iterator auto& itr, const std::forward_iterator auto end,
+      StringRef subcmd = ""
   ) {
     if (*itr == "-h"sv || *itr == "--help"sv) {
       if (!subcmd.empty()) {
