@@ -4,6 +4,7 @@
 #include "TermColor.hpp"
 
 #include <fmt/core.h>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -148,7 +149,8 @@ private:
   log(std::ostream& os, Level level, HeadProcessor auto&& processHead,
       Display auto&& head, Display auto&&... msgs) noexcept {
     if (level <= this->level) {
-      os << std::forward<decltype(processHead)>(processHead)(
+      os << std::invoke(
+          std::forward<decltype(processHead)>(processHead),
           std::forward<decltype(head)>(head)
       );
       (os << ... << std::forward<decltype(msgs)>(msgs)) << std::flush;
