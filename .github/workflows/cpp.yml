@@ -55,7 +55,7 @@ jobs:
           sudo apt-get install -y clang-format-17
 
       - name: poac fmt
-        run: ./build-out/poac fmt --verbose
+        run: ./build-out/poac fmt --check --verbose
         env:
           POAC_FMT: clang-format-17
 
