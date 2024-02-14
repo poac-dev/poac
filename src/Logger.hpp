@@ -106,7 +106,7 @@ private:
   ) noexcept {
     logln(
         level,
-        [&lvlStr](const StringRef func) noexcept {
+        [lvlStr](const StringRef func) noexcept {
           return fmt::format(
               "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
           );
