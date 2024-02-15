@@ -20,3 +20,4 @@ IndentPPDirectives: AfterHash
 NamespaceIndentation: Inner
 PointerAlignment: Left
 QualifierAlignment: Left
+UseTab: Never
