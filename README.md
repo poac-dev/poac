@@ -86,8 +86,8 @@ If your environment is not included in the released packages, you have to build 
 
 #### Commands
 
-* make
-* git
+* GNU Make
+* Git
 * pkg-config
 * find
 * grep
@@ -127,7 +127,7 @@ make RELEASE=1 install
 ### Runtime Requirements
 
 * C++ compiler
-* Make
+* GNU Make
 * pkg-config
 * mkdir
 * printf
