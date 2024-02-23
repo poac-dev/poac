@@ -151,6 +151,7 @@ public:
   Subcmd& addOpt(Opt opt) noexcept;
   Subcmd& setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
+  [[nodiscard]] static int missingArgumentForOpt(StringRef arg);
 
 private:
   constexpr bool hasShort() const noexcept {
