@@ -41,6 +41,7 @@ getCli() noexcept {
                       .setDesc("List all subcommands")
                       .setGlobal(false)
                       .setHidden(true))
+          .addSubcmd(ADD_CMD)
           .addSubcmd(BUILD_CMD)
           .addSubcmd(CLEAN_CMD)
           .addSubcmd(FMT_CMD)
