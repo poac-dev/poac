@@ -52,8 +52,7 @@ tidyMain(const std::span<const StringRef> args) {
       fix = true;
     } else if (*itr == "-j" || *itr == "--jobs") {
       if (itr + 1 == args.end()) {
-        logger::error("Missing argument for ", *itr);
-        return EXIT_FAILURE;
+        return Subcmd::missingArgumentForOpt(*itr);
       }
       setParallelism(std::stoul((++itr)->data()));
     } else {

@@ -32,8 +32,7 @@ cleanMain(const std::span<const StringRef> args) noexcept {
       }
     } else if (*itr == "-p" || *itr == "--profile") {
       if (itr + 1 == args.end()) {
-        logger::error("Missing argument for ", *itr);
-        return EXIT_FAILURE;
+        return Subcmd::missingArgumentForOpt(*itr);
       }
 
       ++itr;

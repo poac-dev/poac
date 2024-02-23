@@ -62,8 +62,7 @@ lintMain(const std::span<const StringRef> args) {
       }
     } else if (*itr == "--exclude") {
       if (itr + 1 == args.end()) {
-        logger::error("Missing argument for ", *itr);
-        return EXIT_FAILURE;
+        return Subcmd::missingArgumentForOpt(*itr);
       }
 
       lintArgs.excludes += " --exclude=";

@@ -210,6 +210,12 @@ Subcmd::noSuchArg(StringRef arg) const {
   return EXIT_FAILURE;
 }
 
+[[nodiscard]] int
+Subcmd::missingArgumentForOpt(const StringRef arg) {
+  logger::error("Missing argument for `", arg, "`");
+  return EXIT_FAILURE;
+}
+
 usize
 Subcmd::calcMaxShortSize() const noexcept {
   usize maxShortSize = 0;
