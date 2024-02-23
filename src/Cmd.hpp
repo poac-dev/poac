@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cmd/Add.hpp"
 #include "Cmd/Build.hpp"
 #include "Cmd/Clean.hpp"
 #include "Cmd/Fmt.hpp"
