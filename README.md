@@ -350,13 +350,13 @@ poac fmt
 #### Run tests
 
 ```bash
-poac test
+poac test  # or make test
 ```
 
 #### Run `clang-tidy`
 
 ```bash
-poac tidy
+poac tidy  # or make tidy
 ```
 
 ---
