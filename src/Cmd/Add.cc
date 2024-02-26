@@ -48,7 +48,7 @@ handleNextArg(
 
 static void
 handleDependency(HashSet<StringRef>& newDeps, const StringRef dep) {
-  if (!newDeps.contains(dep)) {
+  if (newDeps.contains(dep)) {
     logger::warn("The dependency `", dep, "` is already in the poac.toml");
     return;
   }
