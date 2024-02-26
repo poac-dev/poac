@@ -187,18 +187,28 @@ Poac uses a cache since we executed the command with no changes.
 
 ### Install dependencies
 
-Like Cargo does, Poac installs dependencies at build time.  Poac currently supports Git and system dependencies.  You can specify dependencies like:
+Like Cargo does, Poac installs dependencies at build time.  Poac currently supports Git and system dependencies.  You can use the `poac add` command to add dependencies to your project.
 
-`poac.toml`
+The `poac add` command accepts the following arguments:
 
-```toml
-[dependencies]
-"ToruNiina/toml11" = { git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf" }
+`poac add <package names ....> --<options>`
+
+Options:
+- `--sys`: Marks the packages as system dependency (requires the `--version` argument)
+- `--version`: Specify dependency version. Only used with system dependencies
+- `--rev`: Specify revision for git dependencies
+- `--tag`: Specify tag for git dependencies
+- `--branch`: Specify branch for git dependencies
+
+Example
+```bash
+poac add libgit2 --sys --version "1.1.0"
+poac add "ToruNiina/toml11" --rev "846abd9a49082fe51440aa07005c360f13a67bbf"
 ```
 
-You can use either `rev`, `branch`, or `tag` to specify the revision.  If you do not specify any of them, Poac will use the latest revision of the default branch.
+If `tag`, `branch`, or `rev` is unspecified for git dependencies, Poac will use the latest revision of the default branch. System dependency names must be acceptable by `pkg-config`. The version requirement syntax is specified in [src/VersionReq.hpp](https://github.com/poac-dev/poac/blob/main/src/VersionReq.hpp).
 
-After editing `poac.toml`, executing the `build` command will install the package and its dependencies.
+After adding dependencies, executing the `build` command will install the package and its dependencies.
 
 ```console
 you:~/hello_world$ poac build
@@ -207,17 +217,6 @@ Downloaded ToruNiina/toml11 846abd9a49082fe51440aa07005c360f13a67bbf
    Linking hello_world
   Finished debug target(s) in 0.70s
 ```
-
-To use system dependencies, use `system = true`:
-
-`poac.toml`
-
-```toml
-[dependencies]
-libgit2 = { version = "1.1.0", system = true }
-```
-
-The dependency name should be acceptable by `pkg-config`.  The version requirement syntax is specified in [src/VersionReq.hpp](https://github.com/poac-dev/poac/blob/main/src/VersionReq.hpp).
 
 > [!WARNING]
 > Poac currently supports building a project with header-only dependencies.
