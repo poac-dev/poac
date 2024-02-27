@@ -6,6 +6,8 @@
   </picture>
 </div>
 
+![](https://img.shields.io/badge/irc.libera.chat-%23poac%2C%23poac--dev-blue.svg)
+
 ## Description
 
 > [!IMPORTANT]
