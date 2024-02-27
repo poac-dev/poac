@@ -139,7 +139,6 @@ addDependencyToManifest(
   ofs << toml::format(data);
 
   logger::info("Added", "to the poac.toml");
-
   return EXIT_SUCCESS;
 }
 
@@ -159,26 +158,45 @@ addMain(const std::span<const StringRef> args) {
   String rev;
   String branch;
 
+  // clang-format off
   HashMap<
-      StringRef,
-      Fn<Option<int>(decltype(args)::iterator&, decltype(args)::iterator)>>
-      handlers = {
-        { "--sys",
-          [&](auto&, auto) {
-            isSystemDependency = true;
-            return None;
-          } },
-        { "--version", [&](auto& itr, const auto end
-                       ) { return handleNextArg(itr, end, version); } },
-        { "-v", [&](auto& itr, const auto end
-                ) { return handleNextArg(itr, end, version); } },
-        { "--tag", [&](auto& itr, const auto end
-                   ) { return handleNextArg(itr, end, tag); } },
-        { "--rev", [&](auto& itr, const auto end
-                   ) { return handleNextArg(itr, end, rev); } },
-        { "--branch", [&](auto& itr, const auto end
-                      ) { return handleNextArg(itr, end, branch); } },
-      };
+    StringRef,
+    Fn<Option<int>(decltype(args)::iterator&, decltype(args)::iterator)>
+  >
+  handlers = {
+    {
+      "--sys", [&](auto&, auto) {
+        isSystemDependency = true;
+        return None;
+      }
+    },
+    {
+      "--version", [&](auto& itr, const auto end) {
+        return handleNextArg(itr, end, version);
+      }
+    },
+    {
+      "-v", [&](auto& itr, const auto end) {
+        return handleNextArg(itr, end, version);
+      }
+    },
+    {
+      "--tag", [&](auto& itr, const auto end) {
+        return handleNextArg(itr, end, tag);
+      }
+    },
+    {
+      "--rev", [&](auto& itr, const auto end) {
+        return handleNextArg(itr, end, rev);
+      }
+    },
+    {
+      "--branch", [&](auto& itr, const auto end) {
+        return handleNextArg(itr, end, branch);
+      }
+    },
+  };
+  // clang-format on
 
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "add")) {
