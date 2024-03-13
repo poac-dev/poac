@@ -2,6 +2,9 @@ CXX ?= clang++
 POAC_TIDY ?= clang-tidy
 PREFIX ?= /usr/local
 INSTALL ?= install
+COMMIT_HASH ?= $(shell git rev-parse HEAD)
+COMMIT_SHORT_HASH ?= $(shell git rev-parse --short HEAD)
+COMMIT_DATE ?= $(shell git show -s --date=format-local:'%Y-%m-%d' --format=%cd)
 
 DEBUG_FLAGS := -g -O0 -DDEBUG
 RELEASE_FLAGS := -O3 -DNDEBUG -flto
@@ -18,9 +21,9 @@ VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
 DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
-  -DPOAC_COMMIT_HASH='"$(shell git rev-parse HEAD)"' \
-  -DPOAC_COMMIT_SHORT_HASH='"$(shell git rev-parse --short HEAD)"' \
-  -DPOAC_COMMIT_DATE='"$(shell git show -s --date=format-local:'%Y-%m-%d' --format=%cd)"'
+  -DPOAC_COMMIT_HASH='"$(COMMIT_HASH)"' \
+  -DPOAC_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
+  -DPOAC_COMMIT_DATE='"$(COMMIT_DATE)"'
 INCLUDES := -isystem $(O)/DEPS/toml11 \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
   $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
