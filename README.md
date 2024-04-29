@@ -6,8 +6,6 @@
   </picture>
 </div>
 
-![](https://img.shields.io/badge/irc.libera.chat-%23poac%2C%23poac--dev-blue.svg)
-
 > [!IMPORTANT]
 > The information here may vary depending on the version you are using.  Please refer to the corresponding `README.md` by visiting the Git tag corresponding to your version, e.g., https://github.com/poac-dev/poac/blob/0.9.3/README.md.  Running `poac version` will provide you with the current version.
 
@@ -333,6 +331,10 @@ Poac is originated from `cpp` but designed to prioritize ease of typing and redu
 <img width="1230" alt="ergo" src="https://user-images.githubusercontent.com/26405363/169741684-ecb8aaad-2599-45ae-a680-a26f11652132.png">
 
 Despite C++ often being overlooked for product development, I believe that Poac can help to promote it as a fun language. Amemiya and Mizutani argue that the sound of `/p/` is associated with a bright and soft impression among Japanese consonants (157)[^1]. In the same way, I believe that Poac's name can convey a similarly positive impression.
+
+## Community
+
+We use [Discord](https://discord.gg/A96wAXkFTD).
 
 ## Contributing
 
