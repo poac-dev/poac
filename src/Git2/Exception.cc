@@ -2,7 +2,9 @@
 
 #include "../Rustify.hpp"
 
+#include <git2/deprecated.h>
 #include <git2/errors.h>
+
 #include <git2/version.h>
 
 namespace git2 {
@@ -25,7 +27,7 @@ Exception::Exception() {
   if (const git_error* error = git_error_last(); error != nullptr) {
     this->msg += error->message;
     this->cat = static_cast<git_error_t>(error->klass);
-    git_error_clear();
+    giterr_clear();
   }
 }
 
@@ -47,3 +49,4 @@ git2Throw(const int ret) {
 }
 
 } // namespace git2
+
