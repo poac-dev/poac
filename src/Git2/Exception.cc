@@ -49,4 +49,3 @@ git2Throw(const int ret) {
 }
 
 } // namespace git2
-
