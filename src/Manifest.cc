@@ -425,14 +425,14 @@ validateDepName(const StringRef name) {
   for (const char c : name) {
     if (!std::isalnum(c) && c != '-' && c != '_' && c != '/'
         && !(
-            c == '.' && std::isdigit(name.data()[&c - &name[0] - 1])
-            && std::isdigit(name.data()[&c - &name[0] + 1])
-        )) {
-      throw PoacError(
-          "dependency name must be alphanumeric, `-`, `_`, `/` or `.` for "
-          "versioning"
-      );
-    }
+            c == '.' && std::isdigit(name[&c - name.data() - 1])
+            && std::isdigit(name)[&c - name.data() + 1]
+        ))) {
+        throw PoacError(
+            "dependency name must be alphanumeric, `-`, `_`, `/` or `.` for "
+            "versioning"
+        );
+      }
   }
 
   // Consecutive `-`, `_`, and `/` are not allowed.
