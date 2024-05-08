@@ -423,32 +423,31 @@ validateDepName(const StringRef name) {
   // Only alphanumeric characters, `-`, `_`, `/` and `.` if surrounded by
   // numbers are allowed.
   for (const char c : name) {
-    if (!std::isalnum(c) && c != '-' && c != '_' && c != '/'
-        && !(
-            c == '.' && std::isdigit(name[&c - &name[0] - 1])
-            && std::isdigit(name[&c - &name[0] + 1])
-        )) {
+    if (!(std::isalnum(c) || c == '-' || c == '_' || c == '/'
+          || (c == '.' && std::isdigit(*(name.data() + (&c - &name[0]) - 1))
+              && std::isdigit(*(name.data() + (&c - &name[0]) + 1))))) {
       throw PoacError(
           "dependency name must be alphanumeric, `-`, `_`, `/` or `.` for "
           "versioning"
       );
     }
   }
+}
 
-  // Consecutive `-`, `_`, and `/` are not allowed.
-  for (usize i = 1; i < name.size(); ++i) {
-    if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
-      throw PoacError(
-          "dependency name must not contain consecutive non-alphanumeric "
-          "characters"
-      );
-    }
+// Consecutive `-`, `_`, and `/` are not allowed.
+for (usize i = 1; i < name.size(); ++i) {
+  if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
+    throw PoacError(
+        "dependency name must not contain consecutive non-alphanumeric "
+        "characters"
+    );
   }
+}
 
-  // `/` is allowed only once.
-  if (std::count(name.begin(), name.end(), '/') > 1) {
-    throw PoacError("dependency name must not contain more than one `/`");
-  }
+// `/` is allowed only once.
+if (std::count(name.begin(), name.end(), '/') > 1) {
+  throw PoacError("dependency name must not contain more than one `/`");
+}
 }
 
 static GitDependency
