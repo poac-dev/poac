@@ -428,8 +428,8 @@ validateDepName(const StringRef name) {
             c == '.' && std::isdigit(static_cast(name[0] - 1))
             && std::isdigit(static_cast(name[0] + 1))
         )) {
-        throw PoacError("dependency name must be alphanumeric, `-`, `_` or `/`");
-      }
+      throw PoacError("dependency name must be alphanumeric, `-`, `_` or `/`");
+    }
   }
 
   // Consecutive `-`, `_`, and `/` are not allowed.
@@ -442,6 +442,7 @@ validateDepName(const StringRef name) {
       );
     }
   }
+
   // `/` is allowed only once.
   if (std::count(name.begin(), name.end(), '/') > 1) {
     throw PoacError("dependency name must not contain more than one `/`");
@@ -590,4 +591,3 @@ installDependencies() {
   }
   return installed;
 }
-
