@@ -1,4 +1,5 @@
 #include "Manifest.hpp"
+
 #include "Algos.hpp"
 #include "Exception.hpp"
 #include "Git2.hpp"
@@ -7,6 +8,7 @@
 #include "Semver.hpp"
 #include "TermColor.hpp"
 #include "VersionReq.hpp"
+
 #include <cctype>
 #include <cstdlib>
 #include <string>
@@ -139,6 +141,7 @@ struct Manifest {
   Option<Profile> debugProfile = None;
   Option<Profile> releaseProfile = None;
   Option<Vec<String>> cpplintFilters = None;
+
 private:
   Manifest() noexcept = default;
   void load() {
@@ -369,7 +372,10 @@ validateDepName(const StringRef name) {
             c == '.' && std::isdigit(name.data()[&c - &name[0] - 1])
             && std::isdigit(name.data()[&c - &name[0] + 1])
         )) {
-      throw PoacError("dependency name must be alphanumeric, `-`, `_`, `/` or `.` for versioning");
+      throw PoacError(
+          "dependency name must be alphanumeric, `-`, `_`, `/` or `.` for "
+          "versioning"
+      );
     }
   }
 
