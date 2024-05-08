@@ -422,10 +422,11 @@ validateDepName(const StringRef name) {
 
   // Only alphanumeric characters, `-`, `_`, `/` and `.` if surrounded by
   // numbers are allowed.
-  for (const char c : name) {
-    if (!std::isalnum(c) || c == '-' || c == '_' || c == '/'
-        || (c == '.' && std::isdigit(static_cast<unsigned char>(name[0] - 1))
-            && std::isdigit(static_cast<unsigned char>(name[0] + 1)))) {
+  for (std::size_t i = 0; i < name.size(); ++i) {
+    const char c = name[i];
+    if (!(std::isalnum(c) || c == '-' || c == '_' || c == '/'
+          || (c == '.' && (i > 0 && std::isdigit(name[i - 1]))
+              && (i < name.size() - 1 && std::isdigit(name[i + 1]))))) {
       throw PoacError("dependency name must be alphanumeric, `-`, `_` or `/`");
     }
   }
