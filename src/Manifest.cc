@@ -428,7 +428,10 @@ validateDepName(const StringRef name) {
             c == '.' && std::isdigit(name[&c - &name[0] - 1])
             && std::isdigit(name[&c - &name[0] + 1])
         )) {
-      throw PoacError("dependency name must be alphanumeric, `-`, `_`, `/` or `.` for versioning");
+      throw PoacError(
+          "dependency name must be alphanumeric, `-`, `_`, `/` or `.` for "
+          "versioning"
+      );
     }
   }
 
