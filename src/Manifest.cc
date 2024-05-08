@@ -425,18 +425,14 @@ validateDepName(const StringRef name) {
   for (const char c : name) {
     if (!std::isalnum(c) && c != '-' && c != '_' && c != '/'
         && !(
-            c == '.' && std::isdigit(name[&c - &name[0] - 1])
-            && std::isdigit(name)[&c - &name[0] + 1]
-        ))) {
-        throw PoacError(
-            "dependency name must be alphanumeric, `-`, `_`, `/` or `.` for "
-            "versioning"
-        );
+            c == '.' && std::isdigit(static_cast(name[0] - 1))
+            && std::isdigit(static_cast(name[0] + 1))
+        )) {
+        throw PoacError("dependency name must be alphanumeric, `-`, `_` or `/`");
       }
   }
 
   // Consecutive `-`, `_`, and `/` are not allowed.
-
   for (usize i = 1; i < name.size(); ++i) {
     if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
       throw PoacError(
@@ -594,3 +590,4 @@ installDependencies() {
   }
   return installed;
 }
+
