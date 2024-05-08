@@ -450,7 +450,7 @@ for (usize i = 1; i < name.size(); ++i) {
 if (std::count(name.begin(), name.end(), '/') > 1) {
   throw PoacError("dependency name must not contain more than one `/`");
 }
-}
+
 
 static GitDependency
 parseGitDep(const String& name, const toml::table& info) {
