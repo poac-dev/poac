@@ -422,23 +422,31 @@ validateDepName(const StringRef name) {
 
   // Only alphanumeric characters, `-`, `_`, `/` and `.` if surrounded by
   // numbers are allowed.
+  // Consecutive `-`, `_`, and `/` are not allowed.
   for (std::size_t i = 0; i < name.size(); ++i) {
     const char c = name[i];
-    if (!(std::isalnum(c) || c == '-' || c == '_' || c == '/'
-          || (c == '.' && (i > 0 && std::isdigit(name[i - 1]))
-              && (i < name.size() - 1 && std::isdigit(name[i + 1]))))) {
-      throw PoacError("dependency name must be alphanumeric, `-`, `_` or `/`");
+    if (!std::isalnum(c) && c != '-' && c != '_' && c != '/') {
+      if (c == '.'
+          && ((i == 0 || !std::isdigit(name[i - 1]))
+              || (i == name.size() - 1 || !std::isdigit(name[i + 1])))) {
+        throw PoacError(
+            "dependency name must be alphanumeric, '-', '_', '/', or '.' "
+            "surrounded by numbers"
+        );
+      }
+      if (c != '.') {
+        throw PoacError("dependency name must be alphanumeric, '-', '_', or '/'"
+        );
+      }
     }
-  }
 
-  // Consecutive `-`, `_`, and `/` are not allowed.
-  for (usize i = 1; i < name.size(); ++i) {
-    if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
-      throw PoacError(
-          "dependency name must not contain consecutive non-alphanumeric "
-          "characters"
-
-      );
+    for (usize i = 1; i < name.size(); ++i) {
+      if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
+        throw PoacError(
+            "dependency name must not contain consecutive non-alphanumeric "
+            "characters"
+        );
+      }
     }
   }
 
