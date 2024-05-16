@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build-and-test:
-    name: "build & test (${{ env.CXX }})"
+    name: "build & test (${{ matrix.compiler.cxx }}-${{ matrix.compiler.ver }})"
     runs-on: ${{ matrix.compiler.os }}
     strategy:
       fail-fast: false
