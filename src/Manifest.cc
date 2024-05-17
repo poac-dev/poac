@@ -423,18 +423,17 @@ validateDepName(const StringRef name) {
   // Only alphanumeric characters, `-`, `_`, `/` and `.` are allowed
   for (const char c : name) {
     if (!std::isalnum(c) && c != '-' && c != '_' && c != '/' && c != '.') {
-      throw PoacError("dependency name must be alphanumeric, '-', '_', or '/'");
+      throw PoacError("dependency name must be alphanumeric, `-`, `_`, or `/`");
     }
   }
 
   // Checking if the dot is surrounded by numbers
-  for (std::size_t i = 0; i < name.size(); ++i) {
-    const char c = name[i];
-    if (c == '.'
+  for (std::size_t i = 1; i < name.size() - 1; ++i) {
+    if (name[i] == '.'
         && ((i == 0 || !std::isdigit(name[i - 1]))
             || (i == name.size() - 1 || !std::isdigit(name[i + 1])))) {
       throw PoacError(
-          "dependency name must be alphanumeric, '-', '_', '/', or '.' "
+          "dependency name must be alphanumeric, `-`, `_`, `/`, or `.` "
           "surrounded by numbers"
       );
     }
