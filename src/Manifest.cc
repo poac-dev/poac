@@ -415,29 +415,29 @@ validateDepName(const StringRef name) {
     throw PoacError("dependency name must start with an alphanumeric character"
     );
   }
-  // Trailing `-`, `_`, `.`, and `/` are not allowed.
+  // Trailing `-`, `_`, `/`, and `.` are not allowed.
   if (!std::isalnum(name.back())) {
     throw PoacError("dependency name must end with an alphanumeric character");
   }
 
-  // Only alphanumeric characters, `-`, `_`, `/` and `.` are allowed
+  // Only alphanumeric characters, `-`, `_`, `/`, and `.` are allowed.
   for (const char c : name) {
     if (!std::isalnum(c) && c != '-' && c != '_' && c != '/' && c != '.') {
       throw PoacError("dependency name must be alphanumeric, `-`, `_`, or `/`");
     }
   }
 
-  // Checking if the dot is surrounded by numbers
+  // Checking if the dot is surrounded by numbers.
   for (std::size_t i = 1; i < name.size() - 1; ++i) {
     if (name[i] == '.'
         && ((i == 0 || !std::isdigit(name[i - 1]))
             || (i == name.size() - 1 || !std::isdigit(name[i + 1])))) {
       throw PoacError(
-          "dependency name must be alphanumeric, `-`, `_`, `/`, or `.` "
-          "surrounded by numbers"
+          "dependency name must have a `.` surrounded by numbers"
       );
     }
 
+  // Consecutive `-`, `_`, and `/` are not allowed.
     for (usize i = 1; i < name.size(); ++i) {
       if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
         throw PoacError(
