@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +37,7 @@ jobs:
           POAC_TIDY: clang-tidy-17
 
   format:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -60,7 +60,7 @@ jobs:
           POAC_FMT: clang-format-17
 
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +71,7 @@ jobs:
         run: make RELEASE=1
 
       - name: Install cpplint
-        run: pip install cpplint
+        run: sudo apt-get install -y cpplint
 
       - name: poac lint
         run: ./build-out/poac lint --verbose --exclude srcOld --exclude testsOld

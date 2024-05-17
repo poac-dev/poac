@@ -13,22 +13,30 @@ permissions:
 
 jobs:
   build-and-test:
-    name: "build & test"
-    runs-on: ubuntu-22.04
+    name: "build & test (${{ matrix.compiler.cxx }}-${{ matrix.compiler.ver }})"
+    runs-on: ${{ matrix.compiler.os }}
     strategy:
       fail-fast: false
       matrix:
         compiler:
           - cxx: clang++
             ver: 15
+            os: ubuntu-22.04
           - cxx: clang++
             ver: 16
+            os: ubuntu-22.04
           - cxx: clang++
             ver: 17
+            os: ubuntu-24.04
+          - cxx: clang++
+            ver: 18
+            os: ubuntu-24.04
           - cxx: g++
             ver: 12
+            os: ubuntu-24.04
           - cxx: g++
             ver: 13
+            os: ubuntu-24.04
     env:
       CXX: ${{ matrix.compiler.cxx }}-${{ matrix.compiler.ver }}
     steps:
