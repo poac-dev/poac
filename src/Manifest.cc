@@ -428,16 +428,13 @@ validateDepName(const StringRef name) {
   }
 
   // Checking if the dot is surrounded by numbers.
-  for (std::size_t i = 1; i < name.size() - 1; ++i) {
+  for (usize i = 1; i < name.size() - 1; ++i) {
     if (name[i] == '.'
-        && ((i == 0 || !std::isdigit(name[i - 1]))
-            || (i == name.size() - 1 || !std::isdigit(name[i + 1])))) {
-      throw PoacError(
-          "dependency name must have a `.` surrounded by numbers"
-      );
+        && ((!std::isdigit(name[i - 1])) || (!std::isdigit(name[i + 1])))) {
+      throw PoacError("dependency name must have a `.` surrounded by numbers");
     }
 
-  // Consecutive `-`, `_`, and `/` are not allowed.
+    // Consecutive `-`, `_`, and `/` are not allowed.
     for (usize i = 1; i < name.size(); ++i) {
       if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
         throw PoacError(
