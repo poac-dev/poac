@@ -438,13 +438,12 @@ validateDepName(const StringRef name) {
 
     // Consecutive `-`, `_`, `/`, and `.` are not allowed.
     if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
-        throw PoacError(
-            "dependency name must not contain consecutive non-alphanumeric "
-            "characters"
-        );
-      }
+      throw PoacError(
+          "dependency name must not contain consecutive non-alphanumeric "
+          "characters"
+      );
     }
-  
+  }
 
   // `/` is allowed only once.
   if (std::count(name.begin(), name.end(), '/') > 1) {
