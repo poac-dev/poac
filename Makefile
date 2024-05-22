@@ -96,7 +96,7 @@ $(O)/tests/test_VersionReq: $(O)/tests/test_VersionReq.o $(O)/TermColor.o \
 
 tidy: $(TIDY_TARGETS)
 
-$(TIDY_TARGETS): tidy_%: src/%
+$(TIDY_TARGETS): tidy_%: src/% $(GIT_DEPS)
 	$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
 
 install: all
