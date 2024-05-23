@@ -52,25 +52,25 @@ GIT_DEPS := $(O)/DEPS/toml11
 .PHONY: all clean install test versions tidy $(TIDY_TARGETS)
 
 
-all: $(GIT_DEPS) $(PROJECT)
+all: $(PROJECT)
 
 $(PROJECT): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) $(LDFLAGS) -o $@
 
-$(O)/%.o: src/%.cc
+$(O)/%.o: src/%.cc $(GIT_DEPS)
 	$(MKDIR_P) $(@D)
 	$(CXX) $(CXXFLAGS) -MMD $(DEFINES) $(INCLUDES) -c $< -o $@
 
 -include $(DEPS)
 
 
-test: $(GIT_DEPS) $(UNITTEST_BINS)
+test: $(UNITTEST_BINS)
 	@$(O)/tests/test_BuildConfig
 	@$(O)/tests/test_Algos
 	@$(O)/tests/test_Semver
 	@$(O)/tests/test_VersionReq
 
-$(O)/tests/test_%.o: src/%.cc
+$(O)/tests/test_%.o: src/%.cc $(GIT_DEPS)
 	$(MKDIR_P) $(@D)
 	$(CXX) $(CXXFLAGS) -MMD -DPOAC_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
 
@@ -96,7 +96,7 @@ $(O)/tests/test_VersionReq: $(O)/tests/test_VersionReq.o $(O)/TermColor.o \
 
 tidy: $(TIDY_TARGETS)
 
-$(TIDY_TARGETS): tidy_%: src/%
+$(TIDY_TARGETS): tidy_%: src/% $(GIT_DEPS)
 	$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
 
 install: all
