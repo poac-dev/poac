@@ -144,7 +144,7 @@ struct Manifest {
   Manifest& operator=(Manifest&&) noexcept = delete;
   ~Manifest() noexcept = default;
 
-  static Manifest& instance() noexcept {
+  static Manifest& instance() {
     static Manifest instance;
     instance.load();
     return instance;
