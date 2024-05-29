@@ -330,7 +330,7 @@ Despite C++ often being overlooked for product development, I believe that Poac 
 
 ## Community
 
-We use [Discord](https://discord.gg/A96wAXkFTD).
+We use [GitHub Discussions](https://github.com/orgs/poac-dev/discussions).
 
 ## Contributing
 
