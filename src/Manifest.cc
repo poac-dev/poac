@@ -430,7 +430,7 @@ validateDepName(const StringRef name) {
   }
 
   // `.` must be surrounded by numbers.
-  for (usize i = 1; i < name.size() - 1; ++i) {
+  for (usize i = 1; i < name.size(); ++i) {
     if (name[i] == '.'
         && (!std::isdigit(name[i - 1]) || !std::isdigit(name[i + 1]))) {
       throw PoacError("dependency name must have a `.` surrounded by numbers");
