@@ -34,8 +34,8 @@ import poac.util.verbosity;
 export namespace poac::core::resolver::resolve {
 
 inline auto
-get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept
-    -> const Package& {
+get_package(const UniqDeps<WithDeps>::value_type& deps
+) noexcept -> const Package& {
   return deps.first;
 }
 
@@ -167,8 +167,8 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
 }
 
 [[nodiscard]] auto
-backtrack_loop(const DupDeps<WithDeps>& activated)
-    -> Result<UniqDeps<WithDeps>, String> {
+backtrack_loop(const DupDeps<WithDeps>& activated
+) -> Result<UniqDeps<WithDeps>, String> {
   const Vec<Vec<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
     for (const Vec<i32>& c : clauses) {
@@ -207,8 +207,8 @@ duplicate_loose(const SinglePassRange& rng) -> bool {
 // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
 // name is boost/config, no boost-config
 [[nodiscard]] auto
-get_versions_satisfy_interval(const Package& package)
-    -> Result<Vec<String>, String> {
+get_versions_satisfy_interval(const Package& package
+) -> Result<Vec<String>, String> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(package.dep_info.version_rq);
@@ -323,8 +323,8 @@ gather_deps(
 }
 
 [[nodiscard]] auto
-gather_all_deps(const UniqDeps<WithoutDeps>& deps)
-    -> Result<DupDeps<WithDeps>, String> {
+gather_all_deps(const UniqDeps<WithoutDeps>& deps
+) -> Result<DupDeps<WithDeps>, String> {
   DupDeps<WithDeps> duplicate_deps;
   IntervalCache interval_cache;
 

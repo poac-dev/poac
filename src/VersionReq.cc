@@ -11,16 +11,16 @@
 struct ComparatorError : public PoacError {
   explicit ComparatorError(auto&&... args)
       : PoacError(
-          "invalid comparator:\n", std::forward<decltype(args)>(args)...
-      ) {}
+            "invalid comparator:\n", std::forward<decltype(args)>(args)...
+        ) {}
 };
 
 struct VersionReqError : public PoacError {
   explicit VersionReqError(auto&&... args)
       : PoacError(
-          "invalid version requirement:\n",
-          std::forward<decltype(args)>(args)...
-      ) {}
+            "invalid version requirement:\n",
+            std::forward<decltype(args)>(args)...
+        ) {}
 };
 
 String
