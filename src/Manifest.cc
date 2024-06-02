@@ -401,34 +401,41 @@ static const Path CACHE_DIR(getXdgCacheHome() / "poac");
 static const Path GIT_DIR(CACHE_DIR / "git");
 static const Path GIT_SRC_DIR(GIT_DIR / "src");
 
-// Dependency name can contain alphanumeric characters, and non-leading &
-// non-trailing & non-consecutive `-`, and `_`.  Also, `/` is allowed only
-// once with the same constrains as `-` and `_`.
+static const HashSet<char> ALLOWED_CHARS = {
+  '-', '_', '/', '.', '+' // allowed in the dependency name
+};
+
 static void
 validateDepName(const StringRef name) {
   if (name.empty()) {
     throw PoacError("dependency name is empty");
   }
 
-  // Leading `-`, `_`, and `/` are not allowed.
-  if (!std::isalnum(name[0])) {
+  if (!std::isalnum(name.front())) {
     throw PoacError("dependency name must start with an alphanumeric character"
     );
   }
-  // Trailing `-`, `_`, and `/` are not allowed.
-  if (!std::isalnum(name.back())) {
-    throw PoacError("dependency name must end with an alphanumeric character");
+  if (!std::isalnum(name.back()) && name.back() != '+') {
+    throw PoacError(
+        "dependency name must end with an alphanumeric character or `+`"
+    );
   }
 
-  // Only alphanumeric characters, `-`, `_`, and `/` are allowed.
   for (const char c : name) {
-    if (!std::isalnum(c) && c != '-' && c != '_' && c != '/') {
-      throw PoacError("dependency name must be alphanumeric, `-`, `_`, or `/`");
+    if (!std::isalnum(c) && !ALLOWED_CHARS.contains(c)) {
+      throw PoacError(
+          "dependency name must be alphanumeric, `-`, `_`, `/`, "
+          "`.`, or `+`"
+      );
     }
   }
 
-  // Consecutive `-`, `_`, and `/` are not allowed.
   for (usize i = 1; i < name.size(); ++i) {
+    if (name[i] == '+') {
+      // Allow consecutive `+` characters.
+      continue;
+    }
+
     if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
       throw PoacError(
           "dependency name must not contain consecutive non-alphanumeric "
@@ -436,10 +443,31 @@ validateDepName(const StringRef name) {
       );
     }
   }
+  for (usize i = 1; i < name.size() - 1; ++i) {
+    if (name[i] != '.') {
+      continue;
+    }
 
-  // `/` is allowed only once.
-  if (std::count(name.begin(), name.end(), '/') > 1) {
+    if (!std::isdigit(name[i - 1]) || !std::isdigit(name[i + 1])) {
+      throw PoacError("dependency name must contain `.` wrapped by digits");
+    }
+  }
+
+  HashMap<char, int> charsFreq;
+  for (const char c : name) {
+    ++charsFreq[c];
+  }
+
+  if (charsFreq['/'] > 1) {
     throw PoacError("dependency name must not contain more than one `/`");
+  }
+  if (charsFreq['+'] != 0 && charsFreq['+'] != 2) {
+    throw PoacError("dependency name must contain zero or two `+`");
+  }
+  if (charsFreq['+'] == 2) {
+    if (name.find('+') + 1 != name.rfind('+')) {
+      throw PoacError("`+` in the dependency name must be consecutive");
+    }
   }
 }
 
@@ -585,3 +613,80 @@ installDependencies() {
   }
   return installed;
 }
+
+#ifdef POAC_TEST
+
+namespace tests {
+
+void
+testValidateDepName() {
+  assertException<PoacError>(
+      []() { validateDepName(""); }, "dependency name is empty"
+  );
+  assertException<PoacError>(
+      []() { validateDepName("-"); },
+      "dependency name must start with an alphanumeric character"
+  );
+  assertException<PoacError>(
+      []() { validateDepName("1-"); },
+      "dependency name must end with an alphanumeric character or `+`"
+  );
+
+  for (unsigned char c = 0; c < 255; ++c) {
+    if (std::isalnum(c) || ALLOWED_CHARS.contains(c)) {
+      continue;
+    }
+    assertException<PoacError>(
+        [c]() { validateDepName("1" + String(1, c) + "1"); },
+        "dependency name must be alphanumeric, `-`, `_`, `/`, `.`, or `+`"
+    );
+  }
+
+  assertException<PoacError>(
+      []() { validateDepName("1--1"); },
+      "dependency name must not contain consecutive non-alphanumeric characters"
+  );
+  assertNoException([]() { validateDepName("1-1-1"); });
+
+  assertNoException([]() { validateDepName("1.1"); });
+  assertNoException([]() { validateDepName("1.1.1"); });
+  assertException<PoacError>(
+      []() { validateDepName("a.a"); },
+      "dependency name must contain `.` wrapped by digits"
+  );
+
+  assertNoException([]() { validateDepName("a/b"); });
+  assertException<PoacError>(
+      []() { validateDepName("a/b/c"); },
+      "dependency name must not contain more than one `/`"
+  );
+
+  assertException<PoacError>(
+      []() { validateDepName("a+"); },
+      "dependency name must contain zero or two `+`"
+  );
+  assertException<PoacError>(
+      []() { validateDepName("a+++"); },
+      "dependency name must contain zero or two `+`"
+  );
+
+  assertException<PoacError>(
+      []() { validateDepName("a+b+c"); },
+      "`+` in the dependency name must be consecutive"
+  );
+
+  // issue #921
+  assertNoException([]() { validateDepName("gtkmm-4.0"); });
+  assertNoException([]() { validateDepName("ncurses++"); });
+
+  pass();
+}
+
+} // namespace tests
+
+int
+main() {
+  tests::testValidateDepName();
+}
+
+#endif
