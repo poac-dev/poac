@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Certify that you tried to find the same problem**
+**Certify that you tried to find the same problem** (this is important for us to reduce workload)
 - [ ] I certify that I looked for the same issue and couldn't find it to the best of my knowledge.
 
 **Describe the bug**
