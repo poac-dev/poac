@@ -2,9 +2,12 @@
 
 #include "../Rustify.hpp"
 
-#include <git2/deprecated.h>
 #include <git2/errors.h>
 #include <git2/version.h>
+
+#if (LIBGIT2_VER_MAJOR >= 1) && (LIBGIT2_VER_MINOR >= 8)
+#  include <git2/sys/errors.h>
+#endif
 
 namespace git2 {
 
@@ -26,7 +29,7 @@ Exception::Exception() {
   if (const git_error* error = git_error_last(); error != nullptr) {
     this->msg += error->message;
     this->cat = static_cast<git_error_t>(error->klass);
-    giterr_clear();
+    git_error_clear();
   }
 }
 
