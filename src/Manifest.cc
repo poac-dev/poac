@@ -561,6 +561,7 @@ GitDependency::install() const {
       const String target = this->target.value();
       const git2::Object obj = repo.revparseSingle(target);
       repo.setHeadDetached(obj.id());
+      repo.checkOutHead(true);
     }
 
     logger::info(
