@@ -56,7 +56,7 @@ struct Repository : public GlobalState {
   Repository& setHeadDetached(const Oid& oid);
   
   /// Checkout current HEAD
-  Repository& checkOutHead(bool force = false);
+  Repository& checkoutHead(bool force = false);
 
   /// Lookup a reference by name and resolve immediately to OID.
   Oid refNameToId(StringRef refname) const;

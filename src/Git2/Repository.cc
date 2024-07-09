@@ -66,7 +66,7 @@ Repository::setHeadDetached(const Oid& oid) {
 }
 
 Repository&
-Repository::checkOutHead(bool force) {
+Repository::checkoutHead(bool force) {
   git_checkout_options opts;
   git2Throw(git_checkout_options_init(&opts, GIT_CHECKOUT_OPTIONS_VERSION));
   opts.checkout_strategy = force ? GIT_CHECKOUT_FORCE : GIT_CHECKOUT_SAFE;
