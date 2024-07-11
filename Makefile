@@ -24,7 +24,7 @@ DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
   -DPOAC_COMMIT_HASH='"$(COMMIT_HASH)"' \
   -DPOAC_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
   -DPOAC_COMMIT_DATE='"$(COMMIT_DATE)"'
-INCLUDES := -isystem $(O)/DEPS/toml11 \
+INCLUDES := -isystem $(O)/DEPS/toml11/include \
   $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
   $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
   $(shell pkg-config --cflags 'nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0') \
@@ -121,4 +121,4 @@ versions:
 $(O)/DEPS/toml11:
 	$(MKDIR_P) $(@D)
 	git clone https://github.com/ToruNiina/toml11.git $@
-	git -C $@ reset --hard v3.8.0
+	git -C $@ reset --hard v4.0.3
