@@ -62,7 +62,7 @@ namespace toml {
 template <>
 struct from<Edition> {
   static Edition from_toml(const value& val) {
-    const String& editionStr = toml::get<toml::string>(val);
+    const String& editionStr = toml::get<String>(val);
     return Edition(editionStr);
   }
 };
@@ -76,13 +76,13 @@ struct into<Edition> {
 template <>
 struct from<Version> {
   static Version from_toml(const value& val) {
-    const String& versionStr = toml::get<toml::string>(val);
+    const String& versionStr = toml::get<String>(val);
     return Version::parse(versionStr);
   }
 };
 template <>
 struct into<Version> {
-  static toml::string into_toml(const Version& ver) {
+  static String into_toml(const Version& ver) {
     return ver.toString();
   }
 };
