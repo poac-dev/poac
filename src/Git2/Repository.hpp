@@ -55,6 +55,9 @@ struct Repository : public GlobalState {
   /// Make the repository HEAD directly point to the Commit.
   Repository& setHeadDetached(const Oid& oid);
 
+  /// Checkout current HEAD
+  Repository& checkoutHead(bool force = false);
+
   /// Lookup a reference by name and resolve immediately to OID.
   Oid refNameToId(StringRef refname) const;
 
