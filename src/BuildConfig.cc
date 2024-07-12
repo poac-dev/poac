@@ -879,6 +879,10 @@ getMakeCommand() {
     makeCommand = "make -s --no-print-directory Q=@";
   }
 
+  // Disable built-in variables like CXX to keep the generated Makefile simple.
+  // ref: https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+  makeCommand += " --no-builtin-variables";
+
   const usize numThreads = getParallelism();
   if (numThreads > 1) {
     makeCommand += " -j" + std::to_string(numThreads);
