@@ -6,12 +6,12 @@
   </picture>
 </div>
 
-> [!IMPORTANT]
+> [!WARNING]
 > The information here may vary depending on the version you are using.  Please refer to the corresponding `README.md` by visiting the Git tag corresponding to your version, e.g., https://github.com/poac-dev/poac/blob/0.9.3/README.md.  Running `poac version` will provide you with the current version.
 
 ## Description
 
-> [!IMPORTANT]
+> [!CAUTION]
 > Poac is still under development and may contain a bunch of bugs.
 
 ![demo](https://github.com/poac-dev/poac/assets/26405363/4486b424-e5a1-435e-a83e-fcd939bdaef0)
