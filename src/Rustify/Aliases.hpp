@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
-#include <functional>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -53,9 +52,6 @@ template <typename K>
 using Set = std::set<K>;
 template <typename K>
 using HashSet = std::unordered_set<K>;
-
-template <typename T>
-using Fn = std::function<T>;
 
 template <typename T>
 using Option = std::optional<T>;
