@@ -634,9 +634,7 @@ BuildConfig::setVariables(const bool isDebug) {
     { fmt::format("POAC_{}_COMMIT_HASH", pkgName), commitHash },
     { fmt::format("POAC_{}_COMMIT_SHORT_HASH", pkgName), commitShortHash },
     { fmt::format("POAC_{}_COMMIT_DATE", pkgName), commitDate },
-    { fmt::format("POAC_{}_PROFILE", pkgName), isDebug ? "debug" : "release" },
-    { fmt::format("POAC_{}_BIN_EXE_{}", pkgName, "TODO"),
-      isDebug ? "debug" : "release" },
+    { fmt::format("POAC_{}_PROFILE", pkgName), modeString(isDebug) },
   };
   for (const auto& [key, val] : defines) {
     addDefine(key, val);
