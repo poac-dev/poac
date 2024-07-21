@@ -158,6 +158,8 @@ struct Manifest {
   Option<Package> package = None;
   Option<Vec<std::variant<GitDependency, SystemDependency>>> dependencies =
       None;
+  Option<Vec<std::variant<GitDependency, SystemDependency>>> devDependencies =
+      None;
 
   Option<Profile> profile = None;
   Option<Profile> debugProfile = None;
@@ -508,20 +510,15 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   return { name, VersionReq::parse(versionReq) };
 }
 
-static void
-parseDependencies() {
+static Option<Vec<std::variant<GitDependency, SystemDependency>>>
+parseDependencies(const char* key) {
   Manifest& manifest = Manifest::instance();
-  if (manifest.dependencies.has_value()) {
-    return;
-  }
-
   const auto& table = toml::get<toml::table>(manifest.data.value());
-  if (!table.contains("dependencies")) {
-    logger::debug("no dependencies");
-    return;
+  if (!table.contains(key)) {
+    logger::debug("[dependencies] not found");
+    return None;
   }
-  const auto tomlDeps =
-      toml::find<toml::table>(manifest.data.value(), "dependencies");
+  const auto tomlDeps = toml::find<toml::table>(manifest.data.value(), key);
 
   Vec<std::variant<GitDependency, SystemDependency>> deps;
   for (const auto& dep : tomlDeps) {
@@ -541,7 +538,7 @@ parseDependencies() {
         dep.first
     );
   }
-  manifest.dependencies = deps;
+  return deps;
 }
 
 DepMetadata
@@ -599,12 +596,19 @@ SystemDependency::install() const {
 }
 
 Vec<DepMetadata>
-installDependencies() {
-  parseDependencies();
-
+installDependencies(const bool includeDevDeps) {
   Manifest& manifest = Manifest::instance();
   if (!manifest.dependencies.has_value()) {
-    return {};
+    manifest.dependencies = parseDependencies("dependencies");
+  }
+  if (includeDevDeps && !manifest.devDependencies.has_value()) {
+    manifest.devDependencies = parseDependencies("dev-dependencies");
+  }
+
+  if (!manifest.dependencies.has_value()) {
+    if (!includeDevDeps || !manifest.devDependencies.has_value()) {
+      return {};
+    }
   }
 
   Vec<DepMetadata> installed;
@@ -612,6 +616,14 @@ installDependencies() {
     std::visit(
         [&installed](auto&& arg) { installed.emplace_back(arg.install()); }, dep
     );
+  }
+  if (includeDevDeps) {
+    for (const auto& dep : manifest.devDependencies.value()) {
+      std::visit(
+          [&installed](auto&& arg) { installed.emplace_back(arg.install()); },
+          dep
+      );
+    }
   }
   return installed;
 }

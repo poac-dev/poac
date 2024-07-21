@@ -555,9 +555,9 @@ collectBinDepObjs( // NOLINT(misc-no-recursion)
 
 // TODO: Naming is not good, but using different namespaces for installDeps
 // and installDependencies is not good either.
-void
-installDeps() {
-  const Vec<DepMetadata> deps = installDependencies();
+static void
+installDeps(const bool includeDevDeps) {
+  const Vec<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
     INCLUDES += ' ' + dep.includes;
     LIBS += ' ' + dep.libs;
@@ -829,12 +829,12 @@ configureBuild(const bool isDebug) {
 
 /// @returns the directory where the Makefile is generated.
 std::string
-emitMakefile(const bool isDebug) {
+emitMakefile(const bool isDebug, const bool includeDevDeps) {
   setOutDir(isDebug);
 
   // When emitting Makefile, we also build the project.  So, we need to
   // make sure the dependencies are installed.
-  installDeps();
+  installDeps(includeDevDeps);
 
   const std::string outDir = getOutDir();
   const std::string makefilePath = outDir + "/Makefile";
@@ -852,11 +852,11 @@ emitMakefile(const bool isDebug) {
 
 /// @returns the directory where the compilation database is generated.
 std::string
-emitCompdb(const bool isDebug) {
+emitCompdb(const bool isDebug, const bool includeDevDeps) {
   setOutDir(isDebug);
 
   // compile_commands.json also needs INCLUDES, but not LIBS.
-  installDeps();
+  installDeps(includeDevDeps);
 
   const std::string outDir = getOutDir();
   const std::string compdbPath = outDir + "/compile_commands.json";

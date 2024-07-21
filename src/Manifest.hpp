@@ -61,4 +61,4 @@ const Version& getPackageVersion();
 const Profile& getDebugProfile();
 const Profile& getReleaseProfile();
 const Vec<std::string>& getLintCpplintFilters();
-Vec<DepMetadata> installDependencies();
+Vec<DepMetadata> installDependencies(bool includeDevDeps);
