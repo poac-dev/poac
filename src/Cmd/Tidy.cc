@@ -72,7 +72,7 @@ tidyMain(const std::span<const StringRef> args) {
 
   const Path outDir = emitMakefile(true /* isDebug */);
 
-  String tidyFlags = " POAC_TIDY_FLAGS='";
+  std::string tidyFlags = " POAC_TIDY_FLAGS='";
   if (!isVerbose()) {
     tidyFlags += "-quiet";
   }
@@ -85,7 +85,7 @@ tidyMain(const std::span<const StringRef> args) {
   }
   tidyFlags += '\'';
 
-  String makeCmd = getMakeCommand();
+  std::string makeCmd = getMakeCommand();
   makeCmd += " -C ";
   makeCmd += outDir.string();
   makeCmd += tidyFlags;

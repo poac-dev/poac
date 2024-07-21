@@ -5,6 +5,7 @@
 
 #include <cctype>
 #include <iostream>
+#include <string>
 #include <utility>
 #include <variant>
 
@@ -23,7 +24,7 @@ struct VersionReqError : public PoacError {
         ) {}
 };
 
-String
+std::string
 toString(const Comparator::Op op) noexcept {
   switch (op) {
     case Comparator::Exact:
@@ -183,7 +184,7 @@ struct ComparatorParser {
         break;
       default:
         throw ComparatorError(
-            lexer.s, '\n', String(lexer.pos, ' '),
+            lexer.s, '\n', std::string(lexer.pos, ' '),
             "^ expected =, >=, <=, >, <, or version"
         );
     }
@@ -195,7 +196,7 @@ struct ComparatorParser {
       const auto token2 = lexer.next();
       if (token2.kind != ComparatorToken::Ver) {
         throw ComparatorError(
-            lexer.s, '\n', String(lexer.pos, ' '), "^ expected version"
+            lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected version"
         );
       }
       result.from(std::get<OptVersion>(token2.value));
@@ -220,7 +221,7 @@ Comparator::from(const OptVersion& ver) noexcept {
 }
 
 void
-optVersionString(const Comparator& cmp, String& result) noexcept {
+optVersionString(const Comparator& cmp, std::string& result) noexcept {
   result += std::to_string(cmp.major);
   if (cmp.minor.has_value()) {
     result += ".";
@@ -238,9 +239,9 @@ optVersionString(const Comparator& cmp, String& result) noexcept {
   }
 }
 
-String
+std::string
 Comparator::toString() const noexcept {
-  String result;
+  std::string result;
   if (op.has_value()) {
     result += ::toString(op.value());
   }
@@ -248,9 +249,9 @@ Comparator::toString() const noexcept {
   return result;
 }
 
-String
+std::string
 Comparator::toPkgConfigString() const noexcept {
-  String result;
+  std::string result;
   if (op.has_value()) {
     result += ::toString(op.value());
     result += ' '; // we just need this space for pkg-config
@@ -514,7 +515,7 @@ struct VersionReqParser {
       lexer.skipWs();
       if (!lexer.isEof()) {
         throw VersionReqError(
-            lexer.s, '\n', String(lexer.pos, ' '),
+            lexer.s, '\n', std::string(lexer.pos, ' '),
             "^ NoOp and Exact cannot chain"
         );
       }
@@ -526,7 +527,7 @@ struct VersionReqParser {
       return result;
     } else if (token.kind != VersionReqToken::And) {
       throw VersionReqError(
-          lexer.s, '\n', String(lexer.pos, ' '), "^ expected `&&`"
+          lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected `&&`"
       );
     }
 
@@ -534,7 +535,7 @@ struct VersionReqParser {
     lexer.skipWs();
     if (!lexer.isEof()) {
       throw VersionReqError(
-          lexer.s, '\n', String(lexer.pos, ' '), "^ expected end of string"
+          lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected end of string"
       );
     }
 
@@ -546,7 +547,7 @@ struct VersionReqParser {
     const VersionReqToken token = lexer.next();
     if (token.kind != VersionReqToken::Comp) {
       throw VersionReqError(
-          lexer.s, '\n', String(lexer.pos, ' '),
+          lexer.s, '\n', std::string(lexer.pos, ' '),
           "^ expected =, >=, <=, >, <, or version"
       );
     }
@@ -582,7 +583,7 @@ struct VersionReqParser {
 
   [[noreturn]] void compExpected() {
     throw VersionReqError(
-        lexer.s, '\n', String(lexer.pos, ' '), "^ expected >=, <=, >, or <"
+        lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected >=, <=, >, or <"
     );
   }
 };
@@ -811,9 +812,9 @@ VersionReq::canonicalize() const noexcept {
   return req;
 }
 
-String
+std::string
 VersionReq::toString() const noexcept {
-  String result = left.toString();
+  std::string result = left.toString();
   if (right.has_value()) {
     result += " && ";
     result += right->toString();
@@ -821,12 +822,12 @@ VersionReq::toString() const noexcept {
   return result;
 }
 
-String
+std::string
 VersionReq::toPkgConfigString(const StringRef name) const noexcept {
   // For pkg-config, canonicalization is necessary.
   const VersionReq req = canonicalize();
 
-  String result(name);
+  std::string result(name);
   result += ' ';
   result += req.left.toPkgConfigString();
   if (req.right.has_value()) {

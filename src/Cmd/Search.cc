@@ -29,13 +29,13 @@ const Subcmd SEARCH_CMD =
         .setMainFn(searchMain);
 
 struct SearchArgs {
-  String name;
+  std::string name;
   usize perPage = 10;
   usize page = 1;
 };
 
 static usize
-writeCallback(void* contents, usize size, usize nmemb, String* userp) {
+writeCallback(void* contents, usize size, usize nmemb, std::string* userp) {
   userp->append(static_cast<char*>(contents), size * nmemb);
   return size * nmemb;
 }
@@ -50,8 +50,8 @@ searchPackages(const SearchArgs& args) {
   req["variables"]["limit"] = args.perPage;
   req["variables"]["offset"] = (args.page - 1) * args.perPage;
 
-  const String reqStr = req.dump();
-  String resStr;
+  const std::string reqStr = req.dump();
+  std::string resStr;
 
   CURL* curl = curl_easy_init();
   if (!curl) {
@@ -82,11 +82,11 @@ printTable(const nlohmann::json& packages) {
   std::cout << std::left << std::setw(nameWidth) << "Name"
             << std::setw(verWidth) << "Version"
             << "Description" << '\n';
-  std::cout << String(tableWidth, '-') << '\n';
+  std::cout << std::string(tableWidth, '-') << '\n';
   for (const auto& package : packages) {
-    const String name = package["name"];
-    const String version = package["version"];
-    const String description = package["description"];
+    const std::string name = package["name"];
+    const std::string version = package["version"];
+    const std::string description = package["description"];
 
     std::cout << std::left << std::setw(nameWidth) << name
               << std::setw(verWidth) << version << description << '\n';
@@ -105,14 +105,14 @@ searchMain(const std::span<const StringRef> args) {
       }
     } else if (*itr == "--per-page") {
       if (itr + 1 < args.end()) {
-        searchArgs.perPage = std::stoul(String(*++itr));
+        searchArgs.perPage = std::stoul(std::string(*++itr));
       } else {
         logger::error("missing argument for `--per-page`");
         return EXIT_FAILURE;
       }
     } else if (*itr == "--page") {
       if (itr + 1 < args.end()) {
-        searchArgs.page = std::stoul(String(*++itr));
+        searchArgs.page = std::stoul(std::string(*++itr));
       } else {
         logger::error("missing argument for `--page`");
         return EXIT_FAILURE;

@@ -2,6 +2,8 @@
 
 #include "Rustify.hpp"
 
+#include <string>
+
 enum class ColorMode {
   Always,
   Auto,
@@ -12,12 +14,12 @@ void setColorMode(ColorMode mode) noexcept;
 void setColorMode(StringRef str) noexcept;
 bool shouldColor() noexcept;
 
-String gray(StringRef str) noexcept;
-String red(StringRef str) noexcept;
-String green(StringRef str) noexcept;
-String yellow(StringRef str) noexcept;
-String blue(StringRef str) noexcept;
-String magenta(StringRef str) noexcept;
-String cyan(StringRef str) noexcept;
+std::string gray(StringRef str) noexcept;
+std::string red(StringRef str) noexcept;
+std::string green(StringRef str) noexcept;
+std::string yellow(StringRef str) noexcept;
+std::string blue(StringRef str) noexcept;
+std::string magenta(StringRef str) noexcept;
+std::string cyan(StringRef str) noexcept;
 
-String bold(StringRef str) noexcept;
+std::string bold(StringRef str) noexcept;

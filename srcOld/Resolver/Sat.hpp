@@ -153,7 +153,8 @@ unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
 
 // recursive DPLL algorithm
 [[nodiscard]] auto
-dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Result<Vec<i32>, String> {
+dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals)
+    -> Result<Vec<i32>, std::string> {
   // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));
@@ -200,7 +201,8 @@ dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Result<Vec<i32>, String> {
 }
 
 [[nodiscard]] inline auto
-solve(Vec<Vec<i32>> clauses, const u32& variables) -> Result<Vec<i32>, String> {
+solve(Vec<Vec<i32>> clauses, const u32& variables)
+    -> Result<Vec<i32>, std::string> {
   // Express the assignment status of the literal value corresponding to index.
   // a vector that stores the value assigned to each variable, where
   // -1 - unassigned, 0 - true, 1 - false.

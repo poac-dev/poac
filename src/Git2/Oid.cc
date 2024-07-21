@@ -6,6 +6,7 @@
 #include <cstring>
 #include <git2/oid.h>
 #include <ostream>
+#include <string>
 
 namespace git2 {
 
@@ -33,9 +34,9 @@ Oid::isZero() const {
 #  define GIT_OID_MAX_HEXSIZE GIT_OID_HEXSZ
 #endif
 
-String
+std::string
 Oid::toString() const {
-  String buf(static_cast<int>(GIT_OID_MAX_HEXSIZE), '\0');
+  std::string buf(static_cast<int>(GIT_OID_MAX_HEXSIZE), '\0');
   git_oid_tostr(buf.data(), buf.size() + 1, raw);
   return buf;
 }

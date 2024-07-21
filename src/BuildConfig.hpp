@@ -2,16 +2,18 @@
 
 #include "Rustify.hpp"
 
+#include <string>
+
 // clang-format off
-inline const HashSet<String> SOURCE_FILE_EXTS{
+inline const HashSet<std::string> SOURCE_FILE_EXTS{
   ".c", ".c++", ".cc", ".cpp", ".cxx"
 };
-inline const HashSet<String> HEADER_FILE_EXTS{
+inline const HashSet<std::string> HEADER_FILE_EXTS{
   ".h", ".h++", ".hh", ".hpp", ".hxx"
 };
 // clang-format on
 
-String emitMakefile(bool isDebug);
-String emitCompdb(bool isDebug);
-String modeString(bool isDebug);
-String getMakeCommand();
+std::string emitMakefile(bool isDebug);
+std::string emitCompdb(bool isDebug);
+std::string modeString(bool isDebug);
+std::string getMakeCommand();

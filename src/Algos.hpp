@@ -10,21 +10,23 @@
 #include <queue>
 #include <span>
 #include <sstream>
+#include <string>
 #include <utility>
 
-String toUpper(StringRef str) noexcept;
-String toMacroName(StringRef name) noexcept;
+std::string toUpper(StringRef str) noexcept;
+std::string toMacroName(StringRef name) noexcept;
 
 int execCmd(StringRef cmd) noexcept;
-String getCmdOutput(StringRef cmd, usize retry = 3);
+std::string getCmdOutput(StringRef cmd, usize retry = 3);
 bool commandExists(StringRef cmd) noexcept;
 
 template <typename T>
-Vec<String>
+Vec<std::string>
 topoSort(
-    const HashMap<String, T>& list, const HashMap<String, Vec<String>>& adjList
+    const HashMap<std::string, T>& list,
+    const HashMap<std::string, Vec<std::string>>& adjList
 ) {
-  HashMap<String, u32> inDegree;
+  HashMap<std::string, u32> inDegree;
   for (const auto& var : list) {
     inDegree[var.first] = 0;
   }
@@ -40,16 +42,16 @@ topoSort(
     }
   }
 
-  std::queue<String> zeroInDegree;
+  std::queue<std::string> zeroInDegree;
   for (const auto& var : inDegree) {
     if (var.second == 0) {
       zeroInDegree.push(var.first);
     }
   }
 
-  Vec<String> res;
+  Vec<std::string> res;
   while (!zeroInDegree.empty()) {
-    const String node = zeroInDegree.front();
+    const std::string node = zeroInDegree.front();
     zeroInDegree.pop();
     res.push_back(node);
 
@@ -57,7 +59,7 @@ topoSort(
       // No dependencies
       continue;
     }
-    for (const String& neighbor : adjList.at(node)) {
+    for (const std::string& neighbor : adjList.at(node)) {
       inDegree[neighbor]--;
       if (inDegree[neighbor] == 0) {
         zeroInDegree.push(neighbor);

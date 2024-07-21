@@ -13,6 +13,7 @@
 #include "Rustify.hpp"
 
 #include <ostream>
+#include <string>
 #include <utility>
 #include <variant>
 
@@ -43,7 +44,7 @@ struct VersionToken {
   constexpr explicit VersionToken(Kind kind) noexcept
       : kind(kind), value(std::monostate{}) {}
 
-  String toString() const noexcept;
+  std::string toString() const noexcept;
   usize size() const noexcept;
 };
 
@@ -52,7 +53,7 @@ struct Prerelease {
 
   static Prerelease parse(StringRef str);
   bool empty() const noexcept;
-  String toString() const noexcept;
+  std::string toString() const noexcept;
 };
 bool operator==(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 bool operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
@@ -66,7 +67,7 @@ struct BuildMetadata {
 
   static BuildMetadata parse(StringRef str);
   bool empty() const noexcept;
-  String toString() const noexcept;
+  std::string toString() const noexcept;
 };
 
 struct Version {
@@ -77,7 +78,7 @@ struct Version {
   BuildMetadata build;
 
   static Version parse(StringRef str);
-  String toString() const noexcept;
+  std::string toString() const noexcept;
 };
 std::ostream& operator<<(std::ostream& os, const Version& ver) noexcept;
 bool operator==(const Version& lhs, const Version& rhs) noexcept;

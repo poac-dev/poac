@@ -5,6 +5,7 @@
 #include "Repository.hpp"
 
 #include <git2/describe.h>
+#include <string>
 
 namespace git2 {
 
@@ -82,7 +83,7 @@ struct Describe : public GlobalState {
 
   Describe& workdir(const Repository& repo, DescribeOptions& opts);
 
-  String format(const DescribeFormatOptions& opts) const;
+  std::string format(const DescribeFormatOptions& opts) const;
 };
 
 } // namespace git2

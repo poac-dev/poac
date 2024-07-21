@@ -34,13 +34,13 @@ struct DependencyInfo {
   /// Version Requirement
   ///
   /// Sometimes, this is like `1.66.0` or like `>=1.64.0 and <2.0.0`.
-  String version_rq;
+  std::string version_rq;
 
   /// Registry Index
-  String index;
+  std::string index;
 
   /// Package type
-  String type;
+  std::string type;
 };
 
 inline auto
@@ -61,7 +61,7 @@ hash_value(const DependencyInfo& d) -> usize {
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Package {
   /// Package name
-  String name;
+  std::string name;
 
   DependencyInfo dep_info;
 };
@@ -95,7 +95,7 @@ template <typename W>
 using UniqDeps = std::conditional_t<
     W::value, HashMap<Package, Deps>,
     // <name, ver_req>
-    HashMap<String, DependencyInfo>>;
+    HashMap<std::string, DependencyInfo>>;
 
 } // namespace poac::core::resolver::resolve
 
@@ -107,12 +107,14 @@ using FailedToParseConfig =
     Error<"parsing the value of the `dependencies` key in poac.toml failed">;
 using FailedToResolveDeps = Error<"failed to resolve dependencies">;
 using FailedToResolveDepsWithCause =
-    Error<"failed to resolve dependencies:\n{}", String>;
-using FailedToCreateDirs = Error<"failed to create directories:\n{}", String>;
-using FailedToRename =
-    Error<"failed to rename a downloaded package: `{}: {}`", String, String>;
+    Error<"failed to resolve dependencies:\n{}", std::string>;
+using FailedToCreateDirs =
+    Error<"failed to create directories:\n{}", std::string>;
+using FailedToRename = Error<
+    "failed to rename a downloaded package: `{}: {}`", std::string,
+    std::string>;
 using FailedToFetch =
-    Error<"failed to fetch a package: `{}: {}`", String, String>;
+    Error<"failed to fetch a package: `{}: {}`", std::string, std::string>;
 using IncorrectSha256sum = Error<
     "the sha256sum when published did not match one when downloaded.\n"
     "  published: `{}` != downloaded: `{}\n"
@@ -120,15 +122,15 @@ using IncorrectSha256sum = Error<
     "was removed from this PC. We highly recommend submitting an "
     "issue on GitHub of the package and stopping using this package:\n"
     "  {}: {}",
-    String, String, String, String>;
+    std::string, std::string, std::string, std::string>;
 using RedefinePredefinedRegistryEntry = Error<
     "Registry entry named `{}` is predefined and can't be overwritten.\n",
-    String>;
+    std::string>;
 using DuplicateRegistryEntry =
-    Error<"Registry entry named `{}` is duplicated.\n", String>;
+    Error<"Registry entry named `{}` is duplicated.\n", std::string>;
 using UnknownRegistryType = Error<
-    "Registry entry named `{}` has unknown registry type `{}`.\n", String,
-    String>;
-using Unknown = Error<"unknown error occurred: {}", String>;
+    "Registry entry named `{}` has unknown registry type `{}`.\n", std::string,
+    std::string>;
+using Unknown = Error<"unknown error occurred: {}", std::string>;
 
 } // namespace poac::core::resolver

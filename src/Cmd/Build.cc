@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <span>
+#include <string>
 
 static int buildMain(std::span<const StringRef> args);
 
@@ -25,11 +26,11 @@ const Subcmd BUILD_CMD =
         .setMainFn(buildMain);
 
 int
-buildImpl(String& outDir, const bool isDebug) {
+buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug);
-  const String makeCommand = getMakeCommand() + " -C " + outDir;
+  const std::string makeCommand = getMakeCommand() + " -C " + outDir;
   const int exitCode = execCmd(makeCommand);
 
   const auto end = std::chrono::steady_clock::now();
@@ -76,12 +77,12 @@ buildMain(const std::span<const StringRef> args) {
   }
 
   if (!buildCompdb) {
-    String outDir;
+    std::string outDir;
     return buildImpl(outDir, isDebug);
   }
 
   // Build compilation database
-  const String outDir = emitCompdb(isDebug);
+  const std::string outDir = emitCompdb(isDebug);
   logger::info("Generated", outDir, "/compile_commands.json");
   return EXIT_SUCCESS;
 }

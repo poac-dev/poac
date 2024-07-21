@@ -3,5 +3,7 @@
 #include "../Cli.hpp"
 #include "../Rustify.hpp"
 
+#include <string>
+
 extern const Subcmd NEW_CMD;
-String createPoacToml(StringRef projectName) noexcept;
+std::string createPoacToml(StringRef projectName) noexcept;

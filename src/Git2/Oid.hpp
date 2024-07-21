@@ -5,6 +5,7 @@
 
 #include <git2/oid.h>
 #include <ostream>
+#include <string>
 
 namespace git2 {
 
@@ -38,7 +39,7 @@ struct Oid : public GlobalState {
   bool isZero() const;
 
   /// Format a git_oid into a buffer as a hex string.
-  String toString() const;
+  std::string toString() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Oid& oid);

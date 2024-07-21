@@ -10,6 +10,7 @@
 #include <fmt/core.h>
 #include <iomanip>
 #include <iostream>
+#include <string>
 #include <utility>
 
 static constinit const StringRef PADDING = "  ";
@@ -91,16 +92,16 @@ printOpts(
 
 void
 Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
-  String option;
+  std::string option;
   if (!shortName.empty()) {
     option += bold(cyan(shortName));
     option += ", ";
     if (maxShortSize > shortName.size()) {
-      option += String(maxShortSize - shortName.size(), ' ');
+      option += std::string(maxShortSize - shortName.size(), ' ');
     }
   } else {
     // This coloring is for the alignment with std::setw later.
-    option += bold(cyan(String(maxShortSize, ' ')));
+    option += bold(cyan(std::string(maxShortSize, ' ')));
     option += "  "; // ", "
   }
   option += bold(cyan(name));
@@ -120,13 +121,13 @@ Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
   std::cout << '\n';
 }
 
-String
+std::string
 Arg::getLeft() const noexcept {
   if (name.empty()) {
     return "";
   }
 
-  String left;
+  std::string left;
   if (required) {
     left += '<';
   } else {
@@ -145,7 +146,7 @@ Arg::getLeft() const noexcept {
 }
 void
 Arg::print(usize maxOffset) const noexcept {
-  const String left = getLeft();
+  const std::string left = getLeft();
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
     constexpr usize colorEscapeSeqLen = 9;
@@ -174,9 +175,9 @@ Subcmd::setGlobalOpts(const Vec<Opt>& globalOpts) noexcept {
   this->globalOpts = globalOpts;
   return *this;
 }
-String
+std::string
 Subcmd::getUsage() const noexcept {
-  String str = bold(green("Usage: "));
+  std::string str = bold(green("Usage: "));
   str += bold(cyan(cmdName));
   str += ' ';
   str += bold(cyan(name));
@@ -197,7 +198,7 @@ Subcmd::noSuchArg(StringRef arg) const {
   }
   addOptCandidates(candidates, localOpts);
 
-  String suggestion;
+  std::string suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
     suggestion = bold(cyan("  Tip:")) + " did you mean '"
                  + bold(yellow(similar.value())) + "'?\n\n";
@@ -267,7 +268,7 @@ Subcmd::printHelp() const noexcept {
 
 void
 Subcmd::print(usize maxOffset) const noexcept {
-  String cmdStr = bold(cyan(name));
+  std::string cmdStr = bold(cyan(name));
   if (hasShort()) {
     cmdStr += ", ";
     cmdStr += bold(cyan(shortName));
@@ -323,7 +324,7 @@ Cli::noSuchArg(StringRef arg) const {
   addOptCandidates(candidates, globalOpts);
   addOptCandidates(candidates, localOpts);
 
-  String suggestion;
+  std::string suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
     suggestion = bold(cyan("  Tip:")) + " did you mean '"
                  + bold(yellow(similar.value())) + "'?\n\n";
@@ -426,7 +427,7 @@ Cli::printCmdHelp() const noexcept {
   printHeader("Commands:");
   printAllSubcmds(false, maxOffset);
 
-  const String dummyDesc = "See all commands with " + bold(cyan("--list"));
+  const std::string dummyDesc = "See all commands with " + bold(cyan("--list"));
   Subcmd{ "..." }.setDesc(dummyDesc).print(maxOffset);
 
   std::cout

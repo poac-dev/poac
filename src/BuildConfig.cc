@@ -32,12 +32,12 @@ static constinit const StringRef TEST_OUT_DIR = "tests";
 static constinit const StringRef PATH_FROM_OUT_DIR = "../../";
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
-static String OUT_DIR;
-static String CXX = "clang++";
-static String CXXFLAGS;
-static String DEFINES;
-static String INCLUDES = " -Iinclude";
-static String LIBS;
+static std::string OUT_DIR;
+static std::string CXX = "clang++";
+static std::string CXXFLAGS;
+static std::string DEFINES;
+static std::string INCLUDES = " -Iinclude";
+static std::string LIBS;
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 void
@@ -48,7 +48,7 @@ setOutDir(const bool isDebug) {
     OUT_DIR = "poac-out/release";
   }
 }
-String
+std::string
 getOutDir() {
   if (OUT_DIR.empty()) {
     throw PoacError("outDir is not set");
@@ -99,7 +99,7 @@ operator<<(std::ostream& os, VarType type) {
 }
 
 struct Variable {
-  String value;
+  std::string value;
   VarType type = VarType::Simple;
 };
 
@@ -110,66 +110,66 @@ operator<<(std::ostream& os, const Variable& var) {
 }
 
 struct Target {
-  Vec<String> commands;
-  Option<String> sourceFile;
-  HashSet<String> remDeps;
+  Vec<std::string> commands;
+  Option<std::string> sourceFile;
+  HashSet<std::string> remDeps;
 };
 
 struct BuildConfig {
-  String packageName;
+  std::string packageName;
   Path buildOutDir;
 
-  HashMap<String, Variable> variables;
-  HashMap<String, Vec<String>> varDeps;
-  HashMap<String, Target> targets;
-  HashMap<String, Vec<String>> targetDeps;
-  Option<HashSet<String>> phony;
-  Option<HashSet<String>> all;
+  HashMap<std::string, Variable> variables;
+  HashMap<std::string, Vec<std::string>> varDeps;
+  HashMap<std::string, Target> targets;
+  HashMap<std::string, Vec<std::string>> targetDeps;
+  Option<HashSet<std::string>> phony;
+  Option<HashSet<std::string>> all;
 
   BuildConfig() = default;
-  explicit BuildConfig(const String& packageName)
+  explicit BuildConfig(const std::string& packageName)
       : packageName(packageName), buildOutDir(packageName + ".d") {}
 
   void defineVar(
-      const String& name, const Variable& value,
-      const HashSet<String>& dependsOn = {}
+      const std::string& name, const Variable& value,
+      const HashSet<std::string>& dependsOn = {}
   ) {
     variables[name] = value;
-    for (const String& dep : dependsOn) {
+    for (const std::string& dep : dependsOn) {
       // reverse dependency
       varDeps[dep].push_back(name);
     }
   }
   void defineSimpleVar(
-      const String& name, const String& value,
-      const HashSet<String>& dependsOn = {}
+      const std::string& name, const std::string& value,
+      const HashSet<std::string>& dependsOn = {}
   ) {
     defineVar(name, { value, VarType::Simple }, dependsOn);
   }
   void defineCondVar(
-      const String& name, const String& value,
-      const HashSet<String>& dependsOn = {}
+      const std::string& name, const std::string& value,
+      const HashSet<std::string>& dependsOn = {}
   ) {
     defineVar(name, { value, VarType::Cond }, dependsOn);
   }
 
   void defineTarget(
-      const String& name, const Vec<String>& commands,
-      const HashSet<String>& remDeps = {},
-      const Option<String>& sourceFile = None
+      const std::string& name, const Vec<std::string>& commands,
+      const HashSet<std::string>& remDeps = {},
+      const Option<std::string>& sourceFile = None
   ) {
     targets[name] = { commands, sourceFile, remDeps };
 
     if (sourceFile.has_value()) {
       targetDeps[sourceFile.value()].push_back(name);
     }
-    for (const String& dep : remDeps) {
+    for (const std::string& dep : remDeps) {
       // reverse dependency
       targetDeps[dep].push_back(name);
     }
   }
 
-  void addPhony(const String& target) {
+  void addPhony(const std::string& target) {
     if (!phony.has_value()) {
       phony = { target };
     } else {
@@ -177,11 +177,11 @@ struct BuildConfig {
     }
   }
 
-  void setAll(const HashSet<String>& dependsOn) {
+  void setAll(const HashSet<std::string>& dependsOn) {
     all = dependsOn;
   }
 
-  void emitVariable(std::ostream& os, const String& varName) const;
+  void emitVariable(std::ostream& os, const std::string& varName) const;
   void emitMakefile(std::ostream& os) const;
   void emitCompdb(StringRef baseDir, std::ostream& os) const;
 };
@@ -200,8 +200,10 @@ emitDep(std::ostream& os, usize& offset, const StringRef dep) {
 
 static void
 emitTarget(
-    std::ostream& os, const StringRef target, const HashSet<String>& dependsOn,
-    const Option<String>& sourceFile = None, const Vec<String>& commands = {}
+    std::ostream& os, const StringRef target,
+    const HashSet<std::string>& dependsOn,
+    const Option<std::string>& sourceFile = None,
+    const Vec<std::string>& commands = {}
 ) {
   usize offset = 0;
 
@@ -227,15 +229,15 @@ emitTarget(
 }
 
 void
-BuildConfig::emitVariable(std::ostream& os, const String& varName) const {
+BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
   std::ostringstream oss; // TODO: implement an elegant way to get type size.
   oss << varName << ' ' << variables.at(varName).type;
-  const String left = oss.str();
+  const std::string left = oss.str();
   os << left << ' ';
 
   constexpr usize maxLineLen = 80; // TODO: share across sources?
   usize offset = left.size() + 1; // space
-  String value;
+  std::string value;
   for (const char c : variables.at(varName).value) {
     if (c == ' ') {
       // Emit value
@@ -259,8 +261,8 @@ BuildConfig::emitVariable(std::ostream& os, const String& varName) const {
 
 void
 BuildConfig::emitMakefile(std::ostream& os) const {
-  const Vec<String> sortedVars = topoSort(variables, varDeps);
-  for (const String& varName : sortedVars) {
+  const Vec<std::string> sortedVars = topoSort(variables, varDeps);
+  for (const std::string& varName : sortedVars) {
     emitVariable(os, varName);
   }
   if (!sortedVars.empty() && !targets.empty()) {
@@ -273,7 +275,7 @@ BuildConfig::emitMakefile(std::ostream& os) const {
   if (all.has_value()) {
     emitTarget(os, "all", all.value());
   }
-  const Vec<String> sortedTargets = topoSort(targets, targetDeps);
+  const Vec<std::string> sortedTargets = topoSort(targets, targetDeps);
   // NOLINTNEXTLINE(modernize-loop-convert)
   for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
     emitTarget(
@@ -286,8 +288,8 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 void
 BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
   const Path baseDirPath = fs::canonical(baseDir);
-  const String indent1(2, ' ');
-  const String indent2(4, ' ');
+  const std::string indent1(2, ' ');
+  const std::string indent2(4, ' ');
 
   std::ostringstream oss;
   for (const auto& [target, targetInfo] : targets) {
@@ -301,7 +303,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
       if (!cmd.starts_with("$(CXX)") && !cmd.starts_with("@$(CXX)")) {
         continue;
       }
-      if (cmd.find("-c") == String::npos) {
+      if (cmd.find("-c") == std::string::npos) {
         // Ignore link commands.
         continue;
       }
@@ -313,10 +315,10 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
 
     // We don't check the Option value because we know the first dependency
     // always exists for compile targets.
-    const String file = targetInfo.sourceFile.value();
+    const std::string file = targetInfo.sourceFile.value();
     // The output is the target.
-    const String output = target;
-    String cmd = CXX;
+    const std::string output = target;
+    std::string cmd = CXX;
     cmd += ' ';
     cmd += CXXFLAGS;
     cmd += DEFINES;
@@ -334,7 +336,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
     oss << indent1 << "},\n";
   }
 
-  String output = oss.str();
+  std::string output = oss.str();
   if (!output.empty()) {
     // Remove the last comma.
     output.pop_back(); // \n
@@ -346,9 +348,9 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
   os << "]\n";
 }
 
-String
-runMM(const String& sourceFile, const bool isTest = false) {
-  String command = "cd ";
+std::string
+runMM(const std::string& sourceFile, const bool isTest = false) {
+  std::string command = "cd ";
   command += getOutDir();
   command += " && ";
   command += CXX;
@@ -363,13 +365,13 @@ runMM(const String& sourceFile, const bool isTest = false) {
   return getCmdOutput(command);
 }
 
-static HashSet<String>
-parseMMOutput(const String& mmOutput, String& target) {
+static HashSet<std::string>
+parseMMOutput(const std::string& mmOutput, std::string& target) {
   std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
 
-  String dependency;
-  HashSet<String> deps;
+  std::string dependency;
+  HashSet<std::string> deps;
   bool isFirst = true;
   while (std::getline(iss, dependency, ' ')) {
     if (!dependency.empty() && dependency.front() != '\\') {
@@ -406,13 +408,13 @@ isUpToDate(const StringRef makefilePath) {
 }
 
 static bool
-containsTestCode(const String& sourceFile) {
+containsTestCode(const std::string& sourceFile) {
   std::ifstream ifs(sourceFile);
-  String line;
+  std::string line;
   while (std::getline(ifs, line)) {
-    if (line.find("POAC_TEST") != String::npos) {
+    if (line.find("POAC_TEST") != std::string::npos) {
       // TODO: Can't we somehow elegantly make the compiler command sharable?
-      String command = CXX;
+      std::string command = CXX;
       command += " -E ";
       command += CXXFLAGS;
       command += DEFINES;
@@ -420,10 +422,10 @@ containsTestCode(const String& sourceFile) {
       command += ' ';
       command += sourceFile;
 
-      const String src = getCmdOutput(command);
+      const std::string src = getCmdOutput(command);
 
       command += " -DPOAC_TEST";
-      const String testSrc = getCmdOutput(command);
+      const std::string testSrc = getCmdOutput(command);
 
       // If the source file contains POAC_TEST, by processing the source
       // file with -E, we can check if the source file contains POAC_TEST
@@ -440,15 +442,15 @@ containsTestCode(const String& sourceFile) {
   return false;
 }
 
-static String
+static std::string
 printfCmd(const StringRef header, const StringRef body) {
   std::ostringstream oss;
   logger::info(oss, header, body);
-  String msg = oss.str();
+  std::string msg = oss.str();
 
   // Replace all occurrences of '\n' with "\\n" to escape newlines
   size_t pos = 0;
-  while ((pos = msg.find('\n', pos)) != String::npos) {
+  while ((pos = msg.find('\n', pos)) != std::string::npos) {
     msg.replace(pos, 1, "\\n");
     pos += 2; // Move past the replacement
   }
@@ -458,10 +460,11 @@ printfCmd(const StringRef header, const StringRef body) {
 
 static void
 defineCompileTarget(
-    BuildConfig& config, const String& objTarget, const String& sourceFile,
-    const HashSet<String>& remDeps, const bool isTest = false
+    BuildConfig& config, const std::string& objTarget,
+    const std::string& sourceFile, const HashSet<std::string>& remDeps,
+    const bool isTest = false
 ) {
-  Vec<String> commands(3);
+  Vec<std::string> commands(3);
   commands[0] = "@mkdir -p $(@D)";
   commands[1] =
       printfCmd("Compiling", sourceFile.substr(PATH_FROM_OUT_DIR.size()));
@@ -475,9 +478,10 @@ defineCompileTarget(
 
 static void
 defineLinkTarget(
-    BuildConfig& config, const String& binTarget, const HashSet<String>& deps
+    BuildConfig& config, const std::string& binTarget,
+    const HashSet<std::string>& deps
 ) {
-  Vec<String> commands(2);
+  Vec<std::string> commands(2);
   commands[0] = printfCmd("Linking", binTarget);
   commands[1] = "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
   config.defineTarget(binTarget, commands, deps);
@@ -486,7 +490,7 @@ defineLinkTarget(
 // Map a path to header file to the corresponding object file.
 //
 // e.g., src/path/to/header.h -> poac.d/path/to/header.o
-static String
+static std::string
 mapHeaderToObj(const Path& headerPath, const Path& buildOutDir) {
   Path objBaseDir =
       fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path);
@@ -509,9 +513,9 @@ mapHeaderToObj(const Path& headerPath, const Path& buildOutDir) {
 // depending header files for the source file.
 static void
 collectBinDepObjs( // NOLINT(misc-no-recursion)
-    HashSet<String>& deps, const StringRef sourceFileName,
-    const HashSet<String>& objTargetDeps,
-    const HashSet<String>& buildObjTargets, const BuildConfig& config
+    HashSet<std::string>& deps, const StringRef sourceFileName,
+    const HashSet<std::string>& objTargetDeps,
+    const HashSet<std::string>& buildObjTargets, const BuildConfig& config
 ) {
   for (const Path headerPath : objTargetDeps) {
     if (sourceFileName == headerPath.stem()) {
@@ -525,7 +529,8 @@ collectBinDepObjs( // NOLINT(misc-no-recursion)
       continue;
     }
 
-    const String objTarget = mapHeaderToObj(headerPath, config.buildOutDir);
+    const std::string objTarget =
+        mapHeaderToObj(headerPath, config.buildOutDir);
     if (deps.contains(objTarget)) {
       // We already added this object file.
       continue;
@@ -587,11 +592,11 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
   config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  const String pkgName = toMacroName(config.packageName);
+  const std::string pkgName = toMacroName(config.packageName);
   const Version& pkgVersion = getPackageVersion();
-  String commitHash;
-  String commitShortHash;
-  String commitDate;
+  std::string commitHash;
+  std::string commitShortHash;
+  std::string commitDate;
   try {
     git2::Repository repo{};
     repo.open(".");
@@ -623,10 +628,10 @@ setVariables(BuildConfig& config, const bool isDebug) {
 static void
 processSrc(
     BuildConfig& config, const Path& sourceFilePath,
-    HashSet<String>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
+    HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
 ) {
-  String objTarget; // source.o
-  const HashSet<String> objTargetDeps =
+  std::string objTarget; // source.o
+  const HashSet<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath), objTarget);
 
   const Path targetBaseDir = fs::relative(
@@ -637,7 +642,7 @@ processSrc(
     buildTargetBaseDir /= targetBaseDir;
   }
 
-  const String buildObjTarget = buildTargetBaseDir / objTarget;
+  const std::string buildObjTarget = buildTargetBaseDir / objTarget;
 
   if (mtx) {
     mtx->lock();
@@ -649,9 +654,9 @@ processSrc(
   }
 }
 
-static HashSet<String>
+static HashSet<std::string>
 processSources(BuildConfig& config, const Vec<Path>& sourceFilePaths) {
-  HashSet<String> buildObjTargets;
+  HashSet<std::string> buildObjTargets;
 
   if (isParallel()) {
     tbb::spin_mutex mtx;
@@ -675,16 +680,16 @@ processSources(BuildConfig& config, const Vec<Path>& sourceFilePaths) {
 static void
 processTestSrc(
     BuildConfig& config, const Path& sourceFilePath,
-    const HashSet<String>& buildObjTargets, Vec<String>& testCommands,
-    HashSet<String>& testTargets, tbb::spin_mutex* mtx = nullptr
+    const HashSet<std::string>& buildObjTargets, Vec<std::string>& testCommands,
+    HashSet<std::string>& testTargets, tbb::spin_mutex* mtx = nullptr
 ) {
   if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
       )) {
     return;
   }
 
-  String objTarget; // source.o
-  const HashSet<String> objTargetDeps =
+  std::string objTarget; // source.o
+  const HashSet<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
 
   const Path targetBaseDir = fs::relative(
@@ -695,14 +700,14 @@ processTestSrc(
     testTargetBaseDir /= targetBaseDir;
   }
 
-  const String testObjTarget =
+  const std::string testObjTarget =
       (testTargetBaseDir / "test_").string() + objTarget;
-  const String testTargetName = sourceFilePath.stem().string();
-  const String testTarget =
+  const std::string testTargetName = sourceFilePath.stem().string();
+  const std::string testTarget =
       (testTargetBaseDir / "test_").string() + testTargetName;
 
   // Test binary target.
-  HashSet<String> testTargetDeps = { testObjTarget };
+  HashSet<std::string> testTargetDeps = { testObjTarget };
   collectBinDepObjs(
       testTargetDeps, sourceFilePath.stem().string(), objTargetDeps,
       buildObjTargets, config
@@ -737,7 +742,7 @@ configureBuild(const bool isDebug) {
     throw PoacError("src/main.cc not found");
   }
 
-  const String outDir = getOutDir();
+  const std::string outDir = getOutDir();
   if (!fs::exists(outDir)) {
     fs::create_directories(outDir);
   }
@@ -753,7 +758,7 @@ configureBuild(const bool isDebug) {
   config.addPhony("all");
 
   Vec<Path> sourceFilePaths = listSourceFilePaths("src");
-  String srcs;
+  std::string srcs;
   for (Path& sourceFilePath : sourceFilePaths) {
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
@@ -761,12 +766,12 @@ configureBuild(const bool isDebug) {
   config.defineSimpleVar("SRCS", srcs);
 
   // Source Pass
-  const HashSet<String> buildObjTargets =
+  const HashSet<std::string> buildObjTargets =
       processSources(config, sourceFilePaths);
 
   // Project binary target.
-  const String mainObjTarget = config.buildOutDir / "main.o";
-  HashSet<String> projTargetDeps = { mainObjTarget };
+  const std::string mainObjTarget = config.buildOutDir / "main.o";
+  HashSet<std::string> projTargetDeps = { mainObjTarget };
   collectBinDepObjs(
       projTargetDeps, "",
       config.targets.at(mainObjTarget).remDeps, // we don't need sourceFile
@@ -775,8 +780,8 @@ configureBuild(const bool isDebug) {
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Test Pass
-  Vec<String> testCommands;
-  HashSet<String> testTargets;
+  Vec<std::string> testCommands;
+  HashSet<std::string> testTargets;
   if (isParallel()) {
     tbb::spin_mutex mtx;
     tbb::parallel_for(
@@ -821,7 +826,7 @@ configureBuild(const bool isDebug) {
 }
 
 /// @returns the directory where the Makefile is generated.
-String
+std::string
 emitMakefile(const bool isDebug) {
   setOutDir(isDebug);
 
@@ -829,8 +834,8 @@ emitMakefile(const bool isDebug) {
   // make sure the dependencies are installed.
   installDeps();
 
-  const String outDir = getOutDir();
-  const String makefilePath = outDir + "/Makefile";
+  const std::string outDir = getOutDir();
+  const std::string makefilePath = outDir + "/Makefile";
   if (isUpToDate(makefilePath)) {
     logger::debug("Makefile is up to date");
     return outDir;
@@ -844,15 +849,15 @@ emitMakefile(const bool isDebug) {
 }
 
 /// @returns the directory where the compilation database is generated.
-String
+std::string
 emitCompdb(const bool isDebug) {
   setOutDir(isDebug);
 
   // compile_commands.json also needs INCLUDES, but not LIBS.
   installDeps();
 
-  const String outDir = getOutDir();
-  const String compdbPath = outDir + "/compile_commands.json";
+  const std::string outDir = getOutDir();
+  const std::string compdbPath = outDir + "/compile_commands.json";
   if (isUpToDate(compdbPath)) {
     logger::debug("compile_commands.json is up to date");
     return outDir;
@@ -865,14 +870,14 @@ emitCompdb(const bool isDebug) {
   return outDir;
 }
 
-String
+std::string
 modeString(const bool isDebug) {
   return isDebug ? "debug" : "release";
 }
 
-String
+std::string
 getMakeCommand() {
-  String makeCommand;
+  std::string makeCommand;
   if (isVerbose()) {
     makeCommand = "make";
   } else {

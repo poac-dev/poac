@@ -18,7 +18,7 @@ import poac.util.rustify;
 export namespace poac::util::cfg {
 
 struct Exception : public std::exception {
-  explicit Exception(String what) : what_(std::move(what)) {}
+  explicit Exception(std::string what) : what_(std::move(what)) {}
   explicit Exception(const char* what) : what_(what) {}
   ~Exception() noexcept override = default;
   [[nodiscard]] inline auto what() const noexcept -> const char* override {
@@ -31,13 +31,13 @@ struct Exception : public std::exception {
   auto operator=(Exception&&) noexcept -> Exception& = default;
 
 private:
-  String what_;
+  std::string what_;
 };
 
 struct StringError : public cfg::Exception {
-  explicit StringError(const String& what_)
+  explicit StringError(const std::string& what_)
       : Exception("missing terminating '\"' character\n" + what_) {}
-  explicit StringError(const char* what_) : StringError(String(what_)) {}
+  explicit StringError(const char* what_) : StringError(std::string(what_)) {}
   ~StringError() noexcept override = default;
 
   StringError(const StringError&) = default;
@@ -48,11 +48,11 @@ struct StringError : public cfg::Exception {
 
 struct IdentError : public cfg::Exception {
 public:
-  explicit IdentError(const String& what_)
+  explicit IdentError(const std::string& what_)
       : Exception(
             "cfg expected parenthesis, comma, identifier, or string\n" + what_
         ) {}
-  explicit IdentError(const char* what_) : IdentError(String(what_)) {}
+  explicit IdentError(const char* what_) : IdentError(std::string(what_)) {}
   ~IdentError() noexcept override = default;
 
   IdentError(const IdentError&) = default;
@@ -63,9 +63,10 @@ public:
 
 struct OperatorError : public cfg::Exception {
 public:
-  explicit OperatorError(const String& what_)
+  explicit OperatorError(const std::string& what_)
       : Exception("cfg operator error\n" + what_) {}
-  explicit OperatorError(const char* what_) : OperatorError(String(what_)) {}
+  explicit OperatorError(const char* what_)
+      : OperatorError(std::string(what_)) {}
   ~OperatorError() noexcept override = default;
 
   OperatorError(const OperatorError&) = default;
@@ -76,7 +77,7 @@ public:
 
 struct ExpressionError : public cfg::Exception {
 public:
-  explicit ExpressionError(const String& what_) : Exception(what_) {}
+  explicit ExpressionError(const std::string& what_) : Exception(what_) {}
   explicit ExpressionError(const char* what_) : Exception(what_) {}
   ~ExpressionError() noexcept override = default;
 
@@ -88,9 +89,9 @@ public:
 
 struct SyntaxError : public cfg::Exception {
 public:
-  explicit SyntaxError(const String& what_)
+  explicit SyntaxError(const std::string& what_)
       : Exception("cfg syntax error\n" + what_) {}
-  explicit SyntaxError(const char* what_) : SyntaxError(String(what_)) {}
+  explicit SyntaxError(const char* what_) : SyntaxError(std::string(what_)) {}
   ~SyntaxError() noexcept override = default;
 
   SyntaxError(const SyntaxError&) = default;
@@ -127,7 +128,7 @@ struct Token {
     Lt,
     /// `<=`
     LtEq,
-    String,
+    std::string,
     Ident,
   };
 
@@ -151,13 +152,13 @@ struct Token {
 
   explicit Token(Kind k)
       : kind(
-            k != Kind::String && k != Kind::Ident
+            k != Kind::std::string && k != Kind::Ident
                 ? k
                 : throw std::invalid_argument("poac::util::cfg::Token")
         ) {}
   Token(Kind k, StringType s)
       : kind(
-            k == Kind::String
+            k == Kind::std::string
                 ? k
                 : throw std::invalid_argument("poac::util::cfg::Token")
         ),
@@ -211,7 +212,7 @@ to_kind(StringRef kind) -> Token::Kind {
 }
 
 auto
-to_string(Token::ident ident) -> String {
+to_string(Token::ident ident) -> std::string {
   switch (ident) {
     case Token::ident::cfg:
       return "cfg";
@@ -257,7 +258,7 @@ operator<<(std::ostream& os, const Token& token) -> std::ostream& {
       return (os << "lt: <");
     case Token::LtEq:
       return (os << "lteq: <=");
-    case Token::String:
+    case Token::std::string:
       return (os << "string: " << token.get_str());
     case Token::Ident:
       return (os << "ident: " << to_string(token.get_ident()));
@@ -330,9 +331,9 @@ Lexer::analyze_two_phrase(SizeType index_, const char kind) const
     -> std::pair<Lexer::SizeType, Option<Token>> {
   if (this->one(index_) == '=') {
     this->step(index_);
-    return generate_token(index_, String{ kind } + '=');
+    return generate_token(index_, std::string{ kind } + '=');
   } else {
-    return generate_token(index_, String{ kind });
+    return generate_token(index_, std::string{ kind });
   }
 }
 
@@ -355,7 +356,7 @@ Lexer::tokenize(SizeType index_
       [[fallthrough]];
     case '=':
       this->step(index_);
-      return generate_token(index_, String{ one });
+      return generate_token(index_, std::string{ one });
     case '>':
       [[fallthrough]];
     case '<':
@@ -388,26 +389,26 @@ Lexer::string(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   while (this->one(index_) != '"') {
     this->step(index_);
     if (index_ >= this->str.size()) {
-      String msg;
-      msg += String(start - 1, ' ');
+      std::string msg;
+      msg += std::string(start - 1, ' ');
       msg += "^";
-      msg += String(this->str.size() - start, '-');
+      msg += std::string(this->str.size() - start, '-');
       msg += " unterminated string";
-      throw cfg::StringError(String(this->str) + "\n" + msg);
+      throw cfg::StringError(std::string(this->str) + "\n" + msg);
     }
   }
   const StringRef s = this->str.substr(start, index_ - start);
   this->step(index_);
-  return { this->diff_step(index_), Token{ Token::String, s } };
+  return { this->diff_step(index_), Token{ Token::std::string, s } };
 }
 
 auto
 Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   if (!is_ident_start(this->one(index_))) {
-    String msg;
-    msg += String(index_, ' ');
+    std::string msg;
+    msg += std::string(index_, ' ');
     msg += "^ unexpected character";
-    throw cfg::IdentError(String(this->str) + "\n" + msg);
+    throw cfg::IdentError(std::string(this->str) + "\n" + msg);
   }
   const SizeType start = index_;
   this->step(index_);
@@ -419,12 +420,12 @@ Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
   if (const auto ident = to_ident(s)) {
     return { this->diff_step(index_), Token{ Token::Ident, ident.value() } };
   } else {
-    String msg;
-    msg += String(start, ' ');
+    std::string msg;
+    msg += std::string(start, ' ');
     msg += "^";
-    msg += String(index_ - start - 1, '-');
+    msg += std::string(index_ - start - 1, '-');
     msg += " unknown identify";
-    throw cfg::IdentError(String(this->str) + "\n" + msg);
+    throw cfg::IdentError(std::string(this->str) + "\n" + msg);
   }
 }
 
@@ -761,9 +762,9 @@ auto
 Parser::cfg() -> Cfg {
   const usize index = lexer.index;
   if (const auto token = lexer.next(); !token.has_value()) {
-    String msg = String(index + 1, ' ');
+    std::string msg = std::string(index + 1, ' ');
     msg += " ^ expected operator, but cfg expression ended";
-    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
   } else if (token->kind == Token::Ident) {
     if (this->r_try(Token::Equals)) {
       return this->cfg_str(token->get_ident(), Cfg::Op::Equals);
@@ -777,23 +778,23 @@ Parser::cfg() -> Cfg {
       return this->cfg_str(lexer.index, token->get_ident(), Cfg::Op::LtEq);
     }
   }
-  String msg = String(lexer.index + 1, ' ');
+  std::string msg = std::string(lexer.index + 1, ' ');
   msg += "^ expected operator";
-  throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+  throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
 }
 
 [[noreturn]] void
 Parser::throw_operator_error(const usize index, Cfg::Op op) const {
-  String msg;
+  std::string msg;
   if (op == Cfg::Op::Gt || op == Cfg::Op::Lt) {
-    msg += String(index - 1, ' ');
+    msg += std::string(index - 1, ' ');
     msg += "^";
   } else if (op == Cfg::Op::GtEq || op == Cfg::Op::LtEq) {
-    msg += String(index - 2, ' ');
+    msg += std::string(index - 2, ' ');
     msg += "^-";
   }
   msg += " cannot be specified except os_version";
-  throw cfg::OperatorError(String(lexer.str) + "\n" + msg);
+  throw cfg::OperatorError(std::string(lexer.str) + "\n" + msg);
 }
 
 auto
@@ -809,20 +810,20 @@ auto
 Parser::cfg_str(Token::ident ident, Cfg::Op op) -> Cfg {
   const usize index = lexer.index;
   if (const auto t = lexer.next()) {
-    if (t->kind == Token::String) {
+    if (t->kind == Token::std::string) {
       return { ident, op, t->get_str() };
     } else {
-      String msg = String(index + 1, ' ');
+      std::string msg = std::string(index + 1, ' ');
       msg += "^";
       const i32 range = lexer.index - index - 2;
-      msg += String(range < 0 ? 0 : range, '-');
+      msg += std::string(range < 0 ? 0 : range, '-');
       msg += " expected a string";
-      throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+      throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
     }
   } else {
-    String msg = String(index, ' ');
+    std::string msg = std::string(index, ' ');
     msg += "^ expected a string, but cfg expression ended";
-    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
   }
 }
 
@@ -842,14 +843,14 @@ Parser::eat_left_paren(Token::ident prev) {
   const usize index = lexer.index;
   if (const auto token = lexer.next()) {
     if (token->kind != Token::LeftParen) {
-      String msg = String(index, ' ');
+      std::string msg = std::string(index, ' ');
       msg += "^ excepted '(' after `" + to_string(prev) + "`";
-      throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+      throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
     }
   } else {
-    String msg = String(index, ' ');
+    std::string msg = std::string(index, ' ');
     msg += "^ expected '(', but cfg expression ended";
-    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
   }
 }
 void
@@ -857,16 +858,16 @@ Parser::eat_right_paren() {
   const usize index = lexer.index;
   if (const auto token = lexer.next()) {
     if (token->kind != Token::RightParen) {
-      String msg = String(index, ' ');
+      std::string msg = std::string(index, ' ');
       msg += "^";
-      msg += String(lexer.index - index - 1, '-');
+      msg += std::string(lexer.index - index - 1, '-');
       msg += " excepted ')'";
-      throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+      throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
     }
   } else {
-    String msg = String(index, ' ');
+    std::string msg = std::string(index, ' ');
     msg += "^ expected ')', but cfg expression ended";
-    throw cfg::SyntaxError(String(lexer.str) + "\n" + msg);
+    throw cfg::SyntaxError(std::string(lexer.str) + "\n" + msg);
   }
 }
 

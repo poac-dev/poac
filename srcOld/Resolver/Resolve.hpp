@@ -40,7 +40,7 @@ get_package(const UniqDeps<WithDeps>::value_type& deps
 }
 
 inline auto
-to_binary_numbers(const i32& x, const usize& digit) -> String {
+to_binary_numbers(const i32& x, const usize& digit) -> std::string {
   return format("{:0{}b}", x, digit);
 }
 
@@ -150,7 +150,7 @@ create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
 
 [[nodiscard]] auto
 solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
-    -> Result<UniqDeps<WithDeps>, String> {
+    -> Result<UniqDeps<WithDeps>, std::string> {
   // deps.activated.size() == variables
   const Vec<i32> assignments = Try(sat::solve(clauses, activated.size()));
   UniqDeps<WithDeps> resolved_deps{};
@@ -168,7 +168,7 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
 
 [[nodiscard]] auto
 backtrack_loop(const DupDeps<WithDeps>& activated
-) -> Result<UniqDeps<WithDeps>, String> {
+) -> Result<UniqDeps<WithDeps>, std::string> {
   const Vec<Vec<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
     for (const Vec<i32>& c : clauses) {
@@ -208,11 +208,11 @@ duplicate_loose(const SinglePassRange& rng) -> bool {
 // name is boost/config, no boost-config
 [[nodiscard]] auto
 get_versions_satisfy_interval(const Package& package
-) -> Result<Vec<String>, String> {
+) -> Result<Vec<std::string>, std::string> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(package.dep_info.version_rq);
-  const Vec<String> satisfied_versions =
+  const Vec<std::string> satisfied_versions =
       Try(util::net::api::versions(package.name))
       | boost::adaptors::filtered([&i](StringRef s) { return i.satisfies(s); })
       | util::meta::CONTAINERIZED;
@@ -231,7 +231,7 @@ struct Cache {
   Package package;
 
   /// versions in the interval
-  Vec<String> versions;
+  Vec<std::string> versions;
 };
 
 inline auto
@@ -277,7 +277,7 @@ gather_deps_of_deps(
           return package == cache.package;
         });
 
-    const Vec<String> dep_versions =
+    const Vec<std::string> dep_versions =
         found_cache != interval_cache.cend()
             ? found_cache->versions
             : get_versions_satisfy_interval(package).unwrap();
@@ -285,7 +285,7 @@ gather_deps_of_deps(
       // Cache interval and versions pair
       interval_cache.emplace(Cache{ package, dep_versions });
     }
-    for (const String& dep_version : dep_versions) {
+    for (const std::string& dep_version : dep_versions) {
       cur_deps_deps.emplace_back(Package{ package.name, dep_version });
     }
   }
@@ -324,7 +324,7 @@ gather_deps(
 
 [[nodiscard]] auto
 gather_all_deps(const UniqDeps<WithoutDeps>& deps
-) -> Result<DupDeps<WithDeps>, String> {
+) -> Result<DupDeps<WithDeps>, std::string> {
   DupDeps<WithDeps> duplicate_deps;
   IntervalCache interval_cache;
 
@@ -348,10 +348,11 @@ gather_all_deps(const UniqDeps<WithoutDeps>& deps
 
     // Get versions using interval
     // FIXME: versions API and deps API are received the almost same responses
-    const Vec<String> versions = Try(get_versions_satisfy_interval(package));
+    const Vec<std::string> versions =
+        Try(get_versions_satisfy_interval(package));
     // Cache interval and versions pair
     interval_cache.emplace(Cache{ package, versions });
-    for (const String& version : versions) {
+    for (const std::string& version : versions) {
       gather_deps(
           Package{ package.name,
                    { version, package.dep_info.index, package.dep_info.type } },

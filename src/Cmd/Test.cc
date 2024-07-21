@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <span>
+#include <string>
 
 static int testMain(std::span<const StringRef> args);
 
@@ -54,7 +55,7 @@ testMain(const std::span<const StringRef> args) {
 
   const auto start = std::chrono::steady_clock::now();
 
-  const String outDir = emitMakefile(isDebug);
+  const std::string outDir = emitMakefile(isDebug);
   const int exitCode = execCmd(getMakeCommand() + " -C " + outDir + " test");
 
   const auto end = std::chrono::steady_clock::now();
