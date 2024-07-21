@@ -11,7 +11,7 @@ repository = "https://github.com/poac-dev/poac"
 version = "0.9.3"
 
 [dependencies]
-"ToruNiina/toml11" = {git = "https://github.com/ToruNiina/toml11.git", tag = "v4.0.3"}
+toml11 = {git = "https://github.com/ToruNiina/toml11.git", tag = "v4.0.3"}
 fmt = {version = ">=8.1.1 && <11", system = true}
 libcurl = {version = ">=7.79.1 && <9", system = true}
 libgit2 = {version = ">=1.1.0 && <1.9", system = true}
