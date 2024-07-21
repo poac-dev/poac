@@ -78,7 +78,7 @@ getHeader(const StringRef projectName) noexcept {
 }
 
 static void
-writeToFile(std::ofstream& ofs, const Path& fpath, const StringRef text) {
+writeToFile(std::ofstream& ofs, const fs::path& fpath, const StringRef text) {
   ofs.open(fpath);
   if (ofs.is_open()) {
     ofs << text;

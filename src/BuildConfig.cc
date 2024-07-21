@@ -56,9 +56,9 @@ getOutDir() {
   return OUT_DIR;
 }
 
-static Vec<Path>
+static Vec<fs::path>
 listSourceFilePaths(const StringRef directory) {
-  Vec<Path> sourceFilePaths;
+  Vec<fs::path> sourceFilePaths;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
@@ -117,7 +117,7 @@ struct Target {
 
 struct BuildConfig {
   std::string packageName;
-  Path buildOutDir;
+  fs::path buildOutDir;
 
   HashMap<std::string, Variable> variables;
   HashMap<std::string, Vec<std::string>> varDeps;
@@ -287,7 +287,7 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 
 void
 BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
-  const Path baseDirPath = fs::canonical(baseDir);
+  const fs::path baseDirPath = fs::canonical(baseDir);
   const std::string indent1(2, ' ');
   const std::string indent2(4, ' ');
 
@@ -491,8 +491,8 @@ defineLinkTarget(
 //
 // e.g., src/path/to/header.h -> poac.d/path/to/header.o
 static std::string
-mapHeaderToObj(const Path& headerPath, const Path& buildOutDir) {
-  Path objBaseDir =
+mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutDir) {
+  fs::path objBaseDir =
       fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path);
   if (objBaseDir != ".") {
     objBaseDir = buildOutDir / objBaseDir;
@@ -517,7 +517,7 @@ collectBinDepObjs( // NOLINT(misc-no-recursion)
     const HashSet<std::string>& objTargetDeps,
     const HashSet<std::string>& buildObjTargets, const BuildConfig& config
 ) {
-  for (const Path headerPath : objTargetDeps) {
+  for (const fs::path headerPath : objTargetDeps) {
     if (sourceFileName == headerPath.stem()) {
       // We shouldn't depend on the original object file (e.g.,
       // poac.d/path/to/file.o). We should depend on the test object
@@ -627,17 +627,17 @@ setVariables(BuildConfig& config, const bool isDebug) {
 
 static void
 processSrc(
-    BuildConfig& config, const Path& sourceFilePath,
+    BuildConfig& config, const fs::path& sourceFilePath,
     HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
 ) {
   std::string objTarget; // source.o
   const HashSet<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath), objTarget);
 
-  const Path targetBaseDir = fs::relative(
+  const fs::path targetBaseDir = fs::relative(
       sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
   );
-  Path buildTargetBaseDir = config.buildOutDir;
+  fs::path buildTargetBaseDir = config.buildOutDir;
   if (targetBaseDir != ".") {
     buildTargetBaseDir /= targetBaseDir;
   }
@@ -655,7 +655,7 @@ processSrc(
 }
 
 static HashSet<std::string>
-processSources(BuildConfig& config, const Vec<Path>& sourceFilePaths) {
+processSources(BuildConfig& config, const Vec<fs::path>& sourceFilePaths) {
   HashSet<std::string> buildObjTargets;
 
   if (isParallel()) {
@@ -669,7 +669,7 @@ processSources(BuildConfig& config, const Vec<Path>& sourceFilePaths) {
         }
     );
   } else {
-    for (const Path& sourceFilePath : sourceFilePaths) {
+    for (const fs::path& sourceFilePath : sourceFilePaths) {
       processSrc(config, sourceFilePath, buildObjTargets);
     }
   }
@@ -679,7 +679,7 @@ processSources(BuildConfig& config, const Vec<Path>& sourceFilePaths) {
 
 static void
 processTestSrc(
-    BuildConfig& config, const Path& sourceFilePath,
+    BuildConfig& config, const fs::path& sourceFilePath,
     const HashSet<std::string>& buildObjTargets, Vec<std::string>& testCommands,
     HashSet<std::string>& testTargets, tbb::spin_mutex* mtx = nullptr
 ) {
@@ -692,10 +692,10 @@ processTestSrc(
   const HashSet<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
 
-  const Path targetBaseDir = fs::relative(
+  const fs::path targetBaseDir = fs::relative(
       sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
   );
-  Path testTargetBaseDir = TEST_OUT_DIR;
+  fs::path testTargetBaseDir = TEST_OUT_DIR;
   if (targetBaseDir != ".") {
     testTargetBaseDir /= targetBaseDir;
   }
@@ -757,9 +757,9 @@ configureBuild(const bool isDebug) {
   config.setAll({ config.packageName });
   config.addPhony("all");
 
-  Vec<Path> sourceFilePaths = listSourceFilePaths("src");
+  Vec<fs::path> sourceFilePaths = listSourceFilePaths("src");
   std::string srcs;
-  for (Path& sourceFilePath : sourceFilePaths) {
+  for (fs::path& sourceFilePath : sourceFilePaths) {
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
   }
@@ -796,7 +796,7 @@ configureBuild(const bool isDebug) {
         }
     );
   } else {
-    for (const Path& sourceFilePath : sourceFilePaths) {
+    for (const fs::path& sourceFilePath : sourceFilePaths) {
       processTestSrc(
           config, sourceFilePath, buildObjTargets, testCommands, testTargets
       );

@@ -87,10 +87,10 @@ archive_write_header(
 }
 
 auto
-set_extract_path(archive_entry* entry, const Path& extract_path)
+set_extract_path(archive_entry* entry, const fs::path& extract_path)
     -> std::string {
   std::string current_file = archive_entry_pathname(entry);
-  const Path full_output_path = extract_path / current_file;
+  const fs::path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
   archive_entry_set_pathname(entry, full_output_path.c_str());
   return current_file;
@@ -112,8 +112,9 @@ archive_read_next_header(Archive* reader, archive_entry** entry) noexcept(
 }
 
 [[nodiscard]] auto
-extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
-    -> Result<std::string, std::string> {
+extract_impl(
+    Archive* reader, const Writer& writer, const fs::path& extract_path
+) -> Result<std::string, std::string> {
   archive_entry* entry = nullptr;
   std::string extracted_directory_name;
   while (Try(archive::archive_read_next_header(reader, &entry)) != ARCHIVE_EOF
@@ -131,7 +132,7 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
 
 [[nodiscard]] auto
 archive_read_open_filename(
-    Archive* reader, const Path& file_path, usize block_size
+    Archive* reader, const fs::path& file_path, usize block_size
 ) noexcept -> Result<void, std::string> {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
     return Err("Cannot archive_read_open_filename");
@@ -154,7 +155,7 @@ read_as_targz(Archive* reader) noexcept {
 }
 
 export [[nodiscard]] auto
-extract(const Path& target_file_path, const Path& extract_path)
+extract(const fs::path& target_file_path, const fs::path& extract_path)
     -> Result<std::string, std::string> {
   Archive* reader = archive_read_new();
   if (!reader) {

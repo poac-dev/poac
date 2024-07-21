@@ -50,7 +50,7 @@ get_install_name(const resolve::Package& package) -> std::string {
 }
 
 export inline auto
-get_extracted_path(const resolve::Package& package) -> Path {
+get_extracted_path(const resolve::Package& package) -> fs::path {
   return config::default_registry_dir / get_install_name(package);
 }
 
@@ -59,9 +59,9 @@ get_extracted_path(const resolve::Package& package) -> Path {
 rename_extracted_directory(
     const resolve::Package& package, StringRef extracted_directory_name
 ) -> Result<void> {
-  const Path temporarily_extracted_path =
+  const fs::path temporarily_extracted_path =
       config::default_registry_dir / extracted_directory_name;
-  const Path extracted_path = get_extracted_path(package);
+  const fs::path extracted_path = get_extracted_path(package);
 
   std::error_code ec{};
   fs::rename(temporarily_extracted_path, extracted_path, ec);
@@ -72,7 +72,7 @@ rename_extracted_directory(
 }
 
 inline auto
-get_archive_path(const resolve::Package& package) -> Path {
+get_archive_path(const resolve::Package& package) -> fs::path {
   fs::create_directories(config::default_registry_dir);
   return config::default_registry_dir / (get_install_name(package) + ".tar.gz");
 }
@@ -115,12 +115,12 @@ get_download_link(const resolve::Package& package
 
 [[nodiscard]] auto
 fetch_impl(const resolve::Package& package
-) noexcept -> Result<std::pair<Path, std::string>> {
+) noexcept -> Result<std::pair<fs::path, std::string>> {
   try {
     const auto [download_link, sha256sum] =
         Try(get_download_link(package).map_err(to_anyhow));
     log::debug("downloading from `{}`", download_link);
-    const Path archive_path = get_archive_path(package);
+    const fs::path archive_path = get_archive_path(package);
     log::debug("writing to `{}`", archive_path.string());
 
     std::ofstream archive(archive_path);
@@ -130,7 +130,7 @@ fetch_impl(const resolve::Package& package
 
     return Ok(std::make_pair(archive_path, sha256sum));
   } catch (const std::exception& e) {
-    return Result<std::pair<Path, std::string>>(Err<Unknown>(e.what()))
+    return Result<std::pair<fs::path, std::string>>(Err<Unknown>(e.what()))
         .with_context([&package] {
           return Err<FailedToFetch>(package.name, package.dep_info.version_rq)
               .get();
