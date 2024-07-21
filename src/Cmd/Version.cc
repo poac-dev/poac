@@ -11,17 +11,17 @@
 #include <span>
 #include <string_view>
 
-#ifndef POAC_PKG_VERSION
-#  error "POAC_PKG_VERSION is not defined"
+#ifndef POAC_POAC_PKG_VERSION
+#  error "POAC_POAC_PKG_VERSION is not defined"
 #endif
-#ifndef POAC_COMMIT_SHORT_HASH
-#  error "POAC_COMMIT_SHORT_HASH is not defined"
+#ifndef POAC_POAC_COMMIT_SHORT_HASH
+#  error "POAC_POAC_COMMIT_SHORT_HASH is not defined"
 #endif
-#ifndef POAC_COMMIT_HASH
-#  error "POAC_COMMIT_HASH is not defined"
+#ifndef POAC_POAC_COMMIT_HASH
+#  error "POAC_POAC_COMMIT_HASH is not defined"
 #endif
-#ifndef POAC_COMMIT_DATE
-#  error "POAC_COMMIT_DATE is not defined"
+#ifndef POAC_POAC_COMMIT_DATE
+#  error "POAC_POAC_COMMIT_DATE is not defined"
 #endif
 
 const Subcmd VERSION_CMD = //
@@ -35,11 +35,11 @@ checkAvailability(const std::string_view str) noexcept {
 }
 
 static constinit const std::string_view COMMIT_SHORT_HASH =
-    checkAvailability(POAC_COMMIT_SHORT_HASH);
+    checkAvailability(POAC_POAC_COMMIT_SHORT_HASH);
 static constinit const std::string_view COMMIT_HASH =
-    checkAvailability(POAC_COMMIT_HASH);
+    checkAvailability(POAC_POAC_COMMIT_HASH);
 static constinit const std::string_view COMMIT_DATE =
-    checkAvailability(POAC_COMMIT_DATE);
+    checkAvailability(POAC_POAC_COMMIT_DATE);
 
 static consteval char
 firstMonthChar(const std::string_view month) noexcept {
@@ -128,7 +128,7 @@ versionMain(const std::span<const std::string_view> args) noexcept {
     }
   }
 
-  std::cout << "poac " << POAC_PKG_VERSION;
+  std::cout << "poac " << POAC_POAC_PKG_VERSION;
   if (COMMIT_SHORT_HASH == "unavailable" && COMMIT_DATE == "unavailable") {
     std::cout << '\n';
   } else if (COMMIT_SHORT_HASH == "unavailable") {
@@ -140,7 +140,7 @@ versionMain(const std::span<const std::string_view> args) noexcept {
   }
 
   if (isVerbose()) {
-    std::cout << "release: " << POAC_PKG_VERSION << '\n'
+    std::cout << "release: " << POAC_POAC_PKG_VERSION << '\n'
               << "commit-hash: " << COMMIT_HASH << '\n'
               << "commit-date: " << COMMIT_DATE << '\n'
               << "compiler: " << __VERSION__ << '\n'

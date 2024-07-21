@@ -37,5 +37,4 @@ filters = [
   "-runtime/references", # non-const reference rather than a pointer
   "-whitespace",
   "+whitespace/ending_newline",
-  "-runtime/string", # FIXME: remove this after fixing all the warnings
 ]
