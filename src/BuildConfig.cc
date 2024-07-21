@@ -28,34 +28,10 @@
 #include <tbb/parallel_for.h>
 #include <tbb/spin_mutex.h>
 #include <thread>
+#include <utility>
 
 static constinit const std::string_view TEST_OUT_DIR = "tests";
 static constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
-
-// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
-static std::string OUT_DIR;
-static std::string CXX = "clang++";
-static std::string CXXFLAGS;
-static std::string DEFINES;
-static std::string INCLUDES = " -Iinclude";
-static std::string LIBS;
-// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
-
-void
-setOutDir(const bool isDebug) {
-  if (isDebug) {
-    OUT_DIR = "poac-out/debug";
-  } else {
-    OUT_DIR = "poac-out/release";
-  }
-}
-std::string
-getOutDir() {
-  if (OUT_DIR.empty()) {
-    throw PoacError("outDir is not set");
-  }
-  return OUT_DIR;
-}
 
 static Vec<fs::path>
 listSourceFilePaths(const std::string_view directory) {
@@ -127,9 +103,30 @@ struct BuildConfig {
   Option<HashSet<std::string>> phony;
   Option<HashSet<std::string>> all;
 
+  std::string OUT_DIR;
+  std::string CXX = "clang++";
+  std::string CXXFLAGS;
+  std::string DEFINES;
+  std::string INCLUDES = " -Iinclude";
+  std::string LIBS;
+
   BuildConfig() = default;
   explicit BuildConfig(const std::string& packageName)
       : packageName(packageName), buildOutDir(packageName + ".d") {}
+
+  void setOutDir(const bool isDebug) {
+    if (isDebug) {
+      OUT_DIR = "poac-out/debug";
+    } else {
+      OUT_DIR = "poac-out/release";
+    }
+  }
+  std::string getOutDir() const {
+    if (OUT_DIR.empty()) {
+      throw PoacError("outDir is not set");
+    }
+    return OUT_DIR;
+  }
 
   void defineVar(
       const std::string& name, const Variable& value,
@@ -185,6 +182,17 @@ struct BuildConfig {
   void emitVariable(std::ostream& os, const std::string& varName) const;
   void emitMakefile(std::ostream& os) const;
   void emitCompdb(std::string_view baseDir, std::ostream& os) const;
+  std::string runMM(const std::string& sourceFile, bool isTest = false) const;
+  bool containsTestCode(const std::string& sourceFile) const;
+
+  void installDeps(bool includeDevDeps);
+  void addDefine(std::string_view name, std::string_view value);
+  void setVariables(bool isDebug);
+
+  void processSrc(
+      BuildConfig& config, const fs::path& sourceFilePath,
+      HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
+  ) const;
 };
 
 static void
@@ -351,7 +359,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
 }
 
 std::string
-runMM(const std::string& sourceFile, const bool isTest = false) {
+BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   std::string command = "cd ";
   command += getOutDir();
   command += " && ";
@@ -409,8 +417,8 @@ isUpToDate(const std::string_view makefilePath) {
   return fs::last_write_time("poac.toml") <= makefileTime;
 }
 
-static bool
-containsTestCode(const std::string& sourceFile) {
+bool
+BuildConfig::containsTestCode(const std::string& sourceFile) const {
   std::ifstream ifs(sourceFile);
   std::string line;
   while (std::getline(ifs, line)) {
@@ -553,10 +561,8 @@ collectBinDepObjs( // NOLINT(misc-no-recursion)
   }
 }
 
-// TODO: Naming is not good, but using different namespaces for installDeps
-// and installDependencies is not good either.
-static void
-installDeps(const bool includeDevDeps) {
+void
+BuildConfig::installDeps(const bool includeDevDeps) {
   const Vec<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
     INCLUDES += ' ' + dep.includes;
@@ -566,14 +572,16 @@ installDeps(const bool includeDevDeps) {
   logger::debug("LIBS: ", LIBS);
 }
 
-static void
-addDefine(const std::string_view name, const std::string_view value) {
+void
+BuildConfig::addDefine(
+    const std::string_view name, const std::string_view value
+) {
   DEFINES += fmt::format(" -D{}='\"{}\"'", name, value);
 }
 
-static void
-setVariables(BuildConfig& config, const bool isDebug) {
-  config.defineCondVar("CXX", CXX);
+void
+BuildConfig::setVariables(const bool isDebug) {
+  this->defineCondVar("CXX", CXX);
 
   CXXFLAGS += " -std=c++" + getPackageEdition().getString();
   if (shouldColor()) {
@@ -592,9 +600,9 @@ setVariables(BuildConfig& config, const bool isDebug) {
     CXXFLAGS += ' ';
     CXXFLAGS += flag;
   }
-  config.defineSimpleVar("CXXFLAGS", CXXFLAGS);
+  this->defineSimpleVar("CXXFLAGS", CXXFLAGS);
 
-  const std::string pkgName = toMacroName(config.packageName);
+  const std::string pkgName = toMacroName(this->packageName);
   const Version& pkgVersion = getPackageVersion();
   std::string commitHash;
   std::string commitShortHash;
@@ -612,26 +620,38 @@ setVariables(BuildConfig& config, const bool isDebug) {
   }
 
   // Variables Poac sets for the user.
-  addDefine(pkgName + "_PKG_NAME", config.packageName);
-  addDefine(pkgName + "_PKG_VERSION", pkgVersion.toString());
-  addDefine(pkgName + "_PKG_VERSION_MAJOR", std::to_string(pkgVersion.major));
-  addDefine(pkgName + "_PKG_VERSION_MINOR", std::to_string(pkgVersion.minor));
-  addDefine(pkgName + "_PKG_VERSION_PATCH", std::to_string(pkgVersion.patch));
-  addDefine(pkgName + "_PKG_VERSION_PRE", pkgVersion.pre.toString());
-  addDefine(pkgName + "_COMMIT_HASH", commitHash);
-  addDefine(pkgName + "_COMMIT_SHORT_HASH", commitShortHash);
-  addDefine(pkgName + "_COMMIT_DATE", commitDate);
+  const Vec<std::pair<std::string, std::string>> defines{
+    { fmt::format("POAC_{}_PKG_NAME", pkgName), this->packageName },
+    { fmt::format("POAC_{}_PKG_VERSION", pkgName), pkgVersion.toString() },
+    { fmt::format("POAC_{}_PKG_VERSION_MAJOR", pkgName),
+      std::to_string(pkgVersion.major) },
+    { fmt::format("POAC_{}_PKG_VERSION_MINOR", pkgName),
+      std::to_string(pkgVersion.minor) },
+    { fmt::format("POAC_{}_PKG_VERSION_PATCH", pkgName),
+      std::to_string(pkgVersion.patch) },
+    { fmt::format("POAC_{}_PKG_VERSION_PRE", pkgName),
+      pkgVersion.pre.toString() },
+    { fmt::format("POAC_{}_COMMIT_HASH", pkgName), commitHash },
+    { fmt::format("POAC_{}_COMMIT_SHORT_HASH", pkgName), commitShortHash },
+    { fmt::format("POAC_{}_COMMIT_DATE", pkgName), commitDate },
+    { fmt::format("POAC_{}_PROFILE", pkgName), isDebug ? "debug" : "release" },
+    { fmt::format("POAC_{}_BIN_EXE_{}", pkgName, "TODO"),
+      isDebug ? "debug" : "release" },
+  };
+  for (const auto& [key, val] : defines) {
+    addDefine(key, val);
+  }
 
-  config.defineSimpleVar("DEFINES", DEFINES);
-  config.defineSimpleVar("INCLUDES", INCLUDES);
-  config.defineSimpleVar("LIBS", LIBS);
+  this->defineSimpleVar("DEFINES", DEFINES);
+  this->defineSimpleVar("INCLUDES", INCLUDES);
+  this->defineSimpleVar("LIBS", LIBS);
 }
 
-static void
-processSrc(
+void
+BuildConfig::processSrc(
     BuildConfig& config, const fs::path& sourceFilePath,
-    HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
-) {
+    HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx
+) const {
   std::string objTarget; // source.o
   const HashSet<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath), objTarget);
@@ -666,13 +686,15 @@ processSources(BuildConfig& config, const Vec<fs::path>& sourceFilePaths) {
         tbb::blocked_range<usize>(0, sourceFilePaths.size()),
         [&](const tbb::blocked_range<usize>& rng) {
           for (usize i = rng.begin(); i != rng.end(); ++i) {
-            processSrc(config, sourceFilePaths[i], buildObjTargets, &mtx);
+            config.processSrc(
+                config, sourceFilePaths[i], buildObjTargets, &mtx
+            );
           }
         }
     );
   } else {
     for (const fs::path& sourceFilePath : sourceFilePaths) {
-      processSrc(config, sourceFilePath, buildObjTargets);
+      config.processSrc(config, sourceFilePath, buildObjTargets);
     }
   }
 
@@ -685,14 +707,15 @@ processTestSrc(
     const HashSet<std::string>& buildObjTargets, Vec<std::string>& testCommands,
     HashSet<std::string>& testTargets, tbb::spin_mutex* mtx = nullptr
 ) {
-  if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
+  if (!config.containsTestCode(
+          sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
       )) {
     return;
   }
 
   std::string objTarget; // source.o
   const HashSet<std::string> objTargetDeps =
-      parseMMOutput(runMM(sourceFilePath, true /* isTest */), objTarget);
+      parseMMOutput(config.runMM(sourceFilePath, true /* isTest */), objTarget);
 
   const fs::path targetBaseDir = fs::relative(
       sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
@@ -734,8 +757,8 @@ processTestSrc(
   }
 }
 
-static BuildConfig
-configureBuild(const bool isDebug) {
+static void
+configureBuild(BuildConfig& config, const bool isDebug) {
   if (!fs::exists("src")) {
     throw PoacError("src directory not found");
   }
@@ -744,16 +767,15 @@ configureBuild(const bool isDebug) {
     throw PoacError("src/main.cc not found");
   }
 
-  const std::string outDir = getOutDir();
+  const std::string outDir = config.getOutDir();
   if (!fs::exists(outDir)) {
     fs::create_directories(outDir);
   }
   if (const char* cxx = std::getenv("CXX")) {
-    CXX = cxx;
+    config.CXX = cxx;
   }
 
-  BuildConfig config(getPackageName());
-  setVariables(config, isDebug);
+  config.setVariables(isDebug);
 
   // Build rules
   config.setAll({ config.packageName });
@@ -823,20 +845,19 @@ configureBuild(const bool isDebug) {
   );
   config.addPhony("tidy");
   config.addPhony("$(TIDY_TARGETS)");
-
-  return config;
 }
 
 /// @returns the directory where the Makefile is generated.
 std::string
 emitMakefile(const bool isDebug, const bool includeDevDeps) {
-  setOutDir(isDebug);
+  BuildConfig config(getPackageName());
+  config.setOutDir(isDebug);
 
   // When emitting Makefile, we also build the project.  So, we need to
   // make sure the dependencies are installed.
-  installDeps(includeDevDeps);
+  config.installDeps(includeDevDeps);
 
-  const std::string outDir = getOutDir();
+  const std::string outDir = config.getOutDir();
   const std::string makefilePath = outDir + "/Makefile";
   if (isUpToDate(makefilePath)) {
     logger::debug("Makefile is up to date");
@@ -844,7 +865,7 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
   }
   logger::debug("Makefile is NOT up to date");
 
-  const BuildConfig config = configureBuild(isDebug);
+  configureBuild(config, isDebug);
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return outDir;
@@ -853,12 +874,13 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
 /// @returns the directory where the compilation database is generated.
 std::string
 emitCompdb(const bool isDebug, const bool includeDevDeps) {
-  setOutDir(isDebug);
+  BuildConfig config(getPackageName());
+  config.setOutDir(isDebug);
 
   // compile_commands.json also needs INCLUDES, but not LIBS.
-  installDeps(includeDevDeps);
+  config.installDeps(includeDevDeps);
 
-  const std::string outDir = getOutDir();
+  const std::string outDir = config.getOutDir();
   const std::string compdbPath = outDir + "/compile_commands.json";
   if (isUpToDate(compdbPath)) {
     logger::debug("compile_commands.json is up to date");
@@ -866,7 +888,7 @@ emitCompdb(const bool isDebug, const bool includeDevDeps) {
   }
   logger::debug("compile_commands.json is NOT up to date");
 
-  const BuildConfig config = configureBuild(isDebug);
+  configureBuild(config, isDebug);
   std::ofstream ofs(compdbPath);
   config.emitCompdb(outDir, ofs);
   return outDir;

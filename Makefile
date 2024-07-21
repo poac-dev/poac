@@ -26,10 +26,10 @@ NLOHMANN_JSON_VERREQ := nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0
 TBB_VERREQ := tbb >= 2021.5.0, tbb < 2022.0.0
 FMT_VERREQ := fmt >= 8.1.1, fmt < 11.0.0
 
-DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
-  -DPOAC_COMMIT_HASH='"$(COMMIT_HASH)"' \
-  -DPOAC_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
-  -DPOAC_COMMIT_DATE='"$(COMMIT_DATE)"'
+DEFINES := -DPOAC_POAC_PKG_VERSION='"$(VERSION)"' \
+  -DPOAC_POAC_COMMIT_HASH='"$(COMMIT_HASH)"' \
+  -DPOAC_POAC_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
+  -DPOAC_POAC_COMMIT_DATE='"$(COMMIT_DATE)"'
 INCLUDES := -isystem $(O)/DEPS/toml11/include \
   $(shell pkg-config --cflags '$(LIBGIT2_VERREQ)') \
   $(shell pkg-config --cflags '$(LIBCURL_VERREQ)') \
