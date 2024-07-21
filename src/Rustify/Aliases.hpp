@@ -38,7 +38,6 @@ using f64 = double;
 // NOLINTEND(readability-identifier-naming)
 
 using StringRef = std::string_view;
-using Path = fs::path;
 
 template <typename T, usize N>
 using Arr = std::array<T, N>;
@@ -91,7 +90,7 @@ using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;
 // NOLINTEND(google-global-names-in-headers)
 
-inline Path
+inline fs::path
 operator""_path(const char* str, usize /*unused*/) {
   return str;
 }

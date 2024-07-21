@@ -70,7 +70,7 @@ tidyMain(const std::span<const StringRef> args) {
     setParallelism(1);
   }
 
-  const Path outDir = emitMakefile(true /* isDebug */);
+  const fs::path outDir = emitMakefile(true /* isDebug */);
 
   std::string tidyFlags = " POAC_TIDY_FLAGS='";
   if (!isVerbose()) {

@@ -52,7 +52,7 @@ public:
   }
 };
 
-const Path& getManifestPath();
+const fs::path& getManifestPath();
 Option<std::string> validatePackageName(StringRef name) noexcept;
 const std::string& getPackageName();
 const Edition& getPackageEdition();

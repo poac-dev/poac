@@ -91,17 +91,17 @@ struct into<Version> {
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Package, name, edition, version);
 
-static Path
+static fs::path
 findManifest() {
-  Path candidate = fs::current_path();
+  fs::path candidate = fs::current_path();
   while (true) {
-    const Path configPath = candidate / "poac.toml";
+    const fs::path configPath = candidate / "poac.toml";
     logger::debug("Finding manifest: ", configPath);
     if (fs::exists(configPath)) {
       return configPath;
     }
 
-    const Path parentPath = candidate.parent_path();
+    const fs::path parentPath = candidate.parent_path();
     if (candidate.has_parent_path()
         && parentPath != candidate.root_directory()) {
       candidate = parentPath;
@@ -150,7 +150,7 @@ struct Manifest {
     return instance;
   }
 
-  Option<Path> manifestPath = None;
+  Option<fs::path> manifestPath = None;
 
   Option<toml::value> data = None;
 
@@ -183,7 +183,7 @@ private:
   }
 };
 
-const Path&
+const fs::path&
 getManifestPath() {
   return Manifest::instance().manifestPath.value();
 }
@@ -388,18 +388,18 @@ getLintCpplintFilters() {
   return manifest.cpplintFilters.value();
 }
 
-static Path
+static fs::path
 getXdgCacheHome() {
   if (const char* envP = std::getenv("XDG_CACHE_HOME")) {
     return envP;
   }
-  const Path userDir = std::getenv("HOME");
+  const fs::path userDir = std::getenv("HOME");
   return userDir / ".cache";
 }
 
-static const Path CACHE_DIR(getXdgCacheHome() / "poac");
-static const Path GIT_DIR(CACHE_DIR / "git");
-static const Path GIT_SRC_DIR(GIT_DIR / "src");
+static const fs::path CACHE_DIR(getXdgCacheHome() / "poac");
+static const fs::path GIT_DIR(CACHE_DIR / "git");
+static const fs::path GIT_SRC_DIR(GIT_DIR / "src");
 
 static const HashSet<char> ALLOWED_CHARS = {
   '-', '_', '/', '.', '+' // allowed in the dependency name
@@ -545,7 +545,7 @@ parseDependencies() {
 
 DepMetadata
 GitDependency::install() const {
-  Path installDir = GIT_SRC_DIR / name;
+  fs::path installDir = GIT_SRC_DIR / name;
   if (target.has_value()) {
     installDir += '-' + target.value();
   }
@@ -569,7 +569,7 @@ GitDependency::install() const {
     );
   }
 
-  const Path includeDir = installDir / "include";
+  const fs::path includeDir = installDir / "include";
   std::string includes = "-isystem ";
 
   if (fs::exists(includeDir) && fs::is_directory(includeDir)

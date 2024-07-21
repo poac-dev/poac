@@ -24,7 +24,7 @@ const Subcmd FMT_CMD =
 
 static void
 collectFormatTargetFiles(
-    const Path& manifestDir, std::string& clangFormatArgs
+    const fs::path& manifestDir, std::string& clangFormatArgs
 ) {
   // Read git repository if exists
   git2::Repository repo = git2::Repository();
@@ -48,7 +48,7 @@ collectFormatTargetFiles(
         continue;
       }
     } else if (entry->is_regular_file()) {
-      const Path path = fs::relative(entry->path(), manifestDir);
+      const fs::path path = fs::relative(entry->path(), manifestDir);
       if (hasGitRepo && repo.isIgnored(path.string())) {
         logger::debug("Ignore: ", path.string());
         continue;
@@ -100,7 +100,7 @@ fmtMain(const std::span<const StringRef> args) {
     logger::info("Formatting", packageName);
   }
 
-  const Path& manifestDir = getManifestPath().parent_path();
+  const fs::path& manifestDir = getManifestPath().parent_path();
   collectFormatTargetFiles(manifestDir, clangFormatArgs);
 
   const std::string clangFormat = "cd " + manifestDir.string()

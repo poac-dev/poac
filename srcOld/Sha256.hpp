@@ -36,7 +36,7 @@ hash_string(const Vec<unsigned char>& hash) -> std::string {
 
 // ref: https://stackoverflow.com/a/34289358
 export [[nodiscard]] auto
-sum(const Path& path) -> Result<std::string> {
+sum(const fs::path& path) -> Result<std::string> {
   std::ifstream file(path, std::ios::binary);
   if (!file) {
     return Err<FailedToReadFile>(path.string());
