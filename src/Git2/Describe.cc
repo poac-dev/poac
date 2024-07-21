@@ -5,6 +5,7 @@
 #include "Repository.hpp"
 
 #include <git2/describe.h>
+#include <string>
 
 namespace git2 {
 
@@ -96,7 +97,7 @@ Describe::workdir(const Repository& repo, DescribeOptions& opts) {
   return *this;
 }
 
-String
+std::string
 Describe::format(const DescribeFormatOptions& opts) const {
   git_buf ret = { nullptr, 0, 0 };
   git2Throw(git_describe_format(&ret, this->raw, &opts.raw));

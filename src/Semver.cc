@@ -33,7 +33,7 @@ operator<<(std::ostream& os, const VersionToken& tok) noexcept {
   return os;
 }
 
-String
+std::string
 VersionToken::toString() const noexcept {
   std::ostringstream oss;
   oss << *this;
@@ -77,7 +77,7 @@ operator>(const VersionToken& lhs, const VersionToken& rhs) {
   return rhs < lhs;
 }
 
-static String
+static std::string
 carets(const VersionToken& tok) noexcept {
   switch (tok.kind) {
     case VersionToken::Eof:
@@ -85,7 +85,7 @@ carets(const VersionToken& tok) noexcept {
       return "^";
     default:
       // NOLINTNEXTLINE(modernize-return-braced-init-list)
-      return String(tok.size(), '^');
+      return std::string(tok.size(), '^');
   }
 }
 
@@ -94,9 +94,9 @@ Prerelease::empty() const noexcept {
   return ident.empty();
 }
 
-String
+std::string
 Prerelease::toString() const noexcept {
-  String str;
+  std::string str;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
       str += '.';
@@ -149,9 +149,9 @@ BuildMetadata::empty() const noexcept {
   return ident.empty();
 }
 
-String
+std::string
 BuildMetadata::toString() const noexcept {
-  String str;
+  std::string str;
   for (usize i = 0; i < ident.size(); ++i) {
     if (i > 0) {
       str += '.';
@@ -181,9 +181,9 @@ operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
   return rhs < lhs;
 }
 
-String
+std::string
 Version::toString() const noexcept {
-  String str = std::to_string(major);
+  std::string str = std::to_string(major);
   str += '.' + std::to_string(minor);
   str += '.' + std::to_string(patch);
   if (!pre.empty()) {
@@ -277,7 +277,7 @@ VersionLexer::consumeNum() {
   while (pos < s.size() && std::isdigit(s[pos])) {
     if (len > 0 && value == 0) {
       throw SemverError(
-          s, '\n', String(pos - len, ' '), "^ invalid leading zero"
+          s, '\n', std::string(pos - len, ' '), "^ invalid leading zero"
       );
     }
 
@@ -286,7 +286,7 @@ VersionLexer::consumeNum() {
     // Check for overflow
     if (value > (std::numeric_limits<u64>::max() - digit) / base) {
       throw SemverError(
-          s, '\n', String(pos - len, ' '), String(len, '^'),
+          s, '\n', std::string(pos - len, ' '), std::string(len, '^'),
           " number exceeds UINT64_MAX"
       );
     }
@@ -356,7 +356,9 @@ struct SemverParseError : public SemverError {
   SemverParseError(
       const VersionLexer& lexer, const VersionToken& tok, const StringRef msg
   )
-      : SemverError(lexer.s, '\n', String(lexer.pos, ' '), carets(tok), msg) {}
+      : SemverError(
+            lexer.s, '\n', std::string(lexer.pos, ' '), carets(tok), msg
+        ) {}
 };
 
 Version
@@ -389,7 +391,7 @@ VersionParser::parse() {
   if (!lexer.isEof()) {
     throw SemverParseError(
         lexer, lexer.peek(),
-        " unexpected character: `" + String(1, lexer.s[lexer.pos]) + '`'
+        " unexpected character: `" + std::string(1, lexer.s[lexer.pos]) + '`'
     );
   }
 
@@ -726,7 +728,7 @@ testGe() {
 
 void
 testSpecOrder() {
-  const Vec<String> vers = {
+  const Vec<std::string> vers = {
     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
     "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
   };

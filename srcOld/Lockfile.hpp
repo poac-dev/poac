@@ -3,6 +3,7 @@ module;
 // std
 #include <filesystem>
 #include <fstream>
+#include <string>
 #include <utility>
 
 // external
@@ -27,7 +28,7 @@ inline constexpr StringRef LOCKFILE_HEADER =
     "# It is not intended for manual editing.";
 
 using InvalidLockfileVersion = Error<"invalid lockfile version found: {}", i64>;
-using FailedToReadLockfile = Error<"failed to read lockfile:\n{}", String>;
+using FailedToReadLockfile = Error<"failed to read lockfile:\n{}", std::string>;
 
 inline auto
 poac_lock_last_modified(const Path& base_dir) -> fs::file_time_type {
@@ -53,9 +54,9 @@ inline constexpr i64 LOCKFILE_VERSION = 1;
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Package {
-  String name;
-  String version;
-  Vec<String> dependencies;
+  std::string name;
+  std::string version;
+  Vec<std::string> dependencies;
 };
 
 struct Lockfile {
@@ -92,11 +93,11 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps
     Package p{
       pack.name,
       pack.dep_info.version_rq,
-      Vec<String>{},
+      Vec<std::string>{},
     };
     if (inner_deps.has_value()) {
       // Extract name from inner dependencies and drop version.
-      Vec<String> ideps;
+      Vec<std::string> ideps;
       for (const auto& [name, _v] : inner_deps.value()) {
         static_cast<void>(_v);
         ideps.emplace_back(name);
@@ -107,7 +108,7 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps
   }
 
   toml::basic_value<toml::preserve_comments> lock(
-      Lockfile{ .package = packages }, { String(LOCKFILE_HEADER) }
+      Lockfile{ .package = packages }, { std::string(LOCKFILE_HEADER) }
   );
   return Ok(lock);
 }

@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <string>
 #include <toml.hpp>
 
 static int addMain(std::span<const StringRef> args);
@@ -36,13 +37,13 @@ const Subcmd ADD_CMD =
 static Option<int>
 handleNextArg(
     std::span<const StringRef>::iterator& itr,
-    const std::span<const StringRef>::iterator& end, String& arg
+    const std::span<const StringRef>::iterator& end, std::string& arg
 ) {
   ++itr;
   if (itr == end) {
     return Subcmd::missingArgumentForOpt(*--itr);
   }
-  arg = String(*itr);
+  arg = std::string(*itr);
   return None;
 }
 
@@ -55,24 +56,24 @@ handleDependency(HashSet<StringRef>& newDeps, const StringRef dep) {
   newDeps.insert(dep);
 }
 
-static String
+static std::string
 getDependencyGitUrl(const StringRef dep) {
-  if (dep.find("://") == String::npos) {
+  if (dep.find("://") == std::string::npos) {
     // check if atleast in "user/repo" format
-    if (dep.find('/') == String::npos) {
-      logger::error("Invalid dependency: " + String(dep));
+    if (dep.find('/') == std::string::npos) {
+      logger::error("Invalid dependency: " + std::string(dep));
       return "";
     }
 
-    return "https://github.com/" + String(dep) + ".git";
+    return "https://github.com/" + std::string(dep) + ".git";
   }
-  return String(dep);
+  return std::string(dep);
 }
 
-static String
+static std::string
 getDependencyName(const StringRef dep) {
-  String name;
-  if (dep.find("://") == String::npos) {
+  std::string name;
+  if (dep.find("://") == std::string::npos) {
     name = dep.substr(dep.find_last_of('/') + 1);
   } else {
     name = dep.substr(
@@ -90,8 +91,9 @@ getDependencyName(const StringRef dep) {
 
 static int
 addDependencyToManifest(
-    const HashSet<StringRef>& newDeps, bool isSystemDependency, String& version,
-    String& tag, String& rev, String& branch
+    const HashSet<StringRef>& newDeps, bool isSystemDependency,
+    std::string& version, std::string& tag, std::string& rev,
+    std::string& branch
 ) {
   toml::value depData = toml::table{};
 
@@ -121,8 +123,8 @@ addDependencyToManifest(
   for (const auto& dep : newDeps) {
 
     if (!isSystemDependency) {
-      const String gitUrl = getDependencyGitUrl(dep);
-      const String depName = getDependencyName(dep);
+      const std::string gitUrl = getDependencyGitUrl(dep);
+      const std::string depName = getDependencyName(dep);
 
       if (gitUrl.empty() || depName.empty()) {
         return EXIT_FAILURE;
@@ -131,7 +133,7 @@ addDependencyToManifest(
       deps[depName] = depData;
       deps[depName]["git"] = gitUrl;
     } else {
-      deps[String(dep)] = depData;
+      deps[std::string(dep)] = depData;
     }
   }
 
@@ -152,11 +154,11 @@ addMain(const std::span<const StringRef> args) {
   HashSet<StringRef> newDeps = {};
 
   bool isSystemDependency = false;
-  String version; // Only used with system-dependencies
+  std::string version; // Only used with system-dependencies
 
-  String tag;
-  String rev;
-  String branch;
+  std::string tag;
+  std::string rev;
+  std::string branch;
 
   // clang-format off
   HashMap<

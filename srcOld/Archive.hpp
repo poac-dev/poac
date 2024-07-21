@@ -8,6 +8,7 @@ module;
 #include <archive.h> // NOLINT(build/include_order)
 #include <archive_entry.h> // NOLINT(build/include_order)
 #include <boost/scope_exit.hpp>
+#include <string>
 
 // internal
 #include "result-macros.hpp"
@@ -34,7 +35,7 @@ using Writer = std::unique_ptr<Archive, ArchiveWriteDelete>;
 [[nodiscard]] auto
 archive_write_data_block(
     const Writer& writer, const void* buffer, usize size, i64 offset
-) noexcept -> Result<void, String> {
+) noexcept -> Result<void, std::string> {
   const la_ssize_t res =
       archive_write_data_block(writer.get(), buffer, size, offset);
   if (res < ARCHIVE_OK) {
@@ -45,7 +46,7 @@ archive_write_data_block(
 
 [[nodiscard]] auto
 copy_data(Archive* reader, const Writer& writer) noexcept
-    -> Result<void, String> {
+    -> Result<void, std::string> {
   usize size{};
   const void* buff = nullptr;
   i64 offset{};
@@ -63,7 +64,7 @@ copy_data(Archive* reader, const Writer& writer) noexcept
 
 [[nodiscard]] auto
 archive_write_finish_entry(const Writer& writer
-) noexcept -> Result<void, String> {
+) noexcept -> Result<void, std::string> {
   const i32 res = archive_write_finish_entry(writer.get());
   if (res < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
@@ -76,7 +77,7 @@ archive_write_finish_entry(const Writer& writer
 [[nodiscard]] auto
 archive_write_header(
     Archive* reader, const Writer& writer, archive_entry* entry
-) noexcept -> Result<void, String> {
+) noexcept -> Result<void, std::string> {
   if (archive_write_header(writer.get(), entry) < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));
   } else if (archive_entry_size(entry) > 0) {
@@ -86,8 +87,9 @@ archive_write_header(
 }
 
 auto
-set_extract_path(archive_entry* entry, const Path& extract_path) -> String {
-  String current_file = archive_entry_pathname(entry);
+set_extract_path(archive_entry* entry, const Path& extract_path)
+    -> std::string {
+  std::string current_file = archive_entry_pathname(entry);
   const Path full_output_path = extract_path / current_file;
   log::debug("extracting to `{}`", full_output_path.string());
   archive_entry_set_pathname(entry, full_output_path.c_str());
@@ -97,7 +99,7 @@ set_extract_path(archive_entry* entry, const Path& extract_path) -> String {
 [[nodiscard]] auto
 archive_read_next_header(Archive* reader, archive_entry** entry) noexcept(
     !static_cast<bool>(ARCHIVE_EOF) // NOLINT(modernize-use-bool-literals)
-) -> Result<bool, String> {
+) -> Result<bool, std::string> {
   const i32 res = ::archive_read_next_header(reader, entry);
   if (res == ARCHIVE_EOF) {
     return Ok(ARCHIVE_EOF);
@@ -111,9 +113,9 @@ archive_read_next_header(Archive* reader, archive_entry** entry) noexcept(
 
 [[nodiscard]] auto
 extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
-    -> Result<String, String> {
+    -> Result<std::string, std::string> {
   archive_entry* entry = nullptr;
-  String extracted_directory_name;
+  std::string extracted_directory_name;
   while (Try(archive::archive_read_next_header(reader, &entry)) != ARCHIVE_EOF
   ) {
     if (extracted_directory_name.empty()) {
@@ -130,7 +132,7 @@ extract_impl(Archive* reader, const Writer& writer, const Path& extract_path)
 [[nodiscard]] auto
 archive_read_open_filename(
     Archive* reader, const Path& file_path, usize block_size
-) noexcept -> Result<void, String> {
+) noexcept -> Result<void, std::string> {
   if (archive_read_open_filename(reader, file_path.c_str(), block_size)) {
     return Err("Cannot archive_read_open_filename");
   }
@@ -153,7 +155,7 @@ read_as_targz(Archive* reader) noexcept {
 
 export [[nodiscard]] auto
 extract(const Path& target_file_path, const Path& extract_path)
-    -> Result<String, String> {
+    -> Result<std::string, std::string> {
   Archive* reader = archive_read_new();
   if (!reader) {
     return Err("Cannot archive_read_new");

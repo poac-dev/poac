@@ -4,14 +4,15 @@
 #include "Semver.hpp"
 
 #include <compare>
+#include <string>
 
 struct DepMetadata {
-  String includes; // -Isomething
-  String libs; // -Lsomething -lsomething
+  std::string includes; // -Isomething
+  std::string libs; // -Lsomething -lsomething
 };
 
 struct Profile {
-  HashSet<String> cxxflags;
+  HashSet<std::string> cxxflags;
   bool lto = false;
 
   // Merges this profile with another profile. If a field in this profile is
@@ -35,13 +36,13 @@ struct Edition {
 
 private:
   Year edition = Year::Cpp20;
-  String str = "20";
+  std::string str = "20";
 
 public:
   Edition() = default;
-  explicit Edition(const String& str);
+  explicit Edition(const std::string& str);
 
-  String getString() const noexcept;
+  std::string getString() const noexcept;
 
   inline auto operator<=>(const Edition& otherEdition) const {
     return edition <=> otherEdition.edition;
@@ -52,11 +53,11 @@ public:
 };
 
 const Path& getManifestPath();
-Option<String> validatePackageName(StringRef name) noexcept;
-const String& getPackageName();
+Option<std::string> validatePackageName(StringRef name) noexcept;
+const std::string& getPackageName();
 const Edition& getPackageEdition();
 const Version& getPackageVersion();
 const Profile& getDebugProfile();
 const Profile& getReleaseProfile();
-const Vec<String>& getLintCpplintFilters();
+const Vec<std::string>& getLintCpplintFilters();
 Vec<DepMetadata> installDependencies();

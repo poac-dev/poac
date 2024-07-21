@@ -18,6 +18,7 @@
 #include "Semver.hpp"
 
 #include <ostream>
+#include <string>
 
 struct OptVersion {
   u64 major{};
@@ -76,8 +77,8 @@ struct Comparator {
 
   static Comparator parse(StringRef str);
   void from(const OptVersion& ver) noexcept;
-  String toString() const noexcept;
-  String toPkgConfigString() const noexcept;
+  std::string toString() const noexcept;
+  std::string toPkgConfigString() const noexcept;
   bool satisfiedBy(const Version& ver) const noexcept;
   Comparator canonicalize() const noexcept;
 };
@@ -88,8 +89,8 @@ struct VersionReq {
 
   static VersionReq parse(StringRef str);
   bool satisfiedBy(const Version& ver) const noexcept;
-  String toString() const noexcept;
-  String toPkgConfigString(StringRef name) const noexcept;
+  std::string toString() const noexcept;
+  std::string toPkgConfigString(StringRef name) const noexcept;
   VersionReq canonicalize() const noexcept;
   bool canSimplify() const noexcept;
 };

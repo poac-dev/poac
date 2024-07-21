@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <span>
+#include <string>
 
 static int lintMain(std::span<const StringRef> args);
 
@@ -19,14 +20,14 @@ const Subcmd LINT_CMD =
         .setMainFn(lintMain);
 
 struct LintArgs {
-  String excludes;
+  std::string excludes;
 };
 
 static int
 lint(const StringRef name, const StringRef cpplintArgs) {
   logger::info("Linting", name);
 
-  String cpplintCmd = "cpplint";
+  std::string cpplintCmd = "cpplint";
   cpplintCmd += cpplintArgs;
   if (!isVerbose()) {
     cpplintCmd += " --quiet";
@@ -35,7 +36,7 @@ lint(const StringRef name, const StringRef cpplintArgs) {
   // Read .gitignore if exists
   if (fs::exists(".gitignore")) {
     std::ifstream ifs(".gitignore");
-    String line;
+    std::string line;
     while (std::getline(ifs, line)) {
       if (line.empty() || line[0] == '#') {
         continue;
@@ -80,7 +81,7 @@ lintMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  String cpplintArgs = lintArgs.excludes;
+  std::string cpplintArgs = lintArgs.excludes;
   const StringRef packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     logger::debug("Using CPPLINT.cfg for lint ...");
@@ -93,7 +94,7 @@ lintMain(const std::span<const StringRef> args) {
     cpplintArgs += " --root=src";
   }
 
-  const Vec<String>& cpplintFilters = getLintCpplintFilters();
+  const Vec<std::string>& cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
     logger::debug("Using Poac manifest file for lint ...");
     cpplintArgs += " --filter=";

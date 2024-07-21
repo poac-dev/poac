@@ -3,6 +3,8 @@
 #include "../Rustify.hpp"
 #include "Exception.hpp"
 
+#include <string>
+
 namespace git2 {
 
 Config::Config() {
@@ -21,7 +23,7 @@ Config::openDefault() {
   return *this;
 }
 
-String
+std::string
 Config::getString(const StringRef name) {
   git_buf ret = { nullptr, 0, 0 };
   git2Throw(git_config_get_string_buf(&ret, this->raw, name.data()));

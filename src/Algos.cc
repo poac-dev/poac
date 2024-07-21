@@ -7,21 +7,22 @@
 #include <algorithm>
 #include <cctype>
 #include <memory>
+#include <string>
 #include <thread>
 #include <utility>
 
-String
+std::string
 toUpper(const StringRef str) noexcept {
-  String res;
+  std::string res;
   for (const unsigned char c : str) {
     res += static_cast<char>(std::toupper(c));
   }
   return res;
 }
 
-String
+std::string
 toMacroName(const StringRef name) noexcept {
-  String macroName;
+  std::string macroName;
   for (const unsigned char c : name) {
     if (std::isalpha(c)) {
       macroName += static_cast<char>(std::toupper(c));
@@ -42,11 +43,11 @@ execCmd(const StringRef cmd) noexcept {
   return exitCode;
 }
 
-static std::pair<String, int>
+static std::pair<std::string, int>
 getCmdOutputImpl(const StringRef cmd) {
   constexpr usize bufferSize = 128;
   std::array<char, bufferSize> buffer{};
-  String output;
+  std::string output;
 
   FILE* pipe = popen(cmd.data(), "r");
   if (!pipe) {
@@ -65,7 +66,7 @@ getCmdOutputImpl(const StringRef cmd) {
   return { output, exitCode };
 }
 
-String
+std::string
 getCmdOutput(const StringRef cmd, const usize retry) {
   logger::debug("Running `", cmd, '`');
 
@@ -87,7 +88,7 @@ getCmdOutput(const StringRef cmd, const usize retry) {
 
 bool
 commandExists(const StringRef cmd) noexcept {
-  String checkCmd = "command -v ";
+  std::string checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";
   return execCmd(checkCmd) == EXIT_SUCCESS;
@@ -182,7 +183,7 @@ void
 testLevDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
-    const String str(1, c);
+    const std::string str(1, c);
     assertEq(levDistance(str, str), 0UL);
   }
 

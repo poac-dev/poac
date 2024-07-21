@@ -4,6 +4,7 @@
 #include "Global.hpp"
 
 #include <git2/config.h>
+#include <string>
 
 namespace git2 {
 
@@ -26,7 +27,7 @@ public:
   Config& openDefault();
 
   /// Get the value of a string config variable as an owned string.
-  String getString(StringRef name);
+  std::string getString(StringRef name);
 };
 
 } // end namespace git2

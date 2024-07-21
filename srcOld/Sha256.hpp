@@ -17,7 +17,7 @@ import poac.util.rustify;
 
 namespace poac::util::sha256 {
 
-using FailedToReadFile = Error<"Failed to read file: `{}`", String>;
+using FailedToReadFile = Error<"Failed to read file: `{}`", std::string>;
 using FailedToCreateSha256Digest = Error<"Failed to create a sha256 digest">;
 
 inline constexpr i32 BUF_SIZE = 32768;
@@ -25,8 +25,8 @@ inline constexpr i32 HASH_SIZE = 65;
 
 // ref: https://stackoverflow.com/a/2458382
 auto
-hash_string(const Vec<unsigned char>& hash) -> String {
-  String output;
+hash_string(const Vec<unsigned char>& hash) -> std::string {
+  std::string output;
   for (const unsigned char h : hash) {
     // ref: https://stackoverflow.com/a/64311447
     output += format("{:0>2x}", h); // zero paddings in 2 length
@@ -36,7 +36,7 @@ hash_string(const Vec<unsigned char>& hash) -> String {
 
 // ref: https://stackoverflow.com/a/34289358
 export [[nodiscard]] auto
-sum(const Path& path) -> Result<String> {
+sum(const Path& path) -> Result<std::string> {
   std::ifstream file(path, std::ios::binary);
   if (!file) {
     return Err<FailedToReadFile>(path.string());

@@ -4,6 +4,7 @@
 #include "Rustify.hpp"
 
 #include <cstdlib>
+#include <string>
 
 static bool
 isTerm() noexcept {
@@ -82,18 +83,18 @@ shouldColor() noexcept {
   return ColorState::instance().shouldColor();
 }
 
-static String
+static std::string
 colorize(const StringRef str, const StringRef code) noexcept {
   if (!shouldColor()) {
-    return String(str);
+    return std::string(str);
   }
 
-  String res;
+  std::string res;
   if (str.starts_with("\033[")) {
     const usize end = str.find('m');
-    if (end == String::npos) {
+    if (end == std::string::npos) {
       // Invalid color escape sequence
-      return String(str);
+      return std::string(str);
     }
 
     res = str.substr(0, end);
@@ -113,36 +114,36 @@ colorize(const StringRef str, const StringRef code) noexcept {
   return res;
 }
 
-String
+std::string
 gray(const StringRef str) noexcept {
   return colorize(str, "30");
 }
-String
+std::string
 red(const StringRef str) noexcept {
   return colorize(str, "31");
 }
-String
+std::string
 green(const StringRef str) noexcept {
   return colorize(str, "32");
 }
-String
+std::string
 yellow(const StringRef str) noexcept {
   return colorize(str, "33");
 }
-String
+std::string
 blue(const StringRef str) noexcept {
   return colorize(str, "34");
 }
-String
+std::string
 magenta(const StringRef str) noexcept {
   return colorize(str, "35");
 }
-String
+std::string
 cyan(const StringRef str) noexcept {
   return colorize(str, "36");
 }
 
-String
+std::string
 bold(const StringRef str) noexcept {
   return colorize(str, "1");
 }

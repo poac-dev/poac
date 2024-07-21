@@ -5,6 +5,7 @@
 #include <git2/errors.h>
 #include <git2/version.h>
 #include <stdexcept>
+#include <string>
 
 namespace git2 {
 
@@ -63,7 +64,7 @@ struct Exception final : public std::exception {
   Exception& operator=(Exception&&) noexcept = default;
 
 private:
-  String msg = "git2-cpp: ";
+  std::string msg = "git2-cpp: ";
   git_error_t cat{ GIT_ERROR_NONE };
 };
 

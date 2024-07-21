@@ -23,7 +23,9 @@ const Subcmd FMT_CMD =
         .setMainFn(fmtMain);
 
 static void
-collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
+collectFormatTargetFiles(
+    const Path& manifestDir, std::string& clangFormatArgs
+) {
   // Read git repository if exists
   git2::Repository repo = git2::Repository();
   bool hasGitRepo = false;
@@ -38,7 +40,8 @@ collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
   for (auto entry = fs::recursive_directory_iterator(manifestDir);
        entry != fs::recursive_directory_iterator(); ++entry) {
     if (entry->is_directory()) {
-      const String path = fs::relative(entry->path(), manifestDir).string();
+      const std::string path =
+          fs::relative(entry->path(), manifestDir).string();
       if (hasGitRepo && repo.isIgnored(path)) {
         logger::debug("Ignore: ", path);
         entry.disable_recursion_pending();
@@ -51,7 +54,7 @@ collectFormatTargetFiles(const Path& manifestDir, String& clangFormatArgs) {
         continue;
       }
 
-      const String ext = path.extension().string();
+      const std::string ext = path.extension().string();
       if (SOURCE_FILE_EXTS.contains(ext) || HEADER_FILE_EXTS.contains(ext)) {
         clangFormatArgs += ' ' + path.string();
       }
@@ -86,7 +89,7 @@ fmtMain(const std::span<const StringRef> args) {
   }
 
   const StringRef packageName = getPackageName();
-  String clangFormatArgs = "--style=file --fallback-style=LLVM -Werror";
+  std::string clangFormatArgs = "--style=file --fallback-style=LLVM -Werror";
   if (isVerbose()) {
     clangFormatArgs += " --verbose";
   }
@@ -100,8 +103,8 @@ fmtMain(const std::span<const StringRef> args) {
   const Path& manifestDir = getManifestPath().parent_path();
   collectFormatTargetFiles(manifestDir, clangFormatArgs);
 
-  const String clangFormat = "cd " + manifestDir.string()
-                             + " && ${POAC_FMT:-clang-format} "
-                             + clangFormatArgs;
+  const std::string clangFormat = "cd " + manifestDir.string()
+                                  + " && ${POAC_FMT:-clang-format} "
+                                  + clangFormatArgs;
   return execCmd(clangFormat);
 }

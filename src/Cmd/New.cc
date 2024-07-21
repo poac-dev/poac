@@ -33,7 +33,7 @@ static constexpr StringRef MAIN_CC =
     "  std::cout << \"Hello, world!\" << std::endl;\n"
     "}\n";
 
-static String
+static std::string
 getAuthor() noexcept {
   try {
     git2::Config config = git2::Config();
@@ -46,9 +46,9 @@ getAuthor() noexcept {
   }
 }
 
-String
+std::string
 createPoacToml(const StringRef projectName) noexcept {
-  String poacToml =
+  std::string poacToml =
       "[package]\n"
       "name = \"";
   poacToml += projectName;
@@ -63,10 +63,10 @@ createPoacToml(const StringRef projectName) noexcept {
   return poacToml;
 }
 
-static String
+static std::string
 getHeader(const StringRef projectName) noexcept {
-  const String projectNameUpper = toMacroName(projectName);
-  String header = "#ifndef " + projectNameUpper + "_HPP\n"
+  const std::string projectNameUpper = toMacroName(projectName);
+  std::string header = "#ifndef " + projectNameUpper + "_HPP\n"
                   "#define " + projectNameUpper + "_HPP\n\n"
                   "namespace ";
   header += projectName;
@@ -125,7 +125,7 @@ static int
 newMain(const std::span<const StringRef> args) {
   // Parse args
   bool isBin = true;
-  String packageName;
+  std::string packageName;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "new")) {
       if (res.value() == Cli::CONTINUE) {

@@ -12,6 +12,7 @@
 
 #include <cstdlib>
 #include <span>
+#include <string>
 
 static int runMain(std::span<const StringRef> args);
 
@@ -54,17 +55,17 @@ runMain(const std::span<const StringRef> args) {
     }
   }
 
-  String runArgs;
+  std::string runArgs;
   for (; itr != args.end(); ++itr) {
-    runArgs += ' ' + String(*itr);
+    runArgs += ' ' + std::string(*itr);
   }
 
-  String outDir;
+  std::string outDir;
   if (buildImpl(outDir, isDebug) != EXIT_SUCCESS) {
     return EXIT_FAILURE;
   }
 
-  const String& projectName = getPackageName();
-  const String command = outDir + "/" + projectName + runArgs;
+  const std::string& projectName = getPackageName();
+  const std::string command = outDir + "/" + projectName + runArgs;
   return execCmd(command);
 }

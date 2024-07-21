@@ -10,7 +10,6 @@
 #include <optional>
 #include <ostream>
 #include <set>
-#include <string>
 #include <string_view>
 #include <tuple>
 #include <unordered_map>
@@ -38,7 +37,6 @@ using f32 = float;
 using f64 = double;
 // NOLINTEND(readability-identifier-naming)
 
-using String = std::string;
 using StringRef = std::string_view;
 using Path = fs::path;
 
@@ -68,7 +66,7 @@ using Tuple = std::tuple<Ts...>;
 
 struct NoneT : protected std::monostate {
   constexpr bool operator==(const usize rhs) const {
-    return String::npos == rhs;
+    return std::string_view::npos == rhs;
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)

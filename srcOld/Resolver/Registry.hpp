@@ -1,5 +1,7 @@
 module;
 
+#include <string>
+
 // external
 #include <boost/functional/hash.hpp>
 
@@ -12,8 +14,8 @@ export namespace poac::core::resolver::registry {
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Registry {
-  String index;
-  String type;
+  std::string index;
+  std::string type;
 };
 
 inline auto
@@ -29,6 +31,6 @@ hash_value(const Registry& r) -> usize {
   return seed;
 }
 
-using Registries = HashMap<String, Registry>;
+using Registries = HashMap<std::string, Registry>;
 
 } // namespace poac::core::resolver::registry

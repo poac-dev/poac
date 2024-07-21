@@ -17,7 +17,7 @@
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
 
-Edition::Edition(const String& str) : str(str) {
+Edition::Edition(const std::string& str) : str(str) {
   if (str == "98") {
     edition = Cpp98;
     return;
@@ -46,13 +46,13 @@ Edition::Edition(const String& str) : str(str) {
   throw PoacError("invalid edition: ", str);
 }
 
-String
+std::string
 Edition::getString() const noexcept {
   return str;
 }
 
 struct Package {
-  String name;
+  std::string name;
   Edition edition;
   Version version;
 };
@@ -62,7 +62,7 @@ namespace toml {
 template <>
 struct from<Edition> {
   static Edition from_toml(const value& val) {
-    const String& editionStr = toml::get<String>(val);
+    const std::string& editionStr = toml::get<std::string>(val);
     return Edition(editionStr);
   }
 };
@@ -76,13 +76,13 @@ struct into<Edition> {
 template <>
 struct from<Version> {
   static Version from_toml(const value& val) {
-    const String& versionStr = toml::get<String>(val);
+    const std::string& versionStr = toml::get<std::string>(val);
     return Version::parse(versionStr);
   }
 };
 template <>
 struct into<Version> {
-  static String into_toml(const Version& ver) {
+  static std::string into_toml(const Version& ver) {
     return ver.toString();
   }
 };
@@ -114,15 +114,15 @@ findManifest() {
 }
 
 struct GitDependency {
-  String name;
-  String url;
-  Option<String> target;
+  std::string name;
+  std::string url;
+  Option<std::string> target;
 
   DepMetadata install() const;
 };
 
 struct SystemDependency {
-  String name;
+  std::string name;
   VersionReq versionReq;
 
   DepMetadata install() const;
@@ -162,7 +162,7 @@ struct Manifest {
   Option<Profile> debugProfile = None;
   Option<Profile> releaseProfile = None;
 
-  Option<Vec<String>> cpplintFilters = None;
+  Option<Vec<std::string>> cpplintFilters = None;
 
 private:
   Manifest() noexcept = default;
@@ -189,7 +189,7 @@ getManifestPath() {
 }
 
 // Returns an error message if the package name is invalid.
-Option<String> // TODO: result-like types make more sense.
+Option<std::string> // TODO: result-like types make more sense.
 validatePackageName(const StringRef name) noexcept {
   // Empty
   if (name.empty()) {
@@ -250,7 +250,7 @@ parsePackage() {
   return manifest.package.value();
 }
 
-const String&
+const std::string&
 getPackageName() {
   return parsePackage().name;
 }
@@ -292,7 +292,7 @@ parseProfile(const toml::table& table) {
       if (!flag.is_string()) {
         throw PoacError("[profile.cxxflags] must be an array of strings");
       }
-      const String flagStr = flag.as_string();
+      const std::string flagStr = flag.as_string();
       validateCxxflag(flagStr);
       profile.cxxflags.insert(flagStr);
     }
@@ -304,7 +304,7 @@ parseProfile(const toml::table& table) {
 }
 
 static Profile
-getProfile(Option<String> profileName) {
+getProfile(Option<std::string> profileName) {
   Manifest& manifest = Manifest::instance();
   if (!manifest.data.value().contains("profile")) {
     return {};
@@ -368,7 +368,7 @@ getReleaseProfile() {
   return manifest.releaseProfile.value();
 }
 
-const Vec<String>&
+const Vec<std::string>&
 getLintCpplintFilters() {
   Manifest& manifest = Manifest::instance();
   if (manifest.cpplintFilters.has_value()) {
@@ -376,12 +376,12 @@ getLintCpplintFilters() {
   }
 
   const auto& table = toml::get<toml::table>(*manifest.data);
-  Vec<String> filters;
+  Vec<std::string> filters;
   if (!table.contains("lint")) {
     filters = {};
   } else {
-    filters = toml::find_or<Vec<String>>(
-        *manifest.data, "lint", "cpplint", "filters", Vec<String>{}
+    filters = toml::find_or<Vec<std::string>>(
+        *manifest.data, "lint", "cpplint", "filters", Vec<std::string>{}
     );
   }
   manifest.cpplintFilters = filters;
@@ -472,17 +472,17 @@ validateDepName(const StringRef name) {
 }
 
 static GitDependency
-parseGitDep(const String& name, const toml::table& info) {
+parseGitDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
-  String gitUrlStr;
-  Option<String> target = None;
+  std::string gitUrlStr;
+  Option<std::string> target = None;
 
   const auto& gitUrl = info.at("git");
   if (gitUrl.is_string()) {
     gitUrlStr = gitUrl.as_string();
 
     // rev, tag, or branch
-    for (const String key : { "rev", "tag", "branch" }) {
+    for (const std::string key : { "rev", "tag", "branch" }) {
       if (info.contains(key)) {
         const auto& value = info.at(key);
         if (value.is_string()) {
@@ -496,14 +496,14 @@ parseGitDep(const String& name, const toml::table& info) {
 }
 
 static SystemDependency
-parseSystemDep(const String& name, const toml::table& info) {
+parseSystemDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
   const auto& version = info.at("version");
   if (!version.is_string()) {
     throw PoacError("system dependency version must be a string");
   }
 
-  const String versionReq = version.as_string();
+  const std::string versionReq = version.as_string();
   return { name, VersionReq::parse(versionReq) };
 }
 
@@ -558,7 +558,7 @@ GitDependency::install() const {
 
     if (target.has_value()) {
       // Checkout to target.
-      const String target = this->target.value();
+      const std::string target = this->target.value();
       const git2::Object obj = repo.revparseSingle(target);
       repo.setHeadDetached(obj.id());
       repo.checkoutHead(true);
@@ -570,7 +570,7 @@ GitDependency::install() const {
   }
 
   const Path includeDir = installDir / "include";
-  String includes = "-isystem ";
+  std::string includes = "-isystem ";
 
   if (fs::exists(includeDir) && fs::is_directory(includeDir)
       && !fs::is_empty(includeDir)) {
@@ -585,13 +585,13 @@ GitDependency::install() const {
 
 DepMetadata
 SystemDependency::install() const {
-  const String pkgConfigVer = versionReq.toPkgConfigString(name);
-  const String cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
-  const String libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
+  const std::string pkgConfigVer = versionReq.toPkgConfigString(name);
+  const std::string cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
+  const std::string libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
 
-  String cflags = getCmdOutput(cflagsCmd);
+  std::string cflags = getCmdOutput(cflagsCmd);
   cflags.pop_back(); // remove '\n'
-  String libs = getCmdOutput(libsCmd);
+  std::string libs = getCmdOutput(libsCmd);
   libs.pop_back(); // remove '\n'
 
   return { cflags, libs };
@@ -638,7 +638,7 @@ testValidateDepName() {
       continue;
     }
     assertException<PoacError>(
-        [c]() { validateDepName("1" + String(1, c) + "1"); },
+        [c]() { validateDepName("1" + std::string(1, c) + "1"); },
         "dependency name must be alphanumeric, `-`, `_`, `/`, `.`, or `+`"
     );
   }

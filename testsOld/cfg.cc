@@ -336,7 +336,7 @@ main() -> int {
   "test struct Token"_test = [] {
     using poac::util::cfg::Token;
 
-    expect(throws<std::invalid_argument>([] { Token{ Token::String }; }));
+    expect(throws<std::invalid_argument>([] { Token{ Token::std::string }; }));
     expect(throws<std::invalid_argument>([] { Token{ Token::Ident }; }));
     expect(throws<std::invalid_argument>([] { Token(Token::Comma, "foo"); }));
     expect(throws<std::invalid_argument>([] {
@@ -406,7 +406,7 @@ main() -> int {
     {
       std::ostringstream output;
       const std::string s = "foo";
-      output << Token{ Token::String, s };
+      output << Token{ Token::std::string, s };
       expect(eq(output.str(), "string: " + s));
     }
     {
@@ -572,7 +572,7 @@ main() -> int {
     }
     {
       std::ostringstream output;
-      output << Token{ Token::String, "test_string" };
+      output << Token{ Token::std::string, "test_string" };
       expect(eq(output.str(), "string: test_string"s));
     }
     {

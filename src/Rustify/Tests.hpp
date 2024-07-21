@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <exception>
 #include <iostream>
+#include <string>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -180,7 +181,7 @@ assertException(
     std::forward<Fn>(func)();
     error(loc, "expected exception `", typeid(E).name(), "` not thrown");
   } catch (const E& e) {
-    if (e.what() == String(msg)) {
+    if (e.what() == std::string(msg)) {
       return; // OK
     }
 

@@ -44,7 +44,7 @@ namespace poac::core::resolver {
 using namespace std::literals::string_view_literals;
 
 inline auto
-get_install_name(const resolve::Package& package) -> String {
+get_install_name(const resolve::Package& package) -> std::string {
   return boost::replace_first_copy(package.name, "/", "-") + "-"
          + package.dep_info.version_rq;
 }
@@ -78,7 +78,7 @@ get_archive_path(const resolve::Package& package) -> Path {
 }
 
 inline auto
-convert_to_download_link(StringRef repository) -> String {
+convert_to_download_link(StringRef repository) -> std::string {
   // repository should be like =>
   //   https://github.com/boostorg/winapi/tree/boost-1.66.0
   // convert it to =>
@@ -107,7 +107,7 @@ convert_to_download_link(StringRef repository) -> String {
 
 [[nodiscard]] inline auto
 get_download_link(const resolve::Package& package
-) -> Result<std::pair<String, String>, String> {
+) -> Result<std::pair<std::string, std::string>, std::string> {
   const auto [repository, sha256sum] =
       Try(util::net::api::repoinfo(package.name, package.dep_info.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
@@ -115,7 +115,7 @@ get_download_link(const resolve::Package& package
 
 [[nodiscard]] auto
 fetch_impl(const resolve::Package& package
-) noexcept -> Result<std::pair<Path, String>> {
+) noexcept -> Result<std::pair<Path, std::string>> {
   try {
     const auto [download_link, sha256sum] =
         Try(get_download_link(package).map_err(to_anyhow));
@@ -130,7 +130,7 @@ fetch_impl(const resolve::Package& package
 
     return Ok(std::make_pair(archive_path, sha256sum));
   } catch (const std::exception& e) {
-    return Result<std::pair<Path, String>>(Err<Unknown>(e.what()))
+    return Result<std::pair<Path, std::string>>(Err<Unknown>(e.what()))
         .with_context([&package] {
           return Err<FailedToFetch>(package.name, package.dep_info.version_rq)
               .get();
@@ -158,7 +158,8 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) -> Result<void> {
     const auto [installed_path, sha256sum] = Try(fetch_impl(package));
     // Check if sha256sum of the downloaded package is the same with one
     // stored in DB.
-    if (const String actual_sha256sum = Try(util::sha256::sum(installed_path));
+    if (const std::string actual_sha256sum =
+            Try(util::sha256::sum(installed_path));
         sha256sum != actual_sha256sum) {
       fs::remove(installed_path);
       return Err<IncorrectSha256sum>(
@@ -166,7 +167,7 @@ fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) -> Result<void> {
       );
     }
 
-    const String extracted_directory_name =
+    const std::string extracted_directory_name =
         Try(util::archive::extract(installed_path, config::default_registry_dir)
                 .map_err(to_anyhow));
     Try(rename_extracted_directory(package, extracted_directory_name));
@@ -303,8 +304,8 @@ get_registries(const toml::value& manifest) -> Result<registry::Registries> {
         return Err<DuplicateRegistryEntry>(name);
       }
     }
-    String index = toml::find<String>(table, "index");
-    String type = toml::find<String>(table, "type");
+    std::string index = toml::find<std::string>(table, "index");
+    std::string type = toml::find<std::string>(table, "type");
     if (type != "poac" && type != "conan-v1") {
       return Err<UnknownRegistryType>(name, type);
     }

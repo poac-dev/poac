@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iterator>
 #include <span>
+#include <string>
 
 class Opt;
 class Arg;
@@ -127,7 +128,7 @@ private:
     return name.size();
   }
 
-  String getLeft() const noexcept;
+  std::string getLeft() const noexcept;
   void print(usize maxOffset) const noexcept;
 };
 
@@ -163,7 +164,7 @@ private:
   }
 
   Subcmd& setGlobalOpts(const Vec<Opt>& globalOpts) noexcept;
-  String getUsage() const noexcept;
+  std::string getUsage() const noexcept;
   void printHelp() const noexcept;
   void print(usize maxOffset) const noexcept;
 
