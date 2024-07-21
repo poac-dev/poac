@@ -62,9 +62,9 @@ handleDependency(
 
 static std::string
 getDependencyGitUrl(const std::string_view dep) {
-  if (dep.find("://") == std::string::npos) {
+  if (dep.find("://") == std::string_view::npos) {
     // check if atleast in "user/repo" format
-    if (dep.find('/') == std::string::npos) {
+    if (dep.find('/') == std::string_view::npos) {
       logger::error("Invalid dependency: " + std::string(dep));
       return "";
     }
@@ -77,7 +77,7 @@ getDependencyGitUrl(const std::string_view dep) {
 static std::string
 getDependencyName(const std::string_view dep) {
   std::string name;
-  if (dep.find("://") == std::string::npos) {
+  if (dep.find("://") == std::string_view::npos) {
     name = dep.substr(dep.find_last_of('/') + 1);
   } else {
     name = dep.substr(

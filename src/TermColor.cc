@@ -93,7 +93,7 @@ colorize(const std::string_view str, const std::string_view code) noexcept {
   std::string res;
   if (str.starts_with("\033[")) {
     const usize end = str.find('m');
-    if (end == std::string::npos) {
+    if (end == std::string_view::npos) {
       // Invalid color escape sequence
       return std::string(str);
     }

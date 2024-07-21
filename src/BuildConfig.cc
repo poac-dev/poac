@@ -305,7 +305,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
       if (!cmd.starts_with("$(CXX)") && !cmd.starts_with("@$(CXX)")) {
         continue;
       }
-      if (cmd.find("-c") == std::string::npos) {
+      if (cmd.find("-c") == std::string_view::npos) {
         // Ignore link commands.
         continue;
       }
