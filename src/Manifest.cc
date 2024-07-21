@@ -605,19 +605,16 @@ installDependencies(const bool includeDevDeps) {
     manifest.devDependencies = parseDependencies("dev-dependencies");
   }
 
-  if (!manifest.dependencies.has_value()) {
-    if (!includeDevDeps || !manifest.devDependencies.has_value()) {
-      return {};
+  Vec<DepMetadata> installed;
+  if (manifest.dependencies.has_value()) {
+    for (const auto& dep : manifest.dependencies.value()) {
+      std::visit(
+          [&installed](auto&& arg) { installed.emplace_back(arg.install()); },
+          dep
+      );
     }
   }
-
-  Vec<DepMetadata> installed;
-  for (const auto& dep : manifest.dependencies.value()) {
-    std::visit(
-        [&installed](auto&& arg) { installed.emplace_back(arg.install()); }, dep
-    );
-  }
-  if (includeDevDeps) {
+  if (includeDevDeps && manifest.devDependencies.has_value()) {
     for (const auto& dep : manifest.devDependencies.value()) {
       std::visit(
           [&installed](auto&& arg) { installed.emplace_back(arg.install()); },
