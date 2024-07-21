@@ -483,7 +483,7 @@ parseGitDep(const std::string& name, const toml::table& info) {
     gitUrlStr = gitUrl.as_string();
 
     // rev, tag, or branch
-    for (const std::string key : { "rev", "tag", "branch" }) {
+    for (const char* key : { "rev", "tag", "branch" }) {
       if (info.contains(key)) {
         const auto& value = info.at(key);
         if (value.is_string()) {
