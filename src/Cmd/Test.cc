@@ -56,7 +56,7 @@ testMain(const std::span<const std::string_view> args) {
 
   const auto start = std::chrono::steady_clock::now();
 
-  const std::string outDir = emitMakefile(isDebug);
+  const std::string outDir = emitMakefile(isDebug, /*includeDevDeps=*/true);
   const int exitCode = execCmd(getMakeCommand() + " -C " + outDir + " test");
 
   const auto end = std::chrono::steady_clock::now();

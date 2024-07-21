@@ -30,7 +30,7 @@ int
 buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
-  outDir = emitMakefile(isDebug);
+  outDir = emitMakefile(isDebug, /*includeDevDeps=*/false);
   const std::string makeCommand = getMakeCommand() + " -C " + outDir;
   const int exitCode = execCmd(makeCommand);
 
@@ -83,7 +83,7 @@ buildMain(const std::span<const std::string_view> args) {
   }
 
   // Build compilation database
-  const std::string outDir = emitCompdb(isDebug);
+  const std::string outDir = emitCompdb(isDebug, /*includeDevDeps=*/false);
   logger::info("Generated", outDir, "/compile_commands.json");
   return EXIT_SUCCESS;
 }

@@ -13,7 +13,7 @@ inline const HashSet<std::string> HEADER_FILE_EXTS{
 };
 // clang-format on
 
-std::string emitMakefile(bool isDebug);
-std::string emitCompdb(bool isDebug);
+std::string emitMakefile(bool isDebug, bool includeDevDeps);
+std::string emitCompdb(bool isDebug, bool includeDevDeps);
 std::string modeString(bool isDebug);
 std::string getMakeCommand();
