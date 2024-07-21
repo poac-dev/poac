@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Rustify.hpp"
 #include "Global.hpp"
 
 #include <git2/oid.h>
