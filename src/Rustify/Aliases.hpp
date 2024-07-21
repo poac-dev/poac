@@ -5,12 +5,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
-#include <map>
 #include <optional>
 #include <ostream>
-#include <set>
 #include <string_view>
-#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <variant>
@@ -44,20 +41,13 @@ template <typename T>
 using Vec = std::vector<T>;
 
 template <typename K, typename V>
-using Map = std::map<K, V>;
-template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
 
-template <typename K>
-using Set = std::set<K>;
 template <typename K>
 using HashSet = std::unordered_set<K>;
 
 template <typename T>
 using Option = std::optional<T>;
-
-template <typename... Ts>
-using Tuple = std::tuple<Ts...>;
 
 struct NoneT : protected std::monostate {
   constexpr bool operator==(const usize rhs) const {
