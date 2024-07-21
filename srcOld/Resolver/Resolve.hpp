@@ -214,7 +214,9 @@ get_versions_satisfy_interval(const Package& package
   const semver::Interval i(package.dep_info.version_rq);
   const Vec<std::string> satisfied_versions =
       Try(util::net::api::versions(package.name))
-      | boost::adaptors::filtered([&i](StringRef s) { return i.satisfies(s); })
+      | boost::adaptors::filtered([&i](std::string_view s) {
+          return i.satisfies(s);
+        })
       | util::meta::CONTAINERIZED;
 
   if (satisfied_versions.empty()) {

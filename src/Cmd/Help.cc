@@ -1,11 +1,11 @@
 #include "Help.hpp"
 
 #include "../Cli.hpp"
-#include "../Rustify.hpp"
 
 #include <span>
+#include <string_view>
 
-static int helpMain(std::span<const StringRef> args) noexcept;
+static int helpMain(std::span<const std::string_view> args) noexcept;
 
 const Subcmd HELP_CMD = //
     Subcmd{ "help" }
@@ -14,6 +14,6 @@ const Subcmd HELP_CMD = //
         .setMainFn(helpMain);
 
 static int
-helpMain(const std::span<const StringRef> args) noexcept {
+helpMain(const std::span<const std::string_view> args) noexcept {
   return getCli().printHelp(args);
 }

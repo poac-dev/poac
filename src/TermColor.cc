@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <string_view>
 
 static bool
 isTerm() noexcept {
@@ -12,7 +13,7 @@ isTerm() noexcept {
 }
 
 static ColorMode
-getColorMode(const StringRef str) noexcept {
+getColorMode(const std::string_view str) noexcept {
   if (str == "always") {
     return ColorMode::Always;
   } else if (str == "auto") {
@@ -74,7 +75,7 @@ setColorMode(const ColorMode mode) noexcept {
 }
 
 void
-setColorMode(const StringRef str) noexcept {
+setColorMode(const std::string_view str) noexcept {
   setColorMode(getColorMode(str));
 }
 
@@ -84,7 +85,7 @@ shouldColor() noexcept {
 }
 
 static std::string
-colorize(const StringRef str, const StringRef code) noexcept {
+colorize(const std::string_view str, const std::string_view code) noexcept {
   if (!shouldColor()) {
     return std::string(str);
   }
@@ -115,35 +116,35 @@ colorize(const StringRef str, const StringRef code) noexcept {
 }
 
 std::string
-gray(const StringRef str) noexcept {
+gray(const std::string_view str) noexcept {
   return colorize(str, "30");
 }
 std::string
-red(const StringRef str) noexcept {
+red(const std::string_view str) noexcept {
   return colorize(str, "31");
 }
 std::string
-green(const StringRef str) noexcept {
+green(const std::string_view str) noexcept {
   return colorize(str, "32");
 }
 std::string
-yellow(const StringRef str) noexcept {
+yellow(const std::string_view str) noexcept {
   return colorize(str, "33");
 }
 std::string
-blue(const StringRef str) noexcept {
+blue(const std::string_view str) noexcept {
   return colorize(str, "34");
 }
 std::string
-magenta(const StringRef str) noexcept {
+magenta(const std::string_view str) noexcept {
   return colorize(str, "35");
 }
 std::string
-cyan(const StringRef str) noexcept {
+cyan(const std::string_view str) noexcept {
   return colorize(str, "36");
 }
 
 std::string
-bold(const StringRef str) noexcept {
+bold(const std::string_view str) noexcept {
   return colorize(str, "1");
 }

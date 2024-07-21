@@ -1,6 +1,5 @@
 #include "Repository.hpp"
 
-#include "../Rustify.hpp"
 #include "Config.hpp"
 #include "Exception.hpp"
 #include "Oid.hpp"
@@ -8,6 +7,7 @@
 #include <git2/ignore.h>
 #include <git2/repository.h>
 #include <git2/revparse.h>
+#include <string_view>
 
 namespace git2 {
 
@@ -16,29 +16,29 @@ Repository::~Repository() {
 }
 
 Repository&
-Repository::open(const StringRef path) {
+Repository::open(const std::string_view path) {
   git2Throw(git_repository_open(&this->raw, path.data()));
   return *this;
 }
 Repository&
-Repository::openBare(const StringRef path) {
+Repository::openBare(const std::string_view path) {
   git2Throw(git_repository_open_bare(&this->raw, path.data()));
   return *this;
 }
 
 Repository&
-Repository::init(const StringRef path) {
+Repository::init(const std::string_view path) {
   git2Throw(git_repository_init(&this->raw, path.data(), false));
   return *this;
 }
 Repository&
-Repository::initBare(const StringRef path) {
+Repository::initBare(const std::string_view path) {
   git2Throw(git_repository_init(&this->raw, path.data(), true));
   return *this;
 }
 
 bool
-Repository::isIgnored(const StringRef path) const {
+Repository::isIgnored(const std::string_view path) const {
   int ignored = 0;
   git2Throw(git_ignore_path_is_ignored(&ignored, this->raw, path.data()));
   return static_cast<bool>(ignored);
@@ -46,14 +46,15 @@ Repository::isIgnored(const StringRef path) const {
 
 Repository&
 Repository::clone(
-    const StringRef url, const StringRef path, const git_clone_options* opts
+    const std::string_view url, const std::string_view path,
+    const git_clone_options* opts
 ) {
   git2Throw(git_clone(&this->raw, url.data(), path.data(), opts));
   return *this;
 }
 
 Object
-Repository::revparseSingle(const StringRef spec) const {
+Repository::revparseSingle(const std::string_view spec) const {
   git_object* obj = nullptr;
   git2Throw(git_revparse_single(&obj, this->raw, spec.data()));
   return git2::Object(obj);
@@ -75,7 +76,7 @@ Repository::checkoutHead(bool force) {
 }
 
 Oid
-Repository::refNameToId(const StringRef refname) const {
+Repository::refNameToId(const std::string_view refname) const {
   git_oid oid;
   git2Throw(git_reference_name_to_id(&oid, this->raw, refname.data()));
   return Oid(oid);

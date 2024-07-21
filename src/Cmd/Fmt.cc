@@ -13,8 +13,9 @@
 #include <fstream>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int fmtMain(std::span<const StringRef> args);
+static int fmtMain(std::span<const std::string_view> args);
 
 const Subcmd FMT_CMD =
     Subcmd{ "fmt" }
@@ -63,7 +64,7 @@ collectFormatTargetFiles(
 }
 
 static int
-fmtMain(const std::span<const StringRef> args) {
+fmtMain(const std::span<const std::string_view> args) {
   bool isCheck = false;
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
@@ -88,7 +89,7 @@ fmtMain(const std::span<const StringRef> args) {
     return EXIT_FAILURE;
   }
 
-  const StringRef packageName = getPackageName();
+  const std::string_view packageName = getPackageName();
   std::string clangFormatArgs = "--style=file --fallback-style=LLVM -Werror";
   if (isVerbose()) {
     clangFormatArgs += " --verbose";

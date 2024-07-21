@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../Cli.hpp"
-#include "../Rustify.hpp"
 
 #include <string>
+#include <string_view>
 
 extern const Subcmd NEW_CMD;
-std::string createPoacToml(StringRef projectName) noexcept;
+std::string createPoacToml(std::string_view projectName) noexcept;

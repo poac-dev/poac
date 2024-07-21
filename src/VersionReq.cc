@@ -6,6 +6,7 @@
 #include <cctype>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 
@@ -67,10 +68,10 @@ struct ComparatorToken {
 };
 
 struct ComparatorLexer {
-  StringRef s;
+  std::string_view s;
   usize pos{ 0 };
 
-  explicit ComparatorLexer(const StringRef str) noexcept : s(str) {}
+  explicit ComparatorLexer(const std::string_view str) noexcept : s(str) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -157,7 +158,7 @@ struct ComparatorLexer {
 struct ComparatorParser {
   ComparatorLexer lexer;
 
-  explicit ComparatorParser(const StringRef str) noexcept : lexer(str) {}
+  explicit ComparatorParser(const std::string_view str) noexcept : lexer(str) {}
 
   Comparator parse() {
     Comparator result;
@@ -207,7 +208,7 @@ struct ComparatorParser {
 };
 
 Comparator
-Comparator::parse(const StringRef str) {
+Comparator::parse(const std::string_view str) {
   ComparatorParser parser(str);
   return parser.parse();
 }
@@ -462,10 +463,10 @@ isCompStart(const char c) noexcept {
 }
 
 struct VersionReqLexer {
-  StringRef s;
+  std::string_view s;
   usize pos{ 0 };
 
-  explicit VersionReqLexer(const StringRef str) noexcept : s(str) {}
+  explicit VersionReqLexer(const std::string_view str) noexcept : s(str) {}
 
   bool isEof() const noexcept {
     return pos >= s.size();
@@ -504,7 +505,7 @@ struct VersionReqLexer {
 struct VersionReqParser {
   VersionReqLexer lexer;
 
-  explicit VersionReqParser(const StringRef str) noexcept : lexer(str) {}
+  explicit VersionReqParser(const std::string_view str) noexcept : lexer(str) {}
 
   VersionReq parse() {
     VersionReq result;
@@ -589,7 +590,7 @@ struct VersionReqParser {
 };
 
 VersionReq
-VersionReq::parse(const StringRef str) {
+VersionReq::parse(const std::string_view str) {
   VersionReqParser parser(str);
   return parser.parse();
 }
@@ -823,7 +824,7 @@ VersionReq::toString() const noexcept {
 }
 
 std::string
-VersionReq::toPkgConfigString(const StringRef name) const noexcept {
+VersionReq::toPkgConfigString(const std::string_view name) const noexcept {
   // For pkg-config, canonicalization is necessary.
   const VersionReq req = canonicalize();
 
@@ -903,20 +904,20 @@ namespace tests {
 
 inline void
 assertMatchAll(
-    const VersionReq& req, const std::span<const StringRef> versions,
+    const VersionReq& req, const std::span<const std::string_view> versions,
     const source_location& loc = source_location::current()
 ) {
-  for (const StringRef ver : versions) {
+  for (const std::string_view ver : versions) {
     assertTrue(req.satisfiedBy(Version::parse(ver)), "", loc);
   }
 }
 
 inline void
 assertMatchNone(
-    const VersionReq& req, const std::span<const StringRef> versions,
+    const VersionReq& req, const std::span<const std::string_view> versions,
     const source_location& loc = source_location::current()
 ) {
-  for (const StringRef ver : versions) {
+  for (const std::string_view ver : versions) {
     assertFalse(req.satisfiedBy(Version::parse(ver)), "", loc);
   }
 }

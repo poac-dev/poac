@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <exception>
 #include <span>
+#include <string_view>
 
 const Cli&
 getCli() noexcept {
@@ -76,7 +77,7 @@ main(int argc, char* argv[]) {
 
     // Local options
     else if (*itr == "-V"sv || *itr == "--version"sv) {
-      const Vec<StringRef> remArgs(itr + 1, args.end());
+      const Vec<std::string_view> remArgs(itr + 1, args.end());
       return versionMain(remArgs);
     } else if (*itr == "--list"sv) {
       getCli().printAllSubcmds(true);
@@ -86,7 +87,7 @@ main(int argc, char* argv[]) {
     // Subcommands
     else if (getCli().hasSubcmd(*itr)) {
       try {
-        const Vec<StringRef> remArgs(itr + 1, args.end());
+        const Vec<std::string_view> remArgs(itr + 1, args.end());
         const int exitCode = getCli().exec(*itr, remArgs);
         if (exitCode != EXIT_SUCCESS) {
           logger::error(

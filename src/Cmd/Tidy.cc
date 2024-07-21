@@ -12,8 +12,9 @@
 #include <cstdlib>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int tidyMain(std::span<const StringRef> args);
+static int tidyMain(std::span<const std::string_view> args);
 
 const Subcmd TIDY_CMD =
     Subcmd{ "tidy" }
@@ -23,7 +24,7 @@ const Subcmd TIDY_CMD =
         .setMainFn(tidyMain);
 
 static int
-tidyImpl(const StringRef makeCmd) {
+tidyImpl(const std::string_view makeCmd) {
   const auto start = std::chrono::steady_clock::now();
 
   const int exitCode = execCmd(makeCmd);
@@ -38,7 +39,7 @@ tidyImpl(const StringRef makeCmd) {
 }
 
 static int
-tidyMain(const std::span<const StringRef> args) {
+tidyMain(const std::span<const std::string_view> args) {
   // Parse args
   bool fix = false;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {

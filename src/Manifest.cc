@@ -12,6 +12,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <string>
+#include <string_view>
 #include <variant>
 
 #define TOML11_NO_ERROR_PREFIX
@@ -190,7 +191,7 @@ getManifestPath() {
 
 // Returns an error message if the package name is invalid.
 Option<std::string> // TODO: result-like types make more sense.
-validatePackageName(const StringRef name) noexcept {
+validatePackageName(const std::string_view name) noexcept {
   // Empty
   if (name.empty()) {
     return "must not be empty";
@@ -220,7 +221,7 @@ validatePackageName(const StringRef name) noexcept {
   }
 
   // Using C++ keywords
-  const HashSet<StringRef> keywords = {
+  const HashSet<std::string_view> keywords = {
 #include "Keywords.def"
   };
   if (keywords.contains(name)) {
@@ -264,7 +265,7 @@ getPackageVersion() {
 }
 
 static void
-validateCxxflag(const StringRef cxxflag) {
+validateCxxflag(const std::string_view cxxflag) {
   // cxxflag must start with `-`
   if (cxxflag.empty() || cxxflag[0] != '-') {
     throw PoacError("cxxflag must start with `-`");
@@ -406,7 +407,7 @@ static const HashSet<char> ALLOWED_CHARS = {
 };
 
 static void
-validateDepName(const StringRef name) {
+validateDepName(const std::string_view name) {
   if (name.empty()) {
     throw PoacError("dependency name is empty");
   }

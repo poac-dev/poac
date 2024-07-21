@@ -33,8 +33,6 @@ using f32 = float;
 using f64 = double;
 // NOLINTEND(readability-identifier-naming)
 
-using StringRef = std::string_view;
-
 template <typename T, usize N>
 using Arr = std::array<T, N>;
 template <typename T>
@@ -102,13 +100,13 @@ struct source_location {
   ) noexcept {
     return { file, line, func };
   }
-  constexpr StringRef file_name() const noexcept {
+  constexpr std::string_view file_name() const noexcept {
     return file_;
   }
   constexpr int line() const noexcept {
     return line_;
   }
-  constexpr StringRef function_name() const noexcept {
+  constexpr std::string_view function_name() const noexcept {
     return func_;
   }
 
@@ -121,7 +119,8 @@ private:
 
 [[noreturn]] inline void
 panic(
-    const StringRef msg, const source_location& loc = source_location::current()
+    const std::string_view msg,
+    const source_location& loc = source_location::current()
 ) noexcept {
   std::cerr << "panicked at '" << msg << "', " << loc.file_name() << ':'
             << loc.line() << '\n';

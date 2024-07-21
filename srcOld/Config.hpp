@@ -40,7 +40,7 @@ inline const fs::path src_dir(cwd / "src");
 inline const fs::path include_dir(cwd / "include");
 inline const fs::path tests_dir(cwd / "tests");
 inline const fs::path main_cpp_file(src_dir / "main.cpp");
-inline constexpr StringRef POAC_OUT = "poac-out";
+inline constexpr std::string_view POAC_OUT = "poac-out";
 inline const fs::path out_dir(cwd / POAC_OUT);
 
 inline const fs::path conan_deps_dir(out_dir / ".conan");

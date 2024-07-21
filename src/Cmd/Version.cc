@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <span>
+#include <string_view>
 
 #ifndef POAC_PKG_VERSION
 #  error "POAC_PKG_VERSION is not defined"
@@ -28,24 +29,24 @@ const Subcmd VERSION_CMD = //
         .setDesc("Show version information")
         .setMainFn(versionMain);
 
-static consteval StringRef
-checkAvailability(const StringRef str) noexcept {
+static consteval std::string_view
+checkAvailability(const std::string_view str) noexcept {
   return str.empty() ? "unavailable" : str;
 }
 
-static constinit const StringRef COMMIT_SHORT_HASH =
+static constinit const std::string_view COMMIT_SHORT_HASH =
     checkAvailability(POAC_COMMIT_SHORT_HASH);
-static constinit const StringRef COMMIT_HASH =
+static constinit const std::string_view COMMIT_HASH =
     checkAvailability(POAC_COMMIT_HASH);
-static constinit const StringRef COMMIT_DATE =
+static constinit const std::string_view COMMIT_DATE =
     checkAvailability(POAC_COMMIT_DATE);
 
 static consteval char
-firstMonthChar(const StringRef month) noexcept {
+firstMonthChar(const std::string_view month) noexcept {
   return (month[0] == 'O' || month[0] == 'N' || month[0] == 'D') ? '1' : '0';
 }
 static consteval char
-secondMonthChar(const StringRef month) noexcept {
+secondMonthChar(const std::string_view month) noexcept {
   if (month[0] == 'J') {
     if (month[1] == 'a') {
       // Jan
@@ -113,7 +114,7 @@ static constinit const char COMPILE_DATE[] = {
 };
 
 int
-versionMain(const std::span<const StringRef> args) noexcept {
+versionMain(const std::span<const std::string_view> args) noexcept {
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "version")) {

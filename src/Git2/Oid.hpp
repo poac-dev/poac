@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Rustify.hpp"
 #include "Global.hpp"
 
 #include <git2/oid.h>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 namespace git2 {
 
@@ -23,7 +23,7 @@ struct Oid : public GlobalState {
   explicit Oid(const git_oid* oid);
 
   /// Parse a hex-formatted object id into an oid structure.
-  explicit Oid(StringRef str);
+  explicit Oid(std::string_view str);
 
   // Since Oid would not be constructed by itself, the destructor is not
   // responsible for freeing the raw pointer.

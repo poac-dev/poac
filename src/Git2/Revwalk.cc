@@ -1,10 +1,10 @@
 #include "Revwalk.hpp"
 
-#include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Repository.hpp"
 
 #include <git2/revwalk.h>
+#include <string_view>
 
 namespace git2 {
 
@@ -46,19 +46,19 @@ Revwalk::pushHead() {
 }
 
 Revwalk&
-Revwalk::pushGlob(const StringRef glob) {
+Revwalk::pushGlob(const std::string_view glob) {
   git2Throw(git_revwalk_push_glob(this->raw, glob.data()));
   return *this;
 }
 
 Revwalk&
-Revwalk::pushRange(const StringRef range) {
+Revwalk::pushRange(const std::string_view range) {
   git2Throw(git_revwalk_push_range(this->raw, range.data()));
   return *this;
 }
 
 Revwalk&
-Revwalk::pushRef(const StringRef reference) {
+Revwalk::pushRef(const std::string_view reference) {
   git2Throw(git_revwalk_push_ref(this->raw, reference.data()));
   return *this;
 }
@@ -76,13 +76,13 @@ Revwalk::hideHead() {
 }
 
 Revwalk&
-Revwalk::hideGlob(const StringRef glob) {
+Revwalk::hideGlob(const std::string_view glob) {
   git2Throw(git_revwalk_hide_glob(this->raw, glob.data()));
   return *this;
 }
 
 Revwalk&
-Revwalk::hideRef(const StringRef reference) {
+Revwalk::hideRef(const std::string_view reference) {
   git2Throw(git_revwalk_hide_ref(this->raw, reference.data()));
   return *this;
 }

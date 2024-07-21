@@ -6,8 +6,9 @@
 #include <cstdlib>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int cleanMain(std::span<const StringRef> args) noexcept;
+static int cleanMain(std::span<const std::string_view> args) noexcept;
 
 const Subcmd CLEAN_CMD = //
     Subcmd{ "clean" }
@@ -19,7 +20,7 @@ const Subcmd CLEAN_CMD = //
         .setMainFn(cleanMain);
 
 static int
-cleanMain(const std::span<const StringRef> args) noexcept {
+cleanMain(const std::span<const std::string_view> args) noexcept {
   fs::path outDir = "poac-out"; // TODO: share across sources
 
   // Parse args

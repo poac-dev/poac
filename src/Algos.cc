@@ -8,11 +8,12 @@
 #include <cctype>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <utility>
 
 std::string
-toUpper(const StringRef str) noexcept {
+toUpper(const std::string_view str) noexcept {
   std::string res;
   for (const unsigned char c : str) {
     res += static_cast<char>(std::toupper(c));
@@ -21,7 +22,7 @@ toUpper(const StringRef str) noexcept {
 }
 
 std::string
-toMacroName(const StringRef name) noexcept {
+toMacroName(const std::string_view name) noexcept {
   std::string macroName;
   for (const unsigned char c : name) {
     if (std::isalpha(c)) {
@@ -36,7 +37,7 @@ toMacroName(const StringRef name) noexcept {
 }
 
 int
-execCmd(const StringRef cmd) noexcept {
+execCmd(const std::string_view cmd) noexcept {
   logger::debug("Running `", cmd, '`');
   const int status = std::system(cmd.data());
   const int exitCode = status >> 8;
@@ -44,7 +45,7 @@ execCmd(const StringRef cmd) noexcept {
 }
 
 static std::pair<std::string, int>
-getCmdOutputImpl(const StringRef cmd) {
+getCmdOutputImpl(const std::string_view cmd) {
   constexpr usize bufferSize = 128;
   std::array<char, bufferSize> buffer{};
   std::string output;
@@ -67,7 +68,7 @@ getCmdOutputImpl(const StringRef cmd) {
 }
 
 std::string
-getCmdOutput(const StringRef cmd, const usize retry) {
+getCmdOutput(const std::string_view cmd, const usize retry) {
   logger::debug("Running `", cmd, '`');
 
   int exitCode = EXIT_SUCCESS;
@@ -87,7 +88,7 @@ getCmdOutput(const StringRef cmd, const usize retry) {
 }
 
 bool
-commandExists(const StringRef cmd) noexcept {
+commandExists(const std::string_view cmd) noexcept {
   std::string checkCmd = "command -v ";
   checkCmd += cmd;
   checkCmd += " >/dev/null 2>&1";
@@ -96,7 +97,7 @@ commandExists(const StringRef cmd) noexcept {
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
 static usize
-levDistance(const StringRef lhs, const StringRef rhs) {
+levDistance(const std::string_view lhs, const std::string_view rhs) {
   const usize lhsSize = lhs.size();
   const usize rhsSize = rhs.size();
 
@@ -132,18 +133,22 @@ levDistance(const StringRef lhs, const StringRef rhs) {
 }
 
 static bool
-equalsInsensitive(const StringRef lhs, const StringRef rhs) noexcept {
+equalsInsensitive(
+    const std::string_view lhs, const std::string_view rhs
+) noexcept {
   return std::equal(
       lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(),
       [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }
   );
 }
 
-Option<StringRef>
-findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
+Option<std::string_view>
+findSimilarStr(
+    const std::string_view lhs, std::span<const std::string_view> candidates
+) {
   // We need to check if `Candidates` has the exact case-insensitive string
   // because the Levenshtein distance match does not care about it.
-  for (const StringRef str : candidates) {
+  for (const std::string_view str : candidates) {
     if (equalsInsensitive(lhs, str)) {
       return str;
     }
@@ -155,8 +160,8 @@ findSimilarStr(const StringRef lhs, std::span<const StringRef> candidates) {
   const usize length = lhs.size();
   const usize maxDist = length < 3 ? length - 1 : length / 3;
 
-  Option<std::pair<StringRef, usize>> similarStr = None;
-  for (const StringRef str : candidates) {
+  Option<std::pair<std::string_view, usize>> similarStr = None;
+  for (const std::string_view str : candidates) {
     const usize curDist = levDistance(lhs, str);
     if (curDist <= maxDist) {
       // The first similar string found || More similar string found
@@ -192,9 +197,9 @@ testLevDistance() {
 
 void
 testLevDistance2() {
-  constexpr StringRef str1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef str2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
-  constexpr StringRef str3 = "Mary häd ä little lämb\n\nLittle lämb\n";
+  constexpr std::string_view str1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
+  constexpr std::string_view str2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
+  constexpr std::string_view str3 = "Mary häd ä little lämb\n\nLittle lämb\n";
 
   assertEq(levDistance(str1, str2), 2UL);
   assertEq(levDistance(str2, str1), 2UL);
@@ -221,9 +226,9 @@ testLevDistance2() {
 
 void
 testFindSimilarStr() {
-  constexpr Arr<StringRef, 8> candidates{
-    "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
-  };
+  constexpr Arr<std::string_view, 8> candidates{ "if",      "ifdef",   "ifndef",
+                                                 "elif",    "else",    "endif",
+                                                 "elifdef", "elifndef" };
 
   assertEq(findSimilarStr("id", candidates), "if"sv);
   assertEq(findSimilarStr("ifd", candidates), "if"sv);
@@ -245,11 +250,11 @@ testFindSimilarStr() {
 
 void
 testFindSimilarStr2() {
-  constexpr Arr<StringRef, 2> candidates{ "aaab", "aaabc" };
+  constexpr Arr<std::string_view, 2> candidates{ "aaab", "aaabc" };
   assertEq(findSimilarStr("aaaa", candidates), "aaab"sv);
   assertEq(findSimilarStr("1111111111", candidates), None);
 
-  constexpr Arr<StringRef, 1> candidateS2{ "AAAA" };
+  constexpr Arr<std::string_view, 1> candidateS2{ "AAAA" };
   assertEq(findSimilarStr("aaaa", candidateS2), "AAAA"sv);
 
   pass();
