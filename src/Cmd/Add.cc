@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <string>
 #include <toml.hpp>
 
@@ -163,7 +164,7 @@ addMain(const std::span<const StringRef> args) {
   // clang-format off
   HashMap<
     StringRef,
-    Fn<Option<int>(decltype(args)::iterator&, decltype(args)::iterator)>
+    std::function<Option<int>(decltype(args)::iterator&, decltype(args)::iterator)>
   >
   handlers = {
     {

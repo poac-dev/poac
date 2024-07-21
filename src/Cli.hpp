@@ -4,6 +4,7 @@
 #include "Rustify.hpp"
 
 #include <cstdlib>
+#include <functional>
 #include <iterator>
 #include <span>
 #include <string>
@@ -139,7 +140,7 @@ class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
   Option<Vec<Opt>> globalOpts = None;
   Vec<Opt> localOpts;
   Arg arg;
-  Fn<int(std::span<const StringRef>)> mainFn;
+  std::function<int(std::span<const StringRef>)> mainFn;
 
 public:
   using CliBase::CliBase;
@@ -150,7 +151,8 @@ public:
   }
 
   Subcmd& addOpt(Opt opt) noexcept;
-  Subcmd& setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept;
+  Subcmd& setMainFn(std::function<int(std::span<const StringRef>)> mainFn
+  ) noexcept;
   [[nodiscard]] int noSuchArg(StringRef arg) const;
   [[nodiscard]] static int missingArgumentForOpt(StringRef arg);
 

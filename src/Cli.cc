@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <fmt/core.h>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -166,7 +167,8 @@ Subcmd::addOpt(Opt opt) noexcept {
   return *this;
 }
 Subcmd&
-Subcmd::setMainFn(Fn<int(std::span<const StringRef>)> mainFn) noexcept {
+Subcmd::setMainFn(std::function<int(std::span<const StringRef>)> mainFn
+) noexcept {
   this->mainFn = std::move(mainFn);
   return *this;
 }
