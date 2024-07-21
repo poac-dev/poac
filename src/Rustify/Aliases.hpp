@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
@@ -33,8 +32,6 @@ using f32 = float;
 using f64 = double;
 // NOLINTEND(readability-identifier-naming)
 
-template <typename T, usize N>
-using Arr = std::array<T, N>;
 template <typename T>
 using Vec = std::vector<T>;
 

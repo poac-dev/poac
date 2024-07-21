@@ -180,6 +180,7 @@ findSimilarStr(
 
 #ifdef POAC_TEST
 
+#  include <array>
 #  include <limits>
 
 namespace tests {
@@ -226,9 +227,9 @@ testLevDistance2() {
 
 void
 testFindSimilarStr() {
-  constexpr Arr<std::string_view, 8> candidates{ "if",      "ifdef",   "ifndef",
-                                                 "elif",    "else",    "endif",
-                                                 "elifdef", "elifndef" };
+  constexpr std::array<std::string_view, 8> candidates{
+    "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
+  };
 
   assertEq(findSimilarStr("id", candidates), "if"sv);
   assertEq(findSimilarStr("ifd", candidates), "if"sv);
@@ -250,11 +251,11 @@ testFindSimilarStr() {
 
 void
 testFindSimilarStr2() {
-  constexpr Arr<std::string_view, 2> candidates{ "aaab", "aaabc" };
+  constexpr std::array<std::string_view, 2> candidates{ "aaab", "aaabc" };
   assertEq(findSimilarStr("aaaa", candidates), "aaab"sv);
   assertEq(findSimilarStr("1111111111", candidates), None);
 
-  constexpr Arr<std::string_view, 1> candidateS2{ "AAAA" };
+  constexpr std::array<std::string_view, 1> candidateS2{ "AAAA" };
   assertEq(findSimilarStr("aaaa", candidateS2), "AAAA"sv);
 
   pass();
