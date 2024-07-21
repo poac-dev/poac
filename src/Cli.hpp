@@ -8,6 +8,7 @@
 #include <iterator>
 #include <span>
 #include <string>
+#include <string_view>
 
 class Opt;
 class Arg;
@@ -21,8 +22,8 @@ template <typename Derived>
 class CliBase {
 protected:
   // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  StringRef name;
-  StringRef desc;
+  std::string_view name;
+  std::string_view desc;
   // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
 
 public:
@@ -33,8 +34,9 @@ public:
   constexpr CliBase& operator=(const CliBase&) noexcept = default;
   constexpr CliBase& operator=(CliBase&&) noexcept = default;
 
-  constexpr explicit CliBase(const StringRef name) noexcept : name(name) {}
-  constexpr Derived& setDesc(const StringRef desc) noexcept {
+  constexpr explicit CliBase(const std::string_view name) noexcept
+      : name(name) {}
+  constexpr Derived& setDesc(const std::string_view desc) noexcept {
     this->desc = desc;
     return static_cast<Derived&>(*this);
   }
@@ -44,12 +46,12 @@ template <typename Derived>
 class ShortAndHidden {
 protected:
   // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  StringRef shortName;
+  std::string_view shortName;
   bool isHidden = false;
   // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
 
 public:
-  constexpr Derived& setShort(const StringRef shortName) noexcept {
+  constexpr Derived& setShort(const std::string_view shortName) noexcept {
     this->shortName = shortName;
     return static_cast<Derived&>(*this);
   }
@@ -63,26 +65,27 @@ class Opt : public CliBase<Opt>, public ShortAndHidden<Opt> {
   friend class Subcmd;
   friend class Cli;
 
-  StringRef placeholder;
-  StringRef defaultVal;
+  std::string_view placeholder;
+  std::string_view defaultVal;
   bool isGlobal = false;
 
 public:
   using CliBase::CliBase;
 
-  friend void
-  addOptCandidates(Vec<StringRef>& candidates, const Vec<Opt>& opts) noexcept;
+  friend void addOptCandidates(
+      Vec<std::string_view>& candidates, const Vec<Opt>& opts
+  ) noexcept;
   friend usize calcOptMaxShortSize(const Vec<Opt>& opts) noexcept;
   friend usize
   calcOptMaxOffset(const Vec<Opt>& opts, usize maxShortSize) noexcept;
   friend void
   printOpts(const Vec<Opt>& opts, usize maxShortSize, usize maxOffset) noexcept;
 
-  constexpr Opt& setPlaceholder(const StringRef placeholder) noexcept {
+  constexpr Opt& setPlaceholder(const std::string_view placeholder) noexcept {
     this->placeholder = placeholder;
     return *this;
   }
-  constexpr Opt& setDefault(const StringRef defaultVal) noexcept {
+  constexpr Opt& setDefault(const std::string_view defaultVal) noexcept {
     this->defaultVal = defaultVal;
     return *this;
   }
@@ -136,11 +139,11 @@ private:
 class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
   friend class Cli;
 
-  StringRef cmdName;
+  std::string_view cmdName;
   Option<Vec<Opt>> globalOpts = None;
   Vec<Opt> localOpts;
   Arg arg;
-  std::function<int(std::span<const StringRef>)> mainFn;
+  std::function<int(std::span<const std::string_view>)> mainFn;
 
 public:
   using CliBase::CliBase;
@@ -151,16 +154,16 @@ public:
   }
 
   Subcmd& addOpt(Opt opt) noexcept;
-  Subcmd& setMainFn(std::function<int(std::span<const StringRef>)> mainFn
+  Subcmd& setMainFn(std::function<int(std::span<const std::string_view>)> mainFn
   ) noexcept;
-  [[nodiscard]] int noSuchArg(StringRef arg) const;
-  [[nodiscard]] static int missingArgumentForOpt(StringRef arg);
+  [[nodiscard]] int noSuchArg(std::string_view arg) const;
+  [[nodiscard]] static int missingArgumentForOpt(std::string_view arg);
 
 private:
   constexpr bool hasShort() const noexcept {
     return !shortName.empty();
   }
-  constexpr Subcmd& setCmdName(StringRef cmdName) noexcept {
+  constexpr Subcmd& setCmdName(std::string_view cmdName) noexcept {
     this->cmdName = cmdName;
     return *this;
   }
@@ -177,7 +180,7 @@ private:
 };
 
 class Cli : public CliBase<Cli> {
-  HashMap<StringRef, Subcmd> subcmds;
+  HashMap<std::string_view, Subcmd> subcmds;
   Vec<Opt> globalOpts;
   Vec<Opt> localOpts;
 
@@ -186,13 +189,14 @@ public:
 
   Cli& addSubcmd(const Subcmd& subcmd) noexcept;
   Cli& addOpt(Opt opt) noexcept;
-  bool hasSubcmd(StringRef subcmd) const noexcept;
+  bool hasSubcmd(std::string_view subcmd) const noexcept;
 
-  [[nodiscard]] int noSuchArg(StringRef arg) const;
+  [[nodiscard]] int noSuchArg(std::string_view arg) const;
   [[nodiscard]] int
-  exec(StringRef subcmd, std::span<const StringRef> args) const;
-  void printSubcmdHelp(StringRef subcmd) const noexcept;
-  [[nodiscard]] int printHelp(std::span<const StringRef> args) const noexcept;
+  exec(std::string_view subcmd, std::span<const std::string_view> args) const;
+  void printSubcmdHelp(std::string_view subcmd) const noexcept;
+  [[nodiscard]] int printHelp(std::span<const std::string_view> args
+  ) const noexcept;
   usize calcMaxOffset(usize maxShortSize) const noexcept;
   void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
 
@@ -204,7 +208,7 @@ public:
   // TODO: result-like types make more sense.
   [[nodiscard]] static inline Option<int> handleGlobalOpts(
       std::forward_iterator auto& itr, const std::forward_iterator auto end,
-      StringRef subcmd = ""
+      std::string_view subcmd = ""
   ) {
     if (*itr == "-h"sv || *itr == "--help"sv) {
       if (!subcmd.empty()) {

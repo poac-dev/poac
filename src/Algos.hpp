@@ -11,14 +11,15 @@
 #include <span>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 
-std::string toUpper(StringRef str) noexcept;
-std::string toMacroName(StringRef name) noexcept;
+std::string toUpper(std::string_view str) noexcept;
+std::string toMacroName(std::string_view name) noexcept;
 
-int execCmd(StringRef cmd) noexcept;
-std::string getCmdOutput(StringRef cmd, usize retry = 3);
-bool commandExists(StringRef cmd) noexcept;
+int execCmd(std::string_view cmd) noexcept;
+std::string getCmdOutput(std::string_view cmd, usize retry = 3);
+bool commandExists(std::string_view cmd) noexcept;
 
 template <typename T>
 Vec<std::string>
@@ -83,5 +84,6 @@ topoSort(
 ///
 /// \returns a similar string if exists. If no similar string exists,
 /// returns None.
-Option<StringRef>
-findSimilarStr(StringRef lhs, std::span<const StringRef> candidates);
+Option<std::string_view> findSimilarStr(
+    std::string_view lhs, std::span<const std::string_view> candidates
+);

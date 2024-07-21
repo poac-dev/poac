@@ -10,8 +10,9 @@
 #include <cstdlib>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int buildMain(std::span<const StringRef> args);
+static int buildMain(std::span<const std::string_view> args);
 
 const Subcmd BUILD_CMD =
     Subcmd{ "build" }
@@ -45,7 +46,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
 }
 
 static int
-buildMain(const std::span<const StringRef> args) {
+buildMain(const std::span<const std::string_view> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;

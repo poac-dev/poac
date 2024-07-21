@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Rustify.hpp"
-
 #include <string>
+#include <string_view>
 
 enum class ColorMode {
   Always,
@@ -11,15 +10,15 @@ enum class ColorMode {
 };
 
 void setColorMode(ColorMode mode) noexcept;
-void setColorMode(StringRef str) noexcept;
+void setColorMode(std::string_view str) noexcept;
 bool shouldColor() noexcept;
 
-std::string gray(StringRef str) noexcept;
-std::string red(StringRef str) noexcept;
-std::string green(StringRef str) noexcept;
-std::string yellow(StringRef str) noexcept;
-std::string blue(StringRef str) noexcept;
-std::string magenta(StringRef str) noexcept;
-std::string cyan(StringRef str) noexcept;
+std::string gray(std::string_view str) noexcept;
+std::string red(std::string_view str) noexcept;
+std::string green(std::string_view str) noexcept;
+std::string yellow(std::string_view str) noexcept;
+std::string blue(std::string_view str) noexcept;
+std::string magenta(std::string_view str) noexcept;
+std::string cyan(std::string_view str) noexcept;
 
-std::string bold(StringRef str) noexcept;
+std::string bold(std::string_view str) noexcept;

@@ -5,6 +5,7 @@
 
 #include <compare>
 #include <string>
+#include <string_view>
 
 struct DepMetadata {
   std::string includes; // -Isomething
@@ -53,7 +54,7 @@ public:
 };
 
 const fs::path& getManifestPath();
-Option<std::string> validatePackageName(StringRef name) noexcept;
+Option<std::string> validatePackageName(std::string_view name) noexcept;
 const std::string& getPackageName();
 const Edition& getPackageEdition();
 const Version& getPackageVersion();

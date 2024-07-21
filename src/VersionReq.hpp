@@ -19,6 +19,7 @@
 
 #include <ostream>
 #include <string>
+#include <string_view>
 
 struct OptVersion {
   u64 major{};
@@ -75,7 +76,7 @@ struct Comparator {
   Option<u64> patch;
   Prerelease pre;
 
-  static Comparator parse(StringRef str);
+  static Comparator parse(std::string_view str);
   void from(const OptVersion& ver) noexcept;
   std::string toString() const noexcept;
   std::string toPkgConfigString() const noexcept;
@@ -87,10 +88,10 @@ struct VersionReq {
   Comparator left;
   Option<Comparator> right;
 
-  static VersionReq parse(StringRef str);
+  static VersionReq parse(std::string_view str);
   bool satisfiedBy(const Version& ver) const noexcept;
   std::string toString() const noexcept;
-  std::string toPkgConfigString(StringRef name) const noexcept;
+  std::string toPkgConfigString(std::string_view name) const noexcept;
   VersionReq canonicalize() const noexcept;
   bool canSimplify() const noexcept;
 };

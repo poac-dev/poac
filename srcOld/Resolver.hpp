@@ -57,7 +57,7 @@ get_extracted_path(const resolve::Package& package) -> fs::path {
 /// Rename unknown extracted directory to easily access when building.
 [[nodiscard]] auto
 rename_extracted_directory(
-    const resolve::Package& package, StringRef extracted_directory_name
+    const resolve::Package& package, std::string_view extracted_directory_name
 ) -> Result<void> {
   const fs::path temporarily_extracted_path =
       config::default_registry_dir / extracted_directory_name;
@@ -78,7 +78,7 @@ get_archive_path(const resolve::Package& package) -> fs::path {
 }
 
 inline auto
-convert_to_download_link(StringRef repository) -> std::string {
+convert_to_download_link(std::string_view repository) -> std::string {
   // repository should be like =>
   //   https://github.com/boostorg/winapi/tree/boost-1.66.0
   // convert it to =>
@@ -98,10 +98,10 @@ convert_to_download_link(StringRef repository) -> std::string {
   // So, find the end of `tree/`.
   const usize end = repository.find('/', start);
   // Retrieve both sides: `https://github.com/tree/tree/`
-  const StringRef left = repository.substr(0, start);
+  const std::string_view left = repository.substr(0, start);
   // `/tree/v0.1.0`: this side is just a tag.
   // Mostly, we do not include `tree`, but we can.
-  StringRef right = repository.substr(end);
+  std::string_view right = repository.substr(end);
   return format("{}archive{}.tar.gz", left, right);
 }
 

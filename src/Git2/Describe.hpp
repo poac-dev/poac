@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Rustify.hpp"
 #include "Global.hpp"
 #include "Repository.hpp"
 
 #include <git2/describe.h>
 #include <string>
+#include <string_view>
 
 namespace git2 {
 
@@ -41,7 +41,7 @@ struct DescribeOptions : public GlobalState {
   /// back to showing the full id of the commit.
   DescribeOptions& showCommitOidAsFallback(bool show);
 
-  DescribeOptions& pattern(StringRef pattern);
+  DescribeOptions& pattern(std::string_view pattern);
 };
 
 struct DescribeFormatOptions : public GlobalState {
@@ -67,7 +67,7 @@ struct DescribeFormatOptions : public GlobalState {
 
   /// If the workdir is dirty and this is set, this string will be appended to
   /// the description string.
-  DescribeFormatOptions& dirtySuffix(StringRef suffix);
+  DescribeFormatOptions& dirtySuffix(std::string_view suffix);
 };
 
 struct Describe : public GlobalState {

@@ -10,8 +10,9 @@
 #include <fstream>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int initMain(std::span<const StringRef> args);
+static int initMain(std::span<const std::string_view> args);
 
 const Subcmd INIT_CMD =
     Subcmd{ "init" }
@@ -21,7 +22,7 @@ const Subcmd INIT_CMD =
         .setMainFn(initMain);
 
 static int
-initMain(const std::span<const StringRef> args) {
+initMain(const std::span<const std::string_view> args) {
   // Parse args
   bool isBin = true;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {

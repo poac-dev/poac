@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Rustify.hpp"
 #include "Global.hpp"
 #include "Oid.hpp"
 #include "Repository.hpp"
 
 #include <git2/revwalk.h>
+#include <string_view>
 
 namespace git2 {
 
@@ -59,19 +59,19 @@ struct Revwalk : public GlobalState {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& pushGlob(StringRef glob);
+  Revwalk& pushGlob(std::string_view glob);
 
   /// Push and hide the respective endpoints of the given range.
   ///
   /// The range should be of the form `<commit>..<commit>` where each
   /// `<commit>` is in the form accepted by `revparse_single`. The left-hand
   /// commit will be hidden and the right-hand commit pushed.
-  Revwalk& pushRange(StringRef range);
+  Revwalk& pushRange(std::string_view range);
 
   /// Push the OID pointed to by a reference
   ///
   /// The reference must point to a committish.
-  Revwalk& pushRef(StringRef reference);
+  Revwalk& pushRef(std::string_view reference);
 
   /// Mark a commit as not of interest to this revwalk.
   Revwalk& hide(const Oid& oid);
@@ -91,12 +91,12 @@ struct Revwalk : public GlobalState {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& hideGlob(StringRef glob);
+  Revwalk& hideGlob(std::string_view glob);
 
   /// Hide the OID pointed to by a reference.
   ///
   /// The reference must point to a committish.
-  Revwalk& hideRef(StringRef reference);
+  Revwalk& hideRef(std::string_view reference);
 };
 
 } // end namespace git2

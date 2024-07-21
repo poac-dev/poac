@@ -10,8 +10,9 @@
 #include <fstream>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int lintMain(std::span<const StringRef> args);
+static int lintMain(std::span<const std::string_view> args);
 
 const Subcmd LINT_CMD =
     Subcmd{ "lint" }
@@ -24,7 +25,7 @@ struct LintArgs {
 };
 
 static int
-lint(const StringRef name, const StringRef cpplintArgs) {
+lint(const std::string_view name, const std::string_view cpplintArgs) {
   logger::info("Linting", name);
 
   std::string cpplintCmd = "cpplint";
@@ -52,7 +53,7 @@ lint(const StringRef name, const StringRef cpplintArgs) {
 }
 
 static int
-lintMain(const std::span<const StringRef> args) {
+lintMain(const std::span<const std::string_view> args) {
   LintArgs lintArgs;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "lint")) {
@@ -82,7 +83,7 @@ lintMain(const std::span<const StringRef> args) {
   }
 
   std::string cpplintArgs = lintArgs.excludes;
-  const StringRef packageName = getPackageName();
+  const std::string_view packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     logger::debug("Using CPPLINT.cfg for lint ...");
     return lint(packageName, cpplintArgs);
@@ -98,7 +99,7 @@ lintMain(const std::span<const StringRef> args) {
   if (!cpplintFilters.empty()) {
     logger::debug("Using Poac manifest file for lint ...");
     cpplintArgs += " --filter=";
-    for (const StringRef filter : cpplintFilters) {
+    for (const std::string_view filter : cpplintFilters) {
       cpplintArgs += filter;
       cpplintArgs += ',';
     }

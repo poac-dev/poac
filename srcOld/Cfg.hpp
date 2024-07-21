@@ -5,6 +5,7 @@ module;
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 
@@ -147,7 +148,7 @@ struct Token {
   };
 
   Kind kind;
-  using StringType = StringRef;
+  using StringType = std::string_view;
   std::variant<std::monostate, StringType, ident> value;
 
   explicit Token(Kind k)
@@ -189,7 +190,7 @@ struct Token {
 };
 
 constexpr auto
-to_kind(StringRef kind) -> Token::Kind {
+to_kind(std::string_view kind) -> Token::Kind {
   if (kind == "(") {
     return Token::LeftParen;
   } else if (kind == ")") {
@@ -268,13 +269,13 @@ operator<<(std::ostream& os, const Token& token) -> std::ostream& {
 }
 
 struct Lexer {
-  using ValueType = StringRef::value_type;
+  using ValueType = std::string_view::value_type;
   using SizeType = usize;
 
-  StringRef str;
+  std::string_view str;
   SizeType index{ 0 };
 
-  explicit Lexer(StringRef str) : str(str) {}
+  explicit Lexer(std::string_view str) : str(str) {}
 
   inline auto next() -> Option<Token> {
     const auto [diff, token] = tokenize(this->index);
@@ -294,8 +295,9 @@ private:
   ) const -> std::pair<SizeType, Option<Token>> {
     return { this->diff_step(index_), token };
   }
-  [[nodiscard]] inline auto generate_token(SizeType index_, StringRef kind)
-      const -> std::pair<SizeType, Option<Token>> {
+  [[nodiscard]] inline auto generate_token(
+      SizeType index_, std::string_view kind
+  ) const -> std::pair<SizeType, Option<Token>> {
     return generate_token(index_, Token{ to_kind(kind) });
   }
 
@@ -323,7 +325,7 @@ private:
 
   [[nodiscard]] auto ident(SizeType index_) const -> std::pair<SizeType, Token>;
 
-  static auto to_ident(StringRef s) noexcept -> Option<Token::ident>;
+  static auto to_ident(std::string_view s) noexcept -> Option<Token::ident>;
 };
 
 auto
@@ -397,7 +399,7 @@ Lexer::string(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
       throw cfg::StringError(std::string(this->str) + "\n" + msg);
     }
   }
-  const StringRef s = this->str.substr(start, index_ - start);
+  const std::string_view s = this->str.substr(start, index_ - start);
   this->step(index_);
   return { this->diff_step(index_), Token{ Token::std::string, s } };
 }
@@ -416,7 +418,7 @@ Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
     this->step(index_);
   }
 
-  const StringRef s = this->str.substr(start, index_ - start);
+  const std::string_view s = this->str.substr(start, index_ - start);
   if (const auto ident = to_ident(s)) {
     return { this->diff_step(index_), Token{ Token::Ident, ident.value() } };
   } else {
@@ -430,7 +432,7 @@ Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
 }
 
 auto
-Lexer::to_ident(StringRef s) noexcept -> Option<Token::ident> {
+Lexer::to_ident(std::string_view s) noexcept -> Option<Token::ident> {
   if (s == "cfg") {
     return Token::ident::cfg;
   } else if (s == "not") {
@@ -483,9 +485,9 @@ struct Cfg {
 
   Ident key;
   Op op;
-  StringRef value;
+  std::string_view value;
 
-  Cfg(Token::ident key, Op op, StringRef value)
+  Cfg(Token::ident key, Op op, std::string_view value)
       : key(from_token_ident(key)), op(op), value(value) {}
 
   Cfg() = delete;
@@ -700,7 +702,7 @@ CfgExpr::match(const Cfg& c) -> bool {
 struct Parser {
   Lexer lexer;
 
-  explicit Parser(StringRef str) : lexer(str) {}
+  explicit Parser(std::string_view str) : lexer(str) {}
 
   auto expr() -> CfgExpr;
 
@@ -872,7 +874,7 @@ Parser::eat_right_paren() {
 }
 
 inline auto
-parse(StringRef s) -> CfgExpr {
+parse(std::string_view s) -> CfgExpr {
   return Parser(s).expr();
 }
 

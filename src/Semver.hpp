@@ -14,6 +14,7 @@
 
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 
@@ -35,10 +36,11 @@ struct VersionToken {
   using enum Kind;
 
   Kind kind;
-  std::variant<std::monostate, u64, StringRef> value;
+  std::variant<std::monostate, u64, std::string_view> value;
 
   constexpr VersionToken(
-      Kind kind, const std::variant<std::monostate, u64, StringRef>& value
+      Kind kind,
+      const std::variant<std::monostate, u64, std::string_view>& value
   ) noexcept
       : kind(kind), value(value) {}
   constexpr explicit VersionToken(Kind kind) noexcept
@@ -51,7 +53,7 @@ struct VersionToken {
 struct Prerelease {
   Vec<VersionToken> ident;
 
-  static Prerelease parse(StringRef str);
+  static Prerelease parse(std::string_view str);
   bool empty() const noexcept;
   std::string toString() const noexcept;
 };
@@ -65,7 +67,7 @@ bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 struct BuildMetadata {
   Vec<VersionToken> ident;
 
-  static BuildMetadata parse(StringRef str);
+  static BuildMetadata parse(std::string_view str);
   bool empty() const noexcept;
   std::string toString() const noexcept;
 };
@@ -77,7 +79,7 @@ struct Version {
   Prerelease pre;
   BuildMetadata build;
 
-  static Version parse(StringRef str);
+  static Version parse(std::string_view str);
   std::string toString() const noexcept;
 };
 std::ostream& operator<<(std::ostream& os, const Version& ver) noexcept;
@@ -89,10 +91,11 @@ bool operator<=(const Version& lhs, const Version& rhs) noexcept;
 bool operator>=(const Version& lhs, const Version& rhs) noexcept;
 
 struct VersionLexer {
-  StringRef s;
+  std::string_view s;
   usize pos{ 0 };
 
-  constexpr explicit VersionLexer(const StringRef str) noexcept : s(str) {}
+  constexpr explicit VersionLexer(const std::string_view str) noexcept
+      : s(str) {}
 
   constexpr bool isEof() const noexcept {
     return pos >= s.size();
@@ -110,7 +113,8 @@ struct VersionLexer {
 struct VersionParser {
   VersionLexer lexer;
 
-  constexpr explicit VersionParser(const StringRef str) noexcept : lexer(str) {}
+  constexpr explicit VersionParser(const std::string_view str) noexcept
+      : lexer(str) {}
 
   Version parse();
   u64 parseNum();

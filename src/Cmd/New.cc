@@ -16,8 +16,9 @@
 #include <iterator>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int newMain(std::span<const StringRef> args);
+static int newMain(std::span<const std::string_view> args);
 
 const Subcmd NEW_CMD = //
     Subcmd{ "new" }
@@ -27,7 +28,7 @@ const Subcmd NEW_CMD = //
         .setArg(Arg{ "name" })
         .setMainFn(newMain);
 
-static constexpr StringRef MAIN_CC =
+static constexpr std::string_view MAIN_CC =
     "#include <iostream>\n\n"
     "int main() {\n"
     "  std::cout << \"Hello, world!\" << std::endl;\n"
@@ -47,7 +48,7 @@ getAuthor() noexcept {
 }
 
 std::string
-createPoacToml(const StringRef projectName) noexcept {
+createPoacToml(const std::string_view projectName) noexcept {
   std::string poacToml =
       "[package]\n"
       "name = \"";
@@ -64,7 +65,7 @@ createPoacToml(const StringRef projectName) noexcept {
 }
 
 static std::string
-getHeader(const StringRef projectName) noexcept {
+getHeader(const std::string_view projectName) noexcept {
   const std::string projectNameUpper = toMacroName(projectName);
   std::string header = "#ifndef " + projectNameUpper + "_HPP\n"
                   "#define " + projectNameUpper + "_HPP\n\n"
@@ -78,7 +79,9 @@ getHeader(const StringRef projectName) noexcept {
 }
 
 static void
-writeToFile(std::ofstream& ofs, const fs::path& fpath, const StringRef text) {
+writeToFile(
+    std::ofstream& ofs, const fs::path& fpath, const std::string_view text
+) {
   ofs.open(fpath);
   if (ofs.is_open()) {
     ofs << text;
@@ -92,7 +95,7 @@ writeToFile(std::ofstream& ofs, const fs::path& fpath, const StringRef text) {
 }
 
 static void
-createTemplateFiles(const bool isBin, const StringRef projectName) {
+createTemplateFiles(const bool isBin, const std::string_view projectName) {
   std::ofstream ofs;
 
   if (isBin) {
@@ -122,7 +125,7 @@ createTemplateFiles(const bool isBin, const StringRef projectName) {
 }
 
 static int
-newMain(const std::span<const StringRef> args) {
+newMain(const std::span<const std::string_view> args) {
   // Parse args
   bool isBin = true;
   std::string packageName;

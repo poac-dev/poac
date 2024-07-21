@@ -7,6 +7,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 std::ostream&
 operator<<(std::ostream& os, const VersionToken& tok) noexcept {
@@ -15,7 +16,7 @@ operator<<(std::ostream& os, const VersionToken& tok) noexcept {
       os << std::get<u64>(tok.value);
       break;
     case VersionToken::Ident:
-      os << std::get<StringRef>(tok.value);
+      os << std::get<std::string_view>(tok.value);
       break;
     case VersionToken::Dot:
       os << '.';
@@ -54,7 +55,8 @@ operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
     case VersionToken::Num:
       return std::get<u64>(lhs.value) == std::get<u64>(rhs.value);
     case VersionToken::Ident:
-      return std::get<StringRef>(lhs.value) == std::get<StringRef>(rhs.value);
+      return std::get<std::string_view>(lhs.value)
+             == std::get<std::string_view>(rhs.value);
     case VersionToken::Dot:
     case VersionToken::Hyphen:
     case VersionToken::Plus:
@@ -267,7 +269,7 @@ VersionLexer::consumeIdent() noexcept {
     step();
     ++len;
   }
-  return { VersionToken::Ident, StringRef(s.data() + pos - len, len) };
+  return { VersionToken::Ident, std::string_view(s.data() + pos - len, len) };
 }
 
 VersionToken
@@ -354,7 +356,8 @@ VersionLexer::peek() {
 
 struct SemverParseError : public SemverError {
   SemverParseError(
-      const VersionLexer& lexer, const VersionToken& tok, const StringRef msg
+      const VersionLexer& lexer, const VersionToken& tok,
+      const std::string_view msg
   )
       : SemverError(
             lexer.s, '\n', std::string(lexer.pos, ' '), carets(tok), msg
@@ -461,19 +464,19 @@ VersionParser::parseIdent() {
 }
 
 Prerelease
-Prerelease::parse(const StringRef str) {
+Prerelease::parse(const std::string_view str) {
   VersionParser parser(str);
   return parser.parsePre();
 }
 
 BuildMetadata
-BuildMetadata::parse(const StringRef str) {
+BuildMetadata::parse(const std::string_view str) {
   VersionParser parser(str);
   return parser.parseBuild();
 }
 
 Version
-Version::parse(const StringRef str) {
+Version::parse(const std::string_view str) {
   VersionParser parser(str);
   return parser.parse();
 }

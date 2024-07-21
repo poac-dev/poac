@@ -7,15 +7,16 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
 
 namespace tests {
 
-inline constinit const StringRef GREEN = "\033[32m";
-inline constinit const StringRef RED = "\033[31m";
-inline constinit const StringRef RESET = "\033[0m";
+inline constinit const std::string_view GREEN = "\033[32m";
+inline constinit const std::string_view RED = "\033[31m";
+inline constinit const std::string_view RESET = "\033[0m";
 
 inline constinit const usize SRC_REL_PATH_LEN = 6; // `../../`
 
@@ -29,8 +30,8 @@ inline constinit const usize SRC_REL_PATH_LEN = 6; // `../../`
 // We first should remove `../../` if it exists, then remove the first
 // directory name since it can be either `src` or `tests`.  Finally, we remove
 // the file extension, which is basically any of C++ source file extensions.
-inline constexpr StringRef
-modName(StringRef file) noexcept {
+inline constexpr std::string_view
+modName(std::string_view file) noexcept {
   if (file.empty()) {
     return file;
   }
@@ -40,13 +41,13 @@ modName(StringRef file) noexcept {
   }
 
   usize start = file.find_first_of('/');
-  if (start == StringRef::npos) {
+  if (start == std::string_view::npos) {
     return file;
   }
   ++start;
 
   const usize end = file.find_last_of('.');
-  if (end == StringRef::npos) {
+  if (end == std::string_view::npos) {
     return file;
   }
 
@@ -74,7 +75,7 @@ error(const source_location& loc, Display auto&&... msgs) noexcept {
 
 inline void
 assertTrue(
-    const bool cond, const StringRef msg = "",
+    const bool cond, const std::string_view msg = "",
     const source_location& loc = source_location::current()
 ) noexcept {
   if (cond) {
@@ -90,7 +91,7 @@ assertTrue(
 
 inline void
 assertFalse(
-    const bool cond, const StringRef msg = "",
+    const bool cond, const std::string_view msg = "",
     const source_location& loc = source_location::current()
 ) noexcept {
   if (!cond) {
@@ -108,7 +109,7 @@ template <typename Lhs, typename Rhs>
   requires(Eq<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertEq(
-    Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
+    Lhs&& lhs, Rhs&& rhs, const std::string_view msg = "",
     const source_location& loc = source_location::current()
 ) noexcept {
   if (lhs == rhs) {
@@ -130,7 +131,7 @@ template <typename Lhs, typename Rhs>
   requires(Ne<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertNe(
-    Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
+    Lhs&& lhs, Rhs&& rhs, const std::string_view msg = "",
     const source_location& loc = source_location::current()
 ) noexcept {
   if (lhs != rhs) {
@@ -152,7 +153,7 @@ template <typename Lhs, typename Rhs>
   requires(Lt<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
 inline void
 assertLt(
-    Lhs&& lhs, Rhs&& rhs, const StringRef msg = "",
+    Lhs&& lhs, Rhs&& rhs, const std::string_view msg = "",
     const source_location& loc = source_location::current()
 ) noexcept {
   if (lhs < rhs) {
@@ -174,7 +175,7 @@ template <typename E, typename Fn>
   requires(std::is_invocable_v<Fn>)
 inline void
 assertException(
-    Fn&& func, const StringRef msg,
+    Fn&& func, const std::string_view msg,
     const source_location& loc = source_location::current()
 ) noexcept {
   try {

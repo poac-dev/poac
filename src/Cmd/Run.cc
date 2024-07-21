@@ -13,8 +13,9 @@
 #include <cstdlib>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int runMain(std::span<const StringRef> args);
+static int runMain(std::span<const std::string_view> args);
 
 const Subcmd RUN_CMD =
     Subcmd{ "run" }
@@ -30,7 +31,7 @@ const Subcmd RUN_CMD =
         .setMainFn(runMain);
 
 static int
-runMain(const std::span<const StringRef> args) {
+runMain(const std::span<const std::string_view> args) {
   // Parse args
   bool isDebug = true;
   auto itr = args.begin();

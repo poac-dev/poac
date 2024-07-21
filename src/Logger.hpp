@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iostream>
 #include <ostream>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -26,8 +27,8 @@ template <typename T>
 concept MaybeWriter = Writer<T> || Display<T>;
 
 template <typename Fn>
-concept HeadProcessor = std::is_nothrow_invocable_v<Fn, StringRef>
-                        && Display<std::invoke_result_t<Fn, StringRef>>;
+concept HeadProcessor = std::is_nothrow_invocable_v<Fn, std::string_view>
+                        && Display<std::invoke_result_t<Fn, std::string_view>>;
 
 class Logger {
   Level level = Level::Info;
@@ -56,22 +57,22 @@ public:
   static void error(MaybeWriter auto&&... msgs) noexcept {
     logln(
         Level::Error,
-        [](const StringRef head) noexcept { return bold(red(head)); },
+        [](const std::string_view head) noexcept { return bold(red(head)); },
         "Error: ", std::forward<decltype(msgs)>(msgs)...
     );
   }
   static void warn(MaybeWriter auto&&... msgs) noexcept {
     logln(
         Level::Warn,
-        [](const StringRef head) noexcept { return bold(yellow(head)); },
+        [](const std::string_view head) noexcept { return bold(yellow(head)); },
         "Warning: ", std::forward<decltype(msgs)>(msgs)...
     );
   }
   static void info(MaybeWriter auto&&... msgs) noexcept {
     logln(
         Level::Info,
-        [](const StringRef head) noexcept {
-          const StringRef fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
+        [](const std::string_view head) noexcept {
+          const std::string_view fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
           return fmt::format(fmt::runtime(fmtStr), bold(green(head)));
         },
         std::forward<decltype(msgs)>(msgs)...
@@ -90,7 +91,7 @@ public:
 
 private:
   static void debuglike(
-      Level level, const StringRef lvlStr, const StringRef func,
+      Level level, const std::string_view lvlStr, const std::string_view func,
       Writer auto&& writer, Display auto&&... msgs
   ) noexcept {
     // Swap func and writer, since for logln, writer should appear first for
@@ -101,12 +102,12 @@ private:
     );
   }
   static void debuglike(
-      Level level, const StringRef lvlStr, MaybeWriter auto&& maybeWriter,
-      Display auto&&... msgs
+      Level level, const std::string_view lvlStr,
+      MaybeWriter auto&& maybeWriter, Display auto&&... msgs
   ) noexcept {
     logln(
         level,
-        [lvlStr](const StringRef func) noexcept {
+        [lvlStr](const std::string_view func) noexcept {
           return fmt::format(
               "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
           );

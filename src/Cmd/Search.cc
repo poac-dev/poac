@@ -11,8 +11,9 @@
 #include <nlohmann/json.hpp>
 #include <span>
 #include <string>
+#include <string_view>
 
-static int searchMain(std::span<const StringRef> args);
+static int searchMain(std::span<const std::string_view> args);
 
 const Subcmd SEARCH_CMD =
     Subcmd{ "search" }
@@ -94,7 +95,7 @@ printTable(const nlohmann::json& packages) {
 }
 
 static int
-searchMain(const std::span<const StringRef> args) {
+searchMain(const std::span<const std::string_view> args) {
   SearchArgs searchArgs;
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "search")) {

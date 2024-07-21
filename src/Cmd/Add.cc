@@ -9,9 +9,10 @@
 #include <fstream>
 #include <functional>
 #include <string>
+#include <string_view>
 #include <toml.hpp>
 
-static int addMain(std::span<const StringRef> args);
+static int addMain(std::span<const std::string_view> args);
 
 const Subcmd ADD_CMD =
     Subcmd{ "add" }
@@ -37,8 +38,8 @@ const Subcmd ADD_CMD =
 
 static Option<int>
 handleNextArg(
-    std::span<const StringRef>::iterator& itr,
-    const std::span<const StringRef>::iterator& end, std::string& arg
+    std::span<const std::string_view>::iterator& itr,
+    const std::span<const std::string_view>::iterator& end, std::string& arg
 ) {
   ++itr;
   if (itr == end) {
@@ -49,7 +50,9 @@ handleNextArg(
 }
 
 static void
-handleDependency(HashSet<StringRef>& newDeps, const StringRef dep) {
+handleDependency(
+    HashSet<std::string_view>& newDeps, const std::string_view dep
+) {
   if (newDeps.contains(dep)) {
     logger::warn("The dependency `", dep, "` is already in the poac.toml");
     return;
@@ -58,7 +61,7 @@ handleDependency(HashSet<StringRef>& newDeps, const StringRef dep) {
 }
 
 static std::string
-getDependencyGitUrl(const StringRef dep) {
+getDependencyGitUrl(const std::string_view dep) {
   if (dep.find("://") == std::string::npos) {
     // check if atleast in "user/repo" format
     if (dep.find('/') == std::string::npos) {
@@ -72,7 +75,7 @@ getDependencyGitUrl(const StringRef dep) {
 }
 
 static std::string
-getDependencyName(const StringRef dep) {
+getDependencyName(const std::string_view dep) {
   std::string name;
   if (dep.find("://") == std::string::npos) {
     name = dep.substr(dep.find_last_of('/') + 1);
@@ -92,7 +95,7 @@ getDependencyName(const StringRef dep) {
 
 static int
 addDependencyToManifest(
-    const HashSet<StringRef>& newDeps, bool isSystemDependency,
+    const HashSet<std::string_view>& newDeps, bool isSystemDependency,
     std::string& version, std::string& tag, std::string& rev,
     std::string& branch
 ) {
@@ -146,13 +149,13 @@ addDependencyToManifest(
 }
 
 static int
-addMain(const std::span<const StringRef> args) {
+addMain(const std::span<const std::string_view> args) {
   if (args.empty()) {
     logger::error("No dependencies to add");
     return EXIT_FAILURE;
   }
 
-  HashSet<StringRef> newDeps = {};
+  HashSet<std::string_view> newDeps = {};
 
   bool isSystemDependency = false;
   std::string version; // Only used with system-dependencies
@@ -163,7 +166,7 @@ addMain(const std::span<const StringRef> args) {
 
   // clang-format off
   HashMap<
-    StringRef,
+    std::string_view,
     std::function<Option<int>(decltype(args)::iterator&, decltype(args)::iterator)>
   >
   handlers = {

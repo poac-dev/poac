@@ -1,11 +1,11 @@
 #include "Describe.hpp"
 
-#include "../Rustify.hpp"
 #include "Exception.hpp"
 #include "Repository.hpp"
 
 #include <git2/describe.h>
 #include <string>
+#include <string_view>
 
 namespace git2 {
 
@@ -52,7 +52,7 @@ DescribeOptions::showCommitOidAsFallback(const bool show) {
 }
 
 DescribeOptions&
-DescribeOptions::pattern(const StringRef pattern) {
+DescribeOptions::pattern(const std::string_view pattern) {
   this->raw.pattern = pattern.data();
   return *this;
 }
@@ -82,7 +82,7 @@ DescribeFormatOptions::alwaysUseLongFormat(const bool long_f) {
 }
 
 DescribeFormatOptions&
-DescribeFormatOptions::dirtySuffix(const StringRef suffix) {
+DescribeFormatOptions::dirtySuffix(const std::string_view suffix) {
   this->raw.dirty_suffix = suffix.data();
   return *this;
 }

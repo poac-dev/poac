@@ -12,9 +12,10 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <utility>
 
-static constinit const StringRef PADDING = "  ";
+static constinit const std::string_view PADDING = "  ";
 
 static void
 setOffset(const usize offset) noexcept {
@@ -23,13 +24,14 @@ setOffset(const usize offset) noexcept {
 }
 
 static void
-printHeader(const StringRef header) noexcept {
+printHeader(const std::string_view header) noexcept {
   std::cout << bold(green(header)) << '\n';
 }
 
 static void
 printUsage(
-    const StringRef name, const StringRef cmd, const StringRef usage
+    const std::string_view name, const std::string_view cmd,
+    const std::string_view usage
 ) noexcept {
   std::cout << bold(green("Usage: ")) << bold(cyan(name)) << ' ';
   if (!cmd.empty()) {
@@ -43,7 +45,9 @@ printUsage(
 }
 
 void
-addOptCandidates(Vec<StringRef>& candidates, const Vec<Opt>& opts) noexcept {
+addOptCandidates(
+    Vec<std::string_view>& candidates, const Vec<Opt>& opts
+) noexcept {
   for (const auto& opt : opts) {
     candidates.push_back(opt.name);
     if (!opt.shortName.empty()) {
@@ -167,7 +171,7 @@ Subcmd::addOpt(Opt opt) noexcept {
   return *this;
 }
 Subcmd&
-Subcmd::setMainFn(std::function<int(std::span<const StringRef>)> mainFn
+Subcmd::setMainFn(std::function<int(std::span<const std::string_view>)> mainFn
 ) noexcept {
   this->mainFn = std::move(mainFn);
   return *this;
@@ -193,8 +197,8 @@ Subcmd::getUsage() const noexcept {
 }
 
 [[nodiscard]] int
-Subcmd::noSuchArg(StringRef arg) const {
-  Vec<StringRef> candidates;
+Subcmd::noSuchArg(std::string_view arg) const {
+  Vec<std::string_view> candidates;
   if (globalOpts.has_value()) {
     addOptCandidates(candidates, globalOpts.value());
   }
@@ -214,7 +218,7 @@ Subcmd::noSuchArg(StringRef arg) const {
 }
 
 [[nodiscard]] int
-Subcmd::missingArgumentForOpt(const StringRef arg) {
+Subcmd::missingArgumentForOpt(const std::string_view arg) {
   logger::error("Missing argument for `", arg, "`");
   return EXIT_FAILURE;
 }
@@ -310,13 +314,13 @@ Cli::addOpt(Opt opt) noexcept {
 }
 
 bool
-Cli::hasSubcmd(StringRef subcmd) const noexcept {
+Cli::hasSubcmd(std::string_view subcmd) const noexcept {
   return subcmds.contains(subcmd);
 }
 
 [[nodiscard]] int
-Cli::noSuchArg(StringRef arg) const {
-  Vec<StringRef> candidates;
+Cli::noSuchArg(std::string_view arg) const {
+  Vec<std::string_view> candidates;
   for (const auto& cmd : subcmds) {
     candidates.push_back(cmd.second.name);
     if (!cmd.second.shortName.empty()) {
@@ -339,12 +343,14 @@ Cli::noSuchArg(StringRef arg) const {
 }
 
 [[nodiscard]] int
-Cli::exec(const StringRef subcmd, const std::span<const StringRef> args) const {
+Cli::exec(
+    const std::string_view subcmd, const std::span<const std::string_view> args
+) const {
   return subcmds.at(subcmd).mainFn(args);
 }
 
 void
-Cli::printSubcmdHelp(const StringRef subcmd) const noexcept {
+Cli::printSubcmdHelp(const std::string_view subcmd) const noexcept {
   subcmds.at(subcmd).printHelp();
 }
 
@@ -441,7 +447,7 @@ Cli::printCmdHelp() const noexcept {
 }
 
 [[nodiscard]] int
-Cli::printHelp(const std::span<const StringRef> args) const noexcept {
+Cli::printHelp(const std::span<const std::string_view> args) const noexcept {
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = handleGlobalOpts(itr, args.end(), "help")) {

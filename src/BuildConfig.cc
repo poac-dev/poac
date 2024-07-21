@@ -23,13 +23,14 @@
 #include <span>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/spin_mutex.h>
 #include <thread>
 
-static constinit const StringRef TEST_OUT_DIR = "tests";
-static constinit const StringRef PATH_FROM_OUT_DIR = "../../";
+static constinit const std::string_view TEST_OUT_DIR = "tests";
+static constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 static std::string OUT_DIR;
@@ -57,7 +58,7 @@ getOutDir() {
 }
 
 static Vec<fs::path>
-listSourceFilePaths(const StringRef directory) {
+listSourceFilePaths(const std::string_view directory) {
   Vec<fs::path> sourceFilePaths;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
@@ -183,11 +184,11 @@ struct BuildConfig {
 
   void emitVariable(std::ostream& os, const std::string& varName) const;
   void emitMakefile(std::ostream& os) const;
-  void emitCompdb(StringRef baseDir, std::ostream& os) const;
+  void emitCompdb(std::string_view baseDir, std::ostream& os) const;
 };
 
 static void
-emitDep(std::ostream& os, usize& offset, const StringRef dep) {
+emitDep(std::ostream& os, usize& offset, const std::string_view dep) {
   constexpr usize maxLineLen = 80;
   if (offset + dep.size() + 2 > maxLineLen) { // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
@@ -200,7 +201,7 @@ emitDep(std::ostream& os, usize& offset, const StringRef dep) {
 
 static void
 emitTarget(
-    std::ostream& os, const StringRef target,
+    std::ostream& os, const std::string_view target,
     const HashSet<std::string>& dependsOn,
     const Option<std::string>& sourceFile = None,
     const Vec<std::string>& commands = {}
@@ -213,12 +214,12 @@ emitTarget(
   if (sourceFile.has_value()) {
     emitDep(os, offset, sourceFile.value());
   }
-  for (const StringRef dep : dependsOn) {
+  for (const std::string_view dep : dependsOn) {
     emitDep(os, offset, dep);
   }
   os << '\n';
 
-  for (const StringRef cmd : commands) {
+  for (const std::string_view cmd : commands) {
     os << '\t';
     if (!cmd.starts_with('@')) {
       os << "$(Q)";
@@ -286,7 +287,8 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 }
 
 void
-BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
+BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
+    const {
   const fs::path baseDirPath = fs::canonical(baseDir);
   const std::string indent1(2, ' ');
   const std::string indent2(4, ' ');
@@ -299,7 +301,7 @@ BuildConfig::emitCompdb(const StringRef baseDir, std::ostream& os) const {
     }
 
     bool isCompileTarget = false;
-    for (const StringRef cmd : targetInfo.commands) {
+    for (const std::string_view cmd : targetInfo.commands) {
       if (!cmd.starts_with("$(CXX)") && !cmd.starts_with("@$(CXX)")) {
         continue;
       }
@@ -392,7 +394,7 @@ parseMMOutput(const std::string& mmOutput, std::string& target) {
 }
 
 static bool
-isUpToDate(const StringRef makefilePath) {
+isUpToDate(const std::string_view makefilePath) {
   if (!fs::exists(makefilePath)) {
     return false;
   }
@@ -443,7 +445,7 @@ containsTestCode(const std::string& sourceFile) {
 }
 
 static std::string
-printfCmd(const StringRef header, const StringRef body) {
+printfCmd(const std::string_view header, const std::string_view body) {
   std::ostringstream oss;
   logger::info(oss, header, body);
   std::string msg = oss.str();
@@ -513,7 +515,7 @@ mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutDir) {
 // depending header files for the source file.
 static void
 collectBinDepObjs( // NOLINT(misc-no-recursion)
-    HashSet<std::string>& deps, const StringRef sourceFileName,
+    HashSet<std::string>& deps, const std::string_view sourceFileName,
     const HashSet<std::string>& objTargetDeps,
     const HashSet<std::string>& buildObjTargets, const BuildConfig& config
 ) {
@@ -565,7 +567,7 @@ installDeps() {
 }
 
 static void
-addDefine(const StringRef name, const StringRef value) {
+addDefine(const std::string_view name, const std::string_view value) {
   DEFINES += fmt::format(" -D{}='\"{}\"'", name, value);
 }
 
@@ -586,7 +588,7 @@ setVariables(BuildConfig& config, const bool isDebug) {
   if (profile.lto) {
     CXXFLAGS += " -flto";
   }
-  for (const StringRef flag : profile.cxxflags) {
+  for (const std::string_view flag : profile.cxxflags) {
     CXXFLAGS += ' ';
     CXXFLAGS += flag;
   }
