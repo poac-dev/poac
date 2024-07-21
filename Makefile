@@ -20,20 +20,26 @@ PROJECT := $(O)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
+LIBGIT2_VERREQ := libgit2 >= 1.1.0, libgit2 < 2.0.0
+LIBCURL_VERREQ := libcurl >= 7.79.1, libcurl < 9.0.0
+NLOHMANN_JSON_VERREQ := nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0
+TBB_VERREQ := tbb >= 2021.5.0, tbb < 2022.0.0
+FMT_VERREQ := fmt >= 8.1.1, fmt < 11.0.0
+
 DEFINES := -DPOAC_PKG_VERSION='"$(VERSION)"' \
   -DPOAC_COMMIT_HASH='"$(COMMIT_HASH)"' \
   -DPOAC_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
   -DPOAC_COMMIT_DATE='"$(COMMIT_DATE)"'
 INCLUDES := -isystem $(O)/DEPS/toml11/include \
-  $(shell pkg-config --cflags 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
-  $(shell pkg-config --cflags 'libcurl >= 7.79.1, libcurl < 9.0.0') \
-  $(shell pkg-config --cflags 'nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0') \
-  $(shell pkg-config --cflags 'tbb >= 2021.5.0, tbb < 2022.0.0') \
-  $(shell pkg-config --cflags 'fmt >= 8.1.1, fmt < 11.0.0')
-LIBS := $(shell pkg-config --libs 'libgit2 >= 1.1.0, libgit2 < 2.0.0') \
-  $(shell pkg-config --libs 'libcurl >= 7.79.1, libcurl < 9.0.0') \
-  $(shell pkg-config --libs 'tbb >= 2021.5.0, tbb < 2022.0.0') \
-  $(shell pkg-config --libs 'fmt >= 8.1.1, fmt < 11.0.0')
+  $(shell pkg-config --cflags '$(LIBGIT2_VERREQ)') \
+  $(shell pkg-config --cflags '$(LIBCURL_VERREQ)') \
+  $(shell pkg-config --cflags '$(NLOHMANN_JSON_VERREQ)') \
+  $(shell pkg-config --cflags '$(TBB_VERREQ)') \
+  $(shell pkg-config --cflags '$(FMT_VERREQ)')
+LIBS := $(shell pkg-config --libs '$(LIBGIT2_VERREQ)') \
+  $(shell pkg-config --libs '$(LIBCURL_VERREQ)') \
+  $(shell pkg-config --libs '$(TBB_VERREQ)') \
+  $(shell pkg-config --libs '$(FMT_VERREQ)')
 
 SRCS := $(shell find src -name '*.cc')
 OBJS := $(patsubst src/%,$(O)/%,$(SRCS:.cc=.o))
@@ -52,7 +58,14 @@ GIT_DEPS := $(O)/DEPS/toml11
 .PHONY: all clean install test versions tidy $(TIDY_TARGETS)
 
 
-all: $(PROJECT)
+all: check_deps $(PROJECT)
+
+check_deps:
+	@pkg-config '$(LIBGIT2_VERREQ)' || (echo "Error: $(LIBGIT2_VERREQ) not found" && exit 1)
+	@pkg-config '$(LIBCURL_VERREQ)' || (echo "Error: $(LIBCURL_VERREQ) not found" && exit 1)
+	@pkg-config '$(NLOHMANN_JSON_VERREQ)' || (echo "Error: $(NLOHMANN_JSON_VERREQ) not found" && exit 1)
+	@pkg-config '$(TBB_VERREQ)' || (echo "Error: $(TBB_VERREQ) not found" && exit 1)
+	@pkg-config '$(FMT_VERREQ)' || (echo "Error: $(FMT_VERREQ) not found" && exit 1)
 
 $(PROJECT): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) $(LDFLAGS) -o $@
