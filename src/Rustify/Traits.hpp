@@ -5,6 +5,12 @@
 #include <ostream>
 #include <type_traits>
 
+inline std::ostream&
+operator<<(std::ostream& os, const std::nullopt_t&) {
+  os << "None";
+  return os;
+}
+
 template <typename T>
 std::ostream&
 operator<<(std::ostream& os, const std::optional<T>& opt) {
