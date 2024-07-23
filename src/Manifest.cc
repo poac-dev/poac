@@ -11,6 +11,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -118,7 +119,7 @@ findManifest() {
 struct GitDependency {
   std::string name;
   std::string url;
-  Option<std::string> target;
+  std::optional<std::string> target;
 
   DepMetadata install() const;
 };
@@ -158,21 +159,21 @@ struct Manifest {
     return instance;
   }
 
-  Option<fs::path> manifestPath = None;
+  std::optional<fs::path> manifestPath = std::nullopt;
 
-  Option<toml::value> data = None;
+  std::optional<toml::value> data = std::nullopt;
 
-  Option<Package> package = None;
-  Option<std::vector<std::variant<GitDependency, SystemDependency>>>
-      dependencies = None;
-  Option<std::vector<std::variant<GitDependency, SystemDependency>>>
-      devDependencies = None;
+  std::optional<Package> package = std::nullopt;
+  std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
+      dependencies = std::nullopt;
+  std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
+      devDependencies = std::nullopt;
 
-  Option<Profile> profile = None;
-  Option<Profile> devProfile = None;
-  Option<Profile> releaseProfile = None;
+  std::optional<Profile> profile = std::nullopt;
+  std::optional<Profile> devProfile = std::nullopt;
+  std::optional<Profile> releaseProfile = std::nullopt;
 
-  Option<std::vector<std::string>> cpplintFilters = None;
+  std::optional<std::vector<std::string>> cpplintFilters = std::nullopt;
 
 private:
   Manifest() noexcept = default;
@@ -199,7 +200,7 @@ getManifestPath() {
 }
 
 // Returns an error message if the package name is invalid.
-Option<std::string> // TODO: result-like types make more sense.
+std::optional<std::string> // TODO: result-like types make more sense.
 validatePackageName(const std::string_view name) noexcept {
   // Empty
   if (name.empty()) {
@@ -237,7 +238,7 @@ validatePackageName(const std::string_view name) noexcept {
     return "must not be a C++ keyword";
   }
 
-  return None;
+  return std::nullopt;
 }
 
 static Package&
@@ -324,7 +325,7 @@ parseProfile(const toml::table& table) {
 }
 
 static Profile
-getProfile(Option<std::string> profileName) {
+getProfile(std::optional<std::string> profileName) {
   Manifest& manifest = Manifest::instance();
   if (!manifest.data.value().contains("profile")) {
     return {};
@@ -357,7 +358,7 @@ getBaseProfile() {
     return manifest.profile.value();
   }
 
-  const Profile baseProfile = getProfile(None);
+  const Profile baseProfile = getProfile(std::nullopt);
   manifest.profile = baseProfile;
   return manifest.profile.value();
 }
@@ -507,7 +508,7 @@ static GitDependency
 parseGitDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
   std::string gitUrlStr;
-  Option<std::string> target = None;
+  std::optional<std::string> target = std::nullopt;
 
   const auto& gitUrl = info.at("git");
   if (gitUrl.is_string()) {
@@ -539,13 +540,13 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   return { name, VersionReq::parse(versionReq) };
 }
 
-static Option<std::vector<std::variant<GitDependency, SystemDependency>>>
+static std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
 parseDependencies(const char* key) {
   Manifest& manifest = Manifest::instance();
   const auto& table = toml::get<toml::table>(manifest.data.value());
   if (!table.contains(key)) {
     logger::debug("[dependencies] not found");
-    return None;
+    return std::nullopt;
   }
   const auto tomlDeps = toml::find<toml::table>(manifest.data.value(), key);
 

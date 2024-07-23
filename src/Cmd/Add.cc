@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <functional>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <toml.hpp>
@@ -36,7 +37,7 @@ const Subcmd ADD_CMD =
                     .setPlaceholder("<BRANCH_NAME>"))
         .setMainFn(addMain);
 
-static Option<int>
+static std::optional<int>
 handleNextArg(
     std::span<const std::string_view>::iterator& itr,
     const std::span<const std::string_view>::iterator& end, std::string& arg
@@ -46,7 +47,7 @@ handleNextArg(
     return Subcmd::missingArgumentForOpt(*--itr);
   }
   arg = std::string(*itr);
-  return None;
+  return std::nullopt;
 }
 
 static void
@@ -167,13 +168,13 @@ addMain(const std::span<const std::string_view> args) {
   // clang-format off
   HashMap<
     std::string_view,
-    std::function<Option<int>(decltype(args)::iterator&, decltype(args)::iterator)>
+    std::function<std::optional<int>(decltype(args)::iterator&, decltype(args)::iterator)>
   >
   handlers = {
     {
       "--sys", [&](auto&, auto) {
         isSystemDependency = true;
-        return None;
+        return std::nullopt;
       }
     },
     {

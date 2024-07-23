@@ -333,17 +333,17 @@ get_resolved_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
 
 // If lockfile is not outdated, read it.
 [[nodiscard]] auto
-try_to_read_lockfile() -> Result<Option<ResolvedDeps>> {
+try_to_read_lockfile() -> Result<std::optional<ResolvedDeps>> {
   if (!data::lockfile::is_outdated(config::cwd)) {
     return data::lockfile::read(config::cwd);
   } else {
-    return Ok(None);
+    return Ok(std::nullopt);
   }
 }
 
 [[nodiscard]] auto
 resolve_deps(const toml::value& manifest) -> Result<ResolvedDeps> {
-  const Option<ResolvedDeps> locked_deps = Try(try_to_read_lockfile());
+  const std::optional<ResolvedDeps> locked_deps = Try(try_to_read_lockfile());
   if (locked_deps.has_value()) {
     // Lockfile exists and is not outdated.
     return Ok(locked_deps.value());

@@ -314,7 +314,7 @@ gather_deps(
   const UniqDeps<WithoutDeps> deps_api_res =
       util::net::api::deps(package.name, package.dep_info.version_rq).unwrap();
   if (deps_api_res.empty()) {
-    new_deps.emplace_back(package, None);
+    new_deps.emplace_back(package, std::nullopt);
   } else {
     const DupDeps<WithoutDeps> deps_of_deps =
         gather_deps_of_deps(deps_api_res, interval_cache);
@@ -341,7 +341,7 @@ gather_all_deps(const UniqDeps<WithoutDeps>& deps
 
     // We don't resolve deps of conan packages, this is defer to conan itself
     if (poac::util::registry::conan::v1::resolver::is_conan(package)) {
-      duplicate_deps.emplace_back(package, None);
+      duplicate_deps.emplace_back(package, std::nullopt);
       continue;
     }
 

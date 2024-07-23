@@ -136,7 +136,8 @@ convert_to_deps(const Lockfile& lock
 ) -> resolver::UniqDeps<resolver::WithDeps> {
   resolver::UniqDeps<resolver::WithDeps> deps;
   for (const auto& package : lock.package) {
-    resolver::UniqDeps<resolver::WithDeps>::mapped_type inner_deps = None;
+    resolver::UniqDeps<resolver::WithDeps>::mapped_type inner_deps =
+        std::nullopt;
     if (!package.dependencies.empty()) {
       // When serializing lockfile, package version of inner dependencies
       // will be dropped (ref: `convert_to_lock` function).
@@ -156,9 +157,9 @@ convert_to_deps(const Lockfile& lock
 
 [[nodiscard]] auto
 read(const fs::path& base_dir
-) -> Result<Option<resolver::UniqDeps<resolver::WithDeps>>> {
+) -> Result<std::optional<resolver::UniqDeps<resolver::WithDeps>>> {
   if (!fs::exists(base_dir / LOCKFILE_NAME)) {
-    return Ok(None);
+    return Ok(std::nullopt);
   }
 
   try {
