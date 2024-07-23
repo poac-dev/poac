@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Rustify.hpp"
-
 #include <string>
+#include <unordered_set>
 
 // clang-format off
-inline const HashSet<std::string> SOURCE_FILE_EXTS{
+inline const std::unordered_set<std::string> SOURCE_FILE_EXTS{
   ".c", ".c++", ".cc", ".cpp", ".cxx"
 };
-inline const HashSet<std::string> HEADER_FILE_EXTS{
+inline const std::unordered_set<std::string> HEADER_FILE_EXTS{
   ".h", ".h++", ".hh", ".hpp", ".hxx"
 };
 // clang-format on

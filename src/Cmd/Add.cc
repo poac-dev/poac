@@ -13,6 +13,7 @@
 #include <string_view>
 #include <toml.hpp>
 #include <unordered_map>
+#include <unordered_set>
 
 static int addMain(std::span<const std::string_view> args);
 
@@ -53,7 +54,7 @@ handleNextArg(
 
 static void
 handleDependency(
-    HashSet<std::string_view>& newDeps, const std::string_view dep
+    std::unordered_set<std::string_view>& newDeps, const std::string_view dep
 ) {
   if (newDeps.contains(dep)) {
     logger::warn("The dependency `", dep, "` is already in the poac.toml");
@@ -97,9 +98,9 @@ getDependencyName(const std::string_view dep) {
 
 static int
 addDependencyToManifest(
-    const HashSet<std::string_view>& newDeps, bool isSystemDependency,
-    std::string& version, std::string& tag, std::string& rev,
-    std::string& branch
+    const std::unordered_set<std::string_view>& newDeps,
+    bool isSystemDependency, std::string& version, std::string& tag,
+    std::string& rev, std::string& branch
 ) {
   toml::value depData = toml::table{};
 
@@ -157,7 +158,7 @@ addMain(const std::span<const std::string_view> args) {
     return EXIT_FAILURE;
   }
 
-  HashSet<std::string_view> newDeps = {};
+  std::unordered_set<std::string_view> newDeps = {};
 
   bool isSystemDependency = false;
   std::string version; // Only used with system-dependencies

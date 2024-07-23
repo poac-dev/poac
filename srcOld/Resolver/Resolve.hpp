@@ -254,7 +254,7 @@ hash_value(const Cache& i) -> usize {
   return seed;
 }
 
-using IntervalCache = HashSet<Cache>;
+using IntervalCache = std::unordered_set<Cache>;
 
 inline auto
 cache_exists(const IntervalCache& cache, const Package& package) -> bool {
