@@ -29,6 +29,7 @@
 #include <tbb/parallel_for.h>
 #include <tbb/spin_mutex.h>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -98,10 +99,10 @@ struct BuildConfig {
   std::string packageName;
   fs::path buildOutDir;
 
-  HashMap<std::string, Variable> variables;
-  HashMap<std::string, std::vector<std::string>> varDeps;
-  HashMap<std::string, Target> targets;
-  HashMap<std::string, std::vector<std::string>> targetDeps;
+  std::unordered_map<std::string, Variable> variables;
+  std::unordered_map<std::string, std::vector<std::string>> varDeps;
+  std::unordered_map<std::string, Target> targets;
+  std::unordered_map<std::string, std::vector<std::string>> targetDeps;
   std::optional<HashSet<std::string>> phony;
   std::optional<HashSet<std::string>> all;
 

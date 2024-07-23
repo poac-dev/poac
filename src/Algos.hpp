@@ -13,6 +13,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -26,10 +27,10 @@ bool commandExists(std::string_view cmd) noexcept;
 template <typename T>
 std::vector<std::string>
 topoSort(
-    const HashMap<std::string, T>& list,
-    const HashMap<std::string, std::vector<std::string>>& adjList
+    const std::unordered_map<std::string, T>& list,
+    const std::unordered_map<std::string, std::vector<std::string>>& adjList
 ) {
-  HashMap<std::string, u32> inDegree;
+  std::unordered_map<std::string, u32> inDegree;
   for (const auto& var : list) {
     inDegree[var.first] = 0;
   }

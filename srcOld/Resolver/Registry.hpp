@@ -31,6 +31,6 @@ hash_value(const Registry& r) -> usize {
   return seed;
 }
 
-using Registries = HashMap<std::string, Registry>;
+using Registries = std::unordered_map<std::string, Registry>;
 
 } // namespace poac::core::resolver::registry
