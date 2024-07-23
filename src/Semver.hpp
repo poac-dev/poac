@@ -17,6 +17,7 @@
 #include <string_view>
 #include <utility>
 #include <variant>
+#include <vector>
 
 struct SemverError : public PoacError {
   explicit SemverError(auto&&... args)
@@ -51,7 +52,7 @@ struct VersionToken {
 };
 
 struct Prerelease {
-  Vec<VersionToken> ident;
+  std::vector<VersionToken> ident;
 
   static Prerelease parse(std::string_view str);
   bool empty() const noexcept;
@@ -65,7 +66,7 @@ bool operator<=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 
 struct BuildMetadata {
-  Vec<VersionToken> ident;
+  std::vector<VersionToken> ident;
 
   static BuildMetadata parse(std::string_view str);
   bool empty() const noexcept;

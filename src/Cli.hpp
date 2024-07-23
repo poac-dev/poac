@@ -9,6 +9,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 class Opt;
 class Arg;
@@ -73,13 +74,14 @@ public:
   using CliBase::CliBase;
 
   friend void addOptCandidates(
-      Vec<std::string_view>& candidates, const Vec<Opt>& opts
+      std::vector<std::string_view>& candidates, const std::vector<Opt>& opts
   ) noexcept;
-  friend usize calcOptMaxShortSize(const Vec<Opt>& opts) noexcept;
+  friend usize calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept;
   friend usize
-  calcOptMaxOffset(const Vec<Opt>& opts, usize maxShortSize) noexcept;
-  friend void
-  printOpts(const Vec<Opt>& opts, usize maxShortSize, usize maxOffset) noexcept;
+  calcOptMaxOffset(const std::vector<Opt>& opts, usize maxShortSize) noexcept;
+  friend void printOpts(
+      const std::vector<Opt>& opts, usize maxShortSize, usize maxOffset
+  ) noexcept;
 
   constexpr Opt& setPlaceholder(const std::string_view placeholder) noexcept {
     this->placeholder = placeholder;
@@ -140,8 +142,8 @@ class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
   friend class Cli;
 
   std::string_view cmdName;
-  Option<Vec<Opt>> globalOpts = None;
-  Vec<Opt> localOpts;
+  Option<std::vector<Opt>> globalOpts = None;
+  std::vector<Opt> localOpts;
   Arg arg;
   std::function<int(std::span<const std::string_view>)> mainFn;
 
@@ -168,7 +170,7 @@ private:
     return *this;
   }
 
-  Subcmd& setGlobalOpts(const Vec<Opt>& globalOpts) noexcept;
+  Subcmd& setGlobalOpts(const std::vector<Opt>& globalOpts) noexcept;
   std::string getUsage() const noexcept;
   void printHelp() const noexcept;
   void print(usize maxOffset) const noexcept;
@@ -181,8 +183,8 @@ private:
 
 class Cli : public CliBase<Cli> {
   HashMap<std::string_view, Subcmd> subcmds;
-  Vec<Opt> globalOpts;
-  Vec<Opt> localOpts;
+  std::vector<Opt> globalOpts;
+  std::vector<Opt> localOpts;
 
 public:
   using CliBase::CliBase;

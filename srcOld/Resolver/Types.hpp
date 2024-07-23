@@ -81,14 +81,14 @@ hash_value(const Package& p) -> usize {
 
 template <>
 struct DuplicateDeps<WithoutDeps> {
-  using Type = Vec<Package>;
+  using Type = std::vector<Package>;
 };
 
 using Deps = Option<DupDeps<WithoutDeps>>;
 
 template <>
 struct DuplicateDeps<WithDeps> {
-  using Type = Vec<std::pair<Package, Deps>>;
+  using Type = std::vector<std::pair<Package, Deps>>;
 };
 
 template <typename W>

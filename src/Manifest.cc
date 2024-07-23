@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <variant>
+#include <vector>
 
 #define TOML11_NO_ERROR_PREFIX
 #include <toml.hpp>
@@ -162,16 +163,16 @@ struct Manifest {
   Option<toml::value> data = None;
 
   Option<Package> package = None;
-  Option<Vec<std::variant<GitDependency, SystemDependency>>> dependencies =
-      None;
-  Option<Vec<std::variant<GitDependency, SystemDependency>>> devDependencies =
-      None;
+  Option<std::vector<std::variant<GitDependency, SystemDependency>>>
+      dependencies = None;
+  Option<std::vector<std::variant<GitDependency, SystemDependency>>>
+      devDependencies = None;
 
   Option<Profile> profile = None;
   Option<Profile> devProfile = None;
   Option<Profile> releaseProfile = None;
 
-  Option<Vec<std::string>> cpplintFilters = None;
+  Option<std::vector<std::string>> cpplintFilters = None;
 
 private:
   Manifest() noexcept = default;
@@ -399,7 +400,7 @@ getReleaseProfile() {
   return manifest.releaseProfile.value();
 }
 
-const Vec<std::string>&
+const std::vector<std::string>&
 getLintCpplintFilters() {
   Manifest& manifest = Manifest::instance();
   if (manifest.cpplintFilters.has_value()) {
@@ -407,12 +408,12 @@ getLintCpplintFilters() {
   }
 
   const auto& table = toml::get<toml::table>(*manifest.data);
-  Vec<std::string> filters;
+  std::vector<std::string> filters;
   if (!table.contains("lint")) {
     filters = {};
   } else {
-    filters = toml::find_or<Vec<std::string>>(
-        *manifest.data, "lint", "cpplint", "filters", Vec<std::string>{}
+    filters = toml::find_or<std::vector<std::string>>(
+        *manifest.data, "lint", "cpplint", "filters", std::vector<std::string>{}
     );
   }
   manifest.cpplintFilters = filters;
@@ -538,7 +539,7 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   return { name, VersionReq::parse(versionReq) };
 }
 
-static Option<Vec<std::variant<GitDependency, SystemDependency>>>
+static Option<std::vector<std::variant<GitDependency, SystemDependency>>>
 parseDependencies(const char* key) {
   Manifest& manifest = Manifest::instance();
   const auto& table = toml::get<toml::table>(manifest.data.value());
@@ -548,7 +549,7 @@ parseDependencies(const char* key) {
   }
   const auto tomlDeps = toml::find<toml::table>(manifest.data.value(), key);
 
-  Vec<std::variant<GitDependency, SystemDependency>> deps;
+  std::vector<std::variant<GitDependency, SystemDependency>> deps;
   for (const auto& dep : tomlDeps) {
     if (dep.second.is_table()) {
       const auto& info = dep.second.as_table();
@@ -623,7 +624,7 @@ SystemDependency::install() const {
   return { cflags, libs };
 }
 
-Vec<DepMetadata>
+std::vector<DepMetadata>
 installDependencies(const bool includeDevDeps) {
   Manifest& manifest = Manifest::instance();
   if (!manifest.dependencies.has_value()) {
@@ -633,7 +634,7 @@ installDependencies(const bool includeDevDeps) {
     manifest.devDependencies = parseDependencies("dev-dependencies");
   }
 
-  Vec<DepMetadata> installed;
+  std::vector<DepMetadata> installed;
   if (manifest.dependencies.has_value()) {
     for (const auto& dep : manifest.dependencies.value()) {
       std::visit(

@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 static constinit const std::string_view PADDING = "  ";
 
@@ -46,7 +47,7 @@ printUsage(
 
 void
 addOptCandidates(
-    Vec<std::string_view>& candidates, const Vec<Opt>& opts
+    std::vector<std::string_view>& candidates, const std::vector<Opt>& opts
 ) noexcept {
   for (const auto& opt : opts) {
     candidates.push_back(opt.name);
@@ -57,7 +58,7 @@ addOptCandidates(
 }
 
 usize
-calcOptMaxShortSize(const Vec<Opt>& opts) noexcept {
+calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept {
   usize maxShortSize = 0;
   for (const auto& opt : opts) {
     if (opt.isHidden) {
@@ -70,7 +71,9 @@ calcOptMaxShortSize(const Vec<Opt>& opts) noexcept {
 }
 
 usize
-calcOptMaxOffset(const Vec<Opt>& opts, const usize maxShortSize) noexcept {
+calcOptMaxOffset(
+    const std::vector<Opt>& opts, const usize maxShortSize
+) noexcept {
   usize maxOffset = 0;
   for (const auto& opt : opts) {
     if (opt.isHidden) {
@@ -84,7 +87,8 @@ calcOptMaxOffset(const Vec<Opt>& opts, const usize maxShortSize) noexcept {
 
 void
 printOpts(
-    const Vec<Opt>& opts, const usize maxShortSize, const usize maxOffset
+    const std::vector<Opt>& opts, const usize maxShortSize,
+    const usize maxOffset
 ) noexcept {
   for (const auto& opt : opts) {
     if (opt.isHidden) {
@@ -177,7 +181,7 @@ Subcmd::setMainFn(std::function<int(std::span<const std::string_view>)> mainFn
   return *this;
 }
 Subcmd&
-Subcmd::setGlobalOpts(const Vec<Opt>& globalOpts) noexcept {
+Subcmd::setGlobalOpts(const std::vector<Opt>& globalOpts) noexcept {
   this->globalOpts = globalOpts;
   return *this;
 }
@@ -198,7 +202,7 @@ Subcmd::getUsage() const noexcept {
 
 [[nodiscard]] int
 Subcmd::noSuchArg(std::string_view arg) const {
-  Vec<std::string_view> candidates;
+  std::vector<std::string_view> candidates;
   if (globalOpts.has_value()) {
     addOptCandidates(candidates, globalOpts.value());
   }
@@ -320,7 +324,7 @@ Cli::hasSubcmd(std::string_view subcmd) const noexcept {
 
 [[nodiscard]] int
 Cli::noSuchArg(std::string_view arg) const {
-  Vec<std::string_view> candidates;
+  std::vector<std::string_view> candidates;
   for (const auto& cmd : subcmds) {
     candidates.push_back(cmd.second.name);
     if (!cmd.second.shortName.empty()) {

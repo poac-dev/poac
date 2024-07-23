@@ -512,7 +512,7 @@ struct CfgExpr {
 
   using NullType = std::monostate;
   using ExprType = std::unique_ptr<CfgExpr>;
-  using ExprListType = Vec<CfgExpr>;
+  using ExprListType = std::vector<CfgExpr>;
   using VariantType = std::variant<NullType, ExprType, ExprListType, Cfg>;
 
   Kind kind;
@@ -730,7 +730,7 @@ Parser::expr() -> CfgExpr {
         || token->get_ident() == Token::ident::any) {
       this->lexer.next();
       this->eat_left_paren(token->get_ident());
-      Vec<CfgExpr> e;
+      std::vector<CfgExpr> e;
       do { // `all` and `any` need at least one expression.
         e.emplace_back(this->expr());
         if (!this->r_try(Token::Comma)) {

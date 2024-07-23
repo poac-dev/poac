@@ -25,7 +25,7 @@ inline constexpr i32 HASH_SIZE = 65;
 
 // ref: https://stackoverflow.com/a/2458382
 auto
-hash_string(const Vec<unsigned char>& hash) -> std::string {
+hash_string(const std::vector<unsigned char>& hash) -> std::string {
   std::string output;
   for (const unsigned char h : hash) {
     // ref: https://stackoverflow.com/a/64311447
@@ -42,8 +42,8 @@ sum(const fs::path& path) -> Result<std::string> {
     return Err<FailedToReadFile>(path.string());
   }
 
-  Vec<char> buffer(BUF_SIZE);
-  Vec<unsigned char> hash(SHA256_DIGEST_LENGTH);
+  std::vector<char> buffer(BUF_SIZE);
+  std::vector<unsigned char> hash(SHA256_DIGEST_LENGTH);
   EVP_MD_CTX* ctx = EVP_MD_CTX_create();
   if (ctx == nullptr) {
     return Err<FailedToCreateSha256Digest>();

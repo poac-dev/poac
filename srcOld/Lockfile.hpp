@@ -56,12 +56,12 @@ inline constexpr i64 LOCKFILE_VERSION = 1;
 struct Package {
   std::string name;
   std::string version;
-  Vec<std::string> dependencies;
+  std::vector<std::string> dependencies;
 };
 
 struct Lockfile {
   i64 version = LOCKFILE_VERSION;
-  Vec<Package> package;
+  std::vector<Package> package;
 };
 
 // clang-format off
@@ -85,7 +85,7 @@ export namespace poac::data::lockfile::inline v1 {
 [[nodiscard]] auto
 convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps
 ) -> Result<toml::basic_value<toml::preserve_comments>> {
-  Vec<Package> packages;
+  std::vector<Package> packages;
   for (const auto& [pack, inner_deps] : deps) {
     if (pack.dep_info.type != "poac") {
       continue;
@@ -93,11 +93,11 @@ convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps
     Package p{
       pack.name,
       pack.dep_info.version_rq,
-      Vec<std::string>{},
+      std::vector<std::string>{},
     };
     if (inner_deps.has_value()) {
       // Extract name from inner dependencies and drop version.
-      Vec<std::string> ideps;
+      std::vector<std::string> ideps;
       for (const auto& [name, _v] : inner_deps.value()) {
         static_cast<void>(_v);
         ideps.emplace_back(name);

@@ -50,7 +50,8 @@ to_binary_numbers(const i32& x, const usize& digit) -> std::string {
 // ¬A ∨ ¬B ∨ C
 // ¬A ∨ ¬B ∨ ¬C
 auto
-multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
+multiple_versions_cnf(const std::vector<i32>& clause
+) -> std::vector<std::vector<i32>> {
   return boost::irange(0, 1 << clause.size()) // number of combinations
          | boost::adaptors::transformed([&clause](const i32 i) {
              return boost::dynamic_bitset<>(to_binary_numbers(i, clause.size())
@@ -60,7 +61,7 @@ multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
              return bs.count() != 1;
            })
          | boost::adaptors::transformed(
-             [&clause](const boost::dynamic_bitset<>& bs) -> Vec<i32> {
+             [&clause](const boost::dynamic_bitset<>& bs) -> std::vector<i32> {
                return boost::irange(usize{ 0 }, bs.size())
                       | boost::adaptors::transformed([&clause,
                                                       &bs](const i32 i) {
@@ -73,9 +74,10 @@ multiple_versions_cnf(const Vec<i32>& clause) -> Vec<Vec<i32>> {
 }
 
 auto
-create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
-  Vec<Vec<i32>> clauses;
-  Vec<i32> already_added;
+create_cnf(const DupDeps<WithDeps>& activated
+) -> std::vector<std::vector<i32>> {
+  std::vector<std::vector<i32>> clauses;
+  std::vector<i32> already_added;
 
   auto first = std::cbegin(activated);
   auto last = std::cend(activated);
@@ -90,7 +92,7 @@ create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
     // No other packages with the same name as the package currently pointed to
     // exist
     if (const i64 count = std::count_if(first, last, name_lambda); count == 1) {
-      Vec<i32> clause;
+      std::vector<i32> clause;
       clause.emplace_back(i + 1);
       clauses.emplace_back(clause);
 
@@ -113,7 +115,7 @@ create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
         clauses.emplace_back(clause);
       }
     } else if (count > 1) {
-      Vec<i32> clause;
+      std::vector<i32> clause;
 
       for (auto found = first; found != last;
            found = std::find_if(found, last, name_lambda)) {
@@ -123,7 +125,7 @@ create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
 
         // index ⇒ deps
         if (!found->second.has_value()) {
-          Vec<i32> new_clause;
+          std::vector<i32> new_clause;
           new_clause.emplace_back(index);
           for (const Package& package : found->second.value()) {
             // It is guaranteed to exist
@@ -149,10 +151,13 @@ create_cnf(const DupDeps<WithDeps>& activated) -> Vec<Vec<i32>> {
 }
 
 [[nodiscard]] auto
-solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
-    -> Result<UniqDeps<WithDeps>, std::string> {
+solve_sat(
+    const DupDeps<WithDeps>& activated,
+    const std::vector<std::vector<i32>>& clauses
+) -> Result<UniqDeps<WithDeps>, std::string> {
   // deps.activated.size() == variables
-  const Vec<i32> assignments = Try(sat::solve(clauses, activated.size()));
+  const std::vector<i32> assignments =
+      Try(sat::solve(clauses, activated.size()));
   UniqDeps<WithDeps> resolved_deps{};
   log::debug("SAT");
   for (i32 a : assignments) {
@@ -169,9 +174,9 @@ solve_sat(const DupDeps<WithDeps>& activated, const Vec<Vec<i32>>& clauses)
 [[nodiscard]] auto
 backtrack_loop(const DupDeps<WithDeps>& activated
 ) -> Result<UniqDeps<WithDeps>, std::string> {
-  const Vec<Vec<i32>> clauses = create_cnf(activated);
+  const std::vector<std::vector<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
-    for (const Vec<i32>& c : clauses) {
+    for (const std::vector<i32>& c : clauses) {
       for (i32 l : c) {
         const auto& deps = activated[std::abs(l) - 1];
         const Package package = get_package(deps);
@@ -208,11 +213,11 @@ duplicate_loose(const SinglePassRange& rng) -> bool {
 // name is boost/config, no boost-config
 [[nodiscard]] auto
 get_versions_satisfy_interval(const Package& package
-) -> Result<Vec<std::string>, std::string> {
+) -> Result<std::vector<std::string>, std::string> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(package.dep_info.version_rq);
-  const Vec<std::string> satisfied_versions =
+  const std::vector<std::string> satisfied_versions =
       Try(util::net::api::versions(package.name))
       | boost::adaptors::filtered([&i](std::string_view s) {
           return i.satisfies(s);
@@ -233,7 +238,7 @@ struct Cache {
   Package package;
 
   /// versions in the interval
-  Vec<std::string> versions;
+  std::vector<std::string> versions;
 };
 
 inline auto
@@ -279,7 +284,7 @@ gather_deps_of_deps(
           return package == cache.package;
         });
 
-    const Vec<std::string> dep_versions =
+    const std::vector<std::string> dep_versions =
         found_cache != interval_cache.cend()
             ? found_cache->versions
             : get_versions_satisfy_interval(package).unwrap();
@@ -350,7 +355,7 @@ gather_all_deps(const UniqDeps<WithoutDeps>& deps
 
     // Get versions using interval
     // FIXME: versions API and deps API are received the almost same responses
-    const Vec<std::string> versions =
+    const std::vector<std::string> versions =
         Try(get_versions_satisfy_interval(package));
     // Cache interval and versions pair
     interval_cache.emplace(Cache{ package, versions });

@@ -11,6 +11,7 @@
 #include <string_view>
 #include <thread>
 #include <utility>
+#include <vector>
 
 std::string
 toUpper(const std::string_view str) noexcept {
@@ -103,7 +104,9 @@ levDistance(const std::string_view lhs, const std::string_view rhs) {
 
   // for all i and j, d[i,j] will hold the Levenshtein distance between the
   // first i characters of s and the first j characters of t
-  Vec<Vec<usize>> dist(lhsSize + 1, Vec<usize>(rhsSize + 1));
+  std::vector<std::vector<usize>> dist(
+      lhsSize + 1, std::vector<usize>(rhsSize + 1)
+  );
   dist[0][0] = 0;
 
   // source prefixes can be transformed into empty string by dropping all
