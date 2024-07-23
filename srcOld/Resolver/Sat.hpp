@@ -27,8 +27,8 @@ enum class Status {
 };
 
 auto
-to_assignments(const Vec<i32>& literals) -> Vec<i32> {
-  Vec<i32> assignments;
+to_assignments(const std::vector<i32>& literals) -> std::vector<i32> {
+  std::vector<i32> assignments;
   for (auto&& l : literals | boost::adaptors::indexed()) {
     const i32 literal = l.index() + 1;
     if (l.value() != -1) {
@@ -69,7 +69,8 @@ literal_to_index(i32 l) -> i32 {
 // function, so the index of the variable with the highest number of variables
 // is returned from the variables in the current clauses.
 auto
-maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
+maximum_literal_number_index(const std::vector<std::vector<i32>>& clauses
+) -> i32 {
   Map<i32, i32> frequency;
   for (const auto& clause : clauses) {
     for (const auto& literal : clause) {
@@ -89,8 +90,9 @@ maximum_literal_number_index(const Vec<Vec<i32>>& clauses) -> i32 {
 // Delete variables from the clauses for which variable assignment has been
 // determined.
 auto
-delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val)
-    -> Status {
+delete_set_literal(
+    std::vector<std::vector<i32>>& clauses, const i32& index, const i32& set_val
+) -> Status {
   for (auto itr1 = clauses.begin(); itr1 != clauses.end(); ++itr1) {
     for (auto itr2 = itr1->begin(); itr2 != itr1->end(); ++itr2) {
       // set_val -> unassigned(-1) -> always false
@@ -121,7 +123,9 @@ delete_set_literal(Vec<Vec<i32>>& clauses, const i32& index, const i32& set_val)
 
 // unit resolution
 auto
-unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
+unit_propagate(
+    std::vector<std::vector<i32>>& clauses, std::vector<i32>& literals
+) -> Status {
   bool unit_clause_found = true;
   while (unit_clause_found) {
     unit_clause_found = false;
@@ -153,8 +157,8 @@ unit_propagate(Vec<Vec<i32>>& clauses, Vec<i32>& literals) -> Status {
 
 // recursive DPLL algorithm
 [[nodiscard]] auto
-dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals)
-    -> Result<Vec<i32>, std::string> {
+dpll(std::vector<std::vector<i32>>& clauses, std::vector<i32>& literals)
+    -> Result<std::vector<i32>, std::string> {
   // NOLINTNEXTLINE(bugprone-branch-clone)
   if (clauses.empty()) {
     return Ok(to_assignments(literals));
@@ -173,7 +177,7 @@ dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals)
   // need to apply twice, once true, the other false
   for (i32 j = 0; j < 2; ++j) {
     // copy the formula before recursive circulation
-    Vec<i32> new_literals = literals;
+    std::vector<i32> new_literals = literals;
 
     // if the number of literals with positive polarity are greater
     // cond ? positive : negative
@@ -201,12 +205,12 @@ dpll(Vec<Vec<i32>>& clauses, Vec<i32>& literals)
 }
 
 [[nodiscard]] inline auto
-solve(Vec<Vec<i32>> clauses, const u32& variables)
-    -> Result<Vec<i32>, std::string> {
+solve(std::vector<std::vector<i32>> clauses, const u32& variables)
+    -> Result<std::vector<i32>, std::string> {
   // Express the assignment status of the literal value corresponding to index.
   // a vector that stores the value assigned to each variable, where
   // -1 - unassigned, 0 - true, 1 - false.
-  Vec<i32> literals(variables, -1);
+  std::vector<i32> literals(variables, -1);
   return dpll(clauses, literals);
 }
 

@@ -145,7 +145,7 @@ using resolve::WithoutDeps;
 
 [[nodiscard]] auto
 fetch(const resolve::UniqDeps<resolve::WithoutDeps>& deps) -> Result<void> {
-  Vec<resolve::Package> conan_packages;
+  std::vector<resolve::Package> conan_packages;
 
   for (const auto& [name, dep_info] : deps) {
     const resolve::Package package{ name, dep_info };

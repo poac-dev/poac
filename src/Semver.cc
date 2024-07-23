@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 std::ostream&
 operator<<(std::ostream& os, const VersionToken& tok) noexcept {
@@ -422,7 +423,7 @@ VersionParser::parseDot() {
 // pre ::= numOrIdent ("." numOrIdent)*
 Prerelease
 VersionParser::parsePre() {
-  Vec<VersionToken> pre;
+  std::vector<VersionToken> pre;
   pre.emplace_back(parseNumOrIdent());
   while (lexer.peek().kind == VersionToken::Dot) {
     lexer.step();
@@ -444,7 +445,7 @@ VersionParser::parseNumOrIdent() {
 // build ::= ident ("." ident)*
 BuildMetadata
 VersionParser::parseBuild() {
-  Vec<VersionToken> build;
+  std::vector<VersionToken> build;
   build.emplace_back(parseIdent());
   while (lexer.peek().kind == VersionToken::Dot) {
     lexer.step();
@@ -731,7 +732,7 @@ testGe() {
 
 void
 testSpecOrder() {
-  const Vec<std::string> vers = {
+  const std::vector<std::string> vers = {
     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
     "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
   };

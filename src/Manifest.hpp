@@ -6,6 +6,7 @@
 #include <compare>
 #include <string>
 #include <string_view>
+#include <vector>
 
 struct DepMetadata {
   std::string includes; // -Isomething
@@ -62,5 +63,5 @@ const Edition& getPackageEdition();
 const Version& getPackageVersion();
 const Profile& getDevProfile();
 const Profile& getReleaseProfile();
-const Vec<std::string>& getLintCpplintFilters();
-Vec<DepMetadata> installDependencies(bool includeDevDeps);
+const std::vector<std::string>& getLintCpplintFilters();
+std::vector<DepMetadata> installDependencies(bool includeDevDeps);

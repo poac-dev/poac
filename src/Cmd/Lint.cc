@@ -11,6 +11,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 static int lintMain(std::span<const std::string_view> args);
 
@@ -95,7 +96,7 @@ lintMain(const std::span<const std::string_view> args) {
     cpplintArgs += " --root=src";
   }
 
-  const Vec<std::string>& cpplintFilters = getLintCpplintFilters();
+  const std::vector<std::string>& cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
     logger::debug("Using Poac manifest file for lint ...");
     cpplintArgs += " --filter=";

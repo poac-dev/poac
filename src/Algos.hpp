@@ -13,6 +13,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 std::string toUpper(std::string_view str) noexcept;
 std::string toMacroName(std::string_view name) noexcept;
@@ -22,10 +23,10 @@ std::string getCmdOutput(std::string_view cmd, usize retry = 3);
 bool commandExists(std::string_view cmd) noexcept;
 
 template <typename T>
-Vec<std::string>
+std::vector<std::string>
 topoSort(
     const HashMap<std::string, T>& list,
-    const HashMap<std::string, Vec<std::string>>& adjList
+    const HashMap<std::string, std::vector<std::string>>& adjList
 ) {
   HashMap<std::string, u32> inDegree;
   for (const auto& var : list) {
@@ -50,7 +51,7 @@ topoSort(
     }
   }
 
-  Vec<std::string> res;
+  std::vector<std::string> res;
   while (!zeroInDegree.empty()) {
     const std::string node = zeroInDegree.front();
     zeroInDegree.pop();

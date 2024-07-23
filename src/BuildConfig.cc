@@ -29,13 +29,14 @@
 #include <tbb/spin_mutex.h>
 #include <thread>
 #include <utility>
+#include <vector>
 
 static constinit const std::string_view TEST_OUT_DIR = "tests";
 static constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
 
-static Vec<fs::path>
+static std::vector<fs::path>
 listSourceFilePaths(const std::string_view directory) {
-  Vec<fs::path> sourceFilePaths;
+  std::vector<fs::path> sourceFilePaths;
   for (const auto& entry : fs::recursive_directory_iterator(directory)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
@@ -87,7 +88,7 @@ operator<<(std::ostream& os, const Variable& var) {
 }
 
 struct Target {
-  Vec<std::string> commands;
+  std::vector<std::string> commands;
   Option<std::string> sourceFile;
   HashSet<std::string> remDeps;
 };
@@ -97,9 +98,9 @@ struct BuildConfig {
   fs::path buildOutDir;
 
   HashMap<std::string, Variable> variables;
-  HashMap<std::string, Vec<std::string>> varDeps;
+  HashMap<std::string, std::vector<std::string>> varDeps;
   HashMap<std::string, Target> targets;
-  HashMap<std::string, Vec<std::string>> targetDeps;
+  HashMap<std::string, std::vector<std::string>> targetDeps;
   Option<HashSet<std::string>> phony;
   Option<HashSet<std::string>> all;
 
@@ -152,7 +153,7 @@ struct BuildConfig {
   }
 
   void defineTarget(
-      const std::string& name, const Vec<std::string>& commands,
+      const std::string& name, const std::vector<std::string>& commands,
       const HashSet<std::string>& remDeps = {},
       const Option<std::string>& sourceFile = None
   ) {
@@ -212,7 +213,7 @@ emitTarget(
     std::ostream& os, const std::string_view target,
     const HashSet<std::string>& dependsOn,
     const Option<std::string>& sourceFile = None,
-    const Vec<std::string>& commands = {}
+    const std::vector<std::string>& commands = {}
 ) {
   usize offset = 0;
 
@@ -270,7 +271,7 @@ BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
 
 void
 BuildConfig::emitMakefile(std::ostream& os) const {
-  const Vec<std::string> sortedVars = topoSort(variables, varDeps);
+  const std::vector<std::string> sortedVars = topoSort(variables, varDeps);
   for (const std::string& varName : sortedVars) {
     emitVariable(os, varName);
   }
@@ -284,7 +285,7 @@ BuildConfig::emitMakefile(std::ostream& os) const {
   if (all.has_value()) {
     emitTarget(os, "all", all.value());
   }
-  const Vec<std::string> sortedTargets = topoSort(targets, targetDeps);
+  const std::vector<std::string> sortedTargets = topoSort(targets, targetDeps);
   // NOLINTNEXTLINE(modernize-loop-convert)
   for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
     emitTarget(
@@ -474,7 +475,7 @@ defineCompileTarget(
     const std::string& sourceFile, const HashSet<std::string>& remDeps,
     const bool isTest = false
 ) {
-  Vec<std::string> commands;
+  std::vector<std::string> commands;
   commands.push_back("@mkdir -p $(@D)");
   commands.push_back("$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)");
   if (isTest) {
@@ -489,7 +490,7 @@ defineLinkTarget(
     BuildConfig& config, const std::string& binTarget,
     const HashSet<std::string>& deps
 ) {
-  Vec<std::string> commands;
+  std::vector<std::string> commands;
   commands.push_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
@@ -560,7 +561,7 @@ collectBinDepObjs( // NOLINT(misc-no-recursion)
 
 void
 BuildConfig::installDeps(const bool includeDevDeps) {
-  const Vec<DepMetadata> deps = installDependencies(includeDevDeps);
+  const std::vector<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
     INCLUDES += ' ' + dep.includes;
     LIBS += ' ' + dep.libs;
@@ -617,7 +618,7 @@ BuildConfig::setVariables(const bool isDebug) {
   }
 
   // Variables Poac sets for the user.
-  const Vec<std::pair<std::string, std::string>> defines{
+  const std::vector<std::pair<std::string, std::string>> defines{
     { fmt::format("POAC_{}_PKG_NAME", pkgName), this->packageName },
     { fmt::format("POAC_{}_PKG_VERSION", pkgName), pkgVersion.toString() },
     { fmt::format("POAC_{}_PKG_VERSION_MAJOR", pkgName),
@@ -673,7 +674,9 @@ BuildConfig::processSrc(
 }
 
 static HashSet<std::string>
-processSources(BuildConfig& config, const Vec<fs::path>& sourceFilePaths) {
+processSources(
+    BuildConfig& config, const std::vector<fs::path>& sourceFilePaths
+) {
   HashSet<std::string> buildObjTargets;
 
   if (isParallel()) {
@@ -700,8 +703,9 @@ processSources(BuildConfig& config, const Vec<fs::path>& sourceFilePaths) {
 static void
 processTestSrc(
     BuildConfig& config, const fs::path& sourceFilePath,
-    const HashSet<std::string>& buildObjTargets, Vec<std::string>& testCommands,
-    HashSet<std::string>& testTargets, tbb::spin_mutex* mtx = nullptr
+    const HashSet<std::string>& buildObjTargets,
+    std::vector<std::string>& testCommands, HashSet<std::string>& testTargets,
+    tbb::spin_mutex* mtx = nullptr
 ) {
   if (!config.containsTestCode(
           sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
@@ -780,7 +784,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   config.setAll({ config.packageName + "_before" });
   config.addPhony("all");
 
-  Vec<fs::path> sourceFilePaths = listSourceFilePaths("src");
+  std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
   std::string srcs;
   for (fs::path& sourceFilePath : sourceFilePaths) {
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
@@ -809,7 +813,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Test Pass
-  Vec<std::string> testCommands;
+  std::vector<std::string> testCommands;
   HashSet<std::string> testTargets;
   if (isParallel()) {
     tbb::spin_mutex mtx;

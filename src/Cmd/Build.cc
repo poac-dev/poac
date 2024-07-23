@@ -14,6 +14,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 static int buildMain(std::span<const std::string_view> args);
 
@@ -43,7 +44,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   if (exitCode == EXIT_SUCCESS) {
     const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
 
-    Vec<std::string_view> profiles;
+    std::vector<std::string_view> profiles;
     if (profile.opt_level.value() == 0) {
       profiles.push_back("unoptimized");
     } else {

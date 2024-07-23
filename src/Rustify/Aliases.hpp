@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <variant>
-#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -31,9 +30,6 @@ using usize = std::size_t;
 using f32 = float;
 using f64 = double;
 // NOLINTEND(readability-identifier-naming)
-
-template <typename T>
-using Vec = std::vector<T>;
 
 template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
