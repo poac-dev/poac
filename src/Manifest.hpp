@@ -4,6 +4,7 @@
 #include "Semver.hpp"
 
 #include <compare>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -16,8 +17,8 @@ struct DepMetadata {
 struct Profile {
   HashSet<std::string> cxxflags;
   bool lto = false;
-  Option<bool> debug = None;
-  Option<usize> opt_level = None;
+  std::optional<bool> debug = std::nullopt;
+  std::optional<usize> opt_level = std::nullopt;
 
   // Merges this profile with another profile. If a field in this profile is
   // set, it will not be overwritten by the other profile. Only default values
@@ -57,7 +58,7 @@ public:
 };
 
 const fs::path& getManifestPath();
-Option<std::string> validatePackageName(std::string_view name) noexcept;
+std::optional<std::string> validatePackageName(std::string_view name) noexcept;
 const std::string& getPackageName();
 const Edition& getPackageEdition();
 const Version& getPackageVersion();

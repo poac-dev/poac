@@ -7,6 +7,7 @@
 #include <iostream>
 #include <list>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <span>
 #include <sstream>
@@ -84,7 +85,7 @@ topoSort(
 /// \param candidates the candidates to find a similar string.
 ///
 /// \returns a similar string if exists. If no similar string exists,
-/// returns None.
-Option<std::string_view> findSimilarStr(
+/// returns std::nullopt.
+std::optional<std::string_view> findSimilarStr(
     std::string_view lhs, std::span<const std::string_view> candidates
 );

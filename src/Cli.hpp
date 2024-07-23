@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iterator>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -142,7 +143,7 @@ class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
   friend class Cli;
 
   std::string_view cmdName;
-  Option<std::vector<Opt>> globalOpts = None;
+  std::optional<std::vector<Opt>> globalOpts = std::nullopt;
   std::vector<Opt> localOpts;
   Arg arg;
   std::function<int(std::span<const std::string_view>)> mainFn;
@@ -204,11 +205,12 @@ public:
 
   static constexpr int CONTINUE = -1;
 
-  // Returns the exit code if the global option was handled, otherwise None.
-  // Returns CONTINUE if the caller should not propagate the exit code.
+  // Returns the exit code if the global option was handled, otherwise
+  // std::nullopt. Returns CONTINUE if the caller should not propagate the exit
+  // code.
   // TODO: -1 is not a good idea.
   // TODO: result-like types make more sense.
-  [[nodiscard]] static inline Option<int> handleGlobalOpts(
+  [[nodiscard]] static inline std::optional<int> handleGlobalOpts(
       std::forward_iterator auto& itr, const std::forward_iterator auto end,
       std::string_view subcmd = ""
   ) {
@@ -237,7 +239,7 @@ public:
         return EXIT_FAILURE;
       }
     }
-    return None;
+    return std::nullopt;
   }
 
 private:

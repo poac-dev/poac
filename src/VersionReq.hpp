@@ -17,14 +17,15 @@
 #include "Rustify.hpp"
 #include "Semver.hpp"
 
+#include <optional>
 #include <ostream>
 #include <string>
 #include <string_view>
 
 struct OptVersion {
   u64 major{};
-  Option<u64> minor;
-  Option<u64> patch;
+  std::optional<u64> minor;
+  std::optional<u64> patch;
   Prerelease pre;
 };
 
@@ -70,10 +71,10 @@ struct Comparator {
   };
   using enum Op;
 
-  Option<Op> op;
+  std::optional<Op> op;
   u64 major{};
-  Option<u64> minor;
-  Option<u64> patch;
+  std::optional<u64> minor;
+  std::optional<u64> patch;
   Prerelease pre;
 
   static Comparator parse(std::string_view str);
@@ -86,7 +87,7 @@ struct Comparator {
 
 struct VersionReq {
   Comparator left;
-  Option<Comparator> right;
+  std::optional<Comparator> right;
 
   static VersionReq parse(std::string_view str);
   bool satisfiedBy(const Version& ver) const noexcept;

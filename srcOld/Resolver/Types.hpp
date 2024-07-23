@@ -84,7 +84,7 @@ struct DuplicateDeps<WithoutDeps> {
   using Type = std::vector<Package>;
 };
 
-using Deps = Option<DupDeps<WithoutDeps>>;
+using Deps = std::optional<DupDeps<WithoutDeps>>;
 
 template <>
 struct DuplicateDeps<WithDeps> {

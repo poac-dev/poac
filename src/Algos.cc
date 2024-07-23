@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cctype>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -145,7 +146,7 @@ equalsInsensitive(
   );
 }
 
-Option<std::string_view>
+std::optional<std::string_view>
 findSimilarStr(
     const std::string_view lhs, std::span<const std::string_view> candidates
 ) {
@@ -163,7 +164,7 @@ findSimilarStr(
   const usize length = lhs.size();
   const usize maxDist = length < 3 ? length - 1 : length / 3;
 
-  Option<std::pair<std::string_view, usize>> similarStr = None;
+  std::optional<std::pair<std::string_view, usize>> similarStr = std::nullopt;
   for (const std::string_view str : candidates) {
     const usize curDist = levDistance(lhs, str);
     if (curDist <= maxDist) {
@@ -177,7 +178,7 @@ findSimilarStr(
   if (similarStr.has_value()) {
     return similarStr->first;
   } else {
-    return None;
+    return std::nullopt;
   }
 }
 
@@ -246,8 +247,10 @@ testFindSimilarStr() {
   assertEq(findSimilarStr("els", candidates), "else"sv);
   assertEq(findSimilarStr("endi", candidates), "endif"sv);
 
-  assertEq(findSimilarStr("i", candidates), None);
-  assertEq(findSimilarStr("special_compiler_directive", candidates), None);
+  assertEq(findSimilarStr("i", candidates), std::nullopt);
+  assertEq(
+      findSimilarStr("special_compiler_directive", candidates), std::nullopt
+  );
 
   pass();
 }
@@ -256,7 +259,7 @@ void
 testFindSimilarStr2() {
   constexpr std::array<std::string_view, 2> candidates{ "aaab", "aaabc" };
   assertEq(findSimilarStr("aaaa", candidates), "aaab"sv);
-  assertEq(findSimilarStr("1111111111", candidates), None);
+  assertEq(findSimilarStr("1111111111", candidates), std::nullopt);
 
   constexpr std::array<std::string_view, 1> candidateS2{ "AAAA" };
   assertEq(findSimilarStr("aaaa", candidateS2), "AAAA"sv);

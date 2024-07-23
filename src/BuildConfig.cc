@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <span>
 #include <sstream>
@@ -89,7 +90,7 @@ operator<<(std::ostream& os, const Variable& var) {
 
 struct Target {
   std::vector<std::string> commands;
-  Option<std::string> sourceFile;
+  std::optional<std::string> sourceFile;
   HashSet<std::string> remDeps;
 };
 
@@ -101,8 +102,8 @@ struct BuildConfig {
   HashMap<std::string, std::vector<std::string>> varDeps;
   HashMap<std::string, Target> targets;
   HashMap<std::string, std::vector<std::string>> targetDeps;
-  Option<HashSet<std::string>> phony;
-  Option<HashSet<std::string>> all;
+  std::optional<HashSet<std::string>> phony;
+  std::optional<HashSet<std::string>> all;
 
   std::string OUT_DIR;
   std::string CXX = "clang++";
@@ -155,7 +156,7 @@ struct BuildConfig {
   void defineTarget(
       const std::string& name, const std::vector<std::string>& commands,
       const HashSet<std::string>& remDeps = {},
-      const Option<std::string>& sourceFile = None
+      const std::optional<std::string>& sourceFile = std::nullopt
   ) {
     targets[name] = { commands, sourceFile, remDeps };
 
@@ -212,7 +213,7 @@ static void
 emitTarget(
     std::ostream& os, const std::string_view target,
     const HashSet<std::string>& dependsOn,
-    const Option<std::string>& sourceFile = None,
+    const std::optional<std::string>& sourceFile = std::nullopt,
     const std::vector<std::string>& commands = {}
 ) {
   usize offset = 0;
@@ -324,8 +325,8 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
       continue;
     }
 
-    // We don't check the Option value because we know the first dependency
-    // always exists for compile targets.
+    // We don't check the std::optional value because we know the first
+    // dependency always exists for compile targets.
     const std::string file = targetInfo.sourceFile.value();
     // The output is the target.
     const std::string output = target;

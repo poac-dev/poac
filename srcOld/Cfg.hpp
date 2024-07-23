@@ -277,13 +277,13 @@ struct Lexer {
 
   explicit Lexer(std::string_view str) : str(str) {}
 
-  inline auto next() -> Option<Token> {
+  inline auto next() -> std::optional<Token> {
     const auto [diff, token] = tokenize(this->index);
     this->step_n(diff);
     return token;
   }
 
-  [[nodiscard]] inline auto peek() const -> Option<Token> {
+  [[nodiscard]] inline auto peek() const -> std::optional<Token> {
     const auto [diff, token] = tokenize(this->index);
     static_cast<void>(diff);
     return token;
@@ -291,21 +291,21 @@ struct Lexer {
 
 private:
   [[nodiscard]] inline auto generate_token(
-      SizeType index_, const Option<Token>& token
-  ) const -> std::pair<SizeType, Option<Token>> {
+      SizeType index_, const std::optional<Token>& token
+  ) const -> std::pair<SizeType, std::optional<Token>> {
     return { this->diff_step(index_), token };
   }
   [[nodiscard]] inline auto generate_token(
       SizeType index_, std::string_view kind
-  ) const -> std::pair<SizeType, Option<Token>> {
+  ) const -> std::pair<SizeType, std::optional<Token>> {
     return generate_token(index_, Token{ to_kind(kind) });
   }
 
   [[nodiscard]] auto analyze_two_phrase(SizeType index_, char kind) const
-      -> std::pair<SizeType, Option<Token>>;
+      -> std::pair<SizeType, std::optional<Token>>;
 
   [[nodiscard]] auto tokenize(SizeType index_
-  ) const -> std::pair<SizeType, Option<Token>>;
+  ) const -> std::pair<SizeType, std::optional<Token>>;
 
   void step(SizeType& index_) const noexcept;
   void step_n(SizeType n) noexcept;
@@ -325,12 +325,13 @@ private:
 
   [[nodiscard]] auto ident(SizeType index_) const -> std::pair<SizeType, Token>;
 
-  static auto to_ident(std::string_view s) noexcept -> Option<Token::ident>;
+  static auto to_ident(std::string_view s
+  ) noexcept -> std::optional<Token::ident>;
 };
 
 auto
 Lexer::analyze_two_phrase(SizeType index_, const char kind) const
-    -> std::pair<Lexer::SizeType, Option<Token>> {
+    -> std::pair<Lexer::SizeType, std::optional<Token>> {
   if (this->one(index_) == '=') {
     this->step(index_);
     return generate_token(index_, std::string{ kind } + '=');
@@ -341,9 +342,9 @@ Lexer::analyze_two_phrase(SizeType index_, const char kind) const
 
 auto
 Lexer::tokenize(SizeType index_
-) const -> std::pair<Lexer::SizeType, Option<Token>> {
+) const -> std::pair<Lexer::SizeType, std::optional<Token>> {
   if (index_ >= this->str.size()) {
-    return generate_token(index_, None);
+    return generate_token(index_, std::nullopt);
   }
   const char one = this->one(index_);
   switch (one) {
@@ -432,7 +433,7 @@ Lexer::ident(SizeType index_) const -> std::pair<Lexer::SizeType, Token> {
 }
 
 auto
-Lexer::to_ident(std::string_view s) noexcept -> Option<Token::ident> {
+Lexer::to_ident(std::string_view s) noexcept -> std::optional<Token::ident> {
   if (s == "cfg") {
     return Token::ident::cfg;
   } else if (s == "not") {
@@ -454,7 +455,7 @@ Lexer::to_ident(std::string_view s) noexcept -> Option<Token::ident> {
   } else if (s == "os_version") {
     return Token::ident::os_version;
   } else {
-    return None;
+    return std::nullopt;
   }
 }
 

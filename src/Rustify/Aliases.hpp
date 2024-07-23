@@ -4,12 +4,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
-#include <optional>
-#include <ostream>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
-#include <variant>
 
 namespace fs = std::filesystem;
 
@@ -36,31 +33,6 @@ using HashMap = std::unordered_map<K, V>;
 
 template <typename K>
 using HashSet = std::unordered_set<K>;
-
-template <typename T>
-using Option = std::optional<T>;
-
-struct NoneT : protected std::monostate {
-  constexpr bool operator==(const usize rhs) const {
-    return std::string_view::npos == rhs;
-  }
-
-  // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr operator std::nullopt_t() const {
-    return std::nullopt;
-  }
-
-  template <typename T>
-  constexpr operator Option<T>() const { // NOLINT(google-explicit-constructor)
-    return std::nullopt;
-  }
-};
-inline constinit const NoneT None; // NOLINT(readability-identifier-naming)
-
-inline std::ostream&
-operator<<(std::ostream& os, const NoneT& /*unused*/) {
-  return os << "None";
-}
 
 // NOLINTBEGIN(google-global-names-in-headers)
 using std::literals::string_literals::operator""s;
