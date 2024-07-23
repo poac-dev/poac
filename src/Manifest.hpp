@@ -15,6 +15,8 @@ struct DepMetadata {
 struct Profile {
   HashSet<std::string> cxxflags;
   bool lto = false;
+  Option<bool> debug = None;
+  Option<usize> opt_level = None;
 
   // Merges this profile with another profile. If a field in this profile is
   // set, it will not be overwritten by the other profile. Only default values
@@ -58,7 +60,7 @@ Option<std::string> validatePackageName(std::string_view name) noexcept;
 const std::string& getPackageName();
 const Edition& getPackageEdition();
 const Version& getPackageVersion();
-const Profile& getDebugProfile();
+const Profile& getDevProfile();
 const Profile& getReleaseProfile();
 const Vec<std::string>& getLintCpplintFilters();
 Vec<DepMetadata> installDependencies(bool includeDevDeps);

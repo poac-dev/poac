@@ -112,7 +112,7 @@ struct BuildConfig {
 
   BuildConfig() = default;
   explicit BuildConfig(const std::string& packageName)
-      : packageName(packageName), buildOutDir(packageName + ".d") {}
+      : packageName{ packageName }, buildOutDir{ packageName + ".d" } {}
 
   void setOutDir(const bool isDebug) {
     if (isDebug) {
@@ -474,15 +474,13 @@ defineCompileTarget(
     const std::string& sourceFile, const HashSet<std::string>& remDeps,
     const bool isTest = false
 ) {
-  Vec<std::string> commands(3);
-  commands[0] = "@mkdir -p $(@D)";
-  commands[1] =
-      printfCmd("Compiling", sourceFile.substr(PATH_FROM_OUT_DIR.size()));
-  commands[2] = "$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)";
+  Vec<std::string> commands;
+  commands.push_back("@mkdir -p $(@D)");
+  commands.push_back("$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)");
   if (isTest) {
-    commands[2] += " -DPOAC_TEST";
+    commands.back() += " -DPOAC_TEST";
   }
-  commands[2] += " -c $< -o $@";
+  commands.back() += " -c $< -o $@";
   config.defineTarget(objTarget, commands, remDeps, sourceFile);
 }
 
@@ -491,9 +489,8 @@ defineLinkTarget(
     BuildConfig& config, const std::string& binTarget,
     const HashSet<std::string>& deps
 ) {
-  Vec<std::string> commands(2);
-  commands[0] = printfCmd("Linking", binTarget);
-  commands[1] = "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
+  Vec<std::string> commands;
+  commands.push_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -592,7 +589,7 @@ BuildConfig::setVariables(const bool isDebug) {
   } else {
     CXXFLAGS += " -O3 -DNDEBUG";
   }
-  const Profile& profile = isDebug ? getDebugProfile() : getReleaseProfile();
+  const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
   if (profile.lto) {
     CXXFLAGS += " -flto";
   }
@@ -634,7 +631,8 @@ BuildConfig::setVariables(const bool isDebug) {
     { fmt::format("POAC_{}_COMMIT_HASH", pkgName), commitHash },
     { fmt::format("POAC_{}_COMMIT_SHORT_HASH", pkgName), commitShortHash },
     { fmt::format("POAC_{}_COMMIT_DATE", pkgName), commitDate },
-    { fmt::format("POAC_{}_PROFILE", pkgName), modeString(isDebug) },
+    { fmt::format("POAC_{}_PROFILE", pkgName),
+      std::string(modeToString(isDebug)) },
   };
   for (const auto& [key, val] : defines) {
     addDefine(key, val);
@@ -713,7 +711,7 @@ processTestSrc(
 
   std::string objTarget; // source.o
   const HashSet<std::string> objTargetDeps =
-      parseMMOutput(config.runMM(sourceFilePath, true /* isTest */), objTarget);
+      parseMMOutput(config.runMM(sourceFilePath, /*isTest=*/true), objTarget);
 
   const fs::path targetBaseDir = fs::relative(
       sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
@@ -741,13 +739,16 @@ processTestSrc(
   }
   // Test object target.
   defineCompileTarget(
-      config, testObjTarget, sourceFilePath, objTargetDeps, true /* isTest */
+      config, testObjTarget, sourceFilePath, objTargetDeps, /*isTest=*/true
   );
 
   // Test binary target.
   defineLinkTarget(config, testTarget, testTargetDeps);
 
-  testCommands.emplace_back(printfCmd("Testing", testTargetName));
+  testCommands.emplace_back(printfCmd(
+      "Running",
+      "unittests " + sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
+  ));
   testCommands.emplace_back(testTarget);
   testTargets.insert(testTarget);
   if (mtx) {
@@ -776,7 +777,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   config.setVariables(isDebug);
 
   // Build rules
-  config.setAll({ config.packageName });
+  config.setAll({ config.packageName + "_before" });
   config.addPhony("all");
 
   Vec<fs::path> sourceFilePaths = listSourceFilePaths("src");
@@ -799,6 +800,12 @@ configureBuild(BuildConfig& config, const bool isDebug) {
       config.targets.at(mainObjTarget).remDeps, // we don't need sourceFile
       buildObjTargets, config
   );
+  config.defineTarget(
+      config.packageName + "_before",
+      { printfCmd("Compiling", config.packageName),
+        "make " + config.packageName }
+  );
+  config.addPhony(config.packageName + "_before");
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Test Pass
@@ -825,8 +832,13 @@ configureBuild(BuildConfig& config, const bool isDebug) {
     }
   }
   if (!testCommands.empty()) {
-    config.defineTarget("test", testCommands, testTargets);
+    config.defineTarget(
+        "test",
+        { printfCmd("Compiling", config.packageName), "make test_inner" }
+    );
+    config.defineTarget("test_inner", testCommands, testTargets);
     config.addPhony("test");
+    config.addPhony("test_inner");
   }
 
   // Tidy Pass
@@ -892,9 +904,14 @@ emitCompdb(const bool isDebug, const bool includeDevDeps) {
   return outDir;
 }
 
-std::string
-modeString(const bool isDebug) {
+std::string_view
+modeToString(const bool isDebug) {
   return isDebug ? "debug" : "release";
+}
+
+std::string_view
+modeToProfile(const bool isDebug) {
+  return isDebug ? "dev" : "release";
 }
 
 std::string
