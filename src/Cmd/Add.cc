@@ -12,6 +12,7 @@
 #include <string>
 #include <string_view>
 #include <toml.hpp>
+#include <unordered_map>
 
 static int addMain(std::span<const std::string_view> args);
 
@@ -166,7 +167,7 @@ addMain(const std::span<const std::string_view> args) {
   std::string branch;
 
   // clang-format off
-  HashMap<
+  std::unordered_map<
     std::string_view,
     std::function<std::optional<int>(decltype(args)::iterator&, decltype(args)::iterator)>
   >

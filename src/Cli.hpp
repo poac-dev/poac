@@ -10,6 +10,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 class Opt;
@@ -183,7 +184,7 @@ private:
 };
 
 class Cli : public CliBase<Cli> {
-  HashMap<std::string_view, Subcmd> subcmds;
+  std::unordered_map<std::string_view, Subcmd> subcmds;
   std::vector<Opt> globalOpts;
   std::vector<Opt> localOpts;
 

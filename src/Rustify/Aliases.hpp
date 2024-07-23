@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <iostream>
 #include <string_view>
-#include <unordered_map>
 #include <unordered_set>
 
 namespace fs = std::filesystem;
@@ -27,9 +26,6 @@ using usize = std::size_t;
 using f32 = float;
 using f64 = double;
 // NOLINTEND(readability-identifier-naming)
-
-template <typename K, typename V>
-using HashMap = std::unordered_map<K, V>;
 
 template <typename K>
 using HashSet = std::unordered_set<K>;

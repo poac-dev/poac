@@ -93,9 +93,9 @@ struct DuplicateDeps<WithDeps> {
 
 template <typename W>
 using UniqDeps = std::conditional_t<
-    W::value, HashMap<Package, Deps>,
+    W::value, std::unordered_map<Package, Deps>,
     // <name, ver_req>
-    HashMap<std::string, DependencyInfo>>;
+    std::unordered_map<std::string, DependencyInfo>>;
 
 } // namespace poac::core::resolver::resolve
 

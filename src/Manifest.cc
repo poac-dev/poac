@@ -14,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 
@@ -486,7 +487,7 @@ validateDepName(const std::string_view name) {
     }
   }
 
-  HashMap<char, int> charsFreq;
+  std::unordered_map<char, int> charsFreq;
   for (const char c : name) {
     ++charsFreq[c];
   }
