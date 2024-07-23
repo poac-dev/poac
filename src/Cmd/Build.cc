@@ -56,7 +56,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
     logger::info(
         "Finished",
         fmt::format(
-            "`{}` profile [{}] target(s) in {}s", modeToProfile(isDebug),
+            "`{}` profile [{}] target(s) in {:.2f}s", modeToProfile(isDebug),
             fmt::join(profiles, " + "), elapsed.count()
         )
     );
