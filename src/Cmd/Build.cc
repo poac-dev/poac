@@ -52,12 +52,13 @@ buildImpl(std::string& outDir, const bool isDebug) {
     if (profile.debug.value()) {
       profiles.push_back("debuginfo");
     }
-    const std::string profileStr =
-        fmt::format("[{}]", fmt::join(profiles, " + "));
 
     logger::info(
-        "Finished", "`", modeToProfile(isDebug), "` profile ", profileStr,
-        " target(s) in ", elapsed.count(), "s"
+        "Finished",
+        fmt::format(
+            "`{}` profile [{}] target(s) in {}s", modeToProfile(isDebug),
+            fmt::format("{}", fmt::join(profiles, " + ")), elapsed.count()
+        )
     );
   }
   return exitCode;
