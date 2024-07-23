@@ -14,13 +14,11 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <toml.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <variant>
 #include <vector>
-
-#define TOML11_NO_ERROR_PREFIX
-#include <toml.hpp>
 
 Edition::Edition(const std::string& str) : str(str) {
   if (str == "98") {
