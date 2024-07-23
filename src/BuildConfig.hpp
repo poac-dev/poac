@@ -15,5 +15,6 @@ inline const HashSet<std::string> HEADER_FILE_EXTS{
 
 std::string emitMakefile(bool isDebug, bool includeDevDeps);
 std::string emitCompdb(bool isDebug, bool includeDevDeps);
-std::string modeString(bool isDebug);
+std::string_view modeToString(bool isDebug);
+std::string_view modeToProfile(bool isDebug);
 std::string getMakeCommand();

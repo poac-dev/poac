@@ -64,7 +64,7 @@ testMain(const std::span<const std::string_view> args) {
 
   if (exitCode == EXIT_SUCCESS) {
     logger::info(
-        "Finished", modeString(isDebug), " test(s) in ", elapsed.count(), "s"
+        "Finished", modeToString(isDebug), " test(s) in ", elapsed.count(), "s"
     );
   }
   return exitCode;

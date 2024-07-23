@@ -3,11 +3,14 @@
 #include "../Algos.hpp"
 #include "../BuildConfig.hpp"
 #include "../Logger.hpp"
+#include "../Manifest.hpp"
 #include "../Parallelism.hpp"
 #include "Common.hpp"
 
 #include <chrono>
 #include <cstdlib>
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <span>
 #include <string>
 #include <string_view>
@@ -38,8 +41,24 @@ buildImpl(std::string& outDir, const bool isDebug) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
+    const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
+
+    Vec<std::string_view> profiles;
+    if (profile.opt_level.value() == 0) {
+      profiles.push_back("unoptimized");
+    } else {
+      profiles.push_back("optimized");
+    }
+    if (profile.debug.value()) {
+      profiles.push_back("debuginfo");
+    }
+
     logger::info(
-        "Finished", modeString(isDebug), " target(s) in ", elapsed.count(), "s"
+        "Finished",
+        fmt::format(
+            "`{}` profile [{}] target(s) in {:.2f}s", modeToProfile(isDebug),
+            fmt::join(profiles, " + "), elapsed.count()
+        )
     );
   }
   return exitCode;

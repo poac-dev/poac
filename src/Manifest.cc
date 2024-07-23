@@ -135,6 +135,12 @@ Profile::merge(const Profile& other) {
   if (!lto) { // false is the default value
     lto = other.lto;
   }
+  if (other.debug.has_value() && !debug.has_value()) {
+    debug = other.debug;
+  }
+  if (other.opt_level.has_value() && !opt_level.has_value()) {
+    opt_level = other.opt_level;
+  }
 }
 
 struct Manifest {
@@ -162,7 +168,7 @@ struct Manifest {
       None;
 
   Option<Profile> profile = None;
-  Option<Profile> debugProfile = None;
+  Option<Profile> devProfile = None;
   Option<Profile> releaseProfile = None;
 
   Option<Vec<std::string>> cpplintFilters = None;
@@ -303,6 +309,16 @@ parseProfile(const toml::table& table) {
   if (table.contains("lto") && table.at("lto").is_boolean()) {
     profile.lto = table.at("lto").as_boolean();
   }
+  if (table.contains("debug") && table.at("debug").is_boolean()) {
+    profile.debug = table.at("debug").as_boolean();
+  }
+  if (table.contains("opt_level") && table.at("opt_level").is_integer()) {
+    const i32 optLevel = table.at("opt_level").as_integer();
+    if (optLevel < 0 || optLevel > 3) {
+      throw PoacError("opt_level must be between 0 and 3");
+    }
+    profile.opt_level = optLevel;
+  }
   return profile;
 }
 
@@ -346,16 +362,22 @@ getBaseProfile() {
 }
 
 const Profile&
-getDebugProfile() {
+getDevProfile() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.debugProfile.has_value()) {
-    return manifest.debugProfile.value();
+  if (manifest.devProfile.has_value()) {
+    return manifest.devProfile.value();
   }
 
-  Profile debugProfile = getProfile("debug");
-  debugProfile.merge(getBaseProfile());
-  manifest.debugProfile = debugProfile;
-  return manifest.debugProfile.value();
+  Profile devProfile = getProfile("dev");
+  devProfile.merge(getBaseProfile());
+  if (!devProfile.debug.has_value()) {
+    devProfile.debug = true;
+  }
+  if (!devProfile.opt_level.has_value()) {
+    devProfile.opt_level = 0;
+  }
+  manifest.devProfile = devProfile;
+  return manifest.devProfile.value();
 }
 
 const Profile&
@@ -367,6 +389,12 @@ getReleaseProfile() {
 
   Profile releaseProfile = getProfile("release");
   releaseProfile.merge(getBaseProfile());
+  if (!releaseProfile.debug.has_value()) {
+    releaseProfile.debug = false;
+  }
+  if (!releaseProfile.opt_level.has_value()) {
+    releaseProfile.opt_level = 3;
+  }
   manifest.releaseProfile = releaseProfile;
   return manifest.releaseProfile.value();
 }
