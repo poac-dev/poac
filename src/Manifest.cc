@@ -15,6 +15,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -232,7 +233,7 @@ validatePackageName(const std::string_view name) noexcept {
   }
 
   // Using C++ keywords
-  const HashSet<std::string_view> keywords = {
+  const std::unordered_set<std::string_view> keywords = {
 #include "Keywords.def"
   };
   if (keywords.contains(name)) {
@@ -435,7 +436,7 @@ static const fs::path CACHE_DIR(getXdgCacheHome() / "poac");
 static const fs::path GIT_DIR(CACHE_DIR / "git");
 static const fs::path GIT_SRC_DIR(GIT_DIR / "src");
 
-static const HashSet<char> ALLOWED_CHARS = {
+static const std::unordered_set<char> ALLOWED_CHARS = {
   '-', '_', '/', '.', '+' // allowed in the dependency name
 };
 

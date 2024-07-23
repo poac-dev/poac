@@ -27,9 +27,6 @@ using f32 = float;
 using f64 = double;
 // NOLINTEND(readability-identifier-naming)
 
-template <typename K>
-using HashSet = std::unordered_set<K>;
-
 // NOLINTBEGIN(google-global-names-in-headers)
 using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;

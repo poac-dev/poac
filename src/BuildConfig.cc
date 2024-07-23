@@ -30,6 +30,7 @@
 #include <tbb/spin_mutex.h>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -92,7 +93,7 @@ operator<<(std::ostream& os, const Variable& var) {
 struct Target {
   std::vector<std::string> commands;
   std::optional<std::string> sourceFile;
-  HashSet<std::string> remDeps;
+  std::unordered_set<std::string> remDeps;
 };
 
 struct BuildConfig {
@@ -103,8 +104,8 @@ struct BuildConfig {
   std::unordered_map<std::string, std::vector<std::string>> varDeps;
   std::unordered_map<std::string, Target> targets;
   std::unordered_map<std::string, std::vector<std::string>> targetDeps;
-  std::optional<HashSet<std::string>> phony;
-  std::optional<HashSet<std::string>> all;
+  std::optional<std::unordered_set<std::string>> phony;
+  std::optional<std::unordered_set<std::string>> all;
 
   std::string OUT_DIR;
   std::string CXX = "clang++";
@@ -133,7 +134,7 @@ struct BuildConfig {
 
   void defineVar(
       const std::string& name, const Variable& value,
-      const HashSet<std::string>& dependsOn = {}
+      const std::unordered_set<std::string>& dependsOn = {}
   ) {
     variables[name] = value;
     for (const std::string& dep : dependsOn) {
@@ -143,20 +144,20 @@ struct BuildConfig {
   }
   void defineSimpleVar(
       const std::string& name, const std::string& value,
-      const HashSet<std::string>& dependsOn = {}
+      const std::unordered_set<std::string>& dependsOn = {}
   ) {
     defineVar(name, { value, VarType::Simple }, dependsOn);
   }
   void defineCondVar(
       const std::string& name, const std::string& value,
-      const HashSet<std::string>& dependsOn = {}
+      const std::unordered_set<std::string>& dependsOn = {}
   ) {
     defineVar(name, { value, VarType::Cond }, dependsOn);
   }
 
   void defineTarget(
       const std::string& name, const std::vector<std::string>& commands,
-      const HashSet<std::string>& remDeps = {},
+      const std::unordered_set<std::string>& remDeps = {},
       const std::optional<std::string>& sourceFile = std::nullopt
   ) {
     targets[name] = { commands, sourceFile, remDeps };
@@ -178,7 +179,7 @@ struct BuildConfig {
     }
   }
 
-  void setAll(const HashSet<std::string>& dependsOn) {
+  void setAll(const std::unordered_set<std::string>& dependsOn) {
     all = dependsOn;
   }
 
@@ -194,7 +195,8 @@ struct BuildConfig {
 
   void processSrc(
       BuildConfig& config, const fs::path& sourceFilePath,
-      HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx = nullptr
+      std::unordered_set<std::string>& buildObjTargets,
+      tbb::spin_mutex* mtx = nullptr
   ) const;
 };
 
@@ -213,7 +215,7 @@ emitDep(std::ostream& os, usize& offset, const std::string_view dep) {
 static void
 emitTarget(
     std::ostream& os, const std::string_view target,
-    const HashSet<std::string>& dependsOn,
+    const std::unordered_set<std::string>& dependsOn,
     const std::optional<std::string>& sourceFile = std::nullopt,
     const std::vector<std::string>& commands = {}
 ) {
@@ -378,13 +380,13 @@ BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   return getCmdOutput(command);
 }
 
-static HashSet<std::string>
+static std::unordered_set<std::string>
 parseMMOutput(const std::string& mmOutput, std::string& target) {
   std::istringstream iss(mmOutput);
   std::getline(iss, target, ':');
 
   std::string dependency;
-  HashSet<std::string> deps;
+  std::unordered_set<std::string> deps;
   bool isFirst = true;
   while (std::getline(iss, dependency, ' ')) {
     if (!dependency.empty() && dependency.front() != '\\') {
@@ -474,8 +476,8 @@ printfCmd(const std::string_view header, const std::string_view body) {
 static void
 defineCompileTarget(
     BuildConfig& config, const std::string& objTarget,
-    const std::string& sourceFile, const HashSet<std::string>& remDeps,
-    const bool isTest = false
+    const std::string& sourceFile,
+    const std::unordered_set<std::string>& remDeps, const bool isTest = false
 ) {
   std::vector<std::string> commands;
   commands.push_back("@mkdir -p $(@D)");
@@ -490,7 +492,7 @@ defineCompileTarget(
 static void
 defineLinkTarget(
     BuildConfig& config, const std::string& binTarget,
-    const HashSet<std::string>& deps
+    const std::unordered_set<std::string>& deps
 ) {
   std::vector<std::string> commands;
   commands.push_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
@@ -523,9 +525,11 @@ mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutDir) {
 // depending header files for the source file.
 static void
 collectBinDepObjs( // NOLINT(misc-no-recursion)
-    HashSet<std::string>& deps, const std::string_view sourceFileName,
-    const HashSet<std::string>& objTargetDeps,
-    const HashSet<std::string>& buildObjTargets, const BuildConfig& config
+    std::unordered_set<std::string>& deps,
+    const std::string_view sourceFileName,
+    const std::unordered_set<std::string>& objTargetDeps,
+    const std::unordered_set<std::string>& buildObjTargets,
+    const BuildConfig& config
 ) {
   for (const fs::path headerPath : objTargetDeps) {
     if (sourceFileName == headerPath.stem()) {
@@ -649,10 +653,10 @@ BuildConfig::setVariables(const bool isDebug) {
 void
 BuildConfig::processSrc(
     BuildConfig& config, const fs::path& sourceFilePath,
-    HashSet<std::string>& buildObjTargets, tbb::spin_mutex* mtx
+    std::unordered_set<std::string>& buildObjTargets, tbb::spin_mutex* mtx
 ) const {
   std::string objTarget; // source.o
-  const HashSet<std::string> objTargetDeps =
+  const std::unordered_set<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath), objTarget);
 
   const fs::path targetBaseDir = fs::relative(
@@ -675,11 +679,11 @@ BuildConfig::processSrc(
   }
 }
 
-static HashSet<std::string>
+static std::unordered_set<std::string>
 processSources(
     BuildConfig& config, const std::vector<fs::path>& sourceFilePaths
 ) {
-  HashSet<std::string> buildObjTargets;
+  std::unordered_set<std::string> buildObjTargets;
 
   if (isParallel()) {
     tbb::spin_mutex mtx;
@@ -705,9 +709,9 @@ processSources(
 static void
 processTestSrc(
     BuildConfig& config, const fs::path& sourceFilePath,
-    const HashSet<std::string>& buildObjTargets,
-    std::vector<std::string>& testCommands, HashSet<std::string>& testTargets,
-    tbb::spin_mutex* mtx = nullptr
+    const std::unordered_set<std::string>& buildObjTargets,
+    std::vector<std::string>& testCommands,
+    std::unordered_set<std::string>& testTargets, tbb::spin_mutex* mtx = nullptr
 ) {
   if (!config.containsTestCode(
           sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
@@ -716,7 +720,7 @@ processTestSrc(
   }
 
   std::string objTarget; // source.o
-  const HashSet<std::string> objTargetDeps =
+  const std::unordered_set<std::string> objTargetDeps =
       parseMMOutput(config.runMM(sourceFilePath, /*isTest=*/true), objTarget);
 
   const fs::path targetBaseDir = fs::relative(
@@ -734,7 +738,7 @@ processTestSrc(
       (testTargetBaseDir / "test_").string() + testTargetName;
 
   // Test binary target.
-  HashSet<std::string> testTargetDeps = { testObjTarget };
+  std::unordered_set<std::string> testTargetDeps = { testObjTarget };
   collectBinDepObjs(
       testTargetDeps, sourceFilePath.stem().string(), objTargetDeps,
       buildObjTargets, config
@@ -795,12 +799,12 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   config.defineSimpleVar("SRCS", srcs);
 
   // Source Pass
-  const HashSet<std::string> buildObjTargets =
+  const std::unordered_set<std::string> buildObjTargets =
       processSources(config, sourceFilePaths);
 
   // Project binary target.
   const std::string mainObjTarget = config.buildOutDir / "main.o";
-  HashSet<std::string> projTargetDeps = { mainObjTarget };
+  std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
   collectBinDepObjs(
       projTargetDeps, "",
       config.targets.at(mainObjTarget).remDeps, // we don't need sourceFile
@@ -816,7 +820,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
 
   // Test Pass
   std::vector<std::string> testCommands;
-  HashSet<std::string> testTargets;
+  std::unordered_set<std::string> testTargets;
   if (isParallel()) {
     tbb::spin_mutex mtx;
     tbb::parallel_for(

@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <vector>
 
 struct DepMetadata {
@@ -15,7 +16,7 @@ struct DepMetadata {
 };
 
 struct Profile {
-  HashSet<std::string> cxxflags;
+  std::unordered_set<std::string> cxxflags;
   bool lto = false;
   std::optional<bool> debug = std::nullopt;
   std::optional<usize> opt_level = std::nullopt;
