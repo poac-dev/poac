@@ -803,7 +803,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   config.defineTarget(
       config.packageName + "_before",
       { printfCmd("Compiling", config.packageName),
-        "make " + config.packageName }
+        "+make " + config.packageName }
   );
   config.addPhony(config.packageName + "_before");
   defineLinkTarget(config, config.packageName, projTargetDeps);
@@ -834,7 +834,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   if (!testCommands.empty()) {
     config.defineTarget(
         "test",
-        { printfCmd("Compiling", config.packageName), "make test_inner" }
+        { printfCmd("Compiling", config.packageName), "+make test_inner" }
     );
     config.defineTarget("test_inner", testCommands, testTargets);
     config.addPhony("test");
