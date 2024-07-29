@@ -20,10 +20,12 @@ const Subcmd SEARCH_CMD =
         .setDesc("Search for packages in the registry")
         .addOpt(Opt{ "--per-page" }
                     .setDesc("Number of results to show per page")
+                    .setTakeArgument(true)
                     .setPlaceholder("<NUM>")
                     .setDefault("10"))
         .addOpt(Opt{ "--page" }
                     .setDesc("Page number of results to show")
+                    .setTakeArgument(true)
                     .setPlaceholder("<NUM>")
                     .setDefault("1"))
         .setArg(Arg{ "name" })

@@ -28,14 +28,17 @@ const Subcmd ADD_CMD =
         .addOpt(Opt{ "--version" }.setDesc(
             "Dependency version (Only used with system-dependencies)"
         ))
-        .addOpt(
-            Opt{ "--tag" }.setDesc("Specify a git tag").setPlaceholder("<TAG>")
-        )
+        .addOpt(Opt{ "--tag" }
+                    .setDesc("Specify a git tag")
+                    .setTakeArgument(true)
+                    .setPlaceholder("<TAG>"))
         .addOpt(Opt{ "--rev" }
                     .setDesc("Specify a git revision")
+                    .setTakeArgument(true)
                     .setPlaceholder("<REVISION>"))
         .addOpt(Opt{ "--branch" }
                     .setDesc("Specify a branch of the git repository")
+                    .setTakeArgument(true)
                     .setPlaceholder("<BRANCH_NAME>"))
         .setMainFn(addMain);
 

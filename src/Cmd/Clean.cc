@@ -16,6 +16,7 @@ const Subcmd CLEAN_CMD = //
         .addOpt(Opt{ "--profile" }
                     .setShort("-p")
                     .setDesc("Disable parallel builds")
+                    .setTakeArgument(true)
                     .setPlaceholder("<PROFILE>"))
         .setMainFn(cleanMain);
 
