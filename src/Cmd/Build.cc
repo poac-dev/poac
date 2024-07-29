@@ -88,10 +88,6 @@ buildMain(const std::span<const std::string_view> args) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
       setParallelism(std::stoul((++itr)->data()));
-    } else if (itr->starts_with("-j")) {
-      setParallelism(std::stoul(itr->substr(2).data()));
-    } else if (itr->starts_with("--jobs=")) {
-      setParallelism(std::stoul(itr->substr(7).data()));
     } else {
       return BUILD_CMD.noSuchArg(*itr);
     }
