@@ -377,11 +377,9 @@ Cli::transformOptions(
               continue;
             if (opt.shortName.substr(1) != multioption.substr(i, 1))
               continue;
-            if (opt.takeArgument) {
-              transformed.push_back(opt.shortName);
+            transformed.push_back(opt.shortName);
+            if (!opt.placeholder.empty()) {
               transformed.push_back(multioption.substr(i + 1));
-            } else {
-              transformed.push_back(opt.shortName);
             }
             handled = true;
           }

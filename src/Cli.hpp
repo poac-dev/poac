@@ -71,7 +71,6 @@ class Opt : public CliBase<Opt>, public ShortAndHidden<Opt> {
   std::string_view placeholder;
   std::string_view defaultVal;
   bool isGlobal = false;
-  bool takeArgument = false;
 
 public:
   using CliBase::CliBase;
@@ -96,10 +95,6 @@ public:
   }
   constexpr Opt& setGlobal(const bool isGlobal) noexcept {
     this->isGlobal = isGlobal;
-    return *this;
-  }
-  constexpr Opt& setTakeArgument(const bool takeArgument) noexcept {
-    this->takeArgument = takeArgument;
     return *this;
   }
 
