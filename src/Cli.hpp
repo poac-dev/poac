@@ -244,6 +244,10 @@ public:
   }
 
 private:
+  std::vector<std::string_view> transformOptions(
+      std::string_view subcmd, std::span<const std::string_view> args
+  ) const;
+
   usize calcMaxShortSize() const noexcept;
 
   /// Print help message for poac itself.

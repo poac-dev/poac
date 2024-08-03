@@ -350,7 +350,51 @@ Cli::noSuchArg(std::string_view arg) const {
 Cli::exec(
     const std::string_view subcmd, const std::span<const std::string_view> args
 ) const {
-  return subcmds.at(subcmd).mainFn(args);
+  return subcmds.at(subcmd).mainFn(transformOptions(subcmd, args));
+}
+
+std::vector<std::string_view>
+Cli::transformOptions(
+    std::string_view subcmd, std::span<const std::string_view> args
+) const {
+  const Subcmd& cmd = subcmds.at(subcmd);
+  std::vector<std::string_view> transformed;
+  transformed.reserve(args.size());
+  for (std::string_view arg : args) {
+    if (arg.starts_with("--")) {
+      if (auto pos = arg.find_first_of('='); pos != std::string_view::npos) {
+        transformed.push_back(arg.substr(0, pos));
+        transformed.push_back(arg.substr(pos + 1));
+        continue;
+      }
+    } else if (arg.starts_with("-")) {
+      std::string_view multioption = arg.substr(1);
+      bool handled = false;
+      for (std::size_t i = 0; i < multioption.size(); ++i) {
+        const auto handle = [&](const std::span<const Opt> opts) {
+          for (const Opt& opt : opts) {
+            if (opt.shortName.empty())
+              continue;
+            if (opt.shortName.substr(1) != multioption.substr(i, 1))
+              continue;
+            transformed.push_back(opt.shortName);
+            if (!opt.placeholder.empty()) {
+              transformed.push_back(multioption.substr(i + 1));
+            }
+            handled = true;
+          }
+        };
+        if (cmd.globalOpts)
+          handle(*cmd.globalOpts);
+        handle(cmd.localOpts);
+      }
+      if (handled)
+        continue;
+    }
+
+    transformed.push_back(arg);
+  }
+  return transformed;
 }
 
 void

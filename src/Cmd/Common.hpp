@@ -19,4 +19,5 @@ inline const Opt OPT_JOBS =
     Opt{ "--jobs" }
         .setShort("-j")
         .setDesc("Set the number of jobs to run in parallel")
+        .setPlaceholder("<NUM>")
         .setDefault(NUM_DEFAULT_THREADS);
