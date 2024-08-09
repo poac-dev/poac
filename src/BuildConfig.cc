@@ -111,7 +111,7 @@ struct BuildConfig {
   std::string CXX = "clang++";
   std::string CXXFLAGS;
   std::string DEFINES;
-  std::string INCLUDES = " -Iinclude";
+  std::string INCLUDES = " -I../../include";
   std::string LIBS;
 
   BuildConfig() = default;
