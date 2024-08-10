@@ -73,7 +73,7 @@ getHeader(const std::string_view projectName) noexcept {
   header += projectName;
   header +=
       " {\n}\n\n"
-      "#endif // !"
+      "#endif  // !"
       + projectNameUpper + "_HPP\n";
   return header;
 }
