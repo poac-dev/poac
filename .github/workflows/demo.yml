@@ -1,0 +1,41 @@
+name: Demo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+
+    env:
+      CXX: g++-13
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup dependencies
+        uses: ./.github/actions/setup-ubuntu-deps
+
+      - name: Print versions
+        run: make versions
+
+      - name: Build Poac
+        run: make RELEASE=1 -j4
+
+      - name: Install Poac
+        run: |
+          make PREFIX="$HOME/.local" install
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install VHS
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install vhs
+
+      - name: Generate and publish a new demo
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          vhs --publish demo.tape
