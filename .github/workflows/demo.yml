@@ -30,12 +30,21 @@ jobs:
           make PREFIX="$HOME/.local" install
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Install VHS
+      - name: Install ttyd
         run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install vhs
+          wget https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64 -P "$HOME/.local/bin"
+          mv "$HOME/.local/bin/ttyd.x86_64" "$HOME/.local/bin/ttyd"
+          chmod +x "$HOME/.local/bin/ttyd"
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Install VHS
+        run: go install github.com/charmbracelet/vhs@latest
 
       - name: Generate and publish a new demo
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          vhs --publish demo.tape
+        run: vhs --publish demo.tape
