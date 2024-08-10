@@ -61,11 +61,10 @@ Require poac
 
 Set Shell "bash"
 Set FontSize 32
-Set Width 1200
-Set Height 600
+Set Width 1600
+Set Height 800
 
-Type "poac new hello_world" Sleep 500ms  Enter
-Type "cd hello_world" Sleep 500ms  Enter
-Type "poac run" Sleep 500ms  Enter
-
-Sleep 5s
+Type "poac version" Sleep 500ms  Enter Sleep 1s
+Type "poac new hello_world" Sleep 500ms  Enter Sleep 1s
+Type "cd hello_world" Sleep 500ms  Enter Sleep 1s
+Type "poac run" Sleep 500ms  Enter Sleep 5s
