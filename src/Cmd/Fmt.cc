@@ -21,11 +21,13 @@ const Subcmd FMT_CMD =
     Subcmd{ "fmt" }
         .setDesc("Format codes using clang-format")
         .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
+        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from formatting"))
         .setMainFn(fmtMain);
 
 static void
 collectFormatTargetFiles(
-    const fs::path& manifestDir, std::string& clangFormatArgs
+    const fs::path& manifestDir, const std::vector<fs::path>& excludes,
+    std::string& clangFormatArgs
 ) {
   // Read git repository if exists
   git2::Repository repo = git2::Repository();
@@ -37,20 +39,24 @@ collectFormatTargetFiles(
     logger::debug("No git repository found");
   }
 
+  const auto isExcluded = [&](const fs::path& path) -> bool {
+    return std::ranges::find(excludes, path) != excludes.end();
+  };
+
   // Automatically collects format-target files
   for (auto entry = fs::recursive_directory_iterator(manifestDir);
        entry != fs::recursive_directory_iterator(); ++entry) {
     if (entry->is_directory()) {
       const std::string path =
           fs::relative(entry->path(), manifestDir).string();
-      if (hasGitRepo && repo.isIgnored(path)) {
+      if (hasGitRepo && repo.isIgnored(path) || isExcluded(path)) {
         logger::debug("Ignore: ", path);
         entry.disable_recursion_pending();
         continue;
       }
     } else if (entry->is_regular_file()) {
       const fs::path path = fs::relative(entry->path(), manifestDir);
-      if (hasGitRepo && repo.isIgnored(path.string())) {
+      if (hasGitRepo && repo.isIgnored(path.string()) || isExcluded(path)) {
         logger::debug("Ignore: ", path.string());
         continue;
       }
@@ -65,6 +71,7 @@ collectFormatTargetFiles(
 
 static int
 fmtMain(const std::span<const std::string_view> args) {
+  std::vector<fs::path> excludes;
   bool isCheck = false;
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
@@ -76,6 +83,12 @@ fmtMain(const std::span<const std::string_view> args) {
       }
     } else if (*itr == "--check") {
       isCheck = true;
+    } else if (*itr == "--exclude") {
+      if (itr + 1 == args.end()) {
+        return Subcmd::missingArgumentForOpt(*itr);
+      }
+
+      excludes.push_back(*++itr);
     } else {
       return FMT_CMD.noSuchArg(*itr);
     }
@@ -102,7 +115,7 @@ fmtMain(const std::span<const std::string_view> args) {
   }
 
   const fs::path& manifestDir = getManifestPath().parent_path();
-  collectFormatTargetFiles(manifestDir, clangFormatArgs);
+  collectFormatTargetFiles(manifestDir, excludes, clangFormatArgs);
 
   const std::string clangFormat = "cd " + manifestDir.string()
                                   + " && ${POAC_FMT:-clang-format} "
