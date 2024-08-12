@@ -41,8 +41,14 @@ collectFormatTargetFiles(
     logger::debug("No git repository found");
   }
 
-  const auto isExcluded = [&](const fs::path& path) -> bool {
-    return std::find(excludes.begin(), excludes.end(), path) != excludes.end();
+  const auto isExcluded = [&](std::string_view path) -> bool {
+    return std::find_if(
+               excludes.begin(), excludes.end(),
+               [&](const fs::path& p) {
+                 return fs::relative(p, manifestDir).string() == path;
+               }
+           )
+           != excludes.end();
   };
 
   // Automatically collects format-target files
@@ -58,7 +64,8 @@ collectFormatTargetFiles(
       }
     } else if (entry->is_regular_file()) {
       const fs::path path = fs::relative(entry->path(), manifestDir);
-      if ((hasGitRepo && repo.isIgnored(path.string())) || isExcluded(path)) {
+      if ((hasGitRepo && repo.isIgnored(path.string()))
+          || isExcluded(path.string())) {
         logger::debug("Ignore: ", path.string());
         continue;
       }
