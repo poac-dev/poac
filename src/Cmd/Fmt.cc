@@ -15,6 +15,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 static int fmtMain(std::span<const std::string_view> args);
 
@@ -41,7 +42,7 @@ collectFormatTargetFiles(
   }
 
   const auto isExcluded = [&](const fs::path& path) -> bool {
-    return std::ranges::find(excludes, path) != excludes.end();
+    return std::find(excludes.begin(), excludes.end(), path) != excludes.end();
   };
 
   // Automatically collects format-target files
