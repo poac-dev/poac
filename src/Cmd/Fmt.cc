@@ -9,6 +9,7 @@
 #include "../Manifest.hpp"
 #include "../Rustify.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <span>
@@ -49,14 +50,14 @@ collectFormatTargetFiles(
     if (entry->is_directory()) {
       const std::string path =
           fs::relative(entry->path(), manifestDir).string();
-      if (hasGitRepo && repo.isIgnored(path) || isExcluded(path)) {
+      if ((hasGitRepo && repo.isIgnored(path)) || isExcluded(path)) {
         logger::debug("Ignore: ", path);
         entry.disable_recursion_pending();
         continue;
       }
     } else if (entry->is_regular_file()) {
       const fs::path path = fs::relative(entry->path(), manifestDir);
-      if (hasGitRepo && repo.isIgnored(path.string()) || isExcluded(path)) {
+      if ((hasGitRepo && repo.isIgnored(path.string())) || isExcluded(path)) {
         logger::debug("Ignore: ", path.string());
         continue;
       }
