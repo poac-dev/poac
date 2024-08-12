@@ -15,11 +15,12 @@
 
 static int lintMain(std::span<const std::string_view> args);
 
-const Subcmd LINT_CMD =
-    Subcmd{ "lint" }
-        .setDesc("Lint codes using cpplint")
-        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from linting"))
-        .setMainFn(lintMain);
+const Subcmd LINT_CMD = Subcmd{ "lint" }
+                            .setDesc("Lint codes using cpplint")
+                            .addOpt(Opt{ "--exclude" }
+                                        .setDesc("Exclude files from linting")
+                                        .setPlaceholder("<FILE>"))
+                            .setMainFn(lintMain);
 
 struct LintArgs {
   std::string excludes;

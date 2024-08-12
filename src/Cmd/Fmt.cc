@@ -23,7 +23,9 @@ const Subcmd FMT_CMD =
     Subcmd{ "fmt" }
         .setDesc("Format codes using clang-format")
         .addOpt(Opt{ "--check" }.setDesc("Run clang-format in check mode"))
-        .addOpt(Opt{ "--exclude" }.setDesc("Exclude files from formatting"))
+        .addOpt(Opt{ "--exclude" }
+                    .setDesc("Exclude files from formatting")
+                    .setPlaceholder("<FILE>"))
         .setMainFn(fmtMain);
 
 static void
