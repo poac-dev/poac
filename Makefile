@@ -134,4 +134,4 @@ versions:
 $(O)/DEPS/toml11:
 	$(MKDIR_P) $(@D)
 	git clone https://github.com/ToruNiina/toml11.git $@
-	git -C $@ reset --hard v4.0.3
+	git -C $@ reset --hard v4.2.0
