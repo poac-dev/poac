@@ -96,20 +96,40 @@ If your environment is not included in the released packages, you have to build 
 #### Libraries
 
 * fmt: `>=8.1.1 && <11`
-    * `libfmt-dev` on APT
+    * `libfmt-dev` on APT (Debian/Ubuntu)
+    * `fmt-devel` on DNF (Fedora)
     * `fmt` on Homebrew
 * libgit2: `>=1.1.0 && <1.9`
-    * `libgit2-dev` on APT
+    * `libgit2-dev` on APT (Debian/Ubuntu)
+    * `libgit2-devel` on DNF (Fedora)
     * `libgit2` on Homebrew
 * libcurl: `>=7.79.1 && <9`
-    * `libcurl4-openssl-dev` on APT
+    * `libcurl4-openssl-dev` on APT (Debian/Ubuntu)
+    * `libcurl-devel` on DNF (Fedora)
     * `curl` on Homebrew
 * nlohmann_json: `>=3.10.5 && <4`
-    * `nlohmann-json3-dev` on APT
+    * `nlohmann-json3-dev` on APT (Debian/Ubuntu)
+    * `json-devel` on DNF (Fedora)
     * `nlohmann-json` on Homebrew
 * oneTBB: `>=2021.5.0 && <2022`
-    * `libtbb-dev` on APT
+    * `libtbb-dev` on APT (Debian/Ubuntu)
+    * `tbb-devel` on DNF (Fedora)
     * `tbb` on Homebrew
+
+Installation scripts for libraries:
+* APT (Debian/Ubuntu):
+  ```sh
+  sudo apt-get update
+  sudo apt-get install -y libfmt-dev libgit2-dev libcurl4-openssl-devnlohmann-json3-dev libtbb-dev
+  ```
+* DNF (Fedora):
+  ```sh
+  sudo dnf install -y fmt-devel libgit2-devel libcurl-devel json-devel tbb-devel
+  ```
+* Brew:
+  ```sh
+  brew install fmt libgit2 curl nlohmann-json tbb
+  ```
 
 When running Make, the following libraries will be installed automatically.
 
