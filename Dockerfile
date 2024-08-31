@@ -20,7 +20,7 @@ RUN make RELEASE=1 install
 FROM $base
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-	libfmt-dev libgit2-dev libcurl4-openssl-dev nlohmann-json3-dev libtbb-dev \
+	build-essential clang libfmt-dev libgit2-dev libcurl4-openssl-dev nlohmann-json3-dev libtbb-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/bin/poac /usr/local/bin/poac
