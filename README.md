@@ -95,7 +95,7 @@ If your environment is not included in the released packages, you have to build 
 
 #### Libraries
 
-* fmt: `>=8.1.1 && <11`
+* fmt: `>=8.1.1 && <12`
     * `libfmt-dev` on APT (Debian/Ubuntu)
     * `fmt-devel` on DNF (Fedora)
     * `fmt` on Homebrew
