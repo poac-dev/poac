@@ -25,4 +25,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=builder /usr/local/bin/poac /usr/local/bin/poac
 
-ENTRYPOINT ["poac"]
+CMD ["poac"]
