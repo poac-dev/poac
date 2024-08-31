@@ -126,7 +126,7 @@ Installation scripts for libraries:
   ```sh
   sudo dnf install -y fmt-devel libgit2-devel libcurl-devel json-devel tbb-devel
   ```
-* Brew:
+* Homebrew:
   ```sh
   brew install fmt libgit2 curl nlohmann-json tbb
   ```
