@@ -807,7 +807,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
                        == sourceFilePaths.end();
 
   if (hasMain) {
-    throw PoacError(fmt::format("src/main{{{:n:}}} not found", SOURCE_FILE_EXTS)
+    throw PoacError(fmt::format("src/main{} not found", SOURCE_FILE_EXTS)
     );
   }
 
