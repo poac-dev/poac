@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -771,10 +772,6 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   if (!fs::exists("src")) {
     throw PoacError("src directory not found");
   }
-  if (!fs::exists("src/main.cc")) {
-    // For now, we only support .cc extension only for the main file.
-    throw PoacError("src/main.cc not found");
-  }
 
   const std::string outDir = config.getOutDir();
   if (!fs::exists(outDir)) {
@@ -796,6 +793,23 @@ configureBuild(BuildConfig& config, const bool isDebug) {
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
   }
+
+  const bool hasMain = std::find_if(
+                           sourceFilePaths.begin(), sourceFilePaths.end(),
+                           [](const fs::path& p) {
+                             std::string filename = p.filename().string();
+                             return std::string_view{ filename }.substr(
+                                        0, filename.find_last_of('.')
+                                    ) == "main";
+                           }
+                       )
+                       == sourceFilePaths.end();
+
+  if (hasMain) {
+    throw PoacError(fmt::format("src/main{{{:n:}}} not found", SOURCE_FILE_EXTS)
+    );
+  }
+
   config.defineSimpleVar("SRCS", srcs);
 
   // Source Pass
