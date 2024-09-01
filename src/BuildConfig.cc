@@ -800,7 +800,8 @@ configureBuild(BuildConfig& config, const bool isDebug) {
                              std::string filename = p.filename().string();
                              return std::string_view{ filename }.substr(
                                         0, filename.find_last_of('.')
-                                    ) == "main";
+                                    )
+                                    == "main";
                            }
                        )
                        == sourceFilePaths.end();
