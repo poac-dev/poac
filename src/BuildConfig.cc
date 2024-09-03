@@ -773,6 +773,28 @@ configureBuild(BuildConfig& config, const bool isDebug) {
     throw PoacError("src directory not found");
   }
 
+  // find main source file
+  fs::path mainSource;
+  for (const auto& entry : fs::directory_iterator("src")) {
+    fs::path path = entry.path();
+    if (!SOURCE_FILE_EXTS.contains(path.extension())) {
+      continue;
+    }
+    if (const auto& s = path.filename().string();
+        s.substr(0, s.find_last_of('.')) != "main") {
+      continue;
+    }
+    if (mainSource.empty()) {
+      mainSource = path;
+    } else {
+      throw PoacError("multiple main sources were found");
+    }
+  }
+
+  if (mainSource.empty()) {
+    throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
+  }
+
   const std::string outDir = config.getOutDir();
   if (!fs::exists(outDir)) {
     fs::create_directories(outDir);
@@ -790,24 +812,16 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
   std::string srcs;
   for (fs::path& sourceFilePath : sourceFilePaths) {
+    if (const auto& s = sourceFilePath.filename().string();
+        sourceFilePath != mainSource
+        && s.substr(0, s.find_last_of('.')) == "main") {
+      logger::warn(
+          "source file named main was found not directly in src directory"
+      );
+    }
+
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
-  }
-
-  const bool hasMain = std::find_if(
-                           sourceFilePaths.begin(), sourceFilePaths.end(),
-                           [](const fs::path& p) {
-                             std::string filename = p.filename().string();
-                             return std::string_view{ filename }.substr(
-                                        0, filename.find_last_of('.')
-                                    )
-                                    == "main";
-                           }
-                       )
-                       == sourceFilePaths.end();
-
-  if (hasMain) {
-    throw PoacError(fmt::format("src/main{} not found", SOURCE_FILE_EXTS));
   }
 
   config.defineSimpleVar("SRCS", srcs);
