@@ -774,14 +774,16 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   }
 
   // find main source file
+  const auto isMainSource = [](const std::string_view filename) {
+    return filename.substr(0, filename.find_last_of('.')) == "main";
+  };
   fs::path mainSource;
   for (const auto& entry : fs::directory_iterator("src")) {
     fs::path path = entry.path();
     if (!SOURCE_FILE_EXTS.contains(path.extension())) {
       continue;
     }
-    if (const auto& s = path.filename().string();
-        s.substr(0, s.find_last_of('.')) != "main") {
+    if (!isMainSource(path.filename().string())) {
       continue;
     }
     if (mainSource.empty()) {
@@ -812,12 +814,15 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
   std::string srcs;
   for (fs::path& sourceFilePath : sourceFilePaths) {
-    if (const auto& s = sourceFilePath.filename().string();
-        sourceFilePath != mainSource
-        && s.substr(0, s.find_last_of('.')) == "main") {
-      logger::warn(
-          "source file named main was found not directly in src directory"
-      );
+    if (sourceFilePath != mainSource
+        && isMainSource(sourceFilePath.filename().string())) {
+      logger::warn(fmt::format(
+          "source file `{}` is named `main` but is not located directly in the "
+          "`src/` directory. "
+          "This file will not be treated as the program's entry point. "
+          "Move it directly to 'src/' if intended as such.",
+          sourceFilePath.string()
+      ));
     }
 
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
