@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -771,9 +772,29 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   if (!fs::exists("src")) {
     throw PoacError("src directory not found");
   }
-  if (!fs::exists("src/main.cc")) {
-    // For now, we only support .cc extension only for the main file.
-    throw PoacError("src/main.cc not found");
+
+  // find main source file
+  const auto isMainSource = [](const std::string_view filename) {
+    return filename.substr(0, filename.find_last_of('.')) == "main";
+  };
+  fs::path mainSource;
+  for (const auto& entry : fs::directory_iterator("src")) {
+    fs::path path = entry.path();
+    if (!SOURCE_FILE_EXTS.contains(path.extension())) {
+      continue;
+    }
+    if (!isMainSource(path.filename().string())) {
+      continue;
+    }
+    if (mainSource.empty()) {
+      mainSource = path;
+    } else {
+      throw PoacError("multiple main sources were found");
+    }
+  }
+
+  if (mainSource.empty()) {
+    throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
   }
 
   const std::string outDir = config.getOutDir();
@@ -793,9 +814,21 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
   std::string srcs;
   for (fs::path& sourceFilePath : sourceFilePaths) {
+    if (sourceFilePath != mainSource
+        && isMainSource(sourceFilePath.filename().string())) {
+      logger::warn(fmt::format(
+          "source file `{}` is named `main` but is not located directly in the "
+          "`src/` directory. "
+          "This file will not be treated as the program's entry point. "
+          "Move it directly to 'src/' if intended as such.",
+          sourceFilePath.string()
+      ));
+    }
+
     sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
   }
+
   config.defineSimpleVar("SRCS", srcs);
 
   // Source Pass

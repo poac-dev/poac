@@ -81,8 +81,7 @@ printTable(const nlohmann::json& packages) {
   constexpr int verWidth = 10;
 
   std::cout << std::left << std::setw(nameWidth) << "Name"
-            << std::setw(verWidth) << "Version"
-            << "Description" << '\n';
+            << std::setw(verWidth) << "Version" << "Description" << '\n';
   std::cout << std::string(tableWidth, '-') << '\n';
   for (const auto& package : packages) {
     const std::string name = package["name"];
