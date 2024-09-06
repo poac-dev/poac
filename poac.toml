@@ -8,7 +8,7 @@ license = "Apache-2.0"
 name = "poac"
 readme = "README.md"
 repository = "https://github.com/poac-dev/poac"
-version = "0.10.0"
+version = "0.10.1"
 
 [dependencies]
 toml11 = {git = "https://github.com/ToruNiina/toml11.git", tag = "v4.2.0"}
