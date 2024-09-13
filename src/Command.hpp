@@ -1,9 +1,14 @@
 #pragma once
 
-#include <cstdlib>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <vector>
+
+struct CommandOutput {
+  std::string output;
+  int exitCode;
+};
 
 struct Command {
   std::string command;
@@ -16,14 +21,17 @@ struct Command {
     return *this;
   }
 
-  int execute() const {
+  std::string getCmdline() const {
     std::string cmdline = command;
     for (const std::string& arg : arguments) {
-      cmdline += arg;
+      cmdline = cmdline + ' ' + arg;
     }
-    int status = std::system(cmdline.c_str());
-    return WEXITSTATUS(status);
+    return cmdline;
   }
+
+  int execute() const;
+
+  CommandOutput output() const;
 };
 
 std::ostream&
