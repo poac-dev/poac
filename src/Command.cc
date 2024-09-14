@@ -14,18 +14,8 @@
 int
 Command::execute() const {
   const std::string cmdline = getCmdline();
-
-  int fd[2];
-
-  if (pipe(fd)) {
-    throw PoacError("pipe() failed");
-  }
-
   pid_t pid = fork();
-
   if (pid == -1) {
-    close(fd[0]);
-    close(fd[1]);
     throw PoacError("fork() failed");
   } else if (pid == 0) {
     std::vector<char*> args;
@@ -35,18 +25,14 @@ Command::execute() const {
     }
     args.push_back(nullptr);
     if (execvp(command.data(), args.data()) == -1) {
-      close(fd[1]);
       throw PoacError("execvp() failed");
     }
-    close(fd[1]);
     exit(EXIT_SUCCESS);
   } else {
     int status;
     if (waitpid(pid, &status, 0) == -1) {
-      close(fd[0]);
       throw PoacError("waitpid() failed");
     }
-    close(fd[0]);
     return WEXITSTATUS(status);
   }
 }
