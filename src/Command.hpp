@@ -21,16 +21,6 @@ struct Command {
     return *this;
   }
 
-  std::string getCmdline() const {
-    std::string cmdline = command;
-    for (const std::string& arg : arguments) {
-      cmdline = cmdline + ' ' + arg;
-    }
-    return cmdline;
-  }
-
-  int execute() const;
-
   CommandOutput output() const;
 };
 

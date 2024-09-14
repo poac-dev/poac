@@ -11,13 +11,27 @@
 #include <unistd.h>
 #include <vector>
 
-int
-Command::execute() const {
-  const std::string cmdline = getCmdline();
+CommandOutput
+Command::output() const {
+  constexpr std::size_t bufferSize = 128;
+  std::array<char, bufferSize> buffer{};
+  std::string output;
+  int pipefd[2];
+
+  if (pipe(pipefd) == -1) {
+    throw PoacError("pipe() failed");
+  }
+
   pid_t pid = fork();
   if (pid == -1) {
     throw PoacError("fork() failed");
   } else if (pid == 0) {
+    close(pipefd[0]); // child doesn't read
+
+    // redirect stdout to pipe
+    dup2(pipefd[1], 1);
+    close(pipefd[1]);
+
     std::vector<char*> args;
     args.push_back(const_cast<std::string&>(command).data());
     for (std::string& arg : const_cast<std::vector<std::string>&>(arguments)) {
@@ -27,37 +41,28 @@ Command::execute() const {
     if (execvp(command.data(), args.data()) == -1) {
       throw PoacError("execvp() failed");
     }
-    exit(EXIT_SUCCESS);
+    std::terminate(); // unreachable
   } else {
+    close(pipefd[1]); // parent doesn't write
+
     int status;
     if (waitpid(pid, &status, 0) == -1) {
       throw PoacError("waitpid() failed");
     }
-    return WEXITSTATUS(status);
-  }
-}
 
-CommandOutput
-Command::output() const {
-  const std::string cmdline = getCmdline();
-  constexpr usize bufferSize = 128;
-  std::array<char, bufferSize> buffer{};
-  std::string output;
+    FILE* stream = fdopen(pipefd[0], "r");
+    if (stream == nullptr) {
+      close(pipefd[0]);
+      throw PoacError("fdopen() failed");
+    }
 
-  logger::debug("Running `", cmdline, '`');
-  FILE* pipe = popen(cmdline.c_str(), "r");
-  if (!pipe) {
-    throw PoacError("popen() failed!");
-  }
+    while (fgets(buffer.data(), buffer.size(), stream) != nullptr) {
+      output += buffer.data();
+    }
 
-  while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-    output += buffer.data();
-  }
+    fclose(stream);
 
-  const int status = pclose(pipe);
-  if (status == -1) {
-    throw PoacError("pclose() failed!");
+    const int exitCode = WEXITSTATUS(status);
+    return { output, exitCode };
   }
-  const int exitCode = WEXITSTATUS(status);
-  return { output, exitCode };
 }
