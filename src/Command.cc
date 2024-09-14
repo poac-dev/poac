@@ -1,6 +1,7 @@
 #include "Command.hpp"
 
 #include "Exception.hpp"
+#include "Logger.hpp"
 #include "Rustify.hpp"
 
 #include <array>
@@ -10,6 +11,7 @@
 int
 Command::execute() const {
   const std::string cmdline = getCmdline();
+  logger::debug("Running `", cmdline, '`');
   const int status = system(cmdline.c_str());
   return WEXITSTATUS(status);
 }
@@ -21,6 +23,7 @@ Command::output() const {
   std::array<char, bufferSize> buffer{};
   std::string output;
 
+  logger::debug("Running `", cmdline, '`');
   FILE* pipe = popen(cmdline.c_str(), "r");
   if (!pipe) {
     throw PoacError("popen() failed!");
