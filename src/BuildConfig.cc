@@ -774,8 +774,8 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   }
 
   // find main source file
-  const auto isMainSource = [](const fs::path& filename) {
-    return filename.stem() == "main";
+  const auto isMainSource = [](const fs::path& file) {
+    return file.filename().stem() == "main";
   };
   fs::path mainSource;
   for (const auto& entry : fs::directory_iterator("src")) {
@@ -783,7 +783,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
     if (!SOURCE_FILE_EXTS.contains(path.extension())) {
       continue;
     }
-    if (!isMainSource(path.filename())) {
+    if (!isMainSource(path)) {
       continue;
     }
     if (mainSource.empty()) {
@@ -814,8 +814,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
   std::string srcs;
   for (fs::path& sourceFilePath : sourceFilePaths) {
-    if (sourceFilePath != mainSource
-        && isMainSource(sourceFilePath.filename())) {
+    if (sourceFilePath != mainSource && isMainSource(sourceFilePath)) {
       logger::warn(fmt::format(
           "source file `{}` is named `main` but is not located directly in the "
           "`src/` directory. "
