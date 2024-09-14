@@ -14,7 +14,7 @@ struct Command {
   std::string command;
   std::vector<std::string> arguments;
 
-  Command(const std::string_view cmd) : command(cmd) {}
+  explicit Command(const std::string_view cmd) : command(cmd) {}
 
   Command& addArg(const std::string_view arg) {
     arguments.emplace_back(arg);
