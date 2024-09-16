@@ -335,13 +335,12 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
     // The output is the target.
     const std::string output = target;
     const Command cmd = Command(CXX)
-                            .addArg(" ")
                             .addArgs(CXXFLAGS)
                             .addArgs(DEFINES)
                             .addArgs(INCLUDES)
-                            .addArg(" -c ")
+                            .addArg("-c")
                             .addArg(file)
-                            .addArg(" -o ")
+                            .addArg("-o")
                             .addArg(output);
 
     oss << indent1 << "{\n";
@@ -565,8 +564,10 @@ void
 BuildConfig::installDeps(const bool includeDevDeps) {
   const std::vector<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
-    INCLUDES.push_back(dep.includes);
-    LIBS.push_back(dep.libs);
+    if (!dep.includes.empty())
+      INCLUDES.push_back(dep.includes);
+    if (!dep.libs.empty())
+      LIBS.push_back(dep.libs);
   }
   logger::debug(fmt::format("INCLUDES: {}", fmt::join(INCLUDES, " ")));
   logger::debug(fmt::format("LIBS: {}", fmt::join(LIBS, " ")));
