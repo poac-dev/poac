@@ -67,8 +67,8 @@ getCmdOutput(const Command& cmd, const usize retry) {
 
 bool
 commandExists(const std::string_view cmd) noexcept {
-  auto checkCmd = Command("command").addArg("-v").addArg(cmd);
-  return execCmd(checkCmd) == EXIT_SUCCESS;
+  std::string checkCmd = "command -v " + std::string(cmd);
+  return WEXITSTATUS(std::system(checkCmd.c_str())) == EXIT_SUCCESS;
 }
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
