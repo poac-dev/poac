@@ -31,7 +31,7 @@ const Subcmd FMT_CMD =
 static void
 collectFormatTargetFiles(
     const fs::path& manifestDir, const std::vector<fs::path>& excludes,
-    std::string& clangFormatArgs
+    std::vector<std::string>& clangFormatArgs
 ) {
   // Read git repository if exists
   git2::Repository repo = git2::Repository();
@@ -74,7 +74,7 @@ collectFormatTargetFiles(
 
       const std::string ext = path.extension().string();
       if (SOURCE_FILE_EXTS.contains(ext) || HEADER_FILE_EXTS.contains(ext)) {
-        clangFormatArgs += ' ' + path.string();
+        clangFormatArgs.push_back(path.string());
       }
     }
   }
@@ -114,22 +114,27 @@ fmtMain(const std::span<const std::string_view> args) {
   }
 
   const std::string_view packageName = getPackageName();
-  std::string clangFormatArgs = "--style=file --fallback-style=LLVM -Werror";
+  std::vector<std::string> clangFormatArgs{
+    "--style=file",
+    "--fallback-style=LLVM",
+    "-Werror",
+  };
   if (isVerbose()) {
-    clangFormatArgs += " --verbose";
+    clangFormatArgs.push_back("--verbose");
   }
   if (isCheck) {
-    clangFormatArgs += " --dry-run";
+    clangFormatArgs.push_back("--dry-run");
   } else {
-    clangFormatArgs += " -i";
+    clangFormatArgs.push_back("-i");
     logger::info("Formatting", packageName);
   }
 
   const fs::path& manifestDir = getManifestPath().parent_path();
   collectFormatTargetFiles(manifestDir, excludes, clangFormatArgs);
 
-  const std::string clangFormat = "cd " + manifestDir.string()
-                                  + " && ${POAC_FMT:-clang-format} "
-                                  + clangFormatArgs;
+  const Command clangFormat =
+      Command("${POAC_FMT:-clang-format}", std::move(clangFormatArgs))
+          .setWorkingDirectory(manifestDir.string());
+
   return execCmd(clangFormat);
 }

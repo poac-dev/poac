@@ -110,10 +110,10 @@ struct BuildConfig {
 
   std::string OUT_DIR;
   std::string CXX = "clang++";
-  std::string CXXFLAGS;
-  std::string DEFINES;
-  std::string INCLUDES = " -I../../include";
-  std::string LIBS;
+  std::vector<std::string> CXXFLAGS;
+  std::vector<std::string> DEFINES;
+  std::vector<std::string> INCLUDES = { "-I../../include" };
+  std::vector<std::string> LIBS;
 
   BuildConfig() = default;
   explicit BuildConfig(const std::string& packageName)
@@ -334,21 +334,21 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
     const std::string file = targetInfo.sourceFile.value();
     // The output is the target.
     const std::string output = target;
-    std::string cmd = CXX;
-    cmd += ' ';
-    cmd += CXXFLAGS;
-    cmd += DEFINES;
-    cmd += INCLUDES;
-    cmd += " -c ";
-    cmd += file;
-    cmd += " -o ";
-    cmd += output;
+    const Command cmd = Command(CXX)
+                            .addArg(" ")
+                            .addArgs(CXXFLAGS)
+                            .addArgs(DEFINES)
+                            .addArgs(INCLUDES)
+                            .addArg(" -c ")
+                            .addArg(file)
+                            .addArg(" -o ")
+                            .addArg(output);
 
     oss << indent1 << "{\n";
     oss << indent2 << "\"directory\": " << baseDirPath << ",\n";
     oss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
     oss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
-    oss << indent2 << "\"command\": " << std::quoted(cmd) << "\n";
+    oss << indent2 << "\"command\": " << std::quoted(cmd.to_string()) << "\n";
     oss << indent1 << "},\n";
   }
 
@@ -366,18 +366,14 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
 
 std::string
 BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
-  std::string command = "cd ";
-  command += getOutDir();
-  command += " && ";
-  command += CXX;
-  command += CXXFLAGS;
-  command += DEFINES;
-  command += INCLUDES;
+  Command command =
+      Command(CXX).addArgs(CXXFLAGS).addArgs(DEFINES).addArgs(INCLUDES);
   if (isTest) {
-    command += " -DPOAC_TEST";
+    command.addArg("-DPOAC_TEST");
   }
-  command += " -MM ";
-  command += sourceFile;
+  command.addArg("-MM");
+  command.addArg(sourceFile);
+  command.setWorkingDirectory(getOutDir());
   return getCmdOutput(command);
 }
 
@@ -430,17 +426,16 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != std::string::npos) {
       // TODO: Can't we somehow elegantly make the compiler command sharable?
-      std::string command = CXX;
-      command += " -E ";
-      command += CXXFLAGS;
-      command += DEFINES;
-      command += INCLUDES;
-      command += ' ';
-      command += sourceFile;
+      Command command(CXX);
+      command.addArg("-E");
+      command.addArgs(CXXFLAGS);
+      command.addArgs(DEFINES);
+      command.addArgs(INCLUDES);
+      command.addArg(sourceFile);
 
       const std::string src = getCmdOutput(command);
 
-      command += " -DPOAC_TEST";
+      command.addArg("-DPOAC_TEST");
       const std::string testSrc = getCmdOutput(command);
 
       // If the source file contains POAC_TEST, by processing the source
@@ -570,42 +565,46 @@ void
 BuildConfig::installDeps(const bool includeDevDeps) {
   const std::vector<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
-    INCLUDES += ' ' + dep.includes;
-    LIBS += ' ' + dep.libs;
+    INCLUDES.push_back(dep.includes);
+    LIBS.push_back(dep.libs);
   }
-  logger::debug("INCLUDES: ", INCLUDES);
-  logger::debug("LIBS: ", LIBS);
+  logger::debug(fmt::format("INCLUDES: {}", fmt::join(INCLUDES, " ")));
+  logger::debug(fmt::format("LIBS: {}", fmt::join(LIBS, " ")));
 }
 
 void
 BuildConfig::addDefine(
     const std::string_view name, const std::string_view value
 ) {
-  DEFINES += fmt::format(" -D{}='\"{}\"'", name, value);
+  DEFINES.push_back(fmt::format("-D{}='\"{}\"'", name, value));
 }
 
 void
 BuildConfig::setVariables(const bool isDebug) {
   this->defineCondVar("CXX", CXX);
 
-  CXXFLAGS += " -std=c++" + getPackageEdition().getString();
+  CXXFLAGS.push_back("-std=c++" + getPackageEdition().getString());
   if (shouldColor()) {
-    CXXFLAGS += " -fdiagnostics-color";
+    CXXFLAGS.push_back("-fdiagnostics-color");
   }
   if (isDebug) {
-    CXXFLAGS += " -g -O0 -DDEBUG";
+    CXXFLAGS.push_back("-g");
+    CXXFLAGS.push_back("-O0");
+    CXXFLAGS.push_back("-DDEBUG");
   } else {
-    CXXFLAGS += " -O3 -DNDEBUG";
+    CXXFLAGS.push_back("-O3");
+    CXXFLAGS.push_back("-DNDEBUG");
   }
   const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
   if (profile.lto) {
-    CXXFLAGS += " -flto";
+    CXXFLAGS.push_back("-flto");
   }
   for (const std::string_view flag : profile.cxxflags) {
-    CXXFLAGS += ' ';
-    CXXFLAGS += flag;
+    CXXFLAGS.emplace_back(flag);
   }
-  this->defineSimpleVar("CXXFLAGS", CXXFLAGS);
+  this->defineSimpleVar(
+      "CXXFLAGS", fmt::format("{:s}", fmt::join(CXXFLAGS, " "))
+  );
 
   const std::string pkgName = toMacroName(this->packageName);
   const Version& pkgVersion = getPackageVersion();
@@ -646,9 +645,13 @@ BuildConfig::setVariables(const bool isDebug) {
     addDefine(key, val);
   }
 
-  this->defineSimpleVar("DEFINES", DEFINES);
-  this->defineSimpleVar("INCLUDES", INCLUDES);
-  this->defineSimpleVar("LIBS", LIBS);
+  this->defineSimpleVar(
+      "DEFINES", fmt::format("{:s}", fmt::join(DEFINES, " "))
+  );
+  this->defineSimpleVar(
+      "INCLUDES", fmt::format("{:s}", fmt::join(INCLUDES, " "))
+  );
+  this->defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(LIBS, " ")));
 }
 
 void
@@ -956,18 +959,16 @@ modeToProfile(const bool isDebug) {
   return isDebug ? "dev" : "release";
 }
 
-std::string
+Command
 getMakeCommand() {
-  std::string makeCommand;
-  if (isVerbose()) {
-    makeCommand = "make";
-  } else {
-    makeCommand = "make -s --no-print-directory Q=@";
+  Command makeCommand("make");
+  if (!isVerbose()) {
+    makeCommand.addArg("-s").addArg("--no-print-directory").addArg("Q=@");
   }
 
   const usize numThreads = getParallelism();
   if (numThreads > 1) {
-    makeCommand += " -j" + std::to_string(numThreads);
+    makeCommand.addArg("-j" + std::to_string(numThreads));
   }
 
   return makeCommand;

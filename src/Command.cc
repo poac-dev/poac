@@ -5,6 +5,8 @@
 #include "Rustify.hpp"
 
 #include <array>
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -38,17 +40,19 @@ Command::output() const {
       args.push_back(arg.data());
     }
     args.push_back(nullptr);
+
+    if (!working_directory.empty()) {
+      if (chdir(working_directory.c_str()) == -1) {
+        throw PoacError("chdir() failed");
+      }
+    }
+
     if (execvp(command.data(), args.data()) == -1) {
       throw PoacError("execvp() failed");
     }
     std::terminate(); // unreachable
   } else {
     close(pipefd[1]); // parent doesn't write
-
-    int status;
-    if (waitpid(pid, &status, 0) == -1) {
-      throw PoacError("waitpid() failed");
-    }
 
     FILE* stream = fdopen(pipefd[0], "r");
     if (stream == nullptr) {
@@ -62,7 +66,26 @@ Command::output() const {
 
     fclose(stream);
 
+    int status;
+    if (waitpid(pid, &status, 0) == -1) {
+      throw PoacError("waitpid() failed");
+    }
+
     const int exitCode = WEXITSTATUS(status);
     return { output, exitCode };
   }
+}
+
+std::string
+Command::to_string() const {
+  std::string res = command;
+  for (const std::string& arg : arguments) {
+    res += ' ' + arg;
+  }
+  return res;
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Command& cmd) {
+  return os << cmd.to_string();
 }

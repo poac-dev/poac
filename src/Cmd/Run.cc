@@ -56,9 +56,9 @@ runMain(const std::span<const std::string_view> args) {
     }
   }
 
-  std::string runArgs;
+  std::vector<std::string> runArgs;
   for (; itr != args.end(); ++itr) {
-    runArgs += ' ' + std::string(*itr);
+    runArgs.push_back(std::string(*itr));
   }
 
   std::string outDir;
@@ -67,6 +67,6 @@ runMain(const std::span<const std::string_view> args) {
   }
 
   const std::string& projectName = getPackageName();
-  const std::string command = outDir + "/" + projectName + runArgs;
+  const auto command = Command(outDir + "/" + projectName, runArgs);
   return execCmd(command);
 }

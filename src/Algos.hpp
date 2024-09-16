@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Command.hpp"
 #include "Exception.hpp"
 #include "Rustify.hpp"
 
@@ -20,8 +21,8 @@
 std::string toUpper(std::string_view str) noexcept;
 std::string toMacroName(std::string_view name) noexcept;
 
-int execCmd(std::string_view cmd) noexcept;
-std::string getCmdOutput(std::string_view cmd, usize retry = 3);
+int execCmd(const Command& cmd) noexcept;
+std::string getCmdOutput(const Command& cmd, usize retry = 3);
 bool commandExists(std::string_view cmd) noexcept;
 
 template <typename T>

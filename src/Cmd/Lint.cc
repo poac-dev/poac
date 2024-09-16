@@ -23,17 +23,16 @@ const Subcmd LINT_CMD = Subcmd{ "lint" }
                             .setMainFn(lintMain);
 
 struct LintArgs {
-  std::string excludes;
+  std::vector<std::string> excludes;
 };
 
 static int
-lint(const std::string_view name, const std::string_view cpplintArgs) {
+lint(const std::string_view name, const std::vector<std::string>& cpplintArgs) {
   logger::info("Linting", name);
 
-  std::string cpplintCmd = "cpplint";
-  cpplintCmd += cpplintArgs;
+  Command cpplintCmd("cpplint", cpplintArgs);
   if (!isVerbose()) {
-    cpplintCmd += " --quiet";
+    cpplintCmd.addArg("--quiet");
   }
 
   // Read .gitignore if exists
@@ -45,12 +44,12 @@ lint(const std::string_view name, const std::string_view cpplintArgs) {
         continue;
       }
 
-      cpplintCmd += " --exclude=";
-      cpplintCmd += line;
+      cpplintCmd.addArg("--exclude=" + line);
     }
   }
   // NOTE: This should come after the `--exclude` options.
-  cpplintCmd += " --recursive .";
+  cpplintCmd.addArg("--recursive");
+  cpplintCmd.addArg(".");
   return execCmd(cpplintCmd);
 }
 
@@ -69,8 +68,7 @@ lintMain(const std::span<const std::string_view> args) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
 
-      lintArgs.excludes += " --exclude=";
-      lintArgs.excludes += *++itr;
+      lintArgs.excludes.push_back("--exclude=" + std::string(*++itr));
     } else {
       return LINT_CMD.noSuchArg(*itr);
     }
@@ -84,7 +82,7 @@ lintMain(const std::span<const std::string_view> args) {
     return EXIT_FAILURE;
   }
 
-  std::string cpplintArgs = lintArgs.excludes;
+  std::vector<std::string> cpplintArgs = lintArgs.excludes;
   const std::string_view packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     logger::debug("Using CPPLINT.cfg for lint ...");
@@ -92,27 +90,28 @@ lintMain(const std::span<const std::string_view> args) {
   }
 
   if (fs::exists("include")) {
-    cpplintArgs += " --root=include";
+    cpplintArgs.push_back("--root=include");
   } else if (fs::exists("src")) {
-    cpplintArgs += " --root=src";
+    cpplintArgs.push_back("--root=src");
   }
 
   const std::vector<std::string>& cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
     logger::debug("Using Poac manifest file for lint ...");
-    cpplintArgs += " --filter=";
+    std::string filterArg = "--filter=";
     for (const std::string_view filter : cpplintFilters) {
-      cpplintArgs += filter;
-      cpplintArgs += ',';
+      filterArg += filter;
+      filterArg += ',';
     }
     // Remove last comma
-    cpplintArgs.pop_back();
+    filterArg.pop_back();
+    cpplintArgs.push_back(filterArg);
     return lint(packageName, cpplintArgs);
   } else {
     logger::debug("Using default arguments for lint ...");
     if (Edition::Cpp11 < getPackageEdition()) {
       // Disable C++11-related lints
-      cpplintArgs += " --filter=-build/c++11";
+      cpplintArgs.push_back("--filter=-build/c++11");
     }
     return lint(packageName, cpplintArgs);
   }

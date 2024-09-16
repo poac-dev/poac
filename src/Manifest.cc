@@ -598,7 +598,7 @@ GitDependency::install() const {
   }
 
   const fs::path includeDir = installDir / "include";
-  std::string includes = "-isystem ";
+  std::string includes = "-I";
 
   if (fs::exists(includeDir) && fs::is_directory(includeDir)
       && !fs::is_empty(includeDir)) {
@@ -614,8 +614,10 @@ GitDependency::install() const {
 DepMetadata
 SystemDependency::install() const {
   const std::string pkgConfigVer = versionReq.toPkgConfigString(name);
-  const std::string cflagsCmd = "pkg-config --cflags '" + pkgConfigVer + "'";
-  const std::string libsCmd = "pkg-config --libs '" + pkgConfigVer + "'";
+  const Command cflagsCmd =
+      Command("pkg-config").addArg("--cflags").addArg(pkgConfigVer);
+  const Command libsCmd =
+      Command("pkg-config").addArg("--libs").addArg(pkgConfigVer);
 
   std::string cflags = getCmdOutput(cflagsCmd);
   cflags.pop_back(); // remove '\n'
