@@ -14,6 +14,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 static int runMain(std::span<const std::string_view> args);
 

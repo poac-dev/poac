@@ -15,6 +15,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 static int fmtMain(std::span<const std::string_view> args);
