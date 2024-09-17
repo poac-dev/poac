@@ -42,7 +42,7 @@ toMacroName(const std::string_view name) noexcept {
 int
 execCmd(const Command& cmd) noexcept {
   logger::debug("Running `", cmd, '`');
-  return cmd.output().exitCode;
+  return cmd.spawn().wait();
 }
 
 std::string

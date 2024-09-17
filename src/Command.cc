@@ -5,19 +5,54 @@
 #include "Rustify.hpp"
 
 #include <array>
-#include <fmt/core.h>
-#include <fmt/ranges.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
 
+int
+Child::wait() const {
+  close(stdoutfd);
+
+  int status;
+  if (waitpid(pid, &status, 0) == -1) {
+    throw PoacError("waitpid() failed");
+  }
+
+  const int exitCode = WEXITSTATUS(status);
+  return exitCode;
+}
+
 CommandOutput
-Command::output() const {
+Child::wait_with_output() const {
   constexpr std::size_t bufferSize = 128;
   std::array<char, bufferSize> buffer{};
   std::string output;
+
+  FILE* stream = fdopen(stdoutfd, "r");
+  if (stream == nullptr) {
+    close(stdoutfd);
+    throw PoacError("fdopen() failed");
+  }
+
+  while (fgets(buffer.data(), buffer.size(), stream) != nullptr) {
+    output += buffer.data();
+  }
+
+  fclose(stream);
+
+  int status;
+  if (waitpid(pid, &status, 0) == -1) {
+    throw PoacError("waitpid() failed");
+  }
+
+  const int exitCode = WEXITSTATUS(status);
+  return { output, exitCode };
+}
+
+Child
+Command::spawn() const {
   int pipefd[2];
 
   if (pipe(pipefd) == -1) {
@@ -54,26 +89,13 @@ Command::output() const {
   } else {
     close(pipefd[1]); // parent doesn't write
 
-    FILE* stream = fdopen(pipefd[0], "r");
-    if (stream == nullptr) {
-      close(pipefd[0]);
-      throw PoacError("fdopen() failed");
-    }
-
-    while (fgets(buffer.data(), buffer.size(), stream) != nullptr) {
-      output += buffer.data();
-    }
-
-    fclose(stream);
-
-    int status;
-    if (waitpid(pid, &status, 0) == -1) {
-      throw PoacError("waitpid() failed");
-    }
-
-    const int exitCode = WEXITSTATUS(status);
-    return { output, exitCode };
+    return Child(pid, pipefd[0]);
   }
+}
+
+CommandOutput
+Command::output() const {
+  return spawn().wait_with_output();
 }
 
 std::string
