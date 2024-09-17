@@ -598,7 +598,7 @@ GitDependency::install() const {
   }
 
   const fs::path includeDir = installDir / "include";
-  std::string includes = "-I";
+  std::string includes = "-isystem";
 
   if (fs::exists(includeDir) && fs::is_directory(includeDir)
       && !fs::is_empty(includeDir)) {
