@@ -50,7 +50,7 @@ Command::output() const {
     if (execvp(command.data(), args.data()) == -1) {
       throw PoacError("execvp() failed");
     }
-    std::terminate(); // unreachable
+    unreachable();
   } else {
     close(pipefd[1]); // parent doesn't write
 
