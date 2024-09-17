@@ -133,9 +133,13 @@ fmtMain(const std::span<const std::string_view> args) {
   const fs::path& manifestDir = getManifestPath().parent_path();
   collectFormatTargetFiles(manifestDir, excludes, clangFormatArgs);
 
-  const Command clangFormat =
-      Command("${POAC_FMT:-clang-format}", std::move(clangFormatArgs))
-          .setWorkingDirectory(manifestDir.string());
+  const char* poacFmt = std::getenv("POAC_FMT");
+  if (poacFmt == nullptr) {
+    poacFmt = "clang-format";
+  }
+
+  const Command clangFormat = Command(poacFmt, std::move(clangFormatArgs))
+                                  .setWorkingDirectory(manifestDir.string());
 
   return execCmd(clangFormat);
 }
