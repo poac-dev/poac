@@ -5,6 +5,7 @@
 #include "Rustify.hpp"
 
 #include <array>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -88,6 +89,16 @@ Command::spawn() const {
     unreachable();
   } else {
     close(pipefd[1]); // parent doesn't write
+
+    const int flag = fcntl(pipefd[0], F_GETFL);
+    if (flag == -1) {
+      throw PoacError("fcntl(F_GETFL) failed");
+    }
+    if (flag & O_NONBLOCK) {
+      if (fcntl(pipefd[0], F_SETFL, flag & ~O_NONBLOCK) == -1) {
+        throw PoacError("fcntl(F_SETFL) failed");
+      }
+    }
 
     return Child(pid, pipefd[0]);
   }
