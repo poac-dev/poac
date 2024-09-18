@@ -1,10 +1,10 @@
 #include "Command.hpp"
 
 #include "Exception.hpp"
-#include "Logger.hpp"
 #include "Rustify.hpp"
 
 #include <array>
+#include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -13,7 +13,6 @@
 
 int
 Child::wait() const {
-
   int status;
   if (waitpid(pid, &status, 0) == -1) {
     close(stdoutfd);
