@@ -569,8 +569,8 @@ BuildConfig::installDeps(const bool includeDevDeps) {
     if (!dep.libs.empty())
       LIBS.push_back(dep.libs);
   }
-  logger::debug(fmt::format("INCLUDES: {}", fmt::join(INCLUDES, " ")));
-  logger::debug(fmt::format("LIBS: {}", fmt::join(LIBS, " ")));
+  logger::debug(fmt::format("INCLUDES: {}", INCLUDES));
+  logger::debug(fmt::format("LIBS: {}", LIBS));
 }
 
 void
