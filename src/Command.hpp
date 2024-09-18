@@ -17,7 +17,7 @@ private:
   pid_t pid;
   int stdoutfd;
 
-  Child(pid_t pid, int stdoutfd) : pid(pid), stdoutfd(stdoutfd) {}
+  Child(pid_t pid, int stdoutfd) noexcept : pid(pid), stdoutfd(stdoutfd) {}
 
   friend struct Command;
 
