@@ -68,6 +68,6 @@ runMain(const std::span<const std::string_view> args) {
   }
 
   const std::string& projectName = getPackageName();
-  const auto command = Command(outDir + "/" + projectName, runArgs);
+  const Command command(outDir + "/" + projectName, runArgs);
   return execCmd(command);
 }
