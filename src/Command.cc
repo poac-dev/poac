@@ -102,7 +102,7 @@ Command::spawn() const {
 
       return Child(pid, stdoutPipe[0]);
     } else {
-      return Child(pid, /* stdout */ 1);
+      return Child(pid, /* stdin */ 0);
     }
   }
 }
