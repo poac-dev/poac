@@ -67,7 +67,11 @@ getCmdOutput(const Command& cmd, const usize retry) {
 
 bool
 commandExists(const std::string_view cmd) noexcept {
-  const int exitCode = Command("which").addArg(cmd).spawn().wait();
+  const int exitCode = Command("which")
+                           .addArg(cmd)
+                           .setStdoutConfig(Command::StdioConfig::Null)
+                           .spawn()
+                           .wait();
   return exitCode == EXIT_SUCCESS;
 }
 

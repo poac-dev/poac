@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cstddef>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -54,21 +55,29 @@ Child::wait_with_output() const {
 
 Child
 Command::spawn() const {
-  int pipefd[2];
+  int stdoutPipe[2];
 
-  if (pipe(pipefd) == -1) {
-    throw PoacError("pipe() failed");
+  if (stdoutConfig == StdioConfig::Piped) {
+    if (pipe(stdoutPipe) == -1) {
+      throw PoacError("pipe() failed");
+    }
   }
 
   pid_t pid = fork();
   if (pid == -1) {
     throw PoacError("fork() failed");
   } else if (pid == 0) {
-    close(pipefd[0]); // child doesn't read
+    if (stdoutConfig == StdioConfig::Piped) {
+      close(stdoutPipe[0]); // child doesn't read
 
-    // redirect stdout to pipe
-    dup2(pipefd[1], 1);
-    close(pipefd[1]);
+      // redirect stdout to pipe
+      dup2(stdoutPipe[1], 1);
+      close(stdoutPipe[1]);
+    } else if (stdoutConfig == StdioConfig::Null) {
+      int nullfd = open("/dev/null", O_WRONLY);
+      dup2(nullfd, 1);
+      close(nullfd);
+    }
 
     std::vector<char*> args;
     args.push_back(const_cast<std::string&>(command).data());
@@ -88,15 +97,21 @@ Command::spawn() const {
     }
     unreachable();
   } else {
-    close(pipefd[1]); // parent doesn't write
+    if (stdoutConfig == StdioConfig::Piped) {
+      close(stdoutPipe[1]); // parent doesn't write
 
-    return Child(pid, pipefd[0]);
+      return Child(pid, stdoutPipe[0]);
+    } else {
+      return Child(pid, /* stdout */ 1);
+    }
   }
 }
 
 CommandOutput
 Command::output() const {
-  return spawn().wait_with_output();
+  Command cmd = *this;
+  cmd.setStdoutConfig(StdioConfig::Piped);
+  return cmd.spawn().wait_with_output();
 }
 
 std::string

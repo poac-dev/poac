@@ -27,9 +27,16 @@ public:
 };
 
 struct Command {
+  enum class StdioConfig {
+    Null,
+    Inherit,
+    Piped,
+  };
+
   std::string command;
   std::vector<std::string> arguments;
   std::string working_directory;
+  StdioConfig stdoutConfig = StdioConfig::Inherit;
 
   explicit Command(std::string_view cmd) : command(cmd) {}
   Command(std::string_view cmd, std::vector<std::string> args)
@@ -42,6 +49,11 @@ struct Command {
 
   Command& addArgs(const std::vector<std::string>& args) {
     arguments.insert(arguments.end(), args.begin(), args.end());
+    return *this;
+  }
+
+  Command& setStdoutConfig(StdioConfig config) noexcept {
+    stdoutConfig = config;
     return *this;
   }
 
