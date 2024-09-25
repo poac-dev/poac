@@ -24,7 +24,7 @@ const Subcmd TIDY_CMD =
         .setMainFn(tidyMain);
 
 static int
-tidyImpl(const std::string_view makeCmd) {
+tidyImpl(const Command& makeCmd) {
   const auto start = std::chrono::steady_clock::now();
 
   const int exitCode = execCmd(makeCmd);
@@ -74,7 +74,7 @@ tidyMain(const std::span<const std::string_view> args) {
   const fs::path outDir =
       emitMakefile(/*isDebug=*/true, /*includeDevDeps=*/false);
 
-  std::string tidyFlags = " POAC_TIDY_FLAGS='";
+  std::string tidyFlags = "POAC_TIDY_FLAGS=";
   if (!isVerbose()) {
     tidyFlags += "-quiet";
   }
@@ -85,13 +85,12 @@ tidyMain(const std::span<const std::string_view> args) {
   if (fix) {
     tidyFlags += " -fix";
   }
-  tidyFlags += '\'';
 
-  std::string makeCmd = getMakeCommand();
-  makeCmd += " -C ";
-  makeCmd += outDir.string();
-  makeCmd += tidyFlags;
-  makeCmd += " tidy";
+  Command makeCmd(getMakeCommand());
+  makeCmd.addArg("-C");
+  makeCmd.addArg(outDir.string());
+  makeCmd.addArg(tidyFlags);
+  makeCmd.addArg("tidy");
 
   logger::info("Running", "clang-tidy");
   return tidyImpl(makeCmd);

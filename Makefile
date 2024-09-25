@@ -94,10 +94,10 @@ $(O)/tests/test_BuildConfig: $(O)/tests/test_BuildConfig.o $(O)/Algos.o \
   $(O)/TermColor.o $(O)/Manifest.o $(O)/Parallelism.o $(O)/Semver.o \
   $(O)/VersionReq.o $(O)/Git2/Repository.o $(O)/Git2/Object.o $(O)/Git2/Oid.o \
   $(O)/Git2/Global.o $(O)/Git2/Config.o $(O)/Git2/Exception.o $(O)/Git2/Time.o \
-  $(O)/Git2/Commit.o
+  $(O)/Git2/Commit.o $(O)/Command.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) $(LDFLAGS) -o $@
 
-$(O)/tests/test_Algos: $(O)/tests/test_Algos.o $(O)/TermColor.o
+$(O)/tests/test_Algos: $(O)/tests/test_Algos.o $(O)/TermColor.o $(O)/Command.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) $(LDFLAGS) -o $@
 
 $(O)/tests/test_Semver: $(O)/tests/test_Semver.o $(O)/TermColor.o
@@ -110,7 +110,7 @@ $(O)/tests/test_VersionReq: $(O)/tests/test_VersionReq.o $(O)/TermColor.o \
 $(O)/tests/test_Manifest: $(O)/tests/test_Manifest.o $(O)/TermColor.o \
   $(O)/Semver.o $(O)/VersionReq.o $(O)/Algos.o $(O)/Git2/Repository.o \
   $(O)/Git2/Global.o $(O)/Git2/Oid.o $(O)/Git2/Config.o $(O)/Git2/Exception.o \
-  $(O)/Git2/Object.o
+  $(O)/Git2/Object.o $(O)/Command.o
 	$(CXX) $(CXXFLAGS) $^ $(LIBS) $(LDFLAGS) -o $@
 
 

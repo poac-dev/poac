@@ -1,5 +1,6 @@
 #include "Algos.hpp"
 
+#include "Command.hpp"
 #include "Exception.hpp"
 #include "Logger.hpp"
 #include "Rustify.hpp"
@@ -39,48 +40,23 @@ toMacroName(const std::string_view name) noexcept {
 }
 
 int
-execCmd(const std::string_view cmd) noexcept {
+execCmd(const Command& cmd) noexcept {
   logger::debug("Running `", cmd, '`');
-  const int status = std::system(cmd.data());
-  const int exitCode = status >> 8;
-  return exitCode;
-}
-
-static std::pair<std::string, int>
-getCmdOutputImpl(const std::string_view cmd) {
-  constexpr usize bufferSize = 128;
-  std::array<char, bufferSize> buffer{};
-  std::string output;
-
-  FILE* pipe = popen(cmd.data(), "r");
-  if (!pipe) {
-    throw PoacError("popen() failed!");
-  }
-
-  while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-    output += buffer.data();
-  }
-
-  const int status = pclose(pipe);
-  if (status == -1) {
-    throw PoacError("pclose() failed!");
-  }
-  const int exitCode = status >> 8;
-  return { output, exitCode };
+  return cmd.spawn().wait();
 }
 
 std::string
-getCmdOutput(const std::string_view cmd, const usize retry) {
+getCmdOutput(const Command& cmd, const usize retry) {
   logger::debug("Running `", cmd, '`');
 
   int exitCode = EXIT_SUCCESS;
   int waitTime = 1;
   for (usize i = 0; i < retry; ++i) {
-    const auto result = getCmdOutputImpl(cmd);
-    if (result.second == EXIT_SUCCESS) {
-      return result.first;
+    const auto [output, status] = cmd.output();
+    if (status == EXIT_SUCCESS) {
+      return output;
     }
-    exitCode = result.second;
+    exitCode = status;
 
     // Sleep for an exponential backoff.
     std::this_thread::sleep_for(std::chrono::seconds(waitTime));
@@ -91,10 +67,12 @@ getCmdOutput(const std::string_view cmd, const usize retry) {
 
 bool
 commandExists(const std::string_view cmd) noexcept {
-  std::string checkCmd = "command -v ";
-  checkCmd += cmd;
-  checkCmd += " >/dev/null 2>&1";
-  return execCmd(checkCmd) == EXIT_SUCCESS;
+  const int exitCode = Command("which")
+                           .addArg(cmd)
+                           .setStdoutConfig(Command::StdioConfig::Null)
+                           .spawn()
+                           .wait();
+  return exitCode == EXIT_SUCCESS;
 }
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00

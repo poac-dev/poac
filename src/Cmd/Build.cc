@@ -35,7 +35,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
   outDir = emitMakefile(isDebug, /*includeDevDeps=*/false);
-  const std::string makeCommand = getMakeCommand() + " -C " + outDir;
+  const Command makeCommand = getMakeCommand().addArg("-C").addArg(outDir);
   const int exitCode = execCmd(makeCommand);
 
   const auto end = std::chrono::steady_clock::now();

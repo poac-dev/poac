@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Command.hpp"
+
 #include <string>
 #include <unordered_set>
 
@@ -16,4 +18,4 @@ std::string emitMakefile(bool isDebug, bool includeDevDeps);
 std::string emitCompdb(bool isDebug, bool includeDevDeps);
 std::string_view modeToString(bool isDebug);
 std::string_view modeToProfile(bool isDebug);
-std::string getMakeCommand();
+Command getMakeCommand();
