@@ -1,6 +1,7 @@
 #include "BuildConfig.hpp"
 
 #include "Algos.hpp"
+#include "Command.hpp"
 #include "Exception.hpp"
 #include "Git2.hpp"
 #include "Logger.hpp"
@@ -109,15 +110,36 @@ struct BuildConfig {
   std::optional<std::unordered_set<std::string>> all;
 
   std::string OUT_DIR;
-  std::string CXX = "clang++";
+  std::string CXX;
   std::vector<std::string> CXXFLAGS;
   std::vector<std::string> DEFINES;
   std::vector<std::string> INCLUDES = { "-I../../include" };
   std::vector<std::string> LIBS;
 
-  BuildConfig() = default;
   explicit BuildConfig(const std::string& packageName)
-      : packageName{ packageName }, buildOutDir{ packageName + ".d" } {}
+      : packageName{ packageName }, buildOutDir{ packageName + ".d" } {
+    if (const char* cxx = std::getenv("CXX")) {
+      CXX = cxx;
+    } else {
+      std::string output = Command("make")
+                               .addArg("--print-data-base")
+                               .addArg("--question")
+                               .addArg("-f")
+                               .addArg("/dev/null")
+                               .output()
+                               .output;
+      std::istringstream iss(output);
+      std::string line;
+
+      while (std::getline(iss, line)) {
+        if (line.starts_with("CXX = ")) {
+          CXX = line.substr(6);
+          return;
+        }
+      }
+      throw PoacError("failed to get CXX from make");
+    }
+  }
 
   void setOutDir(const bool isDebug) {
     if (isDebug) {
@@ -593,7 +615,7 @@ BuildConfig::addDefine(
 
 void
 BuildConfig::setVariables(const bool isDebug) {
-  this->defineCondVar("CXX", CXX);
+  this->defineSimpleVar("CXX", CXX);
 
   CXXFLAGS.push_back("-std=c++" + getPackageEdition().getString());
   if (shouldColor()) {
@@ -816,9 +838,6 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   if (!fs::exists(outDir)) {
     fs::create_directories(outDir);
   }
-  if (const char* cxx = std::getenv("CXX")) {
-    config.CXX = cxx;
-  }
 
   config.setVariables(isDebug);
 
@@ -999,7 +1018,7 @@ namespace tests {
 
 void
 testCycleVars() {
-  BuildConfig config;
+  BuildConfig config("test");
   config.defineSimpleVar("a", "b", { "b" });
   config.defineSimpleVar("b", "c", { "c" });
   config.defineSimpleVar("c", "a", { "a" });
@@ -1017,7 +1036,7 @@ testCycleVars() {
 
 void
 testSimpleVars() {
-  BuildConfig config;
+  BuildConfig config("test");
   config.defineSimpleVar("c", "3", { "b" });
   config.defineSimpleVar("b", "2", { "a" });
   config.defineSimpleVar("a", "1");
@@ -1036,7 +1055,7 @@ testSimpleVars() {
 
 void
 testDependOnUnregisteredVar() {
-  BuildConfig config;
+  BuildConfig config("test");
   config.defineSimpleVar("a", "1", { "b" });
 
   std::ostringstream oss;
@@ -1049,7 +1068,7 @@ testDependOnUnregisteredVar() {
 
 void
 testCycleTargets() {
-  BuildConfig config;
+  BuildConfig config("test");
   config.defineTarget("a", { "echo a" }, { "b" });
   config.defineTarget("b", { "echo b" }, { "c" });
   config.defineTarget("c", { "echo c" }, { "a" });
@@ -1067,7 +1086,7 @@ testCycleTargets() {
 
 void
 testSimpleTargets() {
-  BuildConfig config;
+  BuildConfig config("test");
   config.defineTarget("a", { "echo a" });
   config.defineTarget("b", { "echo b" }, { "a" });
   config.defineTarget("c", { "echo c" }, { "b" });
@@ -1092,7 +1111,7 @@ testSimpleTargets() {
 
 void
 testDependOnUnregisteredTarget() {
-  BuildConfig config;
+  BuildConfig config("test");
   config.defineTarget("a", { "echo a" }, { "b" });
 
   std::ostringstream oss;
