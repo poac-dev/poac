@@ -28,13 +28,13 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install -y clang-tidy-18
+          sudo ./llvm.sh 19
+          sudo apt-get install -y clang-tidy-19
 
       - name: poac tidy
         run: ./build-out/poac tidy --verbose
         env:
-          POAC_TIDY: clang-tidy-18
+          POAC_TIDY: clang-tidy-19
 
   format:
     runs-on: ubuntu-24.04
@@ -51,13 +51,13 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install -y clang-format-18
+          sudo ./llvm.sh 19
+          sudo apt-get install -y clang-format-19
 
       - name: poac fmt
         run: ./build-out/poac fmt --check --verbose
         env:
-          POAC_FMT: clang-format-18
+          POAC_FMT: clang-format-19
 
   lint:
     runs-on: ubuntu-24.04
