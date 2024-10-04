@@ -290,6 +290,14 @@ BuildConfig::emitMakefile(std::ostream& os) const {
   if (all.has_value()) {
     emitTarget(os, "all", all.value());
   }
+
+  os << "ifeq ($(QUIET), 1)\n"
+     << "print:\n"
+     << "else\n"
+     << "print:\n"
+     << "\t@printf '$(MSG)' >&2\n"
+     << "endif\n\n";
+
   const std::vector<std::string> sortedTargets = topoSort(targets, targetDeps);
   // NOLINTNEXTLINE(modernize-loop-convert)
   for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
@@ -455,7 +463,10 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
 static std::string
 printfCmd(const std::string_view header, const std::string_view body) {
   std::ostringstream oss;
+  logger::Level level = logger::getLevel();
+  logger::setLevel(logger::Level::Info); // Force to format the message
   logger::info(oss, header, body);
+  logger::setLevel(level);
   std::string msg = oss.str();
 
   // Replace all occurrences of '\n' with "\\n" to escape newlines
@@ -465,7 +476,7 @@ printfCmd(const std::string_view header, const std::string_view body) {
     pos += 2; // Move past the replacement
   }
 
-  return fmt::format("@printf '{}' >&2", msg);
+  return fmt::format("@+make print MSG='{}'", msg);
 }
 
 static void
@@ -847,9 +858,13 @@ configureBuild(BuildConfig& config, const bool isDebug) {
       buildObjTargets, config
   );
   config.defineTarget(
-      config.packageName + "_before",
+      "cache_" + config.packageName,
       { printfCmd("Compiling", config.packageName),
-        "+make " + config.packageName }
+        "@touch cache_" + config.packageName }
+  );
+  config.defineTarget(
+      config.packageName + "_before", { "@+make " + config.packageName },
+      { "cache_" + config.packageName }
   );
   config.addPhony(config.packageName + "_before");
   defineLinkTarget(config, config.packageName, projTargetDeps);
@@ -880,7 +895,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   if (!testCommands.empty()) {
     config.defineTarget(
         "test",
-        { printfCmd("Compiling", config.packageName), "+make test_inner" }
+        { printfCmd("Compiling", config.packageName), "@+make test_inner" }
     );
     config.defineTarget("test_inner", testCommands, testTargets);
     config.addPhony("test");
@@ -966,6 +981,9 @@ getMakeCommand() {
   if (!isVerbose()) {
     makeCommand.addArg("-s").addArg("--no-print-directory").addArg("Q=@");
   }
+  if (isQuiet()) {
+    makeCommand.addArg("QUIET=1");
+  }
 
   const usize numThreads = getParallelism();
   if (numThreads > 1) {
@@ -1007,11 +1025,10 @@ testSimpleVars() {
   std::ostringstream oss;
   config.emitMakefile(oss);
 
-  assertEq(
-      oss.str(),
-      "a := 1\n"
-      "b := 2\n"
-      "c := 3\n"
+  assertTrue(
+      oss.str().starts_with("a := 1\n"
+                            "b := 2\n"
+                            "c := 3\n")
   );
 
   pass();
@@ -1025,7 +1042,7 @@ testDependOnUnregisteredVar() {
   std::ostringstream oss;
   config.emitMakefile(oss);
 
-  assertEq(oss.str(), "a := 1\n");
+  assertTrue(oss.str().starts_with("a := 1\n"));
 
   pass();
 }
@@ -1058,17 +1075,16 @@ testSimpleTargets() {
   std::ostringstream oss;
   config.emitMakefile(oss);
 
-  assertEq(
-      oss.str(),
-      "c: b\n"
-      "\t$(Q)echo c\n"
-      "\n"
-      "b: a\n"
-      "\t$(Q)echo b\n"
-      "\n"
-      "a:\n"
-      "\t$(Q)echo a\n"
-      "\n"
+  assertTrue(
+      oss.str().ends_with("c: b\n"
+                          "\t$(Q)echo c\n"
+                          "\n"
+                          "b: a\n"
+                          "\t$(Q)echo b\n"
+                          "\n"
+                          "a:\n"
+                          "\t$(Q)echo a\n"
+                          "\n")
   );
 
   pass();
@@ -1082,11 +1098,10 @@ testDependOnUnregisteredTarget() {
   std::ostringstream oss;
   config.emitMakefile(oss);
 
-  assertEq(
-      oss.str(),
-      "a: b\n"
-      "\t$(Q)echo a\n"
-      "\n"
+  assertTrue(
+      oss.str().ends_with("a: b\n"
+                          "\t$(Q)echo a\n"
+                          "\n")
   );
 
   pass();
