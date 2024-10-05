@@ -83,6 +83,8 @@ If your environment is not included in the released packages, you have to build 
 * Clang: `15` or later
 * Apple Clang: provided by `macOS Ventura (13)` or later
 
+(generally, the latest 3 versions are supported to build Poac.)
+
 #### Commands
 
 * GNU Make
