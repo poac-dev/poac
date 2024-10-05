@@ -5,16 +5,18 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>
 #include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
 
+// NOLINTBEGIN
+
 int
 Child::wait() const {
-  int status;
+  int status{};
   if (waitpid(pid, &status, 0) == -1) {
     close(stdoutfd);
     throw PoacError("waitpid() failed");
@@ -27,7 +29,7 @@ Child::wait() const {
 }
 
 CommandOutput
-Child::wait_with_output() const {
+Child::waitWithOutput() const {
   constexpr std::size_t bufferSize = 128;
   std::array<char, bufferSize> buffer{};
   std::string output;
@@ -44,13 +46,13 @@ Child::wait_with_output() const {
 
   fclose(stream);
 
-  int status;
+  int status{};
   if (waitpid(pid, &status, 0) == -1) {
     throw PoacError("waitpid() failed");
   }
 
   const int exitCode = WEXITSTATUS(status);
-  return { output, exitCode };
+  return { .output = output, .exitCode = exitCode };
 }
 
 Child
@@ -63,7 +65,7 @@ Command::spawn() const {
     }
   }
 
-  pid_t pid = fork();
+  const pid_t pid = fork();
   if (pid == -1) {
     throw PoacError("fork() failed");
   } else if (pid == 0) {
@@ -74,7 +76,7 @@ Command::spawn() const {
       dup2(stdoutPipe[1], 1);
       close(stdoutPipe[1]);
     } else if (stdoutConfig == StdioConfig::Null) {
-      int nullfd = open("/dev/null", O_WRONLY);
+      const int nullfd = open("/dev/null", O_WRONLY);
       dup2(nullfd, 1);
       close(nullfd);
     }
@@ -86,8 +88,8 @@ Command::spawn() const {
     }
     args.push_back(nullptr);
 
-    if (!working_directory.empty()) {
-      if (chdir(working_directory.c_str()) == -1) {
+    if (!workingDirectory.empty()) {
+      if (chdir(workingDirectory.c_str()) == -1) {
         throw PoacError("chdir() failed");
       }
     }
@@ -100,22 +102,24 @@ Command::spawn() const {
     if (stdoutConfig == StdioConfig::Piped) {
       close(stdoutPipe[1]); // parent doesn't write
 
-      return Child(pid, stdoutPipe[0]);
+      return { pid, stdoutPipe[0] };
     } else {
-      return Child(pid, /* stdin */ 0);
+      return { pid, /* stdin */ 0 };
     }
   }
 }
+
+// NOLINTEND
 
 CommandOutput
 Command::output() const {
   Command cmd = *this;
   cmd.setStdoutConfig(StdioConfig::Piped);
-  return cmd.spawn().wait_with_output();
+  return cmd.spawn().waitWithOutput();
 }
 
 std::string
-Command::to_string() const {
+Command::toString() const {
   std::string res = command;
   for (const std::string& arg : arguments) {
     res += ' ' + arg;
@@ -125,5 +129,5 @@ Command::to_string() const {
 
 std::ostream&
 operator<<(std::ostream& os, const Command& cmd) {
-  return os << cmd.to_string();
+  return os << cmd.toString();
 }

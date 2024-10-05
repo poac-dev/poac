@@ -47,7 +47,7 @@ struct ColorState {
         return;
     }
   }
-  inline bool shouldColor() const noexcept {
+  bool shouldColor() const noexcept {
     return state;
   }
 

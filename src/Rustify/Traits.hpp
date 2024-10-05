@@ -6,7 +6,7 @@
 #include <type_traits>
 
 inline std::ostream&
-operator<<(std::ostream& os, const std::nullopt_t&) {
+operator<<(std::ostream& os, const std::nullopt_t& /*unused*/) {
   os << "None";
   return os;
 }

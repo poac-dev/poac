@@ -8,6 +8,7 @@
 #include "../Rustify.hpp"
 #include "Common.hpp"
 
+#include <charconv>
 #include <chrono>
 #include <cstdlib>
 #include <span>
@@ -55,7 +56,17 @@ tidyMain(const std::span<const std::string_view> args) {
       if (itr + 1 == args.end()) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
-      setParallelism(std::stoul((++itr)->data()));
+      ++itr;
+
+      std::uint64_t numThreads{};
+      auto [ptr, ec] =
+          std::from_chars(itr->data(), itr->data() + itr->size(), numThreads);
+      if (ec == std::errc()) {
+        setParallelism(numThreads);
+      } else {
+        logger::error("invalid number of threads: ", *itr);
+        return EXIT_FAILURE;
+      }
     } else {
       return TIDY_CMD.noSuchArg(*itr);
     }

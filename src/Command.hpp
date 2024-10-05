@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -23,11 +24,11 @@ private:
 
 public:
   int wait() const;
-  CommandOutput wait_with_output() const;
+  CommandOutput waitWithOutput() const;
 };
 
 struct Command {
-  enum class StdioConfig {
+  enum class StdioConfig : std::uint8_t {
     Null,
     Inherit,
     Piped,
@@ -35,7 +36,7 @@ struct Command {
 
   std::string command;
   std::vector<std::string> arguments;
-  std::string working_directory;
+  std::string workingDirectory;
   StdioConfig stdoutConfig = StdioConfig::Inherit;
 
   explicit Command(std::string_view cmd) : command(cmd) {}
@@ -57,12 +58,12 @@ struct Command {
     return *this;
   }
 
-  Command& setWorkingDirectory(const std::string_view wd) {
-    working_directory = wd;
+  Command& setWorkingDirectory(const std::string_view dir) {
+    workingDirectory = dir;
     return *this;
   }
 
-  std::string to_string() const;
+  std::string toString() const;
 
   Child spawn() const;
 

@@ -4,7 +4,7 @@
 #include "Repository.hpp"
 
 #include <git2/revwalk.h>
-#include <string_view>
+#include <string>
 
 namespace git2 {
 
@@ -46,20 +46,20 @@ Revwalk::pushHead() {
 }
 
 Revwalk&
-Revwalk::pushGlob(const std::string_view glob) {
-  git2Throw(git_revwalk_push_glob(this->raw, glob.data()));
+Revwalk::pushGlob(const std::string& glob) {
+  git2Throw(git_revwalk_push_glob(this->raw, glob.c_str()));
   return *this;
 }
 
 Revwalk&
-Revwalk::pushRange(const std::string_view range) {
-  git2Throw(git_revwalk_push_range(this->raw, range.data()));
+Revwalk::pushRange(const std::string& range) {
+  git2Throw(git_revwalk_push_range(this->raw, range.c_str()));
   return *this;
 }
 
 Revwalk&
-Revwalk::pushRef(const std::string_view reference) {
-  git2Throw(git_revwalk_push_ref(this->raw, reference.data()));
+Revwalk::pushRef(const std::string& reference) {
+  git2Throw(git_revwalk_push_ref(this->raw, reference.c_str()));
   return *this;
 }
 
@@ -76,14 +76,14 @@ Revwalk::hideHead() {
 }
 
 Revwalk&
-Revwalk::hideGlob(const std::string_view glob) {
-  git2Throw(git_revwalk_hide_glob(this->raw, glob.data()));
+Revwalk::hideGlob(const std::string& glob) {
+  git2Throw(git_revwalk_hide_glob(this->raw, glob.c_str()));
   return *this;
 }
 
 Revwalk&
-Revwalk::hideRef(const std::string_view reference) {
-  git2Throw(git_revwalk_hide_ref(this->raw, reference.data()));
+Revwalk::hideRef(const std::string& reference) {
+  git2Throw(git_revwalk_hide_ref(this->raw, reference.c_str()));
   return *this;
 }
 

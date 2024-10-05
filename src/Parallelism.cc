@@ -35,6 +35,7 @@ struct ParallelismState {
     );
   }
   usize get() const noexcept {
+    // NOLINTNEXTLINE(readability-static-accessed-through-instance)
     return status->active_value(tbb::global_control::max_allowed_parallelism);
   }
 

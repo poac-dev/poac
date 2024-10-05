@@ -12,6 +12,7 @@
 #include "Exception.hpp"
 #include "Rustify.hpp"
 
+#include <cstdint>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -25,7 +26,7 @@ struct SemverError : public PoacError {
 };
 
 struct VersionToken {
-  enum class Kind {
+  enum class Kind : std::uint8_t {
     Num, // [1-9][0-9]*
     Ident, // [a-zA-Z0-9][a-zA-Z0-9-]*
     Dot, // .

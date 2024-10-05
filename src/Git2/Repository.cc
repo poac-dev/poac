@@ -7,7 +7,7 @@
 #include <git2/ignore.h>
 #include <git2/repository.h>
 #include <git2/revparse.h>
-#include <string_view>
+#include <string>
 
 namespace git2 {
 
@@ -16,47 +16,47 @@ Repository::~Repository() {
 }
 
 Repository&
-Repository::open(const std::string_view path) {
-  git2Throw(git_repository_open(&this->raw, path.data()));
+Repository::open(const std::string& path) {
+  git2Throw(git_repository_open(&this->raw, path.c_str()));
   return *this;
 }
 Repository&
-Repository::openBare(const std::string_view path) {
-  git2Throw(git_repository_open_bare(&this->raw, path.data()));
+Repository::openBare(const std::string& path) {
+  git2Throw(git_repository_open_bare(&this->raw, path.c_str()));
   return *this;
 }
 
 Repository&
-Repository::init(const std::string_view path) {
-  git2Throw(git_repository_init(&this->raw, path.data(), false));
+Repository::init(const std::string& path) {
+  git2Throw(git_repository_init(&this->raw, path.c_str(), false));
   return *this;
 }
 Repository&
-Repository::initBare(const std::string_view path) {
-  git2Throw(git_repository_init(&this->raw, path.data(), true));
+Repository::initBare(const std::string& path) {
+  git2Throw(git_repository_init(&this->raw, path.c_str(), true));
   return *this;
 }
 
 bool
-Repository::isIgnored(const std::string_view path) const {
+Repository::isIgnored(const std::string& path) const {
   int ignored = 0;
-  git2Throw(git_ignore_path_is_ignored(&ignored, this->raw, path.data()));
+  git2Throw(git_ignore_path_is_ignored(&ignored, this->raw, path.c_str()));
   return static_cast<bool>(ignored);
 }
 
 Repository&
 Repository::clone(
-    const std::string_view url, const std::string_view path,
+    const std::string& url, const std::string& path,
     const git_clone_options* opts
 ) {
-  git2Throw(git_clone(&this->raw, url.data(), path.data(), opts));
+  git2Throw(git_clone(&this->raw, url.c_str(), path.c_str(), opts));
   return *this;
 }
 
 Object
-Repository::revparseSingle(const std::string_view spec) const {
+Repository::revparseSingle(const std::string& spec) const {
   git_object* obj = nullptr;
-  git2Throw(git_revparse_single(&obj, this->raw, spec.data()));
+  git2Throw(git_revparse_single(&obj, this->raw, spec.c_str()));
   return git2::Object(obj);
 }
 
@@ -76,9 +76,9 @@ Repository::checkoutHead(bool force) {
 }
 
 Oid
-Repository::refNameToId(const std::string_view refname) const {
+Repository::refNameToId(const std::string& refname) const {
   git_oid oid;
-  git2Throw(git_reference_name_to_id(&oid, this->raw, refname.data()));
+  git2Throw(git_reference_name_to_id(&oid, this->raw, refname.c_str()));
   return Oid(oid);
 }
 

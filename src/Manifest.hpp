@@ -19,7 +19,7 @@ struct Profile {
   std::unordered_set<std::string> cxxflags;
   bool lto = false;
   std::optional<bool> debug = std::nullopt;
-  std::optional<usize> opt_level = std::nullopt;
+  std::optional<usize> optLevel = std::nullopt;
 
   // Merges this profile with another profile. If a field in this profile is
   // set, it will not be overwritten by the other profile. Only default values
@@ -50,10 +50,10 @@ public:
 
   std::string getString() const noexcept;
 
-  inline auto operator<=>(const Edition& otherEdition) const {
+  auto operator<=>(const Edition& otherEdition) const {
     return edition <=> otherEdition.edition;
   }
-  inline auto operator<=>(const Year& otherYear) const {
+  auto operator<=>(const Year& otherYear) const {
     return edition <=> otherYear;
   }
 };

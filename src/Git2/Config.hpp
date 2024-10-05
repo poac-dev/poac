@@ -4,7 +4,6 @@
 
 #include <git2/config.h>
 #include <string>
-#include <string_view>
 
 namespace git2 {
 
@@ -27,7 +26,7 @@ public:
   Config& openDefault();
 
   /// Get the value of a string config variable as an owned string.
-  std::string getString(std::string_view name);
+  std::string getString(const std::string& name);
 };
 
 } // end namespace git2

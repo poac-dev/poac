@@ -39,6 +39,23 @@ toMacroName(const std::string_view name) noexcept {
   return macroName;
 }
 
+std::string
+replaceAll(
+    std::string str, const std::string_view from, const std::string_view to
+) {
+  if (from.empty()) {
+    return str; // If the substring to replace is empty, return the original
+                // string
+  }
+
+  std::size_t startPos = 0;
+  while ((startPos = str.find(from, startPos)) != std::string::npos) {
+    str.replace(startPos, from.length(), to);
+    startPos += to.length(); // Move past the last replaced substring
+  }
+  return str;
+}
+
 int
 execCmd(const Command& cmd) noexcept {
   logger::debug("Running `", cmd, '`');
@@ -167,7 +184,7 @@ findSimilarStr(
 
 namespace tests {
 
-void
+static void
 testLevDistance() {
   // Test bytelength agnosticity
   for (char c = 0; c < std::numeric_limits<char>::max(); ++c) {
@@ -178,7 +195,7 @@ testLevDistance() {
   pass();
 }
 
-void
+static void
 testLevDistance2() {
   constexpr std::string_view str1 = "\nMäry häd ä little lämb\n\nLittle lämb\n";
   constexpr std::string_view str2 = "\nMary häd ä little lämb\n\nLittle lämb\n";
@@ -207,7 +224,7 @@ testLevDistance2() {
 // ref:
 // https://github.com/llvm/llvm-project/commit/a247ba9d15635d96225ef39c8c150c08f492e70a#diff-fd993637669817b267190e7de029b75af5a0328d43d9b70c2e8dd512512091a2
 
-void
+static void
 testFindSimilarStr() {
   constexpr std::array<std::string_view, 8> candidates{
     "if", "ifdef", "ifndef", "elif", "else", "endif", "elifdef", "elifndef"
@@ -233,7 +250,7 @@ testFindSimilarStr() {
   pass();
 }
 
-void
+static void
 testFindSimilarStr2() {
   constexpr std::array<std::string_view, 2> candidates{ "aaab", "aaabc" };
   assertEq(findSimilarStr("aaaa", candidates), "aaab"sv);

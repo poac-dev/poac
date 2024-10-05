@@ -211,7 +211,7 @@ public:
   // code.
   // TODO: -1 is not a good idea.
   // TODO: result-like types make more sense.
-  [[nodiscard]] static inline std::optional<int> handleGlobalOpts(
+  [[nodiscard]] static std::optional<int> handleGlobalOpts(
       std::forward_iterator auto& itr, const std::forward_iterator auto end,
       std::string_view subcmd = ""
   ) {

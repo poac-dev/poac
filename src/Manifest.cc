@@ -140,8 +140,8 @@ Profile::merge(const Profile& other) {
   if (other.debug.has_value() && !debug.has_value()) {
     debug = other.debug;
   }
-  if (other.opt_level.has_value() && !opt_level.has_value()) {
-    opt_level = other.opt_level;
+  if (other.optLevel.has_value() && !optLevel.has_value()) {
+    optLevel = other.optLevel;
   }
 }
 
@@ -303,7 +303,7 @@ parseProfile(const toml::table& table) {
       if (!flag.is_string()) {
         throw PoacError("[profile.cxxflags] must be an array of strings");
       }
-      const std::string flagStr = flag.as_string();
+      const std::string& flagStr = flag.as_string();
       validateCxxflag(flagStr);
       profile.cxxflags.insert(flagStr);
     }
@@ -315,11 +315,11 @@ parseProfile(const toml::table& table) {
     profile.debug = table.at("debug").as_boolean();
   }
   if (table.contains("opt_level") && table.at("opt_level").is_integer()) {
-    const i32 optLevel = table.at("opt_level").as_integer();
+    const i32 optLevel = static_cast<i32>(table.at("opt_level").as_integer());
     if (optLevel < 0 || optLevel > 3) {
       throw PoacError("opt_level must be between 0 and 3");
     }
-    profile.opt_level = optLevel;
+    profile.optLevel = optLevel;
   }
   return profile;
 }
@@ -375,8 +375,8 @@ getDevProfile() {
   if (!devProfile.debug.has_value()) {
     devProfile.debug = true;
   }
-  if (!devProfile.opt_level.has_value()) {
-    devProfile.opt_level = 0;
+  if (!devProfile.optLevel.has_value()) {
+    devProfile.optLevel = 0;
   }
   manifest.devProfile = devProfile;
   return manifest.devProfile.value();
@@ -394,8 +394,8 @@ getReleaseProfile() {
   if (!releaseProfile.debug.has_value()) {
     releaseProfile.debug = false;
   }
-  if (!releaseProfile.opt_level.has_value()) {
-    releaseProfile.opt_level = 3;
+  if (!releaseProfile.optLevel.has_value()) {
+    releaseProfile.optLevel = 3;
   }
   manifest.releaseProfile = releaseProfile;
   return manifest.releaseProfile.value();
@@ -525,7 +525,7 @@ parseGitDep(const std::string& name, const toml::table& info) {
       }
     }
   }
-  return { name, gitUrlStr, target };
+  return { .name = name, .url = gitUrlStr, .target = target };
 }
 
 static SystemDependency
@@ -537,7 +537,7 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   }
 
   const std::string versionReq = version.as_string();
-  return { name, VersionReq::parse(versionReq) };
+  return { .name = name, .versionReq = VersionReq::parse(versionReq) };
 }
 
 static std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
@@ -608,7 +608,7 @@ GitDependency::install() const {
   }
 
   // Currently, no libs are supported.
-  return { includes, "" };
+  return { .includes = includes, .libs = "" };
 }
 
 DepMetadata
@@ -624,7 +624,7 @@ SystemDependency::install() const {
   std::string libs = getCmdOutput(libsCmd);
   libs.pop_back(); // remove '\n'
 
-  return { cflags, libs };
+  return { .includes = cflags, .libs = libs };
 }
 
 std::vector<DepMetadata>
@@ -661,7 +661,7 @@ installDependencies(const bool includeDevDeps) {
 
 namespace tests {
 
-void
+static void
 testValidateDepName() {
   assertException<PoacError>(
       []() { validateDepName(""); }, "dependency name is empty"
@@ -675,7 +675,7 @@ testValidateDepName() {
       "dependency name must end with an alphanumeric character or `+`"
   );
 
-  for (unsigned char c = 0; c < 255; ++c) {
+  for (char c = 0; c < CHAR_MAX; ++c) {
     if (std::isalnum(c) || ALLOWED_CHARS.contains(c)) {
       continue;
     }

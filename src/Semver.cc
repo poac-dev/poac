@@ -489,7 +489,7 @@ namespace tests {
 // Thanks to:
 // https://github.com/dtolnay/semver/blob/55fa2cadd6ec95be02e5a2a87b24355304e44d40/tests/test_version.rs#L13
 
-void
+static void
 testParse() {
   assertException<SemverError>(
       []() { Version::parse(""); },
@@ -588,50 +588,81 @@ testParse() {
   );
 
   assertEq(
-      Version::parse("1.2.3"),
-      (Version{ 1, 2, 3, Prerelease(), BuildMetadata() })
+      Version::parse("1.2.3"), (Version{ .major = 1,
+                                         .minor = 2,
+                                         .patch = 3,
+                                         .pre = Prerelease(),
+                                         .build = BuildMetadata() })
   );
   assertEq(
       Version::parse("1.2.3-alpha1"),
-      (Version{ 1, 2, 3, Prerelease::parse("alpha1"), BuildMetadata() })
+      (Version{ .major = 1,
+                .minor = 2,
+                .patch = 3,
+                .pre = Prerelease::parse("alpha1"),
+                .build = BuildMetadata() })
   );
   assertEq(
       Version::parse("1.2.3+build5"),
-      (Version{ 1, 2, 3, Prerelease(), BuildMetadata::parse("build5") })
+      (Version{ .major = 1,
+                .minor = 2,
+                .patch = 3,
+                .pre = Prerelease(),
+                .build = BuildMetadata::parse("build5") })
   );
   assertEq(
       Version::parse("1.2.3+5build"),
-      (Version{ 1, 2, 3, Prerelease(), BuildMetadata::parse("5build") })
+      (Version{ .major = 1,
+                .minor = 2,
+                .patch = 3,
+                .pre = Prerelease(),
+                .build = BuildMetadata::parse("5build") })
   );
   assertEq(
       Version::parse("1.2.3-alpha1+build5"),
-      (Version{ 1, 2, 3, Prerelease::parse("alpha1"),
-                BuildMetadata::parse("build5") })
+      (Version{ .major = 1,
+                .minor = 2,
+                .patch = 3,
+                .pre = Prerelease::parse("alpha1"),
+                .build = BuildMetadata::parse("build5") })
   );
   assertEq(
       Version::parse("1.2.3-1.alpha1.9+build5.7.3aedf"),
-      (Version{ 1, 2, 3, Prerelease::parse("1.alpha1.9"),
-                BuildMetadata::parse("build5.7.3aedf") })
+      (Version{ .major = 1,
+                .minor = 2,
+                .patch = 3,
+                .pre = Prerelease::parse("1.alpha1.9"),
+                .build = BuildMetadata::parse("build5.7.3aedf") })
   );
   assertEq(
       Version::parse("1.2.3-0a.alpha1.9+05build.7.3aedf"),
-      (Version{ 1, 2, 3, Prerelease::parse("0a.alpha1.9"),
-                BuildMetadata::parse("05build.7.3aedf") })
+      (Version{ .major = 1,
+                .minor = 2,
+                .patch = 3,
+                .pre = Prerelease::parse("0a.alpha1.9"),
+                .build = BuildMetadata::parse("05build.7.3aedf") })
   );
   assertEq(
       Version::parse("0.4.0-beta.1+0851523"),
-      (Version{ 0, 4, 0, Prerelease::parse("beta.1"),
-                BuildMetadata::parse("0851523") })
+      (Version{ .major = 0,
+                .minor = 4,
+                .patch = 0,
+                .pre = Prerelease::parse("beta.1"),
+                .build = BuildMetadata::parse("0851523") })
   );
   assertEq(
       Version::parse("1.1.0-beta-10"),
-      (Version{ 1, 1, 0, Prerelease::parse("beta-10"), BuildMetadata() })
+      (Version{ .major = 1,
+                .minor = 1,
+                .patch = 0,
+                .pre = Prerelease::parse("beta-10"),
+                .build = BuildMetadata() })
   );
 
   pass();
 }
 
-void
+static void
 testEq() {
   assertEq(Version::parse("1.2.3"), Version::parse("1.2.3"));
   assertEq(Version::parse("1.2.3-alpha1"), Version::parse("1.2.3-alpha1"));
@@ -643,7 +674,7 @@ testEq() {
   pass();
 }
 
-void
+static void
 testNe() {
   assertNe(Version::parse("0.0.0"), Version::parse("0.0.1"));
   assertNe(Version::parse("0.0.0"), Version::parse("0.1.0"));
@@ -654,7 +685,7 @@ testNe() {
   pass();
 }
 
-void
+static void
 testDisplay() {
   {
     std::ostringstream oss;
@@ -680,7 +711,7 @@ testDisplay() {
   pass();
 }
 
-void
+static void
 testLt() {
   assertLt(Version::parse("0.0.0"), Version::parse("1.2.3-alpha2"));
   assertLt(Version::parse("1.0.0"), Version::parse("1.2.3-alpha2"));
@@ -693,7 +724,7 @@ testLt() {
   pass();
 }
 
-void
+static void
 testLe() {
   assertTrue(Version::parse("0.0.0") <= Version::parse("1.2.3-alpha2"));
   assertTrue(Version::parse("1.0.0") <= Version::parse("1.2.3-alpha2"));
@@ -705,7 +736,7 @@ testLe() {
   pass();
 }
 
-void
+static void
 testGt() {
   assertTrue(Version::parse("1.2.3-alpha2") > Version::parse("0.0.0"));
   assertTrue(Version::parse("1.2.3-alpha2") > Version::parse("1.0.0"));
@@ -718,7 +749,7 @@ testGt() {
   pass();
 }
 
-void
+static void
 testGe() {
   assertTrue(Version::parse("1.2.3-alpha2") >= Version::parse("0.0.0"));
   assertTrue(Version::parse("1.2.3-alpha2") >= Version::parse("1.0.0"));
@@ -730,7 +761,7 @@ testGe() {
   pass();
 }
 
-void
+static void
 testSpecOrder() {
   const std::vector<std::string> vers = {
     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
