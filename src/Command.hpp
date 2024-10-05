@@ -64,7 +64,6 @@ struct Command {
     stderrConfig = config;
     return *this;
   }
-
   Command& setWorkingDirectory(const std::string_view dir) {
     workingDirectory = dir;
     return *this;
