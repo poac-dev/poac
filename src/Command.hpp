@@ -51,7 +51,6 @@ struct Command {
     arguments.emplace_back(arg);
     return *this;
   }
-
   Command& addArgs(const std::vector<std::string>& args) {
     arguments.insert(arguments.end(), args.begin(), args.end());
     return *this;
@@ -61,12 +60,10 @@ struct Command {
     stdoutConfig = config;
     return *this;
   }
-
   Command& setStderrConfig(IOConfig config) noexcept {
     stderrConfig = config;
     return *this;
   }
-
   Command& setWorkingDirectory(const std::string_view dir) {
     workingDirectory = dir;
     return *this;
@@ -75,7 +72,6 @@ struct Command {
   std::string toString() const;
 
   Child spawn() const;
-
   CommandOutput output() const;
 };
 

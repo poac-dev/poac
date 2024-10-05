@@ -3,6 +3,7 @@
 #include "Exception.hpp"
 #include "Rustify.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdio>
@@ -12,7 +13,7 @@
 #include <unistd.h>
 #include <vector>
 
-// NOLINTBEGIN
+constexpr std::size_t BUFFER_SIZE = 128;
 
 int
 Child::wait() const {
@@ -47,12 +48,8 @@ Child::waitWithOutput() const {
   fd_set readfds;
 
   // Determine the maximum file descriptor
-  if (stdoutfd > maxfd) {
-    maxfd = stdoutfd;
-  }
-  if (stderrfd > maxfd) {
-    maxfd = stderrfd;
-  }
+  maxfd = std::max(maxfd, stdoutfd);
+  maxfd = std::max(maxfd, stderrfd);
 
   bool stdoutEOF = (stdoutfd == -1);
   bool stderrEOF = (stderrfd == -1);
@@ -66,7 +63,7 @@ Child::waitWithOutput() const {
       FD_SET(stderrfd, &readfds);
     }
 
-    int ret = select(maxfd + 1, &readfds, nullptr, nullptr, nullptr);
+    const int ret = select(maxfd + 1, &readfds, nullptr, nullptr, nullptr);
     if (ret == -1) {
       if (stdoutfd != -1) {
         close(stdoutfd);
@@ -79,8 +76,8 @@ Child::waitWithOutput() const {
 
     // Read from stdout if available
     if (!stdoutEOF && FD_ISSET(stdoutfd, &readfds)) {
-      char buffer[128];
-      ssize_t count = read(stdoutfd, buffer, sizeof(buffer) - 1);
+      std::array<char, BUFFER_SIZE> buffer{};
+      const ssize_t count = read(stdoutfd, buffer.data(), buffer.size());
       if (count == -1) {
         if (stdoutfd != -1) {
           close(stdoutfd);
@@ -93,15 +90,14 @@ Child::waitWithOutput() const {
         stdoutEOF = true;
         close(stdoutfd);
       } else {
-        buffer[count] = '\0';
-        stdoutOutput += buffer;
+        stdoutOutput.append(buffer.data(), static_cast<std::size_t>(count));
       }
     }
 
     // Read from stderr if available
     if (!stderrEOF && FD_ISSET(stderrfd, &readfds)) {
-      char buffer[128];
-      ssize_t count = read(stderrfd, buffer, sizeof(buffer) - 1);
+      std::array<char, BUFFER_SIZE> buffer{};
+      const ssize_t count = read(stderrfd, buffer.data(), buffer.size());
       if (count == -1) {
         if (stdoutfd != -1) {
           close(stdoutfd);
@@ -114,8 +110,7 @@ Child::waitWithOutput() const {
         stderrEOF = true;
         close(stderrfd);
       } else {
-        buffer[count] = '\0';
-        stderrOutput += buffer;
+        stderrOutput.append(buffer.data(), static_cast<std::size_t>(count));
       }
     }
   }
@@ -125,7 +120,7 @@ Child::waitWithOutput() const {
     throw PoacError("waitpid() failed");
   }
 
-  int exitCode = WEXITSTATUS(status);
+  const int exitCode = WEXITSTATUS(status);
   return { .exitCode = exitCode,
            .stdout = stdoutOutput,
            .stderr = stderrOutput };
@@ -133,18 +128,18 @@ Child::waitWithOutput() const {
 
 Child
 Command::spawn() const {
-  int stdoutPipe[2];
-  int stderrPipe[2];
+  std::array<int, 2> stdoutPipe{};
+  std::array<int, 2> stderrPipe{};
 
   // Set up stdout pipe if needed
   if (stdoutConfig == IOConfig::Piped) {
-    if (pipe(stdoutPipe) == -1) {
+    if (pipe(stdoutPipe.data()) == -1) {
       throw PoacError("pipe() failed for stdout");
     }
   }
   // Set up stderr pipe if needed
   if (stderrConfig == IOConfig::Piped) {
-    if (pipe(stderrPipe) == -1) {
+    if (pipe(stderrPipe.data()) == -1) {
       throw PoacError("pipe() failed for stderr");
     }
   }
@@ -161,7 +156,8 @@ Command::spawn() const {
       dup2(stdoutPipe[1], STDOUT_FILENO);
       close(stdoutPipe[1]);
     } else if (stdoutConfig == IOConfig::Null) {
-      int nullfd = open("/dev/null", O_WRONLY);
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
+      const int nullfd = open("/dev/null", O_WRONLY);
       dup2(nullfd, STDOUT_FILENO);
       close(nullfd);
     }
@@ -172,15 +168,26 @@ Command::spawn() const {
       dup2(stderrPipe[1], STDERR_FILENO);
       close(stderrPipe[1]);
     } else if (stderrConfig == IOConfig::Null) {
-      int nullfd = open("/dev/null", O_WRONLY);
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
+      const int nullfd = open("/dev/null", O_WRONLY);
       dup2(nullfd, STDERR_FILENO);
       close(nullfd);
     }
 
+    // Prepare arguments
+    std::vector<std::vector<char>> argBuffers;
     std::vector<char*> args;
-    args.push_back(const_cast<char*>(command.c_str()));
+
+    // Add command
+    argBuffers.emplace_back(command.begin(), command.end());
+    argBuffers.back().push_back('\0');
+    args.push_back(argBuffers.back().data());
+
+    // Add arguments
     for (const std::string& arg : arguments) {
-      args.push_back(const_cast<char*>(arg.c_str()));
+      argBuffers.emplace_back(arg.begin(), arg.end());
+      argBuffers.back().push_back('\0');
+      args.push_back(argBuffers.back().data());
     }
     args.push_back(nullptr);
 
@@ -211,8 +218,6 @@ Command::spawn() const {
              stderrConfig == IOConfig::Piped ? stderrPipe[0] : -1 };
   }
 }
-
-// NOLINTEND
 
 CommandOutput
 Command::output() const {
