@@ -1,22 +1,12 @@
 #pragma once
 
 #include "Command.hpp"
-#include "Exception.hpp"
 #include "Rustify.hpp"
 
-#include <initializer_list>
-#include <iostream>
-#include <list>
-#include <memory>
 #include <optional>
-#include <queue>
 #include <span>
-#include <sstream>
 #include <string>
 #include <string_view>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 std::string toUpper(std::string_view str) noexcept;
 std::string toMacroName(std::string_view name) noexcept;
@@ -26,60 +16,6 @@ replaceAll(std::string str, std::string_view from, std::string_view to);
 int execCmd(const Command& cmd) noexcept;
 std::string getCmdOutput(const Command& cmd, usize retry = 3);
 bool commandExists(std::string_view cmd) noexcept;
-
-template <typename T>
-std::vector<std::string>
-topoSort(
-    const std::unordered_map<std::string, T>& list,
-    const std::unordered_map<std::string, std::vector<std::string>>& adjList
-) {
-  std::unordered_map<std::string, u32> inDegree;
-  for (const auto& var : list) {
-    inDegree[var.first] = 0;
-  }
-  for (const auto& edge : adjList) {
-    if (!list.contains(edge.first)) {
-      continue; // Ignore nodes not in list
-    }
-    if (!inDegree.contains(edge.first)) {
-      inDegree[edge.first] = 0;
-    }
-    for (const auto& neighbor : edge.second) {
-      inDegree[neighbor]++;
-    }
-  }
-
-  std::queue<std::string> zeroInDegree;
-  for (const auto& var : inDegree) {
-    if (var.second == 0) {
-      zeroInDegree.push(var.first);
-    }
-  }
-
-  std::vector<std::string> res;
-  while (!zeroInDegree.empty()) {
-    const std::string node = zeroInDegree.front();
-    zeroInDegree.pop();
-    res.push_back(node);
-
-    if (!adjList.contains(node)) {
-      // No dependencies
-      continue;
-    }
-    for (const std::string& neighbor : adjList.at(node)) {
-      inDegree[neighbor]--;
-      if (inDegree[neighbor] == 0) {
-        zeroInDegree.push(neighbor);
-      }
-    }
-  }
-
-  if (res.size() != list.size()) {
-    // Cycle detected
-    throw PoacError("too complex build graph");
-  }
-  return res;
-}
 
 // ref: https://reviews.llvm.org/differential/changeset/?ref=3315514
 /// Find a similar string in `candidates`.

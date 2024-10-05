@@ -24,6 +24,7 @@
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <queue>
 #include <span>
 #include <sstream>
 #include <string>
@@ -285,6 +286,60 @@ BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
     os << value;
   }
   os << '\n';
+}
+
+template <typename T>
+std::vector<std::string>
+topoSort(
+    const std::unordered_map<std::string, T>& list,
+    const std::unordered_map<std::string, std::vector<std::string>>& adjList
+) {
+  std::unordered_map<std::string, u32> inDegree;
+  for (const auto& var : list) {
+    inDegree[var.first] = 0;
+  }
+  for (const auto& edge : adjList) {
+    if (!list.contains(edge.first)) {
+      continue; // Ignore nodes not in list
+    }
+    if (!inDegree.contains(edge.first)) {
+      inDegree[edge.first] = 0;
+    }
+    for (const auto& neighbor : edge.second) {
+      inDegree[neighbor]++;
+    }
+  }
+
+  std::queue<std::string> zeroInDegree;
+  for (const auto& var : inDegree) {
+    if (var.second == 0) {
+      zeroInDegree.push(var.first);
+    }
+  }
+
+  std::vector<std::string> res;
+  while (!zeroInDegree.empty()) {
+    const std::string node = zeroInDegree.front();
+    zeroInDegree.pop();
+    res.push_back(node);
+
+    if (!adjList.contains(node)) {
+      // No dependencies
+      continue;
+    }
+    for (const std::string& neighbor : adjList.at(node)) {
+      inDegree[neighbor]--;
+      if (inDegree[neighbor] == 0) {
+        zeroInDegree.push(neighbor);
+      }
+    }
+  }
+
+  if (res.size() != list.size()) {
+    // Cycle detected
+    throw PoacError("too complex build graph");
+  }
+  return res;
 }
 
 } // namespace
