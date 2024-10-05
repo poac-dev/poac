@@ -3,6 +3,7 @@
 #include "Command.hpp"
 
 #include <string>
+#include <string_view>
 #include <unordered_set>
 
 // clang-format off
