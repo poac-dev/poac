@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -45,8 +46,8 @@ collectFormatTargetFiles(
   }
 
   const auto isExcluded = [&](std::string_view path) -> bool {
-    return std::find_if(
-               excludes.begin(), excludes.end(),
+    return std::ranges::find_if(
+               excludes,
                [&](const fs::path& path2) {
                  return fs::relative(path2, manifestDir).string() == path;
                }

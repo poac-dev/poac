@@ -9,6 +9,7 @@
 #include <cctype>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -136,10 +137,9 @@ static bool
 equalsInsensitive(
     const std::string_view lhs, const std::string_view rhs
 ) noexcept {
-  return std::equal(
-      lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(),
-      [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }
-  );
+  return std::ranges::equal(lhs, rhs, [](char lhs, char rhs) {
+    return std::tolower(lhs) == std::tolower(rhs);
+  });
 }
 
 std::optional<std::string_view>
