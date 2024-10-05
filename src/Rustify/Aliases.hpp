@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <iostream>
 #include <string_view>
-#include <unordered_set>
 
 namespace fs = std::filesystem;
 
