@@ -81,7 +81,7 @@ If your environment is not included in the released packages, you have to build 
 
 * GCC: `12` or later
 * Clang: `15` or later
-* Apple Clang: provided by `macOS Monterey (12)` or later
+* Apple Clang: provided by `macOS Ventura (13)` or later
 
 #### Commands
 
