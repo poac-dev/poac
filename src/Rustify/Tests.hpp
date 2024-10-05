@@ -30,7 +30,7 @@ inline constinit const usize SRC_REL_PATH_LEN = 6; // `../../`
 // We first should remove `../../` if it exists, then remove the first
 // directory name since it can be either `src` or `tests`.  Finally, we remove
 // the file extension, which is basically any of C++ source file extensions.
-inline constexpr std::string_view
+constexpr std::string_view
 modName(std::string_view file) noexcept {
   if (file.empty()) {
     return file;

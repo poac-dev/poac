@@ -5,7 +5,7 @@
 #include "Repository.hpp"
 
 #include <git2/revwalk.h>
-#include <string_view>
+#include <string>
 
 namespace git2 {
 
@@ -59,19 +59,19 @@ struct Revwalk : public GlobalState {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& pushGlob(std::string_view glob);
+  Revwalk& pushGlob(const std::string& glob);
 
   /// Push and hide the respective endpoints of the given range.
   ///
   /// The range should be of the form `<commit>..<commit>` where each
   /// `<commit>` is in the form accepted by `revparse_single`. The left-hand
   /// commit will be hidden and the right-hand commit pushed.
-  Revwalk& pushRange(std::string_view range);
+  Revwalk& pushRange(const std::string& range);
 
   /// Push the OID pointed to by a reference
   ///
   /// The reference must point to a committish.
-  Revwalk& pushRef(std::string_view reference);
+  Revwalk& pushRef(const std::string& reference);
 
   /// Mark a commit as not of interest to this revwalk.
   Revwalk& hide(const Oid& oid);
@@ -91,12 +91,12 @@ struct Revwalk : public GlobalState {
   ///
   /// Any references matching this glob which do not point to a committish
   /// will be ignored.
-  Revwalk& hideGlob(std::string_view glob);
+  Revwalk& hideGlob(const std::string& glob);
 
   /// Hide the OID pointed to by a reference.
   ///
   /// The reference must point to a committish.
-  Revwalk& hideRef(std::string_view reference);
+  Revwalk& hideRef(const std::string& reference);
 };
 
 } // end namespace git2

@@ -90,9 +90,9 @@ lintMain(const std::span<const std::string_view> args) {
   }
 
   if (fs::exists("include")) {
-    cpplintArgs.push_back("--root=include");
+    cpplintArgs.emplace_back("--root=include");
   } else if (fs::exists("src")) {
-    cpplintArgs.push_back("--root=src");
+    cpplintArgs.emplace_back("--root=src");
   }
 
   const std::vector<std::string>& cpplintFilters = getLintCpplintFilters();
@@ -111,7 +111,7 @@ lintMain(const std::span<const std::string_view> args) {
     logger::debug("Using default arguments for lint ...");
     if (Edition::Cpp11 < getPackageEdition()) {
       // Disable C++11-related lints
-      cpplintArgs.push_back("--filter=-build/c++11");
+      cpplintArgs.emplace_back("--filter=-build/c++11");
     }
     return lint(packageName, cpplintArgs);
   }

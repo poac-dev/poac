@@ -10,6 +10,7 @@
 #include "Build.hpp"
 #include "Common.hpp"
 
+#include <charconv>
 #include <cstdlib>
 #include <span>
 #include <string>
@@ -51,7 +52,17 @@ runMain(const std::span<const std::string_view> args) {
       if (itr + 1 == args.end()) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
-      setParallelism(std::stoul((++itr)->data()));
+      ++itr;
+
+      std::uint64_t numThreads{};
+      auto [ptr, ec] =
+          std::from_chars(itr->data(), itr->data() + itr->size(), numThreads);
+      if (ec == std::errc()) {
+        setParallelism(numThreads);
+      } else {
+        logger::error("invalid number of threads: ", *itr);
+        return EXIT_FAILURE;
+      }
     } else {
       break;
     }
@@ -59,7 +70,7 @@ runMain(const std::span<const std::string_view> args) {
 
   std::vector<std::string> runArgs;
   for (; itr != args.end(); ++itr) {
-    runArgs.push_back(std::string(*itr));
+    runArgs.emplace_back(*itr);
   }
 
   std::string outDir;

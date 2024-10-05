@@ -47,8 +47,8 @@ collectFormatTargetFiles(
   const auto isExcluded = [&](std::string_view path) -> bool {
     return std::find_if(
                excludes.begin(), excludes.end(),
-               [&](const fs::path& p) {
-                 return fs::relative(p, manifestDir).string() == path;
+               [&](const fs::path& path2) {
+                 return fs::relative(path2, manifestDir).string() == path;
                }
            )
            != excludes.end();
@@ -100,7 +100,7 @@ fmtMain(const std::span<const std::string_view> args) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
 
-      excludes.push_back(*++itr);
+      excludes.emplace_back(*++itr);
     } else {
       return FMT_CMD.noSuchArg(*itr);
     }
@@ -121,12 +121,12 @@ fmtMain(const std::span<const std::string_view> args) {
     "-Werror",
   };
   if (isVerbose()) {
-    clangFormatArgs.push_back("--verbose");
+    clangFormatArgs.emplace_back("--verbose");
   }
   if (isCheck) {
-    clangFormatArgs.push_back("--dry-run");
+    clangFormatArgs.emplace_back("--dry-run");
   } else {
-    clangFormatArgs.push_back("-i");
+    clangFormatArgs.emplace_back("-i");
     logger::info("Formatting", packageName);
   }
 

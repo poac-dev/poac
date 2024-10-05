@@ -20,6 +20,8 @@
 
 std::string toUpper(std::string_view str) noexcept;
 std::string toMacroName(std::string_view name) noexcept;
+std::string
+replaceAll(std::string str, std::string_view from, std::string_view to);
 
 int execCmd(const Command& cmd) noexcept;
 std::string getCmdOutput(const Command& cmd, usize retry = 3);

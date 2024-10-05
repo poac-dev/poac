@@ -7,6 +7,7 @@
 #include "../Parallelism.hpp"
 #include "Common.hpp"
 
+#include <charconv>
 #include <chrono>
 #include <cstdlib>
 #include <fmt/core.h>
@@ -45,13 +46,13 @@ buildImpl(std::string& outDir, const bool isDebug) {
     const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
 
     std::vector<std::string_view> profiles;
-    if (profile.opt_level.value() == 0) {
-      profiles.push_back("unoptimized");
+    if (profile.optLevel.value() == 0) {
+      profiles.emplace_back("unoptimized");
     } else {
-      profiles.push_back("optimized");
+      profiles.emplace_back("optimized");
     }
     if (profile.debug.value()) {
-      profiles.push_back("debuginfo");
+      profiles.emplace_back("debuginfo");
     }
 
     logger::info(
@@ -87,7 +88,17 @@ buildMain(const std::span<const std::string_view> args) {
       if (itr + 1 == args.end()) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
-      setParallelism(std::stoul((++itr)->data()));
+      ++itr;
+
+      std::uint64_t numThreads{};
+      auto [ptr, ec] =
+          std::from_chars(itr->data(), itr->data() + itr->size(), numThreads);
+      if (ec == std::errc()) {
+        setParallelism(numThreads);
+      } else {
+        logger::error("invalid number of threads: ", *itr);
+        return EXIT_FAILURE;
+      }
     } else {
       return BUILD_CMD.noSuchArg(*itr);
     }

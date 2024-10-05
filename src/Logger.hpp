@@ -43,14 +43,14 @@ public:
   constexpr Logger& operator=(Logger&&) noexcept = delete;
   constexpr ~Logger() noexcept = default;
 
-  static inline Logger& instance() noexcept {
+  static Logger& instance() noexcept {
     static Logger instance;
     return instance;
   }
-  static inline void setLevel(Level level) noexcept {
+  static void setLevel(Level level) noexcept {
     instance().level = level;
   }
-  static inline Level getLevel() noexcept {
+  static Level getLevel() noexcept {
     return instance().level;
   }
 
@@ -136,7 +136,7 @@ private:
     );
   }
 
-  static inline void loglnImpl(
+  static void loglnImpl(
       std::ostream& os, Level level, HeadProcessor auto&& processHead,
       Display auto&&... msgs
   ) noexcept {
@@ -146,7 +146,7 @@ private:
     );
   }
 
-  inline void
+  void
   log(std::ostream& os, Level level, HeadProcessor auto&& processHead,
       Display auto&& head, Display auto&&... msgs) noexcept {
     if (level <= this->level) {

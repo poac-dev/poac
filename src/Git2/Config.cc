@@ -3,7 +3,6 @@
 #include "Exception.hpp"
 
 #include <string>
-#include <string_view>
 
 namespace git2 {
 
@@ -24,9 +23,9 @@ Config::openDefault() {
 }
 
 std::string
-Config::getString(const std::string_view name) {
+Config::getString(const std::string& name) {
   git_buf ret = { nullptr, 0, 0 };
-  git2Throw(git_config_get_string_buf(&ret, this->raw, name.data()));
+  git2Throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
   return { ret.ptr, ret.size };
 }
 

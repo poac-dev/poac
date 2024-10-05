@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -51,7 +52,7 @@ listSourceFilePaths(const std::string_view directory) {
   return sourceFilePaths;
 }
 
-enum class VarType {
+enum class VarType : std::uint8_t {
   Recursive, // =
   Simple, // :=
   Cond, // ?=
@@ -109,31 +110,34 @@ struct BuildConfig {
   std::optional<std::unordered_set<std::string>> phony;
   std::optional<std::unordered_set<std::string>> all;
 
-  std::string OUT_DIR;
+  // NOLINTBEGIN(readability-identifier-naming)
+  std::string outDir;
   std::string CXX;
   std::vector<std::string> CXXFLAGS;
   std::vector<std::string> DEFINES;
   std::vector<std::string> INCLUDES = { "-I../../include" };
   std::vector<std::string> LIBS;
+  // NOLINTEND(readability-identifier-naming)
 
   explicit BuildConfig(const std::string& packageName)
       : packageName{ packageName }, buildOutDir{ packageName + ".d" } {
     if (const char* cxx = std::getenv("CXX")) {
       CXX = cxx;
     } else {
-      std::string output = Command("make")
-                               .addArg("--print-data-base")
-                               .addArg("--question")
-                               .addArg("-f")
-                               .addArg("/dev/null")
-                               .output()
-                               .output;
+      const std::string output = Command("make")
+                                     .addArg("--print-data-base")
+                                     .addArg("--question")
+                                     .addArg("-f")
+                                     .addArg("/dev/null")
+                                     .output()
+                                     .output;
       std::istringstream iss(output);
       std::string line;
 
       while (std::getline(iss, line)) {
         if (line.starts_with("CXX = ")) {
-          CXX = line.substr(6);
+          constexpr usize offset = 6;
+          CXX = line.substr(offset);
           return;
         }
       }
@@ -143,16 +147,16 @@ struct BuildConfig {
 
   void setOutDir(const bool isDebug) {
     if (isDebug) {
-      OUT_DIR = "poac-out/debug";
+      outDir = "poac-out/debug";
     } else {
-      OUT_DIR = "poac-out/release";
+      outDir = "poac-out/release";
     }
   }
   std::string getOutDir() const {
-    if (OUT_DIR.empty()) {
+    if (outDir.empty()) {
       throw PoacError("outDir is not set");
     }
-    return OUT_DIR;
+    return outDir;
   }
 
   void defineVar(
@@ -169,13 +173,13 @@ struct BuildConfig {
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
-    defineVar(name, { value, VarType::Simple }, dependsOn);
+    defineVar(name, { .value = value, .type = VarType::Simple }, dependsOn);
   }
   void defineCondVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
-    defineVar(name, { value, VarType::Cond }, dependsOn);
+    defineVar(name, { .value = value, .type = VarType::Cond }, dependsOn);
   }
 
   void defineTarget(
@@ -183,7 +187,9 @@ struct BuildConfig {
       const std::unordered_set<std::string>& remDeps = {},
       const std::optional<std::string>& sourceFile = std::nullopt
   ) {
-    targets[name] = { commands, sourceFile, remDeps };
+    targets[name] = { .commands = commands,
+                      .sourceFile = sourceFile,
+                      .remDeps = remDeps };
 
     if (sourceFile.has_value()) {
       targetDeps[sourceFile.value()].push_back(name);
@@ -377,7 +383,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
     oss << indent2 << "\"directory\": " << baseDirPath << ",\n";
     oss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
     oss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
-    oss << indent2 << "\"command\": " << std::quoted(cmd.to_string()) << "\n";
+    oss << indent2 << "\"command\": " << std::quoted(cmd.toString()) << "\n";
     oss << indent1 << "},\n";
   }
 
@@ -485,7 +491,7 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
 static std::string
 printfCmd(const std::string_view header, const std::string_view body) {
   std::ostringstream oss;
-  logger::Level level = logger::getLevel();
+  const logger::Level level = logger::getLevel();
   logger::setLevel(logger::Level::Info); // Force to format the message
   logger::info(oss, header, body);
   logger::setLevel(level);
@@ -508,8 +514,8 @@ defineCompileTarget(
     const std::unordered_set<std::string>& remDeps, const bool isTest = false
 ) {
   std::vector<std::string> commands;
-  commands.push_back("@mkdir -p $(@D)");
-  commands.push_back("$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)");
+  commands.emplace_back("@mkdir -p $(@D)");
+  commands.emplace_back("$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)");
   if (isTest) {
     commands.back() += " -DPOAC_TEST";
   }
@@ -523,7 +529,7 @@ defineLinkTarget(
     const std::unordered_set<std::string>& deps
 ) {
   std::vector<std::string> commands;
-  commands.push_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
+  commands.emplace_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
   config.defineTarget(binTarget, commands, deps);
 }
 
@@ -597,10 +603,12 @@ void
 BuildConfig::installDeps(const bool includeDevDeps) {
   const std::vector<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
-    if (!dep.includes.empty())
-      INCLUDES.push_back(dep.includes);
-    if (!dep.libs.empty())
+    if (!dep.includes.empty()) {
+      INCLUDES.push_back(replaceAll(dep.includes, "-I", "-isystem"));
+    }
+    if (!dep.libs.empty()) {
       LIBS.push_back(dep.libs);
+    }
   }
   logger::debug(fmt::format("INCLUDES: {}", INCLUDES));
   logger::debug(fmt::format("LIBS: {}", LIBS));
@@ -619,19 +627,19 @@ BuildConfig::setVariables(const bool isDebug) {
 
   CXXFLAGS.push_back("-std=c++" + getPackageEdition().getString());
   if (shouldColor()) {
-    CXXFLAGS.push_back("-fdiagnostics-color");
+    CXXFLAGS.emplace_back("-fdiagnostics-color");
   }
   if (isDebug) {
-    CXXFLAGS.push_back("-g");
-    CXXFLAGS.push_back("-O0");
-    CXXFLAGS.push_back("-DDEBUG");
+    CXXFLAGS.emplace_back("-g");
+    CXXFLAGS.emplace_back("-O0");
+    CXXFLAGS.emplace_back("-DDEBUG");
   } else {
-    CXXFLAGS.push_back("-O3");
-    CXXFLAGS.push_back("-DNDEBUG");
+    CXXFLAGS.emplace_back("-O3");
+    CXXFLAGS.emplace_back("-DNDEBUG");
   }
   const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
   if (profile.lto) {
-    CXXFLAGS.push_back("-flto");
+    CXXFLAGS.emplace_back("-flto");
   }
   for (const std::string_view flag : profile.cxxflags) {
     CXXFLAGS.emplace_back(flag);
@@ -816,7 +824,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   };
   fs::path mainSource;
   for (const auto& entry : fs::directory_iterator("src")) {
-    fs::path path = entry.path();
+    const fs::path& path = entry.path();
     if (!SOURCE_FILE_EXTS.contains(path.extension())) {
       continue;
     }
@@ -1016,7 +1024,7 @@ getMakeCommand() {
 
 namespace tests {
 
-void
+static void
 testCycleVars() {
   BuildConfig config("test");
   config.defineSimpleVar("a", "b", { "b" });
@@ -1034,7 +1042,7 @@ testCycleVars() {
   pass();
 }
 
-void
+static void
 testSimpleVars() {
   BuildConfig config("test");
   config.defineSimpleVar("c", "3", { "b" });
@@ -1053,7 +1061,7 @@ testSimpleVars() {
   pass();
 }
 
-void
+static void
 testDependOnUnregisteredVar() {
   BuildConfig config("test");
   config.defineSimpleVar("a", "1", { "b" });
@@ -1066,7 +1074,7 @@ testDependOnUnregisteredVar() {
   pass();
 }
 
-void
+static void
 testCycleTargets() {
   BuildConfig config("test");
   config.defineTarget("a", { "echo a" }, { "b" });
@@ -1084,7 +1092,7 @@ testCycleTargets() {
   pass();
 }
 
-void
+static void
 testSimpleTargets() {
   BuildConfig config("test");
   config.defineTarget("a", { "echo a" });
@@ -1109,7 +1117,7 @@ testSimpleTargets() {
   pass();
 }
 
-void
+static void
 testDependOnUnregisteredTarget() {
   BuildConfig config("test");
   config.defineTarget("a", { "echo a" }, { "b" });

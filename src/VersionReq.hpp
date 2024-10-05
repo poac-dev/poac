@@ -17,6 +17,7 @@
 #include "Rustify.hpp"
 #include "Semver.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -62,7 +63,7 @@ struct OptVersion {
 //   6.2. `<=A.B` is equivalent to `<A.(B+1).0`
 //   6.3. `<=A` is equivalent to `<(A+1).0.0`
 struct Comparator {
-  enum class Op {
+  enum class Op : std::uint8_t {
     Exact, // =
     Gt, // >
     Gte, // >=

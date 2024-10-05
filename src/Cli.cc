@@ -360,7 +360,9 @@ Cli::transformOptions(
   const Subcmd& cmd = subcmds.at(subcmd);
   std::vector<std::string_view> transformed;
   transformed.reserve(args.size());
-  for (std::string_view arg : args) {
+  for (std::size_t argIdx = 0; argIdx < args.size(); ++argIdx) {
+    const std::string_view arg = args[argIdx];
+
     if (arg.starts_with("--")) {
       if (auto pos = arg.find_first_of('='); pos != std::string_view::npos) {
         transformed.push_back(arg.substr(0, pos));
@@ -373,23 +375,36 @@ Cli::transformOptions(
       for (std::size_t i = 0; i < multioption.size(); ++i) {
         const auto handle = [&](const std::span<const Opt> opts) {
           for (const Opt& opt : opts) {
-            if (opt.shortName.empty())
+            if (opt.shortName.empty()) {
               continue;
-            if (opt.shortName.substr(1) != multioption.substr(i, 1))
+            }
+            if (opt.shortName.substr(1) != multioption.substr(i, 1)) {
               continue;
+            }
             transformed.push_back(opt.shortName);
+            // Placeholder is not empty means that this option takes a value.
             if (!opt.placeholder.empty()) {
-              transformed.push_back(multioption.substr(i + 1));
+              if (i + 1 < multioption.size()) {
+                // Handle concatenated value (like -j1)
+                transformed.push_back(multioption.substr(i + 1));
+              } else if (argIdx + 1 < args.size()
+                         && !args[argIdx + 1].starts_with("-")) {
+                // Handle space-separated value (like -j 1)
+                transformed.push_back(args[++argIdx]
+                ); // Consume the next argument as the option's value
+              }
             }
             handled = true;
           }
         };
-        if (cmd.globalOpts)
+        if (cmd.globalOpts) {
           handle(*cmd.globalOpts);
+        }
         handle(cmd.localOpts);
       }
-      if (handled)
+      if (handled) {
         continue;
+      }
     }
 
     transformed.push_back(arg);
