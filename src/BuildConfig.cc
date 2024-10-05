@@ -24,6 +24,7 @@
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <queue>
 #include <span>
 #include <sstream>
 #include <string>
@@ -36,7 +37,6 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <queue>
 
 namespace {
 
