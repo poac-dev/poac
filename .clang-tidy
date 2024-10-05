@@ -2,34 +2,7 @@
 UseColor: true
 WarningsAsErrors: true,*
 HeaderFilterRegex: "src/"
-Checks: -*
-  boost-*
-  bugprone-*
-  -bugprone-branch-clone
-  -bugprone-easily-swappable-parameters
-  -bugprone-exception-escape
-  -bugprone-unchecked-optional-access
-  cert-*
-  -cert-err58-cpp
-  -cert-env33-c
-  clang-analyzer-*
-  concurrency-*
-  -concurrency-mt-unsafe
-  cppcoreguidelines-*
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
-  google-*
-  -google-readability-todo
-  misc-*
-  -misc-include-cleaner
-  -misc-no-recursion
-  modernize-*
-  -modernize-use-nodiscard
-  -modernize-use-trailing-return-type
-  performance-*
-  portability-*
-  readability-*
-  -readability-else-after-return
-  -readability-implicit-bool-conversion
+Checks: '-*,boost-*,bugprone-*,-bugprone-branch-clone,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-unchecked-optional-access,cert-*,-cert-err58-cpp,-cert-env33-c,clang-analyzer-*,concurrency-*,-concurrency-mt-unsafe,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,google-*,-google-readability-todo,misc-*,-misc-include-cleaner,-misc-no-recursion,modernize-*,-modernize-use-nodiscard,-modernize-use-trailing-return-type,performance-*,portability-*,readability-*,-readability-else-after-return,-readability-implicit-bool-conversion'
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true
