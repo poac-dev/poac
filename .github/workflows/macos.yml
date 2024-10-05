@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        osver: [12, 13, 14]
+        osver: [12, 13, 14, 15]
     steps:
       - uses: actions/checkout@v4
 
