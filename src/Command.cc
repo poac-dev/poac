@@ -3,6 +3,7 @@
 #include "Exception.hpp"
 #include "Rustify.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdio>
@@ -155,7 +156,9 @@ Command::spawn() const {
       dup2(stdoutPipe[1], STDOUT_FILENO);
       close(stdoutPipe[1]);
     } else if (stdoutConfig == IOConfig::Null) {
-      const int nullfd = open("/dev/null", O_WRONLY); // NOLINT(cppcoreguidelines-pro-type-vararg)
+      const int nullfd = open(
+          "/dev/null", O_WRONLY
+      ); // NOLINT(cppcoreguidelines-pro-type-vararg)
       dup2(nullfd, STDOUT_FILENO);
       close(nullfd);
     }
@@ -166,7 +169,9 @@ Command::spawn() const {
       dup2(stderrPipe[1], STDERR_FILENO);
       close(stderrPipe[1]);
     } else if (stderrConfig == IOConfig::Null) {
-      const int nullfd = open("/dev/null", O_WRONLY); // NOLINT(cppcoreguidelines-pro-type-vararg)
+      const int nullfd = open(
+          "/dev/null", O_WRONLY
+      ); // NOLINT(cppcoreguidelines-pro-type-vararg)
       dup2(nullfd, STDERR_FILENO);
       close(nullfd);
     }
