@@ -69,12 +69,12 @@ getCmdOutput(const Command& cmd, const usize retry) {
   int exitCode = EXIT_SUCCESS;
   int waitTime = 1;
   for (usize i = 0; i < retry; ++i) {
-    const auto [status, stdout, stderr] = cmd.output();
+    const auto [curExitCode, stdout, stderr] = cmd.output();
     static_cast<void>(stderr);
-    if (status == EXIT_SUCCESS) {
+    if (curExitCode == EXIT_SUCCESS) {
       return stdout;
     }
-    exitCode = status;
+    exitCode = curExitCode;
 
     // Sleep for an exponential backoff.
     std::this_thread::sleep_for(std::chrono::seconds(waitTime));
