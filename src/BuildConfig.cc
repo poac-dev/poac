@@ -214,7 +214,7 @@ struct BuildConfig {
   ) const;
 };
 
-static void
+void
 emitDep(std::ostream& os, usize& offset, const std::string_view dep) {
   constexpr usize maxLineLen = 80;
   if (offset + dep.size() + 2 > maxLineLen) { // 2 for space and \.
@@ -226,7 +226,7 @@ emitDep(std::ostream& os, usize& offset, const std::string_view dep) {
   offset += dep.size() + 1; // space
 }
 
-static void
+void
 emitTarget(
     std::ostream& os, const std::string_view target,
     const std::unordered_set<std::string>& dependsOn,
