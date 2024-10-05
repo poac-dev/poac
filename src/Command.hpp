@@ -9,16 +9,19 @@
 #include <vector>
 
 struct CommandOutput {
-  std::string output;
   int exitCode;
+  std::string stdout;
+  std::string stderr;
 };
 
 class Child {
 private:
   pid_t pid;
   int stdoutfd;
+  int stderrfd;
 
-  Child(pid_t pid, int stdoutfd) noexcept : pid(pid), stdoutfd(stdoutfd) {}
+  Child(pid_t pid, int stdoutfd, int stderrfd) noexcept
+      : pid(pid), stdoutfd(stdoutfd), stderrfd(stderrfd) {}
 
   friend struct Command;
 
@@ -28,7 +31,7 @@ public:
 };
 
 struct Command {
-  enum class StdioConfig : std::uint8_t {
+  enum class IOConfig : std::uint8_t {
     Null,
     Inherit,
     Piped,
@@ -37,7 +40,8 @@ struct Command {
   std::string command;
   std::vector<std::string> arguments;
   std::string workingDirectory;
-  StdioConfig stdoutConfig = StdioConfig::Inherit;
+  IOConfig stdoutConfig = IOConfig::Inherit;
+  IOConfig stderrConfig = IOConfig::Inherit;
 
   explicit Command(std::string_view cmd) : command(cmd) {}
   Command(std::string_view cmd, std::vector<std::string> args)
@@ -53,8 +57,13 @@ struct Command {
     return *this;
   }
 
-  Command& setStdoutConfig(StdioConfig config) noexcept {
+  Command& setStdoutConfig(IOConfig config) noexcept {
     stdoutConfig = config;
+    return *this;
+  }
+
+  Command& setStderrConfig(IOConfig config) noexcept {
+    stderrConfig = config;
     return *this;
   }
 
