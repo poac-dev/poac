@@ -37,20 +37,10 @@
 #include <utility>
 #include <vector>
 
-static constinit const std::string_view TEST_OUT_DIR = "tests";
-static constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
+namespace {
 
-static std::vector<fs::path>
-listSourceFilePaths(const std::string_view directory) {
-  std::vector<fs::path> sourceFilePaths;
-  for (const auto& entry : fs::recursive_directory_iterator(directory)) {
-    if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
-      continue;
-    }
-    sourceFilePaths.emplace_back(entry.path());
-  }
-  return sourceFilePaths;
-}
+constinit const std::string_view TEST_OUT_DIR = "tests";
+constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
 
 enum class VarType : std::uint8_t {
   Recursive, // =
@@ -87,12 +77,6 @@ struct Variable {
   VarType type = VarType::Simple;
 };
 
-std::ostream&
-operator<<(std::ostream& os, const Variable& var) {
-  os << var.type << ' ' << var.value;
-  return os;
-}
-
 struct Target {
   std::vector<std::string> commands;
   std::optional<std::string> sourceFile;
@@ -110,9 +94,9 @@ struct BuildConfig {
   std::optional<std::unordered_set<std::string>> phony;
   std::optional<std::unordered_set<std::string>> all;
 
-  // NOLINTBEGIN(readability-identifier-naming)
   std::string outDir;
-  std::string CXX;
+  std::string cxx;
+  // NOLINTBEGIN(readability-identifier-naming)
   std::vector<std::string> CXXFLAGS;
   std::vector<std::string> DEFINES;
   std::vector<std::string> INCLUDES = { "-I../../include" };
@@ -122,22 +106,23 @@ struct BuildConfig {
   explicit BuildConfig(const std::string& packageName)
       : packageName{ packageName }, buildOutDir{ packageName + ".d" } {
     if (const char* cxx = std::getenv("CXX")) {
-      CXX = cxx;
+      this->cxx = cxx;
     } else {
       const std::string output = Command("make")
                                      .addArg("--print-data-base")
                                      .addArg("--question")
                                      .addArg("-f")
                                      .addArg("/dev/null")
+                                     .setStderrConfig(Command::IOConfig::Null)
                                      .output()
-                                     .output;
+                                     .stdout;
       std::istringstream iss(output);
       std::string line;
 
       while (std::getline(iss, line)) {
         if (line.starts_with("CXX = ")) {
           constexpr usize offset = 6;
-          CXX = line.substr(offset);
+          this->cxx = line.substr(offset);
           return;
         }
       }
@@ -302,6 +287,8 @@ BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
   os << '\n';
 }
 
+} // namespace
+
 void
 BuildConfig::emitMakefile(std::ostream& os) const {
   const std::vector<std::string> sortedVars = topoSort(variables, varDeps);
@@ -370,7 +357,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
     const std::string file = targetInfo.sourceFile.value();
     // The output is the target.
     const std::string output = target;
-    const Command cmd = Command(CXX)
+    const Command cmd = Command(cxx)
                             .addArgs(CXXFLAGS)
                             .addArgs(DEFINES)
                             .addArgs(INCLUDES)
@@ -402,7 +389,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
 std::string
 BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   Command command =
-      Command(CXX).addArgs(CXXFLAGS).addArgs(DEFINES).addArgs(INCLUDES);
+      Command(cxx).addArgs(CXXFLAGS).addArgs(DEFINES).addArgs(INCLUDES);
   if (isTest) {
     command.addArg("-DPOAC_TEST");
   }
@@ -461,7 +448,7 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != std::string::npos) {
       // TODO: Can't we somehow elegantly make the compiler command sharable?
-      Command command(CXX);
+      Command command(cxx);
       command.addArg("-E");
       command.addArgs(CXXFLAGS);
       command.addArgs(DEFINES);
@@ -623,7 +610,7 @@ BuildConfig::addDefine(
 
 void
 BuildConfig::setVariables(const bool isDebug) {
-  this->defineSimpleVar("CXX", CXX);
+  this->defineSimpleVar("CXX", cxx);
 
   CXXFLAGS.push_back("-std=c++" + getPackageEdition().getString());
   if (shouldColor()) {
@@ -810,6 +797,18 @@ processTestSrc(
   if (mtx) {
     mtx->unlock();
   }
+}
+
+static std::vector<fs::path>
+listSourceFilePaths(const std::string_view directory) {
+  std::vector<fs::path> sourceFilePaths;
+  for (const auto& entry : fs::recursive_directory_iterator(directory)) {
+    if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
+      continue;
+    }
+    sourceFilePaths.emplace_back(entry.path());
+  }
+  return sourceFilePaths;
 }
 
 static void
