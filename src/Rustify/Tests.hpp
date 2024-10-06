@@ -56,7 +56,7 @@ modName(std::string_view file) noexcept {
 
 inline void
 pass(const source_location& loc = source_location::current()) noexcept {
-  std::cout << "test " << modName(loc.file_name())
+  std::cout << "      test " << modName(loc.file_name())
             << "::" << loc.function_name() << " ... " << GREEN << "ok" << RESET
             << '\n'
             << std::flush;
@@ -64,7 +64,7 @@ pass(const source_location& loc = source_location::current()) noexcept {
 
 [[noreturn]] inline void
 error(const source_location& loc, Display auto&&... msgs) noexcept {
-  std::cerr << "test " << modName(loc.file_name())
+  std::cerr << "      test " << modName(loc.file_name())
             << "::" << loc.function_name() << " ... " << RED << "FAILED"
             << RESET << "\n\n"
             << '\'' << loc.function_name() << "' failed at '" << std::boolalpha;

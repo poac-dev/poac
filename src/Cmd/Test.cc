@@ -71,7 +71,8 @@ testMain(const std::span<const std::string_view> args) {
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/true);
   const fs::path outDir = config.getOutDir();
   const std::string& packageName = getPackageName();
-  const Command baseMakeCmd = getMakeCommand().addArg("-C").addArg(outDir.string());
+  const Command baseMakeCmd =
+      getMakeCommand().addArg("-C").addArg(outDir.string());
 
   // Find not up-to-date test targets, emit compilation status once, and
   // compile them.
