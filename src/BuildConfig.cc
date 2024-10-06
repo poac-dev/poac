@@ -40,6 +40,7 @@
 #include <vector>
 
 constinit const std::string_view TEST_OUT_DIR = "tests";
+constinit const std::string_view UNITTEST_BIN_PREFIX = "unittest_";
 constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
 
 std::ostream&
@@ -463,7 +464,7 @@ BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
     if (sourceFileName == headerPath.stem()) {
       // We shouldn't depend on the original object file (e.g.,
       // poac.d/path/to/file.o). We should depend on the test object
-      // file (e.g., tests/path/to/test_file.o).
+      // file (e.g., tests/path/to/unittest_file.o).
       continue;
     }
     if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
@@ -642,7 +643,7 @@ BuildConfig::processSources(const std::vector<fs::path>& sourceFilePaths) {
 }
 
 void
-BuildConfig::processTestSrc(
+BuildConfig::processUnittestSrc(
     const fs::path& sourceFilePath,
     const std::unordered_set<std::string>& buildObjTargets,
     std::unordered_set<std::string>& testTargets, tbb::spin_mutex* mtx
@@ -664,11 +665,11 @@ BuildConfig::processTestSrc(
     testTargetBaseDir /= targetBaseDir;
   }
 
-  const std::string testObjTarget =
-      (testTargetBaseDir / "test_").string() + objTarget;
+  const std::string testTargetPrefix =
+      (testTargetBaseDir / UNITTEST_BIN_PREFIX).string();
+  const std::string testObjTarget = testTargetPrefix + objTarget;
   const std::string testTargetName = sourceFilePath.stem().string();
-  const std::string testTarget =
-      (testTargetBaseDir / "test_").string() + testTargetName;
+  const std::string testTarget = testTargetPrefix + testTargetName;
 
   // Test binary target.
   std::unordered_set<std::string> testTargetDeps = { testObjTarget };
@@ -688,7 +689,7 @@ BuildConfig::processTestSrc(
   // Test binary target.
   defineLinkTarget(testTarget, testTargetDeps);
 
-  testTargetToSourcePaths[testTarget] =
+  unittestTargetsToSourcePaths[testTarget] =
       sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size());
   testTargets.insert(testTarget);
   if (mtx) {
@@ -789,7 +790,7 @@ BuildConfig::configureBuild() {
         tbb::blocked_range<usize>(0, sourceFilePaths.size()),
         [&](const tbb::blocked_range<usize>& rng) {
           for (usize i = rng.begin(); i != rng.end(); ++i) {
-            processTestSrc(
+            processUnittestSrc(
                 sourceFilePaths[i], buildObjTargets, testTargets, &mtx
             );
           }
@@ -797,7 +798,7 @@ BuildConfig::configureBuild() {
     );
   } else {
     for (const fs::path& sourceFilePath : sourceFilePaths) {
-      processTestSrc(sourceFilePath, buildObjTargets, testTargets);
+      processUnittestSrc(sourceFilePath, buildObjTargets, testTargets);
     }
   }
 
@@ -815,7 +816,6 @@ BuildConfig::configureBuild() {
   addPhony("$(TIDY_TARGETS)");
 }
 
-/// @returns the directory where the Makefile is generated.
 BuildConfig
 emitMakefile(const bool isDebug, const bool includeDevDeps) {
   BuildConfig config(getPackageName(), isDebug);

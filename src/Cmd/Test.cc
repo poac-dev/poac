@@ -77,7 +77,7 @@ testMain(const std::span<const std::string_view> args) {
   // compile them.
   int exitCode{};
   bool alreadyEmitted = false;
-  for (const auto& [target, sourcePath] : config.testTargetToSourcePaths) {
+  for (const auto& [target, sourcePath] : config.unittestTargetsToSourcePaths) {
     static_cast<void>(sourcePath);
 
     Command checkUpToDateCmd = baseMakeCmd;
@@ -103,7 +103,7 @@ testMain(const std::span<const std::string_view> args) {
   }
 
   // Run tests.
-  for (const auto& [target, sourcePath] : config.testTargetToSourcePaths) {
+  for (const auto& [target, sourcePath] : config.unittestTargetsToSourcePaths) {
     logger::info("Running", "unittests ", sourcePath);
 
     const int curExitCode =

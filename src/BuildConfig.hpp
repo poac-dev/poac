@@ -42,7 +42,7 @@ struct Target {
 
 struct BuildConfig {
   // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  std::unordered_map<std::string, std::string> testTargetToSourcePaths;
+  std::unordered_map<std::string, std::string> unittestTargetsToSourcePaths;
   std::string outDir;
   // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
 
@@ -152,7 +152,7 @@ public:
       const std::unordered_set<std::string>& buildObjTargets
   ) const;
 
-  void processTestSrc(
+  void processUnittestSrc(
       const fs::path& sourceFilePath,
       const std::unordered_set<std::string>& buildObjTargets,
       std::unordered_set<std::string>& testTargets,
