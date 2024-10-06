@@ -82,8 +82,9 @@ tidyMain(const std::span<const std::string_view> args) {
     setParallelism(1);
   }
 
-  const fs::path outDir =
+  const BuildConfig config =
       emitMakefile(/*isDebug=*/true, /*includeDevDeps=*/false);
+  const fs::path outDir = config.getOutDir();
 
   std::string tidyFlags = "POAC_TIDY_FLAGS=";
   if (!isVerbose()) {
