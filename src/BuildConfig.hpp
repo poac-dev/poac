@@ -160,7 +160,6 @@ public:
   );
 
   void configureBuild();
-  void emit();
 };
 
 BuildConfig emitMakefile(bool isDebug, bool includeDevDeps);

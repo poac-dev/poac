@@ -106,7 +106,8 @@ testMain(const std::span<const std::string_view> args) {
   for (const auto& [target, sourcePath] : config.testTargetToSourcePaths) {
     logger::info("Running", "unittests ", sourcePath);
 
-    const int curExitCode = execCmd(Command((fs::path(config.outDir) / target).string()));
+    const int curExitCode =
+        execCmd(Command((fs::path(config.outDir) / target).string()));
     if (curExitCode != EXIT_SUCCESS) {
       exitCode = curExitCode;
     }

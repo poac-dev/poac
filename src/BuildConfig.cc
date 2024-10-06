@@ -65,7 +65,8 @@ operator<<(std::ostream& os, VarType type) {
 }
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
-    : packageName{ packageName }, buildOutDir{ packageName + ".d" }, isDebug{isDebug} {
+    : packageName{ packageName }, buildOutDir{ packageName + ".d" },
+      isDebug{ isDebug } {
   if (isDebug) {
     outDir = "poac-out/debug";
   } else {
