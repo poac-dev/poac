@@ -98,12 +98,10 @@ struct BuildConfig {
 
   std::string outDir;
   std::string cxx;
-  // NOLINTBEGIN(readability-identifier-naming)
-  std::vector<std::string> CXXFLAGS;
-  std::vector<std::string> DEFINES;
-  std::vector<std::string> INCLUDES = { "-I../../include" };
-  std::vector<std::string> LIBS;
-  // NOLINTEND(readability-identifier-naming)
+  std::vector<std::string> cxxflags;
+  std::vector<std::string> defines;
+  std::vector<std::string> includes = { "-I../../include" };
+  std::vector<std::string> libs;
 
   explicit BuildConfig(const std::string& packageName)
       : packageName{ packageName }, buildOutDir{ packageName + ".d" } {
@@ -413,10 +411,10 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
     // The output is the target.
     const std::string output = target;
     const Command cmd = Command(cxx)
-                            .addArgs(CXXFLAGS)
-                            .addArgs(DEFINES)
+                            .addArgs(cxxflags)
+                            .addArgs(defines)
                             .addArg("-DPOAC_TEST")
-                            .addArgs(INCLUDES)
+                            .addArgs(includes)
                             .addArg("-c")
                             .addArg(file)
                             .addArg("-o")
@@ -445,7 +443,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
 std::string
 BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   Command command =
-      Command(cxx).addArgs(CXXFLAGS).addArgs(DEFINES).addArgs(INCLUDES);
+      Command(cxx).addArgs(cxxflags).addArgs(defines).addArgs(includes);
   if (isTest) {
     command.addArg("-DPOAC_TEST");
   }
@@ -506,9 +504,9 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
       // TODO: Can't we somehow elegantly make the compiler command sharable?
       Command command(cxx);
       command.addArg("-E");
-      command.addArgs(CXXFLAGS);
-      command.addArgs(DEFINES);
-      command.addArgs(INCLUDES);
+      command.addArgs(cxxflags);
+      command.addArgs(defines);
+      command.addArgs(includes);
       command.addArg(sourceFile);
 
       const std::string src = getCmdOutput(command);
@@ -647,48 +645,48 @@ BuildConfig::installDeps(const bool includeDevDeps) {
   const std::vector<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
     if (!dep.includes.empty()) {
-      INCLUDES.push_back(replaceAll(dep.includes, "-I", "-isystem"));
+      includes.push_back(replaceAll(dep.includes, "-I", "-isystem"));
     }
     if (!dep.libs.empty()) {
-      LIBS.push_back(dep.libs);
+      libs.push_back(dep.libs);
     }
   }
-  logger::debug(fmt::format("INCLUDES: {}", INCLUDES));
-  logger::debug(fmt::format("LIBS: {}", LIBS));
+  logger::debug(fmt::format("INCLUDES: {}", includes));
+  logger::debug(fmt::format("LIBS: {}", libs));
 }
 
 void
 BuildConfig::addDefine(
     const std::string_view name, const std::string_view value
 ) {
-  DEFINES.push_back(fmt::format("-D{}='\"{}\"'", name, value));
+  defines.push_back(fmt::format("-D{}='\"{}\"'", name, value));
 }
 
 void
 BuildConfig::setVariables(const bool isDebug) {
   this->defineSimpleVar("CXX", cxx);
 
-  CXXFLAGS.push_back("-std=c++" + getPackageEdition().getString());
+  cxxflags.push_back("-std=c++" + getPackageEdition().getString());
   if (shouldColor()) {
-    CXXFLAGS.emplace_back("-fdiagnostics-color");
+    cxxflags.emplace_back("-fdiagnostics-color");
   }
   if (isDebug) {
-    CXXFLAGS.emplace_back("-g");
-    CXXFLAGS.emplace_back("-O0");
-    CXXFLAGS.emplace_back("-DDEBUG");
+    cxxflags.emplace_back("-g");
+    cxxflags.emplace_back("-O0");
+    cxxflags.emplace_back("-DDEBUG");
   } else {
-    CXXFLAGS.emplace_back("-O3");
-    CXXFLAGS.emplace_back("-DNDEBUG");
+    cxxflags.emplace_back("-O3");
+    cxxflags.emplace_back("-DNDEBUG");
   }
   const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
   if (profile.lto) {
-    CXXFLAGS.emplace_back("-flto");
+    cxxflags.emplace_back("-flto");
   }
   for (const std::string_view flag : profile.cxxflags) {
-    CXXFLAGS.emplace_back(flag);
+    cxxflags.emplace_back(flag);
   }
   this->defineSimpleVar(
-      "CXXFLAGS", fmt::format("{:s}", fmt::join(CXXFLAGS, " "))
+      "CXXFLAGS", fmt::format("{:s}", fmt::join(cxxflags, " "))
   );
 
   const std::string pkgName = toMacroName(this->packageName);
@@ -731,12 +729,12 @@ BuildConfig::setVariables(const bool isDebug) {
   }
 
   this->defineSimpleVar(
-      "DEFINES", fmt::format("{:s}", fmt::join(DEFINES, " "))
+      "DEFINES", fmt::format("{:s}", fmt::join(this->defines, " "))
   );
   this->defineSimpleVar(
-      "INCLUDES", fmt::format("{:s}", fmt::join(INCLUDES, " "))
+      "INCLUDES", fmt::format("{:s}", fmt::join(includes, " "))
   );
-  this->defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(LIBS, " ")));
+  this->defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(libs, " ")));
 }
 
 void
