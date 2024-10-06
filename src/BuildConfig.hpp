@@ -41,12 +41,15 @@ struct Target {
 };
 
 struct BuildConfig {
-  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
+  // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
   std::unordered_map<std::string, std::string> testTargetToSourcePaths;
+  std::string outDir;
+  // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
 
 private:
   std::string packageName;
   fs::path buildOutDir;
+  bool isDebug;
 
   std::unordered_map<std::string, Variable> variables;
   std::unordered_map<std::string, std::vector<std::string>> varDeps;
@@ -55,7 +58,6 @@ private:
   std::optional<std::unordered_set<std::string>> phony;
   std::optional<std::unordered_set<std::string>> all;
 
-  std::string outDir;
   std::string cxx;
   std::vector<std::string> cxxflags;
   std::vector<std::string> defines;
@@ -63,21 +65,7 @@ private:
   std::vector<std::string> libs;
 
 public:
-  explicit BuildConfig(const std::string& packageName);
-
-  void setOutDir(const bool isDebug) {
-    if (isDebug) {
-      outDir = "poac-out/debug";
-    } else {
-      outDir = "poac-out/release";
-    }
-  }
-  std::string getOutDir() const {
-    if (outDir.empty()) {
-      throw PoacError("outDir is not set");
-    }
-    return outDir;
-  }
+  explicit BuildConfig(const std::string& packageName, bool isDebug = true);
 
   void defineVar(
       const std::string& name, const Variable& value,
@@ -140,7 +128,7 @@ public:
 
   void installDeps(bool includeDevDeps);
   void addDefine(std::string_view name, std::string_view value);
-  void setVariables(bool isDebug);
+  void setVariables();
 
   void processSrc(
       const fs::path& sourceFilePath,
@@ -171,7 +159,8 @@ public:
       tbb::spin_mutex* mtx = nullptr
   );
 
-  void configureBuild(bool isDebug);
+  void configureBuild();
+  void emit();
 };
 
 BuildConfig emitMakefile(bool isDebug, bool includeDevDeps);

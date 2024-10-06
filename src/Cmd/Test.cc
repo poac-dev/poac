@@ -69,10 +69,9 @@ testMain(const std::span<const std::string_view> args) {
   const auto start = std::chrono::steady_clock::now();
 
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/true);
-  const fs::path outDir = config.getOutDir();
   const std::string& packageName = getPackageName();
   const Command baseMakeCmd =
-      getMakeCommand().addArg("-C").addArg(outDir.string());
+      getMakeCommand().addArg("-C").addArg(config.outDir);
 
   // Find not up-to-date test targets, emit compilation status once, and
   // compile them.
@@ -107,7 +106,7 @@ testMain(const std::span<const std::string_view> args) {
   for (const auto& [target, sourcePath] : config.testTargetToSourcePaths) {
     logger::info("Running", "unittests ", sourcePath);
 
-    const int curExitCode = execCmd(Command((outDir / target).string()));
+    const int curExitCode = execCmd(Command((fs::path(config.outDir) / target).string()));
     if (curExitCode != EXIT_SUCCESS) {
       exitCode = curExitCode;
     }

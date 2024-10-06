@@ -64,8 +64,14 @@ operator<<(std::ostream& os, VarType type) {
   return os;
 }
 
-BuildConfig::BuildConfig(const std::string& packageName)
-    : packageName{ packageName }, buildOutDir{ packageName + ".d" } {
+BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
+    : packageName{ packageName }, buildOutDir{ packageName + ".d" }, isDebug{isDebug} {
+  if (isDebug) {
+    outDir = "poac-out/debug";
+  } else {
+    outDir = "poac-out/release";
+  }
+
   if (const char* cxx = std::getenv("CXX")) {
     this->cxx = cxx;
   } else {
@@ -317,7 +323,7 @@ BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   }
   command.addArg("-MM");
   command.addArg(sourceFile);
-  command.setWorkingDirectory(getOutDir());
+  command.setWorkingDirectory(outDir);
   return getCmdOutput(command);
 }
 
@@ -508,7 +514,7 @@ BuildConfig::addDefine(
 }
 
 void
-BuildConfig::setVariables(const bool isDebug) {
+BuildConfig::setVariables() {
   this->defineSimpleVar("CXX", cxx);
 
   cxxflags.push_back("-std=c++" + getPackageEdition().getString());
@@ -702,7 +708,7 @@ listSourceFilePaths(const std::string_view directory) {
 }
 
 void
-BuildConfig::configureBuild(const bool isDebug) {
+BuildConfig::configureBuild() {
   if (!fs::exists("src")) {
     throw PoacError("src directory not found");
   }
@@ -731,12 +737,11 @@ BuildConfig::configureBuild(const bool isDebug) {
     throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
   }
 
-  const std::string outDir = getOutDir();
   if (!fs::exists(outDir)) {
     fs::create_directories(outDir);
   }
 
-  setVariables(isDebug);
+  setVariables();
 
   // Build rules
   setAll({ packageName });
@@ -812,21 +817,20 @@ BuildConfig::configureBuild(const bool isDebug) {
 /// @returns the directory where the Makefile is generated.
 BuildConfig
 emitMakefile(const bool isDebug, const bool includeDevDeps) {
-  BuildConfig config(getPackageName());
-  config.setOutDir(isDebug);
+  BuildConfig config(getPackageName(), isDebug);
 
   // When emitting Makefile, we also build the project.  So, we need to
   // make sure the dependencies are installed.
   config.installDeps(includeDevDeps);
 
-  const std::string makefilePath = config.getOutDir() + "/Makefile";
+  const std::string makefilePath = config.outDir + "/Makefile";
   if (isUpToDate(makefilePath)) {
     logger::debug("Makefile is up to date");
     return config;
   }
   logger::debug("Makefile is NOT up to date");
 
-  config.configureBuild(isDebug);
+  config.configureBuild();
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return config;
@@ -835,24 +839,22 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
 /// @returns the directory where the compilation database is generated.
 std::string
 emitCompdb(const bool isDebug, const bool includeDevDeps) {
-  BuildConfig config(getPackageName());
-  config.setOutDir(isDebug);
+  BuildConfig config(getPackageName(), isDebug);
 
   // compile_commands.json also needs INCLUDES, but not LIBS.
   config.installDeps(includeDevDeps);
 
-  const std::string outDir = config.getOutDir();
-  const std::string compdbPath = outDir + "/compile_commands.json";
+  const std::string compdbPath = config.outDir + "/compile_commands.json";
   if (isUpToDate(compdbPath)) {
     logger::debug("compile_commands.json is up to date");
-    return outDir;
+    return config.outDir;
   }
   logger::debug("compile_commands.json is NOT up to date");
 
-  config.configureBuild(isDebug);
+  config.configureBuild();
   std::ofstream ofs(compdbPath);
-  config.emitCompdb(outDir, ofs);
-  return outDir;
+  config.emitCompdb(config.outDir, ofs);
+  return config.outDir;
 }
 
 std::string_view
