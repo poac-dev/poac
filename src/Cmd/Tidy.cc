@@ -102,6 +102,10 @@ tidyMain(const std::span<const std::string_view> args) {
   makeCmd.addArg(outDir.string());
   makeCmd.addArg(tidyFlags);
   makeCmd.addArg("tidy");
+  if (fix) {
+    // Keep going to apply fixes to as many files as possible.
+    makeCmd.addArg("--keep-going");
+  }
 
   logger::info("Running", "clang-tidy");
   return tidyImpl(makeCmd);
