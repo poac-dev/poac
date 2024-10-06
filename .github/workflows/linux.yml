@@ -20,9 +20,6 @@ jobs:
       matrix:
         compiler:
           - cxx: clang++
-            ver: 15
-            os: ubuntu-22.04
-          - cxx: clang++
             ver: 16
             os: ubuntu-22.04
           - cxx: clang++
