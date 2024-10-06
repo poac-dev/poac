@@ -547,7 +547,7 @@ printfCmd(const std::string_view header, const std::string_view body) {
     pos += 2; // Move past the replacement
   }
 
-  return fmt::format("@+make print MSG='{}'", msg);
+  return fmt::format("@+$(MAKE) print MSG='{}'", msg);
 }
 
 static void
@@ -905,7 +905,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   config.setVariables(isDebug);
 
   // Build rules
-  config.setAll({ config.packageName + "_before" });
+  config.setAll({ config.packageName });
   config.addPhony("all");
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
@@ -939,16 +939,6 @@ configureBuild(BuildConfig& config, const bool isDebug) {
       config.targets.at(mainObjTarget).remDeps, // we don't need sourceFile
       buildObjTargets, config
   );
-  config.defineTarget(
-      "cache_" + config.packageName,
-      { printfCmd("Compiling", config.packageName),
-        "@touch cache_" + config.packageName }
-  );
-  config.defineTarget(
-      config.packageName + "_before", { "@+make " + config.packageName },
-      { "cache_" + config.packageName }
-  );
-  config.addPhony(config.packageName + "_before");
   defineLinkTarget(config, config.packageName, projTargetDeps);
 
   // Test Pass
@@ -977,7 +967,7 @@ configureBuild(BuildConfig& config, const bool isDebug) {
   if (!testCommands.empty()) {
     config.defineTarget(
         "test",
-        { printfCmd("Compiling", config.packageName), "@+make test_inner" }
+        { printfCmd("Compiling", config.packageName), "@+$(MAKE) test_inner" }
     );
     config.defineTarget("test_inner", testCommands, testTargets);
     config.addPhony("test");
