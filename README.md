@@ -80,7 +80,7 @@ If your environment is not included in the released packages, you have to build 
 #### Compilers (that support C++20)
 
 * GCC: `12` or later
-* Clang: `15` or later
+* Clang: `16` or later
 * Apple Clang: provided by `macOS Ventura (13)` or later
 
 (generally, the latest 3 versions are supported to build Poac.)
