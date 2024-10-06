@@ -38,15 +38,16 @@ buildImpl(std::string& outDir, const bool isDebug) {
   outDir = emitMakefile(isDebug, /*includeDevDeps=*/false);
 
   const std::string& packageName = getPackageName();
-  const Command makeCommand = getMakeCommand().addArg("-C").addArg(outDir).addArg(packageName);
-  Command makeQuestionCommand = makeCommand;
-  makeQuestionCommand.addArg("--question");
+  const Command makeCmd =
+      getMakeCommand().addArg("-C").addArg(outDir).addArg(packageName);
+  Command checkUpToDateCmd = makeCmd;
+  checkUpToDateCmd.addArg("--question");
 
-  int exitCode = execCmd(makeQuestionCommand);
+  int exitCode = execCmd(checkUpToDateCmd);
   if (exitCode != EXIT_SUCCESS) {
     // If packageName binary is not up-to-date, compile it.
     logger::info("Compiling", packageName);
-    exitCode = execCmd(makeCommand);
+    exitCode = execCmd(makeCmd);
   }
 
   const auto end = std::chrono::steady_clock::now();

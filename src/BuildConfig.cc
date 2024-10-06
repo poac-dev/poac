@@ -365,7 +365,7 @@ BuildConfig::emitMakefile(std::ostream& os) const {
      << "print:\n"
      << "else\n"
      << "print:\n"
-     << "\t@printf '$(MSG)' >&2\n"
+     << "\t@printf \"%b\" \"$(MSG)\" >&2\n"
      << "endif\n\n";
 
   const std::vector<std::string> sortedTargets = topoSort(targets, targetDeps);
@@ -547,7 +547,7 @@ printfCmd(const std::string_view header, const std::string_view body) {
     pos += 2; // Move past the replacement
   }
 
-  return fmt::format("@+$(MAKE) print MSG='{}'", msg);
+  return fmt::format("@+$(MAKE) print MSG=\"{}\"", msg);
 }
 
 static void
@@ -965,13 +965,8 @@ configureBuild(BuildConfig& config, const bool isDebug) {
     }
   }
   if (!testCommands.empty()) {
-    config.defineTarget(
-        "test",
-        { printfCmd("Compiling", config.packageName), "@+$(MAKE) test_inner" }
-    );
-    config.defineTarget("test_inner", testCommands, testTargets);
+    config.defineTarget("test", testCommands, testTargets);
     config.addPhony("test");
-    config.addPhony("test_inner");
   }
 
   // Tidy Pass

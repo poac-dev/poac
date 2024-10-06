@@ -4,6 +4,7 @@
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
+#include "../Manifest.hpp"
 #include "../Parallelism.hpp"
 #include "../Rustify.hpp"
 #include "Common.hpp"
@@ -68,8 +69,21 @@ testMain(const std::span<const std::string_view> args) {
   const auto start = std::chrono::steady_clock::now();
 
   const std::string outDir = emitMakefile(isDebug, /*includeDevDeps=*/true);
-  const int exitCode =
-      execCmd(getMakeCommand().addArg("-C").addArg(outDir).addArg("test"));
+  const std::string& packageName = getPackageName();
+  const Command baseMakeCmd = getMakeCommand().addArg("-C").addArg(outDir);
+  Command checkUpToDateCmd = baseMakeCmd;
+  checkUpToDateCmd.addArg("--question").addArg(packageName);
+
+  int exitCode = execCmd(checkUpToDateCmd);
+  if (exitCode != EXIT_SUCCESS) {
+    // FIXME: If packageName binary is not up-to-date, test targets are also
+    // likely not up-to-date.  We take this way because we don't have a way to
+    // check all test targets, but this is not always correct.
+    logger::info("Compiling", packageName);
+  }
+
+  Command testCmd = baseMakeCmd;
+  exitCode = execCmd(testCmd.addArg("test"));
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;
