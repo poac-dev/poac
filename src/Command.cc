@@ -193,13 +193,15 @@ Command::spawn() const {
 
     if (!workingDirectory.empty()) {
       if (chdir(workingDirectory.c_str()) == -1) {
-        throw PoacError("chdir() failed");
+        perror("chdir() failed");
+        _exit(1);
       }
     }
 
     // Execute the command
     if (execvp(command.c_str(), args.data()) == -1) {
-      throw PoacError("execvp() failed");
+      perror("execvp() failed");
+      _exit(1);
     }
     unreachable();
   } else {

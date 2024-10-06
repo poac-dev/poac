@@ -69,35 +69,44 @@ testMain(const std::span<const std::string_view> args) {
   const auto start = std::chrono::steady_clock::now();
 
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/true);
-  const std::string outDir = config.getOutDir();
+  const fs::path outDir = config.getOutDir();
   const std::string& packageName = getPackageName();
-  const Command baseMakeCmd = getMakeCommand().addArg("-C").addArg(outDir);
+  const Command baseMakeCmd = getMakeCommand().addArg("-C").addArg(outDir.string());
 
-  // Find not up-to-date test targets and just emit a message that we need
-  // compilation.
+  // Find not up-to-date test targets, emit compilation status once, and
+  // compile them.
+  int exitCode{};
+  bool alreadyEmitted = false;
   for (const auto& [target, sourcePath] : config.testTargetToSourcePaths) {
     static_cast<void>(sourcePath);
 
     Command checkUpToDateCmd = baseMakeCmd;
     checkUpToDateCmd.addArg("--question").addArg(target);
-
-    const int exitCode = execCmd(checkUpToDateCmd);
-    if (exitCode != EXIT_SUCCESS) {
+    if (execCmd(checkUpToDateCmd) != EXIT_SUCCESS) {
       // This test target is not up-to-date.
-      logger::info("Compiling", packageName);
-      break;
+      if (!alreadyEmitted) {
+        logger::info("Compiling", packageName);
+        alreadyEmitted = true;
+      }
+
+      Command testCmd = baseMakeCmd;
+      testCmd.addArg(target);
+      const int curExitCode = execCmd(testCmd);
+      if (curExitCode != EXIT_SUCCESS) {
+        exitCode = curExitCode;
+      }
     }
   }
+  if (exitCode != EXIT_SUCCESS) {
+    // Compilation failed; don't proceed to run tests.
+    return exitCode;
+  }
 
-  // Compile and run tests.
-  int exitCode{};
+  // Run tests.
   for (const auto& [target, sourcePath] : config.testTargetToSourcePaths) {
     logger::info("Running", "unittests ", sourcePath);
 
-    Command testCmd = baseMakeCmd;
-    testCmd.addArg(target);
-
-    const int curExitCode = execCmd(testCmd);
+    const int curExitCode = execCmd(Command((outDir / target).string()));
     if (curExitCode != EXIT_SUCCESS) {
       exitCode = curExitCode;
     }
