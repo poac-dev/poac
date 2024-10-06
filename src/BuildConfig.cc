@@ -25,6 +25,7 @@
 #include <optional>
 #include <ostream>
 #include <queue>
+#include <ranges>
 #include <span>
 #include <sstream>
 #include <string>
@@ -369,11 +370,10 @@ BuildConfig::emitMakefile(std::ostream& os) const {
      << "endif\n\n";
 
   const std::vector<std::string> sortedTargets = topoSort(targets, targetDeps);
-  // NOLINTNEXTLINE(modernize-loop-convert)
-  for (auto itr = sortedTargets.rbegin(); itr != sortedTargets.rend(); itr++) {
+  for (const auto& sortedTarget : std::ranges::reverse_view(sortedTargets)) {
     emitTarget(
-        os, *itr, targets.at(*itr).remDeps, targets.at(*itr).sourceFile,
-        targets.at(*itr).commands
+        os, sortedTarget, targets.at(sortedTarget).remDeps,
+        targets.at(sortedTarget).sourceFile, targets.at(sortedTarget).commands
     );
   }
 }
