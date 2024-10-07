@@ -462,7 +462,7 @@ BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
     if (sourceFileName == headerPath.stem()) {
       // We shouldn't depend on the original object file (e.g.,
       // poac.d/path/to/file.o). We should depend on the test object
-      // file (e.g., tests/path/to/unittest_file.o).
+      // file (e.g., unittests/path/to/file.o).
       continue;
     }
     if (!HEADER_FILE_EXTS.contains(headerPath.extension())) {
