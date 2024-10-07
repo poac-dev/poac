@@ -501,14 +501,14 @@ main() -> int {
     using poac::util::cfg::Token;
     using poac::util::cfg::to_kind;
 
-    expect(constant < to_kind("(") == Token::LeftParen >);
-    expect(constant < to_kind(")") == Token::RightParen >);
-    expect(constant < to_kind(",") == Token::Comma >);
-    expect(constant < to_kind("=") == Token::Equals >);
-    expect(constant < to_kind(">") == Token::Gt >);
-    expect(constant < to_kind(">=") == Token::GtEq >);
-    expect(constant < to_kind("<") == Token::Lt >);
-    expect(constant < to_kind("<=") == Token::LtEq >);
+    expect(constant<to_kind("(") == Token::LeftParen>);
+    expect(constant<to_kind(")") == Token::RightParen>);
+    expect(constant<to_kind(",") == Token::Comma>);
+    expect(constant<to_kind("=") == Token::Equals>);
+    expect(constant<to_kind(">") == Token::Gt>);
+    expect(constant<to_kind(">=") == Token::GtEq>);
+    expect(constant<to_kind("<") == Token::Lt>);
+    expect(constant<to_kind("<=") == Token::LtEq>);
     expect(throws<poac::util::cfg::Exception>([] { to_kind("unknown"); }));
   };
 
