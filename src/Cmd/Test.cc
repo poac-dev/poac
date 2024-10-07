@@ -13,10 +13,11 @@
 #include <chrono>
 #include <cstdlib>
 #include <fmt/core.h>
+#include <fstream>
 #include <span>
 #include <string>
 #include <string_view>
-#include <fstream>
+#include <vector>
 
 static int testMain(std::span<const std::string_view> args);
 
