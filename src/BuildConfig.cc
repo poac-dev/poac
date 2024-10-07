@@ -685,7 +685,6 @@ BuildConfig::processUnittestSrc(
   // Test binary target.
   defineLinkTarget(testTarget, testTargetDeps);
 
-  unittestTargets.push_back(testTarget);
   testTargets.insert(testTarget);
   if (mtx) {
     mtx->unlock();

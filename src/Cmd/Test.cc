@@ -16,6 +16,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <fstream>
 
 static int testMain(std::span<const std::string_view> args);
 
@@ -70,6 +71,27 @@ testMain(const std::span<const std::string_view> args) {
   const auto start = std::chrono::steady_clock::now();
 
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/true);
+
+  // Collect test targets from the generated Makefile.
+  std::vector<std::string> unittestTargets;
+  std::ifstream infile(config.outDir + "/Makefile");
+  std::string line;
+  while (std::getline(infile, line)) {
+    if (!line.starts_with("unittests/")) {
+      continue;
+    }
+    line = line.substr(0, line.find(':'));
+    if (!line.ends_with(".test")) {
+      continue;
+    }
+    unittestTargets.push_back(line);
+  }
+
+  if (unittestTargets.empty()) {
+    logger::warn("No test targets found");
+    return EXIT_SUCCESS;
+  }
+
   const std::string& packageName = getPackageName();
   const Command baseMakeCmd =
       getMakeCommand().addArg("-C").addArg(config.outDir);
@@ -78,7 +100,7 @@ testMain(const std::span<const std::string_view> args) {
   // compile them.
   int exitCode{};
   bool alreadyEmitted = false;
-  for (const std::string& target : config.unittestTargets) {
+  for (const std::string& target : unittestTargets) {
     Command checkUpToDateCmd = baseMakeCmd;
     checkUpToDateCmd.addArg("--question").addArg(target);
     if (execCmd(checkUpToDateCmd) != EXIT_SUCCESS) {
@@ -108,7 +130,7 @@ testMain(const std::span<const std::string_view> args) {
   }
 
   // Run tests.
-  for (const std::string& target : config.unittestTargets) {
+  for (const std::string& target : unittestTargets) {
     // `target` always starts with "unittests/" and ends with ".test".
     // We need to replace "unittests/" with "src/" and remove ".test" to get
     // the source file path.
