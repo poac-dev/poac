@@ -47,7 +47,13 @@ buildImpl(std::string& outDir, const bool isDebug) {
   int exitCode = execCmd(checkUpToDateCmd);
   if (exitCode != EXIT_SUCCESS) {
     // If packageName binary is not up-to-date, compile it.
-    logger::info("Compiling", packageName);
+    logger::info(
+        "Compiling",
+        fmt::format(
+            "{} v{} ({})", packageName, getPackageVersion().toString(),
+            getProjectPath().string()
+        )
+    );
     exitCode = execCmd(makeCmd);
   }
 

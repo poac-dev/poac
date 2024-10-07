@@ -42,7 +42,7 @@ struct Target {
 
 struct BuildConfig {
   // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  std::unordered_map<std::string, std::string> unittestTargetsToSourcePaths;
+  std::vector<std::string> unittestTargets;
   std::string outDir;
   // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
 

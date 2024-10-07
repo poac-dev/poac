@@ -12,6 +12,7 @@
 #include <charconv>
 #include <chrono>
 #include <cstdlib>
+#include <fmt/core.h>
 #include <span>
 #include <string>
 #include <string_view>
@@ -77,15 +78,19 @@ testMain(const std::span<const std::string_view> args) {
   // compile them.
   int exitCode{};
   bool alreadyEmitted = false;
-  for (const auto& [target, sourcePath] : config.unittestTargetsToSourcePaths) {
-    static_cast<void>(sourcePath);
-
+  for (const std::string& target : config.unittestTargets) {
     Command checkUpToDateCmd = baseMakeCmd;
     checkUpToDateCmd.addArg("--question").addArg(target);
     if (execCmd(checkUpToDateCmd) != EXIT_SUCCESS) {
       // This test target is not up-to-date.
       if (!alreadyEmitted) {
-        logger::info("Compiling", packageName);
+        logger::info(
+            "Compiling",
+            fmt::format(
+                "{} v{} ({})", packageName, getPackageVersion().toString(),
+                getProjectPath().string()
+            )
+        );
         alreadyEmitted = true;
       }
 
@@ -103,11 +108,18 @@ testMain(const std::span<const std::string_view> args) {
   }
 
   // Run tests.
-  for (const auto& [target, sourcePath] : config.unittestTargetsToSourcePaths) {
-    logger::info("Running", "unittests ", sourcePath);
+  for (const std::string& target : config.unittestTargets) {
+    // `target` always starts with "unittests/" and ends with ".test".
+    // We need to replace "unittests/" with "src/" and remove ".test" to get
+    // the source file path.
+    std::string sourcePath = target;
+    sourcePath.replace(0, "unittests/"sv.size(), "src/");
+    sourcePath.resize(sourcePath.size() - ".test"sv.size());
 
-    const int curExitCode =
-        execCmd(Command((fs::path(config.outDir) / target).string()));
+    const std::string testBinPath = (fs::path(config.outDir) / target).string();
+    logger::info("Running", "unittests ", sourcePath, " (", testBinPath, ')');
+
+    const int curExitCode = execCmd(Command(testBinPath));
     if (curExitCode != EXIT_SUCCESS) {
       exitCode = curExitCode;
     }

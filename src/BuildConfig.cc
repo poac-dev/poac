@@ -39,8 +39,7 @@
 #include <utility>
 #include <vector>
 
-constinit const std::string_view TEST_OUT_DIR = "tests";
-constinit const std::string_view UNITTEST_BIN_PREFIX = "unittest_";
+constinit const std::string_view UNITTEST_OUT_DIR = "unittests";
 constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
 
 std::ostream&
@@ -90,8 +89,7 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
 
     while (std::getline(iss, line)) {
       if (line.starts_with("CXX = ")) {
-        constexpr usize offset = 6;
-        this->cxx = line.substr(offset);
+        this->cxx = line.substr("CXX = "sv.size());
         return;
       }
     }
@@ -660,16 +658,14 @@ BuildConfig::processUnittestSrc(
   const fs::path targetBaseDir = fs::relative(
       sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
   );
-  fs::path testTargetBaseDir = TEST_OUT_DIR;
+  fs::path testTargetBaseDir = UNITTEST_OUT_DIR;
   if (targetBaseDir != ".") {
     testTargetBaseDir /= targetBaseDir;
   }
 
-  const std::string testTargetPrefix =
-      (testTargetBaseDir / UNITTEST_BIN_PREFIX).string();
-  const std::string testObjTarget = testTargetPrefix + objTarget;
-  const std::string testTargetName = sourceFilePath.stem().string();
-  const std::string testTarget = testTargetPrefix + testTargetName;
+  const std::string testObjTarget = testTargetBaseDir / objTarget;
+  const std::string testTarget =
+      (testTargetBaseDir / sourceFilePath.filename()).string() + ".test";
 
   // Test binary target.
   std::unordered_set<std::string> testTargetDeps = { testObjTarget };
@@ -689,8 +685,7 @@ BuildConfig::processUnittestSrc(
   // Test binary target.
   defineLinkTarget(testTarget, testTargetDeps);
 
-  unittestTargetsToSourcePaths[testTarget] =
-      sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size());
+  unittestTargets.push_back(testTarget);
   testTargets.insert(testTarget);
   if (mtx) {
     mtx->unlock();

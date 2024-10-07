@@ -131,8 +131,8 @@ fmtMain(const std::span<const std::string_view> args) {
     logger::info("Formatting", packageName);
   }
 
-  const fs::path& manifestDir = getManifestPath().parent_path();
-  collectFormatTargetFiles(manifestDir, excludes, clangFormatArgs);
+  const fs::path projectPath = getProjectPath();
+  collectFormatTargetFiles(projectPath, excludes, clangFormatArgs);
 
   const char* poacFmt = std::getenv("POAC_FMT");
   if (poacFmt == nullptr) {
@@ -140,7 +140,7 @@ fmtMain(const std::span<const std::string_view> args) {
   }
 
   const Command clangFormat = Command(poacFmt, std::move(clangFormatArgs))
-                                  .setWorkingDirectory(manifestDir.string());
+                                  .setWorkingDirectory(projectPath.string());
 
   return execCmd(clangFormat);
 }

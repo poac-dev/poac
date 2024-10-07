@@ -199,6 +199,11 @@ getManifestPath() {
   return Manifest::instance().manifestPath.value();
 }
 
+fs::path
+getProjectPath() {
+  return fs::absolute(getManifestPath().parent_path());
+}
+
 // Returns an error message if the package name is invalid.
 std::optional<std::string> // TODO: result-like types make more sense.
 validatePackageName(const std::string_view name) noexcept {
