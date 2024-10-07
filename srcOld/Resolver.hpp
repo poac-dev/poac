@@ -106,16 +106,16 @@ convert_to_download_link(std::string_view repository) -> std::string {
 }
 
 [[nodiscard]] inline auto
-get_download_link(const resolve::Package& package
-) -> Result<std::pair<std::string, std::string>, std::string> {
+get_download_link(const resolve::Package& package)
+    -> Result<std::pair<std::string, std::string>, std::string> {
   const auto [repository, sha256sum] =
       Try(util::net::api::repoinfo(package.name, package.dep_info.version_rq));
   return Ok(std::make_pair(convert_to_download_link(repository), sha256sum));
 }
 
 [[nodiscard]] auto
-fetch_impl(const resolve::Package& package
-) noexcept -> Result<std::pair<fs::path, std::string>> {
+fetch_impl(const resolve::Package& package) noexcept
+    -> Result<std::pair<fs::path, std::string>> {
   try {
     const auto [download_link, sha256sum] =
         Try(get_download_link(package).map_err(to_anyhow));
@@ -198,8 +198,8 @@ is_not_installed(const resolve::Package& package) -> bool {
 }
 
 auto
-get_not_installed_deps(const ResolvedDeps& deps
-) -> resolve::UniqDeps<resolve::WithoutDeps> {
+get_not_installed_deps(const ResolvedDeps& deps)
+    -> resolve::UniqDeps<resolve::WithoutDeps> {
   return deps | boost::adaptors::map_keys
          | boost::adaptors::filtered(is_not_installed)
          // ref: https://stackoverflow.com/a/42251976
@@ -228,8 +228,8 @@ download_deps(const ResolvedDeps& deps) -> Result<void> {
 }
 
 [[nodiscard]] auto
-do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps
-) noexcept -> Result<ResolvedDeps> {
+do_resolve(const resolve::UniqDeps<resolve::WithoutDeps>& deps) noexcept
+    -> Result<ResolvedDeps> {
   try {
     const resolve::DupDeps<resolve::WithDeps> duplicate_deps =
         Try(resolve::gather_all_deps(deps).map_err(to_anyhow));

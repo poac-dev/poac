@@ -253,8 +253,8 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 }
 
 void
-BuildConfig::emitCompdb(const fs::path& basePath, std::ostream& os) const {
-  const fs::path canonBasePath = fs::canonical(basePath);
+BuildConfig::emitCompdb(std::ostream& os) const {
+  const fs::path directory = getProjectBasePath();
   const std::string indent1(2, ' ');
   const std::string indent2(4, ' ');
 
@@ -282,9 +282,9 @@ BuildConfig::emitCompdb(const fs::path& basePath, std::ostream& os) const {
 
     // We don't check the std::optional value because we know the first
     // dependency always exists for compile targets.
-    const std::string file = targetInfo.sourceFile.value();
+    const std::string file = fs::relative(targetInfo.sourceFile.value(), directory);
     // The output is the target.
-    const std::string output = target;
+    const std::string output = fs::relative(target, directory);
     const Command cmd = Command(cxx)
                             .addArgs(cxxflags)
                             .addArgs(defines)
@@ -296,7 +296,7 @@ BuildConfig::emitCompdb(const fs::path& basePath, std::ostream& os) const {
                             .addArg(output);
 
     oss << indent1 << "{\n";
-    oss << indent2 << "\"directory\": " << canonBasePath << ",\n";
+    oss << indent2 << "\"directory\": " << directory << ",\n";
     oss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
     oss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
     oss << indent2 << "\"command\": " << std::quoted(cmd.toString()) << "\n";
@@ -368,7 +368,8 @@ isUpToDate(const std::string_view makefilePath) {
       return false;
     }
   }
-  return fs::last_write_time("poac.toml") <= makefileTime;
+  return fs::last_write_time(getProjectBasePath() / "poac.toml")
+         <= makefileTime;
 }
 
 bool
@@ -848,7 +849,7 @@ emitCompdb(const bool isDebug, const bool includeDevDeps) {
 
   config.configureBuild();
   std::ofstream ofs(compdbPath);
-  config.emitCompdb(config.outBasePath, ofs);
+  config.emitCompdb(ofs);
   return config.outBasePath;
 }
 
