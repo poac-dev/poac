@@ -20,8 +20,6 @@ inline constinit const std::string_view GREEN = "\033[32m";
 inline constinit const std::string_view RED = "\033[31m";
 inline constinit const std::string_view RESET = "\033[0m";
 
-inline constinit const usize SRC_REL_PATH_LEN = 6; // `../../`
-
 // Returns the module name from a file path.  There are two cases:
 //
 // 1. src/Rustify/Tests.cc -> Rustify/Tests
@@ -38,15 +36,10 @@ modName(std::string_view file) noexcept {
     return file;
   }
 
-  if (file.starts_with("..")) {
-    file = file.substr(SRC_REL_PATH_LEN + 1);
-  }
-
-  usize start = file.find_first_of('/');
+  usize start = file.find("src/");
   if (start == std::string_view::npos) {
     return file;
   }
-  ++start;
 
   const usize end = file.find_last_of('.');
   if (end == std::string_view::npos) {

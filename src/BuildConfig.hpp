@@ -42,11 +42,12 @@ struct Target {
 
 struct BuildConfig {
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  fs::path outputBasePath;
+  fs::path outBasePath;
 
 private:
   std::string packageName;
-  fs::path buildOutDir;
+  fs::path buildOutPath;
+  fs::path unittestOutPath;
   bool isDebug;
 
   std::unordered_map<std::string, Variable> variables;

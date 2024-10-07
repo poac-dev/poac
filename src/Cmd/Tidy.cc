@@ -99,7 +99,7 @@ tidyMain(const std::span<const std::string_view> args) {
 
   Command makeCmd(getMakeCommand());
   makeCmd.addArg("-C");
-  makeCmd.addArg(config.outputBasePath.string());
+  makeCmd.addArg(config.outBasePath.string());
   makeCmd.addArg(tidyFlags);
   makeCmd.addArg("tidy");
   if (fix) {
