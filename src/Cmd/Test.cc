@@ -4,6 +4,7 @@
 #include "../BuildConfig.hpp"
 #include "../Cli.hpp"
 #include "../Logger.hpp"
+#include "../Manifest.hpp"
 #include "../Parallelism.hpp"
 #include "../Rustify.hpp"
 #include "Common.hpp"
@@ -11,9 +12,12 @@
 #include <charconv>
 #include <chrono>
 #include <cstdlib>
+#include <fmt/core.h>
+#include <fstream>
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 static int testMain(std::span<const std::string_view> args);
 
@@ -67,9 +71,82 @@ testMain(const std::span<const std::string_view> args) {
 
   const auto start = std::chrono::steady_clock::now();
 
-  const std::string outDir = emitMakefile(isDebug, /*includeDevDeps=*/true);
-  const int exitCode =
-      execCmd(getMakeCommand().addArg("-C").addArg(outDir).addArg("test"));
+  const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/true);
+
+  // Collect test targets from the generated Makefile.
+  std::vector<std::string> unittestTargets;
+  std::ifstream infile(config.outDir + "/Makefile");
+  std::string line;
+  while (std::getline(infile, line)) {
+    if (!line.starts_with("unittests/")) {
+      continue;
+    }
+    line = line.substr(0, line.find(':'));
+    if (!line.ends_with(".test")) {
+      continue;
+    }
+    unittestTargets.push_back(line);
+  }
+
+  if (unittestTargets.empty()) {
+    logger::warn("No test targets found");
+    return EXIT_SUCCESS;
+  }
+
+  const std::string& packageName = getPackageName();
+  const Command baseMakeCmd =
+      getMakeCommand().addArg("-C").addArg(config.outDir);
+
+  // Find not up-to-date test targets, emit compilation status once, and
+  // compile them.
+  int exitCode{};
+  bool alreadyEmitted = false;
+  for (const std::string& target : unittestTargets) {
+    Command checkUpToDateCmd = baseMakeCmd;
+    checkUpToDateCmd.addArg("--question").addArg(target);
+    if (execCmd(checkUpToDateCmd) != EXIT_SUCCESS) {
+      // This test target is not up-to-date.
+      if (!alreadyEmitted) {
+        logger::info(
+            "Compiling",
+            fmt::format(
+                "{} v{} ({})", packageName, getPackageVersion().toString(),
+                getProjectPath().string()
+            )
+        );
+        alreadyEmitted = true;
+      }
+
+      Command testCmd = baseMakeCmd;
+      testCmd.addArg(target);
+      const int curExitCode = execCmd(testCmd);
+      if (curExitCode != EXIT_SUCCESS) {
+        exitCode = curExitCode;
+      }
+    }
+  }
+  if (exitCode != EXIT_SUCCESS) {
+    // Compilation failed; don't proceed to run tests.
+    return exitCode;
+  }
+
+  // Run tests.
+  for (const std::string& target : unittestTargets) {
+    // `target` always starts with "unittests/" and ends with ".test".
+    // We need to replace "unittests/" with "src/" and remove ".test" to get
+    // the source file path.
+    std::string sourcePath = target;
+    sourcePath.replace(0, "unittests/"sv.size(), "src/");
+    sourcePath.resize(sourcePath.size() - ".test"sv.size());
+
+    const std::string testBinPath = (fs::path(config.outDir) / target).string();
+    logger::info("Running", "unittests ", sourcePath, " (", testBinPath, ')');
+
+    const int curExitCode = execCmd(Command(testBinPath));
+    if (curExitCode != EXIT_SUCCESS) {
+      exitCode = curExitCode;
+    }
+  }
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

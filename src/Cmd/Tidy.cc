@@ -82,7 +82,7 @@ tidyMain(const std::span<const std::string_view> args) {
     setParallelism(1);
   }
 
-  const fs::path outDir =
+  const BuildConfig config =
       emitMakefile(/*isDebug=*/true, /*includeDevDeps=*/false);
 
   std::string tidyFlags = "POAC_TIDY_FLAGS=";
@@ -99,7 +99,7 @@ tidyMain(const std::span<const std::string_view> args) {
 
   Command makeCmd(getMakeCommand());
   makeCmd.addArg("-C");
-  makeCmd.addArg(outDir.string());
+  makeCmd.addArg(config.outDir);
   makeCmd.addArg(tidyFlags);
   makeCmd.addArg("tidy");
   if (fix) {

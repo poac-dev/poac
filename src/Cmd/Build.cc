@@ -35,9 +35,27 @@ int
 buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
-  outDir = emitMakefile(isDebug, /*includeDevDeps=*/false);
-  const Command makeCommand = getMakeCommand().addArg("-C").addArg(outDir);
-  const int exitCode = execCmd(makeCommand);
+  const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/false);
+  outDir = config.outDir;
+
+  const std::string& packageName = getPackageName();
+  const Command makeCmd =
+      getMakeCommand().addArg("-C").addArg(outDir).addArg(packageName);
+  Command checkUpToDateCmd = makeCmd;
+  checkUpToDateCmd.addArg("--question");
+
+  int exitCode = execCmd(checkUpToDateCmd);
+  if (exitCode != EXIT_SUCCESS) {
+    // If packageName binary is not up-to-date, compile it.
+    logger::info(
+        "Compiling",
+        fmt::format(
+            "{} v{} ({})", packageName, getPackageVersion().toString(),
+            getProjectPath().string()
+        )
+    );
+    exitCode = execCmd(makeCmd);
+  }
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;

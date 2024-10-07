@@ -59,6 +59,7 @@ public:
 };
 
 const fs::path& getManifestPath();
+fs::path getProjectPath();
 std::optional<std::string> validatePackageName(std::string_view name) noexcept;
 const std::string& getPackageName();
 const Edition& getPackageEdition();
