@@ -75,7 +75,7 @@ testMain(const std::span<const std::string_view> args) {
 
   // Collect test targets from the generated Makefile.
   std::vector<std::string> unittestTargets;
-  std::ifstream infile(config.outDir + "/Makefile");
+  std::ifstream infile(config.outputBasePath / "Makefile");
   std::string line;
   while (std::getline(infile, line)) {
     if (!line.starts_with("unittests/")) {
@@ -95,7 +95,7 @@ testMain(const std::span<const std::string_view> args) {
 
   const std::string& packageName = getPackageName();
   const Command baseMakeCmd =
-      getMakeCommand().addArg("-C").addArg(config.outDir);
+      getMakeCommand().addArg("-C").addArg(config.outputBasePath.string());
 
   // Find not up-to-date test targets, emit compilation status once, and
   // compile them.
@@ -111,7 +111,7 @@ testMain(const std::span<const std::string_view> args) {
             "Compiling",
             fmt::format(
                 "{} v{} ({})", packageName, getPackageVersion().toString(),
-                getProjectPath().string()
+                getProjectBasePath().string()
             )
         );
         alreadyEmitted = true;
@@ -139,7 +139,7 @@ testMain(const std::span<const std::string_view> args) {
     sourcePath.replace(0, "unittests/"sv.size(), "src/");
     sourcePath.resize(sourcePath.size() - ".test"sv.size());
 
-    const std::string testBinPath = (fs::path(config.outDir) / target).string();
+    const std::string testBinPath = (fs::path(config.outputBasePath) / target).string();
     logger::info("Running", "unittests ", sourcePath, " (", testBinPath, ')');
 
     const int curExitCode = execCmd(Command(testBinPath));

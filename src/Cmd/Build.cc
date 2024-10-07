@@ -36,7 +36,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/false);
-  outDir = config.outDir;
+  outDir = config.outputBasePath;
 
   const std::string& packageName = getPackageName();
   const Command makeCmd =
@@ -51,7 +51,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
         "Compiling",
         fmt::format(
             "{} v{} ({})", packageName, getPackageVersion().toString(),
-            getProjectPath().string()
+            getProjectBasePath().string()
         )
     );
     exitCode = execCmd(makeCmd);

@@ -200,7 +200,7 @@ getManifestPath() {
 }
 
 fs::path
-getProjectPath() {
+getProjectBasePath() {
   return fs::absolute(getManifestPath().parent_path());
 }
 

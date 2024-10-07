@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <utility>
 #include <vector>
+#include <filesystem>
 
 struct CommandOutput {
   int exitCode;
@@ -39,7 +40,7 @@ struct Command {
 
   std::string command;
   std::vector<std::string> arguments;
-  std::string workingDirectory;
+  std::filesystem::path workingDirectory;
   IOConfig stdoutConfig = IOConfig::Inherit;
   IOConfig stderrConfig = IOConfig::Inherit;
 
@@ -64,7 +65,7 @@ struct Command {
     stderrConfig = config;
     return *this;
   }
-  Command& setWorkingDirectory(const std::string_view dir) {
+  Command& setWorkingDirectory(const std::filesystem::path& dir) {
     workingDirectory = dir;
     return *this;
   }

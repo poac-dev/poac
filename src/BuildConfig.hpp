@@ -42,7 +42,7 @@ struct Target {
 
 struct BuildConfig {
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  std::string outDir;
+  fs::path outputBasePath;
 
 private:
   std::string packageName;
@@ -120,7 +120,7 @@ public:
 
   void emitVariable(std::ostream& os, const std::string& varName) const;
   void emitMakefile(std::ostream& os) const;
-  void emitCompdb(std::string_view baseDir, std::ostream& os) const;
+  void emitCompdb(const fs::path& baseDir, std::ostream& os) const;
   std::string runMM(const std::string& sourceFile, bool isTest = false) const;
   bool containsTestCode(const std::string& sourceFile) const;
 
