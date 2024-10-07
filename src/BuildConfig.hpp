@@ -121,7 +121,7 @@ public:
 
   void emitVariable(std::ostream& os, const std::string& varName) const;
   void emitMakefile(std::ostream& os) const;
-  void emitCompdb(const fs::path& baseDir, std::ostream& os) const;
+  void emitCompdb(const fs::path& basePath, std::ostream& os) const;
   std::string runMM(const std::string& sourceFile, bool isTest = false) const;
   bool containsTestCode(const std::string& sourceFile) const;
 

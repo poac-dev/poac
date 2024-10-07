@@ -746,7 +746,7 @@ BuildConfig::configureBuild() {
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
   std::string srcs;
-  for (fs::path& sourceFilePath : sourceFilePaths) {
+  for (const fs::path& sourceFilePath : sourceFilePaths) {
     if (sourceFilePath != mainSource && isMainSource(sourceFilePath)) {
       logger::warn(fmt::format(
           "source file `{}` is named `main` but is not located directly in the "

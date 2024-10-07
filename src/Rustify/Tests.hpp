@@ -36,7 +36,7 @@ modName(std::string_view file) noexcept {
     return file;
   }
 
-  usize start = file.find("src/");
+  const usize start = file.find("src/");
   if (start == std::string_view::npos) {
     return file;
   }
