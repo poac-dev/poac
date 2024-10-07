@@ -74,11 +74,13 @@ testMain(const std::span<const std::string_view> args) {
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/true);
 
   // Collect test targets from the generated Makefile.
+  const std::string unittestTargetPrefix =
+      (config.outBasePath / "unittests").string() + '/';
   std::vector<std::string> unittestTargets;
-  std::ifstream infile(config.outDir + "/Makefile");
+  std::ifstream infile(config.outBasePath / "Makefile");
   std::string line;
   while (std::getline(infile, line)) {
-    if (!line.starts_with("unittests/")) {
+    if (!line.starts_with(unittestTargetPrefix)) {
       continue;
     }
     line = line.substr(0, line.find(':'));
@@ -95,7 +97,7 @@ testMain(const std::span<const std::string_view> args) {
 
   const std::string& packageName = getPackageName();
   const Command baseMakeCmd =
-      getMakeCommand().addArg("-C").addArg(config.outDir);
+      getMakeCommand().addArg("-C").addArg(config.outBasePath.string());
 
   // Find not up-to-date test targets, emit compilation status once, and
   // compile them.
@@ -111,7 +113,7 @@ testMain(const std::span<const std::string_view> args) {
             "Compiling",
             fmt::format(
                 "{} v{} ({})", packageName, getPackageVersion().toString(),
-                getProjectPath().string()
+                getProjectBasePath().string()
             )
         );
         alreadyEmitted = true;
@@ -136,13 +138,16 @@ testMain(const std::span<const std::string_view> args) {
     // We need to replace "unittests/" with "src/" and remove ".test" to get
     // the source file path.
     std::string sourcePath = target;
-    sourcePath.replace(0, "unittests/"sv.size(), "src/");
+    sourcePath.replace(0, unittestTargetPrefix.size(), "src/");
     sourcePath.resize(sourcePath.size() - ".test"sv.size());
 
-    const std::string testBinPath = (fs::path(config.outDir) / target).string();
-    logger::info("Running", "unittests ", sourcePath, " (", testBinPath, ')');
+    const std::string testBinPath =
+        fs::relative(target, getProjectBasePath()).string();
+    logger::info(
+        "Running", fmt::format("unittests {} ({})", sourcePath, testBinPath)
+    );
 
-    const int curExitCode = execCmd(Command(testBinPath));
+    const int curExitCode = execCmd(Command(target));
     if (curExitCode != EXIT_SUCCESS) {
       exitCode = curExitCode;
     }

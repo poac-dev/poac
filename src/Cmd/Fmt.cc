@@ -131,7 +131,7 @@ fmtMain(const std::span<const std::string_view> args) {
     logger::info("Formatting", packageName);
   }
 
-  const fs::path projectPath = getProjectPath();
+  const fs::path projectPath = getProjectBasePath();
   collectFormatTargetFiles(projectPath, excludes, clangFormatArgs);
 
   const char* poacFmt = std::getenv("POAC_FMT");

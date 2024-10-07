@@ -39,9 +39,6 @@
 #include <utility>
 #include <vector>
 
-constinit const std::string_view UNITTEST_OUT_DIR = "unittests";
-constinit const std::string_view PATH_FROM_OUT_DIR = "../../";
-
 std::ostream&
 operator<<(std::ostream& os, VarType type) {
   switch (type) {
@@ -65,13 +62,15 @@ operator<<(std::ostream& os, VarType type) {
 }
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
-    : packageName{ packageName }, buildOutDir{ packageName + ".d" },
-      isDebug{ isDebug } {
+    : packageName{ packageName }, isDebug{ isDebug } {
+  const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
-    outDir = "poac-out/debug";
+    outBasePath = projectBasePath / "poac-out" / "debug";
   } else {
-    outDir = "poac-out/release";
+    outBasePath = projectBasePath / "poac-out" / "release";
   }
+  buildOutPath = outBasePath / (packageName + ".d");
+  unittestOutPath = outBasePath / "unittests";
 
   if (const char* cxx = std::getenv("CXX")) {
     this->cxx = cxx;
@@ -165,6 +164,9 @@ BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
   }
 
   if (!value.empty()) {
+    if (offset + value.size() + 2 > maxLineLen) { // 2 for space and '\'
+      os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << "\\\n  ";
+    }
     os << value;
   }
   os << '\n';
@@ -251,9 +253,8 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 }
 
 void
-BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
-    const {
-  const fs::path baseDirPath = fs::canonical(baseDir);
+BuildConfig::emitCompdb(std::ostream& os) const {
+  const fs::path directory = getProjectBasePath();
   const std::string indent1(2, ' ');
   const std::string indent2(4, ' ');
 
@@ -281,9 +282,10 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
 
     // We don't check the std::optional value because we know the first
     // dependency always exists for compile targets.
-    const std::string file = targetInfo.sourceFile.value();
+    const std::string file =
+        fs::relative(targetInfo.sourceFile.value(), directory);
     // The output is the target.
-    const std::string output = target;
+    const std::string output = fs::relative(target, directory);
     const Command cmd = Command(cxx)
                             .addArgs(cxxflags)
                             .addArgs(defines)
@@ -295,7 +297,7 @@ BuildConfig::emitCompdb(const std::string_view baseDir, std::ostream& os)
                             .addArg(output);
 
     oss << indent1 << "{\n";
-    oss << indent2 << "\"directory\": " << baseDirPath << ",\n";
+    oss << indent2 << "\"directory\": " << directory << ",\n";
     oss << indent2 << "\"file\": " << std::quoted(file) << ",\n";
     oss << indent2 << "\"output\": " << std::quoted(output) << ",\n";
     oss << indent2 << "\"command\": " << std::quoted(cmd.toString()) << "\n";
@@ -323,7 +325,7 @@ BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   }
   command.addArg("-MM");
   command.addArg(sourceFile);
-  command.setWorkingDirectory(outDir);
+  command.setWorkingDirectory(outBasePath);
   return getCmdOutput(command);
 }
 
@@ -361,12 +363,14 @@ isUpToDate(const std::string_view makefilePath) {
 
   const fs::file_time_type makefileTime = fs::last_write_time(makefilePath);
   // Makefile depends on all files in ./src and poac.toml.
-  for (const auto& entry : fs::recursive_directory_iterator("src")) {
+  const fs::path srcDir = getProjectBasePath() / "src";
+  for (const auto& entry : fs::recursive_directory_iterator(srcDir)) {
     if (fs::last_write_time(entry.path()) > makefileTime) {
       return false;
     }
   }
-  return fs::last_write_time("poac.toml") <= makefileTime;
+  return fs::last_write_time(getProjectBasePath() / "poac.toml")
+         <= makefileTime;
 }
 
 bool
@@ -431,13 +435,13 @@ BuildConfig::defineLinkTarget(
 //
 // e.g., src/path/to/header.h -> poac.d/path/to/header.o
 static std::string
-mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutDir) {
+mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutPath) {
   fs::path objBaseDir =
-      fs::relative(headerPath.parent_path(), PATH_FROM_OUT_DIR / "src"_path);
+      fs::relative(headerPath.parent_path(), getProjectBasePath() / "src"_path);
   if (objBaseDir != ".") {
-    objBaseDir = buildOutDir / objBaseDir;
+    objBaseDir = buildOutPath / objBaseDir;
   } else {
-    objBaseDir = buildOutDir;
+    objBaseDir = buildOutPath;
   }
   return (objBaseDir / headerPath.stem()).string() + ".o";
 }
@@ -470,7 +474,7 @@ BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
       continue;
     }
 
-    const std::string objTarget = mapHeaderToObj(headerPath, buildOutDir);
+    const std::string objTarget = mapHeaderToObj(headerPath, buildOutPath);
     if (deps.contains(objTarget)) {
       // We already added this object file.
       continue;
@@ -597,10 +601,9 @@ BuildConfig::processSrc(
   const std::unordered_set<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath), objTarget);
 
-  const fs::path targetBaseDir = fs::relative(
-      sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
-  );
-  fs::path buildTargetBaseDir = buildOutDir;
+  const fs::path targetBaseDir =
+      fs::relative(sourceFilePath.parent_path(), getProjectBasePath() / "src");
+  fs::path buildTargetBaseDir = buildOutPath;
   if (targetBaseDir != ".") {
     buildTargetBaseDir /= targetBaseDir;
   }
@@ -646,8 +649,7 @@ BuildConfig::processUnittestSrc(
     const std::unordered_set<std::string>& buildObjTargets,
     std::unordered_set<std::string>& testTargets, tbb::spin_mutex* mtx
 ) {
-  if (!containsTestCode(sourceFilePath.string().substr(PATH_FROM_OUT_DIR.size())
-      )) {
+  if (!containsTestCode(sourceFilePath)) {
     return;
   }
 
@@ -656,9 +658,9 @@ BuildConfig::processUnittestSrc(
       parseMMOutput(runMM(sourceFilePath, /*isTest=*/true), objTarget);
 
   const fs::path targetBaseDir = fs::relative(
-      sourceFilePath.parent_path(), PATH_FROM_OUT_DIR / "src"_path
+      sourceFilePath.parent_path(), getProjectBasePath() / "src"_path
   );
-  fs::path testTargetBaseDir = UNITTEST_OUT_DIR;
+  fs::path testTargetBaseDir = unittestOutPath;
   if (targetBaseDir != ".") {
     testTargetBaseDir /= targetBaseDir;
   }
@@ -692,9 +694,9 @@ BuildConfig::processUnittestSrc(
 }
 
 static std::vector<fs::path>
-listSourceFilePaths(const std::string_view directory) {
+listSourceFilePaths(const fs::path& dir) {
   std::vector<fs::path> sourceFilePaths;
-  for (const auto& entry : fs::recursive_directory_iterator(directory)) {
+  for (const auto& entry : fs::recursive_directory_iterator(dir)) {
     if (!SOURCE_FILE_EXTS.contains(entry.path().extension())) {
       continue;
     }
@@ -705,8 +707,9 @@ listSourceFilePaths(const std::string_view directory) {
 
 void
 BuildConfig::configureBuild() {
-  if (!fs::exists("src")) {
-    throw PoacError("src directory not found");
+  const fs::path srcDir = getProjectBasePath() / "src";
+  if (!fs::exists(srcDir)) {
+    throw PoacError(srcDir, " is required but not found");
   }
 
   // find main source file
@@ -714,7 +717,7 @@ BuildConfig::configureBuild() {
     return file.filename().stem() == "main";
   };
   fs::path mainSource;
-  for (const auto& entry : fs::directory_iterator("src")) {
+  for (const auto& entry : fs::directory_iterator(srcDir)) {
     const fs::path& path = entry.path();
     if (!SOURCE_FILE_EXTS.contains(path.extension())) {
       continue;
@@ -733,8 +736,8 @@ BuildConfig::configureBuild() {
     throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
   }
 
-  if (!fs::exists(outDir)) {
-    fs::create_directories(outDir);
+  if (!fs::exists(outBasePath)) {
+    fs::create_directories(outBasePath);
   }
 
   setVariables();
@@ -743,9 +746,9 @@ BuildConfig::configureBuild() {
   setAll({ packageName });
   addPhony("all");
 
-  std::vector<fs::path> sourceFilePaths = listSourceFilePaths("src");
+  std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
   std::string srcs;
-  for (fs::path& sourceFilePath : sourceFilePaths) {
+  for (const fs::path& sourceFilePath : sourceFilePaths) {
     if (sourceFilePath != mainSource && isMainSource(sourceFilePath)) {
       logger::warn(fmt::format(
           "source file `{}` is named `main` but is not located directly in the "
@@ -755,8 +758,6 @@ BuildConfig::configureBuild() {
           sourceFilePath.string()
       ));
     }
-
-    sourceFilePath = PATH_FROM_OUT_DIR / sourceFilePath;
     srcs += ' ' + sourceFilePath.string();
   }
 
@@ -767,14 +768,15 @@ BuildConfig::configureBuild() {
       processSources(sourceFilePaths);
 
   // Project binary target.
-  const std::string mainObjTarget = buildOutDir / "main.o";
+  const std::string mainObjTarget = buildOutPath / "main.o";
   std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
   collectBinDepObjs(
       projTargetDeps, "",
       targets.at(mainObjTarget).remDeps, // we don't need sourceFile
       buildObjTargets
   );
-  defineLinkTarget(packageName, projTargetDeps);
+
+  defineLinkTarget(outBasePath / packageName, projTargetDeps);
 
   // Test Pass
   std::unordered_set<std::string> testTargets;
@@ -818,7 +820,7 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
   // make sure the dependencies are installed.
   config.installDeps(includeDevDeps);
 
-  const std::string makefilePath = config.outDir + "/Makefile";
+  const std::string makefilePath = config.outBasePath / "Makefile";
   if (isUpToDate(makefilePath)) {
     logger::debug("Makefile is up to date");
     return config;
@@ -839,17 +841,17 @@ emitCompdb(const bool isDebug, const bool includeDevDeps) {
   // compile_commands.json also needs INCLUDES, but not LIBS.
   config.installDeps(includeDevDeps);
 
-  const std::string compdbPath = config.outDir + "/compile_commands.json";
+  const std::string compdbPath = config.outBasePath / "compile_commands.json";
   if (isUpToDate(compdbPath)) {
     logger::debug("compile_commands.json is up to date");
-    return config.outDir;
+    return config.outBasePath;
   }
   logger::debug("compile_commands.json is NOT up to date");
 
   config.configureBuild();
   std::ofstream ofs(compdbPath);
-  config.emitCompdb(config.outDir, ofs);
-  return config.outDir;
+  config.emitCompdb(ofs);
+  return config.outBasePath;
 }
 
 std::string_view
