@@ -282,7 +282,8 @@ BuildConfig::emitCompdb(std::ostream& os) const {
 
     // We don't check the std::optional value because we know the first
     // dependency always exists for compile targets.
-    const std::string file = fs::relative(targetInfo.sourceFile.value(), directory);
+    const std::string file =
+        fs::relative(targetInfo.sourceFile.value(), directory);
     // The output is the target.
     const std::string output = fs::relative(target, directory);
     const Command cmd = Command(cxx)
