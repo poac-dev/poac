@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <string_view>
 
 namespace fs = std::filesystem;
@@ -78,12 +80,11 @@ private:
 panic(
     const std::string_view msg,
     const source_location& loc = source_location::current()
-) noexcept {
-  std::cerr << "panicked at '" << msg << "', " << loc.file_name() << ':'
-            << loc.line() << '\n';
-  std::exit(EXIT_FAILURE);
-
-  // TODO: throw an exception instead?
+) {
+  std::ostringstream oss;
+  oss << "panicked at '" << msg << "', " << loc.file_name() << ':' << loc.line()
+      << '\n';
+  throw std::logic_error(oss.str());
 }
 
 [[noreturn]] inline void

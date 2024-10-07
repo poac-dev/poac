@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <exception>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -63,14 +65,15 @@ pass(const source_location& loc = source_location::current()) noexcept {
 }
 
 [[noreturn]] inline void
-error(const source_location& loc, Display auto&&... msgs) noexcept {
-  std::cerr << "      test " << modName(loc.file_name())
-            << "::" << loc.function_name() << " ... " << RED << "FAILED"
-            << RESET << "\n\n"
-            << '\'' << loc.function_name() << "' failed at '" << std::boolalpha;
-  (std::cerr << ... << std::forward<decltype(msgs)>(msgs))
+error(const source_location& loc, Display auto&&... msgs) {
+  std::ostringstream oss;
+  oss << "\n      test " << modName(loc.file_name())
+      << "::" << loc.function_name() << " ... " << RED << "FAILED" << RESET
+      << "\n\n"
+      << '\'' << loc.function_name() << "' failed at '" << std::boolalpha;
+  (oss << ... << std::forward<decltype(msgs)>(msgs))
       << "', " << loc.file_name() << ':' << loc.line() << '\n';
-  std::exit(EXIT_FAILURE);
+  throw std::logic_error(oss.str());
 }
 
 inline void
