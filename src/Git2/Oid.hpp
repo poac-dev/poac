@@ -1,16 +1,16 @@
 #pragma once
 
-#include "../Rustify.hpp"
 #include "Global.hpp"
 
 #include <git2/oid.h>
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <cstddef>
 
 namespace git2 {
 
-inline constexpr usize SHORT_HASH_LEN = 8;
+inline constexpr size_t SHORT_HASH_LEN = 8;
 
 struct Oid : public GlobalState {
   // TODO: ideally, use one of the following:

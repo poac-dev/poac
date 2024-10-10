@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Rustify.hpp"
+#include "Rustify/Aliases.hpp"
 #include "Semver.hpp"
 
 #include <compare>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -19,7 +21,7 @@ struct Profile {
   std::unordered_set<std::string> cxxflags;
   bool lto = false;
   std::optional<bool> debug = std::nullopt;
-  std::optional<usize> optLevel = std::nullopt;
+  std::optional<size_t> optLevel = std::nullopt;
 
   // Merges this profile with another profile. If a field in this profile is
   // set, it will not be overwritten by the other profile. Only default values
@@ -28,7 +30,7 @@ struct Profile {
 };
 
 struct Edition {
-  enum class Year : u16 {
+  enum class Year : uint16_t {
     Cpp98 = 1998,
     Cpp03 = 2003,
     Cpp11 = 2011,

@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 
-enum class ColorMode : std::uint8_t {
+enum class ColorMode : uint8_t {
   Always,
   Auto,
   Never,

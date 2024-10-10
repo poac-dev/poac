@@ -10,6 +10,8 @@
 #include "VersionReq.hpp"
 
 #include <cctype>
+#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <optional>
 #include <string>
@@ -320,7 +322,8 @@ parseProfile(const toml::table& table) {
     profile.debug = table.at("debug").as_boolean();
   }
   if (table.contains("opt_level") && table.at("opt_level").is_integer()) {
-    const i32 optLevel = static_cast<i32>(table.at("opt_level").as_integer());
+    const int32_t optLevel =
+        static_cast<int32_t>(table.at("opt_level").as_integer());
     if (optLevel < 0 || optLevel > 3) {
       throw PoacError("opt_level must be between 0 and 3");
     }
@@ -468,7 +471,7 @@ validateDepName(const std::string_view name) {
     }
   }
 
-  for (usize i = 1; i < name.size(); ++i) {
+  for (size_t i = 1; i < name.size(); ++i) {
     if (name[i] == '+') {
       // Allow consecutive `+` characters.
       continue;
@@ -481,7 +484,7 @@ validateDepName(const std::string_view name) {
       );
     }
   }
-  for (usize i = 1; i < name.size() - 1; ++i) {
+  for (size_t i = 1; i < name.size() - 1; ++i) {
     if (name[i] != '.') {
       continue;
     }

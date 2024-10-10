@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Command.hpp"
-#include "Rustify.hpp"
 
 #include <optional>
 #include <span>
@@ -14,7 +13,7 @@ std::string
 replaceAll(std::string str, std::string_view from, std::string_view to);
 
 int execCmd(const Command& cmd) noexcept;
-std::string getCmdOutput(const Command& cmd, usize retry = 3);
+std::string getCmdOutput(const Command& cmd, size_t retry = 3);
 bool commandExists(std::string_view cmd) noexcept;
 
 // ref: https://reviews.llvm.org/differential/changeset/?ref=3315514

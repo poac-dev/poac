@@ -14,7 +14,6 @@
 // parser.
 #pragma once
 
-#include "Rustify.hpp"
 #include "Semver.hpp"
 
 #include <cstdint>
@@ -24,9 +23,9 @@
 #include <string_view>
 
 struct OptVersion {
-  u64 major{};
-  std::optional<u64> minor;
-  std::optional<u64> patch;
+  uint64_t major{};
+  std::optional<uint64_t> minor;
+  std::optional<uint64_t> patch;
   Prerelease pre;
 };
 
@@ -63,7 +62,7 @@ struct OptVersion {
 //   6.2. `<=A.B` is equivalent to `<A.(B+1).0`
 //   6.3. `<=A` is equivalent to `<(A+1).0.0`
 struct Comparator {
-  enum class Op : std::uint8_t {
+  enum class Op : uint8_t {
     Exact, // =
     Gt, // >
     Gte, // >=
@@ -73,9 +72,9 @@ struct Comparator {
   using enum Op;
 
   std::optional<Op> op;
-  u64 major{};
-  std::optional<u64> minor;
-  std::optional<u64> patch;
+  uint64_t major{};
+  std::optional<uint64_t> minor;
+  std::optional<uint64_t> patch;
   Prerelease pre;
 
   static Comparator parse(std::string_view str);

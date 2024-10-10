@@ -32,7 +32,7 @@ public:
 };
 
 struct Command {
-  enum class IOConfig : std::uint8_t {
+  enum class IOConfig : uint8_t {
     Null,
     Inherit,
     Piped,
