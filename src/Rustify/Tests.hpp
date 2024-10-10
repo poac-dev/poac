@@ -50,13 +50,32 @@ modName(std::string_view file) noexcept {
   return file.substr(start, end - start);
 }
 
+constexpr std::string_view
+modFunc(std::string_view func) noexcept {
+  if (func.empty()) {
+    return func;
+  }
+
+  const size_t end = func.find_last_of('(');
+  if (end == std::string_view::npos) {
+    return func;
+  }
+  func = func.substr(0, end);
+
+  const size_t start = func.find_last_of(' ');
+  if (start == std::string_view::npos) {
+    return func;
+  }
+  return func.substr(start + 1);
+}
+
 inline void
 pass(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
   std::cout << "      test " << modName(loc.file_name())
-            << "::" << loc.function_name() << " ... " << GREEN << "ok" << RESET
-            << '\n'
+            << "::" << modFunc(loc.function_name()) << " ... " << GREEN << "ok"
+            << RESET << '\n'
             << std::flush;
 }
 
@@ -64,9 +83,10 @@ pass(
 error(const std::source_location& loc, Display auto&&... msgs) {
   std::ostringstream oss;
   oss << "\n      test " << modName(loc.file_name())
-      << "::" << loc.function_name() << " ... " << RED << "FAILED" << RESET
-      << "\n\n"
-      << '\'' << loc.function_name() << "' failed at '" << std::boolalpha;
+      << "::" << modFunc(loc.function_name()) << " ... " << RED << "FAILED"
+      << RESET << "\n\n"
+      << '\'' << modFunc(loc.function_name()) << "' failed at '"
+      << std::boolalpha;
   (oss << ... << std::forward<decltype(msgs)>(msgs))
       << "', " << loc.file_name() << ':' << loc.line() << '\n';
   throw std::logic_error(oss.str());

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Logger.hpp"
-#include "Rustify.hpp"
+#include "Rustify/Aliases.hpp"
 
 #include <cstdlib>
 #include <functional>
@@ -78,11 +78,11 @@ public:
   friend void addOptCandidates(
       std::vector<std::string_view>& candidates, const std::vector<Opt>& opts
   ) noexcept;
-  friend usize calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept;
-  friend usize
-  calcOptMaxOffset(const std::vector<Opt>& opts, usize maxShortSize) noexcept;
+  friend size_t calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept;
+  friend size_t
+  calcOptMaxOffset(const std::vector<Opt>& opts, size_t maxShortSize) noexcept;
   friend void printOpts(
-      const std::vector<Opt>& opts, usize maxShortSize, usize maxOffset
+      const std::vector<Opt>& opts, size_t maxShortSize, size_t maxOffset
   ) noexcept;
 
   constexpr Opt& setPlaceholder(const std::string_view placeholder) noexcept {
@@ -100,7 +100,7 @@ public:
 
 private:
   /// Size of `-c, --color <WHEN>` without color.
-  constexpr usize leftSize(usize maxShortSize) const noexcept {
+  constexpr size_t leftSize(size_t maxShortSize) const noexcept {
     // shrt.size() = ?
     // `, `.size() = 2
     // lng.size() = ?
@@ -109,7 +109,7 @@ private:
     return 3 + maxShortSize + name.size() + placeholder.size();
   }
 
-  void print(usize maxShortSize, usize maxOffset) const noexcept;
+  void print(size_t maxShortSize, size_t maxOffset) const noexcept;
 };
 
 class Arg : public CliBase<Arg> {
@@ -132,12 +132,12 @@ public:
 
 private:
   /// Size of left side of the help message.
-  constexpr usize leftSize() const noexcept {
+  constexpr size_t leftSize() const noexcept {
     return name.size();
   }
 
   std::string getLeft() const noexcept;
-  void print(usize maxOffset) const noexcept;
+  void print(size_t maxOffset) const noexcept;
 };
 
 class Subcmd : public CliBase<Subcmd>, public ShortAndHidden<Subcmd> {
@@ -175,12 +175,12 @@ private:
   Subcmd& setGlobalOpts(const std::vector<Opt>& globalOpts) noexcept;
   std::string getUsage() const noexcept;
   void printHelp() const noexcept;
-  void print(usize maxOffset) const noexcept;
+  void print(size_t maxOffset) const noexcept;
 
-  usize calcMaxShortSize() const noexcept;
+  size_t calcMaxShortSize() const noexcept;
   /// Calculate the maximum length of the left side of the helps to align the
   /// descriptions with 2 spaces.
-  usize calcMaxOffset(usize maxShortSize) const noexcept;
+  size_t calcMaxOffset(size_t maxShortSize) const noexcept;
 };
 
 class Cli : public CliBase<Cli> {
@@ -201,8 +201,8 @@ public:
   void printSubcmdHelp(std::string_view subcmd) const noexcept;
   [[nodiscard]] int printHelp(std::span<const std::string_view> args
   ) const noexcept;
-  usize calcMaxOffset(usize maxShortSize) const noexcept;
-  void printAllSubcmds(bool showHidden, usize maxOffset = 0) const noexcept;
+  size_t calcMaxOffset(size_t maxShortSize) const noexcept;
+  void printAllSubcmds(bool showHidden, size_t maxOffset = 0) const noexcept;
 
   static constexpr int CONTINUE = -1;
 
@@ -248,7 +248,7 @@ private:
       std::string_view subcmd, std::span<const std::string_view> args
   ) const;
 
-  usize calcMaxShortSize() const noexcept;
+  size_t calcMaxShortSize() const noexcept;
 
   /// Print help message for poac itself.
   void printCmdHelp() const noexcept;

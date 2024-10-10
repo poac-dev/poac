@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -97,8 +98,8 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
 }
 
 static void
-emitDep(std::ostream& os, usize& offset, const std::string_view dep) {
-  constexpr usize maxLineLen = 80;
+emitDep(std::ostream& os, size_t& offset, const std::string_view dep) {
+  constexpr size_t maxLineLen = 80;
   if (offset + dep.size() + 2 > maxLineLen) { // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
     os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << " \\\n ";
@@ -115,7 +116,7 @@ emitTarget(
     const std::optional<std::string>& sourceFile = std::nullopt,
     const std::vector<std::string>& commands = {}
 ) {
-  usize offset = 0;
+  size_t offset = 0;
 
   os << target << ':';
   offset += target.size() + 2; // : and space
@@ -145,8 +146,8 @@ BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
   const std::string left = oss.str();
   os << left << ' ';
 
-  constexpr usize maxLineLen = 80; // TODO: share across sources?
-  usize offset = left.size() + 1; // space
+  constexpr size_t maxLineLen = 80; // TODO: share across sources?
+  size_t offset = left.size() + 1; // space
   std::string value;
   for (const char c : variables.at(varName).value) {
     if (c == ' ') {
@@ -178,7 +179,7 @@ topoSort(
     const std::unordered_map<std::string, T>& list,
     const std::unordered_map<std::string, std::vector<std::string>>& adjList
 ) {
-  std::unordered_map<std::string, u32> inDegree;
+  std::unordered_map<std::string, uint32_t> inDegree;
   for (const auto& var : list) {
     inDegree[var.first] = 0;
   }
@@ -627,9 +628,9 @@ BuildConfig::processSources(const std::vector<fs::path>& sourceFilePaths) {
   if (isParallel()) {
     tbb::spin_mutex mtx;
     tbb::parallel_for(
-        tbb::blocked_range<usize>(0, sourceFilePaths.size()),
-        [&](const tbb::blocked_range<usize>& rng) {
-          for (usize i = rng.begin(); i != rng.end(); ++i) {
+        tbb::blocked_range<size_t>(0, sourceFilePaths.size()),
+        [&](const tbb::blocked_range<size_t>& rng) {
+          for (size_t i = rng.begin(); i != rng.end(); ++i) {
             processSrc(sourceFilePaths[i], buildObjTargets, &mtx);
           }
         }
@@ -783,9 +784,9 @@ BuildConfig::configureBuild() {
   if (isParallel()) {
     tbb::spin_mutex mtx;
     tbb::parallel_for(
-        tbb::blocked_range<usize>(0, sourceFilePaths.size()),
-        [&](const tbb::blocked_range<usize>& rng) {
-          for (usize i = rng.begin(); i != rng.end(); ++i) {
+        tbb::blocked_range<size_t>(0, sourceFilePaths.size()),
+        [&](const tbb::blocked_range<size_t>& rng) {
+          for (size_t i = rng.begin(); i != rng.end(); ++i) {
             processUnittestSrc(
                 sourceFilePaths[i], buildObjTargets, testTargets, &mtx
             );
@@ -874,7 +875,7 @@ getMakeCommand() {
     makeCommand.addArg("QUIET=1");
   }
 
-  const usize numThreads = getParallelism();
+  const size_t numThreads = getParallelism();
   if (numThreads > 1) {
     makeCommand.addArg("-j" + std::to_string(numThreads));
   }
