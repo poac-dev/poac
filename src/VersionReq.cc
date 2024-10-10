@@ -896,6 +896,7 @@ operator<<(std::ostream& os, const VersionReq& req) {
 
 #ifdef POAC_TEST
 
+#  include <source_location>
 #  include <span>
 
 namespace tests {
@@ -906,7 +907,7 @@ namespace tests {
 inline static void
 assertMatchAll(
     const VersionReq& req, const std::span<const std::string_view> versions,
-    const source_location& loc = source_location::current()
+    const std::source_location& loc = std::source_location::current()
 ) {
   for (const std::string_view ver : versions) {
     assertTrue(req.satisfiedBy(Version::parse(ver)), "", loc);
@@ -916,7 +917,7 @@ assertMatchAll(
 inline static void
 assertMatchNone(
     const VersionReq& req, const std::span<const std::string_view> versions,
-    const source_location& loc = source_location::current()
+    const std::source_location& loc = std::source_location::current()
 ) {
   for (const std::string_view ver : versions) {
     assertFalse(req.satisfiedBy(Version::parse(ver)), "", loc);
