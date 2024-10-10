@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Rustify.hpp"
+#include "Rustify/Traits.hpp"
 #include "TermColor.hpp"
 
+#include <cstdint>
 #include <fmt/core.h>
 #include <functional>
 #include <iomanip>
@@ -15,7 +16,7 @@
 
 namespace logger {
 
-enum class Level : u8 {
+enum class Level : uint8_t {
   Off = 0, // --quiet, -q
   Error = 1,
   Warn = 2,

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Aliases.hpp"
 #include "Traits.hpp"
 
+#include <cstddef>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -37,12 +37,12 @@ modName(std::string_view file) noexcept {
     return file;
   }
 
-  const usize start = file.find("src/");
+  const size_t start = file.find("src/");
   if (start == std::string_view::npos) {
     return file;
   }
 
-  const usize end = file.find_last_of('.');
+  const size_t end = file.find_last_of('.');
   if (end == std::string_view::npos) {
     return file;
   }
