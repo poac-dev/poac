@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iostream>
 #include <ostream>
+#include <source_location>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -175,7 +176,8 @@ info(MaybeWriter auto&&... msgs) noexcept {
 template <MaybeWriter... Ts>
 struct debug { // NOLINT(readability-identifier-naming)
   explicit debug(
-      Ts&&... msgs, const source_location& loc = source_location::current()
+      Ts&&... msgs,
+      const std::source_location& loc = std::source_location::current()
   ) noexcept {
     Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
   }
@@ -186,7 +188,8 @@ debug(Ts&&...) -> debug<Ts...>;
 template <MaybeWriter... Ts>
 struct trace { // NOLINT(readability-identifier-naming)
   explicit trace(
-      Ts&&... msgs, const source_location& loc = source_location::current()
+      Ts&&... msgs,
+      const std::source_location& loc = std::source_location::current()
   ) noexcept {
     Logger::trace(loc.function_name(), std::forward<Ts>(msgs)...);
   }
