@@ -1,9 +1,9 @@
 #include "Time.hpp"
 
+#include <cstddef>
 #include <ctime>
 #include <iomanip>
 #include <string>
-#include <cstddef>
 
 namespace git2 {
 

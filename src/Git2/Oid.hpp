@@ -2,11 +2,11 @@
 
 #include "Global.hpp"
 
+#include <cstddef>
 #include <git2/oid.h>
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <cstddef>
 
 namespace git2 {
 

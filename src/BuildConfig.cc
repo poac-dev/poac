@@ -12,8 +12,8 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
