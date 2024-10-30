@@ -97,6 +97,68 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
   }
 }
 
+static std::vector<std::string>
+parseEnvFlags(const std::string& env) {
+  std::string buffer;
+  std::vector<std::string> result;
+  bool ignoreNext = false;
+  bool ignoreNextSeq = false;
+  char ignoreNextSeqStart = ' ';
+
+  for (auto i : env) {
+    if (ignoreNext) {
+      buffer += i;
+      ignoreNext = false;
+      continue;
+    }
+
+    if (ignoreNextSeq) {
+      if (i == ignoreNextSeqStart) {
+        ignoreNextSeq = false;
+        buffer += i;
+      } else {
+        buffer += i;
+      }
+      continue;
+    }
+
+    if (std::isspace(i) && !buffer.empty()) {
+      result.push_back(buffer);
+      buffer.clear();
+      continue;
+    }
+
+    // The following operation intentionally appends the current character to
+    // buffer because current Makefile generator doesn't escape strings so we
+    // keep the escaping sequences.
+    if (i == '\'' || i == '"') {
+      ignoreNextSeq = true;
+      ignoreNextSeqStart = i;
+    }
+
+    if (i == '\\') {
+      ignoreNext = true;
+    }
+
+    buffer += i;
+  }
+  if (!buffer.empty()) {
+    result.push_back(buffer);
+  }
+
+  return result;
+}
+
+static std::vector<std::string>
+getEnvFlags(const std::string& name) {
+  if (const auto* cenv = std::getenv(name.c_str())) {
+    std::string env(cenv);
+    std::vector<std::string> result;
+    return parseEnvFlags(env);
+  }
+  return {};
+}
+
 static void
 emitDep(std::ostream& os, size_t& offset, const std::string_view dep) {
   constexpr size_t maxLineLen = 80;
@@ -541,6 +603,10 @@ BuildConfig::setVariables() {
   for (const std::string_view flag : profile.cxxflags) {
     cxxflags.emplace_back(flag);
   }
+  for (const std::string& flag : getEnvFlags("CXXFLAGS")) {
+    cxxflags.emplace_back(flag);
+    logger::debug("adding env: ", flag);
+  }
   this->defineSimpleVar(
       "CXXFLAGS", fmt::format("{:s}", fmt::join(cxxflags, " "))
   );
@@ -590,6 +656,9 @@ BuildConfig::setVariables() {
   this->defineSimpleVar(
       "INCLUDES", fmt::format("{:s}", fmt::join(includes, " "))
   );
+  for (const auto& flag : getEnvFlags("LDFLAGS")) {
+    libs.push_back(flag);
+  }
   this->defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(libs, " ")));
 }
 
