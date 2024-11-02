@@ -97,63 +97,94 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
   }
 }
 
+// Generally split the string by space character, but it will properly interpret
+// the quotes and some escape sequences. (More specifically it will ignore
+// whatever character that goes after a backslash and preserve all characters,
+// usually used to pass an argument containing spaces, between quotes.)
 static std::vector<std::string>
-parseEnvFlags(const std::string& env) {
-  std::string buffer;
+parseEnvFlags(std::string_view env) {
   std::vector<std::string> result;
+
+  // This flag will be set when a backslash encountered.
   bool ignoreNext = false;
+
+  // This flag will be set when quote encountered.
+  // The quote encountered will be stored in the ignoreNextSeqStart to
+  // distinguish different quote types.
   bool ignoreNextSeq = false;
   char ignoreNextSeqStart = ' ';
 
-  for (auto i : env) {
+  result.emplace_back();
+
+  // There are bunches of conditional predicates, and to avoid if-else chain the
+  // special cases will be processed first and end in `continue` to skip rest of
+  // the loop. Same in special cases that are in another special case.
+  for (char i : env) {
+
     if (ignoreNext) {
-      buffer += i;
+      result.back() += i;
       ignoreNext = false;
       continue;
     }
 
     if (ignoreNextSeq) {
+      // Backslashes in quotes should still be processed.
+      if (i == '\\') {
+        ignoreNext = true;
+        continue;
+      }
+
       if (i == ignoreNextSeqStart) {
         ignoreNextSeq = false;
-        buffer += i;
-      } else {
-        buffer += i;
+        continue;
       }
+
+      result.back() += i;
       continue;
     }
 
-    if (std::isspace(i) && !buffer.empty()) {
-      result.push_back(buffer);
-      buffer.clear();
-      continue;
-    }
-
-    // The following operation intentionally appends the current character to
-    // buffer because current Makefile generator doesn't escape strings so we
-    // keep the escaping sequences.
     if (i == '\'' || i == '"') {
       ignoreNextSeq = true;
       ignoreNextSeqStart = i;
+      continue;
     }
 
     if (i == '\\') {
       ignoreNext = true;
+      continue;
     }
 
-    buffer += i;
+    // Split by space (spaces at the start will be ignored, multiple spaces will
+    // be treated as one space)
+    if (std::isspace(i)) {
+      // Only append new element if the last element is not empty, i.e. the
+      // space is after something other than another space character or the
+      // space is not at the start of the string.
+      if (!result.back().empty()) {
+        result.emplace_back();
+        // Added continue for consistency.
+        continue;
+      }
+
+      // Otherwise just skip the space.
+      continue;
+    }
+
+    result.back() += i;
   }
-  if (!buffer.empty()) {
-    result.push_back(buffer);
+
+  // Delete if the last element is empty, this may be executed if there are
+  // spaces at the end of the string.
+  if (result.back().empty()) {
+    result.pop_back();
   }
 
   return result;
 }
 
 static std::vector<std::string>
-getEnvFlags(const std::string& name) {
-  if (const auto* cenv = std::getenv(name.c_str())) {
-    std::string env(cenv);
-    std::vector<std::string> result;
+getEnvFlags(const char* name) {
+  if (const char* env = std::getenv(name)) {
     return parseEnvFlags(env);
   }
   return {};
@@ -603,9 +634,12 @@ BuildConfig::setVariables() {
   for (const std::string_view flag : profile.cxxflags) {
     cxxflags.emplace_back(flag);
   }
+
+  // Environment variables takes the highest precedence and will be appended at
+  // last.
   for (const std::string& flag : getEnvFlags("CXXFLAGS")) {
+    logger::debug("adding flag", flag);
     cxxflags.emplace_back(flag);
-    logger::debug("adding env: ", flag);
   }
   this->defineSimpleVar(
       "CXXFLAGS", fmt::format("{:s}", fmt::join(cxxflags, " "))
@@ -656,6 +690,9 @@ BuildConfig::setVariables() {
   this->defineSimpleVar(
       "INCLUDES", fmt::format("{:s}", fmt::join(includes, " "))
   );
+
+  // Environment variables takes the highest precedence and will be appended at
+  // last.
   for (const auto& flag : getEnvFlags("LDFLAGS")) {
     libs.push_back(flag);
   }
@@ -1066,6 +1103,36 @@ testDependOnUnregisteredTarget() {
   pass();
 }
 
+static void
+testEnvironmentFlagsParsing() {
+  std::vector<std::string> argsNoEscape = parseEnvFlags(" a   b c ");
+  assertEq(argsNoEscape[0], "a");
+  assertEq(argsNoEscape[1], "b");
+  assertEq(argsNoEscape[2], "c");
+
+  std::vector<std::string> argsEscapeBackslash =
+      parseEnvFlags(R"(  i  love\ playing\?  maimai\ dx  )");
+  assertEq(argsEscapeBackslash[0], "i");
+  assertEq(argsEscapeBackslash[1], "love playing?");
+  assertEq(argsEscapeBackslash[2], "maimai dx");
+
+  std::vector<std::string> argsEscapeQuotes =
+      parseEnvFlags("  \"sasakure.uk's music\" is  'nice '  ");
+  assertEq(argsEscapeQuotes[0], "sasakure.uk's music");
+  assertEq(argsEscapeQuotes[1], "is");
+  assertEq(argsEscapeQuotes[2], "nice ");
+
+  std::vector<std::string> argsEscapeMixed = parseEnvFlags(
+      R"-( "Do you play\ " '\'CHUNITHM\'' and what\'s your" rating"\?   )-"
+  );
+  assertEq(argsEscapeMixed[0], "Do you play ");
+  assertEq(argsEscapeMixed[1], "'CHUNITHM'");
+  assertEq(argsEscapeMixed[2], "and");
+  assertEq(argsEscapeMixed[3], "what's");
+  assertEq(argsEscapeMixed[4], "your rating?");
+  pass();
+}
+
 } // namespace tests
 
 int
@@ -1076,5 +1143,6 @@ main() {
   tests::testCycleTargets();
   tests::testSimpleTargets();
   tests::testDependOnUnregisteredTarget();
+  tests::testEnvironmentFlagsParsing();
 }
 #endif
