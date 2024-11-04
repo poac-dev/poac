@@ -1075,6 +1075,7 @@ testDependOnUnregisteredTarget() {
 static void
 testParseEnvFlags() {
   std::vector<std::string> argsNoEscape = parseEnvFlags(" a   b c ");
+  // NOLINTNEXTLINE(*-magic-numbers)
   assertEq(argsNoEscape.size(), 3);
   assertEq(argsNoEscape[0], "a");
   assertEq(argsNoEscape[1], "b");
@@ -1082,6 +1083,7 @@ testParseEnvFlags() {
 
   std::vector<std::string> argsEscapeBackslash =
       parseEnvFlags(R"(  a\ bc   cd\$fg  hi  )");
+  // NOLINTNEXTLINE(*-magic-numbers)
   assertEq(argsEscapeBackslash.size(), 3);
   assertEq(argsEscapeBackslash[0], "a bc");
   assertEq(argsEscapeBackslash[1], "cd$fg");
@@ -1090,6 +1092,7 @@ testParseEnvFlags() {
   std::vector<std::string> argsEscapeQuotes = parseEnvFlags(
       " \"-I/path/contains space\"  '-Lanother/path with/space' normal  "
   );
+  // NOLINTNEXTLINE(*-magic-numbers)
   assertEq(argsEscapeQuotes.size(), 3);
   assertEq(argsEscapeQuotes[0], "-I/path/contains space");
   assertEq(argsEscapeQuotes[1], "-Lanother/path with/space");
@@ -1098,6 +1101,7 @@ testParseEnvFlags() {
   std::vector<std::string> argsEscapeMixed = parseEnvFlags(
       R"-( "-IMy \"Headers\"/v1" '\?pattern' normal path/contain/\"quote\" mixEverything" abc "\?\#   )-"
   );
+  // NOLINTNEXTLINE(*-magic-numbers)
   assertEq(argsEscapeMixed.size(), 5);
   assertEq(argsEscapeMixed[0], "-IMy \"Headers\"/v1");
   assertEq(argsEscapeMixed[1], "?pattern");
