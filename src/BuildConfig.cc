@@ -97,6 +97,68 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
   }
 }
 
+// Generally split the string by space character, but it will properly interpret
+// the quotes and some escape sequences. (More specifically it will ignore
+// whatever character that goes after a backslash and preserve all characters,
+// usually used to pass an argument containing spaces, between quotes.)
+static std::vector<std::string>
+parseEnvFlags(std::string_view env) {
+  std::vector<std::string> result;
+  std::string buffer;
+
+  bool foundBackslash = false;
+  bool isInQuote = false;
+  char quoteChar = ' ';
+
+  for (const char c : env) {
+    if (foundBackslash) {
+      buffer += c;
+      foundBackslash = false;
+    } else if (isInQuote) {
+      // Backslashes in quotes should still be processed.
+      if (c == '\\') {
+        foundBackslash = true;
+      } else if (c == quoteChar) {
+        isInQuote = false;
+      } else {
+        buffer += c;
+      }
+    } else if (c == '\'' || c == '"') {
+      isInQuote = true;
+      quoteChar = c;
+    } else if (c == '\\') {
+      foundBackslash = true;
+    } else if (std::isspace(c)) {
+      // Add argument only if necessary (i.e. buffer is not empty)
+      if (!buffer.empty()) {
+        result.push_back(buffer);
+        buffer.clear();
+      }
+      // Otherwise just ignore the character. Notice that the two conditions
+      // cannot be combined into just one else-if branch because that will cause
+      // extra spaces to appear in the result.
+    } else {
+      buffer += c;
+    }
+  }
+
+  // Append the buffer if it's not empty (happens when no spaces at the end of
+  // string).
+  if (!buffer.empty()) {
+    result.push_back(buffer);
+  }
+
+  return result;
+}
+
+static std::vector<std::string>
+getEnvFlags(const char* name) {
+  if (const char* env = std::getenv(name)) {
+    return parseEnvFlags(env);
+  }
+  return {};
+}
+
 static void
 emitDep(std::ostream& os, size_t& offset, const std::string_view dep) {
   constexpr size_t maxLineLen = 80;
@@ -541,6 +603,12 @@ BuildConfig::setVariables() {
   for (const std::string_view flag : profile.cxxflags) {
     cxxflags.emplace_back(flag);
   }
+
+  // Environment variables takes the highest precedence and will be appended at
+  // last.
+  for (const std::string& flag : getEnvFlags("CXXFLAGS")) {
+    cxxflags.emplace_back(flag);
+  }
   this->defineSimpleVar(
       "CXXFLAGS", fmt::format("{:s}", fmt::join(cxxflags, " "))
   );
@@ -590,6 +658,12 @@ BuildConfig::setVariables() {
   this->defineSimpleVar(
       "INCLUDES", fmt::format("{:s}", fmt::join(includes, " "))
   );
+
+  // Environment variables takes the highest precedence and will be appended at
+  // last.
+  for (const std::string& flag : getEnvFlags("LDFLAGS")) {
+    libs.push_back(flag);
+  }
   this->defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(libs, " ")));
 }
 
@@ -997,6 +1071,47 @@ testDependOnUnregisteredTarget() {
   pass();
 }
 
+static void
+testParseEnvFlags() {
+  std::vector<std::string> argsNoEscape = parseEnvFlags(" a   b c ");
+  // NOLINTNEXTLINE(*-magic-numbers)
+  assertEq(argsNoEscape.size(), 3);
+  assertEq(argsNoEscape[0], "a");
+  assertEq(argsNoEscape[1], "b");
+  assertEq(argsNoEscape[2], "c");
+
+  std::vector<std::string> argsEscapeBackslash =
+      parseEnvFlags(R"(  a\ bc   cd\$fg  hi windows\\path\\here  )");
+  // NOLINTNEXTLINE(*-magic-numbers)
+  assertEq(argsEscapeBackslash.size(), 4);
+  assertEq(argsEscapeBackslash[0], "a bc");
+  assertEq(argsEscapeBackslash[1], "cd$fg");
+  assertEq(argsEscapeBackslash[2], "hi");
+  assertEq(argsEscapeBackslash[3], R"(windows\path\here)");
+
+  std::vector<std::string> argsEscapeQuotes = parseEnvFlags(
+      " \"-I/path/contains space\"  '-Lanother/path with/space' normal  "
+  );
+  // NOLINTNEXTLINE(*-magic-numbers)
+  assertEq(argsEscapeQuotes.size(), 3);
+  assertEq(argsEscapeQuotes[0], "-I/path/contains space");
+  assertEq(argsEscapeQuotes[1], "-Lanother/path with/space");
+  assertEq(argsEscapeQuotes[2], "normal");
+
+  std::vector<std::string> argsEscapeMixed = parseEnvFlags(
+      R"-( "-IMy \"Headers\"\\v1" '\?pattern' normal path/contain/\"quote\" mixEverything" abc "\?\#   )-"
+  );
+  // NOLINTNEXTLINE(*-magic-numbers)
+  assertEq(argsEscapeMixed.size(), 5);
+  assertEq(argsEscapeMixed[0], R"(-IMy "Headers"\v1)");
+  assertEq(argsEscapeMixed[1], "?pattern");
+  assertEq(argsEscapeMixed[2], "normal");
+  assertEq(argsEscapeMixed[3], "path/contain/\"quote\"");
+  assertEq(argsEscapeMixed[4], "mixEverything abc ?#");
+
+  pass();
+}
+
 } // namespace tests
 
 int
@@ -1007,5 +1122,6 @@ main() {
   tests::testCycleTargets();
   tests::testSimpleTargets();
   tests::testDependOnUnregisteredTarget();
+  tests::testParseEnvFlags();
 }
 #endif
