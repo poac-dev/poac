@@ -107,7 +107,6 @@ parseEnvFlags(std::string_view env) {
   std::string buffer;
 
   bool foundBackslash = false;
-
   bool isInQuote = false;
   char quoteChar = ' ';
 
@@ -130,7 +129,7 @@ parseEnvFlags(std::string_view env) {
     } else if (c == '\\') {
       foundBackslash = true;
     } else if (std::isspace(c)) {
-      // Add argumnet only if necessary (i.e. buffer is not empty)
+      // Add argument only if necessary (i.e. buffer is not empty)
       if (!buffer.empty()) {
         result.push_back(buffer);
         buffer.clear();
@@ -1082,12 +1081,13 @@ testParseEnvFlags() {
   assertEq(argsNoEscape[2], "c");
 
   std::vector<std::string> argsEscapeBackslash =
-      parseEnvFlags(R"(  a\ bc   cd\$fg  hi  )");
+      parseEnvFlags(R"(  a\ bc   cd\$fg  hi windows\\path\\here  )");
   // NOLINTNEXTLINE(*-magic-numbers)
-  assertEq(argsEscapeBackslash.size(), 3);
+  assertEq(argsEscapeBackslash.size(), 4);
   assertEq(argsEscapeBackslash[0], "a bc");
   assertEq(argsEscapeBackslash[1], "cd$fg");
   assertEq(argsEscapeBackslash[2], "hi");
+  assertEq(argsEscapeBackslash[3], R"(windows\path\here)");
 
   std::vector<std::string> argsEscapeQuotes = parseEnvFlags(
       " \"-I/path/contains space\"  '-Lanother/path with/space' normal  "
@@ -1099,11 +1099,11 @@ testParseEnvFlags() {
   assertEq(argsEscapeQuotes[2], "normal");
 
   std::vector<std::string> argsEscapeMixed = parseEnvFlags(
-      R"-( "-IMy \"Headers\"/v1" '\?pattern' normal path/contain/\"quote\" mixEverything" abc "\?\#   )-"
+      R"-( "-IMy \"Headers\"\\v1" '\?pattern' normal path/contain/\"quote\" mixEverything" abc "\?\#   )-"
   );
   // NOLINTNEXTLINE(*-magic-numbers)
   assertEq(argsEscapeMixed.size(), 5);
-  assertEq(argsEscapeMixed[0], "-IMy \"Headers\"/v1");
+  assertEq(argsEscapeMixed[0], R"(-IMy "Headers"\v1)");
   assertEq(argsEscapeMixed[1], "?pattern");
   assertEq(argsEscapeMixed[2], "normal");
   assertEq(argsEscapeMixed[3], "path/contain/\"quote\"");
