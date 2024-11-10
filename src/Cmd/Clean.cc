@@ -51,7 +51,7 @@ cleanMain(const std::span<const std::string_view> args) noexcept {
   }
 
   if (fs::exists(outDir)) {
-    logger::info("Removing", fs::canonical(outDir).string());
+    logger::info("Removing", "{}", fs::canonical(outDir).string());
     fs::remove_all(outDir);
   }
   return EXIT_SUCCESS;

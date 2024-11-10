@@ -161,42 +161,51 @@ private:
   }
 };
 
+template <typename... Args>
 inline void
-error(MaybeWriter auto&&... msgs) noexcept {
-  Logger::error(std::forward<decltype(msgs)>(msgs)...);
+error(fmt::format_string<Args...> fmt, Args&&... args) noexcept {
+  Logger::error(fmt::format(fmt, std::forward<Args>(args)...));
 }
+template <typename... Args>
 inline void
-warn(MaybeWriter auto&&... msgs) noexcept {
-  Logger::warn(std::forward<decltype(msgs)>(msgs)...);
+warn(fmt::format_string<Args...> fmt, Args&&... args) noexcept {
+  Logger::warn(fmt::format(fmt, std::forward<Args>(args)...));
 }
+template <typename... Args>
 inline void
-info(MaybeWriter auto&&... msgs) noexcept {
-  Logger::info(std::forward<decltype(msgs)>(msgs)...);
+info(
+    std::string_view header, fmt::format_string<Args...> fmt, Args&&... args
+) noexcept {
+  Logger::info(header, fmt::format(fmt, std::forward<Args>(args)...));
 }
 
-template <MaybeWriter... Ts>
+template <typename... Args>
 struct debug { // NOLINT(readability-identifier-naming)
   explicit debug(
-      Ts&&... msgs,
+      fmt::format_string<Args...> fmt, Args&&... args,
       const std::source_location& loc = std::source_location::current()
   ) noexcept {
-    Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
+    Logger::debug(
+        loc.function_name(), fmt::format(fmt, std::forward<Args>(args)...)
+    );
   }
 };
-template <MaybeWriter... Ts>
-debug(Ts&&...) -> debug<Ts...>;
+template <typename... Args>
+debug(fmt::format_string<Args...>, Args&&...) -> debug<Args...>;
 
-template <MaybeWriter... Ts>
+template <typename... Args>
 struct trace { // NOLINT(readability-identifier-naming)
   explicit trace(
-      Ts&&... msgs,
+      fmt::format_string<Args...> fmt, Args&&... args,
       const std::source_location& loc = std::source_location::current()
   ) noexcept {
-    Logger::trace(loc.function_name(), std::forward<Ts>(msgs)...);
+    Logger::trace(
+        loc.function_name(), fmt::format(fmt, std::forward<Args>(args)...)
+    );
   }
 };
-template <MaybeWriter... Ts>
-trace(Ts&&...) -> trace<Ts...>;
+template <MaybeWriter... Args>
+trace(fmt::format_string<Args...>, Args&&...) -> trace<Args...>;
 
 inline void
 setLevel(Level level) noexcept {

@@ -507,8 +507,8 @@ BuildConfig::installDeps(const bool includeDevDeps) {
       libs.push_back(dep.libs);
     }
   }
-  logger::debug(fmt::format("INCLUDES: {}", includes));
-  logger::debug(fmt::format("LIBS: {}", libs));
+  logger::debug("INCLUDES: {}", includes);
+  logger::debug("LIBS: {}", libs);
 }
 
 void
@@ -751,13 +751,13 @@ BuildConfig::configureBuild() {
   std::string srcs;
   for (const fs::path& sourceFilePath : sourceFilePaths) {
     if (sourceFilePath != mainSource && isMainSource(sourceFilePath)) {
-      logger::warn(fmt::format(
+      logger::warn(
           "source file `{}` is named `main` but is not located directly in the "
           "`src/` directory. "
           "This file will not be treated as the program's entry point. "
           "Move it directly to 'src/' if intended as such.",
           sourceFilePath.string()
-      ));
+      );
     }
     srcs += ' ' + sourceFilePath.string();
   }

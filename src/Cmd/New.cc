@@ -43,7 +43,7 @@ getAuthor() noexcept {
     return config.getString("user.name") + " <" + config.getString("user.email")
            + ">";
   } catch (const git2::Exception& e) {
-    logger::debug(e.what());
+    logger::debug("{}", e.what());
     return "";
   }
 }

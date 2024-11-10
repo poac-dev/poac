@@ -56,8 +56,8 @@ initMain(const std::span<const std::string_view> args) {
   ofs << createPoacToml(packageName);
 
   logger::info(
-      "Created", isBin ? "binary (application) `" : "library `", packageName,
-      "` package"
+      "Created", "{} `{}` package", isBin ? "binary (application)" : "library",
+      packageName
   );
   return EXIT_SUCCESS;
 }

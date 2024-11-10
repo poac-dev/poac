@@ -101,7 +101,7 @@ findManifest() {
   fs::path candidate = fs::current_path();
   while (true) {
     const fs::path configPath = candidate / "poac.toml";
-    logger::debug("Finding manifest: ", configPath);
+    logger::debug("Finding manifest: {}", configPath.string());
     if (fs::exists(configPath)) {
       return configPath;
     }
@@ -587,7 +587,7 @@ GitDependency::install() const {
   }
 
   if (fs::exists(installDir) && !fs::is_empty(installDir)) {
-    logger::debug(name, " is already installed");
+    logger::debug("{} is already installed", name);
   } else {
     git2::Repository repo;
     repo.clone(url, installDir.string());
@@ -601,7 +601,7 @@ GitDependency::install() const {
     }
 
     logger::info(
-        "Downloaded", name, ' ', target.has_value() ? target.value() : url
+        "Downloaded", "{} {}", name, target.has_value() ? target.value() : url
     );
   }
 
