@@ -431,6 +431,15 @@ BuildConfig::defineLinkTarget(
   defineTarget(binTarget, commands, deps);
 }
 
+void
+BuildConfig::defineLibTarget(
+    const std::string& libTarget, const std::unordered_set<std::string>& deps
+) {
+  std::vector<std::string> commands;
+  commands.emplace_back("ar rcs lib" + getPackageName() + ".a $^");
+  defineTarget(libTarget, commands, deps);
+}
+
 // Map a path to header file to the corresponding object file.
 //
 // e.g., src/path/to/header.h -> poac.d/path/to/header.o
@@ -716,6 +725,9 @@ BuildConfig::configureBuild() {
   const auto isMainSource = [](const fs::path& file) {
     return file.filename().stem() == "main";
   };
+  const auto isLibSource = [](const fs::path& file) {
+    return file.filename().stem() == "lib";
+  };
   fs::path mainSource;
   for (const auto& entry : fs::directory_iterator(srcDir)) {
     const fs::path& path = entry.path();
@@ -727,13 +739,31 @@ BuildConfig::configureBuild() {
     }
     if (mainSource.empty()) {
       mainSource = path;
+      executable = true;
     } else {
       throw PoacError("multiple main sources were found");
     }
   }
 
-  if (mainSource.empty()) {
-    throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
+  fs::path libSource;
+  for (const auto& entry : fs::directory_iterator(srcDir)) {
+    const fs::path& path = entry.path();
+    if (!SOURCE_FILE_EXTS.contains(path.extension())) {
+      continue;
+    }
+    if (!isLibSource(path)) {
+      continue;
+    }
+    if (libSource.empty()) {
+      libSource = path;
+      library = true;
+    } else {
+      throw PoacError("multiple lib sources were found");
+    }
+  }
+
+  if (mainSource.empty() && libSource.empty()) {
+    throw PoacError(fmt::format("neither src/main{} nor src/lib{} was not found", SOURCE_FILE_EXTS, SOURCE_FILE_EXTS));
   }
 
   if (!fs::exists(outBasePath)) {
@@ -742,8 +772,16 @@ BuildConfig::configureBuild() {
 
   setVariables();
 
+  std::unordered_set<std::string> buildAll = {};
+  if (executable) {
+    buildAll.insert(packageName);
+  }
+  if (library) {
+    buildAll.insert("lib" + packageName + ".a");
+  }
+
   // Build rules
-  setAll({ packageName });
+  setAll(buildAll);
   addPhony("all");
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
@@ -757,7 +795,16 @@ BuildConfig::configureBuild() {
           "Move it directly to 'src/' if intended as such.",
           sourceFilePath.string()
       ));
+    } else if (sourceFilePath != libSource && isLibSource(sourceFilePath)) {
+      logger::warn(fmt::format(
+          "source file `{}` is named `lib` but is not located directly in the "
+          "`src/` directory. "
+          "This file will not be treated as a library. "
+          "Move it directly to 'src/' if intended as such.",
+          sourceFilePath.string()
+      ));
     }
+
     srcs += ' ' + sourceFilePath.string();
   }
 
@@ -767,16 +814,31 @@ BuildConfig::configureBuild() {
   const std::unordered_set<std::string> buildObjTargets =
       processSources(sourceFilePaths);
 
-  // Project binary target.
-  const std::string mainObjTarget = buildOutPath / "main.o";
-  std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
-  collectBinDepObjs(
-      projTargetDeps, "",
-      targets.at(mainObjTarget).remDeps, // we don't need sourceFile
-      buildObjTargets
-  );
+  if (executable) {
+    // Project binary target.
+    const std::string mainObjTarget = buildOutPath / "main.o";
+    std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
 
-  defineLinkTarget(outBasePath / packageName, projTargetDeps);
+    collectBinDepObjs(
+        projTargetDeps, "",
+        targets.at(mainObjTarget).remDeps, // we don't need sourceFile
+        buildObjTargets
+    );
+
+    defineLinkTarget(outBasePath / packageName, projTargetDeps);
+  }
+
+  if (library) {
+    // Project library target.
+    const std::string libTarget = buildOutPath / "lib.o";
+    std::unordered_set<std::string> libTargetDeps = { libTarget };
+    collectBinDepObjs(
+        libTargetDeps, "",
+        targets.at(libTarget).remDeps, // we don't need sourceFile
+        buildObjTargets
+    );
+    defineLibTarget(outBasePath / ("lib" + packageName + ".a"), libTargetDeps);
+  }
 
   // Test Pass
   std::unordered_set<std::string> testTargets;

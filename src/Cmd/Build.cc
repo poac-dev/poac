@@ -39,23 +39,49 @@ buildImpl(std::string& outDir, const bool isDebug) {
   outDir = config.outBasePath;
 
   const std::string& packageName = getPackageName();
-  const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-      (config.outBasePath / packageName).string()
-  );
-  Command checkUpToDateCmd = makeCmd;
-  checkUpToDateCmd.addArg("--question");
-
-  int exitCode = execCmd(checkUpToDateCmd);
-  if (exitCode != EXIT_SUCCESS) {
-    // If packageName binary is not up-to-date, compile it.
-    logger::info(
-        "Compiling",
-        fmt::format(
-            "{} v{} ({})", packageName, getPackageVersion().toString(),
-            getProjectBasePath().string()
-        )
+  int exitCode = 0;
+  if (config.isExecutable()) {
+    const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
+        (config.outBasePath / packageName).string()
     );
-    exitCode = execCmd(makeCmd);
+    Command checkUpToDateCmd = makeCmd;
+    checkUpToDateCmd.addArg("--question");
+
+    exitCode = execCmd(checkUpToDateCmd);
+    if (exitCode != EXIT_SUCCESS) {
+      // If packageName binary is not up-to-date, compile it.
+      logger::info(
+          "Compiling",
+          fmt::format(
+              "{} v{} ({})", packageName, getPackageVersion().toString(),
+              getProjectBasePath().string()
+          )
+      );
+      exitCode = execCmd(makeCmd);
+    }
+  }
+
+  if (config.isLibrary()) {
+    std::string libName = "lib" + packageName + ".a";
+    const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
+        (config.outBasePath / libName).string()
+    );
+    Command checkUpToDateCmd = makeCmd;
+    checkUpToDateCmd.addArg("--question");
+
+    exitCode = execCmd(checkUpToDateCmd);
+    std::cout << checkUpToDateCmd.toString() << std::endl;
+    if (exitCode != EXIT_SUCCESS) {
+      // If packageName binary is not up-to-date, compile it.
+      logger::info(
+          "Compiling",
+          fmt::format(
+              "{} v{} ({})", libName, getPackageVersion().toString(),
+              getProjectBasePath().string()
+          )
+      );
+      exitCode = execCmd(makeCmd);
+    }
   }
 
   const auto end = std::chrono::steady_clock::now();

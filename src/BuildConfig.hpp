@@ -50,6 +50,11 @@ private:
   fs::path unittestOutPath;
   bool isDebug;
 
+  // if we are building an executable
+  bool executable;
+  // if we are building a library
+  bool library;
+
   std::unordered_map<std::string, Variable> variables;
   std::unordered_map<std::string, std::vector<std::string>> varDeps;
   std::unordered_map<std::string, Target> targets;
@@ -66,6 +71,9 @@ private:
 public:
   explicit BuildConfig(const std::string& packageName, bool isDebug = true);
 
+  bool isExecutable() const { return executable; }
+  bool isLibrary() const { return library; }
+
   void defineVar(
       const std::string& name, const Variable& value,
       const std::unordered_set<std::string>& dependsOn = {}
@@ -76,12 +84,14 @@ public:
       varDeps[dep].push_back(name);
     }
   }
+
   void defineSimpleVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
     defineVar(name, { .value = value, .type = VarType::Simple }, dependsOn);
   }
+
   void defineCondVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
@@ -142,6 +152,9 @@ public:
       const std::unordered_set<std::string>& remDeps, bool isTest = false
   );
   void defineLinkTarget(
+      const std::string& binTarget, const std::unordered_set<std::string>& deps
+  );
+  void defineLibTarget(
       const std::string& binTarget, const std::unordered_set<std::string>& deps
   );
 
