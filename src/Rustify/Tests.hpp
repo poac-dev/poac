@@ -125,9 +125,7 @@ assertFalse(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Eq<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
-inline void
-assertEq(
+requires(Eq<Lhs, Rhs>&& Display<Lhs>&& Display<Rhs>) inline void assertEq(
     Lhs&& lhs, Rhs&& rhs, const std::string_view msg = "",
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
@@ -147,9 +145,7 @@ assertEq(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Ne<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
-inline void
-assertNe(
+requires(Ne<Lhs, Rhs>&& Display<Lhs>&& Display<Rhs>) inline void assertNe(
     Lhs&& lhs, Rhs&& rhs, const std::string_view msg = "",
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
@@ -169,9 +165,7 @@ assertNe(
 }
 
 template <typename Lhs, typename Rhs>
-  requires(Lt<Lhs, Rhs> && Display<Lhs> && Display<Rhs>)
-inline void
-assertLt(
+requires(Lt<Lhs, Rhs>&& Display<Lhs>&& Display<Rhs>) inline void assertLt(
     Lhs&& lhs, Rhs&& rhs, const std::string_view msg = "",
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
@@ -191,9 +185,7 @@ assertLt(
 }
 
 template <typename E, typename Fn>
-  requires(std::is_invocable_v<Fn>)
-inline void
-assertException(
+requires(std::is_invocable_v<Fn>) inline void assertException(
     Fn&& func, const std::string_view msg,
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
@@ -217,9 +209,7 @@ assertException(
 }
 
 template <typename Fn>
-  requires(std::is_invocable_v<Fn>)
-inline void
-assertNoException(
+requires(std::is_invocable_v<Fn>) inline void assertNoException(
     Fn&& func, const std::source_location& loc = std::source_location::current()
 ) noexcept {
   try {

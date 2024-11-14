@@ -361,8 +361,8 @@ struct SemverParseError : public SemverError {
       const std::string_view msg
   )
       : SemverError(
-            lexer.s, '\n', std::string(lexer.pos, ' '), carets(tok), msg
-        ) {}
+          lexer.s, '\n', std::string(lexer.pos, ' '), carets(tok), msg
+      ) {}
 };
 
 Version

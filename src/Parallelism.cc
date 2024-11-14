@@ -49,8 +49,8 @@ private:
 
   ParallelismState() noexcept
       : status(std::make_unique<tbb::global_control>(
-            tbb::global_control::max_allowed_parallelism, numThreads()
-        )) {}
+          tbb::global_control::max_allowed_parallelism, numThreads()
+      )) {}
 };
 
 void

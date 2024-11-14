@@ -83,8 +83,8 @@ export namespace poac::data::lockfile::inline v1 {
 // -------------------- INTO LOCKFILE --------------------
 
 [[nodiscard]] auto
-convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps
-) -> Result<toml::basic_value<toml::preserve_comments>> {
+convert_to_lock(const resolver::UniqDeps<resolver::WithDeps>& deps)
+    -> Result<toml::basic_value<toml::preserve_comments>> {
   std::vector<Package> packages;
   for (const auto& [pack, inner_deps] : deps) {
     if (pack.dep_info.type != "poac") {
@@ -132,8 +132,8 @@ generate(const resolver::UniqDeps<resolver::WithDeps>& deps) -> Result<void> {
 // -------------------- FROM LOCKFILE --------------------
 
 [[nodiscard]] auto
-convert_to_deps(const Lockfile& lock
-) -> resolver::UniqDeps<resolver::WithDeps> {
+convert_to_deps(const Lockfile& lock)
+    -> resolver::UniqDeps<resolver::WithDeps> {
   resolver::UniqDeps<resolver::WithDeps> deps;
   for (const auto& package : lock.package) {
     resolver::UniqDeps<resolver::WithDeps>::mapped_type inner_deps =
@@ -156,8 +156,8 @@ convert_to_deps(const Lockfile& lock
 }
 
 [[nodiscard]] auto
-read(const fs::path& base_dir
-) -> Result<std::optional<resolver::UniqDeps<resolver::WithDeps>>> {
+read(const fs::path& base_dir)
+    -> Result<std::optional<resolver::UniqDeps<resolver::WithDeps>>> {
   if (!fs::exists(base_dir / LOCKFILE_NAME)) {
     return Ok(std::nullopt);
   }

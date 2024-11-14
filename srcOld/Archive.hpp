@@ -63,8 +63,8 @@ copy_data(Archive* reader, const Writer& writer) noexcept
 }
 
 [[nodiscard]] auto
-archive_write_finish_entry(const Writer& writer
-) noexcept -> Result<void, std::string> {
+archive_write_finish_entry(const Writer& writer) noexcept
+    -> Result<void, std::string> {
   const i32 res = archive_write_finish_entry(writer.get());
   if (res < ARCHIVE_OK) {
     return Err(archive_error_string(writer.get()));

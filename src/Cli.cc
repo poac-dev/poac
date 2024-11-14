@@ -386,8 +386,7 @@ Cli::transformOptions(
               if (i + 1 < multioption.size()) {
                 // Handle concatenated value (like -j1)
                 transformed.push_back(multioption.substr(i + 1));
-              } else if (argIdx + 1 < args.size()
-                         && !args[argIdx + 1].starts_with("-")) {
+              } else if (argIdx + 1 < args.size() && !args[argIdx + 1].starts_with("-")) {
                 // Handle space-separated value (like -j 1)
                 transformed.push_back(args[++argIdx]
                 ); // Consume the next argument as the option's value
