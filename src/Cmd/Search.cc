@@ -2,8 +2,8 @@
 
 #include "../Cli.hpp"
 #include "../Logger.hpp"
-#include "../Rustify.hpp"
 
+#include <cstddef>
 #include <cstdlib>
 #include <curl/curl.h>
 #include <iomanip>
@@ -31,12 +31,12 @@ const Subcmd SEARCH_CMD =
 
 struct SearchArgs {
   std::string name;
-  usize perPage = 10;
-  usize page = 1;
+  size_t perPage = 10;
+  size_t page = 1;
 };
 
-static usize
-writeCallback(void* contents, usize size, usize nmemb, std::string* userp) {
+static size_t
+writeCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
   userp->append(static_cast<char*>(contents), size * nmemb);
   return size * nmemb;
 }

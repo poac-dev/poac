@@ -1,20 +1,22 @@
 #pragma once
 
-#include "Rustify.hpp"
+#include "Rustify/Traits.hpp"
 #include "TermColor.hpp"
 
+#include <cstdint>
 #include <fmt/core.h>
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
+#include <source_location>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 
 namespace logger {
 
-enum class Level : u8 {
+enum class Level : uint8_t {
   Off = 0, // --quiet, -q
   Error = 1,
   Warn = 2,
@@ -175,7 +177,8 @@ info(MaybeWriter auto&&... msgs) noexcept {
 template <MaybeWriter... Ts>
 struct debug { // NOLINT(readability-identifier-naming)
   explicit debug(
-      Ts&&... msgs, const source_location& loc = source_location::current()
+      Ts&&... msgs,
+      const std::source_location& loc = std::source_location::current()
   ) noexcept {
     Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
   }
@@ -186,7 +189,8 @@ debug(Ts&&...) -> debug<Ts...>;
 template <MaybeWriter... Ts>
 struct trace { // NOLINT(readability-identifier-naming)
   explicit trace(
-      Ts&&... msgs, const source_location& loc = source_location::current()
+      Ts&&... msgs,
+      const std::source_location& loc = std::source_location::current()
   ) noexcept {
     Logger::trace(loc.function_name(), std::forward<Ts>(msgs)...);
   }
