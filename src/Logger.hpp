@@ -204,7 +204,7 @@ struct trace { // NOLINT(readability-identifier-naming)
     );
   }
 };
-template <MaybeWriter... Args>
+template <typename... Args>
 trace(fmt::format_string<Args...>, Args&&...) -> trace<Args...>;
 
 inline void
