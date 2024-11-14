@@ -1,9 +1,10 @@
 #include "VersionReq.hpp"
 
 #include "Exception.hpp"
-#include "Rustify.hpp"
+#include "Rustify/Aliases.hpp"
 
 #include <cctype>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -44,7 +45,7 @@ toString(const Comparator::Op op) noexcept {
 }
 
 struct ComparatorToken {
-  enum class Kind : std::uint8_t {
+  enum class Kind : uint8_t {
     Eq, // =
     Gt, // >
     Gte, // >=
@@ -70,7 +71,7 @@ struct ComparatorToken {
 
 struct ComparatorLexer {
   std::string_view s;
-  usize pos{ 0 };
+  size_t pos{ 0 };
 
   explicit ComparatorLexer(const std::string_view str) noexcept : s(str) {}
 
@@ -292,7 +293,7 @@ matchesGreater(const Comparator& cmp, const Version& ver) noexcept {
   if (!cmp.minor.has_value()) {
     return false;
   } else {
-    const u64 minor = cmp.minor.value();
+    const uint64_t minor = cmp.minor.value();
     if (ver.minor != minor) {
       return ver.minor > minor;
     }
@@ -301,7 +302,7 @@ matchesGreater(const Comparator& cmp, const Version& ver) noexcept {
   if (!cmp.patch.has_value()) {
     return false;
   } else {
-    const u64 patch = cmp.patch.value();
+    const uint64_t patch = cmp.patch.value();
     if (ver.patch != patch) {
       return ver.patch > patch;
     }
@@ -319,7 +320,7 @@ matchesLess(const Comparator& cmp, const Version& ver) noexcept {
   if (!cmp.minor.has_value()) {
     return false;
   } else {
-    const u64 minor = cmp.minor.value();
+    const uint64_t minor = cmp.minor.value();
     if (ver.minor != minor) {
       return ver.minor < minor;
     }
@@ -328,7 +329,7 @@ matchesLess(const Comparator& cmp, const Version& ver) noexcept {
   if (!cmp.patch.has_value()) {
     return false;
   } else {
-    const u64 patch = cmp.patch.value();
+    const uint64_t patch = cmp.patch.value();
     if (ver.patch != patch) {
       return ver.patch < patch;
     }
@@ -346,7 +347,7 @@ matchesNoOp(const Comparator& cmp, const Version& ver) noexcept {
   if (!cmp.minor.has_value()) {
     return true;
   }
-  const u64 minor = cmp.minor.value();
+  const uint64_t minor = cmp.minor.value();
 
   if (!cmp.patch.has_value()) {
     if (cmp.major > 0) {
@@ -355,7 +356,7 @@ matchesNoOp(const Comparator& cmp, const Version& ver) noexcept {
       return ver.minor == minor;
     }
   }
-  const u64 patch = cmp.patch.value();
+  const uint64_t patch = cmp.patch.value();
 
   if (cmp.major > 0) {
     if (ver.minor != minor) {
@@ -438,7 +439,7 @@ Comparator::canonicalize() const noexcept {
 }
 
 struct VersionReqToken {
-  enum class Kind : std::uint8_t {
+  enum class Kind : uint8_t {
     Comp,
     And,
     Eof,
@@ -465,7 +466,7 @@ isCompStart(const char c) noexcept {
 
 struct VersionReqLexer {
   std::string_view s;
-  usize pos{ 0 };
+  size_t pos{ 0 };
 
   explicit VersionReqLexer(const std::string_view str) noexcept : s(str) {}
 
@@ -896,6 +897,9 @@ operator<<(std::ostream& os, const VersionReq& req) {
 
 #ifdef POAC_TEST
 
+#  include "Rustify/Tests.hpp"
+
+#  include <source_location>
 #  include <span>
 
 namespace tests {
@@ -906,7 +910,7 @@ namespace tests {
 inline static void
 assertMatchAll(
     const VersionReq& req, const std::span<const std::string_view> versions,
-    const source_location& loc = source_location::current()
+    const std::source_location& loc = std::source_location::current()
 ) {
   for (const std::string_view ver : versions) {
     assertTrue(req.satisfiedBy(Version::parse(ver)), "", loc);
@@ -916,7 +920,7 @@ assertMatchAll(
 inline static void
 assertMatchNone(
     const VersionReq& req, const std::span<const std::string_view> versions,
-    const source_location& loc = source_location::current()
+    const std::source_location& loc = std::source_location::current()
 ) {
   for (const std::string_view ver : versions) {
     assertFalse(req.satisfiedBy(Version::parse(ver)), "", loc);

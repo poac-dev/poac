@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Rustify.hpp"
-
+#include <cstddef>
 #include <string>
 
-usize numThreads() noexcept;
+size_t numThreads() noexcept;
 inline const std::string NUM_DEFAULT_THREADS = std::to_string(numThreads());
 
-void setParallelism(usize numThreads) noexcept;
-usize getParallelism() noexcept;
+void setParallelism(size_t numThreads) noexcept;
+size_t getParallelism() noexcept;
 bool isParallel() noexcept;

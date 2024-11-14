@@ -3,7 +3,6 @@
 #include "Command.hpp"
 #include "Exception.hpp"
 #include "Logger.hpp"
-#include "Rustify.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -64,12 +63,12 @@ execCmd(const Command& cmd) noexcept {
 }
 
 std::string
-getCmdOutput(const Command& cmd, const usize retry) {
+getCmdOutput(const Command& cmd, const size_t retry) {
   logger::debug("Running `", cmd, '`');
 
   int exitCode = EXIT_SUCCESS;
   int waitTime = 1;
-  for (usize i = 0; i < retry; ++i) {
+  for (size_t i = 0; i < retry; ++i) {
     const auto [curExitCode, stdout, stderr] = cmd.output();
     static_cast<void>(stderr);
     if (curExitCode == EXIT_SUCCESS) {
@@ -95,33 +94,33 @@ commandExists(const std::string_view cmd) noexcept {
 }
 
 // ref: https://wandbox.org/permlink/zRjT41alOHdwcf00
-static usize
+static size_t
 levDistance(const std::string_view lhs, const std::string_view rhs) {
-  const usize lhsSize = lhs.size();
-  const usize rhsSize = rhs.size();
+  const size_t lhsSize = lhs.size();
+  const size_t rhsSize = rhs.size();
 
   // for all i and j, d[i,j] will hold the Levenshtein distance between the
   // first i characters of s and the first j characters of t
-  std::vector<std::vector<usize>> dist(
-      lhsSize + 1, std::vector<usize>(rhsSize + 1)
+  std::vector<std::vector<size_t>> dist(
+      lhsSize + 1, std::vector<size_t>(rhsSize + 1)
   );
   dist[0][0] = 0;
 
   // source prefixes can be transformed into empty string by dropping all
   // characters
-  for (usize i = 1; i <= lhsSize; ++i) {
+  for (size_t i = 1; i <= lhsSize; ++i) {
     dist[i][0] = i;
   }
 
   // target prefixes can be reached from empty source prefix by inserting every
   // character
-  for (usize j = 1; j <= rhsSize; ++j) {
+  for (size_t j = 1; j <= rhsSize; ++j) {
     dist[0][j] = j;
   }
 
-  for (usize i = 1; i <= lhsSize; ++i) {
-    for (usize j = 1; j <= rhsSize; ++j) {
-      const usize substCost = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
+  for (size_t i = 1; i <= lhsSize; ++i) {
+    for (size_t j = 1; j <= rhsSize; ++j) {
+      const size_t substCost = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
       dist[i][j] = std::min({
           dist[i - 1][j] + 1, // deletion
           dist[i][j - 1] + 1, // insertion
@@ -157,12 +156,12 @@ findSimilarStr(
   // Keep going with the Levenshtein distance match.
   // If the LHS size is less than 3, use the LHS size minus 1 and if not,
   // use the LHS size divided by 3.
-  const usize length = lhs.size();
-  const usize maxDist = length < 3 ? length - 1 : length / 3;
+  const size_t length = lhs.size();
+  const size_t maxDist = length < 3 ? length - 1 : length / 3;
 
-  std::optional<std::pair<std::string_view, usize>> similarStr = std::nullopt;
+  std::optional<std::pair<std::string_view, size_t>> similarStr = std::nullopt;
   for (const std::string_view str : candidates) {
-    const usize curDist = levDistance(lhs, str);
+    const size_t curDist = levDistance(lhs, str);
     if (curDist <= maxDist) {
       // The first similar string found || More similar string found
       if (!similarStr.has_value() || curDist < similarStr->second) {
@@ -179,6 +178,9 @@ findSimilarStr(
 }
 
 #ifdef POAC_TEST
+
+#  include "Rustify/Aliases.hpp"
+#  include "Rustify/Tests.hpp"
 
 #  include <array>
 #  include <limits>
