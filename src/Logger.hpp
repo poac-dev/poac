@@ -77,8 +77,9 @@ public:
     logln(
         Level::Info,
         [](const std::string_view head) noexcept {
-          const std::string_view fmtStr = shouldColor() ? "{:>21} " : "{:>12} ";
-          return fmt::format(fmt::runtime(fmtStr), bold(green(head)));
+          return fmt::format(
+              "{:>{}} ", bold(green(head)), shouldColor() ? 21 : 12
+          );
         },
         header, fmt, std::forward<Args>(args)...
     );
