@@ -1,13 +1,13 @@
 #include "Parallelism.hpp"
 
 #include "Logger.hpp"
+#include "Rustify.hpp"
 
-#include <cstddef>
 #include <memory>
 #include <tbb/global_control.h>
 #include <thread>
 
-size_t
+usize
 numThreads() noexcept {
   const unsigned int numThreads = std::thread::hardware_concurrency();
   if (numThreads > 1) {
@@ -24,7 +24,7 @@ struct ParallelismState {
   ParallelismState& operator=(ParallelismState&&) noexcept = delete;
   ~ParallelismState() noexcept = default;
 
-  void set(size_t numThreads) noexcept {
+  void set(usize numThreads) noexcept {
     if (numThreads == 0) {
       logger::warn("requested parallelism of 0, capping at 1");
       numThreads = 1;
@@ -34,7 +34,7 @@ struct ParallelismState {
         tbb::global_control::max_allowed_parallelism, numThreads
     );
   }
-  size_t get() const noexcept {
+  usize get() const noexcept {
     // NOLINTNEXTLINE(readability-static-accessed-through-instance)
     return status->active_value(tbb::global_control::max_allowed_parallelism);
   }
@@ -49,16 +49,16 @@ private:
 
   ParallelismState() noexcept
       : status(std::make_unique<tbb::global_control>(
-          tbb::global_control::max_allowed_parallelism, numThreads()
-      )) {}
+            tbb::global_control::max_allowed_parallelism, numThreads()
+        )) {}
 };
 
 void
-setParallelism(const size_t numThreads) noexcept {
+setParallelism(const usize numThreads) noexcept {
   ParallelismState::instance().set(numThreads);
 }
 
-size_t
+usize
 getParallelism() noexcept {
   return ParallelismState::instance().get();
 }

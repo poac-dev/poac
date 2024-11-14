@@ -34,8 +34,8 @@ import poac.util.verbosity;
 export namespace poac::core::resolver::resolve {
 
 inline auto
-get_package(const UniqDeps<WithDeps>::value_type& deps) noexcept
-    -> const Package& {
+get_package(const UniqDeps<WithDeps>::value_type& deps
+) noexcept -> const Package& {
   return deps.first;
 }
 
@@ -50,8 +50,8 @@ to_binary_numbers(const i32& x, const usize& digit) -> std::string {
 // ¬A ∨ ¬B ∨ C
 // ¬A ∨ ¬B ∨ ¬C
 auto
-multiple_versions_cnf(const std::vector<i32>& clause)
-    -> std::vector<std::vector<i32>> {
+multiple_versions_cnf(const std::vector<i32>& clause
+) -> std::vector<std::vector<i32>> {
   return boost::irange(0, 1 << clause.size()) // number of combinations
          | boost::adaptors::transformed([&clause](const i32 i) {
              return boost::dynamic_bitset<>(to_binary_numbers(i, clause.size())
@@ -74,8 +74,8 @@ multiple_versions_cnf(const std::vector<i32>& clause)
 }
 
 auto
-create_cnf(const DupDeps<WithDeps>& activated)
-    -> std::vector<std::vector<i32>> {
+create_cnf(const DupDeps<WithDeps>& activated
+) -> std::vector<std::vector<i32>> {
   std::vector<std::vector<i32>> clauses;
   std::vector<i32> already_added;
 
@@ -172,8 +172,8 @@ solve_sat(
 }
 
 [[nodiscard]] auto
-backtrack_loop(const DupDeps<WithDeps>& activated)
-    -> Result<UniqDeps<WithDeps>, std::string> {
+backtrack_loop(const DupDeps<WithDeps>& activated
+) -> Result<UniqDeps<WithDeps>, std::string> {
   const std::vector<std::vector<i32>> clauses = create_cnf(activated);
   if (util::verbosity::is_verbose()) {
     for (const std::vector<i32>& c : clauses) {
@@ -212,8 +212,8 @@ duplicate_loose(const SinglePassRange& rng) -> bool {
 // `>=0.1.2 and <3.4.0` -> { 2.4.0, 2.5.0 }
 // name is boost/config, no boost-config
 [[nodiscard]] auto
-get_versions_satisfy_interval(const Package& package)
-    -> Result<std::vector<std::string>, std::string> {
+get_versions_satisfy_interval(const Package& package
+) -> Result<std::vector<std::string>, std::string> {
   // TODO(ken-matsui): (`>1.2 and <=1.3.2` -> NG，`>1.2.0-alpha and <=1.3.2` ->
   // OK) `2.0.0` specific version or `>=0.1.2 and <3.4.0` version interval
   const semver::Interval i(package.dep_info.version_rq);
@@ -330,8 +330,8 @@ gather_deps(
 }
 
 [[nodiscard]] auto
-gather_all_deps(const UniqDeps<WithoutDeps>& deps)
-    -> Result<DupDeps<WithDeps>, std::string> {
+gather_all_deps(const UniqDeps<WithoutDeps>& deps
+) -> Result<DupDeps<WithDeps>, std::string> {
   DupDeps<WithDeps> duplicate_deps;
   IntervalCache interval_cache;
 

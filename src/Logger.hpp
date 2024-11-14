@@ -1,22 +1,20 @@
 #pragma once
 
-#include "Rustify/Traits.hpp"
+#include "Rustify.hpp"
 #include "TermColor.hpp"
 
-#include <cstdint>
 #include <fmt/core.h>
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
-#include <source_location>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 
 namespace logger {
 
-enum class Level : uint8_t {
+enum class Level : u8 {
   Off = 0, // --quiet, -q
   Error = 1,
   Warn = 2,
@@ -29,9 +27,8 @@ template <typename T>
 concept MaybeWriter = Writer<T> || Display<T>;
 
 template <typename Fn>
-concept HeadProcessor =
-    std::is_nothrow_invocable_v<Fn, std::string_view> && Display<
-        std::invoke_result_t<Fn, std::string_view>>;
+concept HeadProcessor = std::is_nothrow_invocable_v<Fn, std::string_view>
+                        && Display<std::invoke_result_t<Fn, std::string_view>>;
 
 class Logger {
   Level level = Level::Info;
@@ -178,8 +175,7 @@ info(MaybeWriter auto&&... msgs) noexcept {
 template <MaybeWriter... Ts>
 struct debug { // NOLINT(readability-identifier-naming)
   explicit debug(
-      Ts&&... msgs,
-      const std::source_location& loc = std::source_location::current()
+      Ts&&... msgs, const source_location& loc = source_location::current()
   ) noexcept {
     Logger::debug(loc.function_name(), std::forward<Ts>(msgs)...);
   }
@@ -190,8 +186,7 @@ debug(Ts&&...) -> debug<Ts...>;
 template <MaybeWriter... Ts>
 struct trace { // NOLINT(readability-identifier-naming)
   explicit trace(
-      Ts&&... msgs,
-      const std::source_location& loc = std::source_location::current()
+      Ts&&... msgs, const source_location& loc = source_location::current()
   ) noexcept {
     Logger::trace(loc.function_name(), std::forward<Ts>(msgs)...);
   }

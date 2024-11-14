@@ -51,8 +51,8 @@ struct IdentError : public cfg::Exception {
 public:
   explicit IdentError(const std::string& what_)
       : Exception(
-          "cfg expected parenthesis, comma, identifier, or string\n" + what_
-      ) {}
+            "cfg expected parenthesis, comma, identifier, or string\n" + what_
+        ) {}
   explicit IdentError(const char* what_) : IdentError(std::string(what_)) {}
   ~IdentError() noexcept override = default;
 
@@ -153,23 +153,23 @@ struct Token {
 
   explicit Token(Kind k)
       : kind(
-          k != Kind::std::string && k != Kind::Ident
-              ? k
-              : throw std::invalid_argument("poac::util::cfg::Token")
-      ) {}
+            k != Kind::std::string && k != Kind::Ident
+                ? k
+                : throw std::invalid_argument("poac::util::cfg::Token")
+        ) {}
   Token(Kind k, StringType s)
       : kind(
-          k == Kind::std::string
-              ? k
-              : throw std::invalid_argument("poac::util::cfg::Token")
-      ),
+            k == Kind::std::string
+                ? k
+                : throw std::invalid_argument("poac::util::cfg::Token")
+        ),
         value(s) {}
   Token(Kind k, ident i)
       : kind(
-          k == Kind::Ident
-              ? k
-              : throw std::invalid_argument("poac::util::cfg::Token")
-      ),
+            k == Kind::Ident
+                ? k
+                : throw std::invalid_argument("poac::util::cfg::Token")
+        ),
         value(i) {}
 
   Token() = delete;
@@ -290,43 +290,43 @@ struct Lexer {
   }
 
 private:
-  [[nodiscard]] inline auto
-  generate_token(SizeType index_, const std::optional<Token>& token) const
-      -> std::pair<SizeType, std::optional<Token>> {
+  [[nodiscard]] inline auto generate_token(
+      SizeType index_, const std::optional<Token>& token
+  ) const -> std::pair<SizeType, std::optional<Token>> {
     return { this->diff_step(index_), token };
   }
-  [[nodiscard]] inline auto
-  generate_token(SizeType index_, std::string_view kind) const
-      -> std::pair<SizeType, std::optional<Token>> {
+  [[nodiscard]] inline auto generate_token(
+      SizeType index_, std::string_view kind
+  ) const -> std::pair<SizeType, std::optional<Token>> {
     return generate_token(index_, Token{ to_kind(kind) });
   }
 
   [[nodiscard]] auto analyze_two_phrase(SizeType index_, char kind) const
       -> std::pair<SizeType, std::optional<Token>>;
 
-  [[nodiscard]] auto tokenize(SizeType index_) const
-      -> std::pair<SizeType, std::optional<Token>>;
+  [[nodiscard]] auto tokenize(SizeType index_
+  ) const -> std::pair<SizeType, std::optional<Token>>;
 
   void step(SizeType& index_) const noexcept;
   void step_n(SizeType n) noexcept;
 
-  [[nodiscard]] inline auto diff_step(const SizeType index_) const noexcept
-      -> SizeType {
+  [[nodiscard]] inline auto diff_step(const SizeType index_
+  ) const noexcept -> SizeType {
     return index_ - this->index;
   }
 
-  [[nodiscard]] inline auto one(const SizeType index_) const noexcept
-      -> ValueType {
+  [[nodiscard]] inline auto one(const SizeType index_
+  ) const noexcept -> ValueType {
     return this->str[index_];
   }
 
-  [[nodiscard]] auto string(SizeType index_) const
-      -> std::pair<SizeType, Token>;
+  [[nodiscard]] auto string(SizeType index_
+  ) const -> std::pair<SizeType, Token>;
 
   [[nodiscard]] auto ident(SizeType index_) const -> std::pair<SizeType, Token>;
 
-  static auto to_ident(std::string_view s) noexcept
-      -> std::optional<Token::ident>;
+  static auto to_ident(std::string_view s
+  ) noexcept -> std::optional<Token::ident>;
 };
 
 auto
@@ -341,8 +341,8 @@ Lexer::analyze_two_phrase(SizeType index_, const char kind) const
 }
 
 auto
-Lexer::tokenize(SizeType index_) const
-    -> std::pair<Lexer::SizeType, std::optional<Token>> {
+Lexer::tokenize(SizeType index_
+) const -> std::pair<Lexer::SizeType, std::optional<Token>> {
   if (index_ >= this->str.size()) {
     return generate_token(index_, std::nullopt);
   }
@@ -521,24 +521,24 @@ struct CfgExpr {
 
   CfgExpr(Kind kind, ExprType&& expr)
       : kind(
-          kind == Kind::not_ || kind == Kind::cfg
-              ? kind
-              : throw std::invalid_argument("poac::util::cfg::CfgExpr")
-      ),
+            kind == Kind::not_ || kind == Kind::cfg
+                ? kind
+                : throw std::invalid_argument("poac::util::cfg::CfgExpr")
+        ),
         expr(std::move(expr)) {}
   CfgExpr(Kind kind, ExprListType&& expr)
       : kind(
-          kind == Kind::all || kind == Kind::any
-              ? kind
-              : throw std::invalid_argument("poac::util::cfg::CfgExpr")
-      ),
+            kind == Kind::all || kind == Kind::any
+                ? kind
+                : throw std::invalid_argument("poac::util::cfg::CfgExpr")
+        ),
         expr(std::move(expr)) {}
   CfgExpr(Kind kind, const Cfg& c)
       : kind(
-          kind == Kind::value
-              ? kind
-              : throw std::invalid_argument("poac::util::cfg::CfgExpr")
-      ),
+            kind == Kind::value
+                ? kind
+                : throw std::invalid_argument("poac::util::cfg::CfgExpr")
+        ),
         expr(c) {}
 
   CfgExpr() = delete;
@@ -744,7 +744,8 @@ Parser::expr() -> CfgExpr {
       } else {
         return CfgExpr{ CfgExpr::any, std::move(e) };
       }
-    } else if (token->get_ident() == Token::ident::not_ || token->get_ident() == Token::ident::cfg) {
+    } else if (token->get_ident() == Token::ident::not_
+               || token->get_ident() == Token::ident::cfg) {
       this->lexer.next();
       this->eat_left_paren(token->get_ident());
       CfgExpr&& e = this->expr();

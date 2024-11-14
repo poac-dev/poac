@@ -69,8 +69,8 @@ literal_to_index(i32 l) -> i32 {
 // function, so the index of the variable with the highest number of variables
 // is returned from the variables in the current clauses.
 auto
-maximum_literal_number_index(const std::vector<std::vector<i32>>& clauses)
-    -> i32 {
+maximum_literal_number_index(const std::vector<std::vector<i32>>& clauses
+) -> i32 {
   Map<i32, i32> frequency;
   for (const auto& clause : clauses) {
     for (const auto& literal : clause) {
