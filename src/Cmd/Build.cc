@@ -70,7 +70,6 @@ buildImpl(std::string& outDir, const bool isDebug) {
     checkUpToDateCmd.addArg("--question");
 
     exitCode = execCmd(checkUpToDateCmd);
-    std::cout << checkUpToDateCmd.toString() << std::endl;
     if (exitCode != EXIT_SUCCESS) {
       // If packageName binary is not up-to-date, compile it.
       logger::info(
