@@ -113,7 +113,7 @@ If your environment is not included in the released packages, you have to build 
     * `nlohmann-json3-dev` on APT (Debian/Ubuntu)
     * `json-devel` on DNF (Fedora)
     * `nlohmann-json` on Homebrew
-* oneTBB: `>=2021.5.0 && <2022`
+* oneTBB: `>=2021.5.0 && <2023`
     * `libtbb-dev` on APT (Debian/Ubuntu)
     * `tbb-devel` on DNF (Fedora)
     * `tbb` on Homebrew

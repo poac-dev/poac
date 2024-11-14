@@ -2,7 +2,6 @@
 
 #include "Algos.hpp"
 #include "Logger.hpp"
-#include "Rustify.hpp"
 #include "TermColor.hpp"
 
 #include <algorithm>
@@ -19,7 +18,7 @@
 static constinit const std::string_view PADDING = "  ";
 
 static void
-setOffset(const usize offset) noexcept {
+setOffset(const size_t offset) noexcept {
   std::cout << PADDING << std::left
             << std::setw(static_cast<int>(offset + PADDING.size()));
 }
@@ -57,9 +56,9 @@ addOptCandidates(
   }
 }
 
-usize
+size_t
 calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept {
-  usize maxShortSize = 0;
+  size_t maxShortSize = 0;
   for (const auto& opt : opts) {
     if (opt.isHidden) {
       // Hidden option should not affect maxShortSize.
@@ -70,11 +69,11 @@ calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept {
   return maxShortSize;
 }
 
-usize
+size_t
 calcOptMaxOffset(
-    const std::vector<Opt>& opts, const usize maxShortSize
+    const std::vector<Opt>& opts, const size_t maxShortSize
 ) noexcept {
-  usize maxOffset = 0;
+  size_t maxOffset = 0;
   for (const auto& opt : opts) {
     if (opt.isHidden) {
       // Hidden option should not affect maxOffset.
@@ -87,8 +86,8 @@ calcOptMaxOffset(
 
 void
 printOpts(
-    const std::vector<Opt>& opts, const usize maxShortSize,
-    const usize maxOffset
+    const std::vector<Opt>& opts, const size_t maxShortSize,
+    const size_t maxOffset
 ) noexcept {
   for (const auto& opt : opts) {
     if (opt.isHidden) {
@@ -100,7 +99,7 @@ printOpts(
 }
 
 void
-Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
+Opt::print(const size_t maxShortSize, size_t maxOffset) const noexcept {
   std::string option;
   if (!shortName.empty()) {
     option += bold(cyan(shortName));
@@ -119,7 +118,7 @@ Opt::print(const usize maxShortSize, usize maxOffset) const noexcept {
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize colorEscapeSeqLen = 31;
+    constexpr size_t colorEscapeSeqLen = 31;
     maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
@@ -154,11 +153,11 @@ Arg::getLeft() const noexcept {
   return cyan(left);
 }
 void
-Arg::print(usize maxOffset) const noexcept {
+Arg::print(size_t maxOffset) const noexcept {
   const std::string left = getLeft();
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize colorEscapeSeqLen = 9;
+    constexpr size_t colorEscapeSeqLen = 9;
     maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
@@ -227,9 +226,9 @@ Subcmd::missingArgumentForOpt(const std::string_view arg) {
   return EXIT_FAILURE;
 }
 
-usize
+size_t
 Subcmd::calcMaxShortSize() const noexcept {
-  usize maxShortSize = 0;
+  size_t maxShortSize = 0;
   if (globalOpts.has_value()) {
     maxShortSize =
         std::max(maxShortSize, calcOptMaxShortSize(globalOpts.value()));
@@ -237,9 +236,9 @@ Subcmd::calcMaxShortSize() const noexcept {
   maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(localOpts));
   return maxShortSize;
 }
-usize
-Subcmd::calcMaxOffset(const usize maxShortSize) const noexcept {
-  usize maxOffset = 0;
+size_t
+Subcmd::calcMaxOffset(const size_t maxShortSize) const noexcept {
+  size_t maxOffset = 0;
   if (globalOpts.has_value()) {
     maxOffset =
         std::max(maxOffset, calcOptMaxOffset(globalOpts.value(), maxShortSize));
@@ -256,8 +255,8 @@ Subcmd::calcMaxOffset(const usize maxShortSize) const noexcept {
 
 void
 Subcmd::printHelp() const noexcept {
-  const usize maxShortSize = calcMaxShortSize();
-  const usize maxOffset = calcMaxOffset(maxShortSize);
+  const size_t maxShortSize = calcMaxShortSize();
+  const size_t maxOffset = calcMaxOffset(maxShortSize);
 
   std::cout << desc << '\n';
   std::cout << '\n';
@@ -277,7 +276,7 @@ Subcmd::printHelp() const noexcept {
 }
 
 void
-Subcmd::print(usize maxOffset) const noexcept {
+Subcmd::print(size_t maxOffset) const noexcept {
   std::string cmdStr = bold(cyan(name));
   if (hasShort()) {
     cmdStr += ", ";
@@ -289,7 +288,7 @@ Subcmd::print(usize maxOffset) const noexcept {
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
-    constexpr usize colorEscapeSeqLen = 22;
+    constexpr size_t colorEscapeSeqLen = 22;
     maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
@@ -417,20 +416,20 @@ Cli::printSubcmdHelp(const std::string_view subcmd) const noexcept {
   subcmds.at(subcmd).printHelp();
 }
 
-usize
+size_t
 Cli::calcMaxShortSize() const noexcept {
   // This is for printing the help message of the poac command itself.  So,
   // we don't need to consider the length of the subcommands' options.
 
-  usize maxShortSize = 0;
+  size_t maxShortSize = 0;
   maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(globalOpts));
   maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(localOpts));
   return maxShortSize;
 }
 
-usize
-Cli::calcMaxOffset(const usize maxShortSize) const noexcept {
-  usize maxOffset = 0;
+size_t
+Cli::calcMaxOffset(const size_t maxShortSize) const noexcept {
+  size_t maxOffset = 0;
   maxOffset = std::max(maxOffset, calcOptMaxOffset(globalOpts, maxShortSize));
   maxOffset = std::max(maxOffset, calcOptMaxOffset(localOpts, maxShortSize));
 
@@ -440,7 +439,7 @@ Cli::calcMaxOffset(const usize maxShortSize) const noexcept {
       continue;
     }
 
-    usize offset = name.size(); // "build"
+    size_t offset = name.size(); // "build"
     if (!cmd.shortName.empty()) {
       offset += 2; // ", "
       offset += cmd.shortName.size(); // "b"
@@ -451,14 +450,14 @@ Cli::calcMaxOffset(const usize maxShortSize) const noexcept {
 }
 
 void
-Cli::printAllSubcmds(const bool showHidden, usize maxOffset) const noexcept {
+Cli::printAllSubcmds(const bool showHidden, size_t maxOffset) const noexcept {
   for (const auto& [name, cmd] : subcmds) {
     if (!showHidden && cmd.isHidden) {
       // Hidden command should not affect maxOffset if `showHidden` is false.
       continue;
     }
 
-    usize offset = name.size(); // "build"
+    size_t offset = name.size(); // "build"
     if (!cmd.shortName.empty()) {
       offset += 2; // ", "
       offset += cmd.shortName.size(); // "b"
@@ -482,8 +481,8 @@ Cli::printAllSubcmds(const bool showHidden, usize maxOffset) const noexcept {
 void
 Cli::printCmdHelp() const noexcept {
   // Print help message for poac itself
-  const usize maxShortSize = calcMaxShortSize();
-  const usize maxOffset = calcMaxOffset(maxShortSize);
+  const size_t maxShortSize = calcMaxShortSize();
+  const size_t maxOffset = calcMaxOffset(maxShortSize);
 
   std::cout << desc << '\n';
   std::cout << '\n';

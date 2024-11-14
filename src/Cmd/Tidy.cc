@@ -5,11 +5,11 @@
 #include "../Cli.hpp"
 #include "../Logger.hpp"
 #include "../Parallelism.hpp"
-#include "../Rustify.hpp"
 #include "Common.hpp"
 
 #include <charconv>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <span>
 #include <string>
@@ -58,7 +58,7 @@ tidyMain(const std::span<const std::string_view> args) {
       }
       ++itr;
 
-      std::uint64_t numThreads{};
+      uint64_t numThreads{};
       auto [ptr, ec] =
           std::from_chars(itr->data(), itr->data() + itr->size(), numThreads);
       if (ec == std::errc()) {

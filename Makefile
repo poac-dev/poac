@@ -23,7 +23,7 @@ MKDIR_P := @mkdir -p
 LIBGIT2_VERREQ := libgit2 >= 1.1.0, libgit2 < 1.9.0
 LIBCURL_VERREQ := libcurl >= 7.79.1, libcurl < 9.0.0
 NLOHMANN_JSON_VERREQ := nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0
-TBB_VERREQ := tbb >= 2021.5.0, tbb < 2022.0.0
+TBB_VERREQ := tbb >= 2021.5.0, tbb < 2023.0.0
 FMT_VERREQ := fmt >= 8.1.1, fmt < 12.0.0
 
 DEFINES := -DPOAC_POAC_PKG_VERSION='"$(VERSION)"' \

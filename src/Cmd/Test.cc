@@ -6,11 +6,11 @@
 #include "../Logger.hpp"
 #include "../Manifest.hpp"
 #include "../Parallelism.hpp"
-#include "../Rustify.hpp"
 #include "Common.hpp"
 
 #include <charconv>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <fmt/core.h>
 #include <fstream>
@@ -55,7 +55,7 @@ testMain(const std::span<const std::string_view> args) {
       }
       ++itr;
 
-      std::uint64_t numThreads{};
+      uint64_t numThreads{};
       auto [ptr, ec] =
           std::from_chars(itr->data(), itr->data() + itr->size(), numThreads);
       if (ec == std::errc()) {

@@ -4,6 +4,7 @@
 #include "Exception.hpp"
 #include "Rustify.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -21,7 +22,7 @@ inline const std::unordered_set<std::string> HEADER_FILE_EXTS{
 };
 // clang-format on
 
-enum class VarType : u8 {
+enum class VarType : uint8_t {
   Recursive, // =
   Simple, // :=
   Cond, // ?=

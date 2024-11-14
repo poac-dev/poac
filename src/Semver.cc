@@ -1,8 +1,8 @@
 #include "Semver.hpp"
 
-#include "Rustify.hpp"
-
 #include <cctype>
+#include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <ostream>
 #include <sstream>
@@ -14,7 +14,7 @@ std::ostream&
 operator<<(std::ostream& os, const VersionToken& tok) noexcept {
   switch (tok.kind) {
     case VersionToken::Num:
-      os << std::get<u64>(tok.value);
+      os << std::get<uint64_t>(tok.value);
       break;
     case VersionToken::Ident:
       os << std::get<std::string_view>(tok.value);
@@ -42,7 +42,7 @@ VersionToken::toString() const noexcept {
   return oss.str();
 }
 
-usize
+size_t
 VersionToken::size() const noexcept {
   return toString().size();
 }
@@ -54,7 +54,7 @@ operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
   }
   switch (lhs.kind) {
     case VersionToken::Num:
-      return std::get<u64>(lhs.value) == std::get<u64>(rhs.value);
+      return std::get<uint64_t>(lhs.value) == std::get<uint64_t>(rhs.value);
     case VersionToken::Ident:
       return std::get<std::string_view>(lhs.value)
              == std::get<std::string_view>(rhs.value);
@@ -71,7 +71,7 @@ operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
 bool
 operator<(const VersionToken& lhs, const VersionToken& rhs) noexcept {
   if (lhs.kind == VersionToken::Num && rhs.kind == VersionToken::Num) {
-    return std::get<u64>(lhs.value) < std::get<u64>(rhs.value);
+    return std::get<uint64_t>(lhs.value) < std::get<uint64_t>(rhs.value);
   }
   return lhs.toString() < rhs.toString();
 }
@@ -100,7 +100,7 @@ Prerelease::empty() const noexcept {
 std::string
 Prerelease::toString() const noexcept {
   std::string str;
-  for (usize i = 0; i < ident.size(); ++i) {
+  for (size_t i = 0; i < ident.size(); ++i) {
     if (i > 0) {
       str += '.';
     }
@@ -125,7 +125,7 @@ operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   if (rhs.ident.empty()) {
     return true; // rhs is a normal version and is greater
   }
-  for (usize i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
+  for (size_t i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
       return true;
     } else if (lhs.ident[i] > rhs.ident[i]) {
@@ -155,7 +155,7 @@ BuildMetadata::empty() const noexcept {
 std::string
 BuildMetadata::toString() const noexcept {
   std::string str;
-  for (usize i = 0; i < ident.size(); ++i) {
+  for (size_t i = 0; i < ident.size(); ++i) {
     if (i > 0) {
       str += '.';
     }
@@ -170,7 +170,7 @@ operator==(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
 }
 bool
 operator<(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
-  for (usize i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
+  for (size_t i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
       return true;
     } else if (lhs.ident[i] > rhs.ident[i]) {
@@ -265,7 +265,7 @@ operator>=(const Version& lhs, const Version& rhs) noexcept {
 
 VersionToken
 VersionLexer::consumeIdent() noexcept {
-  usize len = 0;
+  size_t len = 0;
   while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
     step();
     ++len;
@@ -275,8 +275,8 @@ VersionLexer::consumeIdent() noexcept {
 
 VersionToken
 VersionLexer::consumeNum() {
-  usize len = 0;
-  u64 value = 0;
+  size_t len = 0;
+  uint64_t value = 0;
   while (pos < s.size() && std::isdigit(s[pos])) {
     if (len > 0 && value == 0) {
       throw SemverError(
@@ -284,10 +284,10 @@ VersionLexer::consumeNum() {
       );
     }
 
-    const u64 digit = s[pos] - '0';
-    constexpr u64 base = 10;
+    const uint64_t digit = s[pos] - '0';
+    constexpr uint64_t base = 10;
     // Check for overflow
-    if (value > (std::numeric_limits<u64>::max() - digit) / base) {
+    if (value > (std::numeric_limits<uint64_t>::max() - digit) / base) {
       throw SemverError(
           s, '\n', std::string(pos - len, ' '), std::string(len, '^'),
           " number exceeds UINT64_MAX"
@@ -304,7 +304,7 @@ VersionLexer::consumeNum() {
 // Note that 012 is an invalid number but 012d is a valid identifier.
 VersionToken
 VersionLexer::consumeNumOrIdent() {
-  const usize oldPos = pos; // we need two passes
+  const size_t oldPos = pos; // we need two passes
   bool isIdent = false;
   while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
     if (!std::isdigit(s[pos])) {
@@ -349,7 +349,7 @@ VersionLexer::next() {
 
 VersionToken
 VersionLexer::peek() {
-  const usize oldPos = pos;
+  const size_t oldPos = pos;
   const VersionToken tok = next();
   pos = oldPos;
   return tok;
@@ -404,12 +404,12 @@ VersionParser::parse() {
 
 // Even if the token can be parsed as an identifier, try to parse it as a
 // number.
-u64
+uint64_t
 VersionParser::parseNum() {
   if (!std::isdigit(lexer.s[lexer.pos])) {
     throw SemverParseError(lexer, lexer.peek(), " expected number");
   }
-  return std::get<u64>(lexer.consumeNum().value);
+  return std::get<uint64_t>(lexer.consumeNum().value);
 }
 
 void
@@ -483,6 +483,8 @@ Version::parse(const std::string_view str) {
 }
 
 #ifdef POAC_TEST
+
+#  include "Rustify/Tests.hpp"
 
 namespace tests {
 
@@ -767,7 +769,7 @@ testSpecOrder() {
     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
     "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",       "1.0.0",
   };
-  for (usize i = 1; i < vers.size(); ++i) {
+  for (size_t i = 1; i < vers.size(); ++i) {
     assertLt(Version::parse(vers[i - 1]), Version::parse(vers[i]));
   }
 
