@@ -74,11 +74,16 @@ public:
       const std::string_view header, fmt::format_string<Args...> fmt,
       Args&&... args
   ) noexcept {
+    const int infoHeaderMaxLength = 12;
+    const int infoHeaderEscapeSequenceOffset = 9;
     logln(
         Level::Info,
         [](const std::string_view head) noexcept {
           return fmt::format(
-              "{:>{}} ", bold(green(head)), shouldColor() ? 21 : 12
+              "{:>{}} ", bold(green(head)),
+              shouldColor()
+                  ? infoHeaderMaxLength + infoHeaderEscapeSequenceOffset
+                  : infoHeaderMaxLength
           );
         },
         header, fmt, std::forward<Args>(args)...
