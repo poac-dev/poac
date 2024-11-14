@@ -763,7 +763,10 @@ BuildConfig::configureBuild() {
   }
 
   if (mainSource.empty() && libSource.empty()) {
-    throw PoacError(fmt::format("neither src/main{} nor src/lib{} was not found", SOURCE_FILE_EXTS, SOURCE_FILE_EXTS));
+    throw PoacError(fmt::format(
+        "neither src/main{} nor src/lib{} was not found", SOURCE_FILE_EXTS,
+        SOURCE_FILE_EXTS
+    ));
   }
 
   if (!fs::exists(outBasePath)) {

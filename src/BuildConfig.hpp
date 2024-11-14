@@ -71,8 +71,12 @@ private:
 public:
   explicit BuildConfig(const std::string& packageName, bool isDebug = true);
 
-  bool isExecutable() const { return executable; }
-  bool isLibrary() const { return library; }
+  bool isExecutable() const {
+    return executable;
+  }
+  bool isLibrary() const {
+    return library;
+  }
 
   void defineVar(
       const std::string& name, const Variable& value,
