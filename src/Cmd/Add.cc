@@ -66,7 +66,7 @@ handleDependency(
 static std::string
 getDependencyGitUrl(const std::string_view dep) {
   if (dep.find("://") == std::string_view::npos) {
-    // check if atleast in "user/repo" format
+    // Check if at least in "user/repo" format.
     if (dep.find('/') == std::string_view::npos) {
       logger::error("Invalid dependency: " + std::string(dep));
       return "";
@@ -88,9 +88,9 @@ getDependencyName(const std::string_view dep) {
     );
   }
 
-  // Remove trailing '.git' if it exists
+  // Remove trailing '.git' if it exists.
   if (name.ends_with(".git")) {
-    name = name.substr(0, name.size() - 4);
+    name = name.substr(0, name.size() - ".git"sv.size());
   }
 
   return name;
@@ -103,6 +103,9 @@ addDependencyToManifest(
     std::string& rev, std::string& branch
 ) {
   toml::value depData = toml::table{};
+  // Set the formatting for the dependency data table to be on a single line.
+  // e.g. dep = { git = "https://github.com/user/repo.git", tag = "v1.0.0" }
+  depData.as_table_fmt().fmt = toml::table_format::oneline;
 
   if (isSystemDependency) {
     if (version.empty()) {
@@ -124,8 +127,14 @@ addDependencyToManifest(
     }
   }
 
-  auto data = toml::parse(getManifestPath());
-  auto& deps = toml::find<toml::table>(data, "dependencies");
+  // Keep the order of the tables.
+  auto data = toml::parse<toml::ordered_type_config>(getManifestPath());
+
+  // Check if the dependencies table exists, if not create it.
+  if (data["dependencies"].is_empty()) {
+    data["dependencies"] = toml::table{};
+  }
+  auto& deps = data["dependencies"];
 
   for (const auto& dep : newDeps) {
 
@@ -145,7 +154,7 @@ addDependencyToManifest(
   }
 
   std::ofstream ofs(getManifestPath());
-  ofs << toml::format(data);
+  ofs << data;
 
   logger::info("Added", "to the poac.toml");
   return EXIT_SUCCESS;
