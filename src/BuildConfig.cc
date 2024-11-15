@@ -855,7 +855,7 @@ BuildConfig::configureBuild() {
     buildAll.insert(packageName);
   }
   if (library) {
-    buildAll.insert("lib" + packageName + ".a");
+    buildAll.insert(fmt::format("lib{}.a", packageName));
   }
 
   // Build rules
@@ -915,7 +915,7 @@ BuildConfig::configureBuild() {
         targets.at(libTarget).remDeps, // we don't need sourceFile
         buildObjTargets
     );
-    defineLibTarget(outBasePath / ("lib" + packageName + ".a"), libTargetDeps);
+    defineLibTarget(outBasePath / fmt::format("lib{}.a", packageName), libTargetDeps);
   }
 
   // Test Pass
