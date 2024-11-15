@@ -7,9 +7,6 @@ CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true
 
-  - key: readability-function-cognitive-complexity.IgnoreMacros
-    value: true
-
   # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
 
   # CamelCase represents types and enum constants.
