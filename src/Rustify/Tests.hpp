@@ -32,7 +32,7 @@ inline constinit const std::string_view RESET = "\033[0m";
 // directory name since it can be either `src` or `tests`.  Finally, we remove
 // the file extension, which is basically any of C++ source file extensions.
 constexpr std::string_view
-modName(std::string_view file) noexcept {
+getModName(std::string_view file) noexcept {
   if (file.empty()) {
     return file;
   }
@@ -51,7 +51,7 @@ modName(std::string_view file) noexcept {
 }
 
 constexpr std::string_view
-modFunc(std::string_view func) noexcept {
+prettifyFuncName(std::string_view func) noexcept {
   if (func.empty()) {
     return func;
   }
@@ -73,19 +73,19 @@ inline void
 pass(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
-  std::cout << "      test " << modName(loc.file_name())
-            << "::" << modFunc(loc.function_name()) << " ... " << GREEN << "ok"
-            << RESET << '\n'
+  std::cout << "      test " << getModName(loc.file_name())
+            << "::" << prettifyFuncName(loc.function_name()) << " ... " << GREEN
+            << "ok" << RESET << '\n'
             << std::flush;
 }
 
 [[noreturn]] inline void
 error(const std::source_location& loc, Display auto&&... msgs) {
   std::ostringstream oss;
-  oss << "\n      test " << modName(loc.file_name())
-      << "::" << modFunc(loc.function_name()) << " ... " << RED << "FAILED"
-      << RESET << "\n\n"
-      << '\'' << modFunc(loc.function_name()) << "' failed at '"
+  oss << "\n      test " << getModName(loc.file_name())
+      << "::" << prettifyFuncName(loc.function_name()) << " ... " << RED
+      << "FAILED" << RESET << "\n\n"
+      << '\'' << prettifyFuncName(loc.function_name()) << "' failed at '"
       << std::boolalpha;
   (oss << ... << std::forward<decltype(msgs)>(msgs))
       << "', " << loc.file_name() << ':' << loc.line() << '\n';
