@@ -10,14 +10,6 @@ CheckOptions:
   - key: readability-function-cognitive-complexity.IgnoreMacros
     value: true
 
-  # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-length.html
-  - key: readability-identifier-length.IgnoredVariableNames
-    value: ^(c|op|i)$
-  - key: readability-identifier-length.IgnoredParameterNames
-    value: ^(c|op|os)$
-  - key: readability-identifier-length.IgnoredLoopCounterNames
-    value: ^[cij]$
-
   # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
 
   # CamelCase represents types and enum constants.
