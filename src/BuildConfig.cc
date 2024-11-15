@@ -796,6 +796,9 @@ BuildConfig::configureBuild() {
     throw PoacError(srcDir, " is required but not found");
   }
 
+  executable = false;
+  library = false;
+
   // find main source file
   const auto isMainSource = [](const fs::path& file) {
     return file.filename().stem() == "main";
@@ -837,7 +840,7 @@ BuildConfig::configureBuild() {
     }
   }
 
-  if (mainSource.empty() && libSource.empty()) {
+  if (!executable && !library) {
     throw PoacError(fmt::format(
         "neither src/main{} nor src/lib{} was not found", SOURCE_FILE_EXTS,
         SOURCE_FILE_EXTS

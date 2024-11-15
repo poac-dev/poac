@@ -63,7 +63,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   }
 
   if (config.isLibrary()) {
-    std::string libName = "lib" + packageName + ".a";
+    std::string libName = fmt::format("lib{}.a", packageName);
     const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
         (config.outBasePath / libName).string()
     );
