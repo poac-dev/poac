@@ -1075,7 +1075,7 @@ static void
 testParseEnvFlags() {
   std::vector<std::string> argsNoEscape = parseEnvFlags(" a   b c ");
   // NOLINTNEXTLINE(*-magic-numbers)
-  assertEq(argsNoEscape.size(), 3);
+  assertEq(argsNoEscape.size(), static_cast<size_t>(3));
   assertEq(argsNoEscape[0], "a");
   assertEq(argsNoEscape[1], "b");
   assertEq(argsNoEscape[2], "c");
@@ -1083,7 +1083,7 @@ testParseEnvFlags() {
   std::vector<std::string> argsEscapeBackslash =
       parseEnvFlags(R"(  a\ bc   cd\$fg  hi windows\\path\\here  )");
   // NOLINTNEXTLINE(*-magic-numbers)
-  assertEq(argsEscapeBackslash.size(), 4);
+  assertEq(argsEscapeBackslash.size(), static_cast<size_t>(4));
   assertEq(argsEscapeBackslash[0], "a bc");
   assertEq(argsEscapeBackslash[1], "cd$fg");
   assertEq(argsEscapeBackslash[2], "hi");
@@ -1093,7 +1093,7 @@ testParseEnvFlags() {
       " \"-I/path/contains space\"  '-Lanother/path with/space' normal  "
   );
   // NOLINTNEXTLINE(*-magic-numbers)
-  assertEq(argsEscapeQuotes.size(), 3);
+  assertEq(argsEscapeQuotes.size(), static_cast<size_t>(3));
   assertEq(argsEscapeQuotes[0], "-I/path/contains space");
   assertEq(argsEscapeQuotes[1], "-Lanother/path with/space");
   assertEq(argsEscapeQuotes[2], "normal");
@@ -1102,7 +1102,7 @@ testParseEnvFlags() {
       R"-( "-IMy \"Headers\"\\v1" '\?pattern' normal path/contain/\"quote\" mixEverything" abc "\?\#   )-"
   );
   // NOLINTNEXTLINE(*-magic-numbers)
-  assertEq(argsEscapeMixed.size(), 5);
+  assertEq(argsEscapeMixed.size(), static_cast<size_t>(5));
   assertEq(argsEscapeMixed[0], R"(-IMy "Headers"\v1)");
   assertEq(argsEscapeMixed[1], "?pattern");
   assertEq(argsEscapeMixed[2], "normal");
