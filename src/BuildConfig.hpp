@@ -52,9 +52,9 @@ private:
   bool isDebug;
 
   // if we are building an executable
-  bool executable;
+  bool executable{ false };
   // if we are building a library
-  bool library;
+  bool library{ false };
 
   std::unordered_map<std::string, Variable> variables;
   std::unordered_map<std::string, std::vector<std::string>> varDeps;
@@ -160,7 +160,7 @@ public:
       const std::string& binTarget, const std::unordered_set<std::string>& deps
   );
   void defineLibTarget(
-      const std::string& binTarget, const std::unordered_set<std::string>& deps
+      const std::string& libTarget, const std::unordered_set<std::string>& deps
   );
 
   void collectBinDepObjs( // NOLINT(misc-no-recursion)

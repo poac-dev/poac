@@ -63,8 +63,7 @@ operator<<(std::ostream& os, VarType type) {
 }
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
-    : packageName{ packageName }, isDebug{ isDebug },
-      executable{ false }, library{ false } {
+    : packageName{ packageName }, isDebug{ isDebug } {
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
     outBasePath = projectBasePath / "poac-out" / "debug";
