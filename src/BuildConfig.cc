@@ -63,7 +63,8 @@ operator<<(std::ostream& os, VarType type) {
 }
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
-    : packageName{ packageName }, isDebug{ isDebug } {
+    : packageName{ packageName }, isDebug{ isDebug },
+      executable{ false }, library{ false } {
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
     outBasePath = projectBasePath / "poac-out" / "debug";
@@ -795,9 +796,6 @@ BuildConfig::configureBuild() {
   if (!fs::exists(srcDir)) {
     throw PoacError(srcDir, " is required but not found");
   }
-
-  executable = false;
-  library = false;
 
   // find main source file
   const auto isMainSource = [](const fs::path& file) {
