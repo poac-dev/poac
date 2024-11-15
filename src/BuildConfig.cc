@@ -915,7 +915,9 @@ BuildConfig::configureBuild() {
         targets.at(libTarget).remDeps, // we don't need sourceFile
         buildObjTargets
     );
-    defineLibTarget(outBasePath / fmt::format("lib{}.a", packageName), libTargetDeps);
+    defineLibTarget(
+        outBasePath / fmt::format("lib{}.a", packageName), libTargetDeps
+    );
   }
 
   // Test Pass
