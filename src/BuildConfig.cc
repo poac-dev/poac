@@ -499,7 +499,7 @@ BuildConfig::defineLibTarget(
     const std::string& libTarget, const std::unordered_set<std::string>& deps
 ) {
   std::vector<std::string> commands;
-  commands.emplace_back("ar rcs lib" + getPackageName() + ".a $^");
+  commands.emplace_back(fmt::format("ar rcs lib{}.a $^", getPackageName()));
   defineTarget(libTarget, commands, deps);
 }
 
